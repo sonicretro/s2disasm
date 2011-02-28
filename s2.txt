@@ -1,0 +1,979 @@
+/***********************Directories***************************/
+#dir	art
+#dir	art/palettes
+#dir	art/nemesis
+#dir	art/kosinski
+#dir	art/uncompressed
+#dir	mappings
+#dir	mappings/16x16
+#dir	mappings/128x128
+#dir	mappings/sprite
+#dir	mappings/spriteDPLC
+#dir	mappings/special stage
+#dir	mappings/misc
+#dir	level
+#dir	level/layout
+#dir	level/objects
+#dir	level/rings
+#dir	sound
+#dir	sound/music
+//#dir	sound/sound fx
+#dir	sound/DAC
+#dir	sound/PCM
+#dir	collision
+#dir	misc
+
+
+/***********************Palettes***************************/
+#split	0x001E5A,0x001E7A,art/palettes/Title Water.bin
+#split	0x001E7A,0x001E9A,art/palettes/EHZ ARZ Water.bin
+#split	0x001E9A,0x001F1A,art/palettes/Hill Top Lava.bin
+#split	0x001F1A,0x001F2A,art/palettes/Wood Conveyor.bin
+#split	0x001F2A,0x001F36,art/palettes/MTZ Cycle 1.bin
+#split	0x001F36,0x001F42,art/palettes/MTZ Cycle 2.bin
+#split	0x001F42,0x001F56,art/palettes/MTZ Cycle 3.bin
+#split	0x001F56,0x001F66,art/palettes/HPZ Water Cycle.bin
+#split	0x001F66,0x001F76,art/palettes/HPZ Underwater Cycle.bin
+#split	0x001F76,0x001F86,art/palettes/OOZ Oil.bin
+#split	0x001F86,0x001F8E,art/palettes/MCZ Lantern.bin
+#split	0x001F8E,0x001FB2,art/palettes/CNZ Cycle 1.bin
+#split	0x001FB2,0x001FC4,art/palettes/CNZ Cycle 3.bin
+#split	0x001FC4,0x001FEC,art/palettes/CNZ Cycle 4.bin
+#split	0x001FEC,0x001FFE,art/palettes/unk_1FEC.bin
+#split	0x001FFE,0x002012,art/palettes/unk_1FFE.bin
+#split	0x002012,0x002022,art/palettes/unk_2012.bin
+#split	0x002022,0x002058,art/palettes/CPZ Cycle 1.bin
+#split	0x002058,0x002082,art/palettes/CPZ Cycle 2.bin
+#split	0x002082,0x0020A2,art/palettes/CPZ Cycle 3.bin
+#split	0x0020A2,0x0020C2,art/palettes/WFZ Fire Cycle.bin
+#split	0x0020C2,0x0020E2,art/palettes/unk_20C2.bin
+#split	0x0020E2,0x002126,art/palettes/CPZ Cycle 4.bin
+#split	0x002126,0x00213E,art/palettes/unk_2126.bin
+#split	0x002246,0x0022C6,art/palettes/Super Sonic transformation.bin
+#split	0x0022C6,0x002346,art/palettes/CPZWater SS transformation.bin
+#split	0x002346,0x0023C6,art/palettes/ARZWater SS transformation.bin
+#split	0x0026D6,0x0026E2,art/palettes/Unused Sega logo.bin
+#split	0x0026E2,0x002712,art/palettes/Unused Sega logo 2.bin
+#split	0x0028C2,0x002942,art/palettes/Sega screen.bin
+#split	0x002942,0x002962,art/palettes/Title screen.bin
+#split	0x002962,0x0029E2,art/palettes/Unknown 1.bin
+#split	0x0029E2,0x002A02,art/palettes/SonicAndTails.bin
+#split	0x002A02,0x002A22,art/palettes/SonicAndTails2.bin
+#split	0x002A22,0x002A82,art/palettes/EHZ.bin
+#split	0x002A82,0x002AE2,art/palettes/Wood Zone.bin
+#split	0x002AE2,0x002B42,art/palettes/MTZ.bin
+#split	0x002B42,0x002BA2,art/palettes/WFZ.bin
+#split	0x002BA2,0x002C02,art/palettes/HTZ.bin
+#split	0x002C02,0x002C62,art/palettes/HPZ.bin
+#split	0x002C62,0x002CE2,art/palettes/HPZ underwater.bin
+#split	0x002CE2,0x002D42,art/palettes/OOZ.bin
+#split	0x002D42,0x002DA2,art/palettes/MCZ.bin
+#split	0x002DA2,0x002E02,art/palettes/CNZ.bin
+#split	0x002E02,0x002E62,art/palettes/CPZ.bin
+#split	0x002E62,0x002EE2,art/palettes/CPZ underwater.bin
+#split	0x002EE2,0x002F42,art/palettes/DEZ.bin
+#split	0x002F42,0x002FA2,art/palettes/ARZ.bin
+#split	0x002FA2,0x003022,art/palettes/ARZ underwater.bin
+#split	0x003022,0x003082,art/palettes/SCZ.bin
+#split	0x003082,0x0030A2,art/palettes/Unknown 2.bin
+#split	0x0030A2,0x0030C2,art/palettes/Unknown 3.bin
+#split	0x0030C2,0x0030E2,art/palettes/OOZ Boss.bin
+#split	0x0030E2,0x003162,art/palettes/Menu.bin
+#split	0x003162,0x0031C2,art/palettes/Special Stage Main.bin
+#split	0x0031C2,0x0031E2,art/palettes/Special Stage 1.bin
+#split	0x0031E2,0x003202,art/palettes/Special Stage 2.bin
+#split	0x003202,0x003222,art/palettes/Special Stage 3.bin
+#split	0x003222,0x003242,art/palettes/Special Stage 4.bin
+#split	0x003242,0x003262,art/palettes/Special Stage 5.bin
+#split	0x003262,0x003282,art/palettes/Special Stage 6.bin
+#split	0x003282,0x0032A2,art/palettes/Special Stage 7.bin
+#split	0x0032A2,0x0032C2,art/palettes/Special Stage 1 2p.bin
+#split	0x0032C2,0x0032E2,art/palettes/Special Stage 2 2p.bin
+#split	0x0032E2,0x003302,art/palettes/Special Stage 3 2p.bin
+#split	0x003302,0x003382,art/palettes/Special Stage Results Screen.bin
+#split	0x009880,0x009A60,art/palettes/Level Select Icons.bin
+#split	0x00A0FE,0x00A1D6,art/palettes/Ending Cycle.bin
+#split	0x00AC7E,0x00AC9E,art/palettes/Ending Sonic.bin
+#split	0x00AC9E,0x00ACDE,art/palettes/Ending Sonic Far.bin
+#split	0x00ACDE,0x00AD1E,art/palettes/Ending Background.bin
+#split	0x00AD1E,0x00AD3E,art/palettes/Ending Photos.bin
+#split	0x00AD3E,0x00AD5E,art/palettes/Ending Super Sonic.bin
+#split	0x0133EC,0x01340C,art/palettes/Title Sonic.bin
+#split	0x01340C,0x01342C,art/palettes/Title Background.bin
+#split	0x01342C,0x01344C,art/palettes/Title Emblem.bin
+#split	0x035F92,0x035FBC,art/palettes/SS Emerald.bin
+#split	0x03A4A4,0x03A514,art/palettes/Sega Screen 2.bin
+#split	0x03A51A,0x03A58A,art/palettes/Sega Screen 3.bin
+
+/***********************Uncompressed art***************************/
+#split	0x04134C,0x04164C,art/uncompressed/Big and small numbers used on counters - 1.bin
+#split	0x04164C,0x04178C,art/uncompressed/Big and small numbers used on counters - 2.bin
+#split	0x04178C,0x041A6C,art/uncompressed/Big and small numbers used on counters - 3.bin
+#split	0x049714,0x049794,art/uncompressed/EHZ and HTZ flowers - 1.bin
+#split	0x049794,0x049814,art/uncompressed/EHZ and HTZ flowers - 2.bin
+#split	0x049814,0x049894,art/uncompressed/EHZ and HTZ flowers - 3.bin
+#split	0x049894,0x049914,art/uncompressed/EHZ and HTZ flowers - 4.bin
+#split	0x049914,0x049A14,art/uncompressed/Pulsing ball against checkered background (EHZ).bin
+#split	0x04A33E,0x04A73E,art/uncompressed/Background clouds (HTZ).bin
+#split	0x04A73E,0x04B73E,art/uncompressed/Spinning metal cylinder (MTZ).bin
+#split	0x04B73E,0x04BD3E,art/uncompressed/Lava.bin
+#split	0x04BD3E,0x04BF7E,art/uncompressed/Animated section of MTZ background.bin
+#split	0x04BF7E,0x04C0FE,art/uncompressed/Pulsing ball (OOZ).bin
+#split	0x04C0FE,0x04C2FE,art/uncompressed/Square rotating around ball in OOZ - 1.bin
+#split	0x04C2FE,0x04C4FE,art/uncompressed/Square rotating around ball in OOZ - 2.bin
+#split	0x04C4FE,0x04CCFE,art/uncompressed/Oil - 1.bin
+#split	0x04CCFE,0x04D4FE,art/uncompressed/Oil - 2.bin
+#split	0x04D4FE,0x04EEFE,art/uncompressed/Flipping foreground section (CNZ).bin
+#split	0x04EEFE,0x04FAFE,art/uncompressed/Slot pictures.bin
+#split	0x04FAFE,0x04FCFE,art/uncompressed/Animated background section (CPZ and DEZ).bin
+#split	0x04FCFE,0x04FDFE,art/uncompressed/ARZ waterfall patterns - 1.bin
+#split	0x04FDFE,0x04FEFE,art/uncompressed/ARZ waterfall patterns - 2.bin
+#split	0x04FEFE,0x04FFFE,art/uncompressed/ARZ waterfall patterns - 3.bin
+#split	0x050000,0x064320,art/uncompressed/Sonic's art.bin
+#split	0x064320,0x06FBE0,art/uncompressed/Tails's art.bin
+#split	0x071FFC,0x07287C,art/uncompressed/Splash.bin
+#split	0x07287C,0x07393C,art/uncompressed/Spindash smoke.bin
+#split	0x07A18A,0x07AB4A,art/uncompressed/Signpost.bin
+#split	0x07AF80,0x07B400,art/uncompressed/Numbers for drowning countdown.bin
+#split	0x07CD2C,0x07D22C,art/uncompressed/Sonic and Miles animated background.bin
+#split	0x0894E4,0x0895E4,art/uncompressed/Falling rocks and stalactites from MCZ.bin
+
+
+/*********************Nemesis compressed art************************/
+
+#split	0x003DF4,0x003E82,art/nemesis/1Player2VS.bin
+#split	0x00BD26,0x00BF68,art/nemesis/Credit Text.bin
+#split	0x049A14,0x04A33E,art/nemesis/Dynamically reloaded cliffs in HTZ background.bin
+#split	0x071D8E,0x071F14,art/nemesis/Shield.bin
+#split	0x071F14,0x071FFC,art/nemesis/Invincibility stars.bin
+#split	0x07393C,0x0739E2,art/nemesis/Super Sonic stars.bin
+#split	0x074876,0x074CF6,art/nemesis/SEGA.bin
+#split	0x074CF6,0x074D0E,art/nemesis/Shaded blocks from intro.bin
+#split	0x074F6C,0x07667A,art/nemesis/Main patterns from title screen.bin
+#split	0x07667A,0x078CBC,art/nemesis/Sonic and Tails from title screen.bin
+#split	0x078CBC,0x078DAC,art/nemesis/A few menu blocks.bin
+#split	0x078DAC,0x078E84,art/nemesis/Button.bin
+#split	0x078E84,0x078FA0,art/nemesis/Vertical spring.bin
+#split	0x078FA0,0x07906A,art/nemesis/Horizontal spring.bin
+#split	0x07906A,0x07923E,art/nemesis/Diagonal spring.bin
+#split	0x07923E,0x079346,art/nemesis/HUD.bin
+#split	0x079346,0x07945C,art/nemesis/Sonic lives counter.bin
+#split	0x07945C,0x079550,art/nemesis/Ring.bin
+#split	0x079550,0x07995C,art/nemesis/Monitor and contents.bin
+#split	0x07995C,0x0799AC,art/nemesis/Spikes.bin
+#split	0x0799AC,0x079A86,art/nemesis/Numbers.bin
+#split	0x079A86,0x079BDE,art/nemesis/Star pole.bin
+#split	0x079BDE,0x07A18A,art/nemesis/Signpost.bin
+#split	0x07AB4A,0x07AC9A,art/nemesis/Lever spring.bin
+#split	0x07AC9A,0x07AD16,art/nemesis/Long horizontal spike.bin
+#split	0x07AD16,0x07AEE2,art/nemesis/Bubble generator.bin
+#split	0x07AEE2,0x07AF80,art/nemesis/Bubbles.bin
+#split	0x07B400,0x07B592,art/nemesis/Game and Time Over text.bin
+#split	0x07B592,0x07B946,art/nemesis/Explosion.bin
+#split	0x07B946,0x07BA32,art/nemesis/Miles life counter.bin
+#split	0x07BA32,0x07BDBE,art/nemesis/Egg Prison.bin
+#split	0x07BDBE,0x07C0AA,art/nemesis/Tails on continue screen.bin
+#split	0x07C0AA,0x07C20C,art/nemesis/Sonic continue.bin
+#split	0x07C20C,0x07C2F2,art/nemesis/Tails life counter.bin
+#split	0x07C2F2,0x07C43A,art/nemesis/Tails continue.bin
+#split	0x07C43A,0x07C9AE,art/nemesis/Standard font.bin
+#split	0x07C9AE,0x07CB80,art/nemesis/1P and 2P wins text from 2P mode.bin
+#split	0x07D22C,0x07D58A,art/nemesis/Title card.bin
+#split	0x07D58A,0x07D990,art/nemesis/Font using large broken letters.bin
+#split	0x07D990,0x07DA10,art/nemesis/A menu box with a shadow.bin
+#split	0x07DA10,0x07E86A,art/nemesis/Pictures in level preview box from level select.bin
+#split	0x07E86A,0x07EB58,art/nemesis/End of level results text.bin
+#split	0x07EB58,0x07EEBE,art/nemesis/Special stage results screen art and some emeralds.bin
+#split	0x07EEBE,0x07EF60,art/nemesis/Perfect text.bin
+#split	0x07EF60,0x07F0A2,art/nemesis/Flicky.bin
+#split	0x07F0A2,0x07F206,art/nemesis/Squirrel.bin
+#split	0x07F206,0x07F340,art/nemesis/Mouse.bin
+#split	0x07F340,0x07F4A2,art/nemesis/Chicken.bin
+#split	0x07F4A2,0x07F5E2,art/nemesis/Beaver.bin
+#split	0x07F5E2,0x07F710,art/nemesis/Penguin.bin
+#split	0x07F710,0x07F846,art/nemesis/Pig.bin
+#split	0x07F846,0x07F962,art/nemesis/Seal.bin
+#split	0x07F962,0x07FADE,art/nemesis/Penguin 2.bin
+#split	0x07FADE,0x07FC90,art/nemesis/Turtle.bin
+#split	0x07FC90,0x07FDD2,art/nemesis/Bear.bin
+#split	0x07FDD2,0x07FF2A,art/nemesis/Rabbit.bin
+#split	0x07FF2A,0x07FF98,art/nemesis/WFZ boss chamber switch.bin
+#split	0x07FF98,0x08007C,art/nemesis/Breakaway panels from WFZ.bin
+#split	0x08007C,0x080274,art/nemesis/Spiked ball from OOZ.bin
+#split	0x080274,0x08030A,art/nemesis/Burner Platform from OOZ.bin
+#split	0x08030A,0x080376,art/nemesis/Striped blocks from CPZ.bin
+#split	0x080376,0x0804F2,art/nemesis/Cascading oil hitting oil from OOZ.bin
+#split	0x0804F2,0x0805C0,art/nemesis/Cascading oil from OOZ.bin
+#split	0x0805C0,0x0806E0,art/nemesis/Ball on spring from OOZ (beta holdovers).bin
+#split	0x0806E0,0x0809D0,art/nemesis/Transporter ball from OOZ.bin
+#split	0x0809D0,0x080C64,art/nemesis/OOZ collapsing platform.bin
+#split	0x080C64,0x080E26,art/nemesis/Push spring from OOZ.bin
+#split	0x080E26,0x081048,art/nemesis/Swinging platform from OOZ.bin
+#split	0x081048,0x0810B8,art/nemesis/4 stripy blocks from OOZ.bin
+#split	0x0810B8,0x081254,art/nemesis/Rising platform from OOZ.bin
+#split	0x081254,0x081514,art/nemesis/Fan from OOZ.bin
+#split	0x081514,0x081600,art/nemesis/Green flame from OOZ burners.bin
+#split	0x081600,0x081668,art/nemesis/Caterpiller platforms from CNZ.bin
+#split	0x081668,0x0816C8,art/nemesis/Spikey ball from CNZ slots.bin
+#split	0x0816C8,0x0817B4,art/nemesis/Moving block from CNZ and CPZ.bin
+#split	0x0817B4,0x081826,art/nemesis/CNZ elevator.bin
+#split	0x081826,0x081894,art/nemesis/CNZ slot machine bars.bin
+#split	0x081894,0x08191E,art/nemesis/Hexagonal bumper from CNZ.bin
+#split	0x08191E,0x081AB0,art/nemesis/Round bumper from CNZ.bin
+#split	0x081AB0,0x081C96,art/nemesis/Diagonal impulse spring from CNZ.bin
+#split	0x081C96,0x081DCC,art/nemesis/Vertical impulse spring.bin
+#split	0x081DCC,0x081EF2,art/nemesis/Drop target from CNZ.bin
+#split	0x081EF2,0x082216,art/nemesis/Flippers.bin
+#split	0x082216,0x082364,art/nemesis/Large moving platform from CNZ.bin
+#split	0x082364,0x0824D4,art/nemesis/Top of water in HPZ and CNZ.bin
+#split	0x0824D4,0x08253C,art/nemesis/Speed booster from CPZ.bin
+#split	0x08253C,0x0825AE,art/nemesis/CPZ worm enemy.bin
+#split	0x0825AE,0x0827B8,art/nemesis/CPZ metal things.bin
+#split	0x0827B8,0x0827F8,art/nemesis/CPZ large moving platform blocks.bin
+#split	0x0827F8,0x082864,art/nemesis/Stripy blocks from CPZ.bin
+#split	0x082864,0x082A46,art/nemesis/Small yellow moving platform from CPZ.bin
+#split	0x082A46,0x082C06,art/nemesis/Moving block from CPZ.bin
+#split	0x082C06,0x082E02,art/nemesis/CPZ spintube exit cover.bin
+#split	0x082E02,0x082EE8,art/nemesis/Top of water in ARZ.bin
+#split	0x082EE8,0x082F74,art/nemesis/Leaves in ARZ.bin
+#split	0x082F74,0x0830D2,art/nemesis/Arrow shooter and arrow from ARZ.bin
+#split	0x0830D2,0x08316A,art/nemesis/One way barrier from ARZ.bin
+#split	0x08316A,0x08336A,art/nemesis/Buzzer enemy.bin
+#split	0x08336A,0x08368A,art/nemesis/Octopus badnik from OOZ.bin
+#split	0x08368A,0x0839EA,art/nemesis/Seahorse from OOZ.bin
+#split	0x0839EA,0x083BF6,art/nemesis/EHZ Pirahna badnik.bin
+#split	0x083BF6,0x084332,art/nemesis/Eggpod.bin
+#split	0x084332,0x084890,art/nemesis/CPZ boss.bin
+#split	0x084890,0x084F18,art/nemesis/Large explosion.bin
+#split	0x084F18,0x084F96,art/nemesis/Horizontal jet.bin
+#split	0x084F96,0x08507C,art/nemesis/Smoke trail from CPZ and HTZ bosses.bin
+#split	0x08507C,0x085868,art/nemesis/EHZ boss.bin
+#split	0x085868,0x08595C,art/nemesis/Chopper blades for EHZ boss.bin
+#split	0x08595C,0x086128,art/nemesis/HTZ boss.bin
+#split	0x086128,0x086B6E,art/nemesis/ARZ boss.bin
+#split	0x086B6E,0x087AAC,art/nemesis/MCZ boss.bin
+#split	0x087AAC,0x0882D6,art/nemesis/CNZ boss.bin
+#split	0x0882D6,0x088DA6,art/nemesis/OOZ boss.bin
+#split	0x088DA6,0x0894E4,art/nemesis/MTZ boss.bin
+#split	0x0895E4,0x08970E,art/nemesis/Blowfly from ARZ.bin
+#split	0x08970E,0x089B9A,art/nemesis/Grounder from ARZ.bin
+#split	0x089B9A,0x089DEC,art/nemesis/Shark from ARZ.bin
+#split	0x089DEC,0x089FAA,art/nemesis/Rexxon (lava snake) from HTZ.bin
+#split	0x089FAA,0x08A142,art/nemesis/Driller badnik from HTZ.bin
+#split	0x08A142,0x08A362,art/nemesis/Bomber badnik from SCZ.bin
+#split	0x08A362,0x08A87A,art/nemesis/Turtle badnik from SCZ.bin
+#split	0x08A87A,0x08AB36,art/nemesis/Coconuts badnik from EHZ.bin
+#split	0x08AB36,0x08AC5E,art/nemesis/Snake badnik from MCZ.bin
+#split	0x08AC5E,0x08AD80,art/nemesis/Firefly from MCZ.bin
+#split	0x08AD80,0x08B058,art/nemesis/Praying mantis badnik from MTZ.bin
+#split	0x08B058,0x08B300,art/nemesis/Crabmeat badnik from MCZ.bin
+#split	0x08B300,0x08B430,art/nemesis/Exploding star badnik from MTZ.bin
+#split	0x08B430,0x08B6B4,art/nemesis/Weird crawling badnik from CPZ.bin
+#split	0x08B6B4,0x08B9DC,art/nemesis/Spider badnik from CPZ.bin
+#split	0x08B9DC,0x08BC16,art/nemesis/Scratch from WFZ.bin
+#split	0x08BC16,0x08BE12,art/nemesis/Balkrie (jet badnik) from SCZ.bin
+#split	0x08BE12,0x08CC44,art/nemesis/Silver Sonic.bin
+#split	0x08CC44,0x08D1A0,art/nemesis/The Tornado.bin
+#split	0x08D1A0,0x08D388,art/nemesis/Wall turret from WFZ.bin
+#split	0x08D388,0x08D540,art/nemesis/Hook on chain from WFZ.bin
+#split	0x08D540,0x08D7D8,art/nemesis/Retracting platform from WFZ.bin
+#split	0x08D7D8,0x08D96E,art/nemesis/Wheel for belt in WFZ.bin
+#split	0x08D96E,0x08DA6E,art/nemesis/Moving platform from WFZ.bin
+#split	0x08DA6E,0x08DAFC,art/nemesis/Unused vertical laser in WFZ.bin
+#split	0x08DAFC,0x08DC42,art/nemesis/Clouds.bin
+#split	0x08DC42,0x08DCA2,art/nemesis/Red horizontal laser from WFZ.bin
+#split	0x08DCA2,0x08DD0C,art/nemesis/Catapult that shoots Sonic to the side from WFZ.bin
+#split	0x08DD0C,0x08DDF6,art/nemesis/Platform on belt in WFZ.bin
+#split	0x08DDF6,0x08DEB8,art/nemesis/Unused badnik from WFZ.bin
+#split	0x08DEB8,0x08DEE8,art/nemesis/Vertical spinning blades in WFZ.bin
+#split	0x08DEE8,0x08E010,art/nemesis/Horizontal spinning blades in WFZ.bin
+#split	0x08E010,0x08E0C4,art/nemesis/Tilting plaforms in WFZ.bin
+#split	0x08E0C4,0x08E138,art/nemesis/Thrust from Robotnik's getaway ship in WFZ.bin
+#split	0x08E138,0x08E886,art/nemesis/WFZ boss.bin
+#split	0x08E886,0x08EA5A,art/nemesis/Robotnik's head.bin
+#split	0x08EA5A,0x08EE52,art/nemesis/Robotnik.bin
+#split	0x08EE52,0x08EF96,art/nemesis/Robotnik's lover half.bin
+#split	0x08EF96,0x08F024,art/nemesis/Window in back that Robotnik looks through in DEZ.bin
+#split	0x08F024,0x0901A4,art/nemesis/Eggrobo.bin
+#split	0x0901A4,0x090520,art/nemesis/Bouncer badnik from CNZ.bin
+#split	0x090520,0x0906E0,art/nemesis/Rocket thruster for Tornado.bin
+#split	0x090992,0x091F3C,art/nemesis/Movie sequence at end of game.bin
+#split	0x091F3C,0x0927E0,art/nemesis/Final image of Tornado with it and Sonic facing screen.bin
+#split	0x0927E0,0x092F0A,art/nemesis/Small pictures of Tornado in final ending sequence.bin
+#split	0x092F0A,0x093848,art/nemesis/Small pictures of Sonic and final image of Sonic.bin
+#split	0x093848,0x093F3C,art/nemesis/Small pictures of Sonic and final image of Sonic in Super Sonic mode.bin
+#split	0x093F3C,0x094B28,art/nemesis/Final image of Tails.bin
+#split	0x094B28,0x094E74,art/nemesis/Sonic the Hedgehog 2 image at end of credits.bin
+#split	0x0DCD68,0x0DD1DE,art/nemesis/Background art for special stage.bin
+#split	0x0DD48A,0x0DD790,art/nemesis/Sonic and Miles number text from special stage.bin
+#split	0x0DD790,0x0DD8CE,art/nemesis/Start text from special stage.bin
+#split	0x0DD8CE,0x0DD9C8,art/nemesis/Stars in special stage.bin
+#split	0x0DD9C8,0x0DDA7E,art/nemesis/Special stage Player VS Player text.bin
+#split	0x0DDA7E,0x0DDFA4,art/nemesis/Special stage ring art.bin
+#split	0x0DDFA4,0x0DE05A,art/nemesis/Horizontal shadow from special stage.bin
+#split	0x0DE05A,0x0DE120,art/nemesis/Diagonal shadow from special stage.bin
+#split	0x0DE120,0x0DE188,art/nemesis/Vertical shadow from special stage.bin
+#split	0x0DE188,0x0DE4BC,art/nemesis/Explosion from special stage.bin
+#split	0x0DE4BC,0x0DE8AC,art/nemesis/Bomb from special stage.bin
+#split	0x0DE8AC,0x0DEAF4,art/nemesis/Emerald from special stage.bin
+#split	0x0DEAF4,0x0DEEAE,art/nemesis/Special stage messages and icons.bin
+#split	0x0DEEAE,0x0E247E,art/nemesis/Sonic and Tails animation frames in special stage.bin
+#split	0x0E247E,0x0E24FE,art/nemesis/Tails text patterns from special stage.bin
+#split	0x0F0160,0x0F02D6,art/nemesis/Fireball 1 (Buzzer).bin
+#split	0x0F02D6,0x0F03DC,art/nemesis/Waterfall tiles.bin
+#split	0x0F03DC,0x0F052A,art/nemesis/Fireball 2.bin
+#split	0x0F052A,0x0F0602,art/nemesis/EHZ bridge.bin
+#split	0x0F0602,0x0F08F6,art/nemesis/HTZ zip-line platform.bin
+#split	0x0F08F6,0x0F096E,art/nemesis/One way barrier from HTZ.bin
+#split	0x0F096E,0x0F0B06,art/nemesis/See-saw in HTZ.bin
+#split	0x0F0B06,0x0F0C14,art/nemesis/Fireball 3.bin
+#split	0x0F0C14,0x0F0D4A,art/nemesis/Rock from HTZ.bin
+#split	0x0F0D4A,0x0F0DB6,art/nemesis/Sol badnik from HTZ.bin
+#split	0x0F0DB6,0x0F120E,art/nemesis/Large spinning wheel from MTZ.bin
+#split	0x0F120E,0x0F12B6,art/nemesis/Large spinning wheel from MTZ - indent.bin
+#split	0x0F12B6,0x0F1384,art/nemesis/MTZ spike block.bin
+#split	0x0F1384,0x0F148E,art/nemesis/Steam from MTZ.bin
+#split	0x0F148E,0x0F1550,art/nemesis/Spike from MTZ.bin
+#split	0x0F1550,0x0F15C6,art/nemesis/Similarly shaded blocks from MTZ.bin
+#split	0x0F15C6,0x0F167C,art/nemesis/Lava bubble from MTZ.bin
+#split	0x0F167C,0x0F16EC,art/nemesis/Lava cup from MTZ.bin
+#split	0x0F16EC,0x0F178E,art/nemesis/Bolt end and rope from MTZ.bin
+#split	0x0F178E,0x0F1870,art/nemesis/Small cog from MTZ.bin
+#split	0x0F1870,0x0F187C,art/nemesis/Unknown MTZ sprite.bin
+#split	0x0F187C,0x0F1ABA,art/nemesis/Large wooden box from MCZ.bin
+#split	0x0F1ABA,0x0F1C64,art/nemesis/Collapsing platform from MCZ.bin
+#split	0x0F1C64,0x0F1D5C,art/nemesis/Pull switch from MCZ.bin
+#split	0x0F1D5C,0x0F1E06,art/nemesis/Vine that lowers from MCZ.bin
+#split	0x0F1E06,0x0F1E8C,art/nemesis/Drawbridge logs from MCZ.bin
+
+
+/*********************Kosinski compressed art************************/
+#split	0x095C24,0x0985A4,art/kosinski/EHZ_HTZ.bin
+#split	0x098AB4,0x099D34,art/kosinski/HTZ_Supp.bin
+#split	0x09DB64,0x0A06C4,art/kosinski/MTZ.bin
+#split	0x0A4204,0x0A6834,art/kosinski/OOZ.bin
+#split	0x0A9D74,0x0AD454,art/kosinski/MCZ.bin
+#split	0x0B0894,0x0B2CF4,art/kosinski/CNZ.bin
+#split	0x0B6174,0x0B90F4,art/kosinski/CPZ_DEZ.bin
+#split	0x0BCC24,0x0C1434,art/kosinski/ARZ.bin
+#split	0x0C5004,0x0C7EC4,art/kosinski/WFZ_SCZ.bin
+#split	0x0C7EC4,0x0C85E4,art/kosinski/WFZ_Supp.bin
+#split	0x0DCA38,0x0DCD68,art/kosinski/SpecStag.bin
+
+
+/*********************Sprite mappings************************/
+#split	0x007070,0x0070F0,mappings/sprite/obj5E.bin
+#split	0x007240,0x0072D2,mappings/sprite/obj5F_a.bin
+#split	0x0072D2,0x007356,mappings/sprite/obj5F_b.bin
+#split	0x007CB6,0x007D44,mappings/sprite/objDA.bin
+#split	0x008146,0x00819A,mappings/sprite/obj21.bin
+#split	0x00ADA2,0x00B23A,mappings/sprite/objCF.bin
+#split	0x00FC28,0x00FC70,mappings/sprite/obj11_a.bin
+#split	0x00FC70,0x00FC88,mappings/sprite/obj11_b.bin
+#split	0x0101E8,0x01021E,mappings/sprite/obj15_a.bin
+#split	0x01021E,0x010256,mappings/sprite/obj83.bin
+#split	0x010256,0x0102DE,mappings/sprite/obj7A_a.bin
+#split	0x0102DE,0x0102F6,mappings/sprite/obj15_b.bin
+#split	0x010452,0x0104AA,mappings/sprite/obj17.bin
+#split	0x0107F6,0x01084E,mappings/sprite/obj18_a.bin
+#split	0x01084E,0x0108A6,mappings/sprite/obj18_b.bin
+#split	0x010C6C,0x010F0C,mappings/sprite/obj1A_a.bin
+#split	0x010F0C,0x010FDC,mappings/sprite/obj1F_a.bin
+#split	0x01101C,0x0110C6,mappings/sprite/obj1A_b.bin
+#split	0x0110C6,0x011106,mappings/sprite/obj1F_b.bin
+#split	0x011106,0x01115E,mappings/sprite/obj1F_c.bin
+#split	0x01115E,0x0111C6,mappings/sprite/obj1F_d.bin
+#split	0x011396,0x0113D6,mappings/sprite/obj71_a.bin
+#split	0x0113D6,0x0113EE,mappings/sprite/obj1C_a.bin
+#split	0x0113EE,0x011406,mappings/sprite/obj1C_b.bin
+#split	0x011406,0x0114AE,mappings/sprite/obj1C_c.bin
+#split	0x0114AE,0x011552,mappings/sprite/obj1C_d.bin
+#split	0x011552,0x011576,mappings/sprite/obj1C_e.bin
+#split	0x011576,0x0115C2,mappings/sprite/obj71_b.bin
+#split	0x011666,0x01169A,mappings/sprite/obj2A.bin
+#split	0x011822,0x011882,mappings/sprite/obj2D.bin
+#split	0x011E1C,0x011E40,mappings/sprite/obj28_a.bin
+#split	0x011E40,0x011E64,mappings/sprite/obj28_b.bin
+#split	0x011E64,0x011E88,mappings/sprite/obj28_c.bin
+#split	0x011E88,0x011EAC,mappings/sprite/obj28_d.bin
+#split	0x011EAC,0x011ED0,mappings/sprite/obj28_e.bin
+#split	0x011ED0,0x011F3C,mappings/sprite/obj29.bin
+#split	0x012382,0x0123E6,mappings/sprite/obj37_a.bin
+#split	0x0123E6,0x0124E6,mappings/sprite/obj37_b.bin
+#split	0x0124E6,0x0125E6,mappings/sprite/obj37_c.bin
+#split	0x012D36,0x012E16,mappings/sprite/obj26.bin
+#split	0x0136A8,0x013B70,mappings/sprite/obj0E.bin
+#split	0x013B70,0x013C3C,mappings/sprite/obj0F.bin
+#split	0x0147BA,0x014C6C,mappings/sprite/obj34.bin
+#split	0x014C6C,0x014CBC,mappings/sprite/obj39.bin
+#split	0x014CBC,0x014ED0,mappings/sprite/obj3A.bin
+#split	0x014ED0,0x015584,mappings/sprite/obj6F.bin
+#split	0x015B68,0x015CC8,mappings/sprite/obj36.bin
+#split	0x015D2E,0x015D44,mappings/sprite/obj3B.bin
+#split	0x015ECC,0x015F98,mappings/sprite/obj3C.bin
+#split	0x0195BE,0x019656,mappings/sprite/obj0D_a.bin
+#split	0x019656,0x0196EE,mappings/sprite/obj0D_b.bin
+#split	0x0196EE,0x019716,mappings/sprite/obj0D_c.bin
+#split	0x01DBE4,0x01DCBC,mappings/sprite/obj38.bin
+#split	0x01DCBC,0x01DD20,mappings/sprite/obj35.bin
+#split	0x01DF5E,0x01E074,mappings/sprite/obj08.bin
+#split	0x01E1BE,0x01E232,mappings/sprite/obj7E.bin
+#split	0x01F424,0x01F4A0,mappings/sprite/obj79_a.bin
+#split	0x01F4A0,0x01F4C4,mappings/sprite/obj79_b.bin
+#split	0x01F6FE,0x01F726,mappings/sprite/obj7D.bin
+#split	0x01F85A,0x01F892,mappings/sprite/obj44.bin
+#split	0x01FFB8,0x020094,mappings/sprite/obj03.bin
+#split	0x0201A0,0x020204,mappings/sprite/obj0B.bin
+#split	0x0202FA,0x020306,mappings/sprite/obj0C.bin
+#split	0x020382,0x020396,mappings/sprite/obj12.bin
+#split	0x020528,0x0208C4,mappings/sprite/obj13.bin
+#split	0x020A0E,0x020AFE,mappings/sprite/obj04_a.bin
+#split	0x020AFE,0x020B9E,mappings/sprite/obj04_b.bin
+#split	0x020C50,0x020DEC,mappings/sprite/obj49.bin
+#split	0x020E6C,0x020E74,mappings/sprite/obj31_a.bin
+#split	0x020E74,0x020EE0,mappings/sprite/obj31_b.bin
+#split	0x020F66,0x020FD2,mappings/sprite/obj74.bin
+#split	0x02103C,0x021088,mappings/sprite/obj7C.bin
+#split	0x021120,0x02115C,mappings/sprite/obj27.bin
+#split	0x021CF0,0x021D7C,mappings/sprite/obj14_a.bin
+#split	0x021D7C,0x021D94,mappings/sprite/obj14_b.bin
+#split	0x021F14,0x021FF8,mappings/sprite/obj16.bin
+#split	0x02222A,0x02228A,mappings/sprite/obj19.bin
+#split	0x0223E2,0x0223FC,mappings/sprite/obj1B.bin
+#split	0x022576,0x022582,mappings/sprite/obj1D.bin
+#split	0x023254,0x023294,mappings/sprite/obj20_a.bin
+#split	0x023294,0x0232DC,mappings/sprite/obj20_b.bin
+#split	0x0236FA,0x023852,mappings/sprite/obj2F.bin
+#split	0x023852,0x023886,mappings/sprite/obj32_a.bin
+#split	0x023886,0x0238AA,mappings/sprite/obj32_b.bin
+#split	0x023DDC,0x023DF0,mappings/sprite/obj33_a.bin
+#split	0x023DF0,0x023E2C,mappings/sprite/obj33_b.bin
+#split	0x023FE0,0x024014,mappings/sprite/obj43.bin
+#split	0x02451A,0x024A16,mappings/sprite/obj45.bin
+#split	0x024C52,0x024CC2,mappings/sprite/obj46.bin
+#split	0x024D96,0x024DBA,mappings/sprite/obj47.bin
+#split	0x0250BA,0x02520A,mappings/sprite/obj3D.bin
+#split	0x0254FE,0x02567E,mappings/sprite/obj48.bin
+#split	0x025804,0x025868,mappings/sprite/obj22.bin
+#split	0x0259E6,0x025A5A,mappings/sprite/obj23.bin
+#split	0x025C6E,0x0260D6,mappings/sprite/obj2B.bin
+#split	0x02631E,0x02634E,mappings/sprite/obj2C.bin
+#split	0x0265F4,0x02661C,mappings/sprite/obj40.bin
+#split	0x02686C,0x0268FC,mappings/sprite/obj42.bin
+#split	0x026A5C,0x026AD4,mappings/sprite/obj64.bin
+#split	0x026EC8,0x026F04,mappings/sprite/obj65_a.bin
+#split	0x026F04,0x026F40,mappings/sprite/obj65_b.bin
+#split	0x027120,0x027148,mappings/sprite/obj66.bin
+#split	0x027548,0x027580,mappings/sprite/obj67.bin
+#split	0x027750,0x027794,mappings/sprite/obj68.bin
+#split	0x027A26,0x027A8E,mappings/sprite/obj69.bin
+#split	0x027D30,0x027D54,mappings/sprite/obj6A.bin
+#split	0x02800E,0x02801A,mappings/sprite/obj6B.bin
+#split	0x028372,0x028386,mappings/sprite/obj6C.bin
+#split	0x02852C,0x0285B4,mappings/sprite/obj6E.bin
+#split	0x028786,0x028926,mappings/sprite/obj70.bin
+#split	0x028B9C,0x028BA8,mappings/sprite/obj73.bin
+#split	0x028D8A,0x028DBE,mappings/sprite/obj75.bin
+#split	0x028F3A,0x028F6E,mappings/sprite/obj76.bin
+#split	0x029064,0x0291B8,mappings/sprite/obj77.bin
+#split	0x029564,0x029578,mappings/sprite/obj7A.bin
+#split	0x029780,0x0297C2,mappings/sprite/obj7B.bin
+#split	0x029938,0x029970,mappings/sprite/obj7F.bin
+#split	0x029C64,0x029DD0,mappings/sprite/obj80_a.bin
+#split	0x029DD0,0x029FF4,mappings/sprite/obj80_b.bin
+#split	0x02A24E,0x02A25E,mappings/sprite/obj81.bin
+#split	0x02A476,0x02A4D6,mappings/sprite/obj82.bin
+#split	0x02AA12,0x02AAC4,mappings/sprite/obj3F_a.bin
+#split	0x02AAC4,0x02AB76,mappings/sprite/obj3F_b.bin
+#split	0x02B07E,0x02B0EC,mappings/sprite/obj85_a.bin
+#split	0x02B0EC,0x02B128,mappings/sprite/obj85_b.bin
+#split	0x02B45A,0x02B502,mappings/sprite/obj86.bin
+#split	0x02B694,0x02B832,mappings/sprite/objD2.bin
+#split	0x02B8D4,0x02B8E0,mappings/sprite/objD6_a.bin
+#split	0x02B9CA,0x02B9EE,mappings/sprite/objD4.bin
+#split	0x02BB40,0x02BB54,mappings/sprite/objD5.bin
+#split	0x02BEBC,0x02BF24,mappings/sprite/objD6_b.bin
+#split	0x02C626,0x02C692,mappings/sprite/objD7.bin
+#split	0x02C8C4,0x02C90C,mappings/sprite/objD8.bin
+#split	0x02D2EA,0x02D368,mappings/sprite/obj4B.bin
+#split	0x02CBFE,0x02CCA4,mappings/sprite/obj4A.bin
+#split	0x02CF94,0x02D030,mappings/sprite/obj50.bin
+#split	0x02D442,0x02D47C,mappings/sprite/obj5C.bin
+#split	0x02D50A,0x02D55E,mappings/sprite/obj58.bin
+#split	0x02EADC,0x02ED5C,mappings/sprite/obj5D_a.bin
+#split	0x02ED8C,0x02EE88,mappings/sprite/obj5D_b.bin
+#split	0x02EE88,0x02EEA0,mappings/sprite/obj5D_c.bin
+#split	0x02EEA0,0x02EED0,mappings/sprite/obj5D_d.bin
+#split	0x02F970,0x02FA44,mappings/sprite/obj56_a.bin
+#split	0x02FA58,0x02FAC8,mappings/sprite/obj56_b.bin
+#split	0x02FAF8,0x02FBF4,mappings/sprite/obj56_c.bin
+#split	0x030258,0x030288,mappings/sprite/obj52_a.bin
+#split	0x0302BC,0x030430,mappings/sprite/obj52_b.bin
+#split	0x030D68,0x030DC8,mappings/sprite/obj89_a.bin
+#split	0x030E04,0x030F54,mappings/sprite/obj89_b.bin
+#split	0x0316EC,0x0318B8,mappings/sprite/obj57.bin
+#split	0x0320EA,0x03224C,mappings/sprite/obj51.bin
+#split	0x032DC6,0x032F4C,mappings/sprite/obj54.bin
+#split	0x033756,0x03389C,mappings/sprite/obj55.bin
+#split	0x034212,0x034492,mappings/sprite/obj09.bin
+#split	0x034492,0x0345FA,mappings/sprite/obj63.bin
+#split	0x034B3E,0x034D86,mappings/sprite/obj10.bin
+#split	0x034DA8,0x034EA4,mappings/sprite/obj88.bin
+#split	0x035E1E,0x035F76,mappings/sprite/obj5A.bin
+#split	0x03625A,0x0362D2,mappings/sprite/obj59.bin
+#split	0x03632A,0x0364CE,mappings/sprite/obj5A_5B_60.bin
+#split	0x036508,0x0365BC,mappings/sprite/obj61.bin
+#split	0x036A4E,0x036A76,mappings/sprite/obj8C.bin
+#split	0x036EF6,0x036F0E,mappings/sprite/obj91.bin
+#split	0x037092,0x0370FE,mappings/sprite/obj93.bin
+#split	0x0372E6,0x037322,mappings/sprite/obj95.bin
+#split	0x037678,0x0376A8,mappings/sprite/obj97.bin
+#split	0x03789A,0x037936,mappings/sprite/obj99.bin
+#split	0x037B62,0x037BFA,mappings/sprite/obj9C.bin
+#split	0x037D96,0x037E16,mappings/sprite/obj9D.bin
+#split	0x037FF2,0x03800C,mappings/sprite/obj9E.bin
+#split	0x038314,0x0383B4,mappings/sprite/objA0.bin
+#split	0x0385E2,0x03873E,mappings/sprite/objA2.bin
+#split	0x0388F0,0x03899C,mappings/sprite/objA3.bin
+#split	0x038A96,0x038AEA,mappings/sprite/objA4.bin
+#split	0x038CCA,0x038DBA,mappings/sprite/objA6.bin
+#split	0x0393CC,0x03941C,mappings/sprite/objAC.bin
+#split	0x0395B4,0x03972C,mappings/sprite/objAE.bin
+#split	0x039E68,0x03A08C,mappings/sprite/objAF_a.bin
+#split	0x03A08C,0x03A1DC,mappings/sprite/objAF_b.bin
+#split	0x03A5A6,0x03A68A,mappings/sprite/objB1.bin
+#split	0x03AFF2,0x03B292,mappings/sprite/objB2_a.bin
+#split	0x03B292,0x03B2DE,mappings/sprite/objB2_b.bin
+#split	0x03B32C,0x03B36A,mappings/sprite/objB3.bin
+#split	0x03B3BE,0x03B3FA,mappings/sprite/objB4.bin
+#split	0x03B548,0x03B5D0,mappings/sprite/objB5.bin
+#split	0x03B856,0x03B8A6,mappings/sprite/objB6.bin
+#split	0x03B8E4,0x03B968,mappings/sprite/objB7.bin
+#split	0x03BA46,0x03BABA,mappings/sprite/objB8.bin
+#split	0x03BB18,0x03BB4C,mappings/sprite/objB9.bin
+#split	0x03BB70,0x03BB7C,mappings/sprite/objBA.bin
+#split	0x03BBA0,0x03BBBC,mappings/sprite/objBB.bin
+#split	0x03BC08,0x03BC1C,mappings/sprite/objBC.bin
+#split	0x03BD3E,0x03BD7A,mappings/sprite/objBD.bin
+#split	0x03BE46,0x03BEAA,mappings/sprite/objBE.bin
+#split	0x03BEE0,0x03BF04,mappings/sprite/objBF.bin
+#split	0x03C098,0x03C0AC,mappings/sprite/objC0.bin
+#split	0x03C280,0x03C328,mappings/sprite/objC1.bin
+#split	0x03C3C2,0x03C3D6,mappings/sprite/objC2.bin
+#split	0x03CCD8,0x03CEBC,mappings/sprite/objC5_a.bin
+#split	0x03CEBC,0x03CED0,mappings/sprite/objC5_b.bin
+#split	0x03D0EE,0x03D1DE,mappings/sprite/objC6_a.bin
+#split	0x03D1DE,0x03D23E,mappings/sprite/objC6_b.bin
+#split	0x03D450,0x03D4C8,mappings/sprite/objC8.bin
+#split	0x03E318,0x03E3D0,mappings/sprite/objC7_a.bin
+#split	0x03E3D8,0x03E40C,mappings/sprite/objC7_b.bin
+#split	0x03E438,0x03E55C,mappings/sprite/objC7_c.bin
+#split	0x03E5F8,0x03E89E,mappings/sprite/objC7_d.bin
+#split	0x03EB4E,0x03F1DA,mappings/sprite/obj8A.bin
+#split	0x03F436,0x03F546,mappings/sprite/obj3E.bin
+#split	0x040A9A,0x040BEA,mappings/sprite/hud_a.bin
+#split	0x040BEA,0x040C82,mappings/sprite/hud_b.bin
+#split	0x040C82,0x040D06,mappings/sprite/hud_c.bin
+#split	0x06FBE0,0x0714E0,mappings/sprite/Sonic.bin
+#split	0x0739E2,0x07446C,mappings/sprite/Tails.bin
+
+
+/*********************Sprite Loading Cues*******************/
+#split	0x0714E0,0x071D8E,mappings/spriteDPLC/Sonic.bin
+#split	0x07446C,0x074876,mappings/spriteDPLC/Tails.bin
+#split	0x01E074,0x01E0F0,mappings/spriteDPLC/obj08.bin
+#split	0x0345FA,0x0347E0,mappings/spriteDPLC/obj09.bin
+
+/*********************Misc mappings************************/
+#split	0x008804,0x0088CE,mappings/misc/2P Act Results.bin
+#split	0x0088CE,0x008960,mappings/misc/2P Zone Results.bin
+#split	0x008960,0x008AA4,mappings/misc/2P Game Results.bin
+#split	0x008AA4,0x008B30,mappings/misc/2P Special Stage Act Results.bin
+#split	0x008B30,0x008BC8,mappings/misc/2P Special Stage Zone Results.bin
+#split	0x009A60,0x009AB2,mappings/misc/Level Select 2P.bin
+#split	0x009AB2,0x009ADE,mappings/misc/Options Screen.bin
+#split	0x009ADE,0x009C32,mappings/misc/Level Select.bin
+#split	0x009C32,0x009C64,mappings/misc/Level Select Icons.bin
+#split	0x074D0E,0x074DC6,mappings/misc/SEGA mappings.bin
+#split	0x074DC6,0x074E3A,mappings/misc/Mappings for title screen background.bin
+#split	0x074E3A,0x074E86,mappings/misc/Mappings for title screen background 2.bin
+#split	0x074E86,0x074F6C,mappings/misc/Sonic the Hedgehog 2 title screen logo mappings.bin
+#split	0x07CB80,0x07CD2C,mappings/misc/Sonic and Miles animated background.bin
+#split	0x0906E0,0x0906F8,mappings/misc/End of game sequence frame 1.bin
+#split	0x0906F8,0x090722,mappings/misc/End of game sequence frame 2.bin
+#split	0x090722,0x09073C,mappings/misc/End of game sequence frame 3.bin
+#split	0x09073C,0x09076E,mappings/misc/End of game sequence frame 4.bin
+#split	0x09076E,0x0907C0,mappings/misc/Closeup of Tails flying plane in ending sequence.bin
+#split	0x0907C0,0x09082A,mappings/misc/Closeup of Sonic flying plane in ending sequence.bin
+#split	0x09082A,0x090852,mappings/misc/Strange unused mappings 1 - 1.bin
+#split	0x090852,0x09087A,mappings/misc/Strange unused mappings 1 - 2.bin
+#split	0x09087A,0x0908A2,mappings/misc/Strange unused mappings 1 - 3.bin
+#split	0x0908A2,0x0908CA,mappings/misc/Strange unused mappings 1 - 4.bin
+#split	0x0908CA,0x0908F2,mappings/misc/Strange unused mappings 1 - 5.bin
+#split	0x0908F2,0x09091A,mappings/misc/Strange unused mappings 1 - 6.bin
+#split	0x09091A,0x090942,mappings/misc/Strange unused mappings 1 - 7.bin
+#split	0x090942,0x09096A,mappings/misc/Strange unused mappings 1 - 8.bin
+#split	0x09096A,0x090992,mappings/misc/Strange unused mappings 2.bin
+#split	0x0DD1DE,0x0DD30C,mappings/misc/Main background mappings for special stage.bin
+#split	0x0DD30C,0x0DD48A,mappings/misc/Lower background mappings for special stage.bin
+
+
+
+/***********************Collision***************************/
+#split	0x042D50,0x042E50,collision/Curve and resistance mapping.bin
+#split	0x042E50,0x043E50,collision/Collision array 1.bin
+#split	0x043E50,0x044E50,collision/Collision array 2.bin
+#split	0x044E50,0x044F40,collision/EHZ and HTZ primary 16x16 collision index.bin
+#split	0x044F40,0x045040,collision/EHZ and HTZ secondary 16x16 collision index.bin
+#split	0x045040,0x045100,collision/MTZ primary 16x16 collision index.bin
+#split	0x045100,0x045200,collision/OOZ primary 16x16 collision index.bin
+#split	0x045200,0x0452A0,collision/MCZ primary 16x16 collision index.bin
+#split	0x0452A0,0x045330,collision/CNZ primary 16x16 collision index.bin
+#split	0x045330,0x0453C0,collision/CNZ secondary 16x16 collision index.bin
+#split	0x0453C0,0x0454E0,collision/CPZ and DEZ primary 16x16 collision index.bin
+#split	0x0454E0,0x045610,collision/CPZ and DEZ secondary 16x16 collision index.bin
+#split	0x045610,0x045760,collision/ARZ primary 16x16 collision index.bin
+#split	0x045760,0x0458C0,collision/ARZ secondary 16x16 collision index.bin
+#split	0x0458C0,0x0459A0,collision/WFZ and SCZ primary 16x16 collision index.bin
+#split	0x0459A0,0x045A80,collision/WFZ and SCZ secondary 16x16 collision index.bin
+
+
+/***********************Levels***************************/
+#split	0x045AC4,0x045C84,level/layout/EHZ_1.bin
+#split	0x045C84,0x045E74,level/layout/EHZ_2.bin
+#split	0x045E74,0x0462A4,level/layout/MTZ_1.bin
+#split	0x0462A4,0x046684,level/layout/MTZ_2.bin
+#split	0x046684,0x046B04,level/layout/MTZ_3.bin
+#split	0x046B04,0x046DD4,level/layout/WFZ.bin
+#split	0x046DD4,0x047044,level/layout/HTZ_1.bin
+#split	0x047044,0x047404,level/layout/HTZ_2.bin
+#split	0x047404,0x047784,level/layout/OOZ_1.bin
+#split	0x047784,0x047B24,level/layout/OOZ_2.bin
+#split	0x047B24,0x047D24,level/layout/MCZ_1.bin
+#split	0x047D24,0x047FF4,level/layout/MCZ_2.bin
+#split	0x047FF4,0x0483C4,level/layout/CNZ_1.bin
+#split	0x0483C4,0x048774,level/layout/CNZ_2.bin
+#split	0x048774,0x048A84,level/layout/CPZ_1.bin
+#split	0x048A84,0x048DE4,level/layout/CPZ_2.bin
+#split	0x048DE4,0x048E94,level/layout/DEZ.bin
+#split	0x048E94,0x049264,level/layout/ARZ_1.bin
+#split	0x049264,0x049634,level/layout/ARZ_2.bin
+#split	0x049634,0x049714,level/layout/SCZ.bin
+
+
+/***********************16x16 block mappings***************************/
+#split	0x094E74,0x095C24,mappings/16x16/EHZ.bin
+#split	0x0985A4,0x098AB4,mappings/16x16/HTZ.bin
+#split	0x09CFD4,0x09DB64,mappings/16x16/MTZ.bin
+#split	0x0A3364,0x0A4204,mappings/16x16/OOZ.bin
+#split	0x0A8D04,0x0A9D74,mappings/16x16/MCZ.bin
+#split	0x0AFFC4,0x0B0894,mappings/16x16/CNZ.bin
+#split	0x0B5234,0x0B6174,mappings/16x16/CPZ_DEZ.bin
+#split	0x0BB944,0x0BCC24,mappings/16x16/ARZ.bin
+#split	0x0C4074,0x0C5004,mappings/16x16/WFZ_SCZ.bin
+
+/******************animated 16x16 block mappings***********************/
+#split	0x040372,0x0403EE,mappings/16x16/AnimEHZ.bin
+#split	0x0403EE,0x0404C2,mappings/16x16/AnimMTZ.bin
+#split	0x0404C2,0x0405B6,mappings/16x16/AnimHPZ.bin
+#split	0x0405B6,0x04061A,mappings/16x16/AnimOOZ.bin
+#split	0x04061A,0x0406BE,mappings/16x16/AnimCNZ.bin
+#split	0x0406BE,0x040762,mappings/16x16/AnimCNZ2P.bin
+#split	0x040762,0x04076E,mappings/16x16/AnimCPZ.bin
+#split	0x04076E,0x04077A,mappings/16x16/AnimDEZ.bin
+#split	0x04077A,0x0407BE,mappings/16x16/AnimARZ.bin
+
+/***********************128x128 block mappings***************************/
+#split	0x099D34,0x09CFD4,mappings/128x128/EHZ_HTZ.bin
+#split	0x0A06C4,0x0A3364,mappings/128x128/MTZ.bin
+#split	0x0A6834,0x0A8D04,mappings/128x128/OOZ.bin
+#split	0x0AD454,0x0AFFC4,mappings/128x128/MCZ.bin
+#split	0x0B2CF4,0x0B5234,mappings/128x128/CNZ.bin
+#split	0x0B90F4,0x0BB944,mappings/128x128/CPZ_DEZ.bin
+#split	0x0C1434,0x0C4074,mappings/128x128/ARZ.bin
+#split	0x0C85E4,0x0CA904,mappings/128x128/WFZ_SCZ.bin
+
+
+/***********************Special stage level mappings***************************/
+#split	0x0CA904,0x0CADA8,mappings/special stage/Slope up - Frame 1.bin
+#split	0x0CADA8,0x0CB376,mappings/special stage/Slope up - Frame 2.bin
+#split	0x0CB376,0x0CB92E,mappings/special stage/Slope up - Frame 3.bin
+#split	0x0CB92E,0x0CBF92,mappings/special stage/Slope up - Frame 4.bin
+#split	0x0CBF92,0x0CC5BE,mappings/special stage/Slope up - Frame 5.bin
+#split	0x0CC5BE,0x0CCC7A,mappings/special stage/Slope up - Frame 6.bin
+#split	0x0CCC7A,0x0CD282,mappings/special stage/Slope up - Frame 7.bin
+#split	0x0CD282,0x0CD7C0,mappings/special stage/Slope up - Frame 8.bin
+#split	0x0CD7C0,0x0CDD44,mappings/special stage/Slope up - Frame 9.bin
+#split	0x0CDD44,0x0CE2BE,mappings/special stage/Slope up - Frame 10.bin
+#split	0x0CE2BE,0x0CE7DE,mappings/special stage/Slope up - Frame 11.bin
+#split	0x0CE7DE,0x0CEC52,mappings/special stage/Slope up - Frame 12.bin
+#split	0x0CEC52,0x0CF0BC,mappings/special stage/Slope up - Frame 13.bin
+#split	0x0CF0BC,0x0CF580,mappings/special stage/Slope up - Frame 14.bin
+#split	0x0CF580,0x0CFA00,mappings/special stage/Slope up - Frame 15.bin
+#split	0x0CFA00,0x0CFE4A,mappings/special stage/Slope up - Frame 16.bin
+#split	0x0CFE4A,0x0D028C,mappings/special stage/Slope up - Frame 17.bin
+#split	0x0D028C,0x0D090A,mappings/special stage/Straight path - Frame 1.bin
+#split	0x0D090A,0x0D0EA6,mappings/special stage/Straight path - Frame 2.bin
+#split	0x0D0EA6,0x0D1400,mappings/special stage/Straight path - Frame 3.bin
+#split	0x0D1400,0x0D19FC,mappings/special stage/Straight path - Frame 4.bin
+#split	0x0D19FC,0x0D1EAC,mappings/special stage/Slope down - Frame 1.bin
+#split	0x0D1EAC,0x0D23AE,mappings/special stage/Slope down - Frame 2.bin
+#split	0x0D23AE,0x0D27C6,mappings/special stage/Slope down - Frame 3.bin
+#split	0x0D27C6,0x0D2C14,mappings/special stage/Slope down - Frame 4.bin
+#split	0x0D2C14,0x0D3092,mappings/special stage/Slope down - Frame 5.bin
+#split	0x0D3092,0x0D3522,mappings/special stage/Slope down - Frame 6.bin
+#split	0x0D3522,0x0D39EC,mappings/special stage/Slope down - Frame 7.bin
+#split	0x0D39EC,0x0D3F78,mappings/special stage/Slope down - Frame 8.bin
+#split	0x0D3F78,0x0D4660,mappings/special stage/Slope down - Frame 9.bin
+#split	0x0D4660,0x0D4DA6,mappings/special stage/Slope down - Frame 10.bin
+#split	0x0D4DA6,0x0D53FC,mappings/special stage/Slope down - Frame 11.bin
+#split	0x0D53FC,0x0D5958,mappings/special stage/Slope down - Frame 12.bin
+#split	0x0D5958,0x0D5F02,mappings/special stage/Slope down - Frame 13.bin
+#split	0x0D5F02,0x0D6596,mappings/special stage/Slope down - Frame 14.bin
+#split	0x0D6596,0x0D6BAA,mappings/special stage/Slope down - Frame 15.bin
+#split	0x0D6BAA,0x0D702E,mappings/special stage/Slope down - Frame 16.bin
+#split	0x0D702E,0x0D749C,mappings/special stage/Slope down - Frame 17.bin
+#split	0x0D749C,0x0D7912,mappings/special stage/Curve right - Frame 1.bin
+#split	0x0D7912,0x0D7DAA,mappings/special stage/Curve right - Frame 2.bin
+#split	0x0D7DAA,0x0D8250,mappings/special stage/Curve right - Frame 3.bin
+#split	0x0D8250,0x0D85F8,mappings/special stage/Curve right - Frame 4.bin
+#split	0x0D85F8,0x0D89EC,mappings/special stage/Curve right - Frame 5.bin
+#split	0x0D89EC,0x0D8E24,mappings/special stage/Curve right - Frame 6.bin
+#split	0x0D8E24,0x0D92B6,mappings/special stage/Curve right - Frame 7.bin
+#split	0x0D92B6,0x0D9778,mappings/special stage/Curve right - Frame 8.bin
+#split	0x0D9778,0x0D9B80,mappings/special stage/Curve right - Frame 9.bin
+#split	0x0D9B80,0x0DA016,mappings/special stage/Curve right - Frame 10.bin
+#split	0x0DA016,0x0DA4CE,mappings/special stage/Curve right - Frame 11.bin
+#split	0x0DA4CE,0x0DAB20,mappings/special stage/Begin curve right - Frame 1.bin
+#split	0x0DAB20,0x0DB086,mappings/special stage/Begin curve right - Frame 2.bin
+#split	0x0DB086,0x0DB5AE,mappings/special stage/Begin curve right - Frame 3.bin
+#split	0x0DB5AE,0x0DBB62,mappings/special stage/Begin curve right - Frame 4.bin
+#split	0x0DBB62,0x0DC154,mappings/special stage/Begin curve right - Frame 5.bin
+#split	0x0DC154,0x0DC5E8,mappings/special stage/Begin curve right - Frame 6.bin
+#split	0x0DC5E8,0x0DCA38,mappings/special stage/Begin curve right - Frame 7.bin
+
+
+/***********************Misc stuff***************************/
+#split	0x0E24FE,0x0E34EE,misc/Special stage object perspective data (Kosinski compression).bin
+#split	0x0E34EE,0x0E35F2,misc/Special stage level layouts (Nemesis compression).bin
+#split	0x0E35F2,0x0E427D,misc/Special stage object location lists (Kosinski compression).bin
+#split	0x022980,0x022E88,misc/obj1E_a.bin
+#split	0x022E88,0x022FEE,misc/obj1E_b.bin
+#split	0x0033CE,0x00364E,misc/sinewave.bin
+#split	0x0036B4,0x0037B6,misc/angles.bin
+
+
+/***********************Ring location lists***************************/
+#split	0x0E4344,0x0E456A,level/rings/EHZ_1.bin
+#split	0x0E456A,0x0E47AC,level/rings/EHZ_2.bin
+#split	0x0E47AC,0x0E47AE,level/rings/01_1.bin
+#split	0x0E47AE,0x0E47B0,level/rings/01_2.bin
+#split	0x0E47B0,0x0E47B2,level/rings/02_1.bin
+#split	0x0E47B2,0x0E47B4,level/rings/02_2.bin
+#split	0x0E47B4,0x0E47B6,level/rings/03_1.bin
+#split	0x0E47B6,0x0E47B8,level/rings/03_2.bin
+#split	0x0E47B8,0x0E4A2A,level/rings/MTZ_1.bin
+#split	0x0E4A2A,0x0E4C48,level/rings/MTZ_2.bin
+#split	0x0E4C48,0x0E4D72,level/rings/MTZ_3.bin
+#split	0x0E4D72,0x0E4D74,level/rings/MTZ_4.bin
+#split	0x0E4D74,0x0E4EAA,level/rings/HTZ_1.bin
+#split	0x0E4EAA,0x0E50E8,level/rings/HTZ_2.bin
+#split	0x0E50E8,0x0E525A,level/rings/HPZ_1.bin
+#split	0x0E525A,0x0E525C,level/rings/HPZ_2.bin
+#split	0x0E525C,0x0E525E,level/rings/09_1.bin
+#split	0x0E525E,0x0E5260,level/rings/09_2.bin
+#split	0x0E5260,0x0E5422,level/rings/OOZ_1.bin
+#split	0x0E5422,0x0E5598,level/rings/OOZ_2.bin
+#split	0x0E5598,0x0E570E,level/rings/MCZ_1.bin
+#split	0x0E570E,0x0E5944,level/rings/MCZ_2.bin
+#split	0x0E5944,0x0E5B7E,level/rings/CNZ_1.bin
+#split	0x0E5B7E,0x0E5E2C,level/rings/CNZ_2.bin
+#split	0x0E5E2C,0x0E5F9E,level/rings/CPZ_1.bin
+#split	0x0E5F9E,0x0E6150,level/rings/CPZ_2.bin
+#split	0x0E6150,0x0E6152,level/rings/DEZ_1.bin
+#split	0x0E6152,0x0E6154,level/rings/DEZ_2.bin
+#split	0x0E6154,0x0E6292,level/rings/WFZ_1.bin
+#split	0x0E6292,0x0E6294,level/rings/WFZ_2.bin
+#split	0x0E6294,0x0E642E,level/rings/ARZ_1.bin
+#split	0x0E642E,0x0E6684,level/rings/ARZ_2.bin
+#split	0x0E6684,0x0E66D6,level/rings/SCZ_1.bin
+#split	0x0E66D6,0x0E66D8,level/rings/SCZ_2.bin
+
+
+/***********************Object location lists***************************/
+#split	0x01781A,0x01795E,level/objects/CNZ 1 bumpers.bin
+#split	0x01795E,0x017AA2,level/objects/CNZ 2 bumpers.bin
+#split	0x01802A,0x018492,level/objects/CNZ_1_2P.bin
+#split	0x018492,0x018888,level/objects/CNZ_2_2P.bin
+#split	0x0E6844,0x0E684A,level/objects/Null_1.bin
+#split	0x0E684A,0x0E6B7A,level/objects/EHZ_1.bin
+#split	0x0E6B7A,0x0E6F34,level/objects/EHZ_2.bin
+#split	0x0E6F34,0x0E73C0,level/objects/MTZ_1.bin
+#split	0x0E73C0,0x0E78EE,level/objects/MTZ_2.bin
+#split	0x0E78EE,0x0E7F48,level/objects/MTZ_3.bin
+#split	0x0E7F48,0x0E82FC,level/objects/WFZ_1.bin
+#split	0x0E82FC,0x0E8302,level/objects/WFZ_2.bin
+#split	0x0E8302,0x0E8668,level/objects/HTZ_1.bin
+#split	0x0E8668,0x0E8C80,level/objects/HTZ_2.bin
+#split	0x0E8C80,0x0E8D94,level/objects/HPZ_1.bin
+#split	0x0E8D94,0x0E8D9A,level/objects/HPZ_2.bin
+#split	0x0E8D9A,0x0E8DA0,level/objects/Null_2.bin
+#split	0x0E8DA0,0x0E9214,level/objects/OOZ_1.bin
+#split	0x0E9214,0x0E968E,level/objects/OOZ_2.bin
+#split	0x0E968E,0x0E99A0,level/objects/MCZ_1.bin
+#split	0x0E99A0,0x0E9D1E,level/objects/MCZ_2.bin
+#split	0x0E9D1E,0x0EA3D8,level/objects/CNZ_1.bin
+#split	0x0EA3D8,0x0EA9D2,level/objects/CNZ_2.bin
+#split	0x0EA9D2,0x0EAD6E,level/objects/CPZ_1.bin
+#split	0x0EAD6E,0x0EB230,level/objects/CPZ_2.bin
+#split	0x0EB230,0x0EB254,level/objects/DEZ_1.bin
+#split	0x0EB254,0x0EB25A,level/objects/DEZ_2.bin
+#split	0x0EB25A,0x0EB6A4,level/objects/ARZ_1.bin
+#split	0x0EB6A4,0x0EBBDE,level/objects/ARZ_2.bin
+#split	0x0EBBDE,0x0EBD4C,level/objects/SCZ_1.bin
+#split	0x0EBD4C,0x0EBD52,level/objects/SCZ_2.bin
+#split	0x0EBD52,0x0EBD58,level/objects/Null_3.bin
+#split	0x0EBD58,0x0EBD5E,level/objects/Null_4.bin
+#split	0x0EBD5E,0x0EBD64,level/objects/Null_5.bin
+#split	0x0EBD64,0x0EBD6A,level/objects/Null_6.bin
+
+
+/***********************Sound driver***************************/
+#split	0x0EC0E8,0x0ED04C,sound/Sound driver.bin
+
+
+/***********************PCM samples****************************/
+#split	0x0F1E8C,0x0F8000,sound/PCM/SEGA.bin
+
+
+/***********************DAC samples***************************/
+#split	0x0ED100,0x0ED394,sound/DAC/Sample 1.bin
+#split	0x0ED394,0x0EDAB7,sound/DAC/Sample 2.bin
+#split	0x0EDAB7,0x0EE66C,sound/DAC/Sample 5.bin
+#split	0x0EE66C,0x0EED7A,sound/DAC/Sample 6.bin
+#split	0x0EED7A,0x0EF2F0,sound/DAC/Sample 3.bin
+#split	0x0EF2F0,0x0EFA3C,sound/DAC/Sample 4.bin
+#split	0x0EFA3C,0x0F0000,sound/DAC/Sample 7.bin
+
+
+/***********************Music***************************/
+#split	0x0F0002,0x0F0160,sound/music/Continue.bin
+#split	0x0F803C,0x0F823B,sound/music/HPZ.bin
+#split	0x0F823B,0x0F8359,sound/music/Drowning.bin
+#split	0x0F8359,0x0F84F6,sound/music/Invincible.bin
+#split	0x0F84F6,0x0F88C4,sound/music/CNZ_2p.bin
+#split	0x0F88C4,0x0F8DEE,sound/music/EHZ.bin
+#split	0x0F8DEE,0x0F917B,sound/music/MTZ.bin
+#split	0x0F917B,0x0F9664,sound/music/CNZ.bin
+#split	0x0F9664,0x0F9A3C,sound/music/MCZ.bin
+#split	0x0F9A3C,0x0F9D69,sound/music/MCZ_2p.bin
+#split	0x0F9D69,0x0FA36B,sound/music/ARZ.bin
+#split	0x0FA36B,0x0FA6ED,sound/music/DEZ.bin
+#split	0x0FA6ED,0x0FAAC4,sound/music/SpecStg.bin
+#split	0x0FAAC4,0x0FAC3C,sound/music/Options.bin
+#split	0x0FAC3C,0x0FB124,sound/music/Ending.bin
+#split	0x0FB124,0x0FB3F7,sound/music/End_Boss.bin
+#split	0x0FB3F7,0x0FB81E,sound/music/CPZ.bin
+#split	0x0FB81E,0x0FBA6F,sound/music/Boss.bin
+#split	0x0FBA6F,0x0FBD8C,sound/music/SCZ.bin
+#split	0x0FBD8C,0x0FC146,sound/music/OOZ.bin
+#split	0x0FC146,0x0FC480,sound/music/WFZ.bin
+#split	0x0FC480,0x0FC824,sound/music/EHZ_2p.bin
+#split	0x0FC824,0x0FCBBC,sound/music/2player results screen.bin
+#split	0x0FCBBC,0x0FCE74,sound/music/Supersonic.bin
+#split	0x0FCE74,0x0FD193,sound/music/HTZ.bin
+#split	0x0FD193,0x0FD35E,sound/music/Title screen.bin
+#split	0x0FD35E,0x0FD48D,sound/music/End of level.bin
+#split	0x0FD48D,0x0FD57A,sound/music/Extra life.bin
+#split	0x0FD57A,0x0FD6C9,sound/music/Game over.bin
+#split	0x0FD6C9,0x0FD797,sound/music/Got an emerald.bin
+#split	0x0FD797,0x0FEE91,sound/music/Credits.bin
+
+
+/***********************Sound Effects***************************/
+//#split	0x0FEF33,0x0FEF49,sound/sound fx/Sound20.bin
+//#split	0x0FEF49,0x0FEF73,sound/sound fx/Sound21.bin
+//#split	0x0FEF73,0x0FEF92,sound/sound fx/Sound22.bin
+//#split	0x0FEF92,0x0FEFC4,sound/sound fx/Sound23.bin
+//#split	0x0FEFC4,0x0FEFF9,sound/sound fx/Sound24.bin
+//#split	0x0FEFF9,0x0FF025,sound/sound fx/Sound25.bin
+//#split	0x0FF025,0x0FF054,sound/sound fx/Sound26.bin
+//#split	0x0FF054,0x0FF080,sound/sound fx/Sound27.bin
+//#split	0x0FF080,0x0FF08F,sound/sound fx/Sound28.bin
+//#split	0x0FF08F,0x0FF0A1,sound/sound fx/Sound29.bin
+//#split	0x0FF0A1,0x0FF0E2,sound/sound fx/Sound2A.bin
+//#split	0x0FF0E2,0x0FF101,sound/sound fx/Sound2B.bin
+//#split	0x0FF101,0x0FF135,sound/sound fx/Sound2C.bin
+//#split	0x0FF135,0x0FF16B,sound/sound fx/Sound2D.bin
+//#split	0x0FF16B,0x0FF1B5,sound/sound fx/Sound2E.bin
+//#split	0x0FF1B5,0x0FF1E2,sound/sound fx/Sound2F.bin
+//#split	0x0FF1E2,0x0FF213,sound/sound fx/Sound30.bin
+//#split	0x0FF213,0x0FF23F,sound/sound fx/Sound31.bin
+//#split	0x0FF23F,0x0FF28E,sound/sound fx/Sound32.bin
+//#split	0x0FF28E,0x0FF2BF,sound/sound fx/Sound33.bin
+//#split	0x0FF2BF,0x0FF31A,sound/sound fx/Sound34.bin
+//#split	0x0FF31A,0x0FF32F,sound/sound fx/Sound35.bin
+//#split	0x0FF32F,0x0FF34C,sound/sound fx/Sound36.bin
+//#split	0x0FF34C,0x0FF387,sound/sound fx/Sound37.bin
+//#split	0x0FF387,0x0FF3A4,sound/sound fx/Sound38.bin
+//#split	0x0FF3A4,0x0FF3EE,sound/sound fx/Sound39.bin
+//#split	0x0FF3EE,0x0FF416,sound/sound fx/Sound3A.bin
+//#split	0x0FF416,0x0FF441,sound/sound fx/Sound3B.bin
+//#split	0x0FF441,0x0FF482,sound/sound fx/Sound3C.bin
+//#split	0x0FF482,0x0FF4D5,sound/sound fx/Sound3D.bin
+//#split	0x0FF4D5,0x0FF50F,sound/sound fx/Sound3E.bin
+//#split	0x0FF50F,0x0FF581,sound/sound fx/Sound3F.bin
+//#split	0x0FF581,0x0FF59A,sound/sound fx/Sound40.bin
+//#split	0x0FF59A,0x0FF5D4,sound/sound fx/Sound41.bin
+//#split	0x0FF5D4,0x0FF5E5,sound/sound fx/Sound42.bin
+//#split	0x0FF5E5,0x0FF65F,sound/sound fx/Sound43.bin
+//#split	0x0FF65F,0x0FF687,sound/sound fx/Sound44.bin
+//#split	0x0FF687,0x0FF6EE,sound/sound fx/Sound45.bin
+//#split	0x0FF6EE,0x0FF716,sound/sound fx/Sound46.bin
+//#split	0x0FF716,0x0FF744,sound/sound fx/Sound47.bin
+//#split	0x0FF744,0x0FF755,sound/sound fx/Sound48.bin
+//#split	0x0FF755,0x0FF782,sound/sound fx/Sound49.bin
+//#split	0x0FF782,0x0FF7AF,sound/sound fx/Sound4A.bin
+//#split	0x0FF7AF,0x0FF7E2,sound/sound fx/Sound4B.bin
+//#split	0x0FF7E2,0x0FF81C,sound/sound fx/Sound4C.bin
+//#split	0x0FF81C,0x0FF829,sound/sound fx/Sound4D.bin
+//#split	0x0FF829,0x0FF83E,sound/sound fx/Sound4E.bin
+//#split	0x0FF83E,0x0FF875,sound/sound fx/Sound4F.bin
+//#split	0x0FF875,0x0FF8A8,sound/sound fx/Sound50.bin
+//#split	0x0FF8A8,0x0FF8E1,sound/sound fx/Sound51.bin
+//#split	0x0FF8E1,0x0FF91E,sound/sound fx/Sound52.bin
+//#split	0x0FF91E,0x0FF95D,sound/sound fx/Sound53.bin
+//#split	0x0FF95D,0x0FF99E,sound/sound fx/Sound54.bin
+//#split	0x0FF99E,0x0FF9C8,sound/sound fx/Sound55.bin
+//#split	0x0FF9C8,0x0FFA0D,sound/sound fx/Sound56.bin
+//#split	0x0FFA0D,0x0FFA35,sound/sound fx/Sound57.bin
+//#split	0x0FFA35,0x0FFA5F,sound/sound fx/Sound58.bin
+//#split	0x0FFA5F,0x0FFAB8,sound/sound fx/Sound59.bin
+//#split	0x0FFAB8,0x0FFAE5,sound/sound fx/Sound5A.bin
+//#split	0x0FFAE5,0x0FFB19,sound/sound fx/Sound5B.bin
+//#split	0x0FFB19,0x0FFB60,sound/sound fx/Sound5C.bin
+//#split	0x0FFB60,0x0FFB88,sound/sound fx/Sound5D.bin
+//#split	0x0FFB88,0x0FFBC2,sound/sound fx/Sound5E.bin
+//#split	0x0FFBC2,0x0FFC5E,sound/sound fx/Sound5F.bin
+//#split	0x0FFC5E,0x0FFC99,sound/sound fx/Sound60.bin
+//#split	0x0FFC99,0x0FFCF6,sound/sound fx/Sound61.bin
+//#split	0x0FFCF6,0x0FFD2D,sound/sound fx/Sound62.bin
+//#split	0x0FFD2D,0x0FFD5C,sound/sound fx/Sound63.bin
+//#split	0x0FFD5C,0x0FFD84,sound/sound fx/Sound64.bin
+//#split	0x0FFD84,0x0FFDA5,sound/sound fx/Sound65.bin
+//#split	0x0FFDA5,0x0FFDDF,sound/sound fx/Sound66.bin
+//#split	0x0FFDDF,0x0FFE00,sound/sound fx/Sound67.bin
+//#split	0x0FFE00,0x0FFE2A,sound/sound fx/Sound68.bin
+//#split	0x0FFE2A,0x0FFE67,sound/sound fx/Sound69.bin
+//#split	0x0FFE67,0x0FFE92,sound/sound fx/Sound6A.bin
+//#split	0x0FFE92,0x0FFEBC,sound/sound fx/Sound6B.bin
+//#split	0x0FFEBC,0x0FFF27,sound/sound fx/Sound6C.bin
+//#split	0x0FFF27,0x0FFF53,sound/sound fx/Sound6D.bin
+//#split	0x0FFF53,0x0FFF91,sound/sound fx/Sound6E.bin
+//#split	0x0FFF91,0x0FFFD4,sound/sound fx/Sound6F.bin
+//#split	0x0FFFD4,0x0FFFEC,sound/sound fx/Sound70.bin
+
+
+
+split	0x0,0x0,\0x0 - .bin
+

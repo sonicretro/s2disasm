@@ -1,0 +1,49 @@
+Type: 2
+
+Zone ID:    D
+Act ID:     2
+
+Object Def: objdef\s2obj
+
+8x8 Tiles:     ..\art\kosinski\ARZ.bin
+
+16x16 Tiles:   ..\mappings\16x16\ARZ.bin
+
+128x128 Tiles: ..\mappings\128x128\ARZ.bin
+
+Level Layout:  ..\level\layout\ARZ_2.bin
+
+Objects:       ..\level\objects\ARZ_2.bin
+Rings:         ..\level\rings\ARZ_2.bin
+Misc:          NONE
+
+Palettes-
+
+ Number of files: 3
+
+  Palette 1-
+
+   Start index:        0
+   Number of entries: 16
+   File:              ..\art\palettes\SonicAndTails.bin
+
+  Palette 2-
+
+   Start index:       16
+   Number of entries: 48
+   File:              ..\art\palettes\ARZ.bin
+
+  Palette 3-
+
+   Start index:       64
+   Number of entries: 64
+   File:              ..\art\palettes\ARZ underwater.bin
+
+Angle Array:             ..\collision\Curve and resistance mapping.bin
+Collision Array:         ..\collision\Collision array 1.bin
+Rotated Collision Array: ..\collision\Collision array 2.bin
+
+Collision Index 1: ..\collision\ARZ primary 16x16 collision index.bin
+Collision Index 2: ..\collision\ARZ secondary 16x16 collision index.bin
+
+-EOF-

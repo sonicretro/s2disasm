@@ -1,0 +1,43 @@
+Type: 2
+
+Zone ID:    5
+Act ID:     0
+
+Object Def: objdef\s2obj
+
+8x8 Tiles:     ..\art\kosinski\CPZ_DEZ.bin
+
+16x16 Tiles:   ..\mappings\16x16\CPZ_DEZ.bin
+
+128x128 Tiles: ..\mappings\128x128\CPZ_DEZ.bin
+
+Level Layout:  ..\level\layout\DEZ.bin
+
+Objects:       ..\level\objects\DEZ_1.bin
+Rings:         ..\level\rings\DEZ_1.bin
+Misc:          NONE
+
+Palettes-
+
+ Number of files: 2
+
+  Palette 1-
+
+   Start index:        0
+   Number of entries: 16
+   File:              ..\art\palettes\SonicAndTails.bin
+
+  Palette 2-
+
+   Start index:       16
+   Number of entries: 48
+   File:              ..\art\palettes\DEZ.bin
+
+Angle Array:             ..\collision\Curve and resistance mapping.bin
+Collision Array:         ..\collision\Collision array 1.bin
+Rotated Collision Array: ..\collision\Collision array 2.bin
+
+Collision Index 1: ..\collision\CPZ and DEZ primary 16x16 collision index.bin
+Collision Index 2: ..\collision\CPZ and DEZ secondary 16x16 collision index.bin
+
+-EOF-

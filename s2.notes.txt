@@ -1,0 +1,138 @@
+; ---------------------------------------------------------------------------
+; STYLE:
+;
+; Code is indented by one tab stop, which on my editor is 8 spaces. Most labels
+; appear on separate lines, with the exception of nameless temporary labels
+; which always appear next to the relevant instruction. Blank lines are inserted
+; after reverse branches, to help make loops clearer; they may also be inserted
+; before the start of the loop if it is simple enough. If code execution cannot
+; continue linerally because of an unconditional jump, branch, or a return
+; instruction, a series of dashed or double-dashed lines is inserted at the
+; point where PC is altered. (Double dashes indicate possibly more significant
+; boundaries than single dashes, but there is no hard rule behind the choice.)
+; These dashes have been removed when breached by nameless temporary variables.
+; 
+; Variables and structures have underscore-seperated names (eg Decomp_Buffer,
+; Camera_X_Pos), while subroutine labels lack underscores for the most part.
+; The exception here is templated names, where each part of the template is
+; separated from the rest of the label by underscores. It's easy to figure
+; out what a templated name refers to, because the template makes it obvious.
+; For example, Obj##_ always refers to code, because the concept of "object" as
+; it applies to Genesis Sonic games only makes sense when applied to executable
+; code.
+; Variables and labels that are relative to the start of z80 RAM begin with
+; a lowercase "z" character. The Z80 sound driver code is in s2.sounddriver.asm.
+
+; I kept as many old and alternate label names around in the comments as I could,
+; for your convenience in case you search for something by those label names.
+; However, I renamed prefixes of address-containing labels as I saw fit,
+; so for example you should search for "EC000:" instead of "loc_EC000:"
+;
+; I removed the colon after certain labels; this is because they ended with
+; the names of other more important labels and would otherwise make searching
+; for those other labels more difficult. In those cases, the colon is replaced
+; with a space, so there is still something to add to your search if you
+; want to find the definition of one of these conflicting less-important labels.
+; This only applies to labels starting with "JmpTo_" or "BranchTo_".
+;
+; As comments on lines that change a subroutine counter, I use "=>" to mean
+; "this changes the state such that this subroutine will get called:"
+; On lines that change a subtype or data loading param, I use "<==" to mean
+; "this changes the state such that this data will get loaded:"
+;
+; In case you want to change the object status table offset values:
+; Many of these aren't completely safe to change because
+; some code implicitly assumes the existing order when setting multiple variables,
+; but swapping x with y, mappings with a position variable,
+; or variables above $19 with each other should be safe, if you know what you're doing.
+;
+; The rest of this document is somewhat out of date.
+
+; ---------------------------------------------------------------------------
+; TEMPLATES:
+;
+; Obj$(NAME_OF_OBJECT)
+;	Start of object code.
+; Obj_$(OBJECT_REF_NUM)_subtbl
+;	Jump table of subroutine pointers. May be appended with '2' if this is a
+;	secondary jump table (i.e. it goes with the secondary routine counter).
+; Obj_$(OBJECT_REF_NUM)_sub_$(SUBROUTINE_VALUE)
+;	Start of an object subroutine.
+; MapUnc_$(OBJECT_REF_NUM)
+;	Sprite table for $(OBJECT_REF_NUM). If an object has more than one, each is
+;	appended by _primary, _scndary, _trnary, etc. If a single table is used
+;	by multiple objects, the reference number of each is listed.
+
+; Blocks marked (!) require further investigation.
+; ---------------------------------------------------------------------------
+; MAIN MEMORY MAP - NORMAL PLAY
+
+; $0000 - $7FFF		Metablock table
+; $8000 - $8FFF		Level layout
+; $9000 - $A9FF		Block table
+; $AA00 - $A?FF		Decompression buffer
+; $AC00 - $AFFF		Intermediate sprite attribute table buffer
+; $B000 - $D5FF		Object attribute table
+; $D600 - $D8FF		Primary collision index
+; $D900 - $DBFF		Secondary collision index
+; $DC00 - $DFFF		Queued VDP command buffer
+; $E000 - $E3FF		H scroll table buffer
+; $E400 - $E4FF		Unknown data
+; $E500 - $E5FF		Unknown data
+; $E600 - $E6FF		Unknown data
+; $E700 - $E7FF		Empty space?
+; $E800 - $EDFF		Ring position table
+; $EE00 - $EFFF		Variables
+; $F000 - $F07F		Unknown palette
+; $F080 - $F0FF		Underwater palette
+; $F100 - $F67F		Variables
+; $F680 - $F6FF		Pattern load queue
+; $F700 - $F7FF		Variables
+; $F800 - $F93F		Sprite attribute table buffer
+; $F940 - $FAFF		Variables
+; $FB00 - $FBF7		Above water palette
+; $FB80 - $FBFF		Unknown palette
+; $FC00 - $FCFF		Object respawn table
+; $FD00 - $FFFF		Variables
+
+; Special stages have a completely different memory layout, but I don't know
+; enough about it to fill out a releaseable map.
+
+; ---------------------------------------------------------------------------
+; VRAM MAP - NORMAL PLAY
+
+; $0000 - $BFFF		Main patterns *
+; $C000 - $CFFF		Plane A pattern name table
+; $D000 - $DFFF		Patterns for text, powerups, and rings
+; $E000 - $E7FF		Plane B pattern name table
+; $F000 - $F7FF		Sonic and Tails (both are always loaded)
+; $F800 - $FA7F		Sprite attribute table
+; $FA80	- $FBFF		Life counter
+; $FC00 - $FFFF		Horizontal scroll table
+
+; Pattern name tables are 64x32 cells; display is 40x28 cells. The extra space
+; is used as a scroll buffer.
+
+; VRAM MAP - SPECIAL STAGE
+
+; $0000 - $7FFF		Main patterns *
+; $8000 - $9FFF		Plane A pattern name table 1
+; $A000 - $BFFF		Plane B pattern name table
+; $C000 - $DFFF		Plane A pattern name table 2
+; $E000 - $F7FF		Background tiles
+; $F800 - $FA7F		Sprite attribute table
+; $FA80 - $FBFF		Life counter (not used in special stage)
+; $FC00 - $FFFF		Horizontal scroll table
+
+; Pattern name tables are 128x32 cells, display is 32x28 cells. This means
+; that fully four display screens can be represented by the pattern name
+; tables. This extra room is probably used for animation.
+
+; Plane W (the window) is disabled.
+
+; * The upper part of this area contains sprite patterns, while the lower part
+;   contains patterns for the scrolling layers (i.e. the fore and background).
+;   Where the division lies seems to depend on the particular Zone. Oil Ocean
+;   Zone, for example, doesn't have a very complex background, and so can free
+;   up some more space for sprites by repeatedly referencing the same blocks
+;   in Scroll B's pattern name table.

@@ -1,0 +1,43 @@
+Type: 2
+
+Zone ID:    B
+Act ID:     0
+
+Object Def: objdef\s2obj
+
+8x8 Tiles:     ..\art\kosinski\MCZ.bin
+
+16x16 Tiles:   ..\mappings\16x16\MCZ.bin
+
+128x128 Tiles: ..\mappings\128x128\MCZ.bin
+
+Level Layout:  ..\level\layout\MCZ_1.bin
+
+Objects:       ..\level\objects\MCZ_1.bin
+Rings:         ..\level\rings\MCZ_1.bin
+Misc:          NONE
+
+Palettes-
+
+ Number of files: 2
+
+  Palette 1-
+
+   Start index:        0
+   Number of entries: 16
+   File:              ..\art\palettes\SonicAndTails.bin
+
+  Palette 2-
+
+   Start index:       16
+   Number of entries: 48
+   File:              ..\art\palettes\MCZ.bin
+
+Angle Array:             ..\collision\Curve and resistance mapping.bin
+Collision Array:         ..\collision\Collision array 1.bin
+Rotated Collision Array: ..\collision\Collision array 2.bin
+
+Collision Index 1: ..\collision\MCZ primary 16x16 collision index.bin
+Collision Index 2: ..\collision\MCZ primary 16x16 collision index.bin
+
+-EOF-

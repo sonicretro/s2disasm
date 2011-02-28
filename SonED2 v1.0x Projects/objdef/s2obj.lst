@@ -1,0 +1,6772 @@
+;Sonic 2 Object Listing File
+
+;Sprite Listing Loads all sprites used to represent objects in this game
+;- Set codes are as follows-
+;  0 is stuff.spr
+;  1 is s2obj1.spr
+;  2 is s2obj2.spr
+;  etc
+;- xoff in file is the x position of the top-left corner of the sprite in
+;  the file it will be loaded from
+;- yoff in file is the y position of the top-left corner of the sprite in
+;  the file it will be loaded from
+;- Width is the width (in pixels) of the sprite
+;- Height is the height (in pixels) of the sprite
+;Set 0 is reserved for "invisible" objects, objects that can only be seen
+;during editing. "Ring" and "Question Icon" must always be the first two
+;sprites that appear in this set.
+
+      # of sprite sets:     4
+
+ # of Sprites in set 0:     4
+ ;"INVISIBLE" SET
+
+         ;RING
+         Sprite 0 file:     1
+          xoff in file:    98
+          yoff in file:    15
+                 Width:    16
+                Height:    16
+
+         ;QUESTION ICON
+         Sprite 1 file:     1
+          xoff in file:    81
+          yoff in file:     0
+                 Width:    16
+                Height:    14
+
+         ;TAILS ICON
+         Sprite 2 file:     1
+          xoff in file:    81
+          yoff in file:    15
+                 Width:    16
+                Height:    14
+
+         ;EGGMAN ICON
+         Sprite 3 file:     1
+          xoff in file:    98
+          yoff in file:     0
+                 Width:    16
+                Height:    14
+
+ # of Sprites in set 1:    26
+ ;"GLOBAL" SET
+
+         ;RING
+         Sprite 0 file:     1
+          xoff in file:    98
+          yoff in file:    15
+                 Width:    16
+                Height:    16
+
+         ;QUESTION ICON
+         Sprite 1 file:     1
+          xoff in file:    81
+          yoff in file:     0
+                 Width:    16
+                Height:    14
+
+          ;RING ICON
+         Sprite 2 file:     1
+          xoff in file:    30
+          yoff in file:     0
+                 Width:    16
+                Height:    14
+
+         ;SHIELD ICON
+         Sprite 3 file:     1
+          xoff in file:    47
+          yoff in file:     0
+                 Width:    16
+                Height:    14
+
+         ;INVINCIBLE ICON
+         Sprite 4 file:    1
+          xoff in file:    30
+          yoff in file:    15
+                 Width:    16
+                Height:    14
+
+         ;SHOE ICON
+         Sprite 5 file:     1
+          xoff in file:    47
+          yoff in file:    15
+                 Width:    16
+                Height:    14
+
+         ;WARP ICON
+         Sprite 6 file:     1
+          xoff in file:    64
+          yoff in file:     0
+                 Width:    16
+                Height:    14
+
+         ;SONIC ICON
+         Sprite 7 file:     1
+          xoff in file:    64
+          yoff in file:    15
+                 Width:    16
+                Height:    14
+
+         ;TAILS ICON
+         Sprite 8 file:     1
+          xoff in file:    81
+          yoff in file:    15
+                 Width:    16
+                Height:    14
+
+         ;EGGMAN ICON
+         Sprite 9 file:     1
+          xoff in file:    98
+          yoff in file:     0
+                 Width:    16
+                Height:    14
+
+        ;BLANK MONITOR
+        Sprite 10 file:     1
+          xoff in file:     0
+          yoff in file:     0
+                 Width:    30
+                Height:    30
+
+        ;END SIGN FACE
+        Sprite 11 file:     1
+          xoff in file:     0
+          yoff in file:    30
+                 Width:    48
+                Height:    32
+
+        ;END SIGN STEM
+        Sprite 12 file:     1
+          xoff in file:    21
+          yoff in file:    62
+                 Width:     6
+                Height:    16
+
+        ;EGG CAGE TOP
+        Sprite 13 file:     1
+          xoff in file:    64
+          yoff in file:    31
+                 Width:    32
+                Height:    20
+
+        ;EGG CAGE BOTTOM
+        Sprite 14 file:     1
+          xoff in file:    48
+          yoff in file:    51
+                 Width:    64
+                Height:    60
+
+        ;STARPOST
+        Sprite 15 file:     1
+          xoff in file:   113
+          yoff in file:    47
+                 Width:    16
+                Height:    64
+
+        ;SPRING COIL
+        Sprite 16 file:     1
+          xoff in file:     8
+          yoff in file:    87
+                 Width:    16
+                Height:     8
+
+        ;SPRING PAD YELLOW
+        Sprite 17 file:     1
+          xoff in file:     0
+          yoff in file:    79
+                 Width:    32
+                Height:     8
+
+        ;SPRING PAD RED
+        Sprite 18 file:     1
+          xoff in file:     0
+          yoff in file:    95
+                 Width:    32
+                Height:     8
+
+        ;SPIKES VERTICAL
+        Sprite 19 file:     1
+          xoff in file:   115
+          yoff in file:     0
+                 Width:    32
+                Height:    32
+
+        ;SPIKES HORIZONTAL
+        Sprite 20 file:     1
+          xoff in file:   147
+          yoff in file:     0
+                 Width:    32
+                Height:    32
+
+        ;SPRING COIL HORIZONTAL
+        Sprite 21 file:     1
+          xoff in file:    32
+          yoff in file:   119
+                 Width:     8
+                Height:    16
+
+        ;SPRING PAD YELLOW HORIZONTAL
+        Sprite 22 file:     1
+          xoff in file:    56
+          yoff in file:   111
+                 Width:     8
+                Height:    32
+
+        ;SPRING PAD RED HORIZONTAL
+        Sprite 23 file:     1
+          xoff in file:    40
+          yoff in file:   111
+                 Width:     8
+                Height:    32
+
+        ;SPRING PAD YELLOW HORIZONTAL
+        Sprite 24 file:     1
+          xoff in file:     0
+          yoff in file:   111
+                 Width:    32
+                Height:    32
+
+        ;SPRING PAD RED HORIZONTAL
+        Sprite 25 file:     1
+          xoff in file:     0
+          yoff in file:   143
+                 Width:    32
+                Height:    32
+
+ # of Sprites in set 2:     6
+ ;EMERALD HILL SET
+
+         ;BUZZER
+         Sprite 0 file:    10
+          xoff in file:     0
+          yoff in file:     0
+                 Width:    48
+                Height:    16
+
+         ;COCONUTS
+         Sprite 1 file:    10
+          xoff in file:    50
+          yoff in file:     0
+                 Width:    26
+                Height:    45
+
+         ;MASHER
+         Sprite 2 file:    10
+          xoff in file:    77
+          yoff in file:     0
+                 Width:    20
+                Height:    32
+
+         ;MOVING/FALLING PLATFORM
+         Sprite 3 file:    10
+          xoff in file:    98
+          yoff in file:     0
+                 Width:    64
+                Height:    32
+
+         ;BRIDGE STAKE
+         Sprite 4 file:    10
+          xoff in file:   162
+          yoff in file:     0
+                 Width:    16
+                Height:    16
+
+         ;BRIDGE LOG
+         Sprite 5 file:    10
+          xoff in file:   178
+          yoff in file:     0
+                 Width:    16
+                Height:    16
+
+ # of Sprites in set 3:     4
+ ;AQUATIC RUIN SET
+
+         ;MOVING/FALLING PLATFORM
+         Sprite 0 file:    20
+          xoff in file:     0
+          yoff in file:     0
+                 Width:    64
+                Height:    45
+
+         ;ARROW SHOOTER
+         Sprite 1 file:    20
+          xoff in file:     0
+          yoff in file:    46
+                 Width:    32
+                Height:    16
+
+         ;GROUNDER
+         Sprite 2 file:    20
+          xoff in file:    64
+          yoff in file:     0
+                 Width:    32
+                Height:    40
+
+         ;GROUNDER BEHIND WALL
+         Sprite 3 file:    20
+          xoff in file:    96
+          yoff in file:     0
+                 Width:    32
+                Height:    32
+
+;Object Listing gives identity to each of the objects listed
+;- Object ID is the ID number of the object in the game (hex value)
+;- # of Zones is the number of zones that contain a different definition
+;  for this object. If the object remains constant, it must be set to 1.
+;  Values after this repeat for as many times as the value of this entry
+;  - Zone Entry is the zone that this object entry is valid in. All entries
+;    must at least have a default entry (the data used on all levels that
+;    do not have any extra data specifically listed for them). If the entry
+;    is the default entry, it must be the first entry in the list, and this
+;    value must be 0xFF (hex value)
+;  - Description is the main description for the object
+;  - Num Bitfields is the number of bitfields that reside in the object's
+;    paramater byte (the second byte in the object's game entry). After this
+;    entry, each bitfield is defined. If the object does not use a bitfield
+;    setup (if the paramater uses a whole byte value, or no paramater at all),
+;    this value should be 0, and the "Field"/"Desc" entries should be omitted
+;    - BitField # is a binary number where 1's show which bits are used for this
+;      bitfield. All other bits are 0 (must include all 8 bits of the byte).
+;      After this, entries for each possible value of the bitfield are listed
+;      to describe what each value means
+;      - Desc # is a text description of what each of the possible bitfield values
+;        do to the object (The entry ID of the description corresponds with the
+;        desired value in the bitfield)
+;  - DefaultParam is the default paramater byte value to be given to the object
+;    when it is selected from the object type selector
+;  - DefaultFlag is either 1 or 0 to determine the state given to the object's
+;    "unknown flag" when it is selected from the object type selector. (This only
+;    affects Sonic 2)
+;  - DefltRemember affects the "Remember Sprite State" flag, which tells the game
+;    to remember that an object has been manipulated/destroyed/etc. This value is
+;    1 if this flag should be set when the object is selected from the object type
+;    listing, and 0 if it should not be set.
+;  - DefaultDir controls the sprite drawing (not action) direction flags that are
+;    given to the object when it is selected from the object type selector.
+;    * 0- Normal
+;    * 1- Backwards
+;    * 2- Upside-down
+;    * 3- Backwards and Upside-down
+;  - NumDependants is the number of bitfields that affect the drawing of the object.
+;    The ID number of each of these bitfields is listed below
+;    -Dependant # is the ID number of any bitfield that controls how the object is
+;     drawn. There are as many of these entries as the value listed above
+;  - Num Types is the number of different drawing types this object has. Listed below
+;    are data describing how to draw each of them
+;    -Val # states the value that the bitfield must have for this drawing type to be
+;     displayed. There are one of these listings for each of the "Dependant" listings
+;     shown above, and the bitfields that these values are checked against correspond
+;     with the bitfield IDs that are listed in the "Dependant" listings at the same
+;     position in the list. ("Val 1" is compared to bitfield who's ID is stored in
+;     "Dependant 1", etc)
+;    - XMin the leftmost offset (in pixels) from the object position that the
+;      mouse pointer can touch
+;    - YMin the topmost offset (in pixels) from the object position that the
+;      mouse pointer can touch
+;    - XMax the rightmost offset (in pixels) from the object position that the
+;      mouse pointer can touch
+;    - YMax the bottommost offset (in pixels) from the object position that the
+;      mouse pointer can touch
+;    - # of Sprites is how many individual sprites to combine to make a visual
+;      representation of this object
+;    - Sprite # ID is the ID number of the sprite (in it's respective set) that
+;      should be drawn
+;    - Set is the sprite set in which the sprite you want is located
+;    -  Direction is the direction in which to draw the sprite
+;      * 0- Normal
+;      * 1- Backwards
+;      * 2- Upside-down
+;      * 3- Backwards and Upside-down
+;    - xoff is the offset on the x axis from the objects position where the sprite
+;      should be drawn
+;    - yoff is the offset on the y axis from the objects position where the sprite
+;      should be drawn
+
+Num of objects:   221
+
+     Object ID:   0
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Null Object
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:   1
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Sonic Player
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:   2
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Tails Player
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:   3
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Path Swapper
+ Num Bitfields:   7
+       Field 0: 00000011
+          Desc: Size: 64
+          Desc: Size: 128
+          Desc: Size: 256
+          Desc: Size: 512
+       Field 1: 00000100
+          Desc: Vertical
+          Desc: Horizontal
+       Field 2: 00001000
+          Desc: Right\Down - Path 0
+          Desc: Right\Down - Path 1
+       Field 3: 00010000
+          Desc: Left\Up    - Path 0
+          Desc: Left\up    - Path 1
+       Field 4: 00100000
+          Desc: Right\Down - Below High
+          Desc: Right\Down - Above High
+       Field 5: 01000000
+          Desc: Left\Up    - Below High
+          Desc: Left\up    - Above High
+       Field 6: 10000000
+          Desc: Unknown
+          Desc: Unknown
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   2
+   Dependant 0:   0
+   Dependant 1:   1
+     Num Types:   8
+ Type 0-  Val1:   0
+          Val2:   0
+          XMin:  -8
+          YMin: -32
+          XMax:   8
+          YMax:  32
+  # of Sprites:   4
+   Sprite 1 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: -32
+   Sprite 2 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: -16
+   Sprite 3 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:   0
+   Sprite 4 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:  16
+ Type 1-  Val1:   1
+          Val2:   0
+          XMin:  -8
+          YMin: -64
+          XMax:   8
+          YMax:  64
+  # of Sprites:   8
+   Sprite 1 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: -64
+   Sprite 2 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: -48
+   Sprite 3 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: -32
+   Sprite 4 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: -16
+   Sprite 5 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:   0
+   Sprite 6 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:  16
+   Sprite 7 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:  32
+   Sprite 8 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:  48
+ Type 2-  Val1:   2
+          Val2:   0
+          XMin:  -8
+          YMin:-128
+          XMax:   8
+          YMax: 128
+  # of Sprites:  16
+   Sprite 1 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:-128
+   Sprite 2 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:-112
+   Sprite 3 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: -96
+   Sprite 4 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: -80
+   Sprite 5 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: -64
+   Sprite 6 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: -48
+   Sprite 7 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: -32
+   Sprite 8 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: -16
+   Sprite 9 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:   0
+   Sprite 10 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:  16
+   Sprite 11 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:  32
+   Sprite 12 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:  48
+   Sprite 13 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:  64
+   Sprite 14 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:  80
+   Sprite 15 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:  96
+   Sprite 16 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: 112
+ Type 3-  Val1:   3
+          Val2:   0
+          XMin:  -8
+          YMin:-256
+          XMax:   8
+          YMax: 256
+  # of Sprites:  32
+   Sprite 1 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:-256
+   Sprite 2 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:-240
+   Sprite 3 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:-224
+   Sprite 4 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:-208
+   Sprite 5 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:-192
+   Sprite 6 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:-176
+   Sprite 7 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:-160
+   Sprite 8 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:-144
+   Sprite 9 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:-128
+   Sprite 10 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:-112
+   Sprite 11 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: -96
+   Sprite 12 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: -80
+   Sprite 13 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: -64
+   Sprite 14 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: -48
+   Sprite 15 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: -32
+   Sprite 16 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: -16
+   Sprite 17 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:   0
+   Sprite 18 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:  16
+   Sprite 19 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:  32
+   Sprite 20 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:  48
+   Sprite 21 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:  64
+   Sprite 22 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:  80
+   Sprite 23 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff:  96
+   Sprite 24 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: 112
+   Sprite 25 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: 128
+   Sprite 26 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: 144
+   Sprite 27 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: 160
+   Sprite 28 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: 176
+   Sprite 29 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: 192
+   Sprite 30 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: 208
+   Sprite 31 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: 224
+   Sprite 32 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  -8
+          yoff: 240
+ Type 4-  Val1:   0
+          Val2:   1
+          XMin: -32
+          YMin:  -8
+          XMax:  32
+          YMax:   8
+  # of Sprites:   4
+   Sprite 1 ID:   1
+           Set:   0
+     Direction:   0
+          xoff: -32
+          yoff:  -8
+   Sprite 2 ID:   1
+           Set:   0
+     Direction:   0
+          xoff: -16
+          yoff:  -8
+   Sprite 3 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:   0
+          yoff:  -8
+   Sprite 4 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  16
+          yoff:  -8
+ Type 5-  Val1:   1
+          Val2:   1
+          XMin: -64
+          YMin:  -8
+          XMax:  64
+          YMax:   8
+  # of Sprites:   8
+   Sprite 1 ID:   1
+           Set:   0
+     Direction:   0
+          xoff: -64
+          yoff:  -8
+   Sprite 2 ID:   1
+           Set:   0
+     Direction:   0
+          xoff: -48
+          yoff:  -8
+   Sprite 3 ID:   1
+           Set:   0
+     Direction:   0
+          xoff: -32
+          yoff:  -8
+   Sprite 4 ID:   1
+           Set:   0
+     Direction:   0
+          xoff: -16
+          yoff:  -8
+   Sprite 5 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:   0
+          yoff:  -8
+   Sprite 6 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  16
+          yoff:  -8
+   Sprite 7 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  32
+          yoff:  -8
+   Sprite 8 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:  48
+          toff:  -8
+ Type 6-  Val1:   2
+          Val2:   1
+          XMin:-128
+          YMin:  -8
+          XMax: 128
+          YMax:   8
+  # of Sprites:  16
+   Sprite 1 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:-128
+          yoff:  -8
+   Sprite 2 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:-112
+          yoff:  -8
+   Sprite 3 ID:   1
+           Set:   0
+     Direction:   0
+          xoff: -96
+          yoff:  -8
+   Sprite 4 ID:   1
+           Set:   0
+     Direction:   0
+          xoff: -80
+          yoff:  -8
+   Sprite 5 ID:   1
+           Set:   0
+     Direction:   0
+          xoff: -64
+          yoff:  -8
+   Sprite 6 ID:   1
+           Set:   0
+     Direction:   0
+          xoff: -48
+          yoff:  -8
+   Sprite 7 ID:   1
+           Set:   0
+     Direction:   0
+          xoff: -32
+          yoff:  -8
+   Sprite 8 ID:   1
+           Set:   0
+     Direction:   0
+          xoff: -16
+          yoff:  -8
+   Sprite 9 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:   0
+          yoff:  -8
+   Sprite 10 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  16
+          yoff:  -8
+   Sprite 11 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  32
+          yoff:  -8
+   Sprite 12 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  48
+          yoff:  -8
+   Sprite 13 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  64
+          yoff:  -8
+   Sprite 14 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  80
+          yoff:  -8
+   Sprite 15 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  96
+          yoff:  -8
+   Sprite 16 ID:  1
+           Set:   0
+     Direction:   0
+          xoff: 112
+          yoff:  -8
+ Type 7-  Val1:   3
+          Val2:   1
+          XMin:-256
+          YMin:  -8
+          XMax: 256
+          YMax:   8
+  # of Sprites:  32
+   Sprite 1 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:-256
+          yoff:  -8
+   Sprite 2 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:-240
+          yoff:  -8
+   Sprite 3 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:-224
+          yoff:  -8
+   Sprite 4 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:-208
+          yoff:  -8
+   Sprite 5 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:-192
+          yoff:  -8
+   Sprite 6 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:-176
+          yoff:  -8
+   Sprite 7 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:-160
+          yoff:  -8
+   Sprite 8 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:-144
+          yoff:  -8
+   Sprite 9 ID:   1
+           Set:   0
+     Direction:   0
+          xoff:-128
+          yoff:  -8
+   Sprite 10 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:-112
+          yoff:  -8
+   Sprite 11 ID:  1
+           Set:   0
+     Direction:   0
+          xoff: -96
+          yoff:  -8
+   Sprite 12 ID:  1
+           Set:   0
+     Direction:   0
+          xoff: -80
+          yoff:  -8
+   Sprite 13 ID:  1
+           Set:   0
+     Direction:   0
+          xoff: -64
+          yoff:  -8
+   Sprite 14 ID:  1
+           Set:   0
+     Direction:   0
+          xoff: -48
+          yoff:  -8
+   Sprite 15 ID:  1
+           Set:   0
+     Direction:   0
+          xoff: -32
+          yoff:  -8
+   Sprite 16 ID:  1
+           Set:   0
+     Direction:   0
+          xoff: -16
+          yoff:  -8
+   Sprite 17 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:   0
+          yoff:  -8
+   Sprite 18 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  16
+          yoff:  -8
+   Sprite 19 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  32
+          yoff:  -8
+   Sprite 20 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  48
+          yoff:  -8
+   Sprite 21 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  64
+          yoff:  -8
+   Sprite 22 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  80
+          yoff:  -8
+   Sprite 23 ID:  1
+           Set:   0
+     Direction:   0
+          xoff:  96
+          yoff:  -8
+   Sprite 24 ID:  1
+           Set:   0
+     Direction:   0
+          xoff: 112
+          yoff:  -8
+   Sprite 25 ID:  1
+           Set:   0
+     Direction:   0
+          xoff: 128
+          yoff:  -8
+   Sprite 26 ID:  1
+           Set:   0
+     Direction:   0
+          xoff: 144
+          yoff:  -8
+   Sprite 27 ID:  1
+           Set:   0
+     Direction:   0
+          xoff: 160
+          yoff:  -8
+   Sprite 28 ID:  1
+           Set:   0
+     Direction:   0
+          xoff: 176
+          yoff:  -8
+   Sprite 29 ID:  1
+           Set:   0
+     Direction:   0
+          xoff: 192
+          yoff:  -8
+   Sprite 30 ID:  1
+           Set:   0
+     Direction:   0
+          xoff: 208
+          yoff:  -8
+   Sprite 31 ID:  1
+           Set:   0
+     Direction:   0
+          xoff: 224
+          yoff:  -8
+   Sprite 32 ID:  1
+           Set:   0
+     Direction:   0
+          xoff: 240
+          yoff:  -8
+
+     Object ID:   4
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Water Surface
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:   5
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Tails' Tails
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:   6
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Spiral path\cylinder (EHZ\MZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:   7
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Oil pool (OOZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:   8
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Splash and Dust
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:   9
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Special Stage Sonic
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:   A
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Exhaled Bubbles
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:   B
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Tipping Floor (CPZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:   C
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Small Floating Platform
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:   D
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: End-Level Sign
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   1
+ Type 0-  XMin: -24
+          YMin: -14
+          XMax:  24
+          YMax:  34
+  # of Sprites:   2
+   Sprite 1 ID:  11
+           Set:   1
+     Direction:   0
+          xoff: -24
+          yoff: -14
+   Sprite 2 ID:  12
+           Set:   1
+     Direction:   0
+          xoff:  -2
+          yoff:  18
+
+     Object ID:   E
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Flashing Star (intro)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:   F
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Title Screen Menu
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  10
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Special Stage Tails
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  11
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Bridge
+ Num Bitfields:   1
+    BitField 0: 00011111
+       Desc  0: Invalid
+       Desc  1: Invalid
+       Desc  2: Invalid
+       Desc  3: Invalid
+       Desc  4: Invalid
+       Desc  5: Invalid
+       Desc  6: Invalid
+       Desc  7: Invalid
+       Desc  8:  8 Logs
+       Desc  9:  9 Logs (buggy)
+       Desc  A: 10 Logs
+       Desc  B: 11 Logs (buggy)
+       Desc  C: 12 Logs
+       Desc  D: 13 Logs (buggy)
+       Desc  E: 14 Logs
+       Desc  F: 15 Logs (buggy)
+       Desc 10: 16 Logs
+       Desc 11: Invalid
+       Desc 12: Invalid
+       Desc 13: Invalid
+       Desc 14: Invalid
+       Desc 15: Invalid
+       Desc 16: Invalid
+       Desc 17: Invalid
+       Desc 18: Invalid
+       Desc 19: Invalid
+       Desc 1A: Invalid
+       Desc 1B: Invalid
+       Desc 1C: Invalid
+       Desc 1D: Invalid
+       Desc 1E: Invalid
+       Desc 1F: Invalid
+  DefaultParam:   8
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   1
+   Dependant 0:   0
+     Num Types:   5
+ Type 0   Val1:   8
+          XMin: -72
+          YMin:  -8
+          XMax:  56
+          YMax:   8
+  # of Sprites:   8
+   Sprite 1 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -72
+          yoff:  -8
+   Sprite 2 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -56
+          yoff:  -8
+   Sprite 3 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -40
+          yoff:  -8
+   Sprite 4 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -24
+          yoff:  -8
+   Sprite 5 ID:   5
+           Set:   2
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 6 ID:   5
+           Set:   2
+     Direction:   0
+          xoff:   8
+          yoff:  -8
+   Sprite 7 ID:   5
+           Set:   2
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+   Sprite 8 ID:   5
+           Set:   2
+     Direction:   0
+          xoff:  40
+          yoff:  -8
+ Type 1   Val1:   A
+          XMin: -88
+          YMin:  -8
+          XMax:  72
+          YMax:   8
+  # of Sprites:  10
+   Sprite 1 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -88
+          yoff:  -8
+   Sprite 2 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -72
+          yoff:  -8
+   Sprite 3 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -56
+          yoff:  -8
+   Sprite 4 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -40
+          yoff:  -8
+   Sprite 5 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -24
+          yoff:  -8
+   Sprite 6 ID:   5
+           Set:   2
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 7 ID:   5
+           Set:   2
+     Direction:   0
+          xoff:   8
+          yoff:  -8
+   Sprite 8 ID:   5
+           Set:   2
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+   Sprite 9 ID:   5
+           Set:   2
+     Direction:   0
+          xoff:  40
+          yoff:  -8
+   Sprite 10 ID:  5
+           Set:   2
+     Direction:   0
+          xoff:  56
+          yoff:  -8
+ Type 2   Val1:   C
+          XMin:-104
+          YMin:  -8
+          XMax:  88
+          YMax:   8
+  # of Sprites:  12
+   Sprite 1 ID:   5
+           Set:   2
+     Direction:   0
+          xoff:-104
+          yoff:  -8
+   Sprite 2 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -88
+          yoff:  -8
+   Sprite 3 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -72
+          yoff:  -8
+   Sprite 4 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -56
+          yoff:  -8
+   Sprite 5 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -40
+          yoff:  -8
+   Sprite 6 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -24
+          yoff:  -8
+   Sprite 7 ID:   5
+           Set:   2
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 8 ID:   5
+           Set:   2
+     Direction:   0
+          xoff:   8
+          yoff:  -8
+   Sprite 9 ID:   5
+           Set:   2
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+   Sprite 10 ID:  5
+           Set:   2
+     Direction:   0
+          xoff:  40
+          yoff:  -8
+   Sprite 11 ID:  5
+           Set:   2
+     Direction:   0
+          xoff:  56
+          yoff:  -8
+   Sprite 12 ID:  5
+           Set:   2
+     Direction:   0
+          xoff:  72
+          yoff:  -8
+ Type 3   Val1:   E
+          XMin:-120
+          YMin:  -8
+          XMax: 112
+          YMax:   8
+  # of Sprites:  14
+   Sprite 1 ID:   5
+           Set:   2
+     Direction:   0
+          xoff:-120
+          yoff:  -8
+   Sprite 2 ID:   5
+           Set:   2
+     Direction:   0
+          xoff:-104
+          yoff:  -8
+   Sprite 3 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -88
+          yoff:  -8
+   Sprite 4 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -72
+          yoff:  -8
+   Sprite 5 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -56
+          yoff:  -8
+   Sprite 6 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -40
+          yoff:  -8
+   Sprite 7 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -24
+          yoff:  -8
+   Sprite 8 ID:   5
+           Set:   2
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 9 ID:   5
+           Set:   2
+     Direction:   0
+          xoff:   8
+          yoff:  -8
+   Sprite 10 ID:  5
+           Set:   2
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+   Sprite 11 ID:  5
+           Set:   2
+     Direction:   0
+          xoff:  40
+          yoff:  -8
+   Sprite 12 ID:  5
+           Set:   2
+     Direction:   0
+          xoff:  56
+          yoff:  -8
+   Sprite 13 ID:  5
+           Set:   2
+     Direction:   0
+          xoff:  72
+          yoff:  -8
+   Sprite 14 ID:  5
+           Set:   2
+     Direction:   0
+          xoff:  88
+          yoff:  -8
+ Type 4   Val1:  10
+          XMin:-136
+          YMin:  -8
+          XMax: 128
+          YMax:   8
+  # of Sprites:  16
+   Sprite 1 ID:   5
+           Set:   2
+     Direction:   0
+          xoff:-136
+          yoff:  -8
+   Sprite 2 ID:   5
+           Set:   2
+     Direction:   0
+          xoff:-120
+          yoff:  -8
+   Sprite 3 ID:   5
+           Set:   2
+     Direction:   0
+          xoff:-104
+          yoff:  -8
+   Sprite 4 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -88
+          yoff:  -8
+   Sprite 5 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -72
+          yoff:  -8
+   Sprite 6 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -56
+          yoff:  -8
+   Sprite 7 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -40
+          yoff:  -8
+   Sprite 8 ID:   5
+           Set:   2
+     Direction:   0
+          xoff: -24
+          yoff:  -8
+   Sprite 9 ID:   5
+           Set:   2
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 10 ID:  5
+           Set:   2
+     Direction:   0
+          xoff:   8
+          yoff:  -8
+   Sprite 11 ID:  5
+           Set:   2
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+   Sprite 12 ID:  5
+           Set:   2
+     Direction:   0
+          xoff:  40
+          yoff:  -8
+   Sprite 13 ID:  5
+           Set:   2
+     Direction:   0
+          xoff:  56
+          yoff:  -8
+   Sprite 14 ID:  5
+           Set:   2
+     Direction:   0
+          xoff:  72
+          yoff:  -8
+   Sprite 15 ID:  5
+           Set:   2
+     Direction:   0
+          xoff:  88
+          yoff:  -8
+   Sprite 16 ID:  5
+           Set:   2
+     Direction:   0
+          xoff: 104
+          yoff:  -8
+
+     Object ID:  12
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Large Emerald (HPZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  13
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Waterfall (HPZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  14
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: See-saw (HTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  15
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Swinging Platform (ARZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  16
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Vine Lift Cart (HTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  17
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Unknown (animated/hurtable object)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  18
+    # of Zones:   2
+    Zone Entry:  FF
+   Description: Floating Platform (EHZ\ARZ)
+ Num Bitfields:   7
+    BitField 0: 00000011
+       Desc  0: Stationary
+       Desc  1: Horizontal
+       Desc  2: Vertical
+       Desc  3: Falling
+    BitField 1: 00000100
+       Desc  0: Unknown
+       Desc  1: Unknown
+    BitField 2: 00001000
+       Desc  0: Unknown
+       Desc  1: Unknown
+    BitField 3: 00010000
+       Desc  0: Small Art
+       Desc  1: Large Art
+    BitField 4: 00100000
+       Desc  0: Unknown
+       Desc  1: Unknown
+    BitField 5: 01000000
+       Desc  0: Visible
+       Desc  1: Invisible
+    BitField 6: 10000000
+       Desc  0: Solid on top (small)
+       Desc  1: Solid on all sides (large)
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   1
+   Dependant 0:   3
+     Num Types:   1
+ Type 0   Val1:   0
+          XMin: -32
+          YMin: -12
+          XMax:  32
+          YMax:  20
+  # of Sprites:   1
+   Sprite 1 ID:   3
+           Set:   2
+     Direction:   0
+          xoff: -32
+          yoff: -12
+    Zone Entry:   F
+   Description: Floating Platform (EHZ\ARZ)
+ Num Bitfields:   7
+    BitField 0: 00000011
+       Desc  0: Stationary
+       Desc  1: Horizontal
+       Desc  2: Vertical
+       Desc  3: Falling
+    BitField 1: 00000100
+       Desc  0: Unknown
+       Desc  1: Unknown
+    BitField 2: 00001000
+       Desc  0: Unknown
+       Desc  1: Unknown
+    BitField 3: 00010000
+       Desc  0: Small Art
+       Desc  1: Large Art
+    BitField 4: 00100000
+       Desc  0: Unknown
+       Desc  1: Unknown
+    BitField 5: 01000000
+       Desc  0: Visible
+       Desc  1: Invisible
+    BitField 6: 10000000
+       Desc  0: Solid on top (small)
+       Desc  1: Solid on all sides (large)
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   1
+   Dependant 0:   3
+     Num Types:   1
+ Type 0   Val1:   0
+          XMin: -32
+          YMin: -12
+          XMax:  32
+          YMax:  33
+  # of Sprites:   1
+   Sprite 1 ID:   0
+           Set:   3
+     Direction:   0
+          xoff: -32
+          yoff: -12
+
+     Object ID:  19
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Platform\Elevator (CPZ\OOZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  1A
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Collapsing Platform (MCZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  1B
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Speed Booster (CPZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  1C
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Bridge stake\Falling Oil (EHZ\OOZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   1
+ Type 0   XMin:  -8
+          YMin:  -8
+          XMax:   8
+          YMax:   8
+  # of Sprites:   1
+   Sprite 0 ID:   4
+           Set:   2
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+
+     Object ID:  1D
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Jumping Chemicals (CPZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  1E
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Spin Tube (CPZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  1F
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Collapsing Platform (MCZ\OOZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  20
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Lava Bubble (HTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  21
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: HUD Score Rings Time
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  22
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Arrow Launcher (ARZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   1
+ Type 0   XMin: -16
+          YMin:  -8
+          XMax:  16
+          YMax:   8
+  # of Sprites:   1
+   Sprite 0 ID:   1
+           Set:   3
+     Direction:   0
+          xoff: -16
+          yoff:  -8
+
+     Object ID:  23
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Floating Trap Pillar (ARZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  24
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Air Bubble
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  25
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Ring
+ Num Bitfields:   5
+    BitField 0: 00000111
+       Desc  0: 1 Ring
+       Desc  1: 2 Rings
+       Desc  2: 3 Rings
+       Desc  3: 4 Rings
+       Desc  4: 5 Rings
+       Desc  5: 6 Rings
+       Desc  6: 7 Rings
+       Desc  7: 8 Rings
+    BitField 1: 00001000
+       Desc  0: Unknown
+       Desc  1: Unknown
+    Bitfield 2: 00110000
+       Desc  0: Not Spaced
+       Desc  1: Spaced 8 R, 16 C
+       Desc  2: Spaced 16 R, Diagonal 0 C
+       Desc  3: Spaced 16 R, Diagonal 8 C
+    BitField 3: 01000000
+       Desc  0: Row
+       Desc  1: Column
+    BitField 4: 10000000
+       Desc  0: Unknown
+       Desc  1: Unknown
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   3
+   Dependant 0:   0
+   Dependant 1:   3
+   Dependant 1:   2
+     Num Types:  64
+ Type 0   Val0:   0
+          Val1:   0
+          Val2:   1
+          XMin:  -8
+          YMin:  -8
+          XMax:   8
+          YMax:   8
+  # of Sprites:   1
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+ Type 1   Val0:   1
+          Val1:   0
+          Val2:   1
+          XMin:  -8
+          YMin:  -8
+          XMax:  32
+          YMax:   8
+  # of Sprites:   2
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  16
+          yoff:  -8
+ Type 2   Val0:   2
+          Val1:   0
+          Val2:   1
+          XMin:  -8
+          YMin:  -8
+          XMax:  56
+          YMax:   8
+  # of Sprites:   3
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  16
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  40
+          yoff:  -8
+ Type 3   Val0:   3
+          Val1:   0
+          Val2:   1
+          XMin:  -8
+          YMin:  -8
+          XMax:  80
+          YMax:   8
+  # of Sprites:   4
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  16
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  40
+          yoff:  -8
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  64
+          yoff:  -8
+ Type 4   Val0:   4
+          Val1:   0
+          Val2:   1
+          XMin:  -8
+          YMin:  -8
+          XMax: 104
+          YMax:   8
+  # of Sprites:   5
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  16
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  40
+          yoff:  -8
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  64
+          yoff:  -8
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  88
+          yoff:  -8
+ Type 5   Val0:   5
+          Val1:   0
+          Val2:   1
+          XMin:  -8
+          YMin:  -8
+          XMax: 128
+          YMax:   8
+  # of Sprites:   6
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  16
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  40
+          yoff:  -8
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  64
+          yoff:  -8
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  88
+          yoff:  -8
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 112
+          yoff:  -8
+ Type 6   Val0:   6
+          Val1:   0
+          Val2:   1
+          XMin:  -8
+          YMin:  -8
+          XMax: 152
+          YMax:   8
+  # of Sprites:   7
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  16
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  40
+          yoff:  -8
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  64
+          yoff:  -8
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  88
+          yoff:  -8
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 112
+          yoff:  -8
+   Sprite 6 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 136
+          yoff:  -8
+ Type 7   Val0:   7
+          Val1:   0
+          Val2:   1
+          XMin:  -8
+          YMin:  -8
+          XMax: 176
+          YMax:   8
+  # of Sprites:   8
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  16
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  40
+          yoff:  -8
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  64
+          yoff:  -8
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  88
+          yoff:  -8
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 112
+          yoff:  -8
+   Sprite 6 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 136
+          yoff:  -8
+   Sprite 7 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 160
+          yoff:  -8
+ Type 8   Val0:   0
+          Val1:   1
+          Val2:   1
+          XMin:  -8
+          YMin:  -8
+          YMax:   8
+          XMax:   8
+  # of Sprites:   1
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  -8
+ Type 9   Val0:   1
+          Val1:   1
+          Val2:   1
+          XMin:  -8
+          YMin:  -8
+          YMax:   8
+          XMax:  32
+  # of Sprites:   2
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  16
+Type 10   Val0:   2
+          Val1:   1
+          Val2:   1
+          XMin:  -8
+          YMin:  -8
+          YMax:   8
+          XMax:  56
+  # of Sprites:   3
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  16
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  40
+Type 11   Val0:   3
+          Val1:   1
+          Val2:   1
+          XMin:  -8
+          YMin:  -8
+          YMax:   8
+          XMax:  80
+  # of Sprites:   4
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  16
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  40
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  64
+Type 12   Val0:   4
+          Val1:   1
+          Val2:   1
+          XMin:  -8
+          YMin:  -8
+          YMax:   8
+          XMax: 104
+  # of Sprites:   5
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  16
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  40
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  64
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  88
+Type 13   Val0:   5
+          Val1:   1
+          Val2:   1
+          XMin:  -8
+          YMin:  -8
+          YMax:   8
+          XMax: 128
+  # of Sprites:   6
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  16
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  40
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  64
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  88
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff: 112
+Type 14   Val0:   6
+          Val1:   1
+          Val2:   1
+          XMin:  -8
+          YMin:  -8
+          YMax:   8
+          XMax: 152
+  # of Sprites:   7
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  16
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  40
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  64
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  88
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff: 112
+   Sprite 6 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff: 136
+Type 15   Val0:   7
+          Val1:   1
+          Val2:   1
+          XMin:  -8
+          YMin:  -8
+          YMax:   8
+          XMax: 176
+  # of Sprites:   8
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  16
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  40
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  64
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  88
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff: 112
+   Sprite 6 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff: 136
+   Sprite 7 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff: 160
+Type 16   Val0:   0
+          Val1:   0
+          Val2:   2
+          XMin:  -8
+          YMin:  -8
+          XMax:   8
+          YMax:   8
+  # of Sprites:   1
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+Type 17   Val0:   1
+          Val1:   0
+          Val2:   2
+          XMin:  -8
+          YMin:  -8
+          XMax:  40
+          YMax:   8
+  # of Sprites:   2
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+Type 18   Val0:   2
+          Val1:   0
+          Val2:   2
+          XMin:  -8
+          YMin:  -8
+          XMax:  72
+          YMax:   8
+  # of Sprites:   3
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  56
+          yoff:  -8
+Type 19   Val0:   3
+          Val1:   0
+          Val2:   2
+          XMin:  -8
+          YMin:  -8
+          XMax: 104
+          YMax:   8
+  # of Sprites:   4
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  56
+          yoff:  -8
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  88
+          yoff:  -8
+Type 20   Val0:   4
+          Val1:   0
+          Val2:   2
+          XMin:  -8
+          YMin:  -8
+          XMax: 136
+          YMax:   8
+  # of Sprites:   5
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  56
+          yoff:  -8
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  88
+          yoff:  -8
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 120
+          yoff:  -8
+Type 21   Val0:   5
+          Val1:   0
+          Val2:   2
+          XMin:  -8
+          YMin:  -8
+          XMax: 168
+          YMax:   8
+  # of Sprites:   6
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  56
+          yoff:  -8
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  88
+          yoff:  -8
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 120
+          yoff:  -8
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 152
+          yoff:  -8
+Type 22   Val0:   6
+          Val1:   0
+          Val2:   2
+          XMin:  -8
+          YMin:  -8
+          XMax: 200
+          YMax:   8
+  # of Sprites:   7
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  56
+          yoff:  -8
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  88
+          yoff:  -8
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 120
+          yoff:  -8
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 152
+          yoff:  -8
+   Sprite 6 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 184
+          yoff:  -8
+Type 23   Val0:   7
+          Val1:   0
+          Val2:   2
+          XMin:  -8
+          YMin:  -8
+          XMax: 232
+          YMax:   8
+  # of Sprites:   8
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  56
+          yoff:  -8
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  88
+          yoff:  -8
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 120
+          yoff:  -8
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 152
+          yoff:  -8
+   Sprite 6 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 184
+          yoff:  -8
+   Sprite 7 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 216
+          yoff:  -8
+Type 24   Val0:   0
+          Val1:   1
+          Val2:   2
+          XMin:  -8
+          YMin:  -8
+          XMax:   8
+          YMax:   8
+  # of Sprites:   1
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  -8
+Type 25   Val0:   1
+          Val1:   1
+          Val2:   2
+          XMin:  -8
+          YMin:  -8
+          XMax:  24
+          YMax:  24
+  # of Sprites:   2
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:   8
+          Yoff:   8
+Type 26   Val0:   2
+          Val1:   1
+          Val2:   2
+          XMin:  -8
+          YMin:  -8
+          YMax:  40
+          YMax:  40
+  # of Sprites:   3
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:   8
+          Yoff:   8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  24
+          Yoff:  24
+Type 27   Val0:   3
+          Val1:   1
+          Val2:   2
+          XMin:  -8
+          YMin:  -8
+          YMax:  56
+          YMax:  56
+  # of Sprites:   4
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:   8
+          Yoff:   8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  24
+          Yoff:  24
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  40
+          Yoff:  40
+Type 28   Val0:   4
+          Val1:   1
+          Val2:   2
+          XMin:  -8
+          YMin:  -8
+          YMax:  72
+          YMax:  72
+  # of Sprites:   5
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:   8
+          Yoff:   8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  24
+          Yoff:  24
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  40
+          Yoff:  40
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  56
+          Yoff:  56
+Type 29   Val0:   5
+          Val1:   1
+          Val2:   2
+          XMin:  -8
+          YMin:  -8
+          YMax:  88
+          YMax:  88
+  # of Sprites:   6
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:   8
+          Yoff:   8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  24
+          Yoff:  24
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  40
+          Yoff:  40
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  56
+          Yoff:  56
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  72
+          Yoff:  72
+Type 30   Val0:   6
+          Val1:   1
+          Val2:   2
+          XMin:  -8
+          YMin:  -8
+          YMax: 104
+          YMax: 104
+  # of Sprites:   7
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:   8
+          Yoff:   8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  24
+          Yoff:  24
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  40
+          Yoff:  40
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  56
+          Yoff:  56
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  72
+          Yoff:  72
+   Sprite 6 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  88
+          Yoff:  88
+Type 31   Val0:   7
+          Val1:   1
+          Val2:   2
+          XMin:  -8
+          YMin:  -8
+          YMax: 120
+          YMax: 120
+  # of Sprites:   8
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:   8
+          Yoff:   8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  24
+          Yoff:  24
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  40
+          Yoff:  40
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  56
+          Yoff:  56
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  72
+          Yoff:  72
+   Sprite 6 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  88
+          Yoff:  88
+   Sprite 7 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff: 104
+          Yoff: 104
+Type 32   Val0:   0
+          Val1:   0
+          Val2:   3
+          XMin:  -8
+          YMin:  -8
+          XMax:   8
+          YMax:   8
+  # of Sprites:   1
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+Type 33   Val0:   1
+          Val1:   0
+          Val2:   3
+          XMin:  -8
+          YMin:  -8
+          XMax:  40
+          YMax:   8
+  # of Sprites:   2
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+Type 34   Val0:   2
+          Val1:   0
+          Val2:   3
+          XMin:  -8
+          YMin:  -8
+          XMax:  72
+          YMax:   8
+  # of Sprites:   3
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  56
+          yoff:  -8
+Type 35   Val0:   3
+          Val1:   0
+          Val2:   3
+          XMin:  -8
+          YMin:  -8
+          XMax: 104
+          YMax:   8
+  # of Sprites:   4
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  56
+          yoff:  -8
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  88
+          yoff:  -8
+Type 36   Val0:   4
+          Val1:   0
+          Val2:   3
+          XMin:  -8
+          YMin:  -8
+          XMax: 136
+          YMax:   8
+  # of Sprites:   5
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  56
+          yoff:  -8
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  88
+          yoff:  -8
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 120
+          yoff:  -8
+Type 37   Val0:   5
+          Val1:   0
+          Val2:   3
+          XMin:  -8
+          YMin:  -8
+          XMax: 168
+          YMax:   8
+  # of Sprites:   6
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  56
+          yoff:  -8
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  88
+          yoff:  -8
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 120
+          yoff:  -8
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 152
+          yoff:  -8
+Type 38   Val0:   6
+          Val1:   0
+          Val2:   3
+          XMin:  -8
+          YMin:  -8
+          XMax: 200
+          YMax:   8
+  # of Sprites:   7
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  56
+          yoff:  -8
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  88
+          yoff:  -8
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 120
+          yoff:  -8
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 152
+          yoff:  -8
+   Sprite 6 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 184
+          yoff:  -8
+Type 39   Val0:   7
+          Val1:   0
+          Val2:   3
+          XMin:  -8
+          YMin:  -8
+          XMax: 232
+          YMax:   8
+  # of Sprites:   8
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  56
+          yoff:  -8
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  88
+          yoff:  -8
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 120
+          yoff:  -8
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 152
+          yoff:  -8
+   Sprite 6 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 184
+          yoff:  -8
+   Sprite 7 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 216
+          yoff:  -8
+Type 40   Val0:   0
+          Val1:   1
+          Val2:   3
+          XMin:  -8
+          YMin:  -8
+          XMax:   8
+          XMax:   8
+  # of Sprites:   1
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  -8
+Type 41   Val0:   1
+          Val1:   1
+          Val2:   3
+          XMin:  -8
+          YMin:  -8
+          XMax:  32
+          XMax:  32
+  # of Sprites:   2
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  16
+          xoff:  16
+Type 42   Val0:   2
+          Val1:   1
+          Val2:   3
+          XMin:  -8
+          YMin:  -8
+          XMax:  56
+          XMax:  56
+  # of Sprites:   3
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  16
+          xoff:  16
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  40
+          xoff:  40
+Type 43   Val0:   3
+          Val1:   1
+          Val2:   3
+          XMin:  -8
+          YMin:  -8
+          XMax:  80
+          XMax:  80
+  # of Sprites:   4
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  16
+          xoff:  16
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  40
+          xoff:  40
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  64
+          xoff:  64
+Type 44   Val0:   4
+          Val1:   1
+          Val2:   3
+          XMin:  -8
+          YMin:  -8
+          XMax: 104
+          XMax: 104
+  # of Sprites:   5
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  16
+          xoff:  16
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  40
+          xoff:  40
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  64
+          xoff:  64
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  88
+          xoff:  88
+Type 45   Val0:   5
+          Val1:   1
+          Val2:   3
+          XMin:  -8
+          YMin:  -8
+          XMax: 128
+          XMax: 128
+  # of Sprites:   6
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          yoff:  -8
+          xoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  16
+          xoff:  16
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  40
+          xoff:  40
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  64
+          xoff:  64
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  88
+          xoff:  88
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 112
+          xoff: 112
+Type 46   Val0:   6
+          Val1:   1
+          Val2:   3
+          XMin:  -8
+          YMin:  -8
+          XMax: 152
+          XMax: 152
+  # of Sprites:   7
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          xoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  16
+          xoff:  16
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  40
+          xoff:  40
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  64
+          xoff:  64
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  88
+          xoff:  88
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 112
+          xoff: 112
+   Sprite 6 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 136
+          xoff: 136
+Type 47   Val0:   7
+          Val1:   1
+          Val2:   3
+          XMin:  -8
+          YMin:  -8
+          XMax: 176
+          XMax: 176
+  # of Sprites:   8
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          xoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  16
+          xoff:  16
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  40
+          xoff:  40
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  64
+          xoff:  64
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  88
+          xoff:  88
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 112
+          xoff: 112
+   Sprite 6 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 136
+          xoff: 136
+   Sprite 7 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 160
+          xoff: 160
+Type 48   Val0:   0
+          Val1:   0
+          Val2:   0
+          XMin:  -8
+          YMin:  -8
+          XMax:   8
+          YMax:   8
+  # of Sprites:   1
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+Type 49   Val0:   1
+          Val1:   0
+          Val2:   0
+          XMin:  -8
+          YMin:  -8
+          XMax:  24
+          YMax:   8
+  # of Sprites:   2
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:   8
+          yoff:  -8
+Type 50   Val0:   2
+          Val1:   0
+          Val2:   0
+          XMin:  -8
+          YMin:  -8
+          XMax:   8
+          YMax:  40
+  # of Sprites:   3
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:   8
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+Type 51   Val0:   3
+          Val1:   0
+          Val2:   0
+          XMin:  -8
+          YMin:  -8
+          XMax:   8
+          YMax:  56
+  # of Sprites:   4
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:   8
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  40
+          yoff:  -8
+Type 52   Val0:   4
+          Val1:   0
+          Val2:   0
+          XMin:  -8
+          YMin:  -8
+          XMax:   8
+          YMax:  72
+  # of Sprites:   5
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:   8
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  40
+          yoff:  -8
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  56
+          yoff:  -8
+Type 53   Val0:   5
+          Val1:   0
+          Val2:   0
+          XMin:  -8
+          YMin:  -8
+          XMax:   8
+          YMax:  88
+  # of Sprites:   6
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:   8
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  40
+          yoff:  -8
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  56
+          yoff:  -8
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  72
+          yoff:  -8
+Type 54   Val0:   6
+          Val1:   0
+          Val2:   0
+          XMin:  -8
+          YMin:  -8
+          XMax:   8
+          YMax: 104
+  # of Sprites:   7
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:   8
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  40
+          yoff:  -8
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  56
+          yoff:  -8
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  72
+          yoff:  -8
+   Sprite 6 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  88
+          yoff:  -8
+Type 55   Val0:   7
+          Val1:   0
+          Val2:   0
+          XMin:  -8
+          YMin:  -8
+          XMax:   8
+          YMax: 120
+  # of Sprites:   8
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:   8
+          yoff:  -8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  24
+          yoff:  -8
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  40
+          yoff:  -8
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  56
+          yoff:  -8
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  72
+          yoff:  -8
+   Sprite 6 ID:   0
+           Set:   1
+     Direction:   0
+          xoff:  88
+          yoff:  -8
+   Sprite 7 ID:   0
+           Set:   1
+     Direction:   0
+          xoff: 104
+          yoff:  -8
+Type 56   Val0:   0
+          Val1:   1
+          Val2:   0
+          XMin:  -8
+          YMin:  -8
+          XMax:   8
+          YMax:   8
+  # of Sprites:   1
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  -8
+Type 57   Val0:   1
+          Val1:   1
+          Val2:   0
+          XMin:  -8
+          YMin:  -8
+          XMax:   8
+          YMax:  24
+  # of Sprites:   2
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:   8
+Type 58   Val0:   2
+          Val1:   1
+          Val2:   0
+          XMin:  -8
+          YMin:  -8
+          XMax:  40
+          YMax:   8
+  # of Sprites:   3
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:   8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  24
+Type 59   Val0:   3
+          Val1:   1
+          Val2:   0
+          XMin:  -8
+          YMin:  -8
+          XMax:  56
+          YMax:   8
+  # of Sprites:   4
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:   8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  24
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  40
+Type 60   Val0:   4
+          Val1:   1
+          Val2:   0
+          XMin:  -8
+          YMin:  -8
+          XMax:  72
+          YMax:   8
+  # of Sprites:   5
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:   8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  24
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  40
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  56
+Type 61   Val0:   5
+          Val1:   1
+          Val2:   0
+          XMin:  -8
+          YMin:  -8
+          XMax:  88
+          YMax:   8
+  # of Sprites:   6
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:   8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  24
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  40
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  56
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  72
+Type 62   Val0:   6
+          Val1:   1
+          Val2:   0
+          XMin:  -8
+          YMin:  -8
+          XMax: 104
+          YMax:   8
+  # of Sprites:   7
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:   8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  24
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  40
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  56
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  72
+   Sprite 6 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  88
+Type 63   Val0:   7
+          Val1:   1
+          Val2:   0
+          XMin:  -8
+          YMin:  -8
+          XMax: 120
+          YMax:   8
+  # of Sprites:   8
+   Sprite 0 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  -8
+   Sprite 1 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:   8
+   Sprite 2 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  24
+   Sprite 3 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  40
+   Sprite 4 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  56
+   Sprite 5 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  72
+   Sprite 6 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff:  88
+   Sprite 7 ID:   0
+           Set:   1
+     Direction:   0
+          Xoff:  -8
+          Yoff: 104
+
+     Object ID:  26
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Monitor
+ Num Bitfields:   5
+    BitField 0: 00001111
+       Desc  0: Blank          (harmful)
+       Desc  1: 1up
+       Desc  2: Tails          (no effect)
+       Desc  3: Eggman         (harmful)
+       Desc  4: Super Ring
+       Desc  5: Super Sneakers
+       Desc  6: Shield
+       Desc  7: Invincibility
+       Desc  8: Teleport
+       Desc  9: Mystery
+       Desc  A: Invalid
+       Desc  B: Invalid
+       Desc  C: Invalid
+       Desc  D: Invalid
+       Desc  E: Invalid
+       Desc  F: Invalid
+    BitField 1: 00010000
+       Desc  0: Unknown
+       Desc  1: Unknown
+    Bitfield 2: 00100000
+       Desc  0: Unknown
+       Desc  1: Unknown
+    BitField 3: 01000000
+       Desc  0: Unknown
+       Desc  1: Unknown
+    BitField 4: 10000000
+       Desc  0: Unknown
+       Desc  1: Unknown
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   1
+   Dependant 0:   0
+     Num Types:  10
+ Type 0   Val0:   0
+          XMin: -16
+          YMin: -16
+          XMax:  16
+          YMax:  16
+  # of Sprites:   1
+   Sprite 0 ID:  10
+           Set:   1
+     Direction:   0
+          xoff: -15
+          yoff: -15
+ Type 1   Val0:   1
+          XMin: -16
+          YMin: -16
+          XMax:  16
+          YMax:  16
+  # of Sprites:   2
+   Sprite 0 ID:  10
+           Set:   1
+     Direction:   0
+          xoff: -15
+          yoff: -15
+   Sprite 1 ID:   7
+           Set:   1
+     Direction:   0
+          XOff:  -8
+          yoff: -10
+ Type 2   Val0:   2
+          XMin: -16
+          YMin: -16
+          XMax:  16
+          YMax:  16
+  # of Sprites:   2
+   Sprite 0 ID:  10
+           Set:   1
+     Direction:   0
+          xoff: -15
+          yoff: -15
+   Sprite 1 ID:   8
+           Set:   1
+     Direction:   0
+          XOff:  -8
+          yoff: -10
+ Type 3   Val0:   3
+          XMin: -16
+          YMin: -16
+          XMax:  16
+          YMax:  16
+  # of Sprites:   2
+   Sprite 0 ID:  10
+           Set:   1
+     Direction:   0
+          xoff: -15
+          yoff: -15
+   Sprite 1 ID:   9
+           Set:   1
+     Direction:   0
+          XOff:  -8
+          yoff: -10
+ Type 4   Val0:   4
+          XMin: -16
+          YMin: -16
+          XMax:  16
+          YMax:  16
+  # of Sprites:   2
+   Sprite 0 ID:  10
+           Set:   1
+     Direction:   0
+          xoff: -15
+          yoff: -15
+   Sprite 1 ID:   2
+           Set:   1
+     Direction:   0
+          XOff:  -8
+          yoff: -10
+ Type 5   Val0:   5
+          XMin: -16
+          YMin: -16
+          XMax:  16
+          YMax:  16
+  # of Sprites:   2
+   Sprite 0 ID:  10
+           Set:   1
+     Direction:   0
+          xoff: -15
+          yoff: -15
+   Sprite 1 ID:   5
+           Set:   1
+     Direction:   0
+          XOff:  -8
+          yoff: -10
+ Type 6   Val0:   6
+          XMin: -16
+          YMin: -16
+          XMax:  16
+          YMax:  16
+  # of Sprites:   2
+   Sprite 0 ID:  10
+           Set:   1
+     Direction:   0
+          xoff: -15
+          yoff: -15
+   Sprite 1 ID:   3
+           Set:   1
+     Direction:   0
+          XOff:  -8
+          yoff: -10
+ Type 7   Val0:   7
+          XMin: -16
+          YMin: -16
+          XMax:  16
+          YMax:  16
+  # of Sprites:   2
+   Sprite 0 ID:  10
+           Set:   1
+     Direction:   0
+          xoff: -15
+          yoff: -15
+   Sprite 1 ID:   4
+           Set:   1
+     Direction:   0
+          XOff:  -8
+          yoff: -10
+ Type 8   Val0:   8
+          XMin: -16
+          YMin: -16
+          XMax:  16
+          YMax:  16
+  # of Sprites:   2
+   Sprite 0 ID:  10
+           Set:   1
+     Direction:   0
+          xoff: -15
+          yoff: -15
+   Sprite 1 ID:   6
+           Set:   1
+     Direction:   0
+          XOff:  -8
+          yoff: -10
+ Type 9   Val0:   9
+          XMin: -16
+          YMin: -16
+          XMax:  16
+          YMax:  16
+  # of Sprites:   2
+   Sprite 0 ID:  10
+           Set:   1
+     Direction:   0
+          xoff: -15
+          yoff: -15
+   Sprite 1 ID:   1
+           Set:   1
+     Direction:   0
+          XOff:  -8
+          yoff: -10
+
+     Object ID:  27
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Explosion, Animal, Points
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  28
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Animal, Points
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  29
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Points
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  2A
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Spiked Crushing Column
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  2B
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Rising Pillar (ARZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  2C
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Falling Leaves Spawner (ARZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  2D
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Door
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  2E
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Monitor Contents
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  2F
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Smashable Ground (HTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  30
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Earthquake Lava (HTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  31
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Invisible lava marker (HTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  32
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Breakable block
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  33
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Pressure Platform (OOZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  34
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Titlecard
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  35
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Invincibility Stars
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  36
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Spikes
+ Num Bitfields:   7
+    BitField 0: 00000001
+       Desc  0: Still
+       Desc  1: Moving
+    BitField 1: 00000010
+       Desc  0: Unknown
+       Desc  1: Unknown
+    BitField 2: 00000100
+       Desc  0: Unknown
+       Desc  1: Unknown
+    BitField 3: 00001000
+       Desc  0: Unknown
+       Desc  1: Unknown
+    BitField 4: 00110000
+       Desc  0: 1 Spike
+       Desc  1: 2 Spikes
+       Desc  0: 3 Spikes
+       Desc  1: 4 Spikes
+    BitField 5: 01000000
+       Desc  0: Vertical
+       Desc  1: Horizontal
+    BitField 6: 10000000
+       Desc  0: Unknown
+       Desc  1: Unknown
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   2
+   Dependant 0:   4
+   Dependant 1:   5
+     Num Types:   8
+ Type 0   Val0:   0
+          Val1:   0
+          XMin: -16
+          YMin: -16
+          XMax:  16
+          YMax:  16
+  # of Sprites:   1
+   Sprite 0 ID:  19
+           Set:   1
+     Direction:   0
+          xoff: -16
+          yoff: -16
+ Type 1   Val0:   1
+          Val1:   0
+          XMin: -32
+          YMin: -16
+          XMax:  32
+          YMax:  16
+  # of Sprites:   2
+   Sprite 0 ID:  19
+           Set:   1
+     Direction:   0
+          xoff: -32
+          yoff: -16
+   Sprite 1 ID:  19
+           Set:   1
+     Direction:   0
+          xoff:   0
+          yoff: -16
+ Type 2   Val0:   2
+          Val1:   0
+          XMin: -48
+          YMin: -16
+          XMax:  48
+          YMax:  16
+  # of Sprites:   3
+   Sprite 0 ID:  19
+           Set:   1
+     Direction:   0
+          xoff: -48
+          yoff: -16
+   Sprite 1 ID:  19
+           Set:   1
+     Direction:   0
+          xoff: -16
+          yoff: -16
+   Sprite 2 ID:  19
+           Set:   1
+     Direction:   0
+          xoff:  16
+          yoff: -16
+ Type 3   Val0:   3
+          Val1:   0
+          XMin: -64
+          YMin: -16
+          XMax:  64
+          YMax:  16
+  # of Sprites:   4
+   Sprite 0 ID:  19
+           Set:   1
+     Direction:   0
+          xoff: -64
+          yoff: -16
+   Sprite 1 ID:  19
+           Set:   1
+     Direction:   0
+          xoff: -32
+          yoff: -16
+   Sprite 2 ID:  19
+           Set:   1
+     Direction:   0
+          xoff:   0
+          yoff: -16
+   Sprite 3 ID:  19
+           Set:   1
+     Direction:   0
+          xoff:  32
+          yoff: -16
+
+ Type 0   Val0:   0
+          Val1:   1
+          XMin: -16
+          YMin: -16
+          YMax:  16
+          XMax:  16
+  # of Sprites:   1
+   Sprite 0 ID:  20
+           Set:   1
+     Direction:   0
+          yoff: -16
+          xoff: -16
+ Type 1   Val0:   1
+          Val1:   1
+          XMin: -32
+          YMin: -16
+          YMax:  16
+          XMax:  32
+  # of Sprites:   2
+   Sprite 0 ID:  20
+           Set:   1
+     Direction:   0
+          yoff: -16
+          xoff: -32
+   Sprite 1 ID:  20
+           Set:   1
+     Direction:   0
+          yoff: -16
+          xoff:   0
+ Type 2   Val0:   2
+          Val1:   1
+          XMin: -48
+          YMin: -16
+          YMax:  16
+          XMax:  48
+  # of Sprites:   3
+   Sprite 0 ID:  20
+           Set:   1
+     Direction:   0
+          yoff: -16
+          xoff: -48
+   Sprite 1 ID:  20
+           Set:   1
+     Direction:   0
+          yoff: -16
+          xoff: -16
+   Sprite 2 ID:  20
+           Set:   1
+     Direction:   0
+          yoff: -16
+          xoff:  16
+ Type 3   Val0:   3
+          Val1:   1
+          XMin: -64
+          YMin: -16
+          YMax:  16
+          XMax:  64
+  # of Sprites:   4
+   Sprite 0 ID:  20
+           Set:   1
+     Direction:   0
+          yoff: -16
+          xoff: -64
+   Sprite 1 ID:  20
+           Set:   1
+     Direction:   0
+          yoff: -16
+          xoff: -32
+   Sprite 2 ID:  20
+           Set:   1
+     Direction:   0
+          yoff: -16
+          xoff:   0
+   Sprite 3 ID:  20
+           Set:   1
+     Direction:   0
+          yoff: -16
+          xoff:  32
+
+     Object ID:  37
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Ring-loss ring spawn
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  38
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Shield
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  39
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: "Game Over"
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  3A
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Level End Score Tally
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  3B
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Solid Block
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  3C
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Breakable Wall
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  3D
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Launcher Block (OOZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  3E
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Egg Prison
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   1
+ Type 0-  XMin: -32
+          YMin: -46
+          XMax:  32
+          YMax:  34
+  # of Sprites:   2
+   Sprite 0 ID:  13
+           Set:   1
+     Direction:   0
+          xoff: -16
+          yoff: -46
+   Sprite 1 ID:  14
+           Set:   1
+     Direction:   0
+          xoff: -32
+          yoff: -26
+
+     Object ID:  3F
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Fan (OOZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  40
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Springboard
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  41
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Spring
+ Num Bitfields:   5
+       Field 0: 00000001
+          Desc: player looks up
+          Desc: player twirls
+       Field 1: 00000010
+          Desc: red
+          Desc: yellow
+       Field 2: 00001100
+          Desc: unknown
+          Desc: unknown
+          Desc: unknown
+          Desc: unknown
+       Field 3: 01110000
+          Desc: up
+          Desc: horizontal
+          Desc: down
+          Desc: diagonal up
+          Desc: diagonal down
+          Desc: invalid
+          Desc: invalid
+          Desc: invalid
+       Field 4: 10000000
+          Desc: unknown
+          Desc: unknown
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   2
+   Dependant 0:   1
+   Dependant 1:   3
+     Num Types:  10
+ Type 0-  Val0:   0
+          Val1:   0
+          XMin: -16
+          YMin:  -8
+          XMax:  16
+          YMax:   8
+  # of Sprites:   2
+   Sprite 0 ID:  18
+           Set:   1
+     Direction:   0
+          xoff: -16
+          yoff:  -8
+   Sprite 1 ID:  16
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:   0
+ Type 1-  Val0:   1
+          Val1:   0
+          XMin: -16
+          YMin:  -8
+          XMax:  16
+          YMax:   8
+  # of Sprites:   2
+   Sprite 0 ID:  17
+           Set:   1
+     Direction:   0
+          xoff: -16
+          yoff:  -8
+   Sprite 1 ID:  16
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:   0
+ Type 2-  Val0:   0
+          Val1:   1
+          XMin: -16
+          YMin:  -8
+          XMax:   8
+          YMax:  16
+  # of Sprites:   2
+   Sprite 0 ID:  23
+           Set:   1
+     Direction:   0
+          xoff:   0
+          yoff: -16
+   Sprite 1 ID:  21
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+ Type 3-  Val0:   1
+          Val1:   1
+          XMin: -16
+          YMin:  -8
+          XMax:  16
+          YMax:   8
+  # of Sprites:   2
+   Sprite 0 ID:  22
+           Set:   1
+     Direction:   0
+          xoff:   0
+          yoff: -16
+   Sprite 1 ID:  21
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:  -8
+ Type 4-  Val0:   0
+          Val1:   2
+          XMin: -16
+          YMin:  -8
+          XMax:  16
+          YMax:   8
+  # of Sprites:   2
+   Sprite 0 ID:  18
+           Set:   1
+     Direction:   0
+          xoff: -16
+          yoff:  -8
+   Sprite 1 ID:  16
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:   0
+ Type 5-  Val0:   1
+          Val1:   2
+          XMin: -16
+          YMin:  -8
+          XMax:  16
+          YMax:   8
+  # of Sprites:   2
+   Sprite 0 ID:  17
+           Set:   1
+     Direction:   0
+          xoff: -16
+          yoff:  -8
+   Sprite 1 ID:  16
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff:   0
+ Type 6-  Val0:   0
+          Val1:   3
+          XMin: -16
+          YMin: -16
+          XMax:  16
+          YMax:  16
+  # of Sprites:   1
+   Sprite 0 ID:  25
+           Set:   1
+     Direction:   0
+          xoff: -16
+          yoff: -16
+ Type 7-  Val0:   1
+          Val1:   3
+          XMin: -16
+          YMin: -16
+          XMax:  16
+          YMax:  16
+  # of Sprites:   1
+   Sprite 0 ID:  24
+           Set:   1
+     Direction:   0
+          xoff: -16
+          yoff: -16
+ Type 9-  Val0:   0
+          Val1:   3
+          XMin: -16
+          YMin: -16
+          XMax:  16
+          YMax:  16
+  # of Sprites:   1
+   Sprite 0 ID:  25
+           Set:   1
+     Direction:   0
+          xoff: -16
+          yoff: -16
+ Type 8-  Val0:   1
+          Val1:   3
+          XMin: -16
+          YMin: -16
+          XMax:  16
+          YMax:  16
+  # of Sprites:   1
+   Sprite 0 ID:  24
+           Set:   1
+     Direction:   0
+          xoff: -16
+          yoff: -16
+
+     Object ID:  42
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Spring Piston (MTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  43
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Spiked Bar (OOZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  44
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Bumper (CNZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  45
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Force Spring (OOZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  46
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Ball (OOZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  47
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Button
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  48
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Ball Launchers (OOZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  49
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Waterfall (EHZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  4A
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Octus (OOZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  4B
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Buzzer (EHZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   1
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   1
+ Type 0   XMin: -24
+          YMin:  -8
+          XMax:  24
+          YMax:   8
+  # of Sprites:   1
+   Sprite 0 ID:   0
+           Set:   2
+     Direction:   0
+          xoff: -24
+          yoff:  -8
+
+     Object ID:  4C
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Nothing
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  4D
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Nothing
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  4E
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Nothing
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  4F
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Nothing
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  50
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Aquis (OOZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  51
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: CNZ Boss
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  52
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: HTZ Boss
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  53
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: MZ Boss Balloons
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  54
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: MZ Boss
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  55
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: OOZ Boss
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  56
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: EHZ Boss
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  57
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: MCZ Boss
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  58
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Boss Explosion
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  59
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Special Stage Emerald
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  5A
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Special Stage Messages
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  5B
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Unknown (Special Stage)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  5C
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Masher (EHZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   1
+ Type 0   XMin: -10
+          YMin: -16
+          XMax:  10
+          YMax:  16
+  # of Sprites:   1
+   Sprite 0 ID:   2
+           Set:   2
+     Direction:   0
+          xoff: -10
+          yoff: -16
+
+     Object ID:  5D
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: CPZ Boss
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  5E
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Special Stage HUD
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  5F
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Special Stage Banner
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  60
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Special Stage Ring
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  61
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Special Stage Bombs
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  62
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Nothing
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  63
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Special Stage Shadow
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  64
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Smashing Pistons (MTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  65
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: TrapDoor (MTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  66
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Spring Wall (MTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  67
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Spin Tube (MTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  68
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Spear Block (MTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  69
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Nut (MTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  6A
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Retracting Platform (MTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  6B
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Rotating Staircase (CPZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  6C
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Small Moving Platform
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  6D
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Spear (MTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  6E
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Small Circling Platform
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  6F
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Special Stage Results Screen
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  70
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Giant Rotating Cog (MTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  71
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Bridge (HPZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  72
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Conveyor belt
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  73
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Rotating Ring Thing (MCZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  74
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Invisible Barrier
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  75
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Brick (MCZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  76
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Spiked Wall Platform (MCZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  77
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Bridge (MCZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  78
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Staircase (CPZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  79
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Starpost
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   1
+ Type 0   XMin:  -8
+          YMin: -40
+          XMax:   8
+          YMax:  24
+  # of Sprites:   1
+   Sprite 0 ID:  15
+           Set:   1
+     Direction:   0
+          xoff:  -8
+          yoff: -40
+
+     Object ID:  7A
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Chemical-tube Platform (CPZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  7B
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Pipe Exit Spring (CPZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  7C
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Giant Foreground Girder (CPZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  7D
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: S1 Bonus Point Marker
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  7E
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Super Sonic Stars
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  7F
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Vine Switch (MCZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  80
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Moving Vine\chain Switch (MCZ\WFZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  81
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Invisible Vertical Barrier
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  82
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Swinging Platform (ARZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  83
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Tripple Rotating Platforms (ARZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  84
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Forced spin
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  85
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Pinball Launcher (CNZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  86
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Pinball Flipper (CNZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  87
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Special Stage Rings Number
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  88
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Unknown (Special Stage)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  89
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: ARZ Boss
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  8A
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: S1 Intro Text
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  8B
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Palette trigger (WFZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  8C
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Whisp (ARZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  8D
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Grounder behind wall (ARZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  8E
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Grounder (ARZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  8F
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Grounder Wall (ARZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  90
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Grounder Rocks (ARZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  91
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Chop Chop (shark) (ARZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  92
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Spiker (HTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  93
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Spiker Drill (HTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  94
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Rexon (HTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  95
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Sol (HTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  96
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Rexon (HTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  97
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Rexon Head (HTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  98
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Fireball (SCZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  99
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Nebula (SCZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  9A
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Turtloids (SCZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  9B
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Turtloid rider (SCZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  9C
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Balkiry's jet (SCZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  9D
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Coconuts (EHZ)
+ Num Bitfields:   0
+  DefaultParam:  1E
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   1
+ Type 0   XMin:  -9
+          YMin: -22
+          XMax:  17
+          YMax:  22
+  # of Sprites:   1
+   Sprite 0 ID:   1
+           Set:   2
+     Direction:   0
+          xoff:  -9
+          yoff: -22
+
+     Object ID:  9E
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Crawlton (MCZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  9F
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Shellcraker (MTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   1
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  A0
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Shellcraker Claw (MTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  A1
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Slicer (MTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  A2
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Slicer Pincers (MTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  A3
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Flasher (MCZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   1
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  A4
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Asteron (MTZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  A5
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Spiny (CNZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  A6
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Wall Spiny (CNZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  A7
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Grabber (CPZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  A8
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Grabber Legs (CPZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  A9
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Unknown (WTF)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  AA
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Unknown (WTF)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  AB
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Unknown stationary badnik
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  AC
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Balkiry (SCZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  AD
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Clucker Base (WFZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  AE
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Clucker (WFZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  AF
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Metal Sonic (DEZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  B0
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Sega Screen
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  B1
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Sega Screen Sonic
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  B2
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: The Tornado
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  B3
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Clouds (SCZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  B4
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Vertical Propeller (WFZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   1
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  B5
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Horizontal Propeller (WFZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  B6
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Tipping platform (WFZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  B7
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Huge Vertical Laser (WFZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  B8
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Wall turret (WFZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  B9
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Large laser (WFZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  BA
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Conveyor wheel (WFZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  BB
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Unknown stationary badnik
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  BC
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Robotnik Ship Jets (WFZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  BD
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Dropping Platforms (WFZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  BE
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Retracting platform (WFZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  BF
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Rotaty Stick Badnik (WFZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  C0
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Speed Launcher (WFZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  C1
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Collapseing wall grip (WFZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  C2
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Destroyable ship entrance (WFZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  C3
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Plane Smoke (WFZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  C4
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Plane Smoke (WFZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  C5
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Laser cannon (WFZ Boss)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  C6
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Eggman (DEZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  C7
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Final Boss (DEZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  C8
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Crawl (CNZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  C9
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Title palette changer
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  CA
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Ending Sequence
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  CB
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Ending Clouds
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  CC
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Rescue Plane Trigger
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  CD
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Ending Birds
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  CE
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Ending Jumping Sonic and Tails
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  CF
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Ending Plane Helixes
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  D0
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Unknown (WTF)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  D1
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Unknown (WTF)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  D2
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Snake Platform (CNZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  D3
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Bomb Prize (CNZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  D4
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Large moving platform (CNZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  D5
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Elevator (CNZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  D6
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Score slot (CNZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  D7
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Wide bumper (CNZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   1
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  D8
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Point target (CNZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  D9
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Invisible hand-hold
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  DA
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Continue text
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  DB
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Continue screen Sonic
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0
+
+     Object ID:  DC
+    # of Zones:   1
+    Zone Entry:  FF
+   Description: Ring Prize (CNZ)
+ Num Bitfields:   0
+  DefaultParam:   0
+   DefaultFlag:   0
+    DefaultDir:   0
+ DefltRemember:   0
+Num Dependants:   0
+     Num Types:   0

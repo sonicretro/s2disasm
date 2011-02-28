@@ -1,0 +1,71 @@
+Type: Level
+
+Zone ID:    D
+Act ID:     1
+
+Object Def:     objdef\s2obj
+Object Palette: objdef\s2obj1.pcx
+
+8x8 Compression:       1
+Num 8x8 Pages:         1
+8x8 Tiles Page 0:      ..\art\kosinski\CPZ_DEZ.bin
+
+16x16 Compression:     1
+Num 16x16 Pages:       1
+Page0 8x8 Page:        0
+16x16 Tiles Page 0:    ..\mappings\16x16\CPZ_DEZ.bin
+
+Metatile Size:         128
+Metatile Compression:  1
+Num Metatile Pages:    1
+Page0 16x16 Page:      0
+Metatile Tiles Page 0: ..\mappings\128x128\CPZ_DEZ.bin
+
+Layout Format:         1
+Layout Compression:    1
+BG 128x128 Page:       0
+Level Layout:          ..\level\layout\CPZ_2.bin
+
+Objects Format:        3
+Objects:               ..\level\objects\CPZ_2.bin
+Rings Format:          1
+Objects:               ..\level\rings\CPZ_2.bin
+Misc Format:           0
+Num Start Positions:   1
+Start Position 0:      ..\startpos\CPZ_2.bin
+
+Palettes-
+
+ Number of files: 3
+
+  Palette 1-
+
+   Start index:        0
+   Number of entries: 16
+   File:              ..\art\palettes\SonicAndTails.bin
+
+  Palette 2-
+
+   Start index:       16
+   Number of entries: 48
+   File:              ..\art\palettes\CPZ.bin
+
+  Palette 3-
+
+   Start index:       64
+   Number of entries: 64
+   File:              ..\art\palettes\CPZ underwater.bin
+
+Collision Map Format:    0
+Collision Array:         ..\collision\Collision array 1.bin
+Rotated Collision Array: ..\collision\Collision array 2.bin
+Angle Array:             ..\collision\Curve and resistance mapping.bin
+
+Collision Index Format:      1
+Collision Index Compression: 1
+Collision Index 1: ..\collision\CPZ and DEZ primary 16x16 collision index.bin
+Collision Index 2: ..\collision\CPZ and DEZ secondary 16x16 collision index.bin
+
+Game Name: Sonic 2
+
+-EOF-

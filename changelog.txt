@@ -1,0 +1,342 @@
+---------
+  NOTES
+---------
+
+* All dates are in UTC to avoid timezone confusion
+* Changes are noted in chronological order
+* Please remember to run chkbitperfect.bat before uploading to ensure no incorrect changes have been made
+
+-------------
+  CHANGELOG
+-------------
+
+05-Oct-2008 - FraGag:
+* The major change is that many IDs have been replaced with constants ("equates") to make them dynamic.
+  To do this, it was necessary to add labels in many tables. Some names may be inaccurate,
+  so please change them if needed. A new macro, "id" computes the value of these dynamic IDs using 1 parameter
+  and 3 global variables, which are changed before each set of IDs. Note that the sound driver also has
+  dynamic IDs (which was necessary to get the music IDs working).
+* Some other data structures have been improved to allow the use of these new dynamic IDs.
+  Some labels were changed to reflect the new size of the next DC directive.
+* Constants for zone and act IDs were also added, but they can't easily be made dynamic
+  because they're used in several tables.
+* Constants for controller buttons were also added.
+* I added a macro in the end of level results screen object to make editing the data easier.
+  The parameter names also serve to document the structure.
+* Some labels incorrectly had PortA_OK or PortC_OK in their names, probably because someone did a
+  global search and replace on the old label names (which were left as comments). I renamed those
+  labels back to their original name (starting with loc_214 and loc_292 respectively).
+  PortA_OK and PortC_OK themselves are left untouched.
+* Somewhere, 2 base-10 arrays were left as hex values. The first one, a table of words, was changed to a
+  table of longs in decimal (see word_8732, now dword_8732). The second one, word_1F6D2, keeps word-sized values,
+  but now has them in decimal.
+* An "align 2" directive was added after some BINCLUDE'd data.
+* Added a comment before the part that tries to play the "continue" jingle when the 14 continues cheat is entered
+  to tell how to fix the bug that makes the OOZ music play until reset.
+* There may be some other minor changes I missed, but if I made them, it's because I believe they're worth it!
+
+05-Oct-2008 - shobiz:
+* Fixed an equate error causing a one byte error in the ROM
+* Added and renamed some RAM equates: Water_move is now Water_fullscreen_flag, and Delay_Time
+  has been renamed to Vint_routine
+* Renamed DelayProgram to WaitForVint for accuracy purposes, and renamed a bunch of scrolling and
+  foreground drawing routines
+* Commented scrolling code and parts of foreground drawing code
+* Added vdpComm function (although code needs to be modified to make use of it)
+* Added chkbitperfect.bat and s2rev01.bin
+
+06-Oct-2008 - shobiz:
+* Added some old labels in comment form for ease of searching (I'd forgotten last time)
+* Commented Enigma compression routine and fixed its function header
+* Changed align 2 directive to even for consistency with the rest of the disasm
+* Converted jmp xxx.l instructions to jmp (xxx).l form - nitpicky, but meh
+* Converted jsr xxx and jmp xxx instructions to use (xxx).l addressing. This prevents the commonly
+  encountered "addressing mode not allowed here" errors caused by size optimization attempts
+* Modified build.bat to output errors to file, though this can be turned off by running it as build -pe.
+  Also added support for this parameter to chkbitperfect.bat, and made it check for the existence
+  of s2built.bin before running the binary comparison
+
+06-Oct-2008 - qiuu:
+* Added some RAM address equates
+* Renamed some labels, primarily layer deformation and level select related
+* Commented EHZ Boss code
+* Some commenting on collision and level select routines
+
+06-Oct-2008 - shobiz:
+* Renamed all ShowVDPGraphicsX routines to PlaneMapToVRAMX routines for accuracy purposes
+* Converted quite a few VDP commands to use the vdpComm function. There are a lot more left, I'll
+  come to those later
+* Added chkbitperfect.bat and s2rev01.bin
+
+07-Oct-2008 - FraGag:
+* Changed build.bat to show a message if there were errors/warnings.
+* Removed the redundant size parameter in the palptr macro. The new palette macro declares the 2 necessary
+  labels to make this feature work.
+* Replaced some hard-coded loop iteration counts with expressions using labels. Added the necessary labels.
+* Replaced the values in TailsNameCheat_Buttons with the button constants. Added comments about the 0 entry.
+
+07-Oct-2008 - shobiz:
+* Converted more VDP commands to use the vdpComm function
+* In the process, commented and labelled some 2P level select functions, and simplified the data at
+  LevSel2PIconData (formerly off_8F7E)
+* Also simplified the data at OptScrBoxData (formerly off_92BA)
+
+07-Oct-2008 - qiuu:
+* A few more RAM address equates
+* Some commenting on subtypes
+* Commented the "unused mystery function"
+* Reverted Boss_AnimationArray to $FFFFF740 at some places (has a different meaning in special stages)
+* Some other minor changes
+
+07-Oct-2008 - shobiz:
+* Added a link to the relevant wiki pages in the section headers of NemDec, KosDec and EniDec
+* Made proper offset table out of byte_15820 (now called Off_TitleCardLetters), and added
+  titleLetters macro to simplify the data at word_15832 (now called TitleCardLetters)
+
+08-Oct-2008 - FraGag:
+* Split the constants (or "equates") from s2.asm. Define new constants, in particular constants RAM
+  addresses, in s2.constants.asm from now on.
+
+08-Oct-2008 - shobiz:
+* Enhanced titleLetters macro to work with normal level titles
+* Re-coded it again to use a bitfield instead of a string, dunno why I didn't think of that 
+* Removed the comments containing original hex command form from in front of all vdpComm instructions which had them
+
+11-Oct-2008 - qiuu:
+* Mostly background deformation/drawing related commenting and RAM addresses
+
+13-Oct-2008 - FraGag:
+* Replaced some labels with nameless temporary symbols
+* Gave other labels significant names (cycling palettes, palette altering routines, etc.)
+* Added 3 RAM variables: Palette_fade_start, Palette_fade_length and Ending_demo_number
+* Added a few macros to calculate the absolute value (see the comments in the code) and used them
+* Added a constant to turn all optimizations on
+* Reworked the palptr macro to take the palette line as an argument instead of an address
+
+14-Oct-2008 - FraGag:
+* Made a "nosignpost" macro near SetLevelEndType
+* Made a "demoinput" macro to make the demo data easier to edit
+* Replaced some more labels with nameless temporary symbols
+
+17-Oct-2008 - MoDule:
+* Commented WindTunnel some more.
+* Added four equates to WindTunnel: windtunnel_min_x_pos, windtunnel_max_x_pos, windtunnel_min_y_pos, windtunnel_max_y_pos
+* Added a RAM equate: WindTunnel_flag
+
+19-Oct-2008 - MoDule:
+* PalCycle_SuperSonic:
+  Commented some of the code.
+  Added two labels (PalCycle_SuperSonic_normal, PalCycle_SuperSonic_revert).
+  Pointed out an oversight in Super Sonic's palette cycle code and explained how to fix it.
+  Renamed Palette_frame_count to Palette_timer and added RAM equate Palette_frame.
+* I worked on the teleport monitor code a bit:
+  Renamed loc_12AA6 to teleport_monitor. The monitor contents are now all named.
+  Renamed byte_12C52 to teleport_swap_table and restructured it to enhance readability.
+  Replaced a constant ($11) to make the teleport_swap_table easier to extend.
+  Replaced some labels with nameless temporary symbols
+
+19-Oct-2008 - shobiz:
+* Added a few more equates
+* Commented all of the RingsManager routines, and split ring mappings to file
+* Commented all of the BuildSprites routines
+
+20-Oct-2008 - FraGag:
+* Replaced a lot of labels with nameless temporary symbols
+  (if you think some places could have a good label, don't hesitate to replace the symbols)
+* Added dynamic IDs for the 2 players VS mode results screens
+* Added an equate for PSG input
+
+23-Oct-2008 - FraGag:
+* Revamped the RAM variables section
+* More nameless temporary symbols
+* Added a macro, text2p, to automatically compute the size of the strings in the 2P mode menus and results
+* Fixed some comments at the start of the object placement engine
+* Added many RAM variables in the object RAM, as well as Night_mode_flag
+* Changed palette_line_size to be in number of words (instead of bytes)
+* Renamed sub_6F8E to SSSingleObjLoad
+* Added "object_size" as an equivalent to "next_object"
+* New labels in the TwoPlayersResults section
+* Renamed word_8E52 to LevelSelect2P_LevelOrder
+
+24-Oct-2008 - FraGag:
+* More nameless temporary symbols
+* Added comments on some branches that lead to an RTS instruction
+* New labels in the options screen code
+* New labels for the remaining cheats
+* Renamed loc_9746 to CheckCheats, and commented that routine
+* Renamed the text2p macro to menutxt, which is now used for the options menu text too
+* Put TextOptScr_0 back together
+* Made ObjCC's routine table an actual table and removed the comment that marked loc_A456 as unused
+* New labels for the routines that load character and flicky art in the ending sequence
+* New labels for the 2P software scroll managers
+* Other miscellaneous changes
+
+25-Oct-2008 - MoDule:
+* Commented most of the Monitor code.
+* Named a bunch of labels and replaced some with nameless temporary symbols.
+  I couldn't think of good names for loc_128C6, loc_128DE and sub_128E4.
+* Added a few RAM equates for addresses that are used for the 2p results.
+* Changed a few hex values to decimal in the super ring code.
+* Added short descriptions for what each monitor item does.
+
+27-Oct-2008 - FraGag:
+* More nameless temporary symbols
+* Added bytesToWcnt to complement bytesToLcnt
+* Added some *_End labels in the RAM constants
+* Added an empty line after most DBcc instructions, and moved the empty line before the start of
+  a loop above the initialization of the loop counter, if present
+* Identified OilSlides_Chunks
+* Made ObjC9's routine table an actual table (as I did with ObjCC)
+
+04-Nov-2008 - qiuu:
+* fully commented MCZ boss and AnimatieBoss routine
+* added boss and subsprite related constants
+
+04-Nov-2008 - shobiz:
+* Identifed $FFFFE700
+* Marked the start and end addresses for some unknown RAM regions
+* Converted byte_118CE into proper offset table
+* The major change is the addition and usage of the macros zoneOffsetTable, zoneTableEntry and
+  zoneTableEnd. These macros automatically sort offset tables which use the zone ID as an offset, and thus
+  enable easy re-arranging of zone IDs without having to worry about re-arranging dozens of offset tables as
+  well. Additionally, whenever a new zone is added, the zoneTableEnd macro will automatically warn you about
+  which offset tables you need to add more stuff to. I've tested out some swaps and everything seems to work
+  properly, but I'd appreciate it if people could test different combinations out, and either fix any bugs
+  encountered themselves or post about them for others to fix. It should be noted that useFullWaterTables should
+  be set to 1 inside Assembly Options when you're shifting IDs around, and that s2p2bin will complain about
+  overlapping allocations, but these warnings can be safely ignored.
+
+08-Nov-2008 - FraGag:
+* More nameless temporary symbols
+* Added a space around the '-' operator in all offset tables
+* Identified and labelled every animation script (some were not even disassembled properly)
+* Removed the loc_10000 label, which was used in some operations where $10000 was used as a literal value
+* Identified some stuff in Obj1C
+
+29-Nov-2008 - Malevolence:
+* Completely commented the WFZ boss
+
+01-Dec-2008 - FraGag:
+* More nameless temporary symbols
+* Added SST entries for Obj28 (animal)
+* Identified Obj28_States
+* Added a macro, obj28decl
+* Replaced BCC instructions with BHS and BCS with BLO (after CMP/CMPI instructions only)
+* Added a few comments in the points text code
+
+20-Dec-2008 - FraGag:
+* More nameless temporary symbols
+* Changed some labels related to the rings objects
+* Fully commented the CollectRing routine (formerly sub_11FC2)
+* Replaced some instances of objoff_3F with parent+1 where applicable
+* Labelled the unused big ring and ring flash objects
+* Added SST entries for
+  * ObjDC (casino ring prize) and ObjD3 (casino bomb prize)
+  * ObjC9 (title screen palette changer)
+  * Obj34 (title card)
+* Added "id" as an SST entry, and edited insn1op and insn2op accordingly
+
+01-Jan-2009 - MoDule:
+* The objects manager is nearly fully commented. All that remains is the two player portion
+* Nameless temporary symbols where appropriate
+* Named some labels (most notably ObjectsManager, which was just loc_17AA4, before)
+  (Most names are taken from a file given to me by shobiz)
+* Determined the use of Obj_load_addr_0 and Obj_load_addr_1.
+  Obj_load_addr_2 and Obj_load_addr_3 are probably the equivalents for player two.
+
+23-Feb-2009 - FraGag:
+* Fixed the Sonic and Tails palette, which caused problems on the title cards.
+
+01-Mar-2009 - qiuu:
+* labeled Boss specific collision and camera value initialisation routine and correspondent indices
+* fixed misnomer with routines that set the background scrolling flags
+* further minor labeling
+
+30-Mar-2009 - FraGag:
+* Removed the assembleZ80SoundDriver switch, because the disassembly doesn't build anymore if set to 0
+* Moved the macro definitions and related constants to s2.macros.asm
+* Renamed zoneOffsetTable to zoneOrderedTable
+* Created the offsetTable, offsetTableEntry, zoneOffsetTableEntry macros and used them where appropriate
+* Renamed the main routine tables of every object to ObjXX_Index
+* Random relabelling here and there, particularly in objects
+* Fixed the indices in the comments of some offset tables
+* Removed the WrdArr_ prefix
+* Reverted some nameless temporary symbols
+* Named some SST entries for some objects
+* Identified the animals data in Obj28
+* Changed all the remaining score bonus literals to decimal notation
+* Added an if/endif block around the checksum error code
+* Created the subObjData macro and used it where sub-object data is declared
+* Created the zoneanimstart and zoneanimend macros, and edited the zoneanimdecl macro, to compute the number of
+  elements in a zone animation script list
+
+07-Aug-2009 - MoDule:
+* Ram Variables
+  * identified $FFFFF78C  and $FFFFF7DC as Camera_X_pos_last_P2 and Camera_X_pos_coarse_P2, respectively
+  * renamed Obj_load_addr_0 and Obj_load_addr_1 to Obj_load_addr_right and Obj_load_addr_left, respectively
+* Redid object manager documentation
+  * list of registers used
+  * changed a few comments
+  * same for ChkLoadObj
+* Named SST entries related to subsprites and added an SST entry "next_subspr".
+  I also added SST entries for subsprites 6 through 9 so people can see which entries they overlap with.
+  Hope I got everything. I did a search for "#6,render_flags(a" to find any sprites that use subsprites.
+  Some of the undocumented boss objects still use overlapping SST entres. I'll leave that to someone
+  else for the time being. objoff_B and objoff_F are now unused. I'll leave them in for now in case I
+  made a mistake somewhere.
+* Other minor changes here and there
+
+16-Mar-2010 - Xenowhirl:
+* Fixed missing pointer in Sound39 (platform crumble) so it won't screw up if offset.
+* Disassembled Mus_ExtraLife, Mus_GameOver, Mus_Emerald, and Mus_Credits
+  so they won't break if you add or remove or change any other music.
+* Fixed Plc_Buffer inaccuracies and made it relocatable and resizable.
+* Named DrawLevelTitleCard and made it not use the wrong equates.
+* Fixed split.bat generation of SonicAndTails palettes to match the disassembly.
+
+20-Jul-2010 - MoDule:
+* Changed incorrect use of art_tile back to 2 in ObjD6
+* Did some minor documentation on the CPZ boss
+  * Named some SST variables
+  * Added comments to describe a few routines
+  * Named a few labels
+* Documented a few common object routines
+* Changed a few incorrect equates in the ARZ boss object
+* Object manager 2p:
+  * Named some labels
+  * Commented some code
+  * Identified RAM address $FFFFF78E as Obj_respawn_index_P2
+* Added RAM equate Obj_respawn_index = Object_Respawn_Table as Player 1's equivalent to Obj_respawn_index_P2
+* Cleaned up teleport_swap_table and used equates wherever possible
+* Identified RAM addresses $F766 = Sonic_mapping_frame and $F7CF = Control_Locked_P2
+* Added RAM equates for unnamed RAM addresses (as unk_<RAM address>).
+  Some addresses still missing, mostly ones used in special stages.
+  Addresses not specifically given as ($FFFF____).w might also be missing in some cases.
+  
+24-Oct-2010 - Xenowhirl:
+* Fixed mistake in VDP_Command_Buffer definition (entries are 7 bytes each, not 6).
+
+27-Oct-2010 - Xenowhirl:
+* Fixed some sound issues (mainly IDs not being used).
+* Identified a few addresses (Tornado_Velocity, LastLoadedDPLC).
+* Named a few labels (LoadChildObject).
+* Added a comment about how to fix a bug in the credits music.
+
+31-Oct-2010 - Xenowhirl:
+* Removed "unused" comments from Obj6C, Obj6E, and Objects_Null1, as those are definitely used.
+
+9-Nov-2010 - Xenowhirl:
+* Named ObjA7_GrabCharacter (grabber) and used SST entries for the character there.
+* Documented Sega screen sprite scaling outer loops and made the data easier to edit (SonicRunningSpriteScaleData).
+* Commented on the trademark hider sprite active on Japanese consoles.
+* Removed a weird newline from build.bat that made it hard to edit.
+
+15-Nov-2010 - Flamewing:
+* Documented Sega screen a bit more.
+* Added equates for several VRAM and art tile addresses, as well as macros.
+* Added animation IDs.
+* Documented collision routine a bit more, as well as adding equates for important bits.
+* A bit of documentation for endgame and Tornado (ObjB2).
+* Added names for a few variables and documented CNZ special bumpers.
+* Unsplit mappings/16x16/Anim*.bin files to make them auto-adjusting.
+
