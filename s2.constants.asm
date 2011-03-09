@@ -940,6 +940,7 @@ TitleCard:
 TitleCard_ZoneName:		; level title card: zone name
 GameOver_GameText:		; "GAME" from GAME OVER
 TimeOver_TimeText:		; "TIME" from TIME OVER
+
 				ds.b	object_size
 TitleCard_Zone:			; level title card: "ZONE"
 GameOver_OverText:		; "OVER" from GAME OVER
@@ -1371,8 +1372,10 @@ Current_Zone:			ds.b	1	; 1 byte
 Current_Act:			ds.b	1	; 1 byte
 Life_count:			ds.b	1
 				ds.b	3	; $FFFFFE13-$FFFFFE15 ; seems unused
+
+Current_Special_StageAndAct:	; 2 bytes
 Current_Special_Stage:		ds.b	1
-unk_FE17:			ds.b	1
+Current_Special_Act:		ds.b	1
 Continue_count:			ds.b	1
 Super_Sonic_flag:		ds.b	1
 Time_Over_flag:			ds.b	1

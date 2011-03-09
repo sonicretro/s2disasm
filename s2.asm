@@ -3923,7 +3923,7 @@ TitleScreen_Loop:
 	rts
 ; ---------------------------------------------------------------------------
 +
-	move.w	d0,(Current_Special_Stage).w
+	move.w	d0,(Current_Special_StageAndAct).w
 	move.w	d0,(Got_Emerald).w
 	move.l	d0,(Got_Emeralds_array).w
 	move.l	d0,(Got_Emeralds_array+4).w
@@ -4541,6 +4541,7 @@ InitPlayers:
 +
 	rts
 ; ===========================================================================
+
 ; loc_44BE:
 InitPlayers_Alone: ; either Sonic or Tails but not both
 	subq.w	#1,d0
@@ -5935,7 +5936,7 @@ SpecialStage:
 -	move.b	#$A,(Vint_routine).w
 	bsr.w	WaitForVint
 	bsr.w	sub_5604
-	bsr.w	sub_5514
+	bsr.w	SSLoadCurrentPerspective
 	bsr.w	SSObjectsManager
 	move.b	(SS_unk_DB1F).w,d0
 	subq.w	#1,d0
@@ -5964,7 +5965,7 @@ SpecialStage:
 	bsr.w	WaitForVint
 	bsr.w	sub_5604
 	bsr.w	sub_7650
-	bsr.w	sub_5514
+	bsr.w	SSLoadCurrentPerspective
 	bsr.w	SSObjectsManager
 	bsr.w	sub_6DE4
 	jsr	(RunObjects).l
@@ -5983,10 +5984,10 @@ SpecialStage:
 	bsr.w	WaitForVint
 	bsr.w	sub_5604
 	bsr.w	sub_7650
-	bsr.w	sub_5514
+	bsr.w	SSLoadCurrentPerspective
 	bsr.w	SSObjectsManager
 	bsr.w	sub_6DE4
-	bsr.w	sub_543A
+	bsr.w	PalCycle_SS
 	tst.b	(SS_Pause_Only_flag).w
 	beq.s	+
 	move.w	(Ctrl_1).w,d0
@@ -6123,7 +6124,8 @@ Pal_SpecialStageStars:	dc.w  $EEE, $CCC, $AAA,	$888, $888, $AAA, $CCC,	$EEE
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
-sub_543A:
+;sub_543A
+PalCycle_SS:
 	move.b	(Vint_runcount+3).w,d0
 	andi.b	#3,d0
 	bne.s	+
@@ -6140,8 +6142,8 @@ sub_543A:
 +
 	cmpi.b	#6,(Current_Special_Stage).w
 	bne.s	+
-	cmpi.b	#3,(unk_FE17).w
-	beq.w	loc_54DC
+	cmpi.b	#3,(Current_Special_Act).w
+	beq.w	SSCheckpoint_rainbow
 /
 	tst.b	(SS_Checkpoint_Rainbow_flag).w
 	beq.s	+	; rts
@@ -6168,7 +6170,8 @@ word_54C6:	dc.w   $0CC
 word_54C8:	dc.w   $088, $0E0, $0C0, $080, $EE0, $CC0, $880, $E0E, $C0C, $808
 ; ===========================================================================
 
-loc_54DC:
+;loc_54DC
+SSCheckpoint_rainbow:
 	tst.b	(SS_Pause_Only_flag).w
 	beq.s	-
 	moveq	#0,d0
@@ -6189,13 +6192,14 @@ loc_54DC:
 
 	move.w	d0,(a1)
 	rts
-; End of function sub_543A
+; End of function PalCycle_SS
 
 
 ;|||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
-sub_5514:
+;sub_5514
+SSLoadCurrentPerspective:
 	cmpi.b	#4,(SpecialStageTrack_anim_frame_duration).w
 	bne.s	+	; rts
 	movea.l	#SSRAM_MiscKoz_SpecialPerspective,a0
@@ -6205,7 +6209,7 @@ sub_5514:
 	adda.w	(a0,d0.w),a0
 	move.l	a0,(SS_CurrentPerspective).w
 +	rts
-; End of function sub_5514
+; End of function SSLoadCurrentPerspective
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -6223,7 +6227,7 @@ SSObjectsManager:
 	movea.l	(SS_CurrentLevelLayout).w,a1
 	move.b	(a1,d0.w),d3
 	andi.w	#$7F,d3
-	lea	(byte_55FE).l,a0
+	lea	(Ani_SpecialStageTrack_Len).l,a0
 	move.b	(a0,d3.w),d3
 	add.w	d3,d3
 	add.w	d3,d3
@@ -6282,7 +6286,7 @@ return_55DC:
 ; End of function SSObjectsManager
 
 ; ===========================================================================
-dword_55DE:
+SSTrackPNTCommands:
 	dc.l vdpComm(VRAM_SpecialStage_Plane_A_Name_Table2 + 0 * (PNT_Buffer_End-PNT_Buffer),VRAM,WRITE)
 	dc.l vdpComm(VRAM_SpecialStage_Plane_A_Name_Table2 + 1 * (PNT_Buffer_End-PNT_Buffer),VRAM,WRITE)
 	dc.l vdpComm(VRAM_SpecialStage_Plane_A_Name_Table2 + 2 * (PNT_Buffer_End-PNT_Buffer),VRAM,WRITE)
@@ -6291,12 +6295,12 @@ dword_55DE:
 	dc.l vdpComm(VRAM_SpecialStage_Plane_A_Name_Table1 + 1 * (PNT_Buffer_End-PNT_Buffer),VRAM,WRITE)
 	dc.l vdpComm(VRAM_SpecialStage_Plane_A_Name_Table1 + 2 * (PNT_Buffer_End-PNT_Buffer),VRAM,WRITE)
 	dc.l vdpComm(VRAM_SpecialStage_Plane_A_Name_Table1 + 3 * (PNT_Buffer_End-PNT_Buffer),VRAM,WRITE)
-byte_55FE:
-	dc.b $18
-	dc.b $18	; 1
-	dc.b  $C	; 2
-	dc.b $10	; 3
-	dc.b  $B	; 4
+Ani_SpecialStageTrack_Len:
+	dc.b SSTrackAni_TurnThenRise_End - SSTrackAni_TurnThenRise	; 0
+	dc.b SSTrackAni_TurnThenDrop_End - SSTrackAni_TurnThenDrop	; 1
+	dc.b SSTrackAni_TurnThenStraight_End - SSTrackAni_TurnThenStraight	; 2
+	dc.b SSTrackAni_Straight_End - SSTrackAni_Straight	; 3
+	dc.b SSTrackAni_StraightThenTurn_End - SSTrackAni_StraightThenTurn	; 4
 	dc.b   0	; 5
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -6306,10 +6310,10 @@ sub_5604:
 	moveq	#0,d0
 	move.b	(SpecialStageTrack_anim_frame_duration).w,d0
 	cmpi.b	#4,d0
-	bge.w	loc_6C0A
+	bge.w	SSTrackSetOrientation
 	add.w	d0,d0
 	add.w	d0,d0
-	bne.w	loc_56D2
+	bne.w	SSTrack_BeginDraw
 	move.l	(SpecialStageTrack_last_mappings).w,(SpecialStageTrack_last_mappings_copy).w
 	move.b	(SpecialStageTrack_mapping_frame).w,(SpecialStageTrack_last_mapping_frame).w
 	moveq	#0,d1
@@ -6359,25 +6363,26 @@ sub_5604:
 	move.l	a0,(SpecialStageTrack_last_mappings).w
 	move.l	a1,(SS_unk_DB04).w
 	move.l	a2,(SS_unk_DB3A).w
-	lea	byte_55FE(pc),a4
+	lea	Ani_SpecialStageTrack_Len(pc),a4
 	move.b	(a4,d1.w),d2
 	move.b	(SpecialStageTrack_anim_frame).w,(SpecialStageTrack_last_anim_frame).w
 	addi.b	#1,(SpecialStageTrack_anim_frame).w
 	cmp.b	(SpecialStageTrack_anim_frame).w,d2
-	bne.s	loc_56D2
+	bne.s	SSTrack_BeginDraw
 	move.b	#0,(SpecialStageTrack_anim_frame).w
 	move.b	(SpecialStage_CurrentSegment).w,(SpecialStage_LastSegment).w
 	addi.b	#1,(SpecialStage_CurrentSegment).w
 
-loc_56D2:
+;loc_56D2
+SSTrack_BeginDraw:
 	tst.b	(SS_Alternate_PNT).w
 	beq.s	+
 	addi.w	#$10,d0
-+	lea	dword_55DE(pc),a3
++	lea	SSTrackPNTCommands(pc),a3
 	movea.l	(a3,d0.w),a3
 	move.l	a3,(VDP_control_port).l
 	lea	(VDP_data_port).l,a6
-	bsr.w	loc_6C0A
+	bsr.w	SSTrackSetOrientation
 	movea.l	(SpecialStageTrack_mappings).w,a0
 	movea.l	(SS_unk_DB04).w,a1
 	movea.l	(SS_unk_DB3A).w,a2
@@ -6385,19 +6390,19 @@ loc_56D2:
 	movem.w	(a3)+,d2-d7
 	lea	(word_651E).l,a3
 	lea	(word_69E6).l,a4
-	movea.w	#-8,a5
+	movea.w	#-8,a5				; This is used as a loop counter; draw 8 lines
 	moveq	#0,d0
 	tst.b	(SpecialStageTrack_Orientation).w
-	bne.w	loc_5D8A
+	bne.w	SSTrackDrawLineLoop_PNT_Buffer
 
-loc_5722:
+;loc_5722
+SSTrackDrawLineLoop_VRAM:
+	adda.w	#1,a5				; Increment loop counter
+	cmpa.w	#0,a5				; Have all 8 lines been drawn?
+	beq.w	SSTrackDraw_return	; If yes, return
 
-	adda.w	#1,a5
-	cmpa.w	#0,a5
-	beq.w	loc_5D58
-
-loc_572E:
-
+;loc_572E
+SSTrackDrawLoop_VRAM_Inner:
 	moveq	#0,d1
 	subq.w	#1,d7
 	bpl.s	+
@@ -6453,7 +6458,7 @@ loc_5788:
 	cmpi.b	#-1,d2
 	bne.s	+
 	moveq	#0,d3
-	bra.w	loc_5722
+	bra.w	SSTrackDrawLineLoop_VRAM
 ; ===========================================================================
 +	moveq	#7,d3
 +	add.b	d2,d2
@@ -6507,7 +6512,7 @@ loc_57DE:
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
 	moveq	#6,d5
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5806:
@@ -6528,7 +6533,7 @@ loc_5806:
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
 	moveq	#7,d5
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5836:
@@ -6542,7 +6547,7 @@ loc_5836:
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
 	moveq	#0,d5
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5856:
@@ -6560,7 +6565,7 @@ loc_5856:
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
 	moveq	#1,d5
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5880:
@@ -6578,7 +6583,7 @@ loc_5880:
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
 	moveq	#2,d5
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_58AA:
@@ -6596,7 +6601,7 @@ loc_58AA:
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
 	moveq	#3,d5
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_58D4:
@@ -6614,7 +6619,7 @@ loc_58D4:
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
 	moveq	#4,d5
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_58FE:
@@ -6632,7 +6637,7 @@ loc_58FE:
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
 	moveq	#5,d5
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5928:
@@ -6645,7 +6650,7 @@ loc_5928:
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
 	moveq	#2,d5
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5944:
@@ -6662,7 +6667,7 @@ loc_5944:
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
 	moveq	#3,d5
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_596A:
@@ -6679,7 +6684,7 @@ loc_596A:
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
 	moveq	#4,d5
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5990:
@@ -6696,7 +6701,7 @@ loc_5990:
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
 	moveq	#5,d5
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_59B6:
@@ -6713,7 +6718,7 @@ loc_59B6:
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
 	moveq	#6,d5
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_59DC:
@@ -6730,7 +6735,7 @@ loc_59DC:
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
 	moveq	#7,d5
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5A02:
@@ -6741,7 +6746,7 @@ loc_5A02:
 	ori.w	#palette_line_3,d4
 	move.w	d4,(a6)
 	moveq	#0,d5
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5A1A:
@@ -6753,7 +6758,7 @@ loc_5A1A:
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
 	moveq	#1,d5
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5A34:
@@ -6763,7 +6768,7 @@ loc_5A34:
 	andi.w	#$7F,d0
 	moveq	#1,d3
 	cmpi.b	#$7F,d0
-	beq.w	loc_5722
+	beq.w	SSTrackDrawLineLoop_VRAM
 	addi.w	#$40,d0
 	add.w	d0,d0
 	add.w	d0,d0
@@ -6774,7 +6779,7 @@ loc_5A34:
 -	move.w	d1,(a6)
 	dbf	d0,-
 
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5A66:
@@ -6788,7 +6793,7 @@ loc_5A66:
 	or.b	d1,d0
 	moveq	#2,d3
 	cmpi.b	#$7F,d0
-	beq.w	loc_5722
+	beq.w	SSTrackDrawLineLoop_VRAM
 	addi.w	#$40,d0
 	add.w	d0,d0
 	add.w	d0,d0
@@ -6799,7 +6804,7 @@ loc_5A66:
 -	move.w	d1,(a6)
 	dbf	d0,-
 
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5AA2:
@@ -6813,7 +6818,7 @@ loc_5AA2:
 	or.b	d1,d0
 	moveq	#3,d3
 	cmpi.b	#$7F,d0
-	beq.w	loc_5722
+	beq.w	SSTrackDrawLineLoop_VRAM
 	addi.w	#$40,d0
 	add.w	d0,d0
 	add.w	d0,d0
@@ -6824,7 +6829,7 @@ loc_5AA2:
 -	move.w	d1,(a6)
 	dbf	d0,-
 
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5ADE:
@@ -6838,7 +6843,7 @@ loc_5ADE:
 	or.b	d1,d0
 	moveq	#4,d3
 	cmpi.b	#$7F,d0
-	beq.w	loc_5722
+	beq.w	SSTrackDrawLineLoop_VRAM
 	addi.w	#$40,d0
 	add.w	d0,d0
 	add.w	d0,d0
@@ -6849,7 +6854,7 @@ loc_5ADE:
 -	move.w	d1,(a6)
 	dbf	d0,-
 
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5B1A:
@@ -6863,7 +6868,7 @@ loc_5B1A:
 	or.b	d1,d0
 	moveq	#5,d3
 	cmpi.b	#$7F,d0
-	beq.w	loc_5722
+	beq.w	SSTrackDrawLineLoop_VRAM
 	addi.w	#$40,d0
 	add.w	d0,d0
 	add.w	d0,d0
@@ -6874,7 +6879,7 @@ loc_5B1A:
 -	move.w	d1,(a6)
 	dbf	d0,-
 
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5B56:
@@ -6888,7 +6893,7 @@ loc_5B56:
 	or.b	d1,d0
 	moveq	#6,d3
 	cmpi.b	#$7F,d0
-	beq.w	loc_5722
+	beq.w	SSTrackDrawLineLoop_VRAM
 	addi.w	#$40,d0
 	add.w	d0,d0
 	add.w	d0,d0
@@ -6899,7 +6904,7 @@ loc_5B56:
 -	move.w	d1,(a6)
 	dbf	d0,-
 
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5B92:
@@ -6913,7 +6918,7 @@ loc_5B92:
 	or.b	d1,d0
 	moveq	#7,d3
 	cmpi.b	#$7F,d0
-	beq.w	loc_5722
+	beq.w	SSTrackDrawLineLoop_VRAM
 	addi.w	#$40,d0
 	add.w	d0,d0
 	add.w	d0,d0
@@ -6924,7 +6929,7 @@ loc_5B92:
 -	move.w	d1,(a6)
 	dbf	d0,-
 
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5BCE:
@@ -6932,7 +6937,7 @@ loc_5BCE:
 	andi.w	#$7F,d2
 	moveq	#0,d3
 	cmpi.b	#$7F,d2
-	beq.w	loc_5722
+	beq.w	SSTrackDrawLineLoop_VRAM
 	addi.w	#$40,d2
 	add.w	d2,d2
 	add.w	d2,d2
@@ -6943,7 +6948,7 @@ loc_5BCE:
 -	move.w	d1,(a6)
 	dbf	d0,-
 
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5BFC:
@@ -6961,7 +6966,7 @@ loc_5BFC:
 -	move.w	d1,(a6)
 	dbf	d0,-
 
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5C22:
@@ -6983,7 +6988,7 @@ loc_5C22:
 -	move.w	d1,(a6)
 	dbf	d0,-
 
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5C52:
@@ -7005,7 +7010,7 @@ loc_5C52:
 -	move.w	d1,(a6)
 	dbf	d0,-
 
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5C82:
@@ -7027,7 +7032,7 @@ loc_5C82:
 -	move.w	d1,(a6)
 	dbf	d0,-
 
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5CB2:
@@ -7049,7 +7054,7 @@ loc_5CB2:
 -	move.w	d1,(a6)
 	dbf	d0,-
 
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5CE2:
@@ -7071,7 +7076,7 @@ loc_5CE2:
 -	move.w	d1,(a6)
 	dbf	d0,-
 
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5D12:
@@ -7087,7 +7092,7 @@ loc_5D12:
 -	move.w	d1,(a6)
 	dbf	d0,-
 
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
 loc_5D34:
@@ -7104,10 +7109,11 @@ loc_5D34:
 -	move.w	d1,(a6)
 	dbf	d0,-
 
-	bra.w	loc_572E
+	bra.w	SSTrackDrawLoop_VRAM_Inner
 ; ===========================================================================
 
-loc_5D58:
+;loc_5D58
+SSTrackDraw_return:
 	cmpi.b	#3,(SpecialStageTrack_anim_frame_duration).w
 	beq.s	+
 	move.l	a0,(SpecialStageTrack_mappings).w
@@ -7126,19 +7132,20 @@ loc_5D58:
 	rts
 ; ===========================================================================
 
-loc_5D8A:
-	adda.w	#1,a5
-	cmpa.w	#0,a5
-	beq.w	loc_5D58
-	lea	(PNT_Buffer).w,a6
-	swap	d0
-	addi.w	#$100,d0
-	andi.w	#$F00,d0
-	adda.w	d0,a6
-	swap	d0
+;loc_5D8A
+SSTrackDrawLineLoop_PNT_Buffer:
+	adda.w	#1,a5				; Increment loop counter
+	cmpa.w	#0,a5				; Have all 8 lines been drawn?
+	beq.w	SSTrackDraw_return	; If yes, return
+	lea	(PNT_Buffer).w,a6		; Destination buffer
+	swap	d0					; High word starts at 0
+	addi.w	#$100,d0			; Adding $100 means seek to start of next line
+	andi.w	#$F00,d0			; Keep to confines
+	adda.w	d0,a6				; Seek to end of current line
+	swap	d0					; Leaves the low word of d0 free for use
 
-loc_5DA8:
-
+;loc_5DA8
+SSTrackDrawLoop_PNT_Buffer_Inner:
 	moveq	#0,d1
 	subq.w	#1,d7
 	bpl.s	+
@@ -7194,7 +7201,7 @@ loc_5E06:
 	cmpi.b	#-1,d2
 	bne.s	+
 	moveq	#0,d3
-	bra.w	loc_5D8A
+	bra.w	SSTrackDrawLineLoop_PNT_Buffer
 ; ===========================================================================
 +	moveq	#7,d3
 +	add.b	d2,d2
@@ -7248,7 +7255,7 @@ loc_5E60:
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
 	moveq	#6,d5
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_5E8A:
@@ -7269,7 +7276,7 @@ loc_5E8A:
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
 	moveq	#7,d5
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_5EBA:
@@ -7283,7 +7290,7 @@ loc_5EBA:
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
 	moveq	#0,d5
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_5EDA:
@@ -7301,7 +7308,7 @@ loc_5EDA:
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
 	moveq	#1,d5
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_5F04:
@@ -7319,7 +7326,7 @@ loc_5F04:
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
 	moveq	#2,d5
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_5F2E:
@@ -7337,7 +7344,7 @@ loc_5F2E:
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
 	moveq	#3,d5
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_5F58:
@@ -7355,7 +7362,7 @@ loc_5F58:
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
 	moveq	#4,d5
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_5F82:
@@ -7373,7 +7380,7 @@ loc_5F82:
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
 	moveq	#5,d5
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_5FAC:
@@ -7386,7 +7393,7 @@ loc_5FAC:
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
 	moveq	#2,d5
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_5FC8:
@@ -7403,7 +7410,7 @@ loc_5FC8:
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
 	moveq	#3,d5
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_5FEE:
@@ -7420,7 +7427,7 @@ loc_5FEE:
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
 	moveq	#4,d5
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_6014:
@@ -7437,7 +7444,7 @@ loc_6014:
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
 	moveq	#5,d5
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_603A:
@@ -7454,7 +7461,7 @@ loc_603A:
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
 	moveq	#6,d5
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_6060:
@@ -7471,7 +7478,7 @@ loc_6060:
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
 	moveq	#7,d5
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_6086:
@@ -7482,7 +7489,7 @@ loc_6086:
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
 	moveq	#0,d5
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_609E:
@@ -7494,7 +7501,7 @@ loc_609E:
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
 	moveq	#1,d5
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_60B8:
@@ -7504,7 +7511,7 @@ loc_60B8:
 	andi.w	#$7F,d0
 	moveq	#1,d3
 	cmpi.b	#$7F,d0
-	beq.w	loc_5D8A
+	beq.w	SSTrackDrawLineLoop_PNT_Buffer
 	addi.w	#$40,d0
 	add.w	d0,d0
 	add.w	d0,d0
@@ -7515,7 +7522,7 @@ loc_60B8:
 -	move.w	d1,-(a6)
 	dbf	d0,-
 
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_60EA:
@@ -7529,7 +7536,7 @@ loc_60EA:
 	or.b	d1,d0
 	moveq	#2,d3
 	cmpi.b	#$7F,d0
-	beq.w	loc_5D8A
+	beq.w	SSTrackDrawLineLoop_PNT_Buffer
 	addi.w	#$40,d0
 	add.w	d0,d0
 	add.w	d0,d0
@@ -7540,7 +7547,7 @@ loc_60EA:
 -	move.w	d1,-(a6)
 	dbf	d0,-
 
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_6126:
@@ -7554,7 +7561,7 @@ loc_6126:
 	or.b	d1,d0
 	moveq	#3,d3
 	cmpi.b	#$7F,d0
-	beq.w	loc_5D8A
+	beq.w	SSTrackDrawLineLoop_PNT_Buffer
 	addi.w	#$40,d0
 	add.w	d0,d0
 	add.w	d0,d0
@@ -7565,7 +7572,7 @@ loc_6126:
 -	move.w	d1,-(a6)
 	dbf	d0,-
 
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_6162:
@@ -7579,7 +7586,7 @@ loc_6162:
 	or.b	d1,d0
 	moveq	#4,d3
 	cmpi.b	#$7F,d0
-	beq.w	loc_5D8A
+	beq.w	SSTrackDrawLineLoop_PNT_Buffer
 	addi.w	#$40,d0
 	add.w	d0,d0
 	add.w	d0,d0
@@ -7590,7 +7597,7 @@ loc_6162:
 -	move.w	d1,-(a6)
 	dbf	d0,-
 
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_619E:
@@ -7604,7 +7611,7 @@ loc_619E:
 	or.b	d1,d0
 	moveq	#5,d3
 	cmpi.b	#$7F,d0
-	beq.w	loc_5D8A
+	beq.w	SSTrackDrawLineLoop_PNT_Buffer
 	addi.w	#$40,d0
 	add.w	d0,d0
 	add.w	d0,d0
@@ -7615,7 +7622,7 @@ loc_619E:
 -	move.w	d1,-(a6)
 	dbf	d0,-
 
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_61DA:
@@ -7629,7 +7636,7 @@ loc_61DA:
 	or.b	d1,d0
 	moveq	#6,d3
 	cmpi.b	#$7F,d0
-	beq.w	loc_5D8A
+	beq.w	SSTrackDrawLineLoop_PNT_Buffer
 	addi.w	#$40,d0
 	add.w	d0,d0
 	add.w	d0,d0
@@ -7640,7 +7647,7 @@ loc_61DA:
 -	move.w	d1,-(a6)
 	dbf	d0,-
 
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_6216:
@@ -7654,7 +7661,7 @@ loc_6216:
 	or.b	d1,d0
 	moveq	#7,d3
 	cmpi.b	#$7F,d0
-	beq.w	loc_5D8A
+	beq.w	SSTrackDrawLineLoop_PNT_Buffer
 	addi.w	#$40,d0
 	add.w	d0,d0
 	add.w	d0,d0
@@ -7665,7 +7672,7 @@ loc_6216:
 -	move.w	d1,-(a6)
 	dbf	d0,-
 
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_6252:
@@ -7673,7 +7680,7 @@ loc_6252:
 	andi.w	#$7F,d2
 	moveq	#0,d3
 	cmpi.b	#$7F,d2
-	beq.w	loc_5D8A
+	beq.w	SSTrackDrawLineLoop_PNT_Buffer
 	addi.w	#$40,d2
 	add.w	d2,d2
 	add.w	d2,d2
@@ -7684,7 +7691,7 @@ loc_6252:
 -	move.w	d1,-(a6)
 	dbf	d0,-
 
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_6280:
@@ -7702,7 +7709,7 @@ loc_6280:
 -	move.w	d1,-(a6)
 	dbf	d0,-
 
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_62A6:
@@ -7724,7 +7731,7 @@ loc_62A6:
 -	move.w	d1,-(a6)
 	dbf	d0,-
 
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_62D6:
@@ -7746,7 +7753,7 @@ loc_62D6:
 -	move.w	d1,-(a6)
 	dbf	d0,-
 
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_6306:
@@ -7768,7 +7775,7 @@ loc_6306:
 -	move.w	d1,-(a6)
 	dbf	d0,-
 
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_6336:
@@ -7790,7 +7797,7 @@ loc_6336:
 -	move.w	d1,-(a6)
 	dbf	d0,-
 
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_6366:
@@ -7812,7 +7819,7 @@ loc_6366:
 -	move.w	d1,-(a6)
 	dbf	d0,-
 
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_6396:
@@ -7828,7 +7835,7 @@ loc_6396:
 -	move.w	d1,-(a6)
 	dbf	d0,-
 
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 ; ===========================================================================
 
 loc_63B8:
@@ -7845,7 +7852,7 @@ loc_63B8:
 -	move.w	d1,-(a6)
 	dbf	d0,-
 
-	bra.w	loc_5DA8
+	bra.w	SSTrackDrawLoop_PNT_Buffer_Inner
 
 ; ===========================================================================
 ; frames of animation of the special stage track
@@ -7861,22 +7868,27 @@ Ani_SpecialStageTrack:	offsetTable
 SSTrackAni_TurnThenRise:
 	dc.b $26,$27,$28,$29,$2A,$2B,$26 ; turning
 	dc.b   0,  1,  2,  3,  4,  5,  6,  7,  8,  9, $A, $B, $C, $D, $E, $F,$10 ; rise
+SSTrackAni_TurnThenRise_End:
 ; byte_63FE:
 SSTrackAni_TurnThenDrop:
 	dc.b $26,$27,$28,$29,$2A,$2B,$26 ; turning
 	dc.b $15,$16,$17,$18,$19,$1A,$1B,$1C,$1D,$1E,$1F,$20,$21,$22,$23,$24,$25 ; drop
+SSTrackAni_TurnThenDrop_End:
 ; byte_6416:
 SSTrackAni_TurnThenStraight:
 	dc.b $26,$27,$28,$29,$2A,$2B,$26 ; turning
 	dc.b $2C,$2D,$2E,$2F,$30 ; exit turn
+SSTrackAni_TurnThenStraight_End:
 ; byte_6422:
 SSTrackAni_Straight:
 	dc.b $11,$12,$13,$14,$11,$12,$13,$14 ; straight
 	dc.b $11,$12,$13,$14,$11,$12,$13,$14 ; straight
+SSTrackAni_Straight_End:
 ; byte_6432:
 SSTrackAni_StraightThenTurn:
 	dc.b $11,$12,$13,$14 ; straight
 	dc.b $31,$32,$33,$34,$35,$36,$37 ; enter turn
+SSTrackAni_StraightThenTurn_End:
 
 	even
 
@@ -7885,44 +7897,44 @@ SSTrackAni_StraightThenTurn:
 ; indexed into by the numbers used in the above animations
 ; off_643E:
 Map_SpecialStageTrack:
-	dc.l MapSpec_Rise1	;   0
-	dc.l MapSpec_Rise2	;   1
-	dc.l MapSpec_Rise3	;   2
-	dc.l MapSpec_Rise4	;   3
-	dc.l MapSpec_Rise5	;   4
-	dc.l MapSpec_Rise6	;   5
-	dc.l MapSpec_Rise7	;   6
-	dc.l MapSpec_Rise8	;   7
-	dc.l MapSpec_Rise9	;   8
-	dc.l MapSpec_Rise10	;   9
-	dc.l MapSpec_Rise11	;  $A
-	dc.l MapSpec_Rise12	;  $B
-	dc.l MapSpec_Rise13	;  $C
-	dc.l MapSpec_Rise14	;  $D
-	dc.l MapSpec_Rise15	;  $E
-	dc.l MapSpec_Rise16	;  $F
-	dc.l MapSpec_Rise17	; $10
+	dc.l MapSpec_Rise1		;   0
+	dc.l MapSpec_Rise2		;   1
+	dc.l MapSpec_Rise3		;   2
+	dc.l MapSpec_Rise4		;   3
+	dc.l MapSpec_Rise5		;   4
+	dc.l MapSpec_Rise6		;   5
+	dc.l MapSpec_Rise7		;   6
+	dc.l MapSpec_Rise8		;   7
+	dc.l MapSpec_Rise9		;   8
+	dc.l MapSpec_Rise10		;   9
+	dc.l MapSpec_Rise11		;  $A
+	dc.l MapSpec_Rise12		;  $B
+	dc.l MapSpec_Rise13		;  $C
+	dc.l MapSpec_Rise14		;  $D	; This may flip the special stage's horizontal orientation
+	dc.l MapSpec_Rise15		;  $E
+	dc.l MapSpec_Rise16		;  $F
+	dc.l MapSpec_Rise17		; $10
 	dc.l MapSpec_Straight1	; $11
-	dc.l MapSpec_Straight2	; $12
+	dc.l MapSpec_Straight2	; $12	; This may flip the special stage's horizontal orientation
 	dc.l MapSpec_Straight3	; $13
 	dc.l MapSpec_Straight4	; $14
-	dc.l MapSpec_Drop1	; $15
-	dc.l MapSpec_Drop2	; $16
-	dc.l MapSpec_Drop3	; $17
-	dc.l MapSpec_Drop4	; $18
-	dc.l MapSpec_Drop5	; $19
-	dc.l MapSpec_Drop6	; $1A
-	dc.l MapSpec_Drop7	; $1B
-	dc.l MapSpec_Drop8	; $1C
-	dc.l MapSpec_Drop9	; $1D
-	dc.l MapSpec_Drop10	; $1E
-	dc.l MapSpec_Drop11	; $1F
-	dc.l MapSpec_Drop12	; $20
-	dc.l MapSpec_Drop13	; $21
-	dc.l MapSpec_Drop14	; $22
-	dc.l MapSpec_Drop15	; $23
-	dc.l MapSpec_Drop16	; $24
-	dc.l MapSpec_Drop17	; $25
+	dc.l MapSpec_Drop1		; $15
+	dc.l MapSpec_Drop2		; $16
+	dc.l MapSpec_Drop3		; $17
+	dc.l MapSpec_Drop4		; $18
+	dc.l MapSpec_Drop5		; $19
+	dc.l MapSpec_Drop6		; $1A	; This may flip the special stage's horizontal orientation
+	dc.l MapSpec_Drop7		; $1B
+	dc.l MapSpec_Drop8		; $1C
+	dc.l MapSpec_Drop9		; $1D
+	dc.l MapSpec_Drop10		; $1E
+	dc.l MapSpec_Drop11		; $1F
+	dc.l MapSpec_Drop12		; $20
+	dc.l MapSpec_Drop13		; $21
+	dc.l MapSpec_Drop14		; $22
+	dc.l MapSpec_Drop15		; $23
+	dc.l MapSpec_Drop16		; $24
+	dc.l MapSpec_Drop17		; $25
 	dc.l MapSpec_Turning1	; $26
 	dc.l MapSpec_Turning2	; $27
 	dc.l MapSpec_Turning3	; $28
@@ -7934,13 +7946,13 @@ Map_SpecialStageTrack:
 	dc.l MapSpec_Unturn3	; $2E
 	dc.l MapSpec_Unturn4	; $2F
 	dc.l MapSpec_Unturn5	; $30
-	dc.l MapSpec_Turn1	; $31
-	dc.l MapSpec_Turn2	; $32
-	dc.l MapSpec_Turn3	; $33
-	dc.l MapSpec_Turn4	; $34
-	dc.l MapSpec_Turn5	; $35
-	dc.l MapSpec_Turn6	; $36
-	dc.l MapSpec_Turn7	; $37
+	dc.l MapSpec_Turn1		; $31
+	dc.l MapSpec_Turn2		; $32
+	dc.l MapSpec_Turn3		; $33
+	dc.l MapSpec_Turn4		; $34
+	dc.l MapSpec_Turn5		; $35
+	dc.l MapSpec_Turn6		; $36
+	dc.l MapSpec_Turn7		; $37
 
 ; These are pattern names. They get sent to either the pattern name table
 ; buffer or one region of one of the plane A name tables in the special stage.
@@ -8180,7 +8192,8 @@ byte_6BFE:
 	dc.b $FF,$FA,$FF,$FA	; 544
 ; ===========================================================================
 ; (!)
-loc_6C0A:
+;loc_6C0A
+SSTrackSetOrientation:
 	move.b	(SS_Alternate_HorizScroll_Buf).w,(SS_Last_Alternate_HorizScroll_Buf).w
 	moveq	#0,d1
 	movea.l	(SpecialStageTrack_mappings).w,a0	; Frame mappings pointer?
@@ -9134,7 +9147,7 @@ SSCurveOffsets: ; word_768A:
 loc_76FA:
 	moveq	#0,d1
 	moveq	#1,d2
-	move.w	(Current_Special_Stage).w,d0
+	move.w	(Current_Special_StageAndAct).w,d0
 	move.b	d0,d1
 	lsr.w	#8,d0
 	add.w	d0,d0
@@ -9166,7 +9179,7 @@ loc_76FA:
 	swap	d1
 	or.b	d1,d0
 	move.w	d0,d1
-	addi.w	#1,(Current_Special_Stage).w
+	addi.w	#1,(Current_Special_StageAndAct).w
 	rts
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -9220,7 +9233,7 @@ SpecialStage_Palettes:
 
 
 sub_77A2:
-	clr.b	(unk_FE17).w
+	clr.b	(Current_Special_Act).w
 	move.b	#-1,(SpecialStage_LastSegment2).w
 	move.w	#0,(Ring_count).w
 	move.w	#0,(Ring_count_2P).w
@@ -10456,6 +10469,7 @@ loc_85A6:
 	addq.w	#2,a5
 	rts
 ; End of function sub_854A
+
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -12236,6 +12250,7 @@ byte_A0EC:
 
 ; some palette cycle for the ending sequence
 pal_A0FE:	BINCLUDE	"art/palettes/Ending Cycle.bin"
+
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -15577,6 +15592,7 @@ byte_D270:
 	dc.b   0	; 10
 	dc.b $78	; 11
 ; ===========================================================================
+
 ; loc_D27C:
 SwScrl_CPZ:
 	move.w	(Camera_X_pos_diff).w,d4
@@ -18767,6 +18783,7 @@ LevEvents_HTZ2_Routine5:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+
 ; sub_EF66:
 LevEvents_HTZ2_Prepare:
 	cmpi.w	#$2B00,(Camera_X_pos).w
@@ -21214,6 +21231,7 @@ loc_10A1C:
 	lea	(byte_10C17).l,a4
 	btst	#0,subtype(a0)
 	beq.s	+
+
 	lea	(byte_10C1F).l,a4
 +
 	move.l	a4,objoff_34(a0)
@@ -23326,6 +23344,7 @@ process_swap_table:
 	movea.w	(a3)+,a1	; address for main character
 	movea.w	(a3)+,a2	; address for sidekick
 	move.w	(a3)+,d1	; amount of word length data to be swapped
+
 
 -	; swap data between the main character and the sidekick d1 times
 	move.w	(a1),d0
@@ -27215,6 +27234,7 @@ BuildSprites_ObjLoop:
 	move.b	width_pixels(a0),d0
 	move.w	x_pos(a0),d3
 	sub.w	(a1),d3
+
 	move.w	d3,d1
 	add.w	d0,d1	; is the object right edge to the left of the screen?
 	bmi.w	BuildSprites_NextObj	; if it is, branch
@@ -32359,6 +32379,7 @@ Obj01_OutWater:
 	move.w	#$100,(Sonic_deceleration).w
 +
 	cmpi.b	#4,routine(a0)	; is Sonic falling back from getting hurt?
+
 	beq.s	+		; if yes, branch
 	asl	y_vel(a0)
 +
@@ -42233,6 +42254,7 @@ loc_212C4:
 	move.b	#$E,y_radius(a1)
 	move.b	#7,x_radius(a1)
 	move.b	#AniIDSonAni_Roll,anim(a1)
+
 	addq.w	#5,y_pos(a1)
 	move.w	#SndID_Roll,d0
 	jsr	(PlaySound).l
@@ -46525,6 +46547,7 @@ loc_25002:
 	move.w	#SndID_Roll,d0
 	jsr	(PlaySound).l
 
+
 return_25034:
 	rts
 ; ===========================================================================
@@ -49558,6 +49581,7 @@ loc_279CC:
 
 return_279D2:
 	rts
+
 ; ===========================================================================
 
 loc_279D4:
@@ -56885,6 +56909,7 @@ Obj58_MapUnc_2D50A:	BINCLUDE "mappings/sprite/obj58.bin"
 
 	; Unused - a little dead code here (until the next label)
 	move.b	mapping_frame(a0),d0 ; a0=object
+
 	jsr	(CalcSine).l
 	asr.w	#6,d0
 	add.w	(Boss_Y_pos).w,d0
@@ -62784,6 +62809,7 @@ loc_3262E:
 	beq.s	loc_3263C
 	subq.b	#1,objoff_2F(a0)
 	bra.w	loc_324C6
+
 ; ===========================================================================
 
 loc_3263C:
@@ -66620,7 +66646,7 @@ loc_358C4:
 	jsr	(PlaySound).l
 	addi.b	#$10,(SS_unk_DB93).w
 	moveq	#0,d6
-	addi.b	#1,(unk_FE17).w
+	addi.b	#1,(Current_Special_Act).w
 	move.w	#$C,d0
 	move.w	(Ring_count).w,d2
 	cmp.w	(Ring_count_2P).w,d2
@@ -66649,7 +66675,7 @@ loc_35942:
 	subi.b	#$10,(SS_unk_DB93).w
 	move.w	#$10,d0
 	bsr.w	loc_35DAA
-	cmpi.b	#3,(unk_FE17).w
+	cmpi.b	#3,(Current_Special_Act).w
 	beq.s	loc_35966
 	move.w	#$46,objoff_2A(a0)
 	move.b	#$A,routine(a0)
@@ -66750,7 +66776,7 @@ loc_35A42:
 	tst.b	(System_Stack).w
 	beq.s	loc_35A72
 	bsr.w	loc_35A7A
-	cmpi.b	#3,(unk_FE17).w
+	cmpi.b	#3,(Current_Special_Act).w
 	beq.s	loc_35A2A
 	move.w	#$A,d0
 	bsr.w	loc_35DAA
@@ -66765,7 +66791,7 @@ loc_35A72:
 loc_35A7A:
 	lea	(unk_FFA0).w,a3
 	moveq	#0,d0
-	move.b	(unk_FE17).w,d0
+	move.b	(Current_Special_Act).w,d0
 	subq.w	#1,d0
 	add.w	d0,d0
 	add.w	d0,d0
@@ -67176,6 +67202,7 @@ loc_36022:
 
 loc_3603C:
 	move.w	d7,-(sp)
+
 	moveq	#0,d2
 	moveq	#0,d3
 	moveq	#0,d4
@@ -69934,6 +69961,7 @@ loc_37CEA:
 ; ---------------------------------------------------------------------------
 +	addq.b	#2,routine_secondary(a0)
 	move.b	#8,objoff_2A(a0)
+
 	move.b	#2,mapping_frame(a0)
 	bra.w	loc_37D22
 ; ===========================================================================
@@ -76401,6 +76429,7 @@ ObjC5_PlatformHurtFollowPlatform:
 	btst	#5,status(a1)
 	bne.w	JmpTo65_DeleteObject
 	move.w	x_pos(a1),x_pos(a0)
+
 	move.w	y_pos(a1),d0
 	addi.w	#$C,d0
 	move.w	d0,y_pos(a0)
@@ -80323,6 +80352,7 @@ loc_3FC9E:
 	cmp.w	d5,d7
 	bhi.w	return_3FC86
 
+
 loc_3FCA4:
 	neg.w	x_vel(a0)
 	neg.w	y_vel(a0)
@@ -83359,6 +83389,7 @@ LevelArtPointers:
 ; The decompressor predictably moves down the list, so request 0 is processed first, etc.
 ; This only matters if your addresses are bad and you overwrite art loaded in a previous request.
 ;
+
 ; NOTICE: The load queue buffer can only hold $10 (16) load requests. None of the routines
 ; that load PLRs into the queue do any bounds checking, so it's possible to create a buffer
 ; overflow and completely screw up the variables stored directly after the queue buffer.
@@ -85241,6 +85272,7 @@ MapEng_EndingSonicPlane:	BINCLUDE	"mappings/misc/Closeup of Sonic flying plane i
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Strange unused mappings (same as above)
+
 ; MapEng_90942:
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 8.bin"
 ;--------------------------------------------------------------------------------------
@@ -85716,6 +85748,7 @@ ArtNem_SpecialSonicAndTails:	BINCLUDE	"art/nemesis/Sonic and Tails animation fra
 ; "Tails" patterns from special stage	; ArtNem_E247E:
 	even
 ArtNem_SpecialTailsText:	BINCLUDE	"art/nemesis/Tails text patterns from special stage.bin"
+
 ;--------------------------------------------------------------------------------------
 ; Special stage object perspective data (Kosinski compression)	; MiscKoz_E24FE:
 ;--------------------------------------------------------------------------------------
