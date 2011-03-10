@@ -27,86 +27,75 @@ namespace S2ObjectDefinitions.Common
             imgh = img.Height;
             Point off = new Point();
             Bitmap im;
-            im = ObjectHelper.MapASMToBmp(artfile1, "../s2.asm", "word_19048", 0, out off);
+            imgs.Add(img); // 0
+            offsets.Add(offset);
+            imgws.Add(imgw);
+            imghs.Add(imgh);
+            im = ObjectHelper.MapASMToBmp(artfile1, "../s2.asm", "word_19048", 1, out off); // 1
             imgs.Add(im);
             offsets.Add(off);
             imgws.Add(im.Width);
             imghs.Add(im.Height);
-            im = ObjectHelper.MapASMToBmp(artfile1, "../s2.asm", "word_19048", 1, out off);
+            im = ObjectHelper.MapASMToBmp(artfile2, "../s2.asm", "word_19076", 0, out off); // 2
             imgs.Add(im);
             offsets.Add(off);
             imgws.Add(im.Width);
             imghs.Add(im.Height);
-            im = ObjectHelper.MapASMToBmp(artfile2, "../s2.asm", "word_19076", 0, out off);
+            im = ObjectHelper.MapASMToBmp(artfile2, "../s2.asm", "word_19076", 1, out off); // 3
             imgs.Add(im);
             offsets.Add(off);
             imgws.Add(im.Width);
             imghs.Add(im.Height);
-            im = ObjectHelper.MapASMToBmp(artfile2, "../s2.asm", "word_19076", 1, out off);
+            imgs.Add(imgs[0]); // 4
+            offsets.Add(offsets[0]);
+            imgws.Add(imgws[0]);
+            imghs.Add(imghs[0]);
+            imgs.Add(imgs[1]); // 5
+            offsets.Add(offsets[1]);
+            imgws.Add(imgws[1]);
+            imghs.Add(imghs[1]);
+            im = ObjectHelper.MapASMToBmp(artfile3, "../s2.asm", "word_190B6", 0, out off); // 6
             imgs.Add(im);
             offsets.Add(off);
             imgws.Add(im.Width);
             imghs.Add(im.Height);
-            im = ObjectHelper.MapASMToBmp(artfile1, "../s2.asm", "word_19048", 0, out off);
+            im = ObjectHelper.MapASMToBmp(artfile3, "../s2.asm", "word_19136", 1, out off); // 7
             imgs.Add(im);
             offsets.Add(off);
             imgws.Add(im.Width);
             imghs.Add(im.Height);
-            im = ObjectHelper.MapASMToBmp(artfile1, "../s2.asm", "word_19048", 1, out off);
-            imgs.Add(im);
-            offsets.Add(off);
-            imgws.Add(im.Width);
-            imghs.Add(im.Height);
-            im = ObjectHelper.MapASMToBmp(artfile3, "../s2.asm", "word_190B6", 0, out off);
-            imgs.Add(im);
-            offsets.Add(off);
-            imgws.Add(im.Width);
-            imghs.Add(im.Height);
-            im = ObjectHelper.MapASMToBmp(artfile3, "../s2.asm", "word_19136", 1, out off);
-            imgs.Add(im);
-            offsets.Add(off);
-            imgws.Add(im.Width);
-            imghs.Add(im.Height);
-            im = ObjectHelper.MapASMToBmp(artfile3, "../s2.asm", "word_190B6", 0, out off);
-            imgs.Add(im);
-            offsets.Add(off);
-            imgws.Add(im.Width);
-            imghs.Add(im.Height);
-            im = ObjectHelper.MapASMToBmp(artfile3, "../s2.asm", "word_19136", 1, out off);
-            imgs.Add(im);
-            offsets.Add(off);
-            imgws.Add(im.Width);
-            imghs.Add(im.Height);
-            im = ObjectHelper.MapASMToBmp(artfile1, "../s2.asm", "word_19048", 0, out off);
-            imgs.Add(im);
-            offsets.Add(off);
-            imgws.Add(im.Width);
-            imghs.Add(im.Height);
-            im = ObjectHelper.MapASMToBmp(artfile1, "../s2.asm", "word_19048", 1, out off);
-            imgs.Add(im);
-            offsets.Add(off);
-            imgws.Add(im.Width);
-            imghs.Add(im.Height);
-            im = ObjectHelper.MapASMToBmp(artfile1, "../s2.asm", "word_19048", 0, out off);
-            imgs.Add(im);
-            offsets.Add(off);
-            imgws.Add(im.Width);
-            imghs.Add(im.Height);
-            im = ObjectHelper.MapASMToBmp(artfile1, "../s2.asm", "word_19048", 1, out off);
-            imgs.Add(im);
-            offsets.Add(off);
-            imgws.Add(im.Width);
-            imghs.Add(im.Height);
-            im = ObjectHelper.MapASMToBmp(artfile1, "../s2.asm", "word_19048", 0, out off);
-            imgs.Add(im);
-            offsets.Add(off);
-            imgws.Add(im.Width);
-            imghs.Add(im.Height);
-            im = ObjectHelper.MapASMToBmp(artfile1, "../s2.asm", "word_19048", 1, out off);
-            imgs.Add(im);
-            offsets.Add(off);
-            imgws.Add(im.Width);
-            imghs.Add(im.Height);
+            imgs.Add(imgs[6]); // 8
+            offsets.Add(offsets[6]);
+            imgws.Add(imgws[6]);
+            imghs.Add(imghs[6]);
+            imgs.Add(imgs[7]); // 9
+            offsets.Add(offsets[7]);
+            imgws.Add(imgws[7]);
+            imghs.Add(imghs[7]);
+            imgs.Add(imgs[0]); // A
+            offsets.Add(offsets[0]);
+            imgws.Add(imgws[0]);
+            imghs.Add(imghs[0]);
+            imgs.Add(imgs[1]); // B
+            offsets.Add(offsets[1]);
+            imgws.Add(imgws[1]);
+            imghs.Add(imghs[1]);
+            imgs.Add(imgs[0]); // C
+            offsets.Add(offsets[0]);
+            imgws.Add(imgws[0]);
+            imghs.Add(imghs[0]);
+            imgs.Add(imgs[1]); // D
+            offsets.Add(offsets[1]);
+            imgws.Add(imgws[1]);
+            imghs.Add(imghs[1]);
+            imgs.Add(imgs[0]); // E
+            offsets.Add(offsets[0]);
+            imgws.Add(imgws[0]);
+            imghs.Add(imghs[0]);
+            imgs.Add(imgs[1]); // F
+            offsets.Add(offsets[1]);
+            imgws.Add(imgws[1]);
+            imghs.Add(imghs[1]);
         }
 
         public override ReadOnlyCollection<byte> Subtypes()
