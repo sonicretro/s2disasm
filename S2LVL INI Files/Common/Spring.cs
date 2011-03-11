@@ -72,30 +72,31 @@ namespace S2ObjectDefinitions.Common
             offsets.Add(offsets[7]);
             imgws.Add(imgws[7]);
             imghs.Add(imghs[7]);
-            imgs.Add(imgs[0]); // A
-            offsets.Add(offsets[0]);
-            imgws.Add(imgws[0]);
-            imghs.Add(imghs[0]);
-            imgs.Add(imgs[1]); // B
-            offsets.Add(offsets[1]);
-            imgws.Add(imgws[1]);
-            imghs.Add(imghs[1]);
-            imgs.Add(imgs[0]); // C
-            offsets.Add(offsets[0]);
-            imgws.Add(imgws[0]);
-            imghs.Add(imghs[0]);
-            imgs.Add(imgs[1]); // D
-            offsets.Add(offsets[1]);
-            imgws.Add(imgws[1]);
-            imghs.Add(imghs[1]);
-            imgs.Add(imgs[0]); // E
-            offsets.Add(offsets[0]);
-            imgws.Add(imgws[0]);
-            imghs.Add(imghs[0]);
-            imgs.Add(imgs[1]); // F
-            offsets.Add(offsets[1]);
-            imgws.Add(imgws[1]);
-            imghs.Add(imghs[1]);
+            im = ObjectHelper.UnknownObject(out off); // A
+            imgs.Add(im);
+            offsets.Add(off);
+            imgws.Add(im.Width);
+            imghs.Add(im.Width);
+            imgs.Add(im); // B
+            offsets.Add(off);
+            imgws.Add(im.Width);
+            imghs.Add(im.Width);
+            imgs.Add(im); // C
+            offsets.Add(off);
+            imgws.Add(im.Width);
+            imghs.Add(im.Width);
+            imgs.Add(im); // D
+            offsets.Add(off);
+            imgws.Add(im.Width);
+            imghs.Add(im.Width);
+            imgs.Add(im); // E
+            offsets.Add(off);
+            imgws.Add(im.Width);
+            imghs.Add(im.Width);
+            imgs.Add(im); // F
+            offsets.Add(off);
+            imgws.Add(im.Width);
+            imghs.Add(im.Width);
         }
 
         public override ReadOnlyCollection<byte> Subtypes()
