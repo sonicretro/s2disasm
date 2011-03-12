@@ -144,5 +144,12 @@ namespace S2ObjectDefinitions.Common
             else
                 return new Rectangle(loc.X + offset.X, loc.Y + offset.Y, imgw, imgh);
         }
+
+        public override void PaletteChanged(System.Drawing.Imaging.ColorPalette pal)
+        {
+            img.Palette = pal;
+            for (int i = 0; i <= 10; i++)
+                imgs[i].Palette = pal;
+        }
     }
 }

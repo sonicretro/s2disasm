@@ -81,5 +81,13 @@ namespace S2ObjectDefinitions.CPZ
             if (subtype > 3) return new Rectangle(loc.X + offsets[0].X, loc.Y + offsets[0].Y, imgws[0], imghs[0]);
             return new Rectangle(loc.X + offsets[subtype].X, loc.Y + offsets[subtype].Y, imgws[subtype], imghs[subtype]);
         }
+
+        public override void PaletteChanged(System.Drawing.Imaging.ColorPalette pal)
+        {
+            foreach (Bitmap item in imgs)
+            {
+                item.Palette = pal;
+            }
+        }
     }
 }

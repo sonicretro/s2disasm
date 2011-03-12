@@ -65,5 +65,10 @@ namespace S2ObjectDefinitions.Common
             }
             return Rectangle.Empty;
         }
+
+        public override void PaletteChanged(System.Drawing.Imaging.ColorPalette pal)
+        {
+            img.Palette = pal;
+        }
     }
 }

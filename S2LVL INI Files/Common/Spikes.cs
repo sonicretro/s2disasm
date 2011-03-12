@@ -92,6 +92,15 @@ namespace S2ObjectDefinitions.Common
                 return typeof(SpikesS2ObjectEntry);
             }
         }
+
+        public override void PaletteChanged(System.Drawing.Imaging.ColorPalette pal)
+        {
+            img.Palette = pal;
+            foreach (Bitmap item in imgs)
+            {
+                item.Palette = pal;
+            }
+        }
     }
 
     public class SpikesS2ObjectEntry : S2ObjectEntry

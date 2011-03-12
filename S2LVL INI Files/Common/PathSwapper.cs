@@ -90,6 +90,15 @@ namespace S2ObjectDefinitions.Common
                 return typeof(PathSwapperS2ObjectEntry);
             }
         }
+
+        public override void PaletteChanged(System.Drawing.Imaging.ColorPalette pal)
+        {
+            img.Palette = pal;
+            foreach (Bitmap item in imgs)
+            {
+                item.Palette = pal;
+            }
+        }
     }
 
     public class PathSwapperS2ObjectEntry : S2ObjectEntry

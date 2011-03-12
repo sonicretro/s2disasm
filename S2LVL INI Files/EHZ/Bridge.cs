@@ -73,12 +73,9 @@ namespace S2ObjectDefinitions.EHZ
             return new Rectangle(loc.X - (w / 2) + offset.X, loc.Y + offset.Y, w, imgh);
         }
 
-        public override Type ObjectType
+        public override void PaletteChanged(System.Drawing.Imaging.ColorPalette pal)
         {
-            get
-            {
-                return base.ObjectType;
-            }
+            img.Palette = pal;
         }
     }
 }

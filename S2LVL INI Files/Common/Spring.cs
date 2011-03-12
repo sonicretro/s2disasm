@@ -159,6 +159,15 @@ namespace S2ObjectDefinitions.Common
                 return typeof(SpringS2ObjectEntry);
             }
         }
+
+        public override void PaletteChanged(System.Drawing.Imaging.ColorPalette pal)
+        {
+            img.Palette = pal;
+            foreach (Bitmap item in imgs)
+            {
+                item.Palette = pal;
+            }
+        }
     }
 
     public class SpringS2ObjectEntry : S2ObjectEntry

@@ -100,5 +100,13 @@ namespace S2ObjectDefinitions.EHZ
             if (subtype > 5) return new Rectangle(loc.X + offsets[1].X, loc.Y + offsets[1].Y, imgws[1], imghs[1]);
             return new Rectangle(loc.X + offsets[subtype].X, loc.Y + offsets[subtype].Y, imgws[subtype], imghs[subtype]);
         }
+
+        public override void PaletteChanged(System.Drawing.Imaging.ColorPalette pal)
+        {
+            foreach (Bitmap item in imgs)
+            {
+                item.Palette = pal;
+            }
+        }
     }
 }

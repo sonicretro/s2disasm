@@ -84,6 +84,14 @@ namespace S2ObjectDefinitions.ARZ
                 return typeof(PlatformS2ObjectEntry);
             }
         }
+
+        public override void PaletteChanged(System.Drawing.Imaging.ColorPalette pal)
+        {
+            foreach (Bitmap item in imgs)
+            {
+                item.Palette = pal;
+            }
+        }
     }
 
     public class PlatformS2ObjectEntry : S2ObjectEntry
