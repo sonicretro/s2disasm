@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using Extensions;
-using S2LVL;
+using SonicRetro.S2LVL;
 
 namespace S2ObjectDefinitions.Common
 {
@@ -38,16 +38,16 @@ namespace S2ObjectDefinitions.Common
             return img;
         }
 
-        public override void Draw(Graphics gfx, Point loc, S2LVL.Direction direction, byte count)
+        public override void Draw(Graphics gfx, Point loc, SonicRetro.S2LVL.Direction direction, byte count)
         {
             for (int i = 0; i < count; i++)
             {
                 switch (direction)
                 {
-                    case S2LVL.Direction.Horizontal:
+                    case SonicRetro.S2LVL.Direction.Horizontal:
                         gfx.DrawImage(img, loc.X + offset.X + (i * spacing), loc.Y + offset.Y, imgw, imgh);
                         break;
-                    case S2LVL.Direction.Vertical:
+                    case SonicRetro.S2LVL.Direction.Vertical:
                         gfx.DrawImage(img, loc.X + offset.X, loc.Y + offset.Y + (i * spacing), imgw, imgh);
                         break;
                 }
