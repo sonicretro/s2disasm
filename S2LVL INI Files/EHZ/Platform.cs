@@ -16,7 +16,7 @@ namespace S2ObjectDefinitions.EHZ
 
         public override void Init(Dictionary<string, string> data)
         {
-            byte[] artfile = ObjectHelper.OpenArtFile("../art/kosinski/EHZ_HTZ.bin", Compression.CompressionType.Kosinski);
+            byte[] artfile = ObjectHelper.LevelArt;
             byte[] mapfile = System.IO.File.ReadAllBytes("../mappings/sprite/obj18_a.bin");
             Point off;
             Bitmap im;

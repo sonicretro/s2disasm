@@ -16,7 +16,7 @@ namespace S2ObjectDefinitions.ARZ
 
         public override void Init(Dictionary<string, string> data)
         {
-            byte[] artfile = ObjectHelper.OpenArtFile("../art/kosinski/ARZ.bin", Compression.CompressionType.Kosinski);
+            byte[] artfile = ObjectHelper.LevelArt;
             byte[] mapfile = System.IO.File.ReadAllBytes("../mappings/sprite/obj18_b.bin");
             Point off;
             Bitmap im;
