@@ -4542,6 +4542,8 @@ InitPlayers:
 	rts
 ; ===========================================================================
 
+
+
 ; loc_44BE:
 InitPlayers_Alone: ; either Sonic or Tails but not both
 	subq.w	#1,d0
@@ -8929,12 +8931,12 @@ loc_7480:
 	addq.w	#5,a2	; a2 = sub2_mapframe(a0)
 	cmpi.w	#2,(Player_mode).w
 	beq.s	loc_74EA
-	move.b	(MainCharacter+jumping).w,d0
+	move.b	(MainCharacter+ss_rings_hundreds).w,d0
 	beq.s	+
 	addq.w	#1,d3
 	move.b	d0,(a2)
 	lea	next_subspr(a2),a2
-+	move.b	(MainCharacter+objoff_3D).w,d0
++	move.b	(MainCharacter+ss_rings_tens).w,d0
 	tst.b	d3
 	bne.s	+
 	tst.b	d0
@@ -8943,7 +8945,7 @@ loc_7480:
 	move.b	d0,(a2)
 	lea	next_subspr(a2),a2
 +	addq.w	#1,d3
-	move.b	(MainCharacter+layer).w,(a2)
+	move.b	(MainCharacter+ss_rings_units).w,(a2)
 	lea	next_subspr(a2),a2
 	move.w	d3,d4
 	subq.w	#1,d4
@@ -8961,12 +8963,12 @@ loc_7480:
 loc_74EA:
 	moveq	#0,d0
 	moveq	#0,d4
-	move.b	(Sidekick+jumping).w,d0
+	move.b	(Sidekick+ss_rings_hundreds).w,d0
 	beq.s	+
 	addq.w	#1,d4
 	move.b	d0,(a2)
 	lea	next_subspr(a2),a2
-+	move.b	(Sidekick+objoff_3D).w,d0
++	move.b	(Sidekick+ss_rings_tens).w,d0
 	tst.b	d4
 	bne.s	+
 	tst.b	d0
@@ -8975,7 +8977,7 @@ loc_74EA:
 	addq.w	#1,d4
 	move.b	d0,(a2)
 	lea	next_subspr(a2),a2
-+	move.b	(Sidekick+layer).w,(a2)
++	move.b	(Sidekick+ss_rings_units).w,(a2)
 	addq.w	#1,d4
 	add.w	d4,d3
 	subq.w	#1,d4
@@ -8998,12 +9000,12 @@ loc_753E:
 	moveq	#0,d1
 	moveq	#0,d2
 	moveq	#1,d3
-	move.b	(MainCharacter+layer).w,d0
-	add.b	(Sidekick+layer).w,d0
-	move.b	(MainCharacter+objoff_3D).w,d1
-	add.b	(Sidekick+objoff_3D).w,d1
-	move.b	(MainCharacter+jumping).w,d2
-	add.b	(Sidekick+jumping).w,d2
+	move.b	(MainCharacter+ss_rings_units).w,d0
+	add.b	(Sidekick+ss_rings_units).w,d0
+	move.b	(MainCharacter+ss_rings_tens).w,d1
+	add.b	(Sidekick+ss_rings_tens).w,d1
+	move.b	(MainCharacter+ss_rings_hundreds).w,d2
+	add.b	(Sidekick+ss_rings_hundreds).w,d2
 	cmpi.b	#10,d0
 	blo.s	+
 	addq.w	#1,d1
@@ -11116,11 +11118,11 @@ MenuScreen_Options:
 	move.w	#make_art_tile(ArtTile_ArtNem_MenuBox,1,0),d0
 	bsr.w	EniDec
 	clr.b	(Options_menu_box).w
-	bsr.w	sub_9186
+	bsr.w	OptionScreen_DrawSelected
 	addq.b	#1,(Options_menu_box).w
-	bsr.w	loc_91F8
+	bsr.w	OptionScreen_DrawUnselected
 	addq.b	#1,(Options_menu_box).w
-	bsr.w	loc_91F8
+	bsr.w	OptionScreen_DrawUnselected
 	clr.b	(Options_menu_box).w
 	clr.b	(Level_started_flag).w
 	clr.w	(unk_F7F0).w
@@ -11146,9 +11148,9 @@ OptionScreen_Main:
 	move.b	#$16,(Vint_routine).w
 	bsr.w	WaitForVint
 	move	#$2700,sr
-	bsr.w	loc_91F8
+	bsr.w	OptionScreen_DrawUnselected
 	bsr.w	OptionScreen_Controls
-	bsr.w	sub_9186
+	bsr.w	OptionScreen_DrawSelected
 	move	#$2300,sr
 	lea	(Anim_SonicMilesBG).l,a2
 	bsr.w	JmpTo2_Dynamic_Normal
@@ -11268,14 +11270,15 @@ OptionScreen_Choices:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
-sub_9186:
-	bsr.w	loc_9268
+;sub_9186
+OptionScreen_DrawSelected:
+	bsr.w	OptionScreen_SelectTextPtr
 	moveq	#0,d1
 	move.b	(Options_menu_box).w,d1
 	lsl.w	#3,d1
 	lea	(OptScrBoxData).l,a3
 	lea	(a3,d1.w),a3
-	move.w	#$6000,d0
+	move.w	#palette_line_3,d0
 	lea	(Chunk_Table+$30).l,a2
 	movea.l	(a3)+,a1
 	bsr.w	MenuScreenTextToRAM
@@ -11295,7 +11298,7 @@ sub_9186:
 	cmpi.b	#2,(Options_menu_box).w
 	bne.s	+
 	lea	(Chunk_Table+$C2).l,a2
-	bsr.w	loc_9296
+	bsr.w	OptionScreen_HexDumpSoundTest
 +
 	lea	(Chunk_Table).l,a1
 	move.l	(a3)+,d0
@@ -11304,14 +11307,15 @@ sub_9186:
 	bra.w	JmpTo_PlaneMapToVRAM
 ; ===========================================================================
 
-loc_91F8:
-	bsr.w	loc_9268
+;loc_91F8
+OptionScreen_DrawUnselected:
+	bsr.w	OptionScreen_SelectTextPtr
 	moveq	#0,d1
 	move.b	(Options_menu_box).w,d1
 	lsl.w	#3,d1
 	lea	(OptScrBoxData).l,a3
 	lea	(a3,d1.w),a3
-	moveq	#0,d0
+	moveq	#palette_line_0,d0
 	lea	(Chunk_Table+$190).l,a2
 	movea.l	(a3)+,a1
 	bsr.w	MenuScreenTextToRAM
@@ -11332,7 +11336,7 @@ loc_91F8:
 	cmpi.b	#2,(Options_menu_box).w
 	bne.s	+
 	lea	(Chunk_Table+$222).l,a2
-	bsr.w	loc_9296
+	bsr.w	OptionScreen_HexDumpSoundTest
 
 +
 	lea	(Chunk_Table+$160).l,a1
@@ -11342,7 +11346,8 @@ loc_91F8:
 	bra.w	JmpTo_PlaneMapToVRAM
 ; ===========================================================================
 
-loc_9268:
+;loc_9268
+OptionScreen_SelectTextPtr:
 	lea	(off_92D2).l,a4
 	tst.b	(Graphics_Flags).w
 	bpl.s	+
@@ -11362,7 +11367,8 @@ loc_9268:
 	rts
 ; ===========================================================================
 
-loc_9296:
+;loc_9296
+OptionScreen_HexDumpSoundTest:
 	move.w	(Sound_test_sound).w,d1
 	move.b	d1,d2
 	lsr.b	#4,d1
@@ -11940,7 +11946,7 @@ JmpTo_PlayMusic
 ; loc_9C70:
 JmpTo_PlaneMapToVRAM 
 	jmp	(PlaneMapToVRAM).l
-; End of function sub_9186
+; End of function OptionScreen_DrawSelected
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -13560,6 +13566,7 @@ byte_BCF6:	creditText   0,"MILES 'TAILS' PROWER"
 byte_BD1A:	creditText   0,"SONIC"
 
  charset ; revert character set
+
 
 	even
 
@@ -25341,6 +25348,7 @@ loc_14484:
 ; ===========================================================================
 
 loc_14490:
+
 	tst.b	(Got_Emerald).w
 	beq.w	DeleteObject
 	moveq	#1,d0
@@ -25673,6 +25681,7 @@ DrawLevelTitleCard:
 	move.l	#make_block_tile_pair_2p(ArtTile_ArtNem_TitleCard+$5A,0,0,0,1),d6
 
 loc_155A8:
+
 	lea	(TitleCard_Background+objoff_36).w,a0
 	moveq	#1,d7
 
@@ -27135,6 +27144,7 @@ Anim_Wait:
 ; loc_1659C:
 Anim_End_FF:
 	addq.b	#1,d0		; is the end flag = $FF ?
+
 	bne.s	Anim_End_FE	; if not, branch
 	move.b	#0,anim_frame(a0)	; restart the animation
 	move.b	1(a1),d0	; read sprite number
@@ -29619,6 +29629,7 @@ loc_17D8E:
 	move.l	a0,4(a4)
 	bra.s	loc_17DCA
 ; ---------------------------------------------------------------------------
+
 
 loc_17D94:
 	movea.l	4(a4),a0
@@ -35797,6 +35808,7 @@ Tails_ApplyRollSpeedLeft:
 +
 	move.w	d0,inertia(a0)
 
+
 ; loc_1C404
 Tails_CheckRollStop:
 	tst.w	inertia(a0)
@@ -36362,6 +36374,7 @@ return_1C8B6:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ; loc_1C8B8:
+
 Tails_SlopeRepel:
 	nop
 	tst.b	stick_to_convex(a0)
@@ -37437,6 +37450,7 @@ Obj0A_Init:
 	move.w	#make_art_tile(ArtTile_ArtNem_BigBubbles,0,1),art_tile(a0)
 	move.b	#$84,render_flags(a0)
 	move.b	#$10,width_pixels(a0)
+
 	move.b	#1,priority(a0)
 	move.b	subtype(a0),d0
 	bpl.s	loc_1D388
@@ -41870,6 +41884,7 @@ Obj49_MapUnc_20C50:	BINCLUDE "mappings/sprite/obj49.bin"
 ; Sprite_20DEC:
 Obj31:
 	moveq	#0,d0
+
 	move.b	routine(a0),d0
 	move.w	Obj31_Index(pc,d0.w),d1
 	jmp	Obj31_Index(pc,d1.w)
@@ -45152,6 +45167,7 @@ loc_23BC6:
 	move.w	#SndID_OOZLidPop,d0
 	jsr	(PlaySoundLocal).l
 +
+
 	rts
 ; ===========================================================================
 
@@ -46095,6 +46111,7 @@ Obj46_Inactive:
 ; loc_24B38:
 Obj46_Moving:
 	move.w	x_pos(a0),-(sp)
+
 	bsr.w	JmpTo9_ObjectMove
 	btst	#1,status(a0)
 	beq.s	loc_24B8C
@@ -48880,6 +48897,7 @@ off_271CA:	offsetTable
 		offsetTableEntry.w loc_27260	; 2
 		offsetTableEntry.w loc_27294	; 4
 ; ===========================================================================
+
 
 loc_271D0:
 	tst.w	(Debug_placement_mode).w
@@ -52221,6 +52239,7 @@ return_29936:
 ; sprite mappings
 ; ----------------------------------------------------------------------------
 Obj7F_MapUnc_29938:	BINCLUDE "mappings/sprite/obj7F.bin"
+
 ; ===========================================================================
 
 JmpTo24_MarkObjGone 
@@ -54442,6 +54461,7 @@ ObjD4_Index:	offsetTable
 ; loc_2B8FE:
 ObjD4_Init:
 	addq.b	#2,routine(a0)
+
 	move.l	#ObjD4_MapUnc_2B9CA,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_BigMovingBlock,2,0),art_tile(a0)
 	bsr.w	JmpTo52_Adjust2PArtPointer
@@ -58810,6 +58830,7 @@ Obj56:
 	move.w	Obj56_Index(pc,d0.w),d1
 	jmp	Obj56_Index(pc,d1.w)
 ; ===========================================================================
+
 ; off_2EF26:
 Obj56_Index:	offsetTable
 		offsetTableEntry.w Obj56_Init	; 0 - Init
@@ -62056,6 +62077,7 @@ loc_31C22:
 	blo.s	loc_31C08
 	move.w	#0,(Boss_X_vel).w
 	move.w	#-$180,(Boss_Y_vel).w
+
 	move.b	#-1,objoff_3E(a0)
 	move.b	#1,(Boss_CollisionRoutine).w
 	move.b	#0,(Boss_AnimationArray+3).w
@@ -63624,6 +63646,7 @@ loc_3301A:
 	move.b	#8,sub2_mapframe(a0)
 	lea	(Boss_AnimationArray).w,a2
 	move.b	#5,(a2)+
+
 	move.b	#0,(a2)+
 	move.b	#1,(a2)+
 	move.b	#0,(a2)
@@ -65693,15 +65716,15 @@ loc_3504E:
 	addq.w	#1,(Ring_count_2P).w
 
 loc_35052:
-	addq.b	#1,objoff_3E(a1)
-	cmpi.b	#$A,objoff_3E(a1)
+	addq.b	#1,ss_rings_units(a1)
+	cmpi.b	#$A,ss_rings_units(a1)
 	blt.s	loc_3507A
-	addq.b	#1,objoff_3D(a1)
-	move.b	#0,objoff_3E(a1)
-	cmpi.b	#$A,objoff_3D(a1)
+	addq.b	#1,ss_rings_tens(a1)
+	move.b	#0,ss_rings_units(a1)
+	cmpi.b	#$A,ss_rings_tens(a1)
 	blt.s	loc_3507A
-	addq.b	#1,objoff_3C(a1)
-	move.b	#0,objoff_3D(a1)
+	addq.b	#1,ss_rings_hundreds(a1)
+	move.b	#0,ss_rings_tens(a1)
 
 loc_3507A:
 	move.b	#6,routine(a0)
@@ -66129,26 +66152,26 @@ Obj5B_Index:	offsetTable
 Obj5B_Init:
 	movea.l	ss_parent(a0),a3
 	moveq	#0,d1
-	move.b	objoff_3D(a3),d1
+	move.b	ss_rings_tens(a3),d1
 	beq.s	loc_35428
-	subi.b	#1,objoff_3D(a3)
+	subi.b	#1,ss_rings_tens(a3)
 	move.w	#$A,d1
 	bra.s	loc_35458
 ; ===========================================================================
 
 loc_35428:
-	move.b	objoff_3C(a3),d1
+	move.b	ss_rings_hundreds(a3),d1
 	beq.s	loc_35440
-	subi.b	#1,$3C(a3)
-	move.b	#9,$3D(a3)
+	subi.b	#1,ss_rings_hundreds(a3)
+	move.b	#9,ss_rings_tens(a3)
 	move.w	#$A,d1
 	bra.s	loc_35458
 ; ===========================================================================
 
 loc_35440:
-	move.b	$3E(a3),d1
+	move.b	ss_rings_units(a3),d1
 	beq.s	loc_3545C
-	move.b	#0,$3E(a3)
+	move.b	#0,ss_rings_units(a3)
 	btst	#0,d1
 	beq.s	loc_35458
 	lea	byte_353F4(pc),a2
@@ -68355,6 +68378,7 @@ loc_36C64:
 -	bsr.w	JmpTo19_SingleObjLoad
 	bne.s	+	; rts
 	bsr.w	loc_36C78
+
 	dbf	d6,-
 +
 	rts
@@ -73931,6 +73955,7 @@ loc_3AD0C:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
 	move.w	off_3AD1A(pc,d0.w),d1
+
 	jmp	off_3AD1A(pc,d1.w)
 ; ===========================================================================
 off_3AD1A:	offsetTable
@@ -82198,6 +82223,7 @@ loc_40F50:
 	cmpi.b	#$3C,(a1)
 	blo.s	loc_40F90
 	move.b	#0,(a1)
+
 	addq.b	#1,-(a1)
 	cmpi.b	#9,(a1)
 	blo.s	loc_40F90
@@ -84290,6 +84316,7 @@ Level_DEZ:	BINCLUDE	"level/layout/DEZ.bin"
 ; ARZ act 1 level layout (Kosinski compression)
 Level_ARZ1:	BINCLUDE	"level/layout/ARZ_1.bin"
 	even
+
 ;---------------------------------------------------------------------------------------
 ; ARZ act 2 level layout (Kosinski compression)
 Level_ARZ2:	BINCLUDE	"level/layout/ARZ_2.bin"
@@ -85258,6 +85285,7 @@ MapEng_EndingSonicPlane:	BINCLUDE	"mappings/misc/Closeup of Sonic flying plane i
 ; Enigma compressed sprite mappings
 ; Strange unused mappings (same as above)
 ; MapEng_908CA:
+
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 5.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
@@ -86099,6 +86127,7 @@ SndDAC_Sample1:
 SndDAC_Sample1_End
 
 SndDAC_Sample2:
+
 	BINCLUDE	"sound/DAC/Sample 2.bin"
 SndDAC_Sample2_End
 

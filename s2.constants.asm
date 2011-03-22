@@ -141,6 +141,9 @@ ss_z_pos = objoff_34
 ss_hurt_timer = objoff_36
 ss_slide_timer = objoff_37
 ss_parent = objoff_38
+ss_rings_hundreds = objoff_3C
+ss_rings_tens = objoff_3D
+ss_rings_units = objoff_3E
 ss_last_angle_index = objoff_3F
 ; ---------------------------------------------------------------------------
 ; property of all objects:
@@ -940,6 +943,7 @@ TitleCard:
 TitleCard_ZoneName:		; level title card: zone name
 GameOver_GameText:		; "GAME" from GAME OVER
 TimeOver_TimeText:		; "TIME" from TIME OVER
+
 
 				ds.b	object_size
 TitleCard_Zone:			; level title card: "ZONE"
