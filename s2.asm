@@ -5921,9 +5921,9 @@ SpecialStage:
 	move.b	#ObjID_SSNumberOfRings,(SpecialStageNumberOfRings+id).w ; load Obj87 (special stage ring count)
 	move.w	#$80,(unk_F73E).w
 	move.w	#$36,(unk_F740).w
-	bsr.w	sub_6D52
-	bsr.w	sub_6DD4
-	bsr.w	sub_77A2
+	bsr.w	SSPlaneB_Background
+	bsr.w	SSDecompressPlayerArt
+	bsr.w	SSInitPalAndData
 	move.l	#$C0000,(SS_unk_DB12).w
 	clr.w	(Ctrl_1_Logical).w
 	clr.w	(Ctrl_2_Logical).w
@@ -5944,7 +5944,7 @@ SpecialStage:
 	subq.w	#1,d0
 	bne.s	-
 
-	jsr	(loc_3561E).l
+	jsr	(Obj5A_CreateRingsToGoText).l
 	bsr.w	sub_6DE4
 	jsr	(RunObjects).l
 	jsr	(BuildSprites).l
@@ -8322,7 +8322,8 @@ ssLdComprsdData:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
-sub_6D52:
+;sub_6D52
+SSPlaneB_Background:
 	move	#$2700,sr
 	movea.l	#Chunk_Table,a1
 	lea	(MapEng_SpecialBackBottom).l,a0
@@ -8354,17 +8355,18 @@ sub_6D52:
 	bsr.w	PlaneMapToVRAM2
 	move	#$2300,sr
 	rts
-; End of function sub_6D52
+; End of function SSPlaneB_Background
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
-sub_6DD4:
+;sub_6DD4
+SSDecompressPlayerArt:
 	lea	(ArtNem_SpecialSonicAndTails).l,a0
 	lea	(SSRAM_ArtNem_SpecialSonicAndTails & $FFFFFF).l,a4
 	bra.w	NemDecToRAM
-; End of function sub_6DD4
+; End of function SSDecompressPlayerArt
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -8746,7 +8748,7 @@ Obj5F_Init:
 	tst.b	(System_Stack).w
 	beq.s	+
 	move.w	#8,d0
-	bsr.w	JmpTo_loc_35DAA
+	bsr.w	JmpTo_Obj5A_PrintPhrase
 +	move.w	#$80,x_pos(a0)
 	move.w	#-$40,y_pos(a0)
 	move.w	#$100,y_vel(a0)
@@ -8809,10 +8811,10 @@ loc_7218:
 	tst.b	(System_Stack).w
 	beq.s	+
 	move.w	#$A,d0
-	bsr.w	JmpTo_loc_35DAA
+	bsr.w	JmpTo_Obj5A_PrintPhrase
 	bra.s	++
 ; ===========================================================================
-+	bsr.w	JmpTo_loc_35CE2
++	bsr.w	JmpTo_Obj5A_CreateRingReqMessage
 
 +	st.b	(SpecialStage_Started).w
 	bra.w	JmpTo_DeleteObject
@@ -9145,8 +9147,13 @@ SSCurveOffsets: ; word_768A:
 	dc.b  $B,   0,     0,   0,     0,   0,     0,   0
 	dc.b   0,   0,     0,   0,     0,   0,     3,   0 ; 112
 ; ===========================================================================
-
-loc_76FA:
+; Subroutine to advance to the next act and get an encoded version
+; of the ring requirements.
+; Output:
+; 	d0, d1: Binary coded decimal version of ring requirements (maximum of 299 rings)
+; 	d2: Number of digits in the ring requirements - 1 (minimum 2 digits)
+;loc_76FA
+SSStartNewAct:
 	moveq	#0,d1
 	moveq	#1,d2
 	move.w	(Current_Special_StageAndAct).w,d0
@@ -9165,15 +9172,23 @@ loc_76FA:
 +
 	move.w	d1,(SS_Ring_Requirement).w
 	moveq	#0,d0
-	cmpi.w	#$64,d1
+	cmpi.w	#100,d1
 	blt.s	+
 	addq.w	#1,d2
+  ; The following code does a more coomplete binary coded decimal conversion:
+  if 1==0
+-	addi.w	#$100,d0
+	subi.w	#100,d1
+	bgt.s	-
+  else
+	; This code (the original) is limited to 299 rings:
 	subi.w	#100,d1
 	move.w	#$100,d0
 	cmpi.w	#100,d1
 	blt.s	+
 	subi.w	#100,d1
 	addi.w	#$100,d0
+  endif
 +
 	divu.w	#10,d1
 	lsl.w	#4,d1
@@ -9234,7 +9249,8 @@ SpecialStage_Palettes:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
-sub_77A2:
+;sub_77A2
+SSInitPalAndData:
 	clr.b	(Current_Special_Act).w
 	move.b	#-1,(SpecialStage_LastSegment2).w
 	move.w	#0,(Ring_count).w
@@ -9272,7 +9288,7 @@ sub_77A2:
 	adda.w	(a0,d1.w),a0
 	move.l	a0,(SS_CurrentLevelLayout).w
 	rts
-; End of function sub_77A2
+; End of function SSInitPalAndData
 
 ; ===========================================================================
 
@@ -9334,17 +9350,17 @@ JmpTo_DeleteObject
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
-JmpTo_loc_35CE2 
-	jmp	(loc_35CE2).l
-; End of function JmpTo_loc_35CE2
+JmpTo_Obj5A_CreateRingReqMessage
+	jmp	(Obj5A_CreateRingReqMessage).l
+; End of function JmpTo_Obj5A_CreateRingReqMessage
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
-JmpTo_loc_35DAA 
-	jmp	(loc_35DAA).l
-; End of function JmpTo_loc_35DAA
+JmpTo_Obj5A_PrintPhrase 
+	jmp	(Obj5A_PrintPhrase).l
+; End of function JmpTo_Obj5A_PrintPhrase
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -66256,7 +66272,7 @@ loc_3551C:
 	rts
 ; ===========================================================================
 
-loc_35534:
+SSRainbowPaletteColors:
 	move.w	word_35548(pc,d0.w),(Normal_palette_line4+$16).w
 	move.w	word_35548+2(pc,d0.w),(Normal_palette_line4+$18).w
 	move.w	word_35548+4(pc,d0.w),(Normal_palette_line4+$1A).w
@@ -66278,37 +66294,36 @@ Obj5A:
 ; ===========================================================================
 ; off_35562:
 Obj5A_Index:	offsetTable
-		offsetTableEntry.w Obj5A_Init	;   0
-		offsetTableEntry.w loc_357FE	;   2
-		offsetTableEntry.w loc_35B5A	;   4
-		offsetTableEntry.w loc_359CE	;   6
-		offsetTableEntry.w loc_35B96	;   8
-		offsetTableEntry.w loc_359A6	;  $A
-		offsetTableEntry.w loc_359BC	;  $C
-		offsetTableEntry.w loc_35706	;  $E
-		offsetTableEntry.w loc_357B2	; $10
-		offsetTableEntry.w loc_357D2	; $12
-		offsetTableEntry.w loc_357E8	; $14
+		offsetTableEntry.w Obj5A_Init               ;   0
+		offsetTableEntry.w Obj5A_CheckpointRainbow  ;   2
+		offsetTableEntry.w Obj5A_TextFlyoutInit     ;   4
+		offsetTableEntry.w Obj5A_Handshake          ;   6
+		offsetTableEntry.w Obj5A_TextFlyout         ;   8
+		offsetTableEntry.w Obj5A_MostRingsWin       ;  $A
+		offsetTableEntry.w Obj5A_RingCheckTrigger   ;  $C
+		offsetTableEntry.w Obj5A_RingsNeeded        ;  $E
+		offsetTableEntry.w Obj5A_FlashMessage       ; $10
+		offsetTableEntry.w Obj5A_MoveAndFlash       ; $12
+		offsetTableEntry.w Obj5A_FlashOnly          ; $14
 ; ===========================================================================
 ; loc_35578:
 Obj5A_Init:
 	tst.b	(SS_NoCheckpoint_flag).w
-	bne.s	loc_355E0
+	bne.s	Obj5A_RingsMessageInit
 	movea.l	(SpecialStageTrack_last_mappings_copy).w,a1
 	cmpa.l	#MapSpec_Straight4,a1
-	blt.s	return_355DE
+	blt.s	++		; rts
 	cmpa.l	#MapSpec_Drop1,a1
-	bge.s	return_355DE
+	bge.s	++		; rts
 	moveq	#6,d0
-	bsr.s	loc_35534
+	bsr.s	SSRainbowPaletteColors
 	st.b	(SS_Checkpoint_Rainbow_flag).w
 	moveq	#6,d0
-
-loc_3559C:
+-
 	bsr.w	JmpTo2_SSSingleObjLoad
-	bne.s	loc_355D6
+	bne.s	+
 	move.b	#ObjID_SSMessage,id(a1) ; load obj5A
-	move.b	#2,routine(a1)
+	move.b	#2,routine(a1)	; => Obj5A_CheckpointRainbow
 	move.l	#Obj5A_Obj5B_Obj60_MapUnc_3632A,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_SpecialRings,3,0),art_tile(a1)
 	move.b	#4,render_flags(a1)
@@ -66316,17 +66331,15 @@ loc_3559C:
 	move.b	d0,objoff_2A(a1)
 	move.w	#0,objoff_30(a1)
 	move.b	#-1,mapping_frame(a1)
++	dbf	d0,-
 
-loc_355D6:
-	dbf	d0,loc_3559C
 	bra.w	JmpTo63_DeleteObject
 ; ===========================================================================
-
-return_355DE:
++
 	rts
 ; ===========================================================================
-
-loc_355E0:
+;loc_355E0
+Obj5A_RingsMessageInit:
 	sf.b	(SS_NoCheckpoint_flag).w
 	tst.b	(System_Stack).w
 	bne.w	JmpTo63_DeleteObject
@@ -66336,32 +66349,40 @@ loc_355E0:
 	move.b	#0,objoff_3A(a0)
 	bra.w	JmpTo63_DeleteObject
 ; ===========================================================================
-byte_35604:
-	dc.b   3
-	dc.b   4	; 1
-	dc.b   5	; 2
-	dc.b   0	; 3
-	dc.b $FF	; 4
-	dc.b $11	; 5
-	dc.b   8	; 6
-	dc.b   0	; 7
-	dc.b   8	; 8
-	dc.b   2	; 9
-	dc.b $FF	; 10
-	dc.b   6	; 11
-	dc.b $FF	; 12
-	dc.b   0	; 13
-word_35612:
-	dc.w   $C0
+ ; temporarily remap characters to title card letter format
+ ; Characters are encoded as Aa, Bb, Cc, etc. through a macro
+ charset 'a','z','A'	; Convert to uppercase
+ charset 'A',"\xD\x11\7\x11\1\x11"
+ charset 'G',0	; can't have an embedded 0 in a string
+ charset 'H',"\xB\4\x11\x11\9\xF\5\8\xC\x11\3\6\2\xA\x11\x10\x11\xE\x11"
+ charset '!',"\x11"
+ charset '.',"\x12"
+
+specialText macro letters
+	dc.b letters
+	dc.b $FF	; output string terminator
+    endm
+
+Obj5A_RingsToGoText:
+	specialText "RING"
+	specialText "!OGOT"
+	specialText "S"
+	even
+
+Obj5A_ToGoOffsets:
+	dc.w   $C0	; 0
 	dc.w   $B8	; 1
 	dc.w   $B0	; 2
 	dc.w   $A0	; 3
 	dc.w   $98	; 4
 	dc.w   $88	; 5
-; ===========================================================================
 
-loc_3561E:
-	st	($FFFFDBA7).w
+ charset ; revert character set
+
+; ===========================================================================
+;loc_3561E
+Obj5A_CreateRingsToGoText:
+	st.b	($FFFFDBA7).w
 	bsr.w	JmpTo2_SSSingleObjLoad
 	bne.w	return_356E4
 	move.l	#Obj5F_MapUnc_72D2,mappings(a1)
@@ -66371,59 +66392,54 @@ loc_3561E:
 	move.b	#1,priority(a1)
 	bset	#6,render_flags(a1)
 	move.b	#0,mainspr_childsprites(a1)
-	move.b	#$E,routine(a1)
+	move.b	#$E,routine(a1)	; => Obj5A_RingsNeeded
 	lea	sub2_x_pos(a1),a2
 	move.w	#$5A,d1
 	move.w	#$38,d2
 	moveq	#0,d0
 	moveq	#2,d3
 
-loc_3566A:
-	move.w	d1,(a2)+	; sub?_x_pos
+-	move.w	d1,(a2)+	; sub?_x_pos
 	move.w	d2,(a2)+	; sub?_y_pos
-	move.w	d0,(a2)+	; sub2_mapframe
+	move.w	d0,(a2)+	; sub?_mapframe
 	subq.w	#8,d1
-	dbf	d3,loc_3566A
-	lea	byte_35604(pc),a3
+	dbf	d3,-
+	lea	Obj5A_RingsToGoText(pc),a3
 	move.w	#$68,d1
 	move.w	#$38,d2
 
-loc_35682:
-	move.b	(a3)+,d0
-	bmi.s	loc_356A4
+-	move.b	(a3)+,d0
+	bmi.s	+
 	bsr.w	JmpTo2_SSSingleObjLoad
 	bne.s	return_356E4
-	bsr.s	loc_356E6
+	bsr.s	Init_Obj5A
 	move.b	#$10,routine(a1)
 	move.w	d1,x_pos(a1)
 	move.w	d2,y_pos(a1)
 	move.b	d0,mapping_frame(a1)
 	addq.w	#8,d1
-	bra.s	loc_35682
+	bra.s	-
 ; ===========================================================================
++
+	lea	Obj5A_ToGoOffsets(pc),a2
 
-loc_356A4:
-	lea	word_35612(pc),a2
-
-loc_356A8:
-	move.b	(a3)+,d0
-	bmi.s	loc_356C8
+-	move.b	(a3)+,d0
+	bmi.s	+
 	bsr.w	JmpTo2_SSSingleObjLoad
 	bne.s	return_356E4
-	bsr.s	loc_356E6
-	move.b	#$12,routine(a1)
+	bsr.s	Init_Obj5A
+	move.b	#$12,routine(a1)	; => Obj5A_MoveAndFlash
 	move.w	(a2)+,objoff_2A(a1)
 	move.w	d2,y_pos(a1)
 	move.b	d0,mapping_frame(a1)
-	bra.s	loc_356A8
+	bra.s	-
 ; ===========================================================================
-
-loc_356C8:
++
 	move.b	(a3)+,d0
 	bsr.w	JmpTo2_SSSingleObjLoad
 	bne.s	return_356E4
-	bsr.s	loc_356E6
-	move.b	#$14,routine(a1)
+	bsr.s	Init_Obj5A
+	move.b	#$14,routine(a1)	; => Obj5A_FlashOnly
 	move.w	(a2)+,x_pos(a1)
 	move.w	d2,y_pos(a1)
 	move.b	d0,mapping_frame(a1)
@@ -66431,44 +66447,39 @@ loc_356C8:
 return_356E4:
 	rts
 ; ===========================================================================
-
-loc_356E6:
+;loc_356E6
+Init_Obj5A:
 	move.b	#ObjID_SSMessage,id(a1) ; load obj5A
-
 	move.l	#Obj5A_MapUnc_35E1E,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_SpecialMessages,2,0),art_tile(a1)
 	move.b	#4,render_flags(a1)
 	move.b	#1,priority(a1)
 	rts
 ; ===========================================================================
-
-loc_35706:
+;loc_35706
+Obj5A_RingsNeeded:
 	move.b	($FFFFDBA7).w,($FFFFDBA6).w
-	bne.s	return_35714
-	bsr.s	loc_35716
-	bra.w	loc_357B2
+	bne.s	+
+	bsr.s	++
+	bra.w	Obj5A_FlashMessage
 ; ===========================================================================
-
-return_35714:
++
 	rts
 ; ===========================================================================
-
-loc_35716:
++
 	move.w	(Ring_count).w,d0
 	cmpi.w	#1,(Player_mode).w
-	blt.s	loc_3572A
-	beq.s	loc_3572E
+	blt.s	+
+	beq.s	++
 	move.w	(Ring_count_2P).w,d0
-	bra.s	loc_3572E
+	bra.s	++
 ; ===========================================================================
-
-loc_3572A:
++
 	add.w	(Ring_count_2P).w,d0
-
-loc_3572E:
++
 	sub.w	(SS_Ring_Requirement).w,d0
 	neg.w	d0
-	bgt.s	loc_3574E
+	bgt.s	+
 	moveq	#0,d0
 	moveq	#1,d2
 	addi.w	#1,($FFFFDBA2).w
@@ -66477,27 +66488,25 @@ loc_3572E:
 	st	($FFFFDBA6).w
 	bra.s	loc_3577A
 ; ===========================================================================
-
-loc_3574E:
++
+	; This code converts the remaining rings into binary coded decimal format.
 	moveq	#0,d1
 	move.w	d0,d1
 	moveq	#0,d0
-	cmpi.w	#$64,d1
-	blt.s	loc_35764
+	cmpi.w	#100,d1
+	blt.s	+
 
-loc_3575A:
-	addi.w	#$100,d0
-	subi.w	#$64,d1
-	bgt.s	loc_3575A
-
-loc_35764:
+-	addi.w	#$100,d0
+	subi.w	#100,d1
+	bgt.s	-
++
 	divu.w	#$A,d1
 	lsl.w	#4,d1
 	or.b	d1,d0
 	swap	d1
 	or.b	d1,d0
 	move.w	#0,($FFFFDBA2).w
-	sf	($FFFFDBA6).w
+	sf.b	($FFFFDBA6).w
 
 loc_3577A:
 	moveq	#1,d2
@@ -66507,55 +66516,52 @@ loc_3577A:
 	andi.w	#$F,d1
 	move.b	d1,sub2_mapframe-sub2_x_pos(a1)
 	lsr.w	#4,d0
-	beq.s	loc_357AC
+	beq.s	+
 	addq.w	#1,d2
 	move.w	d0,d1
 	andi.w	#$F,d1
 	move.b	d1,sub3_mapframe-sub2_x_pos(a1)
 	lsr.w	#4,d0
-	beq.s	loc_357AC
+	beq.s	+
 	addq.w	#1,d2
 	andi.w	#$F,d0
 	move.b	d0,sub4_mapframe-sub2_x_pos(a1)
-
-loc_357AC:
++
 	move.b	d2,mainspr_childsprites(a0)
 	rts
 ; ===========================================================================
-
-loc_357B2:
+;loc_357B2
+Obj5A_FlashMessage:
 	tst.b	(SS_NoCheckpointMsg_flag).w
-	bne.w	return_357D0
+	bne.w	+		; rts
 	tst.b	($FFFFDBA6).w
-	bne.s	return_357D0
+	bne.s	+		; rts
 	move.b	(Vint_runcount+3).w,d0
 	andi.b	#7,d0
 	cmpi.b	#6,d0
 	blo.w	JmpTo44_DisplaySprite
-
-return_357D0:
++
 	rts
 ; ===========================================================================
-
-loc_357D2:
+;loc_357D2
+Obj5A_MoveAndFlash:
 	moveq	#0,d0
 	cmpi.w	#2,($FFFFDBA4).w
-	bhs.s	loc_357DE
+	bhs.s	+
 	moveq	#-8,d0
-
-loc_357DE:
++
 	add.w	objoff_2A(a0),d0
 	move.w	d0,x_pos(a0)
-	bra.s	loc_357B2
+	bra.s	Obj5A_FlashMessage
 ; ===========================================================================
-
-loc_357E8:
+;loc_357E8
+Obj5A_FlashOnly:
 	moveq	#0,d0
 	cmpi.w	#2,($FFFFDBA4).w
-	bhs.s	loc_357B2
+	bhs.s	Obj5A_FlashMessage
 	rts
 ; ===========================================================================
-byte_357F4:
+Obj5A_Rainbow_Frames:
 	dc.b   0
 	dc.b   1	; 1
 	dc.b   1	; 2
@@ -66567,30 +66573,30 @@ byte_357F4:
 	dc.b   9	; 8
 	dc.b $FF	; 9
 ; ===========================================================================
-
-loc_357FE:
+;loc_357FE
+Obj5A_CheckpointRainbow:
 	cmpi.b	#4,(SpecialStageTrack_anim_frame_duration).w
-	bne.s	loc_3583C
+	bne.s	+
 	move.w	objoff_2C(a0),d0
-	move.b	byte_357F4(pc,d0.w),mapping_frame(a0)
-	bmi.w	loc_358C4
+	move.b	Obj5A_Rainbow_Frames(pc,d0.w),mapping_frame(a0)
+	bmi.w	++
 	addi.w	#1,objoff_2C(a0)
 	moveq	#0,d0
 	move.b	objoff_2A(a0),d0
 	add.w	d0,d0
 	add.w	objoff_30(a0),d0
-	move.b	byte_35846(pc,d0.w),1+x_pos(a0)
-	move.b	byte_35846+1(pc,d0.w),1+y_pos(a0)
+	move.b	Obj5A_Rainbow_Positions(pc,d0.w),1+x_pos(a0)
+	move.b	Obj5A_Rainbow_Positions+1(pc,d0.w),1+y_pos(a0)
 	addi.w	#$E,objoff_30(a0)
 	bra.w	JmpTo44_DisplaySprite
 ; ===========================================================================
-
-loc_3583C:
++
 	tst.b	mapping_frame(a0)
 	bpl.w	JmpTo44_DisplaySprite
 	rts
 ; ===========================================================================
-byte_35846:
+Obj5A_Rainbow_Positions:
+	;      x,  y
 	dc.b $F6,$F6
 	dc.b $70,$5E	; 2
 	dc.b $76,$58	; 4
@@ -66655,16 +66661,15 @@ byte_35846:
 	dc.b $D6,$FC	; 122
 	dc.b $E8,$26	; 124
 ; ===========================================================================
-
-loc_358C4:
++
 	cmpi.w	#$E8,x_pos(a0)
 	bne.w	JmpTo63_DeleteObject
 	moveq	#0,d0
-	bsr.w	loc_35534
+	bsr.w	SSRainbowPaletteColors
 	sf.b	(SS_Checkpoint_Rainbow_flag).w
 	st.b	(SS_NoCheckpointMsg_flag).w
-	tst.b	(System_Stack).w
-	beq.w	loc_35978
+	tst.b	(System_Stack).w			; Is it VS mode?
+	beq.w	loc_35978					; Branch if not
 	move.w	#SndID_Checkpoint,d0
 	jsr	(PlaySound).l
 	addi.b	#$10,(SS_unk_DB93).w
@@ -66673,40 +66678,36 @@ loc_358C4:
 	move.w	#$C,d0
 	move.w	(Ring_count).w,d2
 	cmp.w	(Ring_count_2P).w,d2
-	bgt.s	loc_3592A
-	beq.s	loc_35942
+	bgt.s	++
+	beq.s	+++
 	subi.b	#$10,(SS_unk_DB93).w
 	addi.b	#1,(SS_unk_DB93).w
 	move.w	#$E,d0
 	tst.b	(Graphics_Flags).w
-	bpl.s	loc_35926
+	bpl.s	+
 	move.w	#$14,d0
-
-loc_35926:
++
 	move.w	#palette_line_1,d6
-
-loc_3592A:
++
 	move.w	#$80,d3
-	bsr.w	loc_35AB6
+	bsr.w	Obj5A_CreateCheckpointWingedHand
 	add.w	d6,art_tile(a1)
 	add.w	d6,2(a2)
-	bsr.w	loc_35DAA
+	bsr.w	Obj5A_PrintPhrase
 	bra.w	JmpTo63_DeleteObject
 ; ===========================================================================
-
-loc_35942:
++
 	subi.b	#$10,(SS_unk_DB93).w
 	move.w	#$10,d0
-	bsr.w	loc_35DAA
+	bsr.w	Obj5A_PrintPhrase
 	cmpi.b	#3,(Current_Special_Act).w
-	beq.s	loc_35966
+	beq.s	+
 	move.w	#$46,objoff_2A(a0)
 	move.b	#$A,routine(a0)
 	rts
 ; ===========================================================================
-
-loc_35966:
-	bsr.w	loc_35A7A
++
+	bsr.w	Obj5A_VSReset
 	move.w	#$46,objoff_2A(a0)
 	move.b	#$C,routine(a0)
 	rts
@@ -66718,100 +66719,92 @@ loc_35978:
 	move.w	(Ring_count).w,d2
 	add.w	(Ring_count_2P).w,d2
 	cmp.w	(SS_Ring_Requirement).w,d2
-	blt.s	loc_35996
+	blt.s	+
 	move.w	#4,d1
 	move.w	#SndID_Checkpoint,d0
-
-loc_35996:
++
 	jsr	(PlaySound).l
 	move.w	d1,d0
-	bsr.w	loc_35D52
+	bsr.w	Obj5A_PrintCheckpointMessage
 	bra.w	JmpTo63_DeleteObject
 ; ===========================================================================
-
-loc_359A6:
+;loc_359A6
+Obj5A_MostRingsWin:
 	subi.w	#1,objoff_2A(a0)
-	beq.s	loc_359B0
+	beq.s	+
 	rts
 ; ===========================================================================
-
-loc_359B0:
-	move.w	#$A,d0
-	bsr.w	loc_35DAA
++
+	move.w	#$A,d0			; MOST RINGS WINS
+	bsr.w	Obj5A_PrintPhrase
 	bra.w	JmpTo63_DeleteObject
 ; ===========================================================================
-
-loc_359BC:
+;loc_359BC
+Obj5A_RingCheckTrigger:
 	subi.w	#1,objoff_2A(a0)
-	beq.s	loc_359C6
+	beq.s	+
 	rts
 ; ===========================================================================
-
-loc_359C6:
++
 	st.b	(SS_Check_Rings_flag).w
-	bra.w	loc_361CC
+	bra.w	SSClearObjs
 ; ===========================================================================
-
-loc_359CE:
-	cmpi.b	#$15,mapping_frame(a0)
-	bne.s	loc_35A1A
-	move.w	objoff_30(a0),d0
+;loc_359CE
+Obj5A_Handshake:
+	cmpi.b	#$15,mapping_frame(a0)		; Is this the hand?
+	bne.s	++							; if not, branch
+	move.w	objoff_30(a0),d0			; Target y position for handshake
 	tst.b	objoff_2E(a0)
-	bne.s	loc_359FE
+	bne.s	+
 	subi.w	#1,y_pos(a0)
 	subi.w	#4,d0
 	cmp.w	y_pos(a0),d0
-	blt.s	loc_35A1A
+	blt.s	++
 	addi.w	#1,d0
 	move.w	d0,y_pos(a0)
-	st	objoff_2E(a0)
-	bra.s	loc_35A1A
+	st.b	objoff_2E(a0)
+	bra.s	++
 ; ===========================================================================
-
-loc_359FE:
++
 	addi.w	#1,y_pos(a0)
 	addi.w	#4,d0
 	cmp.w	y_pos(a0),d0
-	bgt.s	loc_35A1A
+	bgt.s	+
 	subi.w	#1,d0
 	move.w	d0,y_pos(a0)
-	sf	objoff_2E(a0)
-
-loc_35A1A:
+	sf.b	objoff_2E(a0)
++
 	subi.w	#1,objoff_2A(a0)
 	bne.w	JmpTo44_DisplaySprite
 	tst.b	objoff_2F(a0)
-	beq.s	loc_35A42
-
-loc_35A2A:
+	beq.s	+
+-
 	move.w	#MusID_FadeOut,d0
 	jsr	(PlayMusic).l
 	move.w	#$30,objoff_2A(a0)
-	move.b	#$C,routine(a0)
+	move.b	#$C,routine(a0)	; => Obj5A_RingCheckTrigger
 	rts
 ; ===========================================================================
-
-loc_35A42:
-	cmpi.b	#$15,mapping_frame(a0)
-	bne.w	JmpTo63_DeleteObject
++
+	cmpi.b	#$15,mapping_frame(a0)		; Is this the hand?
+	bne.w	JmpTo63_DeleteObject		; Branch if not
 	tst.w	objoff_30(a0)
 	beq.w	JmpTo63_DeleteObject
-	tst.b	(System_Stack).w
-	beq.s	loc_35A72
-	bsr.w	loc_35A7A
+	tst.b	(System_Stack).w			; Is this VS mode?
+	beq.s	+							; Branch if not
+	bsr.w	Obj5A_VSReset
 	cmpi.b	#3,(Current_Special_Act).w
-	beq.s	loc_35A2A
+	beq.s	-
 	move.w	#$A,d0
-	bsr.w	loc_35DAA
+	bsr.w	Obj5A_PrintPhrase
 	bra.w	JmpTo63_DeleteObject
 ; ===========================================================================
-
-loc_35A72:
-	bsr.w	loc_35CE2
++
+	bsr.w	Obj5A_CreateRingReqMessage
 	bra.w	JmpTo63_DeleteObject
 ; ===========================================================================
-
-loc_35A7A:
+;loc_35A7A
+Obj5A_VSReset:
 	lea	(unk_FFA0).w,a3
 	moveq	#0,d0
 	move.b	(Current_Special_Act).w,d0
@@ -66823,24 +66816,23 @@ loc_35A7A:
 	move.w	#0,(Ring_count).w
 	move.w	#0,(Ring_count_2P).w
 	moveq	#0,d0
-	move.w	d0,(MainCharacter+jumping).w
-	move.b	d0,(MainCharacter+layer).w
-	move.w	d0,(Sidekick+jumping).w
-	move.b	d0,(Sidekick+layer).w
+	move.w	d0,(MainCharacter+ss_rings_base).w
+	move.b	d0,(MainCharacter+ss_rings_units).w
+	move.w	d0,(Sidekick+ss_rings_base).w
+	move.b	d0,(Sidekick+ss_rings_units).w
 	rts
 ; ===========================================================================
-
-loc_35AB6:
+;loc_35AB6
+Obj5A_CreateCheckpointWingedHand:
 	move.w	#$48,d4
-	tst.b	(System_Stack).w
-	beq.s	loc_35AC4
+	tst.b	(System_Stack).w		; Is this VS mode?
+	beq.s	+						; Branch if not
 	move.w	#$1C,d4
-
-loc_35AC4:
++
 	bsr.w	JmpTo2_SSSingleObjLoad
-	bne.w	return_35B58
+	bne.w	+		; rts
 	move.b	#ObjID_SSMessage,id(a1) ; load obj5A
-	move.b	#6,routine(a1)
+	move.b	#6,routine(a1)	; => Obj5A_Handshake
 	move.l	#Obj5A_MapUnc_35E1E,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_SpecialMessages,1,0),art_tile(a1)
 	move.b	#4,render_flags(a1)
@@ -66848,36 +66840,35 @@ loc_35AC4:
 	move.w	d3,x_pos(a1)
 	move.w	d4,y_pos(a1)
 	move.w	#$46,objoff_2A(a1)
-	move.b	#$14,mapping_frame(a1)
+	move.b	#$14,mapping_frame(a1)		; Checkpoint wings
 	movea.l	a1,a2
 	bsr.w	JmpTo2_SSSingleObjLoad
-	bne.s	return_35B58
+	bne.s	+		; rts
 	move.b	#ObjID_SSMessage,id(a1) ; load obj5A
-	move.b	#6,routine(a1)
+	move.b	#6,routine(a1)	; => Obj5A_Handshake
 	move.l	#Obj5A_MapUnc_35E1E,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_SpecialMessages,1,0),art_tile(a1)
 	move.b	#4,render_flags(a1)
 	move.b	#0,priority(a1)
 	move.w	d3,x_pos(a1)
 	move.w	d4,y_pos(a1)
-	move.w	d4,objoff_30(a1)
+	move.w	d4,objoff_30(a1)			; Target y position for handshake
 	move.w	#$46,objoff_2A(a1)
-	move.b	#$15,mapping_frame(a1)
-	cmpi.w	#6,d0
-	bne.s	return_35B58
-	st	objoff_2F(a1)
-	bset	#1,render_flags(a1)
-
-return_35B58:
+	move.b	#$15,mapping_frame(a1)		; Checkpoint hand
+	cmpi.w	#6,d0						; Does player have enough rings?
+	bne.s	+							; If yes, return
+	st.b	objoff_2F(a1)				; Flag for failed checkpoint
+	bset	#1,render_flags(a1)			; Point thumb down
++
 	rts
 ; ===========================================================================
-
-loc_35B5A:
+;loc_35B5A
+Obj5A_TextFlyoutInit:
 	subi.w	#1,objoff_2A(a0)
 	bne.w	JmpTo44_DisplaySprite
-	cmpi.b	#$13,mapping_frame(a0)
-	bgt.w	JmpTo63_DeleteObject
-	move.b	#8,routine(a0)
+	cmpi.b	#$13,mapping_frame(a0)		; Is this the hand or wings?
+	bgt.w	JmpTo63_DeleteObject		; If yes, branch
+	move.b	#8,routine(a0)			; Obj5A_TextFlyout
 	move.w	#8,objoff_14(a0)
 	move.w	x_pos(a0),d1
 	subi.w	#$80,d1
@@ -66887,10 +66878,9 @@ loc_35B5A:
 	move.b	d0,angle(a0)
 	bra.w	JmpTo44_DisplaySprite
 ; ===========================================================================
-
 ; this makes special stage messages like "most rings wins!" fly off the screen 
-
-loc_35B96:
+;loc_35B96
+Obj5A_TextFlyout:
 	moveq	#0,d0
 	move.b	angle(a0),d0
 	bsr.w	JmpTo14_CalcSine
@@ -66908,214 +66898,202 @@ loc_35B96:
 	blt.w	JmpTo63_DeleteObject
 	bra.w	JmpTo44_DisplaySprite
 ; ===========================================================================
-
-loc_35BD6:
+;loc_35BD6
+Obj5A_PrintNumber:
 	bsr.w	JmpTo_SSSingleObjLoad2
-	bne.s	return_35C12
+	bne.s	+		; rts
 	move.b	d0,mapping_frame(a1)
 	move.l	#Obj5F_MapUnc_72D2,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_SpecialHUD,2,0),art_tile(a1)
 	move.b	#ObjID_SSMessage,id(a1) ; load obj5A
-	move.b	#4,routine(a1)
+	move.b	#4,routine(a1)			; Obj5A_TextFlyoutInit
 	move.b	#4,render_flags(a1)
 	move.b	#1,priority(a1)
 	move.w	d1,x_pos(a1)
 	move.w	d2,y_pos(a1)
 	move.w	#$46,objoff_2A(a1)
-
-return_35C12:
++
 	rts
 ; ===========================================================================
-
-loc_35C14:
-	lea	off_35C62(pc),a3
+; Subroutine to draw checkpoint or message text
+; d0 = text ID
+; d1 = x position of first letter
+; d2 = y position
+;loc_35C14
+Obj5A_PrintWord:
+	lea	SSMessage_TextFrames(pc),a3
 	adda.w	(a3,d0.w),a3
 
-loc_35C1C:
-	move.b	(a3)+,d0
-	bmi.s	return_35C60
+-	move.b	(a3)+,d0
+	bmi.s	+		; rts
 	bsr.w	JmpTo_SSSingleObjLoad2
-	bne.s	return_35C60
+	bne.s	+		; rts
 	move.b	d0,mapping_frame(a1)
 	move.l	#Obj5A_MapUnc_35E1E,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_SpecialMessages,2,0),art_tile(a1)
 	move.b	#ObjID_SSMessage,id(a1) ; load obj5A
-	move.b	#4,routine(a1)
+	move.b	#4,routine(a1)			; Obj5A_TextFlyoutInit
 	move.b	#4,render_flags(a1)
 	move.b	#1,priority(a1)
 	move.w	d1,x_pos(a1)
 	move.w	d2,y_pos(a1)
 	move.w	#$46,objoff_2A(a1)
 	addq.w	#8,d1
-	bra.s	loc_35C1C
+	bra.s	-
 ; ===========================================================================
-
-return_35C60:
++
 	rts
 ; ===========================================================================
-; animation script
-off_35C62:	offsetTable
-		offsetTableEntry.w byte_35C86	; 0
-		offsetTableEntry.w byte_35C8A	; 1
-		offsetTableEntry.w byte_35C90	; 2
-		offsetTableEntry.w byte_35C96	; 3
-		offsetTableEntry.w byte_35C9A	; 4
-		offsetTableEntry.w byte_35CA1	; 5
-		offsetTableEntry.w byte_35CA8	; 6
-		offsetTableEntry.w byte_35CAD	; 7
-		offsetTableEntry.w byte_35CB3	; 8
-		offsetTableEntry.w byte_35CB9	; 9
-		offsetTableEntry.w byte_35CBF	; 10
-		offsetTableEntry.w byte_35CC4	; 11
-		offsetTableEntry.w byte_35CC8	; 12
-		offsetTableEntry.w byte_35CCE	; 13
-		offsetTableEntry.w byte_35CD3	; 14
-		offsetTableEntry.w byte_35CD5	; 15
-		offsetTableEntry.w byte_35CD9	; 16
-		offsetTableEntry.w byte_35CDB	; 17
-byte_35C86:
-	dc.b   0,  1,  2,$FF
-byte_35C8A:
-	dc.b   3,  4,  5,  0,  6,$FF
-byte_35C90:
-	dc.b   7,  8,  8,  9,$11,$FF
-byte_35C96:
-	dc.b   5,  8,  2,$FF
-byte_35C9A:
-	dc.b   1,  5,  8, $A,  0, $B,$FF
-byte_35CA1:
-	dc.b  $C,  9, $D, $E,  1,  3,$FF
-byte_35CA8:
-	dc.b  $F,  8,  6,  2,$FF
-byte_35CAD:
-	dc.b $10,  4,  5,  6,$11,$FF
-byte_35CB3:
-	dc.b   6,  8,  5,  4,  7,$FF
-byte_35CB9:
-	dc.b  $F,  4,  9,  1,  6,$FF
-byte_35CBF:
-	dc.b   2,  4,  1,$11,$FF
-byte_35CC4:
-	dc.b $10,  4,  5,$FF
-byte_35CC8:
-	dc.b   2,$10,  4,  7,  1,$FF
-byte_35CCE:
-	dc.b  $D,  9,  9,$11,$FF
-byte_35CD3:
-	dc.b $11,$FF
-byte_35CD5:
-	dc.b $12,$12,$12,$FF
-byte_35CD9:
-	dc.b $13,$FF
-byte_35CDB:
-	dc.b   2, $D,  4,  9,  6,$FF
+ ; temporarily remap characters to title card letter format
+ ; Characters are encoded as Aa, Bb, Cc, etc. through a macro
+ charset 'a','z','A'	; Convert to uppercase
+ charset 'A',"\xD\x11\7\x11\1\x11"
+ charset 'G',0	; can't have an embedded 0 in a string
+ charset 'H',"\xB\4\x11\x11\9\xF\5\8\xC\x11\3\6\2\xA\x11\x10\x11\xE\x11"
+ charset '!',"\x11"
+ charset '.',"\x12"
+
+; Text words
+;off_35C62
+SSMessage_TextFrames:	offsetTable
+		offsetTableEntry.w byte_35C86	;  0
+		offsetTableEntry.w byte_35C8A	;  2
+		offsetTableEntry.w byte_35C90	;  4
+		offsetTableEntry.w byte_35C96	;  6
+		offsetTableEntry.w byte_35C9A	;  8
+		offsetTableEntry.w byte_35CA1	; $A
+		offsetTableEntry.w byte_35CA8	; $C
+		offsetTableEntry.w byte_35CAD	; $E
+		offsetTableEntry.w byte_35CB3	;$10
+		offsetTableEntry.w byte_35CB9	;$12
+		offsetTableEntry.w byte_35CBF	;$14
+		offsetTableEntry.w byte_35CC4	;$16
+		offsetTableEntry.w byte_35CC8	;$18
+		offsetTableEntry.w byte_35CCE	;$1A
+		offsetTableEntry.w byte_35CD3	;$1C
+		offsetTableEntry.w byte_35CD5	;$1E
+		offsetTableEntry.w byte_35CD9	;$20
+		offsetTableEntry.w byte_35CDB	;$22
+byte_35C86:	specialText "GET"
+byte_35C8A:	specialText "RINGS"
+byte_35C90:	specialText "COOL!"
+byte_35C96:	specialText "NOT"
+byte_35C9A:	specialText "ENOUGH"
+byte_35CA1:	specialText "PLAYER"
+byte_35CA8:	specialText "MOST"
+byte_35CAD:	specialText "WINS!"
+byte_35CB3:	specialText "SONIC"
+byte_35CB9:	specialText "MILES"
+byte_35CBF:	specialText "TIE!"
+byte_35CC4:	specialText "WIN"
+byte_35CC8:	specialText "TWICE"
+byte_35CCE:	specialText "ALL!"
+byte_35CD3:	specialText "!"
+byte_35CD5:	specialText "..."
+byte_35CD9:	dc.b $13,$FF						; VS
+byte_35CDB:	specialText "TAILS"
 	even
+
+ charset ; revert character set
+
 ; ===========================================================================
+;loc_35CE2
+Obj5A_CreateRingReqMessage:
+	moveq	#0,d0				; GET
+	move.w	#$54,d1				; x
+	move.w	#$6C,d2				; y
+	bsr.w	Obj5A_PrintWord
+	bsr.w	JmpTo_SSStartNewAct
+	move.w	d1,d4				; Binary coded decimal ring requirements
+	move.w	d2,d5				; Digit count - 1 (minumum 2 digits)
+	movea.w	d2,a3				; Copy of above, but in a3.
+	move.w	#$80,d1				; x position of least digit
+	cmpi.w	#2,d2				; Do we need hundreds digit?
+	beq.s	+					; if yes, branch
+	subi.w	#8,d1				; Otherwise, move digits to the left
 
-loc_35CE2:
-	moveq	#0,d0
-	move.w	#$54,d1
-	move.w	#$6C,d2
-	bsr.w	loc_35C14
-	bsr.w	JmpTo_loc_76FA
-	move.w	d1,d4
-	move.w	d2,d5
-	movea.w	d2,a3
-	move.w	#$80,d1
-	cmpi.w	#2,d2
-	beq.s	loc_35D08
-	subi.w	#8,d1
++	move.w	#$6C,d2				; y position of digits
 
-loc_35D08:
-	move.w	#$6C,d2
-
-loc_35D0C:
-	move.w	d4,d6
-	lsr.w	#4,d4
-	andi.w	#$F,d6
+-	move.w	d4,d6				; Copy BCD reuirements
+	lsr.w	#4,d4				; Next BCD digit
+	andi.w	#$F,d6				; Extract least digit
 	move.b	d6,d0
 	swap	d5
-	bsr.w	loc_35BD6
-	subi.w	#8,d1
+	bsr.w	Obj5A_PrintNumber
+	subi.w	#8,d1				; Set position for next digit
 	swap	d5
-	dbf	d5,loc_35D0C
-	moveq	#2,d0
-	lea	(off_35DDE).l,a2
+	dbf	d5,-
+	
+	moveq	#2,d0				; RINGS!
+	lea	(SSMessage_TextPhrases).l,a2
 	adda.w	(a2,d0.w),a2
-	move.w	#$6C,d2
-	move.w	#$84,d1
-	cmpa.w	#2,a3
-	bne.s	loc_35D44
-	addi.w	#8,d1
+	move.w	#$6C,d2				; y
+	move.w	#$84,d1				; x
+	cmpa.w	#2,a3				; Do we need space for hundreds digit?
+	bne.s	+					; Branch if not
+	addi.w	#8,d1				; Move digits to right
 
-loc_35D44:
-	moveq	#0,d0
+/	moveq	#0,d0
 	move.b	(a2)+,d0
-	bmi.s	return_35D50
-	bsr.w	loc_35C14
-	bra.s	loc_35D44
+	bmi.s	+
+	bsr.w	Obj5A_PrintWord
+	bra.s	-
 ; ===========================================================================
-
-return_35D50:
++
 	rts
 ; ===========================================================================
-
-loc_35D52:
-	move.w	#$80,d3
-	bsr.w	loc_35AB6
+;loc_35D52
+Obj5A_PrintCheckpointMessage:
+	move.w	#$80,d3				; x
+	bsr.w	Obj5A_CreateCheckpointWingedHand
 	cmpi.w	#1,(Player_mode).w
 	ble.s	loc_35D6E
 	addi.w	#palette_line_1,art_tile(a1)
 	addi.w	#palette_line_1,art_tile(a2)
 
 loc_35D6E:
-	move.w	#$74,d1
-	move.w	#$68,d2
-	lea	(off_35DDE).l,a2
-	adda.w	(a2,d0.w),a2
-	cmpi.b	#4,d0
-	beq.s	loc_35D8A
-	move.w	#$5E,d1
+	move.w	#$74,d1				; x
+	move.w	#$68,d2				; y
+	lea	(SSMessage_TextPhrases).l,a2
+	adda.w	(a2,d0.w),a2		; Fetch phrase
+	cmpi.b	#4,d0				; Is it 'COOL!'?
+	beq.s	+					; Branch if yes
+	move.w	#$5E,d1				; Move text otherwise
 
-loc_35D8A:
-	moveq	#0,d0
+/	moveq	#0,d0
 	move.b	(a2)+,d0
-	bmi.s	return_35DA8
+	bmi.s	++			; rts
 	cmpi.b	#2,d0
-	bne.s	loc_35D9E
-	move.w	#$5E,d1
-	move.w	#$7E,d2
-
-loc_35D9E:
-	bsr.w	loc_35C14
+	bne.s	+
+	move.w	#$5E,d1				; x
+	move.w	#$7E,d2				; y
++
+	bsr.w	Obj5A_PrintWord
 	addi.w	#8,d1
-	bra.s	loc_35D8A
+	bra.s	-
 ; ===========================================================================
-
-return_35DA8:
++
 	rts
 ; ===========================================================================
-
-loc_35DAA:
+;loc_35DAA
+Obj5A_PrintPhrase:
 	move.w	d0,d3
 	subq.w	#8,d3
 	lsr.w	#1,d3
 	moveq	#0,d1
 	move.b	byte_35DD6(pc,d3.w),d1
 	move.w	#$48,d2
-	lea	(off_35DDE).l,a2
+	lea	(SSMessage_TextPhrases).l,a2
 	adda.w	(a2,d0.w),a2
 
-loc_35DC4:
-	moveq	#0,d0
+-	moveq	#0,d0
 	move.b	(a2)+,d0
-	bmi.s	return_35DD4
-	bsr.w	loc_35C14
+	bmi.s	+			; rts
+	bsr.w	Obj5A_PrintWord
 	addi.w	#8,d1
-	bra.s	loc_35DC4
+	bra.s	-
 ; ===========================================================================
-
-return_35DD4:
++
 	rts
 ; ===========================================================================
 byte_35DD6:
@@ -67128,32 +67106,33 @@ byte_35DD6:
 	dc.b $58	; 6
 	dc.b   0	; 7
 
-; animation script
-off_35DDE:	offsetTable
+; Text phrases
+;off_35DDE
+SSMessage_TextPhrases:	offsetTable
 		offsetTableEntry.w byte_35DF6	;  0
-		offsetTableEntry.w byte_35DF7	;  1
-		offsetTableEntry.w byte_35DFA	;  2
-		offsetTableEntry.w byte_35DFC	;  3
-		offsetTableEntry.w byte_35E01	;  4
-		offsetTableEntry.w byte_35E05	;  5
-		offsetTableEntry.w byte_35E09	;  6
-		offsetTableEntry.w byte_35E0C	;  7
-		offsetTableEntry.w byte_35E0F	;  8
-		offsetTableEntry.w byte_35E11	;  9
-		offsetTableEntry.w byte_35E16	; $A
-		offsetTableEntry.w byte_35E19	; $B
-byte_35DF6:	dc.b $FF
-byte_35DF7:	dc.b   2,$1C,$FF
-byte_35DFA:	dc.b   4,$FF
-byte_35DFC:	dc.b   6,  8,  2,$1E,$FF
-byte_35E01:	dc.b  $A,$20, $A,$FF
-byte_35E05:	dc.b  $C,  2, $E,$FF
-byte_35E09:	dc.b $10, $E,$FF
-byte_35E0C:	dc.b $12, $E,$FF
-byte_35E0F:	dc.b $14,$FF
-byte_35E11:	dc.b $16,$18,$16,$1A,$FF
-byte_35E16:	dc.b $22, $E,$FF
-byte_35E19:	dc.b   2,$24,$26,$1C,$FF
+		offsetTableEntry.w byte_35DF7	;  2
+		offsetTableEntry.w byte_35DFA	;  4
+		offsetTableEntry.w byte_35DFC	;  6
+		offsetTableEntry.w byte_35E01	;  8
+		offsetTableEntry.w byte_35E05	; $A
+		offsetTableEntry.w byte_35E09	; $C
+		offsetTableEntry.w byte_35E0C	; $E
+		offsetTableEntry.w byte_35E0F	;$10
+		offsetTableEntry.w byte_35E11	;$12
+		offsetTableEntry.w byte_35E16	;$14 
+		offsetTableEntry.w byte_35E19	;$16
+byte_35DF6:	dc.b $FF					; (empty)
+byte_35DF7:	dc.b   2,$1C,$FF			; RINGS!
+byte_35DFA:	dc.b   4,$FF				; COOL!
+byte_35DFC:	dc.b   6,  8,  2,$1E,$FF	; NOT ENOUGH RINGS...
+byte_35E01:	dc.b  $A,$20, $A,$FF		; PLAYER VS PLAYER
+byte_35E05:	dc.b  $C,  2, $E,$FF		; MOST RINGS WINS
+byte_35E09:	dc.b $10, $E,$FF			; SONIC WINS
+byte_35E0C:	dc.b $12, $E,$FF			; MILES WINS
+byte_35E0F:	dc.b $14,$FF				; TIE!
+byte_35E11:	dc.b $16,$18,$16,$1A,$FF	; WIN TWICE WIN ALL!
+byte_35E16:	dc.b $22, $E,$FF			; TAILS WINS
+byte_35E19:	dc.b   2,$24,$26,$1C,$FF	; RINGS ?? ?? !
 	even
 ; ----------------------------------------------------------------------------
 ; sprite mappings
@@ -67339,7 +67318,7 @@ loc_36160:
 	subi.w	#1,objoff_2A(a0)
 	bpl.w	JmpTo44_DisplaySprite
 	st.b	(SS_Check_Rings_flag).w
-	bra.w	loc_361CC
+	bra.w	SSClearObjs
 ; ===========================================================================
 
 loc_36172:
@@ -67353,7 +67332,7 @@ loc_36172:
 	addi.b	#1,(Current_Special_Stage).w
 	addi.b	#1,(Emerald_count).w
 	st.b	(SS_Check_Rings_flag).w
-	bsr.w	loc_361CC
+	bsr.w	SSClearObjs
 	move.l	(sp)+,d0
 	rts
 ; ===========================================================================
@@ -67376,8 +67355,8 @@ byte_361C8:
 	dc.b   1	; 2
 	dc.b   0	; 3
 ; ===========================================================================
-
-loc_361CC:
+;loc_361CC
+SSClearObjs:
 	movea.l	#(SS_Object_RAM&$FFFFFF),a1
 	move.w	#(SS_Object_RAM_End-SS_Object_RAM)/(object_size/4)-1,d0
 	moveq	#0,d1
@@ -67526,8 +67505,8 @@ JmpTo24_AnimateSprite
 	jmp	(AnimateSprite).l
 ; ===========================================================================
 
-JmpTo_loc_76FA 
-	jmp	(loc_76FA).l
+JmpTo_SSStartNewAct 
+	jmp	(SSStartNewAct).l
 ; ===========================================================================
 
 JmpTo_CalcAngle 

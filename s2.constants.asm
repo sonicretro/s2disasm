@@ -141,6 +141,7 @@ ss_z_pos = objoff_34
 ss_hurt_timer = objoff_36
 ss_slide_timer = objoff_37
 ss_parent = objoff_38
+ss_rings_base = objoff_3C	; word
 ss_rings_hundreds = objoff_3C
 ss_rings_tens = objoff_3D
 ss_rings_units = objoff_3E
@@ -165,6 +166,7 @@ p2_pushing_bit    = p1_pushing_bit + 1
 
 p1_pushing        = 1<<p1_pushing_bit
 p2_pushing        = 1<<p2_pushing_bit
+
 
 standing_mask     = p1_standing|p2_standing
 pushing_mask      = p1_pushing|p2_pushing
