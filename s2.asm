@@ -8459,17 +8459,17 @@ off_6E54:	offsetTable
 ; ===========================================================================
 +	tst.b	(SS_Alternate_HorizScroll_Buf).w
 	bne.s	++
-	lea	($FFFFE002).w,a1
+	lea	(SS_Horiz_Scroll_Buf_1 + 2).w,a1
 	bra.s	+++
 ; ===========================================================================
-+	lea	($FFFFD702).w,a1
++	lea	(SS_Horiz_Scroll_Buf_2 + 2).w,a1
 	neg.w	d2
 	bra.s	++
 ; ===========================================================================
-+	lea	($FFFFE002).w,a1
++	lea	(SS_Horiz_Scroll_Buf_1 + 2).w,a1
 	tst.b	(SS_Alternate_HorizScroll_Buf).w
 	beq.s	+
-	lea	($FFFFD702).w,a1
+	lea	(SS_Horiz_Scroll_Buf_2 + 2).w,a1
 	neg.w	d2
 +
 	move.w	#$FF,d0
@@ -8483,7 +8483,7 @@ off_6E54:	offsetTable
 
 
 sub_6EE0:
-	move.w	(Vscroll_Factor+2).w,($FFFFDB34).w
+	move.w	(Vscroll_Factor+2).w,(SpecialStageTrack_LastVScroll).w
 	moveq	#0,d7
 	moveq	#0,d0
 	moveq	#0,d2
@@ -66343,9 +66343,9 @@ Obj5A_RingsMessageInit:
 	sf.b	(SS_NoCheckpoint_flag).w
 	tst.b	(System_Stack).w
 	bne.w	JmpTo63_DeleteObject
-	sf	($FFFFDBA6).w
-	sf	($FFFFDBA7).w
-	move.w	#0,($FFFFDBA2).w
+	sf.b	(SS_HideRingsToGo).w
+	sf.b	(SS_TriggerRingsToGo).w
+	move.w	#0,(SS_NoRingsTogoLifetime).w
 	move.b	#0,objoff_3A(a0)
 	bra.w	JmpTo63_DeleteObject
 ; ===========================================================================
@@ -66382,7 +66382,7 @@ Obj5A_ToGoOffsets:
 ; ===========================================================================
 ;loc_3561E
 Obj5A_CreateRingsToGoText:
-	st.b	($FFFFDBA7).w
+	st.b	(SS_TriggerRingsToGo).w
 	bsr.w	JmpTo2_SSSingleObjLoad
 	bne.w	return_356E4
 	move.l	#Obj5F_MapUnc_72D2,mappings(a1)
@@ -66458,7 +66458,7 @@ Init_Obj5A:
 ; ===========================================================================
 ;loc_35706
 Obj5A_RingsNeeded:
-	move.b	($FFFFDBA7).w,($FFFFDBA6).w
+	move.b	(SS_TriggerRingsToGo).w,(SS_HideRingsToGo).w
 	bne.s	+
 	bsr.s	++
 	bra.w	Obj5A_FlashMessage
@@ -66482,10 +66482,10 @@ Obj5A_RingsNeeded:
 	bgt.s	+
 	moveq	#0,d0
 	moveq	#1,d2
-	addi.w	#1,($FFFFDBA2).w
-	cmpi.w	#$C,($FFFFDBA2).w
+	addi.w	#1,(SS_NoRingsTogoLifetime).w
+	cmpi.w	#$C,(SS_NoRingsTogoLifetime).w
 	blo.s	loc_3577A
-	st	($FFFFDBA6).w
+	st.b	(SS_HideRingsToGo).w
 	bra.s	loc_3577A
 ; ===========================================================================
 +
@@ -66505,13 +66505,13 @@ Obj5A_RingsNeeded:
 	or.b	d1,d0
 	swap	d1
 	or.b	d1,d0
-	move.w	#0,($FFFFDBA2).w
-	sf.b	($FFFFDBA6).w
+	move.w	#0,(SS_NoRingsTogoLifetime).w
+	sf.b	(SS_HideRingsToGo).w
 
 loc_3577A:
 	moveq	#1,d2
 	lea	sub2_x_pos(a0),a1
-	move.w	d0,($FFFFDBA4).w
+	move.w	d0,(SS_RingsToGoBCD).w
 	move.w	d0,d1
 	andi.w	#$F,d1
 	move.b	d1,sub2_mapframe-sub2_x_pos(a1)
@@ -66534,7 +66534,7 @@ loc_3577A:
 Obj5A_FlashMessage:
 	tst.b	(SS_NoCheckpointMsg_flag).w
 	bne.w	+		; rts
-	tst.b	($FFFFDBA6).w
+	tst.b	(SS_HideRingsToGo).w
 	bne.s	+		; rts
 	move.b	(Vint_runcount+3).w,d0
 	andi.b	#7,d0
@@ -66546,7 +66546,7 @@ Obj5A_FlashMessage:
 ;loc_357D2
 Obj5A_MoveAndFlash:
 	moveq	#0,d0
-	cmpi.w	#2,($FFFFDBA4).w
+	cmpi.w	#2,(SS_RingsToGoBCD).w
 	bhs.s	+
 	moveq	#-8,d0
 +
@@ -66557,7 +66557,7 @@ Obj5A_MoveAndFlash:
 ;loc_357E8
 Obj5A_FlashOnly:
 	moveq	#0,d0
-	cmpi.w	#2,($FFFFDBA4).w
+	cmpi.w	#2,(SS_RingsToGoBCD).w
 	bhs.s	Obj5A_FlashMessage
 	rts
 ; ===========================================================================

@@ -1728,7 +1728,9 @@ SpecialStage_Started:	ds.b	1
 		ds.b	4
 SpecialStageTrack_last_mappings_copy:	ds.l	1
 SpecialStageTrack_last_mappings:	ds.l	1
-		ds.b	9
+		ds.b	4
+SpecialStageTrack_LastVScroll:	ds.w	1
+		ds.b	3
 SpecialStageTrack_last_mapping_frame:	ds.b	1
 SS_unk_DB3A:	ds.l	1
 SS_unk_DB3E:	ds.w	6
@@ -1760,6 +1762,11 @@ SS_Perfect_rings_left:	ds.w	1
 SS_Star_color_1:	ds.b	1
 SS_Star_color_2:	ds.b	1
 SS_NoCheckpointMsg_flag:	ds.b	1
+		ds.b	1
+SS_NoRingsTogoLifetime:	ds.w	1
+SS_RingsToGoBCD:		ds.w	1
+SS_HideRingsToGo:	ds.b	1
+SS_TriggerRingsToGo:	ds.b	1
 
 	phase	ramaddr(Horiz_Scroll_Buf)	; Still in SS RAM
 SS_Horiz_Scroll_Buf_1:		ds.b	$400
