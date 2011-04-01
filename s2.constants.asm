@@ -945,8 +945,6 @@ TitleCard:
 TitleCard_ZoneName:		; level title card: zone name
 GameOver_GameText:		; "GAME" from GAME OVER
 TimeOver_TimeText:		; "TIME" from TIME OVER
-
-
 				ds.b	object_size
 TitleCard_Zone:			; level title card: "ZONE"
 GameOver_OverText:		; "OVER" from GAME OVER
@@ -1260,7 +1258,7 @@ Demo_button_index_2P:		ds.w	1	; index into button press demo data, for player 2
 Demo_press_counter_2P:		ds.w	1	; frames remaining until next button press, for player 2
 Tornado_Velocity_X:		ds.w	1	; speed of tails' plane in scz ($FFFFF736)
 Tornado_Velocity_Y:		ds.w	1
-unk_F73A:			ds.b	1
+ScreenShift:			ds.b	1
 				ds.b	3	; $FFFFF73B-$FFFFF73D
 unk_F73E:			ds.b	1	; actually a word. Only used in special stages
 
@@ -1303,7 +1301,7 @@ Obj_respawn_index_P2:		ds.b	2	; respawn table indices of the next objects when m
 Demo_button_index:		ds.w	1	; index into button press demo data, for player 1
 Demo_press_counter:		ds.b	1	; frames remaining until next button press, for player 1
 				ds.b	1	; $FFFFF793 ; seems unused
-unk_F794:			ds.w	1
+PalChangeSpeed:			ds.w	1
 Collision_addr:			ds.l	1
 				ds.b	$D	; $FFFFF79A-$FFFFF7A6 ; seems unused
 Boss_defeated_flag:		ds.b	1
@@ -1321,7 +1319,7 @@ WindTunnel_flag:		ds.b	1
 WindTunnel_holding_flag:			ds.b	1
 				ds.b	2	; $FFFFF7CA-$FFFFF7CB ; seems unused
 Control_Locked:			ds.b	1
-unk_F7CD:			ds.b	1
+SpecialStage_flag_2P:			ds.b	1
 				ds.b	1	; $FFFFF7CE ; seems unused
 Control_Locked_P2:		ds.b	1
 Chain_Bonus_counter:		ds.w	1	; counts up when you destroy things that give points, resets when you touch the ground
@@ -1334,9 +1332,7 @@ Camera_X_pos_coarse_P2:		ds.w	1
 Tails_LastLoadedDPLC:		ds.b	1	; mapping frame number when Tails last had his tiles requested to be transferred from ROM to VRAM. can be set to a dummy value like -1 to force a refresh DMA.
 TailsTails_LastLoadedDPLC:	ds.b	1	; mapping frame number when Tails' tails last had their tiles requested to be transferred from ROM to VRAM. can be set to a dummy value like -1 to force a refresh DMA.
 ButtonVine_Trigger:		ds.b	$10	; 16 bytes flag array, #subtype byte set when button/vine of respective subtype activated
-unk_F7F0:			ds.b	1
-unk_F7F1:			ds.b	1
-				ds.b	$E	; $FFFFF7F2-$FFFFF7FF ; seems unused
+Anim_Counters:			ds.b	$10	; $FFFFF7F0-$FFFFF7FF
 Misc_Variables_End:
 
 Sprite_Table:			ds.b	$280	; Sprite attribute table buffer
