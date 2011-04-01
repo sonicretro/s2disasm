@@ -4489,7 +4489,7 @@ Level_MainLoop:
 +
 	move.w	#$3C,(Demo_Time_left).w
 	move.w	#$3F,(Palette_fade_range).w
-	clr.w	(PalChageSpeed).w
+	clr.w	(PalChangeSpeed).w
 -
 	move.b	#8,(Vint_routine).w
 	bsr.w	WaitForVint
@@ -4497,9 +4497,9 @@ Level_MainLoop:
 	jsr	(RunObjects).l
 	jsr	(BuildSprites).l
 	jsr	(ObjectsManager).l
-	subq.w	#1,(PalChageSpeed).w
+	subq.w	#1,(PalChangeSpeed).w
 	bpl.s	+
-	move.w	#2,(PalChageSpeed).w
+	move.w	#2,(PalChangeSpeed).w
 	bsr.w	Pal_FadeOut
 +
 	tst.w	(Demo_Time_left).w
