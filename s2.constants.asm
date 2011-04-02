@@ -1929,6 +1929,8 @@ VRAM_EndSeq_Horiz_Scroll_Table               = $FC00 ; Extends until $FFFF??
 VRAM_EndSeq_Horiz_Scroll_Table_Size          = $380  ; ??
 
 ; From here on, art tiles are used; VRAM address is art tile * $20.
+ArtTile_VRAM_Start                    = $0000
+
 ; Common to 1p and 2p menus.
 ArtTile_ArtNem_FontStuff              = $0010
 ArtTile_MapEng_MenuBack               = $0700

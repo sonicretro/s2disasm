@@ -3645,7 +3645,7 @@ SegaScreen:
 	bsr.w	NemDec
 	lea	(Chunk_Table).l,a1
 	lea	(MapEng_SEGA).l,a0
-	move.w	#make_art_tile($0000,0,0),d0
+	move.w	#make_art_tile(ArtTile_VRAM_Start,0,0),d0
 	bsr.w	EniDec
 	lea	(Chunk_Table).l,a1
 	move.l	#vdpComm(VRAM_SegaScr_Plane_B_Name_Table,VRAM,WRITE),d0
@@ -4047,12 +4047,12 @@ ArtNem_Player1VS2:	BINCLUDE	"art/nemesis/1Player2VS.bin"
 ; word_3E82:
 CopyrightText:
 	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + $0B,0,0)	; (C)
-	dc.w  make_art_tile($0000,0,0)	;
+	dc.w  make_art_tile(ArtTile_VRAM_Start,0,0)	;
 	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + $01,0,0)	; 1
 	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + $09,0,0)	; 9
 	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + $09,0,0)	; 9
 	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + $02,0,0)	; 2
-	dc.w  make_art_tile($0000,0,0)	;
+	dc.w  make_art_tile(ArtTile_VRAM_Start,0,0)	;
 	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + $20,0,0)	; S
 	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + $12,0,0)	; E
 	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + $14,0,0)	; G
@@ -6058,7 +6058,7 @@ SpecialStage:
 	bsr.w	PalLoad2
 	moveq	#PLCID_Std1,d0
 	bsr.w	LoadPLC2
-	move.l	#vdpComm(tiles_to_bytes($0002),VRAM,WRITE),d0
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_VRAM_Start+2),VRAM,WRITE),d0
 	lea	SpecialStage_ResultsLetters(pc),a0
 	bsr.w	JmpTo_LoadTitleCardSS
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_SpecialStageResults),VRAM,WRITE),(VDP_control_port).l
@@ -8302,7 +8302,7 @@ ssLdComprsdData:
 	lea	(ArtKos_Special).l,a0
 	lea	(Chunk_Table).l,a1
 	bsr.w	KosDec
-	move.l	#vdpComm(tiles_to_bytes($0000),VRAM,WRITE),(VDP_control_port).l
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_VRAM_Start),VRAM,WRITE),(VDP_control_port).l
 	lea	(VDP_data_port).l,a1
 	movea.l	#Chunk_Table,a0
 	move.w	(a0)+,d0
@@ -9183,13 +9183,13 @@ SSStartNewAct:
 	cmpi.w	#100,d1
 	blt.s	+
 	addq.w	#1,d2
-  ; The following code does a more coomplete binary coded decimal conversion:
-  if 1==0
+  ; The following code does a more complete binary coded decimal conversion:
+    if 1==0
 -	addi.w	#$100,d0
 	subi.w	#100,d1
 	cmpi.w	#100,d1
 	bgt.s	-
-  else
+    else
 	; This code (the original) is limited to 299 rings:
 	subi.w	#100,d1
 	move.w	#$100,d0
@@ -9197,7 +9197,7 @@ SSStartNewAct:
 	blt.s	+
 	subi.w	#100,d1
 	addi.w	#$100,d0
-  endif
+    endif
 +
 	divu.w	#10,d1
 	lsl.w	#4,d1
@@ -9495,12 +9495,12 @@ ContinueScreen_LoadLetters:
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleCard),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_TitleCard).l,a0
 	bsr.w	NemDec
-	lea	($FFFF8000).w,a4
+	lea	(Level_Layout).w,a4
 	lea	(ArtNem_TitleCard2).l,a0
 	bsr.w	NemDecToRAM
 	lea	(ContinueScreen_AdditionalLetters).l,a0
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ContinueScreen_Additional),VRAM,WRITE),(VDP_control_port).l
-	lea	($FFFF8000).w,a1
+	lea	(Level_Layout).w,a1
 	lea	(VDP_data_port).l,a6
 -
 	moveq	#0,d0
@@ -9803,7 +9803,7 @@ TwoPlayerResults:
 	bsr.w	NemDec
 	lea	(Chunk_Table).l,a1
 	lea	(MapEng_MenuBack).l,a0
-	move.w	#make_art_tile($0000,3,0),d0
+	move.w	#make_art_tile(ArtTile_VRAM_Start,3,0),d0
 	bsr.w	EniDec
 	lea	(Chunk_Table).l,a1
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_MapEng_MenuBack),VRAM,WRITE),d0
@@ -9818,7 +9818,7 @@ TwoPlayerResults:
 	movea.l	(a2,d0.w),a0
 	movea.l	4(a2,d0.w),a2
 	lea	(Chunk_Table).l,a1
-	move.w	#make_art_tile($0000,0,0),d0
+	move.w	#make_art_tile(ArtTile_VRAM_Start,0,0),d0
 	bsr.w	EniDec
 	jsr	(a2)	; dynamic call! to Setup2PResults_Act, Setup2PResults_Zone, Setup2PResults_Game, Setup2PResults_SpecialAct, or Setup2PResults_SpecialZone, assuming the pointers in TwoPlayerResultsPointers have not been changed
 	lea	(Chunk_Table).l,a1
@@ -10825,7 +10825,7 @@ MenuScreen:
 	bsr.w	NemDec
 	lea	(Chunk_Table).l,a1
 	lea	(MapEng_MenuBack).l,a0
-	move.w	#make_art_tile($0000,3,0),d0
+	move.w	#make_art_tile(ArtTile_VRAM_Start,3,0),d0
 	bsr.w	EniDec
 	lea	(Chunk_Table).l,a1
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_MapEng_MenuBack),VRAM,WRITE),d0
@@ -11440,7 +11440,7 @@ off_92F2:
 MenuScreen_LevelSelect:
 	lea	(Chunk_Table).l,a1
 	lea	(MapEng_LevSel).l,a0	; 2 bytes per 8x8 tile, compressed
-	move.w	#make_art_tile($0000,0,0),d0
+	move.w	#make_art_tile(ArtTile_VRAM_Start,0,0),d0
 	bsr.w	EniDec
 	lea	(Chunk_Table).l,a1
 	move.l	#vdpComm(VRAM_Plane_A_Name_Table,VRAM,WRITE),d0
