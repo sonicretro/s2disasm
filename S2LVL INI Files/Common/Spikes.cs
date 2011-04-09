@@ -20,16 +20,18 @@ namespace S2ObjectDefinitions.Common
 
         public override void Init(Dictionary<string, string> data)
         {
-            byte[] artfile = ObjectHelper.OpenArtFile("../art/nemesis/Spikes.bin", Compression.CompressionType.Nemesis);
+            byte[][] artfile = new byte[2][];
+            artfile[0] = ObjectHelper.OpenArtFile("../art/nemesis/Spikes.bin", Compression.CompressionType.Nemesis);
+            artfile[1] = ObjectHelper.OpenArtFile("../art/nemesis/Long horizontal spike.bin", Compression.CompressionType.Nemesis);
             byte[] mapfile = System.IO.File.ReadAllBytes("../mappings/sprite/obj36.bin");
-            img = ObjectHelper.MapToBmp(artfile, mapfile, 0, 1, out offset);
+            img = ObjectHelper.MapToBmp(artfile[0], mapfile, 0, 1, out offset);
             imgw = img.Width;
             imgh = img.Height;
             Point off;
             Bitmap im;
             for (int i = 0; i < 8; i++)
             {
-                im = ObjectHelper.MapToBmp(artfile, mapfile, i, 1, out off);
+                im = ObjectHelper.MapToBmp(artfile[i / 4], mapfile, i, 1, out off);
                 imgs.Add(im);
                 offsets.Add(off);
                 imgws.Add(im.Width);
