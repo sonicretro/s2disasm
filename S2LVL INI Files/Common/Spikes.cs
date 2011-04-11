@@ -82,6 +82,13 @@ namespace S2ObjectDefinitions.Common
             gfx.DrawImageFlipped(imgs[(subtype & 0x70) >> 4], loc.X + offsets[(subtype & 0x70) >> 4].X, loc.Y + offsets[(subtype & 0x70) >> 4].Y, XFlip, YFlip);
         }
 
+        public override void DrawExport(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
+        {
+            BitmapBits bits = new BitmapBits(imgs[(subtype & 0x70) >> 4]);
+            bits.Flip(XFlip, YFlip);
+            bmp.DrawBitmapComposited(bits, new Point(loc.X + offsets[(subtype & 0x70) >> 4].X, loc.Y + offsets[(subtype & 0x70) >> 4].Y));
+        }
+
         public override Rectangle Bounds(Point loc, byte subtype)
         {
             return new Rectangle(loc.X + offsets[(subtype & 0x70) >> 4].X, loc.Y + offsets[(subtype & 0x70) >> 4].Y, imgws[(subtype & 0x70) >> 4], imghs[(subtype & 0x70) >> 4]);

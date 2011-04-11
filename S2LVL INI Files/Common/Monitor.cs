@@ -81,39 +81,13 @@ namespace S2ObjectDefinitions.Common
                 case 10:
                     return "Broken";
                 default:
-                    return string.Empty;
+                    return "Invalid";
             }
         }
 
         public override string FullName(byte subtype)
         {
-            switch (subtype)
-            {
-                case 0:
-                    return "Static Monitor";
-                case 1:
-                    return "Sonic Monitor";
-                case 2:
-                    return "Tails Monitor";
-                case 3:
-                    return "Eggman Monitor";
-                case 4:
-                    return "Rings Monitor";
-                case 5:
-                    return "Shoes Monitor";
-                case 6:
-                    return "Shield Monitor";
-                case 7:
-                    return "Invincibility Monitor";
-                case 8:
-                    return "Teleport Monitor";
-                case 9:
-                    return "Random Monitor";
-                case 10:
-                    return "Broken Monitor";
-                default:
-                    return "Monitor";
-            }
+            return SubtypeName(subtype) + " " + Name();
         }
 
         public override Bitmap Image()
@@ -150,6 +124,14 @@ namespace S2ObjectDefinitions.Common
             img.Palette = pal;
             for (int i = 0; i <= 10; i++)
                 imgs[i].Palette = pal;
+        }
+
+        public override void DrawExport(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
+        {
+            if (subtype > 10) subtype = 0;
+            BitmapBits bits = new BitmapBits(imgs[subtype]);
+            bits.Flip(XFlip, YFlip);
+            bmp.DrawBitmapComposited(bits, new Point(loc.X + offsets[subtype].X, loc.Y + offsets[subtype].Y));
         }
     }
 }

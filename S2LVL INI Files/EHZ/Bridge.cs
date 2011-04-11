@@ -62,9 +62,15 @@ namespace S2ObjectDefinitions.EHZ
         {
             int st = Bounds(loc, subtype).X;
             for (int i = 0; i < (subtype & 0x1F); i++)
-            {
                 gfx.DrawImageFlipped(img, st + (i * imgw), loc.Y + offset.Y, false, false);
-            }
+        }
+
+        public override void DrawExport(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
+        {
+            BitmapBits bits = new BitmapBits(img);
+            int st = Bounds(loc, subtype).X;
+            for (int i = 0; i < (subtype & 0x1F); i++)
+                bmp.DrawBitmapComposited(bits, new Point(st + (i * imgw), loc.Y + offset.Y));
         }
 
         public override Rectangle Bounds(Point loc, byte subtype)

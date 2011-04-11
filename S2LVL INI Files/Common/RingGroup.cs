@@ -70,5 +70,22 @@ namespace S2ObjectDefinitions.Common
         {
             img.Palette = pal;
         }
+
+        public override void DrawExport(BitmapBits bmp, Point loc, Direction direction, byte count, bool includeDebug)
+        {
+            BitmapBits bits = new BitmapBits(img);
+            for (int i = 0; i < count; i++)
+            {
+                switch (direction)
+                {
+                    case SonicRetro.S2LVL.Direction.Horizontal:
+                        bmp.DrawBitmapComposited(bits, new Point(loc.X + offset.X + (i * spacing), loc.Y + offset.Y));
+                        break;
+                    case SonicRetro.S2LVL.Direction.Vertical:
+                        bmp.DrawBitmapComposited(bits, new Point(loc.X + offset.X, loc.Y + offset.Y + (i * spacing)));
+                        break;
+                }
+            } 
+        }
     }
 }

@@ -108,5 +108,13 @@ namespace S2ObjectDefinitions.EHZ
                 item.Palette = pal;
             }
         }
+
+        public override void DrawExport(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
+        {
+            if (subtype > 5) subtype = 1;
+            BitmapBits bits = new BitmapBits(imgs[subtype]);
+            bits.Flip(XFlip, YFlip);
+            bmp.DrawBitmapComposited(bits, new Point(loc.X + offsets[subtype].X, loc.Y + offsets[subtype].Y));
+        }
     }
 }

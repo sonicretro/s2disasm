@@ -83,6 +83,14 @@ namespace S2ObjectDefinitions.Common
             return new Rectangle(loc.X + offsets[subtype & 7].X, loc.Y + offsets[subtype & 7].Y, imgws[subtype & 7], imghs[subtype & 7]);
         }
 
+        public override void DrawExport(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
+        {
+            if (!includeDebug) return;
+            BitmapBits bits = new BitmapBits(imgs[subtype & 7]);
+            bits.Flip(XFlip, YFlip);
+            bmp.DrawBitmapComposited(bits, new Point(loc.X + offsets[subtype & 7].X, loc.Y + offsets[subtype & 7].Y));
+        }
+
         public override Type ObjectType
         {
             get

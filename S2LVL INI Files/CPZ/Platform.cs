@@ -82,6 +82,13 @@ namespace S2ObjectDefinitions.CPZ
             return new Rectangle(loc.X + offsets[(subtype & 0x10) >> 4].X, loc.Y + offsets[(subtype & 0x10) >> 4].Y, imgws[(subtype & 0x10) >> 4], imghs[(subtype & 0x10) >> 4]);
         }
 
+        public override void DrawExport(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
+        {
+            BitmapBits bits = new BitmapBits(imgs[(subtype & 0x10) >> 4]);
+            bits.Flip(XFlip, YFlip);
+            bmp.DrawBitmapComposited(bits, new Point(loc.X + offsets[(subtype & 0x10) >> 4].X, loc.Y + offsets[(subtype & 0x10) >> 4].Y));
+        }
+
         public override Type ObjectType
         {
             get
