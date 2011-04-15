@@ -12,7 +12,7 @@ namespace S2ObjectDefinitions.CPZ
     class Barrier : ObjectDefinition
     {
         private List<Point> offsets = new List<Point>();
-        private List<Bitmap> imgs = new List<Bitmap>();
+        private List<BitmapBits> imgs = new List<BitmapBits>();
         private List<int> imgws = new List<int>();
         private List<int> imghs = new List<int>();
 
@@ -21,7 +21,7 @@ namespace S2ObjectDefinitions.CPZ
             byte[] artfile = ObjectHelper.OpenArtFile("../art/nemesis/Stripy blocks from CPZ.bin", Compression.CompressionType.Nemesis);
             byte[] mapfile = System.IO.File.ReadAllBytes("../mappings/sprite/obj2D.bin");
             Point off;
-            Bitmap im;
+            BitmapBits im;
             for (int i = 0; i < 4; i++)
             {
                 im = ObjectHelper.MapToBmp(artfile, mapfile, i, 1, out off);
@@ -57,23 +57,15 @@ namespace S2ObjectDefinitions.CPZ
             return Name();
         }
 
-        public override Bitmap Image()
+        public override BitmapBits Image()
         {
             return imgs[0];
         }
 
-        public override Bitmap Image(byte subtype)
+        public override BitmapBits Image(byte subtype)
         {
             if (subtype > 3) return imgs[0];
             return imgs[subtype];
-        }
-
-        public override void Draw(Graphics gfx, Point loc, byte subtype, bool XFlip, bool YFlip)
-        {
-            if (subtype > 3)
-                gfx.DrawImageFlipped(imgs[0], loc.X + offsets[1].X, loc.Y + offsets[1].Y, true, true);
-            else
-                gfx.DrawImageFlipped(imgs[subtype], loc.X + offsets[subtype].X, loc.Y + offsets[subtype].Y, XFlip, YFlip);
         }
 
         public override Rectangle Bounds(Point loc, byte subtype)
@@ -82,20 +74,12 @@ namespace S2ObjectDefinitions.CPZ
             return new Rectangle(loc.X + offsets[subtype].X, loc.Y + offsets[subtype].Y, imgws[subtype], imghs[subtype]);
         }
 
-        public override void DrawExport(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
+        public override void Draw(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
         {
             if (subtype > 3) subtype = 0;
             BitmapBits bits = new BitmapBits(imgs[subtype]);
             bits.Flip(XFlip, YFlip);
             bmp.DrawBitmapComposited(bits, new Point(loc.X + offsets[subtype].X, loc.Y + offsets[subtype].Y));
-        }
-
-        public override void PaletteChanged(System.Drawing.Imaging.ColorPalette pal)
-        {
-            foreach (Bitmap item in imgs)
-            {
-                item.Palette = pal;
-            }
         }
     }
 }

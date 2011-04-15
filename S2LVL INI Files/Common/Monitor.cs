@@ -9,10 +9,10 @@ namespace S2ObjectDefinitions.Common
     class Monitor : SonicRetro.S2LVL.ObjectDefinition
     {
         private Point offset;
-        private Bitmap img;
+        private BitmapBits img;
         private int imgw, imgh;
         private List<Point> offsets = new List<Point>();
-        private List<Bitmap> imgs = new List<Bitmap>();
+        private List<BitmapBits> imgs = new List<BitmapBits>();
         private List<int> imgws = new List<int>();
         private List<int> imghs = new List<int>();
 
@@ -28,7 +28,7 @@ namespace S2ObjectDefinitions.Common
             imgw = img.Width;
             imgh = img.Height;
             Point off;
-            Bitmap im;
+            BitmapBits im;
             for (int i = 0; i < 11; i++)
             {
                 im = ObjectHelper.MapToBmp(artfile, mapfile, i + 1, 0, out off);
@@ -90,25 +90,17 @@ namespace S2ObjectDefinitions.Common
             return SubtypeName(subtype) + " " + Name();
         }
 
-        public override Bitmap Image()
+        public override BitmapBits Image()
         {
             return img;
         }
 
-        public override Bitmap Image(byte subtype)
+        public override BitmapBits Image(byte subtype)
         {
             if (subtype <= 10)
                 return imgs[subtype];
             else
                 return img;
-        }
-
-        public override void Draw(Graphics gfx, Point loc, byte subtype, bool XFlip, bool YFlip)
-        {
-            if (subtype <= 10)
-                gfx.DrawImageFlipped(imgs[subtype], loc.X + offsets[subtype].X, loc.Y + offsets[subtype].Y, XFlip, YFlip);
-            else
-                gfx.DrawImageFlipped(img, loc.X + offset.X, loc.Y + offset.Y, XFlip, YFlip);
         }
 
         public override Rectangle Bounds(Point loc, byte subtype)
@@ -119,14 +111,7 @@ namespace S2ObjectDefinitions.Common
                 return new Rectangle(loc.X + offset.X, loc.Y + offset.Y, imgw, imgh);
         }
 
-        public override void PaletteChanged(System.Drawing.Imaging.ColorPalette pal)
-        {
-            img.Palette = pal;
-            for (int i = 0; i <= 10; i++)
-                imgs[i].Palette = pal;
-        }
-
-        public override void DrawExport(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
+        public override void Draw(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
         {
             if (subtype > 10) subtype = 0;
             BitmapBits bits = new BitmapBits(imgs[subtype]);

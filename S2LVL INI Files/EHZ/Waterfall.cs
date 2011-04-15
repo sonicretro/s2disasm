@@ -9,7 +9,7 @@ namespace S2ObjectDefinitions.EHZ
     class Waterfall : ObjectDefinition
     {
         private List<Point> offsets = new List<Point>();
-        private List<Bitmap> imgs = new List<Bitmap>();
+        private List<BitmapBits> imgs = new List<BitmapBits>();
         private List<int> imgws = new List<int>();
         private List<int> imghs = new List<int>();
 
@@ -18,7 +18,7 @@ namespace S2ObjectDefinitions.EHZ
             byte[] artfile = ObjectHelper.OpenArtFile("../art/nemesis/Waterfall tiles.bin", Compression.CompressionType.Nemesis);
             byte[] mapfile = System.IO.File.ReadAllBytes("../mappings/sprite/obj49.bin");
             Point off;
-            Bitmap im;
+            BitmapBits im;
             im = ObjectHelper.MapToBmp(artfile, mapfile, 1, 1, out off);
             imgs.Add(im);
             offsets.Add(off);
@@ -76,23 +76,15 @@ namespace S2ObjectDefinitions.EHZ
             return Name();
         }
 
-        public override Bitmap Image()
+        public override BitmapBits Image()
         {
             return imgs[0];
         }
 
-        public override Bitmap Image(byte subtype)
+        public override BitmapBits Image(byte subtype)
         {
             if (subtype > 5) return imgs[1];
             return imgs[subtype];
-        }
-
-        public override void Draw(Graphics gfx, Point loc, byte subtype, bool XFlip, bool YFlip)
-        {
-            if (subtype > 5)
-                gfx.DrawImageFlipped(imgs[1], loc.X + offsets[1].X, loc.Y + offsets[1].Y, XFlip, YFlip);
-            else
-                gfx.DrawImageFlipped(imgs[subtype], loc.X + offsets[subtype].X, loc.Y + offsets[subtype].Y, XFlip, YFlip);
         }
 
         public override Rectangle Bounds(Point loc, byte subtype)
@@ -101,15 +93,7 @@ namespace S2ObjectDefinitions.EHZ
             return new Rectangle(loc.X + offsets[subtype].X, loc.Y + offsets[subtype].Y, imgws[subtype], imghs[subtype]);
         }
 
-        public override void PaletteChanged(System.Drawing.Imaging.ColorPalette pal)
-        {
-            foreach (Bitmap item in imgs)
-            {
-                item.Palette = pal;
-            }
-        }
-
-        public override void DrawExport(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
+        public override void Draw(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
         {
             if (subtype > 5) subtype = 1;
             BitmapBits bits = new BitmapBits(imgs[subtype]);

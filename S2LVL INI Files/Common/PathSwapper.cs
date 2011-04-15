@@ -11,10 +11,10 @@ namespace S2ObjectDefinitions.Common
     class PathSwapper : ObjectDefinition
     {
         private Point offset;
-        private Bitmap img;
+        private BitmapBits img;
         private int imgw, imgh;
         private List<Point> offsets = new List<Point>();
-        private List<Bitmap> imgs = new List<Bitmap>();
+        private List<BitmapBits> imgs = new List<BitmapBits>();
         private List<int> imgws = new List<int>();
         private List<int> imghs = new List<int>();
 
@@ -26,7 +26,7 @@ namespace S2ObjectDefinitions.Common
             imgw = img.Width;
             imgh = img.Height;
             Point off;
-            Bitmap im;
+            BitmapBits im;
             for (int i = 0; i < 8; i++)
             {
                 im = ObjectHelper.MapToBmp(artfile, mapfile, i, 1, out off);
@@ -63,19 +63,14 @@ namespace S2ObjectDefinitions.Common
             return Name() + " - " + SubtypeName(subtype);
         }
 
-        public override Bitmap Image()
+        public override BitmapBits Image()
         {
             return img;
         }
 
-        public override Bitmap Image(byte subtype)
+        public override BitmapBits Image(byte subtype)
         {
             return imgs[subtype & 7];
-        }
-
-        public override void Draw(Graphics gfx, Point loc, byte subtype, bool XFlip, bool YFlip)
-        {
-            gfx.DrawImageFlipped(imgs[subtype & 7], loc.X + offsets[subtype & 7].X, loc.Y + offsets[subtype & 7].Y, XFlip, YFlip);
         }
 
         public override Rectangle Bounds(Point loc, byte subtype)
@@ -83,7 +78,7 @@ namespace S2ObjectDefinitions.Common
             return new Rectangle(loc.X + offsets[subtype & 7].X, loc.Y + offsets[subtype & 7].Y, imgws[subtype & 7], imghs[subtype & 7]);
         }
 
-        public override void DrawExport(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
+        public override void Draw(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
         {
             if (!includeDebug) return;
             BitmapBits bits = new BitmapBits(imgs[subtype & 7]);
@@ -96,15 +91,6 @@ namespace S2ObjectDefinitions.Common
             get
             {
                 return typeof(PathSwapperS2ObjectEntry);
-            }
-        }
-
-        public override void PaletteChanged(System.Drawing.Imaging.ColorPalette pal)
-        {
-            img.Palette = pal;
-            foreach (Bitmap item in imgs)
-            {
-                item.Palette = pal;
             }
         }
     }

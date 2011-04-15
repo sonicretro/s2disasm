@@ -10,10 +10,10 @@ namespace S2ObjectDefinitions.Common
     class Spring : ObjectDefinition
     {
         private Point offset;
-        private Bitmap img;
+        private BitmapBits img;
         private int imgw, imgh;
         private List<Point> offsets = new List<Point>();
-        private List<Bitmap> imgs = new List<Bitmap>();
+        private List<BitmapBits> imgs = new List<BitmapBits>();
         private List<int> imgws = new List<int>();
         private List<int> imghs = new List<int>();
 
@@ -26,7 +26,7 @@ namespace S2ObjectDefinitions.Common
             imgw = img.Width;
             imgh = img.Height;
             Point off = new Point();
-            Bitmap im;
+            BitmapBits im;
             imgs.Add(img); // 0
             offsets.Add(offset);
             imgws.Add(imgw);
@@ -125,7 +125,7 @@ namespace S2ObjectDefinitions.Common
             return SubtypeName(subtype) + " " + Name();
         }
 
-        public override Bitmap Image()
+        public override BitmapBits Image()
         {
             return img;
         }
@@ -137,14 +137,9 @@ namespace S2ObjectDefinitions.Common
             return result;
         }
 
-        public override Bitmap Image(byte subtype)
+        public override BitmapBits Image(byte subtype)
         {
             return imgs[imgindex(subtype)];
-        }
-
-        public override void Draw(Graphics gfx, Point loc, byte subtype, bool XFlip, bool YFlip)
-        {
-            gfx.DrawImageFlipped(imgs[imgindex(subtype)], loc.X + offsets[imgindex(subtype)].X, loc.Y + offsets[imgindex(subtype)].Y, XFlip, YFlip);
         }
 
         public override Rectangle Bounds(Point loc, byte subtype)
@@ -152,7 +147,7 @@ namespace S2ObjectDefinitions.Common
             return new Rectangle(loc.X + offsets[imgindex(subtype)].X, loc.Y + offsets[imgindex(subtype)].Y, imgws[imgindex(subtype)], imghs[imgindex(subtype)]);
         }
 
-        public override void DrawExport(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
+        public override void Draw(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
         {
             BitmapBits bits = new BitmapBits(imgs[imgindex(subtype)]);
             bits.Flip(XFlip, YFlip);
@@ -164,15 +159,6 @@ namespace S2ObjectDefinitions.Common
             get
             {
                 return typeof(SpringS2ObjectEntry);
-            }
-        }
-
-        public override void PaletteChanged(System.Drawing.Imaging.ColorPalette pal)
-        {
-            img.Palette = pal;
-            foreach (Bitmap item in imgs)
-            {
-                item.Palette = pal;
             }
         }
     }

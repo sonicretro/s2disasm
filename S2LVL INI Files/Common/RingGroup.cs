@@ -9,7 +9,7 @@ namespace S2ObjectDefinitions.Common
     class RingGroup : S2RingDefinition
     {
         private Point offset;
-        private Bitmap img;
+        private BitmapBits img;
         private int imgw, imgh;
         private int spacing;
 
@@ -33,25 +33,9 @@ namespace S2ObjectDefinitions.Common
             return "Rings";
         }
 
-        public override Bitmap Image()
+        public override BitmapBits Image()
         {
             return img;
-        }
-
-        public override void Draw(Graphics gfx, Point loc, SonicRetro.S2LVL.Direction direction, byte count)
-        {
-            for (int i = 0; i < count; i++)
-            {
-                switch (direction)
-                {
-                    case SonicRetro.S2LVL.Direction.Horizontal:
-                        gfx.DrawImage(img, loc.X + offset.X + (i * spacing), loc.Y + offset.Y, imgw, imgh);
-                        break;
-                    case SonicRetro.S2LVL.Direction.Vertical:
-                        gfx.DrawImage(img, loc.X + offset.X, loc.Y + offset.Y + (i * spacing), imgw, imgh);
-                        break;
-                }
-            }
         }
 
         public override System.Drawing.Rectangle Bounds(Point loc, Direction direction, byte count)
@@ -66,23 +50,17 @@ namespace S2ObjectDefinitions.Common
             return Rectangle.Empty;
         }
 
-        public override void PaletteChanged(System.Drawing.Imaging.ColorPalette pal)
-        {
-            img.Palette = pal;
-        }
-
         public override void DrawExport(BitmapBits bmp, Point loc, Direction direction, byte count, bool includeDebug)
         {
-            BitmapBits bits = new BitmapBits(img);
             for (int i = 0; i < count; i++)
             {
                 switch (direction)
                 {
                     case SonicRetro.S2LVL.Direction.Horizontal:
-                        bmp.DrawBitmapComposited(bits, new Point(loc.X + offset.X + (i * spacing), loc.Y + offset.Y));
+                        bmp.DrawBitmapComposited(img, new Point(loc.X + offset.X + (i * spacing), loc.Y + offset.Y));
                         break;
                     case SonicRetro.S2LVL.Direction.Vertical:
-                        bmp.DrawBitmapComposited(bits, new Point(loc.X + offset.X, loc.Y + offset.Y + (i * spacing)));
+                        bmp.DrawBitmapComposited(img, new Point(loc.X + offset.X, loc.Y + offset.Y + (i * spacing)));
                         break;
                 }
             } 

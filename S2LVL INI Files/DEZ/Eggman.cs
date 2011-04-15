@@ -9,7 +9,7 @@ namespace S2ObjectDefinitions.DEZ
     class Eggman : SonicRetro.S2LVL.ObjectDefinition
     {
         private Point offset;
-        private Bitmap img;
+        private BitmapBits img;
         private int imgw, imgh;
 
         public override void Init(Dictionary<string, string> data)
@@ -52,19 +52,14 @@ namespace S2ObjectDefinitions.DEZ
             return Name();
         }
 
-        public override Bitmap Image()
+        public override BitmapBits Image()
         {
             return img;
         }
 
-        public override Bitmap Image(byte subtype)
+        public override BitmapBits Image(byte subtype)
         {
             return img;
-        }
-
-        public override void Draw(Graphics gfx, Point loc, byte subtype, bool XFlip, bool YFlip)
-        {
-            gfx.DrawImageFlipped(img, loc.X + offset.X, loc.Y + offset.Y, XFlip, YFlip);
         }
 
         public override Rectangle Bounds(Point loc, byte subtype)
@@ -72,12 +67,7 @@ namespace S2ObjectDefinitions.DEZ
             return new Rectangle(loc.X + offset.X, loc.Y + offset.Y, imgw, imgh);
         }
 
-        public override void PaletteChanged(System.Drawing.Imaging.ColorPalette pal)
-        {
-            img.Palette = pal;
-        }
-
-        public override void DrawExport(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
+        public override void Draw(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
         {
             BitmapBits bits = new BitmapBits(img);
             bits.Flip(XFlip, YFlip);

@@ -10,7 +10,7 @@ namespace S2ObjectDefinitions.ARZ
     class Platform : ObjectDefinition
     {
         private List<Point> offsets = new List<Point>();
-        private List<Bitmap> imgs = new List<Bitmap>();
+        private List<BitmapBits> imgs = new List<BitmapBits>();
         private List<int> imgws = new List<int>();
         private List<int> imghs = new List<int>();
 
@@ -19,7 +19,7 @@ namespace S2ObjectDefinitions.ARZ
             byte[] artfile = ObjectHelper.LevelArt;
             byte[] mapfile = System.IO.File.ReadAllBytes("../mappings/sprite/obj18_b.bin");
             Point off;
-            Bitmap im;
+            BitmapBits im;
             im = ObjectHelper.MapToBmp(artfile, mapfile, 0, 2, out off);
             imgs.Add(im);
             offsets.Add(off);
@@ -57,19 +57,14 @@ namespace S2ObjectDefinitions.ARZ
             return Name() + " - " + SubtypeName(subtype);
         }
 
-        public override Bitmap Image()
+        public override BitmapBits Image()
         {
             return imgs[0];
         }
 
-        public override Bitmap Image(byte subtype)
+        public override BitmapBits Image(byte subtype)
         {
             return imgs[(subtype & 0x10) >> 4];
-        }
-
-        public override void Draw(Graphics gfx, Point loc, byte subtype, bool XFlip, bool YFlip)
-        {
-            gfx.DrawImageFlipped(imgs[(subtype & 0x10) >> 4], loc.X + offsets[(subtype & 0x10) >> 4].X, loc.Y + offsets[(subtype & 0x10) >> 4].Y, XFlip, YFlip);
         }
 
         public override Rectangle Bounds(Point loc, byte subtype)
@@ -77,7 +72,7 @@ namespace S2ObjectDefinitions.ARZ
             return new Rectangle(loc.X + offsets[(subtype & 0x10) >> 4].X, loc.Y + offsets[(subtype & 0x10) >> 4].Y, imgws[(subtype & 0x10) >> 4], imghs[(subtype & 0x10) >> 4]);
         }
 
-        public override void DrawExport(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
+        public override void Draw(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
         {
             BitmapBits bits = new BitmapBits(imgs[(subtype & 0x10) >> 4]);
             bits.Flip(XFlip, YFlip);
@@ -89,14 +84,6 @@ namespace S2ObjectDefinitions.ARZ
             get
             {
                 return typeof(PlatformS2ObjectEntry);
-            }
-        }
-
-        public override void PaletteChanged(System.Drawing.Imaging.ColorPalette pal)
-        {
-            foreach (Bitmap item in imgs)
-            {
-                item.Palette = pal;
             }
         }
     }
