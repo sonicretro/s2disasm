@@ -174,15 +174,15 @@ pushing_mask      = p1_pushing|p2_pushing
 ; ---------------------------------------------------------------------------
 ; The high word of d6 after a SolidObject call is a bitfield
 ; with the following meaning:
-p1_touch_unk_bit    = 0
-p2_touch_unk_bit    = p1_touch_unk_bit + 1
+p1_touch_side_bit   = 0
+p2_touch_side_bit   = p1_touch_side_bit + 1
 
-p1_touch_unk        = 1<<p1_touch_unk_bit
-p2_touch_unk        = 1<<p2_touch_unk_bit
+p1_touch_side       = 1<<p1_touch_side_bit
+p2_touch_side       = 1<<p2_touch_side_bit
 
-touch_unk_mask      = p1_touch_unk|p2_touch_unk
+touch_side_mask     = p1_touch_side|p2_touch_side
 
-p1_touch_bottom_bit = p1_touch_unk_bit + pushing_bit_delta
+p1_touch_bottom_bit = p1_touch_side_bit + pushing_bit_delta
 p2_touch_bottom_bit = p1_touch_bottom_bit + 1
 
 p1_touch_bottom     = 1<<p1_touch_bottom_bit

@@ -230,7 +230,7 @@ Z80StartupCodeBegin: ; loc_2CA:
 	im	1	; interrupt handling mode = 1
 	ld	(hl),0E9H ; replace the first instruction with a jump to itself
 	jp	(hl)	  ; jump to the first instruction (to stay there forever)
-    zStartupCodeEndLoc:
+zStartupCodeEndLoc:
     dephase ; stop pretending
     CPU 68000	; switch back to 68000 code
     padding off ; unfortunately our flags got reset so we have to set them again...
@@ -1235,7 +1235,7 @@ ClearScreen:
 
 ; JumpTo load the sound driver
 ; sub_130A:
-JmpTo_SoundDriverLoad 
+JmpTo_SoundDriverLoad
 	nop
 	jmp	(SoundDriverLoad).l
 ; End of function JmpTo_SoundDriverLoad
@@ -26148,17 +26148,17 @@ loc_159E6:
 	move.w	(sp)+,d4
 	bsr.w	SolidObject
 	swap	d6
-	andi.w	#touch_unk_mask,d6
+	andi.w	#touch_side_mask,d6
 	beq.s	loc_15A3A
 	move.b	d6,d0
-	andi.b	#p1_touch_unk,d0
+	andi.b	#p1_touch_side,d0
 	beq.s	loc_15A26
 	lea	(MainCharacter).w,a1 ; a1=character
 	bsr.w	Touch_ChkHurt2
 	bclr	#p1_pushing_bit,status(a0)
 
 loc_15A26:
-	andi.b	#p2_touch_unk,d6
+	andi.b	#p2_touch_side,d6
 	beq.s	loc_15A3A
 	lea	(Sidekick).w,a1 ; a1=character
 	bsr.w	Touch_ChkHurt2
@@ -51280,16 +51280,16 @@ Obj76_Main:
 	addq.w	#1,d3
 	bsr.w	JmpTo19_SolidObject
 	swap	d6
-	andi.w	#touch_unk_mask,d6
+	andi.w	#touch_side_mask,d6
 	beq.s	loc_28EC2
 	move.b	d6,d0
-	andi.b	#p1_touch_unk,d0
+	andi.b	#p1_touch_side,d0
 	beq.s	+
 	lea	(MainCharacter).w,a1 ; a1=character
 	bsr.w	JmpTo_Touch_ChkHurt2
 	bclr	#p1_pushing_bit,status(a0)
 +
-	andi.b	#p2_touch_unk,d6
+	andi.b	#p2_touch_side,d6
 	beq.s	loc_28EC2
 	lea	(Sidekick).w,a1 ; a1=character
 	bsr.w	JmpTo_Touch_ChkHurt2
