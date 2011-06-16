@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
-using Extensions;
 using SonicRetro.S2LVL;
 
 namespace S2ObjectDefinitions.Common

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SonicRetro.S2LVL;
-using Extensions;
 using System.Collections.ObjectModel;
 using System.Drawing;
 
