@@ -774,7 +774,8 @@ sub_B02:
 	beq.s	+
 	move.l	(SS_unk_DB12).w,(SS_unk_DB16).w
 	move.b	#0,(SS_unk_DB1F).w
-+	subi.b	#1,(SS_unk_DB1F).w
++
+	subi.b	#1,(SS_unk_DB1F).w
 	bgt.s	+
 	lea	(byte_B46).l,a0
 	move.w	(SS_unk_DB16).w,d0
@@ -5860,10 +5861,10 @@ SpecialStage:
 	tst.w	(Two_player_mode).w
 	beq.s	+
 	move.w	#0,(Two_player_mode).w
-	st	(System_Stack).w ; set to -1
+	st	(SS_2p_Flag).w ; set to -1
 	bra.s	++
 ; ===========================================================================
-+	sf	(System_Stack).w ; set to 0
++	sf	(SS_2p_Flag).w ; set to 0
 ; (!)
 +	move	#$2700,sr		; Mask all interrupts
 	lea	(VDP_control_port).l,a6
@@ -6021,7 +6022,7 @@ SpecialStage:
 ; ===========================================================================
 +
 	andi.b	#7,(Emerald_count).w
-	tst.b	(System_Stack).w
+	tst.b	(SS_2p_Flag).w
 	beq.s	+
 	lea	(unk_FFA0).w,a0
 	move.w	(a0)+,d0
@@ -6283,7 +6284,7 @@ SSObjectsManager:
 	bra.s	++
 ; ===========================================================================
 +
-	tst.b	(System_Stack).w
+	tst.b	(SS_2p_Flag).w
 	bne.s	+
 	move.b	#ObjID_SSEmerald,id(a1)
 	rts
@@ -8656,7 +8657,7 @@ Obj5E:
 	move.b	#1,routine(a0)
 	bset	#6,render_flags(a0)
 	moveq	#0,d1
-	tst.b	(System_Stack).w
+	tst.b	(SS_2p_Flag).w
 	beq.s	+
 	addq.w	#6,d1
 	tst.b	(Graphics_Flags).w
@@ -8753,7 +8754,7 @@ loc_710A:
 
 ; loc_714A:
 Obj5F_Init:
-	tst.b	(System_Stack).w
+	tst.b	(SS_2p_Flag).w
 	beq.s	+
 	move.w	#8,d0
 	bsr.w	JmpTo_Obj5A_PrintPhrase
@@ -8816,7 +8817,7 @@ word_728C_user: lea	(Obj5F_MapUnc_7240+$4C).l,a2 ; word_728C
 loc_7218:
 	subi.w	#1,objoff_2A(a0)
 	bpl.s	+++	; rts
-	tst.b	(System_Stack).w
+	tst.b	(SS_2p_Flag).w
 	beq.s	+
 	move.w	#$A,d0
 	bsr.w	JmpTo_Obj5A_PrintPhrase
@@ -8884,7 +8885,7 @@ Obj87_Init:
 	move.w	d0,sub5_y_pos-sub2_x_pos(a1)	; sub5_y_pos
 	move.w	d0,sub6_y_pos-sub2_x_pos(a1)	; sub6_y_pos
 	move.w	d0,sub7_y_pos-sub2_x_pos(a1)	; sub7_y_pos
-	tst.b	(System_Stack).w
+	tst.b	(SS_2p_Flag).w
 	bne.s	+++
 	cmpi.w	#0,(Player_mode).w
 	beq.s	+
@@ -9282,7 +9283,7 @@ SSInitPalAndData:
 	move.b	(Current_Special_Stage).w,d0
 	add.w	d0,d0
 	move.w	d0,d1
-	tst.b	(System_Stack).w
+	tst.b	(SS_2p_Flag).w
 	beq.s	+
 	cmpi.b	#4,d0
 	blo.s	+
@@ -64541,7 +64542,7 @@ SSPlayer_Jump:
 	move.b	d0,anim_frame_duration(a0)
 	move.b	d0,anim_frame(a0)
 	move.b	d0,collision_property(a0)
-	tst.b	(System_Stack).w
+	tst.b	(SS_2p_Flag).w
 	bne.s	loc_33B9E
 	tst.w	(Player_mode).w
 	bne.s	loc_33BA2
@@ -65312,7 +65313,7 @@ Obj10_Hurt:
 ; ===========================================================================
 
 SSTailsCPU_Control:
-	tst.b	(System_Stack).w
+	tst.b	(SS_2p_Flag).w
 	bne.s	+
 	tst.w	(Player_mode).w
 	beq.s	++
@@ -66281,7 +66282,7 @@ Obj5A_Init:
 ;loc_355E0
 Obj5A_RingsMessageInit:
 	sf.b	(SS_NoCheckpoint_flag).w
-	tst.b	(System_Stack).w
+	tst.b	(SS_2p_Flag).w
 	bne.w	JmpTo63_DeleteObject
 	sf.b	(SS_HideRingsToGo).w
 	sf.b	(SS_TriggerRingsToGo).w
@@ -66608,7 +66609,7 @@ Obj5A_Rainbow_Positions:
 	bsr.w	SSRainbowPaletteColors
 	sf.b	(SS_Checkpoint_Rainbow_flag).w
 	st.b	(SS_NoCheckpointMsg_flag).w
-	tst.b	(System_Stack).w			; Is it VS mode?
+	tst.b	(SS_2p_Flag).w			; Is it VS mode?
 	beq.w	loc_35978					; Branch if not
 	move.w	#SndID_Checkpoint,d0
 	jsr	(PlaySound).l
@@ -66730,7 +66731,7 @@ Obj5A_Handshake:
 	bne.w	JmpTo63_DeleteObject		; Branch if not
 	tst.w	objoff_30(a0)
 	beq.w	JmpTo63_DeleteObject
-	tst.b	(System_Stack).w			; Is this VS mode?
+	tst.b	(SS_2p_Flag).w			; Is this VS mode?
 	beq.s	+							; Branch if not
 	bsr.w	Obj5A_VSReset
 	cmpi.b	#3,(Current_Special_Act).w
@@ -66765,7 +66766,7 @@ Obj5A_VSReset:
 ;loc_35AB6
 Obj5A_CreateCheckpointWingedHand:
 	move.w	#$48,d4
-	tst.b	(System_Stack).w		; Is this VS mode?
+	tst.b	(SS_2p_Flag).w		; Is this VS mode?
 	beq.s	+						; Branch if not
 	move.w	#$1C,d4
 +

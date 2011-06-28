@@ -476,7 +476,7 @@ zUpdateMusic:
 TempoWait:
 	; Tempo works as divisions of the 60Hz clock (there is a fix supplied for
 	; PAL that "kind of" keeps it on track.)  Every time the internal music clock
-	; overflows, it does NOT update.  So a tempo of 80h will update every other
+	; overflows, it will update.  So a tempo of 80h will update every other
 	; frame, or 30 times a second.
 
 	ld	ix,zComRange		; ix points to zComRange
@@ -1174,7 +1174,7 @@ zPSGSilenceAll:
 	ld	(hl),9Fh	; Stop channel 0
 	ld	(hl),0BFh	; Stop channel 1
 	ld	(hl),0DFh	; Stop channel 2
-	ld	(hl),0FFh	; Not quite sure what this does?
+	ld	(hl),0FFh	; Stop noise channel
 	ret
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
@@ -1198,7 +1198,7 @@ zsub_600:
 	ld	b,7
 	call	zsub_64D
 
-	bankswitch MusicPoint2
+	bankswitch SoundIndex
 
 	ld	a,0FFh
 	ld	(zDoSFXFlag),a
@@ -2881,7 +2881,7 @@ zloc_F1D:
 	ld	a,(ix+8)				; Get voice this track was using
 	call	zSetVoiceMusic		; And set it!  (takes care of volume too)
 
-	bankswitch MusicPoint2
+	bankswitch SoundIndex
 +
 	pop	ix						; restore 'ix'
 	pop	bc						; removing return address from stack; will not return to coord flag loop

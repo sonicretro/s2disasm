@@ -1358,7 +1358,7 @@ Object_Respawn_Table_End:
 				ds.b	$80	; Stack
 System_Stack:
 
-				ds.w	1	; $FFFFFE00-$FFFFFE01 ; seems unused
+SS_2p_Flag:				ds.w	1	; $FFFFFE00-$FFFFFE01 ; seems unused
 Level_Inactive_flag:		ds.w	1	; (2 bytes)
 Timer_frames:			ds.w	1	; (2 bytes)
 Debug_object:			ds.b	1
