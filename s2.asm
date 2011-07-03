@@ -79851,10 +79851,10 @@ Hurt_Reverse:
 ; loc_3F8FC:
 Hurt_ChkSpikes:
 	move.w	#0,inertia(a0)
-	move.b	#$1A,anim(a0)
+	move.b	#AniIDSonAni_Hurt2,anim(a0)
 	move.w	#$78,invulnerable_time(a0)
 	move.w	#SndID_Hurt,d0	; load normal damage sound
-	cmpi.b	#$36,(a2)	; was damage caused by spikes?
+	cmpi.b	#ObjID_Spikes,(a2)	; was damage caused by spikes?
 	bne.s	Hurt_Sound	; if not, branch
 	move.w	#SndID_HurtBySpikes,d0	; load spikes damage sound
 
@@ -79882,10 +79882,10 @@ KillCharacter:
 	move.w	#-$700,y_vel(a0)
 	move.w	#0,x_vel(a0)
 	move.w	#0,inertia(a0)
-	move.b	#$18,anim(a0)
+	move.b	#AniIDSonAni_Death,anim(a0)
 	bset	#high_priority_bit,art_tile(a0)
 	move.w	#SndID_Hurt,d0
-	cmpi.b	#$36,(a2)
+	cmpi.b	#ObjID_Spikes,(a2)
 	bne.s	+
 	move.w	#SndID_HurtBySpikes,d0
 +
@@ -79961,7 +79961,7 @@ BranchTo_Touch_Enemy
 
 loc_3FA00:
 	move.w	a0,d1
-	subi.w	#$B000,d1
+	subi.w	#Object_RAM,d1
 	beq.s	+
 	addq.b	#1,collision_property(a1)
 +
