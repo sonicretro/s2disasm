@@ -107,7 +107,7 @@ tracenum := 0
 
 ; 1-arg instruction that's self-patching to remove 0-offset optimization
 insn1op	 macro oper,x
-	  if (substr("x",0,2)<>"0(") && (substr("x",0,3)<>"ID(")
+	  if (substr("x",0,2)<>"0(") && (substr("x",0,3)<>"ID(") && (substr("x",0,9)<>"SLOT_ROUT(")
 		!oper	x
 	  else
 		!oper	1+x
@@ -118,8 +118,8 @@ insn1op	 macro oper,x
 
 ; 2-arg instruction that's self-patching to remove 0-offset optimization
 insn2op	 macro oper,x,y
-	  if (substr("x",0,2)<>"0(") && (substr("x",0,3)<>"ID(")
-		  if (substr("y",0,2)<>"0(") && (substr("y",0,3)<>"ID(")
+	  if (substr("x",0,2)<>"0(") && (substr("x",0,3)<>"ID(") && (substr("x",0,10)<>"SLOT_ROUT(")
+		  if (substr("y",0,2)<>"0(") && (substr("y",0,3)<>"ID(") && (substr("y",0,10)<>"SLOT_ROUT(")
 			!oper	x,y
 		  else
 			!oper	x,1+y
@@ -128,7 +128,7 @@ insn2op	 macro oper,x,y
 		  endif
 	  else
 		if substr("y",0,1)<>"D"
-		  if (substr("y",0,2)<>"0(") && (substr("y",0,3)<>"ID(")
+		  if (substr("y",0,2)<>"0(") && (substr("y",0,3)<>"ID(") && (substr("y",0,10)<>"SLOT_ROUT(")
 start:
 			!oper	1+x,y
 end:

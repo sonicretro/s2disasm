@@ -1525,11 +1525,25 @@ SS_Total_Won:			ds.b	2	; 2 bytes (player 1 then player 2)
 Perfect_rings_left:		ds.w	1
 Perfect_rings_flag:			ds.w	1
 				ds.b	8	; $FFFFFF44-$FFFFFF4B ; seems unused
-unk_FF4C:			ds.w	1
-unk_FF4E:			ds.b	1
-				ds.b	3	; $FFFFFF4F-$FFFFFF51 ; seems unused
-unk_FF52:			ds.w	1
-				ds.b	$1C	; $FFFFFF54-$FFFFFF6F ; seems unused
+
+CreditsScreenIndex:
+SlotMachineInUse:			ds.w	1
+SlotMachineVariables:	; $12 values
+SlotMachine_Routine:	ds.b	1
+SlotMachine_Timer:		ds.b	1
+				ds.b	1	; $FFFFFF50 ; seems unused except for 1 write
+SlotMachine_Index:		ds.b	1
+SlotMachine_Reward:		ds.w	1
+SlotMachine_Slot1Pos:	ds.w	1
+SlotMachine_Slot1Speed:	ds.b	1
+SlotMachine_Slot1Rout:	ds.b	1
+SlotMachine_Slot2Pos:	ds.w	1
+SlotMachine_Slot2Speed:	ds.b	1
+SlotMachine_Slot2Rout:	ds.b	1
+SlotMachine_Slot3Pos:	ds.w	1
+SlotMachine_Slot3Speed:	ds.b	1
+SlotMachine_Slot3Rout:	ds.b	1
+				ds.b	$10	; $FFFFFF60-$FFFFFF6F ; seems unused
 
 Player_mode:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails
 Player_option:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails

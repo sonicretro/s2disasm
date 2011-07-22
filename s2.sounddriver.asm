@@ -3196,23 +3196,23 @@ offset :=	zDACPtrTbl
 ptrsize :=	2+2
 idstart :=	81h
 
-	db	id(zDACPtr_Sample1),17h
-	db	id(zDACPtr_Sample2),1
-	db	id(zDACPtr_Sample3),6
-	db	id(zDACPtr_Sample4),8
-	db	id(zDACPtr_Sample5),1Bh
-	db	id(zDACPtr_Sample6),0Ah
-	db	id(zDACPtr_Sample7),1Bh
-	db	id(zDACPtr_Sample5),12h
-	db	id(zDACPtr_Sample5),15h
-	db	id(zDACPtr_Sample5),1Ch
-	db	id(zDACPtr_Sample5),1Dh
-	db	id(zDACPtr_Sample6),2
-	db	id(zDACPtr_Sample6),5
-	db	id(zDACPtr_Sample6),8
-	db	id(zDACPtr_Sample7),8
-	db	id(zDACPtr_Sample7),0Bh
-	db	id(zDACPtr_Sample7),12h
+	db	id(zDACPtr_Sample1),17h		; 81h
+	db	id(zDACPtr_Sample2),1		; 82h
+	db	id(zDACPtr_Sample3),6		; 83h
+	db	id(zDACPtr_Sample4),8		; 84h
+	db	id(zDACPtr_Sample5),1Bh		; 85h
+	db	id(zDACPtr_Sample6),0Ah		; 86h
+	db	id(zDACPtr_Sample7),1Bh		; 87h
+	db	id(zDACPtr_Sample5),12h		; 88h
+	db	id(zDACPtr_Sample5),15h		; 89h
+	db	id(zDACPtr_Sample5),1Ch		; 8Ah
+	db	id(zDACPtr_Sample5),1Dh		; 8Bh
+	db	id(zDACPtr_Sample6),2		; 8Ch
+	db	id(zDACPtr_Sample6),5		; 8Dh
+	db	id(zDACPtr_Sample6),8		; 8Eh
+	db	id(zDACPtr_Sample7),8		; 8Fh
+	db	id(zDACPtr_Sample7),0Bh		; 90h
+	db	id(zDACPtr_Sample7),12h		; 91h
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
 
