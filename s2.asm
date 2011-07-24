@@ -55129,12 +55129,12 @@ SlotMachine_GetTargetForSlot:
 	lsr.w	d0,d1						; Shift slot face into position
 +
 	andi.w	#7,d1						; Only 8 slot faces
-	cmpi.b	#5,d1						; Is this a bar or above?
+	cmpi.b	#5,d1						; Is this above bar?
 	bgt.s	+							; Branch if yes
 	rts
 ; ===========================================================================
 +
-	subq.b	#2,d1						; Wrap back to jackpot/ring
+	subq.b	#2,d1						; Wrap back to ring/bar
 	rts
 ; ===========================================================================
 ;loc_2C112
@@ -55441,7 +55441,7 @@ SlotMachine_CheckBars:
 	add.w	d1,d0					; Gain 2 rings
 +
 	move.w	d0,slots_targ(a4)		; Store reward
-	; For bars, the coe past this line is useless. There should be an rts here.
+	; For bars, the code past this line is useless. There should be an rts here.
 
 ;loc_2C3CA
 SlotMachine_GetReward:
