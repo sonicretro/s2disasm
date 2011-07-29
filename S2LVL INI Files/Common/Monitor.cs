@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
-using SonicRetro.S2LVL;
+using SonicRetro.SonLVL;
 
 namespace S2ObjectDefinitions.Common
 {
-    class Monitor : SonicRetro.S2LVL.ObjectDefinition
+    class Monitor : SonicRetro.SonLVL.ObjectDefinition
     {
         private Point offset;
         private BitmapBits img;

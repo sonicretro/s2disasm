@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using SonicRetro.S2LVL;
+using SonicRetro.SonLVL;
 
 namespace S2ObjectDefinitions.Common
 {
@@ -55,10 +55,10 @@ namespace S2ObjectDefinitions.Common
             {
                 switch (direction)
                 {
-                    case SonicRetro.S2LVL.Direction.Horizontal:
+                    case SonicRetro.SonLVL.Direction.Horizontal:
                         bmp.DrawBitmapComposited(img, new Point(loc.X + offset.X + (i * spacing), loc.Y + offset.Y));
                         break;
-                    case SonicRetro.S2LVL.Direction.Vertical:
+                    case SonicRetro.SonLVL.Direction.Vertical:
                         bmp.DrawBitmapComposited(img, new Point(loc.X + offset.X, loc.Y + offset.Y + (i * spacing)));
                         break;
                 }
