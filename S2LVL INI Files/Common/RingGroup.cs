@@ -49,7 +49,7 @@ namespace S2ObjectDefinitions.Common
             return Rectangle.Empty;
         }
 
-        public override void DrawExport(BitmapBits bmp, Point loc, Direction direction, byte count, bool includeDebug)
+        public override void Draw(BitmapBits bmp, Point loc, Direction direction, byte count, bool includeDebug)
         {
             for (int i = 0; i < count; i++)
             {
