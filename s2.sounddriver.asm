@@ -1154,14 +1154,14 @@ zPSGNoteOff:
 	ensure1byteoffset 0C0h
 ; zbyte_534:
 zFrequencies:
-	dw  025Eh, 0284h, 02ABh, 02D3h, 02FEh, 032Dh, 035Ch, 038Fh, 03C5h, 03FFh, 043Ch, 047Ch
-	dw  0A5Eh, 0A84h, 0AABh, 0AD3h, 0AFEh, 0B2Dh, 0B5Ch, 0B8Fh, 0BC5h, 0BFFh, 0C3Ch, 0C7Ch
-	dw  125Eh, 1284h, 12ABh, 12D3h, 12FEh, 132Dh, 135Ch, 138Fh, 13C5h, 13FFh, 143Ch, 147Ch
-	dw  1A5Eh, 1A84h, 1AABh, 1AD3h, 1AFEh, 1B2Dh, 1B5Ch, 1B8Fh, 1BC5h, 1BFFh, 1C3Ch, 1C7Ch
-	dw  225Eh, 2284h, 22ABh, 22D3h, 22FEh, 232Dh, 235Ch, 238Fh, 23C5h, 23FFh, 243Ch, 247Ch
-	dw  2A5Eh, 2A84h, 2AABh, 2AD3h, 2AFEh, 2B2Dh, 2B5Ch, 2B8Fh, 2BC5h, 2BFFh, 2C3Ch, 2C7Ch
-	dw  325Eh, 3284h, 32ABh, 32D3h, 32FEh, 332Dh, 335Ch, 338Fh, 33C5h, 33FFh, 343Ch, 347Ch
-	dw  3A5Eh, 3A84h, 3AABh, 3AD3h, 3AFEh, 3B2Dh, 3B5Ch, 3B8Fh, 3BC5h, 3BFFh, 3C3Ch, 3C7Ch ; 96 entries
+	dw 025Eh,0284h,02ABh,02D3h,02FEh,032Dh,035Ch,038Fh,03C5h,03FFh,043Ch,047Ch
+	dw 0A5Eh,0A84h,0AABh,0AD3h,0AFEh,0B2Dh,0B5Ch,0B8Fh,0BC5h,0BFFh,0C3Ch,0C7Ch
+	dw 125Eh,1284h,12ABh,12D3h,12FEh,132Dh,135Ch,138Fh,13C5h,13FFh,143Ch,147Ch
+	dw 1A5Eh,1A84h,1AABh,1AD3h,1AFEh,1B2Dh,1B5Ch,1B8Fh,1BC5h,1BFFh,1C3Ch,1C7Ch
+	dw 225Eh,2284h,22ABh,22D3h,22FEh,232Dh,235Ch,238Fh,23C5h,23FFh,243Ch,247Ch
+	dw 2A5Eh,2A84h,2AABh,2AD3h,2AFEh,2B2Dh,2B5Ch,2B8Fh,2BC5h,2BFFh,2C3Ch,2C7Ch
+	dw 325Eh,3284h,32ABh,32D3h,32FEh,332Dh,335Ch,338Fh,33C5h,33FFh,343Ch,347Ch
+	dw 3A5Eh,3A84h,3AABh,3AD3h,3AFEh,3B2Dh,3B5Ch,3B8Fh,3BC5h,3BFFh,3C3Ch,3C7Ch ; 96 entries
 
 
 ;zloc_5F4
@@ -3025,7 +3025,7 @@ cfOpF9:
 	ld	a,88h		; D1L/RR of Operator 3
 	ld	c,0Fh		; Loaded with fixed value (max RR, 1TL?)
 	rst	zWriteFM0	; Written to FM0
-	ld	a,8Ch		; D1L/RR of Operator 3
+	ld	a,8Ch		; D1L/RR of Operator 4
 	ld	c,0Fh		; Loaded with fixed value (max RR, 1TL?)
 	rst	zWriteFM0	; Written to FM0
 	dec	hl			; Doesn't take an arg, so put back one byte
