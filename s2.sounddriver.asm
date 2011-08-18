@@ -96,7 +96,7 @@
 	; 		7 (80h): track is playing 
 	; 
 	; 	+01h	"voice control"; bits:
-	; 		2 (04h): If set, bound for FM1, otherwise 0 (see zWriteFM0or1)
+	; 		2 (04h): If set, bound for part II, otherwise 0 (see zWriteFMIorII)
 	; 			-- bit 2 has to do with sending key on/off, which uses this differentiation bit directly
 	; 		7 (80h): PSG Track
 	; 
@@ -257,17 +257,17 @@ zFMBusyWait:    rsttarget
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
 	align	8
 ;zsub_10
-zWriteFM0or1:    rsttarget
+zWriteFMIorII:    rsttarget
 	bit	2,(ix+1)
-	jr	z,zWriteFM0
-	jr	zWriteFM1
-; End of function zWriteFM0or1
+	jr	z,zWriteFMI
+	jr	zWriteFMII
+; End of function zWriteFMIorII
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
 	align	8
 ;zsub_18
-zWriteFM0:    rsttarget
-	; Write reg/data pair to FM0; 'a' is register, 'c' is data
+zWriteFMI:    rsttarget
+	; Write reg/data pair to part I; 'a' is register, 'c' is data
 	push	af
 	rst	zFMBusyWait ; 'rst' is like 'call' but only works for 8-byte aligned addresses <= 38h
 	pop	af
@@ -278,13 +278,13 @@ zWriteFM0:    rsttarget
 	ld	(zYM2612_D0),a
 	pop	af
 	ret
-; End of function zWriteFM0
+; End of function zWriteFMI
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
 	align	8
 ;zsub_28
-zWriteFM1:    rsttarget
-	; Write reg/data pair to FM1; 'a' is register, 'c' is data
+zWriteFMII:    rsttarget
+	; Write reg/data pair to part II; 'a' is register, 'c' is data
 	push	af
 	rst	zFMBusyWait
 	pop	af
@@ -295,7 +295,7 @@ zWriteFM1:    rsttarget
 	ld	(zYM2612_D1),a
 	pop	af
 	ret
-; End of function zWriteFM1
+; End of function zWriteFMII
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
 	align	8
@@ -919,10 +919,10 @@ zFMUpdateFreq:
 	ld	a,(ix+1)		; "playback control" byte -> 'a'
 	and	3				; Strip to only channel assignment 
 	add	a,0A4h			; Change to proper register
-	rst	zWriteFM0or1	; Write it!
+	rst	zWriteFMIorII	; Write it!
 	ld	c,l				; lower part of frequency
 	sub	4				; A0h+ register
-	rst	zWriteFM0or1	; Write it!
+	rst	zWriteFMIorII	; Write it!
 	ret
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
@@ -1219,7 +1219,7 @@ zResumeTrack:
 	ld	a,(ix+1)		; Get voice control bits...
 	and	3				; ... the FM portion of them
 	add	a,0B4h			; Command to select AMS/FMS/panning register
-	rst	zWriteFM0or1
+	rst	zWriteFMIorII
 	push	bc			; Save bc
 	ld	c,(ix+8)		; Current track FM instrument
 	call	cfSetVoiceCont
@@ -1336,7 +1336,7 @@ zloc_6D5:
 zPlaySegaSound:
 	ld	a,2Bh			; DAC enable/disable register
 	ld	c,80h			; Command to enable DAC
-	rst	zWriteFM0
+	rst	zWriteFMI
 
 	bankswitch Snd_Sega	; Want Sega sound
 
@@ -1374,7 +1374,7 @@ zPlaySegaSound:
 	ld	a,(zComRange+15h)	; DAC status
 	ld	c,a				; c = DAC status
 	ld	a,2Bh			; DAC enable/disable register
-	rst	zWriteFM0
+	rst	zWriteFMI
 	ret
 ; ---------------------------------------------------------------------------
 ; zloc_73D:
@@ -1558,26 +1558,26 @@ zBGMLoad:
 	; Silence FM Channel 6 specifically if it's not in use
 	ld	a,28h				; Key on/off FM register
 	ld	c,6					; FM channel 6
-	rst	zWriteFM0			; All operators off
+	rst	zWriteFMI			; All operators off
 	ld	a,42h				; Starting at FM Channel 6 Operator 1 Total Level register
 	ld	c,0FFh				; Silence value
 	ld	b,4					; Write to all four FM Channel 6 operators
 
 	; Set all TL values to silence!
--	rst	zWriteFM1
+-	rst	zWriteFMII
 	add	a,4					; Next operator
 	djnz	-
 
 	ld	a,0B6h				; Set Panning / AMS / FMS
 	ld	c,0C0h				; default Panning / AMS / FMS settings (only stereo L/R enabled)
-	rst	zWriteFM1			; Set it!
+	rst	zWriteFMII			; Set it!
 	ld	a,80h				; FM Channel 6 is NOT in use (will enable DAC)
 	ld	c,a					; Set this as value to be used in FM register write coming up...
 
 zloc_87E:
 	ld	(zComRange+15h),a	; Note whether FM Channel 6 is in use (enables DAC if not)
 	ld	a,2Bh				; Set DAC Enable appropriately
-	rst	zWriteFM0			; Set it!
+	rst	zWriteFMI			; Set it!
 
 	; End of DAC/FM init, begin PSG init
 	
@@ -1675,7 +1675,7 @@ zloc_8FB:
 ; FM channel assignment bits
 ;zbyte_916
 zFMDACInitBytes:
-	db    6,   0,   1,   2,   4,   5,   6		; first byte is for DAC; then notice the 0, 1, 2 then 4, 5, 6; this is the gap between FM0 and FM1 for YM2612 port writes
+	db    6,   0,   1,   2,   4,   5,   6		; first byte is for DAC; then notice the 0, 1, 2 then 4, 5, 6; this is the gap between parts I and II for YM2612 port writes
 
 ; Default values for PSG tracks
 ;zbyte_91D
@@ -2025,21 +2025,21 @@ zloc_B2C:
 ;zsub_B36
 zFMSilenceAll:
 	ld	a,28h			; Start at FM KEY ON/OFF register
-	ld	b,3				; Three key on/off per FM0 / FM1
+	ld	b,3				; Three key on/off per part
 
 -	ld	c,b				; Current key off -> 'c'
 	dec	c				; c--
-	rst	zWriteFM0		; Write key off for FM0 
-	set	2,c				; Set FM1 select
-	rst	zWriteFM0		; Write key off for FM1
+	rst	zWriteFMI		; Write key off for part I 
+	set	2,c				; Set part II select
+	rst	zWriteFMI		; Write key off for part II
 	djnz	-
 
 	ld	a,30h			; Starting at FM register 30h...
 	ld	c,0FFh			; Write dummy kill-all values
 	ld	b,60h			; ... up to register 90h
 
--	rst	zWriteFM0		; ... on FM0
-	rst	zWriteFM1		; ... and FM1
+-	rst	zWriteFMI		; ... on part I
+	rst	zWriteFMII		; ... and part II
 	inc	a				; Next register!
 	djnz	-
 
@@ -2060,12 +2060,12 @@ zClearTrackPlaybackMem:
 	; This totally wipes out the track memory and resets playback hardware
 	ld	a,2Bh						; DAC Enable register
 	ld	c,80h						; Enable DAC
-	rst	zWriteFM0					; Write it!
+	rst	zWriteFMI					; Write it!
 	ld	a,c							; 80h -> 'a'
 	ld	(zComRange+15h),a			; Store that to DAC Enabled byte
 	ld	a,27h						; Channel 3 special settings
 	ld	c,0							; All clear
-	rst	zWriteFM0					; Write it!
+	rst	zWriteFMI					; Write it!
 	; This performs a full clear across all track/playback memory
 	ld	hl,zComRange
 	ld	de,zComRange+1
@@ -2229,7 +2229,7 @@ zFMNoteOn:
 	or	0F0h			; Turn on ALL operators
 	ld	c,a				; Set as data to write to FM
 	ld	a,28h			; Write to KEY ON/OFF port (key ON in this case)
-	rst	zWriteFM0		; do it!
+	rst	zWriteFMI		; do it!
 	ret
 ; End of function zFMNoteOn
 
@@ -2250,7 +2250,7 @@ zFMNoteOff:
 	; Where 4321 are the bits for which operator,
 	; and ccc is which channel (0-2 for channels 1-3, 4-6 for channels 4-6 WATCH BIT GAP)
 	
-	rst	zWriteFM0		; Write to FM0 (Note this particular register is ALWAYS sent to FM0)
+	rst	zWriteFMI		; Write to part I (Note this particular register is ALWAYS sent to part I)
 	ret
 ; End of function zFMNoteOff
 
@@ -2399,7 +2399,7 @@ cfPanningAMSFMS:
 	ld	a,(ix+1)		; Get voice control byte
 	and	3				; Channels only!
 	add	a,0B4h			; Add register B4, stereo output control and LFO sensitivity 
-	rst	zWriteFM0or1	; depends on bit 2 of (ix+1)
+	rst	zWriteFMIorII	; depends on bit 2 of (ix+1)
 	ret
 ; ---------------------------------------------------------------------------
 
@@ -2498,7 +2498,7 @@ cfFadeInToPrevious:
 	ld	a,(zComRange+15h)	; DAC not yet enabled...
 	ld	c,a
 	ld	a,2Bh
-	rst	zWriteFM0			; Tell hardware his DAC ain't enabled yet either
+	rst	zWriteFMI			; Tell hardware his DAC ain't enabled yet either
 	pop	bc
 	pop	bc
 	pop	bc					; These screw with the return address to make sure DAC doesn't run any further
@@ -2680,7 +2680,7 @@ zSetVoice:
 	ld	a,(ix+1)			; Get "voice control" byte
 	and	3					; only keep bits 0-2 (bit 2 specifies which chip to write to)
 	add	a,0B0h				; add to get appropriate feedback/algorithm register
-	rst	zWriteFM0or1		; Write new value to FM0/FM1
+	rst	zWriteFMIorII		; Write new value to appropriate part
 
 	; detune/coarse freq, all channels
 	sub	80h					; Subtract 80h from 'a' (Detune/coarse frequency of operator 1 register)
@@ -2688,7 +2688,7 @@ zSetVoice:
 
 -	ld	c,(hl)				; Get next detune/coarse freq
 	inc	hl					; next voice byte
-	rst	zWriteFM0or1		; Write this detune/coarse freq
+	rst	zWriteFMIorII		; Write this detune/coarse freq
 	add	a,4					; Next detune/coarse freq register
 	djnz	-
 
@@ -2700,14 +2700,14 @@ zSetVoice:
 
 -	ld	c,(hl)				; Get next reg data value
 	inc	hl					; next voice byte
-	rst	zWriteFM0or1		; Write to FM
+	rst	zWriteFMIorII		; Write to FM
 	add	a,4					; Next register
 	djnz	-
 
 	; Now going to set "stereo output control and LFO sensitivity"
 	add	a,24h				; Sets to reg B4h+ (stereo output control and LFO sensitivity)
 	ld	c,(ix+7)			; Panning / AMS / FMS settings from track
-	rst	zWriteFM0or1		; Write it!
+	rst	zWriteFMIorII		; Write it!
 	ld	(ix+1Eh),l			; Save current position (TL bytes begin) 
 	ld	(ix+1Fh),h			;	... for updating volume correctly later later
 
@@ -2741,7 +2741,7 @@ zSetFMTLs:
 	ld	c,a					; Modified value -> c
 	pop	af					; Restore 'a'
 +
-	rst	zWriteFM0or1		; Write TL value
+	rst	zWriteFMIorII		; Write TL value
 	add	a,4					; Next TL reg...
 	djnz	-
 
@@ -3013,16 +3013,16 @@ cfJumpToGosub:
 cfOpF9:
 	ld	a,88h		; D1L/RR of Operator 3
 	ld	c,0Fh		; Loaded with fixed value (max RR, 1TL?)
-	rst	zWriteFM0	; Written to FM0
+	rst	zWriteFMI	; Written to part I
 	ld	a,8Ch		; D1L/RR of Operator 4
 	ld	c,0Fh		; Loaded with fixed value (max RR, 1TL?)
-	rst	zWriteFM0	; Written to FM0
+	rst	zWriteFMI	; Written to part I
 	dec	hl			; Doesn't take an arg, so put back one byte
 	ret
 
 ; ---------------------------------------------------------------------------
 ;zbyte_FD8h
-zSFXPriority: ; unknown
+zSFXPriority:
 	db	80h,70h,70h,70h,70h,70h,70h,70h,70h,70h,68h,70h,70h,70h,60h,70h
 	db	70h,60h,70h,60h,70h,70h,70h,70h,70h,70h,70h,70h,70h,70h,70h,7Fh
 	db	6Fh,70h,70h,70h,70h,70h,70h,70h,70h,70h,70h,70h,70h,6Fh,70h,70h
