@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using SonicRetro.SonLVL;
 
 namespace S2ObjectDefinitions.Common
 {
-    class Monitor : SonicRetro.SonLVL.ObjectDefinition
+    class Monitor : ObjectDefinition
     {
         private Point offset;
         private BitmapBits img;
@@ -117,5 +118,42 @@ namespace S2ObjectDefinitions.Common
             bits.Flip(XFlip, YFlip);
             bmp.DrawBitmapComposited(bits, new Point(loc.X + offsets[subtype].X, loc.Y + offsets[subtype].Y));
         }
+
+        public override Type ObjectType { get { return typeof(MonitorS2ObjectEntry); } }
+    }
+
+    public class MonitorS2ObjectEntry : S2ObjectEntry
+    {
+        public MonitorS2ObjectEntry() : base() { }
+        public MonitorS2ObjectEntry(byte[] file, int address) : base(file, address) { }
+
+        public MonitorType Contents
+        {
+            get
+            {
+                if (SubType > 10) return MonitorType.Invalid;
+                return (MonitorType)SubType;
+            }
+            set
+            {
+                SubType = (byte)value;
+            }
+        }
+    }
+
+    public enum MonitorType
+    {
+        Static,
+        Sonic,
+        Tails,
+        Eggman,
+        Rings,
+        Shoes,
+        Shield,
+        Invincibility,
+        Teleport,
+        Random,
+        Broken,
+        Invalid
     }
 }
