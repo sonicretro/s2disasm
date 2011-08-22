@@ -28,14 +28,34 @@ namespace S2ObjectDefinitions.Common
             imgh = img.Height;
             Point off;
             BitmapBits im;
+            Point pos;
+            Size delta;
             for (int i = 0; i < 32; i++)
             {
-	            byte[] artfile = tmpartfile.GetRange((i&0x18) << 5,256).ToArray();
-                im = ObjectHelper.MapToBmp(artfile, mapfile, i&7, 0, out off);
+                byte[] artfile = tmpartfile.GetRange((i&0x18) << 5,256).ToArray();
+                BitmapBits tempim = ObjectHelper.MapToBmp(artfile, mapfile, 0, 0, out off);
+                if ((i&4) != 0)
+                {
+                    im = new BitmapBits(tempim.Width * (1 << (i&3)), tempim.Height);
+                    delta = new Size(tempim.Width, 0);
+                }
+                else
+                {
+                    im = new BitmapBits(tempim.Width, tempim.Height * (1 << (i&3)));
+                    delta = new Size(0, tempim.Height);
+                }
+
+                pos = new Point(0, 0);
+                off = new Point(-(im.Width/2), -(im.Height/2));
+                for (int j = 0; j < (1 << (i&3)); j++)
+                {
+                    im.DrawBitmap(tempim, pos);
+                    pos = pos + delta;
+                }
                 imgs.Add(im);
-	            offsets.Add(off);
-	            imgws.Add(im.Width);
-	            imghs.Add(im.Height);
+                offsets.Add(off);
+                imgws.Add(im.Width);
+                imghs.Add(im.Height);
             }
         }
 
@@ -79,14 +99,7 @@ namespace S2ObjectDefinitions.Common
         {
             if ((subtype & 7) == 7)
             {
-	            return new Rectangle(loc.X + offsets[subtype & 0x1F].X - imgws[subtype & 0x1F] / 2, loc.Y + offsets[subtype & 0x1F].Y, 2 * imgws[subtype & 0x1F], imghs[subtype & 0x1F]);
-            }
-            else if ((subtype & 7) == 3)
-            {
-	            return new Rectangle(loc.X + offsets[subtype & 0x1F].X, loc.Y + offsets[subtype & 0x1F].Y - imghs[subtype & 0x1F] / 2, imgws[subtype & 0x1F], 2 * imghs[subtype & 0x1F]);
-            }
-            else
-	            return new Rectangle(loc.X + offsets[subtype & 0x1F].X, loc.Y + offsets[subtype & 0x1F].Y, imgws[subtype & 0x1F], imghs[subtype & 0x1F]);
+            return new Rectangle(loc.X + offsets[subtype & 0x1F].X, loc.Y + offsets[subtype & 0x1F].Y, imgws[subtype & 0x1F], imghs[subtype & 0x1F]);
         }
 
         public override void Draw(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
@@ -112,15 +125,15 @@ namespace S2ObjectDefinitions.Common
 
         [DisplayName("Priority only")]
         public override bool XFlip
-        {	
-        	get
-        	{
-        		return base.XFlip;
-        	}
-        	set
-        	{
-        		base.XFlip = value;
-        	}
+        {
+            get
+            {
+                return base.XFlip;
+            }
+            set
+            {
+                base.XFlip = value;
+            }
         }
 
         [DisplayName("Size")]
