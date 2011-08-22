@@ -32,22 +32,22 @@ namespace S2ObjectDefinitions.Common
             Size delta;
             for (int i = 0; i < 32; i++)
             {
-                byte[] artfile = tmpartfile.GetRange((i&0x18) << 5,256).ToArray();
-                BitmapBits tempim = ObjectHelper.MapToBmp(artfile, mapfile, 0, 0, out off);
-                if ((i&4) != 0)
+                byte[] artfile = tmpartfile.GetRange(((i & 0x1C) << 5),128).ToArray()
+                BitmapBits tempim = ObjectHelper.MapToBmp(artfile, mapfile, (i & 4), 0, out off);
+                if ((i & 4) != 0)
                 {
-                    im = new BitmapBits(tempim.Width * (1 << (i&3)), tempim.Height);
+                    im = new BitmapBits(tempim.Width * (1 << (i & 3)), tempim.Height);
                     delta = new Size(tempim.Width, 0);
                 }
                 else
                 {
-                    im = new BitmapBits(tempim.Width, tempim.Height * (1 << (i&3)));
+                    im = new BitmapBits(tempim.Width, tempim.Height * (1 << (i & 3)));
                     delta = new Size(0, tempim.Height);
                 }
 
                 pos = new Point(0, 0);
-                off = new Point(-(im.Width/2), -(im.Height/2));
-                for (int j = 0; j < (1 << (i&3)); j++)
+                off = new Point(-(im.Width / 2), -(im.Height / 2));
+                for (int j = 0; j < (1 << (i & 3)); j++)
                 {
                     im.DrawBitmap(tempim, pos);
                     pos = pos + delta;
