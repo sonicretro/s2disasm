@@ -97,8 +97,6 @@ namespace S2ObjectDefinitions.Common
 
         public override Rectangle Bounds(Point loc, byte subtype)
         {
-            if ((subtype & 7) == 7)
-            {
             return new Rectangle(loc.X + offsets[subtype & 0x1F].X, loc.Y + offsets[subtype & 0x1F].Y, imgws[subtype & 0x1F], imghs[subtype & 0x1F]);
         }
 
