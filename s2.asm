@@ -86305,13 +86305,17 @@ Mus_ExtraLife:	dc.w z80_ptr(Mus_EL_Voices),$0603,$02CD
 		dc.w z80_ptr(Mus_EL_PSG1),$D008,$0005
 		dc.w z80_ptr(Mus_EL_PSG2),$DC08,$0005
 		dc.w z80_ptr(Mus_EL_PSG3),$DC00,$0004
-Mus_EL_FM4:	dc.b $E1,$03,$E0,$40,$F6,$C6,$D4
-Mus_EL_FM1:	dc.b $E0,$80,$EF,$00,$E8,$06,$D9,$06,$03,$03,$06,$06
+Mus_EL_FM4:	dc.b $E1,$03,$E0,$40,$F6
+		dc.w z80_ptr(+)
+Mus_EL_FM1:	dc.b $E0,$80
++		dc.b $EF,$00,$E8,$06,$D9,$06,$03,$03,$06,$06
 		dc.b $E8,$00,$DB,$09,$D7,$D6,$06,$D9,$18,$F2
 Mus_EL_FM2:	dc.b $EF,$01,$E8,$06,$E2,$01,$D6,$06,$03,$03,$06,$06
 		dc.b $E8,$00,$D7,$09,$D4,$D2,$06,$D6,$18,$E2,$01,$F2
-Mus_EL_FM5:	dc.b $E1,$03,$E0,$40,$F6,$FB,$D4
-Mus_EL_FM3:	dc.b $E0,$80,$EF,$02,$BA,$0C,$80,$06,$BA,$B8,$80,$03
+Mus_EL_FM5:	dc.b $E1,$03,$E0,$40,$F6
+		dc.w z80_ptr(+)
+Mus_EL_FM3:	dc.b $E0,$80
++		dc.b $EF,$02,$BA,$0C,$80,$06,$BA,$B8,$80,$03
 		dc.b $B8,$06,$80,$03,$B8,$06,$BA,$18,$F2
 Mus_EL_PSG1:	dc.b $E8,$06,$D6,$06,$03,$03,$06,$06,$E8,$00,$D7,$09
 		dc.b $D4,$D2,$06,$D6,$18
