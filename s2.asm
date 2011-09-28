@@ -44377,7 +44377,7 @@ loc_231D2:
 	bsr.w	JmpTo6_SingleObjLoad2
 	bne.s	loc_23224
 	moveq	#0,d0
-	move.w	#$F,d1
+	move.w	#bytesToLcnt(object_size),d1
 
 loc_231F0:
 	move.l	(a0,d0.w),(a1,d0.w)
@@ -60439,7 +60439,7 @@ loc_304D4:
 	bsr.w	JmpTo22_SingleObjLoad2
 	bne.s	loc_305F4
 	moveq	#0,d0
-	move.w	#$F,d1
+	move.w	#bytesToLcnt(object_size),d1
 
 loc_305DC:
 	move.l	(a2,d0.w),(a1,d0.w)
@@ -62402,7 +62402,7 @@ loc_32030:
 	bsr.w	JmpTo23_SingleObjLoad2
 	bne.s	return_3207E
 	moveq	#0,d0
-	move.w	#$F,d1
+	move.w	#bytesToLcnt(object_size),d1
 
 loc_3206E:
 	move.l	(a0,d0.w),(a1,d0.w)
@@ -64202,7 +64202,7 @@ loc_336B2:
 	bsr.w	JmpTo24_SingleObjLoad2
 	bne.s	loc_33700
 	moveq	#0,d0
-	move.w	#$F,d1
+	move.w	#bytesToLcnt(object_size),d1
 
 loc_336D0:
 	move.l	(a0,d0.w),(a1,d0.w)
