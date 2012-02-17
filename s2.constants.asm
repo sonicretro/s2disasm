@@ -190,13 +190,13 @@ p2_touch_bottom     = 1<<p2_touch_bottom_bit
 
 touch_bottom_mask   = p1_touch_bottom|p2_touch_bottom
 
-p1_touch_unk2_bit   = p1_touch_bottom_bit + pushing_bit_delta
-p2_touch_unk2_bit   = p1_touch_unk2_bit + 1
+p1_touch_top_bit   = p1_touch_bottom_bit + pushing_bit_delta
+p2_touch_top_bit   = p1_touch_top_bit + 1
 
-p1_touch_unk2       = 1<<p1_touch_unk2_bit
-p2_touch_unk2       = 1<<p2_touch_unk2_bit
+p1_touch_top       = 1<<p1_touch_top_bit
+p2_touch_top       = 1<<p2_touch_top_bit
 
-touch_unk2_mask     = p1_touch_unk2|p2_touch_unk2
+touch_top_mask     = p1_touch_top|p2_touch_top
 
 ; ---------------------------------------------------------------------------
 ; Controller Buttons
@@ -1037,21 +1037,21 @@ Camera_BG3_X_pos:		ds.l	1	; unused (only initialised at beginning of level)?
 Camera_BG3_Y_pos:		ds.l	1	; unused (only initialised at beginning of level)?
 Camera_X_pos_P2:		ds.l	1
 Camera_Y_pos_P2:		ds.l	1
-unk_EE28:			ds.l	1
-unk_EE2C:			ds.l	1
-unk_EE30:			ds.w	1
+Camera_BG_X_pos_P2:		ds.l	1	; only used sometimes as the layer deformation makes it sort of redundant
+Camera_BG_Y_pos_P2:		ds.l	1
+Camera_BG2_X_pos_P2:	ds.w	1	; unused (only initialised at beginning of level)?
 				ds.w	1	; $FFFFEE32-$FFFFEE33 ; seems unused
-unk_EE34:			ds.l	1
-unk_EE38:			ds.w	1
+Camera_BG2_Y_pos_P2:	ds.l	1
+Camera_BG3_X_pos_P2:	ds.w	1	; unused (only initialised at beginning of level)?
 				ds.w	1	; $FFFFEE3A-$FFFFEE3B ; seems unused
-unk_EE3C:			ds.b	4
+Camera_BG3_Y_pos_P2:	ds.l	1
 Horiz_block_crossed_flag:	ds.b	1	; toggles between 0 and $10 when you cross a block boundary horizontally
 Verti_block_crossed_flag:	ds.b	1	; toggles between 0 and $10 when you cross a block boundary vertically
 Horiz_block_crossed_flag_BG:	ds.b	1	; toggles between 0 and $10 when background camera crosses a block boundary horizontally
 Verti_block_crossed_flag_BG:	ds.b	1	; toggles between 0 and $10 when background camera crosses a block boundary vertically
 Horiz_block_crossed_flag_BG2:	ds.b	1	; used in CPZ
 				ds.b	1	; $FFFFEE45 ; seems unused
-unk_EE46:			ds.b	1
+Horiz_block_crossed_flag_BG3:	ds.b	1
 				ds.b	1	; $FFFFEE47 ; seems unused
 Horiz_block_crossed_flag_P2:	ds.b	1	; toggles between 0 and $10 when you cross a block boundary horizontally
 Verti_block_crossed_flag_P2:	ds.b	1	; toggles between 0 and $10 when you cross a block boundary vertically
@@ -1061,9 +1061,9 @@ Scroll_flags_BG:		ds.w	1	; bitfield ; bit 0-3 as above, bit 4-7 unknown (used by
 Scroll_flags_BG2:		ds.w	1	; used in CPZ; bit 0-1 unknown
 Scroll_flags_BG3:		ds.w	1	; used in CPZ; bit 0-1 unknown
 Scroll_flags_P2:		ds.w	1	; bitfield ; bit 0 = redraw top row, bit 1 = redraw bottom row, bit 2 = redraw left-most column, bit 3 = redraw right-most column
-unk_EE5A:			ds.w	1
-unk_EE5C:			ds.w	1
-unk_EE5E:			ds.w	1
+Scroll_flags_BG_P2:		ds.w	1	; bitfield ; bit 0-3 as above, bit 4-7 unknown (used by some deformation routines)
+Scroll_flags_BG2_P2:	ds.w	1	; used in CPZ; bit 0-1 unknown
+Scroll_flags_BG3_P2:	ds.w	1	; used in CPZ; bit 0-1 unknown
 Camera_RAM_copy:		ds.l	2	; copied over every V-int
 Camera_BG_copy:			ds.l	2	; copied over every V-int
 Camera_BG2_copy:		ds.l	2	; copied over every V-int
@@ -1074,14 +1074,14 @@ Scroll_flags_BG_copy:		ds.w	1	; copied over every V-int
 Scroll_flags_BG2_copy:		ds.w	1	; copied over every V-int
 Scroll_flags_BG3_copy:		ds.w	1	; copied over every V-int
 Scroll_flags_copy_P2:		ds.w	1	; copied over every V-int
-unk_EEAA:			ds.w	1
-unk_EEAC:			ds.w	1
-unk_EEAE:			ds.w	1
+Scroll_flags_BG_copy_P2:	ds.w	1	; copied over every V-int
+Scroll_flags_BG2_copy_P2:	ds.w	1	; copied over every V-int
+Scroll_flags_BG3_copy_P2:	ds.w	1	; copied over every V-int
 
 Camera_X_pos_diff:		ds.w	1	; (new X pos - old X pos) * 256
 Camera_Y_pos_diff:		ds.w	1	; (new Y pos - old Y pos) * 256
-unk_EEB4:			ds.w	1
-unk_EEB6:			ds.w	1
+Camera_BG_X_pos_diff:	ds.w	1	; Effective camera change used in WFZ ending and HTZ screen shake
+Camera_BG_Y_pos_diff:	ds.w	1	; Effective camera change used in WFZ ending and HTZ screen shake
 Camera_X_pos_diff_P2:		ds.w	1	; (new X pos - old X pos) * 256
 Camera_Y_pos_diff_P2:		ds.w	1	; (new Y pos - old Y pos) * 256
 Screen_Shaking_Flag_HTZ:	ds.b	1	; activates screen shaking code in HTZ's layer deformation routine
@@ -1106,12 +1106,12 @@ Deform_lock:			ds.b	1	; set to 1 to stop all deformation
 Camera_Max_Y_Pos_Changing:	ds.b	1
 Dynamic_Resize_Routine:		ds.b	1
 				ds.b	2	; $FFFFEEE0-$FFFFEEE1
-unk_EEE2:			ds.w	1
-unk_EEE4:			ds.w	1
-unk_EEE6:			ds.w	1
-unk_EEE8:			ds.b	1
+unk_EEE2:			ds.w	1	; Used to control background scrolling in X in WFZ ending and HTZ screen shake
+unk_EEE4:			ds.w	1	; Used to control background scrolling in Y in WFZ ending and HTZ screen shake
+unk_EEE6:			ds.w	1	; Used as some sort of timer in HTZ2 screen shake
+unk_EEE8:			ds.b	1	; Flag of some sort to control vertical direction for screen shake in HTZ2
 				ds.b	3	; $FFFFEEE9-$FFFFEEEB ; seems unused
-unk_EEEC:			ds.l	1
+Vscroll_Factor_P2_HInt:	ds.l	1
 Camera_X_pos_copy:		ds.l	1
 Camera_Y_pos_copy:		ds.l	1
 Tails_Min_X_pos:		ds.w	1
@@ -1151,15 +1151,17 @@ VDP_Reg1_val:			ds.w	1	; normal value of VDP register #1 when display is disable
 Demo_Time_left:			ds.w	1	; 2 bytes
 
 Vscroll_Factor:			ds.l	1
-unk_F61A:			ds.l	1
-unk_F61E:			ds.l	1
+unk_F61A:			ds.l	1	; Only ever cleared, never used
+Vscroll_Factor_P2:		ds.l	1
 Teleport_timer:			ds.b	1	; timer for teleport effect
 Teleport_flag:			ds.b	1	; set when a teleport is in progress
 Hint_counter_reserve:		ds.w	1	; Must contain a VDP command word, preferably a write to register $0A. Executed every V-INT.
 Palette_fade_range:				; Range affected by the palette fading routines
 Palette_fade_start:		ds.b	1	; Offset from the start of the palette to tell what range of the palette will be affected in the palette fading routines
 Palette_fade_length:		ds.b	1	; Number of entries to change in the palette fading routines
-unk_F628:			ds.b	1
+
+MiscLevelVariables:
+VIntSubE_RunCount:		ds.b	1
 				ds.b	1	; $FFFFF629 ; seems unused
 Vint_routine:			ds.b	1	; was "Delay_Time" ; routine counter for V-int
 				ds.b	1	; $FFFFF62B ; seems unused
@@ -1180,22 +1182,30 @@ Water_Level_3:			ds.w	1
 Water_on:			ds.b	1	; is set based on Water_flag
 Water_routine:			ds.b	1
 Water_fullscreen_flag:		ds.b	1	; was "Water_move"
-unk_F64F:			ds.b	1
+Do_Updates_in_H_int:	ds.b	1
 
-New_Water_Level:		ds.w	1
-Water_change_speed:		ds.w	1
-unk_F654:			ds.w	1
-unk_F656:			ds.w	1
+PalCycle_Frame_CNZ:		ds.w	1
+PalCycle_Frame2:		ds.w	1
+PalCycle_Frame3:		ds.w	1
+PalCycle_Frame2_CNZ:	ds.w	1
 				ds.b	4	; $FFFFF658-$FFFFF65B ; seems unused
 Palette_frame:			ds.w	1
 Palette_timer:			ds.b	1	; was "Palette_frame_count"
 Super_Sonic_palette:		ds.b	1
-unk_F660:			ds.b	1	; often treated as a word
-unk_F661:			ds.b	1
-unk_F662:			ds.w	1
+
+DEZ_Eggman:						; Word
+DEZ_Shake_Timer:				; Word
+WFZ_LevEvent_Subrout:			; Word
+SegaScr_PalDone_Flag:			; Byte (cleared once as a word)
+Credits_Trigger:		ds.b	1	; cleared as a word a couple times
+Ending_PalCycle_flag:	ds.b	1
+
+SegaScr_VInt_Subrout:
+Ending_VInt_Subrout:
+WFZ_Event_Counter:		ds.w	1
 				ds.w	1	; $FFFFF664-$FFFFF665 ; seems unused
-unk_F666:			ds.w	1
-unk_F668:			ds.w	1
+PalCycle_Timer2:		ds.w	1
+PalCycle_Timer3:		ds.w	1
 
 Ctrl_2_Logical:					; 2 bytes
 Ctrl_2_Held_Logical:		ds.b	1	; 1 byte
@@ -1203,9 +1213,9 @@ Ctrl_2_Press_Logical:		ds.b	1	; 1 byte
 Sonic_Look_delay_counter:	ds.w	1	; 2 bytes
 Tails_Look_delay_counter:	ds.w	1	; 2 bytes
 Super_Sonic_frame_count:	ds.w	1
-unk_F672:			ds.l	1
+Camera_ARZ_BG_X_pos:		ds.l	1
 				ds.b	$A	; $FFFFF676-$FFFFF67F ; seems unused
-
+MiscLevelVariables_End
 
 Plc_Buffer:			ds.b	$60	; Pattern load queue (each entry is 6 bytes)
 Plc_Buffer_Only_End:
@@ -1242,15 +1252,15 @@ Ring_end_addr:			ds.w	1
 Ring_start_addr_P2:		ds.w	1
 Ring_end_addr_P2:		ds.w	1
 CNZ_Bumper_routine:		ds.b	1
-unk_F71B:			ds.b	1
+CNZ_Bumper_UnkFlag:		ds.b	1	; Set only, never used again
 CNZ_Visible_bumpers_start:			ds.l	1
 CNZ_Visible_bumpers_end:			ds.l	1
 CNZ_Visible_bumpers_start_P2:			ds.l	1
 CNZ_Visible_bumpers_end_P2:			ds.l	1
 
 Dirty_flag:			ds.b	1	; if whole screen needs to redraw
-unk_F72D:			ds.b	1
-unk_F72E:			ds.b	1
+CPZ_UnkScroll_Timer:	ds.b	1	; Used only in unused CPZ scrolling function
+WFZ_SCZ_Fire_Toggle:	ds.b	1
 				ds.b	1	; $FFFFF72F ; seems unused
 Water_flag:			ds.b	1	; if the level has water or oil
 				ds.b	1	; $FFFFF731 ; seems unused
@@ -1259,20 +1269,17 @@ Demo_press_counter_2P:		ds.w	1	; frames remaining until next button press, for p
 Tornado_Velocity_X:		ds.w	1	; speed of tails' plane in scz ($FFFFF736)
 Tornado_Velocity_Y:		ds.w	1
 ScreenShift:			ds.b	1
-				ds.b	3	; $FFFFF73B-$FFFFF73D
-unk_F73E:			ds.b	1	; actually a word. Only used in special stages
-
+				ds.b	4	; $FFFFF73B-$FFFFF73E
 Boss_CollisionRoutine:		ds.b	1
-unk_F740:
 Boss_AnimationArray:		ds.b	$10	; up to $10 bytes; 2 bytes per entry
-unk_F750:
+Ending_Routine:
 Boss_X_pos:			ds.w	1
 				ds.w	1	; Boss_MoveObject reads a long, but all other places in the game use only the high word
 Boss_Y_pos:			ds.w	1
 				ds.w	1	; same here
 Boss_X_vel:			ds.w	1
 Boss_Y_vel:			ds.w	1
-unk_F75C:			ds.w	1
+Boss_Countdown:		ds.w	1
 				ds.w	1	; $FFFFF75E-$FFFFF75F ; unused
 
 Sonic_top_speed:		ds.w	1
@@ -1280,9 +1287,9 @@ Sonic_acceleration:		ds.w	1
 Sonic_deceleration:		ds.w	1
 Sonic_LastLoadedDPLC:		ds.b	1	; mapping frame number when Sonic last had his tiles requested to be transferred from ROM to VRAM. can be set to a dummy value like -1 to force a refresh DMA. was: Sonic_mapping_frame
 				ds.b	1	; $FFFFF767 ; seems unused
-unk_F768:			ds.b	1
+Primary_Angle:		ds.b	1
 				ds.b	1	; $FFFFF769 ; seems unused
-unk_F76A:			ds.b	1
+Secondary_Angle:	ds.b	1
 				ds.b	1	; $FFFFF76B ; seems unused
 Obj_placement_routine:		ds.b	1
 				ds.b	1	; $FFFFF76D ; seems unused
@@ -1308,11 +1315,11 @@ Boss_defeated_flag:		ds.b	1
 				ds.b	2	; $FFFFF7A8-$FFFFF7A9 ; seems unused
 Current_Boss_ID:		ds.b	1
 				ds.b	5	; $FFFFF7AB-$FFFFF7AF ; seems unused
-unk_F7B0:			ds.w	1
-unk_F7B2:			ds.b	1
-unk_F7B3:			ds.b	1
+MTZ_Platform_Cog_X:			ds.w	1	; X position of moving MTZ platform for cog animation.
+MTZCylinder_Angle_Sonic:	ds.b	1
+MTZCylinder_Angle_Tails:	ds.b	1
 				ds.b	$A	; $FFFFF7B4-$FFFFF7BD ; seems unused
-unk_F7BE:			ds.w	1
+BigRingGraphics:	ds.w	1	; S1 holdover
 				ds.b	7	; $FFFFF7C0-$FFFFF7C6 ; seems unused
 WindTunnel_flag:		ds.b	1
 				ds.b	1	; $FFFFF7C8 ; seems unused
@@ -1365,8 +1372,8 @@ Debug_object:			ds.b	1
 				ds.b	1	; $FFFFFE07 ; seems unused
 Debug_placement_mode:		ds.b	1
 				ds.b	1	; the whole word is tested, but the debug mode code uses only the low byte
-unk_FE0A:			ds.b	1
-unk_FE0B:			ds.b	1
+Debug_Accel_Timer:	ds.b	1
+Debug_Speed:		ds.b	1
 Vint_runcount:			ds.l	1
 
 Current_ZoneAndAct:				; 2 bytes
@@ -1425,40 +1432,11 @@ Saved_Camera_Max_Y_pos:		ds.w	1
 Saved_Dynamic_Resize_Routine:	ds.b	1
 
 				ds.b	5	; $FFFFFE59-$FFFFFE5D ; seems unused
-unk_FE5E:			ds.w	1
-unk_FE60:			ds.b	1
-				ds.b	7	; $FFFFFE61-$FFFFFE67 ; seems unused
-unk_FE68:			ds.b	1
-				ds.b	3	; $FFFFFE69-$FFFFFE6B ; seems unused
-unk_FE6C:			ds.b	1
-				ds.b	7	; $FFFFFE6D-$FFFFFE73 ; seems unused
-unk_FE74:			ds.b	1
-				ds.b	3	; $FFFFFE75-$FFFFFE77 ; seems unused
-unk_FE78:			ds.b	1
-				ds.b	3	; $FFFFFE79-$FFFFFE7B ; seems unused
-unk_FE7C:			ds.b	1
-				ds.b	3	; $FFFFFE7D-$FFFFFE7F ; seems unused
-unk_FE80:			ds.b	1
-				ds.b	3	; $FFFFFE81-$FFFFFE83 ; seems unused
-unk_FE84:			ds.b	1
-				ds.b	3	; $FFFFFE85-$FFFFFE87 ; seems unused
-unk_FE88:			ds.b	1
-				ds.b	1	; $FFFFFE89 ; seems unused
-unk_FE8A:			ds.b	1
-				ds.b	1	; $FFFFFE8B ; seems unused
-unk_FE8C:			ds.b	1
-				ds.b	1	; $FFFFFE8D ; seems unused
-unk_FE8E:			ds.w	1
-unk_FE90:			ds.b	1
-				ds.b	1	; $FFFFFE91 ; seems unused
-unk_FE92:			ds.w	1
-unk_FE94:			ds.b	1
-				ds.b	1	; $FFFFFE95 ; seems unused
-unk_FE96:			ds.w	1
-unk_FE98:			ds.b	1
-				ds.b	3	; $FFFFFE99-$FFFFFE9B ; seems unused
-unk_FE9C:			ds.b	1
-				ds.b	3	; $FFFFFE9D-$FFFFFE9F ; seems unused
+Oscillating_Numbers:
+Oscillation_Control:			ds.w	1
+Oscillating_variables:
+Oscillating_Data:				ds.w	$20
+Oscillating_Numbers_End
 
 Logspike_anim_counter:		ds.b	1
 Logspike_anim_frame:		ds.b	1
@@ -1469,7 +1447,9 @@ Unknown_anim_frame:		ds.b	1
 Ring_spill_anim_counter:	ds.b	1	; scattered rings
 Ring_spill_anim_frame:		ds.b	1
 Ring_spill_anim_accum:		ds.w	1
-				ds.b	$16	; $FFFFFEA9-$FFFFFEBF ; seems unused
+				ds.b	6	; $FFFFFEA9-$FFFFFEAF ; seems unused, but cleared once
+Oscillating_variables_End
+				ds.b	$10	; $FFFFFEB0-$FFFFFEBF ; seems unused
 
 ; values for the second player (some of these only apply to 2-player games)
 Tails_top_speed:		ds.w	1	; Tails_max_vel
@@ -1550,7 +1530,7 @@ Player_option:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails
 
 Two_player_items:		ds.w	1
 				ds.b	$A	; $FFFFFF76-$FFFFFF7F ; seems unused
-unk_FF80:			ds.w	1
+LevSel_HoldTimer:		ds.w	1
 Level_select_zone:		ds.w	1
 Sound_test_sound:		ds.w	1
 Title_screen_option:		ds.b	1
@@ -1567,7 +1547,7 @@ Bonus_Countdown_3:		ds.w	1
 				ds.b	4	; $FFFFFF94-$FFFFFF97 ; seems unused
 Game_Over_2P:			ds.w	1
 				ds.b	6	; $FFFFFF9A-$FFFFFF9F ; seems unused
-unk_FFA0:			ds.w	6
+SS2p_RingBuffer:		ds.w	6
 				ds.b	4	; $FFFFFFAC-$FFFFFFAF ; seems unused
 Got_Emerald:			ds.b	1
 Emerald_count:			ds.b	1
@@ -1578,19 +1558,19 @@ Next_Extra_life_score_2P:	ds.l	1
 Level_Has_Signpost:		ds.w	1	; 1 = signpost, 0 = boss or nothing
 Signpost_prev_frame:	ds.b	1
 				ds.b	1	; $FFFFFFCB ; seems unused
-unk_FFCC:			ds.w	1
-unk_FFCE:			ds.w	1
+Camera_Min_Y_pos_Debug_Copy:	ds.w	1
+Camera_Max_Y_pos_Debug_Copy:	ds.w	1
 Level_select_flag:		ds.b	1
 Slow_motion_flag:		ds.b	1
 Night_mode_flag:		ds.w	1
 Correct_cheat_entries:		ds.w	1
 Correct_cheat_entries_2:	ds.w	1	; for 14 continues or 7 emeralds codes
 Two_player_mode:		ds.w	1	; flag (0 for main game)
-unk_FFDA:			ds.w	1
-unk_FFDC:			ds.b	1
-unk_FFDD:			ds.b	1
-unk_FFDE:			ds.b	1
-unk_FFDF:			ds.b	1
+unk_FFDA:			ds.w	1	; Written to once at title screen, never read from
+unk_FFDC:			ds.b	1	; Written to near loc_175EA, never read from
+unk_FFDD:			ds.b	1	; Written to near loc_175EA, never read from
+unk_FFDE:			ds.b	1	; Written to near loc_175EA, never read from
+unk_FFDF:			ds.b	1	; Written to near loc_175EA, never read from
 
 ; Values in these variables are passed to the sound driver during V-INT.
 ; They use a playlist index, not a sound test index.
@@ -1608,7 +1588,7 @@ Ending_demo_number:		ds.w	1 ; zone for the ending demos (2 bytes, unused)
 Graphics_Flags:			ds.w	1 ; misc. bitfield
 Debug_mode_flag:		ds.w	1 ; (2 bytes)
 Checksum_fourcc:		ds.l	1 ; (4 bytes)
-
+RAM_End
 
     if * > 0	; Don't declare more space than the RAM can contain!
 	fatal "The RAM variable declarations are too large by $\{*} bytes."
@@ -1715,36 +1695,36 @@ PNT_Buffer:			ds.b	$700
 PNT_Buffer_End:
 SS_Horiz_Scroll_Buf_2:		ds.b	$400
 
-SpecialStageTrack_mappings:	ds.l	1
-SS_unk_DB04:	ds.l	1
-SpecialStageTrack_anim:	ds.b	1
-SpecialStageTrack_last_anim_frame:	ds.b	1
-SpecialStage_CurrentSegment:	ds.b	1
-SpecialStageTrack_anim_frame:	ds.b	1
-SS_Alternate_PNT:	ds.b	1
-SpecialStageTrack_anim_frame_duration:	ds.b	1
-SpecialStageTrack_Orientation:	ds.b	1
-SS_Alternate_HorizScroll_Buf:	ds.b	1
-SpecialStageTrack_mapping_frame:	ds.b	1
-SS_Last_Alternate_HorizScroll_Buf:	ds.b	1
-SS_unk_DB12:	ds.l	1
-SS_unk_DB16:	ds.l	1
+SSTrack_mappings_bitflags:				ds.l	1
+SSTrack_mappings_uncompressed:			ds.l	1
+SSTrack_anim:							ds.b	1
+SSTrack_last_anim_frame:				ds.b	1
+SpecialStage_CurrentSegment:			ds.b	1
+SSTrack_anim_frame:						ds.b	1
+SS_Alternate_PNT:						ds.b	1
+SSTrack_drawing_index:					ds.b	1
+SSTrack_Orientation:					ds.b	1
+SS_Alternate_HorizScroll_Buf:			ds.b	1
+SSTrack_mapping_frame:					ds.b	1
+SS_Last_Alternate_HorizScroll_Buf:		ds.b	1
+SS_New_Speed_Factor:					ds.l	1
+SS_Cur_Speed_Factor:					ds.l	1
 		ds.b	5
-SS_unk_DB1F:	ds.b	1
+SSTrack_duration_timer:					ds.b	1
 		ds.b	1
-SS_player_anim_frame_duration:	ds.b	1
-SpecialStage_LastSegment:	ds.b	1
-SpecialStage_Started:	ds.b	1
+SS_player_anim_frame_timer:				ds.b	1
+SpecialStage_LastSegment:				ds.b	1
+SpecialStage_Started:					ds.b	1
 		ds.b	4
-SpecialStageTrack_last_mappings_copy:	ds.l	1
-SpecialStageTrack_last_mappings:	ds.l	1
+SSTrack_last_mappings_copy:				ds.l	1
+SSTrack_last_mappings:					ds.l	1
 		ds.b	4
-SpecialStageTrack_LastVScroll:	ds.w	1
+SSTrack_LastVScroll:					ds.w	1
 		ds.b	3
-SpecialStageTrack_last_mapping_frame:	ds.b	1
-SS_unk_DB3A:	ds.l	1
-SS_unk_DB3E:	ds.w	6
-SS_unk_DB3E_End
+SSTrack_last_mapping_frame:				ds.b	1
+SSTrack_mappings_RLE:					ds.l	1
+SSDrawRegBuffer:						ds.w	6
+SSDrawRegBuffer_End
 		ds.b	2
 SpecialStage_LastSegment2:	ds.b	1
 SS_unk_DB4D:	ds.b	1
@@ -1761,7 +1741,7 @@ SS_CurrentLevelObjectLocations:	ds.l	1
 SS_Ring_Requirement:	ds.w	1
 SS_CurrentLevelLayout:	ds.l	1
 		ds.b	1
-SS_unk_DB93:	ds.b	1
+SS_2P_BCD_Score:	ds.b	1
 		ds.b	1
 SS_NoCheckpoint_flag:	ds.b	1
 		ds.b	2
@@ -1781,7 +1761,9 @@ SS_TriggerRingsToGo:	ds.b	1
 	phase	ramaddr(Horiz_Scroll_Buf)	; Still in SS RAM
 SS_Horiz_Scroll_Buf_1:		ds.b	$400
 
-	phase	ramaddr($FFFFF742)	; Still in SS RAM
+	phase	ramaddr($FFFFF73E)	; Still in SS RAM
+SS_Offset_X:			ds.w	1
+SS_Offset_Y:			ds.w	1
 SS_Swap_Positions_Flag:	ds.b	1
 
 	phase	ramaddr(Sprite_Table)	; Still in SS RAM
@@ -1895,52 +1877,52 @@ drawing_mask        =      $7FFF
 ; ---------------------------------------------------------------------------
 ; VRAM and tile art base addresses.
 ; VRAM Reserved regions.
-VRAM_Plane_A_Name_Table               = $C000 ; Extends until $CFFF
-VRAM_Plane_B_Name_Table               = $E000 ; Extends until $EFFF
-VRAM_Plane_A_Name_Table_2P            = $A000 ; Extends until $AFFF
-VRAM_Plane_B_Name_Table_2P            = $8000 ; Extends until $EFFF
-VRAM_Plane_Table_Size                 = $1000
-VRAM_Sprite_Attribute_Table           = $F800 ; Extends until $FA7F
-VRAM_Sprite_Attribute_Table_Size      = $280  ; 640 bytes
-VRAM_Horiz_Scroll_Table               = $FC00 ; Extends until $FFFF??
-VRAM_Horiz_Scroll_Table_Size          = $380  ; ??
+VRAM_Plane_A_Name_Table                  = $C000	; Extends until $CFFF
+VRAM_Plane_B_Name_Table                  = $E000	; Extends until $EFFF
+VRAM_Plane_A_Name_Table_2P               = $A000	; Extends until $AFFF
+VRAM_Plane_B_Name_Table_2P               = $8000	; Extends until $8FFF
+VRAM_Plane_Table_Size                    = $1000	; 64 cells x 32 cells x 2 bytes per cell
+VRAM_Sprite_Attribute_Table              = $F800	; Extends until $FA7F
+VRAM_Sprite_Attribute_Table_Size         = $0280	; 640 bytes
+VRAM_Horiz_Scroll_Table                  = $FC00	; Extends until $FF7F
+VRAM_Horiz_Scroll_Table_Size             = $0380	; 224 lines * 2 bytes per entry * 2 PNTs
 
 ; VRAM Reserved regions, Sega screen.
-VRAM_SegaScr_Plane_A_Name_Table               = $C000 ; Extends until $DFFF
-VRAM_SegaScr_Plane_B_Name_Table               = $A000 ; Extends until $BFFF
-VRAM_SegaScr_Plane_Table_Size                 = $2000
-VRAM_SegaScr_Sprite_Attribute_Table           = $F800 ; Extends until $FA7F
-VRAM_SegaScr_Sprite_Attribute_Table_Size      = $280  ; 640 bytes
-VRAM_SegaScr_Horiz_Scroll_Table               = $FC00 ; Extends until $FFFF??
-VRAM_SegaScr_Horiz_Scroll_Table_Size          = $380  ; ??
+VRAM_SegaScr_Plane_A_Name_Table          = $C000	; Extends until $DFFF
+VRAM_SegaScr_Plane_B_Name_Table          = $A000	; Extends until $BFFF
+VRAM_SegaScr_Plane_Table_Size            = $2000	; 128 cells x 32 cells x 2 bytes per cell
+VRAM_SegaScr_Sprite_Attribute_Table      = $F800	; Extends until $FA7F
+VRAM_SegaScr_Sprite_Attribute_Table_Size = $0280	; 640 bytes
+VRAM_SegaScr_Horiz_Scroll_Table          = $FC00	; Extends until $FF7F
+VRAM_SegaScr_Horiz_Scroll_Table_Size     = $0380	; 224 lines * 2 bytes per entry * 2 PNTs
 
 ; VRAM Reserved regions, Special Stage.
-VRAM_SpecialStage_Plane_A_Name_Table1              = $C000 ; Extends until $DFFF
-VRAM_SpecialStage_Plane_A_Name_Table2              = $8000 ; Extends until $9FFF
-VRAM_SpecialStage_Plane_B_Name_Table               = $A000 ; Extends until $BFFF
-VRAM_SpecialStage_Plane_Table_Size                 = $2000
-VRAM_SpecialStage_Sprite_Attribute_Table           = $F800 ; Extends until $FA7F
-VRAM_SpecialStage_Sprite_Attribute_Table_Size      = $280  ; 640 bytes
-VRAM_SpecialStage_Horiz_Scroll_Table               = $FC00 ; Extends until $FFFF??
-VRAM_SpecialStage_Horiz_Scroll_Table_Size          = $380  ; ??
+VRAM_SS_Plane_A_Name_Table1              = $C000	; Extends until $DFFF
+VRAM_SS_Plane_A_Name_Table2              = $8000	; Extends until $9FFF
+VRAM_SS_Plane_B_Name_Table               = $A000	; Extends until $BFFF
+VRAM_SS_Plane_Table_Size                 = $2000	; 128 cells x 32 cells x 2 bytes per cell
+VRAM_SS_Sprite_Attribute_Table           = $F800	; Extends until $FA7F
+VRAM_SS_Sprite_Attribute_Table_Size      = $0280	; 640 bytes
+VRAM_SS_Horiz_Scroll_Table               = $FC00	; Extends until $FF7F
+VRAM_SS_Horiz_Scroll_Table_Size          = $0380	; 224 lines * 2 bytes per entry * 2 PNTs
 
 ; VRAM Reserved regions, Title screen.
-VRAM_TtlScr_Plane_A_Name_Table               = $C000 ; Extends until $CFFF
-VRAM_TtlScr_Plane_B_Name_Table               = $E000 ; Extends until $EFFF
-VRAM_TtlScr_Plane_Table_Size                 = $2000
-VRAM_TtlScr_Sprite_Attribute_Table           = $F800 ; Extends until $FA7F
-VRAM_TtlScr_Sprite_Attribute_Table_Size      = $280  ; 640 bytes
-VRAM_TtlScr_Horiz_Scroll_Table               = $FC00 ; Extends until $FFFF??
-VRAM_TtlScr_Horiz_Scroll_Table_Size          = $380  ; ??
+VRAM_TtlScr_Plane_A_Name_Table           = $C000	; Extends until $CFFF
+VRAM_TtlScr_Plane_B_Name_Table           = $E000	; Extends until $EFFF
+VRAM_TtlScr_Plane_Table_Size             = $1000	; 64 cells x 32 cells x 2 bytes per cell
+VRAM_TtlScr_Sprite_Attribute_Table       = $F800	; Extends until $FA7F
+VRAM_TtlScr_Sprite_Attribute_Table_Size  = $0280	; 640 bytes
+VRAM_TtlScr_Horiz_Scroll_Table           = $FC00	; Extends until $FF7F
+VRAM_TtlScr_Horiz_Scroll_Table_Size      = $0380	; 224 lines * 2 bytes per entry * 2 PNTs
 
 ; VRAM Reserved regions, Ending sequence and credits.
-VRAM_EndSeq_Plane_A_Name_Table               = $C000 ; Extends until $DFFF
-VRAM_EndSeq_Plane_B_Name_Table               = $4000 ; Extends until $5FFF
-VRAM_EndSeq_Plane_Table_Size                 = $2000
-VRAM_EndSeq_Sprite_Attribute_Table           = $F800 ; Extends until $FA7F
-VRAM_EndSeq_Sprite_Attribute_Table_Size      = $280  ; 640 bytes
-VRAM_EndSeq_Horiz_Scroll_Table               = $FC00 ; Extends until $FFFF??
-VRAM_EndSeq_Horiz_Scroll_Table_Size          = $380  ; ??
+VRAM_EndSeq_Plane_A_Name_Table           = $C000	; Extends until $DFFF
+VRAM_EndSeq_Plane_B_Name_Table           = $4000	; Extends until $5FFF
+VRAM_EndSeq_Plane_Table_Size             = $2000	; 64 cells x 64 cells x 2 bytes per cell
+VRAM_EndSeq_Sprite_Attribute_Table       = $F800	; Extends until $FA7F
+VRAM_EndSeq_Sprite_Attribute_Table_Size  = $0280	; 640 bytes
+VRAM_EndSeq_Horiz_Scroll_Table           = $FC00	; Extends until $FF7F
+VRAM_EndSeq_Horiz_Scroll_Table_Size      = $0380	; 224 lines * 2 bytes per entry * 2 PNTs
 
 ; From here on, art tiles are used; VRAM address is art tile * $20.
 ArtTile_VRAM_Start                    = $0000
@@ -2001,6 +1983,15 @@ ArtTile_EndingCharacter               = $0019
 ArtTile_ArtNem_EndingFinalTornado     = $0156
 ArtTile_ArtNem_EndingPics             = $0328
 ArtTile_ArtNem_EndingMiniTornado      = $0493
+
+; S1 Ending
+ArtTile_ArtNem_S1EndFlicky            = $05A5
+ArtTile_ArtNem_S1EndRabbit            = $0553
+ArtTile_ArtNem_S1EndPenguin           = $0573
+ArtTile_ArtNem_S1EndSeal              = $0585
+ArtTile_ArtNem_S1EndPig               = $0593
+ArtTile_ArtNem_S1EndChicken           = $0565
+ArtTile_ArtNem_S1EndSquirrel          = $05B3
 
 ; Continue screen.
 ArtTile_ArtNem_ContinueTails          = $0500
