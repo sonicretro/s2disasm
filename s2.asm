@@ -61002,9 +61002,9 @@ BranchTo_JmpTo37_DisplaySprite
 loc_30A04:
 	bsr.w	loc_30B7A
 	movea.l	objoff_2A(a0),a3
-	btst	#0,$3E(a3)
+	btst	#0,objoff_3E(a3)
 	beq.s	loc_30A3A
-	tst.b	$38(a3)
+	tst.b	objoff_38(a3)
 	beq.s	loc_30A24
 	btst	#0,render_flags(a0)
 	beq.s	loc_30A3A
@@ -61016,7 +61016,7 @@ loc_30A24:
 	bne.s	loc_30A3A
 
 loc_30A2C:
-	bclr	#0,$3E(a3)
+	bclr	#0,objoff_3E(a3)
 	bsr.w	loc_30AB4
 	st	objoff_38(a0)
 
@@ -61037,7 +61037,7 @@ loc_30A54:
 	bgt.s	loc_30A82
 	sf	objoff_38(a0)
 	move.w	#0,objoff_30(a0)
-	tst.b	$38(a3)
+	tst.b	objoff_38(a3)
 	bne.s	loc_30A74
 	move.w	#$2A50,x_pos(a0)
 	bra.s	loc_30A7A
@@ -61053,7 +61053,7 @@ loc_30A7A:
 
 loc_30A82:
 	move.w	#$2A50,d1
-	tst.b	$38(a3)
+	tst.b	objoff_38(a3)
 	beq.s	loc_30A90
 	move.w	#$2B70,d1
 
@@ -61087,7 +61087,7 @@ loc_30AB4:
 	moveq	#0,d6
 	move.b	#2,mapping_frame(a1)
 	move.w	#$2A6A,x_pos(a1)
-	tst.b	$38(a3)
+	tst.b	objoff_38(a3)
 	beq.s	loc_30B04
 	st	d6
 	move.w	#$2B56,x_pos(a1)
@@ -69229,7 +69229,7 @@ Obj97_Init:
 	addi.w	#$10,y_pos(a0)
 	move.b	#1,objoff_38(a0)
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	lea	$2E(a1),a1
+	lea	objoff_2E(a1),a1
 	move.b	#$B,collision_flags(a0)
 	moveq	#0,d0
 	move.w	objoff_2E(a0),d0
