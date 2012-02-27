@@ -25840,7 +25840,7 @@ Obj6F_MapUnc_14ED0:	BINCLUDE "mappings/sprite/obj6F.bin"
 ;loc_15584: ; level title card drawing function called from Vint
 DrawLevelTitleCard:
 	lea	(VDP_data_port).l,a6
-	tst.w	(TitleCard+layer).w
+	tst.w	(TitleCard_ZoneName+objoff_3E).w
 	bne.w	loc_15670
 	moveq	#$3F,d5
 	move.l	#make_block_tile_pair(ArtTile_ArtNem_TitleCard+$5A,0,0,0,1),d6
