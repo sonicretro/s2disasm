@@ -78907,40 +78907,289 @@ ObjC7_ChildDeltas:
 	dc.b   4	; 20
 	dc.b $24	; 21
 off_3E2F6:
-	dc.l ObjC7_MapUnc_3E318
+	dc.l ObjC7_GroupAni_3E318
 	dc.b 0, 1, 2, 3, $FF, 0
 off_3E300:
-	dc.l ObjC7_MapUnc_3E318
+	dc.l ObjC7_GroupAni_3E318
 	dc.b 5, 6, 7, 8, $FF, 0
 off_3E30A:
-	dc.l ObjC7_MapUnc_3E318
+	dc.l ObjC7_GroupAni_3E318
 	dc.b 0, 1, 2, 3, 4, 5, 6, 7, 8, $C0
 ; -----------------------------------------------------------------------------
-; sprite mappings
+; Custom animation
 ; -----------------------------------------------------------------------------
-ObjC7_MapUnc_3E318:	BINCLUDE "mappings/sprite/objC7_a.bin"
+; must be on the same line as a label that has a corresponding _End label later
+c7anilistheader macro maxframe,{INTLABEL}
+__LABEL__ label *
+	dc.b ((__LABEL___End - __LABEL__ - 2) / 3) - 1,maxframe
+    endm
+
+; macro for a animation data
+c7ani macro pieceOffset,deltax,deltay
+	dc.b	pieceOffset,deltax,deltay
+    endm
+
+ObjC7_GroupAni_3E318:		offsetTable ;BINCLUDE "mappings/sprite/objC7_a.bin"
+		offsetTableEntry.w byte_3E32A
+		offsetTableEntry.w byte_3E33E
+		offsetTableEntry.w byte_3E352
+		offsetTableEntry.w byte_3E366
+		offsetTableEntry.w byte_3E37A
+		offsetTableEntry.w byte_3E380
+		offsetTableEntry.w byte_3E394
+		offsetTableEntry.w byte_3E3A8
+		offsetTableEntry.w byte_3E3BC
+
+byte_3E32A:	c7anilistheader 8
+	c7ani       $00, $E0, $0C
+	c7ani objoff_30, $E0, $0C
+	c7ani objoff_32, $E0, $0C
+	c7ani objoff_3C, $E0, $0C
+	c7ani objoff_34, $F8, $04
+	c7ani objoff_3E, $F8, $04
+byte_3E32A_End
+
+byte_3E33E:	c7anilistheader 8
+	c7ani       $00, $EC, $14
+	c7ani objoff_30, $EC, $14
+	c7ani objoff_32, $EC, $14
+	c7ani objoff_3C, $EC, $14
+	c7ani objoff_34, $FA, $06
+	c7ani objoff_3E, $FA, $06
+byte_3E33E_End
+
+byte_3E352:	c7anilistheader 8
+	c7ani       $00, $F8, $14
+	c7ani objoff_30, $F8, $14
+	c7ani objoff_32, $F8, $14
+	c7ani objoff_3C, $F8, $14
+	c7ani objoff_34, $FE, $04
+	c7ani objoff_3E, $FE, $04
+byte_3E352_End
+
+byte_3E366:	c7anilistheader 8
+	c7ani       $00, $FC, $0C
+	c7ani objoff_30, $FC, $0C
+	c7ani objoff_32, $FC, $0C
+	c7ani objoff_3C, $FC, $0c
+	c7ani objoff_34, $00, $02
+	c7ani objoff_3E, $00, $02
+byte_3E366_End
+
+byte_3E37A:	c7anilistheader 8
+	c7ani       $00, $00, $00
+byte_3E37A_End
+	even
+byte_3E380:	c7anilistheader 8
+	c7ani       $00, $04, $E8
+	c7ani objoff_30, $04, $E8
+	c7ani objoff_32, $04, $E8
+	c7ani objoff_3C, $04, $E8
+	c7ani objoff_34, $02, $FA
+	c7ani objoff_3E, $02, $FA
+byte_3E380_End
+
+byte_3E394:	c7anilistheader 8
+	c7ani       $00, $0C, $E8
+	c7ani objoff_30, $0C, $E8
+	c7ani objoff_32, $0C, $E8
+	c7ani objoff_3C, $0C, $E8
+	c7ani objoff_34, $04, $FC
+	c7ani objoff_3E, $04, $FC
+byte_3E394_End
+
+byte_3E3A8:	c7anilistheader 8
+	c7ani       $00, $18, $F4
+	c7ani objoff_30, $18, $F4
+	c7ani objoff_32, $18, $F4
+	c7ani objoff_3C, $18, $F4
+	c7ani objoff_34, $04, $FC
+	c7ani objoff_3E, $04, $FC
+byte_3E3A8_End
+
+byte_3E3BC:	c7anilistheader 8
+	c7ani       $00, $18, $FC
+	c7ani objoff_30, $18, $FC
+	c7ani objoff_32, $18, $FC
+	c7ani objoff_3C, $18, $FC
+	c7ani objoff_34, $06, $FE
+	c7ani objoff_3E, $06, $FE
+byte_3E3BC_End
+
 
 off_3E3D0:
-	dc.l ObjC7_MapUnc_3E3D8
+	dc.l ObjC7_GroupAni_3E3D8
 	dc.b 0, 1, 2, $C0
 ; -----------------------------------------------------------------------------
 ; sprite mappings
 ; -----------------------------------------------------------------------------
-ObjC7_MapUnc_3E3D8:	BINCLUDE "mappings/sprite/objC7_b.bin"
+ObjC7_GroupAni_3E3D8:		offsetTable ;BINCLUDE "mappings/sprite/objC7_b.bin"
+		offsetTableEntry.w byte_3E3DE
+		offsetTableEntry.w byte_3E3F2
+		offsetTableEntry.w byte_3E3F8
+
+byte_3E3DE:	c7anilistheader $10
+	c7ani       $00, $00, $04
+	c7ani objoff_30, $00, $04
+	c7ani objoff_32, $00, $04
+	c7ani objoff_3C, $00, $04
+	c7ani objoff_34, $00, $04
+	c7ani objoff_3E, $00, $04
+byte_3E3DE_End
+
+byte_3E3F2:	c7anilistheader $10
+	c7ani       $00, $00, $00
+byte_3E3F2_End
+	even
+byte_3E3F8:	c7anilistheader 8
+	c7ani       $00, $00, $F8
+	c7ani objoff_30, $00, $F8
+	c7ani objoff_32, $00, $F8
+	c7ani objoff_3C, $00, $F8
+	c7ani objoff_34, $00, $F8
+	c7ani objoff_3E, $00, $F8
+byte_3E3F8_End
 
 off_3E40C:
-	dc.l ObjC7_MapUnc_3E438
+	dc.l ObjC7_GroupAni_3E438
 	dc.b   0,  1,  2,  3, $40, SndID_Hammer
 	dc.b   4,  5,  6,  7,   8, $40, SndID_Hammer
 	dc.b   9, $A,  1,  2,   3, $40, SndID_Hammer
 	dc.b   4,  5,  6,  7,   8, $40, SndID_Hammer, $C0
 off_3E42C:
-	dc.l ObjC7_MapUnc_3E438
+	dc.l ObjC7_GroupAni_3E438
 	dc.b $88, $87, $86, $85, $B, $40, SndID_Hammer, $C0
 ; -----------------------------------------------------------------------------
 ; sprite mappings
 ; -----------------------------------------------------------------------------
-ObjC7_MapUnc_3E438:	BINCLUDE "mappings/sprite/objC7_c.bin"
+ObjC7_GroupAni_3E438:		offsetTable ;BINCLUDE "mappings/sprite/objC7_c.bin"
+		offsetTableEntry.w byte_3E450
+		offsetTableEntry.w byte_3E468
+		offsetTableEntry.w byte_3E480
+		offsetTableEntry.w byte_3E494
+		offsetTableEntry.w byte_3E4AC
+		offsetTableEntry.w byte_3E4C4
+		offsetTableEntry.w byte_3E4D6
+		offsetTableEntry.w byte_3E4EE
+		offsetTableEntry.w byte_3E502
+		offsetTableEntry.w byte_3E51A
+		offsetTableEntry.w byte_3E532
+		offsetTableEntry.w byte_3E544
+
+byte_3E450:	c7anilistheader $20
+	c7ani objoff_34, $F8, $F8
+	c7ani objoff_2E, $F8, $F8
+	c7ani       $00, $00, $FC
+	c7ani objoff_30, $04, $FB
+	c7ani objoff_32, $03, $FB
+	c7ani objoff_3C, $FC, $FB
+	c7ani objoff_3E, $00, $FE
+byte_3E450_End
+	even
+byte_3E468:	c7anilistheader $10
+	c7ani objoff_34, $F0, $FC
+	c7ani objoff_2E, $F0, $FC
+	c7ani       $00, $F0, $FC
+	c7ani objoff_30, $F4, $FB
+	c7ani objoff_32, $F3, $FB
+	c7ani objoff_3C, $EC, $FB
+	c7ani objoff_3E, $F8, $00
+byte_3E468_End
+	even
+byte_3E480:	c7anilistheader $10
+	c7ani objoff_34, $F8, $04
+	c7ani objoff_2E, $F8, $04
+	c7ani       $00, $F8, $04
+	c7ani objoff_30, $FC, $03
+	c7ani objoff_32, $FB, $03
+	c7ani objoff_3C, $F4, $03
+byte_3E480_End
+
+byte_3E494:	c7anilistheader $10
+	c7ani objoff_34, $FC, $10
+	c7ani objoff_2E, $F8, $10
+	c7ani       $00, $00, $08
+	c7ani objoff_30, $F8, $0A
+	c7ani objoff_32, $FA, $0A
+	c7ani objoff_3C, $08, $0A
+	c7ani objoff_3E, $00, $08
+byte_3E494_End
+	even
+byte_3E4AC:	c7anilistheader $20
+	c7ani objoff_34, $FE, $FE
+	c7ani       $00, $F4, $FC
+	c7ani objoff_30, $F0, $FD
+	c7ani objoff_32, $F1, $FD
+	c7ani objoff_3C, $F8, $FD
+	c7ani objoff_3E, $EC, $FA
+	c7ani objoff_3A, $E8, $FC
+byte_3E4AC_End
+	even
+byte_3E4C4:	c7anilistheader $20
+	c7ani objoff_3E, $F8, $FC
+	c7ani objoff_3A, $F8, $FC
+	c7ani objoff_30, $FC, $FF
+	c7ani objoff_32, $FD, $FF
+	c7ani objoff_3C, $04, $FF
+byte_3E4C4_End
+	even
+byte_3E4D6:	c7anilistheader $10
+	c7ani objoff_3E, $F0, $FC
+	c7ani objoff_3A, $F0, $FC
+	c7ani       $00, $F0, $FC
+	c7ani objoff_30, $EC, $FB
+	c7ani objoff_32, $ED, $FB
+	c7ani objoff_3C, $F4, $FB
+	c7ani objoff_34, $F8, $00
+byte_3E4D6_End
+	even
+byte_3E4EE:	c7anilistheader $10
+	c7ani objoff_3E, $F8, $04
+	c7ani objoff_3A, $F8, $04
+	c7ani       $00, $F8, $04
+	c7ani objoff_30, $F4, $03
+	c7ani objoff_32, $F5, $03
+	c7ani objoff_3C, $FC, $03
+byte_3E4EE_End
+
+byte_3E502:	c7anilistheader $10
+	c7ani objoff_3E, $FC, $10
+	c7ani objoff_3A, $F8, $10
+	c7ani       $00, $00, $08
+	c7ani objoff_30, $08, $0A
+	c7ani objoff_32, $06, $0A
+	c7ani objoff_3C, $F8, $0A
+	c7ani objoff_34, $00, $08
+byte_3E502_End
+	even
+byte_3E51A:	c7anilistheader $20
+	c7ani objoff_3E, $FE, $FE
+	c7ani       $00, $F4, $FC
+	c7ani objoff_30, $F8, $FD
+	c7ani objoff_32, $F7, $FD
+	c7ani objoff_3C, $F1, $FD
+	c7ani objoff_34, $EC, $FA
+	c7ani objoff_2E, $E8, $FC
+byte_3E51A_End
+	even
+byte_3E532:	c7anilistheader $20
+	c7ani objoff_34, $F8, $FC
+	c7ani objoff_2E, $F8, $FC
+	c7ani objoff_30, $04, $FF
+	c7ani objoff_32, $03, $FF
+	c7ani objoff_3C, $FC, $FF
+byte_3E532_End
+	even
+byte_3E544:	c7anilistheader $10
+	c7ani objoff_3E, $00, $08
+	c7ani objoff_3A, $00, $08
+	c7ani       $00, $00, $08
+	c7ani objoff_30, $00, $08
+	c7ani objoff_32, $00, $08
+	c7ani objoff_3C, $00, $08
+	c7ani objoff_34, $00, $08
+byte_3E544_End
+	even
 
 ;word_3E55C
 ChildObjC7_Shoulder:
@@ -79042,7 +79291,7 @@ byte_3E5F0:	dc.b   3,$13,$12,$11,$10,$16,$FF
 ; ------------------------------------------------------------------------------
 ; sprite mappings
 ; ------------------------------------------------------------------------------
-ObjC7_MapUnc_3E5F8:	BINCLUDE "mappings/sprite/objC7_d.bin"
+ObjC7_MapUnc_3E5F8:	BINCLUDE "mappings/sprite/objC7.bin"
 ; ===========================================================================
 
 loc_3E89E:
