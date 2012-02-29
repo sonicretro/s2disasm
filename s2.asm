@@ -76421,9 +76421,9 @@ ObjC5_PlatformReleaserLoadWait:
 
 ObjC5_PlatformReleaserLoadP:	; P=Platforms
 	move.b	d0,objoff_2E(a0)
-	tst.b	$30(a0,d0.w)
+	tst.b	objoff_30(a0,d0.w)
 	bne.s	BranchTo8_JmpTo45_DisplaySprite
-	st	$30(a0,d0.w)
+	st	objoff_30(a0,d0.w)
 	lea	(ObjC5_PlatformData).l,a2
 	bsr.w	LoadChildObject
 	move.b	objoff_2E(a0),objoff_2E(a1)
@@ -79016,12 +79016,11 @@ byte_3E3BC:	c7anilistheader 8
 	c7ani objoff_3E, $06, $FE
 byte_3E3BC_End
 
-
 off_3E3D0:
 	dc.l ObjC7_GroupAni_3E3D8
 	dc.b 0, 1, 2, $C0
 ; -----------------------------------------------------------------------------
-; sprite mappings
+; Custom animation
 ; -----------------------------------------------------------------------------
 ObjC7_GroupAni_3E3D8:		offsetTable ;BINCLUDE "mappings/sprite/objC7_b.bin"
 		offsetTableEntry.w byte_3E3DE
@@ -79060,7 +79059,7 @@ off_3E42C:
 	dc.l ObjC7_GroupAni_3E438
 	dc.b $88, $87, $86, $85, $B, $40, SndID_Hammer, $C0
 ; -----------------------------------------------------------------------------
-; sprite mappings
+; Custom animation
 ; -----------------------------------------------------------------------------
 ObjC7_GroupAni_3E438:		offsetTable ;BINCLUDE "mappings/sprite/objC7_c.bin"
 		offsetTableEntry.w byte_3E450
