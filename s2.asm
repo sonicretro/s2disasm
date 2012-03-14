@@ -57084,37 +57084,40 @@ Obj58_MapUnc_2D50A:	BINCLUDE "mappings/sprite/obj58.bin"
 ; ===========================================================================
 
 	; Unused - a little dead code here (until the next label)
-	move.b	mapping_frame(a0),d0 ; a0=object
+;Boss_HoverPos:
+	move.b	boss_sine_count(a0),d0 ; a0=object
 	jsr	(CalcSine).l
 	asr.w	#6,d0
 	add.w	(Boss_Y_pos).w,d0
 	move.w	d0,y_pos(a0)
 	move.w	(Boss_X_pos).w,x_pos(a0)
-	addq.b	#2,mapping_frame(a0)
+	addq.b	#2,boss_sine_count(a0)
 
-loc_2D57C:
-	cmpi.b	#8,angle(a0)
-	bhs.s	return_2D5C2
-	tst.b	objoff_32(a0)
-	beq.s	loc_2D5C4
-	tst.b	collision_flags(a0)
-	bne.s	return_2D5C2
-	tst.b	objoff_14(a0)
-	bne.s	+
-	move.b	#$20,objoff_14(a0)
-	move.w	#SndID_BossHit,d0
+;loc_2D57C
+Boss_HandleHits:
+	cmpi.b	#8,boss_routine(a0)	; is boss exploding or retreating?
+	bhs.s	return_2D5C2		; if yes, branch
+	tst.b	boss_hitcount2(a0)	; has boss run out of hits?
+	beq.s	loc_2D5C4		; if yes, branch
+	tst.b	collision_flags(a0)	; are boss' collisions enabled?
+	bne.s	return_2D5C2		; if yes, branch
+	tst.b	boss_invulnerable_time(a0)	; is boss invulnerable?
+	bne.s	+				; if yes, branch
+	move.b	#$20,boss_invulnerable_time(a0)	; make boss invulnerable
+	move.w	#SndID_BossHit,d0	; play "boss hit" sound
 	jsr	(PlaySound).l
 +
+	; do palette flashing effect
 	lea	(Normal_palette_line2+2).w,a1
-	moveq	#0,d0
-	tst.w	(a1)
-	bne.s	+
-	move.w	#$EEE,d0
+	moveq	#0,d0		; 0000 = black
+	tst.w	(a1)		; is current color black?
+	bne.s	+		; if not, branch
+	move.w	#$EEE,d0	; 0EEE = white
 +
-	move.w	d0,(a1)
-	subq.b	#1,objoff_14(a0)
-	bne.s	return_2D5C2
-	move.b	#$F,collision_flags(a0)
+	move.w	d0,(a1)		; set color to white or black
+	subq.b	#1,boss_invulnerable_time(a0)	; decrease boss' invulnerable time
+	bne.s	return_2D5C2			; branch, if it hasn't run out
+	move.b	#$F,collision_flags(a0)		; else, restore collisions
 
 return_2D5C2:
 	rts
@@ -61394,7 +61397,6 @@ JmpTo26_SolidObject
 ; Object 57 - MCZ boss
 ; ----------------------------------------------------------------------------
 ; OST: first $10 bytes for main sprite, 6 bytes for childsprites (5th byte unused)
-obj57_sinus_count	= $1A	; mapping_frame ; frame counter for sinus offset
 obj57_sub5_y_vel	= $2E	; word - y_vel of second digger when falling down
 obj57_sub2_y_vel	= $30	; word - y_vel of first digger when falling down
 obj57_sub2_y_pos2	= $34	; longword - y_pos of first digger when falling down
@@ -61726,10 +61728,10 @@ Obj57_LoadStoneSpike:
 	move.w	#make_art_tile(ArtTile_ArtUnc_FallingRocks,0,0),art_tile(a1)
 	ori.b	#4,render_flags(a1)
 	move.b	#3,priority(a1)
-	move.b	#$D,obj57_sinus_count(a1)
+	move.b	#$D,mapping_frame(a1)
 	tst.b	d2
 	bne.s	return_31438	; stone
-	move.b	#$14,obj57_sinus_count(a1)	; spike
+	move.b	#$14,mapping_frame(a1)	; spike
 	move.b	#$B1,collision_flags(a1)
 
 return_31438:
@@ -61747,13 +61749,13 @@ Obj57_HandleHits:
 ; ===========================================================================
 ;loc_31452:
 Obj57_AddSinusOffset:	; called from routine $A and $C
-	move.b	obj57_sinus_count(a0),d0	; sinus offset something
+	move.b	boss_sine_count(a0),d0	; sinus offset something
 	jsr	(CalcSine).l
 	asr.w	#6,d0
 	add.w	(Boss_Y_pos).w,d0
 	move.w	d0,y_pos(a0)
 	move.w	(Boss_X_pos).w,x_pos(a0)
-	addq.b	#2,obj57_sinus_count(a0)	; increment frame counter for sinus offset
+	addq.b	#2,boss_sine_count(a0)	; increment frame counter for sinus offset
 ;loc_31470:
 Obj57_HandleHits_Main:
 	cmpi.b	#8,boss_routine(a0)
@@ -63724,20 +63726,30 @@ JmpTo24_ObjectMove
 ; ----------------------------------------------------------------------------
 ; Object 55 - OOZ boss
 ; ----------------------------------------------------------------------------
+; OST Variables:
+Obj55_status			= objoff_2A	; bitfield
+Obj55_anim_frame_duration	= objoff_2C	; number of frames the laser shooter displays its shooting frame
+Obj55_shot_count		= objoff_38	; number of lasers the shooter fires during its attack phase
+Obj55_laser_pos			= objoff_3E	; bitfield, each of the first four bits stands for one of the possible y positions a laser can be fired from
+
+Obj55_Wave_delay	= objoff_32	; time before the next part of the wave is created
+Obj55_Wave_parent	= objoff_34	; pointer to main vehicle
+Obj55_Wave_count	= objoff_36	; number of waves to make
+
 ; Sprite_32F90:
 Obj55:
 	moveq	#0,d0
-	move.b	objoff_A(a0),d0
+	move.b	boss_subtype(a0),d0
 	move.w	Obj55_Index(pc,d0.w),d1
 	jmp	Obj55_Index(pc,d1.w)
 ; ===========================================================================
 ; off_32F9E:
 Obj55_Index:	offsetTable
-		offsetTableEntry.w Obj55_Init	; 0
-		offsetTableEntry.w loc_32FE6	; 2
-		offsetTableEntry.w loc_3320A	; 4
-		offsetTableEntry.w loc_33456	; 6
-		offsetTableEntry.w loc_33570	; 8
+		offsetTableEntry.w Obj55_Init		; 0 - Init
+		offsetTableEntry.w Obj55_Main		; 2 - Main Vehicle
+		offsetTableEntry.w Obj55_LaserShooter	; 4 - Laser Shooter
+		offsetTableEntry.w Obj55_SpikeChain	; 6 - Spiked Chain
+		offsetTableEntry.w Obj55_Laser		; 8 - Laser
 ; ===========================================================================
 ; loc_32FA8:
 Obj55_Init:
@@ -63745,49 +63757,49 @@ Obj55_Init:
 	move.w	#make_art_tile(ArtTile_ArtNem_OOZBoss,0,0),art_tile(a0)
 	ori.b	#4,render_flags(a0)
 	move.b	#3,priority(a0)
-	bset	#6,render_flags(a0)
+	bset	#6,render_flags(a0)	; object consists of multiple sprites
 	move.b	#0,mainspr_childsprites(a0)
-	addq.b	#2,objoff_A(a0)
+	addq.b	#2,boss_subtype(a0)	; => Obj55_Main
 	move.b	#$F,collision_flags(a0)
-	move.b	#8,objoff_32(a0)
+	move.b	#8,boss_hitcount2(a0)
 	move.b	#$40,mainspr_width(a0)
 	rts
 ; ===========================================================================
-
-loc_32FE6:
+; loc_32FE6:
+Obj55_Main:
 	moveq	#0,d0
-	move.b	angle(a0),d0
-	move.w	off_32FF4(pc,d0.w),d1
-	jmp	off_32FF4(pc,d1.w)
+	move.b	boss_routine(a0),d0
+	move.w	Obj55_Main_Index(pc,d0.w),d1
+	jmp	Obj55_Main_Index(pc,d1.w)
 ; ===========================================================================
-off_32FF4:	offsetTable
-		offsetTableEntry.w loc_32FFE	; 0
-		offsetTableEntry.w loc_33078	; 2
-		offsetTableEntry.w loc_330BA	; 4
-		offsetTableEntry.w loc_33104	; 6
-		offsetTableEntry.w loc_331A6	; 8
+; off_32FF4:
+Obj55_Main_Index:	offsetTable
+		offsetTableEntry.w Obj55_Main_Init	; 0 - boss' initial state
+		offsetTableEntry.w Obj55_Main_Surface	; 2 - moving up
+		offsetTableEntry.w Obj55_Main_Wait	; 4 - stay in place for a while
+		offsetTableEntry.w Obj55_Main_Dive	; 6 - moving down
+		offsetTableEntry.w Obj55_Main_Defeated	; 8 - boss defeated and escaping
 ; ===========================================================================
-
-loc_32FFE:
+; loc_32FFE:
+Obj55_Main_Init:
 	move.w	#$2940,(Boss_X_pos).w
-	bclr	#0,render_flags(a0)
+	bclr	#0,render_flags(a0)	; face right
 	move.w	(MainCharacter+x_pos).w,d1
-	cmpi.w	#$293A,d1
-	bhs.s	loc_3301A
-	bchg	#0,render_flags(a0)
-
-loc_3301A:
+	cmpi.w	#$293A,d1	; is player on the left side of the arena?
+	bhs.s	+		; if not, branch
+	bchg	#0,render_flags(a0)	; face left
++
 	move.w	#$2D0,y_pos(a0)
 	move.w	#$2D0,(Boss_Y_pos).w
 	move.b	#8,mainspr_mapframe(a0)
 	move.b	#1,mainspr_childsprites(a0)
-	addq.b	#2,angle(a0)
+	addq.b	#2,boss_routine(a0)	; => Obj55_Main_Surface
 	move.w	#-$80,(Boss_Y_vel).w
 	move.b	#$F,collision_flags(a0)
 	move.w	x_pos(a0),sub2_x_pos(a0)
 	move.w	y_pos(a0),sub2_y_pos(a0)
-	clr.b	mapping_frame(a0)
-	clr.b	objoff_2A(a0)
+	clr.b	boss_sine_count(a0)
+	clr.b	Obj55_status(a0)
 	move.b	#8,sub2_mapframe(a0)
 	lea	(Boss_AnimationArray).w,a2
 	move.b	#5,(a2)+
@@ -63797,174 +63809,177 @@ loc_3301A:
 	move.b	#0,(Boss_CollisionRoutine).w
 	rts
 ; ===========================================================================
-
-loc_33078:
+; loc_33078:
+Obj55_Main_Surface:
 	bsr.w	Boss_MoveObject
 	move.w	(Boss_X_pos).w,x_pos(a0)
-	bsr.w	loc_330EA
-	cmpi.w	#$290,(Boss_Y_pos).w
-	bhs.w	loc_3315E
+	bsr.w	Obj55_HoverPos
+	cmpi.w	#$290,(Boss_Y_pos).w	; has boss reached its target position?
+	bhs.w	Obj55_Main_End		; if not, branch
 	move.w	#$290,(Boss_Y_pos).w
-	addq.b	#2,angle(a0)
+	addq.b	#2,boss_routine(a0)	; => Obj55_Main_Wait
 	move.w	#$A8,(Boss_Countdown).w
-	btst	#7,objoff_2A(a0)
-	bne.w	loc_3315E
+	btst	#7,Obj55_status(a0)	; was boss hit?
+	bne.w	Obj55_Main_End		; if yes, branch
 	lea	(Boss_AnimationArray).w,a2
 	move.b	#$10,(a2)+
 	move.b	#0,(a2)
-	bra.w	loc_3315E
+	bra.w	Obj55_Main_End
 ; ===========================================================================
-
-loc_330BA:
-	btst	#7,objoff_2A(a0)
-	bne.s	loc_330DC
-	bsr.w	loc_330EA
-	subi.w	#1,(Boss_Countdown).w
-	bpl.w	loc_3315E
+; loc_330BA:
+Obj55_Main_Wait:
+	btst	#7,Obj55_status(a0)	; was boss hit?
+	bne.s	+			; if yes, branch
+	bsr.w	Obj55_HoverPos
+	subi.w	#1,(Boss_Countdown).w	; hover in place for a while
+	bpl.w	Obj55_Main_End
 	lea	(Boss_AnimationArray).w,a2
 	move.b	#5,(a2)+
 	move.b	#0,(a2)
-
-loc_330DC:
-	addq.b	#2,angle(a0)
-	move.w	#-$40,(Boss_Y_vel).w
-	bra.w	loc_3315E
++
+	addq.b	#2,boss_routine(a0)	; => Obj55_Main_Dive
+	move.w	#-$40,(Boss_Y_vel).w	; bob up a little before diving
+	bra.w	Obj55_Main_End
 ; ===========================================================================
-
-loc_330EA:
-	move.b	mapping_frame(a0),d0
+; does the hovering effect
+; loc_330EA:
+Obj55_HoverPos:
+	move.b	boss_sine_count(a0),d0
 	jsr	(CalcSine).l
 	asr.w	#7,d1
 	add.w	(Boss_Y_pos).w,d1
 	move.w	d1,y_pos(a0)
-	addq.b	#4,mapping_frame(a0)
+	addq.b	#4,boss_sine_count(a0)
 	rts
 ; ===========================================================================
-
-loc_33104:
+; loc_33104:
+Obj55_Main_Dive:
 	bsr.w	Boss_MoveObject
 	move.w	(Boss_Y_pos).w,y_pos(a0)
 	move.w	(Boss_X_pos).w,x_pos(a0)
-	btst	#6,objoff_2A(a0)
-	bne.s	loc_3313C
-	cmpi.w	#$28C,(Boss_Y_pos).w
-	bhs.w	loc_3315E
+	btst	#6,Obj55_status(a0)	; is boss done rising?
+	bne.s	Obj55_Main_Dive_Part2	; if yes, branch
+	cmpi.w	#$28C,(Boss_Y_pos).w	; has boss reached initial destination (rising before diving)?
+	bhs.w	Obj55_Main_End		; if not, branch
 	move.w	#$28C,(Boss_Y_pos).w
 	move.w	#$80,(Boss_Y_vel).w
-	ori.b	#$40,objoff_2A(a0)
-	bra.w	loc_3315E
+	ori.b	#$40,Obj55_status(a0)	; set diving bit
+	bra.w	Obj55_Main_End
 ; ===========================================================================
-
-loc_3313C:
-	cmpi.w	#$2D0,(Boss_Y_pos).w
-	blo.s	loc_3315E
+; loc_3313C:
+Obj55_Main_Dive_Part2:
+	cmpi.w	#$2D0,(Boss_Y_pos).w	; has boss reached its target position?
+	blo.s	Obj55_Main_End		; if yes, branch
 	move.w	#$2D0,(Boss_Y_pos).w
-	clr.b	angle(a0)
-	addq.b	#2,objoff_A(a0)
-	btst	#7,objoff_2A(a0)
-	beq.s	loc_3315E
-	addq.b	#2,objoff_A(a0)
+	clr.b	boss_routine(a0)
+	addq.b	#2,boss_subtype(a0)	; => Obj55_LaserShooter
+	btst	#7,Obj55_status(a0)	; was boss hit?
+	beq.s	Obj55_Main_End		; if not, branch
+	addq.b	#2,boss_subtype(a0)	; => Obj55_SpikeChain
 
-loc_3315E:
-	bsr.w	loc_33174
+; loc_3315E:
+Obj55_Main_End:
+	bsr.w	Obj55_HandleHits
 	lea	(Ani_obj55).l,a1
 	bsr.w	AnimateBoss
-	bsr.w	loc_33194
+	bsr.w	Obj55_AlignSprites
 	bra.w	JmpTo41_DisplaySprite
 ; ===========================================================================
-
-loc_33174:
-	bsr.w	loc_2D57C
-	cmpi.b	#$1F,objoff_14(a0)
+; loc_33174:
+Obj55_HandleHits:
+	bsr.w	Boss_HandleHits
+	cmpi.b	#$1F,boss_invulnerable_time(a0)
 	bne.s	return_33192
 	lea	(Boss_AnimationArray).w,a1
 	andi.b	#$F0,(a1)
 	ori.b	#3,(a1)
-	ori.b	#$80,objoff_2A(a0)
+	ori.b	#$80,Obj55_status(a0)	; set boss hit bit
 
 return_33192:
 	rts
 ; ===========================================================================
-
-loc_33194:
+; loc_33194:
+Obj55_AlignSprites:
 	move.w	x_pos(a0),d0
 	move.w	y_pos(a0),d1
 	move.w	d0,sub2_x_pos(a0)
 	move.w	d1,sub2_y_pos(a0)
 	rts
 ; ===========================================================================
-
-loc_331A6:
-	clr.w	(Normal_palette_line2+2).w
-	subq.w	#1,(Boss_Countdown).w
-	bmi.s	loc_331CA
-	cmpi.w	#$1E,(Boss_Countdown).w
-	bhs.s	loc_331C2
-	move.b	#$B,mainspr_mapframe(a0)
+; loc_331A6:
+Obj55_Main_Defeated:
+	clr.w	(Normal_palette_line2+2).w	; set color to black
+	subq.w	#1,(Boss_Countdown).w		; wait for a while
+	bmi.s	Obj55_Main_Defeated_Part2	; branch, if wait is over
+	cmpi.w	#$1E,(Boss_Countdown).w		; has boss waited for a certain ammount of time?
+	bhs.s	Obj55_Explode			; if not, branch
+	move.b	#$B,mainspr_mapframe(a0)	; use defeated animation
 	bra.w	JmpTo41_DisplaySprite
 ; ===========================================================================
-
-loc_331C2:
+; loc_331C2:
+Obj55_Explode:
 	bsr.w	Boss_LoadExplosion
 	bra.w	JmpTo41_DisplaySprite
 ; ===========================================================================
-
-loc_331CA:
-	tst.b	(Boss_defeated_flag).w
-	bne.s	loc_331DE
+; loc_331CA:
+Obj55_Main_Defeated_Part2:
+	tst.b	(Boss_defeated_flag).w	; has boss been defeated?
+	bne.s	Obj55_ReleaseCamera	; if yes, branch
 	bsr.w	JmpTo8_PlayLevelMusic
 	bsr.w	JmpTo8_LoadPLC_AnimalExplosion
 	move.b	#1,(Boss_defeated_flag).w
 
-loc_331DE:
-	cmpi.w	#$2A20,(Camera_Max_X_pos).w
-	bhs.s	loc_331EC
-	addq.w	#2,(Camera_Max_X_pos).w
-	bra.s	loc_331FA
+; loc_331DE:
+Obj55_ReleaseCamera:
+	cmpi.w	#$2A20,(Camera_Max_X_pos).w	; has camera reached its destination?
+	bhs.s	Obj55_ChkDelete			; if yes, branch
+	addq.w	#2,(Camera_Max_X_pos).w		; else, move camera some more
+	bra.s	Obj55_Defeated_Sink
 ; ===========================================================================
-
-loc_331EC:
+; loc_331EC:
+Obj55_ChkDelete:
 	move.w	#$2A20,(Camera_Max_X_pos).w
-	cmpi.w	#$2D0,y_pos(a0)
-	bhs.s	BranchTo_JmpTo62_DeleteObject
+	cmpi.w	#$2D0,y_pos(a0)			; has boss reached its target position?
+	bhs.s	BranchTo_JmpTo62_DeleteObject	; if yes, branch
 
-loc_331FA:
+; loc_331FA:
+Obj55_Defeated_Sink:
 	addi.w	#1,y_pos(a0)
-	bsr.s	loc_33194
+	bsr.s	Obj55_AlignSprites
 	bra.w	JmpTo41_DisplaySprite
 ; ===========================================================================
 
 BranchTo_JmpTo62_DeleteObject 
 	bra.w	JmpTo62_DeleteObject
 ; ===========================================================================
-
-loc_3320A:
+; loc_3320A:
+Obj55_LaserShooter:
 	moveq	#0,d0
-	move.b	angle(a0),d0
-	move.w	off_33218(pc,d0.w),d1
-	jmp	off_33218(pc,d1.w)
+	move.b	boss_routine(a0),d0
+	move.w	Obj55_LaserShooter_Index(pc,d0.w),d1
+	jmp	Obj55_LaserShooter_Index(pc,d1.w)
 ; ===========================================================================
-off_33218:	offsetTable
-		offsetTableEntry.w loc_33222	; 0
-		offsetTableEntry.w loc_33296	; 2
-		offsetTableEntry.w loc_332C6	; 4
-		offsetTableEntry.w loc_33324	; 6
-		offsetTableEntry.w loc_33388	; 8
+; off_33218:
+Obj55_LaserShooter_Index:	offsetTable
+		offsetTableEntry.w Obj55_LaserShooter_Init		; 0 - laser shooter's initial state
+		offsetTableEntry.w Obj55_LaserShooter_Rise		; 2 - moving up
+		offsetTableEntry.w Obj55_LaserShooter_ChooseTarget	; 4 - stay in place for a while
+		offsetTableEntry.w Obj55_LaserShooter_Aim		; 6 - move towards target and shoot
+		offsetTableEntry.w Obj55_LaserShooter_Lower		; 8 - moving down
 ; ===========================================================================
-
-loc_33222:
-	clr.w	(Normal_palette_line2+2).w
+; loc_33222:
+Obj55_LaserShooter_Init:
+	clr.w	(Normal_palette_line2+2).w	; reset palette flash
 	move.w	#$2940,(Boss_X_pos).w
 	bclr	#0,render_flags(a0)
 	move.w	(MainCharacter+x_pos).w,d1
-	cmpi.w	#$293A,d1
-	blo.s	loc_33242
+	cmpi.w	#$293A,d1		; is player left from center?
+	blo.s	+			; if yes, branch
 	bchg	#0,render_flags(a0)
-
-loc_33242:
++
 	move.w	#$2B0,(Boss_Y_pos).w
 	move.w	#$2B0,y_pos(a0)
-	move.b	#2,angle(a0)
+	move.b	#2,boss_routine(a0)	; => Obj55_LaserShooter_Rise
 	move.b	#$8A,collision_flags(a0)
 	move.b	#5,mainspr_mapframe(a0)
 	moveq	#7,d0
@@ -63972,177 +63987,180 @@ loc_33242:
 	moveq	#0,d4
 	move.w	(Boss_Y_pos).w,d5
 
-loc_3326A:
+-	; initialize chain
 	addi.w	#$F,d5
 	move.b	d0,sub2_mapframe(a0,d4.w)
 	move.w	d5,sub2_y_pos(a0,d4.w)
 	addq.w	#next_subspr,d4
-	dbf	d2,loc_3326A
+	dbf	d2,-
+
 	move.b	#8,mainspr_childsprites(a0)
 	move.w	#-$80,(Boss_Y_vel).w
-	move.b	#0,objoff_3E(a0)
+	move.b	#0,Obj55_laser_pos(a0)
 	move.b	#1,(Boss_CollisionRoutine).w
 	rts
 ; ===========================================================================
-
-loc_33296:
+; loc_33296:
+Obj55_LaserShooter_Rise:
 	bsr.w	Boss_MoveObject
-	cmpi.w	#$240,(Boss_Y_pos).w
-	bhs.w	loc_333BA
+	cmpi.w	#$240,(Boss_Y_pos).w	; has laser shooter reached its destination?
+	bhs.w	Obj55_LaserShooter_End	; if not, branch
 	move.w	#$240,(Boss_Y_pos).w
 	move.w	#0,(Boss_Y_vel).w
-	addi.b	#2,angle(a0)
+	addi.b	#2,boss_routine(a0)	; => Obj55_LaserShooter_ChooseTarget
 	move.w	#$80,(Boss_Countdown).w
-	move.b	#3,objoff_38(a0)
-	bra.w	loc_333BA
+	move.b	#3,Obj55_shot_count(a0)	; prepare to shoot 3 lasers
+	bra.w	Obj55_LaserShooter_End
 ; ===========================================================================
-
-loc_332C6:
-	subq.b	#1,objoff_2C(a0)
-	bne.s	loc_332D2
-	move.b	#5,mainspr_mapframe(a0)
-
-loc_332D2:
-	subi.w	#1,(Boss_Countdown).w
-	bne.w	loc_333BA
-	subi.b	#1,objoff_38(a0)
-	bmi.s	loc_3330C
+; loc_332C6:
+Obj55_LaserShooter_ChooseTarget:
+	subq.b	#1,Obj55_anim_frame_duration(a0)	; is firing animation finished?
+	bne.s	+					; if not, branch
+	move.b	#5,mainspr_mapframe(a0)	; reset animation frame to not firing
++
+	subi.w	#1,(Boss_Countdown).w	; wait for a while
+	bne.w	Obj55_LaserShooter_End	; branch, as long as wait isn't over
+	subi.b	#1,Obj55_shot_count(a0)		; decrement number of shots left
+	bmi.s	Obj55_LaserShooter_DoneShooting	; branch, if no shots left
 	bsr.w	JmpTo5_RandomNumber
 
-loc_332E8:
-	addq.b	#1,d0
-	andi.w	#3,d0
-	btst	d0,objoff_3E(a0)
-	bne.s	loc_332E8
-	bset	d0,objoff_3E(a0)
+-	; find first valid firing position
+	addq.b	#1,d0			; next position
+	andi.w	#3,d0			; limit to 4 possible values
+	btst	d0,Obj55_laser_pos(a0)	; was a laser already shot in this position?
+	bne.s	-			; if yes, branch
+
+	bset	d0,Obj55_laser_pos(a0)	; set posion as used
 	add.w	d0,d0
-	move.w	word_3331C(pc,d0.w),(Boss_Countdown).w
-	addq.b	#2,angle(a0)
-	bsr.w	loc_333C6
-	bra.w	loc_333BA
+	move.w	Obj55_LaserTargets(pc,d0.w),(Boss_Countdown).w	; set target positon
+	addq.b	#2,boss_routine(a0)	; => Obj55_LaserShooter_Aim
+	bsr.w	Obj55_MoveTowardTarget
+	bra.w	Obj55_LaserShooter_End
 ; ===========================================================================
-
-loc_3330C:
+; loc_3330C:
+Obj55_LaserShooter_DoneShooting:
 	move.w	#$80,(Boss_Y_vel).w
-	move.b	#8,angle(a0)
-	bra.w	loc_333BA
+	move.b	#8,boss_routine(a0)	; => Obj55_LaserShooter_Lower
+	bra.w	Obj55_LaserShooter_End
 ; ===========================================================================
-word_3331C:
-	dc.w  $238
-	dc.w  $230	; 1
-	dc.w  $240	; 2
-	dc.w  $25F	; 3
+; word_3331C:
+Obj55_LaserTargets:
+	dc.w  $238	; 0
+	dc.w  $230	; 2
+	dc.w  $240	; 4
+	dc.w  $25F	; 6
 ; ===========================================================================
-
-loc_33324:
+; loc_33324:
+Obj55_LaserShooter_Aim:
 	bsr.w	Boss_MoveObject
 	move.w	(Boss_Countdown).w,d0
-	tst.w	(Boss_Y_vel).w
-	bmi.s	loc_3333C
-	cmp.w	(Boss_Y_pos).w,d0
-	blo.s	loc_33342
-	bra.w	loc_333BA
+	tst.w	(Boss_Y_vel).w			; is laser shooter moving up?
+	bmi.s	Obj55_LaserShooter_Aim_MovingUp	; if yes, branch
+	cmp.w	(Boss_Y_pos).w,d0	; has laser shooter reached its destination?
+	blo.s	Obj55_LaserShooter_Fire	; if yes, branch
+	bra.w	Obj55_LaserShooter_End
 ; ===========================================================================
+; loc_3333C:
+Obj55_LaserShooter_Aim_MovingUp:
+	cmp.w	(Boss_Y_pos).w,d0	; has laser shooter reached its destination?
+	blo.s	Obj55_LaserShooter_End	; if not, branch
 
-loc_3333C:
-	cmp.w	(Boss_Y_pos).w,d0
-	blo.s	loc_333BA
-
-loc_33342:
+; loc_33342:
+Obj55_LaserShooter_Fire:
 	move.w	#0,(Boss_Y_vel).w
-	move.b	#8,objoff_2C(a0)
-	move.b	#6,mainspr_mapframe(a0)
+	move.b	#8,Obj55_anim_frame_duration(a0)
+	move.b	#6,mainspr_mapframe(a0)	; use firing frame
 	bsr.w	JmpTo18_SingleObjLoad
-	bne.w	loc_333BA
+	bne.w	Obj55_LaserShooter_End
 	move.b	#ObjID_OOZBoss,id(a1) ; load obj55
-	move.b	#8,objoff_A(a1)
-	move.l	a0,objoff_34(a1)
+	move.b	#8,boss_subtype(a1)	; => Obj55_Laser
+	move.l	a0,Obj55_Wave_parent(a1)
 	move.b	#SndID_LaserBurst,d0
 	bsr.w	JmpTo11_PlaySound
-	move.b	#4,angle(a0)
+	move.b	#4,boss_routine(a0)	; => Obj55_LaserShooter_ChooseTarget
 	move.w	#$28,(Boss_Countdown).w
 	move.w	#-$80,(Boss_Y_vel).w
-	bra.w	loc_333BA
+	bra.w	Obj55_LaserShooter_End
 ; ===========================================================================
-
-loc_33388:
-	subq.b	#1,objoff_2C(a0)
-	bne.s	loc_33394
-	move.b	#5,mainspr_mapframe(a0)
-
-loc_33394:
+; loc_33388:
+Obj55_LaserShooter_Lower:
+	subq.b	#1,Obj55_anim_frame_duration(a0)	; is firing animation finished?
+	bne.s	+					; if not, branch
+	move.b	#5,mainspr_mapframe(a0)	; reset animation frame to not firing
++
 	bsr.w	Boss_MoveObject
-	cmpi.w	#$2B0,(Boss_Y_pos).w
-	blo.s	loc_333BA
+	cmpi.w	#$2B0,(Boss_Y_pos).w	; has laser shooter reached its destination?
+	blo.s	Obj55_LaserShooter_End	; if not, branch
 	move.w	#$2B0,(Boss_Y_pos).w
 	move.w	#0,(Boss_Y_vel).w
-	move.b	#0,angle(a0)
-	move.b	#2,objoff_A(a0)
+	move.b	#0,boss_routine(a0)
+	move.b	#2,boss_subtype(a0)	; => Obj55_Main_Init
 	rts
 ; ===========================================================================
-
-loc_333BA:
-	bsr.w	loc_333E0
-	bsr.w	loc_33406
+; loc_333BA:
+Obj55_LaserShooter_End:
+	bsr.w	Obj55_LaserShooter_FacePlayer
+	bsr.w	Obj55_LaserShooter_Wind
 	bra.w	JmpTo41_DisplaySprite
 ; ===========================================================================
-
-loc_333C6:
+; sets the laser shooter's y velocity so that it moves toward its target
+; loc_333C6:
+Obj55_MoveTowardTarget:
 	move.w	(Boss_Countdown).w,d0
 	sub.w	(Boss_Y_pos).w,d0
-	bpl.s	loc_333D8
+	bpl.s	Obj55_LaserShooter_MoveUp	; branch, if laser shooter is below target
 	move.w	#-$80,(Boss_Y_vel).w
 	rts
 ; ===========================================================================
-
-loc_333D8:
+; loc_333D8:
+Obj55_LaserShooter_MoveUp:
 	move.w	#$80,(Boss_Y_vel).w
 	rts
 ; ===========================================================================
-
-loc_333E0:
+; loc_333E0:
+Obj55_LaserShooter_FacePlayer:
 	move.w	(MainCharacter+x_pos).w,d0
 	sub.w	x_pos(a0),d0
-	blt.s	loc_333F8
-	subi.w	#8,d0
+	blt.s	Obj55_LaserShooter_FaceLeft	; branch, if player is to the left
+	subi.w	#8,d0		; allow an 8 pixel margin
 	blt.s	return_333F6
 	bset	#0,render_flags(a0)
 
 return_333F6:
 	rts
 ; ===========================================================================
-
-loc_333F8:
-	addi.w	#8,d0
+; loc_333F8:
+Obj55_LaserShooter_FaceLeft:
+	addi.w	#8,d0		; allow an 8 pixel margin
 	bgt.s	return_333F6
 	bclr	#0,render_flags(a0)
 	rts
 ; ===========================================================================
-
-loc_33406:
+; creates the twisting effect
+; loc_33406:
+Obj55_LaserShooter_Wind:
 	move.w	(Boss_X_pos).w,d5
 	move.w	(Boss_Y_pos).w,d6
-	move.b	mapping_frame(a0),d3
+	move.b	boss_sine_count(a0),d3
 	move.b	d3,d0
-	bsr.w	loc_33446
+	bsr.w	Obj55_LaserShooter_CalcSineRelative
 	move.w	d1,x_pos(a0)
 	move.w	d0,y_pos(a0)
-	addi.b	#2,mapping_frame(a0)
+	addi.b	#2,boss_sine_count(a0)
 	moveq	#7,d2
 	moveq	#0,d4
 
-loc_3342A:
-	addi.w	#$F,d6
+-	addi.w	#$F,d6
 	subi.b	#$10,d3
-	bsr.w	loc_33446
+	bsr.w	Obj55_LaserShooter_CalcSineRelative
 	move.w	d1,sub2_x_pos(a0,d4.w)
 	move.w	d0,sub2_y_pos(a0,d4.w)
 	addq.w	#next_subspr,d4
-	dbf	d2,loc_3342A
+	dbf	d2,-
 	rts
 ; ===========================================================================
-
-loc_33446:
+; loc_33446:
+Obj55_LaserShooter_CalcSineRelative:
 	move.b	d3,d0
 	bsr.w	JmpTo13_CalcSine
 	asr.w	#4,d1
@@ -64151,202 +64169,200 @@ loc_33446:
 	add.w	d6,d0
 	rts
 ; ===========================================================================
-
-loc_33456:
+; loc_33456:
+Obj55_SpikeChain:
 	moveq	#0,d0
-	move.b	angle(a0),d0
-	move.w	off_33464(pc,d0.w),d1
-	jmp	off_33464(pc,d1.w)
+	move.b	boss_routine(a0),d0
+	move.w	Obj55_SpikeChain_Index(pc,d0.w),d1
+	jmp	Obj55_SpikeChain_Index(pc,d1.w)
 ; ===========================================================================
-off_33464:	offsetTable
-		offsetTableEntry.w loc_33468	; 0
-		offsetTableEntry.w loc_334CC	; 2
+; off_33464:
+Obj55_SpikeChain_Index:	offsetTable
+		offsetTableEntry.w Obj55_SpikeChain_Init	; 0 - spiked chain's initial state
+		offsetTableEntry.w Obj55_SpikeChain_Main	; 2 - spiked chain moving at an arc
 ; ===========================================================================
-
-loc_33468:
-	clr.w	(Normal_palette_line2+2).w
+; loc_33468:
+Obj55_SpikeChain_Init:
+	clr.w	(Normal_palette_line2+2).w	; reset palette flash
 	move.w	#$28C0,(Boss_X_pos).w
 	bclr	#0,render_flags(a0)
 	move.w	(MainCharacter+x_pos).w,d1
-	cmpi.w	#$293A,d1
-	blo.s	loc_3348E
+	cmpi.w	#$293A,d1	; is player on the left side of the arena?
+	blo.s	+		; if yes, branch
 	move.w	#$29C0,(Boss_X_pos).w
 	bset	#0,render_flags(a0)
-
-loc_3348E:
++
 	move.w	#$2A0,(Boss_Y_pos).w
 	move.b	#2,mainspr_mapframe(a0)
 	move.b	#$8A,collision_flags(a0)
-	addq.b	#2,angle(a0)
+	addq.b	#2,boss_routine(a0)	; => Obj55_SpikeChain_Main
 	move.b	#$80,mainspr_width(a0)
-	clr.b	mapping_frame(a0)
+	clr.b	boss_sine_count(a0)
 	moveq	#7,d0
 	moveq	#7,d1
 	moveq	#0,d2
 
-loc_334B4:
-	move.b	d1,sub2_mapframe(a0,d2.w)
+-	move.b	d1,sub2_mapframe(a0,d2.w)
 	addq.w	#next_subspr,d2
-	dbf	d0,loc_334B4
+	dbf	d0,-
+
 	move.b	#8,mainspr_childsprites(a0)
 	move.b	#2,(Boss_CollisionRoutine).w
 	rts
 ; ===========================================================================
-
-loc_334CC:
-	bsr.w	loc_334EE
-	cmpi.b	#-2,mapping_frame(a0)
-	blo.s	loc_334E6
-	move.b	#0,angle(a0)
-	move.b	#4,objoff_A(a0)
+; loc_334CC:
+Obj55_SpikeChain_Main:
+	bsr.w	Obj55_SpikeChain_Move
+	cmpi.b	#$FE,boss_sine_count(a0)	; has chain reached a certain angle?
+	blo.s	Obj55_SpikeChain_End		; if not, branch
+	move.b	#0,boss_routine(a0)
+	move.b	#4,boss_subtype(a0)	; => Obj55_LaserShooter_Init
 	rts
 ; ===========================================================================
-
-loc_334E6:
-	bsr.w	loc_3354C
+; loc_334E6:
+Obj55_SpikeChain_End:
+	bsr.w	Obj55_SpikeChain_SetAnimFrame
 	bra.w	JmpTo41_DisplaySprite
 ; ===========================================================================
-
-loc_334EE:
-	move.b	mapping_frame(a0),d0
+; loc_334EE:
+Obj55_SpikeChain_Move:
+	move.b	boss_sine_count(a0),d0
 	addi.b	#$40,d0
 	move.b	d0,d3
-	bsr.w	loc_33526
+	bsr.w	Obj55_SpikeChain_Rotate
 	move.w	d1,x_pos(a0)
 	move.w	d0,y_pos(a0)
-	addi.b	#1,mapping_frame(a0)
+	addi.b	#1,boss_sine_count(a0)
 	moveq	#7,d2
 	moveq	#0,d4
 
-loc_3350E:
-	subi.b	#6,d3
-	bsr.w	loc_33526
+-	subi.b	#6,d3
+	bsr.w	Obj55_SpikeChain_Rotate
 	move.w	d1,sub2_x_pos(a0,d4.w)
 	move.w	d0,sub2_y_pos(a0,d4.w)
 	addq.w	#next_subspr,d4
-	dbf	d2,loc_3350E
+	dbf	d2,-
 	rts
 ; ===========================================================================
-
-loc_33526:
+; loc_33526:
+Obj55_SpikeChain_Rotate:
 	move.b	d3,d0
 	bsr.w	JmpTo13_CalcSine
 	muls.w	#$68,d1
 	asr.l	#8,d1
 	btst	#0,render_flags(a0)
-	bne.s	loc_3353C
+	bne.s	+
 	neg.w	d1
-
-loc_3353C:
++
 	add.w	(Boss_X_pos).w,d1
 	muls.w	#$68,d0
 	asr.l	#8,d0
 	add.w	(Boss_Y_pos).w,d0
 	rts
 ; ===========================================================================
-
-loc_3354C:
-	move.b	mapping_frame(a0),d0
+; loc_3354C:
+Obj55_SpikeChain_SetAnimFrame:
+	move.b	boss_sine_count(a0),d0
 	moveq	#$15,d1
 	cmpi.b	#$52,d0
-	blo.s	loc_3356A
+	blo.s	+
 	moveq	#3,d1
 	cmpi.b	#$6B,d0
-	blo.s	loc_3356A
+	blo.s	+
 	moveq	#2,d1
 	cmpi.b	#-$6E,d0
-	blo.s	loc_3356A
+	blo.s	+
 	moveq	#4,d1
-
-loc_3356A:
++
 	move.b	d1,mainspr_mapframe(a0)
 	rts
 ; ===========================================================================
-
-loc_33570:
+; loc_33570:
+Obj55_Laser:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
-	move.w	off_3357E(pc,d0.w),d0
-	jmp	off_3357E(pc,d0.w)
+	move.w	Obj55_Laser_Index(pc,d0.w),d0
+	jmp	Obj55_Laser_Index(pc,d0.w)
 ; ===========================================================================
-off_3357E:	offsetTable
-		offsetTableEntry.w loc_33586				; 0
-		offsetTableEntry.w loc_335DE				; 2
-		offsetTableEntry.w loc_336B2				; 4
-		offsetTableEntry.w BranchTo2_JmpTo62_DeleteObject	; 6
+; off_3357E:
+Obj55_Laser_Index:	offsetTable
+		offsetTableEntry.w Obj55_Laser_Init			; 0 - Init
+		offsetTableEntry.w Obj55_Laser_Main			; 2 - Laser moving horizontally
+		offsetTableEntry.w Obj55_Wave				; 4 - Energy wave that moves along the ground
+		offsetTableEntry.w BranchTo2_JmpTo62_DeleteObject	; 6 - Delete (triggered by an animation)
 ; ===========================================================================
-
-loc_33586:
-	addq.b	#2,routine_secondary(a0)
+; loc_33586:
+Obj55_Laser_Init:
+	addq.b	#2,routine_secondary(a0)	; => Obj55_Laser_Main
 	move.l	#Obj55_MapUnc_33756,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_OOZBoss,0,0),art_tile(a0)
 	ori.b	#4,render_flags(a0)
 	move.b	#4,priority(a0)
-	movea.l	objoff_34(a0),a1 ; a1=object
+	movea.l	Obj55_Wave_parent(a0),a1 ; a1=object
 	move.w	x_pos(a1),x_pos(a0)
 	move.w	y_pos(a1),y_pos(a0)
 	move.b	#$C,mapping_frame(a0)
 	move.w	#-$20,d0
 	move.w	#-$400,x_vel(a0)
 	btst	#0,render_flags(a1)
-	beq.s	loc_335D2
+	beq.s	+
 	neg.w	d0
 	neg.w	x_vel(a0)
-
-loc_335D2:
++
 	add.w	d0,x_pos(a0)
 	move.b	#$AF,collision_flags(a0)
 	rts
 ; ===========================================================================
-
-loc_335DE:
-	bsr.w	loc_335FE
+; loc_335DE:
+Obj55_Laser_Main:
+	bsr.w	Obj55_Laser_ChkGround
 	bsr.w	JmpTo25_ObjectMove
-	cmpi.w	#$2870,x_pos(a0)
-	blo.w	JmpTo62_DeleteObject
-	cmpi.w	#$2A10,x_pos(a0)
-	bhs.w	JmpTo62_DeleteObject
+	cmpi.w	#$2870,x_pos(a0)	; has laser moved off screen going left?
+	blo.w	JmpTo62_DeleteObject	; if yes, branch
+	cmpi.w	#$2A10,x_pos(a0)	; has laser moved off screen going right?
+	bhs.w	JmpTo62_DeleteObject	; if yes, branch
 	bra.w	JmpTo41_DisplaySprite
 ; ===========================================================================
-
-loc_335FE:
-	cmpi.w	#$250,y_pos(a0)
-	blo.s	return_33626
-	tst.w	x_vel(a0)
-	bmi.w	loc_33628
+; checks if laser hit the ground
+; loc_335FE:
+Obj55_Laser_ChkGround:
+	cmpi.w	#$250,y_pos(a0)		; is laser on ground level?
+	blo.s	return_33626		; if not, branch
+	tst.w	x_vel(a0)			; is laser moving left?
+	bmi.w	Obj55_Laser_ChkGroundLeft	; if yes, branch
 	move.w	x_pos(a0),d0
 	cmpi.w	#$2980,d0
 	bhs.s	return_33626
 	cmpi.w	#$297C,d0
 	blo.w	return_33626
-	move.w	#$2988,d1
-	bra.s	loc_33640
+	move.w	#$2988,d1		; wave's start position
+	bra.s	Obj55_Laser_CreateWave
 ; ===========================================================================
 
 return_33626:
 	rts
 ; ===========================================================================
-
-loc_33628:
+; loc_33628:
+Obj55_Laser_ChkGroundLeft:
 	move.w	x_pos(a0),d0
 	cmpi.w	#$2900,d0
 	blo.s	return_3363E
 	cmpi.w	#$2904,d0
 	bhs.s	return_3363E
-	move.w	#$28F8,d1
-	bra.s	loc_33640
+	move.w	#$28F8,d1		; wave's start position
+	bra.s	Obj55_Laser_CreateWave
 ; ===========================================================================
 
 return_3363E:
 	rts
 ; ===========================================================================
-
-loc_33640:
+; loc_33640:
+Obj55_Laser_CreateWave:
 	bsr.w	JmpTo18_SingleObjLoad
 	bne.s	return_336B0
 	move.b	#ObjID_OOZBoss,id(a1) ; load obj55
-	move.b	#8,objoff_A(a1)
-	move.b	#4,routine_secondary(a1)
+	move.b	#8,boss_subtype(a1)
+	move.b	#4,routine_secondary(a1)	; => Obj55_Wave
 	move.b	#$8B,collision_flags(a1)
 	move.b	#2,anim(a1)
 	move.b	#$D,mapping_frame(a1)
@@ -64356,8 +64372,8 @@ loc_33640:
 	bsr.w	JmpTo63_Adjust2PArtPointer
 	ori.b	#4,render_flags(a1)
 	move.b	#2,priority(a1)
-	move.w	#5,objoff_32(a1)
-	move.b	#7,objoff_36(a1)
+	move.w	#5,Obj55_Wave_delay(a1)
+	move.b	#7,Obj55_Wave_count(a1)
 	move.w	x_vel(a0),x_vel(a1)
 	move.w	d1,x_pos(a1)
 	move.w	#$250,y_pos(a1)
@@ -64367,35 +64383,34 @@ loc_33640:
 return_336B0:
 	rts
 ; ===========================================================================
-
-loc_336B2:
-	subq.w	#1,objoff_32(a0)
-	bpl.s	loc_33700
-	move.w	#$C7,objoff_32(a0)
-	subq.b	#1,objoff_36(a0)
-	bmi.s	loc_33700
+; loc_336B2:
+Obj55_Wave:
+	subq.w	#1,Obj55_Wave_delay(a0)
+	bpl.s	Obj55_Wave_End
+	move.w	#$C7,Obj55_Wave_delay(a0)
+	subq.b	#1,Obj55_Wave_count(a0)
+	bmi.s	Obj55_Wave_End
 	bsr.w	JmpTo24_SingleObjLoad2
-	bne.s	loc_33700
+	bne.s	Obj55_Wave_End
 	moveq	#0,d0
 	move.w	#bytesToLcnt(object_size),d1
 
-loc_336D0:
-	move.l	(a0,d0.w),(a1,d0.w)
+-	move.l	(a0,d0.w),(a1,d0.w)	; make new object a copy of this one
 	addq.w	#4,d0
-	dbf	d1,loc_336D0
-	move.w	#5,objoff_32(a1)
-	move.w	#$200,anim(a1)
-	move.w	#$10,d0
-	tst.w	x_vel(a1)
-	bpl.s	loc_336F4
-	neg.w	d0
+	dbf	d1,-
 
-loc_336F4:
-	add.w	d0,x_pos(a1)
+	move.w	#5,Obj55_Wave_delay(a1)
+	move.w	#$200,anim(a1)
+	move.w	#$10,d0		; place new wave object 16 pixels next to current one
+	tst.w	x_vel(a1)	; is object going left?
+	bpl.s	+		; if not, branch
+	neg.w	d0		; flip offset
++
+	add.w	d0,x_pos(a1)	; set position
 	move.b	#SndID_LaserFloor,d0
 	bsr.w	JmpTo11_PlaySound
 
-loc_33700:
+Obj55_Wave_End:
 	lea	(Ani_obj55).l,a1
 	bsr.w	JmpTo22_AnimateSprite
 	bra.w	JmpTo38_MarkObjGone

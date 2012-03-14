@@ -77,6 +77,7 @@ parent =		$3E ; and $3F ; address of object that owns or spawned this one, if ap
 ; conventions followed by some/most bosses:
 boss_subtype		= $A
 boss_invulnerable_time	= $14
+boss_sine_count		= $1A	;mapping_frame
 boss_routine		= $26	;angle
 boss_defeated		= $2C
 boss_hitcount2		= $32
