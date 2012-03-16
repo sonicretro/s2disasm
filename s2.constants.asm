@@ -118,7 +118,7 @@ next_subspr		= $6
 ; (provided because rearrangement of the above values sometimes requires making space in here too)
 objoff_A =		2+x_pos ; note: x_pos can be 4 bytes, but sometimes the last 2 bytes of x_pos are used for other unrelated things
 objoff_B =		3+x_pos ; unused
-objoff_E =		2+y_pos
+objoff_E =		2+y_pos	; unused
 objoff_F =		3+y_pos ; unused
 objoff_10 =		$10
 objoff_14 =		$14

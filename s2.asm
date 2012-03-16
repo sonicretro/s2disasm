@@ -9128,7 +9128,7 @@ loc_7480:
 	addi.w	#$54,d1
 /	move.w	d1,(a1,d5.w)
 	addi.w	#8,d1
-	addq.w	#6,d5
+	addq.w	#next_subspr,d5
 	dbf	d4,-
 	cmpi.w	#1,(Player_mode).w
 	beq.s	loc_7536
@@ -23809,8 +23809,8 @@ off_12E76:	offsetTable
 Obj0E_Sonic_Init:
 	addq.b	#2,routine_secondary(a0)
 	move.b	#5,mapping_frame(a0)
-	move.w	#$110,x_pos(a0)
-	move.w	#$E0,objoff_A(a0)
+	move.w	#$110,x_pixel(a0)
+	move.w	#$E0,y_pixel(a0)
 	lea	(IntroLargeStar).w,a1
 	move.b	#ObjID_IntroStars,id(a1) ; load obj0E (flashing intro stars) at $FFFFB0C0
 	move.b	#8,subtype(a1)				; large star
@@ -23878,9 +23878,9 @@ loc_12F20:
 	bhs.w	loc_1310A
 	move.w	d1,objoff_2C(a0)
 	move.l	-4(a1,d1.w),d0
-	move.w	d0,objoff_A(a0)
+	move.w	d0,y_pixel(a0)
 	swap	d0
-	move.w	d0,x_pos(a0)
+	move.w	d0,x_pixel(a0)
 +
 	bra.w	DisplaySprite
 ; ===========================================================================
@@ -24004,8 +24004,8 @@ off_13074:	offsetTable
 
 Obj0E_Tails_Init:
 	addq.b	#2,routine_secondary(a0)
-	move.w	#$D8,x_pos(a0)
-	move.w	#$D8,objoff_A(a0)
+	move.w	#$D8,x_pixel(a0)
+	move.w	#$D8,y_pixel(a0)
 	move.b	#1,anim(a0)
 	rts
 ; ===========================================================================
@@ -24054,8 +24054,8 @@ Obj0E_LogoTop_Init:
 	move.b	#$A,mapping_frame(a0)
 +
 	move.b	#2,priority(a0)
-	move.w	#$120,x_pos(a0)
-	move.w	#$E8,objoff_A(a0)
+	move.w	#$120,x_pixel(a0)
+	move.w	#$E8,y_pixel(a0)
 
 loc_1310A:
 	addq.b	#2,routine_secondary(a0)
@@ -24080,8 +24080,8 @@ Obj0E_SkyPiece_Init:
 	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,0,0),art_tile(a0)
 	move.b	#$11,mapping_frame(a0)
 	move.b	#2,priority(a0)
-	move.w	#$100,x_pos(a0)
-	move.w	#$F0,objoff_A(a0)
+	move.w	#$100,x_pixel(a0)
+	move.w	#$F0,y_pixel(a0)
 
 BranchTo12_DisplaySprite 
 	bra.w	DisplaySprite
@@ -24106,8 +24106,8 @@ Obj0E_LargeStar_Init:
 	ori.w	#high_priority,art_tile(a0)
 	move.b	#2,anim(a0)
 	move.b	#1,priority(a0)
-	move.w	#$100,x_pos(a0)
-	move.w	#$A8,objoff_A(a0)
+	move.w	#$100,x_pixel(a0)
+	move.w	#$A8,y_pixel(a0)
 	move.w	#4,objoff_2A(a0)
 	rts
 ; ===========================================================================
@@ -24133,9 +24133,9 @@ loc_1319E:
 	bhs.w	DeleteObject
 	move.w	d0,objoff_2C(a0)
 	move.l	word_131DC-4(pc,d0.w),d0
-	move.w	d0,objoff_A(a0)
+	move.w	d0,y_pixel(a0)
 	swap	d0
-	move.w	d0,x_pos(a0)
+	move.w	d0,x_pixel(a0)
 	moveq	#SndID_Sparkle,d0 ; play intro sparkle sound
 	bra.w	JmpTo4_PlaySound
 ; ===========================================================================
@@ -24169,8 +24169,8 @@ Obj0E_SonicHand_Init:
 	addq.b	#2,routine_secondary(a0)
 	move.b	#9,mapping_frame(a0)
 	move.b	#3,priority(a0)
-	move.w	#$145,x_pos(a0)
-	move.w	#$BF,objoff_A(a0)
+	move.w	#$145,x_pixel(a0)
+	move.w	#$BF,y_pixel(a0)
 
 BranchTo13_DisplaySprite 
 	bra.w	DisplaySprite
@@ -24204,8 +24204,8 @@ Obj0E_TailsHand_Init:
 	addq.b	#2,routine_secondary(a0)
 	move.b	#$13,mapping_frame(a0)
 	move.b	#3,priority(a0)
-	move.w	#$10F,x_pos(a0)
-	move.w	#$D5,objoff_A(a0)
+	move.w	#$10F,x_pixel(a0)
+	move.w	#$D5,y_pixel(a0)
 
 BranchTo14_DisplaySprite 
 	bra.w	DisplaySprite
@@ -24237,8 +24237,8 @@ Obj0E_SmallStar_Init:
 	addq.b	#2,routine_secondary(a0)
 	move.b	#$C,mapping_frame(a0)
 	move.b	#5,priority(a0)
-	move.w	#$170,x_pos(a0)
-	move.w	#$80,objoff_A(a0)
+	move.w	#$170,x_pixel(a0)
+	move.w	#$80,y_pixel(a0)
 	move.b	#3,anim(a0)
 	move.w	#$8C,objoff_2A(a0)
 	bra.w	DisplaySprite
@@ -24247,8 +24247,8 @@ Obj0E_SmallStar_Init:
 loc_132D2:
 	subq.w	#1,objoff_2A(a0)
 	bmi.w	DeleteObject
-	subq.w	#2,x_pos(a0)
-	addq.w	#1,objoff_A(a0)
+	subq.w	#2,x_pixel(a0)
+	addq.w	#1,y_pixel(a0)
 	lea	(Ani_obj0E).l,a1
 	bsr.w	AnimateSprite
 	bra.w	DisplaySprite
@@ -24432,8 +24432,8 @@ TitleScreen_SetFinalState:
 	st.b	objoff_2F(a0)
 	move.b	#$10,routine_secondary(a0)
 	move.b	#$12,mapping_frame(a0)
-	move.w	#$108,x_pos(a0)
-	move.w	#$98,objoff_A(a0)
+	move.w	#$108,x_pixel(a0)
+	move.w	#$98,y_pixel(a0)
 	lea	(IntroSonicHand).w,a1
 	bsr.w	TitleScreen_InitSprite
 	move.b	#ObjID_IntroStars,id(a1) ; load obj0E (flashing intro star) at $FFFFB1C0
@@ -24441,8 +24441,8 @@ TitleScreen_SetFinalState:
 	move.b	#2,priority(a1)
 	move.b	#9,mapping_frame(a1)
 	move.b	#4,routine_secondary(a1)
-	move.w	#$141,x_pos(a1)
-	move.w	#$C1,objoff_A(a1)
+	move.w	#$141,x_pixel(a1)
+	move.w	#$C1,y_pixel(a1)
 	lea	(IntroTails).w,a1
 	bsr.w	TitleScreen_InitSprite
 	move.b	#ObjID_IntroStars,id(a1) ; load obj0E
@@ -24450,8 +24450,8 @@ TitleScreen_SetFinalState:
 	move.b	#4,mapping_frame(a1)
 	move.b	#6,routine_secondary(a1)
 	move.b	#3,priority(a1)
-	move.w	#$C8,x_pos(a1)
-	move.w	#$A0,objoff_A(a1)
+	move.w	#$C8,x_pixel(a1)
+	move.w	#$A0,y_pixel(a1)
 	lea	(IntroTailsHand).w,a1
 	bsr.w	TitleScreen_InitSprite
 	move.b	#ObjID_IntroStars,id(a1) ; load obj0E
@@ -24459,8 +24459,8 @@ TitleScreen_SetFinalState:
 	move.b	#2,priority(a1)
 	move.b	#$13,mapping_frame(a1)
 	move.b	#4,routine_secondary(a1)
-	move.w	#$10D,x_pos(a1)
-	move.w	#$D1,objoff_A(a1)
+	move.w	#$10D,x_pixel(a1)
+	move.w	#$D1,y_pixel(a1)
 	lea	(IntroEmblemTop).w,a1
 	move.b	#ObjID_IntroStars,id(a1) ; load obj0E
 	move.b	#6,subtype(a1)				; logo top
@@ -25523,7 +25523,7 @@ Obj6F_InitEmeraldText:
 	move.b	#$19,mapping_frame(a0)		; "Chaos Emeralds"
 +
 	move.w	objoff_30(a0),d0
-	cmp.w	x_pos(a0),d0
+	cmp.w	x_pixel(a0),d0
 	bne.s	BranchTo2_Obj34_MoveTowardsTargetPosition
 	move.b	#$1C,routine(a0)	; => Obj6F_TimedDisplay
 	move.w	#$B4,anim_frame_duration(a0)
@@ -25602,7 +25602,7 @@ Obj6F_P1Rings:
 	bne.s	+										; Branch if not
 	move.w	#5000,(Bonus_Countdown_1).w				; Perfect bonus
 	move.b	#$2A,routine(a0)	; => Obj6F_PerfectBonus
-	move.w	#$120,objoff_A(a0)
+	move.w	#$120,y_pixel(a0)
 	st.b	(Update_Bonus_score).w	; set to -1 (update)
 	move.w	#SndID_Signpost,d0
 	jsr	(PlaySound).l
@@ -25612,7 +25612,7 @@ Obj6F_P1Rings:
 +
 	move.w	(Player_mode).w,d0
 	beq.s	++
-	move.w	#$120,objoff_A(a0)
+	move.w	#$120,y_pixel(a0)
 	subq.w	#1,d0
 	beq.s	++
 	moveq	#$E,d0		; "Miles rings"
@@ -25759,10 +25759,10 @@ Obj6F_InitAndMoveSuperMsg:
 	cmp.w	objoff_32(a0),d0
 	bne.s	Obj6F_MoveToTargetPos
 	move.b	#$14,next_object+routine(a0)			; => BranchTo3_Obj34_MoveTowardsTargetPosition
-	subq.w	#8,next_object+objoff_A(a0)
+	subq.w	#8,next_object+y_pixel(a0)
 	move.b	#$1A,next_object+mapping_frame(a0)		; "Now Sonic can"
 	move.b	#$34,routine(a0)						; => Obj6F_MoveAndDisplay
-	subq.w	#8,objoff_A(a0)
+	subq.w	#8,y_pixel(a0)
 	move.b	#$1B,mapping_frame(a0)					; "Change into"
 	lea	(SpecialStageResults2).w,a1
 	_move.b	id(a0),id(a1) ; load obj6F; (uses screen-space)
@@ -27030,12 +27030,12 @@ ObjectMoveAndFall:
 	move.w	x_vel(a0),d0	; load x speed
 	ext.l	d0
 	asl.l	#8,d0	; shift velocity to line up with the middle 16 bits of the 32-bit position
-	add.l	d0,d2	; add x speed to x position	; note this affects the subpixel position objoff_A(a0) = 2+x_pos(a0)
+	add.l	d0,d2	; add x speed to x position	; note this affects the subpixel position x_sub(a0) = 2+x_pos(a0)
 	move.w	y_vel(a0),d0	; load y speed
 	addi.w	#$38,y_vel(a0)	; increase vertical speed (apply gravity)
 	ext.l	d0
 	asl.l	#8,d0	; shift velocity to line up with the middle 16 bits of the 32-bit position
-	add.l	d0,d3	; add old y speed to y position	; note this affects the subpixel position objoff_E(a0) = 2+y_pos(a0)
+	add.l	d0,d3	; add old y speed to y position	; note this affects the subpixel position y_sub(a0) = 2+y_pos(a0)
 	move.l	d2,x_pos(a0)	; store new x position
 	move.l	d3,y_pos(a0)	; store new y position
 	rts
@@ -27057,11 +27057,11 @@ ObjectMove:
 	move.w	x_vel(a0),d0	; load horizontal speed
 	ext.l	d0
 	asl.l	#8,d0	; shift velocity to line up with the middle 16 bits of the 32-bit position
-	add.l	d0,d2	; add to x-axis position	; note this affects the subpixel position objoff_A(a0) = 2+x_pos(a0)
+	add.l	d0,d2	; add to x-axis position	; note this affects the subpixel position x_sub(a0) = 2+x_pos(a0)
 	move.w	y_vel(a0),d0	; load vertical speed
 	ext.l	d0
 	asl.l	#8,d0	; shift velocity to line up with the middle 16 bits of the 32-bit position
-	add.l	d0,d3	; add to y-axis position	; note this affects the subpixel position objoff_E(a0) = 2+y_pos(a0)
+	add.l	d0,d3	; add to y-axis position	; note this affects the subpixel position y_sub(a0) = 2+y_pos(a0)
 	move.l	d2,x_pos(a0)	; update x-axis position
 	move.l	d3,y_pos(a0)	; update y-axis position
 	rts
@@ -27437,8 +27437,8 @@ BuildSprites_ObjLoop:
 ; ===========================================================================
 ; loc_166A6:
 BuildSprites_ScreenSpaceObj:
-	move.w	objoff_A(a0),d2
-	move.w	x_pos(a0),d3
+	move.w	y_pixel(a0),d2
+	move.w	x_pixel(a0),d3
 	bra.s	BuildSprites_DrawSprite
 ; ===========================================================================
 ; loc_166B0:
@@ -27824,8 +27824,8 @@ BuildSprites_P1_ObjLoop:
 ; ===========================================================================
 ; loc_16A00:
 BuildSprites_P1_ScreenSpaceObj:
-	move.w	objoff_A(a0),d2
-	move.w	x_pos(a0),d3
+	move.w	y_pixel(a0),d2
+	move.w	x_pixel(a0),d3
 	addi.w	#128,d2
 	bra.s	BuildSprites_P1_DrawSprite
 ; ===========================================================================
@@ -27937,8 +27937,8 @@ BuildSprites_P2_ObjLoop:
 ; ===========================================================================
 ; loc_16B14:
 BuildSprites_P2_ScreenSpaceObj:
-	move.w	objoff_A(a0),d2
-	move.w	x_pos(a0),d3
+	move.w	y_pixel(a0),d2
+	move.w	x_pixel(a0),d3
 	addi.w	#$160,d2
 	bra.s	BuildSprites_P2_DrawSprite
 ; ===========================================================================
@@ -37723,11 +37723,11 @@ Obj0A_ShowNumber:
 	move.w	x_pos(a0),d0
 	sub.w	(Camera_X_pos).w,d0
 	addi.w	#$80,d0
-	move.w	d0,x_pos(a0)
+	move.w	d0,x_pixel(a0)
 	move.w	y_pos(a0),d0
 	sub.w	(Camera_Y_pos).w,d0
 	addi.w	#$80,d0
-	move.w	d0,objoff_A(a0)
+	move.w	d0,y_pixel(a0)
 	move.b	#$C,routine(a0)
 
 return_1D4BE:
@@ -42203,13 +42203,13 @@ Obj7C_Main:
 	asr.w	#1,d1
 	add.w	d1,d0
 	neg.w	d0
-	move.w	d0,x_pos(a0)
+	move.w	d0,x_pixel(a0)
 	move.w	(Camera_Y_pos).w,d1
 	asr.w	#1,d1
 	andi.w	#$3F,d1
 	neg.w	d1
 	addi.w	#$100,d1
-	move.w	d1,objoff_A(a0)
+	move.w	d1,y_pixel(a0)
 	bra.w	JmpTo10_DisplaySprite
 ; ---------------------------------------------------------------------------
 +	rts
@@ -43158,8 +43158,8 @@ loc_21B56:
 	move.w	d1,y_pos(a0)
 	add.w	objoff_30(a0),d2
 	move.w	d2,x_pos(a0)
-	clr.w	objoff_E(a0)
-	clr.w	objoff_A(a0)
+	clr.w	y_sub(a0)
+	clr.w	x_sub(a0)
 	rts
 ; ===========================================================================
 
@@ -50532,8 +50532,8 @@ loc_28218:
 	move.w	d0,x_vel(a0)
 	move.w	d3,y_vel(a0)
 	swap	d0
-	move.w	d0,objoff_A(a0)
-	clr.w	objoff_E(a0)
+	move.w	d0,x_sub(a0)
+	clr.w	y_sub(a0)
 	rts
 ; ===========================================================================
 
@@ -50550,8 +50550,8 @@ loc_2823E:
 	move.w	d1,y_vel(a0)
 	move.w	d2,x_vel(a0)
 	swap	d1
-	move.w	d1,objoff_E(a0)
-	clr.w	objoff_A(a0)
+	move.w	d1,y_sub(a0)
+	clr.w	x_sub(a0)
 	rts
 ; ===========================================================================
 off_28252:	offsetTable
@@ -54619,8 +54619,8 @@ ObjD4_Init:
 	move.b	#4,priority(a0)
 	move.w	x_pos(a0),objoff_30(a0)
 	move.w	y_pos(a0),objoff_32(a0)
-	move.w	#$8000,objoff_A(a0)
-	move.w	#$8000,objoff_E(a0)
+	move.w	#$8000,x_sub(a0)
+	move.w	#$8000,y_sub(a0)
 	tst.b	subtype(a0)
 	bne.s	loc_2B95A
 	subi.w	#$60,x_pos(a0)
@@ -54725,7 +54725,7 @@ ObjD5_Init:
 	move.b	#$10,width_pixels(a0)
 	move.b	#4,priority(a0)
 	move.w	y_pos(a0),objoff_32(a0)
-	move.w	#$8000,objoff_E(a0)
+	move.w	#$8000,y_sub(a0)
 	moveq	#0,d0
 	move.b	subtype(a0),d0
 	lsl.w	#2,d0
@@ -59930,7 +59930,7 @@ JmpTo4_ObjectMoveAndFall
 ; Sprite_2FC50:
 Obj52:
 	moveq	#0,d0
-	move.b	objoff_A(a0),d0
+	move.b	boss_subtype(a0),d0
 	move.w	Obj52_Index(pc,d0.w),d1
 	jmp	Obj52_Index(pc,d1.w)
 ; ===========================================================================
@@ -59954,7 +59954,7 @@ Obj52_Init:
 	move.w	#$580,y_pos(a0)
 	move.b	#1,objoff_2C(a0)
 	move.b	#1,mainspr_mapframe(a0)
-	addq.b	#2,objoff_A(a0)
+	addq.b	#2,boss_subtype(a0)
 	bset	#6,render_flags(a0)
 	move.b	#$32,collision_flags(a0)
 	move.b	#8,objoff_32(a0)
@@ -60028,7 +60028,7 @@ loc_2FD5E:
 	bsr.w	JmpTo13_SingleObjLoad
 	bne.s	loc_2FDAA
 	_move.b	#ObjID_HTZBoss,id(a1) ; load obj52
-	move.b	#4,objoff_A(a1)
+	move.b	#4,boss_subtype(a1)
 	move.b	render_flags(a0),render_flags(a1)
 	andi.b	#1,render_flags(a1)
 	move.w	x_pos(a0),x_pos(a1)
@@ -60086,7 +60086,7 @@ loc_2FE2A:
 	bsr.w	JmpTo13_SingleObjLoad
 	bne.s	loc_2FE58
 	move.b	#ObjID_HTZBoss,id(a1) ; load obj52
-	move.b	#6,objoff_A(a1)
+	move.b	#6,boss_subtype(a1)
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
 	move.b	#SndID_LavaBall,d0
@@ -60216,7 +60216,7 @@ loc_2FF80:
 
 loc_2FF94:
 	move.b	#ObjID_HTZBoss,id(a1) ; load obj52
-	move.b	#6,objoff_A(a1)
+	move.b	#6,boss_subtype(a1)
 	move.l	#Obj52_MapUnc_302BC,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_HTZBoss,0,0),art_tile(a1)
 	ori.b	#4,render_flags(a1)
@@ -60404,7 +60404,7 @@ loc_301B4:
 	bsr.w	JmpTo13_SingleObjLoad
 	bne.s	return_3020E
 	move.b	#ObjID_HTZBoss,id(a1) ; load obj52
-	move.b	#8,objoff_A(a1)
+	move.b	#8,boss_subtype(a1)
 	move.l	#Obj52_MapUnc_30258,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_BossSmoke_2,0,0),art_tile(a1)
 	ori.b	#4,render_flags(a1)
@@ -60536,7 +60536,7 @@ JmpTo3_LoadPLC_AnimalExplosion
 ; Sprite_30480:
 Obj89:
 	moveq	#0,d0
-	move.b	objoff_A(a0),d0
+	move.b	boss_subtype(a0),d0
 	move.w	Obj89_Index(pc,d0.w),d1
 	jmp	Obj89_Index(pc,d1.w)
 ; ===========================================================================
@@ -60575,7 +60575,7 @@ loc_304D4:
 	ori.b	#4,render_flags(a0)
 	move.b	#$20,mainspr_width(a0)
 	move.b	#2,priority(a0)
-	move.b	#2,objoff_A(a0)
+	move.b	#2,boss_subtype(a0)
 	move.w	#$2AE0,x_pos(a0)
 	move.w	#$388,y_pos(a0)
 	move.w	#$2AE0,(Boss_X_pos).w
@@ -60608,7 +60608,7 @@ loc_304D4:
 	move.b	#4,priority(a1)
 	move.w	#$2A50,x_pos(a1)
 	move.w	#$510,y_pos(a1)
-	addq.b	#4,objoff_A(a1)
+	addq.b	#4,boss_subtype(a1)
 	move.l	a0,objoff_2A(a1)
 	move.b	#0,mapping_frame(a1)
 	move.b	#2,priority(a1)
@@ -61082,7 +61082,7 @@ loc_30AB4:
 	bsr.w	JmpTo14_SingleObjLoad
 	bne.w	return_30B40
 	_move.b	#ObjID_ARZBoss,id(a1) ; load obj89
-	move.b	#4,objoff_A(a1)
+	move.b	#4,boss_subtype(a1)
 	move.b	#8,routine_secondary(a1)
 	move.l	#Obj89_MapUnc_30D68,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_ARZBoss,0,0),art_tile(a1)
@@ -61106,7 +61106,7 @@ loc_30B04:
 	bsr.w	JmpTo14_SingleObjLoad
 	bne.s	return_30B40
 	_move.b	#ObjID_ARZBoss,id(a1) ; load obj89
-	move.b	#4,objoff_A(a1)
+	move.b	#4,boss_subtype(a1)
 	move.b	#6,routine_secondary(a1)
 	move.l	a2,objoff_34(a1)
 	move.b	d6,subtype(a1)
@@ -61986,7 +61986,7 @@ JmpTo5_ObjectMoveAndFall
 ; Sprite_318F0:
 Obj51:
 	moveq	#0,d0
-	move.b	objoff_A(a0),d0
+	move.b	boss_subtype(a0),d0
 	move.w	Obj51_Index(pc,d0.w),d1
 	jmp	Obj51_Index(pc,d1.w)
 ; ===========================================================================
@@ -62007,7 +62007,7 @@ Obj51_Init:
 	move.b	#0,mainspr_mapframe(a0)
 	move.b	#$20,mainspr_width(a0)
 	move.b	#$80,mainspr_height(a0)
-	addq.b	#2,objoff_A(a0)
+	addq.b	#2,boss_subtype(a0)
 	move.b	#0,angle(a0)
 	bset	#6,render_flags(a0)
 	move.b	#4,mainspr_childsprites(a0)
@@ -62203,7 +62203,7 @@ loc_31BF2:
 	bsr.w	JmpTo16_SingleObjLoad
 	bne.s	return_31C06
 	move.b	#ObjID_CNZBoss,id(a1) ; load obj51
-	move.b	#4,objoff_A(a1)
+	move.b	#4,boss_subtype(a1)
 	move.l	a0,objoff_34(a1)
 
 return_31C06:
@@ -62573,7 +62573,7 @@ loc_32030:
 	move.b	#7,anim(a0)
 	move.w	#-$300,y_vel(a0)
 	move.w	#-$100,x_vel(a0)
-	move.b	#4,objoff_A(a0)
+	move.b	#4,boss_subtype(a0)
 	move.b	#6,routine_secondary(a0)
 	move.b	#$98,collision_flags(a0)
 	bsr.w	JmpTo23_SingleObjLoad2
@@ -62673,7 +62673,7 @@ JmpTo6_LoadPLC_AnimalExplosion
 ; Sprite_32288:
 Obj54:
 	moveq	#0,d0
-	move.b	objoff_A(a0),d0
+	move.b	boss_subtype(a0),d0
 	move.w	Obj54_Index(pc,d0.w),d1
 	jmp	Obj54_Index(pc,d1.w)
 ; ===========================================================================
@@ -62693,7 +62693,7 @@ Obj54_Init:
 	move.w	#$2B50,x_pos(a0)
 	move.w	#$380,y_pos(a0)
 	move.b	#2,mainspr_mapframe(a0)
-	addq.b	#2,objoff_A(a0)
+	addq.b	#2,boss_subtype(a0)
 	bset	#6,render_flags(a0)
 	move.b	#2,mainspr_childsprites(a0)
 	move.b	#$F,collision_flags(a0)
@@ -62718,7 +62718,7 @@ Obj54_Init:
 	bsr.w	JmpTo17_SingleObjLoad
 	bne.s	loc_3239C
 	move.b	#ObjID_MTZBoss,id(a1) ; load obj54
-	move.b	#6,objoff_A(a1)
+	move.b	#6,boss_subtype(a1)
 	move.b	#$13,mapping_frame(a1)
 	move.l	#Obj54_MapUnc_32DC6,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_MTZBoss,0,0),art_tile(a1)
@@ -63084,7 +63084,7 @@ loc_32740:
 	bsr.w	JmpTo17_SingleObjLoad
 	bne.s	return_32772
 	move.b	#ObjID_MTZBoss,id(a1) ; load obj54
-	move.b	#4,objoff_A(a1)
+	move.b	#4,boss_subtype(a1)
 	move.l	a0,objoff_34(a1)
 	move.w	#$1E,(Boss_Countdown).w
 	move.b	#$10,objoff_2F(a0)
@@ -73104,8 +73104,8 @@ ObjB0_Index:	offsetTable
 
 ObjB0_Init:
 	bsr.w	LoadSubObject
-	move.w	#$1E8,x_pos(a0)
-	move.w	#$F0,objoff_A(a0)
+	move.w	#$1E8,x_pixel(a0)
+	move.w	#$F0,y_pixel(a0)
 	move.w	#$B,objoff_2A(a0)
 	move.w	#2,(SegaScr_VInt_Subrout).w
 	bset	#0,render_flags(a0)
@@ -73327,8 +73327,8 @@ ObjB1_Index:	offsetTable
 ObjB1_Init:
 	bsr.w	LoadSubObject
 	move.b	#4,mapping_frame(a0)
-	move.w	#$174,x_pos(a0)
-	move.w	#$D8,objoff_A(a0)
+	move.w	#$174,x_pixel(a0)
+	move.w	#$D8,y_pixel(a0)
 	rts
 ; ===========================================================================
 ; BranchTo4_JmpTo45_DisplaySprite 
