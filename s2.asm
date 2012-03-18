@@ -51677,11 +51677,11 @@ Obj78_Index:	offsetTable
 ; loc_291E8:
 Obj78_Init:
 	addq.b	#2,routine(a0)
-	moveq	#$34,d3
+	moveq	#objoff_34,d3
 	moveq	#2,d4
 	btst	#0,status(a0)
 	beq.s	+
-	moveq	#$3A,d3
+	moveq	#objoff_3A,d3
 	moveq	#-2,d4
 +
 	move.w	x_pos(a0),d2
@@ -57818,7 +57818,7 @@ Obj5D_Pump:
 	addq.w	#1,d3
 
 -
-	jsr	(SingleObjLoad).L
+	jsr	(SingleObjLoad).l
 	bne.w	JmpTo51_DeleteObject
 	_move.b	#ObjID_CPZBoss,id(a1) ; load obj5D
 	move.l	#Obj5D_MapUnc_2EADC,mappings(a1)
@@ -60822,7 +60822,7 @@ loc_307F4:
 	move.b	#0,3(a1)
 	moveq	#PLCID_Capsule,d0
 	bsr.w	JmpTo8_LoadPLC
-	move.b	#5,objoff_15(a0)
+	move.b	#5,sub2_mapframe(a0)
 	rts
 ; ===========================================================================
 
