@@ -62679,10 +62679,10 @@ Obj54:
 ; ===========================================================================
 ; off_32296:
 Obj54_Index:	offsetTable
-		offsetTableEntry.w Obj54_Init	; 0
-		offsetTableEntry.w loc_323BA	; 2
-		offsetTableEntry.w loc_32CAE	; 4
-		offsetTableEntry.w loc_32D48	; 6
+		offsetTableEntry.w Obj54_Init			; 0
+		offsetTableEntry.w Obj54_Main		 	; 2
+		offsetTableEntry.w Obj54_Laser			; 4
+		offsetTableEntry.w Obj54_LaserShooter	; 6
 ; ===========================================================================
 ; loc_3229E:
 Obj54_Init:
@@ -62693,11 +62693,11 @@ Obj54_Init:
 	move.w	#$2B50,x_pos(a0)
 	move.w	#$380,y_pos(a0)
 	move.b	#2,mainspr_mapframe(a0)
-	addq.b	#2,boss_subtype(a0)
+	addq.b	#2,boss_subtype(a0)		; => Obj54_Main
 	bset	#6,render_flags(a0)
 	move.b	#2,mainspr_childsprites(a0)
 	move.b	#$F,collision_flags(a0)
-	move.b	#8,objoff_32(a0)
+	move.b	#8,boss_hitcount2(a0)
 	move.b	#7,objoff_3E(a0)
 	move.w	x_pos(a0),(Boss_X_pos).w
 	move.w	y_pos(a0),(Boss_Y_pos).w
@@ -62716,9 +62716,9 @@ Obj54_Init:
 	move.w	y_pos(a0),sub3_y_pos(a0)
 	move.b	#0,sub3_mapframe(a0)
 	bsr.w	JmpTo17_SingleObjLoad
-	bne.s	loc_3239C
+	bne.s	+
 	move.b	#ObjID_MTZBoss,id(a1) ; load obj54
-	move.b	#6,boss_subtype(a1)
+	move.b	#6,boss_subtype(a1)		; => Obj54_LaserShooter
 	move.b	#$13,mapping_frame(a1)
 	move.l	#Obj54_MapUnc_32DC6,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_MTZBoss,0,0),art_tile(a1)
@@ -62729,11 +62729,10 @@ Obj54_Init:
 	move.l	a0,objoff_34(a1)
 	move.b	#$20,width_pixels(a1)
 	bsr.w	JmpTo17_SingleObjLoad
-	bne.s	loc_3239C
+	bne.s	+
 	move.b	#ObjID_MTZBossOrb,id(a1) ; load obj53
 	move.l	a0,objoff_34(a1)
-
-loc_3239C:
++
 	lea	(Boss_AnimationArray).w,a2
 	move.b	#$10,(a2)+
 	move.b	#0,(a2)+
@@ -62743,52 +62742,51 @@ loc_3239C:
 	move.b	#0,(a2)+
 	rts
 ; ===========================================================================
-
-loc_323BA:
+;loc_323BA
+Obj54_Main:
 	moveq	#0,d0
 	move.b	angle(a0),d0
-	move.w	off_323C8(pc,d0.w),d1
-	jmp	off_323C8(pc,d1.w)
+	move.w	Obj54_MainSubStates(pc,d0.w),d1
+	jmp	Obj54_MainSubStates(pc,d1.w)
 ; ===========================================================================
-off_323C8:	offsetTable
-		offsetTableEntry.w loc_323DC	;   0
-		offsetTableEntry.w loc_32456	;   2
-		offsetTableEntry.w loc_324DC	;   4
-		offsetTableEntry.w loc_32524	;   6
-		offsetTableEntry.w loc_32544	;   8
-		offsetTableEntry.w loc_32574	;  $A
-		offsetTableEntry.w loc_325BE	;  $C
-		offsetTableEntry.w loc_3262E	;  $E
-		offsetTableEntry.w loc_32802	; $10
-		offsetTableEntry.w loc_32864	; $12
+Obj54_MainSubStates:	offsetTable
+		offsetTableEntry.w Obj54_MainSub0	;   0
+		offsetTableEntry.w Obj54_MainSub2	;   2
+		offsetTableEntry.w Obj54_MainSub4	;   4
+		offsetTableEntry.w Obj54_MainSub6	;   6
+		offsetTableEntry.w Obj54_MainSub8	;   8
+		offsetTableEntry.w Obj54_MainSubA	;  $A
+		offsetTableEntry.w Obj54_MainSubC	;  $C
+		offsetTableEntry.w Obj54_MainSubE	;  $E
+		offsetTableEntry.w Obj54_MainSub10	; $10
+		offsetTableEntry.w Obj54_MainSub12	; $12
 ; ===========================================================================
-
-loc_323DC:
+;loc_323DC
+Obj54_MainSub0:
 	bsr.w	Boss_MoveObject
 	move.w	(Boss_Y_pos).w,y_pos(a0)
 	cmpi.w	#$4A0,(Boss_Y_pos).w
-	blo.s	loc_32426
-	addq.b	#2,angle(a0)
+	blo.s	+
+	addq.b	#2,angle(a0)		; => Obj54_MainSub2
 	move.w	#0,(Boss_Y_vel).w
 	move.w	#-$100,(Boss_X_vel).w
 	bclr	#7,objoff_2B(a0)
 	bclr	#0,render_flags(a0)
 	move.w	(MainCharacter+x_pos).w,d0
 	cmp.w	(Boss_X_pos).w,d0
-	blo.s	loc_32426
+	blo.s	+
 	move.w	#$100,(Boss_X_vel).w
 	bset	#7,objoff_2B(a0)
 	bset	#0,render_flags(a0)
-
-loc_32426:
-	bsr.w	loc_3278E
++
+	bsr.w	Obj54_AnimateFace
 	lea	(Ani_obj53).l,a1
 	bsr.w	AnimateBoss
-	bsr.w	loc_32774
+	bsr.w	Obj54_AlignSprites
 	bra.w	JmpTo40_DisplaySprite
 ; ===========================================================================
-
-loc_3243C:
+;loc_3243C
+Obj54_Float:
 	move.b	mapping_frame(a0),d0
 	jsr	(CalcSine).l
 	asr.w	#6,d0
@@ -62797,192 +62795,177 @@ loc_3243C:
 	addq.b	#4,mapping_frame(a0)
 	rts
 ; ===========================================================================
-
-loc_32456:
+;loc_32456
+Obj54_MainSub2:
 	bsr.w	Boss_MoveObject
 	btst	#7,objoff_2B(a0)
-	bne.s	loc_32490
+	bne.s	+
 	cmpi.w	#$2AD0,(Boss_X_pos).w
-	bhs.s	loc_324BC
+	bhs.s	Obj54_MoveAndShow
 	bchg	#7,objoff_2B(a0)
 	move.w	#$100,(Boss_X_vel).w
 	bset	#0,render_flags(a0)
 	bset	#6,objoff_2B(a0)
-	beq.s	loc_324BC
-	addq.b	#2,angle(a0)
+	beq.s	Obj54_MoveAndShow
+	addq.b	#2,angle(a0)		; => Obj54_MainSub4
 	move.w	#-$100,(Boss_Y_vel).w
-	bra.s	loc_324BC
+	bra.s	Obj54_MoveAndShow
 ; ===========================================================================
-
-loc_32490:
++
 	cmpi.w	#$2BD0,(Boss_X_pos).w
-	blo.s	loc_324BC
+	blo.s	Obj54_MoveAndShow
 	bchg	#7,objoff_2B(a0)
 	move.w	#-$100,(Boss_X_vel).w
 	bclr	#0,render_flags(a0)
 	bset	#6,objoff_2B(a0)
-	beq.s	loc_324BC
-	addq.b	#2,angle(a0)
+	beq.s	Obj54_MoveAndShow
+	addq.b	#2,angle(a0)		; => Obj54_MainSub4
 	move.w	#-$100,(Boss_Y_vel).w
-
-loc_324BC:
+;loc_324BC
+Obj54_MoveAndShow:
 	move.w	(Boss_X_pos).w,x_pos(a0)
-	bsr.w	loc_3243C
-
-loc_324C6:
-	bsr.w	loc_3278E
+	bsr.w	Obj54_Float
+;loc_324C6
+Obj54_Display:
+	bsr.w	Obj54_AnimateFace
 	lea	(Ani_obj53).l,a1
 	bsr.w	AnimateBoss
-	bsr.w	loc_32774
+	bsr.w	Obj54_AlignSprites
 	bra.w	JmpTo40_DisplaySprite
 ; ===========================================================================
-
-loc_324DC:
+;loc_324DC
+Obj54_MainSub4:
 	bsr.w	Boss_MoveObject
 	cmpi.w	#$470,(Boss_Y_pos).w
-	bhs.s	loc_324EE
+	bhs.s	+
 	move.w	#0,(Boss_Y_vel).w
-
-loc_324EE:
++
 	btst	#7,objoff_2B(a0)
-	bne.s	loc_32506
+	bne.s	+
 	cmpi.w	#$2B50,(Boss_X_pos).w
-	bhs.s	loc_32514
+	bhs.s	++
 	move.w	#0,(Boss_X_vel).w
-	bra.s	loc_32514
+	bra.s	++
 ; ===========================================================================
-
-loc_32506:
++
 	cmpi.w	#$2B50,(Boss_X_pos).w
-	blo.s	loc_32514
+	blo.s	+
 	move.w	#0,(Boss_X_vel).w
-
-loc_32514:
++
 	move.w	(Boss_X_vel).w,d0
 	or.w	(Boss_Y_vel).w,d0
-	bne.s	BranchTo_loc_324BC
-	addq.b	#2,angle(a0)
+	bne.s	BranchTo_Obj54_MoveAndShow
+	addq.b	#2,angle(a0)		; => Obj54_MainSub6
 
-BranchTo_loc_324BC 
-	bra.s	loc_324BC
+BranchTo_Obj54_MoveAndShow 
+	bra.s	Obj54_MoveAndShow
 ; ===========================================================================
-
-loc_32524:
+;loc_32524
+Obj54_MainSub6:
 	cmpi.b	#$68,objoff_33(a0)
-	bhs.s	loc_32536
+	bhs.s	+
 	addq.b	#1,objoff_33(a0)
 	addq.b	#1,objoff_39(a0)
-	bra.s	BranchTo2_loc_324BC
+	bra.s	BranchTo2_Obj54_MoveAndShow
 ; ===========================================================================
-
-loc_32536:
++
 	subq.b	#1,objoff_39(a0)
-	bne.s	BranchTo2_loc_324BC
-	addq.b	#2,angle(a0)
+	bne.s	BranchTo2_Obj54_MoveAndShow
+	addq.b	#2,angle(a0)		; => Obj54_MainSub8
 
-BranchTo2_loc_324BC 
-	bra.w	loc_324BC
+BranchTo2_Obj54_MoveAndShow 
+	bra.w	Obj54_MoveAndShow
 ; ===========================================================================
-
-loc_32544:
+;loc_32544
+Obj54_MainSub8:
 	cmpi.b	#$27,objoff_33(a0)
-	blo.s	loc_32552
+	blo.s	+
 	subq.b	#1,objoff_33(a0)
-	bra.s	BranchTo3_loc_324BC
+	bra.s	BranchTo3_Obj54_MoveAndShow
 ; ===========================================================================
-
-loc_32552:
++
 	addq.b	#1,objoff_39(a0)
 	cmpi.b	#$27,objoff_39(a0)
-	blo.s	BranchTo3_loc_324BC
+	blo.s	BranchTo3_Obj54_MoveAndShow
 	move.w	#$100,(Boss_Y_vel).w
-	move.b	#0,angle(a0)
+	move.b	#0,angle(a0)		; => Obj54_MainSub0
 	bclr	#6,objoff_2B(a0)
 
-BranchTo3_loc_324BC 
-	bra.w	loc_324BC
+BranchTo3_Obj54_MoveAndShow 
+	bra.w	Obj54_MoveAndShow
 ; ===========================================================================
-
-loc_32574:
+;loc_32574
+Obj54_MainSubA:
 	tst.b	objoff_39(a0)
-	beq.s	loc_32580
+	beq.s	+
 	subq.b	#1,objoff_39(a0)
-	bra.s	loc_32586
+	bra.s	++
 ; ===========================================================================
-
-loc_32580:
++
 	move.b	#-1,objoff_3A(a0)
-
-loc_32586:
++
 	cmpi.b	#$27,objoff_33(a0)
-	blo.s	loc_32592
+	blo.s	+
 	subq.b	#1,objoff_33(a0)
-
-loc_32592:
++
 	bsr.w	Boss_MoveObject
 	cmpi.w	#$420,(Boss_Y_pos).w
-	bhs.s	loc_325A4
+	bhs.s	+
 	move.w	#0,(Boss_Y_vel).w
-
-loc_325A4:
++
 	tst.b	objoff_2C(a0)
-	bne.s	BranchTo4_loc_324BC
+	bne.s	BranchTo4_Obj54_MoveAndShow
 	tst.b	objoff_3A(a0)
-	beq.s	loc_325B6
+	beq.s	+
 	move.b	#$80,objoff_3A(a0)
++
+	addq.b	#2,angle(a0)		; => Obj54_MainSubC
 
-loc_325B6:
-	addq.b	#2,angle(a0)
-
-BranchTo4_loc_324BC 
-	bra.w	loc_324BC
+BranchTo4_Obj54_MoveAndShow 
+	bra.w	Obj54_MoveAndShow
 ; ===========================================================================
-
-loc_325BE:
+;loc_325BE
+Obj54_MainSubC:
 	tst.b	objoff_3E(a0)
-	beq.s	loc_325EC
+	beq.s	++
 	tst.b	objoff_3A(a0)
-	bne.s	BranchTo5_loc_324BC
+	bne.s	BranchTo5_Obj54_MoveAndShow
 	cmpi.b	#$27,objoff_39(a0)
-	bhs.s	loc_325D8
+	bhs.s	+
 	addq.b	#1,objoff_39(a0)
-	bra.s	BranchTo5_loc_324BC
+	bra.s	BranchTo5_Obj54_MoveAndShow
 ; ===========================================================================
-
-loc_325D8:
++
 	move.w	#$100,(Boss_Y_vel).w
-	move.b	#0,angle(a0)
+	move.b	#0,angle(a0)		; => Obj54_MainSub0
 	bclr	#6,objoff_2B(a0)
-	bra.s	BranchTo5_loc_324BC
+	bra.s	BranchTo5_Obj54_MoveAndShow
 ; ===========================================================================
-
-loc_325EC:
++
 	move.w	#-$180,(Boss_Y_vel).w
 	move.w	#-$100,(Boss_X_vel).w
 	bclr	#0,render_flags(a0)
 	btst	#7,objoff_2B(a0)
-	beq.s	loc_32612
+	beq.s	+
 	move.w	#$100,(Boss_X_vel).w
 	bset	#0,render_flags(a0)
-
-loc_32612:
-	move.b	#$E,angle(a0)
++
+	move.b	#$E,angle(a0)		; => Obj54_MainSubE
 	move.b	#0,objoff_2E(a0)
 	bclr	#6,objoff_2B(a0)
 	move.b	#0,objoff_2F(a0)
 
-BranchTo5_loc_324BC 
-	bra.w	loc_324BC
+BranchTo5_Obj54_MoveAndShow 
+	bra.w	Obj54_MoveAndShow
 ; ===========================================================================
-
-loc_3262E:
+;loc_3262E
+Obj54_MainSubE:
 	tst.b	objoff_2F(a0)
-	beq.s	loc_3263C
+	beq.s	+
 	subq.b	#1,objoff_2F(a0)
-	bra.w	loc_324C6
+	bra.w	Obj54_Display
 ; ===========================================================================
-
-loc_3263C:
++
 	moveq	#0,d0
 	move.b	objoff_2E(a0),d0
 	move.w	off_3264A(pc,d0.w),d1
@@ -62997,103 +62980,95 @@ off_3264A:	offsetTable
 loc_32650:
 	bsr.w	Boss_MoveObject
 	cmpi.w	#$420,(Boss_Y_pos).w
-	bhs.s	loc_32662
+	bhs.s	+
 	move.w	#0,(Boss_Y_vel).w
-
-loc_32662:
++
 	btst	#7,objoff_2B(a0)
-	bne.s	loc_32690
+	bne.s	+
 	cmpi.w	#$2AF0,(Boss_X_pos).w
-	bhs.s	BranchTo6_loc_324BC
+	bhs.s	BranchTo6_Obj54_MoveAndShow
 	addq.b	#2,objoff_2E(a0)
 	move.w	#$180,(Boss_Y_vel).w
 	move.b	#3,objoff_2D(a0)
 	move.w	#$1E,(Boss_Countdown).w
 	bset	#0,render_flags(a0)
-	bra.s	BranchTo6_loc_324BC
+	bra.s	BranchTo6_Obj54_MoveAndShow
 ; ===========================================================================
-
-loc_32690:
++
 	cmpi.w	#$2BB0,(Boss_X_pos).w
-	blo.s	BranchTo6_loc_324BC
+	blo.s	BranchTo6_Obj54_MoveAndShow
 	addq.b	#2,objoff_2E(a0)
 	move.w	#$180,(Boss_Y_vel).w
 	move.b	#3,objoff_2D(a0)
 	move.w	#$1E,(Boss_Countdown).w
 	bclr	#0,render_flags(a0)
 
-BranchTo6_loc_324BC 
-	bra.w	loc_324BC
+BranchTo6_Obj54_MoveAndShow 
+	bra.w	Obj54_MoveAndShow
 ; ===========================================================================
 
 loc_326B8:
 	bsr.w	Boss_MoveObject
 	cmpi.w	#$4A0,(Boss_Y_pos).w
-	blo.s	loc_326D6
+	blo.s	+
 	move.w	#-$180,(Boss_Y_vel).w
 	addq.b	#2,objoff_2E(a0)
 	bchg	#7,objoff_2B(a0)
-	bra.s	loc_326FC
+	bra.s	+++
 ; ===========================================================================
-
-loc_326D6:
++
 	btst	#7,objoff_2B(a0)
-	bne.s	loc_326EE
+	bne.s	+
 	cmpi.w	#$2AD0,(Boss_X_pos).w
-	bhs.s	loc_326FC
+	bhs.s	++
 	move.w	#0,(Boss_X_vel).w
-	bra.s	loc_326FC
+	bra.s	++
 ; ===========================================================================
-
-loc_326EE:
++
 	cmpi.w	#$2BD0,(Boss_X_pos).w
-	blo.s	loc_326FC
+	blo.s	+
 	move.w	#0,(Boss_X_vel).w
-
-loc_326FC:
-	bsr.w	loc_32740
-	bra.w	loc_324BC
++
+	bsr.w	Obj54_FireLaser
+	bra.w	Obj54_MoveAndShow
 ; ===========================================================================
 
 loc_32704:
 	bsr.w	Boss_MoveObject
 	cmpi.w	#$470,(Boss_Y_pos).w
-	bhs.s	loc_32724
+	bhs.s	+
 	move.w	#$100,(Boss_X_vel).w
 	btst	#7,objoff_2B(a0)
-	bne.s	loc_32724
+	bne.s	+
 	move.w	#-$100,(Boss_X_vel).w
-
-loc_32724:
++
 	cmpi.w	#$420,(Boss_Y_pos).w
-	bhs.s	loc_32738
+	bhs.s	+
 	move.w	#0,(Boss_Y_vel).w
 	move.b	#0,objoff_2E(a0)
-
-loc_32738:
-	bsr.w	loc_32740
-	bra.w	loc_324BC
++
+	bsr.w	Obj54_FireLaser
+	bra.w	Obj54_MoveAndShow
 ; ===========================================================================
-
-loc_32740:
+;loc_32740
+Obj54_FireLaser:
 	subi.w	#1,(Boss_Countdown).w
-	bne.s	return_32772
+	bne.s	+		; rts
 	tst.b	objoff_2D(a0)
-	beq.s	return_32772
+	beq.s	+		; rts
 	subq.b	#1,objoff_2D(a0)
 	bsr.w	JmpTo17_SingleObjLoad
-	bne.s	return_32772
+	bne.s	+		; rts
 	move.b	#ObjID_MTZBoss,id(a1) ; load obj54
-	move.b	#4,boss_subtype(a1)
+	move.b	#4,boss_subtype(a1)		; => Obj54_Laser
 	move.l	a0,objoff_34(a1)
 	move.w	#$1E,(Boss_Countdown).w
 	move.b	#$10,objoff_2F(a0)
-
-return_32772:
++
 	rts
 ; ===========================================================================
-
-loc_32774:
+;loc_32774
+Obj54_AlignSprites:
 	move.w	x_pos(a0),d0
 	move.w	y_pos(a0),d1
 	move.w	d0,sub2_x_pos(a0)
@@ -63102,103 +63077,94 @@ loc_32774:
 	move.w	d1,sub3_y_pos(a0)
 	rts
 ; ===========================================================================
-
-loc_3278E:
-	bsr.w	loc_328DE
-	cmpi.b	#$3F,objoff_14(a0)
-	bne.s	loc_327D2
-	st	objoff_38(a0)
+;loc_3278E
+Obj54_AnimateFace:
+	bsr.w	Obj54_CheckHit
+	cmpi.b	#$3F,boss_invulnerable_time(a0)
+	bne.s	++
+	st.b	objoff_38(a0)
 	lea	(Boss_AnimationArray).w,a1
 	andi.b	#$F0,2(a1)
 	ori.b	#5,2(a1)
 	tst.b	objoff_3E(a0)
-	beq.s	loc_327CA
-	move.b	#$A,angle(a0)
+	beq.s	+
+	move.b	#$A,angle(a0)		; => Obj54_MainSubA
 	move.w	#-$180,(Boss_Y_vel).w
 	subq.b	#1,objoff_3E(a0)
 	move.w	#0,(Boss_X_vel).w
-
-loc_327CA:
++
 	move.w	#0,(Boss_X_vel).w
 	rts
 ; ===========================================================================
-
-loc_327D2:
++
 	cmpi.b	#4,(MainCharacter+routine).w
-	beq.s	loc_327E2
+	beq.s	+
 	cmpi.b	#4,(Sidekick+routine).w
-	bne.s	return_32800
-
-loc_327E2:
+	bne.s	++		; rts
++
 	lea	(Boss_AnimationArray).w,a1
 	move.b	2(a1),d0
 	andi.b	#$F,d0
 	cmpi.b	#4,d0
-	beq.s	return_32800
+	beq.s	+		; rts
 	andi.b	#$F0,2(a1)
 	ori.b	#4,2(a1)
-
-return_32800:
++
 	rts
 ; ===========================================================================
-
-loc_32802:
+;loc_32802
+Obj54_MainSub10:
 	subq.w	#1,(Boss_Countdown).w
 	cmpi.w	#$3C,(Boss_Countdown).w
-	blo.s	loc_32846
-	bmi.s	loc_32820
+	blo.s	++
+	bmi.s	+
 	bsr.w	Boss_LoadExplosion
 	lea	(Boss_AnimationArray).w,a1
 	move.b	#7,2(a1)
-	bra.s	loc_32846
+	bra.s	++
 ; ===========================================================================
-
-loc_32820:
++
 	bset	#0,render_flags(a0)
 	clr.w	(Boss_X_vel).w
 	clr.w	(Boss_Y_vel).w
-	addq.b	#2,angle(a0)
+	addq.b	#2,angle(a0)		; => Obj54_MainSub12
 	move.w	#-$12,(Boss_Countdown).w
 	lea	(Boss_AnimationArray).w,a1
 	move.b	#3,2(a1)
 	bsr.w	JmpTo7_PlayLevelMusic
-
-loc_32846:
++
 	move.w	(Boss_Y_pos).w,y_pos(a0)
 	move.w	(Boss_X_pos).w,x_pos(a0)
 	lea	(Ani_obj53).l,a1
 	bsr.w	AnimateBoss
-	bsr.w	loc_32774
+	bsr.w	Obj54_AlignSprites
 	bra.w	JmpTo40_DisplaySprite
 ; ===========================================================================
-
-loc_32864:
+;loc_32864
+Obj54_MainSub12:
 	move.w	#$400,(Boss_X_vel).w
 	move.w	#-$40,(Boss_Y_vel).w
 	cmpi.w	#$2BF0,(Camera_Max_X_pos).w
-	bhs.s	loc_3287E
+	bhs.s	+
 	addq.w	#2,(Camera_Max_X_pos).w
-	bra.s	loc_32884
+	bra.s	++
 ; ===========================================================================
-
-loc_3287E:
++
 	tst.b	render_flags(a0)
 	bpl.s	JmpTo60_DeleteObject
-
-loc_32884:
++
 	tst.b	(Boss_defeated_flag).w
-	bne.s	loc_32894
+	bne.s	+
 	move.b	#1,(Boss_defeated_flag).w
 	bsr.w	JmpTo7_LoadPLC_AnimalExplosion
-
-loc_32894:
++
 	bsr.w	Boss_MoveObject
 	bsr.w	loc_328C0
 	move.w	(Boss_Y_pos).w,y_pos(a0)
 	move.w	(Boss_X_pos).w,x_pos(a0)
 	lea	(Ani_obj53).l,a1
 	bsr.w	AnimateBoss
-	bsr.w	loc_32774
+	bsr.w	Obj54_AlignSprites
 	bra.w	JmpTo40_DisplaySprite
 ; ===========================================================================
 
@@ -63214,42 +63180,40 @@ loc_328C0:
 	move.w	d0,y_pos(a0)
 	move.w	(Boss_X_pos).w,x_pos(a0)
 	addq.b	#2,mapping_frame(a0)
-
-loc_328DE:
+;loc_328DE
+Obj54_CheckHit:
 	cmpi.b	#$10,angle(a0)
 	bhs.s	return_32924
-	tst.b	objoff_32(a0)
-	beq.s	loc_32926
+	tst.b	boss_hitcount2(a0)
+	beq.s	Obj54_Defeated
 	tst.b	collision_flags(a0)
 	bne.s	return_32924
-	tst.b	objoff_14(a0)
-	bne.s	loc_32908
-	move.b	#$40,objoff_14(a0)
+	tst.b	boss_invulnerable_time(a0)
+	bne.s	+
+	move.b	#$40,boss_invulnerable_time(a0)
 	move.w	#SndID_BossHit,d0
 	jsr	(PlaySound).l
-
-loc_32908:
++
 	lea	(Normal_palette_line2+2).w,a1
 	moveq	#0,d0
 	tst.w	(a1)
-	bne.s	loc_32916
+	bne.s	+
 	move.w	#$EEE,d0
-
-loc_32916:
++
 	move.w	d0,(a1)
-	subq.b	#1,objoff_14(a0)
+	subq.b	#1,boss_invulnerable_time(a0)
 	bne.s	return_32924
 	move.b	#$F,collision_flags(a0)
 
 return_32924:
 	rts
 ; ===========================================================================
-
-loc_32926:
+;loc_32926
+Obj54_Defeated:
 	moveq	#100,d0
 	bsr.w	JmpTo8_AddPoints
 	move.w	#$EF,(Boss_Countdown).w
-	move.b	#$10,angle(a0)
+	move.b	#$10,angle(a0)		; => Obj54_MainSub10
 	moveq	#PLCID_Capsule,d0
 	bsr.w	JmpTo11_LoadPLC
 	rts
@@ -63267,24 +63231,21 @@ Obj53:
 ; off_3294E:
 Obj53_Index:	offsetTable
 		offsetTableEntry.w Obj53_Init	; 0
-		offsetTableEntry.w loc_329DA	; 2
-		offsetTableEntry.w loc_32B64	; 4
-		offsetTableEntry.w loc_32BDC	; 6
-		offsetTableEntry.w loc_32C98	; 8
+		offsetTableEntry.w Obj53_Main	; 2
+		offsetTableEntry.w Obj53_BreakAway	; 4
+		offsetTableEntry.w Obj53_BounceAround	; 6
+		offsetTableEntry.w Obj53_Burst	; 8
 ; ===========================================================================
 ; loc_32958:
 Obj53_Init:
 	movea.l	a0,a1
 	moveq	#6,d3
 	moveq	#0,d2
-	bra.s	loc_32966
+	bra.s	+
 ; ===========================================================================
-
-loc_32960:
-	bsr.w	JmpTo17_SingleObjLoad
-	bne.s	return_329CA
-
-loc_32966:
+-	bsr.w	JmpTo17_SingleObjLoad
+	bne.s	++
++
 	move.b	#$20,width_pixels(a1)
 	move.l	objoff_34(a0),objoff_34(a1)
 	move.b	#ObjID_MTZBossOrb,id(a1) ; load obj53
@@ -63292,7 +63253,7 @@ loc_32966:
 	move.w	#make_art_tile(ArtTile_ArtNem_MTZBoss,0,0),art_tile(a1)
 	ori.b	#4,render_flags(a1)
 	move.b	#3,priority(a1)
-	addq.b	#2,routine(a1)
+	addq.b	#2,routine(a1)		; => Obj53_Main
 	move.b	#5,mapping_frame(a1)
 	move.b	byte_329CC(pc,d2.w),objoff_28(a1)
 	move.b	byte_329CC(pc,d2.w),objoff_3B(a1)
@@ -63302,9 +63263,8 @@ loc_32966:
 	move.b	#2,collision_property(a1)
 	move.b	#0,objoff_3C(a1)
 	addq.w	#1,d2
-	dbf	d3,loc_32960
-
-return_329CA:
+	dbf	d3,-
++
 	rts
 ; ===========================================================================
 byte_329CC:
@@ -63324,59 +63284,54 @@ byte_329D3:
 	dc.b   1	; 5
 	dc.b   0	; 6
 ; ===========================================================================
-
-loc_329DA:
+;loc_329DA
+Obj53_Main:
 	movea.l	objoff_34(a0),a1 ; a1=object
 	move.w	y_pos(a1),objoff_2A(a0)
 	subi.w	#4,objoff_2A(a0)
 	move.w	x_pos(a1),objoff_38(a0)
 	tst.b	objoff_38(a1)
-	beq.s	loc_32A56
+	beq.s	Obj53_ClearBossCollision
 	move.b	#0,objoff_38(a1)
 	addi.b	#1,objoff_2C(a1)
-	addq.b	#2,routine(a0)
+	addq.b	#2,routine(a0)		; => Obj53_BreakAway
 	move.b	#$3C,objoff_32(a0)
 	move.b	#2,anim(a0)
 	move.w	#-$400,y_vel(a0)
 	move.w	#-$80,d1
 	move.w	(MainCharacter+x_pos).w,d0
 	sub.w	x_pos(a0),d0
-	bpl.s	loc_32A28
+	bpl.s	+
 	neg.w	d1
-
-loc_32A28:
++
 	cmpi.w	#$2AF0,x_pos(a0)
-	bhs.s	loc_32A34
+	bhs.s	+
 	move.w	#$80,d1
-
-loc_32A34:
++
 	cmpi.w	#$2BB0,x_pos(a0)
-	blo.s	loc_32A40
+	blo.s	+
 	move.w	#-$80,d1
-
-loc_32A40:
++
 	bclr	#0,render_flags(a0)
 	tst.w	d1
-	bmi.s	loc_32A50
+	bmi.s	+
 	bset	#0,render_flags(a0)
-
-loc_32A50:
++
 	move.w	d1,x_vel(a0)
-	bra.s	loc_32A64
+	bra.s	+
 ; ===========================================================================
-
-loc_32A56:
+;loc_32A56
+Obj53_ClearBossCollision:
 	cmpi.b	#2,collision_property(a0)
-	beq.s	loc_32A64
+	beq.s	+
 	move.b	#0,collision_flags(a1)
-
-loc_32A64:
-	bsr.w	loc_32A70
-	bsr.w	loc_32B1A
++
+	bsr.w	Obj53_OrbitBoss
+	bsr.w	Obj53_SetAnimPriority
 	bra.w	JmpTo40_DisplaySprite
 ; ===========================================================================
-
-loc_32A70:
+;loc_32A70
+Obj53_OrbitBoss:
 	move.b	objoff_29(a0),d0
 	jsr	(CalcSine).l
 	move.w	d0,d3
@@ -63387,10 +63342,9 @@ loc_32A70:
 	move.w	d0,d4
 	move.b	objoff_39(a1),d2
 	tst.b	objoff_3A(a1)
-	beq.s	loc_32A96
+	beq.s	+
 	move.w	#$10,d2
-
-loc_32A96:
++
 	muls.w	d3,d2
 	move.w	objoff_38(a0),d6
 	move.b	objoff_28(a0),d0
@@ -63405,10 +63359,9 @@ loc_32A96:
 	move.w	objoff_2A(a0),d6
 	move.b	objoff_3B(a0),d0
 	tst.b	objoff_3A(a1)
-	beq.s	loc_32ACA
+	beq.s	+
 	move.b	objoff_3C(a0),d0
-
-loc_32ACA:
++
 	jsr	(CalcSine).l
 	muls.w	d0,d2
 	swap	d2
@@ -63416,26 +63369,23 @@ loc_32ACA:
 	move.w	d2,y_pos(a0)
 	addq.b	#4,objoff_28(a0)
 	tst.b	objoff_3A(a1)
-	bne.s	loc_32AEA
+	bne.s	+
 	addq.b	#8,objoff_3B(a0)
 	rts
 ; ===========================================================================
-
-loc_32AEA:
++
 	cmpi.b	#-1,objoff_3A(a1)
-	beq.s	loc_32B0C
+	beq.s	++
 	cmpi.b	#$80,objoff_3A(a1)
-	bne.s	loc_32B04
+	bne.s	+
 	subq.b	#2,objoff_3C(a0)
 	bpl.s	return_32B18
 	clr.b	objoff_3C(a0)
-
-loc_32B04:
++
 	move.b	#0,objoff_3A(a1)
 	rts
 ; ===========================================================================
-
-loc_32B0C:
++
 	cmpi.b	#$40,objoff_3C(a0)
 	bhs.s	return_32B18
 	addq.b	#2,objoff_3C(a0)
@@ -63443,176 +63393,162 @@ loc_32B0C:
 return_32B18:
 	rts
 ; ===========================================================================
-
-loc_32B1A:
+;loc_32B1A
+Obj53_SetAnimPriority:
 	move.w	objoff_30(a0),d0
-	bmi.s	loc_32B42
+	bmi.s	++
 	cmpi.w	#$C,d0
-	blt.s	loc_32B34
+	blt.s	+
 	move.b	#3,mapping_frame(a0)
 	move.b	#1,priority(a0)
 	rts
 ; ===========================================================================
-
-loc_32B34:
++
 	move.b	#4,mapping_frame(a0)
 	move.b	#2,priority(a0)
 	rts
 ; ===========================================================================
-
-loc_32B42:
++
 	cmpi.w	#-$C,d0
-	blt.s	loc_32B56
+	blt.s	+
 	move.b	#4,mapping_frame(a0)
 	move.b	#6,priority(a0)
 	rts
 ; ===========================================================================
-
-loc_32B56:
++
 	move.b	#5,mapping_frame(a0)
 	move.b	#7,priority(a0)
 	rts
 ; ===========================================================================
-
-loc_32B64:
+;loc_32B64
+Obj53_BreakAway:
 	tst.b	objoff_32(a0)
-	bmi.s	loc_32B76
+	bmi.s	+
 	subq.b	#1,objoff_32(a0)
-	bpl.s	loc_32B76
+	bpl.s	+
 	move.b	#$DA,collision_flags(a0)
-
-loc_32B76:
++
 	bsr.w	JmpTo6_ObjectMoveAndFall
 	subi.w	#$20,y_vel(a0)
 	cmpi.w	#$180,y_vel(a0)
-	blt.s	loc_32B8E
+	blt.s	+
 	move.w	#$180,y_vel(a0)
-
-loc_32B8E:
++
 	cmpi.w	#$4AC,y_pos(a0)
-	blo.s	loc_32BB0
+	blo.s	Obj53_Animate
 	move.w	#$4AC,y_pos(a0)
 	move.w	#$4AC,objoff_2E(a0)
 	move.b	#1,objoff_2C(a0)
 	addq.b	#2,routine(a0)
-	bsr.w	loc_32C4C
-
-loc_32BB0:
-	bsr.w	loc_32BC2
+	bsr.w	Obj53_FaceLeader
+;loc_32BB0
+Obj53_Animate:
+	bsr.w	+
 	lea	(Ani_obj53).l,a1
 	bsr.w	JmpTo21_AnimateSprite
 	bra.w	JmpTo40_DisplaySprite
 ; ===========================================================================
-
-loc_32BC2:
++
 	cmpi.b	#-2,collision_property(a0)
-	bgt.s	return_32BDA
+	bgt.s	+		; rts
 	move.b	#$14,mapping_frame(a0)
 	move.b	#6,anim(a0)
 	addq.b	#2,routine(a0)
-
-return_32BDA:
++
 	rts
 ; ===========================================================================
-
-loc_32BDC:
+;loc_32BDC
+Obj53_BounceAround:
 	tst.b	objoff_32(a0)
-	bmi.s	loc_32BEE
+	bmi.s	+
 	subq.b	#1,objoff_32(a0)
-	bpl.s	loc_32BEE
+	bpl.s	+
 	move.b	#$DA,collision_flags(a0)
-
-loc_32BEE:
-	bsr.w	loc_32C66
++
+	bsr.w	Obj53_CheckPlayerHit
 	cmpi.b	#$B,mapping_frame(a0)
-	bne.s	loc_32BB0
+	bne.s	Obj53_Animate
 	move.b	objoff_2C(a0),d0
 	jsr	(CalcSine).l
 	neg.w	d0
 	asr.w	#2,d0
 	add.w	objoff_2E(a0),d0
 	cmpi.w	#$4AC,d0
-	bhs.s	loc_32C38
+	bhs.s	++
 	move.w	d0,y_pos(a0)
 	addq.b	#1,objoff_2C(a0)
 	btst	#0,objoff_2C(a0)
 	beq.w	JmpTo40_DisplaySprite
 	moveq	#-1,d0
 	btst	#0,render_flags(a0)
-	beq.s	loc_32C30
+	beq.s	+
 	neg.w	d0
-
-loc_32C30:
++
 	add.w	d0,x_pos(a0)
 	bra.w	JmpTo40_DisplaySprite
 ; ===========================================================================
-
-loc_32C38:
++
 	move.w	#$4AC,y_pos(a0)
-	bsr.w	loc_32C4C
+	bsr.w	Obj53_FaceLeader
 	move.b	#1,objoff_2C(a0)
 	bra.w	JmpTo40_DisplaySprite
 ; ===========================================================================
-
-loc_32C4C:
+;loc_32C4C
+Obj53_FaceLeader:
 	move.w	(MainCharacter+x_pos).w,d0
 	sub.w	x_pos(a0),d0
-	bpl.s	loc_32C5E
+	bpl.s	+
 	bclr	#0,render_flags(a0)
 	rts
 ; ===========================================================================
-
-loc_32C5E:
++
 	bset	#0,render_flags(a0)
 	rts
 ; ===========================================================================
-
-loc_32C66:
+;loc_32C66
+Obj53_CheckPlayerHit:
 	cmpi.b	#4,(MainCharacter+routine).w
-	beq.s	loc_32C76
+	beq.s	+
 	cmpi.b	#4,(Sidekick+routine).w
-	bne.s	loc_32C82
-
-loc_32C76:
+	bne.s	++
++
 	move.b	#$14,mapping_frame(a0)
 	move.b	#6,anim(a0)
-
-loc_32C82:
++
 	cmpi.b	#-2,collision_property(a0)
-	bgt.s	return_32C96
+	bgt.s	+
 	move.b	#$14,mapping_frame(a0)
 	move.b	#6,anim(a0)
-
-return_32C96:
++
 	rts
 ; ===========================================================================
-
-loc_32C98:
+;loc_32C98
+Obj53_Burst:
 	move.b	#SndID_BossExplosion,d0
 	bsr.w	JmpTo10_PlaySound
 	movea.l	objoff_34(a0),a1 ; a1=object
 	subi.b	#1,objoff_2C(a1)
 	bra.w	JmpTo61_DeleteObject
 ; ===========================================================================
-
-loc_32CAE:
+;loc_32CAE
+Obj54_Laser:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
 	move.w	off_32CBC(pc,d0.w),d0
 	jmp	off_32CBC(pc,d0.w)
 ; ===========================================================================
 off_32CBC:	offsetTable
-		offsetTableEntry.w loc_32CC0	; 0
-		offsetTableEntry.w loc_32D2C	; 2
+		offsetTableEntry.w Obj54_Laser_Init	; 0
+		offsetTableEntry.w Obj54_Laser_Main	; 2
 ; ===========================================================================
-
-loc_32CC0:
+;loc_32CC0
+Obj54_Laser_Init:
 	move.l	#Obj54_MapUnc_32DC6,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_MTZBoss,0,0),art_tile(a0)
 	ori.b	#4,render_flags(a0)
 	move.b	#5,priority(a0)
 	move.b	#$12,mapping_frame(a0)
-	addq.b	#2,routine_secondary(a0)
+	addq.b	#2,routine_secondary(a0)	; => Obj54_Laser_Main
 	movea.l	objoff_34(a0),a1 ; a1=object
 	move.b	#$50,width_pixels(a0)
 	move.w	x_pos(a1),x_pos(a0)
@@ -63621,17 +63557,16 @@ loc_32CC0:
 	subi.w	#4,x_pos(a0)
 	move.w	#-$400,d0
 	btst	#0,render_flags(a1)
-	beq.s	loc_32D1A
+	beq.s	+
 	neg.w	d0
 	addi.w	#8,x_pos(a0)
-
-loc_32D1A:
++
 	move.w	d0,x_vel(a0)
 	move.b	#$99,collision_flags(a0)
 	move.b	#SndID_LaserBurst,d0
 	bsr.w	JmpTo10_PlaySound
-
-loc_32D2C:
+;loc_32D2C
+Obj54_Laser_Main:
 	bsr.w	JmpTo24_ObjectMove
 	cmpi.w	#$2AB0,x_pos(a0)
 	blo.w	JmpTo61_DeleteObject
@@ -63639,8 +63574,8 @@ loc_32D2C:
 	bhs.w	JmpTo61_DeleteObject
 	bra.w	JmpTo40_DisplaySprite
 ; ===========================================================================
-
-loc_32D48:
+;loc_32D48
+Obj54_LaserShooter:
 	movea.l	objoff_34(a0),a1 ; a1=object
 	cmpi.b	#$54,(a1)
 	bne.w	JmpTo61_DeleteObject
