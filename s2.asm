@@ -1948,7 +1948,7 @@ ProcessDPLC_Main:
 ; loc_177A:
 ProcessDPLC_Pop:
 	lea	(Plc_Buffer).w,a0
-	moveq	#(Plc_Buffer_End-Plc_Buffer)/6,d0
+	moveq	#bytesToLcnt(Plc_Buffer_Only_End-Plc_Buffer-6),d0
 -	move.l	6(a0),(a0)+
 	dbf	d0,-
 	rts
