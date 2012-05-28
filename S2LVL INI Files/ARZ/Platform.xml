@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Namespace="S2ObjectDefinitions.ARZ" TypeName="Platform" Language="cs" Name="Platform" Image="img1" RememberState="false" DrawOffscreen="false">
+  <Images>
+    <ImageFromMappings id="img1">
+      <ArtFile filename="LevelArt" />
+      <MapFileBin filename="../mappings/sprite/obj18_b.bin" frame="0" startpal="2" />
+    </ImageFromMappings>
+    <ImageFromMappings id="img2">
+      <ArtFile filename="LevelArt" />
+      <MapFileBin filename="../mappings/sprite/obj18_b.bin" frame="1" startpal="2" />
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="00" name="Stationary" image="img1" />
+    <Subtype id="01" name="Horizontal" image="img1" />
+    <Subtype id="02" name="Vertical" image="img1" />
+    <Subtype id="03" name="Falling" image="img1" />
+    <Subtype id="9A" name="Large" image="img2" />
+  </Subtypes>
+  <Properties>
+    <BitsProperty name="Movement" type="PlatformMovement" startbit="0" length="2" />
+    <BitsProperty name="ArtSize" type="ArtSize" startbit="4" length="1" />
+    <BitsProperty name="Solidity" type="Solid" startbit="7" length="1" />
+  </Properties>
+  <Enums>
+    <Enum name="PlatformMovement">
+      <EnumMember name="Stationary" />
+      <EnumMember name="Horizontal" />
+      <EnumMember name="Vertical" />
+      <EnumMember name="Falling" />
+    </Enum>
+    <Enum name="ArtSize">
+      <EnumMember name="Small" />
+      <EnumMember name="Large" />
+    </Enum>
+    <Enum name="Solid">
+      <EnumMember name="TopSolid" />
+      <EnumMember name="AllSolid" />
+    </Enum>
+  </Enums>
+  <Display>
+    <DisplayOption>
+	  <Condition property="ArtSize" value="Small" />
+	  <ImageRef image="img1" />
+	</DisplayOption>
+    <DisplayOption>
+	  <Condition property="ArtSize" value="Large" />
+	  <ImageRef image="img2" />
+	</DisplayOption>
+  </Display>
+</ObjDef>

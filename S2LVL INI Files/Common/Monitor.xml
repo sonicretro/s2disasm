@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ObjDef Namespace="S2ObjectDefinitions.Common" TypeName="Monitor" Language="cs" Name="Monitor" Image="static" RememberState="true">
+  <Images>
+    <ImageFromMappings id="static">
+      <ArtFile filename="../art/nemesis/Monitor and contents.bin" compression="Nemesis" />
+      <ArtFile filename="../art/nemesis/Sonic lives counter.bin" compression="Nemesis" offset="10880" />
+      <MapFileBin filename="../mappings/sprite/obj26.bin" frame="1" startpal="0" />
+    </ImageFromMappings>
+    <ImageFromMappings id="sonic">
+      <ArtFile filename="../art/nemesis/Monitor and contents.bin" compression="Nemesis" />
+      <ArtFile filename="../art/nemesis/Sonic lives counter.bin" compression="Nemesis" offset="10880" />
+      <MapFileBin filename="../mappings/sprite/obj26.bin" frame="2" startpal="0" />
+    </ImageFromMappings>
+    <ImageFromMappings id="tails">
+      <ArtFile filename="../art/nemesis/Monitor and contents.bin" compression="Nemesis" />
+      <ArtFile filename="../art/nemesis/Sonic lives counter.bin" compression="Nemesis" offset="10880" />
+      <MapFileBin filename="../mappings/sprite/obj26.bin" frame="3" startpal="0" />
+    </ImageFromMappings>
+    <ImageFromMappings id="eggman">
+      <ArtFile filename="../art/nemesis/Monitor and contents.bin" compression="Nemesis" />
+      <ArtFile filename="../art/nemesis/Sonic lives counter.bin" compression="Nemesis" offset="10880" />
+      <MapFileBin filename="../mappings/sprite/obj26.bin" frame="4" startpal="0" />
+    </ImageFromMappings>
+    <ImageFromMappings id="rings">
+      <ArtFile filename="../art/nemesis/Monitor and contents.bin" compression="Nemesis" />
+      <ArtFile filename="../art/nemesis/Sonic lives counter.bin" compression="Nemesis" offset="10880" />
+      <MapFileBin filename="../mappings/sprite/obj26.bin" frame="5" startpal="0" />
+    </ImageFromMappings>
+    <ImageFromMappings id="shoes">
+      <ArtFile filename="../art/nemesis/Monitor and contents.bin" compression="Nemesis" />
+      <ArtFile filename="../art/nemesis/Sonic lives counter.bin" compression="Nemesis" offset="10880" />
+      <MapFileBin filename="../mappings/sprite/obj26.bin" frame="6" startpal="0" />
+    </ImageFromMappings>
+    <ImageFromMappings id="shield">
+      <ArtFile filename="../art/nemesis/Monitor and contents.bin" compression="Nemesis" />
+      <ArtFile filename="../art/nemesis/Sonic lives counter.bin" compression="Nemesis" offset="10880" />
+      <MapFileBin filename="../mappings/sprite/obj26.bin" frame="7" startpal="0" />
+    </ImageFromMappings>
+    <ImageFromMappings id="invincibility">
+      <ArtFile filename="../art/nemesis/Monitor and contents.bin" compression="Nemesis" />
+      <ArtFile filename="../art/nemesis/Sonic lives counter.bin" compression="Nemesis" offset="10880" />
+      <MapFileBin filename="../mappings/sprite/obj26.bin" frame="8" startpal="0" />
+    </ImageFromMappings>
+    <ImageFromMappings id="teleport">
+      <ArtFile filename="../art/nemesis/Monitor and contents.bin" compression="Nemesis" />
+      <ArtFile filename="../art/nemesis/Sonic lives counter.bin" compression="Nemesis" offset="10880" />
+      <MapFileBin filename="../mappings/sprite/obj26.bin" frame="9" startpal="0" />
+    </ImageFromMappings>
+    <ImageFromMappings id="random">
+      <ArtFile filename="../art/nemesis/Monitor and contents.bin" compression="Nemesis" />
+      <ArtFile filename="../art/nemesis/Sonic lives counter.bin" compression="Nemesis" offset="10880" />
+      <MapFileBin filename="../mappings/sprite/obj26.bin" frame="10" startpal="0" />
+    </ImageFromMappings>
+    <ImageFromMappings id="broken">
+      <ArtFile filename="../art/nemesis/Monitor and contents.bin" compression="Nemesis" />
+      <ArtFile filename="../art/nemesis/Sonic lives counter.bin" compression="Nemesis" offset="10880" />
+      <MapFileBin filename="../mappings/sprite/obj26.bin" frame="11" startpal="0" />
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="00" name="Static" image="static" />
+    <Subtype id="01" name="Sonic" image="sonic" />
+    <Subtype id="02" name="Tails" image="tails" />
+    <Subtype id="03" name="Eggman" image="eggman" />
+    <Subtype id="04" name="Rings" image="rings" />
+    <Subtype id="05" name="Shoes" image="shoes" />
+    <Subtype id="06" name="Shield" image="shield" />
+    <Subtype id="07" name="Invincibility" image="invincibility" />
+    <Subtype id="08" name="Teleport" image="teleport" />
+    <Subtype id="09" name="Random" image="random" />
+    <Subtype id="0A" name="Broken" image="broken" />
+  </Subtypes>
+  <Properties>
+    <BitsProperty name="Contents" type="MonitorType" startbit="0" length="4" />
+  </Properties>
+  <Enums>
+    <Enum name="MonitorType">
+      <EnumMember name="Static" />
+      <EnumMember name="Sonic" />
+      <EnumMember name="Tails" />
+      <EnumMember name="Eggman" />
+      <EnumMember name="Rings" />
+      <EnumMember name="Shoes" />
+      <EnumMember name="Shield" />
+      <EnumMember name="Invincibility" />
+      <EnumMember name="Teleport" />
+      <EnumMember name="Random" />
+      <EnumMember name="Broken" />
+    </Enum>
+  </Enums>
+</ObjDef>

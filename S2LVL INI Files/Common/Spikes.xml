@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ObjDef Namespace="S2ObjectDefinitions.Common" TypeName="Spikes" Language="cs" Name="Spikes" Image="horiz1" RememberState="false">
+  <Images>
+    <ImageFromMappings id="horiz1">
+      <ArtFile filename="../art/nemesis/Spikes.bin" compression="Nemesis" />
+      <MapFileBin filename="../mappings/sprite/obj36.bin" frame="0" startpal="1" />
+    </ImageFromMappings>
+    <ImageFromMappings id="horiz2">
+      <ArtFile filename="../art/nemesis/Spikes.bin" compression="Nemesis" />
+      <MapFileBin filename="../mappings/sprite/obj36.bin" frame="1" startpal="1" />
+    </ImageFromMappings>
+    <ImageFromMappings id="horiz3">
+      <ArtFile filename="../art/nemesis/Spikes.bin" compression="Nemesis" />
+      <MapFileBin filename="../mappings/sprite/obj36.bin" frame="2" startpal="1" />
+    </ImageFromMappings>
+    <ImageFromMappings id="horiz4">
+      <ArtFile filename="../art/nemesis/Spikes.bin" compression="Nemesis" />
+      <MapFileBin filename="../mappings/sprite/obj36.bin" frame="3" startpal="1" />
+    </ImageFromMappings>
+    <ImageFromMappings id="vert1">
+      <ArtFile filename="../art/nemesis/Long horizontal spike.bin" compression="Nemesis" />
+      <MapFileBin filename="../mappings/sprite/obj36.bin" frame="4" startpal="1" />
+    </ImageFromMappings>
+    <ImageFromMappings id="vert2">
+      <ArtFile filename="../art/nemesis/Long horizontal spike.bin" compression="Nemesis" />
+      <MapFileBin filename="../mappings/sprite/obj36.bin" frame="5" startpal="1" />
+    </ImageFromMappings>
+    <ImageFromMappings id="vert3">
+      <ArtFile filename="../art/nemesis/Long horizontal spike.bin" compression="Nemesis" />
+      <MapFileBin filename="../mappings/sprite/obj36.bin" frame="6" startpal="1" />
+    </ImageFromMappings>
+    <ImageFromMappings id="vert4">
+      <ArtFile filename="../art/nemesis/Long horizontal spike.bin" compression="Nemesis" />
+      <MapFileBin filename="../mappings/sprite/obj36.bin" frame="7" startpal="1" />
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="00" name="One Horizontal" image="horiz1" />
+    <Subtype id="10" name="Two Horizontal" image="horiz2" />
+    <Subtype id="20" name="Three Horizontal" image="horiz3" />
+    <Subtype id="30" name="Four Horizontal" image="horiz4" />
+    <Subtype id="40" name="One Vertical" image="vert1" />
+    <Subtype id="50" name="Two Vertical" image="vert2" />
+    <Subtype id="60" name="Three Vertical" image="vert3" />
+    <Subtype id="70" name="Four Vertical" image="vert4" />
+  </Subtypes>
+  <Properties>
+    <CustomProperty name="Count" type="int">
+      <get>return ((SubType &amp; 0x30) >> 4) + 1;</get>
+      <set>
+        value = System.Math.Max(1, value);
+        value = System.Math.Min(4, value);
+        value--;
+        SubType = (byte)((SubType &amp; ~0x30) | (value &lt;&lt; 4));
+      </set>
+    </CustomProperty>
+    <BitsProperty name="Movement" type="SpikeMovement" startbit="0" length="2" />
+    <BitsProperty name="Direction" type="Direction" startbit="6" length="1" />
+  </Properties>
+  <Enums>
+    <Enum name="SpikeMovement">
+      <EnumMember name="Stationary" />
+      <EnumMember name="Vertical" />
+      <EnumMember name="Horizontal" />
+      <EnumMember name="Invalid" />
+    </Enum>
+    <Enum name="Direction">
+      <EnumMember name="Horizontal" />
+      <EnumMember name="Vertical" />
+    </Enum>
+  </Enums>
+  <Display>
+    <DisplayOption>
+	  <Condition property="Direction" value="Horizontal" />
+	  <Condition property="Count" value="1" />
+	  <ImageRef image="horiz1" />
+	</DisplayOption>
+    <DisplayOption>
+	  <Condition property="Direction" value="Horizontal" />
+	  <Condition property="Count" value="2" />
+	  <ImageRef image="horiz2" />
+	</DisplayOption>
+    <DisplayOption>
+	  <Condition property="Direction" value="Horizontal" />
+	  <Condition property="Count" value="3" />
+	  <ImageRef image="horiz3" />
+	</DisplayOption>
+    <DisplayOption>
+	  <Condition property="Direction" value="Horizontal" />
+	  <Condition property="Count" value="4" />
+	  <ImageRef image="horiz4" />
+	</DisplayOption>
+    <DisplayOption>
+	  <Condition property="Direction" value="Vertical" />
+	  <Condition property="Count" value="1" />
+	  <ImageRef image="vert1" />
+	</DisplayOption>
+    <DisplayOption>
+	  <Condition property="Direction" value="Vertical" />
+	  <Condition property="Count" value="2" />
+	  <ImageRef image="vert2" />
+	</DisplayOption>
+    <DisplayOption>
+	  <Condition property="Direction" value="Vertical" />
+	  <Condition property="Count" value="3" />
+	  <ImageRef image="vert3" />
+	</DisplayOption>
+    <DisplayOption>
+	  <Condition property="Direction" value="Vertical" />
+	  <Condition property="Count" value="4" />
+	  <ImageRef image="vert4" />
+	</DisplayOption>
+  </Display>
+</ObjDef>

@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Namespace="S2ObjectDefinitions.ARZ" TypeName="Pillar" Language="cs" Name="Falling Pillar" Image="img1" RememberState="false" DrawOffscreen="false">
+  <Images>
+    <ImageFromMappings id="img1">
+      <ArtFile filename="LevelArt" />
+      <MapFileBin filename="../mappings/sprite/obj82.bin" frame="0" startpal="0" />
+    </ImageFromMappings>
+    <ImageFromMappings id="img2">
+      <ArtFile filename="LevelArt" />
+      <MapFileBin filename="../mappings/sprite/obj82.bin" frame="1" startpal="0" />
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="00" name="Platform" image="img1" />
+    <Subtype id="10" name="Pillar" image="img2" />
+    <Subtype id="11" name="Pillar" image="img2" />
+  </Subtypes>
+</ObjDef>
