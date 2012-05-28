@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Namespace="S2ObjectDefinitions.CPZ" TypeName="Platform" Language="cs" Name="Platform" Image="img1" RememberState="false" DrawOffscreen="false">
+  <Images>
+    <ImageFromMappings id="img1">
+      <ArtFile filename="../art/nemesis/Large moving platform from CNZ.bin" compression="Nemesis" />
+      <MapFileBin filename="../mappings/sprite/obj19.bin" frame="0" startpal="3" />
+    </ImageFromMappings>
+    <ImageFromMappings id="img2">
+      <ArtFile filename="../art/nemesis/Large moving platform from CNZ.bin" compression="Nemesis" />
+      <MapFileBin filename="../mappings/sprite/obj19.bin" frame="1" startpal="3" />
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="00" name="Large, Horizontal" image="img1" />
+    <Subtype id="01" name="Large, Horizontal 2" image="img1" />
+    <Subtype id="02" name="Large, Slow Vertical" image="img1" />
+    <Subtype id="03" name="Large, Moves Up When Stepped On" image="img1" />
+    <Subtype id="04" name="Large, Moves Up Automtically" image="img1" />
+    <Subtype id="05" name="Large, Stationary" image="img1" />
+    <Subtype id="06" name="Large, Quick Vertical" image="img1" />
+    <Subtype id="07" name="Large, Quick Vertical 2" image="img1" />
+    <Subtype id="08" name="Large, Circle 1" image="img1" />
+    <Subtype id="09" name="Large, Circle 2" image="img1" />
+    <Subtype id="0A" name="Large, Circle 3" image="img1" />
+    <Subtype id="0B" name="Large, Circle 4" image="img1" />
+    <Subtype id="0C" name="Large, Clockwise Circle 1" image="img1" />
+    <Subtype id="0D" name="Large, Clockwise Circle 2" image="img1" />
+    <Subtype id="0E" name="Large, Clockwise Circle 3" image="img1" />
+    <Subtype id="0F" name="Large, Clockwise Circle 4" image="img1" />
+	<Subtype id="10" name="Small, Horizontal" image="img2" />
+    <Subtype id="11" name="Small, Horizontal 2" image="img2" />
+    <Subtype id="12" name="Small, Slow Vertical" image="img2" />
+    <Subtype id="13" name="Small, Moves Up When Stepped On" image="img2" />
+    <Subtype id="14" name="Small, Moves Up Automtically" image="img2" />
+    <Subtype id="15" name="Small, Stationary" image="img2" />
+    <Subtype id="16" name="Small, Quick Vertical" image="img2" />
+    <Subtype id="17" name="Small, Quick Vertical 2" image="img2" />
+    <Subtype id="18" name="Small, Circle 1" image="img2" />
+    <Subtype id="19" name="Small, Circle 2" image="img2" />
+    <Subtype id="1A" name="Small, Circle 3" image="img2" />
+    <Subtype id="1B" name="Small, Circle 4" image="img2" />
+    <Subtype id="1C" name="Small, Clockwise Circle 1" image="img2" />
+    <Subtype id="1D" name="Small, Clockwise Circle 2" image="img2" />
+    <Subtype id="1E" name="Small, Clockwise Circle 3" image="img2" />
+    <Subtype id="1F" name="Small, Clockwise Circle 4" image="img2" />
+  </Subtypes>
+  <Properties>
+    <BitsProperty name="Movement" type="PlatformMovement" startbit="0" length="4" />
+    <BitsProperty name="ArtSize" type="ArtSize" startbit="4" length="1" />
+  </Properties>
+  <Enums>
+    <Enum name="PlatformMovement">
+      <EnumMember name="Horizontal" />
+      <EnumMember name="Horizontal2" />
+      <EnumMember name="SlowVertical" />
+      <EnumMember name="MoveUpWhenSteppedOn" />
+      <EnumMember name="MoveUpAutomatically" />
+      <EnumMember name="Stationary" />
+      <EnumMember name="QuickVertical" />
+      <EnumMember name="QuickVertical2" />
+      <EnumMember name="Circle1" />
+      <EnumMember name="Circle2" />
+      <EnumMember name="Circle3" />
+      <EnumMember name="Circle4" />
+      <EnumMember name="ClockwiseCircle1" />
+      <EnumMember name="ClockwiseCircle2" />
+      <EnumMember name="ClockwiseCircle3" />
+      <EnumMember name="ClockwiseCircle4" />
+    </Enum>
+    <Enum name="ArtSize">
+      <EnumMember name="Large" />
+      <EnumMember name="Small" />
+    </Enum>
+  </Enums>
+  <Display>
+    <DisplayOption>
+	  <Condition property="ArtSize" value="Large" />
+	  <ImageRef image="img1" />
+	</DisplayOption>
+    <DisplayOption>
+	  <Condition property="ArtSize" value="Small" />
+	  <ImageRef image="img2" />
+	</DisplayOption>
+  </Display>
+</ObjDef>

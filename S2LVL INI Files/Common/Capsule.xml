@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ObjDef Namespace="S2ObjectDefinitions.Common" TypeName="Capsule" Language="cs" Name="Egg Prison" Image="img1" RememberState="false">
+  <Images>
+    <ImageFromMappings id="img1">
+      <ArtFile filename="../art/nemesis/Egg Prison.bin" compression="Nemesis" />
+      <MapFileBin filename="../mappings/sprite/obj3E.bin" frame="0" startpal="1" />
+    </ImageFromMappings>
+    <ImageFromMappings id="img2">
+      <ArtFile filename="../art/nemesis/Egg Prison.bin" compression="Nemesis" />
+      <MapFileBin filename="../mappings/sprite/obj3E.bin" frame="4" startpal="1" />
+    </ImageFromMappings>
+    <ImageFromMappings id="img3">
+      <ArtFile filename="../art/nemesis/Egg Prison.bin" compression="Nemesis" />
+      <MapFileBin filename="../mappings/sprite/obj3E.bin" frame="5" startpal="1" />
+    </ImageFromMappings>
+  </Images>
+  <Display>
+    <DisplayOption>
+	  <ImageRef image="img1" />
+	  <ImageRef image="img2">
+	    <Offset Y="-40" />
+	  </ImageRef>
+	  <ImageRef image="img3">
+	    <Offset Y="-24" />
+	  </ImageRef>
+	</DisplayOption>
+  </Display>
+</ObjDef>

@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Namespace="S2ObjectDefinitions.CPZ" TypeName="Worm" Language="cs" Name="Blue worm thing" Image="img1" RememberState="false" DrawOffscreen="false">
+  <Images>
+    <ImageFromMappings id="img1">
+      <ArtFile filename="../art/nemesis/CPZ worm enemy.bin" compression="Nemesis" />
+      <MapFileBin filename="../mappings/sprite/obj1D.bin" frame="0" startpal="3" />
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="05" name="Back and Forth" image="img1" />
+    <Subtype id="15" name="Square Tube" image="img1" />
+  </Subtypes>
+  <Display>
+    <DisplayOption>
+	  <ImageRef image="img1" />
+	</DisplayOption>
+  </Display>
+</ObjDef>
