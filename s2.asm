@@ -32844,7 +32844,7 @@ SuperSonic_BalanceOnObjLeft:
 	bset	#0,status(a0)
 
 loc_1A57C:
-	move.b	#6,anim(a0)
+	move.b	#AniIDSonAni_Balance,anim(a0)
 	bra.s	Obj01_ResetScr
 ; ---------------------------------------------------------------------------
 ; loc_1A584:

@@ -144,7 +144,7 @@ __LABEL__ zoneOrderedTable entryLen,zoneEntries
 
 ; macro to declare one or more entries in a zone-ordered table
 zoneTableEntry macro value
-	if "VALUE"<>""
+	if "value"<>""
 	    if zone_entries_left
 		dc.ATTRIBUTE value
 zone_entries_left := zone_entries_left-1
