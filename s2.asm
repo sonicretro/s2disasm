@@ -25806,23 +25806,204 @@ Obj6F_MoveAndDisplay:
 ; ===========================================================================
 byte_14752:
 	;      startx  targx   starty  routine   map frame
-	dc.b   2,$40,  1,$20,  0,$AA,     2,         0		; "Special Stage"
-	dc.b   0,  0,  1,$20,  0,$98,     4,         1		; "Sonic got a"
-	dc.b   1,$18,  0,  0,  0,$C4,     6,         5		; Emerald 0
-	dc.b   1,$30,  0,  0,  0,$D0,     8,         6		; Emerald 1
-	dc.b   1,$30,  0,  0,  0,$E8,    $A,         7		; Emerald 2
-	dc.b   1,$18,  0,  0,  0,$F4,    $C,         8		; Emerald 3
-	dc.b   1,  0,  0,  0,  0,$E8,    $E,         9		; Emerald 4
-	dc.b   1,  0,  0,  0,  0,$D0,   $10,        $A		; Emerald 5
-	dc.b   1,$18,  0,  0,  0,$DC,   $12,        $B		; Emerald 6
-	dc.b   3,$30,  1,$20,  1,  8,   $14,        $C		; Score
-	dc.b   3,$40,  1,$20,  1,$18,   $16,        $D		; Sonic Rings
-	dc.b   3,$50,  1,$20,  1,$28,   $18,        $E		; Miles Rings
-	dc.b   3,$60,  1,$20,  1,$38,   $1A,       $10		; Gems Bonus
+	results_screen_object  $240, $120,  $AA,   2,   0		; "Special Stage"
+	results_screen_object     0, $120,  $98,   4,   1		; "Sonic got a"
+	results_screen_object  $118,    0,  $C4,   6,   5		; Emerald 0
+	results_screen_object  $130,    0,  $D0,   8,   6		; Emerald 1
+	results_screen_object  $130,    0,  $E8,  $A,   7		; Emerald 2
+	results_screen_object  $118,    0,  $F4,  $C,   8		; Emerald 3
+	results_screen_object  $100,    0,  $E8,  $E,   9		; Emerald 4
+	results_screen_object  $100,    0,  $D0, $10,  $A		; Emerald 5
+	results_screen_object  $118,    0,  $DC, $12,  $B		; Emerald 6
+	results_screen_object  $330, $120, $108, $14,  $C		; Score
+	results_screen_object  $340, $120, $118, $16,  $D		; Sonic Rings
+	results_screen_object  $350, $120, $128, $18,  $E		; Miles Rings
+	results_screen_object  $360, $120, $138, $1A, $10		; Gems Bonus
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
-Obj34_MapUnc_147BA:	BINCLUDE "mappings/sprite/obj34.bin"
+Obj34_MapUnc_147BA:
+	dc.w word_147E8-Obj34_MapUnc_147BA
+	dc.w word_147E8-Obj34_MapUnc_147BA
+	dc.w word_147E8-Obj34_MapUnc_147BA
+	dc.w word_147E8-Obj34_MapUnc_147BA
+	dc.w word_14842-Obj34_MapUnc_147BA
+	dc.w word_14842-Obj34_MapUnc_147BA
+	dc.w word_14B24-Obj34_MapUnc_147BA
+	dc.w word_14894-Obj34_MapUnc_147BA
+	dc.w word_148CE-Obj34_MapUnc_147BA
+	dc.w word_147E8-Obj34_MapUnc_147BA
+	dc.w word_14930-Obj34_MapUnc_147BA
+	dc.w word_14972-Obj34_MapUnc_147BA
+	dc.w word_149C4-Obj34_MapUnc_147BA
+	dc.w word_14A1E-Obj34_MapUnc_147BA
+	dc.w word_14B86-Obj34_MapUnc_147BA
+	dc.w word_14A88-Obj34_MapUnc_147BA
+	dc.w word_14AE2-Obj34_MapUnc_147BA
+	dc.w word_14BC8-Obj34_MapUnc_147BA
+	dc.w word_14BEA-Obj34_MapUnc_147BA
+	dc.w word_14BF4-Obj34_MapUnc_147BA
+	dc.w word_14BFE-Obj34_MapUnc_147BA
+	dc.w word_14C08-Obj34_MapUnc_147BA
+	dc.w word_14C32-Obj34_MapUnc_147BA
+word_147E8:	dc.w $B
+	dc.w 5,	$8580, $82C0, $FFC3
+	dc.w 9,	$85DE, $82EF, $FFD0
+	dc.w 5,	$8580, $82C0, $FFE8
+	dc.w 5,	$85E4, $82F2, $FFF8
+	dc.w 5,	$85E8, $82F4, 8
+	dc.w 5,	$85EC, $82F6, $18
+	dc.w 5,	$85F0, $82F8, $28
+	dc.w 5,	$85F4, $82FA, $48
+	dc.w 1,	$85F8, $82FC, $58
+	dc.w 5,	$85EC, $82F6, $60
+	dc.w 5,	$85EC, $82F6, $70
+word_14842:	dc.w $A
+	dc.w 9,	$85DE, $82EF, $FFE0
+	dc.w 5,	$8580, $82C0, $FFF8
+	dc.w 5,	$85E4, $82F2, 8
+	dc.w 5,	$85E8, $82F4, $18
+	dc.w 5,	$8588, $82C4, $28
+	dc.w 5,	$85EC, $82F6, $38
+	dc.w 5,	$8588, $82C4, $48
+	dc.w 5,	$85F0, $82F8, $58
+	dc.w 1,	$85F4, $82FA, $68
+	dc.w 5,	$85F6, $82FB, $70
+word_14894:	dc.w 7
+	dc.w 5,	$85DE, $82EF, 8
+	dc.w 1,	$85E2, $82F1, $18
+	dc.w 5,	$85E4, $82F2, $20
+	dc.w 5,	$85E4, $82F2, $30
+	dc.w 5,	$85E8, $82F4, $51
+	dc.w 5,	$8588, $82C4, $60
+	dc.w 5,	$85EC, $82F6, $70
+word_148CE:	dc.w $C
+	dc.w 5,	$85DE, $82EF, $FFB8
+	dc.w 1,	$85E2, $82F1, $FFC8
+	dc.w 5,	$85E4, $82F2, $FFD0
+	dc.w 5,	$85E4, $82F2, $FFE0
+	dc.w 5,	$8580, $82C0, $FFF0
+	dc.w 5,	$8584, $82C2, 0
+	dc.w 5,	$85E8, $82F4, $20
+	dc.w 5,	$85EC, $82F6, $30
+	dc.w 5,	$85F0, $82F8, $40
+	dc.w 5,	$85EC, $82F6, $50
+	dc.w 5,	$85F4, $82FA, $60
+	dc.w 5,	$8580, $82C0, $70
+word_14930:	dc.w 8
+	dc.w 5,	$8588, $82C4, $FFFB
+	dc.w 1,	$85DE, $82EF, $B
+	dc.w 5,	$85E0, $82F0, $13
+	dc.w 5,	$8588, $82C4, $33
+	dc.w 5,	$85E4, $82F2, $43
+	dc.w 5,	$8580, $82C0, $53
+	dc.w 5,	$85E8, $82F4, $60
+	dc.w 5,	$8584, $82C2, $70
+word_14972:	dc.w $A
+	dc.w 9,	$85DE, $82EF, $FFD0
+	dc.w 5,	$85E4, $82F2, $FFE8
+	dc.w 5,	$85E8, $82F4, $FFF8
+	dc.w 5,	$85EC, $82F6, 8
+	dc.w 1,	$85F0, $82F8, $18
+	dc.w 5,	$85F2, $82F9, $20
+	dc.w 5,	$85F2, $82F9, $41
+	dc.w 5,	$85F6, $82FB, $50
+	dc.w 5,	$85FA, $82FD, $60
+	dc.w 5,	$8580, $82C0, $70
+word_149C4:	dc.w $B
+	dc.w 5,	$85DE, $82EF, $FFD1
+	dc.w 5,	$85E2, $82F1, $FFE0
+	dc.w 5,	$85E6, $82F3, $FFF0
+	dc.w 1,	$85EA, $82F5, 0
+	dc.w 5,	$8584, $82C2, 8
+	dc.w 5,	$8588, $82C4, $18
+	dc.w 5,	$8584, $82C2, $38
+	dc.w 1,	$85EA, $82F5, $48
+	dc.w 5,	$85EC, $82F6, $50
+	dc.w 5,	$85F0, $82F8, $60
+	dc.w 5,	$85F4, $82FA, $70
+word_14A1E:	dc.w $D
+	dc.w 5,	$85DE, $82EF, $FFA4
+	dc.w 5,	$85E2, $82F1, $FFB4
+	dc.w 5,	$8580, $82C0, $FFC4
+	dc.w 9,	$85E6, $82F3, $FFD1
+	dc.w 1,	$85EC, $82F6, $FFE9
+	dc.w 5,	$85DE, $82EF, $FFF1
+	dc.w 5,	$85EE, $82F7, 0
+	dc.w 5,	$85F2, $82F9, $10
+	dc.w 5,	$85F6, $82FB, $31
+	dc.w 5,	$85F2, $82F9, $41
+	dc.w 5,	$85EE, $82F7, $50
+	dc.w 5,	$8584, $82C2, $60
+	dc.w 5,	$85FA, $82FD, $70
+word_14A88:	dc.w $B
+	dc.w 5,	$85DE, $82EF, $FFD2
+	dc.w 5,	$85E2, $82F1, $FFE2
+	dc.w 5,	$85E6, $82F3, $FFF2
+	dc.w 5,	$85DE, $82EF, 0
+	dc.w 5,	$85EA, $82F5, $10
+	dc.w 1,	$85EE, $82F7, $20
+	dc.w 5,	$85F0, $82F8, $28
+	dc.w 5,	$85F4, $82FA, $48
+	dc.w 5,	$85E6, $82F3, $58
+	dc.w 1,	$85EE, $82F7, $68
+	dc.w 5,	$8584, $82C2, $70
+word_14AE2:	dc.w 8
+	dc.w 5,	$85DE, $82EF, $FFF0
+	dc.w 5,	$85E2, $82F1, 0
+	dc.w 5,	$85E6, $82F3, $10
+	dc.w 5,	$85EA, $82F5, $30
+	dc.w 5,	$85EE, $82F7, $40
+	dc.w 5,	$85F2, $82F9, $50
+	dc.w 5,	$85DE, $82EF, $60
+	dc.w 5,	$8580, $82C0, $70
+word_14B24:	dc.w $C
+	dc.w 9,	$85DE, $82EF, $FFB1
+	dc.w 1,	$85E4, $82F2, $FFC8
+	dc.w 5,	$8584, $82C2, $FFD0
+	dc.w 5,	$85E6, $82F3, $FFE0
+	dc.w 5,	$85EA, $82F5, 1
+	dc.w 5,	$8588, $82C4, $10
+	dc.w 5,	$85EE, $82F7, $20
+	dc.w 5,	$85F2, $82F9, $30
+	dc.w 5,	$85EE, $82F7, $40
+	dc.w 5,	$8580, $82C0, $50
+	dc.w 5,	$85F6, $82FB, $5F
+	dc.w 5,	$85F6, $82FB, $6F
+word_14B86:	dc.w 8
+	dc.w 5,	$85DE, $82EF, $FFF2
+	dc.w 5,	$8580, $82C0, 2
+	dc.w 5,	$85E2, $82F1, $10
+	dc.w 5,	$85E6, $82F3, $20
+	dc.w 5,	$85EA, $82F5, $30
+	dc.w 5,	$8580, $82C0, $51
+	dc.w 5,	$85EE, $82F7, $60
+	dc.w 5,	$85EE, $82F7, $70
+word_14BC8:	dc.w 4
+	dc.w 5,	$858C, $82C6, 1
+	dc.w 5,	$8588, $82C4, $10
+	dc.w 5,	$8584, $82C2, $20
+	dc.w 5,	$8580, $82C0, $30
+word_14BEA:	dc.w 1
+	dc.w 7,	$A590, $A2C8, 0
+word_14BF4:	dc.w 1
+	dc.w $B, $A598,	$A2CC, 0
+word_14BFE:	dc.w 1
+	dc.w $B, $A5A4,	$A2D2, 0
+word_14C08:	dc.w 5
+	dc.w $D, $85B0,	$82D8, $FFB8
+	dc.w $D, $85B8,	$82DC, $FFD8
+	dc.w $D, $85C0,	$82E0, $FFF8
+	dc.w $D, $85C8,	$82E4, $18
+	dc.w 5,	$85D0, $82E8, $38
+word_14C32:	dc.w 7
+	dc.w $9003, $85D4, $82EA, 0
+	dc.w $B003, $85D4, $82EA, 0
+	dc.w $D003, $85D4, $82EA, 0
+	dc.w $F003, $85D4, $82EA, 0
+	dc.w $1003, $85D4, $82EA, 0
+	dc.w $3003, $85D4, $82EA, 0
+	dc.w $5003, $85D4, $82EA, 0
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
@@ -25830,7 +26011,93 @@ Obj39_MapUnc_14C6C:	BINCLUDE "mappings/sprite/obj39.bin"
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
-Obj3A_MapUnc_14CBC:	BINCLUDE "mappings/sprite/obj3A.bin"
+Obj3A_MapUnc_14CBC:
+	dc.w word_14CDA-Obj3A_MapUnc_14CBC
+	dc.w word_14D1C-Obj3A_MapUnc_14CBC
+	dc.w word_14D5E-Obj3A_MapUnc_14CBC
+	dc.w word_14DA0-Obj3A_MapUnc_14CBC
+	dc.w word_14DDA-Obj3A_MapUnc_14CBC
+	dc.w word_14BC8-Obj3A_MapUnc_14CBC
+	dc.w word_14BEA-Obj3A_MapUnc_14CBC
+	dc.w word_14BF4-Obj3A_MapUnc_14CBC
+	dc.w word_14BFE-Obj3A_MapUnc_14CBC
+	dc.w word_14DF4-Obj3A_MapUnc_14CBC
+	dc.w word_14E1E-Obj3A_MapUnc_14CBC
+	dc.w word_14E50-Obj3A_MapUnc_14CBC
+	dc.w word_14E82-Obj3A_MapUnc_14CBC
+	dc.w word_14E8C-Obj3A_MapUnc_14CBC
+	dc.w word_14E96-Obj3A_MapUnc_14CBC
+word_14CDA:	dc.w 8
+	dc.w 5,	$85D0, $82E8, $FFC0
+	dc.w 5,	$8588, $82C4, $FFD0
+	dc.w 5,	$8584, $82C2, $FFE0
+	dc.w 1,	$85C0, $82E0, $FFF0
+	dc.w 5,	$85B4, $82DA, $FFF8
+	dc.w 5,	$85B8, $82DC, $10
+	dc.w 5,	$8588, $82C4, $20
+	dc.w 5,	$85D4, $82EA, $2F
+word_14D1C:	dc.w 8
+	dc.w 9,	$85C6, $82E3, $FFBC
+	dc.w 1,	$85C0, $82E0, $FFD4
+	dc.w 5,	$85C2, $82E1, $FFDC
+	dc.w 5,	$8580, $82C0, $FFEC
+	dc.w 5,	$85D0, $82E8, $FFFC
+	dc.w 5,	$85B8, $82DC, $14
+	dc.w 5,	$8588, $82C4, $24
+	dc.w 5,	$85D4, $82EA, $33
+word_14D5E:	dc.w 8
+	dc.w 5,	$85D4, $82EA, $FFC3
+	dc.w 5,	$85B0, $82D8, $FFD0
+	dc.w 1,	$85C0, $82E0, $FFE0
+	dc.w 5,	$85C2, $82E1, $FFE8
+	dc.w 5,	$85D0, $82E8, $FFF8
+	dc.w 5,	$85B8, $82DC, $10
+	dc.w 5,	$8588, $82C4, $20
+	dc.w 5,	$85D4, $82EA, $2F
+word_14DA0:	dc.w 7
+	dc.w 5,	$85D4, $82EA, $FFC8
+	dc.w 5,	$85BC, $82DE, $FFD8
+	dc.w 5,	$85CC, $82E6, $FFE8
+	dc.w 5,	$8588, $82C4, $FFF8
+	dc.w 5,	$85D8, $82EC, 8
+	dc.w 5,	$85B8, $82DC, $18
+	dc.w 5,	$85BC, $82DE, $28
+word_14DDA:	dc.w 3
+	dc.w 5,	$85B0, $82D8, 0
+	dc.w 5,	$85B4, $82DA, $10
+	dc.w 5,	$85D4, $82EA, $1F
+word_14DF4:	dc.w 5
+	dc.w 9,	$A5E6, $A2F3, $FFB8
+	dc.w 5,	$A5EC, $A2F6, $FFD0
+	dc.w 5,	$85F0, $82F8, $FFD4
+	dc.w $D, $8520,	$8290, $38
+	dc.w 1,	$86F0, $8378, $58
+word_14E1E:	dc.w 6
+	dc.w $D, $A6DA,	$A36D, $FFA4
+	dc.w $D, $A5DE,	$A2EF, $FFCC
+	dc.w 1,	$A6CA, $A365, $FFEC
+	dc.w 5,	$85F0, $82F8, $FFE8
+	dc.w $D, $8528,	$8294, $38
+	dc.w 1,	$86F0, $8378, $58
+word_14E50:	dc.w 6
+	dc.w $D, $A6D2,	$A369, $FFA4
+	dc.w $D, $A5DE,	$A2EF, $FFCC
+	dc.w 1,	$A6CA, $A365, $FFEC
+	dc.w 5,	$85F0, $82F8, $FFE8
+	dc.w $D, $8530,	$8298, $38
+	dc.w 1,	$86F0, $8378, $58
+word_14E82:	dc.w 1
+	dc.w 6,	$85F4, $82FA, 0
+word_14E8C:	dc.w 1
+	dc.w 6,	$85FA, $82FD, 0
+word_14E96:	dc.w 7
+	dc.w $D, $A540,	$A2A0, $FF98
+	dc.w 9,	$A548, $A2A4, $FFB8
+	dc.w $D, $A5DE,	$A2EF, $FFD8
+	dc.w 1,	$A6CA, $A365, $FFF8
+	dc.w 5,	$85F0, $82F8, $FFF4
+	dc.w $D, $8538,	$829C, $38
+	dc.w 1,	$86F0, $8378, $58
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
