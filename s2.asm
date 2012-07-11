@@ -25822,30 +25822,30 @@ byte_14752:
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
-Obj34_MapUnc_147BA:
-	dc.w word_147E8-Obj34_MapUnc_147BA
-	dc.w word_147E8-Obj34_MapUnc_147BA
-	dc.w word_147E8-Obj34_MapUnc_147BA
-	dc.w word_147E8-Obj34_MapUnc_147BA
-	dc.w word_14842-Obj34_MapUnc_147BA
-	dc.w word_14842-Obj34_MapUnc_147BA
-	dc.w word_14B24-Obj34_MapUnc_147BA
-	dc.w word_14894-Obj34_MapUnc_147BA
-	dc.w word_148CE-Obj34_MapUnc_147BA
-	dc.w word_147E8-Obj34_MapUnc_147BA
-	dc.w word_14930-Obj34_MapUnc_147BA
-	dc.w word_14972-Obj34_MapUnc_147BA
-	dc.w word_149C4-Obj34_MapUnc_147BA
-	dc.w word_14A1E-Obj34_MapUnc_147BA
-	dc.w word_14B86-Obj34_MapUnc_147BA
-	dc.w word_14A88-Obj34_MapUnc_147BA
-	dc.w word_14AE2-Obj34_MapUnc_147BA
-	dc.w word_14BC8-Obj34_MapUnc_147BA
-	dc.w word_14BEA-Obj34_MapUnc_147BA
-	dc.w word_14BF4-Obj34_MapUnc_147BA
-	dc.w word_14BFE-Obj34_MapUnc_147BA
-	dc.w word_14C08-Obj34_MapUnc_147BA
-	dc.w word_14C32-Obj34_MapUnc_147BA
+Obj34_MapUnc_147BA:	offsetTable
+	offsetTableEntry.w word_147E8
+	offsetTableEntry.w word_147E8
+	offsetTableEntry.w word_147E8
+	offsetTableEntry.w word_147E8
+	offsetTableEntry.w word_14842
+	offsetTableEntry.w word_14842
+	offsetTableEntry.w word_14B24
+	offsetTableEntry.w word_14894
+	offsetTableEntry.w word_148CE
+	offsetTableEntry.w word_147E8
+	offsetTableEntry.w word_14930
+	offsetTableEntry.w word_14972
+	offsetTableEntry.w word_149C4
+	offsetTableEntry.w word_14A1E
+	offsetTableEntry.w word_14B86
+	offsetTableEntry.w word_14A88
+	offsetTableEntry.w word_14AE2
+	offsetTableEntry.w word_14BC8
+	offsetTableEntry.w word_14BEA
+	offsetTableEntry.w word_14BF4
+	offsetTableEntry.w word_14BFE
+	offsetTableEntry.w word_14C08
+	offsetTableEntry.w word_14C32
 word_147E8:	dc.w $B
 	dc.w 5,	$8580, $82C0, $FFC3
 	dc.w 9,	$85DE, $82EF, $FFD0
@@ -26011,22 +26011,22 @@ Obj39_MapUnc_14C6C:	BINCLUDE "mappings/sprite/obj39.bin"
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
-Obj3A_MapUnc_14CBC:
-	dc.w word_14CDA-Obj3A_MapUnc_14CBC
-	dc.w word_14D1C-Obj3A_MapUnc_14CBC
-	dc.w word_14D5E-Obj3A_MapUnc_14CBC
-	dc.w word_14DA0-Obj3A_MapUnc_14CBC
-	dc.w word_14DDA-Obj3A_MapUnc_14CBC
-	dc.w word_14BC8-Obj3A_MapUnc_14CBC
-	dc.w word_14BEA-Obj3A_MapUnc_14CBC
-	dc.w word_14BF4-Obj3A_MapUnc_14CBC
-	dc.w word_14BFE-Obj3A_MapUnc_14CBC
-	dc.w word_14DF4-Obj3A_MapUnc_14CBC
-	dc.w word_14E1E-Obj3A_MapUnc_14CBC
-	dc.w word_14E50-Obj3A_MapUnc_14CBC
-	dc.w word_14E82-Obj3A_MapUnc_14CBC
-	dc.w word_14E8C-Obj3A_MapUnc_14CBC
-	dc.w word_14E96-Obj3A_MapUnc_14CBC
+Obj3A_MapUnc_14CBC:	offsetTable
+	offsetTableEntry.w word_14CDA
+	offsetTableEntry.w word_14D1C
+	offsetTableEntry.w word_14D5E
+	offsetTableEntry.w word_14DA0
+	offsetTableEntry.w word_14DDA
+	offsetTableEntry.w word_14BC8
+	offsetTableEntry.w word_14BEA
+	offsetTableEntry.w word_14BF4
+	offsetTableEntry.w word_14BFE
+	offsetTableEntry.w word_14DF4
+	offsetTableEntry.w word_14E1E
+	offsetTableEntry.w word_14E50
+	offsetTableEntry.w word_14E82
+	offsetTableEntry.w word_14E8C
+	offsetTableEntry.w word_14E96
 word_14CDA:	dc.w 8
 	dc.w 5,	$85D0, $82E8, $FFC0
 	dc.w 5,	$8588, $82C4, $FFD0
