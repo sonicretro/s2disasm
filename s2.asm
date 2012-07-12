@@ -19712,6 +19712,10 @@ JmpTo3_PlayMusic
 ; ----------------------------------------------------------------------------
 ; Object 11 - Bridge in Emerald Hill Zone and Hidden Palace Zone
 ; ----------------------------------------------------------------------------
+; OST Variables:
+Obj11_child1		= objoff_30	; pointer to first set of bridge segments
+Obj11_child2		= objoff_34	; pointer to second set of bridge segments, if applicable
+
 ; Sprite_F66C:
 Obj11:
 	btst	#6,render_flags(a0)	; is this a child sprite object?
@@ -19763,14 +19767,14 @@ Obj11_Init:
 	move.w	sub6_x_pos(a1),d0
 	subq.w	#8,d0
 	move.w	d0,x_pos(a1)		; center of first subsprite object
-	move.l	a1,objoff_30(a0)	; pointer to first subsprite object
+	move.l	a1,Obj11_child1(a0)	; pointer to first subsprite object
 	swap	d1	; retrieve subtype
 	subq.w	#8,d1
 	bls.s	+	; branch, if subtype <= 8 (bridge has no more than 8 logs)
 	; else, create a second subsprite object for the rest of the bridge
 	move.w	d1,d4
 	bsr.s	Obj11_MakeBdgSegment
-	move.l	a1,objoff_34(a0)	; pointer to second subsprite object
+	move.l	a1,Obj11_child2(a0)	; pointer to second subsprite object
 	move.w	d4,d0
 	add.w	d0,d0
 	add.w	d4,d0	; d0*3
@@ -19863,11 +19867,11 @@ Obj11_Unload:
 	rts
 ; ---------------------------------------------------------------------------
 +	; delete first subsprite object
-	movea.l	objoff_30(a0),a1 ; a1=object
+	movea.l	Obj11_child1(a0),a1 ; a1=object
 	bsr.w	DeleteObject2
 	cmpi.b	#8,subtype(a0)
 	bls.s	+	; if bridge has more than 8 logs, delete second subsprite object
-	movea.l	objoff_34(a0),a1 ; a1=object
+	movea.l	Obj11_child2(a0),a1 ; a1=object
 	bsr.w	DeleteObject2
 +
 	bra.w	DeleteObject
@@ -19953,10 +19957,10 @@ sub_F872:
 +
 	lsr.w	#4,d0
 	move.b	d0,(a0,d5.w)
-	movea.l	objoff_30(a0),a2
+	movea.l	Obj11_child1(a0),a2
 	cmpi.w	#8,d0
 	blo.s	+
-	movea.l	objoff_34(a0),a2 ; a2=object
+	movea.l	Obj11_child2(a0),a2 ; a2=object
 	subi.w	#8,d0
 +
 	add.w	d0,d0
@@ -20041,7 +20045,7 @@ byte_F950:
 	beq.s	+
 	move.b	objoff_3B(a0),d4
 +
-	movea.l	objoff_30(a0),a1
+	movea.l	Obj11_child1(a0),a1
 	lea	sub9_mapframe+next_subspr(a1),a2
 	lea	sub2_mapframe(a1),a1
 	moveq	#0,d1
@@ -20089,7 +20093,7 @@ byte_F950:
 	addq.w	#6,a1
 	cmpa.w	a2,a1
 	bne.s	+
-	movea.l	objoff_34(a0),a1 ; a1=object
+	movea.l	Obj11_child2(a0),a1 ; a1=object
 	lea	sub2_mapframe(a1),a1
 +	dbf	d1,-
 
@@ -20119,7 +20123,7 @@ Obj11_Depress:
 	andi.w	#$F,d3
 	lsl.w	#4,d3
 	lea	(a4,d3.w),a3
-	movea.l	objoff_30(a0),a1
+	movea.l	Obj11_child1(a0),a1
 	lea	sub9_y_pos+next_subspr(a1),a2
 	lea	sub2_y_pos(a1),a1
 
@@ -20134,7 +20138,7 @@ Obj11_Depress:
 	addq.w	#6,a1
 	cmpa.w	a2,a1
 	bne.s	+
-	movea.l	objoff_34(a0),a1 ; a1=object
+	movea.l	Obj11_child2(a0),a1 ; a1=object
 	lea	sub2_y_pos(a1),a1
 +	dbf	d2,-
 
@@ -20164,7 +20168,7 @@ Obj11_Depress:
 	addq.w	#6,a1
 	cmpa.w	a2,a1
 	bne.s	+
-	movea.l	objoff_34(a0),a1 ; a1=object
+	movea.l	Obj11_child2(a0),a1 ; a1=object
 	lea	sub2_y_pos(a1),a1
 +	dbf	d2,-
 +
@@ -56684,6 +56688,18 @@ JmpTo19_ObjectMove
 ; ----------------------------------------------------------------------------
 ; Object 50 - Aquis (seahorse badnik) from OOZ
 ; ----------------------------------------------------------------------------
+; OST Variables:
+Obj50_unkown1		= objoff_2A	; word
+Obj50_shooting_flag	= objoff_2D	; byte	; if set, shooting is disabled
+Obj50_shots_remaining	= objoff_2E	; word	; number of shots before retreating
+Obj50_unkown2		= objoff_30	; word
+Obj50_unkown3		= objoff_32	; word
+Obj50_unkown4		= objoff_34	; word
+Obj50_child		= objoff_36	; long	; pointer to wing object (main)
+Obj50_parent		= objoff_36	; long	; pointer to main object (wing)
+Obj50_unkown5		= objoff_3A	; word
+Obj50_timer		= objoff_3C	; byte	; time spent following the player before shooting and time to wait before actually shooting
+
 ; Sprite_2CCC8:
 Obj50:
 	moveq	#0,d0
@@ -56712,21 +56728,23 @@ Obj50_Init:
 	move.b	d0,d1
 	andi.w	#$F0,d1
 	lsl.w	#4,d1
-	move.w	d1,objoff_2E(a0)
-	move.w	d1,objoff_30(a0)
+	move.w	d1,Obj50_shots_remaining(a0)	; looks like the number of shots could be set via subtype at one point
+	move.w	d1,Obj50_unkown2(a0)	; unused
 	andi.w	#$F,d0
 	lsl.w	#4,d0
 	subq.w	#1,d0
-	move.w	d0,objoff_32(a0)
-	move.w	d0,objoff_34(a0)
-	move.w	y_pos(a0),objoff_2A(a0)
-	move.w	(Water_Level_1).w,objoff_3A(a0)
-	move.b	#3,objoff_2E(a0)
+	move.w	d0,Obj50_unkown3(a0)	; unused
+	move.w	d0,Obj50_unkown4(a0)	; unused
+	move.w	y_pos(a0),Obj50_unkown1(a0)	; unused
+	move.w	(Water_Level_1).w,Obj50_unkown5(a0)
+	move.b	#3,Obj50_shots_remaining(a0)	; hardcoded to three shots
+
+	; creat wing child object
 	bsr.w	JmpTo12_SingleObjLoad
 	bne.s	Obj50_Main
 
 	_move.b	#ObjID_Aquis,id(a1) ; load obj50
-	move.b	#4,routine(a1)
+	move.b	#4,routine(a1)	; => Obj50_Wing
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
 	addi.w	#$A,x_pos(a1)
@@ -56737,9 +56755,9 @@ Obj50_Init:
 	move.b	#3,priority(a1)
 	move.b	status(a0),status(a1)
 	move.b	#3,anim(a1)
-	move.l	a1,objoff_36(a0)
-	move.l	a0,objoff_36(a1)
-	bset	#6,status(a0)
+	move.l	a1,Obj50_child(a0)
+	move.l	a0,Obj50_parent(a1)
+	bset	#6,status(a0)	; set compund sprite flag. This is useless, as the object doesn't define any child spites, nor does it set its child sprite count
 ; loc_2CDA2:
 Obj50_Main:
 	lea	(Ani_obj50).l,a1
@@ -56754,19 +56772,19 @@ Obj50_Main:
 ; off_2CDC2:
 Obj50_Main_Index: offsetTable
 	offsetTableEntry.w Obj50_CheckIfOnScreen	; 0
-	offsetTableEntry.w loc_2CE14			; 2
-	offsetTableEntry.w loc_2CE1A			; 4
+	offsetTableEntry.w Obj50_Chase			; 2
+	offsetTableEntry.w Obj50_Shooting		; 4
 	offsetTableEntry.w BranchTo_JmpTo20_ObjectMove	; 6
 ; ===========================================================================
 ; loc_2CDCA:
 Obj50_Wing:
-	movea.l	objoff_36(a0),a1 ; a1=object
-	tst.b	(a1)
-	beq.w	JmpTo48_DeleteObject
-	cmpi.b	#$50,(a1)
-	bne.w	JmpTo48_DeleteObject
-	btst	#7,status(a1)
-	bne.w	JmpTo48_DeleteObject
+	movea.l	Obj50_parent(a0),a1 ; a1=object
+	tst.b	(a1)		; is parent object's slot empty?
+	beq.w	JmpTo48_DeleteObject	; if yes, branch
+	cmpi.b	#ObjID_Aquis,(a1)	; is parent object ObjID_Aquis?
+	bne.w	JmpTo48_DeleteObject	; if not, branch
+	btst	#7,status(a1)		; is parent object marked as destroyed?
+	bne.w	JmpTo48_DeleteObject	; if yes, branch
 	lea	(Ani_obj50).l,a1
 	bsr.w	JmpTo14_AnimateSprite
 	bra.w	JmpTo32_DisplaySprite
@@ -56778,6 +56796,7 @@ Obj50_Bullet:
 	bsr.w	JmpTo14_AnimateSprite
 	bra.w	JmpTo33_MarkObjGone
 ; ===========================================================================
+; wait and do nothing until on screen
 ; loc_2CE06:
 Obj50_CheckIfOnScreen:
 	tst.b	render_flags(a0)
@@ -56785,35 +56804,37 @@ Obj50_CheckIfOnScreen:
 	rts
 ; ===========================================================================
 +
-	addq.b	#2,routine_secondary(a0)
+	addq.b	#2,routine_secondary(a0)	; => Obj50_Chase
 	rts
 ; ===========================================================================
-
-loc_2CE14:
-	bsr.w	loc_2CEAE
+; loc_2CE14:
+Obj50_Chase:
+	bsr.w	Obj50_FollowPlayer
 	rts
 ; ===========================================================================
-
-loc_2CE1A:
-	bsr.w	loc_2CEF8
-	bsr.w	loc_2CE24
+; loc_2CE1A:
+Obj50_Shooting:
+	bsr.w	Obj50_WaitForNextShot
+	bsr.w	Obj50_ChkIfShoot
 	rts
 ; ===========================================================================
-
-loc_2CE24:
-	tst.b	objoff_2D(a0)
-	bne.w	return_2CEAC
-	st	objoff_2D(a0)
+; loc_2CE24:
+Obj50_ChkIfShoot:
+	tst.b	Obj50_shooting_flag(a0)	; is object allowed to shoot?
+	bne.w	return_2CEAC		; if not, branch
+	st	Obj50_shooting_flag(a0)	; else, disallow shooting after this
 	bsr.w	JmpTo_Obj_GetOrientationToPlayer
-	tst.w	d1
-	beq.s	return_2CEAC
-	cmpi.w	#-$10,d1
+	tst.w	d1		; is player above object?
+	beq.s	return_2CEAC	; if yes, don't shoot
+	cmpi.w	#$FFF0,d1	; ? d1 should only be 0 or 2 here...
 	bhs.s	return_2CEAC
+
+	; shoot bullet
 	bsr.w	JmpTo12_SingleObjLoad
 	bne.s	return_2CEAC
 	_move.b	#ObjID_Aquis,id(a1) ; load obj50
-	move.b	#6,routine(a1)
-	move.w	x_pos(a0),x_pos(a1)
+	move.b	#6,routine(a1)	; => Obj50_Bullet
+	move.w	x_pos(a0),x_pos(a1)	; align with parent object
 	move.w	y_pos(a0),y_pos(a1)
 	move.l	#Obj50_MapUnc_2CF94,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_Aquis,1,0),art_tile(a1)
@@ -56821,15 +56842,14 @@ loc_2CE24:
 	move.b	#3,priority(a1)
 	move.b	#$98,collision_flags(a1)
 	move.b	#2,anim(a1)
-	move.w	#$A,d0
-	move.w	#$10,d1
-	move.w	#-$300,d2
-	btst	#0,status(a0)
-	beq.s	loc_2CE9A
-	neg.w	d1
-	neg.w	d2
-
-loc_2CE9A:
+	move.w	#$A,d0		; set y offset
+	move.w	#$10,d1		; set x offset
+	move.w	#-$300,d2	; set x velocity
+	btst	#0,status(a0)	; is object facing right?
+	beq.s	+		; if yes, branch
+	neg.w	d1	; else, align bullet with other side of object...
+	neg.w	d2	; ... and move in the opposite direction
++
 	sub.w	d0,y_pos(a1)
 	sub.w	d1,x_pos(a1)
 	move.w	d2,x_vel(a1)
@@ -56838,53 +56858,58 @@ loc_2CE9A:
 return_2CEAC:
 	rts
 ; ===========================================================================
-
-loc_2CEAE:
-	subq.b	#1,objoff_3C(a0)
-	bmi.s	loc_2CEEA
+; follow player for a while; target is whichever character is the closest
+; loc_2CEAE:
+Obj50_FollowPlayer:
+	subq.b	#1,Obj50_timer(a0)
+	bmi.s	Obj50_DoneFollowing	; branch, if counter has expired
 	bsr.w	JmpTo_Obj_GetOrientationToPlayer
-	bclr	#0,status(a0)
+	bclr	#0,status(a0)	; face right
 	tst.w	d0
-	beq.s	+
-	bset	#0,status(a0)
+	beq.s	+		; branch, if player is right from object
+	bset	#0,status(a0)	; otherwise, face left
 +
-	move.w	word_2CEE6(pc,d0.w),d2
+	; make object move towards player; d0 and d1 were set by the GetOrientationToPlayer routine
+	move.w	Obj50_Speeds(pc,d0.w),d2
 	add.w	d2,x_vel(a0)
-	move.w	word_2CEE6(pc,d1.w),d2
+	move.w	Obj50_Speeds(pc,d1.w),d2
 	add.w	d2,y_vel(a0)
-	move.w	#$100,d0
-	move.w	d0,d1
-	bsr.w	JmpTo_loc_3671A
+	move.w	#$100,d0	; $100 is object's max x...
+	move.w	d0,d1		; ... and y velocity
+	bsr.w	JmpTo_Obj_CapSpeed
 	bra.w	JmpTo20_ObjectMove
 ; ===========================================================================
-word_2CEE6:
-	dc.w  -$10,  $10
+; word_2CEE6:
+Obj50_Speeds:
+	dc.w   -$10	; 0 - left/up
+	dc.w	$10	; 2 - right/down
 ; ===========================================================================
-
-loc_2CEEA:
-	addq.b	#2,routine_secondary(a0)
-	move.b	#$20,objoff_3C(a0)
+; loc_2CEEA:
+Obj50_DoneFollowing:
+	addq.b	#2,routine_secondary(a0)	; => Obj50_Shooting
+	move.b	#$20,Obj50_timer(a0)
 	bra.w	JmpTo_Obj_MoveStop
 ; ===========================================================================
-
-loc_2CEF8:
-	subq.b	#1,objoff_3C(a0)
-	bmi.s	+
+; loc_2CEF8:
+Obj50_WaitForNextShot:
+	subq.b	#1,Obj50_timer(a0)	; wait for a while
+	bmi.s	+		; branch, if counter has expired
 	rts
 ; ===========================================================================
-+
-	subq.b	#1,objoff_2E(a0)
-	bmi.s	Obj50_GoAway
-	subq.b	#2,routine_secondary(a0)
++	; check if object is out of shots and flee if it is
+	subq.b	#1,Obj50_shots_remaining(a0)
+	bmi.s	Obj50_GoAway	; branch, if object is out of atttacks
+	; otherwise, shoot and return to chasing the player
+	subq.b	#2,routine_secondary(a0)	; => Obj50_Chase
 	move.w	#-$100,y_vel(a0)
-	move.b	#$80,objoff_3C(a0)
-	clr.b	objoff_2D(a0)
+	move.b	#$80,Obj50_timer(a0)	; reset timer
+	clr.b	Obj50_shooting_flag(a0)	; reenbale shooting
 	rts
 ; ===========================================================================
 ; loc_2CF1C:
 Obj50_GoAway:
-	move.b	#6,routine_secondary(a0)
-	move.w	#-$200,x_vel(a0)
+	move.b	#6,routine_secondary(a0)	; => BranchTo_JmpTo20_ObjectMove
+	move.w	#-$200,x_vel(a0)	; fly off to the left
 	clr.w	y_vel(a0)
 	rts
 ; ===========================================================================
@@ -56894,17 +56919,17 @@ BranchTo_JmpTo20_ObjectMove
 ; ===========================================================================
 ; loc_2CF32:
 Obj50_ControlWing:
-	moveq	#$A,d0
-	moveq	#-6,d1
-	movea.l	objoff_36(a0),a1 ; a1=object
-	move.w	x_pos(a0),x_pos(a1)
+	moveq	#$A,d0	; x offset
+	moveq	#-6,d1	; y offset
+	movea.l	Obj50_child(a0),a1 ; a1=object
+	move.w	x_pos(a0),x_pos(a1)	; align child with parent object
 	move.w	y_pos(a0),y_pos(a1)
 	move.b	status(a0),status(a1)
 	move.b	respawn_index(a0),respawn_index(a1)
 	move.b	render_flags(a0),render_flags(a1)
-	btst	#0,status(a1)
-	beq.s	+
-	neg.w	d0
+	btst	#0,status(a1)	; is object facing right?
+	beq.s	+		; if yes, branch
+	neg.w	d0	; else, align wing with other side of object
 +
 	add.w	d0,x_pos(a1)
 	add.w	d1,y_pos(a1)
@@ -56956,8 +56981,8 @@ JmpTo_Obj_GetOrientationToPlayer
 	jmp	(Obj_GetOrientationToPlayer).l
 ; ===========================================================================
 
-JmpTo_loc_3671A 
-	jmp	(loc_3671A).l
+JmpTo_Obj_CapSpeed 
+	jmp	(Obj_CapSpeed).l
 ; ===========================================================================
 
 JmpTo_Obj_MoveStop 
@@ -56976,6 +57001,13 @@ JmpTo20_ObjectMove
 ; ----------------------------------------------------------------------------
 ; Object 4B - Buzzer (Buzz bomber) from EHZ
 ; ----------------------------------------------------------------------------
+; OST Variables:
+Obj4B_parent		= objoff_2A	; long
+Obj4B_move_timer	= objoff_2E	; word
+Obj4B_turn_delay	= objoff_30	; word
+Obj4B_shooting_flag	= objoff_32	; byte
+Obj4B_shot_timer	= objoff_34	; word
+
 ; Sprite_2D068: ; Obj_Buzzer:
 Obj4B:
 	moveq	#0,d0
@@ -56986,27 +57018,27 @@ Obj4B:
 ; off_2D076:
 Obj4B_Index:	offsetTable
 		offsetTableEntry.w Obj4B_Init	; 0
-		offsetTableEntry.w loc_2D174	; 2
-		offsetTableEntry.w loc_2D090	; 4
-		offsetTableEntry.w loc_2D07E	; 6
+		offsetTableEntry.w Obj4B_Main	; 2
+		offsetTableEntry.w Obj4B_Flame	; 4
+		offsetTableEntry.w Obj4B_Projectile	; 6
 ; ===========================================================================
-
-loc_2D07E:
+; loc_2D07E:
+Obj4B_Projectile:
 	bsr.w	JmpTo21_ObjectMove
 	lea	(Ani_obj4B).l,a1
 	bsr.w	JmpTo15_AnimateSprite
 	bra.w	JmpTo_MarkObjGone_P1
 ; ===========================================================================
-
-loc_2D090:
-	movea.l	objoff_2A(a0),a1 ; a1=object
+; loc_2D090:
+Obj4B_Flame:
+	movea.l	Obj4B_parent(a0),a1 ; a1=object
 	tst.b	(a1)
-	beq.w	JmpTo49_DeleteObject
-	tst.w	objoff_30(a1)
-	bmi.s	+
+	beq.w	JmpTo49_DeleteObject	; branch, if object slot is empty. This check is incomplete and very unreliable; check Obj50_Wing to see how it should be done
+	tst.w	Obj4B_turn_delay(a1)
+	bmi.s	+		; branch, if parent isn't currently turning around
 	rts
 ; ---------------------------------------------------------------------------
-+
++	; follow parent object
 	move.w	x_pos(a1),x_pos(a0)
 	move.w	y_pos(a1),y_pos(a0)
 	move.b	status(a1),status(a0)
@@ -57027,12 +57059,14 @@ Obj4B_Init:
 	move.b	#$10,y_radius(a0)
 	move.b	#$18,x_radius(a0)
 	move.b	#3,priority(a0)
-	addq.b	#2,routine(a0)
+	addq.b	#2,routine(a0)	; => Obj4B_Main
+
+	; load exhaust flame object
 	bsr.w	JmpTo20_SingleObjLoad2
 	bne.s	+	; rts
 
 	_move.b	#ObjID_Buzzer,id(a1) ; load obj4B
-	move.b	#4,routine(a1)
+	move.b	#4,routine(a1)	; => Obj4B_Flame
 	move.l	#Obj4B_MapUnc_2D2EA,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_Buzzer,0,0),art_tile(a1)
 	bsr.w	JmpTo7_Adjust2PArtPointer2
@@ -57041,10 +57075,10 @@ Obj4B_Init:
 	move.b	status(a0),status(a1)
 	move.b	render_flags(a0),render_flags(a1)
 	move.b	#1,anim(a1)
-	move.l	a0,objoff_2A(a1)
+	move.l	a0,Obj4B_parent(a1)
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
-	move.w	#$100,objoff_2E(a0)
+	move.w	#$100,Obj4B_move_timer(a0)
 	move.w	#-$100,x_vel(a0)
 	btst	#0,render_flags(a0)
 	beq.s	+	; rts
@@ -57052,108 +57086,112 @@ Obj4B_Init:
 +
 	rts
 ; ===========================================================================
-
-loc_2D174:
+; loc_2D174:
+Obj4B_Main:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
-	move.w	off_2D190(pc,d0.w),d1
-	jsr	off_2D190(pc,d1.w)
+	move.w	Obj4B_Buzzer_States(pc,d0.w),d1
+	jsr	Obj4B_Buzzer_States(pc,d1.w)
 	lea	(Ani_obj4B).l,a1
 	bsr.w	JmpTo15_AnimateSprite
 	bra.w	JmpTo_MarkObjGone_P1
 ; ===========================================================================
-off_2D190:	offsetTable
-		offsetTableEntry.w loc_2D194	; 0
-		offsetTableEntry.w loc_2D234	; 2
+; off_2D190:
+Obj4B_Buzzer_States:	offsetTable
+		offsetTableEntry.w Obj4B_Roaming	; 0
+		offsetTableEntry.w Obj4B_Shooting	; 2
 ; ===========================================================================
-
-loc_2D194:
-	bsr.w	sub_2D1D6
-	subq.w	#1,objoff_30(a0)
-	move.w	objoff_30(a0),d0
+; loc_2D194:
+Obj4B_Roaming:
+	bsr.w	Obj4B_ChkPlayers
+	subq.w	#1,Obj4B_turn_delay(a0)
+	move.w	Obj4B_turn_delay(a0),d0
 	cmpi.w	#$F,d0
-	beq.s	loc_2D1BA
+	beq.s	Obj4B_TurnAround
 	tst.w	d0
 	bpl.s	return_2D1B8
-	subq.w	#1,objoff_2E(a0)
+	subq.w	#1,Obj4B_move_timer(a0)
 	bgt.w	JmpTo21_ObjectMove
-	move.w	#$1E,objoff_30(a0)
+	move.w	#$1E,Obj4B_turn_delay(a0)
 
 return_2D1B8:
 	rts
 ; ---------------------------------------------------------------------------
-
-loc_2D1BA:
-	sf	objoff_32(a0)
-	neg.w	x_vel(a0)
+; loc_2D1BA:
+Obj4B_TurnAround:
+	sf	Obj4B_shooting_flag(a0)	; reenable shooting
+	neg.w	x_vel(a0)		; reverse movement direction
 	bchg	#0,render_flags(a0)
 	bchg	#0,status(a0)
-	move.w	#$100,objoff_2E(a0)
+	move.w	#$100,Obj4B_move_timer(a0)
 	rts
 ; ===========================================================================
-; Start of subroutine sub_2D1D6
-sub_2D1D6:
-	tst.b	objoff_32(a0)
-	bne.w	return_2D232
+; Start of subroutine Obj4B_ChkPlayers
+; sub_2D1D6:
+Obj4B_ChkPlayers:
+	tst.b	Obj4B_shooting_flag(a0)
+	bne.w	return_2D232	; branch, if shooting is disabled
 	move.w	x_pos(a0),d0
 	lea	(MainCharacter).w,a1 ; a1=character
 	btst	#0,(Vint_runcount+3).w
-	beq.s	loc_2D1F2
+	beq.s	+		; target Sidekick on uneven frames
 	lea	(Sidekick).w,a1 ; a1=character
-
-loc_2D1F2:
-	sub.w	x_pos(a1),d0
-	move.w	d0,d1
-	bpl.s	loc_2D1FC
-	neg.w	d0
-
-loc_2D1FC:
++
+	sub.w	x_pos(a1),d0	; get object's distance to player
+	move.w	d0,d1		; save value for later
+	bpl.s	+		; branch, if it was positive
+	neg.w	d0		; get absolute value
++
+	; test if player is inside an 8 pixel wide strip
 	cmpi.w	#$28,d0
 	blt.s	return_2D232
 	cmpi.w	#$30,d0
 	bgt.s	return_2D232
-	tst.w	d1
-	bpl.s	loc_2D216
+
+	tst.w	d1			; test sign of distance
+	bpl.s	Obj4B_PlayerIsLeft	; branch, if player is left from object
 	btst	#0,render_flags(a0)
-	beq.s	return_2D232
-	bra.s	loc_2D21E
+	beq.s	return_2D232		; branch, if object is facing right
+	bra.s	Obj4B_ReadyToShoot
 ; ---------------------------------------------------------------------------
-
-loc_2D216:
+; loc_2D216:
+Obj4B_PlayerIsLeft:
 	btst	#0,render_flags(a0)
-	bne.s	return_2D232
+	bne.s	return_2D232	; branch, if object is facing left
 
-loc_2D21E:
-	st	objoff_32(a0)
-	addq.b	#2,routine_secondary(a0)
-	move.b	#3,anim(a0)
-	move.w	#$32,objoff_34(a0)
+; loc_2D21E:
+Obj4B_ReadyToShoot:
+	st	Obj4B_shooting_flag(a0)		; disable shooting
+	addq.b	#2,routine_secondary(a0)	; => Obj4B_Shooting
+	move.b	#3,anim(a0)		; play shooting animation
+	move.w	#$32,Obj4B_shot_timer(a0)
 
 return_2D232:
 	rts
-; End of subroutine sub_2D1D6
+; End of subroutine Obj4B_ChkPlayers
 ; ===========================================================================
-
-loc_2D234:
-	move.w	objoff_34(a0),d0
-	subq.w	#1,d0
-	blt.s	loc_2D248
-	move.w	d0,objoff_34(a0)
-	cmpi.w	#$14,d0
-	beq.s	loc_2D24E
+; loc_2D234:
+Obj4B_Shooting:
+	move.w	Obj4B_shot_timer(a0),d0	; get timer value
+	subq.w	#1,d0			; decrement
+	blt.s	Obj4B_DoneShooting	; branch, if timer has expired
+	move.w	d0,Obj4B_shot_timer(a0)	; update timer value
+	cmpi.w	#$14,d0			; has timer reached a certain value?
+	beq.s	Obj4B_ShootProjectile	; if yes, branch
 	rts
 ; ---------------------------------------------------------------------------
-
-loc_2D248:
-	subq.b	#2,routine_secondary(a0)
+; loc_2D248:
+Obj4B_DoneShooting:
+	subq.b	#2,routine_secondary(a0)	; => Obj4B_Roaming
 	rts
 ; ---------------------------------------------------------------------------
-
-loc_2D24E:
+; loc_2D24E
+Obj4B_ShootProjectile:
 	jsr	(SingleObjLoad2).l	; Find next open object space
-	bne.s	loc_2D2C8
+	bne.s	+
+
 	_move.b	#ObjID_Buzzer,id(a1) ; load obj4B
-	move.b	#6,routine(a1)
+	move.b	#6,routine(a1)	; => Obj4B_Projectile
 	move.l	#Obj4B_MapUnc_2D2EA,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_Buzzer,0,0),art_tile(a1)
 	bsr.w	JmpTo7_Adjust2PArtPointer2
@@ -57165,17 +57203,16 @@ loc_2D24E:
 	move.b	#2,anim(a1)
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
-	addi.w	#$18,y_pos(a1)
-	move.w	#$D,d0
+	addi.w	#$18,y_pos(a1)	; align vertically with stinger
+	move.w	#$D,d0		; absolute horizontal offset for stinger
 	move.w	#$180,y_vel(a1)
 	move.w	#-$180,x_vel(a1)
-	btst	#0,render_flags(a1)
-	beq.s	loc_2D2C8
-	neg.w	x_vel(a1)
-	neg.w	d0
-
-loc_2D2C8:
-	add.w	d0,x_pos(a1)
+	btst	#0,render_flags(a1)	; is object facing left?
+	beq.s	+			; if not, branch
+	neg.w	x_vel(a1)	; move in other direction
+	neg.w	d0		; make offset negative
++
+	add.w	d0,x_pos(a1)	; align horizontally with stinger
 	rts
 ; ===========================================================================
 ; animation script
@@ -57218,6 +57255,9 @@ JmpTo21_ObjectMove
 ; ----------------------------------------------------------------------------
 ; Object 5C - Masher (jumping piranha fish badnik) from EHZ
 ; ----------------------------------------------------------------------------
+; OST Variables:
+Obj5C_initial_y_pos	= objoff_30	; word
+
 ; Sprite_2D394:
 Obj5C:
 	moveq	#0,d0
@@ -57242,27 +57282,27 @@ Obj5C_Init:
 	move.b	#9,collision_flags(a0)
 	move.b	#$10,width_pixels(a0)
 	move.w	#-$400,y_vel(a0)
-	move.w	y_pos(a0),objoff_30(a0)
+	move.w	y_pos(a0),Obj5C_initial_y_pos(a0)	; set initial (and lowest) y position
 ; loc_2D3E4:
 Obj5C_Main:
 	lea	(Ani_obj5C).l,a1
 	bsr.w	JmpTo16_AnimateSprite
 	bsr.w	JmpTo22_ObjectMove
-	addi.w	#$18,y_vel(a0)
-	move.w	objoff_30(a0),d0
-	cmp.w	y_pos(a0),d0
-	bhs.s	+
+	addi.w	#$18,y_vel(a0)	; apply gravity
+	move.w	Obj5C_initial_y_pos(a0),d0
+	cmp.w	y_pos(a0),d0	; has object reached its initial y position?
+	bhs.s	+		; if not, branch
 	move.w	d0,y_pos(a0)
-	move.w	#-$500,y_vel(a0)
+	move.w	#-$500,y_vel(a0)	; jump
 +
 	move.b	#1,anim(a0)
 	subi.w	#$C0,d0
 	cmp.w	y_pos(a0),d0
 	bhs.s	+	; rts
 	move.b	#0,anim(a0)
-	tst.w	y_vel(a0)
-	bmi.s	+	; rts
-	move.b	#2,anim(a0)
+	tst.w	y_vel(a0)	; is object falling?
+	bmi.s	+	; rts	; if not, branch
+	move.b	#2,anim(a0)	; use closed mouth animation
 +
 	rts
 ; ===========================================================================
@@ -57365,7 +57405,7 @@ Boss_HandleHits:
 	cmpi.b	#8,boss_routine(a0)	; is boss exploding or retreating?
 	bhs.s	return_2D5C2		; if yes, branch
 	tst.b	boss_hitcount2(a0)	; has boss run out of hits?
-	beq.s	loc_2D5C4		; if yes, branch
+	beq.s	Boss_Defeat		; if yes, branch
 	tst.b	collision_flags(a0)	; are boss' collisions enabled?
 	bne.s	return_2D5C2		; if yes, branch
 	tst.b	boss_invulnerable_time(a0)	; is boss invulnerable?
@@ -57389,12 +57429,12 @@ Boss_HandleHits:
 return_2D5C2:
 	rts
 ; ===========================================================================
-
-loc_2D5C4:
+; loc_2D5C4:
+Boss_Defeat:
 	moveq	#100,d0
 	bsr.w	JmpTo_AddPoints
 	move.w	#$B3,(Boss_Countdown).w
-	move.b	#8,angle(a0)
+	move.b	#8,boss_routine(a0)
 	moveq	#PLCID_Capsule,d0
 	bsr.w	JmpTo4_LoadPLC
 	rts
@@ -57580,7 +57620,7 @@ JmpTo59_Adjust2PArtPointer
 ; ----------------------------------------------------------------------------
 ; Object 5D - CPZ boss
 ; ----------------------------------------------------------------------------
-; SST Variables:
+; OST Variables:
 Obj5D_timer2		= objoff_2A
 Obj5D_pipe_segments	= objoff_2C
 Obj5D_status		= objoff_2D
@@ -57597,6 +57637,7 @@ Obj5D_flag		= objoff_3C
 Obj5D_timer4		= objoff_3C
 Obj5D_invulnerable_time	= objoff_3E
 Obj5D_hover_counter	= objoff_3F
+
 ; Sprite_2D734:
 Obj5D:
 	moveq	#0,d0
@@ -68052,34 +68093,49 @@ Obj_GetOrientationToPlayer:
 +
 	rts
 ; ===========================================================================
-
-loc_3671A:
+; ---------------------------------------------------------------------------
+; Cap Object Speed
+; Prevents an object from going over a specified speed value.
+;
+; input variables:
+;  d0 = max x velocity
+;  d1 = max y velocity
+;
+;  a0 = object
+;
+; writes:
+;  d0, d1, d2, d3
+; ---------------------------------------------------------------------------
+; loc_3671A:
+Obj_CapSpeed:
 	move.w	x_vel(a0),d2
-	bpl.s	+
-	neg.w	d0
-	cmp.w	d0,d2
-	bhs.s	++
-	move.w	d0,d2
+	bpl.s	+	; branch, if object is moving right
+	; going left
+	neg.w	d0	; set opposite direction
+	cmp.w	d0,d2	; is object's current x velocity lower than max?
+	bhs.s	++	; if yes, branch
+	move.w	d0,d2	; else, cap speed
 	bra.w	++
 ; ===========================================================================
-+
-	cmp.w	d0,d2
-	bls.s	+
-	move.w	d0,d2
++	; going right
+	cmp.w	d0,d2	; is object's current x velocity lower than max?
+	bls.s	+	; if yes, branch
+	move.w	d0,d2	; else, cap speed
 +
 	move.w	y_vel(a0),d3
-	bpl.s	+
-	neg.w	d1
-	cmp.w	d1,d3
-	bhs.s	++
-	move.w	d1,d3
+	bpl.s	+	; branch, if object is moving down
+	; going up
+	neg.w	d1	; set opposite direction
+	cmp.w	d1,d3	; is object's current y velocity lower than max?
+	bhs.s	++	; if yes, branch
+	move.w	d1,d3	; else, cap speed
 	bra.w	++
 ; ===========================================================================
-+
-	cmp.w	d1,d3
-	bls.s	+
-	move.w	d1,d3
-+
++	; going down
+	cmp.w	d1,d3	; is object's current y velocity lower than max?
+	bls.s	+	; if yes, branch
+	move.w	d1,d3	; else, cap speed
++	; update speed
 	move.w	d2,x_vel(a0)
 	move.w	d3,y_vel(a0)
 	rts
@@ -68421,7 +68477,7 @@ loc_369C2:
 	add.w	d2,y_vel(a0)
 	move.w	#$200,d0
 	move.w	d0,d1
-	bsr.w	loc_3671A
+	bsr.w	Obj_CapSpeed
 	jsr	(ObjectMove).l
 	lea	(Ani_obj8C).l,a1
 	jsr	(AnimateSprite).l
@@ -71075,7 +71131,7 @@ off_384F6:	offsetTable
 	add.w	d2,y_vel(a0)
 	move.w	#$200,d0
 	move.w	d0,d1
-	bra.w	loc_3671A
+	bra.w	Obj_CapSpeed
 ; ===========================================================================
 ObjA2_acceleration:	dc.w -$10, $10
 ; ===========================================================================
