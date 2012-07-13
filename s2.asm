@@ -31565,7 +31565,7 @@ PLCLoad_Signpost:
 	cmp.b	(Signpost_prev_frame).w,d0
 	beq.s	return_1958C
 	move.b	d0,(Signpost_prev_frame).w
-	lea	(Obj0D_MapUnc_196EE).l,a2
+	lea	(Obj0D_MapRUnc_196EE).l,a2
 	add.w	d0,d0
 	adda.w	(a2,d0.w),a2
 	move.w	(a2)+,d5
@@ -31619,9 +31619,9 @@ Obj0D_MapUnc_195BE:	BINCLUDE "mappings/sprite/obj0D_a.bin"
 ; SprTbl_0D_Scndary:
 Obj0D_MapUnc_19656:	BINCLUDE "mappings/sprite/obj0D_b.bin"
 ; -------------------------------------------------------------------------------
-; sprite mappings - Ternary sprite table for object 0D (signpost)
+; dynamic pattern loading cues
 ; -------------------------------------------------------------------------------
-Obj0D_MapUnc_196EE:	BINCLUDE "mappings/sprite/obj0D_c.bin"
+Obj0D_MapRUnc_196EE:	BINCLUDE "mappings/spriteDPLC/obj0D.bin"
 ; ===========================================================================
 	nop
 
