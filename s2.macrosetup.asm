@@ -105,9 +105,12 @@ tracenum := 0
     ; disable a space optimization in AS so we can build a bit-perfect rom
     ; (the hard way, but it requires no modification of AS itself)
 
+
+chkop function op,ref,(substr(lowstring(op),0,strlen(ref))<>ref)
+
 ; 1-arg instruction that's self-patching to remove 0-offset optimization
 insn1op	 macro oper,x
-	  if (substr("x",0,2)<>"0(") && (substr("x",0,3)<>"id(") && (substr("x",0,9)<>"slot_rout(")
+	  if (chkop("x","0(") && chkop("x","id(") && chkop("x","slot_rout("))
 		!oper	x
 	  else
 		!oper	1+x
@@ -118,8 +121,8 @@ insn1op	 macro oper,x
 
 ; 2-arg instruction that's self-patching to remove 0-offset optimization
 insn2op	 macro oper,x,y
-	  if (substr("x",0,2)<>"0(") && (substr("x",0,3)<>"id(") && (substr("x",0,10)<>"slot_rout(")
-		  if (substr("y",0,2)<>"0(") && (substr("y",0,3)<>"id(") && (substr("y",0,10)<>"slot_rout(")
+	  if (chkop("x","0(") && chkop("x","id(") && chkop("x","slot_rout("))
+		  if (chkop("y","0(") && chkop("y","id(") && chkop("y","slot_rout("))
 			!oper	x,y
 		  else
 			!oper	x,1+y
@@ -127,8 +130,8 @@ insn2op	 macro oper,x,y
 			!dc.b	0
 		  endif
 	  else
-		if substr("y",0,1)<>"d"
-		  if (substr("y",0,2)<>"0(") && (substr("y",0,3)<>"id(") && (substr("y",0,10)<>"slot_rout(")
+		if chkop("y","d")
+		  if (chkop("y","0(") && chkop("y","id(") && chkop("y","slot_rout("))
 start:
 			!oper	1+x,y
 end:
