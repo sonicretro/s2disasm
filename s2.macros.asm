@@ -204,3 +204,5 @@ tiles_to_bytes function addr,((addr&$7FF)<<5)
 make_block_tile_pair function addr,flx,fly,pal,pri,((make_block_tile(addr,flx,fly,pal,pri)<<16)|make_block_tile(addr,flx,fly,pal,pri))
 make_block_tile_pair_2p function addr,flx,fly,pal,pri,((make_block_tile_2p(addr,flx,fly,pal,pri)<<16)|make_block_tile_2p(addr,flx,fly,pal,pri))
 
+SonicMappingsVer = 2
+	include "SpritePiece.asm"
