@@ -20709,12 +20709,56 @@ Obj15_Obj83_MapUnc_1021E:	include "mappings/sprite/obj83.asm"
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
-Obj15_Obj7A_MapUnc_10256:	include "mappings/sprite/obj7A_a.asm"
+Obj15_Obj7A_MapUnc_10256:	mappingsTable
+	mappingsTableEntry.w	Map_obj7A_a_0008
+	mappingsTableEntry.w	Map_obj7A_a_001A
+	mappingsTableEntry.w	Map_obj7A_a_0024
+	mappingsTableEntry.w	Map_obj7A_a_0036
+
+Map_obj7A_a_0008:	spriteHeader
+	spritePiece	-$18, -8, 3, 2, $60, 0, 0, 3, 0
+	spritePiece	0, -8, 3, 2, $60, 1, 0, 3, 0
+Map_obj7A_a_0008_End
+
+Map_obj7A_a_001A:	spriteHeader
+	spritePiece	-8, -8, 2, 2, $66, 0, 0, 3, 0
+Map_obj7A_a_001A_End
+
+Map_obj7A_a_0024:	spriteHeader
+	spritePiece	-$C, -$18, 2, 2, $6A, 0, 0, 2, 0
+	spritePiece	-$C, -8, 3, 4, $6E, 0, 0, 2, 0
+Map_obj7A_a_0024_End
+
+Map_obj7A_a_0036:	spriteHeader
+	spritePiece	-$C, -$58, 2, 2, $6A, 0, 0, 2, 0
+	spritePiece	-$C, -$48, 3, 4, $6E, 0, 0, 2, 0
+	spritePiece	-8, -$38, 2, 2, $66, 0, 0, 3, 0
+	spritePiece	-8, -$28, 2, 2, $66, 0, 0, 3, 0
+	spritePiece	-8, -$18, 2, 2, $66, 0, 0, 3, 0
+	spritePiece	-8, -8, 2, 2, $66, 0, 0, 3, 0
+	spritePiece	-8, 8, 2, 2, $66, 0, 0, 3, 0
+	spritePiece	-8, $18, 2, 2, $66, 0, 0, 3, 0
+	spritePiece	-8, $28, 2, 2, $66, 0, 0, 3, 0
+	spritePiece	-8, $38, 2, 2, $66, 0, 0, 3, 0
+Map_obj7A_a_0036_End
+
+	even
 
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
-Obj15_MapUnc_102DE:	include "mappings/sprite/obj15_b.asm"
+Obj15_MapUnc_102DE:	mappingsTable
+	mappingsTableEntry.w	Map_obj15_b_0006
+	mappingsTableEntry.w	Map_obj7A_a_001A
+	mappingsTableEntry.w	Map_obj7A_a_0024
+
+Map_obj15_b_0006:	spriteHeader
+	spritePiece	-$20, -8, 4, 2, $58, 0, 0, 3, 0
+	spritePiece	0, -8, 4, 2, $58, 1, 0, 3, 0
+Map_obj15_b_0006_End
+
+	even
+
 ; ===========================================================================
 	nop
 
@@ -25826,188 +25870,227 @@ byte_14752:
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
-Obj34_MapUnc_147BA:	offsetTable
-	offsetTableEntry.w word_147E8
-	offsetTableEntry.w word_147E8
-	offsetTableEntry.w word_147E8
-	offsetTableEntry.w word_147E8
-	offsetTableEntry.w word_14842
-	offsetTableEntry.w word_14842
-	offsetTableEntry.w word_14B24
-	offsetTableEntry.w word_14894
-	offsetTableEntry.w word_148CE
-	offsetTableEntry.w word_147E8
-	offsetTableEntry.w word_14930
-	offsetTableEntry.w word_14972
-	offsetTableEntry.w word_149C4
-	offsetTableEntry.w word_14A1E
-	offsetTableEntry.w word_14B86
-	offsetTableEntry.w word_14A88
-	offsetTableEntry.w word_14AE2
-	offsetTableEntry.w word_14BC8
-	offsetTableEntry.w word_14BEA
-	offsetTableEntry.w word_14BF4
-	offsetTableEntry.w word_14BFE
-	offsetTableEntry.w word_14C08
-	offsetTableEntry.w word_14C32
-word_147E8:	dc.w $B
-	dc.w 5,	$8580, $82C0, $FFC3
-	dc.w 9,	$85DE, $82EF, $FFD0
-	dc.w 5,	$8580, $82C0, $FFE8
-	dc.w 5,	$85E4, $82F2, $FFF8
-	dc.w 5,	$85E8, $82F4, 8
-	dc.w 5,	$85EC, $82F6, $18
-	dc.w 5,	$85F0, $82F8, $28
-	dc.w 5,	$85F4, $82FA, $48
-	dc.w 1,	$85F8, $82FC, $58
-	dc.w 5,	$85EC, $82F6, $60
-	dc.w 5,	$85EC, $82F6, $70
-word_14842:	dc.w $A
-	dc.w 9,	$85DE, $82EF, $FFE0
-	dc.w 5,	$8580, $82C0, $FFF8
-	dc.w 5,	$85E4, $82F2, 8
-	dc.w 5,	$85E8, $82F4, $18
-	dc.w 5,	$8588, $82C4, $28
-	dc.w 5,	$85EC, $82F6, $38
-	dc.w 5,	$8588, $82C4, $48
-	dc.w 5,	$85F0, $82F8, $58
-	dc.w 1,	$85F4, $82FA, $68
-	dc.w 5,	$85F6, $82FB, $70
-word_14894:	dc.w 7
-	dc.w 5,	$85DE, $82EF, 8
-	dc.w 1,	$85E2, $82F1, $18
-	dc.w 5,	$85E4, $82F2, $20
-	dc.w 5,	$85E4, $82F2, $30
-	dc.w 5,	$85E8, $82F4, $51
-	dc.w 5,	$8588, $82C4, $60
-	dc.w 5,	$85EC, $82F6, $70
-word_148CE:	dc.w $C
-	dc.w 5,	$85DE, $82EF, $FFB8
-	dc.w 1,	$85E2, $82F1, $FFC8
-	dc.w 5,	$85E4, $82F2, $FFD0
-	dc.w 5,	$85E4, $82F2, $FFE0
-	dc.w 5,	$8580, $82C0, $FFF0
-	dc.w 5,	$8584, $82C2, 0
-	dc.w 5,	$85E8, $82F4, $20
-	dc.w 5,	$85EC, $82F6, $30
-	dc.w 5,	$85F0, $82F8, $40
-	dc.w 5,	$85EC, $82F6, $50
-	dc.w 5,	$85F4, $82FA, $60
-	dc.w 5,	$8580, $82C0, $70
-word_14930:	dc.w 8
-	dc.w 5,	$8588, $82C4, $FFFB
-	dc.w 1,	$85DE, $82EF, $B
-	dc.w 5,	$85E0, $82F0, $13
-	dc.w 5,	$8588, $82C4, $33
-	dc.w 5,	$85E4, $82F2, $43
-	dc.w 5,	$8580, $82C0, $53
-	dc.w 5,	$85E8, $82F4, $60
-	dc.w 5,	$8584, $82C2, $70
-word_14972:	dc.w $A
-	dc.w 9,	$85DE, $82EF, $FFD0
-	dc.w 5,	$85E4, $82F2, $FFE8
-	dc.w 5,	$85E8, $82F4, $FFF8
-	dc.w 5,	$85EC, $82F6, 8
-	dc.w 1,	$85F0, $82F8, $18
-	dc.w 5,	$85F2, $82F9, $20
-	dc.w 5,	$85F2, $82F9, $41
-	dc.w 5,	$85F6, $82FB, $50
-	dc.w 5,	$85FA, $82FD, $60
-	dc.w 5,	$8580, $82C0, $70
-word_149C4:	dc.w $B
-	dc.w 5,	$85DE, $82EF, $FFD1
-	dc.w 5,	$85E2, $82F1, $FFE0
-	dc.w 5,	$85E6, $82F3, $FFF0
-	dc.w 1,	$85EA, $82F5, 0
-	dc.w 5,	$8584, $82C2, 8
-	dc.w 5,	$8588, $82C4, $18
-	dc.w 5,	$8584, $82C2, $38
-	dc.w 1,	$85EA, $82F5, $48
-	dc.w 5,	$85EC, $82F6, $50
-	dc.w 5,	$85F0, $82F8, $60
-	dc.w 5,	$85F4, $82FA, $70
-word_14A1E:	dc.w $D
-	dc.w 5,	$85DE, $82EF, $FFA4
-	dc.w 5,	$85E2, $82F1, $FFB4
-	dc.w 5,	$8580, $82C0, $FFC4
-	dc.w 9,	$85E6, $82F3, $FFD1
-	dc.w 1,	$85EC, $82F6, $FFE9
-	dc.w 5,	$85DE, $82EF, $FFF1
-	dc.w 5,	$85EE, $82F7, 0
-	dc.w 5,	$85F2, $82F9, $10
-	dc.w 5,	$85F6, $82FB, $31
-	dc.w 5,	$85F2, $82F9, $41
-	dc.w 5,	$85EE, $82F7, $50
-	dc.w 5,	$8584, $82C2, $60
-	dc.w 5,	$85FA, $82FD, $70
-word_14A88:	dc.w $B
-	dc.w 5,	$85DE, $82EF, $FFD2
-	dc.w 5,	$85E2, $82F1, $FFE2
-	dc.w 5,	$85E6, $82F3, $FFF2
-	dc.w 5,	$85DE, $82EF, 0
-	dc.w 5,	$85EA, $82F5, $10
-	dc.w 1,	$85EE, $82F7, $20
-	dc.w 5,	$85F0, $82F8, $28
-	dc.w 5,	$85F4, $82FA, $48
-	dc.w 5,	$85E6, $82F3, $58
-	dc.w 1,	$85EE, $82F7, $68
-	dc.w 5,	$8584, $82C2, $70
-word_14AE2:	dc.w 8
-	dc.w 5,	$85DE, $82EF, $FFF0
-	dc.w 5,	$85E2, $82F1, 0
-	dc.w 5,	$85E6, $82F3, $10
-	dc.w 5,	$85EA, $82F5, $30
-	dc.w 5,	$85EE, $82F7, $40
-	dc.w 5,	$85F2, $82F9, $50
-	dc.w 5,	$85DE, $82EF, $60
-	dc.w 5,	$8580, $82C0, $70
-word_14B24:	dc.w $C
-	dc.w 9,	$85DE, $82EF, $FFB1
-	dc.w 1,	$85E4, $82F2, $FFC8
-	dc.w 5,	$8584, $82C2, $FFD0
-	dc.w 5,	$85E6, $82F3, $FFE0
-	dc.w 5,	$85EA, $82F5, 1
-	dc.w 5,	$8588, $82C4, $10
-	dc.w 5,	$85EE, $82F7, $20
-	dc.w 5,	$85F2, $82F9, $30
-	dc.w 5,	$85EE, $82F7, $40
-	dc.w 5,	$8580, $82C0, $50
-	dc.w 5,	$85F6, $82FB, $5F
-	dc.w 5,	$85F6, $82FB, $6F
-word_14B86:	dc.w 8
-	dc.w 5,	$85DE, $82EF, $FFF2
-	dc.w 5,	$8580, $82C0, 2
-	dc.w 5,	$85E2, $82F1, $10
-	dc.w 5,	$85E6, $82F3, $20
-	dc.w 5,	$85EA, $82F5, $30
-	dc.w 5,	$8580, $82C0, $51
-	dc.w 5,	$85EE, $82F7, $60
-	dc.w 5,	$85EE, $82F7, $70
-word_14BC8:	dc.w 4
-	dc.w 5,	$858C, $82C6, 1
-	dc.w 5,	$8588, $82C4, $10
-	dc.w 5,	$8584, $82C2, $20
-	dc.w 5,	$8580, $82C0, $30
-word_14BEA:	dc.w 1
-	dc.w 7,	$A590, $A2C8, 0
-word_14BF4:	dc.w 1
-	dc.w $B, $A598,	$A2CC, 0
-word_14BFE:	dc.w 1
-	dc.w $B, $A5A4,	$A2D2, 0
-word_14C08:	dc.w 5
-	dc.w $D, $85B0,	$82D8, $FFB8
-	dc.w $D, $85B8,	$82DC, $FFD8
-	dc.w $D, $85C0,	$82E0, $FFF8
-	dc.w $D, $85C8,	$82E4, $18
-	dc.w 5,	$85D0, $82E8, $38
-word_14C32:	dc.w 7
-	dc.w $9003, $85D4, $82EA, 0
-	dc.w $B003, $85D4, $82EA, 0
-	dc.w $D003, $85D4, $82EA, 0
-	dc.w $F003, $85D4, $82EA, 0
-	dc.w $1003, $85D4, $82EA, 0
-	dc.w $3003, $85D4, $82EA, 0
-	dc.w $5003, $85D4, $82EA, 0
+Obj34_MapUnc_147BA:	mappingsTable
+	mappingsTableEntry.w	word_147E8
+	mappingsTableEntry.w	word_147E8
+	mappingsTableEntry.w	word_147E8
+	mappingsTableEntry.w	word_147E8
+	mappingsTableEntry.w	word_14842
+	mappingsTableEntry.w	word_14842
+	mappingsTableEntry.w	word_14B24
+	mappingsTableEntry.w	word_14894
+	mappingsTableEntry.w	word_148CE
+	mappingsTableEntry.w	word_147E8
+	mappingsTableEntry.w	word_14930
+	mappingsTableEntry.w	word_14972
+	mappingsTableEntry.w	word_149C4
+	mappingsTableEntry.w	word_14A1E
+	mappingsTableEntry.w	word_14B86
+	mappingsTableEntry.w	word_14A88
+	mappingsTableEntry.w	word_14AE2
+	mappingsTableEntry.w	word_14BC8
+	mappingsTableEntry.w	word_14BEA
+	mappingsTableEntry.w	word_14BF4
+	mappingsTableEntry.w	word_14BFE
+	mappingsTableEntry.w	word_14C08
+	mappingsTableEntry.w	word_14C32
+
+word_147E8:	spriteHeader
+	spritePiece	-$3D, 0, 2, 2, $580, 0, 0, 0, 1
+	spritePiece	-$30, 0, 3, 2, $5DE, 0, 0, 0, 1
+	spritePiece	-$18, 0, 2, 2, $580, 0, 0, 0, 1
+	spritePiece	-8, 0, 2, 2, $5E4, 0, 0, 0, 1
+	spritePiece	8, 0, 2, 2, $5E8, 0, 0, 0, 1
+	spritePiece	$18, 0, 2, 2, $5EC, 0, 0, 0, 1
+	spritePiece	$28, 0, 2, 2, $5F0, 0, 0, 0, 1
+	spritePiece	$48, 0, 2, 2, $5F4, 0, 0, 0, 1
+	spritePiece	$58, 0, 1, 2, $5F8, 0, 0, 0, 1
+	spritePiece	$60, 0, 2, 2, $5EC, 0, 0, 0, 1
+	spritePiece	$70, 0, 2, 2, $5EC, 0, 0, 0, 1
+word_147E8_End
+
+word_14842:	spriteHeader
+	spritePiece	-$20, 0, 3, 2, $5DE, 0, 0, 0, 1
+	spritePiece	-8, 0, 2, 2, $580, 0, 0, 0, 1
+	spritePiece	8, 0, 2, 2, $5E4, 0, 0, 0, 1
+	spritePiece	$18, 0, 2, 2, $5E8, 0, 0, 0, 1
+	spritePiece	$28, 0, 2, 2, $588, 0, 0, 0, 1
+	spritePiece	$38, 0, 2, 2, $5EC, 0, 0, 0, 1
+	spritePiece	$48, 0, 2, 2, $588, 0, 0, 0, 1
+	spritePiece	$58, 0, 2, 2, $5F0, 0, 0, 0, 1
+	spritePiece	$68, 0, 1, 2, $5F4, 0, 0, 0, 1
+	spritePiece	$70, 0, 2, 2, $5F6, 0, 0, 0, 1
+word_14842_End
+
+word_14894:	spriteHeader
+	spritePiece	8, 0, 2, 2, $5DE, 0, 0, 0, 1
+	spritePiece	$18, 0, 1, 2, $5E2, 0, 0, 0, 1
+	spritePiece	$20, 0, 2, 2, $5E4, 0, 0, 0, 1
+	spritePiece	$30, 0, 2, 2, $5E4, 0, 0, 0, 1
+	spritePiece	$51, 0, 2, 2, $5E8, 0, 0, 0, 1
+	spritePiece	$60, 0, 2, 2, $588, 0, 0, 0, 1
+	spritePiece	$70, 0, 2, 2, $5EC, 0, 0, 0, 1
+word_14894_End
+
+word_148CE:	spriteHeader
+	spritePiece	-$48, 0, 2, 2, $5DE, 0, 0, 0, 1
+	spritePiece	-$38, 0, 1, 2, $5E2, 0, 0, 0, 1
+	spritePiece	-$30, 0, 2, 2, $5E4, 0, 0, 0, 1
+	spritePiece	-$20, 0, 2, 2, $5E4, 0, 0, 0, 1
+	spritePiece	-$10, 0, 2, 2, $580, 0, 0, 0, 1
+	spritePiece	0, 0, 2, 2, $584, 0, 0, 0, 1
+	spritePiece	$20, 0, 2, 2, $5E8, 0, 0, 0, 1
+	spritePiece	$30, 0, 2, 2, $5EC, 0, 0, 0, 1
+	spritePiece	$40, 0, 2, 2, $5F0, 0, 0, 0, 1
+	spritePiece	$50, 0, 2, 2, $5EC, 0, 0, 0, 1
+	spritePiece	$60, 0, 2, 2, $5F4, 0, 0, 0, 1
+	spritePiece	$70, 0, 2, 2, $580, 0, 0, 0, 1
+word_148CE_End
+
+word_14930:	spriteHeader
+	spritePiece	-5, 0, 2, 2, $588, 0, 0, 0, 1
+	spritePiece	$B, 0, 1, 2, $5DE, 0, 0, 0, 1
+	spritePiece	$13, 0, 2, 2, $5E0, 0, 0, 0, 1
+	spritePiece	$33, 0, 2, 2, $588, 0, 0, 0, 1
+	spritePiece	$43, 0, 2, 2, $5E4, 0, 0, 0, 1
+	spritePiece	$53, 0, 2, 2, $580, 0, 0, 0, 1
+	spritePiece	$60, 0, 2, 2, $5E8, 0, 0, 0, 1
+	spritePiece	$70, 0, 2, 2, $584, 0, 0, 0, 1
+word_14930_End
+
+word_14972:	spriteHeader
+	spritePiece	-$30, 0, 3, 2, $5DE, 0, 0, 0, 1
+	spritePiece	-$18, 0, 2, 2, $5E4, 0, 0, 0, 1
+	spritePiece	-8, 0, 2, 2, $5E8, 0, 0, 0, 1
+	spritePiece	8, 0, 2, 2, $5EC, 0, 0, 0, 1
+	spritePiece	$18, 0, 1, 2, $5F0, 0, 0, 0, 1
+	spritePiece	$20, 0, 2, 2, $5F2, 0, 0, 0, 1
+	spritePiece	$41, 0, 2, 2, $5F2, 0, 0, 0, 1
+	spritePiece	$50, 0, 2, 2, $5F6, 0, 0, 0, 1
+	spritePiece	$60, 0, 2, 2, $5FA, 0, 0, 0, 1
+	spritePiece	$70, 0, 2, 2, $580, 0, 0, 0, 1
+word_14972_End
+
+word_149C4:	spriteHeader
+	spritePiece	-$2F, 0, 2, 2, $5DE, 0, 0, 0, 1
+	spritePiece	-$20, 0, 2, 2, $5E2, 0, 0, 0, 1
+	spritePiece	-$10, 0, 2, 2, $5E6, 0, 0, 0, 1
+	spritePiece	0, 0, 1, 2, $5EA, 0, 0, 0, 1
+	spritePiece	8, 0, 2, 2, $584, 0, 0, 0, 1
+	spritePiece	$18, 0, 2, 2, $588, 0, 0, 0, 1
+	spritePiece	$38, 0, 2, 2, $584, 0, 0, 0, 1
+	spritePiece	$48, 0, 1, 2, $5EA, 0, 0, 0, 1
+	spritePiece	$50, 0, 2, 2, $5EC, 0, 0, 0, 1
+	spritePiece	$60, 0, 2, 2, $5F0, 0, 0, 0, 1
+	spritePiece	$70, 0, 2, 2, $5F4, 0, 0, 0, 1
+word_149C4_End
+
+word_14A1E:	spriteHeader
+	spritePiece	-$5C, 0, 2, 2, $5DE, 0, 0, 0, 1
+	spritePiece	-$4C, 0, 2, 2, $5E2, 0, 0, 0, 1
+	spritePiece	-$3C, 0, 2, 2, $580, 0, 0, 0, 1
+	spritePiece	-$2F, 0, 3, 2, $5E6, 0, 0, 0, 1
+	spritePiece	-$17, 0, 1, 2, $5EC, 0, 0, 0, 1
+	spritePiece	-$F, 0, 2, 2, $5DE, 0, 0, 0, 1
+	spritePiece	0, 0, 2, 2, $5EE, 0, 0, 0, 1
+	spritePiece	$10, 0, 2, 2, $5F2, 0, 0, 0, 1
+	spritePiece	$31, 0, 2, 2, $5F6, 0, 0, 0, 1
+	spritePiece	$41, 0, 2, 2, $5F2, 0, 0, 0, 1
+	spritePiece	$50, 0, 2, 2, $5EE, 0, 0, 0, 1
+	spritePiece	$60, 0, 2, 2, $584, 0, 0, 0, 1
+	spritePiece	$70, 0, 2, 2, $5FA, 0, 0, 0, 1
+word_14A1E_End
+
+word_14A88:	spriteHeader
+	spritePiece	-$2E, 0, 2, 2, $5DE, 0, 0, 0, 1
+	spritePiece	-$1E, 0, 2, 2, $5E2, 0, 0, 0, 1
+	spritePiece	-$E, 0, 2, 2, $5E6, 0, 0, 0, 1
+	spritePiece	0, 0, 2, 2, $5DE, 0, 0, 0, 1
+	spritePiece	$10, 0, 2, 2, $5EA, 0, 0, 0, 1
+	spritePiece	$20, 0, 1, 2, $5EE, 0, 0, 0, 1
+	spritePiece	$28, 0, 2, 2, $5F0, 0, 0, 0, 1
+	spritePiece	$48, 0, 2, 2, $5F4, 0, 0, 0, 1
+	spritePiece	$58, 0, 2, 2, $5E6, 0, 0, 0, 1
+	spritePiece	$68, 0, 1, 2, $5EE, 0, 0, 0, 1
+	spritePiece	$70, 0, 2, 2, $584, 0, 0, 0, 1
+word_14A88_End
+
+word_14AE2:	spriteHeader
+	spritePiece	-$10, 0, 2, 2, $5DE, 0, 0, 0, 1
+	spritePiece	0, 0, 2, 2, $5E2, 0, 0, 0, 1
+	spritePiece	$10, 0, 2, 2, $5E6, 0, 0, 0, 1
+	spritePiece	$30, 0, 2, 2, $5EA, 0, 0, 0, 1
+	spritePiece	$40, 0, 2, 2, $5EE, 0, 0, 0, 1
+	spritePiece	$50, 0, 2, 2, $5F2, 0, 0, 0, 1
+	spritePiece	$60, 0, 2, 2, $5DE, 0, 0, 0, 1
+	spritePiece	$70, 0, 2, 2, $580, 0, 0, 0, 1
+word_14AE2_End
+
+word_14B24:	spriteHeader
+	spritePiece	-$4F, 0, 3, 2, $5DE, 0, 0, 0, 1
+	spritePiece	-$38, 0, 1, 2, $5E4, 0, 0, 0, 1
+	spritePiece	-$30, 0, 2, 2, $584, 0, 0, 0, 1
+	spritePiece	-$20, 0, 2, 2, $5E6, 0, 0, 0, 1
+	spritePiece	1, 0, 2, 2, $5EA, 0, 0, 0, 1
+	spritePiece	$10, 0, 2, 2, $588, 0, 0, 0, 1
+	spritePiece	$20, 0, 2, 2, $5EE, 0, 0, 0, 1
+	spritePiece	$30, 0, 2, 2, $5F2, 0, 0, 0, 1
+	spritePiece	$40, 0, 2, 2, $5EE, 0, 0, 0, 1
+	spritePiece	$50, 0, 2, 2, $580, 0, 0, 0, 1
+	spritePiece	$5F, 0, 2, 2, $5F6, 0, 0, 0, 1
+	spritePiece	$6F, 0, 2, 2, $5F6, 0, 0, 0, 1
+word_14B24_End
+
+word_14B86:	spriteHeader
+	spritePiece	-$E, 0, 2, 2, $5DE, 0, 0, 0, 1
+	spritePiece	2, 0, 2, 2, $580, 0, 0, 0, 1
+	spritePiece	$10, 0, 2, 2, $5E2, 0, 0, 0, 1
+	spritePiece	$20, 0, 2, 2, $5E6, 0, 0, 0, 1
+	spritePiece	$30, 0, 2, 2, $5EA, 0, 0, 0, 1
+	spritePiece	$51, 0, 2, 2, $580, 0, 0, 0, 1
+	spritePiece	$60, 0, 2, 2, $5EE, 0, 0, 0, 1
+	spritePiece	$70, 0, 2, 2, $5EE, 0, 0, 0, 1
+word_14B86_End
+
+word_14BC8:	spriteHeader
+	spritePiece	1, 0, 2, 2, $58C, 0, 0, 0, 1
+	spritePiece	$10, 0, 2, 2, $588, 0, 0, 0, 1
+	spritePiece	$20, 0, 2, 2, $584, 0, 0, 0, 1
+	spritePiece	$30, 0, 2, 2, $580, 0, 0, 0, 1
+word_14BC8_End
+
+word_14BEA:	spriteHeader
+	spritePiece	0, 0, 2, 4, $590, 0, 0, 1, 1
+word_14BEA_End
+
+word_14BF4:	spriteHeader
+	spritePiece	0, 0, 3, 4, $598, 0, 0, 1, 1
+word_14BF4_End
+
+word_14BFE:	spriteHeader
+	spritePiece	0, 0, 3, 4, $5A4, 0, 0, 1, 1
+word_14BFE_End
+
+word_14C08:	spriteHeader
+	spritePiece	-$48, 0, 4, 2, $5B0, 0, 0, 0, 1
+	spritePiece	-$28, 0, 4, 2, $5B8, 0, 0, 0, 1
+	spritePiece	-8, 0, 4, 2, $5C0, 0, 0, 0, 1
+	spritePiece	$18, 0, 4, 2, $5C8, 0, 0, 0, 1
+	spritePiece	$38, 0, 2, 2, $5D0, 0, 0, 0, 1
+word_14C08_End
+
+word_14C32:	spriteHeader
+	spritePiece	0, -$70, 1, 4, $5D4, 0, 0, 0, 1
+	spritePiece	0, -$50, 1, 4, $5D4, 0, 0, 0, 1
+	spritePiece	0, -$30, 1, 4, $5D4, 0, 0, 0, 1
+	spritePiece	0, -$10, 1, 4, $5D4, 0, 0, 0, 1
+	spritePiece	0, $10, 1, 4, $5D4, 0, 0, 0, 1
+	spritePiece	0, $30, 1, 4, $5D4, 0, 0, 0, 1
+	spritePiece	0, $50, 1, 4, $5D4, 0, 0, 0, 1
+word_14C32_End
+
+	even
+
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
@@ -26015,93 +26098,118 @@ Obj39_MapUnc_14C6C:	include "mappings/sprite/obj39.asm"
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
-Obj3A_MapUnc_14CBC:	offsetTable
-	offsetTableEntry.w word_14CDA
-	offsetTableEntry.w word_14D1C
-	offsetTableEntry.w word_14D5E
-	offsetTableEntry.w word_14DA0
-	offsetTableEntry.w word_14DDA
-	offsetTableEntry.w word_14BC8
-	offsetTableEntry.w word_14BEA
-	offsetTableEntry.w word_14BF4
-	offsetTableEntry.w word_14BFE
-	offsetTableEntry.w word_14DF4
-	offsetTableEntry.w word_14E1E
-	offsetTableEntry.w word_14E50
-	offsetTableEntry.w word_14E82
-	offsetTableEntry.w word_14E8C
-	offsetTableEntry.w word_14E96
-word_14CDA:	dc.w 8
-	dc.w 5,	$85D0, $82E8, $FFC0
-	dc.w 5,	$8588, $82C4, $FFD0
-	dc.w 5,	$8584, $82C2, $FFE0
-	dc.w 1,	$85C0, $82E0, $FFF0
-	dc.w 5,	$85B4, $82DA, $FFF8
-	dc.w 5,	$85B8, $82DC, $10
-	dc.w 5,	$8588, $82C4, $20
-	dc.w 5,	$85D4, $82EA, $2F
-word_14D1C:	dc.w 8
-	dc.w 9,	$85C6, $82E3, $FFBC
-	dc.w 1,	$85C0, $82E0, $FFD4
-	dc.w 5,	$85C2, $82E1, $FFDC
-	dc.w 5,	$8580, $82C0, $FFEC
-	dc.w 5,	$85D0, $82E8, $FFFC
-	dc.w 5,	$85B8, $82DC, $14
-	dc.w 5,	$8588, $82C4, $24
-	dc.w 5,	$85D4, $82EA, $33
-word_14D5E:	dc.w 8
-	dc.w 5,	$85D4, $82EA, $FFC3
-	dc.w 5,	$85B0, $82D8, $FFD0
-	dc.w 1,	$85C0, $82E0, $FFE0
-	dc.w 5,	$85C2, $82E1, $FFE8
-	dc.w 5,	$85D0, $82E8, $FFF8
-	dc.w 5,	$85B8, $82DC, $10
-	dc.w 5,	$8588, $82C4, $20
-	dc.w 5,	$85D4, $82EA, $2F
-word_14DA0:	dc.w 7
-	dc.w 5,	$85D4, $82EA, $FFC8
-	dc.w 5,	$85BC, $82DE, $FFD8
-	dc.w 5,	$85CC, $82E6, $FFE8
-	dc.w 5,	$8588, $82C4, $FFF8
-	dc.w 5,	$85D8, $82EC, 8
-	dc.w 5,	$85B8, $82DC, $18
-	dc.w 5,	$85BC, $82DE, $28
-word_14DDA:	dc.w 3
-	dc.w 5,	$85B0, $82D8, 0
-	dc.w 5,	$85B4, $82DA, $10
-	dc.w 5,	$85D4, $82EA, $1F
-word_14DF4:	dc.w 5
-	dc.w 9,	$A5E6, $A2F3, $FFB8
-	dc.w 5,	$A5EC, $A2F6, $FFD0
-	dc.w 5,	$85F0, $82F8, $FFD4
-	dc.w $D, $8520,	$8290, $38
-	dc.w 1,	$86F0, $8378, $58
-word_14E1E:	dc.w 6
-	dc.w $D, $A6DA,	$A36D, $FFA4
-	dc.w $D, $A5DE,	$A2EF, $FFCC
-	dc.w 1,	$A6CA, $A365, $FFEC
-	dc.w 5,	$85F0, $82F8, $FFE8
-	dc.w $D, $8528,	$8294, $38
-	dc.w 1,	$86F0, $8378, $58
-word_14E50:	dc.w 6
-	dc.w $D, $A6D2,	$A369, $FFA4
-	dc.w $D, $A5DE,	$A2EF, $FFCC
-	dc.w 1,	$A6CA, $A365, $FFEC
-	dc.w 5,	$85F0, $82F8, $FFE8
-	dc.w $D, $8530,	$8298, $38
-	dc.w 1,	$86F0, $8378, $58
-word_14E82:	dc.w 1
-	dc.w 6,	$85F4, $82FA, 0
-word_14E8C:	dc.w 1
-	dc.w 6,	$85FA, $82FD, 0
-word_14E96:	dc.w 7
-	dc.w $D, $A540,	$A2A0, $FF98
-	dc.w 9,	$A548, $A2A4, $FFB8
-	dc.w $D, $A5DE,	$A2EF, $FFD8
-	dc.w 1,	$A6CA, $A365, $FFF8
-	dc.w 5,	$85F0, $82F8, $FFF4
-	dc.w $D, $8538,	$829C, $38
-	dc.w 1,	$86F0, $8378, $58
+Obj3A_MapUnc_14CBC:	mappingsTable
+	mappingsTableEntry.w	word_14CDA
+	mappingsTableEntry.w	word_14D1C
+	mappingsTableEntry.w	word_14D5E
+	mappingsTableEntry.w	word_14DA0
+	mappingsTableEntry.w	word_14DDA
+	mappingsTableEntry.w	word_14BC8
+	mappingsTableEntry.w	word_14BEA
+	mappingsTableEntry.w	word_14BF4
+	mappingsTableEntry.w	word_14BFE
+	mappingsTableEntry.w	word_14DF4
+	mappingsTableEntry.w	word_14E1E
+	mappingsTableEntry.w	word_14E50
+	mappingsTableEntry.w	word_14E82
+	mappingsTableEntry.w	word_14E8C
+	mappingsTableEntry.w	word_14E96
+
+word_14CDA:	spriteHeader
+	spritePiece	-$40, 0, 2, 2, $5D0, 0, 0, 0, 1
+	spritePiece	-$30, 0, 2, 2, $588, 0, 0, 0, 1
+	spritePiece	-$20, 0, 2, 2, $584, 0, 0, 0, 1
+	spritePiece	-$10, 0, 1, 2, $5C0, 0, 0, 0, 1
+	spritePiece	-8, 0, 2, 2, $5B4, 0, 0, 0, 1
+	spritePiece	$10, 0, 2, 2, $5B8, 0, 0, 0, 1
+	spritePiece	$20, 0, 2, 2, $588, 0, 0, 0, 1
+	spritePiece	$2F, 0, 2, 2, $5D4, 0, 0, 0, 1
+word_14CDA_End
+
+word_14D1C:	spriteHeader
+	spritePiece	-$44, 0, 3, 2, $5C6, 0, 0, 0, 1
+	spritePiece	-$2C, 0, 1, 2, $5C0, 0, 0, 0, 1
+	spritePiece	-$24, 0, 2, 2, $5C2, 0, 0, 0, 1
+	spritePiece	-$14, 0, 2, 2, $580, 0, 0, 0, 1
+	spritePiece	-4, 0, 2, 2, $5D0, 0, 0, 0, 1
+	spritePiece	$14, 0, 2, 2, $5B8, 0, 0, 0, 1
+	spritePiece	$24, 0, 2, 2, $588, 0, 0, 0, 1
+	spritePiece	$33, 0, 2, 2, $5D4, 0, 0, 0, 1
+word_14D1C_End
+
+word_14D5E:	spriteHeader
+	spritePiece	-$3D, 0, 2, 2, $5D4, 0, 0, 0, 1
+	spritePiece	-$30, 0, 2, 2, $5B0, 0, 0, 0, 1
+	spritePiece	-$20, 0, 1, 2, $5C0, 0, 0, 0, 1
+	spritePiece	-$18, 0, 2, 2, $5C2, 0, 0, 0, 1
+	spritePiece	-8, 0, 2, 2, $5D0, 0, 0, 0, 1
+	spritePiece	$10, 0, 2, 2, $5B8, 0, 0, 0, 1
+	spritePiece	$20, 0, 2, 2, $588, 0, 0, 0, 1
+	spritePiece	$2F, 0, 2, 2, $5D4, 0, 0, 0, 1
+word_14D5E_End
+
+word_14DA0:	spriteHeader
+	spritePiece	-$38, 0, 2, 2, $5D4, 0, 0, 0, 1
+	spritePiece	-$28, 0, 2, 2, $5BC, 0, 0, 0, 1
+	spritePiece	-$18, 0, 2, 2, $5CC, 0, 0, 0, 1
+	spritePiece	-8, 0, 2, 2, $588, 0, 0, 0, 1
+	spritePiece	8, 0, 2, 2, $5D8, 0, 0, 0, 1
+	spritePiece	$18, 0, 2, 2, $5B8, 0, 0, 0, 1
+	spritePiece	$28, 0, 2, 2, $5BC, 0, 0, 0, 1
+word_14DA0_End
+
+word_14DDA:	spriteHeader
+	spritePiece	0, 0, 2, 2, $5B0, 0, 0, 0, 1
+	spritePiece	$10, 0, 2, 2, $5B4, 0, 0, 0, 1
+	spritePiece	$1F, 0, 2, 2, $5D4, 0, 0, 0, 1
+word_14DDA_End
+
+word_14DF4:	spriteHeader
+	spritePiece	-$48, 0, 3, 2, $5E6, 0, 0, 1, 1
+	spritePiece	-$30, 0, 2, 2, $5EC, 0, 0, 1, 1
+	spritePiece	-$2C, 0, 2, 2, $5F0, 0, 0, 0, 1
+	spritePiece	$38, 0, 4, 2, $520, 0, 0, 0, 1
+	spritePiece	$58, 0, 1, 2, $6F0, 0, 0, 0, 1
+word_14DF4_End
+
+word_14E1E:	spriteHeader
+	spritePiece	-$5C, 0, 4, 2, $6DA, 0, 0, 1, 1
+	spritePiece	-$34, 0, 4, 2, $5DE, 0, 0, 1, 1
+	spritePiece	-$14, 0, 1, 2, $6CA, 0, 0, 1, 1
+	spritePiece	-$18, 0, 2, 2, $5F0, 0, 0, 0, 1
+	spritePiece	$38, 0, 4, 2, $528, 0, 0, 0, 1
+	spritePiece	$58, 0, 1, 2, $6F0, 0, 0, 0, 1
+word_14E1E_End
+
+word_14E50:	spriteHeader
+	spritePiece	-$5C, 0, 4, 2, $6D2, 0, 0, 1, 1
+	spritePiece	-$34, 0, 4, 2, $5DE, 0, 0, 1, 1
+	spritePiece	-$14, 0, 1, 2, $6CA, 0, 0, 1, 1
+	spritePiece	-$18, 0, 2, 2, $5F0, 0, 0, 0, 1
+	spritePiece	$38, 0, 4, 2, $530, 0, 0, 0, 1
+	spritePiece	$58, 0, 1, 2, $6F0, 0, 0, 0, 1
+word_14E50_End
+
+word_14E82:	spriteHeader
+	spritePiece	0, 0, 2, 3, $5F4, 0, 0, 0, 1
+word_14E82_End
+
+word_14E8C:	spriteHeader
+	spritePiece	0, 0, 2, 3, $5FA, 0, 0, 0, 1
+word_14E8C_End
+
+word_14E96:	spriteHeader
+	spritePiece	-$68, 0, 4, 2, $540, 0, 0, 1, 1
+	spritePiece	-$48, 0, 3, 2, $548, 0, 0, 1, 1
+	spritePiece	-$28, 0, 4, 2, $5DE, 0, 0, 1, 1
+	spritePiece	-8, 0, 1, 2, $6CA, 0, 0, 1, 1
+	spritePiece	-$C, 0, 2, 2, $5F0, 0, 0, 0, 1
+	spritePiece	$38, 0, 4, 2, $538, 0, 0, 0, 1
+	spritePiece	$58, 0, 1, 2, $6F0, 0, 0, 0, 1
+word_14E96_End
+
+	even
+
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
@@ -31156,106 +31264,124 @@ byte_1900F:
 ; ----------------------------------------------------------------------------
 ; Primary sprite mappings for springs
 ; ----------------------------------------------------------------------------
-Obj41_MapUnc_1901C: offsetTable
-	offsetTableEntry.w word_19048	;  0
-	offsetTableEntry.w word_1905A	;  1
-	offsetTableEntry.w word_19064	;  2
-	offsetTableEntry.w word_19076	;  3
-	offsetTableEntry.w word_19088	;  4
-	offsetTableEntry.w word_19092	;  5
-	offsetTableEntry.w word_190A4	;  6
-	offsetTableEntry.w word_190B6	;  7
-	offsetTableEntry.w word_190D8	;  8
-	offsetTableEntry.w word_190F2	;  9
-	offsetTableEntry.w word_19114	; $A
+Obj41_MapUnc_1901C:	mappingsTable
+	mappingsTableEntry.w	word_19048
+	mappingsTableEntry.w	word_1905A
+	mappingsTableEntry.w	word_19064
+	mappingsTableEntry.w	word_19076
+	mappingsTableEntry.w	word_19088
+	mappingsTableEntry.w	word_19092
+	mappingsTableEntry.w	word_190A4
+	mappingsTableEntry.w	word_190B6
+	mappingsTableEntry.w	word_190D8
+	mappingsTableEntry.w	word_190F2
+	mappingsTableEntry.w	word_19114
 ; -------------------------------------------------------------------------------
 ; Secondary sprite mappings for springs
 ; merged with the above mappings; can't split to file in a useful way...
 ; -------------------------------------------------------------------------------
-Obj41_MapUnc_19032: offsetTable
-	offsetTableEntry.w word_19048	;  0
-	offsetTableEntry.w word_1905A	;  1
-	offsetTableEntry.w word_19064	;  2
-	offsetTableEntry.w word_19076	;  3
-	offsetTableEntry.w word_19088	;  4
-	offsetTableEntry.w word_19092	;  5
-	offsetTableEntry.w word_190A4	;  6
-	offsetTableEntry.w word_19136	;  7
-	offsetTableEntry.w word_19158	;  8
-	offsetTableEntry.w word_19172	;  9
-	offsetTableEntry.w word_19194	; $A
-word_19048:
-	dc.w 2
-	dc.w $F00D,    0,    0,$FFF0
-	dc.w	 5,    8,    4,$FFF8; 4
-word_1905A:
-	dc.w 1
-	dc.w $F80D,    0,    0,$FFF0
-word_19064:
-	dc.w 2
-	dc.w $E00D,    0,    0,$FFF0
-	dc.w $F007,   $C,    6,$FFF8; 4
-word_19076:
-	dc.w 2
-	dc.w $F003,    0,    0,	   0
-	dc.w $F801,    4,    2,$FFF8; 4
-word_19088:
-	dc.w 1
-	dc.w $F003,    0,    0,$FFF8
-word_19092:
-	dc.w 2
-	dc.w $F003,    0,    0,	 $10
-	dc.w $F809,    6,    3,$FFF8; 4
-word_190A4:
-	dc.w 2
-	dc.w	$D,$1000,$1000,$FFF0
-	dc.w $F005,$1008,$1004,$FFF8; 4
-word_190B6:
-	dc.w 4
-	dc.w $F00D,    0,    0,$FFF0
-	dc.w	 5,    8,    4,	   0; 4
-	dc.w $FB05,   $C,    6,$FFF6; 8
-	dc.w	 5,$201C,$200E,$FFF0; 12
-word_190D8:
-	dc.w 3
-	dc.w $F60D,    0,    0,$FFEA
-	dc.w  $605,    8,    4,$FFFA; 4
-	dc.w	 5,$201C,$200E,$FFF0; 8
-word_190F2:
-	dc.w 4
-	dc.w $E60D,    0,    0,$FFFB
-	dc.w $F605,    8,    4,	  $B; 4
-	dc.w $F30B,  $10,    8,$FFF6; 8
-	dc.w	 5,$201C,$200E,$FFF0; 12
-word_19114:
-	dc.w 4
-	dc.w	$D,$1000,$1000,$FFF0
-	dc.w $F005,$1008,$1004,	   0; 4
-	dc.w $F505,$100C,$1006,$FFF6; 8
-	dc.w $F005,$301C,$300E,$FFF0; 12
-word_19136:
-	dc.w 4
-	dc.w $F00D,    0,    0,$FFF0
-	dc.w	 5,    8,    4,	   0; 4
-	dc.w $FB05,   $C,    6,$FFF6; 8
-	dc.w	 5,  $1C,   $E,$FFF0; 12
-word_19158:
-	dc.w 3
-	dc.w $F60D,    0,    0,$FFEA
-	dc.w  $605,    8,    4,$FFFA; 4
-	dc.w	 5,  $1C,   $E,$FFF0; 8
-word_19172:
-	dc.w 4
-	dc.w $E60D,    0,    0,$FFFB
-	dc.w $F605,    8,    4,	  $B; 4
-	dc.w $F30B,  $10,    8,$FFF6; 8
-	dc.w	 5,  $1C,   $E,$FFF0; 12
-word_19194:
-	dc.w 4
-	dc.w	$D,$1000,$1000,$FFF0
-	dc.w $F005,$1008,$1004,	   0; 4
-	dc.w $F505,$100C,$1006,$FFF6; 8
-	dc.w $F005,$101C,$100E,$FFF0; 12
+Obj41_MapUnc_19032:	mappingsTable
+	mappingsTableEntry.w	word_19048
+	mappingsTableEntry.w	word_1905A
+	mappingsTableEntry.w	word_19064
+	mappingsTableEntry.w	word_19076
+	mappingsTableEntry.w	word_19088
+	mappingsTableEntry.w	word_19092
+	mappingsTableEntry.w	word_190A4
+	mappingsTableEntry.w	word_19136
+	mappingsTableEntry.w	word_19158
+	mappingsTableEntry.w	word_19172
+	mappingsTableEntry.w	word_19194
+
+word_19048:	spriteHeader
+	spritePiece	-$10, -$10, 4, 2, 0, 0, 0, 0, 0
+	spritePiece	-8, 0, 2, 2, 8, 0, 0, 0, 0
+word_19048_End
+
+word_1905A:	spriteHeader
+	spritePiece	-$10, -8, 4, 2, 0, 0, 0, 0, 0
+word_1905A_End
+
+word_19064:	spriteHeader
+	spritePiece	-$10, -$20, 4, 2, 0, 0, 0, 0, 0
+	spritePiece	-8, -$10, 2, 4, $C, 0, 0, 0, 0
+word_19064_End
+
+word_19076:	spriteHeader
+	spritePiece	0, -$10, 1, 4, 0, 0, 0, 0, 0
+	spritePiece	-8, -8, 1, 2, 4, 0, 0, 0, 0
+word_19076_End
+
+word_19088:	spriteHeader
+	spritePiece	-8, -$10, 1, 4, 0, 0, 0, 0, 0
+word_19088_End
+
+word_19092:	spriteHeader
+	spritePiece	$10, -$10, 1, 4, 0, 0, 0, 0, 0
+	spritePiece	-8, -8, 3, 2, 6, 0, 0, 0, 0
+word_19092_End
+
+word_190A4:	spriteHeader
+	spritePiece	-$10, 0, 4, 2, 0, 0, 1, 0, 0
+	spritePiece	-8, -$10, 2, 2, 8, 0, 1, 0, 0
+word_190A4_End
+
+word_190B6:	spriteHeader
+	spritePiece	-$10, -$10, 4, 2, 0, 0, 0, 0, 0
+	spritePiece	0, 0, 2, 2, 8, 0, 0, 0, 0
+	spritePiece	-$A, -5, 2, 2, $C, 0, 0, 0, 0
+	spritePiece	-$10, 0, 2, 2, $1C, 0, 0, 1, 0
+word_190B6_End
+
+word_190D8:	spriteHeader
+	spritePiece	-$16, -$A, 4, 2, 0, 0, 0, 0, 0
+	spritePiece	-6, 6, 2, 2, 8, 0, 0, 0, 0
+	spritePiece	-$10, 0, 2, 2, $1C, 0, 0, 1, 0
+word_190D8_End
+
+word_190F2:	spriteHeader
+	spritePiece	-5, -$1A, 4, 2, 0, 0, 0, 0, 0
+	spritePiece	$B, -$A, 2, 2, 8, 0, 0, 0, 0
+	spritePiece	-$A, -$D, 3, 4, $10, 0, 0, 0, 0
+	spritePiece	-$10, 0, 2, 2, $1C, 0, 0, 1, 0
+word_190F2_End
+
+word_19114:	spriteHeader
+	spritePiece	-$10, 0, 4, 2, 0, 0, 1, 0, 0
+	spritePiece	0, -$10, 2, 2, 8, 0, 1, 0, 0
+	spritePiece	-$A, -$B, 2, 2, $C, 0, 1, 0, 0
+	spritePiece	-$10, -$10, 2, 2, $1C, 0, 1, 1, 0
+word_19114_End
+
+word_19136:	spriteHeader
+	spritePiece	-$10, -$10, 4, 2, 0, 0, 0, 0, 0
+	spritePiece	0, 0, 2, 2, 8, 0, 0, 0, 0
+	spritePiece	-$A, -5, 2, 2, $C, 0, 0, 0, 0
+	spritePiece	-$10, 0, 2, 2, $1C, 0, 0, 0, 0
+word_19136_End
+
+word_19158:	spriteHeader
+	spritePiece	-$16, -$A, 4, 2, 0, 0, 0, 0, 0
+	spritePiece	-6, 6, 2, 2, 8, 0, 0, 0, 0
+	spritePiece	-$10, 0, 2, 2, $1C, 0, 0, 0, 0
+word_19158_End
+
+word_19172:	spriteHeader
+	spritePiece	-5, -$1A, 4, 2, 0, 0, 0, 0, 0
+	spritePiece	$B, -$A, 2, 2, 8, 0, 0, 0, 0
+	spritePiece	-$A, -$D, 3, 4, $10, 0, 0, 0, 0
+	spritePiece	-$10, 0, 2, 2, $1C, 0, 0, 0, 0
+word_19172_End
+
+word_19194:	spriteHeader
+	spritePiece	-$10, 0, 4, 2, 0, 0, 1, 0, 0
+	spritePiece	0, -$10, 2, 2, 8, 0, 1, 0, 0
+	spritePiece	-$A, -$B, 2, 2, $C, 0, 1, 0, 0
+	spritePiece	-$10, -$10, 2, 2, $1C, 0, 1, 0, 0
+word_19194_End
+
+	even
+
 ; ===========================================================================
 	nop
 
@@ -41348,84 +41474,99 @@ byte_1FBF2:	dc.b  $F, $E, $F,$FF
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
-Obj24_MapUnc_1FBF6: offsetTable
-	offsetTableEntry.w word_1FC3A	;   0
-	offsetTableEntry.w word_1FC44	;   1
-	offsetTableEntry.w word_1FC44	;   2
-	offsetTableEntry.w word_1FC4E	;   3
-	offsetTableEntry.w word_1FC58	;   4
-	offsetTableEntry.w word_1FC62	;   5
-	offsetTableEntry.w word_1FC6C	;   6
-	offsetTableEntry.w word_1FC76	;   7
-	offsetTableEntry.w word_1FC98	;   8
-	offsetTableEntry.w word_1FC98	;   9
-	offsetTableEntry.w word_1FC98	;  $A
-	offsetTableEntry.w word_1FC98	;  $B
-	offsetTableEntry.w word_1FC98	;  $C
-	offsetTableEntry.w word_1FC98	;  $D
-	offsetTableEntry.w word_1FCA2	;  $E
-	offsetTableEntry.w word_1FCAC	;  $F
-	offsetTableEntry.w word_1FCB6	; $10
+Obj24_MapUnc_1FBF6:	mappingsTable
+	mappingsTableEntry.w	word_1FC3A
+	mappingsTableEntry.w	word_1FC44
+	mappingsTableEntry.w	word_1FC44
+	mappingsTableEntry.w	word_1FC4E
+	mappingsTableEntry.w	word_1FC58
+	mappingsTableEntry.w	word_1FC62
+	mappingsTableEntry.w	word_1FC6C
+	mappingsTableEntry.w	word_1FC76
+	mappingsTableEntry.w	word_1FC98
+	mappingsTableEntry.w	word_1FC98
+	mappingsTableEntry.w	word_1FC98
+	mappingsTableEntry.w	word_1FC98
+	mappingsTableEntry.w	word_1FC98
+	mappingsTableEntry.w	word_1FC98
+	mappingsTableEntry.w	word_1FCA2
+	mappingsTableEntry.w	word_1FCAC
+	mappingsTableEntry.w	word_1FCB6
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; merged with the above mappings, can't split to file in a useful way...
 ; -------------------------------------------------------------------------------
-Obj24_MapUnc_1FC18: offsetTable
-	offsetTableEntry.w word_1FC3A	;   0
-	offsetTableEntry.w word_1FC44	;   1
-	offsetTableEntry.w word_1FC44	;   2
-	offsetTableEntry.w word_1FC4E	;   3
-	offsetTableEntry.w word_1FC58	;   4
-	offsetTableEntry.w word_1FC62	;   5
-	offsetTableEntry.w word_1FC6C	;   6
-	offsetTableEntry.w word_1FC76	;   7
-	offsetTableEntry.w word_1FCB8	;   8
-	offsetTableEntry.w word_1FCB8	;   9
-	offsetTableEntry.w word_1FCB8	;  $A
-	offsetTableEntry.w word_1FCB8	;  $B
-	offsetTableEntry.w word_1FCB8	;  $C
-	offsetTableEntry.w word_1FCB8	;  $D
-	offsetTableEntry.w word_1FCA2	;  $E
-	offsetTableEntry.w word_1FCAC	;  $F
-	offsetTableEntry.w word_1FCB6	; $10
-word_1FC3A:                          
-	dc.w	1
-	dc.w	$FC00, $008D, $0046, $FFFC
-word_1FC44:
-	dc.w	1
-	dc.w	$FC00, $008E, $0047, $FFFC
-word_1FC4E:
-	dc.w	1
-	dc.w	$F805, $008F, $0047, $FFF8
-word_1FC58:
-	dc.w	1
-	dc.w	$F805, $0093, $0049, $FFF8
-word_1FC62:
-	dc.w	1
-	dc.w	$F40A, $001C, $000E, $FFF4
-word_1FC6C:
-	dc.w	1
-	dc.w	$F00F, $0008, $0004, $FFF0
-word_1FC76:
-	dc.w	4
-	dc.w	$F005, $0018, $000C, $FFF0
-	dc.w	$F005, $0818, $080C, $0000
-	dc.w	$0005, $1018, $100C, $FFF0
-	dc.w	$0005, $1818, $180C, $0000
-word_1FC98:
-	dc.w	1
-	dc.w	$F406, $1F41, $1BA0, $FFF8
-word_1FCA2:
-	dc.w	1
-	dc.w	$F805, $0000, $0000, $FFF8
-word_1FCAC:
-	dc.w	1
-	dc.w	$F805, $0004, $0002, $FFF8
-word_1FCB6:
-	dc.w	0
-word_1FCB8:
-	dc.w	$0001, $F406, $1F31, $1B98
-	dc.w	$FFF8
+Obj24_MapUnc_1FC18:	mappingsTable
+	mappingsTableEntry.w	word_1FC3A
+	mappingsTableEntry.w	word_1FC44
+	mappingsTableEntry.w	word_1FC44
+	mappingsTableEntry.w	word_1FC4E
+	mappingsTableEntry.w	word_1FC58
+	mappingsTableEntry.w	word_1FC62
+	mappingsTableEntry.w	word_1FC6C
+	mappingsTableEntry.w	word_1FC76
+	mappingsTableEntry.w	word_1FCB8
+	mappingsTableEntry.w	word_1FCB8
+	mappingsTableEntry.w	word_1FCB8
+	mappingsTableEntry.w	word_1FCB8
+	mappingsTableEntry.w	word_1FCB8
+	mappingsTableEntry.w	word_1FCB8
+	mappingsTableEntry.w	word_1FCA2
+	mappingsTableEntry.w	word_1FCAC
+	mappingsTableEntry.w	word_1FCB6
+
+word_1FC3A:	spriteHeader
+	spritePiece	-4, -4, 1, 1, $8D, 0, 0, 0, 0
+word_1FC3A_End
+
+word_1FC44:	spriteHeader
+	spritePiece	-4, -4, 1, 1, $8E, 0, 0, 0, 0
+word_1FC44_End
+
+word_1FC4E:	spriteHeader
+	spritePiece	-8, -8, 2, 2, $8F, 0, 0, 0, 0
+word_1FC4E_End
+
+word_1FC58:	spriteHeader
+	spritePiece	-8, -8, 2, 2, $93, 0, 0, 0, 0
+word_1FC58_End
+
+word_1FC62:	spriteHeader
+	spritePiece	-$C, -$C, 3, 3, $1C, 0, 0, 0, 0
+word_1FC62_End
+
+word_1FC6C:	spriteHeader
+	spritePiece	-$10, -$10, 4, 4, 8, 0, 0, 0, 0
+word_1FC6C_End
+
+word_1FC76:	spriteHeader
+	spritePiece	-$10, -$10, 2, 2, $18, 0, 0, 0, 0
+	spritePiece	0, -$10, 2, 2, $18, 1, 0, 0, 0
+	spritePiece	-$10, 0, 2, 2, $18, 0, 1, 0, 0
+	spritePiece	0, 0, 2, 2, $18, 1, 1, 0, 0
+word_1FC76_End
+
+word_1FC98:	spriteHeader
+	spritePiece	-8, -$C, 2, 3, $741, 1, 1, 0, 0
+word_1FC98_End
+
+word_1FCA2:	spriteHeader
+	spritePiece	-8, -8, 2, 2, 0, 0, 0, 0, 0
+word_1FCA2_End
+
+word_1FCAC:	spriteHeader
+	spritePiece	-8, -8, 2, 2, 4, 0, 0, 0, 0
+word_1FCAC_End
+
+word_1FCB6:	spriteHeader
+word_1FCB6_End
+
+word_1FCB8:	spriteHeader
+	spritePiece	-8, -$C, 2, 3, $731, 1, 1, 0, 0
+word_1FCB8_End
+
+	even
+
 ; ===========================================================================
 	nop
 ; ===========================================================================
@@ -68813,63 +68954,73 @@ Ani_obj8D_b:	offsetTable
 ; -----------------------------------------------------------------------------
 ; sprite mappings (obj8D)
 ; -----------------------------------------------------------------------------
-Obj8D_MapUnc_36CF0: offsetTable
-	offsetTableEntry.w word_36D02	; 0
-	offsetTableEntry.w word_36D24	; 2
-	offsetTableEntry.w word_36D46	; 4
-	offsetTableEntry.w word_36D58	; 6
-	offsetTableEntry.w word_36D6A	; 8
+Obj8D_MapUnc_36CF0:	mappingsTable
+	mappingsTableEntry.w	word_36D02
+	mappingsTableEntry.w	word_36D24
+	mappingsTableEntry.w	word_36D46
+	mappingsTableEntry.w	word_36D58
+	mappingsTableEntry.w	word_36D6A
 ; -----------------------------------------------------------------------------
 ; sprite mappings (obj90)
 ; -----------------------------------------------------------------------------
-Obj90_MapUnc_36CFA: offsetTable
-	offsetTableEntry.w word_36D7C	; 0
-	offsetTableEntry.w word_36D86	; 2
-	offsetTableEntry.w word_36D90	; 4
+Obj90_MapUnc_36CFA:	mappingsTable
+	mappingsTableEntry.w	word_36D7C
+	mappingsTableEntry.w	word_36D86
+	mappingsTableEntry.w	word_36D90
 ; -----------------------------------------------------------------------------
 ; sprite mappings (obj90)
 ; -----------------------------------------------------------------------------
-Obj90_MapUnc_36D00: offsetTable
-	offsetTableEntry.w word_36D9A	; 0
-word_36D02:
-	dc.w 4
-	dc.w $F400,    0,    0,$FFF8
-	dc.w $FC06,    1,    0,$FFF0 ; 4
-	dc.w $F400, $800, $800,	   0 ; 8
-	dc.w $FC06, $801, $800,	   0 ; 12
-word_36D24:
-	dc.w 4
-	dc.w $EC00,    7,    3,$FFF8
-	dc.w $F407,    8,    4,$FFF0 ; 4
-	dc.w $EC00, $807, $803,	   0 ; 8
-	dc.w $F407, $808, $804,	   0 ; 12
-word_36D46:
-	dc.w 2
-	dc.w $EC0F,  $10,    8,$FFF0
-	dc.w  $C0C,  $20,  $10,$FFF0 ; 4
-word_36D58:
-	dc.w 2
-	dc.w $EC0F,  $10,    8,$FFF0
-	dc.w  $C0C,  $24,  $12,$FFF0 ; 4
-word_36D6A:
-	dc.w 2
-word_36D6C:
-	dc.w $EC0F,  $10,    8,$FFF0
-	dc.w  $C0C,  $28,  $14,$FFF0 ; 4
-word_36D7C:
-	dc.w 1
-	dc.w $F805,  $2C,  $16,$FFF8
-word_36D86:
-	dc.w 1
-word_36D88:
-	dc.w $FC00,  $30,  $18,$FFFC
-word_36D90:
-	dc.w 1
-	dc.w $FC00,  $31,  $18,$FFFC
-word_36D9A:
-	dc.w 2
-	dc.w $F805,$4093,$4049,$FFF0
-	dc.w $F805,$4097,$404B,	   0 ; 4
+Obj90_MapUnc_36D00:	mappingsTable
+	mappingsTableEntry.w	word_36D9A
+
+word_36D02:	spriteHeader
+	spritePiece	-8, -$C, 1, 1, 0, 0, 0, 0, 0
+	spritePiece	-$10, -4, 2, 3, 1, 0, 0, 0, 0
+	spritePiece	0, -$C, 1, 1, 0, 1, 0, 0, 0
+	spritePiece	0, -4, 2, 3, 1, 1, 0, 0, 0
+word_36D02_End
+
+word_36D24:	spriteHeader
+	spritePiece	-8, -$14, 1, 1, 7, 0, 0, 0, 0
+	spritePiece	-$10, -$C, 2, 4, 8, 0, 0, 0, 0
+	spritePiece	0, -$14, 1, 1, 7, 1, 0, 0, 0
+	spritePiece	0, -$C, 2, 4, 8, 1, 0, 0, 0
+word_36D24_End
+
+word_36D46:	spriteHeader
+	spritePiece	-$10, -$14, 4, 4, $10, 0, 0, 0, 0
+	spritePiece	-$10, $C, 4, 1, $20, 0, 0, 0, 0
+word_36D46_End
+
+word_36D58:	spriteHeader
+	spritePiece	-$10, -$14, 4, 4, $10, 0, 0, 0, 0
+	spritePiece	-$10, $C, 4, 1, $24, 0, 0, 0, 0
+word_36D58_End
+
+word_36D6A:	spriteHeader
+	spritePiece	-$10, -$14, 4, 4, $10, 0, 0, 0, 0
+	spritePiece	-$10, $C, 4, 1, $28, 0, 0, 0, 0
+word_36D6A_End
+
+word_36D7C:	spriteHeader
+	spritePiece	-8, -8, 2, 2, $2C, 0, 0, 0, 0
+word_36D7C_End
+
+word_36D86:	spriteHeader
+	spritePiece	-4, -4, 1, 1, $30, 0, 0, 0, 0
+word_36D86_End
+
+word_36D90:	spriteHeader
+	spritePiece	-4, -4, 1, 1, $31, 0, 0, 0, 0
+word_36D90_End
+
+word_36D9A:	spriteHeader
+	spritePiece	-$10, -8, 2, 2, $93, 0, 0, 2, 0
+	spritePiece	0, -8, 2, 2, $97, 0, 0, 2, 0
+word_36D9A_End
+
+	even
+
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object 91 - Chop Chop (piranha/shark badnik) from ARZ
@@ -72266,96 +72417,113 @@ byte_39216:
 ; ----------------------------------------------------------------------------
 ; sprite mappings - objA7,objA8,objA9
 ; ----------------------------------------------------------------------------
-ObjA7_ObjA8_ObjA9_Obj98_MapUnc_3921A: offsetTable
-	offsetTableEntry.w word_3923A	; 0
-	offsetTableEntry.w word_39254	; 1
-	offsetTableEntry.w word_3926E	; 2
-	offsetTableEntry.w word_39278	; 3
-	offsetTableEntry.w word_39282	; 4
-	offsetTableEntry.w word_3928C	; 5
-	offsetTableEntry.w word_39296	; 6
+ObjA7_ObjA8_ObjA9_Obj98_MapUnc_3921A:	mappingsTable
+	mappingsTableEntry.w	word_3923A
+	mappingsTableEntry.w	word_39254
+	mappingsTableEntry.w	word_3926E
+	mappingsTableEntry.w	word_39278
+	mappingsTableEntry.w	word_39282
+	mappingsTableEntry.w	word_3928C
+	mappingsTableEntry.w	word_39296
 ; -------------------------------------------------------------------------------
 ; sprite mappings - objAA (string of various lengths)
 ; -------------------------------------------------------------------------------
-ObjAA_MapUnc_39228: offsetTable
-	offsetTableEntry.w word_392A0	; 0
-	offsetTableEntry.w word_392AA	; 1
-	offsetTableEntry.w word_392B4	; 2
-	offsetTableEntry.w word_392C6	; 3
-	offsetTableEntry.w word_392D8	; 4
-	offsetTableEntry.w word_3930C	; 5
-	offsetTableEntry.w word_392F2	; 6
-	offsetTableEntry.w word_3932E	; 7
-	offsetTableEntry.w word_3932E	; 8
-word_3923A:
-	dc.w 3
-	dc.w $F801,    0,    0,$FFE5
-	dc.w $F80D,    2,    1,$FFED; 4
-	dc.w  $809,  $1D,   $E,$FFF1; 8
-word_39254:
-	dc.w 3
-	dc.w $F801,    0,    0,$FFE5
-	dc.w $F80D,    2,    1,$FFED; 4
-	dc.w  $80D,  $23,  $11,$FFF1; 8
-word_3926E:
-	dc.w 1
-	dc.w $FC00,   $A,    5,$FFFC
-word_39278:
-	dc.w 1
-	dc.w $F809,   $F,    7,$FFF9
-word_39282:
-	dc.w 1
-	dc.w $F80D,  $15,   $A,$FFF9
-word_3928C:
-	dc.w 1
-	dc.w $FC00,  $2B,  $15,$FFFC
-word_39296:
-	dc.w 1
-	dc.w $FC00,  $2C,  $16,$FFFC
-word_392A0:
-	dc.w 1
-	dc.w	 1,   $B,    5,$FFFC
-word_392AA:
-	dc.w 1
-	dc.w	 3,   $B,    5,$FFFC
-word_392B4:
-	dc.w 2
-	dc.w	 1,   $B,    5,$FFFC
-	dc.w $1003,   $B,    5,$FFFC; 4
-word_392C6:
-	dc.w 2
-	dc.w	 3,   $B,    5,$FFFC
-	dc.w $2003,   $B,    5,$FFFC; 4
-word_392D8:
-	dc.w 3
-	dc.w	 1,   $B,    5,$FFFC
-	dc.w $1003,   $B,    5,$FFFC; 4
-	dc.w $3003,   $B,    5,$FFFC; 8
-word_392F2:
-	dc.w 3
-	dc.w	 3,   $B,    5,$FFFC
-	dc.w $2003,   $B,    5,$FFFC; 4
-	dc.w $4003,   $B,    5,$FFFC; 8
-word_3930C:
-	dc.w 4
-	dc.w	 1,   $B,    5,$FFFC
-	dc.w $1003,   $B,    5,$FFFC; 4
-	dc.w $3003,   $B,    5,$FFFC; 8
-	dc.w $5003,   $B,    5,$FFFC; 12
-word_3932E:
-	dc.w 4
-	dc.w	 3,   $B,    5,$FFFC
-	dc.w $2003,   $B,    5,$FFFC; 4
-	dc.w $4003,   $B,    5,$FFFC; 8
-	dc.w $6003,   $B,    5,$FFFC; 12
-	dc.w 5
-	dc.w	 1,   $B,    5,$FFFC
-	dc.w $1003,   $B,    5,$FFFC; 4
-	dc.w $3003,   $B,    5,$FFFC; 8
-	dc.w $5003,   $B,    5,$FFFC; 12
-	dc.w $7003,   $B,    5,$FFFC; 16
+ObjAA_MapUnc_39228:	mappingsTable
+	mappingsTableEntry.w	word_392A0
+	mappingsTableEntry.w	word_392AA
+	mappingsTableEntry.w	word_392B4
+	mappingsTableEntry.w	word_392C6
+	mappingsTableEntry.w	word_392D8
+	mappingsTableEntry.w	word_3930C
+	mappingsTableEntry.w	word_392F2
+	mappingsTableEntry.w	word_3932E
+	mappingsTableEntry.w	word_3932E
 
+word_3923A:	spriteHeader
+	spritePiece	-$1B, -8, 1, 2, 0, 0, 0, 0, 0
+	spritePiece	-$13, -8, 4, 2, 2, 0, 0, 0, 0
+	spritePiece	-$F, 8, 3, 2, $1D, 0, 0, 0, 0
+word_3923A_End
 
+word_39254:	spriteHeader
+	spritePiece	-$1B, -8, 1, 2, 0, 0, 0, 0, 0
+	spritePiece	-$13, -8, 4, 2, 2, 0, 0, 0, 0
+	spritePiece	-$F, 8, 4, 2, $23, 0, 0, 0, 0
+word_39254_End
+
+word_3926E:	spriteHeader
+	spritePiece	-4, -4, 1, 1, $A, 0, 0, 0, 0
+word_3926E_End
+
+word_39278:	spriteHeader
+	spritePiece	-7, -8, 3, 2, $F, 0, 0, 0, 0
+word_39278_End
+
+word_39282:	spriteHeader
+	spritePiece	-7, -8, 4, 2, $15, 0, 0, 0, 0
+word_39282_End
+
+word_3928C:	spriteHeader
+	spritePiece	-4, -4, 1, 1, $2B, 0, 0, 0, 0
+word_3928C_End
+
+word_39296:	spriteHeader
+	spritePiece	-4, -4, 1, 1, $2C, 0, 0, 0, 0
+word_39296_End
+
+word_392A0:	spriteHeader
+	spritePiece	-4, 0, 1, 2, $B, 0, 0, 0, 0
+word_392A0_End
+
+word_392AA:	spriteHeader
+	spritePiece	-4, 0, 1, 4, $B, 0, 0, 0, 0
+word_392AA_End
+
+word_392B4:	spriteHeader
+	spritePiece	-4, 0, 1, 2, $B, 0, 0, 0, 0
+	spritePiece	-4, $10, 1, 4, $B, 0, 0, 0, 0
+word_392B4_End
+
+word_392C6:	spriteHeader
+	spritePiece	-4, 0, 1, 4, $B, 0, 0, 0, 0
+	spritePiece	-4, $20, 1, 4, $B, 0, 0, 0, 0
+word_392C6_End
+
+word_392D8:	spriteHeader
+	spritePiece	-4, 0, 1, 2, $B, 0, 0, 0, 0
+	spritePiece	-4, $10, 1, 4, $B, 0, 0, 0, 0
+	spritePiece	-4, $30, 1, 4, $B, 0, 0, 0, 0
+word_392D8_End
+
+word_392F2:	spriteHeader
+	spritePiece	-4, 0, 1, 4, $B, 0, 0, 0, 0
+	spritePiece	-4, $20, 1, 4, $B, 0, 0, 0, 0
+	spritePiece	-4, $40, 1, 4, $B, 0, 0, 0, 0
+word_392F2_End
+
+word_3930C:	spriteHeader
+	spritePiece	-4, 0, 1, 2, $B, 0, 0, 0, 0
+	spritePiece	-4, $10, 1, 4, $B, 0, 0, 0, 0
+	spritePiece	-4, $30, 1, 4, $B, 0, 0, 0, 0
+	spritePiece	-4, $50, 1, 4, $B, 0, 0, 0, 0
+word_3930C_End
+
+word_3932E:	spriteHeader
+	spritePiece	-4, 0, 1, 4, $B, 0, 0, 0, 0
+	spritePiece	-4, $20, 1, 4, $B, 0, 0, 0, 0
+	spritePiece	-4, $40, 1, 4, $B, 0, 0, 0, 0
+	spritePiece	-4, $60, 1, 4, $B, 0, 0, 0, 0
+word_3932E_End
+
+word_39350:	spriteHeader
+	spritePiece	-4, 0, 1, 2, $B, 0, 0, 0, 0
+	spritePiece	-4, $10, 1, 4, $B, 0, 0, 0, 0
+	spritePiece	-4, $30, 1, 4, $B, 0, 0, 0, 0
+	spritePiece	-4, $50, 1, 4, $B, 0, 0, 0, 0
+	spritePiece	-4, $70, 1, 4, $B, 0, 0, 0, 0
+word_39350_End
+
+	even
 
 
 ; ===========================================================================
