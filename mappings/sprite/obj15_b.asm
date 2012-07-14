@@ -1,7 +1,7 @@
 Map_obj15_b:	mappingsTable
 	mappingsTableEntry.w	Map_obj15_b_0006
-	dc.w $FF92
-	dc.w $FF9C
+	mappingsTableEntry.w	Map_obj7A_a_001A
+	mappingsTableEntry.w	Map_obj7A_a_0024
 
 Map_obj15_b_0006:	spriteHeader
 	spritePiece	-$20, -8, 4, 2, $58, 0, 0, 3, 0
