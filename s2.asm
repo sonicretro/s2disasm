@@ -20709,12 +20709,42 @@ Obj15_Obj83_MapUnc_1021E:	BINCLUDE "mappings/sprite/obj83.bin"
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
-Obj15_Obj7A_MapUnc_10256:	BINCLUDE "mappings/sprite/obj7A_a.bin"
+Obj15_Obj7A_MapUnc_10256:	offsetTable
+	offsetTableEntry.w word_1025E
+	offsetTableEntry.w word_10270
+	offsetTableEntry.w word_1027A
+	offsetTableEntry.w word_1028C
+word_1025E:	dc.w 2
+	dc.w $F809, $6060, $6030, $FFE8
+	dc.w $F809, $6860, $6830, 0
+word_10270:	dc.w 1
+		dc.w $F805, $6066, $6033, $FFF8
+word_1027A:	dc.w 2
+		dc.w $E805, $406A, $4035, $FFF4
+		dc.w $F80B, $406E, $4037, $FFF4
+word_1028C:	dc.w $A
+		dc.w $A805, $406A, $4035, $FFF4
+		dc.w $B80B, $406E, $4037, $FFF4
+		dc.w $C805, $6066, $6033, $FFF8
+		dc.w $D805, $6066, $6033, $FFF8
+		dc.w $E805, $6066, $6033, $FFF8
+		dc.w $F805, $6066, $6033, $FFF8
+		dc.w $805, $6066, $6033, $FFF8
+		dc.w $1805, $6066, $6033, $FFF8
+		dc.w $2805, $6066, $6033, $FFF8
+		dc.w $3805, $6066, $6033, $FFF8
 
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
-Obj15_MapUnc_102DE:	BINCLUDE "mappings/sprite/obj15_b.bin"
+Obj15_MapUnc_102DE:	offsetTable
+	offsetTableEntry.w	word_102E4
+	offsetTableEntry.w word_10270
+	offsetTableEntry.w word_1027A
+word_102E4:	dc.w 2
+	dc.w $F80D, $6058, $602C, $FFE0
+	dc.w $F80D, $6858, $682C, 0
+
 ; ===========================================================================
 	nop
 
