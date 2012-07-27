@@ -8946,8 +8946,7 @@ loc_71B4:
 	bne.w	JmpTo_DisplaySprite
 	moveq	#6,d6
 
-; WARNING: the build script needs editing if you rename this label
-word_728C_user: lea	(Obj5F_MapUnc_7240+$4C).l,a2 ; word_728C
+	lea	(Map_obj5F_a_004C).l,a2
 
 	moveq	#2,d3
 	move.w	#8,objoff_14(a0)
@@ -9000,8 +8999,6 @@ return_723E:
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
-; WARNING: the build script needs editing if you rename this label
-;	   or if you change the meaning of frame 2 in these mappings
 Obj5F_MapUnc_7240:	include "mappings/sprite/obj5F_a.asm"
 ; -----------------------------------------------------------------------------------
 ; sprite mappings
@@ -73600,18 +73597,11 @@ ObjB0_Init:
 
 	rts
 ; ===========================================================================
-	; These next four things are pointers to Sonic's dereferenced
-	; DPLC entries of his "running animation" frames for the SEGA screen.
-	; I want that DPLC data split into a binary file for use with editors,
-	; but unfortunately there's no way to refer to BINCLUDE'd bytes
-	; from within AS, so I put an educated guess (default) here and
-	; run an external program (fixpointer.exe) to fix it later.
-; WARNING: the build script needs editing if you rename this label
 off_3A294:
-	dc.l (MapRUnc_Sonic+$33A)	;dc.l word_7181A
-	dc.l (MapRUnc_Sonic+$340)	;dc.l word_71820
-	dc.l (MapRUnc_Sonic+$346)	;dc.l word_71826
-	dc.l (MapRUnc_Sonic+$34C)	;dc.l word_7182C
+	dc.l DPLC_Sonic_033A
+	dc.l DPLC_Sonic_0340
+	dc.l DPLC_Sonic_0346
+	dc.l DPLC_Sonic_034C
 
 map_piece macro width,height
 	dc.l copysrc,copydst
@@ -85215,8 +85205,6 @@ Mapunc_Sonic:	include	"mappings/sprite/Sonic.asm"
 ; Sprite Dynamic Pattern Reloading
 ; Sonic DPLCs   		; MapRUnc_714E0:
 ;--------------------------------------------------------------------------------------
-; WARNING: the build script needs editing if you rename this label
-;          or if you move Sonic's running frame to somewhere else than frame $2D
 MapRUnc_Sonic:	include	"mappings/spriteDPLC/Sonic.asm"
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (32 blocks)
@@ -89088,6 +89076,6 @@ paddingSoFar	:= paddingSoFar+1
 		message "rom size is $\{*} bytes (\{*/1024.0} kb). About $\{paddingSoFar} bytes are padding. "
 	endif
 	; share these symbols externally (WARNING: don't rename, move or remove these labels!)
-	shared word_728C_user,Obj5F_MapUnc_7240,off_3A294,MapRUnc_Sonic,movewZ80CompSize
+	shared movewZ80CompSize
 EndOfRom:
 	END

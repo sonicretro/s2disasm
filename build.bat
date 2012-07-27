@@ -37,7 +37,7 @@ REM // combine the assembler output into a rom
 IF EXIST s2.p "win32/s2p2bin" s2.p s2built.bin s2.h
 
 REM // fix some pointers and things that are impossible to fix from the assembler without un-splitting their data
-IF EXIST s2built.bin "win32/fixpointer" s2.h s2built.bin   off_3A294 MapRUnc_Sonic $2D 0 4   word_728C_user Obj5F_MapUnc_7240 2 2 1  
+IF EXIST s2built.bin "win32/fixpointer" s2.h s2built.bin
 
 REM REM // fix the rom header (checksum)
 IF EXIST s2built.bin "win32/fixheader" s2built.bin
