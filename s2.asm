@@ -44618,10 +44618,22 @@ loc_227A6:
 	jmp	(PlaySound).l
 ; ===========================================================================
 byte_227BE:
-	dc.b   2,  1,  0,  0,$FF,  3,  0,  0,  4,$FE,  0,  0,$FD,$FC,  0,  0
-	dc.b $FB,$FB,  0,  0,  7,  6,  0,  0,$F9,$FA,  0,  0,  8,  9,  0,  0; 16
-	dc.b $F8,$F7,  0,  0, $B, $A,  0,  0, $C,  0,  0,  0,$F5,$F6,  0,  0; 32
-	dc.b $F4,  0,  0,  0,  0, $D,  0,  0,$F3, $E,  0,  0,  0,$F2,  0,  0; 48
+	dc.b   2,  1,  0,  0
+	dc.b  -1,  3,  0,  0
+	dc.b   4, -2,  0,  0
+	dc.b  -3, -4,  0,  0
+	dc.b  -5, -5,  0,  0
+	dc.b   7,  6,  0,  0
+	dc.b  -7, -6,  0,  0
+	dc.b   8,  9,  0,  0
+	dc.b  -8, -9,  0,  0
+	dc.b  11, 10,  0,  0
+	dc.b  12,  0,  0,  0
+	dc.b -11,-10,  0,  0
+	dc.b -12,  0,  0,  0
+	dc.b   0, 13,  0,  0
+	dc.b -13, 14,  0,  0
+	dc.b   0,-14,  0,  0
 ; ===========================================================================
 
 loc_227FE:
@@ -44786,13 +44798,20 @@ loc_22952:
 	move.w	d0,2(a4)
 	rts
 ; ===========================================================================
-; spin tube data (CPZ act 1? uncompressed, format unknown)
+obj1E67Size macro {INTLABEL}
+__LABEL__ label *
+	dc.w __LABEL___End-__LABEL__-2
+	endm
 ; -------------------------------------------------------------------------------
-off_22980:	BINCLUDE "misc/obj1E_a.bin"
+; spin tube data - entry/exit
 ; -------------------------------------------------------------------------------
-; spin tube data (CPZ act 2? uncompressed, format unknown)
+; off_22980:
+	include	"misc/obj1E_a.asm"
 ; -------------------------------------------------------------------------------
-off_22E88:	BINCLUDE "misc/obj1E_b.bin"
+; spin tube data - main tube
+; -------------------------------------------------------------------------------
+; off_22E88:
+	include	"misc/obj1E_b.asm"
 ; ===========================================================================
 	nop
 
@@ -49665,59 +49684,9 @@ loc_273DE:
 	move.w	d0,2(a4)
 	rts
 ; ===========================================================================
-; probably MTZ tube position data
-off_273F2:	offsetTable
-		offsetTableEntry.w byte_2740C	;  0
-		offsetTableEntry.w byte_27426	;  1
-		offsetTableEntry.w byte_27430	;  2
-		offsetTableEntry.w byte_2744A	;  3
-		offsetTableEntry.w byte_27454	;  4
-		offsetTableEntry.w byte_2745E	;  5
-		offsetTableEntry.w byte_27478	;  6
-		offsetTableEntry.w byte_27492	;  7
-		offsetTableEntry.w byte_274AC	;  8
-		offsetTableEntry.w byte_274C6	;  9
-		offsetTableEntry.w byte_274E0	; $A
-		offsetTableEntry.w byte_274FA	; $B
-		offsetTableEntry.w byte_27514	; $C
-byte_2740C:
-	dc.b   0,$18,  7,$A8,  2,$70,  7,$50,  2,$70,  7,$40,  2,$80,  7,$40
-	dc.b   3,$E0,  7,$50,  3,$F0,  7,$A8,  3,$F0; 16
-byte_27426:
-	dc.b   0,  8, $C,$58,  5,$F0, $E,$28,  5,$F0
-byte_27430:
-	dc.b   0,$18,$18,$28,  6,$B0,$17,$D0,  6,$B0,$17,$C0,  6,$C0,$17,$C0
-	dc.b   7,$E0,$17,$B0,  7,$F0,$17,$58,  7,$F0; 16
-byte_2744A:
-	dc.b   0,  8,  5,$D8,  3,$70,  7,$80,  3,$70
-byte_27454:
-	dc.b   0,  8,  5,$D8,  5,$F0,  7,  0,  5,$F0
-byte_2745E:
-	dc.b   0,$18, $B,$D8,  1,$F0, $C,$30,  1,$F0, $C,$40,  1,$E0, $C,$40
-	dc.b   0,$C0, $C,$50,  0,$B0, $C,$A8,  0,$B0; 16
-byte_27478:
-	dc.b   0,$18,$17,$28,  3,$30,$15,$D0,  3,$30,$15,$C0,  3,$20,$15,$C0
-	dc.b   2,$40,$15,$D0,  2,$30,$16,$28,  2,$30; 16
-byte_27492:
-	dc.b   0,$18,  6,$D8,  1,$F0,  7,$30,  1,$F0,  7,$40,  1,$E0,  7,$40
-	dc.b   1,  0,  7,$50,  0,$F0,  7,$A8,  0,$F0; 16
-byte_274AC:
-	dc.b   0,$18,  7,$D8,  3,$30,  8,$28,  3,$30,  8,$40,  3,$40,  8,$40
-	dc.b   4,$58,  8,$28,  4,$70,  7,$D8,  4,$70; 16
-byte_274C6:
-	dc.b   0,$18, $F,$D8,  3,$B0,$10,$28,  3,$B0,$10,$40,  3,$98,$10,$40
-	dc.b   2,$C4,$10,$58,  2,$B0,$10,$A8,  2,$B0; 16
-byte_274E0:
-	dc.b   0,$18
-	dc.b  $F,$D8,  4,$B0,$10,$28,  4,$B0
-	dc.b $10,$40,  4,$C0,$10,$40,  5,$D8,$10,$58,  5,$F0,$10,$A8,  5,$F0
-byte_274FA:
-	dc.b   0,$18,$20,$58,  4,$30,$20,$A8,  4,$30,$20,$C0,  4,$18,$20,$C0
-	dc.b   2,$C0,$20,$D0,  2,$B0,$21,$28,  2,$B0; 16
-byte_27514:
-	dc.b   0,$18,$23,$28,  5,$B0,$22,$D0,  5,$B0,$22,$C0,  5,$A0,$22,$C0
-	dc.b   4,$C0,$22,$D0,  4,$B0,$23,$28,  4,$B0; 16
-
+; MTZ tube position data
+; off_273F2:
+	include	"misc/obj67.asm"
 ; animation script
 ; byte_2752E:
 Ani_obj67:	offsetTable
