@@ -40584,7 +40584,7 @@ Obj79_Dongle:
 	subq.w	#1,objoff_36(a0)
 	bpl.s	Obj79_MoveDonglyThing
 	movea.w	parent(a0),a1 ; a1=object
-	cmpi.b	#$79,(a1)
+	cmpi.b	#ObjID_Starpost,id(a1)
 	bne.s	+
 	move.b	#2,anim(a1)
 	move.b	#0,mapping_frame(a1)
