@@ -49580,13 +49580,13 @@ loc_273DE:
 ; off_273F2:
 	include	"misc/obj67.asm"
 ; animation script
-; word_2752E:
+; byte_2752E:
 Ani_obj67:	offsetTable
-		offsetTableEntry.w word_27532	; 0
-		offsetTableEntry.w word_27535	; 1
-word_27532:
+		offsetTableEntry.w byte_27532	; 0
+		offsetTableEntry.w byte_27535	; 1
+byte_27532:
 	dc.b $1F,  0,$FF
-word_27535:
+byte_27535:
 	dc.b   1,  1,  0,  0,  0,  0,  0,  1,  0,  0,  0,  1,  0,  0,  1,  0,$FE,  2
 	even
 ; ----------------------------------------------------------------------------
