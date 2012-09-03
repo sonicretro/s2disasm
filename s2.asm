@@ -27698,7 +27698,7 @@ BuildSprites_LevelLoop:
 ; loc_16630:
 BuildSprites_ObjLoop:
 	movea.w	(a4,d6.w),a0 ; a0=object
-	tst.b	(a0)		; is this object slot occupied?
+	tst.b	id(a0)		; is this object slot occupied?
 	beq.w	BuildSprites_NextObj	; if not, check next one
 	andi.b	#$7F,render_flags(a0)	; clear on-screen flag
 	move.b	render_flags(a0),d0
@@ -28085,7 +28085,7 @@ BuildSprites_P1_LevelLoop:
 ; loc_1698C:
 BuildSprites_P1_ObjLoop:
 	movea.w	(a4,d6.w),a0 ; a0=object
-	tst.b	(a0)
+	tst.b	id(a0)
 	beq.w	BuildSprites_P1_NextObj
 	andi.b	#$7F,render_flags(a0)
 	move.b	render_flags(a0),d0
@@ -28199,7 +28199,7 @@ BuildSprites_P2_LevelLoop:
 ; loc_16AA6:
 BuildSprites_P2_ObjLoop:
 	movea.w	(a4,d6.w),a0 ; a0=object
-	tst.b	(a0)
+	tst.b	id(a0)
 	beq.w	BuildSprites_P2_NextObj
 	move.b	render_flags(a0),d0
 	move.b	d0,d4
@@ -30441,7 +30441,7 @@ SingleObjLoad:
 	move.w	#(Dynamic_Object_RAM_2P_End-Dynamic_Object_RAM)/object_size-1,d0 ; search to $BF00 exclusive
 
 /
-	tst.b	(a1)	; is object RAM slot empty?
+	tst.b	id(a1)	; is object RAM slot empty?
 	beq.s	return_17FF8	; if yes, branch
 	lea	next_object(a1),a1 ; load obj address ; goto next object RAM slot
 	dbf	d0,-	; repeat until end
@@ -30466,7 +30466,7 @@ SingleObjLoad2:
 	bcs.s	return_18014
 
 -
-	tst.b	(a1)	; is object RAM slot empty?
+	tst.b	id(a1)	; is object RAM slot empty?
 	beq.s	return_18014	; if yes, branch
 	lea	next_object(a1),a1 ; load obj address ; goto next object RAM slot
 	dbf	d0,-	; repeat until end
@@ -30487,7 +30487,7 @@ SingleObjLoad3:
 	move.w	#$B,d0
 
 -
-	tst.b	(a1)	; is object RAM slot empty?
+	tst.b	id(a1)	; is object RAM slot empty?
 	beq.s	return_18028	; if yes, branch
 	lea	next_object(a1),a1 ; load obj address ; goto next object RAM slot
 	dbf	d0,-	; repeat until end
@@ -56778,7 +56778,7 @@ Obj50_Main_Index: offsetTable
 ; loc_2CDCA:
 Obj50_Wing:
 	movea.l	Obj50_parent(a0),a1 ; a1=object
-	tst.b	(a1)		; is parent object's slot empty?
+	tst.b	id(a1)		; is parent object's slot empty?
 	beq.w	JmpTo48_DeleteObject	; if yes, branch
 	cmpi.b	#ObjID_Aquis,(a1)	; is parent object ObjID_Aquis?
 	bne.w	JmpTo48_DeleteObject	; if not, branch
@@ -57031,7 +57031,7 @@ Obj4B_Projectile:
 ; loc_2D090:
 Obj4B_Flame:
 	movea.l	Obj4B_parent(a0),a1 ; a1=object
-	tst.b	(a1)
+	tst.b	id(a1)
 	beq.w	JmpTo49_DeleteObject	; branch, if object slot is empty. This check is incomplete and very unreliable; check Obj50_Wing to see how it should be done
 	tst.w	Obj4B_turn_delay(a1)
 	bmi.s	+		; branch, if parent isn't currently turning around
@@ -70251,6 +70251,10 @@ Obj9A_Obj98_MapUnc_37B62:	BINCLUDE "mappings/sprite/obj9C.bin"
 ; ----------------------------------------------------------------------------
 ; Object 9D - Coconuts (monkey badnik) from EHZ
 ; ----------------------------------------------------------------------------
+; OST Variables:
+Obj9D_timer		= objoff_2A	; byte
+Obj9D_climb_table_index	= objoff_2C	; word
+Obj9D_attack_timer	= objoff_2E	; byte	; time player needs to spend close to object before it attacks
 ; Sprite_37BFA:
 Obj9D:
 	moveq	#0,d0
@@ -70261,59 +70265,63 @@ Obj9D:
 ; off_37C08:
 Obj9D_Index:	offsetTable
 		offsetTableEntry.w Obj9D_Init		; 0
-		offsetTableEntry.w Obj9D_Main		; 2
+		offsetTableEntry.w Obj9D_Idle		; 2
 		offsetTableEntry.w Obj9D_Climbing	; 4
 		offsetTableEntry.w Obj9D_Throwing	; 6
 ; ===========================================================================
 ; loc_37C10:
 Obj9D_Init:
 	bsr.w	LoadSubObject
-	move.b	#$10,objoff_2A(a0)
+	move.b	#$10,Obj9D_timer(a0)
 	rts
 ; ===========================================================================
-; loc_37C1C:
-Obj9D_Main:
+; loc_37C1C: Obj9D_Main:
+Obj9D_Idle:
 	bsr.w	Obj_GetOrientationToPlayer
-	bclr	#0,render_flags(a0)
+	bclr	#0,render_flags(a0)	; face right
 	bclr	#0,status(a0)
-	tst.w	d0
-	beq.s	+
-	bset	#0,render_flags(a0)
+	tst.w	d0		; is player to object's left?
+	beq.s	+		; if not, branch
+	bset	#0,render_flags(a0)	; face left
 	bset	#0,status(a0)
 +
 	addi.w	#$60,d2
 	cmpi.w	#$C0,d2
-	bhs.s	+
-	tst.b	objoff_2E(a0)
-	beq.s	loc_37C66
-	subq.b	#1,objoff_2E(a0)
+	bcc.s	+	; branch, if distance to player is greater than 60 in either direction
+	tst.b	Obj9D_attack_timer(a0)	; wait for a bit before attacking
+	beq.s	Obj9D_StartThrowing	; branch, when done waiting
+	subq.b	#1,Obj9D_attack_timer(a0)
 +
-	subq.b	#1,objoff_2A(a0)
-	bmi.s	+
+	subq.b	#1,Obj9D_timer(a0)	; wait for a bit...
+	bmi.s	Obj9D_StartClimbing	; branch, when done waiting
 	bra.w	JmpTo39_MarkObjGone
 ; ---------------------------------------------------------------------------
-+	addq.b	#2,routine(a0)
-	bsr.w	loc_37C82
+
+Obj9D_StartClimbing:
+	addq.b	#2,routine(a0)	; => Obj9D_Climbing
+	bsr.w	Obj9D_SetClimbingDirection
 	bra.w	JmpTo39_MarkObjGone
 ; ---------------------------------------------------------------------------
-loc_37C66:
-	move.b	#6,routine(a0)	; Obj9D_Throwing
-	move.b	#1,mapping_frame(a0)
-	move.b	#8,objoff_2A(a0)
-	move.b	#$20,objoff_2E(a0)
+; loc_37C66:
+Obj9D_StartThrowing:
+	move.b	#6,routine(a0)	; => Obj9D_Throwing
+	move.b	#1,mapping_frame(a0)	; display first throwing frame
+	move.b	#8,Obj9D_timer(a0)	; set time to display frame
+	move.b	#$20,Obj9D_attack_timer(a0)	; reset timer
 	bra.w	JmpTo39_MarkObjGone
 ; ---------------------------------------------------------------------------
-loc_37C82:
-	move.w	objoff_2C(a0),d0
+; loc_37C82:
+Obj9D_SetClimbingDirection:
+	move.w	Obj9D_climb_table_index(a0),d0
 	cmpi.w	#$C,d0
-	blo.s	+
-	moveq	#0,d0
+	blo.s	+	; branch, if index is less than $C
+	moveq	#0,d0	; otherwise, reset to 0
 +
 	lea	Obj9D_ClimbData(pc,d0.w),a1
 	addq.w	#2,d0
-	move.w	d0,objoff_2C(a0)
-	move.b	(a1)+,y_vel(a0) ; climbing speed
-	move.b	(a1)+,objoff_2A(a0) ; time to spend moving at this speed
+	move.w	d0,Obj9D_climb_table_index(a0)
+	move.b	(a1)+,y_vel(a0)	; climbing speed
+	move.b	(a1)+,Obj9D_timer(a0) ; time to spend moving at this speed
 	rts
 ; ===========================================================================
 ; byte_37CA2:
@@ -70327,73 +70335,73 @@ Obj9D_ClimbData:
 ; ===========================================================================
 ; loc_37CAE: Obj09_Climbing:
 Obj9D_Climbing:
-	subq.b	#1,objoff_2A(a0)
-	beq.s	loc_37CC6
-	bsr.w	JmpTo26_ObjectMove
+	subq.b	#1,Obj9D_timer(a0)
+	beq.s	Obj9D_StopClimbing	; branch, if done moving
+	bsr.w	JmpTo26_ObjectMove	; else, keep moving
 	lea	(Ani_obj09).l,a1
 	bsr.w	JmpTo25_AnimateSprite
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
-
-loc_37CC6:
-	subq.b	#2,routine(a0)
-	move.b	#$10,objoff_2A(a0)
+; loc_37CC6:
+Obj9D_StopClimbing:
+	subq.b	#2,routine(a0)	; => Obj9D_Idle
+	move.b	#$10,Obj9D_timer(a0)	; time to remain idle
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 ; loc_37CD4: Obj09_Throwing:
 Obj9D_Throwing:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
-	move.w	off_37CE6(pc,d0.w),d1
-	jsr	off_37CE6(pc,d1.w)
+	move.w	Obj9D_ThrowingStates(pc,d0.w),d1
+	jsr	Obj9D_ThrowingStates(pc,d1.w)
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
-off_37CE6:	offsetTable
-		offsetTableEntry.w loc_37CEA	; 0
-		offsetTableEntry.w loc_37D06	; 2
+; off_37CE6:
+Obj9D_ThrowingStates:	offsetTable
+		offsetTableEntry.w Obj9D_ThrowingHandRaised	; 0
+		offsetTableEntry.w Obj9D_ThrowingHandLowered	; 2
 ; ===========================================================================
-
-loc_37CEA:
-	subq.b	#1,objoff_2A(a0)
+; loc_37CEA:
+Obj9D_ThrowingHandRaised:
+	subq.b	#1,Obj9D_timer(a0)	; wait for a bit...
 	bmi.s	+
 	rts
 ; ---------------------------------------------------------------------------
-+	addq.b	#2,routine_secondary(a0)
-	move.b	#8,objoff_2A(a0)
-	move.b	#2,mapping_frame(a0)
-	bra.w	loc_37D22
++	addq.b	#2,routine_secondary(a0)	; => Obj9D_ThrowingHandLowered
+	move.b	#8,Obj9D_timer(a0)
+	move.b	#2,mapping_frame(a0)	; display second throwing frame
+	bra.w	Obj9D_CreateCoconut
 ; ===========================================================================
-
-loc_37D06:
-	subq.b	#1,objoff_2A(a0)
+; loc_37D06:
+Obj9D_ThrowingHandLowered:
+	subq.b	#1,Obj9D_timer(a0)	; wait for a bit...
 	bmi.s	+
 	rts
 ; ---------------------------------------------------------------------------
-+	clr.b	routine_secondary(a0)
-	move.b	#4,routine(a0) ; Obj9D_Climbing
-	move.b	#8,objoff_2A(a0)
-	bra.w	loc_37C82
++	clr.b	routine_secondary(a0)	; reset routine counter for next time
+	move.b	#4,routine(a0) ; => Obj9D_Climbing
+	move.b	#8,Obj9D_timer(a0)	; this gets overwrittten by the next subroutine...
+	bra.w	Obj9D_SetClimbingDirection
 ; ===========================================================================
-
-loc_37D22:
+; loc_37D22:
+Obj9D_CreateCoconut:
 	bsr.w	JmpTo19_SingleObjLoad
-	bne.s	return_37D74
+	bne.s	return_37D74		; branch, if no free slots
 	_move.b	#ObjID_Projectile,id(a1) ; load obj98
 	move.b	#3,mapping_frame(a1)
 	move.b	#$20,subtype(a1) ; <== Obj9D_SubObjData2
-	move.w	x_pos(a0),x_pos(a1)
+	move.w	x_pos(a0),x_pos(a1)	; align with parent object
 	move.w	y_pos(a0),y_pos(a1)
-	addi.w	#-$D,y_pos(a1)
-	moveq	#0,d0
-	btst	#0,render_flags(a0)
-	bne.s	loc_37D58
-	moveq	#4,d0
-
-loc_37D58:
-	lea	word_37D76(pc,d0.w),a2
+	addi.w	#-$D,y_pos(a1)		; offset slightly upward
+	moveq	#0,d0		; use rightfacing data
+	btst	#0,render_flags(a0)	; is object facing left?
+	bne.s	+		; if yes, branch
+	moveq	#4,d0		; use leftfacing data
++
+	lea	Obj9D_ThrowData(pc,d0.w),a2
 	move.w	(a2)+,d0
-	add.w	d0,x_pos(a1)
-	move.w	(a2)+,x_vel(a1)
+	add.w	d0,x_pos(a1)	; offset slightly left or right depending on object's direction
+	move.w	(a2)+,x_vel(a1)	; set projectile speed
 	move.w	#-$100,y_vel(a1)
 	lea	Obj98_CoconutFall(pc),a2 ; set the routine used to move the projectile
 	move.l	a2,objoff_2A(a1)
@@ -70401,11 +70409,10 @@ loc_37D58:
 return_37D74:
 	rts
 ; ===========================================================================
-word_37D76:
-	dc.w   -$B
-	dc.w  $100	; 1
-	dc.w	$B	; 2
-	dc.w -$100	; 3
+; word_37D76:
+Obj9D_ThrowData:
+	dc.w   -$B,  $100	; 0
+	dc.w	$B, -$100	; 4
 ; off_37D7E:
 Obj9D_SubObjData:
 	subObjData Obj9D_Obj98_MapUnc_37D96,make_art_tile(ArtTile_ArtNem_Coconuts,0,0),4,5,$C,9
@@ -80420,12 +80427,12 @@ Touch_Enemy:
 +
 	btst	#6,render_flags(a1)
 	beq.s	Touch_Enemy_Part2
-	tst.b	objoff_32(a1)
+	tst.b	boss_hitcount2(a1)
 	beq.s	return_3F7C6
 	neg.w	x_vel(a0)
 	neg.w	y_vel(a0)
 	move.b	#0,collision_flags(a1)
-	subq.b	#1,objoff_32(a1)
+	subq.b	#1,boss_hitcount2(a1)
 
 return_3F7C6:
 	rts
@@ -80605,7 +80612,7 @@ KillCharacter:
 	move.b	#AniIDSonAni_Death,anim(a0)
 	bset	#high_priority_bit,art_tile(a0)
 	move.w	#SndID_Hurt,d0
-	cmpi.b	#ObjID_Spikes,(a2)
+	cmpi.b	#ObjID_Spikes,id(a2)
 	bne.s	+
 	move.w	#SndID_HurtBySpikes,d0
 +
