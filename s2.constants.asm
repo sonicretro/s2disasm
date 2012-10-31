@@ -2316,7 +2316,7 @@ ArtTile_ArtUnc_Tails_Tails            = $07B0
 ; HUD. The HUD components are linked in a chain, and linked to
 ; power-ups, because the mappings of monitors and lives counter(s)
 ; depend on one another. If you want to alter these (for example,
-; because you need the SRAM for something else), you will probably
+; because you need the VRAM for something else), you will probably
 ; have to edit the mappings (or move the power-ups and HUD as a
 ; single block unit).
 ArtTile_HUD_Score_E                   = ArtTile_ArtNem_HUD + $18
