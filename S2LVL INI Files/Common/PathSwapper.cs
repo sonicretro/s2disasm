@@ -15,7 +15,7 @@ namespace S2ObjectDefinitions.Common
         public override void Init(ObjectData data)
         {
             List<byte> tmpartfile = new List<byte>();
-            tmpartfile.AddRange(ObjectHelper.OpenArtFile("Common/pathswapper-art.bin", Compression.CompressionType.Nemesis));
+            tmpartfile.AddRange(ObjectHelper.OpenArtFile("Common/pathswapper-art.bin", CompressionType.Nemesis));
             byte[] mapfile = System.IO.File.ReadAllBytes("../mappings/sprite/obj03.bin");
             byte[] artfile1 = tmpartfile.ToArray();
             img = ObjectHelper.MapToBmp(artfile1, mapfile, 0, 1);
@@ -49,19 +49,19 @@ namespace S2ObjectDefinitions.Common
             }
         }
 
-        public override ReadOnlyCollection<byte> Subtypes()
+        public override ReadOnlyCollection<byte> Subtypes
         {
-            return new ReadOnlyCollection<byte>(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7 });
+            get { return new ReadOnlyCollection<byte>(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7 }); }
         }
 
-        public override string Name()
+        public override string Name
         {
-            return "Path Swapper";
+            get { return "Path Swapper"; }
         }
 
-        public override bool RememberState()
+        public override bool RememberState
         {
-            return false;
+            get { return false; }
         }
 
         public override string SubtypeName(byte subtype)
@@ -70,17 +70,17 @@ namespace S2ObjectDefinitions.Common
             return result;
         }
 
-        public override BitmapBits Image()
+        public override Sprite Image
         {
-            return img.Image;
+            get { return img; }
         }
 
-        public override BitmapBits Image(byte subtype)
+        public override Sprite SubtypeImage(byte subtype)
         {
-            return imgs[subtype & 0x1F].Image;
+            return imgs[subtype & 0x1F];
         }
 
-        public override Rectangle Bounds(ObjectEntry obj, Point camera)
+        public override Rectangle GetBounds(ObjectEntry obj, Point camera)
         {
             return new Rectangle(obj.X + imgs[obj.SubType & 0x1F].X - camera.X, obj.Y + imgs[obj.SubType & 0x1F].Y - camera.Y, imgs[obj.SubType & 0x1F].Width, imgs[obj.SubType & 0x1F].Height);
         }
