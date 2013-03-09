@@ -11,24 +11,24 @@ namespace S2ObjectDefinitions.Common
 
         public override void Init(ObjectData data)
         {
-            byte[] artfile = ObjectHelper.OpenArtFile("../art/nemesis/Monitor and contents.bin", Compression.CompressionType.Nemesis);
+            byte[] artfile = ObjectHelper.OpenArtFile("../art/nemesis/Monitor and contents.bin", CompressionType.Nemesis);
             byte[] mapfile = System.IO.File.ReadAllBytes("../mappings/sprite/obj74.bin");
             img = ObjectHelper.MapToBmp(artfile, mapfile, 0, 0);
         }
 
-        public override ReadOnlyCollection<byte> Subtypes()
+        public override ReadOnlyCollection<byte> Subtypes
         {
-            return new ReadOnlyCollection<byte>(new byte[] { 0 });
+            get { return new ReadOnlyCollection<byte>(new byte[] { 0 }); }
         }
 
-        public override string Name()
+        public override string Name
         {
-            return "Invisible solid block";
+            get { return "Invisible solid block"; }
         }
 
-        public override bool RememberState()
+        public override bool RememberState
         {
-            return true;
+            get { return true; }
         }
 
         public override string SubtypeName(byte subtype)
@@ -36,14 +36,14 @@ namespace S2ObjectDefinitions.Common
             return ((subtype >> 4) + 1) + "x" + ((subtype & 0xF) + 1) + " blocks";
         }
 
-        public override BitmapBits Image()
+        public override Sprite Image
         {
-            return img.Image;
+            get { return img; }
         }
 
-        public override BitmapBits Image(byte subtype)
+        public override Sprite SubtypeImage(byte subtype)
         {
-            return img.Image;
+            return img;
         }
 
         public override Sprite GetSprite(ObjectEntry obj)
@@ -57,7 +57,7 @@ namespace S2ObjectDefinitions.Common
             return spr;
         }
 
-        public override Rectangle Bounds(ObjectEntry obj, Point camera)
+        public override Rectangle GetBounds(ObjectEntry obj, Point camera)
         {
             int w = ((obj.SubType >> 4) + 1) * 16;
             int h = ((obj.SubType & 0xF) + 1) * 16;

@@ -2,12 +2,12 @@
 <ObjDef xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Namespace="S2ObjectDefinitions.CPZ" TypeName="Platform" Language="cs" Name="Platform" Image="img1" RememberState="false" DrawOffscreen="false">
   <Images>
     <ImageFromMappings id="img1">
-      <ArtFile filename="../art/nemesis/Large moving platform from CNZ.bin" compression="Nemesis" />
-      <MapFileBin filename="../mappings/sprite/obj19.bin" frame="0" startpal="3" />
+      <ArtFile filename="../art/nemesis/Large moving platform from CNZ.bin" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj19.bin" frame="0" startpal="3" />
     </ImageFromMappings>
     <ImageFromMappings id="img2">
-      <ArtFile filename="../art/nemesis/Large moving platform from CNZ.bin" compression="Nemesis" />
-      <MapFileBin filename="../mappings/sprite/obj19.bin" frame="1" startpal="3" />
+      <ArtFile filename="../art/nemesis/Large moving platform from CNZ.bin" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj19.bin" frame="1" startpal="3" />
     </ImageFromMappings>
   </Images>
   <Subtypes>

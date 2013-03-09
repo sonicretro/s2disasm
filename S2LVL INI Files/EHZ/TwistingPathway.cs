@@ -42,19 +42,19 @@ namespace S2ObjectDefinitions.EHZ
             sprite = new Sprite(sprs.ToArray());
         }
 
-        public override ReadOnlyCollection<byte> Subtypes()
+        public override ReadOnlyCollection<byte> Subtypes
         {
-            return new ReadOnlyCollection<byte>(new byte[] { 0 });
+            get { return new ReadOnlyCollection<byte>(new byte[] { 0 }); }
         }
 
-        public override string Name()
+        public override string Name
         {
-            return "Twisting Pathway";
+            get { return "Twisting Pathway"; }
         }
 
-        public override bool RememberState()
+        public override bool RememberState
         {
-            return false;
+            get { return false; }
         }
 
         public override string SubtypeName(byte subtype)
@@ -62,14 +62,14 @@ namespace S2ObjectDefinitions.EHZ
             return string.Empty;
         }
 
-        public override BitmapBits Image()
+        public override Sprite Image
         {
-            return img.Image;
+            get { return img; }
         }
 
-        public override BitmapBits Image(byte subtype)
+        public override Sprite SubtypeImage(byte subtype)
         {
-            return img.Image;
+            return img;
         }
 
         private int[] Obj06_CosineTable = {
@@ -106,7 +106,7 @@ namespace S2ObjectDefinitions.EHZ
             return new Sprite(sprite.Image, new Point(sprite.X + obj.X, sprite.Y + obj.Y));
         }
 
-        public override Rectangle Bounds(ObjectEntry obj, Point camera)
+        public override Rectangle GetBounds(ObjectEntry obj, Point camera)
         {
             return new Rectangle(obj.X + img.X - camera.X, obj.Y + img.Y - camera.Y, img.Width, img.Height);
         }

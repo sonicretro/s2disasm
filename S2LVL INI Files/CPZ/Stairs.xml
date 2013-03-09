@@ -2,8 +2,8 @@
 <ObjDef xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Namespace="S2ObjectDefinitions.CPZ" TypeName="Stairs" Language="cs" Name="Stairs" Image="img1" RememberState="false" DrawOffscreen="false">
   <Images>
     <ImageFromMappings id="img1">
-      <ArtFile filename="../art/nemesis/Moving block from CPZ.bin" compression="Nemesis" />
-      <MapFileBin filename="../mappings/sprite/obj6B.bin" frame="0" startpal="3" />
+      <ArtFile filename="../art/nemesis/Moving block from CPZ.bin" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj6B.bin" frame="0" startpal="3" />
     </ImageFromMappings>
   </Images>
   <Subtypes>
@@ -15,14 +15,14 @@
   </Subtypes>
   <Display>
     <DisplayOption>
-	  <ImageRef image="img1" xflip="false" />
-	  <ImageRef image="img1" xflip="false">
+	  <ImageRef image="img1" xflip="NeverFlip" />
+	  <ImageRef image="img1" xflip="NeverFlip">
 	    <Offset X="32" />
 	  </ImageRef>
-	  <ImageRef image="img1" xflip="false">
+	  <ImageRef image="img1" xflip="NeverFlip">
 	    <Offset X="64" />
 	  </ImageRef>
-	  <ImageRef image="img1" xflip="false">
+	  <ImageRef image="img1" xflip="NeverFlip">
 	    <Offset X="96" />
 	  </ImageRef>
 	</DisplayOption>
