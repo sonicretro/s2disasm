@@ -2,20 +2,20 @@
 <ObjDef xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Namespace="S2ObjectDefinitions.EHZ" TypeName="Waterfall" Language="cs" Name="Waterfall" Image="img1" RememberState="false" DrawOffscreen="false">
   <Images>
     <ImageFromMappings id="img1">
-      <ArtFile filename="../art/nemesis/Waterfall tiles.bin" compression="Nemesis" />
-      <MapFileBin filename="../mappings/sprite/obj49.bin" frame="1" startpal="1" />
+      <ArtFile filename="../art/nemesis/Waterfall tiles.bin" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj49.bin" frame="1" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="img2">
-      <ArtFile filename="../art/nemesis/Waterfall tiles.bin" compression="Nemesis" />
-      <MapFileBin filename="../mappings/sprite/obj49.bin" frame="3" startpal="1" />
+      <ArtFile filename="../art/nemesis/Waterfall tiles.bin" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj49.bin" frame="3" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="img3">
-      <ArtFile filename="../art/nemesis/Waterfall tiles.bin" compression="Nemesis" />
-      <MapFileBin filename="../mappings/sprite/obj49.bin" frame="5" startpal="1" />
+      <ArtFile filename="../art/nemesis/Waterfall tiles.bin" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj49.bin" frame="5" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="img4">
-      <ArtFile filename="../art/nemesis/Waterfall tiles.bin" compression="Nemesis" />
-      <MapFileBin filename="../mappings/sprite/obj49.bin" frame="6" startpal="1" />
+      <ArtFile filename="../art/nemesis/Waterfall tiles.bin" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj49.bin" frame="6" startpal="1" />
     </ImageFromMappings>
   </Images>
   <Subtypes>
