@@ -93,115 +93,105 @@ namespace S2ObjectDefinitions.Common
 
         public override bool Debug { get { return true; } }
 
-        public override Type ObjectType { get { return typeof(PathSwapperS2ObjectEntry); } }
+        private PropertySpec[] customProperties = new PropertySpec[] {
+            new PropertySpec("Priority only", typeof(bool), "Extended", null, null, (o) => o.XFlip, (o, v) => o.XFlip = (bool)v),
+            new PropertySpec("Size", typeof(byte), "Extended", null, null, GetSize, SetSize),
+            new PropertySpec("Direction", typeof(Direction), "Extended", null, null, GetDirection, SetDirection),
+            new PropertySpec("Right/Down Path", typeof(Path), "Extended", null, null, GetRDPath, SetRDPath),
+            new PropertySpec("Left/Up Path", typeof(Path), "Extended", null, null, GetLUPath, SetLUPath),
+            new PropertySpec("Right/Down Priority", typeof(Priority), "Extended", null, null, GetRDPriority, SetRDPriority),
+            new PropertySpec("Left/Up Priority", typeof(Priority), "Extended", null, null, GetLUPriority, SetLUPriority),
+            new PropertySpec("Ground only", typeof(bool), "Extended", null, null, GetGroundOnly, SetGroundOnly)
+        };
+
+        public override PropertySpec[] CustomProperties
+        {
+            get
+            {
+                return customProperties;
+            }
+        }
+
+        private static object GetSize(ObjectEntry obj)
+        {
+            return (byte)(obj.SubType & 3);
+        }
+
+        private static void SetSize(ObjectEntry obj, object value)
+        {
+            obj.SubType = (byte)((obj.SubType & ~3) | ((byte)value & 3));
+        }
+
+        private static object GetDirection(ObjectEntry obj)
+        {
+            return (obj.SubType & 4) != 0 ? Direction.Horizontal : Direction.Vertical;
+        }
+
+        private static void SetDirection(ObjectEntry obj, object value)
+        {
+            obj.SubType = (byte)((obj.SubType & ~4) | ((Direction)value == Direction.Horizontal ? 4 : 0));
+        }
+
+        private static object GetRDPath(ObjectEntry obj)
+        {
+            return (obj.SubType & 8) != 0 ? Path.Path2 : Path.Path1;
+        }
+
+        private static void SetRDPath(ObjectEntry obj, object value)
+        {
+            obj.SubType = (byte)((obj.SubType & ~8) | ((Path)value == Path.Path2 ? 8 : 0));
+        }
+
+        private static object GetLUPath(ObjectEntry obj)
+        {
+            return (obj.SubType & 16) != 0 ? Path.Path2 : Path.Path1;
+        }
+
+        private static void SetLUPath(ObjectEntry obj, object value)
+        {
+            obj.SubType = (byte)((obj.SubType & ~16) | ((Path)value == Path.Path2 ? 16 : 0));
+        }
+
+        private static object GetRDPriority(ObjectEntry obj)
+        {
+            return (obj.SubType & 32) != 0 ? Priority.High : Priority.Low;
+        }
+
+        private static void SetRDPriority(ObjectEntry obj, object value)
+        {
+            obj.SubType = (byte)((obj.SubType & ~32) | ((Priority)value == Priority.High ? 32 : 0));
+        }
+
+        private static object GetLUPriority(ObjectEntry obj)
+        {
+            return (obj.SubType & 64) != 0 ? Priority.High : Priority.Low;
+        }
+
+        private static void SetLUPriority(ObjectEntry obj, object value)
+        {
+            obj.SubType = (byte)((obj.SubType & ~64) | ((Priority)value == Priority.High ? 64 : 0));
+        }
+
+        private static object GetGroundOnly(ObjectEntry obj)
+        {
+            return (obj.SubType & 128) != 0 ? true : false;
+        }
+
+        private static void SetGroundOnly(ObjectEntry obj, object value)
+        {
+            obj.SubType = (byte)((obj.SubType & ~128) | ((bool)value == true ? 128 : 0));
+        }
     }
 
-    public class PathSwapperS2ObjectEntry : S2ObjectEntry
+    public enum Path
     {
-        public PathSwapperS2ObjectEntry() : base() { }
-        public PathSwapperS2ObjectEntry(byte[] file, int address) : base(file, address) { }
+        Path1,
+        Path2
+    }
 
-        [DisplayName("Priority only")]
-        public override bool XFlip
-        {
-            get
-            {
-                return base.XFlip;
-            }
-            set
-            {
-                base.XFlip = value;
-            }
-        }
-
-        [DisplayName("Size")]
-        public byte size
-        {
-            get
-            {
-                return (byte)(SubType & 3);
-            }
-            set
-            {
-                SubType = (byte)((SubType & ~3) | (value & 3));
-            }
-        }
-
-        public Direction Direction
-        {
-            get
-            {
-                return (SubType & 4) != 0 ? Direction.Horizontal : Direction.Vertical;
-            }
-            set
-            {
-                SubType = (byte)((SubType & ~4) | (value == Direction.Horizontal ? 4 : 0));
-            }
-        }
-
-        [DisplayName("Right/Down Path")]
-        public bool RDPath
-        {
-            get
-            {
-                return (bool)((SubType & 8) != 0 ? true : false);
-            }
-            set
-            {
-                SubType = (byte)((SubType & ~8) | (value == true ? 8 : 0));
-            }
-        }
-
-        [DisplayName("Left/Up Path")]
-        public bool LUPath
-        {
-            get
-            {
-                return (bool)((SubType & 16) != 0 ? true : false);
-            }
-            set
-            {
-                SubType = (byte)((SubType & ~16) | (value == true ? 16 : 0));
-            }
-        }
-
-        [DisplayName("Right/Down Priority")]
-        public bool RDPriority
-        {
-            get
-            {
-                return (bool)((SubType & 32) != 0 ? true : false);
-            }
-            set
-            {
-                SubType = (byte)((SubType & ~32) | (value == true ? 32 : 0));
-            }
-        }
-
-        [DisplayName("Left/Up Priority")]
-        public bool LUPriority
-        {
-            get
-            {
-                return (bool)((SubType & 64) != 0 ? true : false);
-            }
-            set
-            {
-                SubType = (byte)((SubType & ~64) | (value == true ? 64 : 0));
-            }
-        }
-
-        [DisplayName("Ground only")]
-        public bool GroundOnly
-        {
-            get
-            {
-                return (bool)((SubType & 128) != 0 ? true : false);
-            }
-            set
-            {
-                SubType = (byte)((SubType & ~128) | (value == true ? 128 : 0));
-            }
-        }
+    public enum Priority
+    {
+        Low,
+        High
     }
 }
