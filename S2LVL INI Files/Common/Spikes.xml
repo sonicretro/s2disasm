@@ -46,12 +46,12 @@
   </Subtypes>
   <Properties>
     <CustomProperty name="Count" type="int">
-      <get>return ((SubType &amp; 0x30) >> 4) + 1;</get>
+      <get>return ((obj.SubType &amp; 0x30) >> 4) + 1;</get>
       <set>
         value = System.Math.Max(1, value);
         value = System.Math.Min(4, value);
         value--;
-        SubType = (byte)((SubType &amp; ~0x30) | (value &lt;&lt; 4));
+        obj.SubType = (byte)((obj.SubType &amp; ~0x30) | (value &lt;&lt; 4));
       </set>
     </CustomProperty>
     <BitsProperty name="Movement" type="SpikeMovement" startbit="0" length="2" />
@@ -71,44 +71,44 @@
   </Enums>
   <Display>
     <DisplayOption>
-	  <Condition property="Direction" value="Horizontal" />
-	  <Condition property="Count" value="1" />
-	  <ImageRef image="horiz1" />
-	</DisplayOption>
+      <Condition property="Direction" value="Horizontal" />
+      <Condition property="Count" value="1" />
+      <ImageRef image="horiz1" />
+    </DisplayOption>
     <DisplayOption>
-	  <Condition property="Direction" value="Horizontal" />
-	  <Condition property="Count" value="2" />
-	  <ImageRef image="horiz2" />
-	</DisplayOption>
+      <Condition property="Direction" value="Horizontal" />
+      <Condition property="Count" value="2" />
+      <ImageRef image="horiz2" />
+    </DisplayOption>
     <DisplayOption>
-	  <Condition property="Direction" value="Horizontal" />
-	  <Condition property="Count" value="3" />
-	  <ImageRef image="horiz3" />
-	</DisplayOption>
+      <Condition property="Direction" value="Horizontal" />
+      <Condition property="Count" value="3" />
+      <ImageRef image="horiz3" />
+    </DisplayOption>
     <DisplayOption>
-	  <Condition property="Direction" value="Horizontal" />
-	  <Condition property="Count" value="4" />
-	  <ImageRef image="horiz4" />
-	</DisplayOption>
+      <Condition property="Direction" value="Horizontal" />
+      <Condition property="Count" value="4" />
+      <ImageRef image="horiz4" />
+    </DisplayOption>
     <DisplayOption>
-	  <Condition property="Direction" value="Vertical" />
-	  <Condition property="Count" value="1" />
-	  <ImageRef image="vert1" />
-	</DisplayOption>
+      <Condition property="Direction" value="Vertical" />
+      <Condition property="Count" value="1" />
+      <ImageRef image="vert1" />
+    </DisplayOption>
     <DisplayOption>
-	  <Condition property="Direction" value="Vertical" />
-	  <Condition property="Count" value="2" />
-	  <ImageRef image="vert2" />
-	</DisplayOption>
+      <Condition property="Direction" value="Vertical" />
+      <Condition property="Count" value="2" />
+      <ImageRef image="vert2" />
+    </DisplayOption>
     <DisplayOption>
-	  <Condition property="Direction" value="Vertical" />
-	  <Condition property="Count" value="3" />
-	  <ImageRef image="vert3" />
-	</DisplayOption>
+      <Condition property="Direction" value="Vertical" />
+      <Condition property="Count" value="3" />
+      <ImageRef image="vert3" />
+    </DisplayOption>
     <DisplayOption>
-	  <Condition property="Direction" value="Vertical" />
-	  <Condition property="Count" value="4" />
-	  <ImageRef image="vert4" />
-	</DisplayOption>
+      <Condition property="Direction" value="Vertical" />
+      <Condition property="Count" value="4" />
+      <ImageRef image="vert4" />
+    </DisplayOption>
   </Display>
 </ObjDef>
