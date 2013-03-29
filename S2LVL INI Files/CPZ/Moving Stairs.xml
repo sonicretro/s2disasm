@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Namespace="S2ObjectDefinitions.CPZ" TypeName="MovingStairs" Language="cs" Name="Moving Stairs" Image="img1" RememberState="false" DrawOffscreen="false">
+<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.CPZ" TypeName="MovingStairs" Language="cs" Name="Moving Stairs" Image="img1" RememberState="false">
   <Images>
     <ImageFromMappings id="img1">
       <ArtFile filename="../art/nemesis/Moving block from CPZ.bin" />
@@ -12,56 +12,56 @@
   </Subtypes>
   <Display>
     <DisplayOption>
-	  <Condition property="SubType" value="24" />
-	  <Condition property="YFlip" value="false" />
-	  <ImageRef image="img1" yflip="NeverFlip">
-	    <Offset X="16" Y="-16" />
-	  </ImageRef>
-	</DisplayOption>
+      <Condition property="SubType" value="24" />
+      <Condition property="YFlip" value="false" />
+      <ImageRef image="img1" yflip="NeverFlip">
+        <Offset X="16" Y="-16" />
+      </ImageRef>
+    </DisplayOption>
     <DisplayOption>
-	  <Condition property="SubType" value="24" />
-	  <Condition property="YFlip" value="true" />
-	  <ImageRef image="img1" yflip="NeverFlip">
-	    <Offset X="-16" Y="16" />
-	  </ImageRef>
-	</DisplayOption>
+      <Condition property="SubType" value="24" />
+      <Condition property="YFlip" value="true" />
+      <ImageRef image="img1" yflip="NeverFlip">
+        <Offset X="-16" Y="16" />
+      </ImageRef>
+    </DisplayOption>
     <DisplayOption>
-	  <Condition property="SubType" value="25" />
-	  <Condition property="XFlip" value="false" />
-	  <Condition property="YFlip" value="false" />
-	  <ImageRef image="img1" yflip="NeverFlip">
-	    <Offset X="16" Y="-16" />
-	  </ImageRef>
-	  <ImageRef image="img1" yflip="NeverFlip">
-	    <Offset X="48" Y="-48" />
-	  </ImageRef>
-	</DisplayOption>
+      <Condition property="SubType" value="25" />
+      <Condition property="XFlip" value="false" />
+      <Condition property="YFlip" value="false" />
+      <ImageRef image="img1" yflip="NeverFlip">
+        <Offset X="16" Y="-16" />
+      </ImageRef>
+      <ImageRef image="img1" yflip="NeverFlip">
+        <Offset X="48" Y="-48" />
+      </ImageRef>
+    </DisplayOption>
     <DisplayOption>
-	  <Condition property="SubType" value="25" />
-	  <Condition property="XFlip" value="false" />
-	  <Condition property="YFlip" value="true" />
-	  <ImageRef image="img1" yflip="NeverFlip">
-	    <Offset X="-16" Y="16" />
-	  </ImageRef>
-	  <ImageRef image="img1" yflip="NeverFlip">
-	    <Offset X="-48" Y="48" />
-	  </ImageRef>
-	</DisplayOption>
+      <Condition property="SubType" value="25" />
+      <Condition property="XFlip" value="false" />
+      <Condition property="YFlip" value="true" />
+      <ImageRef image="img1" yflip="NeverFlip">
+        <Offset X="-16" Y="16" />
+      </ImageRef>
+      <ImageRef image="img1" yflip="NeverFlip">
+        <Offset X="-48" Y="48" />
+      </ImageRef>
+    </DisplayOption>
     <DisplayOption>
-	  <Condition property="SubType" value="25" />
-	  <Condition property="XFlip" value="true" />
-	  <Condition property="YFlip" value="false" />
-	  <ImageRef image="img1" yflip="NeverFlip">
-	    <Offset X="48" Y="-48" />
-	  </ImageRef>
-	</DisplayOption>
+      <Condition property="SubType" value="25" />
+      <Condition property="XFlip" value="true" />
+      <Condition property="YFlip" value="false" />
+      <ImageRef image="img1" yflip="NeverFlip">
+        <Offset X="48" Y="-48" />
+      </ImageRef>
+    </DisplayOption>
     <DisplayOption>
-	  <Condition property="SubType" value="25" />
-	  <Condition property="XFlip" value="true" />
-	  <Condition property="YFlip" value="true" />
-	  <ImageRef image="img1" yflip="NeverFlip">
-	    <Offset X="-48" Y="48" />
-	  </ImageRef>
-	</DisplayOption>
+      <Condition property="SubType" value="25" />
+      <Condition property="XFlip" value="true" />
+      <Condition property="YFlip" value="true" />
+      <ImageRef image="img1" yflip="NeverFlip">
+        <Offset X="-48" Y="48" />
+      </ImageRef>
+    </DisplayOption>
   </Display>
 </ObjDef>

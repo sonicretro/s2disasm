@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef Namespace="S2ObjectDefinitions.Common" TypeName="Spring" Language="cs" Name="Spring" Image="vertred" RememberState="false">
+<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.Common" TypeName="Spring" Language="cs" Name="Spring" Image="vertred" RememberState="false">
   <Images>
     <ImageFromMappings id="vertred">
       <ArtFile filename="../art/nemesis/Vertical spring.bin" />
@@ -43,7 +43,7 @@
     <BitsProperty name="Color" type="SpringColor" startbit="1" length="1" />
     <BitsProperty name="Layer" type="SpringLayer" startbit="2" length="2" />
     <BitsProperty name="Direction" type="SpringDirection" startbit="4" length="3" />
-    <BitsProperty name="KillTransverseSpeed" type="bool" startbit="7" length="1" />
+    <BitsProperty name="KillTransverseSpeed" displayname="Kill Transverse Speed" type="bool" startbit="7" length="1" />
   </Properties>
   <Enums>
     <Enum name="SpringColor">
@@ -51,72 +51,72 @@
       <EnumMember name="Yellow" />
     </Enum>
     <Enum name="SpringLayer">
-      <EnumMember name="NoChange" />
-      <EnumMember name="Layer1" />
-      <EnumMember name="Layer2" />
-      <EnumMember name="NoChange2" />
+      <EnumMember name="No Change" />
+      <EnumMember name="Layer 1" />
+      <EnumMember name="Layer 2" />
+      <EnumMember name="No Change 2" />
     </Enum>
     <Enum name="SpringDirection">
       <EnumMember name="Up" />
       <EnumMember name="Horizontal" />
       <EnumMember name="Down" />
-      <EnumMember name="DiagonalUp" />
-      <EnumMember name="DiagonalDown" />
-      <EnumMember name="Invalid1" />
-      <EnumMember name="Invalid2" />
-      <EnumMember name="Invalid3" />
+      <EnumMember name="Diagonal Up" />
+      <EnumMember name="Diagonal Down" />
+      <EnumMember name="Invalid 1" />
+      <EnumMember name="Invalid 2" />
+      <EnumMember name="Invalid 3" />
     </Enum>
   </Enums>
   <Display>
     <DisplayOption>
-	  <Condition property="Direction" value="Up" />
-	  <Condition property="Color" value="Red" />
-	  <ImageRef image="vertred" />
-	</DisplayOption>
+      <Condition property="Direction" value="Up" />
+      <Condition property="Color" value="Red" />
+      <ImageRef image="vertred" />
+    </DisplayOption>
     <DisplayOption>
-	  <Condition property="Direction" value="Up" />
-	  <Condition property="Color" value="Yellow" />
-	  <ImageRef image="vertyel" />
-	</DisplayOption>
+      <Condition property="Direction" value="Up" />
+      <Condition property="Color" value="Yellow" />
+      <ImageRef image="vertyel" />
+    </DisplayOption>
     <DisplayOption>
-	  <Condition property="Direction" value="Horizontal" />
-	  <Condition property="Color" value="Red" />
-	  <ImageRef image="horzred" />
-	</DisplayOption>
+      <Condition property="Direction" value="Horizontal" />
+      <Condition property="Color" value="Red" />
+      <ImageRef image="horzred" />
+    </DisplayOption>
     <DisplayOption>
-	  <Condition property="Direction" value="Horizontal" />
-	  <Condition property="Color" value="Yellow" />
-	  <ImageRef image="horzyel" />
-	</DisplayOption>
+      <Condition property="Direction" value="Horizontal" />
+      <Condition property="Color" value="Yellow" />
+      <ImageRef image="horzyel" />
+    </DisplayOption>
     <DisplayOption>
-	  <Condition property="Direction" value="Down" />
-	  <Condition property="Color" value="Red" />
-	  <ImageRef image="vertred" />
-	</DisplayOption>
+      <Condition property="Direction" value="Down" />
+      <Condition property="Color" value="Red" />
+      <ImageRef image="vertred" />
+    </DisplayOption>
     <DisplayOption>
-	  <Condition property="Direction" value="Down" />
-	  <Condition property="Color" value="Yellow" />
-	  <ImageRef image="vertyel" />
-	</DisplayOption>
+      <Condition property="Direction" value="Down" />
+      <Condition property="Color" value="Yellow" />
+      <ImageRef image="vertyel" />
+    </DisplayOption>
     <DisplayOption>
-	  <Condition property="Direction" value="DiagonalUp" />
-	  <Condition property="Color" value="Red" />
-	  <ImageRef image="diagred" />
-	</DisplayOption>
+      <Condition property="Direction" value="Diagonal Up" />
+      <Condition property="Color" value="Red" />
+      <ImageRef image="diagred" />
+    </DisplayOption>
     <DisplayOption>
-	  <Condition property="Direction" value="DiagonalUp" />
-	  <Condition property="Color" value="Yellow" />
-	  <ImageRef image="diagyel" />
-	</DisplayOption>
+      <Condition property="Direction" value="Diagonal Up" />
+      <Condition property="Color" value="Yellow" />
+      <ImageRef image="diagyel" />
+    </DisplayOption>
     <DisplayOption>
-	  <Condition property="Direction" value="DiagonalDown" />
-	  <Condition property="Color" value="Red" />
-	  <ImageRef image="diagred" />
-	</DisplayOption>
+      <Condition property="Direction" value="Diagonal Down" />
+      <Condition property="Color" value="Red" />
+      <ImageRef image="diagred" />
+    </DisplayOption>
     <DisplayOption>
-	  <Condition property="Direction" value="DiagonalDown" />
-	  <Condition property="Color" value="Yellow" />
-	  <ImageRef image="diagyel" />
-	</DisplayOption>
+      <Condition property="Direction" value="Diagonal Down" />
+      <Condition property="Color" value="Yellow" />
+      <ImageRef image="diagyel" />
+    </DisplayOption>
   </Display>
 </ObjDef>
