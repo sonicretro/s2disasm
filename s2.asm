@@ -26599,8 +26599,14 @@ JmpTo_sub_8476
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
-; Object 36 - Vertical spikes
+; Object 36 - Spikes
 ; ----------------------------------------------------------------------------
+; OST Variables:
+spikes_base_x_pos	= objoff_30	; original x-position
+spikes_base_y_pos	= objoff_32	; original y-position
+spikes_retract_offset	= objoff_34	; actual position relative to base position
+spikes_retract_state	= objoff_36	; 0 = positive offset, 1 = original position
+spikes_retract_timer	= objoff_38	; delay, before spikes move again
 ; Sprite_15900:
 Obj36:
 	moveq	#0,d0
@@ -26610,57 +26616,57 @@ Obj36:
 ; ===========================================================================
 ; off_1590E:
 Obj36_Index:	offsetTable
-		offsetTableEntry.w Obj36_Init	; 0
-		offsetTableEntry.w loc_15996	; 2
-		offsetTableEntry.w loc_159E6	; 4
-		offsetTableEntry.w loc_15A42	; 6
+		offsetTableEntry.w Obj36_Init		; 0
+		offsetTableEntry.w Obj36_Upright	; 2
+		offsetTableEntry.w Obj36_Sideways	; 4
+		offsetTableEntry.w Obj36_Upsidedown	; 6
 ; ===========================================================================
 ; byte_15916:
 Obj36_InitData:
 	;    width_pixels
 	;	 y_radius
-	dc.b $10,$10	; 0
+	dc.b $10,$10	; 0	- Upright or ceiling spikes
 	dc.b $20,$10	; 2
 	dc.b $30,$10	; 4
 	dc.b $40,$10	; 6
-	dc.b $10,$10	; 8
+	dc.b $10,$10	; 8	- Sideways spikes
 	dc.b $10,$20	; 10
 	dc.b $10,$30	; 12
 	dc.b $10,$40	; 14
 ; ===========================================================================
 ; loc_15926:
 Obj36_Init:
-	addq.b	#2,routine(a0)
+	addq.b	#2,routine(a0)	; => Obj36_Upright
 	move.l	#Obj36_MapUnc_15B68,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Spikes,1,0),art_tile(a0)
 	ori.b	#4,render_flags(a0)
 	move.b	#4,priority(a0)
 	move.b	subtype(a0),d0
-	andi.b	#$F,subtype(a0)
+	andi.b	#$F,subtype(a0)		; lower 4 bits determine behavior, upper bits need to be removed
 	andi.w	#$F0,d0
-	lea	Obj36_InitData(pc),a1
-	lsr.w	#3,d0
+	lea	Obj36_InitData(pc),a1	; upper 4 bits determine size and orientation
+	lsr.w	#3,d0			; use upper 4 bits * 2 as offset
 	adda.w	d0,a1
 	move.b	(a1)+,width_pixels(a0)
 	move.b	(a1)+,y_radius(a0)
-	lsr.w	#1,d0
+	lsr.w	#1,d0			; use upper 4 bits to determine mappings frame
 	move.b	d0,mapping_frame(a0)
-	cmpi.b	#4,d0
-	blo.s	+
-	addq.b	#2,routine(a0)
+	cmpi.b	#4,d0			; do spikes face sideways?
+	blo.s	+			; if not, branch
+	addq.b	#2,routine(a0)	; => Obj36_Sideways
 	move.w	#make_art_tile(ArtTile_ArtNem_HorizSpike,1,0),art_tile(a0)
 +
-	btst	#1,status(a0)
-	beq.s	+
-	move.b	#6,routine(a0)
+	btst	#1,status(a0)		; are spikes upsiede-down?
+	beq.s	+			; if not, branch
+	move.b	#6,routine(a0)	; => Obj36_Upsidedown
 +
-	move.w	x_pos(a0),objoff_30(a0)
-	move.w	y_pos(a0),objoff_32(a0)
+	move.w	x_pos(a0),spikes_base_x_pos(a0)
+	move.w	y_pos(a0),spikes_base_y_pos(a0)
 	bra.w	Adjust2PArtPointer
 ; ===========================================================================
-
-loc_15996:
-	bsr.w	sub_15AC6
+; loc_15996:
+Obj36_Upright:
+	bsr.w	MoveSpikes
 	moveq	#0,d1
 	move.b	width_pixels(a0),d1
 	addi.w	#$B,d1
@@ -26671,28 +26677,28 @@ loc_15996:
 	move.w	x_pos(a0),d4
 	bsr.w	SolidObject
 	move.b	status(a0),d6
-	andi.b	#standing_mask,d6
-	beq.s	loc_159DE
+	andi.b	#standing_mask,d6	; are Sonic or Tails standing on the object?
+	beq.s	Obj36_UprightEnd	; if not, branch
 	move.b	d6,d0
-	andi.b	#p1_standing,d0
-	beq.s	+
+	andi.b	#p1_standing,d0		; is Sonic standing on the object?
+	beq.s	+			; if not, branch
 	lea	(MainCharacter).w,a1 ; a1=character
 	bsr.w	Touch_ChkHurt2
 +
-	andi.b	#p2_standing,d6
-	beq.s	loc_159DE
+	andi.b	#p2_standing,d6		; is Tails standing on the object?
+	beq.s	Obj36_UprightEnd	; if not, branch
 	lea	(Sidekick).w,a1 ; a1=character
 	bsr.w	Touch_ChkHurt2
 
-loc_159DE:
-
-	move.w	objoff_30(a0),d0
+; loc_159DE:
+Obj36_UprightEnd:
+	move.w	spikes_base_x_pos(a0),d0
 	bra.w	MarkObjGone2
 ; ===========================================================================
-
-loc_159E6:
+; loc_159E6:
+Obj36_Sideways:
 	move.w	x_pos(a0),-(sp)
-	bsr.w	sub_15AC6
+	bsr.w	MoveSpikes
 	moveq	#0,d1
 	move.b	width_pixels(a0),d1
 	addi.w	#$B,d1
@@ -26703,30 +26709,29 @@ loc_159E6:
 	move.w	(sp)+,d4
 	bsr.w	SolidObject
 	swap	d6
-	andi.w	#touch_side_mask,d6
-	beq.s	loc_15A3A
+	andi.w	#touch_side_mask,d6	; are Sonic or Tails pushing against the side?
+	beq.s	Obj36_SidewaysEnd	; if not, branch
 	move.b	d6,d0
-	andi.b	#p1_touch_side,d0
-	beq.s	loc_15A26
+	andi.b	#p1_touch_side,d0	; is Sonic pushing against the side?
+	beq.s	+			; if not, branch
 	lea	(MainCharacter).w,a1 ; a1=character
 	bsr.w	Touch_ChkHurt2
 	bclr	#p1_pushing_bit,status(a0)
-
-loc_15A26:
-	andi.b	#p2_touch_side,d6
-	beq.s	loc_15A3A
++
+	andi.b	#p2_touch_side,d6	; is Tails pushing against the side?
+	beq.s	Obj36_SidewaysEnd	; if not, branch
 	lea	(Sidekick).w,a1 ; a1=character
 	bsr.w	Touch_ChkHurt2
 	bclr	#p2_pushing_bit,status(a0)
 
-loc_15A3A:
-
-	move.w	objoff_30(a0),d0
+; loc_15A3A:
+Obj36_SidewaysEnd:
+	move.w	spikes_base_x_pos(a0),d0
 	bra.w	MarkObjGone2
 ; ===========================================================================
-
-loc_15A42:
-	bsr.w	sub_15AC6
+; loc_15A42:
+Obj36_Upsidedown:
+	bsr.w	MoveSpikes
 	moveq	#0,d1
 	move.b	width_pixels(a0),d1
 	addi.w	#$B,d1
@@ -26737,23 +26742,22 @@ loc_15A42:
 	move.w	x_pos(a0),d4
 	bsr.w	SolidObject
 	swap	d6
-	andi.w	#touch_bottom_mask,d6
-	beq.s	loc_15A88
+	andi.w	#touch_bottom_mask,d6	; are Sonic or Tails touching the bottom?
+	beq.s	Obj36_UpsidedownEnd	; if not, branch
 	move.b	d6,d0
-	andi.b	#p1_touch_bottom,d0
-	beq.s	loc_15A7A
+	andi.b	#p1_touch_bottom,d0	; is Sonic touching the bottom?
+	beq.s	+			; if not, branch
 	lea	(MainCharacter).w,a1 ; a1=character
 	bsr.w	Touch_ChkHurt2
-
-loc_15A7A:
-	andi.b	#p2_touch_bottom,d6
-	beq.s	loc_15A88
++
+	andi.b	#p2_touch_bottom,d6	; is Tails touching the bottom?
+	beq.s	Obj36_UpsidedownEnd	; if not, branch
 	lea	(Sidekick).w,a1 ; a1=character
 	bsr.w	Touch_ChkHurt2
 
-loc_15A88:
-
-	move.w	objoff_30(a0),d0
+; loc_15A88:
+Obj36_UpsidedownEnd:
+	move.w	spikes_base_x_pos(a0),d0
 	bra.w	MarkObjGone2
 
 ; ---------------------------------------------------------------------------
@@ -26764,12 +26768,12 @@ loc_15A88:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 Touch_ChkHurt2:
-	btst	#1,status_secondary(a1)
-	bne.s	+	; rts
-	tst.w	invulnerable_time(a1)
-	bne.s	+	; rts
-	cmpi.b	#4,routine(a1)
-	bhs.s	+	; rts
+	btst	#1,status_secondary(a1)	; is character invincible?
+	bne.s	+	; rts		; if yes, branch
+	tst.w	invulnerable_time(a1)	; is character invulnerable?
+	bne.s	+	; rts		; if yes, branch
+	cmpi.b	#4,routine(a1)		; is the character hurt, dieing, etc. ?
+	bhs.s	+	; rts		; if yes, branch
 	move.l	y_pos(a1),d3
 	move.w	y_vel(a1),d0
 	ext.l	d0
@@ -26786,83 +26790,82 @@ Touch_ChkHurt2:
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+; handles direction, timing and movement of moving spikes
 
-
-sub_15AC6:
-
+; sub_15AC6:
+MoveSpikes:
 	moveq	#0,d0
 	move.b	subtype(a0),d0
 	add.w	d0,d0
-	move.w	off_15AD6(pc,d0.w),d1
-	jmp	off_15AD6(pc,d1.w)
-; End of function sub_15AC6
+	move.w	MoveSpikes_Behaviors(pc,d0.w),d1
+	jmp	MoveSpikes_Behaviors(pc,d1.w)
+; End of function MoveSpikes
 
 ; ===========================================================================
-off_15AD6:	offsetTable
-		offsetTableEntry.w return_15ADC	; 0
-		offsetTableEntry.w loc_15ADE	; 1
-		offsetTableEntry.w loc_15AF2	; 2
+; off_15AD6:
+MoveSpikes_Behaviors:	offsetTable
+		offsetTableEntry.w MoveSpikes_Still		; 0
+		offsetTableEntry.w MoveSpikes_Vertical		; 1
+		offsetTableEntry.w MoveSpikes_Horizontal	; 2
 ; ===========================================================================
-
-return_15ADC:
+; return_15ADC:
+MoveSpikes_Still:
 	rts
 ; ===========================================================================
-
-loc_15ADE:
-	bsr.w	sub_15B06
+; loc_15ADE:
+MoveSpikes_Vertical:
+	bsr.w	MoveSpikes_Delay
 	moveq	#0,d0
-	move.b	objoff_34(a0),d0
-	add.w	objoff_32(a0),d0
+	move.b	spikes_retract_offset(a0),d0
+	add.w	spikes_base_y_pos(a0),d0	; apply offset to y-position
 	move.w	d0,y_pos(a0)
 	rts
 ; ===========================================================================
-
-loc_15AF2:
-	bsr.w	sub_15B06
+; loc_15AF2:
+MoveSpikes_Horizontal:
+	bsr.w	MoveSpikes_Delay
 	moveq	#0,d0
-	move.b	objoff_34(a0),d0
-	add.w	objoff_30(a0),d0
+	move.b	spikes_retract_offset(a0),d0
+	add.w	spikes_base_x_pos(a0),d0	; apply offset to x-position
 	move.w	d0,x_pos(a0)
 	rts
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-
-sub_15B06:
-
-	tst.w	objoff_38(a0)
-	beq.s	loc_15B24
-	subq.w	#1,objoff_38(a0)
-	bne.s	return_15B66
-	tst.b	render_flags(a0)
-	bpl.s	return_15B66
-	move.w	#SndID_SpikesMove,d0
+; sub_15B06:
+MoveSpikes_Delay:
+	tst.w	spikes_retract_timer(a0)	; is it time for spikes to move again?
+	beq.s	MoveSpikes_ChkDir		; if yes, branch
+	subq.w	#1,spikes_retract_timer(a0)	; else, decrement timer
+	bne.s	+	; rts			; branch, if timer didn't reach 0
+	tst.b	render_flags(a0)		; are spikes on screen?
+	bpl.s	+	; rts			; if not, branch
+	move.w	#SndID_SpikesMove,d0		; play spike movement sount
 	jsr	(PlaySound).l
-	bra.s	return_15B66
+	bra.s	+	; rts
 ; ===========================================================================
-
-loc_15B24:
-	tst.w	objoff_36(a0)
-	beq.s	loc_15B46
-	subi.w	#$800,objoff_34(a0)
-	bcc.s	return_15B66
-	move.w	#0,objoff_34(a0)
-	move.w	#0,objoff_36(a0)
-	move.w	#$3C,objoff_38(a0)
-	bra.s	return_15B66
+; loc_15B24:
+MoveSpikes_ChkDir:
+	tst.w	spikes_retract_state(a0)	; do spikes need to move away from initial position?
+	beq.s	MoveSpikes_Retract		; if yes, branch
+	subi.w	#$800,spikes_retract_offset(a0)	; subtract 8 pixels from offset
+	bhs.s	+	; rts			; branch, if offset is not yet 0
+	move.w	#0,spikes_retract_offset(a0)
+	move.w	#0,spikes_retract_state(a0)	; switch state
+	move.w	#$3C,spikes_retract_timer(a0)	; reset timer
+	bra.s	+	; rts
 ; ===========================================================================
-
-loc_15B46:
-	addi.w	#$800,objoff_34(a0)
-	cmpi.w	#$2000,objoff_34(a0)
-	blo.s	return_15B66
-	move.w	#$2000,objoff_34(a0)
-	move.w	#1,objoff_36(a0)
-	move.w	#$3C,objoff_38(a0)
-
-return_15B66:
+; loc_15B46:
+MoveSpikes_Retract:
+	addi.w	#$800,spikes_retract_offset(a0)		; add 8 pixels to offset
+	cmpi.w	#$2000,spikes_retract_offset(a0)	; is offset the width of one spike block (32 pixels)?
+	blo.s	+	; rts				; if not, branch
+	move.w	#$2000,spikes_retract_offset(a0)
+	move.w	#1,spikes_retract_state(a0)	; switch state
+	move.w	#$3C,spikes_retract_timer(a0)	; reset timer
++
 	rts
-; End of function sub_15B06
+; End of function MoveSpikes_Delay
 
 ; ===========================================================================
 ; -------------------------------------------------------------------------------
@@ -27773,7 +27776,7 @@ BuildSprites_LevelLoop:
 ; loc_16630:
 BuildSprites_ObjLoop:
 	movea.w	(a4,d6.w),a0 ; a0=object
-	tst.b	(a0)		; is this object slot occupied?
+	tst.b	id(a0)		; is this object slot occupied?
 	beq.w	BuildSprites_NextObj	; if not, check next one
 	andi.b	#$7F,render_flags(a0)	; clear on-screen flag
 	move.b	render_flags(a0),d0
@@ -28160,7 +28163,7 @@ BuildSprites_P1_LevelLoop:
 ; loc_1698C:
 BuildSprites_P1_ObjLoop:
 	movea.w	(a4,d6.w),a0 ; a0=object
-	tst.b	(a0)
+	tst.b	id(a0)
 	beq.w	BuildSprites_P1_NextObj
 	andi.b	#$7F,render_flags(a0)
 	move.b	render_flags(a0),d0
@@ -28274,7 +28277,7 @@ BuildSprites_P2_LevelLoop:
 ; loc_16AA6:
 BuildSprites_P2_ObjLoop:
 	movea.w	(a4,d6.w),a0 ; a0=object
-	tst.b	(a0)
+	tst.b	id(a0)
 	beq.w	BuildSprites_P2_NextObj
 	move.b	render_flags(a0),d0
 	move.b	d0,d4
@@ -30516,7 +30519,7 @@ SingleObjLoad:
 	move.w	#(Dynamic_Object_RAM_2P_End-Dynamic_Object_RAM)/object_size-1,d0 ; search to $BF00 exclusive
 
 /
-	tst.b	(a1)	; is object RAM slot empty?
+	tst.b	id(a1)	; is object RAM slot empty?
 	beq.s	return_17FF8	; if yes, branch
 	lea	next_object(a1),a1 ; load obj address ; goto next object RAM slot
 	dbf	d0,-	; repeat until end
@@ -30541,7 +30544,7 @@ SingleObjLoad2:
 	bcs.s	return_18014
 
 -
-	tst.b	(a1)	; is object RAM slot empty?
+	tst.b	id(a1)	; is object RAM slot empty?
 	beq.s	return_18014	; if yes, branch
 	lea	next_object(a1),a1 ; load obj address ; goto next object RAM slot
 	dbf	d0,-	; repeat until end
@@ -30562,7 +30565,7 @@ SingleObjLoad3:
 	move.w	#$B,d0
 
 -
-	tst.b	(a1)	; is object RAM slot empty?
+	tst.b	id(a1)	; is object RAM slot empty?
 	beq.s	return_18028	; if yes, branch
 	lea	next_object(a1),a1 ; load obj address ; goto next object RAM slot
 	dbf	d0,-	; repeat until end
@@ -56886,7 +56889,7 @@ Obj50_Main_Index: offsetTable
 ; loc_2CDCA:
 Obj50_Wing:
 	movea.l	Obj50_parent(a0),a1 ; a1=object
-	tst.b	(a1)		; is parent object's slot empty?
+	tst.b	id(a1)		; is parent object's slot empty?
 	beq.w	JmpTo48_DeleteObject	; if yes, branch
 	cmpi.b	#ObjID_Aquis,(a1)	; is parent object ObjID_Aquis?
 	bne.w	JmpTo48_DeleteObject	; if not, branch
@@ -57139,7 +57142,7 @@ Obj4B_Projectile:
 ; loc_2D090:
 Obj4B_Flame:
 	movea.l	Obj4B_parent(a0),a1 ; a1=object
-	tst.b	(a1)
+	tst.b	id(a1)
 	beq.w	JmpTo49_DeleteObject	; branch, if object slot is empty. This check is incomplete and very unreliable; check Obj50_Wing to see how it should be done
 	tst.w	Obj4B_turn_delay(a1)
 	bmi.s	+		; branch, if parent isn't currently turning around
@@ -70369,6 +70372,10 @@ Obj9A_Obj98_MapUnc_37B62:	include "mappings/sprite/obj9C.asm"
 ; ----------------------------------------------------------------------------
 ; Object 9D - Coconuts (monkey badnik) from EHZ
 ; ----------------------------------------------------------------------------
+; OST Variables:
+Obj9D_timer		= objoff_2A	; byte
+Obj9D_climb_table_index	= objoff_2C	; word
+Obj9D_attack_timer	= objoff_2E	; byte	; time player needs to spend close to object before it attacks
 ; Sprite_37BFA:
 Obj9D:
 	moveq	#0,d0
@@ -70379,59 +70386,63 @@ Obj9D:
 ; off_37C08:
 Obj9D_Index:	offsetTable
 		offsetTableEntry.w Obj9D_Init		; 0
-		offsetTableEntry.w Obj9D_Main		; 2
+		offsetTableEntry.w Obj9D_Idle		; 2
 		offsetTableEntry.w Obj9D_Climbing	; 4
 		offsetTableEntry.w Obj9D_Throwing	; 6
 ; ===========================================================================
 ; loc_37C10:
 Obj9D_Init:
 	bsr.w	LoadSubObject
-	move.b	#$10,objoff_2A(a0)
+	move.b	#$10,Obj9D_timer(a0)
 	rts
 ; ===========================================================================
-; loc_37C1C:
-Obj9D_Main:
+; loc_37C1C: Obj9D_Main:
+Obj9D_Idle:
 	bsr.w	Obj_GetOrientationToPlayer
-	bclr	#0,render_flags(a0)
+	bclr	#0,render_flags(a0)	; face right
 	bclr	#0,status(a0)
-	tst.w	d0
-	beq.s	+
-	bset	#0,render_flags(a0)
+	tst.w	d0		; is player to object's left?
+	beq.s	+		; if not, branch
+	bset	#0,render_flags(a0)	; face left
 	bset	#0,status(a0)
 +
 	addi.w	#$60,d2
 	cmpi.w	#$C0,d2
-	bhs.s	+
-	tst.b	objoff_2E(a0)
-	beq.s	loc_37C66
-	subq.b	#1,objoff_2E(a0)
+	bcc.s	+	; branch, if distance to player is greater than 60 in either direction
+	tst.b	Obj9D_attack_timer(a0)	; wait for a bit before attacking
+	beq.s	Obj9D_StartThrowing	; branch, when done waiting
+	subq.b	#1,Obj9D_attack_timer(a0)
 +
-	subq.b	#1,objoff_2A(a0)
-	bmi.s	+
+	subq.b	#1,Obj9D_timer(a0)	; wait for a bit...
+	bmi.s	Obj9D_StartClimbing	; branch, when done waiting
 	bra.w	JmpTo39_MarkObjGone
 ; ---------------------------------------------------------------------------
-+	addq.b	#2,routine(a0)
-	bsr.w	loc_37C82
+
+Obj9D_StartClimbing:
+	addq.b	#2,routine(a0)	; => Obj9D_Climbing
+	bsr.w	Obj9D_SetClimbingDirection
 	bra.w	JmpTo39_MarkObjGone
 ; ---------------------------------------------------------------------------
-loc_37C66:
-	move.b	#6,routine(a0)	; Obj9D_Throwing
-	move.b	#1,mapping_frame(a0)
-	move.b	#8,objoff_2A(a0)
-	move.b	#$20,objoff_2E(a0)
+; loc_37C66:
+Obj9D_StartThrowing:
+	move.b	#6,routine(a0)	; => Obj9D_Throwing
+	move.b	#1,mapping_frame(a0)	; display first throwing frame
+	move.b	#8,Obj9D_timer(a0)	; set time to display frame
+	move.b	#$20,Obj9D_attack_timer(a0)	; reset timer
 	bra.w	JmpTo39_MarkObjGone
 ; ---------------------------------------------------------------------------
-loc_37C82:
-	move.w	objoff_2C(a0),d0
+; loc_37C82:
+Obj9D_SetClimbingDirection:
+	move.w	Obj9D_climb_table_index(a0),d0
 	cmpi.w	#$C,d0
-	blo.s	+
-	moveq	#0,d0
+	blo.s	+	; branch, if index is less than $C
+	moveq	#0,d0	; otherwise, reset to 0
 +
 	lea	Obj9D_ClimbData(pc,d0.w),a1
 	addq.w	#2,d0
-	move.w	d0,objoff_2C(a0)
-	move.b	(a1)+,y_vel(a0) ; climbing speed
-	move.b	(a1)+,objoff_2A(a0) ; time to spend moving at this speed
+	move.w	d0,Obj9D_climb_table_index(a0)
+	move.b	(a1)+,y_vel(a0)	; climbing speed
+	move.b	(a1)+,Obj9D_timer(a0) ; time to spend moving at this speed
 	rts
 ; ===========================================================================
 ; byte_37CA2:
@@ -70445,73 +70456,73 @@ Obj9D_ClimbData:
 ; ===========================================================================
 ; loc_37CAE: Obj09_Climbing:
 Obj9D_Climbing:
-	subq.b	#1,objoff_2A(a0)
-	beq.s	loc_37CC6
-	bsr.w	JmpTo26_ObjectMove
+	subq.b	#1,Obj9D_timer(a0)
+	beq.s	Obj9D_StopClimbing	; branch, if done moving
+	bsr.w	JmpTo26_ObjectMove	; else, keep moving
 	lea	(Ani_obj09).l,a1
 	bsr.w	JmpTo25_AnimateSprite
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
-
-loc_37CC6:
-	subq.b	#2,routine(a0)
-	move.b	#$10,objoff_2A(a0)
+; loc_37CC6:
+Obj9D_StopClimbing:
+	subq.b	#2,routine(a0)	; => Obj9D_Idle
+	move.b	#$10,Obj9D_timer(a0)	; time to remain idle
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 ; loc_37CD4: Obj09_Throwing:
 Obj9D_Throwing:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
-	move.w	off_37CE6(pc,d0.w),d1
-	jsr	off_37CE6(pc,d1.w)
+	move.w	Obj9D_ThrowingStates(pc,d0.w),d1
+	jsr	Obj9D_ThrowingStates(pc,d1.w)
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
-off_37CE6:	offsetTable
-		offsetTableEntry.w loc_37CEA	; 0
-		offsetTableEntry.w loc_37D06	; 2
+; off_37CE6:
+Obj9D_ThrowingStates:	offsetTable
+		offsetTableEntry.w Obj9D_ThrowingHandRaised	; 0
+		offsetTableEntry.w Obj9D_ThrowingHandLowered	; 2
 ; ===========================================================================
-
-loc_37CEA:
-	subq.b	#1,objoff_2A(a0)
+; loc_37CEA:
+Obj9D_ThrowingHandRaised:
+	subq.b	#1,Obj9D_timer(a0)	; wait for a bit...
 	bmi.s	+
 	rts
 ; ---------------------------------------------------------------------------
-+	addq.b	#2,routine_secondary(a0)
-	move.b	#8,objoff_2A(a0)
-	move.b	#2,mapping_frame(a0)
-	bra.w	loc_37D22
++	addq.b	#2,routine_secondary(a0)	; => Obj9D_ThrowingHandLowered
+	move.b	#8,Obj9D_timer(a0)
+	move.b	#2,mapping_frame(a0)	; display second throwing frame
+	bra.w	Obj9D_CreateCoconut
 ; ===========================================================================
-
-loc_37D06:
-	subq.b	#1,objoff_2A(a0)
+; loc_37D06:
+Obj9D_ThrowingHandLowered:
+	subq.b	#1,Obj9D_timer(a0)	; wait for a bit...
 	bmi.s	+
 	rts
 ; ---------------------------------------------------------------------------
-+	clr.b	routine_secondary(a0)
-	move.b	#4,routine(a0) ; Obj9D_Climbing
-	move.b	#8,objoff_2A(a0)
-	bra.w	loc_37C82
++	clr.b	routine_secondary(a0)	; reset routine counter for next time
+	move.b	#4,routine(a0) ; => Obj9D_Climbing
+	move.b	#8,Obj9D_timer(a0)	; this gets overwrittten by the next subroutine...
+	bra.w	Obj9D_SetClimbingDirection
 ; ===========================================================================
-
-loc_37D22:
+; loc_37D22:
+Obj9D_CreateCoconut:
 	bsr.w	JmpTo19_SingleObjLoad
-	bne.s	return_37D74
+	bne.s	return_37D74		; branch, if no free slots
 	_move.b	#ObjID_Projectile,id(a1) ; load obj98
 	move.b	#3,mapping_frame(a1)
 	move.b	#$20,subtype(a1) ; <== Obj9D_SubObjData2
-	move.w	x_pos(a0),x_pos(a1)
+	move.w	x_pos(a0),x_pos(a1)	; align with parent object
 	move.w	y_pos(a0),y_pos(a1)
-	addi.w	#-$D,y_pos(a1)
-	moveq	#0,d0
-	btst	#0,render_flags(a0)
-	bne.s	loc_37D58
-	moveq	#4,d0
-
-loc_37D58:
-	lea	word_37D76(pc,d0.w),a2
+	addi.w	#-$D,y_pos(a1)		; offset slightly upward
+	moveq	#0,d0		; use rightfacing data
+	btst	#0,render_flags(a0)	; is object facing left?
+	bne.s	+		; if yes, branch
+	moveq	#4,d0		; use leftfacing data
++
+	lea	Obj9D_ThrowData(pc,d0.w),a2
 	move.w	(a2)+,d0
-	add.w	d0,x_pos(a1)
-	move.w	(a2)+,x_vel(a1)
+	add.w	d0,x_pos(a1)	; offset slightly left or right depending on object's direction
+	move.w	(a2)+,x_vel(a1)	; set projectile speed
 	move.w	#-$100,y_vel(a1)
 	lea	Obj98_CoconutFall(pc),a2 ; set the routine used to move the projectile
 	move.l	a2,objoff_2A(a1)
@@ -70519,11 +70530,10 @@ loc_37D58:
 return_37D74:
 	rts
 ; ===========================================================================
-word_37D76:
-	dc.w   -$B
-	dc.w  $100	; 1
-	dc.w	$B	; 2
-	dc.w -$100	; 3
+; word_37D76:
+Obj9D_ThrowData:
+	dc.w   -$B,  $100	; 0
+	dc.w	$B, -$100	; 4
 ; off_37D7E:
 Obj9D_SubObjData:
 	subObjData Obj9D_Obj98_MapUnc_37D96,make_art_tile(ArtTile_ArtNem_Coconuts,0,0),4,5,$C,9
@@ -80548,12 +80558,12 @@ Touch_Enemy:
 +
 	btst	#6,render_flags(a1)
 	beq.s	Touch_Enemy_Part2
-	tst.b	objoff_32(a1)
+	tst.b	boss_hitcount2(a1)
 	beq.s	return_3F7C6
 	neg.w	x_vel(a0)
 	neg.w	y_vel(a0)
 	move.b	#0,collision_flags(a1)
-	subq.b	#1,objoff_32(a1)
+	subq.b	#1,boss_hitcount2(a1)
 
 return_3F7C6:
 	rts
@@ -80733,7 +80743,7 @@ KillCharacter:
 	move.b	#AniIDSonAni_Death,anim(a0)
 	bset	#high_priority_bit,art_tile(a0)
 	move.w	#SndID_Hurt,d0
-	cmpi.b	#ObjID_Spikes,(a2)
+	cmpi.b	#ObjID_Spikes,id(a2)
 	bne.s	+
 	move.w	#SndID_HurtBySpikes,d0
 +

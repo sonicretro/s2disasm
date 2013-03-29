@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Namespace="S2ObjectDefinitions.CPZ" TypeName="Worm" Language="cs" Name="Blue worm thing" Image="img1" RememberState="false" DrawOffscreen="false">
+<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.CPZ" TypeName="Worm" Language="cs" Name="Blue worm thing" Image="img1" RememberState="false">
   <Images>
     <ImageFromMappings id="img1">
       <ArtFile filename="../art/nemesis/CPZ worm enemy.bin" />
@@ -12,7 +12,7 @@
   </Subtypes>
   <Display>
     <DisplayOption>
-	  <ImageRef image="img1" />
-	</DisplayOption>
+      <ImageRef image="img1" />
+    </DisplayOption>
   </Display>
 </ObjDef>

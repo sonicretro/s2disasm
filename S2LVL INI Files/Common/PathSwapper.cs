@@ -97,8 +97,8 @@ namespace S2ObjectDefinitions.Common
             new PropertySpec("Priority only", typeof(bool), "Extended", null, null, (o) => o.XFlip, (o, v) => o.XFlip = (bool)v),
             new PropertySpec("Size", typeof(byte), "Extended", null, null, GetSize, SetSize),
             new PropertySpec("Direction", typeof(Direction), "Extended", null, null, GetDirection, SetDirection),
-            new PropertySpec("Right/Down Path", typeof(Path), "Extended", null, null, GetRDPath, SetRDPath),
-            new PropertySpec("Left/Up Path", typeof(Path), "Extended", null, null, GetLUPath, SetLUPath),
+            new PropertySpec("Right/Down Path", typeof(int), "Extended", null, null, typeof(PathConverter), GetRDPath, SetRDPath),
+            new PropertySpec("Left/Up Path", typeof(int), "Extended", null, null, typeof(PathConverter), GetLUPath, SetLUPath),
             new PropertySpec("Right/Down Priority", typeof(Priority), "Extended", null, null, GetRDPriority, SetRDPriority),
             new PropertySpec("Left/Up Priority", typeof(Priority), "Extended", null, null, GetLUPriority, SetLUPriority),
             new PropertySpec("Ground only", typeof(bool), "Extended", null, null, GetGroundOnly, SetGroundOnly)
@@ -134,22 +134,22 @@ namespace S2ObjectDefinitions.Common
 
         private static object GetRDPath(ObjectEntry obj)
         {
-            return (obj.SubType & 8) != 0 ? Path.Path2 : Path.Path1;
+            return obj.SubType & 8;
         }
 
         private static void SetRDPath(ObjectEntry obj, object value)
         {
-            obj.SubType = (byte)((obj.SubType & ~8) | ((Path)value == Path.Path2 ? 8 : 0));
+            obj.SubType = (byte)((obj.SubType & ~8) | ((int)value << 4));
         }
 
         private static object GetLUPath(ObjectEntry obj)
         {
-            return (obj.SubType & 16) != 0 ? Path.Path2 : Path.Path1;
+            return obj.SubType & 16;
         }
 
         private static void SetLUPath(ObjectEntry obj, object value)
         {
-            obj.SubType = (byte)((obj.SubType & ~16) | ((Path)value == Path.Path2 ? 16 : 0));
+            obj.SubType = (byte)((obj.SubType & ~16) | ((int)value << 5));
         }
 
         private static object GetRDPriority(ObjectEntry obj)
@@ -183,10 +183,54 @@ namespace S2ObjectDefinitions.Common
         }
     }
 
-    public enum Path
+    internal class PathConverter : TypeConverter
     {
-        Path1,
-        Path2
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+        {
+            if (sourceType == typeof(string))
+                return true;
+            return base.CanConvertFrom(context, sourceType);
+        }
+
+        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+        {
+            if (destinationType == typeof(int))
+                return true;
+            return base.CanConvertTo(context, destinationType);
+        }
+
+        public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value)
+        {
+            if (value is string)
+                return values[(string)value];
+            return base.ConvertFrom(context, culture, value);
+        }
+
+        public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType)
+        {
+            if (destinationType == typeof(string) && value is int)
+            {
+                string result = null;
+                foreach (KeyValuePair<string, int> item in values)
+                    if (item.Value.Equals(value))
+                        result = item.Key;
+                if (result != null) return result;
+                throw new KeyNotFoundException();
+            }
+            return base.ConvertTo(context, culture, value, destinationType);
+        }
+
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            return new StandardValuesCollection(values.Keys);
+        }
+
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+        {
+            return true;
+        }
+
+        private Dictionary<string, int> values = new Dictionary<string, int>() { { "Path 1", 0 }, { "Path 2", 1 } };
     }
 
     public enum Priority

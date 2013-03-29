@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Namespace="S2ObjectDefinitions.CPZ" TypeName="Stairs" Language="cs" Name="Stairs" Image="img1" RememberState="false" DrawOffscreen="false">
+<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.CPZ" TypeName="Stairs" Language="cs" Name="Stairs" Image="img1" RememberState="false">
   <Images>
     <ImageFromMappings id="img1">
       <ArtFile filename="../art/nemesis/Moving block from CPZ.bin" />
@@ -17,14 +17,14 @@
     <DisplayOption>
 	  <ImageRef image="img1" xflip="NeverFlip" />
 	  <ImageRef image="img1" xflip="NeverFlip">
-	    <Offset X="32" />
-	  </ImageRef>
+        <Offset X="32" />
+      </ImageRef>
 	  <ImageRef image="img1" xflip="NeverFlip">
-	    <Offset X="64" />
-	  </ImageRef>
+        <Offset X="64" />
+      </ImageRef>
 	  <ImageRef image="img1" xflip="NeverFlip">
-	    <Offset X="96" />
-	  </ImageRef>
-	</DisplayOption>
+        <Offset X="96" />
+      </ImageRef>
+    </DisplayOption>
   </Display>
 </ObjDef>

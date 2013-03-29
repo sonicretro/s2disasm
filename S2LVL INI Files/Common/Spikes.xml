@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef Namespace="S2ObjectDefinitions.Common" TypeName="Spikes" Language="cs" Name="Spikes" Image="horiz1" RememberState="false">
+<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.Common" TypeName="Spikes" Language="cs" Name="Spikes" Image="horiz1" RememberState="false">
   <Images>
     <ImageFromMappings id="horiz1">
       <ArtFile filename="../art/nemesis/Spikes.bin" />
@@ -46,12 +46,12 @@
   </Subtypes>
   <Properties>
     <CustomProperty name="Count" type="int">
-      <get>return ((obj.SubType &amp; 0x30) >> 4) + 1;</get>
+      <get><![CDATA[return ((obj.SubType & 0x30) >> 4) + 1;]]></get>
       <set>
-        value = System.Math.Max(1, value);
+        <![CDATA[        value = System.Math.Max(1, value);
         value = System.Math.Min(4, value);
         value--;
-        obj.SubType = (byte)((obj.SubType &amp; ~0x30) | (value &lt;&lt; 4));
+        obj.SubType = (byte)((obj.SubType & ~0x30) | (value << 4));]]>
       </set>
     </CustomProperty>
     <BitsProperty name="Movement" type="SpikeMovement" startbit="0" length="2" />

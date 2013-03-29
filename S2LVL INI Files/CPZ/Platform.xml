@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Namespace="S2ObjectDefinitions.CPZ" TypeName="Platform" Language="cs" Name="Platform" Image="img1" RememberState="false" DrawOffscreen="false">
+<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.CPZ" TypeName="Platform" Language="cs" Name="Platform" Image="img1" RememberState="false">
   <Images>
     <ImageFromMappings id="img1">
       <ArtFile filename="../art/nemesis/Large moving platform from CNZ.bin" />
@@ -27,7 +27,7 @@
     <Subtype id="0D" name="Large, Clockwise Circle 2" image="img1" />
     <Subtype id="0E" name="Large, Clockwise Circle 3" image="img1" />
     <Subtype id="0F" name="Large, Clockwise Circle 4" image="img1" />
-	<Subtype id="10" name="Small, Horizontal" image="img2" />
+    <Subtype id="10" name="Small, Horizontal" image="img2" />
     <Subtype id="11" name="Small, Horizontal 2" image="img2" />
     <Subtype id="12" name="Small, Slow Vertical" image="img2" />
     <Subtype id="13" name="Small, Moves Up When Stepped On" image="img2" />
@@ -46,26 +46,26 @@
   </Subtypes>
   <Properties>
     <BitsProperty name="Movement" type="PlatformMovement" startbit="0" length="4" />
-    <BitsProperty name="ArtSize" type="ArtSize" startbit="4" length="1" />
+    <BitsProperty name="ArtSize" displayname="Art Size" type="ArtSize" startbit="4" length="1" />
   </Properties>
   <Enums>
     <Enum name="PlatformMovement">
       <EnumMember name="Horizontal" />
-      <EnumMember name="Horizontal2" />
-      <EnumMember name="SlowVertical" />
-      <EnumMember name="MoveUpWhenSteppedOn" />
-      <EnumMember name="MoveUpAutomatically" />
+      <EnumMember name="Horizontal 2" />
+      <EnumMember name="Slow Vertical" />
+      <EnumMember name="Moves Up When Stepped On" />
+      <EnumMember name="Moves Up Automatically" />
       <EnumMember name="Stationary" />
-      <EnumMember name="QuickVertical" />
-      <EnumMember name="QuickVertical2" />
-      <EnumMember name="Circle1" />
-      <EnumMember name="Circle2" />
-      <EnumMember name="Circle3" />
-      <EnumMember name="Circle4" />
-      <EnumMember name="ClockwiseCircle1" />
-      <EnumMember name="ClockwiseCircle2" />
-      <EnumMember name="ClockwiseCircle3" />
-      <EnumMember name="ClockwiseCircle4" />
+      <EnumMember name="Quick Vertical" />
+      <EnumMember name="Quick Vertical 2" />
+      <EnumMember name="Circle 1" />
+      <EnumMember name="Circle 2" />
+      <EnumMember name="Circle 3" />
+      <EnumMember name="Circle 4" />
+      <EnumMember name="Clockwise Circle 1" />
+      <EnumMember name="Clockwise Circle 2" />
+      <EnumMember name="Clockwise Circle 3" />
+      <EnumMember name="Clockwise Circle 4" />
     </Enum>
     <Enum name="ArtSize">
       <EnumMember name="Large" />
@@ -74,12 +74,12 @@
   </Enums>
   <Display>
     <DisplayOption>
-	  <Condition property="ArtSize" value="Large" />
-	  <ImageRef image="img1" />
-	</DisplayOption>
+      <Condition property="ArtSize" value="Large" />
+      <ImageRef image="img1" />
+    </DisplayOption>
     <DisplayOption>
-	  <Condition property="ArtSize" value="Small" />
-	  <ImageRef image="img2" />
-	</DisplayOption>
+      <Condition property="ArtSize" value="Small" />
+      <ImageRef image="img2" />
+    </DisplayOption>
   </Display>
 </ObjDef>

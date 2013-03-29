@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef Namespace="S2ObjectDefinitions.Common" TypeName="Capsule" Language="cs" Name="Egg Prison" Image="img1" RememberState="false">
+<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.Common" TypeName="Capsule" Language="cs" Name="Egg Prison" RememberState="false">
   <Images>
     <ImageFromMappings id="img1">
       <ArtFile filename="../art/nemesis/Egg Prison.bin" />
@@ -14,15 +14,24 @@
       <MapFile type="ASM" filename="../mappings/sprite/obj3E.asm" frame="5" startpal="1" />
     </ImageFromMappings>
   </Images>
+  <DefaultImage>
+    <ImageRef image="img1" />
+    <ImageRef image="img2">
+      <Offset Y="-40" />
+    </ImageRef>
+    <ImageRef image="img3">
+      <Offset Y="-24" />
+    </ImageRef>
+  </DefaultImage>
   <Display>
     <DisplayOption>
-	  <ImageRef image="img1" />
-	  <ImageRef image="img2">
-	    <Offset Y="-40" />
-	  </ImageRef>
-	  <ImageRef image="img3">
-	    <Offset Y="-24" />
-	  </ImageRef>
-	</DisplayOption>
+      <ImageRef image="img1" />
+      <ImageRef image="img2">
+        <Offset Y="-40" />
+      </ImageRef>
+      <ImageRef image="img3">
+        <Offset Y="-24" />
+      </ImageRef>
+    </DisplayOption>
   </Display>
 </ObjDef>
