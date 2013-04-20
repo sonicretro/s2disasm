@@ -12603,7 +12603,39 @@ loc_A30A:
 	bne.s	+	; rts
 	move.b	#AniIDSonAni_Walk,anim(a1)
 	move.w	#$1000,inertia(a1)
-Ending_Routine	bra.w	++
++
+	rts
+; ===========================================================================
+
+loc_A34C:
+	subq.w	#1,objoff_3C(a0)
+	bmi.s	+
+	moveq	#0,d4
+	moveq	#0,d5
+	move.w	#0,(Camera_X_pos_diff).w
+	move.w	#$100,(Camera_Y_pos_diff).w
+	bra.w	SwScrl_DEZ
+; ===========================================================================
++
+	addq.b	#2,routine(a0)
+	move.w	#$100,objoff_3C(a0)
+	cmpi.w	#4,(Ending_Routine).w
+	bne.s	return_A38C
+	move.w	#$880,objoff_3C(a0)
+	btst	#6,(Graphics_Flags).w
+	beq.s	return_A38C
+	move.w	#$660,objoff_3C(a0)
+
+return_A38C:
+	rts
+; ===========================================================================
+
+loc_A38E:
+	btst	#6,(Graphics_Flags).w
+	beq.s	+
+	cmpi.w	#$E40,objoff_32(a0)
+	beq.s	loc_A3BE
+	bra.w	++
 ; ===========================================================================
 +
 	cmpi.w	#$1140,objoff_32(a0)
@@ -12702,7 +12734,39 @@ loc_A474:
 	move.w	#$40,objoff_32(a0)
 	st	(CutScene+objoff_34).w
 	clr.w	x_vel(a0)
-Ending_Routine
+	clr.w	y_vel(a0)
+	bra.s	-
+; ===========================================================================
+
+loc_A4B6:
+	bsr.w	sub_ABBA
+	bsr.w	sub_A524
+	subq.w	#1,objoff_3C(a0)
+	bmi.s	+
+	bra.s	-
+; ===========================================================================
++
+	addq.b	#2,routine_secondary(a0)
+	move.w	#2,objoff_3C(a0)
+	clr.w	objoff_32(a0)
+	clr.b	mapping_frame(a0)
+	cmpi.w	#2,(Ending_Routine).w
+	beq.s	+
+	move.b	#7,mapping_frame(a0)
+	cmpi.w	#4,(Ending_Routine).w
+	bne.s	+
+	move.b	#$18,mapping_frame(a0)
++
+	clr.b	anim(a0)
+	clr.b	anim_frame(a0)
+	clr.b	anim_frame_duration(a0)
+	move.l	#ObjCF_MapUnc_ADA2,mappings(a0)
+	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,0,0),art_tile(a0)
+	jsr	(Adjust2PArtPointer).l
+	subi.w	#$14,x_pos(a0)
+	addi.w	#$14,y_pos(a0)
+	bra.w	sub_A58C
+
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
