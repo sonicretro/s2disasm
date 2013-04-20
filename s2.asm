@@ -11270,10 +11270,10 @@ iconData macro txtlabel,txtlabel2,vramAddr,iconPal,iconAddr
 	dc.l iconPal<<24|iconAddr	; icon palette and plane data location
     endm
 
-	iconData	Text2P_EmeraldHill,Text2P_Zone,$C104,0,$FF0330
-	iconData	Text2P_MysticCave,Text2P_Zone,$C12C,5,$FF03A8
-	iconData	Text2P_CasinoNight,Text2P_Zone,$C784,6,$FF03C0
-	iconData	Text2P_Special,Text2P_Stage,$C7AC,$C,$FF0450
+	iconData	Text2P_EmeraldHill,Text2P_Zone,VRAM_Plane_A_Name_Table+planeLocH40(2,2),0,$FF0330
+	iconData	Text2P_MysticCave,Text2P_Zone,VRAM_Plane_A_Name_Table+planeLocH40(22,2),5,$FF03A8
+	iconData	Text2P_CasinoNight,Text2P_Zone,VRAM_Plane_A_Name_Table+planeLocH40(2,15),6,$FF03C0
+	iconData	Text2P_Special,Text2P_Stage,VRAM_Plane_A_Name_Table+planeLocH40(22,15),$C,$FF0450
 
 ; ---------------------------------------------------------------------------
 ; Common menu screen subroutine for transferring text to RAM
@@ -11585,9 +11585,9 @@ boxData macro txtlabel,vramAddr
 	dc.l txtlabel, vdpComm(vramAddr,VRAM,WRITE)
     endm
 
-	boxData	TextOptScr_PlayerSelect,$C192
-	boxData	TextOptScr_VsModeItems,$C592
-	boxData	TextOptScr_SoundTest,$C992
+	boxData	TextOptScr_PlayerSelect,VRAM_Plane_A_Name_Table+planeLocH40(9,3)
+	boxData	TextOptScr_VsModeItems,VRAM_Plane_A_Name_Table+planeLocH40(9,11)
+	boxData	TextOptScr_SoundTest,VRAM_Plane_A_Name_Table+planeLocH40(9,19)
 
 off_92D2:
 	dc.l TextOptScr_SonicAndMiles
@@ -11942,7 +11942,7 @@ LevelSelect_MarkFields:
 ; ===========================================================================
 ;loc_965A:
 LevelSelect_DrawSoundNumber:
-	move.l	#vdpComm($C944,VRAM,WRITE),(VDP_control_port).l
+	move.l	#vdpComm(VRAM_Plane_A_Name_Table+planeLocH40(34,18),VRAM,WRITE),(VDP_control_port).l
 	move.w	(Sound_test_sound).w,d0
 	move.b	d0,d2
 	lsr.b	#4,d0
@@ -11975,7 +11975,7 @@ LevelSelect_DrawIcon:
 	add.w	d0,d0
 	add.w	d1,d0
 	lea	(a1,d0.w),a1
-	move.l	#vdpComm($CB36,VRAM,WRITE),d0
+	move.l	#vdpComm(VRAM_Plane_A_Name_Table+planeLocH40(27,22),VRAM,WRITE),d0
 	moveq	#3,d1
 	moveq	#2,d2
 	bsr.w	JmpTo_PlaneMapToVRAM
@@ -12262,7 +12262,7 @@ EndingSequence:
 	move.b	#6,routine(a1)
 	move.w	#$60,objoff_3C(a1)
 	move.w	#1,objoff_30(a1)
-	cmpi.w	#4,(Boss_X_pos).w
+	cmpi.w	#4,(Ending_Routine).w
 	bne.s	+
 	move.w	#$10,objoff_2E(a1)
 	move.w	#$100,objoff_3C(a1)
@@ -12371,7 +12371,7 @@ EndgameCredits:
 	move.w	#0,d0
 	bsr.w	JmpTo_EniDec
 	lea	(Chunk_Table).l,a1
-	move.l	#vdpComm(VRAM_Plane_A_Name_Table+$598,VRAM,WRITE),d0
+	move.l	#vdpComm(VRAM_Plane_A_Name_Table+planeLocH40(12,11),VRAM,WRITE),d0
 	moveq	#$F,d1
 	moveq	#5,d2
 	bsr.w	JmpTo2_PlaneMapToVRAM
@@ -12456,9 +12456,9 @@ pal_A0FE:	BINCLUDE	"art/palettes/Ending Cycle.bin"
 ; Sprite_A1D6:
 ObjCA:
 	addq.w	#1,objoff_32(a0)
-	cmpi.w	#4,(Boss_X_pos).w
+	cmpi.w	#4,(Ending_Routine).w
 	beq.s	+
-	cmpi.w	#2,(Boss_X_pos).w
+	cmpi.w	#2,(Ending_Routine).w
 	bne.s	+
 	st	(Super_Sonic_flag).w
 	move.w	#$100,(Ring_count).w
@@ -12532,7 +12532,7 @@ loc_A256:
 	bsr.w	JmpTo_EniDec
 	move	#$2700,sr
 	lea	(Chunk_Table).l,a1
-	move.l	#vdpComm(VRAM_Plane_A_Name_Table + $80*$8 + $1C,VRAM,WRITE),d0
+	move.l	#vdpComm(VRAM_Plane_A_Name_Table + planeLocH40(14,8),VRAM,WRITE),d0
 	moveq	#$B,d1
 	moveq	#8,d2
 	bsr.w	JmpTo2_PlaneMapToVRAM
@@ -12551,7 +12551,7 @@ off_A29C:
 	st	(Control_Locked).w
 	st	(Ending_PalCycle_flag).w
 	lea	(MainCharacter).w,a1 ; a1=character
-	move.w	(Boss_X_pos).w,d0
+	move.w	(Ending_Routine).w,d0
 	move.w	ObjCA_State5_States(pc,d0.w),d0
 	jsr	ObjCA_State5_States(pc,d0.w)
 	move.w	#$80,d1
@@ -12599,43 +12599,11 @@ loc_A30A:
 	move.b	#AniIDSonAni_Float2,anim(a1)
 	move.w	#$A0,x_pos(a1)
 	move.w	#$50,y_pos(a1)
-	cmpi.w	#2,(Boss_X_pos).w
+	cmpi.w	#2,(Ending_Routine).w
 	bne.s	+	; rts
 	move.b	#AniIDSonAni_Walk,anim(a1)
 	move.w	#$1000,inertia(a1)
-+
-	rts
-; ===========================================================================
-
-loc_A34C:
-	subq.w	#1,objoff_3C(a0)
-	bmi.s	+
-	moveq	#0,d4
-	moveq	#0,d5
-	move.w	#0,(Camera_X_pos_diff).w
-	move.w	#$100,(Camera_Y_pos_diff).w
-	bra.w	SwScrl_DEZ
-; ===========================================================================
-+
-	addq.b	#2,routine(a0)
-	move.w	#$100,objoff_3C(a0)
-	cmpi.w	#4,(Boss_X_pos).w
-	bne.s	return_A38C
-	move.w	#$880,objoff_3C(a0)
-	btst	#6,(Graphics_Flags).w
-	beq.s	return_A38C
-	move.w	#$660,objoff_3C(a0)
-
-return_A38C:
-	rts
-; ===========================================================================
-
-loc_A38E:
-	btst	#6,(Graphics_Flags).w
-	beq.s	+
-	cmpi.w	#$E40,objoff_32(a0)
-	beq.s	loc_A3BE
-	bra.w	++
+Ending_Routine	bra.w	++
 ; ===========================================================================
 +
 	cmpi.w	#$1140,objoff_32(a0)
@@ -12688,7 +12656,7 @@ ObjCC_Init:
 	move.w	#4,(Ending_VInt_Subrout).w
 	move.l	a0,-(sp)
 	lea	(MapEng_EndingTailsPlane).l,a0
-	cmpi.w	#4,(Boss_X_pos).w
+	cmpi.w	#4,(Ending_Routine).w
 	bne.s	+
 	lea	(MapEng_EndingSonicPlane).l,a0
 +
@@ -12734,39 +12702,7 @@ loc_A474:
 	move.w	#$40,objoff_32(a0)
 	st	(CutScene+objoff_34).w
 	clr.w	x_vel(a0)
-	clr.w	y_vel(a0)
-	bra.s	-
-; ===========================================================================
-
-loc_A4B6:
-	bsr.w	sub_ABBA
-	bsr.w	sub_A524
-	subq.w	#1,objoff_3C(a0)
-	bmi.s	+
-	bra.s	-
-; ===========================================================================
-+
-	addq.b	#2,routine_secondary(a0)
-	move.w	#2,objoff_3C(a0)
-	clr.w	objoff_32(a0)
-	clr.b	mapping_frame(a0)
-	cmpi.w	#2,(Boss_X_pos).w
-	beq.s	+
-	move.b	#7,mapping_frame(a0)
-	cmpi.w	#4,(Boss_X_pos).w
-	bne.s	+
-	move.b	#$18,mapping_frame(a0)
-+
-	clr.b	anim(a0)
-	clr.b	anim_frame(a0)
-	clr.b	anim_frame_duration(a0)
-	move.l	#ObjCF_MapUnc_ADA2,mappings(a0)
-	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,0,0),art_tile(a0)
-	jsr	(Adjust2PArtPointer).l
-	subi.w	#$14,x_pos(a0)
-	addi.w	#$14,y_pos(a0)
-	bra.w	sub_A58C
-
+Ending_Routine
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
@@ -12839,7 +12775,7 @@ loc_A5A6:
 	cmpi.w	#$1C,d0
 	bhs.s	++
 	addq.w	#1,objoff_32(a0)
-	move.w	(Boss_X_pos).w,d1
+	move.w	(Ending_Routine).w,d1
 	move.w	off_A5FC(pc,d1.w),d1
 	lea	off_A5FC(pc,d1.w),a1
 	move.b	(a1,d0.w),mapping_frame(a0)
@@ -13058,7 +12994,7 @@ ObjCE_Init:
 	move.b	#1,priority(a0)
 	jsr	(Adjust2PArtPointer).l
 	move.b	#$C,mapping_frame(a0)
-	cmpi.w	#4,(Boss_X_pos).w
+	cmpi.w	#4,(Ending_Routine).w
 	bne.s	+
 	move.b	#$F,mapping_frame(a0)
 	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,1,1),art_tile(a0)
@@ -13103,7 +13039,7 @@ loc_A936:
 	bhs.s	++
 	addq.w	#2,objoff_34(a0)
 	lea	byte_A980(pc,d0.w),a1
-	cmpi.w	#2,(Boss_X_pos).w
+	cmpi.w	#2,(Ending_Routine).w
 	bne.s	+
 	lea	byte_A984(pc,d0.w),a1
 +
