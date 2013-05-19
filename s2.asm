@@ -31986,55 +31986,62 @@ SolidObject_cont:
 	bpl.w	loc_19AC4
 
 loc_199F0:
-	move.w	x_pos(a1),d0
-	sub.w	x_pos(a0),d0
-	add.w	d1,d0
-	bmi.w	loc_19AC4
+	; We now perform the x portion of a bounding box check.  To do this, we assume a
+	; coordinate system where the x origin is at the object's left edge.
+	move.w	x_pos(a1),d0		; load Sonic's x position...
+	sub.w	x_pos(a0),d0		; ... and calculate his x position relative to the object
+	add.w	d1,d0			; assume object's left edge is at (0,0).  This is also Sonic's distance to the object's left edge.
+	bmi.w	loc_19AC4		; branch, if Sonic is outside the object's left edge
 	move.w	d1,d3
-	add.w	d3,d3
+	add.w	d3,d3			; calculate object's width
 	cmp.w	d3,d0
-	bhi.w	loc_19AC4
-	move.b	y_radius(a1),d3
+	bhi.w	loc_19AC4		; branch, if Sonic is outside the object's right edge
+	; We now perform the y portion of a bounding box check.  To do this, we assume a
+	; coordinate system where the y origin is at the highest y position relative to the object
+	; at which Sonic would still collide with it.  This point is
+	;   y_pos(object) - width(object)/2 - y_radius(Sonic) - 4,
+	; where object is stored in (a0), Sonic in (a1), and height(object)/2 in d2.  This way
+	; of doing it causes the object's hitbox to be vertically off-center by -4 pixels.
+	move.b	y_radius(a1),d3		; load Sonic's y radius
 	ext.w	d3
-	add.w	d3,d2
-	move.w	y_pos(a1),d3
-	sub.w	y_pos(a0),d3
-	addq.w	#4,d3
-	add.w	d2,d3
-	bmi.w	loc_19AC4
+	add.w	d3,d2			; calculate maximum distance for a top collision
+	move.w	y_pos(a1),d3		; load Sonic's y position...
+	sub.w	y_pos(a0),d3		; ... and calculate his y position relative to the object
+	addq.w	#4,d3			; assume a slightly lower position for Sonic
+	add.w	d2,d3			; assume the highest position where Sonic would still be colliding with the object to be (0,0)
+	bmi.w	loc_19AC4		; branch, if Sonic is above this point
 	andi.w	#$7FF,d3
 	move.w	d2,d4
-	add.w	d4,d4
+	add.w	d4,d4			; calculate minimum distance for a bottom collision
 	cmp.w	d4,d3
-	bhs.w	loc_19AC4
+	bhs.w	loc_19AC4		; branch, if Sonic is below this point
 
 loc_19A2E:
 	tst.b	obj_control(a1)
-	bmi.w	loc_19AC4
-	cmpi.b	#6,routine(a1)
-	bhs.w	loc_19AEA
+	bmi.w	loc_19AC4		; branch, if object collisions are disabled for Sonic
+	cmpi.b	#6,routine(a1)		; is Sonic dead?
+	bhs.w	loc_19AEA		; if yes, branch
 	tst.w	(Debug_placement_mode).w
-	bne.w	loc_19AEA
+	bne.w	loc_19AEA		; branch, if in debug mode
+
 	move.w	d0,d5
 	cmp.w	d0,d1
-	bhs.s	loc_19A56
+	bhs.s	+			; branch, if Sonic is to the object's left
 	add.w	d1,d1
 	sub.w	d1,d0
-	move.w	d0,d5
-	neg.w	d5
-
-loc_19A56:
+	move.w	d0,d5			; calculate Sonic's distance to the object's right edge...
+	neg.w	d5			; ... and calculate the absolute value
++
 	move.w	d3,d1
 	cmp.w	d3,d2
-	bhs.s	loc_19A64
+	bhs.s	+
 	subq.w	#4,d3
 	sub.w	d4,d3
 	move.w	d3,d1
 	neg.w	d1
-
-loc_19A64:
++
 	cmp.w	d1,d5
-	bhi.w	loc_19AEE
+	bhi.w	loc_19AEE		; branch, if horizontal distance is greater than vertical distance
 
 loc_19A6A:
 	cmpi.w	#4,d1
