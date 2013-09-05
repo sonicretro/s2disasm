@@ -1442,15 +1442,15 @@ zBGMLoad:
 	and	80h						; Clear 'a' back to an index
 	ld	(zComRange+16h),a		; Store this ??? (Was used to enable alternate bank)
 	ld	a,b						; Restore 'a' to +80h version
-	add	a,a						; Adding a+a+a causes an overflow and a multiplication by 2
-	add	a,a						; Now multiplied by 4
+	add	a,a						; Adding a+a causes a possible overflow and a multiplication by 2
+	add	a,a						; Now multiplied by 4 and another possible overflow
 	ld	c,a						; Result -> 'c'
-	ccf							; Clear carry flag...
-	sbc	a,a						; ... reverse subtract with carry that was set to zero ... umm.. a=0 in a funny way?
-	ld	(zIsPalFlag),a			; Clear zIsPalFlag?
+	ccf							; Invert carry flag...
+	sbc	a,a						; ... so that this sets a to FFh if bit 6 of original a was clear (allow PAL double-update), zero otherwise (do not allow PAL double-update)
+	ld	(zIsPalFlag),a			; Set zIsPalFlag
 	ld	a,c						; Put prior multiply result back in
 	add	a,a						; Now multiplied by 8!
-	sbc	a,a						; This is nonzero if bit 5 of original a is set, zero otherwise (uncompressed song flag)
+	sbc	a,a						; This is FFh if bit 5 of original a was set (uncompressed song), zero otherwise (compressed song)
 	push	af					; Backing up result...?
 	ld	a,b						; Put 80h based index -> 'a'
 	and	zFirstSound-1			; Caps maximum number of BGMs; Used to be 1Fh, but I figure this enables easier extension if I want any
@@ -3097,7 +3097,7 @@ offset :=	MusicPoint2
 ptrsize :=	2
 idstart :=	80h
 ; note: +20h means uncompressed, here
-; +40h is an (ignored) flag, possibly to force PAL mode on/off
+; +40h is a flag that forces PAL mode off when set
 
 zMusIDPtr_2PResult:	db	id(MusPtr_2PResult)	; 92
 zMusIDPtr_EHZ:		db	id(MusPtr_EHZ)		; 81
