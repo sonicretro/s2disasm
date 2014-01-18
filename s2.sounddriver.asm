@@ -3276,8 +3276,8 @@ zSaxmanReadLoop:
 	ex	de,hl					; effectively, de += a
 	exx							; normal reg set
 	pop	hl						; shadow 'de' -> 'hl' (relative pointer, prior to all bytes read, relative)
-	or	a
-	sbc	hl,bc					; hl -= bc ?
+	or	a						; Clear carry
+	sbc	hl,bc					; hl -= bc
 	jr	nc,+					; if result positive, jump to '+'
 	ex	de,hl					; current output pointer -> 'hl'
 	ld	b,a						; how many bytes to load -> 'b'
@@ -3301,9 +3301,9 @@ zSaxmanReadLoop:
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
 
 
-	; This is an ugly countdown to zero implemented in repeatedly modifying code!!
-	; But basically, it starts at the full length of the song +1 (so it can decrement)
-	; and waits until 'hl' decrements to zero
+; This is an ugly countdown to zero implemented in repeatedly modifying code!!
+; But basically, it starts at the full length of the song +1 (so it can decrement)
+; and waits until 'hl' decrements to zero
 ;zsub_12E8
 zDecEndOrGetByte:
 	ld	hl,0					; "self-modified code" -- starts at full length of song +1, waits until it gets to 1...

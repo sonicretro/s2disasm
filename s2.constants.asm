@@ -1151,9 +1151,13 @@ VDP_Reg1_val:			ds.w	1	; normal value of VDP register #1 when display is disable
 				ds.b	6	; $FFFFF60E-$FFFFF613 ; seems unused
 Demo_Time_left:			ds.w	1	; 2 bytes
 
-Vscroll_Factor:			ds.l	1
+Vscroll_Factor:
+Vscroll_Factor_FG:			ds.w	1
+Vscroll_Factor_BG:			ds.w	1
 unk_F61A:			ds.l	1	; Only ever cleared, never used
-Vscroll_Factor_P2:		ds.l	1
+Vscroll_Factor_P2:
+Vscroll_Factor_P2_FG:		ds.w	1
+Vscroll_Factor_P2_BG:		ds.w	1
 Teleport_timer:			ds.b	1	; timer for teleport effect
 Teleport_flag:			ds.b	1	; set when a teleport is in progress
 Hint_counter_reserve:		ds.w	1	; Must contain a VDP command word, preferably a write to register $0A. Executed every V-INT.

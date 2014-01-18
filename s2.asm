@@ -509,10 +509,10 @@ Vint0_noWater:
 ; table (in VRAM).
 
 VintSub2:
-	bsr.w	sub_E98
+	bsr.w	Do_ControllerPal
 
 	dma68kToVDP Horiz_Scroll_Buf,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
-	bsr.w	JmpTo_loc_3A68A
+	bsr.w	JmpTo_SegaScr_VInt
 	tst.w	(Demo_Time_left).w
 	beq.w	+	; rts
 	subq.w	#1,(Demo_Time_left).w
@@ -537,7 +537,7 @@ VintSub14:
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 VintSub4:
-	bsr.w	sub_E98
+	bsr.w	Do_ControllerPal
 	bsr.w	ProcessDPLC
 	tst.w	(Demo_Time_left).w
 	beq.w	+	; rts
@@ -547,7 +547,7 @@ VintSub4:
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 VintSub6:
-	bsr.w	sub_E98
+	bsr.w	Do_ControllerPal
 	rts
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -865,14 +865,14 @@ loc_BD6:
 ; ===========================================================================
 
 VintSubE:
-	bsr.w	sub_E98
+	bsr.w	Do_ControllerPal
 	addq.b	#1,(VIntSubE_RunCount).w
 	move.b	#$E,(Vint_routine).w
 	rts
 ; ===========================================================================
 
 VintSub12:
-	bsr.w	sub_E98
+	bsr.w	Do_ControllerPal
 	move.w	(Hint_counter_reserve).w,(a5)
 	bra.w	ProcessDPLC
 ; ===========================================================================
@@ -951,8 +951,8 @@ VintSub16:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-
-sub_E98:
+;sub_E98
+Do_ControllerPal:
 	stopZ80
 
 	bsr.w	ReadJoypads
@@ -1099,13 +1099,9 @@ JmpTo_LoadTilesAsYouMove
 	jmp	(LoadTilesAsYouMove).l
 ; End of function JmpTo_LoadTilesAsYouMove
 
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
-
-JmpTo_loc_3A68A 
-	jmp	(loc_3A68A).l
-; End of function JmpTo_loc_3A68A
+JmpTo_SegaScr_VInt 
+	jmp	(SegaScr_VInt).l
+; End of function JmpTo_SegaScr_VInt
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to initialize joypads
@@ -4318,8 +4314,8 @@ Level_TtlCard:
 	bsr.w	PalLoad1	; load Sonic's palette line
 	bsr.w	LevelSizeLoad
 	bsr.w	JmpTo_DeformBgLayer
-	clr.w	(Vscroll_Factor).w
-	move.w	#-$E0,(Vscroll_Factor_P2).w
+	clr.w	(Vscroll_Factor_FG).w
+	move.w	#-$E0,(Vscroll_Factor_P2_FG).w
 
 	clearRAM Horiz_Scroll_Buf,$400
 
@@ -8646,7 +8642,7 @@ off_6E54:	offsetTable
 
 ;sub_6EE0
 SSTrack_SetVscroll:
-	move.w	(Vscroll_Factor+2).w,(SSTrack_LastVScroll).w	; Save last vertical scroll value
+	move.w	(Vscroll_Factor_BG).w,(SSTrack_LastVScroll).w	; Save last vertical scroll value
 	moveq	#0,d7											; Set flag to decrease vertical scroll
 	moveq	#0,d0
 	moveq	#0,d2
@@ -8761,11 +8757,11 @@ SSTrack_ApplyVscroll:
 	move.b	(a0,d0.w),d2									; Get background offset for current frame duration
 	tst.b	d7												; Are we supposed to increase the vertical scroll?
 	bpl.s	+												; Branch if not
-	add.w	d2,(Vscroll_Factor+2).w							; Increase vertical scroll
+	add.w	d2,(Vscroll_Factor_BG).w						; Increase vertical scroll
 	rts
 ; ===========================================================================
 +
-	sub.w	d2,(Vscroll_Factor+2).w							; Decrease vertical scroll
+	sub.w	d2,(Vscroll_Factor_BG).w						; Decrease vertical scroll
 	rts
 ; End of function SSTrack_SetVscroll
 
@@ -12975,7 +12971,7 @@ loc_A7DE:
 	move.w	(a1)+,d0
 	add.w	d0,(Horiz_Scroll_Buf).w
 	move.w	(a1)+,d0
-	add.w	d0,(Vscroll_Factor).w
+	add.w	d0,(Vscroll_Factor_FG).w
 +
 	rts
 ; ===========================================================================
@@ -13082,7 +13078,7 @@ loc_A90E:
 	add.w	(Horiz_Scroll_Buf).w,d0
 	move.w	d0,x_pos(a0)
 	move.w	objoff_32(a0),d0
-	sub.w	(Vscroll_Factor).w,d0
+	sub.w	(Vscroll_Factor_FG).w,d0
 	move.w	d0,y_pos(a0)
 
 BranchTo_JmpTo5_DisplaySprite 
@@ -14317,8 +14313,8 @@ DeformBgLayerAfterScrollVert:
 
 loc_C4D0:
 	bsr.w	RunDynamicLevelEvents
-	move.w	(Camera_Y_pos).w,(Vscroll_Factor).w
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_Y_pos).w,(Vscroll_Factor_FG).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	move.l	(Camera_X_pos).w,(Camera_X_pos_copy).w
 	move.l	(Camera_Y_pos).w,(Camera_Y_pos_copy).w
 	moveq	#0,d0
@@ -14363,7 +14359,7 @@ SwScrl_Index: zoneOrderedOffsetTable 2,1	; JmpTbl_SwScrlMgr
 ; ===========================================================================
 ; loc_C51E:
 SwScrl_Title:
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	addq.w	#1,(Camera_X_pos).w
 	move.w	(Camera_X_pos).w,d2
 	neg.w	d2
@@ -14405,7 +14401,7 @@ SwScrl_Title:
 SwScrl_EHZ:
 	tst.w	(Two_player_mode).w
 	bne.w	SwScrl_EHZ_2P
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
@@ -14534,17 +14530,17 @@ SwScrl_EHZ_2P:
 	bne.s	+
 	subq.w	#1,(TempArray_LayerDef).w
 +
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	andi.l	#$FFFEFFFE,(Vscroll_Factor).w
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_X_pos).w,d0
 	move.w	#bytesToLcnt($2C),d1
 	bsr.s	sub_C71A
 	moveq	#0,d0
-	move.w	d0,(Vscroll_Factor_P2+2).w
-	subi.w	#$E0,(Vscroll_Factor_P2+2).w
-	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2).w
-	subi.w	#$E0,(Vscroll_Factor_P2).w
+	move.w	d0,(Vscroll_Factor_P2_BG).w
+	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
+	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
+	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
 	lea	(Horiz_Scroll_Buf+$1B0).w,a1
 	move.w	(Camera_X_pos_P2).w,d0
@@ -14641,7 +14637,7 @@ SwScrl_Lev2:
 	ext.l	d5
 	asl.l	#6,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	#bytesToLcnt($380),d1
 	move.w	(Camera_X_pos).w,d0
@@ -14664,7 +14660,7 @@ SwScrl_MTZ:
 	ext.l	d5
 	asl.l	#6,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	#bytesToLcnt($380),d1
 	move.w	(Camera_X_pos).w,d0
@@ -14690,7 +14686,7 @@ SwScrl_WFZ:
 	lsl.l	#8,d5
 	moveq	#6,d6
 	bsr.w	SetVertiScrollFlagsBG
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	move.l	(Camera_BG_X_pos).w,d0
 	move.l	d0,d1
 	lea	(TempArray_LayerDef).w,a2
@@ -14756,7 +14752,7 @@ SwScrl_HTZ:
 	bne.w	SwScrl_HTZ_2P	; never used in normal gameplay
 	tst.b	(Screen_Shaking_Flag_HTZ).w
 	bne.w	HTZ_Screen_Shake
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
@@ -14906,9 +14902,9 @@ HTZ_Screen_Shake:
 	lsl.l	#8,d5
 	moveq	#0,d6
 	bsr.w	SetVertiScrollFlagsBG
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
-	move.w	(Camera_Y_pos).w,(Vscroll_Factor).w
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+	move.w	(Camera_Y_pos).w,(Vscroll_Factor_FG).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	moveq	#0,d2
 	tst.b	(Screen_Shaking_Flag).w
 	beq.s	+
@@ -14919,8 +14915,8 @@ HTZ_Screen_Shake:
 	lea	(a1,d0.w),a1
 	moveq	#0,d0
 	move.b	(a1)+,d0
-	add.w	d0,(Vscroll_Factor).w
-	add.w	d0,(Vscroll_Factor+2).w
+	add.w	d0,(Vscroll_Factor_FG).w
+	add.w	d0,(Vscroll_Factor_BG).w
 	add.w	d0,(Camera_Y_pos_copy).w
 	move.b	(a1)+,d2
 	add.w	d2,(Camera_X_pos_copy).w
@@ -14951,7 +14947,7 @@ SwScrl_HTZ_2P:
 	moveq	#0,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
 	move.b	#0,(Scroll_flags_BG).w
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	andi.l	#$FFFEFFFE,(Vscroll_Factor).w
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	#bytesToLcnt($1C0),d1
@@ -14969,10 +14965,10 @@ SwScrl_HTZ_2P:
 	asl.l	#6,d4
 	add.l	d4,(Camera_BG_X_pos_P2).w
 	moveq	#0,d0
-	move.w	d0,(Vscroll_Factor_P2+2).w
-	subi.w	#$E0,(Vscroll_Factor_P2+2).w
-	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2).w
-	subi.w	#$E0,(Vscroll_Factor_P2).w
+	move.w	d0,(Vscroll_Factor_P2_BG).w
+	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
+	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
+	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
 	lea	(Horiz_Scroll_Buf+$1B0).w,a1
 	move.w	#bytesToLcnt($1D0),d1
@@ -15000,7 +14996,7 @@ SwScrl_HPZ:
 	asl.l	#7,d5
 	moveq	#6,d6
 	bsr.w	SetVertiScrollFlagsBG
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	lea	(TempArray_LayerDef).w,a1
 	move.w	(Camera_X_pos).w,d2
 	neg.w	d2
@@ -15086,7 +15082,7 @@ SwScrl_OOZ:
 	add.l	d3,d0
 	moveq	#4,d6
 	bsr.w	SetVertiScrollFlagsBG2
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	lea	(Horiz_Scroll_Buf+$380).w,a1
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
@@ -15209,7 +15205,7 @@ SwScrl_MCZ:
 	swap	d0
 	moveq	#6,d6
 	bsr.w	SetVertiScrollFlagsBG2
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	moveq	#0,d2
 	tst.b	(Screen_Shaking_Flag).w
 	beq.s	+
@@ -15220,8 +15216,8 @@ SwScrl_MCZ:
 	lea	(a1,d0.w),a1
 	moveq	#0,d0
 	move.b	(a1)+,d0
-	add.w	d0,(Vscroll_Factor).w
-	add.w	d0,(Vscroll_Factor+2).w
+	add.w	d0,(Vscroll_Factor_FG).w
+	add.w	d0,(Vscroll_Factor_BG).w
 	add.w	d0,(Camera_Y_pos_copy).w
 	move.b	(a1)+,d2
 	add.w	d2,(Camera_X_pos_copy).w
@@ -15356,7 +15352,7 @@ SwScrl_MCZ_2P:
 	subi.w	#$10,d0
 +
 	move.w	d0,(Camera_BG_Y_pos).w
-	move.w	d0,(Vscroll_Factor+2).w
+	move.w	d0,(Vscroll_Factor_BG).w
 	andi.l	#$FFFEFFFE,(Vscroll_Factor).w
 	lea	(TempArray_LayerDef).w,a2
 	lea	$1E(a2),a3
@@ -15488,10 +15484,10 @@ byte_CF90:
 	subi.w	#$10,d0
 +
 	move.w	d0,(Camera_BG_Y_pos_P2).w
-	move.w	d0,(Vscroll_Factor_P2+2).w
-	subi.w	#$E0,(Vscroll_Factor_P2+2).w
-	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2).w
-	subi.w	#$E0,(Vscroll_Factor_P2).w
+	move.w	d0,(Vscroll_Factor_P2_BG).w
+	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
+	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
+	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
 	lea	(TempArray_LayerDef).w,a2
 	lea	$1E(a2),a3
@@ -15593,7 +15589,7 @@ SwScrl_CNZ:
 	move.w	(Camera_Y_pos).w,d0
 	lsr.w	#6,d0
 	move.w	d0,(Camera_BG_Y_pos).w
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	move.w	(Camera_X_pos).w,d2
 	bsr.w	sub_D160
 	lea	(byte_D156).l,a3
@@ -15695,7 +15691,7 @@ SwScrl_CNZ_2P:
 	move.w	(Camera_Y_pos).w,d0
 	lsr.w	#6,d0
 	move.w	d0,(Camera_BG_Y_pos).w
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	andi.l	#$FFFEFFFE,(Vscroll_Factor).w
 	move.w	(Camera_X_pos).w,d2
 	bsr.w	sub_D160
@@ -15709,10 +15705,10 @@ SwScrl_CNZ_2P:
 	move.w	(Camera_Y_pos_P2).w,d0
 	lsr.w	#6,d0
 	move.w	d0,(Camera_BG_Y_pos_P2).w
-	move.w	d0,(Vscroll_Factor_P2+2).w
-	subi.w	#$E0,(Vscroll_Factor_P2+2).w
-	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2).w
-	subi.w	#$E0,(Vscroll_Factor_P2).w
+	move.w	d0,(Vscroll_Factor_P2_BG).w
+	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
+	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
+	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
 	move.w	(Camera_X_pos_P2).w,d2
 	bsr.w	sub_D160
@@ -15807,7 +15803,7 @@ SwScrl_CPZ:
 	bsr.w	SetHorizScrollFlagsBG2
 	move.w	(Camera_BG_Y_pos).w,d0
 	move.w	d0,(Camera_BG2_Y_pos).w
-	move.w	d0,(Vscroll_Factor+2).w
+	move.w	d0,(Vscroll_Factor_BG).w
 	move.b	(Scroll_flags_BG).w,d0
 	or.b	(Scroll_flags_BG2).w,d0
 	move.b	d0,(Scroll_flags_BG3).w
@@ -15893,7 +15889,7 @@ SwScrl_DEZ:
 	ext.l	d5
 	asl.l	#8,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	move.w	(Camera_X_pos).w,d4
 	lea	(TempArray_LayerDef).w,a2
 	move.w	d4,(a2)+
@@ -15993,8 +15989,8 @@ SwScrl_DEZ:
 	lea	(a1,d0.w),a1
 	moveq	#0,d0
 	move.b	(a1)+,d0
-	add.w	d0,(Vscroll_Factor).w
-	add.w	d0,(Vscroll_Factor+2).w
+	add.w	d0,(Vscroll_Factor_FG).w
+	add.w	d0,(Vscroll_Factor_BG).w
 	add.w	d0,(Camera_Y_pos_copy).w
 	move.b	(a1)+,d2
 	add.w	d2,(Camera_X_pos_copy).w
@@ -16025,7 +16021,7 @@ SwScrl_ARZ:
 +
 	moveq	#6,d6
 	bsr.w	SetVertiScrollFlagsBG
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	moveq	#0,d2
 	tst.b	(Screen_Shaking_Flag).w
 	beq.s	+
@@ -16036,8 +16032,8 @@ SwScrl_ARZ:
 	lea	(a1,d0.w),a1
 	moveq	#0,d0
 	move.b	(a1)+,d0
-	add.w	d0,(Vscroll_Factor).w
-	add.w	d0,(Vscroll_Factor+2).w
+	add.w	d0,(Vscroll_Factor_FG).w
+	add.w	d0,(Vscroll_Factor_BG).w
 	add.w	d0,(Camera_Y_pos_copy).w
 	move.b	(a1)+,d2
 	add.w	d2,(Camera_X_pos_copy).w
@@ -16161,7 +16157,7 @@ SwScrl_SCZ:
 	asl.l	#7,d4
 	moveq	#0,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	#bytesToLcnt($380),d1
 	move.w	(Camera_X_pos).w,d0
@@ -16184,7 +16180,7 @@ SwScrl_Minimal:
 	ext.l	d5
 	asl.l	#6,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	#bytesToLcnt($380),d1
 	move.w	(Camera_X_pos).w,d0
@@ -24711,8 +24707,8 @@ Obj34_Init:
 	dbf	d1,-
 
 	move.w	#$26,(TitleCard_Bottom+objoff_34).w
-	clr.w	(Vscroll_Factor).w
-	move.w	#-$E0,(Vscroll_Factor_P2).w
+	clr.w	(Vscroll_Factor_FG).w
+	move.w	#-$E0,(Vscroll_Factor_P2_FG).w
 
 	clearRAM Horiz_Scroll_Buf,$400
 
@@ -33251,11 +33247,11 @@ Obj01_CheckWallsOnGround:
 	move.b	angle(a0),d0
 	addi.b	#$40,d0
 	bmi.s	return_1A6BE
-	move.b	#$40,d1
-	tst.w	inertia(a0)
-	beq.s	return_1A6BE
-	bmi.s	+
-	neg.w	d1
+	move.b	#$40,d1			; Rotate 90 degrees clockwise
+	tst.w	inertia(a0)		; Check inertia
+	beq.s	return_1A6BE	; If not moving, don't do anything
+	bmi.s	+				; If negative, branch
+	neg.w	d1				; Otherwise, we want to rotate counterclockwise
 +
 	move.b	angle(a0),d0
 	add.b	d1,d0
@@ -34321,7 +34317,7 @@ Sonic_HitLeftWall:
 ; ===========================================================================
 ; loc_1AFA6:
 Sonic_HitCeiling:
-	bsr.w	CheckCeilingDist
+	bsr.w	Sonic_CheckCeiling
 	tst.w	d1
 	bpl.s	Sonic_HitFloor ; branch if distance is positive (not inside ceiling)
 	sub.w	d1,y_pos(a0)
@@ -34362,7 +34358,7 @@ Sonic_HitCeilingAndWalls:
 	add.w	d1,x_pos(a0)
 	move.w	#0,x_vel(a0)	; stop Sonic since he hit a wall
 +
-	bsr.w	CheckCeilingDist
+	bsr.w	Sonic_CheckCeiling
 	tst.w	d1
 	bpl.s	return_1B042
 	sub.w	d1,y_pos(a0)
@@ -34398,7 +34394,7 @@ Sonic_HitRightWall:
 ; identical to Sonic_HitCeiling...
 ; loc_1B05E:
 Sonic_HitCeiling2:
-	bsr.w	CheckCeilingDist
+	bsr.w	Sonic_CheckCeiling
 	tst.w	d1
 	bpl.s	Sonic_HitFloor2
 	sub.w	d1,y_pos(a0)
@@ -37044,7 +37040,7 @@ Tails_HitLeftWall:
 ; ===========================================================================
 ; loc_1CA56:
 Tails_HitCeiling:
-	bsr.w	CheckCeilingDist
+	bsr.w	Sonic_CheckCeiling
 	tst.w	d1
 	bpl.s	Tails_HitFloor	; branch if distance is positive (not inside ceiling)
 	sub.w	d1,y_pos(a0)
@@ -37085,7 +37081,7 @@ Tails_HitCeilingAndWalls:
 	add.w	d1,x_pos(a0)
 	move.w	#0,x_vel(a0)	; stop Tails since he hit a wall
 +
-	bsr.w	CheckCeilingDist
+	bsr.w	Sonic_CheckCeiling
 	tst.w	d1
 	bpl.s	return_1CAF2
 	sub.w	d1,y_pos(a0)
@@ -37121,7 +37117,7 @@ Tails_HitRightWall:
 ; identical to Tails_HitCeiling...
 ; loc_1CB0E:
 Tails_HitCeiling2:
-	bsr.w	CheckCeilingDist
+	bsr.w	Sonic_CheckCeiling
 	tst.w	d1
 	bpl.s	Tails_HitFloor2
 	sub.w	d1,y_pos(a0)
@@ -38926,9 +38922,9 @@ loc_1E28E:
 loc_1E292:
 	andi.b	#$C0,d0
 	cmpi.b	#$40,d0
-	beq.w	loc_1E4E8
+	beq.w	Sonic_WalkVertL
 	cmpi.b	#$80,d0
-	beq.w	loc_1E43A
+	beq.w	Sonic_WalkCeiling
 	cmpi.b	#$C0,d0
 	beq.w	Sonic_WalkVertR
 	move.w	y_pos(a0),d2
@@ -39103,8 +39099,8 @@ loc_1E420:
 	move.b	#AniIDSonAni_Run,next_anim(a0)
 	rts
 ; ===========================================================================
-
-loc_1E43A:
+;loc_1E43A
+Sonic_WalkCeiling:
 	move.w	y_pos(a0),d2
 	move.w	x_pos(a0),d3
 	moveq	#0,d0
@@ -39170,8 +39166,8 @@ loc_1E4CE:
 	move.b	#AniIDSonAni_Run,next_anim(a0)
 	rts
 ; ===========================================================================
-
-loc_1E4E8:
+;loc_1E4E8
+Sonic_WalkVertL:
 	move.w	y_pos(a0),d2
 	move.w	x_pos(a0),d3
 	moveq	#0,d0
@@ -39238,7 +39234,7 @@ loc_1E57C:
 	rts
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
-; Subroutine to find which tile the object is standing on
+; Subroutine to find which tile is in the specified location
 ; d2 = y_pos
 ; d3 = x_pos
 ; returns relevant block ID in (a1)
@@ -39247,8 +39243,8 @@ loc_1E57C:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; loc_1E596:
-Floor_ChkTile:
+; loc_1E596: Floor_ChkTile:
+Find_Tile:
 	move.w	d2,d0	; y_pos
 	add.w	d0,d0
 	andi.w	#$F00,d0	; rounded 2*y_pos
@@ -39259,7 +39255,7 @@ Floor_ChkTile:
 	andi.w	#$7F,d1
 	add.w	d1,d0	; d0 is relevant chunk ID now
 	moveq	#-1,d1
-	clr.w	d1
+	clr.w	d1		; d1 is now $FFFF0000 = Chunk_Table
 	lea	(Level_Layout).w,a1
 	move.b	(a1,d0.w),d1	; move 128*128 chunk ID to d1
 	add.w	d1,d1
@@ -39272,150 +39268,32 @@ Floor_ChkTile:
 	movea.l	d1,a1	; address of block ID
 	rts
 ; ===========================================================================
-; precalculated values for Floor_ChkTile
+; precalculated values for Find_Tile
 ; (Sonic 1 calculated it every time instead of using a table)
 word_1E5D0:
-	dc.w	 0,  $80
-	dc.w  $100, $180
-	dc.w  $200, $280
-	dc.w  $300, $380
-	dc.w  $400, $480
-	dc.w  $500, $580
-	dc.w  $600, $680
-	dc.w  $700, $780
-	dc.w  $800, $880
-	dc.w  $900, $980
-	dc.w  $A00, $A80
-	dc.w  $B00, $B80
-	dc.w  $C00, $C80
-	dc.w  $D00, $D80
-	dc.w  $E00, $E80
-	dc.w  $F00, $F80
-	dc.w $1000,$1080
-	dc.w $1100,$1180
-	dc.w $1200,$1280
-	dc.w $1300,$1380
-	dc.w $1400,$1480
-	dc.w $1500,$1580
-	dc.w $1600,$1680
-	dc.w $1700,$1780
-	dc.w $1800,$1880
-	dc.w $1900,$1980
-	dc.w $1A00,$1A80
-	dc.w $1B00,$1B80
-	dc.w $1C00,$1C80
-	dc.w $1D00,$1D80
-	dc.w $1E00,$1E80
-	dc.w $1F00,$1F80
-	dc.w $2000,$2080
-	dc.w $2100,$2180
-	dc.w $2200,$2280
-	dc.w $2300,$2380
-	dc.w $2400,$2480
-	dc.w $2500,$2580
-	dc.w $2600,$2680
-	dc.w $2700,$2780
-	dc.w $2800,$2880
-	dc.w $2900,$2980
-	dc.w $2A00,$2A80
-	dc.w $2B00,$2B80
-	dc.w $2C00,$2C80
-	dc.w $2D00,$2D80
-	dc.w $2E00,$2E80
-	dc.w $2F00,$2F80
-	dc.w $3000,$3080
-	dc.w $3100,$3180
-	dc.w $3200,$3280
-	dc.w $3300,$3380
-	dc.w $3400,$3480
-	dc.w $3500,$3580
-	dc.w $3600,$3680
-	dc.w $3700,$3780
-	dc.w $3800,$3880
-	dc.w $3900,$3980
-	dc.w $3A00,$3A80
-	dc.w $3B00,$3B80
-	dc.w $3C00,$3C80
-	dc.w $3D00,$3D80
-	dc.w $3E00,$3E80
-	dc.w $3F00,$3F80
-	dc.w $4000,$4080
-	dc.w $4100,$4180
-	dc.w $4200,$4280
-	dc.w $4300,$4380
-	dc.w $4400,$4480
-	dc.w $4500,$4580
-	dc.w $4600,$4680
-	dc.w $4700,$4780
-	dc.w $4800,$4880
-	dc.w $4900,$4980
-	dc.w $4A00,$4A80
-	dc.w $4B00,$4B80
-	dc.w $4C00,$4C80
-	dc.w $4D00,$4D80
-	dc.w $4E00,$4E80
-	dc.w $4F00,$4F80
-	dc.w $5000,$5080
-	dc.w $5100,$5180
-	dc.w $5200,$5280
-	dc.w $5300,$5380
-	dc.w $5400,$5480
-	dc.w $5500,$5580
-	dc.w $5600,$5680
-	dc.w $5700,$5780
-	dc.w $5800,$5880
-	dc.w $5900,$5980
-	dc.w $5A00,$5A80
-	dc.w $5B00,$5B80
-	dc.w $5C00,$5C80
-	dc.w $5D00,$5D80
-	dc.w $5E00,$5E80
-	dc.w $5F00,$5F80
-	dc.w $6000,$6080
-	dc.w $6100,$6180
-	dc.w $6200,$6280
-	dc.w $6300,$6380
-	dc.w $6400,$6480
-	dc.w $6500,$6580
-	dc.w $6600,$6680
-	dc.w $6700,$6780
-	dc.w $6800,$6880
-	dc.w $6900,$6980
-	dc.w $6A00,$6A80
-	dc.w $6B00,$6B80
-	dc.w $6C00,$6C80
-	dc.w $6D00,$6D80
-	dc.w $6E00,$6E80
-	dc.w $6F00,$6F80
-	dc.w $7000,$7080
-	dc.w $7100,$7180
-	dc.w $7200,$7280
-	dc.w $7300,$7380
-	dc.w $7400,$7480
-	dc.w $7500,$7580
-	dc.w $7600,$7680
-	dc.w $7700,$7780
-	dc.w $7800,$7880
-	dc.w $7900,$7980
-	dc.w $7A00,$7A80
-	dc.w $7B00,$7B80
-	dc.w $7C00,$7C80
-	dc.w $7D00,$7D80
-	dc.w $7E00,$7E80
-	dc.w $7F00,$7F80
+c := 0
+	rept 256
+		dc.w	c
+c := c+$80
+	endm
 ; ===========================================================================
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+; Scans vertically for up to 2 16x16 blocks to find solid ground or ceiling.
 ; d2 = y_pos
 ; d3 = x_pos
-; d5 = ($c,$d) - solidity type bit (L/R/B or top)
+; d5 = ($c,$d) or ($e,$f) - solidity type bit (L/R/B or top)
+; d6 = $0000 for no flip, $0800 for vertical flip
+; a3 = delta-y for next location to check if current one is empty
+; a4 = pointer to angle buffer
 ; returns relevant block ID in (a1)
-; returns distance to bottom in d1
+; returns distance in d1
+; returns angle in (a4)
 
 ; loc_1E7D0:
 FindFloor:
-	bsr.w	Floor_ChkTile
+	bsr.w	Find_Tile
 	move.w	(a1),d0
 	move.w	d0,d4
 	andi.w	#$3FF,d0
@@ -39491,10 +39369,19 @@ loc_1E86A:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+; Checks a 16x16 block to find solid ground or ceiling.
+; d2 = y_pos
+; d3 = x_pos
+; d5 = ($c,$d) or ($e,$f) - solidity type bit (L/R/B or top)
+; d6 = $0000 for no flip, $0800 for vertical flip
+; a4 = pointer to angle buffer
+; returns relevant block ID in (a1)
+; returns distance in d1
+; returns angle in (a4)
 
 ; loc_1E878:
 FindFloor2:
-	bsr.w	Floor_ChkTile
+	bsr.w	Find_Tile
 	move.w	(a1),d0
 	move.w	d0,d4
 	andi.w	#$3FF,d0
@@ -39559,9 +39446,21 @@ loc_1E900:
 	not.w	d1
 	rts
 ; ===========================================================================
-; loc_1E910:
-Obj_CheckInFloor:
-	bsr.w	Floor_ChkTile
+
+; Checks a 16x16 block to find solid ground or ceiling. May check an additional
+; 16x16 block up for ceilings.
+; d2 = y_pos
+; d3 = x_pos
+; d5 = ($c,$d) or ($e,$f) - solidity type bit (L/R/B or top)
+; d6 = $0000 for no flip, $0800 for vertical flip
+; a4 = pointer to angle buffer
+; returns relevant block ID in (a1)
+; returns distance in d1
+; returns angle in (a4)
+
+; loc_1E910: Obj_CheckInFloor:
+Ring_FindFloor:
+	bsr.w	Find_Tile
 	move.w	(a1),d0
 	move.w	d0,d4
 	andi.w	#$3FF,d0
@@ -39633,16 +39532,20 @@ loc_1E9A2:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+; Scans horizontally for up to 2 16x16 blocks to find solid walls.
 ; d2 = y_pos
 ; d3 = x_pos
-; d5 = ($c,$d) - solidity type bit (L/R/B or top)
+; d5 = ($c,$d) or ($e,$f) - solidity type bit (L/R/B or top)
+; d6 = $0000 for no flip, $0400 for horizontal flip
+; a3 = delta-x for next location to check if current one is empty
+; a4 = pointer to angle buffer
 ; returns relevant block ID in (a1)
 ; returns distance to left/right in d1
 ; returns angle in (a4)
 
 ; loc_1E9B0:
 FindWall:
-	bsr.w	Floor_ChkTile
+	bsr.w	Find_Tile
 	move.w	(a1),d0
 	move.w	d0,d4
 	andi.w	#$3FF,d0	; plain blockID
@@ -39680,7 +39583,7 @@ loc_1E9D0:
 +
 	andi.w	#$F,d1	; y
 	add.w	d0,d1	; line to look up
-	lea	(ColArray+$1000).l,a2	; rotated collision array
+	lea	(ColArray2).l,a2	; rotated collision array
 	move.b	(a2,d1.w),d0	; collision value
 	ext.w	d0
 	eor.w	d6,d4	; set x-flip flag if from the right
@@ -39718,9 +39621,19 @@ loc_1EA4A:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+; Checks a 16x16 blocks to find solid walls.
+; d2 = y_pos
+; d3 = x_pos
+; d5 = ($c,$d) or ($e,$f) - solidity type bit (L/R/B or top)
+; d6 = $0000 for no flip, $0400 for horizontal flip
+; a4 = pointer to angle buffer
+; returns relevant block ID in (a1)
+; returns distance to left/right in d1
+; returns angle in (a4)
+
 ; loc_1EA58:
 FindWall2:
-	bsr.w	Floor_ChkTile
+	bsr.w	Find_Tile
 	move.w	(a1),d0
 	move.w	d0,d4
 	andi.w	#$3FF,d0
@@ -39758,7 +39671,7 @@ loc_1EA78:
 +
 	andi.w	#$F,d1
 	add.w	d0,d1
-	lea	(ColArray+$1000).l,a2
+	lea	(ColArray2).l,a2
 	move.b	(a2,d1.w),d0
 	ext.w	d0
 	eor.w	d6,d4
@@ -39890,7 +39803,7 @@ CalcRoomInFront:
 	beq.s	+
 	move.l	#Secondary_Collision,(Collision_addr).w
 +
-	move.b	layer_plus(a0),d5
+	move.b	layer_plus(a0),d5			; Want walls or ceilings
 	move.l	x_pos(a0),d3
 	move.l	y_pos(a0),d2
 	move.w	x_vel(a0),d1
@@ -39925,16 +39838,16 @@ loc_1EBDC:
 
 loc_1EBE6:
 	andi.b	#$C0,d0
-	beq.w	loc_1ECE6
+	beq.w	CheckFloorDist_Part2		; Player is going mostly down
 	cmpi.b	#$80,d0
-	beq.w	CheckSlopeDist
+	beq.w	CheckCeilingDist_Part2		; Player is going mostly up
 	andi.b	#$38,d1
 	bne.s	+
 	addq.w	#8,d2
 +
 	cmpi.b	#$40,d0
-	beq.w	CheckLeftWallDist_Part2
-	bra.w	CheckRightWallDist_Part2
+	beq.w	CheckLeftWallDist_Part2		; Player is going mostly left
+	bra.w	CheckRightWallDist_Part2	; Player is going mostly right
 
 ; End of function CalcRoomInFront
 
@@ -39962,7 +39875,7 @@ CalcRoomOverHead:
 	cmpi.b	#$40,d0
 	beq.w	CheckLeftCeilingDist
 	cmpi.b	#$80,d0
-	beq.w	CheckCeilingDist
+	beq.w	Sonic_CheckCeiling
 	cmpi.b	#$C0,d0
 	beq.w	CheckRightCeilingDist
 
@@ -40028,11 +39941,20 @@ loc_1ECD4:
 ; ===========================================================================
 
 	; a bit of unused/dead code here
+CheckFloorDist:
 	move.w	y_pos(a0),d2 ; a0=character
 	move.w	x_pos(a0),d3
 
-	; no idea what this is for, some collision check
-loc_1ECE6:
+; Checks a 16x16 block to find solid ground. May check an additional
+; 16x16 block up for ceilings.
+; d2 = y_pos
+; d3 = x_pos
+; d5 = ($c,$d) or ($e,$f) - solidity type bit (L/R/B or top)
+; returns relevant block ID in (a1)
+; returns distance in d1
+; returns angle in d3, or zero if angle was odd
+;loc_1ECE6:
+CheckFloorDist_Part2:
 	addi.w	#$A,d2
 	lea	(Primary_Angle).w,a4
 	movea.w	#$10,a3
@@ -40040,7 +39962,8 @@ loc_1ECE6:
 	bsr.w	FindFloor
 	move.b	#0,d2
 
-	; called at the end of the wall checking routines... don't know what it does either
+; d2 what to use as angle if (Primary_Angle).w is odd
+; returns angle in d3, or value in d2 if angle was odd
 loc_1ECFE:
 	move.b	(Primary_Angle).w,d3
 	btst	#0,d3
@@ -40197,7 +40120,7 @@ RingCheckFloorDist:
 	movea.w	#$10,a3
 	move.w	#0,d6
 	moveq	#$C,d5
-	bra.w	Obj_CheckInFloor
+	bra.w	Ring_FindFloor
 ; End of function RingCheckFloorDist
 
 ; ---------------------------------------------------------------------------
@@ -40247,6 +40170,12 @@ CheckRightCeilingDist:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+; Checks a 16x16 block to find solid walls. May check an additional
+; 16x16 block up for walls.
+; d5 = ($c,$d) or ($e,$f) - solidity type bit (L/R/B or top)
+; returns relevant block ID in (a1)
+; returns distance in d1
+; returns angle in d3, or zero if angle was odd
 ; sub_1EEDC:
 CheckRightWallDist:
 	move.w	y_pos(a0),d2
@@ -40288,8 +40217,8 @@ ObjCheckLeftWallDist:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; loc_1EF2E: Sonic_DontRunOnWalls:
-CheckCeilingDist:
+; loc_1EF2E: Sonic_DontRunOnWalls: CheckCeilingDist:
+Sonic_CheckCeiling:
 	move.w	y_pos(a0),d2
 	move.w	x_pos(a0),d3
 	moveq	#0,d0
@@ -40324,18 +40253,26 @@ CheckCeilingDist:
 
 	move.b	#$80,d2
 	bra.w	loc_1ECC6
-; End of function CheckCeilingDist
+; End of function Sonic_CheckCeiling
 
 ; ===========================================================================
 	; a bit of unused/dead code here
+CheckCeilingDist:
 	move.w	y_pos(a0),d2 ; a0=character
 	move.w	x_pos(a0),d3
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; called when Sonic/Tails walks up a curving slope... I'm not sure what it does
-; loc_1EF9E:
-CheckSlopeDist:
+; Checks a 16x16 block to find solid ceiling. May check an additional
+; 16x16 block up for ceilings.
+; d2 = y_pos
+; d3 = x_pos
+; d5 = ($c,$d) or ($e,$f) - solidity type bit (L/R/B or top)
+; returns relevant block ID in (a1)
+; returns distance in d1
+; returns angle in d3, or zero if angle was odd
+; loc_1EF9E: CheckSlopeDist:
+CheckCeilingDist_Part2:
 	subi.w	#$A,d2
 	eori.w	#$F,d2
 	lea	(Primary_Angle).w,a4
@@ -40344,7 +40281,7 @@ CheckSlopeDist:
 	bsr.w	FindFloor
 	move.b	#$80,d2
 	bra.w	loc_1ECFE
-; End of function CheckSlopeDist
+; End of function CheckCeilingDist
 
 ; ---------------------------------------------------------------------------
 ; Stores a distance to the nearest wall above the object into d1
@@ -40424,6 +40361,12 @@ CheckLeftCeilingDist:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+; Checks a 16x16 block to find solid walls. May check an additional
+; 16x16 block up for walls.
+; d5 = ($c,$d) or ($e,$f) - solidity type bit (L/R/B or top)
+; returns relevant block ID in (a1)
+; returns distance in d1
+; returns angle in d3, or zero if angle was odd
 ; loc_1F05E: Sonic_HitWall:
 CheckLeftWallDist:
 	move.w	y_pos(a0),d2
@@ -59770,7 +59713,7 @@ off_2F55C:	offsetTable
 
 loc_2F560:	; Obj56_Propeller_Sub0
 	movea.l	objoff_34(a0),a1 ; parent address (vehicle)
-	cmpi.b	#$56,(a1)
+	cmpi.b	#ObjID_EHZBoss,id(a1)
 	bne.w	JmpTo52_DeleteObject	; if boss non-existant
 	btst	#0,objoff_2D(a1)	; is robotnik on ground?
 	beq.s	loc_2F58E	; if not, branch
@@ -59923,7 +59866,7 @@ loc_2F706:
 
 loc_2F714:	; Obj56_Wheel_Sub2:
 	movea.l	objoff_34(a0),a1 ; parent address (vehicle)
-	cmpi.b	#$56,(a1)
+	cmpi.b	#ObjID_EHZBoss,id(a1)
 	bne.w	JmpTo52_DeleteObject	; if boss non-existant
 	btst	#1,objoff_2D(a1)
 	beq.w	JmpTo35_DisplaySprite	; boss not moving yet (inactive)
@@ -59940,7 +59883,7 @@ BranchTo_JmpTo35_DisplaySprite
 
 loc_2F746:	; Obj56_Wheel_Sub4:
 	movea.l	objoff_34(a0),a1 ; parent address (vehicle)
-	cmpi.b	#$56,(a1)
+	cmpi.b	#ObjID_EHZBoss,id(a1)
 	bne.w	JmpTo52_DeleteObject	; if boss non-existant
 	move.b	status(a1),status(a0)
 	move.b	render_flags(a1),render_flags(a0)
@@ -60016,7 +59959,7 @@ loc_2F816:
 
 loc_2F824:	; Obj56_Spike_Sub2:
 	movea.l	objoff_34(a0),a1 ; parent address (vehicle)
-	cmpi.b	#$56,(a1)
+	cmpi.b	#ObjID_EHZBoss,id(a1)
 	bne.w	JmpTo52_DeleteObject	; if boss non-existant
 	btst	#3,objoff_2D(a1)
 	bne.s	loc_2F88A	; spike separated from vehicle
@@ -60279,8 +60222,8 @@ Obj52_Init:
 	move.w	x_pos(a0),(Boss_X_pos).w
 	move.w	y_pos(a0),(Boss_Y_pos).w
 	clr.b	objoff_14(a0)
-	move.w	x_pos(a0),x_vel(a0)
-	move.w	y_pos(a0),y_vel(a0)
+	move.w	x_pos(a0),sub2_x_pos(a0)
+	move.w	y_pos(a0),sub2_y_pos(a0)
 	move.b	#2,sub2_mapframe(a0)
 	bsr.w	loc_2FCEA
 	rts
@@ -60461,8 +60404,8 @@ loc_2FED0:
 loc_2FEDE:
 	move.w	x_pos(a0),d0
 	move.w	y_pos(a0),d1
-	move.w	d0,x_vel(a0)
-	move.w	d1,y_vel(a0)
+	move.w	d0,sub2_x_pos(a0)
+	move.w	d1,sub2_y_pos(a0)
 	rts
 ; ===========================================================================
 
@@ -60571,7 +60514,7 @@ loc_30008:
 	tst.w	d1
 	bpl.s	loc_30064
 	add.w	d1,y_pos(a0)
-	move.b	#$20,(a0) ; load 0bj20
+	move.b	#ObjID_LavaBubble,id(a0) ; load 0bj20
 	move.b	#$A,routine(a0)
 	move.b	#2,anim(a0)
 	move.b	#4,mapping_frame(a0)
@@ -63930,7 +63873,7 @@ Obj54_Laser_Main:
 ;loc_32D48
 Obj54_LaserShooter:
 	movea.l	objoff_34(a0),a1 ; a1=object
-	cmpi.b	#$54,(a1)
+	cmpi.b	#ObjID_MTZBoss,id(a1)
 	bne.w	JmpTo61_DeleteObject
 	move.w	x_pos(a1),x_pos(a0)
 	move.w	y_pos(a1),y_pos(a0)
@@ -66041,7 +65984,6 @@ Obj61_Init:
 	bsr.w	loc_3529C
 
 loc_34F06:
-
 	bsr.w	loc_3512A
 	bsr.w	loc_351A0
 	lea	(Ani_obj61).l,a1
@@ -70584,7 +70526,7 @@ loc_37ED4:
 
 loc_37EFC:
 	movea.w	parent(a0),a1 ; a1=object
-	cmpi.b	#$9E,(a1)
+	cmpi.b	#ObjID_Crawlton,id(a1)
 	bne.w	JmpTo65_DeleteObject
 	bclr	#0,render_flags(a0)
 	btst	#0,render_flags(a1)
@@ -70864,7 +70806,7 @@ byte_381A4:
 
 loc_381AC:
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	cmpi.b	#$9F,(a1)
+	cmpi.b	#ObjID_Shellcracker,id(a1)
 	bne.s	loc_381D0
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
@@ -72545,7 +72487,7 @@ loc_394A2:
 +
 	lea	mapping_frame(a0),a1
 	clr.l	(a1)
-	clr.w	4(a1)
+	clr.w	anim_frame_duration-mapping_frame(a1)
 	move.b	#8,(a1)
 	move.b	#6,collision_flags(a0)
 	bra.w	JmpTo39_MarkObjGone
@@ -72567,7 +72509,7 @@ loc_394E0:
 	addq.b	#2,routine(a0)
 	lea	mapping_frame(a0),a1
 	clr.l	(a1)
-	clr.w	4(a1)
+	clr.w	anim_frame_duration-mapping_frame(a1)
 	move.b	#$B,(a1)
 	bsr.w	loc_39526
 	bra.w	JmpTo39_MarkObjGone
@@ -73768,8 +73710,8 @@ Ani_objB0:	offsetTable
 ; ------------------------------------------------------------------------------
 ObjB1_MapUnc_3A5A6:	BINCLUDE "mappings/sprite/objB1.bin"
 ; ===========================================================================
-
-loc_3A68A:
+;loc_3A68A
+SegaScr_VInt:
 	move.w	(SegaScr_VInt_Subrout).w,d0
 	beq.w	return_37A48
 	clr.w	(SegaScr_VInt_Subrout).w
@@ -76769,7 +76711,7 @@ ObjC5_PlatformReleaserDestroyP: 	; P=Platforms
 
 ObjC5_PlatformReleaserDelete:
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	cmpi.b	#$C5,(a1)
+	cmpi.b	#ObjID_WFZBoss,id(a1)
 	bne.w	JmpTo65_DeleteObject
 	bsr.w	JmpTo_Boss_LoadExplosion
 	bra.w	JmpTo45_DisplaySprite
@@ -76854,7 +76796,7 @@ ObjC5_PlatformCheckExplode:	; checks to see if platforms should explode
 
 ObjC5_PlatformExplode:
 	bsr.w	loc_3B7BC
-	move.b	#$58,(a0) ; load 0bj58 (explosion)
+	move.b	#ObjID_BossExplosion,id(a0) ; load 0bj58 (explosion)
 	clr.b	routine(a0)
 	movea.w	objoff_3C(a0),a1 ; a1=object (invisible hurting thing)
 	bsr.w	JmpTo6_DeleteObject2
@@ -81828,14 +81770,14 @@ LoadLevelBlocks_2P:
 ; --------------------------------------------------------------------------------------
 ; off_40350:
 AnimPatMaps: zoneOrderedOffsetTable 2,1
-	zoneOffsetTableEntry.w APM16_EHZ	;  0
+	zoneOffsetTableEntry.w APM_EHZ		;  0
 	zoneOffsetTableEntry.w APM_Null		;  1
 	zoneOffsetTableEntry.w APM_Null		;  2
 	zoneOffsetTableEntry.w APM_Null		;  3
-	zoneOffsetTableEntry.w APM16_MTZ	;  4
-	zoneOffsetTableEntry.w APM16_MTZ	;  5
+	zoneOffsetTableEntry.w APM_MTZ		;  4
+	zoneOffsetTableEntry.w APM_MTZ		;  5
 	zoneOffsetTableEntry.w APM_Null		;  6
-	zoneOffsetTableEntry.w APM16_EHZ	;  7
+	zoneOffsetTableEntry.w APM_EHZ		;  7
 	zoneOffsetTableEntry.w APM_HPZ		;  8
 	zoneOffsetTableEntry.w APM_Null		;  9
 	zoneOffsetTableEntry.w APM_OOZ		; $A
@@ -81847,10 +81789,16 @@ AnimPatMaps: zoneOrderedOffsetTable 2,1
 	zoneOffsetTableEntry.w APM_Null		;$10
     zoneTableEnd
 
+begin_animpat macro {INTLABEL}
+__LABEL__ label *
+__LABEL___Len := __LABEL___End - __LABEL___Blocks
+	dc.w $1800 - __LABEL___Len
+	dc.w bytesToWcnt(__LABEL___Len)
+__LABEL___Blocks:
+    endm
+
 ; byte_40372:
-APM16_EHZ:
-	dc.w $1788,(APM_EHZ_End-APM_EHZ_Blocks)/2-1
-APM_EHZ_Blocks:
+APM_EHZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_EHZMountains+$0 ,0,0,2,0),make_block_tile(ArtTile_ArtUnc_EHZMountains+$4 ,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_EHZMountains+$1 ,0,0,2,0),make_block_tile(ArtTile_ArtUnc_EHZMountains+$5 ,0,0,2,0)
 	
@@ -81900,9 +81848,7 @@ APM_EHZ_End:
 
 
 ; byte_403EE:
-APM16_MTZ:
-	dc.w $1730,(APM_MTZ_End-APM_MTZ_Blocks)/2-1
-APM_MTZ_Blocks:
+APM_MTZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_MTZAnimBack_1+$0,0,0,1,0),make_block_tile(ArtTile_ArtUnc_MTZAnimBack_1+$0,1,0,1,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_MTZAnimBack_1+$1,0,0,1,0),make_block_tile(ArtTile_ArtUnc_MTZAnimBack_1+$1,1,0,1,0)
 	
@@ -81985,9 +81931,7 @@ APM_MTZ_End:
 
 
 ; byte_404C2:
-APM_HPZ:
-	dc.w $1710,(APM_HPZ_End-APM_HPZ_Blocks)/2-1
-APM_HPZ_Blocks:
+APM_HPZ:	begin_animpat
 	dc.w make_block_tile($02e8,0,0,3,0),make_block_tile($02e9,0,0,3,0)
 	dc.w make_block_tile($02ea,0,0,3,0),make_block_tile($02eb,0,0,3,0)
 	
@@ -82082,9 +82026,7 @@ APM_HPZ_End:
 
 
 ; byte_405B6:
-APM_OOZ:
-	dc.w $17A0,(APM_OOZ_End-APM_OOZ_Blocks)/2-1
-APM_OOZ_Blocks:
+APM_OOZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_OOZPulseBall_1+$0,0,0,0,1),make_block_tile(ArtTile_ArtUnc_OOZPulseBall_1+$2,0,0,0,1)
 	dc.w make_block_tile(ArtTile_ArtUnc_OOZPulseBall_1+$1,0,0,0,1),make_block_tile(ArtTile_ArtUnc_OOZPulseBall_1+$3,0,0,0,1)
 	
@@ -82125,9 +82067,7 @@ APM_OOZ_End:
 
 
 ; byte_4061A:
-APM_CNZ:
-	dc.w $1760,(APM_CNZ_End-APM_CNZ_Blocks)/2-1
-APM_CNZ_Blocks:
+APM_CNZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_CNZSlotPics_1+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_CNZSlotPics_1+$4,0,0,0,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_CNZSlotPics_1+$1,0,0,0,0),make_block_tile(ArtTile_ArtUnc_CNZSlotPics_1+$5,0,0,0,0)
 	
@@ -82192,9 +82132,7 @@ APM_CNZ_End:
 
 
 ; byte_406BE:
-APM_CNZ2P:
-	dc.w $1760,(APM_CNZ2P_End-APM_CNZ2P_Blocks)/2-1
-APM_CNZ2P_Blocks:
+APM_CNZ2P:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_CNZSlotPics_1_2p+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_CNZSlotPics_1_2p+$4,0,0,0,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_CNZSlotPics_1_2p+$1,0,0,0,0),make_block_tile(ArtTile_ArtUnc_CNZSlotPics_1_2p+$5,0,0,0,0)
 	
@@ -82259,9 +82197,7 @@ APM_CNZ2P_End:
 
 
 ; byte_40762:
-APM_CPZ:
-	dc.w $17F8,(APM_CPZ_End-APM_CPZ_Blocks)/2-1
-APM_CPZ_Blocks:
+APM_CPZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_CPZAnimBack+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_CPZAnimBack+$1,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_CPZAnimBack+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_CPZAnimBack+$1,0,0,2,0)
 APM_CPZ_End:
@@ -82269,9 +82205,7 @@ APM_CPZ_End:
 
 
 ; byte_4076E:
-APM_DEZ:
-	dc.w $17F8,(APM_DEZ_End-APM_DEZ_Blocks)/2-1
-APM_DEZ_Blocks:
+APM_DEZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_DEZAnimBack+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_DEZAnimBack+$1,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_DEZAnimBack+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_DEZAnimBack+$1,0,0,2,0)
 APM_DEZ_End:
@@ -82279,9 +82213,7 @@ APM_DEZ_End:
 
 
 ; byte_4077A:
-APM_ARZ:
-	dc.w $17C0,(APM_ARZ_End-APM_ARZ_Blocks)/2-1
-APM_ARZ_Blocks:
+APM_ARZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall3+$0  ,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall3+$1  ,0,0,2,1)
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall3+$2  ,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall3+$3  ,0,0,2,1)
 	
