@@ -509,10 +509,10 @@ Vint0_noWater:
 ; table (in VRAM).
 
 VintSub2:
-	bsr.w	sub_E98
+	bsr.w	Do_ControllerPal
 
 	dma68kToVDP Horiz_Scroll_Buf,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
-	bsr.w	JmpTo_loc_3A68A
+	bsr.w	JmpTo_SegaScr_VInt
 	tst.w	(Demo_Time_left).w
 	beq.w	+	; rts
 	subq.w	#1,(Demo_Time_left).w
@@ -537,7 +537,7 @@ VintSub14:
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 VintSub4:
-	bsr.w	sub_E98
+	bsr.w	Do_ControllerPal
 	bsr.w	ProcessDPLC
 	tst.w	(Demo_Time_left).w
 	beq.w	+	; rts
@@ -547,7 +547,7 @@ VintSub4:
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 VintSub6:
-	bsr.w	sub_E98
+	bsr.w	Do_ControllerPal
 	rts
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -865,14 +865,14 @@ loc_BD6:
 ; ===========================================================================
 
 VintSubE:
-	bsr.w	sub_E98
+	bsr.w	Do_ControllerPal
 	addq.b	#1,(VIntSubE_RunCount).w
 	move.b	#$E,(Vint_routine).w
 	rts
 ; ===========================================================================
 
 VintSub12:
-	bsr.w	sub_E98
+	bsr.w	Do_ControllerPal
 	move.w	(Hint_counter_reserve).w,(a5)
 	bra.w	ProcessDPLC
 ; ===========================================================================
@@ -951,8 +951,8 @@ VintSub16:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-
-sub_E98:
+;sub_E98
+Do_ControllerPal:
 	stopZ80
 
 	bsr.w	ReadJoypads
@@ -1099,13 +1099,9 @@ JmpTo_LoadTilesAsYouMove
 	jmp	(LoadTilesAsYouMove).l
 ; End of function JmpTo_LoadTilesAsYouMove
 
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
-
-JmpTo_loc_3A68A 
-	jmp	(loc_3A68A).l
-; End of function JmpTo_loc_3A68A
+JmpTo_SegaScr_VInt 
+	jmp	(SegaScr_VInt).l
+; End of function JmpTo_SegaScr_VInt
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to initialize joypads
@@ -4318,8 +4314,8 @@ Level_TtlCard:
 	bsr.w	PalLoad1	; load Sonic's palette line
 	bsr.w	LevelSizeLoad
 	bsr.w	JmpTo_DeformBgLayer
-	clr.w	(Vscroll_Factor).w
-	move.w	#-$E0,(Vscroll_Factor_P2).w
+	clr.w	(Vscroll_Factor_FG).w
+	move.w	#-$E0,(Vscroll_Factor_P2_FG).w
 
 	clearRAM Horiz_Scroll_Buf,$400
 
@@ -8646,7 +8642,7 @@ off_6E54:	offsetTable
 
 ;sub_6EE0
 SSTrack_SetVscroll:
-	move.w	(Vscroll_Factor+2).w,(SSTrack_LastVScroll).w	; Save last vertical scroll value
+	move.w	(Vscroll_Factor_BG).w,(SSTrack_LastVScroll).w	; Save last vertical scroll value
 	moveq	#0,d7											; Set flag to decrease vertical scroll
 	moveq	#0,d0
 	moveq	#0,d2
@@ -8761,11 +8757,11 @@ SSTrack_ApplyVscroll:
 	move.b	(a0,d0.w),d2									; Get background offset for current frame duration
 	tst.b	d7												; Are we supposed to increase the vertical scroll?
 	bpl.s	+												; Branch if not
-	add.w	d2,(Vscroll_Factor+2).w							; Increase vertical scroll
+	add.w	d2,(Vscroll_Factor_BG).w						; Increase vertical scroll
 	rts
 ; ===========================================================================
 +
-	sub.w	d2,(Vscroll_Factor+2).w							; Decrease vertical scroll
+	sub.w	d2,(Vscroll_Factor_BG).w						; Decrease vertical scroll
 	rts
 ; End of function SSTrack_SetVscroll
 
@@ -11267,10 +11263,10 @@ iconData macro txtlabel,txtlabel2,vramAddr,iconPal,iconAddr
 	dc.l iconPal<<24|iconAddr	; icon palette and plane data location
     endm
 
-	iconData	Text2P_EmeraldHill,Text2P_Zone,$C104,0,$FF0330
-	iconData	Text2P_MysticCave,Text2P_Zone,$C12C,5,$FF03A8
-	iconData	Text2P_CasinoNight,Text2P_Zone,$C784,6,$FF03C0
-	iconData	Text2P_Special,Text2P_Stage,$C7AC,$C,$FF0450
+	iconData	Text2P_EmeraldHill,Text2P_Zone,VRAM_Plane_A_Name_Table+planeLocH40(2,2),0,$FF0330
+	iconData	Text2P_MysticCave,Text2P_Zone,VRAM_Plane_A_Name_Table+planeLocH40(22,2),5,$FF03A8
+	iconData	Text2P_CasinoNight,Text2P_Zone,VRAM_Plane_A_Name_Table+planeLocH40(2,15),6,$FF03C0
+	iconData	Text2P_Special,Text2P_Stage,VRAM_Plane_A_Name_Table+planeLocH40(22,15),$C,$FF0450
 
 ; ---------------------------------------------------------------------------
 ; Common menu screen subroutine for transferring text to RAM
@@ -11582,9 +11578,9 @@ boxData macro txtlabel,vramAddr
 	dc.l txtlabel, vdpComm(vramAddr,VRAM,WRITE)
     endm
 
-	boxData	TextOptScr_PlayerSelect,$C192
-	boxData	TextOptScr_VsModeItems,$C592
-	boxData	TextOptScr_SoundTest,$C992
+	boxData	TextOptScr_PlayerSelect,VRAM_Plane_A_Name_Table+planeLocH40(9,3)
+	boxData	TextOptScr_VsModeItems,VRAM_Plane_A_Name_Table+planeLocH40(9,11)
+	boxData	TextOptScr_SoundTest,VRAM_Plane_A_Name_Table+planeLocH40(9,19)
 
 off_92D2:
 	dc.l TextOptScr_SonicAndMiles
@@ -11939,7 +11935,7 @@ LevelSelect_MarkFields:
 ; ===========================================================================
 ;loc_965A:
 LevelSelect_DrawSoundNumber:
-	move.l	#vdpComm($C944,VRAM,WRITE),(VDP_control_port).l
+	move.l	#vdpComm(VRAM_Plane_A_Name_Table+planeLocH40(34,18),VRAM,WRITE),(VDP_control_port).l
 	move.w	(Sound_test_sound).w,d0
 	move.b	d0,d2
 	lsr.b	#4,d0
@@ -11972,7 +11968,7 @@ LevelSelect_DrawIcon:
 	add.w	d0,d0
 	add.w	d1,d0
 	lea	(a1,d0.w),a1
-	move.l	#vdpComm($CB36,VRAM,WRITE),d0
+	move.l	#vdpComm(VRAM_Plane_A_Name_Table+planeLocH40(27,22),VRAM,WRITE),d0
 	moveq	#3,d1
 	moveq	#2,d2
 	bsr.w	JmpTo_PlaneMapToVRAM
@@ -12259,7 +12255,7 @@ EndingSequence:
 	move.b	#6,routine(a1)
 	move.w	#$60,objoff_3C(a1)
 	move.w	#1,objoff_30(a1)
-	cmpi.w	#4,(Boss_X_pos).w
+	cmpi.w	#4,(Ending_Routine).w
 	bne.s	+
 	move.w	#$10,objoff_2E(a1)
 	move.w	#$100,objoff_3C(a1)
@@ -12368,7 +12364,7 @@ EndgameCredits:
 	move.w	#0,d0
 	bsr.w	JmpTo_EniDec
 	lea	(Chunk_Table).l,a1
-	move.l	#vdpComm(VRAM_Plane_A_Name_Table+$598,VRAM,WRITE),d0
+	move.l	#vdpComm(VRAM_Plane_A_Name_Table+planeLocH40(12,11),VRAM,WRITE),d0
 	moveq	#$F,d1
 	moveq	#5,d2
 	bsr.w	JmpTo2_PlaneMapToVRAM
@@ -12453,9 +12449,9 @@ pal_A0FE:	BINCLUDE	"art/palettes/Ending Cycle.bin"
 ; Sprite_A1D6:
 ObjCA:
 	addq.w	#1,objoff_32(a0)
-	cmpi.w	#4,(Boss_X_pos).w
+	cmpi.w	#4,(Ending_Routine).w
 	beq.s	+
-	cmpi.w	#2,(Boss_X_pos).w
+	cmpi.w	#2,(Ending_Routine).w
 	bne.s	+
 	st	(Super_Sonic_flag).w
 	move.w	#$100,(Ring_count).w
@@ -12529,7 +12525,7 @@ loc_A256:
 	bsr.w	JmpTo_EniDec
 	move	#$2700,sr
 	lea	(Chunk_Table).l,a1
-	move.l	#vdpComm(VRAM_Plane_A_Name_Table + $80*$8 + $1C,VRAM,WRITE),d0
+	move.l	#vdpComm(VRAM_Plane_A_Name_Table + planeLocH40(14,8),VRAM,WRITE),d0
 	moveq	#$B,d1
 	moveq	#8,d2
 	bsr.w	JmpTo2_PlaneMapToVRAM
@@ -12548,7 +12544,7 @@ off_A29C:
 	st	(Control_Locked).w
 	st	(Ending_PalCycle_flag).w
 	lea	(MainCharacter).w,a1 ; a1=character
-	move.w	(Boss_X_pos).w,d0
+	move.w	(Ending_Routine).w,d0
 	move.w	ObjCA_State5_States(pc,d0.w),d0
 	jsr	ObjCA_State5_States(pc,d0.w)
 	move.w	#$80,d1
@@ -12596,7 +12592,7 @@ loc_A30A:
 	move.b	#AniIDSonAni_Float2,anim(a1)
 	move.w	#$A0,x_pos(a1)
 	move.w	#$50,y_pos(a1)
-	cmpi.w	#2,(Boss_X_pos).w
+	cmpi.w	#2,(Ending_Routine).w
 	bne.s	+	; rts
 	move.b	#AniIDSonAni_Walk,anim(a1)
 	move.w	#$1000,inertia(a1)
@@ -12616,7 +12612,7 @@ loc_A34C:
 +
 	addq.b	#2,routine(a0)
 	move.w	#$100,objoff_3C(a0)
-	cmpi.w	#4,(Boss_X_pos).w
+	cmpi.w	#4,(Ending_Routine).w
 	bne.s	return_A38C
 	move.w	#$880,objoff_3C(a0)
 	btst	#6,(Graphics_Flags).w
@@ -12685,7 +12681,7 @@ ObjCC_Init:
 	move.w	#4,(Ending_VInt_Subrout).w
 	move.l	a0,-(sp)
 	lea	(MapEng_EndingTailsPlane).l,a0
-	cmpi.w	#4,(Boss_X_pos).w
+	cmpi.w	#4,(Ending_Routine).w
 	bne.s	+
 	lea	(MapEng_EndingSonicPlane).l,a0
 +
@@ -12747,10 +12743,10 @@ loc_A4B6:
 	move.w	#2,objoff_3C(a0)
 	clr.w	objoff_32(a0)
 	clr.b	mapping_frame(a0)
-	cmpi.w	#2,(Boss_X_pos).w
+	cmpi.w	#2,(Ending_Routine).w
 	beq.s	+
 	move.b	#7,mapping_frame(a0)
-	cmpi.w	#4,(Boss_X_pos).w
+	cmpi.w	#4,(Ending_Routine).w
 	bne.s	+
 	move.b	#$18,mapping_frame(a0)
 +
@@ -12836,7 +12832,7 @@ loc_A5A6:
 	cmpi.w	#$1C,d0
 	bhs.s	++
 	addq.w	#1,objoff_32(a0)
-	move.w	(Boss_X_pos).w,d1
+	move.w	(Ending_Routine).w,d1
 	move.w	off_A5FC(pc,d1.w),d1
 	lea	off_A5FC(pc,d1.w),a1
 	move.b	(a1,d0.w),mapping_frame(a0)
@@ -12972,7 +12968,7 @@ loc_A7DE:
 	move.w	(a1)+,d0
 	add.w	d0,(Horiz_Scroll_Buf).w
 	move.w	(a1)+,d0
-	add.w	d0,(Vscroll_Factor).w
+	add.w	d0,(Vscroll_Factor_FG).w
 +
 	rts
 ; ===========================================================================
@@ -13055,7 +13051,7 @@ ObjCE_Init:
 	move.b	#1,priority(a0)
 	jsr	(Adjust2PArtPointer).l
 	move.b	#$C,mapping_frame(a0)
-	cmpi.w	#4,(Boss_X_pos).w
+	cmpi.w	#4,(Ending_Routine).w
 	bne.s	+
 	move.b	#$F,mapping_frame(a0)
 	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,1,1),art_tile(a0)
@@ -13079,7 +13075,7 @@ loc_A90E:
 	add.w	(Horiz_Scroll_Buf).w,d0
 	move.w	d0,x_pos(a0)
 	move.w	objoff_32(a0),d0
-	sub.w	(Vscroll_Factor).w,d0
+	sub.w	(Vscroll_Factor_FG).w,d0
 	move.w	d0,y_pos(a0)
 
 BranchTo_JmpTo5_DisplaySprite 
@@ -13100,7 +13096,7 @@ loc_A936:
 	bhs.s	++
 	addq.w	#2,objoff_34(a0)
 	lea	byte_A980(pc,d0.w),a1
-	cmpi.w	#2,(Boss_X_pos).w
+	cmpi.w	#2,(Ending_Routine).w
 	bne.s	+
 	lea	byte_A984(pc,d0.w),a1
 +
@@ -13970,7 +13966,7 @@ LevelSize: zoneOrderedTable 2,8	; WrdArr_LvlSize
 	zoneTableEntry.w	$0,	$3FFF,	$180,	$710	; ARZ act 2
 	zoneTableEntry.w	$0,	$3FFF,	$0,	$000	; SCZ
 	zoneTableEntry.w	$0,	$3FFF,	$0,	$720
-	zoneTableEnd
+    zoneTableEnd
 
 ; ===========================================================================
 +
@@ -14314,8 +14310,8 @@ DeformBgLayerAfterScrollVert:
 
 loc_C4D0:
 	bsr.w	RunDynamicLevelEvents
-	move.w	(Camera_Y_pos).w,(Vscroll_Factor).w
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_Y_pos).w,(Vscroll_Factor_FG).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	move.l	(Camera_X_pos).w,(Camera_X_pos_copy).w
 	move.l	(Camera_Y_pos).w,(Camera_Y_pos_copy).w
 	moveq	#0,d0
@@ -14360,7 +14356,7 @@ SwScrl_Index: zoneOrderedOffsetTable 2,1	; JmpTbl_SwScrlMgr
 ; ===========================================================================
 ; loc_C51E:
 SwScrl_Title:
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	addq.w	#1,(Camera_X_pos).w
 	move.w	(Camera_X_pos).w,d2
 	neg.w	d2
@@ -14402,7 +14398,7 @@ SwScrl_Title:
 SwScrl_EHZ:
 	tst.w	(Two_player_mode).w
 	bne.w	SwScrl_EHZ_2P
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
@@ -14531,17 +14527,17 @@ SwScrl_EHZ_2P:
 	bne.s	+
 	subq.w	#1,(TempArray_LayerDef).w
 +
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	andi.l	#$FFFEFFFE,(Vscroll_Factor).w
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_X_pos).w,d0
 	move.w	#bytesToLcnt($2C),d1
 	bsr.s	sub_C71A
 	moveq	#0,d0
-	move.w	d0,(Vscroll_Factor_P2+2).w
-	subi.w	#$E0,(Vscroll_Factor_P2+2).w
-	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2).w
-	subi.w	#$E0,(Vscroll_Factor_P2).w
+	move.w	d0,(Vscroll_Factor_P2_BG).w
+	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
+	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
+	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
 	lea	(Horiz_Scroll_Buf+$1B0).w,a1
 	move.w	(Camera_X_pos_P2).w,d0
@@ -14638,7 +14634,7 @@ SwScrl_Lev2:
 	ext.l	d5
 	asl.l	#6,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	#bytesToLcnt($380),d1
 	move.w	(Camera_X_pos).w,d0
@@ -14661,7 +14657,7 @@ SwScrl_MTZ:
 	ext.l	d5
 	asl.l	#6,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	#bytesToLcnt($380),d1
 	move.w	(Camera_X_pos).w,d0
@@ -14687,7 +14683,7 @@ SwScrl_WFZ:
 	lsl.l	#8,d5
 	moveq	#6,d6
 	bsr.w	SetVertiScrollFlagsBG
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	move.l	(Camera_BG_X_pos).w,d0
 	move.l	d0,d1
 	lea	(TempArray_LayerDef).w,a2
@@ -14753,7 +14749,7 @@ SwScrl_HTZ:
 	bne.w	SwScrl_HTZ_2P	; never used in normal gameplay
 	tst.b	(Screen_Shaking_Flag_HTZ).w
 	bne.w	HTZ_Screen_Shake
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
@@ -14903,9 +14899,9 @@ HTZ_Screen_Shake:
 	lsl.l	#8,d5
 	moveq	#0,d6
 	bsr.w	SetVertiScrollFlagsBG
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
-	move.w	(Camera_Y_pos).w,(Vscroll_Factor).w
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+	move.w	(Camera_Y_pos).w,(Vscroll_Factor_FG).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	moveq	#0,d2
 	tst.b	(Screen_Shaking_Flag).w
 	beq.s	+
@@ -14916,8 +14912,8 @@ HTZ_Screen_Shake:
 	lea	(a1,d0.w),a1
 	moveq	#0,d0
 	move.b	(a1)+,d0
-	add.w	d0,(Vscroll_Factor).w
-	add.w	d0,(Vscroll_Factor+2).w
+	add.w	d0,(Vscroll_Factor_FG).w
+	add.w	d0,(Vscroll_Factor_BG).w
 	add.w	d0,(Camera_Y_pos_copy).w
 	move.b	(a1)+,d2
 	add.w	d2,(Camera_X_pos_copy).w
@@ -14948,7 +14944,7 @@ SwScrl_HTZ_2P:
 	moveq	#0,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
 	move.b	#0,(Scroll_flags_BG).w
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	andi.l	#$FFFEFFFE,(Vscroll_Factor).w
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	#bytesToLcnt($1C0),d1
@@ -14966,10 +14962,10 @@ SwScrl_HTZ_2P:
 	asl.l	#6,d4
 	add.l	d4,(Camera_BG_X_pos_P2).w
 	moveq	#0,d0
-	move.w	d0,(Vscroll_Factor_P2+2).w
-	subi.w	#$E0,(Vscroll_Factor_P2+2).w
-	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2).w
-	subi.w	#$E0,(Vscroll_Factor_P2).w
+	move.w	d0,(Vscroll_Factor_P2_BG).w
+	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
+	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
+	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
 	lea	(Horiz_Scroll_Buf+$1B0).w,a1
 	move.w	#bytesToLcnt($1D0),d1
@@ -14997,7 +14993,7 @@ SwScrl_HPZ:
 	asl.l	#7,d5
 	moveq	#6,d6
 	bsr.w	SetVertiScrollFlagsBG
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	lea	(TempArray_LayerDef).w,a1
 	move.w	(Camera_X_pos).w,d2
 	neg.w	d2
@@ -15083,7 +15079,7 @@ SwScrl_OOZ:
 	add.l	d3,d0
 	moveq	#4,d6
 	bsr.w	SetVertiScrollFlagsBG2
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	lea	(Horiz_Scroll_Buf+$380).w,a1
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
@@ -15206,7 +15202,7 @@ SwScrl_MCZ:
 	swap	d0
 	moveq	#6,d6
 	bsr.w	SetVertiScrollFlagsBG2
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	moveq	#0,d2
 	tst.b	(Screen_Shaking_Flag).w
 	beq.s	+
@@ -15217,8 +15213,8 @@ SwScrl_MCZ:
 	lea	(a1,d0.w),a1
 	moveq	#0,d0
 	move.b	(a1)+,d0
-	add.w	d0,(Vscroll_Factor).w
-	add.w	d0,(Vscroll_Factor+2).w
+	add.w	d0,(Vscroll_Factor_FG).w
+	add.w	d0,(Vscroll_Factor_BG).w
 	add.w	d0,(Camera_Y_pos_copy).w
 	move.b	(a1)+,d2
 	add.w	d2,(Camera_X_pos_copy).w
@@ -15353,7 +15349,7 @@ SwScrl_MCZ_2P:
 	subi.w	#$10,d0
 +
 	move.w	d0,(Camera_BG_Y_pos).w
-	move.w	d0,(Vscroll_Factor+2).w
+	move.w	d0,(Vscroll_Factor_BG).w
 	andi.l	#$FFFEFFFE,(Vscroll_Factor).w
 	lea	(TempArray_LayerDef).w,a2
 	lea	$1E(a2),a3
@@ -15485,10 +15481,10 @@ byte_CF90:
 	subi.w	#$10,d0
 +
 	move.w	d0,(Camera_BG_Y_pos_P2).w
-	move.w	d0,(Vscroll_Factor_P2+2).w
-	subi.w	#$E0,(Vscroll_Factor_P2+2).w
-	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2).w
-	subi.w	#$E0,(Vscroll_Factor_P2).w
+	move.w	d0,(Vscroll_Factor_P2_BG).w
+	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
+	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
+	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
 	lea	(TempArray_LayerDef).w,a2
 	lea	$1E(a2),a3
@@ -15590,7 +15586,7 @@ SwScrl_CNZ:
 	move.w	(Camera_Y_pos).w,d0
 	lsr.w	#6,d0
 	move.w	d0,(Camera_BG_Y_pos).w
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	move.w	(Camera_X_pos).w,d2
 	bsr.w	sub_D160
 	lea	(byte_D156).l,a3
@@ -15692,7 +15688,7 @@ SwScrl_CNZ_2P:
 	move.w	(Camera_Y_pos).w,d0
 	lsr.w	#6,d0
 	move.w	d0,(Camera_BG_Y_pos).w
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	andi.l	#$FFFEFFFE,(Vscroll_Factor).w
 	move.w	(Camera_X_pos).w,d2
 	bsr.w	sub_D160
@@ -15706,10 +15702,10 @@ SwScrl_CNZ_2P:
 	move.w	(Camera_Y_pos_P2).w,d0
 	lsr.w	#6,d0
 	move.w	d0,(Camera_BG_Y_pos_P2).w
-	move.w	d0,(Vscroll_Factor_P2+2).w
-	subi.w	#$E0,(Vscroll_Factor_P2+2).w
-	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2).w
-	subi.w	#$E0,(Vscroll_Factor_P2).w
+	move.w	d0,(Vscroll_Factor_P2_BG).w
+	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
+	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
+	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
 	move.w	(Camera_X_pos_P2).w,d2
 	bsr.w	sub_D160
@@ -15804,7 +15800,7 @@ SwScrl_CPZ:
 	bsr.w	SetHorizScrollFlagsBG2
 	move.w	(Camera_BG_Y_pos).w,d0
 	move.w	d0,(Camera_BG2_Y_pos).w
-	move.w	d0,(Vscroll_Factor+2).w
+	move.w	d0,(Vscroll_Factor_BG).w
 	move.b	(Scroll_flags_BG).w,d0
 	or.b	(Scroll_flags_BG2).w,d0
 	move.b	d0,(Scroll_flags_BG3).w
@@ -15890,7 +15886,7 @@ SwScrl_DEZ:
 	ext.l	d5
 	asl.l	#8,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	move.w	(Camera_X_pos).w,d4
 	lea	(TempArray_LayerDef).w,a2
 	move.w	d4,(a2)+
@@ -15990,8 +15986,8 @@ SwScrl_DEZ:
 	lea	(a1,d0.w),a1
 	moveq	#0,d0
 	move.b	(a1)+,d0
-	add.w	d0,(Vscroll_Factor).w
-	add.w	d0,(Vscroll_Factor+2).w
+	add.w	d0,(Vscroll_Factor_FG).w
+	add.w	d0,(Vscroll_Factor_BG).w
 	add.w	d0,(Camera_Y_pos_copy).w
 	move.b	(a1)+,d2
 	add.w	d2,(Camera_X_pos_copy).w
@@ -16022,7 +16018,7 @@ SwScrl_ARZ:
 +
 	moveq	#6,d6
 	bsr.w	SetVertiScrollFlagsBG
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	moveq	#0,d2
 	tst.b	(Screen_Shaking_Flag).w
 	beq.s	+
@@ -16033,8 +16029,8 @@ SwScrl_ARZ:
 	lea	(a1,d0.w),a1
 	moveq	#0,d0
 	move.b	(a1)+,d0
-	add.w	d0,(Vscroll_Factor).w
-	add.w	d0,(Vscroll_Factor+2).w
+	add.w	d0,(Vscroll_Factor_FG).w
+	add.w	d0,(Vscroll_Factor_BG).w
 	add.w	d0,(Camera_Y_pos_copy).w
 	move.b	(a1)+,d2
 	add.w	d2,(Camera_X_pos_copy).w
@@ -16158,7 +16154,7 @@ SwScrl_SCZ:
 	asl.l	#7,d4
 	moveq	#0,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	#bytesToLcnt($380),d1
 	move.w	(Camera_X_pos).w,d0
@@ -16181,7 +16177,7 @@ SwScrl_Minimal:
 	ext.l	d5
 	asl.l	#6,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor+2).w
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	#bytesToLcnt($380),d1
 	move.w	(Camera_X_pos).w,d0
@@ -24722,8 +24718,8 @@ Obj34_Init:
 	dbf	d1,-
 
 	move.w	#$26,(TitleCard_Bottom+objoff_34).w
-	clr.w	(Vscroll_Factor).w
-	move.w	#-$E0,(Vscroll_Factor_P2).w
+	clr.w	(Vscroll_Factor_FG).w
+	move.w	#-$E0,(Vscroll_Factor_P2_FG).w
 
 	clearRAM Horiz_Scroll_Buf,$400
 
@@ -32079,55 +32075,62 @@ SolidObject_cont:
 	bpl.w	loc_19AC4
 
 loc_199F0:
-	move.w	x_pos(a1),d0
-	sub.w	x_pos(a0),d0
-	add.w	d1,d0
-	bmi.w	loc_19AC4
+	; We now perform the x portion of a bounding box check.  To do this, we assume a
+	; coordinate system where the x origin is at the object's left edge.
+	move.w	x_pos(a1),d0		; load Sonic's x position...
+	sub.w	x_pos(a0),d0		; ... and calculate his x position relative to the object
+	add.w	d1,d0			; assume object's left edge is at (0,0).  This is also Sonic's distance to the object's left edge.
+	bmi.w	loc_19AC4		; branch, if Sonic is outside the object's left edge
 	move.w	d1,d3
-	add.w	d3,d3
+	add.w	d3,d3			; calculate object's width
 	cmp.w	d3,d0
-	bhi.w	loc_19AC4
-	move.b	y_radius(a1),d3
+	bhi.w	loc_19AC4		; branch, if Sonic is outside the object's right edge
+	; We now perform the y portion of a bounding box check.  To do this, we assume a
+	; coordinate system where the y origin is at the highest y position relative to the object
+	; at which Sonic would still collide with it.  This point is
+	;   y_pos(object) - width(object)/2 - y_radius(Sonic) - 4,
+	; where object is stored in (a0), Sonic in (a1), and height(object)/2 in d2.  This way
+	; of doing it causes the object's hitbox to be vertically off-center by -4 pixels.
+	move.b	y_radius(a1),d3		; load Sonic's y radius
 	ext.w	d3
-	add.w	d3,d2
-	move.w	y_pos(a1),d3
-	sub.w	y_pos(a0),d3
-	addq.w	#4,d3
-	add.w	d2,d3
-	bmi.w	loc_19AC4
+	add.w	d3,d2			; calculate maximum distance for a top collision
+	move.w	y_pos(a1),d3		; load Sonic's y position...
+	sub.w	y_pos(a0),d3		; ... and calculate his y position relative to the object
+	addq.w	#4,d3			; assume a slightly lower position for Sonic
+	add.w	d2,d3			; assume the highest position where Sonic would still be colliding with the object to be (0,0)
+	bmi.w	loc_19AC4		; branch, if Sonic is above this point
 	andi.w	#$7FF,d3
 	move.w	d2,d4
-	add.w	d4,d4
+	add.w	d4,d4			; calculate minimum distance for a bottom collision
 	cmp.w	d4,d3
-	bhs.w	loc_19AC4
+	bhs.w	loc_19AC4		; branch, if Sonic is below this point
 
 loc_19A2E:
 	tst.b	obj_control(a1)
-	bmi.w	loc_19AC4
-	cmpi.b	#6,routine(a1)
-	bhs.w	loc_19AEA
+	bmi.w	loc_19AC4		; branch, if object collisions are disabled for Sonic
+	cmpi.b	#6,routine(a1)		; is Sonic dead?
+	bhs.w	loc_19AEA		; if yes, branch
 	tst.w	(Debug_placement_mode).w
-	bne.w	loc_19AEA
+	bne.w	loc_19AEA		; branch, if in debug mode
+
 	move.w	d0,d5
 	cmp.w	d0,d1
-	bhs.s	loc_19A56
+	bhs.s	+			; branch, if Sonic is to the object's left
 	add.w	d1,d1
 	sub.w	d1,d0
-	move.w	d0,d5
-	neg.w	d5
-
-loc_19A56:
+	move.w	d0,d5			; calculate Sonic's distance to the object's right edge...
+	neg.w	d5			; ... and calculate the absolute value
++
 	move.w	d3,d1
 	cmp.w	d3,d2
-	bhs.s	loc_19A64
+	bhs.s	+
 	subq.w	#4,d3
 	sub.w	d4,d3
 	move.w	d3,d1
 	neg.w	d1
-
-loc_19A64:
++
 	cmp.w	d1,d5
-	bhi.w	loc_19AEE
+	bhi.w	loc_19AEE		; branch, if horizontal distance is greater than vertical distance
 
 loc_19A6A:
 	cmpi.w	#4,d1
@@ -33337,11 +33340,11 @@ Obj01_CheckWallsOnGround:
 	move.b	angle(a0),d0
 	addi.b	#$40,d0
 	bmi.s	return_1A6BE
-	move.b	#$40,d1
-	tst.w	inertia(a0)
-	beq.s	return_1A6BE
-	bmi.s	+
-	neg.w	d1
+	move.b	#$40,d1			; Rotate 90 degrees clockwise
+	tst.w	inertia(a0)		; Check inertia
+	beq.s	return_1A6BE	; If not moving, don't do anything
+	bmi.s	+				; If negative, branch
+	neg.w	d1				; Otherwise, we want to rotate counterclockwise
 +
 	move.b	angle(a0),d0
 	add.b	d1,d0
@@ -34407,7 +34410,7 @@ Sonic_HitLeftWall:
 ; ===========================================================================
 ; loc_1AFA6:
 Sonic_HitCeiling:
-	bsr.w	CheckCeilingDist
+	bsr.w	Sonic_CheckCeiling
 	tst.w	d1
 	bpl.s	Sonic_HitFloor ; branch if distance is positive (not inside ceiling)
 	sub.w	d1,y_pos(a0)
@@ -34448,7 +34451,7 @@ Sonic_HitCeilingAndWalls:
 	add.w	d1,x_pos(a0)
 	move.w	#0,x_vel(a0)	; stop Sonic since he hit a wall
 +
-	bsr.w	CheckCeilingDist
+	bsr.w	Sonic_CheckCeiling
 	tst.w	d1
 	bpl.s	return_1B042
 	sub.w	d1,y_pos(a0)
@@ -34484,7 +34487,7 @@ Sonic_HitRightWall:
 ; identical to Sonic_HitCeiling...
 ; loc_1B05E:
 Sonic_HitCeiling2:
-	bsr.w	CheckCeilingDist
+	bsr.w	Sonic_CheckCeiling
 	tst.w	d1
 	bpl.s	Sonic_HitFloor2
 	sub.w	d1,y_pos(a0)
@@ -37130,7 +37133,7 @@ Tails_HitLeftWall:
 ; ===========================================================================
 ; loc_1CA56:
 Tails_HitCeiling:
-	bsr.w	CheckCeilingDist
+	bsr.w	Sonic_CheckCeiling
 	tst.w	d1
 	bpl.s	Tails_HitFloor	; branch if distance is positive (not inside ceiling)
 	sub.w	d1,y_pos(a0)
@@ -37171,7 +37174,7 @@ Tails_HitCeilingAndWalls:
 	add.w	d1,x_pos(a0)
 	move.w	#0,x_vel(a0)	; stop Tails since he hit a wall
 +
-	bsr.w	CheckCeilingDist
+	bsr.w	Sonic_CheckCeiling
 	tst.w	d1
 	bpl.s	return_1CAF2
 	sub.w	d1,y_pos(a0)
@@ -37207,7 +37210,7 @@ Tails_HitRightWall:
 ; identical to Tails_HitCeiling...
 ; loc_1CB0E:
 Tails_HitCeiling2:
-	bsr.w	CheckCeilingDist
+	bsr.w	Sonic_CheckCeiling
 	tst.w	d1
 	bpl.s	Tails_HitFloor2
 	sub.w	d1,y_pos(a0)
@@ -39012,9 +39015,9 @@ loc_1E28E:
 loc_1E292:
 	andi.b	#$C0,d0
 	cmpi.b	#$40,d0
-	beq.w	loc_1E4E8
+	beq.w	Sonic_WalkVertL
 	cmpi.b	#$80,d0
-	beq.w	loc_1E43A
+	beq.w	Sonic_WalkCeiling
 	cmpi.b	#$C0,d0
 	beq.w	Sonic_WalkVertR
 	move.w	y_pos(a0),d2
@@ -39189,8 +39192,8 @@ loc_1E420:
 	move.b	#AniIDSonAni_Run,next_anim(a0)
 	rts
 ; ===========================================================================
-
-loc_1E43A:
+;loc_1E43A
+Sonic_WalkCeiling:
 	move.w	y_pos(a0),d2
 	move.w	x_pos(a0),d3
 	moveq	#0,d0
@@ -39256,8 +39259,8 @@ loc_1E4CE:
 	move.b	#AniIDSonAni_Run,next_anim(a0)
 	rts
 ; ===========================================================================
-
-loc_1E4E8:
+;loc_1E4E8
+Sonic_WalkVertL:
 	move.w	y_pos(a0),d2
 	move.w	x_pos(a0),d3
 	moveq	#0,d0
@@ -39324,7 +39327,7 @@ loc_1E57C:
 	rts
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
-; Subroutine to find which tile the object is standing on
+; Subroutine to find which tile is in the specified location
 ; d2 = y_pos
 ; d3 = x_pos
 ; returns relevant block ID in (a1)
@@ -39333,8 +39336,8 @@ loc_1E57C:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; loc_1E596:
-Floor_ChkTile:
+; loc_1E596: Floor_ChkTile:
+Find_Tile:
 	move.w	d2,d0	; y_pos
 	add.w	d0,d0
 	andi.w	#$F00,d0	; rounded 2*y_pos
@@ -39345,7 +39348,7 @@ Floor_ChkTile:
 	andi.w	#$7F,d1
 	add.w	d1,d0	; d0 is relevant chunk ID now
 	moveq	#-1,d1
-	clr.w	d1
+	clr.w	d1		; d1 is now $FFFF0000 = Chunk_Table
 	lea	(Level_Layout).w,a1
 	move.b	(a1,d0.w),d1	; move 128*128 chunk ID to d1
 	add.w	d1,d1
@@ -39358,150 +39361,32 @@ Floor_ChkTile:
 	movea.l	d1,a1	; address of block ID
 	rts
 ; ===========================================================================
-; precalculated values for Floor_ChkTile
+; precalculated values for Find_Tile
 ; (Sonic 1 calculated it every time instead of using a table)
 word_1E5D0:
-	dc.w	 0,  $80
-	dc.w  $100, $180
-	dc.w  $200, $280
-	dc.w  $300, $380
-	dc.w  $400, $480
-	dc.w  $500, $580
-	dc.w  $600, $680
-	dc.w  $700, $780
-	dc.w  $800, $880
-	dc.w  $900, $980
-	dc.w  $A00, $A80
-	dc.w  $B00, $B80
-	dc.w  $C00, $C80
-	dc.w  $D00, $D80
-	dc.w  $E00, $E80
-	dc.w  $F00, $F80
-	dc.w $1000,$1080
-	dc.w $1100,$1180
-	dc.w $1200,$1280
-	dc.w $1300,$1380
-	dc.w $1400,$1480
-	dc.w $1500,$1580
-	dc.w $1600,$1680
-	dc.w $1700,$1780
-	dc.w $1800,$1880
-	dc.w $1900,$1980
-	dc.w $1A00,$1A80
-	dc.w $1B00,$1B80
-	dc.w $1C00,$1C80
-	dc.w $1D00,$1D80
-	dc.w $1E00,$1E80
-	dc.w $1F00,$1F80
-	dc.w $2000,$2080
-	dc.w $2100,$2180
-	dc.w $2200,$2280
-	dc.w $2300,$2380
-	dc.w $2400,$2480
-	dc.w $2500,$2580
-	dc.w $2600,$2680
-	dc.w $2700,$2780
-	dc.w $2800,$2880
-	dc.w $2900,$2980
-	dc.w $2A00,$2A80
-	dc.w $2B00,$2B80
-	dc.w $2C00,$2C80
-	dc.w $2D00,$2D80
-	dc.w $2E00,$2E80
-	dc.w $2F00,$2F80
-	dc.w $3000,$3080
-	dc.w $3100,$3180
-	dc.w $3200,$3280
-	dc.w $3300,$3380
-	dc.w $3400,$3480
-	dc.w $3500,$3580
-	dc.w $3600,$3680
-	dc.w $3700,$3780
-	dc.w $3800,$3880
-	dc.w $3900,$3980
-	dc.w $3A00,$3A80
-	dc.w $3B00,$3B80
-	dc.w $3C00,$3C80
-	dc.w $3D00,$3D80
-	dc.w $3E00,$3E80
-	dc.w $3F00,$3F80
-	dc.w $4000,$4080
-	dc.w $4100,$4180
-	dc.w $4200,$4280
-	dc.w $4300,$4380
-	dc.w $4400,$4480
-	dc.w $4500,$4580
-	dc.w $4600,$4680
-	dc.w $4700,$4780
-	dc.w $4800,$4880
-	dc.w $4900,$4980
-	dc.w $4A00,$4A80
-	dc.w $4B00,$4B80
-	dc.w $4C00,$4C80
-	dc.w $4D00,$4D80
-	dc.w $4E00,$4E80
-	dc.w $4F00,$4F80
-	dc.w $5000,$5080
-	dc.w $5100,$5180
-	dc.w $5200,$5280
-	dc.w $5300,$5380
-	dc.w $5400,$5480
-	dc.w $5500,$5580
-	dc.w $5600,$5680
-	dc.w $5700,$5780
-	dc.w $5800,$5880
-	dc.w $5900,$5980
-	dc.w $5A00,$5A80
-	dc.w $5B00,$5B80
-	dc.w $5C00,$5C80
-	dc.w $5D00,$5D80
-	dc.w $5E00,$5E80
-	dc.w $5F00,$5F80
-	dc.w $6000,$6080
-	dc.w $6100,$6180
-	dc.w $6200,$6280
-	dc.w $6300,$6380
-	dc.w $6400,$6480
-	dc.w $6500,$6580
-	dc.w $6600,$6680
-	dc.w $6700,$6780
-	dc.w $6800,$6880
-	dc.w $6900,$6980
-	dc.w $6A00,$6A80
-	dc.w $6B00,$6B80
-	dc.w $6C00,$6C80
-	dc.w $6D00,$6D80
-	dc.w $6E00,$6E80
-	dc.w $6F00,$6F80
-	dc.w $7000,$7080
-	dc.w $7100,$7180
-	dc.w $7200,$7280
-	dc.w $7300,$7380
-	dc.w $7400,$7480
-	dc.w $7500,$7580
-	dc.w $7600,$7680
-	dc.w $7700,$7780
-	dc.w $7800,$7880
-	dc.w $7900,$7980
-	dc.w $7A00,$7A80
-	dc.w $7B00,$7B80
-	dc.w $7C00,$7C80
-	dc.w $7D00,$7D80
-	dc.w $7E00,$7E80
-	dc.w $7F00,$7F80
+c := 0
+	rept 256
+		dc.w	c
+c := c+$80
+	endm
 ; ===========================================================================
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+; Scans vertically for up to 2 16x16 blocks to find solid ground or ceiling.
 ; d2 = y_pos
 ; d3 = x_pos
-; d5 = ($c,$d) - solidity type bit (L/R/B or top)
+; d5 = ($c,$d) or ($e,$f) - solidity type bit (L/R/B or top)
+; d6 = $0000 for no flip, $0800 for vertical flip
+; a3 = delta-y for next location to check if current one is empty
+; a4 = pointer to angle buffer
 ; returns relevant block ID in (a1)
-; returns distance to bottom in d1
+; returns distance in d1
+; returns angle in (a4)
 
 ; loc_1E7D0:
 FindFloor:
-	bsr.w	Floor_ChkTile
+	bsr.w	Find_Tile
 	move.w	(a1),d0
 	move.w	d0,d4
 	andi.w	#$3FF,d0
@@ -39577,10 +39462,19 @@ loc_1E86A:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+; Checks a 16x16 block to find solid ground or ceiling.
+; d2 = y_pos
+; d3 = x_pos
+; d5 = ($c,$d) or ($e,$f) - solidity type bit (L/R/B or top)
+; d6 = $0000 for no flip, $0800 for vertical flip
+; a4 = pointer to angle buffer
+; returns relevant block ID in (a1)
+; returns distance in d1
+; returns angle in (a4)
 
 ; loc_1E878:
 FindFloor2:
-	bsr.w	Floor_ChkTile
+	bsr.w	Find_Tile
 	move.w	(a1),d0
 	move.w	d0,d4
 	andi.w	#$3FF,d0
@@ -39645,9 +39539,21 @@ loc_1E900:
 	not.w	d1
 	rts
 ; ===========================================================================
-; loc_1E910:
-Obj_CheckInFloor:
-	bsr.w	Floor_ChkTile
+
+; Checks a 16x16 block to find solid ground or ceiling. May check an additional
+; 16x16 block up for ceilings.
+; d2 = y_pos
+; d3 = x_pos
+; d5 = ($c,$d) or ($e,$f) - solidity type bit (L/R/B or top)
+; d6 = $0000 for no flip, $0800 for vertical flip
+; a4 = pointer to angle buffer
+; returns relevant block ID in (a1)
+; returns distance in d1
+; returns angle in (a4)
+
+; loc_1E910: Obj_CheckInFloor:
+Ring_FindFloor:
+	bsr.w	Find_Tile
 	move.w	(a1),d0
 	move.w	d0,d4
 	andi.w	#$3FF,d0
@@ -39719,16 +39625,20 @@ loc_1E9A2:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+; Scans horizontally for up to 2 16x16 blocks to find solid walls.
 ; d2 = y_pos
 ; d3 = x_pos
-; d5 = ($c,$d) - solidity type bit (L/R/B or top)
+; d5 = ($c,$d) or ($e,$f) - solidity type bit (L/R/B or top)
+; d6 = $0000 for no flip, $0400 for horizontal flip
+; a3 = delta-x for next location to check if current one is empty
+; a4 = pointer to angle buffer
 ; returns relevant block ID in (a1)
 ; returns distance to left/right in d1
 ; returns angle in (a4)
 
 ; loc_1E9B0:
 FindWall:
-	bsr.w	Floor_ChkTile
+	bsr.w	Find_Tile
 	move.w	(a1),d0
 	move.w	d0,d4
 	andi.w	#$3FF,d0	; plain blockID
@@ -39766,7 +39676,7 @@ loc_1E9D0:
 +
 	andi.w	#$F,d1	; y
 	add.w	d0,d1	; line to look up
-	lea	(ColArray+$1000).l,a2	; rotated collision array
+	lea	(ColArray2).l,a2	; rotated collision array
 	move.b	(a2,d1.w),d0	; collision value
 	ext.w	d0
 	eor.w	d6,d4	; set x-flip flag if from the right
@@ -39804,9 +39714,19 @@ loc_1EA4A:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+; Checks a 16x16 blocks to find solid walls.
+; d2 = y_pos
+; d3 = x_pos
+; d5 = ($c,$d) or ($e,$f) - solidity type bit (L/R/B or top)
+; d6 = $0000 for no flip, $0400 for horizontal flip
+; a4 = pointer to angle buffer
+; returns relevant block ID in (a1)
+; returns distance to left/right in d1
+; returns angle in (a4)
+
 ; loc_1EA58:
 FindWall2:
-	bsr.w	Floor_ChkTile
+	bsr.w	Find_Tile
 	move.w	(a1),d0
 	move.w	d0,d4
 	andi.w	#$3FF,d0
@@ -39844,7 +39764,7 @@ loc_1EA78:
 +
 	andi.w	#$F,d1
 	add.w	d0,d1
-	lea	(ColArray+$1000).l,a2
+	lea	(ColArray2).l,a2
 	move.b	(a2,d1.w),d0
 	ext.w	d0
 	eor.w	d6,d4
@@ -39976,7 +39896,7 @@ CalcRoomInFront:
 	beq.s	+
 	move.l	#Secondary_Collision,(Collision_addr).w
 +
-	move.b	layer_plus(a0),d5
+	move.b	layer_plus(a0),d5			; Want walls or ceilings
 	move.l	x_pos(a0),d3
 	move.l	y_pos(a0),d2
 	move.w	x_vel(a0),d1
@@ -40011,16 +39931,16 @@ loc_1EBDC:
 
 loc_1EBE6:
 	andi.b	#$C0,d0
-	beq.w	loc_1ECE6
+	beq.w	CheckFloorDist_Part2		; Player is going mostly down
 	cmpi.b	#$80,d0
-	beq.w	CheckSlopeDist
+	beq.w	CheckCeilingDist_Part2		; Player is going mostly up
 	andi.b	#$38,d1
 	bne.s	+
 	addq.w	#8,d2
 +
 	cmpi.b	#$40,d0
-	beq.w	CheckLeftWallDist_Part2
-	bra.w	CheckRightWallDist_Part2
+	beq.w	CheckLeftWallDist_Part2		; Player is going mostly left
+	bra.w	CheckRightWallDist_Part2	; Player is going mostly right
 
 ; End of function CalcRoomInFront
 
@@ -40048,7 +39968,7 @@ CalcRoomOverHead:
 	cmpi.b	#$40,d0
 	beq.w	CheckLeftCeilingDist
 	cmpi.b	#$80,d0
-	beq.w	CheckCeilingDist
+	beq.w	Sonic_CheckCeiling
 	cmpi.b	#$C0,d0
 	beq.w	CheckRightCeilingDist
 
@@ -40114,11 +40034,20 @@ loc_1ECD4:
 ; ===========================================================================
 
 	; a bit of unused/dead code here
+CheckFloorDist:
 	move.w	y_pos(a0),d2 ; a0=character
 	move.w	x_pos(a0),d3
 
-	; no idea what this is for, some collision check
-loc_1ECE6:
+; Checks a 16x16 block to find solid ground. May check an additional
+; 16x16 block up for ceilings.
+; d2 = y_pos
+; d3 = x_pos
+; d5 = ($c,$d) or ($e,$f) - solidity type bit (L/R/B or top)
+; returns relevant block ID in (a1)
+; returns distance in d1
+; returns angle in d3, or zero if angle was odd
+;loc_1ECE6:
+CheckFloorDist_Part2:
 	addi.w	#$A,d2
 	lea	(Primary_Angle).w,a4
 	movea.w	#$10,a3
@@ -40126,7 +40055,8 @@ loc_1ECE6:
 	bsr.w	FindFloor
 	move.b	#0,d2
 
-	; called at the end of the wall checking routines... don't know what it does either
+; d2 what to use as angle if (Primary_Angle).w is odd
+; returns angle in d3, or value in d2 if angle was odd
 loc_1ECFE:
 	move.b	(Primary_Angle).w,d3
 	btst	#0,d3
@@ -40283,7 +40213,7 @@ RingCheckFloorDist:
 	movea.w	#$10,a3
 	move.w	#0,d6
 	moveq	#$C,d5
-	bra.w	Obj_CheckInFloor
+	bra.w	Ring_FindFloor
 ; End of function RingCheckFloorDist
 
 ; ---------------------------------------------------------------------------
@@ -40333,6 +40263,12 @@ CheckRightCeilingDist:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+; Checks a 16x16 block to find solid walls. May check an additional
+; 16x16 block up for walls.
+; d5 = ($c,$d) or ($e,$f) - solidity type bit (L/R/B or top)
+; returns relevant block ID in (a1)
+; returns distance in d1
+; returns angle in d3, or zero if angle was odd
 ; sub_1EEDC:
 CheckRightWallDist:
 	move.w	y_pos(a0),d2
@@ -40374,8 +40310,8 @@ ObjCheckLeftWallDist:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; loc_1EF2E: Sonic_DontRunOnWalls:
-CheckCeilingDist:
+; loc_1EF2E: Sonic_DontRunOnWalls: CheckCeilingDist:
+Sonic_CheckCeiling:
 	move.w	y_pos(a0),d2
 	move.w	x_pos(a0),d3
 	moveq	#0,d0
@@ -40410,18 +40346,26 @@ CheckCeilingDist:
 
 	move.b	#$80,d2
 	bra.w	loc_1ECC6
-; End of function CheckCeilingDist
+; End of function Sonic_CheckCeiling
 
 ; ===========================================================================
 	; a bit of unused/dead code here
+CheckCeilingDist:
 	move.w	y_pos(a0),d2 ; a0=character
 	move.w	x_pos(a0),d3
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; called when Sonic/Tails walks up a curving slope... I'm not sure what it does
-; loc_1EF9E:
-CheckSlopeDist:
+; Checks a 16x16 block to find solid ceiling. May check an additional
+; 16x16 block up for ceilings.
+; d2 = y_pos
+; d3 = x_pos
+; d5 = ($c,$d) or ($e,$f) - solidity type bit (L/R/B or top)
+; returns relevant block ID in (a1)
+; returns distance in d1
+; returns angle in d3, or zero if angle was odd
+; loc_1EF9E: CheckSlopeDist:
+CheckCeilingDist_Part2:
 	subi.w	#$A,d2
 	eori.w	#$F,d2
 	lea	(Primary_Angle).w,a4
@@ -40430,7 +40374,7 @@ CheckSlopeDist:
 	bsr.w	FindFloor
 	move.b	#$80,d2
 	bra.w	loc_1ECFE
-; End of function CheckSlopeDist
+; End of function CheckCeilingDist
 
 ; ---------------------------------------------------------------------------
 ; Stores a distance to the nearest wall above the object into d1
@@ -40510,6 +40454,12 @@ CheckLeftCeilingDist:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+; Checks a 16x16 block to find solid walls. May check an additional
+; 16x16 block up for walls.
+; d5 = ($c,$d) or ($e,$f) - solidity type bit (L/R/B or top)
+; returns relevant block ID in (a1)
+; returns distance in d1
+; returns angle in d3, or zero if angle was odd
 ; loc_1F05E: Sonic_HitWall:
 CheckLeftWallDist:
 	move.w	y_pos(a0),d2
@@ -59871,7 +59821,7 @@ off_2F55C:	offsetTable
 
 loc_2F560:	; Obj56_Propeller_Sub0
 	movea.l	objoff_34(a0),a1 ; parent address (vehicle)
-	cmpi.b	#$56,(a1)
+	cmpi.b	#ObjID_EHZBoss,id(a1)
 	bne.w	JmpTo52_DeleteObject	; if boss non-existant
 	btst	#0,objoff_2D(a1)	; is robotnik on ground?
 	beq.s	loc_2F58E	; if not, branch
@@ -60024,7 +59974,7 @@ loc_2F706:
 
 loc_2F714:	; Obj56_Wheel_Sub2:
 	movea.l	objoff_34(a0),a1 ; parent address (vehicle)
-	cmpi.b	#$56,(a1)
+	cmpi.b	#ObjID_EHZBoss,id(a1)
 	bne.w	JmpTo52_DeleteObject	; if boss non-existant
 	btst	#1,objoff_2D(a1)
 	beq.w	JmpTo35_DisplaySprite	; boss not moving yet (inactive)
@@ -60041,7 +59991,7 @@ BranchTo_JmpTo35_DisplaySprite
 
 loc_2F746:	; Obj56_Wheel_Sub4:
 	movea.l	objoff_34(a0),a1 ; parent address (vehicle)
-	cmpi.b	#$56,(a1)
+	cmpi.b	#ObjID_EHZBoss,id(a1)
 	bne.w	JmpTo52_DeleteObject	; if boss non-existant
 	move.b	status(a1),status(a0)
 	move.b	render_flags(a1),render_flags(a0)
@@ -60117,7 +60067,7 @@ loc_2F816:
 
 loc_2F824:	; Obj56_Spike_Sub2:
 	movea.l	objoff_34(a0),a1 ; parent address (vehicle)
-	cmpi.b	#$56,(a1)
+	cmpi.b	#ObjID_EHZBoss,id(a1)
 	bne.w	JmpTo52_DeleteObject	; if boss non-existant
 	btst	#3,objoff_2D(a1)
 	bne.s	loc_2F88A	; spike separated from vehicle
@@ -60380,8 +60330,8 @@ Obj52_Init:
 	move.w	x_pos(a0),(Boss_X_pos).w
 	move.w	y_pos(a0),(Boss_Y_pos).w
 	clr.b	objoff_14(a0)
-	move.w	x_pos(a0),x_vel(a0)
-	move.w	y_pos(a0),y_vel(a0)
+	move.w	x_pos(a0),sub2_x_pos(a0)
+	move.w	y_pos(a0),sub2_y_pos(a0)
 	move.b	#2,sub2_mapframe(a0)
 	bsr.w	loc_2FCEA
 	rts
@@ -60562,8 +60512,8 @@ loc_2FED0:
 loc_2FEDE:
 	move.w	x_pos(a0),d0
 	move.w	y_pos(a0),d1
-	move.w	d0,x_vel(a0)
-	move.w	d1,y_vel(a0)
+	move.w	d0,sub2_x_pos(a0)
+	move.w	d1,sub2_y_pos(a0)
 	rts
 ; ===========================================================================
 
@@ -60672,7 +60622,7 @@ loc_30008:
 	tst.w	d1
 	bpl.s	loc_30064
 	add.w	d1,y_pos(a0)
-	move.b	#$20,(a0) ; load 0bj20
+	move.b	#ObjID_LavaBubble,id(a0) ; load 0bj20
 	move.b	#$A,routine(a0)
 	move.b	#2,anim(a0)
 	move.b	#4,mapping_frame(a0)
@@ -60951,6 +60901,23 @@ JmpTo3_LoadPLC_AnimalExplosion
 ; ----------------------------------------------------------------------------
 ; Object 89 - ARZ boss
 ; ----------------------------------------------------------------------------
+; OST Variables:
+; Main Vehicle
+obj89_hammer_y_vel	= objoff_2E		; falling hammer's y velocity
+obj89_target		= objoff_38
+obj89_hammer_y_pos	= objoff_3A		; falling hammer's y position
+obj89_hammer_flags	= objoff_3E
+
+; Pillars & Arrows
+obj89_pillar_parent		= objoff_2A	; address of main vehicle
+obj89_pillar_shake_time		= objoff_30
+obj89_pillar_shaking		= objoff_38
+obj89_eyes_timer		= objoff_30
+obj89_arrow_routine		= objoff_2A
+obj89_arrow_timer		= objoff_30
+obj89_arrow_parent2		= objoff_34
+obj89_arrow_parent		= objoff_38	; address of main vehicle
+
 ; Sprite_30480:
 Obj89:
 	moveq	#0,d0
@@ -60961,39 +60928,40 @@ Obj89:
 ; off_3048E:
 Obj89_Index:	offsetTable
 		offsetTableEntry.w Obj89_Init	; 0 - Init
-		offsetTableEntry.w loc_30620	; 2 - Main Vehicle
-		offsetTableEntry.w loc_309A8	; 4 - Pillars & Arrows
+		offsetTableEntry.w Obj89_Main	; 2 - Main Vehicle
+		offsetTableEntry.w Obj89_Pillar	; 4 - Pillars & Arrows
 ; ===========================================================================
 ; loc_30494:
 Obj89_Init:
-	tst.l	(Plc_Buffer).w
-	beq.s	+
+	tst.l	(Plc_Buffer).w			; is art finished loading?
+	beq.s	+				; if yes, branch
 	rts
 ; ---------------------------------------------------------------------------
 +
-	tst.w	(Player_mode).w
-	bne.s	loc_304D4
+	tst.w	(Player_mode).w			; is player mode anything other than Sonic & Tails?
+	bne.s	Obj89_Init_RaisePillars		; if yes, branch
 	move.w	(MainCharacter+x_pos).w,d0
-	cmpi.w	#$2A60,d0
-	blt.w	loc_305F4
-	cmpi.w	#$2B60,d0
-	bgt.w	loc_305F4
+	cmpi.w	#$2A60,d0			; is Sonic too close to the left edge?
+	blt.w	Obj89_Init_Standard		; if yes, branch
+	cmpi.w	#$2B60,d0			; is Sonic too close to the right edge?
+	bgt.w	Obj89_Init_Standard		; if yes, branch
 	cmpi.b	#$81,(Sidekick+obj_control).w
-	beq.w	loc_304D4
+	beq.w	Obj89_Init_RaisePillars		; branch, if Tails is flying
 	move.w	(Sidekick+x_pos).w,d0
-	cmpi.w	#$2A60,d0
-	blt.w	loc_305F4
-	cmpi.w	#$2B60,d0
-	bgt.w	loc_305F4
+	cmpi.w	#$2A60,d0			; is Tails too close to the left edge?
+	blt.w	Obj89_Init_Standard		; if yes, branch
+	cmpi.w	#$2B60,d0			; is Tails too close to the right edge?
+	bgt.w	Obj89_Init_Standard		; if yes, branch
 
-loc_304D4:
-	move.b	#1,(Screen_Shaking_Flag).w
+; loc_304D4:
+Obj89_Init_RaisePillars:
+	move.b	#1,(Screen_Shaking_Flag).w	; make screen shake
 	move.w	#make_art_tile(ArtTile_ArtNem_ARZBoss,0,0),art_tile(a0)
 	move.l	#Obj89_MapUnc_30E04,mappings(a0)
 	ori.b	#4,render_flags(a0)
 	move.b	#$20,mainspr_width(a0)
 	move.b	#2,priority(a0)
-	move.b	#2,boss_subtype(a0)
+	move.b	#2,boss_subtype(a0)	; => Obj89_Main
 	move.w	#$2AE0,x_pos(a0)
 	move.w	#$388,y_pos(a0)
 	move.w	#$2AE0,(Boss_X_pos).w
@@ -61003,21 +60971,22 @@ loc_304D4:
 	move.b	#$F,collision_flags(a0)
 	move.b	#8,boss_hitcount2(a0)
 	move.b	#8,mainspr_mapframe(a0)
-	move.w	#-$380,objoff_2E(a0)
-	clr.b	(Boss_CollisionRoutine).w
-	move.w	#$2AE0,sub2_x_pos(a0)
+	move.w	#-$380,obj89_hammer_y_vel(a0)
+	clr.b	(Boss_CollisionRoutine).w	; disable special collisions
+	move.w	#$2AE0,sub2_x_pos(a0)		;
 	move.w	#$488,sub2_y_pos(a0)
 	move.b	#0,sub2_mapframe(a0)
-	move.w	#$2AE0,sub3_x_pos(a0)
+	move.w	#$2AE0,sub3_x_pos(a0)		;
 	move.w	#$488,sub3_y_pos(a0)
 	move.b	#9,sub3_mapframe(a0)
-	move.w	#$2AE0,sub4_x_pos(a0)
+	move.w	#$2AE0,sub4_x_pos(a0)		;
 	move.w	#$488,sub4_y_pos(a0)
 	move.b	#6,sub4_mapframe(a0)
 	move.w	#$100,(Boss_Y_vel).w
 
+	; load first pillar object
 	bsr.w	JmpTo14_SingleObjLoad
-	bne.w	loc_305F4
+	bne.w	Obj89_Init_Standard
 	move.b	#ObjID_ARZBoss,id(a1) ; load obj89
 	move.l	#Obj89_MapUnc_30D68,mappings(a1)
 	ori.b	#4,render_flags(a1)
@@ -61026,694 +60995,711 @@ loc_304D4:
 	move.b	#4,priority(a1)
 	move.w	#$2A50,x_pos(a1)
 	move.w	#$510,y_pos(a1)
-	addq.b	#4,boss_subtype(a1)
-	move.l	a0,objoff_2A(a1)
+	addq.b	#4,boss_subtype(a1)	; => Obj89_Pillar
+	move.l	a0,obj89_pillar_parent(a1)
 	move.b	#0,mapping_frame(a1)
 	move.b	#2,priority(a1)
 	move.b	#$20,y_radius(a1)
-	movea.l	a1,a2
+	movea.l	a1,a2				; save first pillar's address
 	bsr.w	JmpTo22_SingleObjLoad2
-	bne.s	loc_305F4
+	bne.s	Obj89_Init_Standard
 	moveq	#0,d0
 	move.w	#bytesToLcnt(object_size),d1
 
-loc_305DC:
+; loc_305DC:
+Obj89_Init_DuplicatePillar:
 	move.l	(a2,d0.w),(a1,d0.w)
 	addq.w	#4,d0
-	dbf	d1,loc_305DC
+	dbf	d1,Obj89_Init_DuplicatePillar
 	bset	#0,render_flags(a1)
-	move.w	#$2B70,x_pos(a1)
+	move.w	#$2B70,x_pos(a1)		; move pillar to other side of boss area
 
-loc_305F4:
-	bsr.w	loc_305FA
+; loc_305F4:
+Obj89_Init_Standard:
+	bsr.w	Obj89_Init_AnimationArray
 	rts
 ; ===========================================================================
-
-loc_305FA:
+; loc_305FA:
+Obj89_Init_AnimationArray:
 	lea	(Boss_AnimationArray).w,a2
-	move.b	#4,(a2)+
+	move.b	#4,(a2)+	; main vehicle
 	move.b	#0,(a2)+
+	move.b	#0,(a2)+	; face
 	move.b	#0,(a2)+
+	move.b	#2,(a2)+	; hammer
 	move.b	#0,(a2)+
-	move.b	#2,(a2)+
-	move.b	#0,(a2)+
-	move.b	#1,(a2)+
+	move.b	#1,(a2)+	; flames
 	move.b	#0,(a2)+
 	rts
 ; ===========================================================================
-
-loc_30620:
+; loc_30620:
+Obj89_Main:
 	moveq	#0,d0
-	move.b	angle(a0),d0
-	move.w	off_3062E(pc,d0.w),d1
-	jmp	off_3062E(pc,d1.w)
+	move.b	boss_routine(a0),d0
+	move.w	Obj89_Main_Index(pc,d0.w),d1
+	jmp	Obj89_Main_Index(pc,d1.w)
 ; ===========================================================================
-off_3062E:	offsetTable			; main boss object
-		offsetTableEntry.w loc_3063C	; 0 - moving down into arena
-		offsetTableEntry.w loc_3067A	; 2 - moving left/right
-		offsetTableEntry.w loc_306B8	; 4 - having reached pillar
-		offsetTableEntry.w loc_30706	; 6 - hit with hammer
-		offsetTableEntry.w loc_3088C	; 8 - boss exploding
-		offsetTableEntry.w loc_308F4	; A - move boss down and alter a little up again
-		offsetTableEntry.w loc_3095C	; C - beaten boss moving away
+; off_3062E:
+Obj89_Main_Index:	offsetTable			; main boss object
+		offsetTableEntry.w Obj89_Main_Sub0	; 0 - moving down into arena
+		offsetTableEntry.w Obj89_Main_Sub2	; 2 - moving left/right
+		offsetTableEntry.w Obj89_Main_Sub4	; 4 - having reached pillar
+		offsetTableEntry.w Obj89_Main_Sub6	; 6 - hit with hammer
+		offsetTableEntry.w Obj89_Main_Sub8	; 8 - boss exploding
+		offsetTableEntry.w Obj89_Main_SubA	; A - move boss down and alter a little up again
+		offsetTableEntry.w Obj89_Main_SubC	; C - beaten boss moving away
 ; ===========================================================================
-
-loc_3063C:
+; loc_3063C:
+Obj89_Main_Sub0:
 	bsr.w	Boss_MoveObject
-	bsr.w	loc_3075C
-	bsr.w	loc_30824
-	cmpi.w	#$430,(Boss_Y_pos).w
-	blt.s	loc_3066C
+	bsr.w	Obj89_Main_HandleFace
+	bsr.w	Obj89_Main_AlignParts
+	cmpi.w	#$430,(Boss_Y_pos).w		; has boss reached its target?
+	blt.s	Obj89_Main_Sub0_Standard	; if not, branch
 	move.w	#$430,(Boss_Y_pos).w
-	addi.b	#2,angle(a0)
-	move.w	#0,(Boss_Y_vel).w
-	move.w	#-$C8,(Boss_X_vel).w
-	st	objoff_38(a0)
+	addi.b	#2,boss_routine(a0)	; => Obj89_Main_Sub2
+	move.w	#0,(Boss_Y_vel).w		; stop y movement
+	move.w	#-$C8,(Boss_X_vel).w		; move leftward
+	st	obj89_target(a0)
 
-loc_3066C:
+; loc_3066C:
+Obj89_Main_Sub0_Standard:
 	lea	(Ani_obj89_b).l,a1
 	bsr.w	AnimateBoss
 	bra.w	JmpTo37_DisplaySprite
 ; ===========================================================================
-
-loc_3067A:
+; loc_3067A:
+Obj89_Main_Sub2:
 	bsr.w	Boss_MoveObject
-	bsr.w	loc_3075C
-	bsr.w	loc_30824
-	tst.b	objoff_38(a0)
-	bne.s	loc_30696
-	cmpi.w	#$2B10,(Boss_X_pos).w
-	blt.s	loc_306AA
-	bra.s	loc_3069E
+	bsr.w	Obj89_Main_HandleFace
+	bsr.w	Obj89_Main_AlignParts
+	tst.b	obj89_target(a0)		; is boss going left?
+	bne.s	Obj89_Main_Sub2_GoingLeft	; if yes, branch
+	cmpi.w	#$2B10,(Boss_X_pos).w		; is boss right in front of the right pillar?
+	blt.s	Obj89_Main_Sub2_Standard	; branch, if still too far away
+	bra.s	Obj89_Main_Sub2_AtTarget
 ; ===========================================================================
+; loc_30696:
+Obj89_Main_Sub2_GoingLeft:
+	cmpi.w	#$2AB0,(Boss_X_pos).w		; is boss right in front of the left pillar?
+	bgt.s	Obj89_Main_Sub2_Standard	; branch, if still too far away
 
-loc_30696:
-	cmpi.w	#$2AB0,(Boss_X_pos).w
-	bgt.s	loc_306AA
-
-loc_3069E:
-	addi.b	#2,angle(a0)
+; loc_3069E:
+Obj89_Main_Sub2_AtTarget:
+	addi.b	#2,boss_routine(a0)	; => Obj89_Main_Sub4
 	move.w	#0,(Boss_X_vel).w
 
-loc_306AA:
+; loc_306AA:
+Obj89_Main_Sub2_Standard:
 	lea	(Ani_obj89_b).l,a1
 	bsr.w	AnimateBoss
 	bra.w	JmpTo37_DisplaySprite
 ; ===========================================================================
-
-loc_306B8:
+; loc_306B8:
+Obj89_Main_Sub4:
 	bsr.w	Boss_MoveObject
-	bsr.w	loc_3075C
-	bsr.w	loc_30824
-	cmpi.b	#-$40,mapping_frame(a0)
-	bne.s	loc_306F8
+	bsr.w	Obj89_Main_HandleFace
+	bsr.w	Obj89_Main_AlignParts
+	cmpi.b	#-$40,boss_sine_count(a0)	; has boss reached the right height in its hovering animation?
+	bne.s	Obj89_Main_Sub4_Standard	; if not, branch
 	lea	(Boss_AnimationArray).w,a1
-	andi.b	#$F0,4(a1)
-	ori.b	#3,4(a1)
-	addq.b	#2,angle(a0)
+	andi.b	#$F0,2*2(a1)			; reset hammer animation
+	ori.b	#3,2*2(a1)			; reset hammer animation timer
+	addq.b	#2,boss_routine(a0)	; => Obj89_Main_Sub6
 	btst	#0,render_flags(a0)
-	sne	objoff_38(a0)
+	sne	obj89_target(a0)		; target opposite side
 	move.w	#$1E,(Boss_Countdown).w
 	move.b	#SndID_Hammer,d0
 	bsr.w	JmpTo8_PlaySound
 
-loc_306F8:
+; loc_306F8:
+Obj89_Main_Sub4_Standard:
 	lea	(Ani_obj89_b).l,a1
 	bsr.w	AnimateBoss
 	bra.w	JmpTo37_DisplaySprite
 ; ===========================================================================
-
-loc_30706:
-	cmpi.w	#$14,(Boss_Countdown).w
-	bne.s	loc_3071A
-	bset	#0,objoff_3E(a0)
-	move.b	#1,(Boss_CollisionRoutine).w
-
-loc_3071A:
-	subi.w	#1,(Boss_Countdown).w
-	bpl.s	loc_30742
-	clr.b	(Boss_CollisionRoutine).w
-	move.b	#2,angle(a0)
-	bchg	#0,render_flags(a0)
-	beq.s	loc_3073C
-	move.w	#-$C8,(Boss_X_vel).w
-	bra.s	loc_30742
+; loc_30706:
+Obj89_Main_Sub6:
+	cmpi.w	#$14,(Boss_Countdown).w		; has counter reached a specific value?
+	bne.s	+				; if not, branch
+	bset	#0,obj89_hammer_flags(a0)	; hammer just hit a pillar
+	move.b	#1,(Boss_CollisionRoutine).w	; enable hammer collision
++
+	subi.w	#1,(Boss_Countdown).w		; decrement counter
+	bpl.s	Obj89_Main_Sub6_Standard	; branch, if counter > 0
+	clr.b	(Boss_CollisionRoutine).w	; disable hammer collision
+	move.b	#2,boss_routine(a0)	; => Obj89_Main_Sub2
+	bchg	#0,render_flags(a0)		; face opposite direction
+	beq.s	Obj89_Main_Sub6_MoveRight	; branch, if new direction is right
+	move.w	#-$C8,(Boss_X_vel).w		; move left
+	bra.s	Obj89_Main_Sub6_Standard
 ; ===========================================================================
+; loc_3073C:
+Obj89_Main_Sub6_MoveRight:
+	move.w	#$C8,(Boss_X_vel).w		; move right
 
-loc_3073C:
-	move.w	#$C8,(Boss_X_vel).w
-
-loc_30742:
+; loc_30742:
+Obj89_Main_Sub6_Standard:
 	bsr.w	Boss_MoveObject
-	bsr.w	loc_3075C
-	bsr.w	loc_30824
+	bsr.w	Obj89_Main_HandleFace
+	bsr.w	Obj89_Main_AlignParts
 	lea	(Ani_obj89_b).l,a1
 	bsr.w	AnimateBoss
 	bra.w	JmpTo37_DisplaySprite
 ; ===========================================================================
+; loc_3075C:
+Obj89_Main_HandleFace:
+	bsr.w	Obj89_Main_HandleHoveringAndHits
+	cmpi.b	#4,(MainCharacter+routine).w	; is Sonic hurt?
+	beq.s	Obj89_Main_Laugh		; if yes, branch
+	cmpi.b	#4,(Sidekick+routine).w		; is Tails hurt?
+	bne.s	Obj89_Main_ChkHurt		; if not, branch
 
-loc_3075C:
-	bsr.w	loc_3078E
-	cmpi.b	#4,(MainCharacter+routine).w
-	beq.s	loc_30770
-	cmpi.b	#4,(Sidekick+routine).w
-	bne.s	loc_3077A
-
-loc_30770:
+; loc_30770:
+Obj89_Main_Laugh:
 	lea	(Boss_AnimationArray).w,a1
-	move.b	#$31,3(a1)
+	move.b	#$31,1*2+1(a1)			; use laughing animation
 
-loc_3077A:
-	cmpi.b	#$3F,objoff_14(a0)
-	bne.s	return_3078C
+; loc_3077A:
+Obj89_Main_ChkHurt:
+	cmpi.b	#$3F,boss_invulnerable_time(a0)	; was boss hurt?
+	bne.s	return_3078C			; if not, branch
 	lea	(Boss_AnimationArray).w,a1
-	move.b	#-$40,3(a1)
+	move.b	#-$40,1*2+1(a1)			; use hurt animation
 
 return_3078C:
 	rts
 ; ===========================================================================
-
-loc_3078E:
-	move.b	mapping_frame(a0),d0
+; loc_3078E:
+Obj89_Main_HandleHoveringAndHits:
+	move.b	boss_sine_count(a0),d0
 	jsr	(CalcSine).l
 	asr.w	#6,d0
 	add.w	(Boss_Y_pos).w,d0
 	move.w	d0,y_pos(a0)
 	move.w	(Boss_X_pos).w,x_pos(a0)
-	addq.b	#2,mapping_frame(a0)
-	cmpi.b	#8,angle(a0)
-	bhs.s	return_307F2
-	tst.b	objoff_32(a0)
-	beq.s	loc_307F4
-	tst.b	collision_flags(a0)
-	bne.s	return_307F2
-	tst.b	objoff_14(a0)
-	bne.s	loc_307D6
-	move.b	#$40,objoff_14(a0)
-	move.w	#SndID_BossHit,d0
+	addq.b	#2,boss_sine_count(a0)
+	cmpi.b	#8,boss_routine(a0)		; has boss been defeated?
+	bhs.s	return_307F2			; if yes, branch
+	tst.b	boss_hitcount2(a0)		; has boss run out of hits?
+	beq.s	Obj89_Main_KillBoss		; if yes, branch
+	tst.b	collision_flags(a0)		; are boss's collisions enabled?
+	bne.s	return_307F2			; if yes, branch
+	tst.b	boss_invulnerable_time(a0)	; is boss invulnerable?
+	bne.s	Obj89_Main_Flash		; if yes, branch
+	move.b	#$40,boss_invulnerable_time(a0)	; make boss invulnerable
+	move.w	#SndID_BossHit,d0		; play "boss hit" sound
 	jsr	(PlaySound).l
 
-loc_307D6:
+; loc_307D6:
+Obj89_Main_Flash:
 	lea	(Normal_palette_line2+2).w,a1
-	moveq	#0,d0
-	tst.w	(a1)
-	bne.s	loc_307E4
-	move.w	#$EEE,d0
-
-loc_307E4:
-	move.w	d0,(a1)
-	subq.b	#1,objoff_14(a0)
-	bne.s	return_307F2
-	move.b	#$F,collision_flags(a0)
+	moveq	#0,d0				; 0000 = black
+	tst.w	(a1)				; is current color black?
+	bne.s	+				; if not, branch
+	move.w	#$EEE,d0			; 0EEE = white
++
+	move.w	d0,(a1)				; set color
+	subq.b	#1,boss_invulnerable_time(a0)
+	bne.s	return_307F2			; branch, if invulnerability hasn't run out
+	move.b	#$F,collision_flags(a0)		; restore collisions
 
 return_307F2:
 	rts
 ; ===========================================================================
-
-loc_307F4:
+; loc_307F4:
+Obj89_Main_KillBoss:
 	moveq	#100,d0
 	bsr.w	JmpTo5_AddPoints
-	move.w	#$B3,(Boss_Countdown).w
-	move.b	#8,angle(a0)
+	move.w	#$B3,(Boss_Countdown).w		; set timer
+	move.b	#8,boss_routine(a0)	; => Obj89_Main_Sub8
 	lea	(Boss_AnimationArray).w,a1
-	move.b	#5,2(a1)
-	move.b	#0,3(a1)
+	move.b	#5,1*2(a1)			; use defeated animation
+	move.b	#0,1*2+1(a1)			; reset animation
 	moveq	#PLCID_Capsule,d0
 	bsr.w	JmpTo8_LoadPLC
 	move.b	#5,sub2_mapframe(a0)
 	rts
 ; ===========================================================================
-
-loc_30824:
+; loc_30824:
+Obj89_Main_AlignParts:
 	move.w	x_pos(a0),d0
 	move.w	y_pos(a0),d1
 	move.w	d0,sub2_x_pos(a0)
 	move.w	d1,sub2_y_pos(a0)
 	move.w	d0,sub4_x_pos(a0)
 	move.w	d1,sub4_y_pos(a0)
-	tst.b	objoff_2C(a0)
-	bne.s	loc_30850
+	tst.b	boss_defeated(a0)
+	bne.s	Obj89_Main_DropHammer		; branch, if boss was defeated
 	move.w	d0,sub3_x_pos(a0)
 	move.w	d1,sub3_y_pos(a0)
-	move.w	d1,objoff_3A(a0)
+	move.w	d1,obj89_hammer_y_pos(a0)
 	rts
 ; ===========================================================================
-
-loc_30850:
+; loc_30850:
+Obj89_Main_DropHammer:
 	cmpi.w	#$78,(Boss_Countdown).w
-	bgt.s	return_3088A
-	subi.w	#1,y_radius(a0)
-	move.l	objoff_3A(a0),d0
-	move.w	objoff_2E(a0),d1
-	addi.w	#$38,objoff_2E(a0)
+	bgt.s	return_3088A			; wait until timer is below $78
+	subi.w	#1,sub3_x_pos(a0)		; make hammer move left
+	move.l	obj89_hammer_y_pos(a0),d0
+	move.w	obj89_hammer_y_vel(a0),d1
+	addi.w	#$38,obj89_hammer_y_vel(a0)	; add gravity
 	ext.l	d1
 	asl.l	#8,d1
 	add.l	d1,d0
-	move.l	d0,objoff_3A(a0)
-	move.w	objoff_3A(a0),priority(a0)
-	cmpi.w	#$540,priority(a0)
-	blt.s	return_3088A
-	move.w	#0,objoff_2E(a0)
+	move.l	d0,obj89_hammer_y_pos(a0)	; update position
+	move.w	obj89_hammer_y_pos(a0),sub3_y_pos(a0)
+	cmpi.w	#$540,sub3_y_pos(a0)		; has the hammer reached the bottom?
+	blt.s	return_3088A			; if not, branch
+	move.w	#0,obj89_hammer_y_vel(a0)	; else, make hammer invisible
 
 return_3088A:
 	rts
 ; ===========================================================================
-
-loc_3088C:
-	st	objoff_2C(a0)
+; loc_3088C:
+Obj89_Main_Sub8:
+	st	boss_defeated(a0)
 	subq.w	#1,(Boss_Countdown).w
-	bmi.s	loc_3089C
+	bmi.s	Obj89_Main_SetupEscapeAnim
 	bsr.w	Boss_LoadExplosion
-	bra.s	loc_308D6
+	bra.s	Obj89_Main_Sub8_Standard
 ; ===========================================================================
-
-loc_3089C:
+; loc_3089C:
+Obj89_Main_SetupEscapeAnim:
 	move.b	#3,mainspr_childsprites(a0)
 	lea	(Boss_AnimationArray).w,a2
-	move.b	#1,4(a2)
-	move.b	#0,5(a2)
-	move.b	#0,2(a2)
-	move.b	#0,3(a2)
+	move.b	#1,2*2(a2)			; hammer
+	move.b	#0,2*2+1(a2)
+	move.b	#0,1*2(a2)			; face
+	move.b	#0,1*2+1(a2)
 	bset	#0,render_flags(a0)
-	clr.w	(Boss_X_vel).w
+	clr.w	(Boss_X_vel).w			; stop movement
 	clr.w	(Boss_Y_vel).w
-	addq.b	#2,angle(a0)
+	addq.b	#2,boss_routine(a0)	; => Obj89_Main_SubA
 	move.w	#-$12,(Boss_Countdown).w
 
-loc_308D6:
+; loc_308D6:
+Obj89_Main_Sub8_Standard:
 	move.w	(Boss_Y_pos).w,y_pos(a0)
 	move.w	(Boss_X_pos).w,x_pos(a0)
 	lea	(Ani_obj89_b).l,a1
 	bsr.w	AnimateBoss
-	bsr.w	loc_30824
+	bsr.w	Obj89_Main_AlignParts
 	bra.w	JmpTo37_DisplaySprite
 ; ===========================================================================
-
-loc_308F4:
-	addq.w	#1,(Boss_Countdown).w
-	beq.s	loc_30904
-	bpl.s	loc_3090A
-	addi.w	#$18,(Boss_Y_vel).w
-	bra.s	loc_30936
+; loc_308F4:
+Obj89_Main_SubA:
+	addq.w	#1,(Boss_Countdown).w		; note: countdown starts out as -$12
+	beq.s	Obj89_Main_SubA_StopFall	; branch, if countdown reached 0
+	bpl.s	Obj89_Main_SubA_Phase2		; branch, if falling phase is over
+	addi.w	#$18,(Boss_Y_vel).w		; else, make boss fall
+	bra.s	Obj89_Main_SubA_Standard
 ; ===========================================================================
-
-loc_30904:
-	clr.w	(Boss_Y_vel).w
-	bra.s	loc_30936
+; loc_30904:
+Obj89_Main_SubA_StopFall:
+	clr.w	(Boss_Y_vel).w			; stop fall
+	bra.s	Obj89_Main_SubA_Standard
 ; ===========================================================================
-
-loc_3090A:
+; loc_3090A:
+Obj89_Main_SubA_Phase2:
 	cmpi.w	#$18,(Boss_Countdown).w
-	blo.s	loc_30922
-	beq.s	loc_3092A
+	blo.s	Obj89_Main_SubA_Ascend
+	beq.s	Obj89_Main_SubA_StopAscent
 	cmpi.w	#$20,(Boss_Countdown).w
-	blo.s	loc_30936
-	addq.b	#2,angle(a0)
-	bra.s	loc_30936
+	blo.s	Obj89_Main_SubA_Standard
+	addq.b	#2,boss_routine(a0)	; => Obj89_Main_SubC
+	bra.s	Obj89_Main_SubA_Standard
 ; ===========================================================================
-
-loc_30922:
-	subi.w	#8,(Boss_Y_vel).w
-	bra.s	loc_30936
+; loc_30922:
+Obj89_Main_SubA_Ascend:
+	subi.w	#8,(Boss_Y_vel).w		; ascend slowly
+	bra.s	Obj89_Main_SubA_Standard
 ; ===========================================================================
-
-loc_3092A:
-	clr.w	(Boss_Y_vel).w
+; loc_3092A:
+Obj89_Main_SubA_StopAscent:
+	clr.w	(Boss_Y_vel).w			; stop ascent
 	bsr.w	JmpTo4_PlayLevelMusic
 	bsr.w	JmpTo4_LoadPLC_AnimalExplosion
 
-loc_30936:
+; loc_30936:
+Obj89_Main_SubA_Standard:
 	bsr.w	Boss_MoveObject
-	bsr.w	loc_3078E
+	bsr.w	Obj89_Main_HandleHoveringAndHits
 	move.w	(Boss_Y_pos).w,y_pos(a0)
 	move.w	(Boss_X_pos).w,x_pos(a0)
 	lea	(Ani_obj89_b).l,a1
 	bsr.w	AnimateBoss
-	bsr.w	loc_30824
+	bsr.w	Obj89_Main_AlignParts
 	bra.w	JmpTo37_DisplaySprite
 ; ===========================================================================
-
-loc_3095C:
+; loc_3095C:
+Obj89_Main_SubC:
 	move.w	#$400,(Boss_X_vel).w
 	move.w	#-$40,(Boss_Y_vel).w
-	cmpi.w	#$2C00,(Camera_Max_X_pos).w
-	bhs.s	loc_30976
-	addq.w	#2,(Camera_Max_X_pos).w
-	bra.s	loc_3097C
+	cmpi.w	#$2C00,(Camera_Max_X_pos).w	; has camera reached its target position?
+	bhs.s	Obj89_Main_SubC_ChkDelete	; if yes, branch
+	addq.w	#2,(Camera_Max_X_pos).w		; else, move camera
+	bra.s	Obj89_Main_SubC_Standard
 ; ===========================================================================
+; loc_30976:
+Obj89_Main_SubC_ChkDelete:
+	tst.b	render_flags(a0)		; is boss still visible?
+	bpl.s	JmpTo54_DeleteObject		; if not, branch
 
-loc_30976:
-	tst.b	render_flags(a0)
-	bpl.s	JmpTo54_DeleteObject
-
-loc_3097C:
+; loc_3097C:
+Obj89_Main_SubC_Standard:
 	bsr.w	Boss_MoveObject
-	bsr.w	loc_3078E
+	bsr.w	Obj89_Main_HandleHoveringAndHits
 	move.w	(Boss_Y_pos).w,y_pos(a0)
 	move.w	(Boss_X_pos).w,x_pos(a0)
 	lea	(Ani_obj89_b).l,a1
 	bsr.w	AnimateBoss
-	bsr.w	loc_30824
+	bsr.w	Obj89_Main_AlignParts
 	bra.w	JmpTo37_DisplaySprite
 ; ===========================================================================
 
 JmpTo54_DeleteObject 
 	jmp	(DeleteObject).l
 ; ===========================================================================
-
-loc_309A8:
+; loc_309A8:
+Obj89_Pillar:
 	moveq	#0,d0
-	movea.l	objoff_2A(a0),a1 ; a1=object
-	cmpi.b	#8,angle(a1)
-	blt.s	loc_309BC
+	movea.l	obj89_pillar_parent(a0),a1 ; a1=object
+	cmpi.b	#8,boss_routine(a1)		; has boss been defeated?
+	blt.s	Obj89_Pillar_Normal		; if not, branch
 	move.b	#4,routine_secondary(a0)
 
-loc_309BC:
+; loc_309BC:
+Obj89_Pillar_Normal:
 	move.b	routine_secondary(a0),d0
-	move.w	off_309C8(pc,d0.w),d1
-	jmp	off_309C8(pc,d1.w)
+	move.w	Obj89_Pillar_Index(pc,d0.w),d1
+	jmp	Obj89_Pillar_Index(pc,d1.w)
 ; ===========================================================================
-off_309C8:	offsetTable			; pillar/arrow object
-		offsetTableEntry.w loc_309D2	; 0 - raise pillars
-		offsetTableEntry.w loc_30A04	; 2 - pillars shaking(?)
-		offsetTableEntry.w loc_30B4A	; 4 - move pillars down
-		offsetTableEntry.w Obj89_Arrow	; 6 - arrow
-		offsetTableEntry.w loc_30B6C	; 8 - pillar normal (standing)
+; off_309C8:
+Obj89_Pillar_Index:	offsetTable				; pillar/arrow object
+		offsetTableEntry.w Obj89_Pillar_Sub0		; 0 - raise pillars
+		offsetTableEntry.w Obj89_Pillar_Sub2		; 2 - pillars shaking(?)
+		offsetTableEntry.w Obj89_Pillar_Sub4		; 4 - move pillars down
+		offsetTableEntry.w Obj89_Arrow			; 6 - arrow
+		offsetTableEntry.w Obj89_Pillar_BulgingEyes	; 8 - pillar normal (standing)
 ; ===========================================================================
-
-loc_309D2:
-	bsr.w	loc_30B7A
+; loc_309D2:
+Obj89_Pillar_Sub0:
+	bsr.w	Obj89_Pillar_SolidObject
 	move.b	(Vint_runcount+3).w,d0
 	andi.b	#$1F,d0
-	bne.s	loc_309E8
-	move.w	#SndID_Rumbling2,d0
+	bne.s	+
+	move.w	#SndID_Rumbling2,d0		; play rumbling sound every 32 frames
 	bsr.w	JmpTo8_PlaySound
-
-loc_309E8:
-	subi.w	#1,y_pos(a0)
-	cmpi.w	#$488,y_pos(a0)
-	bgt.s	BranchTo_JmpTo37_DisplaySprite
-	addq.b	#2,routine_secondary(a0)
-	move.b	#0,(Screen_Shaking_Flag).w
++
+	subi.w	#1,y_pos(a0)			; raise pillar
+	cmpi.w	#$488,y_pos(a0)			; has pillar reached its target height?
+	bgt.s	BranchTo_JmpTo37_DisplaySprite	; if not, branch
+	addq.b	#2,routine_secondary(a0)	; => Obj89_Pillar_Sub2
+	move.b	#0,(Screen_Shaking_Flag).w	; stop screen shaking
 
 BranchTo_JmpTo37_DisplaySprite 
 	bra.w	JmpTo37_DisplaySprite
 ; ===========================================================================
-
-loc_30A04:
-	bsr.w	loc_30B7A
-	movea.l	objoff_2A(a0),a3
-	btst	#0,objoff_3E(a3)
-	beq.s	loc_30A3A
-	tst.b	objoff_38(a3)
-	beq.s	loc_30A24
-	btst	#0,render_flags(a0)
-	beq.s	loc_30A3A
+; loc_30A04:
+Obj89_Pillar_Sub2:
+	; note: the boss switches targets before bit 0 of obj89_hammer_flags is set.  In other
+	; words, it's always the pillar facing the new target that fires.
+	bsr.w	Obj89_Pillar_SolidObject
+	movea.l	obj89_pillar_parent(a0),a3 ; a3=object
+	btst	#0,obj89_hammer_flags(a3)
+	beq.s	Obj89_Pillar_Sub2_Standard	; branch, if hammer hasn't hit a pillar
+	tst.b	obj89_target(a3)		; is boss targeting the right?
+	beq.s	Obj89_Pillar_Sub2_RightPillar	; if yes, branch
+	btst	#0,render_flags(a0)		; is pillar facing left?
+	beq.s	Obj89_Pillar_Sub2_Standard	; if not, branch
 	bra.s	loc_30A2C
 ; ===========================================================================
-
-loc_30A24:
-	btst	#0,render_flags(a0)
-	bne.s	loc_30A3A
+; loc_30A24:
+Obj89_Pillar_Sub2_RightPillar:
+	btst	#0,render_flags(a0)		; is pillar facing right?
+	bne.s	Obj89_Pillar_Sub2_Standard	; if not, branch
 
 loc_30A2C:
-	bclr	#0,objoff_3E(a3)
-	bsr.w	loc_30AB4
-	st	objoff_38(a0)
+	bclr	#0,obj89_hammer_flags(a3)	; clear "hitting-pillar" flag
+	bsr.w	Obj89_Pillar_Shoot		; shoot an arrow
+	st	obj89_pillar_shaking(a0)	; make pillar shake
 
-loc_30A3A:
-	bsr.w	loc_30A42
+; loc_30A3A:
+Obj89_Pillar_Sub2_Standard:
+	bsr.w	Obj89_Pillar_ChkShake
 	bra.w	JmpTo37_DisplaySprite
 ; ===========================================================================
-
-loc_30A42:
-	tst.b	objoff_38(a0)
-	beq.s	return_30AAE
-	tst.w	objoff_30(a0)
-	bgt.s	loc_30A54
-	move.w	#$1F,objoff_30(a0)
-
-loc_30A54:
-	subi.w	#1,objoff_30(a0)
-	bgt.s	loc_30A82
-	sf	objoff_38(a0)
-	move.w	#0,objoff_30(a0)
-	tst.b	objoff_38(a3)
-	bne.s	loc_30A74
-	move.w	#$2A50,x_pos(a0)
-	bra.s	loc_30A7A
+; loc_30A42:
+Obj89_Pillar_ChkShake:
+	tst.b	obj89_pillar_shaking(a0)	; is pillar shaking?
+	beq.s	return_30AAE			; if not, branch
+	tst.w	obj89_pillar_shake_time(a0)	; has timer been set?
+	bgt.s	+				; if yes, branch
+	move.w	#$1F,obj89_pillar_shake_time(a0); else, initialize timer
++
+	subi.w	#1,obj89_pillar_shake_time(a0)
+	bgt.s	Obj89_Pillar_Shake		; branch, if timer hasn't expired
+	sf	obj89_pillar_shaking(a0)	; stop shaking
+	move.w	#0,obj89_pillar_shake_time(a0)	; clear timer
+	tst.b	obj89_target(a3)		; is boss targeting the left?
+	bne.s	+				; if yes, branch
+	move.w	#$2A50,x_pos(a0)		; reset x position of left pillar
+	bra.s	Obj89_Pillar_Sub2_End
 ; ===========================================================================
++
+	move.w	#$2B70,x_pos(a0)		; reset x position of right pillar
 
-loc_30A74:
-	move.w	#$2B70,x_pos(a0)
-
-loc_30A7A:
-	move.w	#$488,y_pos(a0)
+; loc_30A7A:
+Obj89_Pillar_Sub2_End:
+	move.w	#$488,y_pos(a0)			; reset y position
 	bra.s	return_30AAE
 ; ===========================================================================
-
-loc_30A82:
-	move.w	#$2A50,d1
-	tst.b	objoff_38(a3)
-	beq.s	loc_30A90
-	move.w	#$2B70,d1
-
-loc_30A90:
+; loc_30A82:
+Obj89_Pillar_Shake:
+	move.w	#$2A50,d1			; load left pillar's default x position
+	tst.b	obj89_target(a3)		; is boss targeting the left
+	beq.s	+				; if not, branch
+	move.w	#$2B70,d1			; load right pillar's default x position
++
 	move.b	(Vint_runcount+3).w,d0
 	andi.w	#1,d0
 	add.w	d0,d0
-	add.w	word_30AB0(pc,d0.w),d1
-	move.w	d1,x_pos(a0)
-	move.w	#$488,d1
-	add.w	word_30AB0(pc,d0.w),d1
-	move.w	d1,y_pos(a0)
+	add.w	Obj89_Pillar_ShakeOffsets(pc,d0.w),d1
+	move.w	d1,x_pos(a0)			; add offset to x position
+	move.w	#$488,d1			; load  pillar's default y position
+	add.w	Obj89_Pillar_ShakeOffsets(pc,d0.w),d1
+	move.w	d1,y_pos(a0)			; add offset to y position
 
 return_30AAE:
 	rts
 ; ===========================================================================
-word_30AB0:
+; word_30AB0:
+Obj89_Pillar_ShakeOffsets:
 	dc.w	 1	; 0
 	dc.w	-1	; 1
 ; ===========================================================================
-
-loc_30AB4:
+; loc_30AB4:
+Obj89_Pillar_Shoot:
 	bsr.w	JmpTo14_SingleObjLoad
 	bne.w	return_30B40
 	_move.b	#ObjID_ARZBoss,id(a1) ; load obj89
 	move.b	#4,boss_subtype(a1)
-	move.b	#8,routine_secondary(a1)
+	move.b	#8,routine_secondary(a1)	; => Obj89_Pillar_BulgingEyes
 	move.l	#Obj89_MapUnc_30D68,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_ARZBoss,0,0),art_tile(a1)
 	ori.b	#4,render_flags(a1)
 	moveq	#0,d6
 	move.b	#2,mapping_frame(a1)
-	move.w	#$2A6A,x_pos(a1)
-	tst.b	objoff_38(a3)
-	beq.s	loc_30B04
+	move.w	#$2A6A,x_pos(a1)		; align with left pillar
+	tst.b	obj89_target(a3)		; is boss targeting the right?
+	beq.s	+				; if yes, branch
 	st	d6
-	move.w	#$2B56,x_pos(a1)
+	move.w	#$2B56,x_pos(a1)		; align with right pillar
 	bset	#0,render_flags(a1)
-
-loc_30B04:
-	move.w	#$28,objoff_30(a1)
++
+	move.w	#$28,obj89_eyes_timer(a1)
 	bsr.w	JmpTo3_RandomNumber
 	andi.w	#3,d0
 	add.w	d0,d0
-	move.w	word_30B42(pc,d0.w),y_pos(a1)
+	move.w	Obj89_Arrow_Offsets(pc,d0.w),y_pos(a1)
 	movea.l	a1,a2
 	bsr.w	JmpTo14_SingleObjLoad
 	bne.s	return_30B40
 	_move.b	#ObjID_ARZBoss,id(a1) ; load obj89
 	move.b	#4,boss_subtype(a1)
-	move.b	#6,routine_secondary(a1)
-	move.l	a2,objoff_34(a1)
+	move.b	#6,routine_secondary(a1)	; => Obj89_Arrow
+	move.l	a2,obj89_arrow_parent2(a1)
 	move.b	d6,subtype(a1)
-	move.l	a3,objoff_38(a1)
+	move.l	a3,obj89_arrow_parent(a1)
 
 return_30B40:
 	rts
 ; ===========================================================================
-word_30B42:
+; word_30B42:
+Obj89_Arrow_Offsets:
 	dc.w  $458
 	dc.w  $478	; 1
 	dc.w  $498	; 2
 	dc.w  $4B8	; 3
 ; ===========================================================================
-
-loc_30B4A:
-	move.b	#1,(Screen_Shaking_Flag).w
-	addi.w	#1,y_pos(a0)
-	cmpi.w	#$510,y_pos(a0)
-	blt.s	BranchTo2_JmpTo37_DisplaySprite
-	move.b	#0,(Screen_Shaking_Flag).w
+; loc_30B4A:
+Obj89_Pillar_Sub4:
+	move.b	#1,(Screen_Shaking_Flag).w	; make screen shake
+	addi.w	#1,y_pos(a0)			; lower pillar
+	cmpi.w	#$510,y_pos(a0)			; has pillar lowered into the ground?
+	blt.s	BranchTo2_JmpTo37_DisplaySprite	; if not, branch
+	move.b	#0,(Screen_Shaking_Flag).w	; else, stop shaking the screen
 	bra.w	JmpTo55_DeleteObject
 ; ===========================================================================
 
 BranchTo2_JmpTo37_DisplaySprite 
 	bra.w	JmpTo37_DisplaySprite
 ; ===========================================================================
-
-loc_30B6C:
-	subi.w	#1,objoff_30(a0)
+; loc_30B6C:
+Obj89_Pillar_BulgingEyes:
+	subi.w	#1,obj89_eyes_timer(a0)
 	beq.w	JmpTo55_DeleteObject
 	bra.w	JmpTo37_DisplaySprite
 ; ===========================================================================
-
-loc_30B7A:
+; loc_30B7A:
+Obj89_Pillar_SolidObject:
 	move.w	#$23,d1
 	move.w	#$44,d2
 	move.w	#$45,d3
 	move.w	x_pos(a0),d4
 	move.w	y_pos(a0),-(sp)
-	addi.w	#4,y_pos(a0)
+	addi.w	#4,y_pos(a0)			; assume a slightly lower y position
 	bsr.w	JmpTo26_SolidObject
-	move.w	(sp)+,y_pos(a0)
+	move.w	(sp)+,y_pos(a0)			; restore y position
 	rts
 ; ===========================================================================
 ;loc_30B9E:
 Obj89_Arrow:
 	moveq	#0,d0
-	movea.l	objoff_38(a0),a1 ; a1=object
-	cmpi.b	#8,angle(a1)
-	blt.s	loc_30BB2
-	move.b	#6,objoff_2A(a0)
+	movea.l	obj89_arrow_parent(a0),a1 ; a1=object
+	cmpi.b	#8,boss_routine(a1)		; has boss been defeated?
+	blt.s	Obj89_Arrow_Normal		; if not, branch
+	move.b	#6,obj89_arrow_routine(a0)	; => Obj89_Arrow_Sub6
 
-loc_30BB2:
-	move.b	objoff_2A(a0),d0
-	move.w	off_30BBE(pc,d0.w),d1
-	jmp	off_30BBE(pc,d1.w)
+; loc_30BB2:
+Obj89_Arrow_Normal:
+	move.b	obj89_arrow_routine(a0),d0
+	move.w	Obj89_Arrow_Index(pc,d0.w),d1
+	jmp	Obj89_Arrow_Index(pc,d1.w)
 ; ===========================================================================
-off_30BBE:	offsetTable
-		offsetTableEntry.w loc_30BC8				; 0 - launch arrow (init)
-		offsetTableEntry.w loc_30C36				; 2 - arrow in air
-		offsetTableEntry.w loc_30C86				; 4 - arrow stuck
-		offsetTableEntry.w loc_30CAC				; 6 - falling down
+; off_30BBE:
+Obj89_Arrow_Index:	offsetTable
+		offsetTableEntry.w Obj89_Arrow_Init			; 0 - launch arrow (init)
+		offsetTableEntry.w Obj89_Arrow_Sub2			; 2 - arrow in air
+		offsetTableEntry.w Obj89_Arrow_Sub4			; 4 - arrow stuck
+		offsetTableEntry.w Obj89_Arrow_Sub6			; 6 - falling down
 		offsetTableEntry.w BranchTo_JmpTo55_DeleteObject	; 8 - delete arrow
 ; ===========================================================================
-
-loc_30BC8:
+; loc_30BC8:
+Obj89_Arrow_Init:
 	move.l	#Obj89_MapUnc_30D68,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_ARZBoss,0,0),art_tile(a0)
 	ori.b	#4,render_flags(a0)
 	move.b	#-$70,mainspr_width(a0)
 	move.b	#4,priority(a0)
-	addq.b	#2,objoff_2A(a0)
-	movea.l	objoff_34(a0),a1 ; a1=object
-	move.w	x_pos(a1),x_pos(a0)
+	addq.b	#2,obj89_arrow_routine(a0)	; => Obj89_Arrow_Sub2
+	movea.l	obj89_arrow_parent2(a0),a1 ; a1=object
+	move.w	x_pos(a1),x_pos(a0)		; align with parent object
 	move.w	y_pos(a1),y_pos(a0)
 	move.w	#4,y_vel(a0)
 	move.b	#4,mapping_frame(a0)
 	addi.w	#9,y_pos(a0)
-	tst.b	subtype(a0)
-	beq.s	loc_30C28
-	bset	#0,status(a0)
+	tst.b	subtype(a0)			; was arrow fired from right pillar?
+	beq.s	+				; if not, branch
+	bset	#0,status(a0)			; make arrow face left
 	bset	#0,render_flags(a0)
-	move.w	#-3,x_vel(a0)
-	bra.s	loc_30C2E
+	move.w	#-3,x_vel(a0)			; move left
+	bra.s	Obj89_Arrow_Init_End
 ; ===========================================================================
++
+	move.w	#3,x_vel(a0)			; move right
 
-loc_30C28:
-	move.w	#3,x_vel(a0)
-
-loc_30C2E:
+; loc_30C2E:
+Obj89_Arrow_Init_End:
 	move.b	#$B0,collision_flags(a0)
 	rts
 ; ===========================================================================
-
-loc_30C36:
+; loc_30C36:
+Obj89_Arrow_Sub2:
 	btst	#7,status(a0)
-	beq.s	loc_30C44
-	move.b	#8,objoff_2A(a0)
-
-loc_30C44:
-	move.w	x_pos(a0),d0
-	add.w	x_vel(a0),d0
-	tst.w	x_vel(a0)
-	bpl.s	loc_30C5E
+	beq.s	+
+	move.b	#8,obj89_arrow_routine(a0)	; => BranchTo_JmpTo55_DeleteObject
++
+	move.w	x_pos(a0),d0			; load x position...
+	add.w	x_vel(a0),d0			; ... and add x velocity
+	tst.w	x_vel(a0)			; is arrow moving right?
+	bpl.s	Obj89_Arrow_Sub2_GoingRight	; if yes, branch
 	cmpi.w	#$2A77,d0
-	bgt.s	loc_30C7E
-	move.w	#$2A77,d0
-	bra.s	loc_30C68
+	bgt.s	Obj89_Arrow_Sub2_Move		; branch, if arrow hasn't reached left pillar
+	move.w	#$2A77,d0			; else, make arrow stick to left pillar
+	bra.s	Obj89_Arrow_Sub2_Stop
 ; ===========================================================================
-
-loc_30C5E:
+; loc_30C5E:
+Obj89_Arrow_Sub2_GoingRight:
 	cmpi.w	#$2B49,d0
-	blt.s	loc_30C7E
-	move.w	#$2B49,d0
+	blt.s	Obj89_Arrow_Sub2_Move		; branch, if arrow hasn't reached right pillar
+	move.w	#$2B49,d0			; else, make arrow stick to right pillar
 
-loc_30C68:
-	addi.b	#2,objoff_2A(a0)
-	move.w	d0,x_pos(a0)
+; loc_30C68:
+Obj89_Arrow_Sub2_Stop:
+	addi.b	#2,obj89_arrow_routine(a0)	; => Obj89_Arrow_Sub4
+	move.w	d0,x_pos(a0)			; update position
 	move.b	#SndID_ArrowStick,d0
 	bsr.w	JmpTo8_PlaySound
 	bra.w	JmpTo37_DisplaySprite
 ; ===========================================================================
-
-loc_30C7E:
-	move.w	d0,x_pos(a0)
+; loc_30C7E:
+Obj89_Arrow_Sub2_Move:
+	move.w	d0,x_pos(a0)			; update position
 	bra.w	JmpTo37_DisplaySprite
 ; ===========================================================================
-
-loc_30C86:
-	move.b	#0,collision_flags(a0)
+; loc_30C86:
+Obj89_Arrow_Sub4:
+	move.b	#0,collision_flags(a0)		; make arrow harmless
 	btst	#7,status(a0)
-	beq.s	loc_30C9A
-	addi.b	#2,objoff_2A(a0)
-
-loc_30C9A:
-	bsr.w	loc_30CCC
+	beq.s	+
+	addi.b	#2,obj89_arrow_routine(a0)	; => Obj89_Arrow_Sub6
++
+	bsr.w	Obj89_Arrow_Platform
 	lea	(Ani_obj89_a).l,a1
 	bsr.w	JmpTo19_AnimateSprite
 	bra.w	JmpTo37_DisplaySprite
 ; ===========================================================================
-
-loc_30CAC:
-	bsr.w	loc_30D04
-	move.w	y_pos(a0),d0
-	add.w	y_vel(a0),d0
-	cmpi.w	#$4F0,d0
-	bgt.w	JmpTo55_DeleteObject
-	move.w	d0,y_pos(a0)
+; loc_30CAC:
+Obj89_Arrow_Sub6:
+	bsr.w	Obj89_Arrow_ChkDropPlayers
+	move.w	y_pos(a0),d0			; load y position...
+	add.w	y_vel(a0),d0			; ... and add y velocity
+	cmpi.w	#$4F0,d0			; has arrow dropped to the ground?
+	bgt.w	JmpTo55_DeleteObject		; if yes, branch
+	move.w	d0,y_pos(a0)			; update y position
 	bra.w	JmpTo37_DisplaySprite
 ; ===========================================================================
 
 BranchTo_JmpTo55_DeleteObject 
 	bra.w	JmpTo55_DeleteObject
 ; ===========================================================================
-
-loc_30CCC:
-	tst.w	objoff_30(a0)
-	bne.s	loc_30CF4
+; loc_30CCC:
+Obj89_Arrow_Platform:
+	tst.w	obj89_arrow_timer(a0)		; is timer set?
+	bne.s	Obj89_Arrow_Platform_Decay	; if yes, branch
 	move.w	#$1B,d1
 	move.w	#1,d2
 	move.w	#2,d3
 	move.w	x_pos(a0),d4
 	bsr.w	JmpTo8_PlatformObject
-	btst	#3,status(a0)
-	beq.s	return_30D02
-	move.w	#$1F,objoff_30(a0)
+	btst	#3,status(a0)			; is Sonic standing on the arrow?
+	beq.s	return_30D02			; if not, branch
+	move.w	#$1F,obj89_arrow_timer(a0)	; else, set timer
 
-loc_30CF4:
-	subi.w	#1,objoff_30(a0)
-	bne.s	return_30D02
-	move.b	#6,objoff_2A(a0)
+; loc_30CF4:
+Obj89_Arrow_Platform_Decay:
+	subi.w	#1,obj89_arrow_timer(a0)	; decrement timer
+	bne.s	return_30D02			; branch, if timer hasn't expired
+	move.b	#6,obj89_arrow_routine(a0)	; => Obj89_Arrow_Sub6
 
 return_30D02:
 	rts
 ; ===========================================================================
-
-loc_30D04:
+; loc_30D04:
+Obj89_Arrow_ChkDropPlayers:
 	bclr	#p1_standing_bit,status(a0)
-	beq.s	loc_30D12
+	beq.s	+				; branch, if Sonic wasn't standing on the arrow
 	lea	(MainCharacter).w,a1 ; a1=character
-	bsr.s	loc_30D1E
-
-loc_30D12:
+	bsr.s	Obj89_Arrow_DropPlayer
++
 	bclr	#p2_standing_bit,status(a0)
-	beq.s	return_30D2A
+	beq.s	return_30D2A			; branch, if Tails wasn't standing on the arrow
 	lea	(Sidekick).w,a1 ; a1=character
 
-loc_30D1E:
+; loc_30D1E:
+Obj89_Arrow_DropPlayer:
 	bset	#1,status(a1)
 	bclr	#3,status(a1)
 
@@ -63995,7 +63981,7 @@ Obj54_Laser_Main:
 ;loc_32D48
 Obj54_LaserShooter:
 	movea.l	objoff_34(a0),a1 ; a1=object
-	cmpi.b	#$54,(a1)
+	cmpi.b	#ObjID_MTZBoss,id(a1)
 	bne.w	JmpTo61_DeleteObject
 	move.w	x_pos(a1),x_pos(a0)
 	move.w	y_pos(a1),y_pos(a0)
@@ -66106,7 +66092,6 @@ Obj61_Init:
 	bsr.w	loc_3529C
 
 loc_34F06:
-
 	bsr.w	loc_3512A
 	bsr.w	loc_351A0
 	lea	(Ani_obj61).l,a1
@@ -68164,10 +68149,10 @@ SubObjData_Index: offsetTable
 ;
 ; returns:
 ;  a1 = address of closest player character
-;  d0 = 0 if right from player, 2 if left
-;  d1 = 0 if above player, 2 if under
-;  d2 = horizontal distance to closest character
-;  d3 = vertical distance to closest character
+;  d0 = 0 if player is left from object, 2 if right
+;  d1 = 0 if player is above object, 2 if below
+;  d2 = closest character's horizontal distance to object
+;  d3 = closest character's vertical distance to object
 ;
 ; writes:
 ;  d0, d1, d2, d3, d4, d5
@@ -68994,6 +68979,9 @@ word_36D9A_End
 ; ----------------------------------------------------------------------------
 ; Object 91 - Chop Chop (piranha/shark badnik) from ARZ
 ; ----------------------------------------------------------------------------
+; OST Variables:
+Obj91_move_timer	= objoff_2A	; time to wait before turning around
+Obj91_bubble_timer	= objoff_2C	; time to wait before producing a bubble
 ; Sprite_36DAC:
 Obj91:
 	moveq	#0,d0
@@ -69003,83 +68991,83 @@ Obj91:
 ; ===========================================================================
 ; off_36DBA:
 Obj91_Index:	offsetTable
-		offsetTableEntry.w Obj91_Init	; 0
-		offsetTableEntry.w loc_36DE4	; 2
-		offsetTableEntry.w loc_36E32	; 4
-		offsetTableEntry.w loc_36E66	; 6
+		offsetTableEntry.w Obj91_Init		; 0 - Initialize object variables
+		offsetTableEntry.w Obj91_Main		; 2 - Moving back and forth until Sonic or Tails approach
+		offsetTableEntry.w Obj91_Waiting	; 4 - Stopped, opening and closing mouth
+		offsetTableEntry.w Obj91_Charge		; 6 - Charging at Sonic or Tails
 ; ===========================================================================
 ; loc_36DC2:
 Obj91_Init:
 	bsr.w	LoadSubObject
-	move.w	#$200,objoff_2A(a0)
-	move.w	#$50,objoff_2C(a0)
-	moveq	#$40,d0
-	btst	#0,status(a0)
-	bne.s	+
-	neg.w	d0
+	move.w	#$200,Obj91_move_timer(a0)
+	move.w	#$50,Obj91_bubble_timer(a0)
+	moveq	#$40,d0		; enemy speed
+	btst	#0,status(a0)	; is enemy facing left?
+	bne.s	+		; if not, branch
+	neg.w	d0		; else reverse movement direction
 +
-	move.w	d0,x_vel(a0)
+	move.w	d0,x_vel(a0)	; set speed
 	rts
 ; ===========================================================================
-
-loc_36DE4:
-	subq.b	#1,objoff_2C(a0)
-	bne.s	loc_36DEE
-	bsr.w	loc_36E78
-
-loc_36DEE:
-	subq.w	#1,objoff_2A(a0)
-	bpl.s	loc_36E0A
-	move.w	#$200,objoff_2A(a0)
-	bchg	#0,status(a0)
+; loc_36DE4:
+Obj91_Main:
+	subq.b	#1,Obj91_bubble_timer(a0)
+	bne.s	+			; branch, if timer isn't done counting down
+	bsr.w	Obj91_MakeBubble
++
+	subq.w	#1,Obj91_move_timer(a0)
+	bpl.s	+			; branch, if timer isn't done counting down
+	move.w	#$200,Obj91_move_timer(a0)	; else, reset timer...
+	bchg	#0,status(a0)		; ... change direction...
 	bchg	#0,render_flags(a0)
-	neg.w	x_vel(a0)
-
-loc_36E0A:
+	neg.w	x_vel(a0)		; ... and reverse movement
++
 	bsr.w	JmpTo26_ObjectMove
 	bsr.w	Obj_GetOrientationToPlayer
 	move.w	d2,d4
 	move.w	d3,d5
-	bsr.w	loc_36EB2
-	bne.s	loc_36E20
+	bsr.w	Obj91_TestCharacterPos	; are Sonic or Tails close enough to attack?
+	bne.s	Obj91_PrepareCharge	; if yes, prepare to charge at them
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
-
-loc_36E20:
-	addq.b	#2,routine(a0)
-	move.b	#$10,objoff_2A(a0)
-	clr.w	x_vel(a0)
+; loc_36E20
+Obj91_PrepareCharge:
+	addq.b	#2,routine(a0)	; => Obj91_Waiting
+	move.b	#$10,Obj91_move_timer(a0)	; time to wait before charging at the player
+	clr.w	x_vel(a0)		; stop movement
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
-
-loc_36E32:
-	subq.b	#1,objoff_2A(a0)
-	bmi.s	loc_36E3C
+; loc_36E32:
+Obj91_Waiting:
+	subq.b	#1,Obj91_move_timer(a0)	
+	bmi.s	Obj91_MoveTowardsPlayer		; branch, if wait time is over
 	bra.w	Obj91_Animate
 ; ===========================================================================
-
-loc_36E3C:
-	addq.b	#2,routine(a0)
+; loc_36E3C:
+Obj91_MoveTowardsPlayer:
+	addq.b	#2,routine(a0)	; => Obj91_Charge
 	bsr.w	Obj_GetOrientationToPlayer
-	lsr.w	#1,d0
-	move.b	byte_36E62(pc,d0.w),x_vel(a0)
+	lsr.w	#1,d0		; set speed based on closest character
+	move.b	Obj91_HorizontalSpeeds(pc,d0.w),x_vel(a0)	; horizontal
 	addi.w	#$10,d3
-	cmpi.w	#$20,d3
-	blo.s	+
-	lsr.w	#1,d1
-	move.b	byte_36E64(pc,d1.w),1+y_vel(a0)
+	cmpi.w	#$20,d3		; is closest character withing $10 pixels above or $F pixels below?
+	blo.s	+		; if not, branch
+	lsr.w	#1,d1		; set speed based on closest character
+	move.b	Obj91_VerticalSpeeds(pc,d1.w),1+y_vel(a0)	; vertical
 +
 	bra.w	Obj91_Animate
 ; ===========================================================================
-byte_36E62:
-	dc.b  -2
-	dc.b   2	; 1
-byte_36E64:
-	dc.b $80
-	dc.b $80	; 1
+; byte_36E62:
+Obj91_HorizontalSpeeds:
+	dc.b  -2	; 0 - player is left from object -> move left
+	dc.b   2	; 1 - player is right from object -> move right
+; byte_36E64:
+Obj91_VerticalSpeeds:
+	dc.b $80	; 0 - player is above object -> ... move down?
+	dc.b $80	; 1 - player is below object -> move down
 ; ===========================================================================
-
-loc_36E66:
+; loc_36E66:
+Obj91_Charge:
 	bsr.w	JmpTo26_ObjectMove
 ; loc_36E6A:
 Obj91_Animate:
@@ -69087,57 +69075,58 @@ Obj91_Animate:
 	bsr.w	JmpTo25_AnimateSprite
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
-
-loc_36E78:
-	move.w	#$50,objoff_2C(a0)
+; loc_36E78:
+Obj91_MakeBubble:
+	move.w	#$50,Obj91_bubble_timer(a0)	; reset timer
 	bsr.w	JmpTo19_SingleObjLoad
 	bne.s	return_36EB0
 	_move.b	#ObjID_SmallBubbles,id(a1) ; load obj
 	move.b	#6,subtype(a1) ; <== Obj90_SubObjData2
-	move.w	x_pos(a0),x_pos(a1)
-	moveq	#$14,d0
-	btst	#0,render_flags(a0)
-	beq.s	loc_36EA2
-	neg.w	d0
-
-loc_36EA2:
-	add.w	d0,x_pos(a1)
-	move.w	y_pos(a0),y_pos(a1)
-	addq.w	#6,y_pos(a1)
+	move.w	x_pos(a0),x_pos(a1)	; align objects horizontally
+	moveq	#$14,d0			; load x-offset
+	btst	#0,render_flags(a0)	; is object facing left?
+	beq.s	+			; if not, branch
+	neg.w	d0			; else mirror offset
++
+	add.w	d0,x_pos(a1)		; add horizontal offset
+	move.w	y_pos(a0),y_pos(a1)	; align objects vertically
+	addq.w	#6,y_pos(a1)		; move object 6 pixels down
 
 return_36EB0:
 	rts
 ; ===========================================================================
-
-loc_36EB2:
+; loc_36EB2:
+Obj91_TestCharacterPos:
 	addi.w	#$20,d3
-	cmpi.w	#$40,d3
-	bhs.s	loc_36EDE
-	tst.w	d2
-	bmi.s	loc_36ECA
-	tst.w	x_vel(a0)
-	bpl.s	loc_36EDE
-	bra.w	loc_36ED2
+	cmpi.w	#$40,d3			; is character too low?
+	bhs.s	Obj91_DoNotCharge	; if yes, branch
+	tst.w	d2			; is character to the left?
+	bmi.s	Obj91_TestPosLeft	; if yes, branch
+	tst.w	x_vel(a0)		; is object moving left, towards character?
+	bpl.s	Obj91_DoNotCharge	; if not, branch
+	bra.w	Obj91_TestHorizontalDist
 ; ===========================================================================
+; loc_36ECA:
+Obj91_TestPosLeft:
+	tst.w	x_vel(a0)		; is object moving right, towards character?
+	bmi.s	Obj91_DoNotCharge	; if not, branch
+	neg.w	d2			; get absolute value
 
-loc_36ECA:
-	tst.w	x_vel(a0)
-	bmi.s	loc_36EDE
-	neg.w	d2
+; loc_36ED2:
+Obj91_TestHorizontalDist:
+	cmpi.w	#$20,d2			; is distance less than $20?
+	blo.s	Obj91_DoNotCharge	; if yes, don't attack
+	cmpi.w	#$A0,d2			; is distance less than $A0?
+	blo.s	Obj91_PlayerInRange	; if yes, attack
 
-loc_36ED2:
-	cmpi.w	#$20,d2
-	blo.s	loc_36EDE
-	cmpi.w	#$A0,d2
-	blo.s	loc_36EE2
-
-loc_36EDE:
-	moveq	#0,d2
+; loc_36EDE:
+Obj91_DoNotCharge:
+	moveq	#0,d2			; -> don't charge at player
 	rts
 ; ===========================================================================
-
-loc_36EE2:
-	moveq	#1,d2
+; loc_36EE2:
+Obj91_PlayerInRange:
+	moveq	#1,d2			; -> charge at player
 	rts
 ; ===========================================================================
 ; off_36EE6:
@@ -70655,7 +70644,7 @@ loc_37ED4:
 
 loc_37EFC:
 	movea.w	parent(a0),a1 ; a1=object
-	cmpi.b	#$9E,(a1)
+	cmpi.b	#ObjID_Crawlton,id(a1)
 	bne.w	JmpTo65_DeleteObject
 	bclr	#0,render_flags(a0)
 	btst	#0,render_flags(a1)
@@ -70935,7 +70924,7 @@ byte_381A4:
 
 loc_381AC:
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	cmpi.b	#$9F,(a1)
+	cmpi.b	#ObjID_Shellcracker,id(a1)
 	bne.s	loc_381D0
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
@@ -72633,7 +72622,7 @@ loc_394A2:
 +
 	lea	mapping_frame(a0),a1
 	clr.l	(a1)
-	clr.w	4(a1)
+	clr.w	anim_frame_duration-mapping_frame(a1)
 	move.b	#8,(a1)
 	move.b	#6,collision_flags(a0)
 	bra.w	JmpTo39_MarkObjGone
@@ -72655,7 +72644,7 @@ loc_394E0:
 	addq.b	#2,routine(a0)
 	lea	mapping_frame(a0),a1
 	clr.l	(a1)
-	clr.w	4(a1)
+	clr.w	anim_frame_duration-mapping_frame(a1)
 	move.b	#$B,(a1)
 	bsr.w	loc_39526
 	bra.w	JmpTo39_MarkObjGone
@@ -73849,8 +73838,8 @@ Ani_objB0:	offsetTable
 ; ------------------------------------------------------------------------------
 ObjB1_MapUnc_3A5A6:	include "mappings/sprite/objB1.asm"
 ; ===========================================================================
-
-loc_3A68A:
+;loc_3A68A
+SegaScr_VInt:
 	move.w	(SegaScr_VInt_Subrout).w,d0
 	beq.w	return_37A48
 	clr.w	(SegaScr_VInt_Subrout).w
@@ -76850,7 +76839,7 @@ ObjC5_PlatformReleaserDestroyP: 	; P=Platforms
 
 ObjC5_PlatformReleaserDelete:
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	cmpi.b	#$C5,(a1)
+	cmpi.b	#ObjID_WFZBoss,id(a1)
 	bne.w	JmpTo65_DeleteObject
 	bsr.w	JmpTo_Boss_LoadExplosion
 	bra.w	JmpTo45_DisplaySprite
@@ -76935,7 +76924,7 @@ ObjC5_PlatformCheckExplode:	; checks to see if platforms should explode
 
 ObjC5_PlatformExplode:
 	bsr.w	loc_3B7BC
-	move.b	#$58,(a0) ; load 0bj58 (explosion)
+	move.b	#ObjID_BossExplosion,id(a0) ; load 0bj58 (explosion)
 	clr.b	routine(a0)
 	movea.w	objoff_3C(a0),a1 ; a1=object (invisible hurting thing)
 	bsr.w	JmpTo6_DeleteObject2
@@ -81909,14 +81898,14 @@ LoadLevelBlocks_2P:
 ; --------------------------------------------------------------------------------------
 ; off_40350:
 AnimPatMaps: zoneOrderedOffsetTable 2,1
-	zoneOffsetTableEntry.w APM16_EHZ	;  0
+	zoneOffsetTableEntry.w APM_EHZ		;  0
 	zoneOffsetTableEntry.w APM_Null		;  1
 	zoneOffsetTableEntry.w APM_Null		;  2
 	zoneOffsetTableEntry.w APM_Null		;  3
-	zoneOffsetTableEntry.w APM16_MTZ	;  4
-	zoneOffsetTableEntry.w APM16_MTZ	;  5
+	zoneOffsetTableEntry.w APM_MTZ		;  4
+	zoneOffsetTableEntry.w APM_MTZ		;  5
 	zoneOffsetTableEntry.w APM_Null		;  6
-	zoneOffsetTableEntry.w APM16_EHZ	;  7
+	zoneOffsetTableEntry.w APM_EHZ		;  7
 	zoneOffsetTableEntry.w APM_HPZ		;  8
 	zoneOffsetTableEntry.w APM_Null		;  9
 	zoneOffsetTableEntry.w APM_OOZ		; $A
@@ -81928,10 +81917,16 @@ AnimPatMaps: zoneOrderedOffsetTable 2,1
 	zoneOffsetTableEntry.w APM_Null		;$10
     zoneTableEnd
 
+begin_animpat macro {INTLABEL}
+__LABEL__ label *
+__LABEL___Len := __LABEL___End - __LABEL___Blocks
+	dc.w $1800 - __LABEL___Len
+	dc.w bytesToWcnt(__LABEL___Len)
+__LABEL___Blocks:
+    endm
+
 ; byte_40372:
-APM16_EHZ:
-	dc.w $1788,(APM_EHZ_End-APM_EHZ_Blocks)/2-1
-APM_EHZ_Blocks:
+APM_EHZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_EHZMountains+$0 ,0,0,2,0),make_block_tile(ArtTile_ArtUnc_EHZMountains+$4 ,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_EHZMountains+$1 ,0,0,2,0),make_block_tile(ArtTile_ArtUnc_EHZMountains+$5 ,0,0,2,0)
 	
@@ -81981,9 +81976,7 @@ APM_EHZ_End:
 
 
 ; byte_403EE:
-APM16_MTZ:
-	dc.w $1730,(APM_MTZ_End-APM_MTZ_Blocks)/2-1
-APM_MTZ_Blocks:
+APM_MTZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_MTZAnimBack_1+$0,0,0,1,0),make_block_tile(ArtTile_ArtUnc_MTZAnimBack_1+$0,1,0,1,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_MTZAnimBack_1+$1,0,0,1,0),make_block_tile(ArtTile_ArtUnc_MTZAnimBack_1+$1,1,0,1,0)
 	
@@ -82066,9 +82059,7 @@ APM_MTZ_End:
 
 
 ; byte_404C2:
-APM_HPZ:
-	dc.w $1710,(APM_HPZ_End-APM_HPZ_Blocks)/2-1
-APM_HPZ_Blocks:
+APM_HPZ:	begin_animpat
 	dc.w make_block_tile($02e8,0,0,3,0),make_block_tile($02e9,0,0,3,0)
 	dc.w make_block_tile($02ea,0,0,3,0),make_block_tile($02eb,0,0,3,0)
 	
@@ -82163,9 +82154,7 @@ APM_HPZ_End:
 
 
 ; byte_405B6:
-APM_OOZ:
-	dc.w $17A0,(APM_OOZ_End-APM_OOZ_Blocks)/2-1
-APM_OOZ_Blocks:
+APM_OOZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_OOZPulseBall_1+$0,0,0,0,1),make_block_tile(ArtTile_ArtUnc_OOZPulseBall_1+$2,0,0,0,1)
 	dc.w make_block_tile(ArtTile_ArtUnc_OOZPulseBall_1+$1,0,0,0,1),make_block_tile(ArtTile_ArtUnc_OOZPulseBall_1+$3,0,0,0,1)
 	
@@ -82206,9 +82195,7 @@ APM_OOZ_End:
 
 
 ; byte_4061A:
-APM_CNZ:
-	dc.w $1760,(APM_CNZ_End-APM_CNZ_Blocks)/2-1
-APM_CNZ_Blocks:
+APM_CNZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_CNZSlotPics_1+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_CNZSlotPics_1+$4,0,0,0,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_CNZSlotPics_1+$1,0,0,0,0),make_block_tile(ArtTile_ArtUnc_CNZSlotPics_1+$5,0,0,0,0)
 	
@@ -82273,9 +82260,7 @@ APM_CNZ_End:
 
 
 ; byte_406BE:
-APM_CNZ2P:
-	dc.w $1760,(APM_CNZ2P_End-APM_CNZ2P_Blocks)/2-1
-APM_CNZ2P_Blocks:
+APM_CNZ2P:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_CNZSlotPics_1_2p+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_CNZSlotPics_1_2p+$4,0,0,0,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_CNZSlotPics_1_2p+$1,0,0,0,0),make_block_tile(ArtTile_ArtUnc_CNZSlotPics_1_2p+$5,0,0,0,0)
 	
@@ -82340,9 +82325,7 @@ APM_CNZ2P_End:
 
 
 ; byte_40762:
-APM_CPZ:
-	dc.w $17F8,(APM_CPZ_End-APM_CPZ_Blocks)/2-1
-APM_CPZ_Blocks:
+APM_CPZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_CPZAnimBack+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_CPZAnimBack+$1,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_CPZAnimBack+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_CPZAnimBack+$1,0,0,2,0)
 APM_CPZ_End:
@@ -82350,9 +82333,7 @@ APM_CPZ_End:
 
 
 ; byte_4076E:
-APM_DEZ:
-	dc.w $17F8,(APM_DEZ_End-APM_DEZ_Blocks)/2-1
-APM_DEZ_Blocks:
+APM_DEZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_DEZAnimBack+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_DEZAnimBack+$1,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_DEZAnimBack+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_DEZAnimBack+$1,0,0,2,0)
 APM_DEZ_End:
@@ -82360,9 +82341,7 @@ APM_DEZ_End:
 
 
 ; byte_4077A:
-APM_ARZ:
-	dc.w $17C0,(APM_ARZ_End-APM_ARZ_Blocks)/2-1
-APM_ARZ_Blocks:
+APM_ARZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall3+$0  ,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall3+$1  ,0,0,2,1)
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall3+$2  ,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall3+$3  ,0,0,2,1)
 	
