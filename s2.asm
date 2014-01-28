@@ -84137,7 +84137,7 @@ __LABEL__ label *
 ; macro for a pattern load request
 plreq macro toVRAMaddr,fromROMaddr
 	dc.l	fromROMaddr
-	dc.w	toVRAMaddr
+	dc.w	tiles_to_bytes(toVRAMaddr)
     endm
 
 ;---------------------------------------------------------------------------------------
@@ -84145,474 +84145,474 @@ plreq macro toVRAMaddr,fromROMaddr
 ; Standard 1 - loaded for every level
 ;---------------------------------------------------------------------------------------
 PlrList_Std1: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_HUD), ArtNem_HUD
-	plreq tiles_to_bytes(ArtTile_ArtNem_life_counter), ArtNem_Sonic_life_counter
-	plreq tiles_to_bytes(ArtTile_ArtNem_Ring), ArtNem_Ring
-	plreq tiles_to_bytes(ArtTile_ArtNem_Numbers), ArtNem_Numbers
+	plreq ArtTile_ArtNem_HUD, ArtNem_HUD
+	plreq ArtTile_ArtNem_life_counter, ArtNem_Sonic_life_counter
+	plreq ArtTile_ArtNem_Ring, ArtNem_Ring
+	plreq ArtTile_ArtNem_Numbers, ArtNem_Numbers
 PlrList_Std1_End
 ;---------------------------------------------------------------------------------------
 ; PATTERN LOAD REQUEST LIST
 ; Standard 2 - loaded for every level
 ;---------------------------------------------------------------------------------------
 PlrList_Std2: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Checkpoint), ArtNem_Checkpoint
-	plreq tiles_to_bytes(ArtTile_ArtNem_Powerups), ArtNem_Powerups
-	plreq tiles_to_bytes(ArtTile_ArtNem_Shield), ArtNem_Shield
-	plreq tiles_to_bytes(ArtTile_ArtNem_Invincible_stars), ArtNem_Invincible_stars
+	plreq ArtTile_ArtNem_Checkpoint, ArtNem_Checkpoint
+	plreq ArtTile_ArtNem_Powerups, ArtNem_Powerups
+	plreq ArtTile_ArtNem_Shield, ArtNem_Shield
+	plreq ArtTile_ArtNem_Invincible_stars, ArtNem_Invincible_stars
 PlrList_Std2_End
 ;---------------------------------------------------------------------------------------
 ; PATTERN LOAD REQUEST LIST
 ; Aquatic level standard
 ;---------------------------------------------------------------------------------------
 PlrList_StdWtr:	plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Explosion), ArtNem_Explosion
-	plreq tiles_to_bytes(ArtTile_ArtNem_SuperSonic_stars), ArtNem_SuperSonic_stars
-	plreq tiles_to_bytes(ArtTile_ArtNem_Bubbles), ArtNem_Bubbles
+	plreq ArtTile_ArtNem_Explosion, ArtNem_Explosion
+	plreq ArtTile_ArtNem_SuperSonic_stars, ArtNem_SuperSonic_stars
+	plreq ArtTile_ArtNem_Bubbles, ArtNem_Bubbles
 PlrList_StdWtr_End
 ;---------------------------------------------------------------------------------------
 ; PATTERN LOAD REQUEST LIST
 ; Game/Time over
 ;---------------------------------------------------------------------------------------
 PlrList_GameOver: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Game_Over), ArtNem_Game_Over
+	plreq ArtTile_ArtNem_Game_Over, ArtNem_Game_Over
 PlrList_GameOver_End
 ;---------------------------------------------------------------------------------------
 ; PATTERN LOAD REQUEST LIST
 ; Emerald Hill Zone primary
 ;---------------------------------------------------------------------------------------
 PlrList_Ehz1: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Waterfall), ArtNem_Waterfall
-	plreq tiles_to_bytes(ArtTile_ArtNem_EHZ_Bridge), ArtNem_EHZ_Bridge
-	plreq tiles_to_bytes(ArtTile_ArtNem_Buzzer_Fireball_2), ArtNem_Buzzer_Fireball
-	plreq tiles_to_bytes(ArtTile_ArtNem_Buzzer), ArtNem_Buzzer
-	plreq tiles_to_bytes(ArtTile_ArtNem_Coconuts), ArtNem_Coconuts
-	plreq tiles_to_bytes(ArtTile_ArtNem_Masher), ArtNem_Masher
+	plreq ArtTile_ArtNem_Waterfall, ArtNem_Waterfall
+	plreq ArtTile_ArtNem_EHZ_Bridge, ArtNem_EHZ_Bridge
+	plreq ArtTile_ArtNem_Buzzer_Fireball_2, ArtNem_Buzzer_Fireball
+	plreq ArtTile_ArtNem_Buzzer, ArtNem_Buzzer
+	plreq ArtTile_ArtNem_Coconuts, ArtNem_Coconuts
+	plreq ArtTile_ArtNem_Masher, ArtNem_Masher
 PlrList_Ehz1_End
 ;---------------------------------------------------------------------------------------
 ; PATTERN LOAD REQUEST LIST
 ; Emerald Hill Zone secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Ehz2: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Spikes), ArtNem_Spikes
-	plreq tiles_to_bytes(ArtTile_ArtNem_DignlSprng), ArtNem_DignlSprng
-	plreq tiles_to_bytes(ArtTile_ArtNem_VrtclSprng), ArtNem_VrtclSprng
-	plreq tiles_to_bytes(ArtTile_ArtNem_HrzntlSprng), ArtNem_HrzntlSprng
+	plreq ArtTile_ArtNem_Spikes, ArtNem_Spikes
+	plreq ArtTile_ArtNem_DignlSprng, ArtNem_DignlSprng
+	plreq ArtTile_ArtNem_VrtclSprng, ArtNem_VrtclSprng
+	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
 PlrList_Ehz2_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; Miles 1up patch
 ;---------------------------------------------------------------------------------------
 PlrList_Miles1up: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtUnc_2p_life_counter), ArtUnc_MilesLife
+	plreq ArtTile_ArtUnc_2p_life_counter, ArtUnc_MilesLife
 PlrList_Miles1up_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; Miles life counter
 ;---------------------------------------------------------------------------------------
 PlrList_MilesLifeCounter: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_life_counter), ArtUnc_MilesLife
+	plreq ArtTile_ArtNem_life_counter, ArtUnc_MilesLife
 PlrList_MilesLifeCounter_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; Tails 1up patch
 ;---------------------------------------------------------------------------------------
 PlrList_Tails1up: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtUnc_2p_life_counter), ArtNem_TailsLife
+	plreq ArtTile_ArtUnc_2p_life_counter, ArtNem_TailsLife
 PlrList_Tails1up_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; Tails life counter
 ;---------------------------------------------------------------------------------------
 PlrList_TailsLifeCounter: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_life_counter), ArtNem_TailsLife
+	plreq ArtTile_ArtNem_life_counter, ArtNem_TailsLife
 PlrList_TailsLifeCounter_End
 ;---------------------------------------------------------------------------------------
 ; PATTERN LOAD REQUEST LIST
 ; Metropolis Zone primary
 ;---------------------------------------------------------------------------------------
 PlrList_Mtz1: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_MtzWheel), ArtNem_MtzWheel
-	plreq tiles_to_bytes(ArtTile_ArtNem_MtzWheelIndent), ArtNem_MtzWheelIndent
-	plreq tiles_to_bytes(ArtTile_ArtNem_LavaCup), ArtNem_LavaCup
-	plreq tiles_to_bytes(ArtTile_ArtNem_BoltEnd_Rope), ArtNem_BoltEnd_Rope
-	plreq tiles_to_bytes(ArtTile_ArtNem_MtzSteam), ArtNem_MtzSteam
-	plreq tiles_to_bytes(ArtTile_ArtNem_MtzSpikeBlock), ArtNem_MtzSpikeBlock
-	plreq tiles_to_bytes(ArtTile_ArtNem_MtzSpike), ArtNem_MtzSpike
-	plreq tiles_to_bytes(ArtTile_ArtNem_Crabmeat), ArtNem_Crabmeat
-	plreq tiles_to_bytes(ArtTile_ArtNem_MtzSupernova), ArtNem_MtzSupernova
+	plreq ArtTile_ArtNem_MtzWheel, ArtNem_MtzWheel
+	plreq ArtTile_ArtNem_MtzWheelIndent, ArtNem_MtzWheelIndent
+	plreq ArtTile_ArtNem_LavaCup, ArtNem_LavaCup
+	plreq ArtTile_ArtNem_BoltEnd_Rope, ArtNem_BoltEnd_Rope
+	plreq ArtTile_ArtNem_MtzSteam, ArtNem_MtzSteam
+	plreq ArtTile_ArtNem_MtzSpikeBlock, ArtNem_MtzSpikeBlock
+	plreq ArtTile_ArtNem_MtzSpike, ArtNem_MtzSpike
+	plreq ArtTile_ArtNem_Crabmeat, ArtNem_Crabmeat
+	plreq ArtTile_ArtNem_MtzSupernova, ArtNem_MtzSupernova
 PlrList_Mtz1_End
 ;---------------------------------------------------------------------------------------
 ; PATTERN LOAD REQUEST LIST
 ; Metropolis Zone secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Mtz2: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Button), ArtNem_Button
-	plreq tiles_to_bytes(ArtTile_ArtNem_Spikes), ArtNem_Spikes
-	plreq tiles_to_bytes(ArtTile_ArtNem_MtzMantis), ArtNem_MtzMantis
-	plreq tiles_to_bytes(ArtTile_ArtNem_VrtclSprng), ArtNem_VrtclSprng
-	plreq tiles_to_bytes(ArtTile_ArtNem_HrzntlSprng), ArtNem_HrzntlSprng
-	plreq tiles_to_bytes(ArtTile_ArtNem_MtzAsstBlocks), ArtNem_MtzAsstBlocks
-	plreq tiles_to_bytes(ArtTile_ArtNem_MtzLavaBubble), ArtNem_MtzLavaBubble
-	plreq tiles_to_bytes(ArtTile_ArtNem_MtzCog), ArtNem_MtzCog
-	plreq tiles_to_bytes(ArtTile_ArtNem_MtzUnkBlocks), ArtNem_MtzUnkBlocks
+	plreq ArtTile_ArtNem_Button, ArtNem_Button
+	plreq ArtTile_ArtNem_Spikes, ArtNem_Spikes
+	plreq ArtTile_ArtNem_MtzMantis, ArtNem_MtzMantis
+	plreq ArtTile_ArtNem_VrtclSprng, ArtNem_VrtclSprng
+	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
+	plreq ArtTile_ArtNem_MtzAsstBlocks, ArtNem_MtzAsstBlocks
+	plreq ArtTile_ArtNem_MtzLavaBubble, ArtNem_MtzLavaBubble
+	plreq ArtTile_ArtNem_MtzCog, ArtNem_MtzCog
+	plreq ArtTile_ArtNem_MtzUnkBlocks, ArtNem_MtzUnkBlocks
 PlrList_Mtz2_End
 ;---------------------------------------------------------------------------------------
 ; PATTERN LOAD REQUEST LIST
 ; Wing Fortress Zone primary
 ;---------------------------------------------------------------------------------------
 PlrList_Wfz1: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Tornado), ArtNem_Tornado
-	plreq tiles_to_bytes(ArtTile_ArtNem_Clouds), ArtNem_Clouds
-	plreq tiles_to_bytes(ArtTile_ArtNem_WfzVrtclPrpllr), ArtNem_WfzVrtclPrpllr
-	plreq tiles_to_bytes(ArtTile_ArtNem_WfzHrzntlPrpllr), ArtNem_WfzHrzntlPrpllr
-	plreq tiles_to_bytes(ArtTile_ArtNem_Balkrie), ArtNem_Balkrie
-	plreq tiles_to_bytes(ArtTile_ArtNem_BreakPanels), ArtNem_BreakPanels
-	plreq tiles_to_bytes(ArtTile_ArtNem_WfzScratch), ArtNem_WfzScratch
-	plreq tiles_to_bytes(ArtTile_ArtNem_WfzTiltPlatforms), ArtNem_WfzTiltPlatforms
-	plreq tiles_to_bytes(ArtTile_ArtNem_Tornado), ArtNem_Tornado
-	plreq tiles_to_bytes(ArtTile_ArtNem_Clouds), ArtNem_Clouds
+	plreq ArtTile_ArtNem_Tornado, ArtNem_Tornado
+	plreq ArtTile_ArtNem_Clouds, ArtNem_Clouds
+	plreq ArtTile_ArtNem_WfzVrtclPrpllr, ArtNem_WfzVrtclPrpllr
+	plreq ArtTile_ArtNem_WfzHrzntlPrpllr, ArtNem_WfzHrzntlPrpllr
+	plreq ArtTile_ArtNem_Balkrie, ArtNem_Balkrie
+	plreq ArtTile_ArtNem_BreakPanels, ArtNem_BreakPanels
+	plreq ArtTile_ArtNem_WfzScratch, ArtNem_WfzScratch
+	plreq ArtTile_ArtNem_WfzTiltPlatforms, ArtNem_WfzTiltPlatforms
+	plreq ArtTile_ArtNem_Tornado, ArtNem_Tornado
+	plreq ArtTile_ArtNem_Clouds, ArtNem_Clouds
 PlrList_Wfz1_End
 ;---------------------------------------------------------------------------------------
 ; PATTERN LOAD REQUEST LIST
 ; Wing Fortress Zone secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Wfz2: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_WfzVrtclPrpllr), ArtNem_WfzVrtclPrpllr
-	plreq tiles_to_bytes(ArtTile_ArtNem_WfzHrzntlPrpllr), ArtNem_WfzHrzntlPrpllr
-	plreq tiles_to_bytes(ArtTile_ArtNem_WfzVrtclLazer), ArtNem_WfzVrtclLazer
-	plreq tiles_to_bytes(ArtTile_ArtNem_WfzWallTurret), ArtNem_WfzWallTurret
-	plreq tiles_to_bytes(ArtTile_ArtNem_WfzHrzntlLazer), ArtNem_WfzHrzntlLazer
-	plreq tiles_to_bytes(ArtTile_ArtNem_WfzConveyorBeltWheel), ArtNem_WfzConveyorBeltWheel
-	plreq tiles_to_bytes(ArtTile_ArtNem_WfzHook), ArtNem_WfzHook
-	plreq tiles_to_bytes(ArtTile_ArtNem_WfzThrust), ArtNem_WfzThrust
-	plreq tiles_to_bytes(ArtTile_ArtNem_WfzBeltPlatform), ArtNem_WfzBeltPlatform
-	plreq tiles_to_bytes(ArtTile_ArtNem_WfzGunPlatform), ArtNem_WfzGunPlatform
-	plreq tiles_to_bytes(ArtTile_ArtNem_WfzUnusedBadnik), ArtNem_WfzUnusedBadnik
-	plreq tiles_to_bytes(ArtTile_ArtNem_WfzLaunchCatapult), ArtNem_WfzLaunchCatapult
-	plreq tiles_to_bytes(ArtTile_ArtNem_WfzSwitch), ArtNem_WfzSwitch
-	plreq tiles_to_bytes(ArtTile_ArtNem_WfzFloatingPlatform), ArtNem_WfzFloatingPlatform
+	plreq ArtTile_ArtNem_WfzVrtclPrpllr, ArtNem_WfzVrtclPrpllr
+	plreq ArtTile_ArtNem_WfzHrzntlPrpllr, ArtNem_WfzHrzntlPrpllr
+	plreq ArtTile_ArtNem_WfzVrtclLazer, ArtNem_WfzVrtclLazer
+	plreq ArtTile_ArtNem_WfzWallTurret, ArtNem_WfzWallTurret
+	plreq ArtTile_ArtNem_WfzHrzntlLazer, ArtNem_WfzHrzntlLazer
+	plreq ArtTile_ArtNem_WfzConveyorBeltWheel, ArtNem_WfzConveyorBeltWheel
+	plreq ArtTile_ArtNem_WfzHook, ArtNem_WfzHook
+	plreq ArtTile_ArtNem_WfzThrust, ArtNem_WfzThrust
+	plreq ArtTile_ArtNem_WfzBeltPlatform, ArtNem_WfzBeltPlatform
+	plreq ArtTile_ArtNem_WfzGunPlatform, ArtNem_WfzGunPlatform
+	plreq ArtTile_ArtNem_WfzUnusedBadnik, ArtNem_WfzUnusedBadnik
+	plreq ArtTile_ArtNem_WfzLaunchCatapult, ArtNem_WfzLaunchCatapult
+	plreq ArtTile_ArtNem_WfzSwitch, ArtNem_WfzSwitch
+	plreq ArtTile_ArtNem_WfzFloatingPlatform, ArtNem_WfzFloatingPlatform
 PlrList_Wfz2_End
 ;---------------------------------------------------------------------------------------
 ; PATTERN LOAD REQUEST LIST
 ; Hill Top Zone primary
 ;---------------------------------------------------------------------------------------
 PlrList_Htz1: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Buzzer_Fireball_1), ArtNem_Buzzer_Fireball
-	plreq tiles_to_bytes(ArtTile_ArtNem_HtzRock), ArtNem_HtzRock
-	plreq tiles_to_bytes(ArtTile_ArtNem_HtzSeeSaw), ArtNem_HtzSeeSaw
-	plreq tiles_to_bytes(ArtTile_ArtNem_Sol), ArtNem_Sol
-	plreq tiles_to_bytes(ArtTile_ArtNem_Rexon), ArtNem_Rexon
-	plreq tiles_to_bytes(ArtTile_ArtNem_Spiker), ArtNem_Spiker
-	plreq tiles_to_bytes(ArtTile_ArtNem_Spikes), ArtNem_Spikes
-	plreq tiles_to_bytes(ArtTile_ArtNem_DignlSprng), ArtNem_DignlSprng
-	plreq tiles_to_bytes(ArtTile_ArtNem_VrtclSprng), ArtNem_VrtclSprng
-	plreq tiles_to_bytes(ArtTile_ArtNem_HrzntlSprng), ArtNem_HrzntlSprng
+	plreq ArtTile_ArtNem_Buzzer_Fireball_1, ArtNem_Buzzer_Fireball
+	plreq ArtTile_ArtNem_HtzRock, ArtNem_HtzRock
+	plreq ArtTile_ArtNem_HtzSeeSaw, ArtNem_HtzSeeSaw
+	plreq ArtTile_ArtNem_Sol, ArtNem_Sol
+	plreq ArtTile_ArtNem_Rexon, ArtNem_Rexon
+	plreq ArtTile_ArtNem_Spiker, ArtNem_Spiker
+	plreq ArtTile_ArtNem_Spikes, ArtNem_Spikes
+	plreq ArtTile_ArtNem_DignlSprng, ArtNem_DignlSprng
+	plreq ArtTile_ArtNem_VrtclSprng, ArtNem_VrtclSprng
+	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
 PlrList_Htz1_End
 ;---------------------------------------------------------------------------------------
 ; PATTERN LOAD REQUEST LIST
 ; Hill Top Zone secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Htz2: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_HtzZipline), ArtNem_HtzZipline
-	plreq tiles_to_bytes(ArtTile_ArtNem_HtzFireball), ArtNem_HtzFireball
-	plreq tiles_to_bytes(ArtTile_ArtNem_HtzValveBarrier), ArtNem_HtzValveBarrier
+	plreq ArtTile_ArtNem_HtzZipline, ArtNem_HtzZipline
+	plreq ArtTile_ArtNem_HtzFireball, ArtNem_HtzFireball
+	plreq ArtTile_ArtNem_HtzValveBarrier, ArtNem_HtzValveBarrier
 PlrList_Htz2_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; OOZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Ooz1: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_OOZBurn), ArtNem_OOZBurn
-	plreq tiles_to_bytes(ArtTile_ArtNem_OOZElevator), ArtNem_OOZElevator
-	plreq tiles_to_bytes(ArtTile_ArtNem_SpikyThing), ArtNem_SpikyThing
-	plreq tiles_to_bytes(ArtTile_ArtNem_BurnerLid), ArtNem_BurnerLid
-	plreq tiles_to_bytes(ArtTile_ArtNem_StripedBlocksVert), ArtNem_StripedBlocksVert
-	plreq tiles_to_bytes(ArtTile_ArtNem_Oilfall), ArtNem_Oilfall
-	plreq tiles_to_bytes(ArtTile_ArtNem_Oilfall2), ArtNem_Oilfall2
-	plreq tiles_to_bytes(ArtTile_ArtNem_BallThing), ArtNem_BallThing
-	plreq tiles_to_bytes(ArtTile_ArtNem_LaunchBall), ArtNem_LaunchBall
+	plreq ArtTile_ArtNem_OOZBurn, ArtNem_OOZBurn
+	plreq ArtTile_ArtNem_OOZElevator, ArtNem_OOZElevator
+	plreq ArtTile_ArtNem_SpikyThing, ArtNem_SpikyThing
+	plreq ArtTile_ArtNem_BurnerLid, ArtNem_BurnerLid
+	plreq ArtTile_ArtNem_StripedBlocksVert, ArtNem_StripedBlocksVert
+	plreq ArtTile_ArtNem_Oilfall, ArtNem_Oilfall
+	plreq ArtTile_ArtNem_Oilfall2, ArtNem_Oilfall2
+	plreq ArtTile_ArtNem_BallThing, ArtNem_BallThing
+	plreq ArtTile_ArtNem_LaunchBall, ArtNem_LaunchBall
 PlrList_Ooz1_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; OOZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Ooz2: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_OOZPlatform), ArtNem_OOZPlatform
-	plreq tiles_to_bytes(ArtTile_ArtNem_PushSpring), ArtNem_PushSpring
-	plreq tiles_to_bytes(ArtTile_ArtNem_OOZSwingPlat), ArtNem_OOZSwingPlat
-	plreq tiles_to_bytes(ArtTile_ArtNem_StripedBlocksHoriz), ArtNem_StripedBlocksHoriz
-	plreq tiles_to_bytes(ArtTile_ArtNem_OOZFanHoriz), ArtNem_OOZFanHoriz
-	plreq tiles_to_bytes(ArtTile_ArtNem_Button), ArtNem_Button
-	plreq tiles_to_bytes(ArtTile_ArtNem_Spikes), ArtNem_Spikes
-	plreq tiles_to_bytes(ArtTile_ArtNem_DignlSprng), ArtNem_DignlSprng
-	plreq tiles_to_bytes(ArtTile_ArtNem_VrtclSprng), ArtNem_VrtclSprng
-	plreq tiles_to_bytes(ArtTile_ArtNem_HrzntlSprng), ArtNem_HrzntlSprng
-	plreq tiles_to_bytes(ArtTile_ArtNem_Aquis), ArtNem_Aquis
-	plreq tiles_to_bytes(ArtTile_ArtNem_Octus), ArtNem_Octus
+	plreq ArtTile_ArtNem_OOZPlatform, ArtNem_OOZPlatform
+	plreq ArtTile_ArtNem_PushSpring, ArtNem_PushSpring
+	plreq ArtTile_ArtNem_OOZSwingPlat, ArtNem_OOZSwingPlat
+	plreq ArtTile_ArtNem_StripedBlocksHoriz, ArtNem_StripedBlocksHoriz
+	plreq ArtTile_ArtNem_OOZFanHoriz, ArtNem_OOZFanHoriz
+	plreq ArtTile_ArtNem_Button, ArtNem_Button
+	plreq ArtTile_ArtNem_Spikes, ArtNem_Spikes
+	plreq ArtTile_ArtNem_DignlSprng, ArtNem_DignlSprng
+	plreq ArtTile_ArtNem_VrtclSprng, ArtNem_VrtclSprng
+	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
+	plreq ArtTile_ArtNem_Aquis, ArtNem_Aquis
+	plreq ArtTile_ArtNem_Octus, ArtNem_Octus
 PlrList_Ooz2_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; MCZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Mcz1: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Crate), ArtNem_Crate
-	plreq tiles_to_bytes(ArtTile_ArtNem_MCZCollapsePlat), ArtNem_MCZCollapsePlat
-	plreq tiles_to_bytes(ArtTile_ArtNem_VineSwitch), ArtNem_VineSwitch
-	plreq tiles_to_bytes(ArtTile_ArtNem_VinePulley), ArtNem_VinePulley
-	plreq tiles_to_bytes(ArtTile_ArtNem_Flasher), ArtNem_Flasher
-	plreq tiles_to_bytes(ArtTile_ArtNem_Crawlton), ArtNem_Crawlton
+	plreq ArtTile_ArtNem_Crate, ArtNem_Crate
+	plreq ArtTile_ArtNem_MCZCollapsePlat, ArtNem_MCZCollapsePlat
+	plreq ArtTile_ArtNem_VineSwitch, ArtNem_VineSwitch
+	plreq ArtTile_ArtNem_VinePulley, ArtNem_VinePulley
+	plreq ArtTile_ArtNem_Flasher, ArtNem_Flasher
+	plreq ArtTile_ArtNem_Crawlton, ArtNem_Crawlton
 PlrList_Mcz1_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; MCZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Mcz2: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_HorizSpike), ArtNem_HorizSpike
-	plreq tiles_to_bytes(ArtTile_ArtNem_Spikes), ArtNem_Spikes
-	plreq tiles_to_bytes(ArtTile_ArtNem_MCZGateLog), ArtNem_MCZGateLog
-	plreq tiles_to_bytes(ArtTile_ArtNem_LeverSpring), ArtNem_LeverSpring
-	plreq tiles_to_bytes(ArtTile_ArtNem_VrtclSprng), ArtNem_VrtclSprng
-	plreq tiles_to_bytes(ArtTile_ArtNem_HrzntlSprng), ArtNem_HrzntlSprng
+	plreq ArtTile_ArtNem_HorizSpike, ArtNem_HorizSpike
+	plreq ArtTile_ArtNem_Spikes, ArtNem_Spikes
+	plreq ArtTile_ArtNem_MCZGateLog, ArtNem_MCZGateLog
+	plreq ArtTile_ArtNem_LeverSpring, ArtNem_LeverSpring
+	plreq ArtTile_ArtNem_VrtclSprng, ArtNem_VrtclSprng
+	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
 PlrList_Mcz2_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; CNZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Cnz1: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Crawl), ArtNem_Crawl
-	plreq tiles_to_bytes(ArtTile_ArtNem_BigMovingBlock), ArtNem_BigMovingBlock
-	plreq tiles_to_bytes(ArtTile_ArtNem_CNZSnake), ArtNem_CNZSnake
-	plreq tiles_to_bytes(ArtTile_ArtNem_CNZBonusSpike), ArtNem_CNZBonusSpike
-	plreq tiles_to_bytes(ArtTile_ArtNem_CNZElevator), ArtNem_CNZElevator
-	plreq tiles_to_bytes(ArtTile_ArtNem_CNZCage), ArtNem_CNZCage
-	plreq tiles_to_bytes(ArtTile_ArtNem_CNZHexBumper), ArtNem_CNZHexBumper
-	plreq tiles_to_bytes(ArtTile_ArtNem_CNZRoundBumper), ArtNem_CNZRoundBumper
-	plreq tiles_to_bytes(ArtTile_ArtNem_CNZFlipper), ArtNem_CNZFlipper
-	plreq tiles_to_bytes(ArtTile_ArtNem_CNZMiniBumper), ArtNem_CNZMiniBumper
+	plreq ArtTile_ArtNem_Crawl, ArtNem_Crawl
+	plreq ArtTile_ArtNem_BigMovingBlock, ArtNem_BigMovingBlock
+	plreq ArtTile_ArtNem_CNZSnake, ArtNem_CNZSnake
+	plreq ArtTile_ArtNem_CNZBonusSpike, ArtNem_CNZBonusSpike
+	plreq ArtTile_ArtNem_CNZElevator, ArtNem_CNZElevator
+	plreq ArtTile_ArtNem_CNZCage, ArtNem_CNZCage
+	plreq ArtTile_ArtNem_CNZHexBumper, ArtNem_CNZHexBumper
+	plreq ArtTile_ArtNem_CNZRoundBumper, ArtNem_CNZRoundBumper
+	plreq ArtTile_ArtNem_CNZFlipper, ArtNem_CNZFlipper
+	plreq ArtTile_ArtNem_CNZMiniBumper, ArtNem_CNZMiniBumper
 PlrList_Cnz1_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; CNZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Cnz2: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_CNZDiagPlunger), ArtNem_CNZDiagPlunger
-	plreq tiles_to_bytes(ArtTile_ArtNem_CNZVertPlunger), ArtNem_CNZVertPlunger
-	plreq tiles_to_bytes(ArtTile_ArtNem_Spikes), ArtNem_Spikes
-	plreq tiles_to_bytes(ArtTile_ArtNem_DignlSprng), ArtNem_DignlSprng
-	plreq tiles_to_bytes(ArtTile_ArtNem_VrtclSprng), ArtNem_VrtclSprng
-	plreq tiles_to_bytes(ArtTile_ArtNem_HrzntlSprng), ArtNem_HrzntlSprng
+	plreq ArtTile_ArtNem_CNZDiagPlunger, ArtNem_CNZDiagPlunger
+	plreq ArtTile_ArtNem_CNZVertPlunger, ArtNem_CNZVertPlunger
+	plreq ArtTile_ArtNem_Spikes, ArtNem_Spikes
+	plreq ArtTile_ArtNem_DignlSprng, ArtNem_DignlSprng
+	plreq ArtTile_ArtNem_VrtclSprng, ArtNem_VrtclSprng
+	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
 PlrList_Cnz2_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; CPZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Cpz1: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_CPZMetalThings), ArtNem_CPZMetalThings
-	plreq tiles_to_bytes(ArtTile_ArtNem_ConstructionStripes_2), ArtNem_ConstructionStripes
-	plreq tiles_to_bytes(ArtTile_ArtNem_CPZBooster), ArtNem_CPZBooster
-	plreq tiles_to_bytes(ArtTile_ArtNem_CPZElevator), ArtNem_CPZElevator
-	plreq tiles_to_bytes(ArtTile_ArtNem_CPZAnimatedBits), ArtNem_CPZAnimatedBits
-	plreq tiles_to_bytes(ArtTile_ArtNem_CPZTubeSpring), ArtNem_CPZTubeSpring
-	plreq tiles_to_bytes(ArtTile_ArtNem_WaterSurface), ArtNem_WaterSurface
-	plreq tiles_to_bytes(ArtTile_ArtNem_CPZStairBlock), ArtNem_CPZStairBlock
-	plreq tiles_to_bytes(ArtTile_ArtNem_CPZMetalBlock), ArtNem_CPZMetalBlock
+	plreq ArtTile_ArtNem_CPZMetalThings, ArtNem_CPZMetalThings
+	plreq ArtTile_ArtNem_ConstructionStripes_2, ArtNem_ConstructionStripes
+	plreq ArtTile_ArtNem_CPZBooster, ArtNem_CPZBooster
+	plreq ArtTile_ArtNem_CPZElevator, ArtNem_CPZElevator
+	plreq ArtTile_ArtNem_CPZAnimatedBits, ArtNem_CPZAnimatedBits
+	plreq ArtTile_ArtNem_CPZTubeSpring, ArtNem_CPZTubeSpring
+	plreq ArtTile_ArtNem_WaterSurface, ArtNem_WaterSurface
+	plreq ArtTile_ArtNem_CPZStairBlock, ArtNem_CPZStairBlock
+	plreq ArtTile_ArtNem_CPZMetalBlock, ArtNem_CPZMetalBlock
 PlrList_Cpz1_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; CPZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Cpz2: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Grabber), ArtNem_Grabber
-	plreq tiles_to_bytes(ArtTile_ArtNem_Spiny), ArtNem_Spiny
-	plreq tiles_to_bytes(ArtTile_ArtNem_Spikes), ArtNem_Spikes
-	plreq tiles_to_bytes(ArtTile_ArtNem_DignlSprng), ArtNem_CPZDroplet
-	plreq tiles_to_bytes(ArtTile_ArtNem_LeverSpring), ArtNem_LeverSpring
-	plreq tiles_to_bytes(ArtTile_ArtNem_VrtclSprng), ArtNem_VrtclSprng
-	plreq tiles_to_bytes(ArtTile_ArtNem_HrzntlSprng), ArtNem_HrzntlSprng
+	plreq ArtTile_ArtNem_Grabber, ArtNem_Grabber
+	plreq ArtTile_ArtNem_Spiny, ArtNem_Spiny
+	plreq ArtTile_ArtNem_Spikes, ArtNem_Spikes
+	plreq ArtTile_ArtNem_DignlSprng, ArtNem_CPZDroplet
+	plreq ArtTile_ArtNem_LeverSpring, ArtNem_LeverSpring
+	plreq ArtTile_ArtNem_VrtclSprng, ArtNem_VrtclSprng
+	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
 PlrList_Cpz2_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; DEZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Dez1: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_ConstructionStripes_1), ArtNem_ConstructionStripes
+	plreq ArtTile_ArtNem_ConstructionStripes_1, ArtNem_ConstructionStripes
 PlrList_Dez1_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; DEZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Dez2: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_SilverSonic), ArtNem_SilverSonic
-	plreq tiles_to_bytes(ArtTile_ArtNem_DEZWindow), ArtNem_DEZWindow
-	plreq tiles_to_bytes(ArtTile_ArtNem_RobotnikRunning), ArtNem_RobotnikRunning
-	plreq tiles_to_bytes(ArtTile_ArtNem_RobotnikUpper), ArtNem_RobotnikUpper
-	plreq tiles_to_bytes(ArtTile_ArtNem_RobotnikLower), ArtNem_RobotnikLower
+	plreq ArtTile_ArtNem_SilverSonic, ArtNem_SilverSonic
+	plreq ArtTile_ArtNem_DEZWindow, ArtNem_DEZWindow
+	plreq ArtTile_ArtNem_RobotnikRunning, ArtNem_RobotnikRunning
+	plreq ArtTile_ArtNem_RobotnikUpper, ArtNem_RobotnikUpper
+	plreq ArtTile_ArtNem_RobotnikLower, ArtNem_RobotnikLower
 PlrList_Dez2_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; ARZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Arz1: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_ARZBarrierThing), ArtNem_ARZBarrierThing
-	plreq tiles_to_bytes(ArtTile_ArtNem_WaterSurface), ArtNem_WaterSurface2
-	plreq tiles_to_bytes(ArtTile_ArtNem_Leaves), ArtNem_Leaves
-	plreq tiles_to_bytes(ArtTile_ArtNem_ArrowAndShooter), ArtNem_ArrowAndShooter
+	plreq ArtTile_ArtNem_ARZBarrierThing, ArtNem_ARZBarrierThing
+	plreq ArtTile_ArtNem_WaterSurface, ArtNem_WaterSurface2
+	plreq ArtTile_ArtNem_Leaves, ArtNem_Leaves
+	plreq ArtTile_ArtNem_ArrowAndShooter, ArtNem_ArrowAndShooter
 PlrList_Arz1_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; ARZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Arz2: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_ChopChop), ArtNem_ChopChop
-	plreq tiles_to_bytes(ArtTile_ArtNem_Whisp), ArtNem_Whisp
-	plreq tiles_to_bytes(ArtTile_ArtNem_Grounder), ArtNem_Grounder
-	plreq tiles_to_bytes(ArtTile_ArtNem_BigBubbles), ArtNem_BigBubbles
-	plreq tiles_to_bytes(ArtTile_ArtNem_Spikes), ArtNem_Spikes
-	plreq tiles_to_bytes(ArtTile_ArtNem_LeverSpring), ArtNem_LeverSpring
-	plreq tiles_to_bytes(ArtTile_ArtNem_VrtclSprng), ArtNem_VrtclSprng
-	plreq tiles_to_bytes(ArtTile_ArtNem_HrzntlSprng), ArtNem_HrzntlSprng
+	plreq ArtTile_ArtNem_ChopChop, ArtNem_ChopChop
+	plreq ArtTile_ArtNem_Whisp, ArtNem_Whisp
+	plreq ArtTile_ArtNem_Grounder, ArtNem_Grounder
+	plreq ArtTile_ArtNem_BigBubbles, ArtNem_BigBubbles
+	plreq ArtTile_ArtNem_Spikes, ArtNem_Spikes
+	plreq ArtTile_ArtNem_LeverSpring, ArtNem_LeverSpring
+	plreq ArtTile_ArtNem_VrtclSprng, ArtNem_VrtclSprng
+	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
 PlrList_Arz2_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; SCZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Scz1: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Tornado), ArtNem_Tornado
+	plreq ArtTile_ArtNem_Tornado, ArtNem_Tornado
 PlrList_Scz1_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; SCZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Scz2: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Clouds), ArtNem_Clouds
-	plreq tiles_to_bytes(ArtTile_ArtNem_WfzVrtclPrpllr), ArtNem_WfzVrtclPrpllr
-	plreq tiles_to_bytes(ArtTile_ArtNem_WfzHrzntlPrpllr), ArtNem_WfzHrzntlPrpllr
-	plreq tiles_to_bytes(ArtTile_ArtNem_Balkrie), ArtNem_Balkrie
-	plreq tiles_to_bytes(ArtTile_ArtNem_Turtloid), ArtNem_Turtloid
-	plreq tiles_to_bytes(ArtTile_ArtNem_Nebula), ArtNem_Nebula
+	plreq ArtTile_ArtNem_Clouds, ArtNem_Clouds
+	plreq ArtTile_ArtNem_WfzVrtclPrpllr, ArtNem_WfzVrtclPrpllr
+	plreq ArtTile_ArtNem_WfzHrzntlPrpllr, ArtNem_WfzHrzntlPrpllr
+	plreq ArtTile_ArtNem_Balkrie, ArtNem_Balkrie
+	plreq ArtTile_ArtNem_Turtloid, ArtNem_Turtloid
+	plreq ArtTile_ArtNem_Nebula, ArtNem_Nebula
 PlrList_Scz2_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; Sonic end of level results screen
 ;---------------------------------------------------------------------------------------
 PlrList_Results: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_TitleCard), ArtNem_TitleCard
-	plreq tiles_to_bytes(ArtTile_ArtNem_ResultsText), ArtNem_ResultsText
-	plreq tiles_to_bytes(ArtTile_ArtNem_MiniCharacter), ArtNem_MiniSonic
-	plreq tiles_to_bytes(ArtTile_ArtNem_Perfect), ArtNem_Perfect
+	plreq ArtTile_ArtNem_TitleCard, ArtNem_TitleCard
+	plreq ArtTile_ArtNem_ResultsText, ArtNem_ResultsText
+	plreq ArtTile_ArtNem_MiniCharacter, ArtNem_MiniSonic
+	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
 PlrList_Results_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; End of level signpost
 ;---------------------------------------------------------------------------------------
 PlrList_Signpost: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Signpost), ArtNem_Signpost
+	plreq ArtTile_ArtNem_Signpost, ArtNem_Signpost
 PlrList_Signpost_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; CPZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_CpzBoss: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Eggpod_3), ArtNem_Eggpod
-	plreq tiles_to_bytes(ArtTile_ArtNem_CPZBoss), ArtNem_CPZBoss
-	plreq tiles_to_bytes(ArtTile_ArtNem_EggpodJets_1), ArtNem_EggpodJets
-	plreq tiles_to_bytes(ArtTile_ArtNem_BossSmoke_1), ArtNem_BossSmoke
-	plreq tiles_to_bytes(ArtTile_ArtNem_FieryExplosion), ArtNem_FieryExplosion
+	plreq ArtTile_ArtNem_Eggpod_3, ArtNem_Eggpod
+	plreq ArtTile_ArtNem_CPZBoss, ArtNem_CPZBoss
+	plreq ArtTile_ArtNem_EggpodJets_1, ArtNem_EggpodJets
+	plreq ArtTile_ArtNem_BossSmoke_1, ArtNem_BossSmoke
+	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_CpzBoss_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; EHZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_EhzBoss: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Eggpod_1), ArtNem_Eggpod
-	plreq tiles_to_bytes(ArtTile_ArtNem_EHZBoss), ArtNem_EHZBoss
-	plreq tiles_to_bytes(ArtTile_ArtNem_EggChoppers), ArtNem_EggChoppers
-	plreq tiles_to_bytes(ArtTile_ArtNem_FieryExplosion), ArtNem_FieryExplosion
+	plreq ArtTile_ArtNem_Eggpod_1, ArtNem_Eggpod
+	plreq ArtTile_ArtNem_EHZBoss, ArtNem_EHZBoss
+	plreq ArtTile_ArtNem_EggChoppers, ArtNem_EggChoppers
+	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_EhzBoss_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; HTZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_HtzBoss: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Eggpod_2), ArtNem_Eggpod
-	plreq tiles_to_bytes(ArtTile_ArtNem_HTZBoss), ArtNem_HTZBoss
-	plreq tiles_to_bytes(ArtTile_ArtNem_FieryExplosion), ArtNem_FieryExplosion
-	plreq tiles_to_bytes(ArtTile_ArtNem_BossSmoke_2), ArtNem_BossSmoke
+	plreq ArtTile_ArtNem_Eggpod_2, ArtNem_Eggpod
+	plreq ArtTile_ArtNem_HTZBoss, ArtNem_HTZBoss
+	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
+	plreq ArtTile_ArtNem_BossSmoke_2, ArtNem_BossSmoke
 PlrList_HtzBoss_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; ARZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_ArzBoss: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Eggpod_4), ArtNem_Eggpod
-	plreq tiles_to_bytes(ArtTile_ArtNem_ARZBoss), ArtNem_ARZBoss
-	plreq tiles_to_bytes(ArtTile_ArtNem_FieryExplosion), ArtNem_FieryExplosion
+	plreq ArtTile_ArtNem_Eggpod_4, ArtNem_Eggpod
+	plreq ArtTile_ArtNem_ARZBoss, ArtNem_ARZBoss
+	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_ArzBoss_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; MCZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_MczBoss: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Eggpod_4), ArtNem_Eggpod
-	plreq tiles_to_bytes(ArtTile_ArtNem_MCZBoss), ArtNem_MCZBoss
-	plreq tiles_to_bytes(ArtTile_ArtNem_FieryExplosion), ArtNem_FieryExplosion
+	plreq ArtTile_ArtNem_Eggpod_4, ArtNem_Eggpod
+	plreq ArtTile_ArtNem_MCZBoss, ArtNem_MCZBoss
+	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_MczBoss_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; CNZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_CnzBoss: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Eggpod_4), ArtNem_Eggpod
-	plreq tiles_to_bytes(ArtTile_ArtNem_CNZBoss), ArtNem_CNZBoss
-	plreq tiles_to_bytes(ArtTile_ArtNem_FieryExplosion), ArtNem_FieryExplosion
+	plreq ArtTile_ArtNem_Eggpod_4, ArtNem_Eggpod
+	plreq ArtTile_ArtNem_CNZBoss, ArtNem_CNZBoss
+	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_CnzBoss_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; MTZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_MtzBoss: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Eggpod_4), ArtNem_Eggpod
-	plreq tiles_to_bytes(ArtTile_ArtNem_MTZBoss), ArtNem_MTZBoss
-	plreq tiles_to_bytes(ArtTile_ArtNem_EggpodJets_2), ArtNem_EggpodJets
-	plreq tiles_to_bytes(ArtTile_ArtNem_FieryExplosion), ArtNem_FieryExplosion
+	plreq ArtTile_ArtNem_Eggpod_4, ArtNem_Eggpod
+	plreq ArtTile_ArtNem_MTZBoss, ArtNem_MTZBoss
+	plreq ArtTile_ArtNem_EggpodJets_2, ArtNem_EggpodJets
+	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_MtzBoss_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; OOZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_OozBoss: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_OOZBoss), ArtNem_OOZBoss
-	plreq tiles_to_bytes(ArtTile_ArtNem_FieryExplosion), ArtNem_FieryExplosion
+	plreq ArtTile_ArtNem_OOZBoss, ArtNem_OOZBoss
+	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_OozBoss_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; Fiery Explosion
 ;---------------------------------------------------------------------------------------
 PlrList_FieryExplosion: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_FieryExplosion), ArtNem_FieryExplosion
+	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_FieryExplosion_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; Death Egg
 ;---------------------------------------------------------------------------------------
 PlrList_DezBoss: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_DEZBoss), ArtNem_DEZBoss
+	plreq ArtTile_ArtNem_DEZBoss, ArtNem_DEZBoss
 PlrList_DezBoss_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; EHZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_EhzAnimals: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Animal_1), ArtNem_Squirrel
-	plreq tiles_to_bytes(ArtTile_ArtNem_Animal_2), ArtNem_Bird
+	plreq ArtTile_ArtNem_Animal_1, ArtNem_Squirrel
+	plreq ArtTile_ArtNem_Animal_2, ArtNem_Bird
 PlrList_EhzAnimals_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; MCZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_MczAnimals: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Animal_1), ArtNem_Mouse
-	plreq tiles_to_bytes(ArtTile_ArtNem_Animal_2), ArtNem_Chicken
+	plreq ArtTile_ArtNem_Animal_1, ArtNem_Mouse
+	plreq ArtTile_ArtNem_Animal_2, ArtNem_Chicken
 PlrList_MczAnimals_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
@@ -84621,8 +84621,8 @@ PlrList_MczAnimals_End
 PlrList_HtzAnimals:
 PlrList_MtzAnimals:
 PlrList_WfzAnimals: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Animal_1), ArtNem_Beaver
-	plreq tiles_to_bytes(ArtTile_ArtNem_Animal_2), ArtNem_Eagle
+	plreq ArtTile_ArtNem_Animal_1, ArtNem_Beaver
+	plreq ArtTile_ArtNem_Animal_2, ArtNem_Eagle
 PlrList_HtzAnimals_End
 PlrList_MtzAnimals_End
 PlrList_WfzAnimals_End
@@ -84631,126 +84631,126 @@ PlrList_WfzAnimals_End
 ; DEZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_DezAnimals: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Animal_1), ArtNem_Pig
-	plreq tiles_to_bytes(ArtTile_ArtNem_Animal_2), ArtNem_Chicken
+	plreq ArtTile_ArtNem_Animal_1, ArtNem_Pig
+	plreq ArtTile_ArtNem_Animal_2, ArtNem_Chicken
 PlrList_DezAnimals_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; HPZ animals
 ;---------------------------------------------------------------------------------------
 PlrList_HpzAnimals: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Animal_1), ArtNem_Mouse
-	plreq tiles_to_bytes(ArtTile_ArtNem_Animal_2), ArtNem_Seal
+	plreq ArtTile_ArtNem_Animal_1, ArtNem_Mouse
+	plreq ArtTile_ArtNem_Animal_2, ArtNem_Seal
 PlrList_HpzAnimals_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; OOZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_OozAnimals: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Animal_1), ArtNem_Penguin
-	plreq tiles_to_bytes(ArtTile_ArtNem_Animal_2), ArtNem_Seal
+	plreq ArtTile_ArtNem_Animal_1, ArtNem_Penguin
+	plreq ArtTile_ArtNem_Animal_2, ArtNem_Seal
 PlrList_OozAnimals_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; SCZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_SczAnimals: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Animal_1), ArtNem_Turtle
-	plreq tiles_to_bytes(ArtTile_ArtNem_Animal_2), ArtNem_Chicken
+	plreq ArtTile_ArtNem_Animal_1, ArtNem_Turtle
+	plreq ArtTile_ArtNem_Animal_2, ArtNem_Chicken
 PlrList_SczAnimals_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; CNZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_CnzAnimals: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Animal_1), ArtNem_Bear
-	plreq tiles_to_bytes(ArtTile_ArtNem_Animal_2), ArtNem_Bird
+	plreq ArtTile_ArtNem_Animal_1, ArtNem_Bear
+	plreq ArtTile_ArtNem_Animal_2, ArtNem_Bird
 PlrList_CnzAnimals_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; CPZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_CpzAnimals: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Animal_1), ArtNem_Rabbit
-	plreq tiles_to_bytes(ArtTile_ArtNem_Animal_2), ArtNem_Eagle
+	plreq ArtTile_ArtNem_Animal_1, ArtNem_Rabbit
+	plreq ArtTile_ArtNem_Animal_2, ArtNem_Eagle
 PlrList_CpzAnimals_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; ARZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_ArzAnimals: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Animal_1), ArtNem_Penguin
-	plreq tiles_to_bytes(ArtTile_ArtNem_Animal_2), ArtNem_Bird
+	plreq ArtTile_ArtNem_Animal_1, ArtNem_Penguin
+	plreq ArtTile_ArtNem_Animal_2, ArtNem_Bird
 PlrList_ArzAnimals_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; Special Stage
 ;---------------------------------------------------------------------------------------
 PlrList_SpecialStage: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_SpecialEmerald), ArtNem_SpecialEmerald
-	plreq tiles_to_bytes(ArtTile_ArtNem_SpecialMessages), ArtNem_SpecialMessages
-	plreq tiles_to_bytes(ArtTile_ArtNem_SpecialHUD), ArtNem_SpecialHUD
-	plreq tiles_to_bytes(ArtTile_ArtNem_SpecialFlatShadow), ArtNem_SpecialFlatShadow
-	plreq tiles_to_bytes(ArtTile_ArtNem_SpecialDiagShadow), ArtNem_SpecialDiagShadow
-	plreq tiles_to_bytes(ArtTile_ArtNem_SpecialSideShadow), ArtNem_SpecialSideShadow
-	plreq tiles_to_bytes(ArtTile_ArtNem_SpecialExplosion), ArtNem_SpecialExplosion
-	plreq tiles_to_bytes(ArtTile_ArtNem_SpecialRings), ArtNem_SpecialRings
-	plreq tiles_to_bytes(ArtTile_ArtNem_SpecialStart), ArtNem_SpecialStart
-	plreq tiles_to_bytes(ArtTile_ArtNem_SpecialPlayerVSPlayer), ArtNem_SpecialPlayerVSPlayer
-	plreq tiles_to_bytes(ArtTile_ArtNem_SpecialBack), ArtNem_SpecialBack
-	plreq tiles_to_bytes(ArtTile_ArtNem_SpecialStars), ArtNem_SpecialStars
-	plreq tiles_to_bytes(ArtTile_ArtNem_SpecialTailsText), ArtNem_SpecialTailsText
+	plreq ArtTile_ArtNem_SpecialEmerald, ArtNem_SpecialEmerald
+	plreq ArtTile_ArtNem_SpecialMessages, ArtNem_SpecialMessages
+	plreq ArtTile_ArtNem_SpecialHUD, ArtNem_SpecialHUD
+	plreq ArtTile_ArtNem_SpecialFlatShadow, ArtNem_SpecialFlatShadow
+	plreq ArtTile_ArtNem_SpecialDiagShadow, ArtNem_SpecialDiagShadow
+	plreq ArtTile_ArtNem_SpecialSideShadow, ArtNem_SpecialSideShadow
+	plreq ArtTile_ArtNem_SpecialExplosion, ArtNem_SpecialExplosion
+	plreq ArtTile_ArtNem_SpecialRings, ArtNem_SpecialRings
+	plreq ArtTile_ArtNem_SpecialStart, ArtNem_SpecialStart
+	plreq ArtTile_ArtNem_SpecialPlayerVSPlayer, ArtNem_SpecialPlayerVSPlayer
+	plreq ArtTile_ArtNem_SpecialBack, ArtNem_SpecialBack
+	plreq ArtTile_ArtNem_SpecialStars, ArtNem_SpecialStars
+	plreq ArtTile_ArtNem_SpecialTailsText, ArtNem_SpecialTailsText
 PlrList_SpecialStage_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; Special Stage Bombs
 ;---------------------------------------------------------------------------------------
 PlrList_SpecStageBombs: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_SpecialBomb), ArtNem_SpecialBomb
+	plreq ArtTile_ArtNem_SpecialBomb, ArtNem_SpecialBomb
 PlrList_SpecStageBombs_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; WFZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_WfzBoss: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_WFZBoss), ArtNem_WFZBoss
-	plreq tiles_to_bytes(ArtTile_ArtNem_RobotnikRunning), ArtNem_RobotnikRunning
-	plreq tiles_to_bytes(ArtTile_ArtNem_RobotnikUpper), ArtNem_RobotnikUpper
-	plreq tiles_to_bytes(ArtTile_ArtNem_RobotnikLower), ArtNem_RobotnikLower
-	plreq tiles_to_bytes(ArtTile_ArtNem_FieryExplosion), ArtNem_FieryExplosion
+	plreq ArtTile_ArtNem_WFZBoss, ArtNem_WFZBoss
+	plreq ArtTile_ArtNem_RobotnikRunning, ArtNem_RobotnikRunning
+	plreq ArtTile_ArtNem_RobotnikUpper, ArtNem_RobotnikUpper
+	plreq ArtTile_ArtNem_RobotnikLower, ArtNem_RobotnikLower
+	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_WfzBoss_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; Tornado
 ;---------------------------------------------------------------------------------------
 PlrList_Tornado: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Tornado), ArtNem_Tornado
-	plreq tiles_to_bytes(ArtTile_ArtNem_TornadoThruster), ArtNem_TornadoThruster
-	plreq tiles_to_bytes(ArtTile_ArtNem_Clouds), ArtNem_Clouds
+	plreq ArtTile_ArtNem_Tornado, ArtNem_Tornado
+	plreq ArtTile_ArtNem_TornadoThruster, ArtNem_TornadoThruster
+	plreq ArtTile_ArtNem_Clouds, ArtNem_Clouds
 PlrList_Tornado_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; Capsule/Egg Prison
 ;---------------------------------------------------------------------------------------
 PlrList_Capsule: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Capsule), ArtNem_Capsule
+	plreq ArtTile_ArtNem_Capsule, ArtNem_Capsule
 PlrList_Capsule_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; Normal explosion
 ;---------------------------------------------------------------------------------------
 PlrList_Explosion: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_Explosion), ArtNem_Explosion
+	plreq ArtTile_ArtNem_Explosion, ArtNem_Explosion
 PlrList_Explosion_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; Tails end of level results screen
 ;---------------------------------------------------------------------------------------
 PlrList_ResultsTails: plrlistheader
-	plreq tiles_to_bytes(ArtTile_ArtNem_TitleCard), ArtNem_TitleCard
-	plreq tiles_to_bytes(ArtTile_ArtNem_ResultsText), ArtNem_ResultsText
-	plreq tiles_to_bytes(ArtTile_ArtNem_MiniCharacter), ArtNem_MiniTails
-	plreq tiles_to_bytes(ArtTile_ArtNem_Perfect), ArtNem_Perfect
+	plreq ArtTile_ArtNem_TitleCard, ArtNem_TitleCard
+	plreq ArtTile_ArtNem_ResultsText, ArtNem_ResultsText
+	plreq ArtTile_ArtNem_MiniCharacter, ArtNem_MiniTails
+	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
 PlrList_ResultsTails_End
 
 
