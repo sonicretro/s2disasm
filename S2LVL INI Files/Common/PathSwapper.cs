@@ -17,7 +17,7 @@ namespace S2ObjectDefinitions.Common
             List<byte> tmpartfile = new List<byte>();
             tmpartfile.AddRange(ObjectHelper.OpenArtFile("Common/pathswapper-art.bin", CompressionType.Nemesis));
             byte[] artfile1 = tmpartfile.ToArray();
-            img = ObjectHelper.MapASMToBmp(artfile1, "../mappings/sprite/obj03.asm", 0, 1);
+            img = ObjectHelper.MapASMToBmp(artfile1, "../mappings/sprite/obj03.asm", 0, 0);
             Point off;
             BitmapBits im;
             Point pos;
@@ -134,22 +134,22 @@ namespace S2ObjectDefinitions.Common
 
         private static object GetRDPath(ObjectEntry obj)
         {
-            return obj.SubType & 8;
+            return (obj.SubType & 8) >> 3;
         }
 
         private static void SetRDPath(ObjectEntry obj, object value)
         {
-            obj.SubType = (byte)((obj.SubType & ~8) | ((int)value << 4));
+            obj.SubType = (byte)((obj.SubType & ~8) | ((int)value << 3));
         }
 
         private static object GetLUPath(ObjectEntry obj)
         {
-            return obj.SubType & 16;
+            return (obj.SubType & 16) >> 4;
         }
 
         private static void SetLUPath(ObjectEntry obj, object value)
         {
-            obj.SubType = (byte)((obj.SubType & ~16) | ((int)value << 5));
+            obj.SubType = (byte)((obj.SubType & ~16) | ((int)value << 4));
         }
 
         private static object GetRDPriority(ObjectEntry obj)
