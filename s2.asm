@@ -221,6 +221,7 @@ VDPInitValues_End:
 	; I think this is basically unused but I've made some sense of it anyway...
 Z80StartupCodeBegin: ; loc_2CA:
     if (*)+$26 < $10000
+    save
     CPU Z80 ; start compiling Z80 code
     phase 0 ; pretend we're at address 0
 	xor	a	; clear a to 0
@@ -250,10 +251,8 @@ Z80StartupCodeBegin: ; loc_2CA:
 	jp	(hl)	  ; jump to the first instruction (to stay there forever)
 zStartupCodeEndLoc:
     dephase ; stop pretending
-    CPU 68000	; switch back to 68000 code
+	restore
     padding off ; unfortunately our flags got reset so we have to set them again...
-    listing off
-    supmode on
     else ; due to an address range limitation I could work around but don't think is worth doing so:
 ;	message "Warning: using pre-assembled Z80 startup code."
 	dc.w $AF01,$D91F,$1127,$0021,$2600,$F977,$EDB0,$DDE1,$FDE1,$ED47,$ED4F,$D1E1,$F108,$D9C1,$D1E1,$F1F9,$F3ED,$5636,$E9E9
@@ -86836,12 +86835,10 @@ sub_EC0DE:
 ; ---------------------------------------------------------------------------
 ; loc_EC0E8:
 Snd_Driver:
+	save
 	include "s2.sounddriver.asm" ; CPU Z80
-
-	CPU 68000
+	restore
 	padding off
-	listing off
-	supmode on
 	!org (Snd_Driver+Size_of_Snd_driver_guess) ; don't worry; I know what I'm doing
 
 
