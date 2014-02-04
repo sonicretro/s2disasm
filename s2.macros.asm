@@ -50,16 +50,26 @@ bytesToLcnt function n,n>>2-1
 ; that writes n bytes total at 2 bytes per iteration
 bytesToWcnt function n,n>>1-1
 
-; fills a region of 68k RAM with 0 (4 bytes at a time)
+; fills a region of 68k RAM with 0
 clearRAM macro addr,length
-    if length&3
-	fatal "clearRAM len must be divisible by 4, but was length"
-    endif
+    if (addr&$8000)==0
+	lea	(addr).l,a1
+    else
 	lea	(addr).w,a1
+    endif
 	moveq	#0,d0
-	move.w	#bytesToLcnt(length),d1
+    if (addr&1)
+	move.b	d0,(a1)+
+    endif
+	move.w	#bytesToLcnt(length - (addr&1)),d1
 loop:	move.l	d0,(a1)+
 	dbf	d1,loop
+    if ((length - (addr&1))&2)
+	move.w	d0,(a1)+
+    endif
+    if ((length - (addr&1))&1)
+	move.b	d0,(a1)+
+    endif
     endm
 
 ; tells the Z80 to stop, and waits for it to finish stopping (acquire bus)
