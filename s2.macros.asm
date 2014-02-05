@@ -52,22 +52,22 @@ bytesToWcnt function n,n>>1-1
 
 ; fills a region of 68k RAM with 0
 clearRAM macro addr,length
-    if (addr&$8000)==0
+    if ((addr)&$8000)==0
 	lea	(addr).l,a1
     else
 	lea	(addr).w,a1
     endif
 	moveq	#0,d0
-    if (addr&1)
+    if ((addr)&1)
 	move.b	d0,(a1)+
     endif
-	move.w	#bytesToLcnt(length - (addr&1)),d1
-loop:	move.l	d0,(a1)+
-	dbf	d1,loop
-    if ((length - (addr&1))&2)
+	move.w	#bytesToLcnt(length - ((addr)&1)),d1
+.loop:	move.l	d0,(a1)+
+	dbf	d1,.loop
+    if ((length - ((addr)&1))&2)
 	move.w	d0,(a1)+
     endif
-    if ((length - (addr&1))&1)
+    if ((length - ((addr)&1))&1)
 	move.b	d0,(a1)+
     endif
     endm
