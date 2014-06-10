@@ -2121,16 +2121,13 @@ ArtTile_ArtUnc_HTZClouds              = ArtTile_ArtUnc_HTZMountains + $18
 ArtTile_ArtNem_Spiker                 = $0520
 
 ; OOZ
-ArtTile_ArtUnc_OOZPulseBall_1         = $02B6
+ArtTile_ArtUnc_OOZPulseBall           = $02B6
 ArtTile_ArtUnc_OOZSquareBall1         = $02BA
 ArtTile_ArtUnc_OOZSquareBall2         = $02BE
 ArtTile_ArtUnc_Oil1                   = $02C2
 ArtTile_ArtUnc_Oil2                   = $02D2
 ArtTile_ArtNem_OOZBurn                = $02E2
-ArtTile_ArtUnc_OOZPulseBall_2         = $02E8
-ArtTile_ArtUnc_OOZPulseBall_3         = $02F0
 ArtTile_ArtNem_OOZElevator            = $02F4
-ArtTile_ArtUnc_OOZPulseBall_4         = $02F8
 ArtTile_ArtNem_SpikyThing             = $030C
 ArtTile_ArtNem_BurnerLid              = $032C
 ArtTile_ArtNem_StripedBlocksVert      = $0332
@@ -2338,10 +2335,13 @@ ArtTile_ArtNem_life_counter_lives     = ArtTile_ArtNem_life_counter + 9
 ; missing mappings and/or tiles, objects whose mappings and/or tiles
 ; are never loaded.
 ArtTile_ArtNem_UncPlatform            = $02B8
+ArtTile_ArtUnc_HPZPulseOrb_1          = $02E8
+ArtTile_ArtUnc_HPZPulseOrb_2          = $02F0
+ArtTile_ArtUnc_HPZPulseOrb_3          = $02F8
 ArtTile_ArtNem_HPZ_Bridge             = $0300
 ArtTile_ArtNem_HPZ_Waterfall          = $0315
 ArtTile_ArtNem_HPZPlatform            = $034A
-ArtTile_ArtNem_HPZ_Unk                = $035A
+ArtTile_ArtNem_HPZOrb                 = $035A
 ArtTile_ArtNem_HPZ_Emerald            = $0392
 ArtTile_ArtNem_GHZ_Spiked_Log         = $0398
 ArtTile_ArtNem_Unknown                = $03FA
@@ -2349,7 +2349,6 @@ ArtTile_ArtNem_BigRing                = $0400
 ArtTile_ArtNem_FloatPlatform          = $0418
 ArtTile_ArtNem_BigRing_Flash          = $0462
 ArtTile_ArtNem_EndPoints              = $04B6
-ArtTile_ArtNem_HPZOrb                 = $0536
 ArtTile_ArtNem_BreakWall              = $0590
 ArtTile_ArtNem_Solid_Block            = $06C0
 
