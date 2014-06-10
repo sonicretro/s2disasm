@@ -17186,10 +17186,10 @@ Draw_BG3_CPZ:
 	bra.w	loc_DE86
 ; ===========================================================================
 word_DE7E:
-	dc.w $EE68	; BG Camera
-	dc.w $EE68	; BG Camera
-	dc.w $EE70	; BG2 Camera
-	dc.w $EE78	; BG3 Camera (only referenced in unused array)
+	dc.w Camera_BG_copy	; BG Camera
+	dc.w Camera_BG_copy	; BG Camera
+	dc.w Camera_BG2_copy	; BG2 Camera
+	dc.w Camera_BG3_copy	; BG3 Camera (only referenced in unused array)
 ; ===========================================================================
 
 loc_DE86:
@@ -21768,9 +21768,9 @@ Obj71_Index:	offsetTable
 ; ---------------------------------------------------------------------------
 ; dword_11302:
 Obj71_InitData:
-	objsubdecl 3, Obj11_MapUnc_FC28,  make_art_tile(ArtTile_ArtNem_HPZ_Bridge,3,0), 4, 1
-	objsubdecl 0, Obj71_MapUnc_11396, make_art_tile(ArtTile_ArtNem_HPZ_Unk,3,1), $10, 1
-	objsubdecl 0, Obj71_MapUnc_11576, make_art_tile(ArtTile_ArtNem_HPZOrb,2,0), $10, 1
+	objsubdecl 3, Obj11_MapUnc_FC28,  make_art_tile(ArtTile_ArtNem_HPZ_Bridge,3,0), 4, 1		; Hidden Palace bridge
+	objsubdecl 0, Obj71_MapUnc_11396, make_art_tile(ArtTile_ArtNem_HPZOrb,3,1), $10, 1		; Hidden Palace pulsing orb
+	objsubdecl 0, Obj71_MapUnc_11576, make_art_tile(ArtTile_ArtNem_MtzLavaBubble,2,0), $10, 1	; MTZ lava bubble
 ; ===========================================================================
 ; loc_1131A:
 Obj71_Init:
@@ -81083,13 +81083,13 @@ PLC_DYNANM: zoneOrderedOffsetTable 2,2		; Zone ID
 	zoneOffsetTableEntry.w Animated_HTZ
 
 	zoneOffsetTableEntry.w Dynamic_Normal	; $08
-	zoneOffsetTableEntry.w Animated_OOZ
+	zoneOffsetTableEntry.w Animated_HPZ
 
 	zoneOffsetTableEntry.w Dynamic_Null	; $09
 	zoneOffsetTableEntry.w Animated_Null
 
 	zoneOffsetTableEntry.w Dynamic_Normal	; $0A
-	zoneOffsetTableEntry.w Animated_OOZ2
+	zoneOffsetTableEntry.w Animated_OOZ
 
 	zoneOffsetTableEntry.w Dynamic_Null	; $0B
 	zoneOffsetTableEntry.w Animated_Null
@@ -81460,26 +81460,26 @@ HTZ:	zoneanimstart
 
 	zoneanimend
 
-; word_4009C: Animated_HPZ:
-OOZ:	zoneanimstart
-	; Pulsing ball from OOZ
-	zoneanimdecl 8, ArtUnc_OOZPulseBall, tiles_to_bytes(ArtTile_ArtUnc_OOZPulseBall_2), 6, 8
+; word_4009C: Animated_OOZ:
+HPZ:	zoneanimstart
+	; Supposed to be the pulsing orb from HPZ, but uses OOZ's pulsing ball art
+	zoneanimdecl 8, ArtUnc_OOZPulseBall, tiles_to_bytes(ArtTile_ArtUnc_HPZPulseOrb_1), 6, 8
 	dc.b   0
 	dc.b   0
 	dc.b   8
 	dc.b $10
 	dc.b $10
 	dc.b   8
-	; Pulsing ball from OOZ
-	zoneanimdecl 8, ArtUnc_OOZPulseBall, tiles_to_bytes(ArtTile_ArtUnc_OOZPulseBall_3), 6, 8
+	; Supposed to be the pulsing orb from HPZ, but uses OOZ's pulsing ball art
+	zoneanimdecl 8, ArtUnc_OOZPulseBall, tiles_to_bytes(ArtTile_ArtUnc_HPZPulseOrb_2), 6, 8
 	dc.b   8
 	dc.b $10
 	dc.b $10
 	dc.b   8
 	dc.b   0
 	dc.b   0
-	; Pulsing ball from OOZ
-	zoneanimdecl 8, ArtUnc_OOZPulseBall, tiles_to_bytes(ArtTile_ArtUnc_OOZPulseBall_4), 6, 8
+	; Supposed to be the pulsing orb from HPZ, but uses OOZ's pulsing ball art
+	zoneanimdecl 8, ArtUnc_OOZPulseBall, tiles_to_bytes(ArtTile_ArtUnc_HPZPulseOrb_3), 6, 8
 	dc.b $10
 	dc.b   8
 	dc.b   0
@@ -81489,10 +81489,10 @@ OOZ:	zoneanimstart
 
 	zoneanimend
 
-; word_400C8 ; Animated_OOZ:
-OOZ2:	zoneanimstart
+; word_400C8:  Animated_OOZ2:
+OOZ:	zoneanimstart
 	; Pulsing ball from OOZ
-	zoneanimdecl -1, ArtUnc_OOZPulseBall, tiles_to_bytes(ArtTile_ArtUnc_OOZPulseBall_1), 4, 4
+	zoneanimdecl -1, ArtUnc_OOZPulseBall, tiles_to_bytes(ArtTile_ArtUnc_OOZPulseBall), 4, 4
 	dc.b   0, $B
 	dc.b   4,  5
 	dc.b   8,  9
@@ -81931,103 +81931,103 @@ APM_MTZ_End:
 
 ; byte_404C2:
 APM_HPZ:	begin_animpat
-	dc.w make_block_tile($02e8,0,0,3,0),make_block_tile($02e9,0,0,3,0)
-	dc.w make_block_tile($02ea,0,0,3,0),make_block_tile($02eb,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$0,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$1,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$2,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$3,0,0,3,0)
 	
-	dc.w make_block_tile($02ec,0,0,3,0),make_block_tile($02ed,0,0,3,0)
-	dc.w make_block_tile($02ee,0,0,3,0),make_block_tile($02ef,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$4,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$5,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$6,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$7,0,0,3,0)
 	
-	dc.w make_block_tile($02f0,0,0,3,0),make_block_tile($02f1,0,0,3,0)
-	dc.w make_block_tile($02f2,0,0,3,0),make_block_tile($02f3,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$0,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$1,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$2,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$3,0,0,3,0)
 	
-	dc.w make_block_tile($02f4,0,0,3,0),make_block_tile($02f5,0,0,3,0)
-	dc.w make_block_tile($02f6,0,0,3,0),make_block_tile($02f7,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$4,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$5,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$6,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$7,0,0,3,0)
 	
-	dc.w make_block_tile($02f8,0,0,3,0),make_block_tile($02f9,0,0,3,0)
-	dc.w make_block_tile($02fa,0,0,3,0),make_block_tile($02fb,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$0,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$1,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$2,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$3,0,0,3,0)
 	
-	dc.w make_block_tile($02fc,0,0,3,0),make_block_tile($02fd,0,0,3,0)
-	dc.w make_block_tile($02fe,0,0,3,0),make_block_tile($02ff,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$4,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$5,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$6,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$7,0,0,3,0)
 	
-	dc.w make_block_tile($02e8,0,0,2,0),make_block_tile($02e9,0,0,2,0)
-	dc.w make_block_tile($02ea,0,0,2,0),make_block_tile($02eb,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$1,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$2,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$3,0,0,2,0)
 	
-	dc.w make_block_tile($02ec,0,0,2,0),make_block_tile($02ed,0,0,2,0)
-	dc.w make_block_tile($02ee,0,0,2,0),make_block_tile($02ef,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$4,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$5,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$6,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$7,0,0,2,0)
 	
-	dc.w make_block_tile($02f0,0,0,2,0),make_block_tile($02f1,0,0,2,0)
-	dc.w make_block_tile($02f2,0,0,2,0),make_block_tile($02f3,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$1,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$2,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$3,0,0,2,0)
 	
-	dc.w make_block_tile($02f4,0,0,2,0),make_block_tile($02f5,0,0,2,0)
-	dc.w make_block_tile($02f6,0,0,2,0),make_block_tile($02f7,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$4,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$5,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$6,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$7,0,0,2,0)
 	
-	dc.w make_block_tile($02f8,0,0,2,0),make_block_tile($02f9,0,0,2,0)
-	dc.w make_block_tile($02fa,0,0,2,0),make_block_tile($02fb,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$1,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$2,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$3,0,0,2,0)
 	
-	dc.w make_block_tile($02fc,0,0,2,0),make_block_tile($02fd,0,0,2,0)
-	dc.w make_block_tile($02fe,0,0,2,0),make_block_tile($02ff,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$4,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$5,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$6,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$7,0,0,2,0)
 	
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile($02e8,0,0,3,0)
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile($02ea,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$0,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$2,0,0,3,0)
 	
-	dc.w make_block_tile($02e9,0,0,3,0),make_block_tile($02ec,0,0,3,0)
-	dc.w make_block_tile($02eb,0,0,3,0),make_block_tile($02ee,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$1,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$4,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$3,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$6,0,0,3,0)
 	
-	dc.w make_block_tile($02ed,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
-	dc.w make_block_tile($02ef,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$5,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$7,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
 	
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile($02f0,0,0,3,0)
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile($02f2,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$0,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$2,0,0,3,0)
 	
-	dc.w make_block_tile($02f1,0,0,3,0),make_block_tile($02f4,0,0,3,0)
-	dc.w make_block_tile($02f3,0,0,3,0),make_block_tile($02f6,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$1,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$4,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$3,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$6,0,0,3,0)
 	
-	dc.w make_block_tile($02f5,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
-	dc.w make_block_tile($02f7,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$5,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$7,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
 	
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile($02f8,0,0,3,0)
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile($02fa,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$0,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$2,0,0,3,0)
 	
-	dc.w make_block_tile($02f9,0,0,3,0),make_block_tile($02fc,0,0,3,0)
-	dc.w make_block_tile($02fb,0,0,3,0),make_block_tile($02fe,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$1,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$4,0,0,3,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$3,0,0,3,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$6,0,0,3,0)
 	
-	dc.w make_block_tile($02fd,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
-	dc.w make_block_tile($02ff,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$5,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$7,0,0,3,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
 	
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile($02e8,0,0,2,0)
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile($02ea,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$0,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$2,0,0,2,0)
 	
-	dc.w make_block_tile($02e9,0,0,2,0),make_block_tile($02ec,0,0,2,0)
-	dc.w make_block_tile($02eb,0,0,2,0),make_block_tile($02ee,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$1,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$4,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$3,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$6,0,0,2,0)
 	
-	dc.w make_block_tile($02ed,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
-	dc.w make_block_tile($02ef,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$5,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$7,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
 	
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile($02f0,0,0,2,0)
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile($02f2,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$0,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$2,0,0,2,0)
 	
-	dc.w make_block_tile($02f1,0,0,2,0),make_block_tile($02f4,0,0,2,0)
-	dc.w make_block_tile($02f3,0,0,2,0),make_block_tile($02f6,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$1,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$4,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$3,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$6,0,0,2,0)
 	
-	dc.w make_block_tile($02f5,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
-	dc.w make_block_tile($02f7,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$5,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_2+$7,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
 	
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile($02f8,0,0,2,0)
-	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile($02fa,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$0,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$2,0,0,2,0)
 	
-	dc.w make_block_tile($02f9,0,0,2,0),make_block_tile($02fc,0,0,2,0)
-	dc.w make_block_tile($02fb,0,0,2,0),make_block_tile($02fe,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$1,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$4,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$3,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$6,0,0,2,0)
 	
-	dc.w make_block_tile($02fd,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
-	dc.w make_block_tile($02ff,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$5,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$7,0,0,2,0),make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0)
 APM_HPZ_End:
 
 
 
 ; byte_405B6:
 APM_OOZ:	begin_animpat
-	dc.w make_block_tile(ArtTile_ArtUnc_OOZPulseBall_1+$0,0,0,0,1),make_block_tile(ArtTile_ArtUnc_OOZPulseBall_1+$2,0,0,0,1)
-	dc.w make_block_tile(ArtTile_ArtUnc_OOZPulseBall_1+$1,0,0,0,1),make_block_tile(ArtTile_ArtUnc_OOZPulseBall_1+$3,0,0,0,1)
+	dc.w make_block_tile(ArtTile_ArtUnc_OOZPulseBall+$0,0,0,0,1),make_block_tile(ArtTile_ArtUnc_OOZPulseBall+$2,0,0,0,1)
+	dc.w make_block_tile(ArtTile_ArtUnc_OOZPulseBall+$1,0,0,0,1),make_block_tile(ArtTile_ArtUnc_OOZPulseBall+$3,0,0,0,1)
 	
 	dc.w make_block_tile(ArtTile_ArtUnc_OOZSquareBall1+$0,0,0,3,1),make_block_tile(ArtTile_ArtUnc_OOZSquareBall1+$1,0,0,3,1)
 	dc.w make_block_tile(ArtTile_ArtUnc_OOZSquareBall1+$2,0,0,3,1),make_block_tile(ArtTile_ArtUnc_OOZSquareBall1+$3,0,0,3,1)
@@ -82257,7 +82257,7 @@ APM_Null:	dc.w   0
 ; ===========================================================================
 ; loc_407C0:
 PatchHTZTiles:
-	lea	(ArtUnc_HTZCliffs).l,a0
+	lea	(ArtNem_HTZCliffs).l,a0
 	lea	(Object_RAM+$800).w,a4
 	bsr.w	JmpTo2_NemDecToRAM
 	lea	(Object_RAM+$800).w,a1
@@ -84963,8 +84963,8 @@ ArtUnc_Flowers4:	BINCLUDE	"art/uncompressed/EHZ and HTZ flowers - 4.bin"
 ArtUnc_EHZPulseBall:	BINCLUDE	"art/uncompressed/Pulsing ball against checkered background (EHZ).bin"
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art (192 blocks)
-; Dynamically reloaded cliffs in background from HTZ ; ArtNem_49A14:
-ArtUnc_HTZCliffs:	BINCLUDE	"art/nemesis/Dynamically reloaded cliffs in HTZ background.bin"
+; Dynamically reloaded cliffs in background from HTZ ; ArtNem_49A14: ArtUnc_HTZCliffs:
+ArtNem_HTZCliffs:	BINCLUDE	"art/nemesis/Dynamically reloaded cliffs in HTZ background.bin"
 ;---------------------------------------------------------------------------------------
 ; Uncompressed art
 ; Dynamically reloaded clouds in background from HTZ ; ArtUnc_4A33E:
