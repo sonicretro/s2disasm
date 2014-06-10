@@ -17186,10 +17186,10 @@ Draw_BG3_CPZ:
 	bra.w	loc_DE86
 ; ===========================================================================
 word_DE7E:
-	dc.w Camera_BG_copy&$FFFF	; BG Camera
-	dc.w Camera_BG_copy&$FFFF	; BG Camera
-	dc.w Camera_BG2_copy&$FFFF	; BG2 Camera
-	dc.w Camera_BG3_copy&$FFFF	; BG3 Camera (only referenced in unused array)
+	dc.w Camera_BG_copy	; BG Camera
+	dc.w Camera_BG_copy	; BG Camera
+	dc.w Camera_BG2_copy	; BG2 Camera
+	dc.w Camera_BG3_copy	; BG3 Camera (only referenced in unused array)
 ; ===========================================================================
 
 loc_DE86:
