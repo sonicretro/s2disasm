@@ -30960,7 +30960,7 @@ Obj41_DiagonallyUp:
 	move.w	#$1B,d1
 	move.w	#$10,d2
 	move.w	x_pos(a0),d4
-	lea	byte_18FAA(pc),a2
+	lea	Obj41_SlopeData_DiagUp(pc),a2
 	lea	(MainCharacter).w,a1 ; a1=character
 	moveq	#p1_standing_bit,d6
 	movem.l	d1-d4,-(sp)
@@ -31059,7 +31059,7 @@ Obj41_DiagonallyDown:
 	move.w	#$1B,d1
 	move.w	#$10,d2
 	move.w	x_pos(a0),d4
-	lea	byte_18FC6(pc),a2
+	lea	Obj41_SlopeData_DiagDown(pc),a2
 	lea	(MainCharacter).w,a1 ; a1=character
 	moveq	#p1_standing_bit,d6
 	movem.l	d1-d4,-(sp)
@@ -31137,10 +31137,12 @@ loc_18FA0:
 	move.w	#SndID_Spring,d0
 	jmp	(PlaySound).l
 ; ===========================================================================
-byte_18FAA:
+;byte_18FAA:
+Obj41_SlopeData_DiagUp:
 	dc.b $10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10, $E, $C, $A,  8
 	dc.b   6,  4,  2,  0,$FE,$FC,$FC,$FC,$FC,$FC,$FC,$FC; 16
-byte_18FC6:
+;byte_18FC6:
+Obj41_SlopeData_DiagDown:
 	dc.b $F4,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0,$F2,$F4,$F6,$F8
 	dc.b $FA,$FC,$FE,  0,  2,  4,  4,  4,  4,  4,  4,  4; 16
 
@@ -45541,11 +45543,12 @@ loc_239EA:
 	move.w	#$CB,d1
 	move.w	#$2E,d2
 	move.w	x_pos(a0),d4
-	lea	(byte_23A04).l,a2
+	lea	(Obj30_SlopeData).l,a2
 	bsr.w	JmpTo_SlopedSolid
 	bra.w	JmpTo_DropOnFloor
 ; ===========================================================================
-byte_23A04:
+;byte_23A04:
+Obj30_SlopeData:
 	dc.b $30,$30,$30,$30,$30,$30,$30,$30,$2F,$2F,$2E,$2E,$2D,$2D,$2C,$2C
 	dc.b $2B,$2B,$2A,$2A,$29,$29,$28,$28,$27,$27,$26,$26,$25,$25,$24,$24; 16
 	dc.b $23,$23,$22,$22,$21,$21,$20,$20,$1F,$1F,$1E,$1E,$1D,$1D,$1C,$1C; 32
@@ -48221,10 +48224,10 @@ Obj40_Main:
 	move.w	#$27,d1
 	move.w	#8,d2
 	move.w	x_pos(a0),d4
-	lea	byte_26598(pc),a2
+	lea	Obj40_SlopeData_DiagUp(pc),a2
 	tst.b	mapping_frame(a0)
 	beq.s	+
-	lea	byte_265C0(pc),a2
+	lea	Obj40_SlopeData_Straight(pc),a2
 +
 	lea	(MainCharacter).w,a1 ; a1=character
 	moveq	#p1_standing_bit,d6
@@ -48355,11 +48358,13 @@ byte_26550:
 	dc.b   1,  1,  1,  1,  1,  1,  1,  1,  2,  2,  2,  2,  2,  2,  2,  2; 32
 	dc.b   3,  3,  3,  3,  3,  3,  4,  4,  0,  0,  0,  0,  0,  0,  0,  0; 48
 	dc.b   0,  0,  0,  0,  0,  0,  0,  0; 64
-byte_26598:
+;byte_26598:
+Obj40_SlopeData_DiagUp:
 	dc.b   8,  8,  8,  8,  8,  8,  8,  9, $A, $B, $C, $D, $E, $F,$10,$10
 	dc.b $11,$12,$13,$14,$14,$15,$15,$16,$17,$18,$18,$18,$18,$18,$18,$18; 16
 	dc.b $18,$18,$18,$18,$18,$18,$18,$18; 32
-byte_265C0:
+;byte_265C0:
+Obj40_SlopeData_Straight:
 	dc.b   8,  8,  8,  8,  8,  8,  8,  9, $A, $B, $C, $C, $C, $C, $D, $D
 	dc.b  $D, $D, $D, $D, $E, $E, $F, $F,$10,$10,$10,$10, $F, $F, $E, $E; 16
 	dc.b  $D, $D, $D, $D, $D, $D, $D, $D; 32
