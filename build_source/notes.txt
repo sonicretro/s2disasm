@@ -1,0 +1,14 @@
+Each source file in this directory is compiled to a different executable.
+
+I hope you can figure out how to compile individual .cpp files without needing me to provide you with a makefile.
+
+The compiler I used was GCC 3.4.
+
+
+splitrom.cpp -> splitrom.exe
+fixheader.cpp -> fixheader.exe
+fixpointer.cpp -> fixpointer.exe
+s2p2bin.cpp + KensSaxComp/S-Compressor.cpp -> s2p2bin.exe
+
+
+As for AS, get it at http://john.ccac.rwth-aachen.de:8000/as/download.html
