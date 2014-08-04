@@ -1,31 +1,19 @@
 #!/bin/bash
 
-check_source_files()
-{
-	if [[ ! -f "$1" ]]; then
-		echo "Extracting source files..."
-		unzip build_source &> /dev/null
-	fi
-}
-
 [[ ! -d bin ]] && mkdir bin
 
 if [[ ! -f bin/s2p2bin ]]; then
 	echo "Compiling s2p2bin..."
-	check_source_files build_source/s2p2bin.cpp
-	check_source_files build_source/KensSaxComp/S-Compressor.cpp
 	g++ -O3 -s -o bin/s2p2bin build_source/s2p2bin.cpp build_source/KensSaxComp/S-Compressor.cpp &> /dev/null
 fi
 
 if [[ ! -f bin/fixpointer ]]; then
 	echo "Compiling fixpointer..."
-	check_source_files build_source/fixpointer.cpp
 	g++ -O3 -s -o bin/fixpointer build_source/fixpointer.cpp &> /dev/null
 fi
 
 if [[ ! -f bin/fixheader ]]; then
 	echo "Compiling fixheader..."
-	check_source_files build_source/fixheader.cpp
 	g++ -O3 -s -o bin/fixheader build_source/fixheader.cpp &> /dev/null
 fi
 
