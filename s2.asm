@@ -1252,7 +1252,7 @@ ClearScreen:
 
 ; JumpTo load the sound driver
 ; sub_130A:
-JmpTo_SoundDriverLoad
+JmpTo_SoundDriverLoad 
 	nop
 	jmp	(SoundDriverLoad).l
 ; End of function JmpTo_SoundDriverLoad
@@ -5839,7 +5839,7 @@ LoadZoneTiles:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
-JmpTo_loadZoneBlockMaps:
+JmpTo_loadZoneBlockMaps 
 	jmp	(loadZoneBlockMaps).l
 ; End of function JmpTo_loadZoneBlockMaps
 
@@ -5847,7 +5847,7 @@ JmpTo_loadZoneBlockMaps:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ; sub_4F52:
-JmpTo_DeformBgLayer:
+JmpTo_DeformBgLayer 
 	jmp	(DeformBgLayer).l
 ; End of function JmpTo_DeformBgLayer
 
@@ -5855,7 +5855,7 @@ JmpTo_DeformBgLayer:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
-JmpTo_AniArt_Load:
+JmpTo_AniArt_Load 
 	jmp	(AniArt_Load).l
 ; End of function JmpTo_AniArt_Load
 
@@ -5863,7 +5863,7 @@ JmpTo_AniArt_Load:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
-JmpTo_DrawInitialBG:
+JmpTo_DrawInitialBG 
 	jmp	(DrawInitialBG).l
 ; End of function JmpTo_DrawInitialBG
 
@@ -9524,7 +9524,7 @@ JmpTo_DeleteObject
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
-JmpTo_Obj5A_CreateRingReqMessage
+JmpTo_Obj5A_CreateRingReqMessage 
 	jmp	(Obj5A_CreateRingReqMessage).l
 ; End of function JmpTo_Obj5A_CreateRingReqMessage
 
@@ -13766,12 +13766,10 @@ ArtNem_CreditText:	BINCLUDE	"art/nemesis/Credit Text.bin"
 ; ===========================================================================
 
 JmpTo5_DisplaySprite 
-
 	jmp	(DisplaySprite).l
 ; ===========================================================================
 
 JmpTo3_DeleteObject 
-
 	jmp	(DeleteObject).l
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -13794,7 +13792,6 @@ JmpTo_ObjB2_Animate_Pilot
 
 
 JmpTo_AnimateSprite 
-
 	jmp	(AnimateSprite).l
 ; End of function JmpTo_AnimateSprite
 
@@ -13802,9 +13799,7 @@ JmpTo_AnimateSprite
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ; Attributes: thunk
-
 JmpTo_NemDec 
-
 	jmp	(NemDec).l
 ; End of function JmpTo_NemDec
 
@@ -13814,7 +13809,6 @@ JmpTo_NemDec
 ; Attributes: thunk
 
 JmpTo_EniDec 
-
 	jmp	(EniDec).l
 ; End of function JmpTo_EniDec
 
@@ -19658,7 +19652,6 @@ LoadPLC_AnimalExplosion:
 
 
 JmpTo_SingleObjLoad 
-
 	jmp	(SingleObjLoad).l
 ; End of function JmpTo_SingleObjLoad
 
@@ -19675,7 +19668,6 @@ JmpTo3_PlaySound
 
 
 JmpTo2_PalLoad2 
-
 	jmp	(PalLoad2).l
 ; End of function JmpTo2_PalLoad2
 
@@ -19684,7 +19676,6 @@ JmpTo2_PalLoad2
 
 
 JmpTo2_LoadPLC 
-
 	jmp	(LoadPLC).l
 ; End of function JmpTo2_LoadPLC
 
@@ -19693,7 +19684,6 @@ JmpTo2_LoadPLC
 
 
 JmpTo3_PlayMusic 
-
 	jmp	(PlayMusic).l
 ; End of function JmpTo3_PlayMusic
 
@@ -20607,7 +20597,7 @@ loc_100E4:
 	addq.b	#2,routine(a0)
 	andi.b	#$E7,status(a0)
 
-BranchTo_loc_1000C:
+BranchTo_loc_1000C 
 	bra.w	loc_1000C
 ; ===========================================================================
 ; loc_100F8:
@@ -21773,7 +21763,7 @@ Obj1C_Init:
 	move.b	d1,y_radius(a0)
 	bset	#4,render_flags(a0)
 
-BranchTo_MarkObjGone:
+BranchTo_MarkObjGone 
 	bra.w	MarkObjGone
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -22077,7 +22067,6 @@ Obj2D_MapUnc_11822:	BINCLUDE "mappings/sprite/obj2D.bin"
 
 
 JmpTo2_SolidObject 
-
 	jmp	(SolidObject).l
 ; End of function JmpTo2_SolidObject
 
@@ -24670,7 +24659,6 @@ Obj0F_MapUnc_13B70:	BINCLUDE "mappings/sprite/obj0F.bin"
 
 
 JmpTo4_PlaySound 
-
 	jmp	(PlaySound).l
 ; End of function JmpTo4_PlaySound
 
@@ -24679,7 +24667,6 @@ JmpTo4_PlaySound
 
 
 JmpTo4_PlayMusic 
-
 	jmp	(PlayMusic).l
 ; End of function JmpTo4_PlayMusic
 
@@ -26526,7 +26513,6 @@ JmpTo_NemDecToRAM
 
 
 JmpTo3_LoadPLC 
-
 	jmp	(LoadPLC).l
 ; End of function JmpTo3_LoadPLC
 
