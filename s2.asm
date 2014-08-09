@@ -73620,7 +73620,7 @@ ObjB0_Init:
 	movea.l	(a6)+,a2 ; destination in RAM of enlarged graphics
 	move.b	(a6)+,d0 ; width of the sprite piece to enlarge (minus 1)
 	move.b	(a6)+,d1 ; height of the sprite piece to enlarge (minus 1)
-	bsr.w	loc_3E89E
+	bsr.w	Scale_2x
 	dbf	d7,- ; loop over each piece
 	move.w	(sp)+,d7
 
@@ -73963,23 +73963,23 @@ loc_3A742:
 ; Pattern A name table entries, with special flag detailed below
 ; These are used for the streaks, and point to VRAM in the $1000-$10FF range
 ObjB1_Streak_fade_to_right:
-	dc.w make_block_tile($0080,0,0,1,1)	;$A080	; 0
-	dc.w make_block_tile($0081,0,0,1,1)	;$A081	; 2
-	dc.w make_block_tile($0082,0,0,1,1)	;$A082	; 4
-	dc.w make_block_tile($0083,0,0,1,1)	;$A083	; 6
-	dc.w make_block_tile($0084,0,0,1,1)	;$A084	; 8
-	dc.w make_block_tile($0085,0,0,1,1)	;$A085	; 10
-	dc.w make_block_tile($0086,0,0,1,1)	;$A086	; 12
-	dc.w make_block_tile($0087,0,0,1,1) | (1 << $A)	;$A487	; 14	; Bit $A is used as a flag to use this tile $29 times
+	dc.w make_block_tile(ArtTile_ArtNem_Trails+0,0,0,1,1)	; 0
+	dc.w make_block_tile(ArtTile_ArtNem_Trails+1,0,0,1,1)	; 2
+	dc.w make_block_tile(ArtTile_ArtNem_Trails+2,0,0,1,1)	; 4
+	dc.w make_block_tile(ArtTile_ArtNem_Trails+3,0,0,1,1)	; 6
+	dc.w make_block_tile(ArtTile_ArtNem_Trails+4,0,0,1,1)	; 8
+	dc.w make_block_tile(ArtTile_ArtNem_Trails+5,0,0,1,1)	; 10
+	dc.w make_block_tile(ArtTile_ArtNem_Trails+6,0,0,1,1)	; 12
+	dc.w make_block_tile(ArtTile_ArtNem_Trails+7,0,0,1,1) | (1 << $A)	; 14	; Bit $A is used as a flag to use this tile $29 times
 ObjB1_Streak_fade_to_left:
-	dc.w make_block_tile($0087,0,0,1,1) | (1 << $A)	;$A487	;  0	; Bit $A is used as a flag to use this tile $29 times
-	dc.w make_block_tile($0086,0,0,1,1)	;$A086	; 2
-	dc.w make_block_tile($0085,0,0,1,1)	;$A085	; 4
-	dc.w make_block_tile($0084,0,0,1,1)	;$A084	; 6
-	dc.w make_block_tile($0083,0,0,1,1)	;$A083	; 8
-	dc.w make_block_tile($0082,0,0,1,1)	;$A082	; 10
-	dc.w make_block_tile($0081,0,0,1,1)	;$A081	; 12
-	dc.w make_block_tile($0080,0,0,1,1)	;$A080	; 14
+	dc.w make_block_tile(ArtTile_ArtNem_Trails+7,0,0,1,1) | (1 << $A)	;  0	; Bit $A is used as a flag to use this tile $29 times
+	dc.w make_block_tile(ArtTile_ArtNem_Trails+6,0,0,1,1)	; 2
+	dc.w make_block_tile(ArtTile_ArtNem_Trails+5,0,0,1,1)	; 4
+	dc.w make_block_tile(ArtTile_ArtNem_Trails+4,0,0,1,1)	; 6
+	dc.w make_block_tile(ArtTile_ArtNem_Trails+3,0,0,1,1)	; 8
+	dc.w make_block_tile(ArtTile_ArtNem_Trails+2,0,0,1,1)	; 10
+	dc.w make_block_tile(ArtTile_ArtNem_Trails+1,0,0,1,1)	; 12
+	dc.w make_block_tile(ArtTile_ArtNem_Trails+0,0,0,1,1)	; 14
 Streak_Horizontal_offsets:
 	dc.b $12
 	dc.b   4	; 1
@@ -79753,178 +79753,245 @@ byte_3E5F0:	dc.b   3,$13,$12,$11,$10,$16,$FF
 ObjC7_MapUnc_3E5F8:	include "mappings/sprite/objC7.asm"
 ; ===========================================================================
 
-loc_3E89E:
-	move.w	d1,d2
-	andi.w	#1,d2
-	addq.w	#1,d2
-	lsl.w	#6,d2
-	swap	d2
-	move.w	d1,d3
-	lsr.w	#1,d3
-	addq.w	#1,d3
-	lsl.w	#6,d3
-	swap	d3
-	bsr.w	loc_3E8CA
-	btst	#1,d0
-	beq.w	return_37A48
-	btst	#1,d1
-	bne.s	+
-	movea.l	a3,a5
-+
-	movea.l	a5,a2
+; ---------------------------------------------------------------------------
+; Subroutine to upscale graphics by a factor of 2x, based on given mappings
+; data for correct positioning of tiles.
+;
+; This code is awfully structured and planned: whenever a 3-column sprite piece
+; is scaled, it scales the next tiles that were copied to RAM as if the piece
+; had 4 columns; this will then be promptly overwritten by the next piece. If
+; this happens near the end of the buffer, you will get a buffer overrun.
+; Moreover, when the number of rows in the sprite piece is also 3 or 4, the code
+; will make an incorrect computation for the output of the next subpiece, which
+; causes the output to overwrite art from the previous subpiece. Thus, this code
+; fails if there is a 3x3 or a 3x4 sprite piece in the source mappings. Sadly,
+; this issue is basically unfixable without rewriting the code entirely.
+;
+; Input:
+; 	a1	Location of tiles to be enlarged
+; 	a2	Destination buffer for enlarged tiles
+; 	d0	Width-1 of sprite piece
+; 	d1	Height-1 of sprite piece
+; ---------------------------------------------------------------------------
 
-loc_3E8CA:
-	movea.l	a2,a4
-	swap	d2
-	lea	(a2,d2.w),a3
-	swap	d2
-	move.w	d1,d5
-	andi.w	#1,d5
-	bsr.w	loc_3E944
-	btst	#1,d1
-	beq.s	+
-	swap	d2
-	move.w	d2,d4
-	swap	d2
-	add.w	d4,d4
-	move.w	d0,d3
-	andi.w	#1,d3
-	lsl.w	d3,d4
-	adda.w	d4,a4
-	move.w	d1,d5
-	lsr.w	#1,d5
-	swap	d3
-	lea	(a4,d3.w),a5
-	swap	d3
-	bsr.w	loc_3E95C
-+
-	btst	#0,d0
-	bne.s	+
-	btst	#1,d0
-	beq.s	return_3E942
-+
-	swap	d2
-	lea	(a2,d2.w),a2
-	lea	(a2,d2.w),a3
-	swap	d2
-	move.w	d1,d5
-	andi.w	#1,d5
-	bsr.w	loc_3E944
-	btst	#1,d1
-	beq.s	return_3E942
-	move.w	d1,d5
-	lsr.w	#1,d5
-	swap	d3
-	lea	(a4,d3.w),a4
-	lea	(a4,d3.w),a5
-	swap	d3
-	bsr.w	loc_3E95C
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-return_3E942:
+;loc_3E89E
+Scale_2x:
+	move.w	d1,d2					; Copy piece height-1
+	andi.w	#1,d2					; Want only low bit -- this is 1 for Wx2 or Wx4 pieces, 0 otherwise
+	addq.w	#1,d2					; Make it into 2 for Wx2 or Wx4 pieces, 1 otherwise
+	lsl.w	#6,d2					; This is now $80 (4 tiles) for Wx2 or Wx4 pieces, $40 (2 tiles) otherwise
+	swap	d2						; Save it to high word
+	move.w	d1,d3					; Copy piece height-1 again
+	lsr.w	#1,d3					; This time, want high bit (1 for Wx3 or Wx4, 0 for Wx2 or Wx1)
+	addq.w	#1,d3					; Make it into 2 for Wx3 or Wx4 pieces, 1 otherwise
+	lsl.w	#6,d3					; This is now $80 (4 tiles) for Wx3 or Wx4 pieces, $40 (2 tiles) otherwise
+	swap	d3						; Save it to high word
+	bsr.w	.upscale_part1			; Scale the first line???; sets a3 = ???, a5 = ???
+	btst	#1,d0					; Is this a 1xH or a 2xH piece?
+	beq.w	return_37A48			; Return if yes
+	btst	#1,d1					; Is this a Wx3 or a Wx4 piece?
+	bne.s	.set_dest				; Branch if yes
+	movea.l	a3,a5					; Advance to next column instead
+
+.set_dest:
+	movea.l	a5,a2					; Set new output location
+
+.upscale_part1:
+	movea.l	a2,a4					; Copy destination to a4
+	swap	d2						; Get height offset
+	lea	(a2,d2.w),a3				; Output location for next tile
+	swap	d2						; Save height offset again
+	move.w	d1,d5					; Copy height-1
+	andi.w	#1,d5					; How many tiles we want to do-1 -- this is 1 for Wx2 or Wx4 pieces, 0 otherwise
+	bsr.w	Scale2x_SingleTile
+	btst	#1,d1					; Are we upscaling a Wx3 or Wx4 piece?
+	beq.s	.done_cols				; Branch if not
+	swap	d2						; Get height offset
+	move.w	d2,d4					; Copy it to d4
+	swap	d2						; Save height offset again
+	add.w	d4,d4					; This is now $100 (8 tiles) for Wx4 pieces, $80 (4 tiles) for Wx3 pieces
+	move.w	d0,d3					; Copy piece width-1
+	andi.w	#1,d3					; Want only low bit -- this is 1 for 2xH or 4xH pieces, 0 otherwise
+	lsl.w	d3,d4					; This is now: $200 (16 tiles) for 2x4 or 4x4 pieces; $100 (8 tiles) for 2x3, 4x3, 1x4 or 3x4 pieces; $80 (4 tiles) for 1x3 or 3x3 pieces
+	adda.w	d4,a4					; Advance to this location
+	move.w	d1,d5					; Copy height-1
+	lsr.w	#1,d5					; How many tiles we want to do-1 -- this is 1 for Wx4 pieces, 0 for Wx3 pieces
+	swap	d3						; Get height offset
+	lea	(a4,d3.w),a5				; Output location for next tile
+	swap	d3						; Save height offset again
+	bsr.w	Scale2x_SingleTile2
+
+.done_cols:
+	btst	#0,d0					; Is this a 1xH or 3xH piece?
+	bne.s	.keep_upscaling			; Branch if not
+	btst	#1,d0					; Was this a single column piece?
+	beq.s	.done					; Return if so
+
+.keep_upscaling:
+	swap	d2						; Get height offset
+	lea	(a2,d2.w),a2				; Output location for next tile
+	lea	(a2,d2.w),a3				; Output location for next tile
+	swap	d2						; Save height offset again
+	move.w	d1,d5					; Copy height-1
+	andi.w	#1,d5					; How many tiles we want to do -- this is 1 for Wx2 or Wx4 pieces, 0 otherwise
+	bsr.w	Scale2x_SingleTile
+	btst	#1,d1					; Are we upscaling a Wx3 or Wx4 piece?
+	beq.s	.done					; Branch if not
+	move.w	d1,d5					; Copy height-1
+	lsr.w	#1,d5					; How many tiles we want to do-1 -- this is 1 for Wx4 or Wx3 pieces, 0 otherwise
+	swap	d3						; Get height offset
+	lea	(a4,d3.w),a4				; Output location for next tile
+	lea	(a4,d3.w),a5				; Output location for next tile
+	swap	d3						; Save height offset again
+	bsr.w	Scale2x_SingleTile2
+
+.done:
 	rts
 ; ===========================================================================
+; Upscales the given tile to the pair of tiles on the output pointers.
+;
+; Input:
+; 	a1	Pixel source
+; 	d5	Number of tiles-1 to upscale
+; 	a2	Location of output tiles for left pixels
+; 	a3	Location of output tiles for right pixels
+; Output:
+; 	a1	Pixel source after processed tiles
+; 	a2	Location of output tiles for left pixels after scaled tiles
+; 	a3	Location of output tiles for right pixels after scaled tiles
+;loc_3E944
+Scale2x_SingleTile:
+	moveq	#7,d6					; 8 rows per tile
 
-loc_3E944:
-	moveq	#7,d6
+.loop:
+	bsr.w	Scale_2x_LeftPixels		; Upscale pixels 0-3 of current row
+	addq.w	#4,a2					; Advance write destination by one row (8 pixels)
+	bsr.w	Scale_2x_RightPixels	; Upscale pixels 4-7 of current row
+	addq.w	#4,a3					; Advance write destination by one row (8 pixels)
+	dbf	d6,.loop
 
--	bsr.w	loc_3E974
-	addq.w	#4,a2
-	bsr.w	loc_3E99E
-	addq.w	#4,a3
-	dbf	d6,-
-
-	dbf	d5,loc_3E944
-
-	rts
-; ===========================================================================
-
-loc_3E95C:
-	moveq	#7,d6
-
--	bsr.w	loc_3E9C8
-	addq.w	#4,a4
-	bsr.w	loc_3E9F2
-	addq.w	#4,a5
-	dbf	d6,-
-
-	dbf	d5,loc_3E95C
+	dbf	d5,Scale2x_SingleTile
 
 	rts
 ; ===========================================================================
+; Upscales the given tile to the pair of tiles on the output pointers.
+;
+; Input:
+; 	a1	Pixel source
+; 	d5	Number of tiles-1 to upscale
+; 	a4	Location of output tiles for left pixels
+; 	a5	Location of output tiles for right pixels
+; Output:
+; 	a1	Pixel source after processed tiles
+; 	a4	Location of output tiles for left pixels after scaled tiles
+; 	a5	Location of output tiles for right pixels after scaled tiles
+;loc_3E95C
+Scale2x_SingleTile2:
+	moveq	#7,d6					; 8 rows per tile
 
-loc_3E974:
-	bsr.w	+
-+	move.b	(a1)+,d2
-	move.b	d2,d3
-	andi.b	#$F0,d2
-	move.b	d2,d4
-	lsr.b	#4,d4
-	or.b	d2,d4
-	move.b	d4,(a2)+
-	move.b	d4,3(a2)
-	andi.b	#$F,d3
-	move.b	d3,d4
-	lsl.b	#4,d4
-	or.b	d3,d4
-	move.b	d4,(a2)+
-	move.b	d4,3(a2)
+.loop:
+	bsr.w	Scale_2x_LeftPixels2	; Upscale pixels 0-3 of current row
+	addq.w	#4,a4					; Advance write destination by one row (8 pixels)
+	bsr.w	Scale_2x_RightPixels2	; Upscale pixels 4-7 of current row
+	addq.w	#4,a5					; Advance write destination by one row (8 pixels)
+	dbf	d6,.loop
+
+	dbf	d5,Scale2x_SingleTile2
+
 	rts
 ; ===========================================================================
+; Upscales the leftmost 4 pixels on the current row into the corresponding two
+; rows of the output tile
+;loc_3E974
+Scale_2x_LeftPixels:
+	bsr.w	.upscale_pixel_pair
 
-loc_3E99E:
-	bsr.w	+
-+	move.b	(a1)+,d2
-	move.b	d2,d3
-	andi.b	#$F0,d2
-	move.b	d2,d4
-	lsr.b	#4,d4
-	or.b	d2,d4
-	move.b	d4,(a3)+
-	move.b	d4,3(a3)
-	andi.b	#$F,d3
-	move.b	d3,d4
-	lsl.b	#4,d4
-	or.b	d3,d4
-	move.b	d4,(a3)+
-	move.b	d4,3(a3)
+.upscale_pixel_pair:
+	move.b	(a1)+,d2				; Read two pixels
+	move.b	d2,d3					; Save them
+	andi.b	#$F0,d2					; Get left pixel
+	move.b	d2,d4					; Copy it...
+	lsr.b	#4,d4					; ... shift it down into place...
+	or.b	d2,d4					; ... and make it into two pixels of the same color
+	move.b	d4,(a2)+				; Save to top tile, both on one row...
+	move.b	d4,3(a2)				; ... and on the row below
+	andi.b	#$F,d3					; Get saved right pixel
+	move.b	d3,d4					; Copy it...
+	lsl.b	#4,d4					; ... shift it up into place...
+	or.b	d3,d4					; ... and make it into two pixels of the same color
+	move.b	d4,(a2)+				; Save to top tile, both on one row...
+	move.b	d4,3(a2)				; ... and on the row below
 	rts
 ; ===========================================================================
+; Upscales the rightmost 4 pixels on the current row into the corresponding two
+; rows of the output tile
+;loc_3E99E
+Scale_2x_RightPixels:
+	bsr.w	.upscale_pixel_pair
 
-loc_3E9C8:
-	bsr.w	+
-+	move.b	(a1)+,d2
-	move.b	d2,d3
-	andi.b	#$F0,d2
-	move.b	d2,d4
-	lsr.b	#4,d4
-	or.b	d2,d4
-	move.b	d4,(a4)+
-	move.b	d4,3(a4)
-	andi.b	#$F,d3
-	move.b	d3,d4
-	lsl.b	#4,d4
-	or.b	d3,d4
-	move.b	d4,(a4)+
-	move.b	d4,3(a4)
+.upscale_pixel_pair:
+	move.b	(a1)+,d2				; Read two pixels
+	move.b	d2,d3					; Save them
+	andi.b	#$F0,d2					; Get left pixel
+	move.b	d2,d4					; Copy it...
+	lsr.b	#4,d4					; ... shift it down into place...
+	or.b	d2,d4					; ... and make it into two pixels of the same color
+	move.b	d4,(a3)+				; Save to bottom tile, both on one row...
+	move.b	d4,3(a3)				; ... and on the row below
+	andi.b	#$F,d3					; Get saved right pixel
+	move.b	d3,d4					; Copy it...
+	lsl.b	#4,d4					; ... shift it up into place...
+	or.b	d3,d4					; ... and make it into two pixels of the same color
+	move.b	d4,(a3)+				; Save to bottom tile, both on one row...
+	move.b	d4,3(a3)				; ... and on the row below
 	rts
 ; ===========================================================================
+; Upscales the leftmost 4 pixels on the current row into the corresponding two
+; rows of the output tile
+;loc_3E9C8
+Scale_2x_LeftPixels2:
+	bsr.w	.upscale_pixel_pair
 
-loc_3E9F2:
-	bsr.w	+
-+	move.b	(a1)+,d2
-	move.b	d2,d3
-	andi.b	#$F0,d2
-	move.b	d2,d4
-	lsr.b	#4,d4
-	or.b	d2,d4
-	move.b	d4,(a5)+
-	move.b	d4,3(a5)
-	andi.b	#$F,d3
-	move.b	d3,d4
-	lsl.b	#4,d4
-	or.b	d3,d4
-	move.b	d4,(a5)+
-	move.b	d4,3(a5)
+.upscale_pixel_pair:
+	move.b	(a1)+,d2				; Read two pixels
+	move.b	d2,d3					; Save them
+	andi.b	#$F0,d2					; Get left pixel
+	move.b	d2,d4					; Copy it...
+	lsr.b	#4,d4					; ... shift it down into place...
+	or.b	d2,d4					; ... and make it into two pixels of the same color
+	move.b	d4,(a4)+				; Save to top tile, both on one row...
+	move.b	d4,3(a4)				; ... and on the row below
+	andi.b	#$F,d3					; Get saved right pixel
+	move.b	d3,d4					; Copy it...
+	lsl.b	#4,d4					; ... shift it up into place...
+	or.b	d3,d4					; ... and make it into two pixels of the same color
+	move.b	d4,(a4)+				; Save to top tile, both on one row...
+	move.b	d4,3(a4)				; ... and on the row below
+	rts
+; ===========================================================================
+; Upscales the rightmost 4 pixels on the current row into the corresponding two
+; rows of the output tile
+;loc_3E9F2
+Scale_2x_RightPixels2:
+	bsr.w	.upscale_pixel_pair
+
+.upscale_pixel_pair:
+	move.b	(a1)+,d2				; Read two pixels
+	move.b	d2,d3					; Save them
+	andi.b	#$F0,d2					; Get left pixel
+	move.b	d2,d4					; Copy it...
+	lsr.b	#4,d4					; ... shift it down into place...
+	or.b	d2,d4					; ... and make it into two pixels of the same color
+	move.b	d4,(a5)+				; Save to bottom tile, both on one row...
+	move.b	d4,3(a5)				; ... and on the row below
+	andi.b	#$F,d3					; Get saved right pixel
+	move.b	d3,d4					; Copy it...
+	lsl.b	#4,d4					; ... shift it up into place...
+	or.b	d3,d4					; ... and make it into two pixels of the same color
+	move.b	d4,(a5)+				; Save to bottom tile, both on one row...
+	move.b	d4,3(a5)				; ... and on the row below
 	rts
 ; ===========================================================================
 
