@@ -27604,8 +27604,8 @@ Anim_Run:
 	move.b	(a1),anim_frame_duration(a0)	; load frame duration
 	moveq	#0,d1
 	move.b	anim_frame(a0),d1	; load current frame number
-	move.b	1(a1,d1.w),d0   	; read sprite number from script
-	bmi.s	Anim_End_FF     	; if animation is complete, branch
+	move.b	1(a1,d1.w),d0		; read sprite number from script
+	bmi.s	Anim_End_FF		; if animation is complete, branch
 ; loc_1657C:
 Anim_Next:
 	andi.b	#$7F,d0			; clear sign bit
@@ -68353,70 +68353,84 @@ Obj_CreateProjectiles:
 return_3686E:
 	rts
 ; ===========================================================================
+; ---------------------------------------------------------------------------
+; Subroutine to animate a sprite using an animation script
+; Works like AnimateSprite, except for:
+; * this function does not change render flags to match orientation given by
+;   the status byte;
+; * the function returns 0 on d0 if it changed the mapping frame, or 1 if an
+;   end-of-animation flag was found ($FC to $FF);
+; * it is only used by Mecha Sonic;
+; * some of the end-of-animation flags work differently.
+; ---------------------------------------------------------------------------
 
-loc_36870:
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; loc_36870:
+AnimateSprite_Checked:
 	moveq	#0,d0
-	move.b	anim(a0),d0
-	cmp.b	next_anim(a0),d0
-	beq.s	+
-	move.b	d0,next_anim(a0)
-	move.b	#0,anim_frame(a0)
-	move.b	#0,anim_frame_duration(a0)
-+
-	subq.b	#1,anim_frame_duration(a0)
-	bpl.s	loc_368B0
+	move.b	anim(a0),d0		; move animation number to d0
+	cmp.b	next_anim(a0),d0	; is animation set to change?
+	beq.s	AnimChk_Run		; if not, branch
+	move.b	d0,next_anim(a0)	; set next anim to current current
+	move.b	#0,anim_frame(a0)	; reset animation
+	move.b	#0,anim_frame_duration(a0)	; reset frame duration
+
+AnimChk_Run:
+	subq.b	#1,anim_frame_duration(a0)	; subtract 1 from frame duration
+	bpl.s	AnimChk_Wait	; if time remains, branch
 	add.w	d0,d0
-	adda.w	(a1,d0.w),a1
-	move.b	(a1),anim_frame_duration(a0)
+	adda.w	(a1,d0.w),a1	; calculate address of appropriate animation script
+	move.b	(a1),anim_frame_duration(a0)	; load frame duration
 	moveq	#0,d1
-	move.b	anim_frame(a0),d1
-	move.b	1(a1,d1.w),d0
-	bmi.s	loc_368B4
-
-loc_368A8:
-	move.b	d0,mapping_frame(a0)
-	addq.b	#1,anim_frame(a0)
-
-loc_368B0:
-	moveq	#0,d0
+	move.b	anim_frame(a0),d1	; load current frame number
+	move.b	1(a1,d1.w),d0		; read sprite number from script
+	bmi.s	AnimChk_End_FF		; if animation is complete, branch
+;loc_368A8
+AnimChk_Next:
+	move.b	d0,mapping_frame(a0)	; load sprite number
+	addq.b	#1,anim_frame(a0)	; next frame number
+;loc_368B0
+AnimChk_Wait:
+	moveq	#0,d0	; Return 0
 	rts
-; ===========================================================================
-
-loc_368B4:
-	addq.b	#1,d0
-	bne.s	loc_368C8
-	move.b	#0,anim_frame(a0)
-	move.b	1(a1),d0
-	bsr.s	loc_368A8
-	moveq	#1,d0
+; ---------------------------------------------------------------------------
+;loc_368B4
+AnimChk_End_FF:
+	addq.b	#1,d0		; is the end flag = $FF ?
+	bne.s	AnimChk_End_FE	; if not, branch
+	move.b	#0,anim_frame(a0)	; restart the animation
+	move.b	1(a1),d0	; read sprite number
+	bsr.s	AnimChk_Next
+	moveq	#1,d0	; Return 1
 	rts
-; ===========================================================================
-
-loc_368C8:
-	addq.b	#1,d0
-	bne.s	loc_368DE
-	addq.b	#2,routine(a0)
+; ---------------------------------------------------------------------------
+;loc_368C8
+AnimChk_End_FE:
+	addq.b	#1,d0		; is the end flag = $FE ?
+	bne.s	AnimChk_End_FD	; if not, branch
+	addq.b	#2,routine(a0)	; jump to next routine
 	move.b	#0,anim_frame_duration(a0)
 	addq.b	#1,anim_frame(a0)
-	moveq	#1,d0
+	moveq	#1,d0	; Return 1
 	rts
-; ===========================================================================
-
-loc_368DE:
-	addq.b	#1,d0
-	bne.s	loc_368EA
-	addq.b	#2,routine_secondary(a0)
-	moveq	#1,d0
+; ---------------------------------------------------------------------------
+;loc_368DE
+AnimChk_End_FD:
+	addq.b	#1,d0		; is the end flag = $FD ?
+	bne.s	AnimChk_End_FC	; if not, branch
+	addq.b	#2,routine_secondary(a0)	; jump to next routine
+	moveq	#1,d0	; Return 1
 	rts
-; ===========================================================================
+; ---------------------------------------------------------------------------
+;loc_368EA
+AnimChk_End_FC:
+	addq.b	#1,d0		; is the end flag = $FC ?
+	bne.s	AnimChk_End	; if not, branch
+	move.b	#1,anim_frame_duration(a0)	; Force frame duration to 1
+	moveq	#1,d0	; Return 1
 
-loc_368EA:
-	addq.b	#1,d0
-	bne.s	return_368F6
-	move.b	#1,anim_frame_duration(a0)
-	moveq	#1,d0
-
-return_368F6:
+AnimChk_End:
 	rts
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -72780,7 +72794,7 @@ loc_3986A:
 	jsr	(ObjCheckFloorDist).l
 	add.w	d1,y_pos(a0)
 	lea	(off_39DE2).l,a1
-	bsr.w	loc_36870
+	bsr.w	AnimateSprite_Checked
 	bsr.w	loc_39D4A
 	bra.w	JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -72900,7 +72914,7 @@ loc_39976:
 loc_39994:
 	bsr.w	loc_39D72
 	lea	(off_39DE2).l,a1
-	bsr.w	loc_36870
+	bsr.w	AnimateSprite_Checked
 	cmpi.b	#2,anim(a0)
 	bne.s	return_399C0
 	cmpi.b	#2,anim_frame(a0)
@@ -72944,7 +72958,7 @@ loc_39A0A:
 
 loc_39A1C:
 	lea	(off_39DE2).l,a1
-	bsr.w	loc_36870
+	bsr.w	AnimateSprite_Checked
 	bne.s	loc_39A2A
 	rts
 ; ===========================================================================
@@ -72962,7 +72976,7 @@ loc_39A44:
 	subq.b	#1,objoff_2A(a0)
 	bmi.s	loc_39A56
 	lea	(off_39DE2).l,a1
-	bsr.w	loc_36870
+	bsr.w	AnimateSprite_Checked
 	rts
 ; ===========================================================================
 
@@ -72978,7 +72992,7 @@ loc_39A68:
 	bmi.s	loc_39A7C
 	bsr.w	loc_39D72
 	lea	(off_39DE2).l,a1
-	bra.w	loc_36870
+	bra.w	AnimateSprite_Checked
 ; ===========================================================================
 
 loc_39A7C:
@@ -72992,7 +73006,7 @@ loc_39A7C:
 
 loc_39A96:
 	lea	(off_39DE2).l,a1
-	bsr.w	loc_36870
+	bsr.w	AnimateSprite_Checked
 	bne.w	BranchTo_loc_399D6
 	rts
 ; ===========================================================================
@@ -73005,7 +73019,7 @@ loc_39AAA:
 	subq.b	#1,objoff_2A(a0)
 	bmi.s	loc_39ABC
 	lea	(off_39DE2).l,a1
-	bsr.w	loc_36870
+	bsr.w	AnimateSprite_Checked
 	rts
 ; ===========================================================================
 
@@ -73024,7 +73038,7 @@ loc_39ACE:
 
 loc_39ADE:
 	lea	(off_39DE2).l,a1
-	bra.w	loc_36870
+	bra.w	AnimateSprite_Checked
 ; ===========================================================================
 
 loc_39AE8:
@@ -73044,7 +73058,7 @@ loc_39AF4:
 loc_39B0A:
 	addi.w	#$38,y_vel(a0)
 	lea	(off_39DE2).l,a1
-	bra.w	loc_36870
+	bra.w	AnimateSprite_Checked
 ; ===========================================================================
 
 loc_39B1A:
@@ -73060,7 +73074,7 @@ loc_39B28:
 	jsr	(ObjCheckFloorDist).l
 	add.w	d1,y_pos(a0)
 	lea	(off_39DE2).l,a1
-	bra.w	loc_36870
+	bra.w	AnimateSprite_Checked
 ; ===========================================================================
 
 loc_39B44:
@@ -73084,7 +73098,7 @@ loc_39B66:
 loc_39B74:
 	addi.w	#$38,y_vel(a0)
 	lea	(off_39DE2).l,a1
-	bra.w	loc_36870
+	bra.w	AnimateSprite_Checked
 ; ===========================================================================
 
 loc_39B84:
@@ -73121,7 +73135,7 @@ loc_39BCC:
 	movea.w	objoff_2C(a0),a1 ; a1=object
 	bsr.w	loc_367AA
 	lea	(off_39E30).l,a1
-	bsr.w	loc_36870
+	bsr.w	AnimateSprite_Checked
 	bra.w	JmpTo45_DisplaySprite
 ; ===========================================================================
 
