@@ -65,8 +65,8 @@ spindash_flag =		$39 ; 0 for normal, 1 for charging a spindash or forced rolling
 spindash_counter =	$3A ; and $3B
 jumping =		$3C
 interact =		$3D ; RAM address of the last object Sonic stood on, minus $FFFFB000 and divided by $40
-layer =			$3E ; collision plane, track switching...
-layer_plus =		$3F ; always same as layer+1 ?? used for collision somehow
+top_solid_bit =   $3E ; the bit to check for top solidity (either $C or $E)
+lrb_solid_bit =		$3F ; the bit to check for left/right/bottom solidity (either $D or $F)
 ; ---------------------------------------------------------------------------
 ; conventions followed by several objects but NOT sonic/tails:
 y_pixel =		2+x_pos ; and 3+x_pos ; y coordinate for objects using screen-space coordinate system
@@ -1419,7 +1419,7 @@ Saved_y_pos:			ds.w	1
 Saved_Ring_count:		ds.w	1
 Saved_Timer:			ds.l	1
 Saved_art_tile:			ds.w	1
-Saved_layer:			ds.w	1
+Saved_Solid_bits:			ds.w	1
 Saved_Camera_X_pos:		ds.w	1
 Saved_Camera_Y_pos:		ds.w	1
 Saved_Camera_BG_X_pos:		ds.w	1
@@ -1485,7 +1485,7 @@ Saved_y_pos_2P:			ds.w	1
 Saved_Ring_count_2P:		ds.w	1
 Saved_Timer_2P:			ds.l	1
 Saved_art_tile_2P:		ds.w	1
-Saved_layer_2P:			ds.w	1
+Saved_Solid_bits_2P:			ds.w	1
 Rings_Collected:		ds.w	1	; number of rings collected during an act in two player mode
 Rings_Collected_2P:		ds.w	1
 Monitors_Broken:		ds.w	1	; number of monitors broken during an act in two player mode

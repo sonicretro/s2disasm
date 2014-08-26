@@ -30676,14 +30676,14 @@ loc_18A3E:
 	andi.b	#$C,d0
 	cmpi.b	#4,d0
 	bne.s	loc_18A54
-	move.b	#$C,layer(a1)
-	move.b	#$D,layer_plus(a1)
+	move.b	#$C,top_solid_bit(a1)
+	move.b	#$D,lrb_solid_bit(a1)
 
 loc_18A54:
 	cmpi.b	#8,d0
 	bne.s	loc_18A66
-	move.b	#$E,layer(a1)
-	move.b	#$F,layer_plus(a1)
+	move.b	#$E,top_solid_bit(a1)
+	move.b	#$F,lrb_solid_bit(a1)
 
 loc_18A66:
 	move.w	#SndID_Spring,d0
@@ -30781,14 +30781,14 @@ loc_18B82:
 	andi.b	#$C,d0
 	cmpi.b	#4,d0
 	bne.s	loc_18B98
-	move.b	#$C,layer(a1)
-	move.b	#$D,layer_plus(a1)
+	move.b	#$C,top_solid_bit(a1)
+	move.b	#$D,lrb_solid_bit(a1)
 
 loc_18B98:
 	cmpi.b	#8,d0
 	bne.s	loc_18BAA
-	move.b	#$E,layer(a1)
-	move.b	#$F,layer_plus(a1)
+	move.b	#$E,top_solid_bit(a1)
+	move.b	#$F,lrb_solid_bit(a1)
 
 loc_18BAA:
 	bclr	#p1_pushing_bit,status(a0)
@@ -30925,14 +30925,14 @@ loc_18D26:
 	andi.b	#$C,d0
 	cmpi.b	#4,d0
 	bne.s	loc_18D3C
-	move.b	#$C,layer(a1)
-	move.b	#$D,layer_plus(a1)
+	move.b	#$C,top_solid_bit(a1)
+	move.b	#$D,lrb_solid_bit(a1)
 
 loc_18D3C:
 	cmpi.b	#8,d0
 	bne.s	loc_18D4E
-	move.b	#$E,layer(a1)
-	move.b	#$F,layer_plus(a1)
+	move.b	#$E,top_solid_bit(a1)
+	move.b	#$F,lrb_solid_bit(a1)
 
 loc_18D4E:
 	bset	#1,status(a1)
@@ -31027,14 +31027,14 @@ loc_18E6C:
 	andi.b	#$C,d0
 	cmpi.b	#4,d0
 	bne.s	loc_18E82
-	move.b	#$C,layer(a1)
-	move.b	#$D,layer_plus(a1)
+	move.b	#$C,top_solid_bit(a1)
+	move.b	#$D,lrb_solid_bit(a1)
 
 loc_18E82:
 	cmpi.b	#8,d0
 	bne.s	loc_18E94
-	move.b	#$E,layer(a1)
-	move.b	#$F,layer_plus(a1)
+	move.b	#$E,top_solid_bit(a1)
+	move.b	#$F,lrb_solid_bit(a1)
 
 loc_18E94:
 	move.w	#SndID_Spring,d0
@@ -31110,14 +31110,14 @@ loc_18F78:
 	andi.b	#$C,d0
 	cmpi.b	#4,d0
 	bne.s	loc_18F8E
-	move.b	#$C,layer(a1)
-	move.b	#$D,layer_plus(a1)
+	move.b	#$C,top_solid_bit(a1)
+	move.b	#$D,lrb_solid_bit(a1)
 
 loc_18F8E:
 	cmpi.b	#8,d0
 	bne.s	loc_18FA0
-	move.b	#$E,layer(a1)
-	move.b	#$F,layer_plus(a1)
+	move.b	#$E,top_solid_bit(a1)
+	move.b	#$F,lrb_solid_bit(a1)
 
 loc_18FA0:
 	move.w	#SndID_Spring,d0
@@ -32694,12 +32694,12 @@ Obj01_Init:
 	; only happens when not starting at a checkpoint:
 	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
-	move.b	#$C,layer(a0)
-	move.b	#$D,layer_plus(a0)
+	move.b	#$C,top_solid_bit(a0)
+	move.b	#$D,lrb_solid_bit(a0)
 	move.w	x_pos(a0),(Saved_x_pos).w
 	move.w	y_pos(a0),(Saved_y_pos).w
 	move.w	art_tile(a0),(Saved_art_tile).w
-	move.w	layer(a0),(Saved_layer).w
+	move.w	top_solid_bit(a0),(Saved_Solid_bits).w
 
 Obj01_Init_Continued:
 	move.b	#0,flips_remaining(a0)
@@ -34287,11 +34287,11 @@ return_1AEA8:
 ; loc_1AEAA: Sonic_Floor:
 Sonic_DoLevelCollision:
 	move.l	#Primary_Collision,(Collision_addr).w
-	cmpi.b	#$C,layer(a0)
+	cmpi.b	#$C,top_solid_bit(a0)
 	beq.s	+
 	move.l	#Secondary_Collision,(Collision_addr).w
 +
-	move.b	layer_plus(a0),d5
+	move.b	lrb_solid_bit(a0),d5
 	move.w	x_vel(a0),d1
 	move.w	y_vel(a0),d2
 	jsr	(CalcAngle).l
@@ -34672,7 +34672,7 @@ Obj01_ResetLevel_Part2:
 	move.w	(Saved_x_pos).w,x_pos(a0)
 	move.w	(Saved_y_pos).w,y_pos(a0)
 	move.w	(Saved_art_tile).w,art_tile(a0)
-	move.w	(Saved_layer).w,layer(a0)
+	move.w	(Saved_Solid_bits).w,top_solid_bit(a0)
 	clr.w	(Ring_count).w
 	clr.b	(Extra_life_flags).w
 	move.b	#0,obj_control(a0)
@@ -35227,19 +35227,19 @@ Obj02_Init:
 	; only happens when not starting at a checkpoint:
 	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
-	move.b	#$C,layer(a0)
-	move.b	#$D,layer_plus(a0)
+	move.b	#$C,top_solid_bit(a0)
+	move.b	#$D,lrb_solid_bit(a0)
 	move.w	x_pos(a0),(Saved_x_pos).w
 	move.w	y_pos(a0),(Saved_y_pos).w
 	move.w	art_tile(a0),(Saved_art_tile).w
-	move.w	layer(a0),(Saved_layer).w
+	move.w	top_solid_bit(a0),(Saved_Solid_bits).w
 	bra.s	Obj02_Init_Continued
 ; ===========================================================================
 ; loc_1B952:
 Obj02_Init_2Pmode:
 	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
-	move.w	(MainCharacter+layer).w,layer(a0)
+	move.w	(MainCharacter+top_solid_bit).w,top_solid_bit(a0)
 	tst.w	(MainCharacter+art_tile).w
 	bpl.s	Obj02_Init_Continued
 	ori.w	#high_priority,art_tile(a0)
@@ -35248,7 +35248,7 @@ Obj02_Init_Continued:
 	move.w	x_pos(a0),(Saved_x_pos_2P).w
 	move.w	y_pos(a0),(Saved_y_pos_2P).w
 	move.w	art_tile(a0),(Saved_art_tile_2P).w
-	move.w	layer(a0),(Saved_layer_2P).w
+	move.w	top_solid_bit(a0),(Saved_Solid_bits_2P).w
 	move.b	#0,flips_remaining(a0)
 	move.b	#4,flip_speed(a0)
 	move.b	#$1E,air_left(a0)
@@ -35554,8 +35554,8 @@ loc_1BC68:
 	bpl.s	+
 	ori.w	#high_priority,art_tile(a0)
 +
-	move.b	layer(a1),layer(a0)
-	move.b	layer_plus(a1),layer_plus(a0)
+	move.b	top_solid_bit(a1),top_solid_bit(a0)
+	move.b	lrb_solid_bit(a1),lrb_solid_bit(a0)
 	cmpi.b	#AniIDTailsAni_Spindash,anim(a1)
 	beq.s	return_1BCDE
 	move.b	spindash_flag(a0),d0
@@ -37010,11 +37010,11 @@ return_1C958:
 ; loc_1C95A: Tails_Floor:
 Tails_DoLevelCollision:
 	move.l	#Primary_Collision,(Collision_addr).w
-	cmpi.b	#$C,layer(a0)
+	cmpi.b	#$C,top_solid_bit(a0)
 	beq.s	+
 	move.l	#Secondary_Collision,(Collision_addr).w
 +
-	move.b	layer_plus(a0),d5
+	move.b	lrb_solid_bit(a0),d5
 	move.w	x_vel(a0),d1
 	move.w	y_vel(a0),d2
 	jsr	(CalcAngle).l
@@ -37376,7 +37376,7 @@ Obj02_ResetLevel_Part3:
 	move.w	(Saved_x_pos_2P).w,x_pos(a0)
 	move.w	(Saved_y_pos_2P).w,y_pos(a0)
 	move.w	(Saved_art_tile_2P).w,art_tile(a0)
-	move.w	(Saved_layer_2P).w,layer(a0)
+	move.w	(Saved_Solid_bits_2P).w,top_solid_bit(a0)
 	clr.w	(Ring_count_2P).w
 	clr.b	(Extra_life_flags_2P).w
 	move.b	#0,obj_control(a0)
@@ -38943,11 +38943,11 @@ Obj7E_MapUnc_1E1BE:	BINCLUDE "mappings/sprite/obj7E.bin"
 ; loc_1E234: Sonic_AnglePos:
 AnglePos:
 	move.l	#Primary_Collision,(Collision_addr).w
-	cmpi.b	#$C,layer(a0)
+	cmpi.b	#$C,top_solid_bit(a0)
 	beq.s	+
 	move.l	#Secondary_Collision,(Collision_addr).w
 +
-	move.b	layer(a0),d5
+	move.b	top_solid_bit(a0),d5
 	btst	#3,status(a0)
 	beq.s	+
 	moveq	#0,d0
@@ -39856,11 +39856,11 @@ loc_1EB7A:
 ; loc_1EB84: Sonic_WalkSpeed:
 CalcRoomInFront:
 	move.l	#Primary_Collision,(Collision_addr).w
-	cmpi.b	#$C,layer(a0)
+	cmpi.b	#$C,top_solid_bit(a0)
 	beq.s	+
 	move.l	#Secondary_Collision,(Collision_addr).w
 +
-	move.b	layer_plus(a0),d5			; Want walls or ceilings
+	move.b	lrb_solid_bit(a0),d5			; Want walls or ceilings
 	move.l	x_pos(a0),d3
 	move.l	y_pos(a0),d2
 	move.w	x_vel(a0),d1
@@ -39920,11 +39920,11 @@ loc_1EBE6:
 ; sub_1EC0A:
 CalcRoomOverHead:
 	move.l	#Primary_Collision,(Collision_addr).w
-	cmpi.b	#$C,layer(a0)
+	cmpi.b	#$C,top_solid_bit(a0)
 	beq.s	+
 	move.l	#Secondary_Collision,(Collision_addr).w
 +
-	move.b	layer_plus(a0),d5
+	move.b	lrb_solid_bit(a0),d5
 	move.b	d0,(Primary_Angle).w
 	move.b	d0,(Secondary_Angle).w
 	addi.b	#$20,d0
@@ -39947,11 +39947,11 @@ CalcRoomOverHead:
 ; loc_1EC4E: Sonic_HitFloor:
 Sonic_CheckFloor:
 	move.l	#Primary_Collision,(Collision_addr).w
-	cmpi.b	#$C,layer(a0)
+	cmpi.b	#$C,top_solid_bit(a0)
 	beq.s	+
 	move.l	#Secondary_Collision,(Collision_addr).w
 +
-	move.b	layer(a0),d5
+	move.b	top_solid_bit(a0),d5
 	move.w	y_pos(a0),d2
 	move.w	x_pos(a0),d3
 	moveq	#0,d0
@@ -40036,7 +40036,7 @@ loc_1ECFE:
 	move.w	y_pos(a0),d2
 	subq.w	#4,d2
 	move.l	#Primary_Collision,(Collision_addr).w
-	cmpi.b	#$D,layer_plus(a0)
+	cmpi.b	#$D,lrb_solid_bit(a0)
 	beq.s	+
 	move.l	#Secondary_Collision,(Collision_addr).w
 +
@@ -40044,7 +40044,7 @@ loc_1ECFE:
 	move.b	#0,(a4)
 	movea.w	#$10,a3
 	move.w	#0,d6
-	move.b	layer_plus(a0),d5
+	move.b	lrb_solid_bit(a0),d5
 	bsr.w	FindFloor
 	move.b	(Primary_Angle).w,d3
 	btst	#0,d3
@@ -40065,7 +40065,7 @@ ChkFloorEdge_Part2:
 	ext.w	d0
 	add.w	d0,d2
 	move.l	#Primary_Collision,(Collision_addr).w
-	cmpi.b	#$C,layer(a0)
+	cmpi.b	#$C,top_solid_bit(a0)
 	beq.s	+
 	move.l	#Secondary_Collision,(Collision_addr).w
 +
@@ -40073,7 +40073,7 @@ ChkFloorEdge_Part2:
 	move.b	#0,(a4)
 	movea.w	#$10,a3
 	move.w	#0,d6
-	move.b	layer(a0),d5
+	move.b	top_solid_bit(a0),d5
 	bsr.w	FindFloor
 	move.b	(Primary_Angle).w,d3
 	btst	#0,d3
@@ -40092,7 +40092,7 @@ ChkFloorEdge2:
 	ext.w	d0
 	add.w	d0,d2
 	move.l	#Primary_Collision,(Collision_addr).w
-	cmpi.b	#$C,layer(a1)
+	cmpi.b	#$C,top_solid_bit(a1)
 	beq.s	+
 	move.l	#Secondary_Collision,(Collision_addr).w
 +
@@ -40100,7 +40100,7 @@ ChkFloorEdge2:
 	move.b	#0,(a4)
 	movea.w	#$10,a3
 	move.w	#0,d6
-	move.b	layer(a1),d5
+	move.b	top_solid_bit(a1),d5
 	bsr.w	FindFloor
 	move.b	(Primary_Angle).w,d3
 	btst	#0,d3
@@ -40628,7 +40628,7 @@ Obj79_SaveData:
 	move.w	x_pos(a0),(Saved_x_pos).w
 	move.w	y_pos(a0),(Saved_y_pos).w
 	move.w	(MainCharacter+art_tile).w,(Saved_art_tile).w
-	move.w	(MainCharacter+layer).w,(Saved_layer).w
+	move.w	(MainCharacter+top_solid_bit).w,(Saved_Solid_bits).w
 	move.w	(Ring_count).w,(Saved_Ring_count).w
 	move.b	(Extra_life_flags).w,(Saved_Extra_life_flags).w
 	move.l	(Timer).w,(Saved_Timer).w
@@ -40655,7 +40655,7 @@ Obj79_SaveDataPlayer2:
 	move.w	x_pos(a0),(Saved_x_pos_2P).w
 	move.w	y_pos(a0),(Saved_y_pos_2P).w
 	move.w	(Sidekick+art_tile).w,(Saved_art_tile_2P).w
-	move.w	(Sidekick+layer).w,(Saved_layer_2P).w
+	move.w	(Sidekick+top_solid_bit).w,(Saved_Solid_bits_2P).w
 	move.w	(Ring_count_2P).w,(Saved_Ring_count_2P).w
 	move.b	(Extra_life_flags_2P).w,(Saved_Extra_life_flags_2P).w
 	move.l	(Timer_2P).w,(Saved_Timer_2P).w
@@ -40675,7 +40675,7 @@ Obj79_LoadData:
 	move.b	#59,(Timer_frame).w
 	subq.b	#1,(Timer_second).w
 	move.w	(Saved_art_tile).w,(MainCharacter+art_tile).w
-	move.w	(Saved_layer).w,(MainCharacter+layer).w
+	move.w	(Saved_Solid_bits).w,(MainCharacter+top_solid_bit).w
 	move.b	(Saved_Dynamic_Resize_Routine).w,(Dynamic_Resize_Routine).w
 	move.b	(Saved_Water_routine).w,(Water_routine).w
 	move.w	(Saved_Camera_Max_Y_pos).w,(Camera_Max_Y_pos_now).w
@@ -41590,12 +41590,12 @@ Obj03_MainX:
 +
 	btst	#0,render_flags(a0)
 	bne.s	+
-	move.b	#$C,layer(a1)
-	move.b	#$D,layer_plus(a1)
+	move.b	#$C,top_solid_bit(a1)
+	move.b	#$D,lrb_solid_bit(a1)
 	btst	#3,d0
 	beq.s	+
-	move.b	#$E,layer(a1)
-	move.b	#$F,layer_plus(a1)
+	move.b	#$E,top_solid_bit(a1)
+	move.b	#$F,lrb_solid_bit(a1)
 +
 	andi.w	#drawing_mask,art_tile(a1)
 	btst	#5,d0
@@ -41625,12 +41625,12 @@ Obj03_MainX_Alt:
 +
 	btst	#0,render_flags(a0)
 	bne.s	+
-	move.b	#$C,layer(a1)
-	move.b	#$D,layer_plus(a1)
+	move.b	#$C,top_solid_bit(a1)
+	move.b	#$D,lrb_solid_bit(a1)
 	btst	#4,d0
 	beq.s	+
-	move.b	#$E,layer(a1)
-	move.b	#$F,layer_plus(a1)
+	move.b	#$E,top_solid_bit(a1)
+	move.b	#$F,lrb_solid_bit(a1)
 +
 	andi.w	#drawing_mask,art_tile(a1)
 	btst	#6,d0
@@ -41672,12 +41672,12 @@ Obj03_MainY:
 +
 	btst	#0,render_flags(a0)
 	bne.s	+
-	move.b	#$C,layer(a1)
-	move.b	#$D,layer_plus(a1)
+	move.b	#$C,top_solid_bit(a1)
+	move.b	#$D,lrb_solid_bit(a1)
 	btst	#3,d0
 	beq.s	+
-	move.b	#$E,layer(a1)
-	move.b	#$F,layer_plus(a1)
+	move.b	#$E,top_solid_bit(a1)
+	move.b	#$F,lrb_solid_bit(a1)
 +
 	andi.w	#drawing_mask,art_tile(a1)
 	btst	#5,d0
@@ -41707,12 +41707,12 @@ Obj03_MainY_Alt:
 +
 	btst	#0,render_flags(a0)
 	bne.s	+
-	move.b	#$C,layer(a1)
-	move.b	#$D,layer_plus(a1)
+	move.b	#$C,top_solid_bit(a1)
+	move.b	#$D,lrb_solid_bit(a1)
 	btst	#4,d0
 	beq.s	+
-	move.b	#$E,layer(a1)
-	move.b	#$F,layer_plus(a1)
+	move.b	#$E,top_solid_bit(a1)
+	move.b	#$F,lrb_solid_bit(a1)
 +
 	andi.w	#drawing_mask,art_tile(a1)
 	btst	#6,d0
@@ -45027,22 +45027,22 @@ BranchTo_JmpTo9_MarkObjGone
 	bne.s	loc_233C0
 	tst.b	subtype(a0)
 	bmi.s	loc_233F0
-	cmpi.b	#$E,(MainCharacter+layer).w
+	cmpi.b	#$E,(MainCharacter+top_solid_bit).w
 	beq.s	loc_233F0
 
 loc_233C0:
-	move.b	#$C,(MainCharacter+layer).w
-	move.b	#$D,(MainCharacter+layer_plus).w
+	move.b	#$C,(MainCharacter+top_solid_bit).w
+	move.b	#$D,(MainCharacter+lrb_solid_bit).w
 	cmpi.b	#AniIDSonAni_Roll,objoff_33(a0)
 	bne.s	loc_233E2
 	tst.b	subtype(a0)
 	bmi.s	loc_233F0
-	cmpi.b	#$E,(Sidekick+layer).w
+	cmpi.b	#$E,(Sidekick+top_solid_bit).w
 	beq.s	loc_233F0
 
 loc_233E2:
-	move.b	#$C,(Sidekick+layer).w
-	move.b	#$D,(Sidekick+layer_plus).w
+	move.b	#$C,(Sidekick+top_solid_bit).w
+	move.b	#$D,(Sidekick+lrb_solid_bit).w
 	bra.s	BranchTo_JmpTo9_MarkObjGone
 ; ===========================================================================
 
@@ -45064,12 +45064,12 @@ loc_23408:
 	bne.s	loc_23426
 	tst.b	subtype(a0)
 	bmi.s	loc_23436
-	cmpi.b	#$E,(MainCharacter+layer).w
+	cmpi.b	#$E,(MainCharacter+top_solid_bit).w
 	beq.s	loc_23436
 
 loc_23426:
-	move.b	#$C,(MainCharacter+layer).w
-	move.b	#$D,(MainCharacter+layer_plus).w
+	move.b	#$C,(MainCharacter+top_solid_bit).w
+	move.b	#$D,(MainCharacter+lrb_solid_bit).w
 	bra.w	BranchTo_JmpTo9_MarkObjGone
 ; ===========================================================================
 
@@ -45103,12 +45103,12 @@ loc_23470:
 	bne.s	loc_2348E
 	tst.b	subtype(a0)
 	bmi.s	loc_2349E
-	cmpi.b	#$E,(Sidekick+layer).w
+	cmpi.b	#$E,(Sidekick+top_solid_bit).w
 	beq.s	loc_2349E
 
 loc_2348E:
-	move.b	#$C,(Sidekick+layer).w
-	move.b	#$D,(Sidekick+layer_plus).w
+	move.b	#$C,(Sidekick+top_solid_bit).w
+	move.b	#$D,(Sidekick+lrb_solid_bit).w
 	bra.w	BranchTo_JmpTo9_MarkObjGone
 ; ===========================================================================
 
@@ -46256,14 +46256,14 @@ loc_24246:
 	andi.b	#$C,d0
 	cmpi.b	#4,d0
 	bne.s	loc_2425C
-	move.b	#$C,layer(a1)
-	move.b	#$D,layer_plus(a1)
+	move.b	#$C,top_solid_bit(a1)
+	move.b	#$D,lrb_solid_bit(a1)
 
 loc_2425C:
 	cmpi.b	#8,d0
 	bne.s	loc_2426E
-	move.b	#$E,layer(a1)
-	move.b	#$F,layer_plus(a1)
+	move.b	#$E,top_solid_bit(a1)
+	move.b	#$F,lrb_solid_bit(a1)
 
 loc_2426E:
 	move.w	#SndID_Spring,d0
@@ -46474,14 +46474,14 @@ loc_24492:
 	andi.b	#$C,d0
 	cmpi.b	#4,d0
 	bne.s	loc_244A8
-	move.b	#$C,layer(a1)
-	move.b	#$D,layer_plus(a1)
+	move.b	#$C,top_solid_bit(a1)
+	move.b	#$D,lrb_solid_bit(a1)
 
 loc_244A8:
 	cmpi.b	#8,d0
 	bne.s	loc_244BA
-	move.b	#$E,layer(a1)
-	move.b	#$F,layer_plus(a1)
+	move.b	#$E,top_solid_bit(a1)
+	move.b	#$F,lrb_solid_bit(a1)
 
 loc_244BA:
 	bclr	#5,status(a1)
@@ -48325,14 +48325,14 @@ loc_2651E:
 	andi.b	#$C,d0
 	cmpi.b	#4,d0
 	bne.s	loc_26534
-	move.b	#$C,layer(a1)
-	move.b	#$D,layer_plus(a1)
+	move.b	#$C,top_solid_bit(a1)
+	move.b	#$D,lrb_solid_bit(a1)
 
 loc_26534:
 	cmpi.b	#8,d0
 	bne.s	loc_26546
-	move.b	#$E,layer(a1)
-	move.b	#$F,layer_plus(a1)
+	move.b	#$E,top_solid_bit(a1)
+	move.b	#$F,lrb_solid_bit(a1)
 
 loc_26546:
 	move.w	#SndID_Spring,d0
@@ -48546,13 +48546,13 @@ loc_26808:
 	andi.b	#$C,d0
 	cmpi.b	#4,d0
 	bne.s	+
-	move.b	#$C,layer(a1)
-	move.b	#$D,layer_plus(a1)
+	move.b	#$C,top_solid_bit(a1)
+	move.b	#$D,lrb_solid_bit(a1)
 +
 	cmpi.b	#8,d0
 	bne.s	+
-	move.b	#$E,layer(a1)
-	move.b	#$F,layer_plus(a1)
+	move.b	#$E,top_solid_bit(a1)
+	move.b	#$F,lrb_solid_bit(a1)
 +
 	move.w	#SndID_Spring,d0
 	jmp	(PlaySound).l
@@ -49303,13 +49303,13 @@ loc_270DC:
 	andi.b	#$C,d0
 	cmpi.b	#4,d0
 	bne.s	+
-	move.b	#$C,layer(a1)
-	move.b	#$D,layer_plus(a1)
+	move.b	#$C,top_solid_bit(a1)
+	move.b	#$D,lrb_solid_bit(a1)
 +
 	cmpi.b	#8,d0
 	bne.s	+
-	move.b	#$E,layer(a1)
-	move.b	#$F,layer_plus(a1)
+	move.b	#$E,top_solid_bit(a1)
+	move.b	#$F,lrb_solid_bit(a1)
 +
 	bclr	#p1_pushing_bit,status(a0)
 	bclr	#p2_pushing_bit,status(a0)
@@ -52509,13 +52509,13 @@ loc_29736:
 	andi.b	#$C,d0
 	cmpi.b	#4,d0
 	bne.s	+
-	move.b	#$C,layer(a1)
-	move.b	#$D,layer_plus(a1)
+	move.b	#$C,top_solid_bit(a1)
+	move.b	#$D,lrb_solid_bit(a1)
 +
 	cmpi.b	#8,d0
 	bne.s	+
-	move.b	#$E,layer(a1)
-	move.b	#$F,layer_plus(a1)
+	move.b	#$E,top_solid_bit(a1)
+	move.b	#$F,lrb_solid_bit(a1)
 +
 	move.w	#SndID_Spring,d0
 	jmp	(PlaySound).l
