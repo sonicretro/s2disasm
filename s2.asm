@@ -20663,7 +20663,7 @@ Obj15_State7:
 	beq.s	+
 	moveq	#0,d3
 	move.b	width_pixels(a0),d3
-	bsr.w	JmpTo_ObjCheckLeftWallDist
+	bsr.w	JmpTo_ObjCheckRightWallDist
 	tst.w	d1
 	bpl.s	+
 	add.w	d1,x_pos(a0)
@@ -20771,9 +20771,9 @@ JmpTo2_CalcSine
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
-JmpTo_ObjCheckLeftWallDist 
-	jmp	(ObjCheckLeftWallDist).l
-; End of function JmpTo_ObjCheckLeftWallDist
+JmpTo_ObjCheckRightWallDist 
+	jmp	(ObjCheckRightWallDist).l
+; End of function JmpTo_ObjCheckRightWallDist
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -40344,8 +40344,8 @@ CheckRightWallDist_Part2:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; loc_1EF00:
-ObjCheckLeftWallDist:
+; loc_1EF00: ObjCheckLeftWallDist:
+ObjCheckRightWallDist:
 	add.w	x_pos(a0),d3
 	move.w	y_pos(a0),d2
 	lea	(Primary_Angle).w,a4
@@ -40360,7 +40360,7 @@ ObjCheckLeftWallDist:
 	move.b	#-$40,d3
 +
 	rts
-; End of function ObjCheckLeftWallDist
+; End of function ObjCheckRightWallDist
 
 ; ---------------------------------------------------------------------------
 ; Stores a distance from Sonic/Tails to the nearest ceiling into d1
@@ -40536,8 +40536,8 @@ CheckLeftWallDist_Part2:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; loc_1F086:
-ObjCheckRightWallDist:
+; loc_1F086: ObjCheckRightWallDist:
+ObjCheckLeftWallDist:
 	add.w	x_pos(a0),d3
 	move.w	y_pos(a0),d2
 	lea	(Primary_Angle).w,a4
@@ -47629,7 +47629,7 @@ Obj22_Arrow:
 	btst	#0,status(a0)
 	bne.s	loc_257DE
 	moveq	#-8,d3
-	bsr.w	ObjCheckRightWallDist
+	bsr.w	ObjCheckLeftWallDist
 	tst.w	d1
 	bmi.w	BranchTo_JmpTo27_DeleteObject
 	bra.w	JmpTo15_MarkObjGone
@@ -47641,7 +47641,7 @@ BranchTo_JmpTo27_DeleteObject
 
 loc_257DE:
 	moveq	#8,d3
-	bsr.w	ObjCheckLeftWallDist
+	bsr.w	ObjCheckRightWallDist
 	tst.w	d1
 	bmi.w	BranchTo_JmpTo27_DeleteObject
 	bra.w	JmpTo15_MarkObjGone
