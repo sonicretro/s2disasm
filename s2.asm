@@ -40540,6 +40540,10 @@ CheckLeftWallDist_Part2:
 ObjCheckLeftWallDist:
 	add.w	x_pos(a0),d3
 	move.w	y_pos(a0),d2
+	; Engine bug: colliding with left walls is erratic with this function.
+	; The cause is this: a missing instruction to flip collision on the found
+	; 16x16 block; this one:
+	;eori.w	#$F,d3
 	lea	(Primary_Angle).w,a4
 	move.b	#0,(a4)
 	movea.w	#-$10,a3
