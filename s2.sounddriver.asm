@@ -152,7 +152,7 @@
     !org 0 ; Z80 code starting at address 0 has special meaning to s2p2bin.exe
 
     CPU Z80UNDOC
-    listing off
+    listing purecode
 
 ; equates: standard (for Genesis games) addresses in the memory map
 zYM2612_A0 =	4000h
