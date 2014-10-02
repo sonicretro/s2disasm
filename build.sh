@@ -36,7 +36,7 @@ done
 
 echo Assembling...
 
-asl -xx -c $debug_syms $print_err -A -U s2.asm
+asl -xx -c $debug_syms $print_err -A -U -L s2.asm
 
 if [[ -f s2.log ]]; then
 	echo
