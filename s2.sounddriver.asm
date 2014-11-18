@@ -2423,7 +2423,6 @@ cfAlterNotesUNK:
 	ret
 ; ---------------------------------------------------------------------------
 
-; Fade-in on Sonic 3, but here ... I dunno?  Maybe dead code?
 ; Set otherwise unused communication byte to parameter
 ; Used for triggering a boss' attacks in Ristar
 ;zloc_D1E ;cfUnknown1:
@@ -2611,6 +2610,8 @@ cfChangeVolume:
 ; ---------------------------------------------------------------------------
 
 ; Unused command EDh
+; This used to be Sonic 1's cfClearPush. But that function hasn't been ported.
+; So this broken code is all that's left of it.
 ;zlocret_E00
 cfUnused:
 	; Dangerous!  It doesn't put back the byte read, meaning one gets skipped!
@@ -2619,6 +2620,7 @@ cfUnused:
 
 ; (via Saxman's doc): "Something with Voice Selection" 
 ; But actually, this doesn't do anything but put back the next byte read, so...
+; This used to be Sonic 1's cfStopSpecialFM4. But the Special SFX function hasn't been ported...
 ;zloc_E01
 cfVoiceUNK:
 	dec	hl		; Put back byte; does nothing
