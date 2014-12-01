@@ -2342,10 +2342,10 @@ coordflagLookup:
 	jp	cfChangeVolume		; EC
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfUnused		; ED
+	jp	cfUnused1		; ED
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfVoiceUNK		; EE
+	jp	cfUnused2		; EE
 	nop
 ; ---------------------------------------------------------------------------
 	jp	cfSetVoice		; EF
@@ -2417,7 +2417,7 @@ cfPanningAMSFMS:
 
 ; (via Saxman's doc): Alter note values by xx 
 ; More or less a pitch bend; this is applied to the frequency as a signed value
-;zloc_D1A cfAlterNotesUNK:
+;zloc_D1A cfAlterNotesUNK
 cfAlterNotes:
 	ld	(ix+19h),a		; set new frequency adjust
 	ret
@@ -2425,7 +2425,7 @@ cfAlterNotes:
 
 ; Set otherwise unused communication byte to parameter
 ; Used for triggering a boss' attacks in Ristar
-;zloc_D1E ;cfUnknown1:
+;zloc_D1E cfUnknown1
 cfSetCommunication:
 	ld	(zCommunication),a
 	ret
@@ -2612,8 +2612,8 @@ cfChangeVolume:
 ; Unused command EDh
 ; This used to be Sonic 1's cfClearPush. But that function hasn't been ported.
 ; So this broken code is all that's left of it.
-;zlocret_E00
-cfUnused:
+;zlocret_E00 cfUnused
+cfUnused1:
 	; Dangerous!  It doesn't put back the byte read, meaning one gets skipped!
 	ret
 ; ---------------------------------------------------------------------------
@@ -2621,8 +2621,8 @@ cfUnused:
 ; (via Saxman's doc): "Something with Voice Selection" 
 ; But actually, this doesn't do anything but put back the next byte read, so...
 ; This used to be Sonic 1's cfStopSpecialFM4. But the Special SFX function hasn't been ported...
-;zloc_E01
-cfVoiceUNK:
+;zloc_E01 cfVoiceUNK
+cfUnused2:
 	dec	hl		; Put back byte; does nothing
 	ret
 ; ---------------------------------------------------------------------------
