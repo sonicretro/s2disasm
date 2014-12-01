@@ -2303,82 +2303,82 @@ zCoordFlag:
 coordflagLookup:
 	jr	$
 ; ---------------------------------------------------------------------------
-	jp	cfPanningAMSFMS ; E0
+	jp	cfPanningAMSFMS		; E0
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfAlterNotesUNK ; E1
+	jp	cfAlterNotes		; E1
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfSetCommunication ; E2
+	jp	cfSetCommunication	; E2
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfJumpReturn ; E3
+	jp	cfJumpReturn		; E3
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfFadeInToPrevious ; E4
+	jp	cfFadeInToPrevious	; E4
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfSetTempoDivider ; E5
+	jp	cfSetTempoDivider	; E5
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfSetVolume ; E6
+	jp	cfSetVolume		; E6
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfPreventAttack ; E7
+	jp	cfPreventAttack		; E7
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfNoteFill ; E8
+	jp	cfNoteFill		; E8
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfAddKey ; E9
+	jp	cfAddKey		; E9
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfSetTempo ; EA
+	jp	cfSetTempo		; EA
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfSetTempoMod ; EB
+	jp	cfSetTempoMod		; EB
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfChangeVolume ; EC
+	jp	cfChangeVolume		; EC
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfUnused ; empty and unused
+	jp	cfUnused1		; ED
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfVoiceUNK ; EE
+	jp	cfUnused2		; EE
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfSetVoice ; EF
+	jp	cfSetVoice		; EF
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfModulation ; F0
+	jp	cfModulation		; F0
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfEnableModulation ; F1
+	jp	cfEnableModulation	; F1
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfStopTrack ; F2
+	jp	cfStopTrack		; F2
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfSetPSGNoise ; F3
+	jp	cfSetPSGNoise		; F3
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfDisableModulation ; F4
+	jp	cfDisableModulation	; F4
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfSetPSGTone ; F5
+	jp	cfSetPSGTone		; F5
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfJumpTo ; F6
+	jp	cfJumpTo		; F6
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfRepeatAtPos ; F7
+	jp	cfRepeatAtPos		; F7
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfJumpToGosub ; F8
+	jp	cfJumpToGosub		; F8
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfOpF9 ; F9
+	jp	cfOpF9			; F9
 	nop
 ; ---------------------------------------------------------------------------
 
@@ -2417,16 +2417,15 @@ cfPanningAMSFMS:
 
 ; (via Saxman's doc): Alter note values by xx 
 ; More or less a pitch bend; this is applied to the frequency as a signed value
-;zloc_D1A
-cfAlterNotesUNK:
+;zloc_D1A cfAlterNotesUNK
+cfAlterNotes:
 	ld	(ix+19h),a		; set new frequency adjust
 	ret
 ; ---------------------------------------------------------------------------
 
-; Fade-in on Sonic 3, but here ... I dunno?  Maybe dead code?
 ; Set otherwise unused communication byte to parameter
 ; Used for triggering a boss' attacks in Ristar
-;zloc_D1E ;cfUnknown1:
+;zloc_D1E cfUnknown1
 cfSetCommunication:
 	ld	(zCommunication),a
 	ret
@@ -2611,16 +2610,19 @@ cfChangeVolume:
 ; ---------------------------------------------------------------------------
 
 ; Unused command EDh
-;zlocret_E00
-cfUnused:
+; This used to be Sonic 1's cfClearPush. But that function hasn't been ported.
+; So this broken code is all that's left of it.
+;zlocret_E00 cfUnused
+cfUnused1:
 	; Dangerous!  It doesn't put back the byte read, meaning one gets skipped!
 	ret
 ; ---------------------------------------------------------------------------
 
 ; (via Saxman's doc): "Something with Voice Selection" 
 ; But actually, this doesn't do anything but put back the next byte read, so...
-;zloc_E01
-cfVoiceUNK:
+; This used to be Sonic 1's cfStopSpecialFM4. But the Special SFX function hasn't been ported...
+;zloc_E01 cfVoiceUNK
+cfUnused2:
 	dec	hl		; Put back byte; does nothing
 	ret
 ; ---------------------------------------------------------------------------
