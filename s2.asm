@@ -43321,7 +43321,7 @@ Obj14_Main:
 	moveq	#1,d1
 +
 	btst	#p2_standing_bit,status(a0)
-	beq.s	loc_21A4A
+	beq.s	Obj14_UpdateMappingAndCollision
 	moveq	#2,d2
 	lea	(Sidekick).w,a1 ; a1=character
 	move.w	x_pos(a0),d0
@@ -43340,7 +43340,7 @@ Obj14_Main:
 	addq.w	#1,d1
 +
 	lsr.w	#1,d1
-	bra.s	loc_21A4A
+	bra.s	Obj14_UpdateMappingAndCollision
 ; ===========================================================================
 
 loc_21A12:
@@ -43355,9 +43355,9 @@ loc_21A12:
 	moveq	#0,d1
 +
 	cmpi.w	#8,d0
-	bhs.s	loc_21A4A
+	bhs.s	Obj14_UpdateMappingAndCollision
 	moveq	#1,d1
-	bra.s	loc_21A4A
+	bra.s	Obj14_UpdateMappingAndCollision
 ; ===========================================================================
 
 loc_21A38:
@@ -43369,8 +43369,9 @@ loc_21A38:
 +
 	move.w	d0,objoff_38(a0)
 
-loc_21A4A:
-	bsr.w	loc_21A76
+; loc_21A4A:
+Obj14_UpdateMappingAndCollision:
+	bsr.w	Obj14_SetMapping
 	lea	(byte_21C8E).l,a2
 	btst	#0,mapping_frame(a0)
 	beq.s	+
@@ -43388,7 +43389,8 @@ return_21A74:
 	rts
 ; ===========================================================================
 
-loc_21A76:
+; loc_21A76:
+Obj14_SetMapping:
 	move.b	mapping_frame(a0),d0
 	cmp.b	d1,d0
 	beq.s	return_21AA0
@@ -43416,22 +43418,22 @@ Obj14_Ball_Init:
 	move.b	#4,priority(a0)
 	move.b	#$8B,collision_flags(a0)
 	move.b	#$C,width_pixels(a0)
-	move.w	x_pos(a0),objoff_30(a0)
+	move.w	x_pos(a0),objoff_30(a0) ; save seesaw x position
 	addi.w	#$28,x_pos(a0)
 	addi.w	#$10,y_pos(a0)
-	move.w	y_pos(a0),objoff_34(a0)
+	move.w	y_pos(a0),objoff_34(a0) ; save bottom of seesaw y position
 	btst	#0,status(a0)
 	beq.s	Obj14_Ball_Main
 	subi.w	#$50,x_pos(a0)
 	move.b	#2,objoff_3A(a0)
 ; loc_21AFC:
 Obj14_Ball_Main:
-	bsr.w	loc_21C66
-	movea.l	objoff_3C(a0),a1 ; a1=object
+	bsr.w	Obj14_Animate
+	movea.l	objoff_3C(a0),a1 ; a1=parent object (seesaw)
 	moveq	#0,d0
-	move.b	objoff_3A(a0),d0
+	move.b	objoff_3A(a0),d0 ; d0 = ball angle - seesaw angle
 	sub.b	objoff_3A(a1),d0
-	beq.s	loc_21B56
+	beq.s	Obj14_SetBallToRestOnSeeSaw
 	bcc.s	+
 	neg.b	d0
 +
@@ -43441,8 +43443,8 @@ Obj14_Ball_Main:
 	beq.s	+
 	move.w	#-$AF0,d1
 	move.w	#-$CC,d2
-	cmpi.w	#$A00,objoff_38(a1)
-	blt.s	+
+	cmpi.w	#$A00,objoff_38(a1) ; check if character y_vel that jumped on
+	blt.s	+                   ; seesaw > 2560
 	move.w	#-$E00,d1
 	move.w	#-$A0,d2
 +
@@ -43457,7 +43459,8 @@ Obj14_Ball_Main:
 	bra.s	Obj14_Ball_Fly
 ; ===========================================================================
 
-loc_21B56:
+; loc_21B56:
+Obj14_SetBallToRestOnSeeSaw:
 	lea	(Obj14_YOffsets).l,a2
 	moveq	#0,d0
 	move.b	mapping_frame(a1),d0
@@ -43469,9 +43472,9 @@ loc_21B56:
 	addq.w	#2,d0
 +
 	add.w	d0,d0
-	move.w	objoff_34(a0),d1
-	add.w	(a2,d0.w),d1
-	move.w	d1,y_pos(a0)
+	move.w	objoff_34(a0),d1 ; d1 = bottom of seesaw y position
+	add.w	(a2,d0.w),d1     ;    + offset for current angle
+	move.w	d1,y_pos(a0)     ; set y position so ball rests on seesaw
 	add.w	objoff_30(a0),d2
 	move.w	d2,x_pos(a0)
 	clr.w	y_sub(a0)
@@ -43481,11 +43484,11 @@ loc_21B56:
 
 Obj14_Ball_Fly:
 
-	bsr.w	loc_21C66
+	bsr.w	Obj14_Animate
 	tst.w	y_vel(a0)
 	bpl.s	loc_21BB6
 	bsr.w	JmpTo_ObjectMoveAndFall
-	move.w	objoff_34(a0),d0
+	move.w	objoff_34(a0),d0 ; d0 = bottom of seesaw y position
 	subi.w	#$2F,d0
 	cmp.w	y_pos(a0),d0
 	bgt.s	return_21BB4
@@ -43497,7 +43500,7 @@ return_21BB4:
 
 loc_21BB6:
 	bsr.w	JmpTo_ObjectMoveAndFall
-	movea.l	objoff_3C(a0),a1 ; a1=object
+	movea.l	objoff_3C(a0),a1 ; a1=parent object (seesaw)
 	lea	(Obj14_YOffsets).l,a2
 	moveq	#0,d0
 	move.b	mapping_frame(a1),d0
@@ -43507,62 +43510,68 @@ loc_21BB6:
 	addq.w	#2,d0
 +
 	add.w	d0,d0
-	move.w	objoff_34(a0),d1
-	add.w	(a2,d0.w),d1
-	cmp.w	y_pos(a0),d1
+	move.w	objoff_34(a0),d1 ; d1 = bottom of seesaw y position
+	add.w	(a2,d0.w),d1     ;    + offset for current angle
+	cmp.w	y_pos(a0),d1     ; return if y position < d1
 	bgt.s	return_21C2A
-	movea.l	objoff_3C(a0),a1 ; a1=object
-	moveq	#2,d1
+	movea.l	objoff_3C(a0),a1 ; a1=parent object (seesaw)
+	moveq	#2,d1            ; d1 = x_vel >= 0 ? 0 : 2
 	tst.w	x_vel(a0)
 	bmi.s	+
 	moveq	#0,d1
 +
-	move.b	d1,objoff_3A(a1)
-	move.b	d1,objoff_3A(a0)
+	move.b	d1,objoff_3A(a1) ; set seesaw angle to d1
+	move.b	d1,objoff_3A(a0) ; set ball angle to d1
 	cmp.b	mapping_frame(a1),d1
 	beq.s	loc_21C1E
+	
+	; launch main character if stood on seesaw
 	lea	(MainCharacter).w,a2 ; a2=character
 	bclr	#p1_standing_bit,status(a1)
 	beq.s	+
-	bsr.s	loc_21C2C
+	bsr.s	Obj14_LaunchCharacter
 +
+    ; launch sidekick if stood on seesaw
 	lea	(Sidekick).w,a2 ; a2=character
 	bclr	#p2_standing_bit,status(a1)
 	beq.s	loc_21C1E
-	bsr.s	loc_21C2C
+	bsr.s	Obj14_LaunchCharacter
 
 loc_21C1E:
-	clr.w	x_vel(a0)
+	clr.w	x_vel(a0)      ; clear ball velocity
 	clr.w	y_vel(a0)
-	subq.b	#2,routine(a0)
+	subq.b	#2,routine(a0) ; set ball to main state
 
 return_21C2A:
 	rts
 ; ===========================================================================
 
-loc_21C2C:
-	move.w	y_vel(a0),y_vel(a2)
-	neg.w	y_vel(a2)
-	bset	#1,status(a2)
-	bclr	#3,status(a2)
-	clr.b	jumping(a2)
-	move.b	#AniIDSonAni_Spring,anim(a2)
-	move.b	#2,routine(a2)
-	move.w	#SndID_Spring,d0
+; loc_21C2C:
+Obj14_LaunchCharacter:
+	move.w	y_vel(a0),y_vel(a2) ; set character y velocity to inverse of sol
+	neg.w	y_vel(a2)           ; y velocity
+	bset	#1,status(a2)       ; set character airborne flag
+	bclr	#3,status(a2)       ; clear character on object flag
+	clr.b	jumping(a2)         ; clear character jumping flag
+	move.b	#AniIDSonAni_Spring,anim(a2) ; set character to spring animation
+	move.b	#2,routine(a2)      ; set character to airborne state
+	move.w	#SndID_Spring,d0    ; play spring sound
 	jmp	(PlaySound).l
 ; ===========================================================================
 ; heights of the contact point of the ball on the seesaw
 ; word_21C5C:
 Obj14_YOffsets:
-	dc.w -8, -$1C, -$2F, -$1C, -8
+	dc.w -8, -28, -47, -28, -8 ; low, balanced, high, balanced, low
 ; ===========================================================================
 
-loc_21C66:
+; loc_21C66:
+Obj14_Animate:
 	move.b	(Timer_frames+1).w,d0
 	andi.b	#3,d0
-	bne.s	+
+	bne.s	Obj14_SetSolToFaceMainCharacter
 	bchg	#palette_bit_0,art_tile(a0)
-+
+	
+Obj14_SetSolToFaceMainCharacter:
 	andi.b	#$FE,render_flags(a0)
 	move.w	(MainCharacter+x_pos).w,d0
 	sub.w	x_pos(a0),d0
