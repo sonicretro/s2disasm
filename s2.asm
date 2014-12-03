@@ -69474,9 +69474,9 @@ Obj94:
 ; off_37330:
 Obj94_Index:	offsetTable
 		offsetTableEntry.w Obj94_Init	; 0
-		offsetTableEntry.w loc_37350	; 2
-		offsetTableEntry.w loc_3739C	; 4
-		offsetTableEntry.w loc_373CA	; 6
+		offsetTableEntry.w Obj94_WaitForPlayer	; 2
+		offsetTableEntry.w Obj94_ReadyToCreateHead	; 4
+		offsetTableEntry.w Obj94_PostCreateHead	; 6
 ; ===========================================================================
 ; loc_37338:
 Obj94_Init:
@@ -69487,16 +69487,17 @@ Obj94_Init:
 	rts
 ; ===========================================================================
 
-loc_37350:
+; loc_37350:
+Obj94_WaitForPlayer:
 	bsr.w	Obj_GetOrientationToPlayer
 	addi.w	#$60,d2
 	cmpi.w	#$100,d2
 	bhs.s	loc_37362
-	bsr.w	loc_375AC
+	bsr.w	Obj94_CreateHead
 
 loc_37362:
 	move.w	x_pos(a0),-(sp)
-	bsr.w	loc_37380
+	bsr.w	Obj94_CheckTurnAround
 	move.w	#$1B,d1
 	move.w	#8,d2
 	move.w	#$11,d3
@@ -69505,7 +69506,8 @@ loc_37362:
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 
-loc_37380:
+; loc_37380:
+Obj94_CheckTurnAround:
 	subq.b	#1,objoff_2A(a0)
 	bpl.s	loc_37396
 	move.b	#$80,objoff_2A(a0)
@@ -69517,19 +69519,21 @@ loc_37396:
 	rts
 ; ===========================================================================
 
-loc_3739C:
+; loc_3739C:
+Obj94_ReadyToCreateHead:
 	bsr.w	Obj_GetOrientationToPlayer
 	addi.w	#$60,d2
 	cmpi.w	#$100,d2
 	bhs.s	loc_373AE
-	bsr.w	loc_375AC
+	bsr.w	Obj94_CreateHead
 
 loc_373AE:
-	bsr.w	loc_373B6
+	bsr.w	Obj94_SolidCollision
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 
-loc_373B6:
+; loc_373B6:
+Obj94_SolidCollision:
 	move.w	#$1B,d1
 	move.w	#8,d2
 	move.w	#8,d3
@@ -69537,8 +69541,9 @@ loc_373B6:
 	bra.w	JmpTo27_SolidObject
 ; ===========================================================================
 
-loc_373CA:
-	bsr.s	loc_373B6
+; loc_373CA:
+Obj94_PostCreateHead:
+	bsr.s	Obj94_SolidCollision
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -69554,10 +69559,10 @@ Obj97:
 ; off_373DE:
 Obj97_Index:	offsetTable
 		offsetTableEntry.w Obj97_Init	; 0
-		offsetTableEntry.w loc_37454	; 2
-		offsetTableEntry.w loc_37488	; 4
-		offsetTableEntry.w loc_374C2	; 6
-		offsetTableEntry.w loc_374F4	; 8
+		offsetTableEntry.w Obj97_InitialWait	; 2
+		offsetTableEntry.w Obj97_RaiseHead	; 4
+		offsetTableEntry.w Obj97_Normal	; 6
+		offsetTableEntry.w Obj97_DeathDrop	; 8
 ; ===========================================================================
 ; loc_373E8:
 Obj97_Init:
@@ -69597,14 +69602,16 @@ byte_3744E:
 	dc.b   0	; 5
 ; ===========================================================================
 
-loc_37454:
-	bsr.w	loc_3750C
+; loc_37454:
+Obj97_InitialWait:
+	bsr.w	Obj97_CheckHeadIsAlive
 	subq.b	#1,objoff_2A(a0)
-	bmi.s	loc_37462
+	bmi.s	Obj97_StartRaise
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 
-loc_37462:
+; loc_37462:
+Obj97_StartRaise:
 	addq.b	#2,routine(a0)
 	move.w	#-$120,x_vel(a0)
 	move.w	#-$200,y_vel(a0)
@@ -69616,17 +69623,19 @@ loc_37462:
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 
-loc_37488:
-	bsr.w	loc_3750C
+; loc_37488:
+Obj97_RaiseHead:
+	bsr.w	Obj97_CheckHeadIsAlive
 	moveq	#$10,d0
 	add.w	d0,x_vel(a0)
 	subq.b	#1,objoff_2A(a0)
-	bmi.s	loc_374A0
+	bmi.s	Obj97_StartNormalState
 	bsr.w	JmpTo26_ObjectMove
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 
-loc_374A0:
+; loc_374A0:
+Obj97_StartNormalState:
 	addq.b	#2,routine(a0)
 	bsr.w	Obj_MoveStop
 	move.b	#$20,objoff_2A(a0)
@@ -69642,13 +69651,14 @@ byte_374BE:
 	dc.b $1A	; 3
 ; ===========================================================================
 
-loc_374C2:
-	bsr.w	loc_3750C
+; loc_374C2:
+Obj97_Normal:
+	bsr.w	Obj97_CheckHeadIsAlive
 	cmpi.w	#8,objoff_2E(a0)
 	bne.s	loc_374D8
 	subq.b	#1,objoff_2A(a0)
 	bpl.s	loc_374D8
-	bsr.w	loc_37532
+	bsr.w	Obj97_FireProjectile
 
 loc_374D8:
 	move.b	objoff_39(a0),d0
@@ -69657,12 +69667,13 @@ loc_374D8:
 	andi.b	#3,d0
 	bne.s	+
 	bsr.w	loc_3758A
-	bsr.w	loc_37604
+	bsr.w	Obj97_Oscillate
 +
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 
-loc_374F4:
+; loc_374F4:
+Obj97_DeathDrop:
 	move.w	(Camera_Max_Y_pos_now).w,d0
 	addi.w	#$E0,d0
 	cmp.w	y_pos(a0),d0
@@ -69671,7 +69682,8 @@ loc_374F4:
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 
-loc_3750C:
+; loc_3750C:
+Obj97_CheckHeadIsAlive:
 	movea.w	objoff_32(a0),a1 ; a1=object
 	cmpi.b	#ObjID_RexonHead,(a1)
 	beq.s	+	; rts
@@ -69689,7 +69701,8 @@ word_37528:
 	dc.w   $80	; 4
 ; ===========================================================================
 
-loc_37532:
+; loc_37532:
+Obj97_FireProjectile:
 	move.b	#$7F,objoff_2A(a0)
 	bsr.w	JmpTo25_SingleObjLoad2
 	bne.s	++	; rts
@@ -69731,7 +69744,8 @@ loc_3758A:
 	rts
 ; ===========================================================================
 
-loc_375AC:
+; loc_375AC:
+Obj94_CreateHead:
 	move.b	#6,routine(a0)
 	bclr	#0,render_flags(a0)
 	tst.w	d0
@@ -69760,7 +69774,8 @@ loc_375CE:
 	rts
 ; ===========================================================================
 
-loc_37604:
+; loc_37604:
+Obj97_Oscillate:
 	move.w	objoff_30(a0),d0
 	beq.s	+	; rts
 	movea.w	d0,a1 ; a1=object
