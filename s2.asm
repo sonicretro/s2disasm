@@ -60261,11 +60261,11 @@ Obj52:
 ; ===========================================================================
 ; off_2FC5E:
 Obj52_Index:	offsetTable
-		offsetTableEntry.w Obj52_Init	; 0
-		offsetTableEntry.w loc_2FD00	; 2
-		offsetTableEntry.w loc_2FEF0	; 4
-		offsetTableEntry.w loc_2FF66	; 6
-		offsetTableEntry.w loc_30210	; 8
+		offsetTableEntry.w Obj52_Init			; 0
+		offsetTableEntry.w Obj52_Mobile			; 2
+		offsetTableEntry.w Obj52_FlameThrower	; 4
+		offsetTableEntry.w Obj52_LavaBall		; 6
+		offsetTableEntry.w loc_30210			; 8
 ; ===========================================================================
 ; loc_2FC68:
 Obj52_Init:
@@ -60303,21 +60303,23 @@ loc_2FCEA:
 	rts
 ; ===========================================================================
 
-loc_2FD00:
+; loc_2FD00:
+Obj52_Mobile:
 	moveq	#0,d0
 	move.b	angle(a0),d0
 	move.w	off_2FD0E(pc,d0.w),d1
 	jmp	off_2FD0E(pc,d1.w)
 ; ===========================================================================
 off_2FD0E:	offsetTable
-		offsetTableEntry.w loc_2FD18	; 0
-		offsetTableEntry.w loc_2FD5E	; 2
-		offsetTableEntry.w loc_2FDDA	; 4
-		offsetTableEntry.w loc_2FE0E	; 6
-		offsetTableEntry.w loc_30106	; 8
+		offsetTableEntry.w Obj52_Mobile_Raise			; 0
+		offsetTableEntry.w Obj52_Mobile_Flamethrower	; 2
+		offsetTableEntry.w Obj52_Mobile_BeginLower		; 4
+		offsetTableEntry.w Obj52_Mobile_Lower			; 6
+		offsetTableEntry.w Obj52_Mobile_Defeated				; 8
 ; ===========================================================================
 
-loc_2FD18:
+; loc_2FD18:
+Obj52_Mobile_Raise:
 	move.b	#0,(Boss_CollisionRoutine).w
 	bsr.w	Boss_MoveObject
 	tst.b	objoff_2C(a0)
@@ -60343,13 +60345,14 @@ loc_2FD50:
 	bra.w	JmpTo36_DisplaySprite
 ; ===========================================================================
 
-loc_2FD5E:
+; loc_2FD5E:
+Obj52_Mobile_Flamethrower:
 	subi.b	#1,objoff_3E(a0)
-	bpl.s	loc_2FDC0
+	bpl.s	Obj52_Mobile_Hover
 	move.b	#1,(Boss_CollisionRoutine).w
 	move.b	#1,mainspr_childsprites(a0)
 	cmpi.b	#-$18,objoff_3E(a0)
-	bne.s	loc_2FDC0
+	bne.s	Obj52_Mobile_Hover
 	bsr.w	JmpTo13_SingleObjLoad
 	bne.s	loc_2FDAA
 	_move.b	#ObjID_HTZBoss,id(a1) ; load obj52
@@ -60368,7 +60371,8 @@ loc_2FDAA:
 	bra.w	JmpTo36_DisplaySprite
 ; ===========================================================================
 
-loc_2FDC0:
+; loc_2FDC0:
+Obj52_Mobile_Hover:
 	move.b	mapping_frame(a0),d0
 	jsr	(CalcSine).l
 	asr.w	#7,d1
@@ -60378,33 +60382,36 @@ loc_2FDC0:
 	bra.s	loc_2FDAA
 ; ===========================================================================
 
-loc_2FDDA:
+; loc_2FDDA:
+Obj52_Mobile_BeginLower:
 	move.b	#0,(Boss_CollisionRoutine).w
 	move.b	#0,mainspr_childsprites(a0)
 	move.b	#$10,(Boss_AnimationArray+2).w
 	move.b	#0,(Boss_AnimationArray+3).w
 	subi.b	#1,objoff_3E(a0)
-	bne.w	loc_2FDC0
+	bne.w	Obj52_Mobile_Hover
 	move.w	#$E0,(Boss_Y_vel).w
 	addq.b	#2,angle(a0)
 	bsr.w	loc_2FEDE
 	bra.w	JmpTo36_DisplaySprite
 ; ===========================================================================
 
-loc_2FE0E:
+; loc_2FE0E:
+Obj52_Mobile_Lower:
 	bsr.w	Boss_MoveObject
 	tst.b	objoff_2C(a0)
 	bne.s	loc_2FE22
 	cmpi.w	#$538,(Boss_Y_pos).w
 	blt.s	loc_2FE58
-	bra.s	loc_2FE2A
+	bra.s	Obj52_CreateLavaBall
 ; ===========================================================================
 
 loc_2FE22:
 	cmpi.w	#$548,(Boss_Y_pos).w
 	blt.s	loc_2FE58
 
-loc_2FE2A:
+; loc_2FE2A
+Obj52_CreateLavaBall:
 	tst.b	objoff_38(a0)
 	bne.s	loc_2FE58
 	st	objoff_38(a0)
@@ -60474,7 +60481,8 @@ loc_2FEDE:
 	rts
 ; ===========================================================================
 
-loc_2FEF0:
+; loc_2FEF0:
+Obj52_FlameThrower:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
 	move.w	off_2FEFE(pc,d0.w),d1
@@ -60515,7 +60523,8 @@ loc_2FF50:
 	bra.w	JmpTo37_MarkObjGone
 ; ===========================================================================
 
-loc_2FF66:
+; loc_2FF66:
+Obj52_LavaBall:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
 	move.w	off_2FF74(pc,d0.w),d1
@@ -60574,7 +60583,7 @@ return_30006:
 ; ===========================================================================
 
 loc_30008:
-	bsr.w	loc_30072
+	bsr.w	Obj52_LavaBall_Move
 	bsr.w	JmpTo4_ObjCheckFloorDist
 	tst.w	d1
 	bpl.s	loc_30064
@@ -60601,7 +60610,8 @@ loc_30064:
 	bra.w	JmpTo37_MarkObjGone
 ; ===========================================================================
 
-loc_30072:
+; loc_30072:
+Obj52_LavaBall_Move:
 	move.l	objoff_2A(a0),d2
 	move.l	y_pos(a0),d3
 	move.w	x_vel(a0),d0
@@ -60623,7 +60633,7 @@ loc_300A4:
 	cmpi.b	#8,angle(a0)
 	bhs.s	return_300EA
 	tst.b	objoff_32(a0)
-	beq.s	loc_300EC
+	beq.s	Obj52_Defeat
 	tst.b	collision_flags(a0)
 	bne.s	return_300EA
 	tst.b	objoff_14(a0)
@@ -60649,7 +60659,8 @@ return_300EA:
 	rts
 ; ===========================================================================
 
-loc_300EC:
+; loc_300EC:
+Obj52_Defeat:
 	moveq	#100,d0
 	bsr.w	JmpTo4_AddPoints
 	move.w	#$B3,(Boss_Countdown).w
@@ -60659,22 +60670,24 @@ loc_300EC:
 	rts
 ; ===========================================================================
 
-loc_30106:
+; loc_30106:
+Obj52_Mobile_Defeated:
 	move.b	#0,mainspr_childsprites(a0)
 	subi.w	#1,(Boss_Countdown).w
 	bmi.s	loc_30142
 	cmpi.w	#$1E,(Boss_Countdown).w
-	bgt.s	loc_3013A
+	bgt.s	Obj52_Mobile_UpdateExplosion
 	move.b	#$10,mainspr_mapframe(a0)
 	bsr.w	Boss_LoadExplosion
 	move.b	(Vint_runcount+3).w,d0
 	andi.b	#$1F,d0
 	bne.w	JmpTo36_DisplaySprite
-	bsr.w	loc_301B4
+	bsr.w	Obj52_CreateSmoke
 	bra.w	JmpTo36_DisplaySprite
 ; ===========================================================================
 
-loc_3013A:
+; loc_3013A:
+Obj52_Mobile_UpdateExplosion:
 	bsr.w	Boss_LoadExplosion
 	bra.w	JmpTo36_DisplaySprite
 ; ===========================================================================
@@ -60682,10 +60695,11 @@ loc_3013A:
 loc_30142:
 	move.b	(Vint_runcount+3).w,d0
 	andi.b	#$1F,d0
-	bne.w	loc_30152
-	bsr.w	loc_301B4
+	bne.w	Obj52_Mobile_Flee
+	bsr.w	Obj52_CreateSmoke
 
-loc_30152:
+; loc_30152:
+Obj52_Mobile_Flee:
 	cmpi.w	#-$3C,(Boss_Countdown).w
 	bgt.w	JmpTo36_DisplaySprite
 	tst.b	(Boss_defeated_flag).w
@@ -60725,7 +60739,8 @@ loc_301AA:
 	bra.w	JmpTo53_DeleteObject
 ; ===========================================================================
 
-loc_301B4:
+; loc_301B4:
+Obj52_CreateSmoke
 	bsr.w	JmpTo13_SingleObjLoad
 	bne.s	return_3020E
 	move.b	#ObjID_HTZBoss,id(a1) ; load obj52
