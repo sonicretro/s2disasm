@@ -69292,9 +69292,9 @@ Obj95:
 ; off_3710C:
 Obj95_Index:	offsetTable
 		offsetTableEntry.w Obj95_Init	; 0
-		offsetTableEntry.w loc_371DC	; 2
+		offsetTableEntry.w Obj95_WaitForPlayer	; 2
 		offsetTableEntry.w loc_37224	; 4
-		offsetTableEntry.w loc_3723C	; 6
+		offsetTableEntry.w Obj95_FireballUpdate	; 6
 		offsetTableEntry.w loc_372B8	; 8
 ; ===========================================================================
 ; loc_37116:
@@ -69313,7 +69313,8 @@ Obj95_Init:
 	addq.w	#1,a2
 	moveq	#3,d1
 
-loc_37152:
+; loc_37152:
+Obj95_NextFireball:
 	bsr.w	JmpTo25_SingleObjLoad2
 	bne.s	loc_371AE
 	addq.b	#1,(a3)
@@ -69334,7 +69335,7 @@ loc_37152:
 	move.b	d2,angle(a1)
 	addi.b	#$40,d2
 	move.l	a0,objoff_3C(a1)
-	dbf	d1,loc_37152
+	dbf	d1,Obj95_NextFireball
 
 loc_371AE:
 	moveq	#1,d0
@@ -69355,7 +69356,8 @@ return_371DA:
 	rts
 ; ===========================================================================
 
-loc_371DC:
+; loc_371DC:
+Obj95_WaitForPlayer:
 	move.w	(MainCharacter+x_pos).w,d0
 	sub.w	x_pos(a0),d0
 	bcc.s	loc_371E8
@@ -69392,16 +69394,17 @@ loc_37224:
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 
-loc_3723C:
+; loc_3723C:
+Obj95_FireballUpdate:
 	lea	(Ani_obj95_b).l,a1
 	bsr.w	JmpTo25_AnimateSprite
 	movea.l	objoff_3C(a0),a1 ; a1=object
-	_cmpi.b	#ObjID_Sol,id(a1)
+	_cmpi.b	#ObjID_Sol,id(a1) ; check if parent object is still alive
 	bne.w	JmpTo65_DeleteObject
 	cmpi.b	#2,mapping_frame(a1)
-	bne.s	loc_3728E
+	bne.s	Obj95_FireballOrbit
 	cmpi.b	#$40,angle(a0)
-	bne.s	loc_3728E
+	bne.s	Obj95_FireballOrbit
 	addq.b	#2,routine(a0)
 	move.b	#0,anim(a0)
 	subq.b	#1,objoff_37(a1)
@@ -69417,7 +69420,8 @@ loc_37278:
 	bra.w	JmpTo45_DisplaySprite
 ; ===========================================================================
 
-loc_3728E:
+; loc_3728E:
+Obj95_FireballOrbit:
 	move.b	angle(a0),d0
 	jsr	(CalcSine).l
 	asr.w	#4,d1
