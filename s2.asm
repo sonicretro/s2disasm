@@ -21985,7 +21985,7 @@ Obj2D_Main:
 	bne.s	+
 	move.w	objoff_38(a0),d2
 	move.w	x_pos(a0),d3
-	tst.b	routine_secondary(a0)
+	tst.b	routine_secondary(a0)                ; check if barrier is moving up
 	beq.s	++
 	move.w	objoff_3A(a0),d3
 	bra.s	++
@@ -21993,7 +21993,7 @@ Obj2D_Main:
 +
 	move.w	x_pos(a0),d2
 	move.w	objoff_3A(a0),d3
-	tst.b	routine_secondary(a0)
+	tst.b	routine_secondary(a0)                ; check if barrier is moving up
 	beq.s	+
 	move.w	objoff_38(a0),d2
 +
@@ -22001,28 +22001,28 @@ Obj2D_Main:
 	move.w	d4,d5
 	subi.w	#$20,d4
 	addi.w	#$20,d5
-	move.b	#0,routine_secondary(a0)
+	move.b	#0,routine_secondary(a0)             ; set barrier to move down, check if characters are in area
 	lea	(MainCharacter).w,a1 ; a1=character
-	bsr.s	sub_117F4
+	bsr.s	Obj2D_CheckCharacter
 	lea	(Sidekick).w,a1 ; a1=character
-	bsr.s	sub_117F4
-	tst.b	routine_secondary(a0)
+	bsr.s	Obj2D_CheckCharacter
+	tst.b	routine_secondary(a0)                ; check if barrier is moving up
 	beq.s	+
-	cmpi.w	#$40,objoff_30(a0)
+	cmpi.w	#$40,objoff_30(a0)                   ; check if barrier is high enough
 	beq.s	+++
-	addq.w	#8,objoff_30(a0)
+	addq.w	#8,objoff_30(a0)                     ; move barrier up
 	bra.s	++
 ; ===========================================================================
 +
-	tst.w	objoff_30(a0)
+	tst.w	objoff_30(a0)                        ; check if barrier is not in original position
 	beq.s	++
-	subq.w	#8,objoff_30(a0)
+	subq.w	#8,objoff_30(a0)                     ; move barrier down
 +
-	move.w	objoff_32(a0),d0
+	move.w	objoff_32(a0),d0                     ; set the barrier y position
 	sub.w	objoff_30(a0),d0
 	move.w	d0,y_pos(a0)
 +
-	moveq	#0,d1
+	moveq	#0,d1                                ; perform solid object collision
 	move.b	width_pixels(a0),d1
 	addi.w	#$B,d1
 	move.w	#$20,d2
@@ -22030,12 +22030,13 @@ Obj2D_Main:
 	addq.w	#1,d3
 	move.w	x_pos(a0),d4
 	bsr.w	JmpTo2_SolidObject
-	bra.w	MarkObjGone
+	bra.w	MarkObjGone                          ; delete object if off screen
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-
-sub_117F4:
+; sub_117F4
+Obj2D_CheckCharacter:
+    ; rect ltrb (d2, d4, d3, d5)
 
 	move.w	x_pos(a1),d0
 	cmp.w	d2,d0
@@ -22049,11 +22050,11 @@ sub_117F4:
 	bhs.w	return_11820
 	tst.b	obj_control(a1)
 	bmi.s	return_11820
-	move.b	#2,routine_secondary(a0)
+	move.b	#2,routine_secondary(a0)             ; set barrier to move up
 
 return_11820:
 	rts
-; End of function sub_117F4
+; End of function Obj2D_CheckCharacter
 
 ; ===========================================================================
 ; -------------------------------------------------------------------------------
