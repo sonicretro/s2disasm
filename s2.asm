@@ -21985,7 +21985,7 @@ Obj2D_Main:
 	bne.s	+
 	move.w	objoff_38(a0),d2
 	move.w	x_pos(a0),d3
-	tst.b	routine_secondary(a0)
+	tst.b	routine_secondary(a0)                ; check if barrier is moving up
 	beq.s	++
 	move.w	objoff_3A(a0),d3
 	bra.s	++
@@ -21993,7 +21993,7 @@ Obj2D_Main:
 +
 	move.w	x_pos(a0),d2
 	move.w	objoff_3A(a0),d3
-	tst.b	routine_secondary(a0)
+	tst.b	routine_secondary(a0)                ; check if barrier is moving up
 	beq.s	+
 	move.w	objoff_38(a0),d2
 +
@@ -22001,28 +22001,28 @@ Obj2D_Main:
 	move.w	d4,d5
 	subi.w	#$20,d4
 	addi.w	#$20,d5
-	move.b	#0,routine_secondary(a0)
+	move.b	#0,routine_secondary(a0)             ; set barrier to move down, check if characters are in area
 	lea	(MainCharacter).w,a1 ; a1=character
-	bsr.s	sub_117F4
+	bsr.s	Obj2D_CheckCharacter
 	lea	(Sidekick).w,a1 ; a1=character
-	bsr.s	sub_117F4
-	tst.b	routine_secondary(a0)
+	bsr.s	Obj2D_CheckCharacter
+	tst.b	routine_secondary(a0)                ; check if barrier is moving up
 	beq.s	+
-	cmpi.w	#$40,objoff_30(a0)
+	cmpi.w	#$40,objoff_30(a0)                   ; check if barrier is high enough
 	beq.s	+++
-	addq.w	#8,objoff_30(a0)
+	addq.w	#8,objoff_30(a0)                     ; move barrier up
 	bra.s	++
 ; ===========================================================================
 +
-	tst.w	objoff_30(a0)
+	tst.w	objoff_30(a0)                        ; check if barrier is not in original position
 	beq.s	++
-	subq.w	#8,objoff_30(a0)
+	subq.w	#8,objoff_30(a0)                     ; move barrier down
 +
-	move.w	objoff_32(a0),d0
+	move.w	objoff_32(a0),d0                     ; set the barrier y position
 	sub.w	objoff_30(a0),d0
 	move.w	d0,y_pos(a0)
 +
-	moveq	#0,d1
+	moveq	#0,d1                                ; perform solid object collision
 	move.b	width_pixels(a0),d1
 	addi.w	#$B,d1
 	move.w	#$20,d2
@@ -22030,12 +22030,13 @@ Obj2D_Main:
 	addq.w	#1,d3
 	move.w	x_pos(a0),d4
 	bsr.w	JmpTo2_SolidObject
-	bra.w	MarkObjGone
+	bra.w	MarkObjGone                          ; delete object if off screen
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-
-sub_117F4:
+; sub_117F4
+Obj2D_CheckCharacter:
+    ; rect ltrb (d2, d4, d3, d5)
 
 	move.w	x_pos(a1),d0
 	cmp.w	d2,d0
@@ -22049,11 +22050,11 @@ sub_117F4:
 	bhs.w	return_11820
 	tst.b	obj_control(a1)
 	bmi.s	return_11820
-	move.b	#2,routine_secondary(a0)
+	move.b	#2,routine_secondary(a0)             ; set barrier to move up
 
 return_11820:
 	rts
-; End of function sub_117F4
+; End of function Obj2D_CheckCharacter
 
 ; ===========================================================================
 ; -------------------------------------------------------------------------------
@@ -43321,7 +43322,7 @@ Obj14_Main:
 	moveq	#1,d1
 +
 	btst	#p2_standing_bit,status(a0)
-	beq.s	loc_21A4A
+	beq.s	Obj14_UpdateMappingAndCollision
 	moveq	#2,d2
 	lea	(Sidekick).w,a1 ; a1=character
 	move.w	x_pos(a0),d0
@@ -43340,7 +43341,7 @@ Obj14_Main:
 	addq.w	#1,d1
 +
 	lsr.w	#1,d1
-	bra.s	loc_21A4A
+	bra.s	Obj14_UpdateMappingAndCollision
 ; ===========================================================================
 
 loc_21A12:
@@ -43355,9 +43356,9 @@ loc_21A12:
 	moveq	#0,d1
 +
 	cmpi.w	#8,d0
-	bhs.s	loc_21A4A
+	bhs.s	Obj14_UpdateMappingAndCollision
 	moveq	#1,d1
-	bra.s	loc_21A4A
+	bra.s	Obj14_UpdateMappingAndCollision
 ; ===========================================================================
 
 loc_21A38:
@@ -43369,8 +43370,9 @@ loc_21A38:
 +
 	move.w	d0,objoff_38(a0)
 
-loc_21A4A:
-	bsr.w	loc_21A76
+; loc_21A4A:
+Obj14_UpdateMappingAndCollision:
+	bsr.w	Obj14_SetMapping
 	lea	(byte_21C8E).l,a2
 	btst	#0,mapping_frame(a0)
 	beq.s	+
@@ -43388,7 +43390,8 @@ return_21A74:
 	rts
 ; ===========================================================================
 
-loc_21A76:
+; loc_21A76:
+Obj14_SetMapping:
 	move.b	mapping_frame(a0),d0
 	cmp.b	d1,d0
 	beq.s	return_21AA0
@@ -43416,22 +43419,22 @@ Obj14_Ball_Init:
 	move.b	#4,priority(a0)
 	move.b	#$8B,collision_flags(a0)
 	move.b	#$C,width_pixels(a0)
-	move.w	x_pos(a0),objoff_30(a0)
+	move.w	x_pos(a0),objoff_30(a0) ; save seesaw x position
 	addi.w	#$28,x_pos(a0)
 	addi.w	#$10,y_pos(a0)
-	move.w	y_pos(a0),objoff_34(a0)
+	move.w	y_pos(a0),objoff_34(a0) ; save bottom of seesaw y position
 	btst	#0,status(a0)
 	beq.s	Obj14_Ball_Main
 	subi.w	#$50,x_pos(a0)
 	move.b	#2,objoff_3A(a0)
 ; loc_21AFC:
 Obj14_Ball_Main:
-	bsr.w	loc_21C66
-	movea.l	objoff_3C(a0),a1 ; a1=object
+	bsr.w	Obj14_Animate
+	movea.l	objoff_3C(a0),a1 ; a1=parent object (seesaw)
 	moveq	#0,d0
-	move.b	objoff_3A(a0),d0
+	move.b	objoff_3A(a0),d0 ; d0 = ball angle - seesaw angle
 	sub.b	objoff_3A(a1),d0
-	beq.s	loc_21B56
+	beq.s	Obj14_SetBallToRestOnSeeSaw
 	bcc.s	+
 	neg.b	d0
 +
@@ -43441,8 +43444,8 @@ Obj14_Ball_Main:
 	beq.s	+
 	move.w	#-$AF0,d1
 	move.w	#-$CC,d2
-	cmpi.w	#$A00,objoff_38(a1)
-	blt.s	+
+	cmpi.w	#$A00,objoff_38(a1) ; check if character y_vel that jumped on
+	blt.s	+                   ; seesaw > 2560
 	move.w	#-$E00,d1
 	move.w	#-$A0,d2
 +
@@ -43457,7 +43460,8 @@ Obj14_Ball_Main:
 	bra.s	Obj14_Ball_Fly
 ; ===========================================================================
 
-loc_21B56:
+; loc_21B56:
+Obj14_SetBallToRestOnSeeSaw:
 	lea	(Obj14_YOffsets).l,a2
 	moveq	#0,d0
 	move.b	mapping_frame(a1),d0
@@ -43469,9 +43473,9 @@ loc_21B56:
 	addq.w	#2,d0
 +
 	add.w	d0,d0
-	move.w	objoff_34(a0),d1
-	add.w	(a2,d0.w),d1
-	move.w	d1,y_pos(a0)
+	move.w	objoff_34(a0),d1 ; d1 = bottom of seesaw y position
+	add.w	(a2,d0.w),d1     ;    + offset for current angle
+	move.w	d1,y_pos(a0)     ; set y position so ball rests on seesaw
 	add.w	objoff_30(a0),d2
 	move.w	d2,x_pos(a0)
 	clr.w	y_sub(a0)
@@ -43481,11 +43485,11 @@ loc_21B56:
 
 Obj14_Ball_Fly:
 
-	bsr.w	loc_21C66
+	bsr.w	Obj14_Animate
 	tst.w	y_vel(a0)
 	bpl.s	loc_21BB6
 	bsr.w	JmpTo_ObjectMoveAndFall
-	move.w	objoff_34(a0),d0
+	move.w	objoff_34(a0),d0 ; d0 = bottom of seesaw y position
 	subi.w	#$2F,d0
 	cmp.w	y_pos(a0),d0
 	bgt.s	return_21BB4
@@ -43497,7 +43501,7 @@ return_21BB4:
 
 loc_21BB6:
 	bsr.w	JmpTo_ObjectMoveAndFall
-	movea.l	objoff_3C(a0),a1 ; a1=object
+	movea.l	objoff_3C(a0),a1 ; a1=parent object (seesaw)
 	lea	(Obj14_YOffsets).l,a2
 	moveq	#0,d0
 	move.b	mapping_frame(a1),d0
@@ -43507,62 +43511,68 @@ loc_21BB6:
 	addq.w	#2,d0
 +
 	add.w	d0,d0
-	move.w	objoff_34(a0),d1
-	add.w	(a2,d0.w),d1
-	cmp.w	y_pos(a0),d1
+	move.w	objoff_34(a0),d1 ; d1 = bottom of seesaw y position
+	add.w	(a2,d0.w),d1     ;    + offset for current angle
+	cmp.w	y_pos(a0),d1     ; return if y position < d1
 	bgt.s	return_21C2A
-	movea.l	objoff_3C(a0),a1 ; a1=object
-	moveq	#2,d1
+	movea.l	objoff_3C(a0),a1 ; a1=parent object (seesaw)
+	moveq	#2,d1            ; d1 = x_vel >= 0 ? 0 : 2
 	tst.w	x_vel(a0)
 	bmi.s	+
 	moveq	#0,d1
 +
-	move.b	d1,objoff_3A(a1)
-	move.b	d1,objoff_3A(a0)
+	move.b	d1,objoff_3A(a1) ; set seesaw angle to d1
+	move.b	d1,objoff_3A(a0) ; set ball angle to d1
 	cmp.b	mapping_frame(a1),d1
 	beq.s	loc_21C1E
+	
+	; launch main character if stood on seesaw
 	lea	(MainCharacter).w,a2 ; a2=character
 	bclr	#p1_standing_bit,status(a1)
 	beq.s	+
-	bsr.s	loc_21C2C
+	bsr.s	Obj14_LaunchCharacter
 +
+    ; launch sidekick if stood on seesaw
 	lea	(Sidekick).w,a2 ; a2=character
 	bclr	#p2_standing_bit,status(a1)
 	beq.s	loc_21C1E
-	bsr.s	loc_21C2C
+	bsr.s	Obj14_LaunchCharacter
 
 loc_21C1E:
-	clr.w	x_vel(a0)
+	clr.w	x_vel(a0)      ; clear ball velocity
 	clr.w	y_vel(a0)
-	subq.b	#2,routine(a0)
+	subq.b	#2,routine(a0) ; set ball to main state
 
 return_21C2A:
 	rts
 ; ===========================================================================
 
-loc_21C2C:
-	move.w	y_vel(a0),y_vel(a2)
-	neg.w	y_vel(a2)
-	bset	#1,status(a2)
-	bclr	#3,status(a2)
-	clr.b	jumping(a2)
-	move.b	#AniIDSonAni_Spring,anim(a2)
-	move.b	#2,routine(a2)
-	move.w	#SndID_Spring,d0
+; loc_21C2C:
+Obj14_LaunchCharacter:
+	move.w	y_vel(a0),y_vel(a2) ; set character y velocity to inverse of sol
+	neg.w	y_vel(a2)           ; y velocity
+	bset	#1,status(a2)       ; set character airborne flag
+	bclr	#3,status(a2)       ; clear character on object flag
+	clr.b	jumping(a2)         ; clear character jumping flag
+	move.b	#AniIDSonAni_Spring,anim(a2) ; set character to spring animation
+	move.b	#2,routine(a2)      ; set character to airborne state
+	move.w	#SndID_Spring,d0    ; play spring sound
 	jmp	(PlaySound).l
 ; ===========================================================================
 ; heights of the contact point of the ball on the seesaw
 ; word_21C5C:
 Obj14_YOffsets:
-	dc.w -8, -$1C, -$2F, -$1C, -8
+	dc.w -8, -28, -47, -28, -8 ; low, balanced, high, balanced, low
 ; ===========================================================================
 
-loc_21C66:
+; loc_21C66:
+Obj14_Animate:
 	move.b	(Timer_frames+1).w,d0
 	andi.b	#3,d0
-	bne.s	+
+	bne.s	Obj14_SetSolToFaceMainCharacter
 	bchg	#palette_bit_0,art_tile(a0)
-+
+	
+Obj14_SetSolToFaceMainCharacter:
 	andi.b	#$FE,render_flags(a0)
 	move.w	(MainCharacter+x_pos).w,d0
 	sub.w	x_pos(a0),d0
@@ -60261,11 +60271,11 @@ Obj52:
 ; ===========================================================================
 ; off_2FC5E:
 Obj52_Index:	offsetTable
-		offsetTableEntry.w Obj52_Init	; 0
-		offsetTableEntry.w loc_2FD00	; 2
-		offsetTableEntry.w loc_2FEF0	; 4
-		offsetTableEntry.w loc_2FF66	; 6
-		offsetTableEntry.w loc_30210	; 8
+		offsetTableEntry.w Obj52_Init			; 0
+		offsetTableEntry.w Obj52_Mobile			; 2
+		offsetTableEntry.w Obj52_FlameThrower	; 4
+		offsetTableEntry.w Obj52_LavaBall		; 6
+		offsetTableEntry.w loc_30210			; 8
 ; ===========================================================================
 ; loc_2FC68:
 Obj52_Init:
@@ -60303,21 +60313,23 @@ loc_2FCEA:
 	rts
 ; ===========================================================================
 
-loc_2FD00:
+; loc_2FD00:
+Obj52_Mobile:
 	moveq	#0,d0
 	move.b	angle(a0),d0
 	move.w	off_2FD0E(pc,d0.w),d1
 	jmp	off_2FD0E(pc,d1.w)
 ; ===========================================================================
 off_2FD0E:	offsetTable
-		offsetTableEntry.w loc_2FD18	; 0
-		offsetTableEntry.w loc_2FD5E	; 2
-		offsetTableEntry.w loc_2FDDA	; 4
-		offsetTableEntry.w loc_2FE0E	; 6
-		offsetTableEntry.w loc_30106	; 8
+		offsetTableEntry.w Obj52_Mobile_Raise			; 0
+		offsetTableEntry.w Obj52_Mobile_Flamethrower	; 2
+		offsetTableEntry.w Obj52_Mobile_BeginLower		; 4
+		offsetTableEntry.w Obj52_Mobile_Lower			; 6
+		offsetTableEntry.w Obj52_Mobile_Defeated				; 8
 ; ===========================================================================
 
-loc_2FD18:
+; loc_2FD18:
+Obj52_Mobile_Raise:
 	move.b	#0,(Boss_CollisionRoutine).w
 	bsr.w	Boss_MoveObject
 	tst.b	objoff_2C(a0)
@@ -60343,13 +60355,14 @@ loc_2FD50:
 	bra.w	JmpTo36_DisplaySprite
 ; ===========================================================================
 
-loc_2FD5E:
+; loc_2FD5E:
+Obj52_Mobile_Flamethrower:
 	subi.b	#1,objoff_3E(a0)
-	bpl.s	loc_2FDC0
+	bpl.s	Obj52_Mobile_Hover
 	move.b	#1,(Boss_CollisionRoutine).w
 	move.b	#1,mainspr_childsprites(a0)
 	cmpi.b	#-$18,objoff_3E(a0)
-	bne.s	loc_2FDC0
+	bne.s	Obj52_Mobile_Hover
 	bsr.w	JmpTo13_SingleObjLoad
 	bne.s	loc_2FDAA
 	_move.b	#ObjID_HTZBoss,id(a1) ; load obj52
@@ -60368,7 +60381,8 @@ loc_2FDAA:
 	bra.w	JmpTo36_DisplaySprite
 ; ===========================================================================
 
-loc_2FDC0:
+; loc_2FDC0:
+Obj52_Mobile_Hover:
 	move.b	mapping_frame(a0),d0
 	jsr	(CalcSine).l
 	asr.w	#7,d1
@@ -60378,33 +60392,36 @@ loc_2FDC0:
 	bra.s	loc_2FDAA
 ; ===========================================================================
 
-loc_2FDDA:
+; loc_2FDDA:
+Obj52_Mobile_BeginLower:
 	move.b	#0,(Boss_CollisionRoutine).w
 	move.b	#0,mainspr_childsprites(a0)
 	move.b	#$10,(Boss_AnimationArray+2).w
 	move.b	#0,(Boss_AnimationArray+3).w
 	subi.b	#1,objoff_3E(a0)
-	bne.w	loc_2FDC0
+	bne.w	Obj52_Mobile_Hover
 	move.w	#$E0,(Boss_Y_vel).w
 	addq.b	#2,angle(a0)
 	bsr.w	loc_2FEDE
 	bra.w	JmpTo36_DisplaySprite
 ; ===========================================================================
 
-loc_2FE0E:
+; loc_2FE0E:
+Obj52_Mobile_Lower:
 	bsr.w	Boss_MoveObject
 	tst.b	objoff_2C(a0)
 	bne.s	loc_2FE22
 	cmpi.w	#$538,(Boss_Y_pos).w
 	blt.s	loc_2FE58
-	bra.s	loc_2FE2A
+	bra.s	Obj52_CreateLavaBall
 ; ===========================================================================
 
 loc_2FE22:
 	cmpi.w	#$548,(Boss_Y_pos).w
 	blt.s	loc_2FE58
 
-loc_2FE2A:
+; loc_2FE2A
+Obj52_CreateLavaBall:
 	tst.b	objoff_38(a0)
 	bne.s	loc_2FE58
 	st	objoff_38(a0)
@@ -60474,7 +60491,8 @@ loc_2FEDE:
 	rts
 ; ===========================================================================
 
-loc_2FEF0:
+; loc_2FEF0:
+Obj52_FlameThrower:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
 	move.w	off_2FEFE(pc,d0.w),d1
@@ -60515,7 +60533,8 @@ loc_2FF50:
 	bra.w	JmpTo37_MarkObjGone
 ; ===========================================================================
 
-loc_2FF66:
+; loc_2FF66:
+Obj52_LavaBall:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
 	move.w	off_2FF74(pc,d0.w),d1
@@ -60574,7 +60593,7 @@ return_30006:
 ; ===========================================================================
 
 loc_30008:
-	bsr.w	loc_30072
+	bsr.w	Obj52_LavaBall_Move
 	bsr.w	JmpTo4_ObjCheckFloorDist
 	tst.w	d1
 	bpl.s	loc_30064
@@ -60601,7 +60620,8 @@ loc_30064:
 	bra.w	JmpTo37_MarkObjGone
 ; ===========================================================================
 
-loc_30072:
+; loc_30072:
+Obj52_LavaBall_Move:
 	move.l	objoff_2A(a0),d2
 	move.l	y_pos(a0),d3
 	move.w	x_vel(a0),d0
@@ -60623,7 +60643,7 @@ loc_300A4:
 	cmpi.b	#8,angle(a0)
 	bhs.s	return_300EA
 	tst.b	objoff_32(a0)
-	beq.s	loc_300EC
+	beq.s	Obj52_Defeat
 	tst.b	collision_flags(a0)
 	bne.s	return_300EA
 	tst.b	objoff_14(a0)
@@ -60649,7 +60669,8 @@ return_300EA:
 	rts
 ; ===========================================================================
 
-loc_300EC:
+; loc_300EC:
+Obj52_Defeat:
 	moveq	#100,d0
 	bsr.w	JmpTo4_AddPoints
 	move.w	#$B3,(Boss_Countdown).w
@@ -60659,22 +60680,24 @@ loc_300EC:
 	rts
 ; ===========================================================================
 
-loc_30106:
+; loc_30106:
+Obj52_Mobile_Defeated:
 	move.b	#0,mainspr_childsprites(a0)
 	subi.w	#1,(Boss_Countdown).w
 	bmi.s	loc_30142
 	cmpi.w	#$1E,(Boss_Countdown).w
-	bgt.s	loc_3013A
+	bgt.s	Obj52_Mobile_UpdateExplosion
 	move.b	#$10,mainspr_mapframe(a0)
 	bsr.w	Boss_LoadExplosion
 	move.b	(Vint_runcount+3).w,d0
 	andi.b	#$1F,d0
 	bne.w	JmpTo36_DisplaySprite
-	bsr.w	loc_301B4
+	bsr.w	Obj52_CreateSmoke
 	bra.w	JmpTo36_DisplaySprite
 ; ===========================================================================
 
-loc_3013A:
+; loc_3013A:
+Obj52_Mobile_UpdateExplosion:
 	bsr.w	Boss_LoadExplosion
 	bra.w	JmpTo36_DisplaySprite
 ; ===========================================================================
@@ -60682,10 +60705,11 @@ loc_3013A:
 loc_30142:
 	move.b	(Vint_runcount+3).w,d0
 	andi.b	#$1F,d0
-	bne.w	loc_30152
-	bsr.w	loc_301B4
+	bne.w	Obj52_Mobile_Flee
+	bsr.w	Obj52_CreateSmoke
 
-loc_30152:
+; loc_30152:
+Obj52_Mobile_Flee:
 	cmpi.w	#-$3C,(Boss_Countdown).w
 	bgt.w	JmpTo36_DisplaySprite
 	tst.b	(Boss_defeated_flag).w
@@ -60725,7 +60749,8 @@ loc_301AA:
 	bra.w	JmpTo53_DeleteObject
 ; ===========================================================================
 
-loc_301B4:
+; loc_301B4:
+Obj52_CreateSmoke
 	bsr.w	JmpTo13_SingleObjLoad
 	bne.s	return_3020E
 	move.b	#ObjID_HTZBoss,id(a1) ; load obj52
@@ -69292,9 +69317,9 @@ Obj95:
 ; off_3710C:
 Obj95_Index:	offsetTable
 		offsetTableEntry.w Obj95_Init	; 0
-		offsetTableEntry.w loc_371DC	; 2
+		offsetTableEntry.w Obj95_WaitForPlayer	; 2
 		offsetTableEntry.w loc_37224	; 4
-		offsetTableEntry.w loc_3723C	; 6
+		offsetTableEntry.w Obj95_FireballUpdate	; 6
 		offsetTableEntry.w loc_372B8	; 8
 ; ===========================================================================
 ; loc_37116:
@@ -69313,7 +69338,8 @@ Obj95_Init:
 	addq.w	#1,a2
 	moveq	#3,d1
 
-loc_37152:
+; loc_37152:
+Obj95_NextFireball:
 	bsr.w	JmpTo25_SingleObjLoad2
 	bne.s	loc_371AE
 	addq.b	#1,(a3)
@@ -69334,7 +69360,7 @@ loc_37152:
 	move.b	d2,angle(a1)
 	addi.b	#$40,d2
 	move.l	a0,objoff_3C(a1)
-	dbf	d1,loc_37152
+	dbf	d1,Obj95_NextFireball
 
 loc_371AE:
 	moveq	#1,d0
@@ -69355,7 +69381,8 @@ return_371DA:
 	rts
 ; ===========================================================================
 
-loc_371DC:
+; loc_371DC:
+Obj95_WaitForPlayer:
 	move.w	(MainCharacter+x_pos).w,d0
 	sub.w	x_pos(a0),d0
 	bcc.s	loc_371E8
@@ -69392,16 +69419,17 @@ loc_37224:
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 
-loc_3723C:
+; loc_3723C:
+Obj95_FireballUpdate:
 	lea	(Ani_obj95_b).l,a1
 	bsr.w	JmpTo25_AnimateSprite
 	movea.l	objoff_3C(a0),a1 ; a1=object
-	_cmpi.b	#ObjID_Sol,id(a1)
+	_cmpi.b	#ObjID_Sol,id(a1) ; check if parent object is still alive
 	bne.w	JmpTo65_DeleteObject
 	cmpi.b	#2,mapping_frame(a1)
-	bne.s	loc_3728E
+	bne.s	Obj95_FireballOrbit
 	cmpi.b	#$40,angle(a0)
-	bne.s	loc_3728E
+	bne.s	Obj95_FireballOrbit
 	addq.b	#2,routine(a0)
 	move.b	#0,anim(a0)
 	subq.b	#1,objoff_37(a1)
@@ -69417,7 +69445,8 @@ loc_37278:
 	bra.w	JmpTo45_DisplaySprite
 ; ===========================================================================
 
-loc_3728E:
+; loc_3728E:
+Obj95_FireballOrbit:
 	move.b	angle(a0),d0
 	jsr	(CalcSine).l
 	asr.w	#4,d1
@@ -69474,9 +69503,9 @@ Obj94:
 ; off_37330:
 Obj94_Index:	offsetTable
 		offsetTableEntry.w Obj94_Init	; 0
-		offsetTableEntry.w loc_37350	; 2
-		offsetTableEntry.w loc_3739C	; 4
-		offsetTableEntry.w loc_373CA	; 6
+		offsetTableEntry.w Obj94_WaitForPlayer	; 2
+		offsetTableEntry.w Obj94_ReadyToCreateHead	; 4
+		offsetTableEntry.w Obj94_PostCreateHead	; 6
 ; ===========================================================================
 ; loc_37338:
 Obj94_Init:
@@ -69487,16 +69516,17 @@ Obj94_Init:
 	rts
 ; ===========================================================================
 
-loc_37350:
+; loc_37350:
+Obj94_WaitForPlayer:
 	bsr.w	Obj_GetOrientationToPlayer
 	addi.w	#$60,d2
 	cmpi.w	#$100,d2
 	bhs.s	loc_37362
-	bsr.w	loc_375AC
+	bsr.w	Obj94_CreateHead
 
 loc_37362:
 	move.w	x_pos(a0),-(sp)
-	bsr.w	loc_37380
+	bsr.w	Obj94_CheckTurnAround
 	move.w	#$1B,d1
 	move.w	#8,d2
 	move.w	#$11,d3
@@ -69505,7 +69535,8 @@ loc_37362:
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 
-loc_37380:
+; loc_37380:
+Obj94_CheckTurnAround:
 	subq.b	#1,objoff_2A(a0)
 	bpl.s	loc_37396
 	move.b	#$80,objoff_2A(a0)
@@ -69517,19 +69548,21 @@ loc_37396:
 	rts
 ; ===========================================================================
 
-loc_3739C:
+; loc_3739C:
+Obj94_ReadyToCreateHead:
 	bsr.w	Obj_GetOrientationToPlayer
 	addi.w	#$60,d2
 	cmpi.w	#$100,d2
 	bhs.s	loc_373AE
-	bsr.w	loc_375AC
+	bsr.w	Obj94_CreateHead
 
 loc_373AE:
-	bsr.w	loc_373B6
+	bsr.w	Obj94_SolidCollision
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 
-loc_373B6:
+; loc_373B6:
+Obj94_SolidCollision:
 	move.w	#$1B,d1
 	move.w	#8,d2
 	move.w	#8,d3
@@ -69537,8 +69570,9 @@ loc_373B6:
 	bra.w	JmpTo27_SolidObject
 ; ===========================================================================
 
-loc_373CA:
-	bsr.s	loc_373B6
+; loc_373CA:
+Obj94_PostCreateHead:
+	bsr.s	Obj94_SolidCollision
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -69554,10 +69588,10 @@ Obj97:
 ; off_373DE:
 Obj97_Index:	offsetTable
 		offsetTableEntry.w Obj97_Init	; 0
-		offsetTableEntry.w loc_37454	; 2
-		offsetTableEntry.w loc_37488	; 4
-		offsetTableEntry.w loc_374C2	; 6
-		offsetTableEntry.w loc_374F4	; 8
+		offsetTableEntry.w Obj97_InitialWait	; 2
+		offsetTableEntry.w Obj97_RaiseHead	; 4
+		offsetTableEntry.w Obj97_Normal	; 6
+		offsetTableEntry.w Obj97_DeathDrop	; 8
 ; ===========================================================================
 ; loc_373E8:
 Obj97_Init:
@@ -69597,14 +69631,16 @@ byte_3744E:
 	dc.b   0	; 5
 ; ===========================================================================
 
-loc_37454:
-	bsr.w	loc_3750C
+; loc_37454:
+Obj97_InitialWait:
+	bsr.w	Obj97_CheckHeadIsAlive
 	subq.b	#1,objoff_2A(a0)
-	bmi.s	loc_37462
+	bmi.s	Obj97_StartRaise
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 
-loc_37462:
+; loc_37462:
+Obj97_StartRaise:
 	addq.b	#2,routine(a0)
 	move.w	#-$120,x_vel(a0)
 	move.w	#-$200,y_vel(a0)
@@ -69616,17 +69652,19 @@ loc_37462:
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 
-loc_37488:
-	bsr.w	loc_3750C
+; loc_37488:
+Obj97_RaiseHead:
+	bsr.w	Obj97_CheckHeadIsAlive
 	moveq	#$10,d0
 	add.w	d0,x_vel(a0)
 	subq.b	#1,objoff_2A(a0)
-	bmi.s	loc_374A0
+	bmi.s	Obj97_StartNormalState
 	bsr.w	JmpTo26_ObjectMove
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 
-loc_374A0:
+; loc_374A0:
+Obj97_StartNormalState:
 	addq.b	#2,routine(a0)
 	bsr.w	Obj_MoveStop
 	move.b	#$20,objoff_2A(a0)
@@ -69642,13 +69680,14 @@ byte_374BE:
 	dc.b $1A	; 3
 ; ===========================================================================
 
-loc_374C2:
-	bsr.w	loc_3750C
+; loc_374C2:
+Obj97_Normal:
+	bsr.w	Obj97_CheckHeadIsAlive
 	cmpi.w	#8,objoff_2E(a0)
 	bne.s	loc_374D8
 	subq.b	#1,objoff_2A(a0)
 	bpl.s	loc_374D8
-	bsr.w	loc_37532
+	bsr.w	Obj97_FireProjectile
 
 loc_374D8:
 	move.b	objoff_39(a0),d0
@@ -69657,12 +69696,13 @@ loc_374D8:
 	andi.b	#3,d0
 	bne.s	+
 	bsr.w	loc_3758A
-	bsr.w	loc_37604
+	bsr.w	Obj97_Oscillate
 +
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 
-loc_374F4:
+; loc_374F4:
+Obj97_DeathDrop:
 	move.w	(Camera_Max_Y_pos_now).w,d0
 	addi.w	#$E0,d0
 	cmp.w	y_pos(a0),d0
@@ -69671,7 +69711,8 @@ loc_374F4:
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 
-loc_3750C:
+; loc_3750C:
+Obj97_CheckHeadIsAlive:
 	movea.w	objoff_32(a0),a1 ; a1=object
 	cmpi.b	#ObjID_RexonHead,(a1)
 	beq.s	+	; rts
@@ -69689,7 +69730,8 @@ word_37528:
 	dc.w   $80	; 4
 ; ===========================================================================
 
-loc_37532:
+; loc_37532:
+Obj97_FireProjectile:
 	move.b	#$7F,objoff_2A(a0)
 	bsr.w	JmpTo25_SingleObjLoad2
 	bne.s	++	; rts
@@ -69731,7 +69773,8 @@ loc_3758A:
 	rts
 ; ===========================================================================
 
-loc_375AC:
+; loc_375AC:
+Obj94_CreateHead:
 	move.b	#6,routine(a0)
 	bclr	#0,render_flags(a0)
 	tst.w	d0
@@ -69760,7 +69803,8 @@ loc_375CE:
 	rts
 ; ===========================================================================
 
-loc_37604:
+; loc_37604:
+Obj97_Oscillate:
 	move.w	objoff_30(a0),d0
 	beq.s	+	; rts
 	movea.w	d0,a1 ; a1=object
