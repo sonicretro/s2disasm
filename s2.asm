@@ -74124,7 +74124,7 @@ ObjB2_Main_WFZ_Start_shot_down:
 	addq.b	#2,routine_secondary(a0)
 	bra.w	loc_3B7BC
 ; ===========================================================================
- ; loc_3A94E:
+; loc_3A94E:
 ObjB2_Main_WFZ_Start_fall_down:
 	bsr.w	JmpTo26_ObjectMove
 	bra.s	-
@@ -74139,6 +74139,7 @@ ObjB2_Main_WFZ_End:
 	lea	(Ani_objB2_a).l,a1
 	bra.w	JmpTo25_AnimateSprite
 ; ===========================================================================
+; off_3A970:
 ObjB2_Main_WFZ_states:	offsetTable
 		offsetTableEntry.w ObjB2_Wait_Leader_position	;   0
 		offsetTableEntry.w ObjB2_Move_Leader_egde	;   2
@@ -74186,7 +74187,7 @@ ObjB2_Wait_Leader_position:
 	clr.w	y_pos(a1)
 	rts
 ; ===========================================================================
- ; loc_3AA0E:
+; loc_3AA0E:
 ObjB2_Move_Leader_egde:
 	lea	(MainCharacter).w,a1 ; a1=character
 	cmpi.w	#$2E30,x_pos(a1)
@@ -74536,7 +74537,7 @@ ObjB2_Move_below_player:
 	beq.s	loc_3ADD4
 	bsr.w	Obj_GetOrientationToPlayer
 	move.w	d2,objoff_38(a0)
-; loc_3ADD4:
+
 loc_3ADD4:
 	move.w	#1,d0
 	move.w	objoff_38(a0),d3
