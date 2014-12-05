@@ -73990,10 +73990,10 @@ ObjB2_Init:
 	bhs.s	+
 	move.b	#4,mapping_frame(a0)
 	move.b	#1,anim(a0)
-+
++ ; BranchTo5_JmpTo45_DisplaySprite 
 	bra.w	JmpTo45_DisplaySprite
 ; ===========================================================================
-
+; loc_3A7DE:
 ObjB2_Main_SCZ:
 	bsr.w	ObjB2_Animate_Pilot
 	tst.w	(Debug_placement_mode).w
@@ -74030,7 +74030,7 @@ ObjB2_Main_SCZ:
 	bhi.s	+
 	addq.w	#1,d1
 	move.w	d1,x_pos(a1)
-+
++ ; loc_3A85E:
 	cmpi.w	#$1400,d0
 	blo.s	loc_3A878
 	cmpi.w	#$1568,d1
@@ -74045,19 +74045,19 @@ loc_3A878:
 
 loc_3A87C:
 	move.w	d0,(Camera_Max_X_pos).w
-
+; loc_3A880:
 ObjB2_animate:
 	lea	(Ani_objB2_a).l,a1
 	bsr.w	JmpTo25_AnimateSprite
 	bra.w	JmpTo45_DisplaySprite
 ; ===========================================================================
-
+; loc_3A88E:
 ObjB2_SCZ_Finished:
 	bsr.w	ObjB2_Deactivate_level
 	move.w	#wing_fortress_zone_act_1,(Current_ZoneAndAct).w
 	bra.s	ObjB2_animate
 ; ===========================================================================
-
+; loc_3A89A:
 ObjB2_Main_WFZ_Start:
 	bsr.w	ObjB2_Animate_Pilot
 	moveq	#0,d0
@@ -74074,14 +74074,14 @@ off_3A8BA:	offsetTable
 		offsetTableEntry.w ObjB2_Main_WFZ_Start_shot_down	; 4
 		offsetTableEntry.w ObjB2_Main_WFZ_Start_fall_down	; 6
 ; ===========================================================================
-
+; loc_3A8C2:
 ObjB2_Main_WFZ_Start_init:
 	addq.b	#2,routine_secondary(a0)
 	move.w	#$C0,objoff_32(a0)
 	move.w	#$100,x_vel(a0)
 	rts
 ; ===========================================================================
-
+; loc_3A8D4:
 ObjB2_Main_WFZ_Start_main:
 	subq.w	#1,objoff_32(a0)
 	bmi.s	+
@@ -74095,7 +74095,7 @@ ObjB2_Main_WFZ_Start_main:
 	bsr.w	JmpTo27_SolidObject
 	bra.w	ObjB2_Horizontal_limit
 ; ===========================================================================
-+
++ ; loc_3A8FC:
 	addq.b	#2,routine_secondary(a0)
 	move.w	#$60,objoff_2A(a0)
 	move.w	#1,objoff_32(a0)
@@ -74103,33 +74103,33 @@ ObjB2_Main_WFZ_Start_main:
 	move.w	#$100,y_vel(a0)
 	rts
 ; ===========================================================================
-
+; loc_3A91A:
 ObjB2_Main_WFZ_Start_shot_down:
 	move.b	(Vint_runcount+3).w,d0
 	andi.b	#$1F,d0
 	bne.s	+
 	moveq	#SndID_Scatter,d0
 	bsr.w	JmpTo12_PlaySound
-+
++ ; loc_3A92A:
 	subq.w	#1,objoff_2A(a0)
 	bmi.s	+
--
+- ; loc_3A930:
 	bsr.w	ObjB2_Align_plane
 	subq.w	#1,objoff_32(a0)
 	bne.w	return_37A48
 	move.w	#$E,objoff_32(a0)
 	bra.w	ObjB2_Main_WFZ_Start_load_smoke
 ; ===========================================================================
-+
++ ; loc_3A946:
 	addq.b	#2,routine_secondary(a0)
 	bra.w	loc_3B7BC
 ; ===========================================================================
-
+ ; loc_3A94E:
 ObjB2_Main_WFZ_Start_fall_down:
 	bsr.w	JmpTo26_ObjectMove
 	bra.s	-
 ; ===========================================================================
-
+; loc_3A954:
 ObjB2_Main_WFZ_End:
 	bsr.w	ObjB2_Animate_Pilot
 	moveq	#0,d0
@@ -74150,7 +74150,7 @@ ObjB2_Main_WFZ_states:	offsetTable
 		offsetTableEntry.w ObjB2_Jump_to_ship	;  $E
 		offsetTableEntry.w ObjB2_Dock_on_DEZ	; $10
 ; ===========================================================================
-
+; loc_3A982:
 ObjB2_Wait_Leader_position:
 	lea	(MainCharacter).w,a1 ; a1=character
 	cmpi.w	#$5EC,y_pos(a1)
@@ -74159,10 +74159,10 @@ ObjB2_Wait_Leader_position:
 	addq.w	#1,objoff_2E(a0)
 	cmpi.w	#$40,objoff_2E(a0)
 	bhs.s	++
-+
++ ; return_3A99E:
 	rts
 ; ===========================================================================
-+
++ ; loc_3A9A0:
 	addq.b	#2,routine_secondary(a0)
 	move.w	#$2E58,x_pos(a0)
 	move.w	#$66C,y_pos(a0)
@@ -74186,7 +74186,7 @@ ObjB2_Wait_Leader_position:
 	clr.w	y_pos(a1)
 	rts
 ; ===========================================================================
-
+ ; loc_3AA0E:
 ObjB2_Move_Leader_egde:
 	lea	(MainCharacter).w,a1 ; a1=character
 	cmpi.w	#$2E30,x_pos(a1)
@@ -74194,7 +74194,7 @@ ObjB2_Move_Leader_egde:
 	move.w	#(button_right_mask<<8)|button_right_mask,(Ctrl_1_Logical).w
 	rts
 ; ===========================================================================
-+
++ ; loc_3AA22:
 	addq.b	#2,routine_secondary(a0)
 	clr.w	(Ctrl_1_Logical).w
 	clr.w	x_vel(a1)
@@ -74205,21 +74205,21 @@ ObjB2_Move_Leader_egde:
 	move.w	#$80,(Sonic_deceleration).w
 	bra.w	ObjB2_Waiting_animation
 ; ===========================================================================
-
+; loc_3AA4C:
 ObjB2_Wait_for_plane:
 	cmpi.w	#$380,(unk_EEE2).w
 	bhs.s	+
 	clr.w	(Ctrl_1_Logical).w
 	bra.w	ObjB2_Waiting_animation
 ; ===========================================================================
-+
++ ; loc_3AA5C:
 	addq.b	#2,routine_secondary(a0)
 	move.w	#$100,x_vel(a0)
 	move.w	#-$100,y_vel(a0)
 	clr.w	objoff_2A(a0)
 	bra.w	ObjB2_Waiting_animation
 ; ===========================================================================
-
+; loc_3AA74:
 ObjB2_Prepare_to_jump:
 	bsr.w	ObjB2_Waiting_animation
 	addq.w	#1,objoff_2A(a0)
@@ -74231,18 +74231,18 @@ ObjB2_Prepare_to_jump:
 	tst.b	(Super_Sonic_flag).w
 	beq.s	+
 	move.w	#$28,objoff_2E(a0)
-+
++ ; loc_3AAA0:
 	bsr.w	ObjB2_Align_plane
 	bra.w	JmpTo45_DisplaySprite
 ; ===========================================================================
-
+; loc_3AAA8:
 ObjB2_Jump_to_plane:
 	clr.w	(Ctrl_1_Logical).w
 	addq.w	#1,objoff_2A(a0)
 	subq.w	#1,objoff_2E(a0)
 	bmi.s	+
 	move.w	#((button_right_mask|button_A_mask)<<8)|button_right_mask|button_A_mask,(Ctrl_1_Logical).w
-+
++ ; loc_3AABC:
 	bsr.w	ObjB2_Align_plane
 	btst	#p1_standing_bit,status(a0)
 	beq.s	+
@@ -74256,10 +74256,10 @@ ObjB2_Jump_to_plane:
 	move.l	#$501F0025,(a1)+
 	lea	(Level_Layout+$CD6).w,a1
 	move.l	#$25001F50,(a1)+
-+
++ ; BranchTo6_JmpTo45_DisplaySprite:
 	bra.w	JmpTo45_DisplaySprite
 ; ===========================================================================
-
+; loc_3AAFE:
 ObjB2_Landed_on_plane:
 	addq.w	#1,objoff_2A(a0)
 	cmpi.w	#$100,objoff_2A(a0)
@@ -74283,18 +74283,18 @@ loc_3AB18:
 	cmpi.w	#2,(Player_mode).w
 	bne.s	+
 	move.b	#$F,y_radius(a1)
-+
++ ; loc_3AB60:
 	bsr.w	ObjB2_Align_plane
 	bra.w	JmpTo45_DisplaySprite
 ; ===========================================================================
-
+; loc_3AB68:
 ObjB2_Approaching_ship:
 	clr.w	(Ctrl_1_Logical).w
 	bsr.w	ObjB2_Waiting_animation
 	cmpi.w	#$437,objoff_2A(a0)
 	blo.s	loc_3AB8A
 	addq.b	#2,routine_secondary(a0)
-
+; loc_3AB7C:
 ObjB2_Jump_to_ship:
 	cmpi.w	#$447,objoff_2A(a0)
 	bhs.s	loc_3AB8A
@@ -74317,7 +74317,7 @@ loc_3AB8A:
 	bsr.w	LoadChildObject
 	move.w	#$3090,x_pos(a1)
 	move.w	#$410,y_pos(a1)
-
+; loc_3ABDE:
 ObjB2_Dock_on_DEZ:
 	cmpi.w	#$9C0,objoff_2A(a0)
 	bhs.s	ObjB2_Start_DEZ
@@ -74373,24 +74373,24 @@ byte_3AC2A:
 	dc.b   0	; 20
 	dc.b   0	; 21
 ; ===========================================================================
-
+; loc_3AC40:
 ObjB2_Start_DEZ:
 	move.w	#death_egg_zone_act_1,(Current_ZoneAndAct).w
-
+; loc_3AC46:
 ObjB2_Deactivate_level:
 	move.w	#1,(Level_Inactive_flag).w
 	clr.b	(Last_star_pole_hit).w
 	clr.b	(Last_star_pole_hit_2P).w
 	rts
 ; ===========================================================================
-
+; loc_3AC56:
 ObjB2_Waiting_animation:
 	lea	(MainCharacter).w,a1 ; a1=character
 	move.l	#$1000505,mapping_frame(a1)
 	move.w	#$100,anim_frame_duration(a1)
 	rts
 ; ===========================================================================
-
+; loc_3AC6A:
 ObjB2_Invisible_grabber:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
@@ -74456,7 +74456,7 @@ loc_3AD0C:
 off_3AD1A:	offsetTable
 		offsetTableEntry.w +	; 0
 ; ===========================================================================
-+
++ ; loc_3AD1C:
 	bchg	#2,status(a0)
 	bne.w	return_37A48
 	bra.w	JmpTo45_DisplaySprite
@@ -74471,7 +74471,7 @@ loc_3AD2A:
 off_3AD38:	offsetTable
 		offsetTableEntry.w +	; 0
 ; ===========================================================================
-+
++ ; loc_3AD3A:
 	bsr.w	JmpTo26_ObjectMove
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
@@ -74509,7 +74509,7 @@ loc_3AD6E:
 	move.w	d0,y_pos(a0)
 	rts
 ; ===========================================================================
-
+; loc_3AD8C:
 ObjB2_Align_plane:
 	move.w	x_pos(a0),-(sp)
 	bsr.w	JmpTo26_ObjectMove
@@ -74520,7 +74520,7 @@ ObjB2_Align_plane:
 	move.w	(sp)+,d4
 	bra.w	JmpTo27_SolidObject
 ; ===========================================================================
-
+; loc_3ADAA:
 ObjB2_Move_with_player:
 	lea	(MainCharacter).w,a1 ; a1=character
 	btst	#3,status(a1)
@@ -74530,13 +74530,13 @@ ObjB2_Move_with_player:
 	bsr.w	JmpTo26_ObjectMove
 	bra.w	loc_36776
 ; ===========================================================================
-
+; loc_3ADC6:
 ObjB2_Move_below_player:
 	tst.b	objoff_2E(a0)
 	beq.s	loc_3ADD4
 	bsr.w	Obj_GetOrientationToPlayer
 	move.w	d2,objoff_38(a0)
-
+; loc_3ADD4:
 loc_3ADD4:
 	move.w	#1,d0
 	move.w	objoff_38(a0),d3
@@ -74554,7 +74554,7 @@ loc_3ADE8:
 	move.w	d1,x_pos(a0)
 	bra.w	loc_36776
 ; ===========================================================================
-
+; loc_3ADF6:
 ObjB2_Move_vert:
 	tst.b	objoff_2F(a0)
 	bne.s	loc_3AE16
@@ -74585,7 +74585,7 @@ loc_3AE34:
 return_3AE38:
 	rts
 ; ===========================================================================
-
+; loc_3AE3A:
 ObjB2_Move_obbey_player:
 	lea	(MainCharacter).w,a1 ; a1=character
 	btst	#3,status(a1)
@@ -74627,7 +74627,7 @@ loc_3AE94:
 return_3AE9E:
 	rts
 ; ===========================================================================
-
+; loc_3AEA0:
 ObjB2_Move_vert2:
 	tst.b	objoff_30(a0)
 	bne.s	loc_3AEC0
@@ -74658,7 +74658,7 @@ loc_3AEDE:
 	bsr.w	JmpTo26_ObjectMove
 	rts
 ; ===========================================================================
-
+; loc_3AEEC:
 ObjB2_Horizontal_limit:
 	bsr.w	Obj_GetOrientationToPlayer
 	moveq	#$10,d3
@@ -74677,7 +74677,7 @@ loc_3AF00:
 return_3AF0A:
 	rts
 ; ===========================================================================
-
+; loc_3AF0C:
 ObjB2_Vertical_limit:
 	move.w	(Camera_Y_pos).w,d0
 	move.w	y_pos(a0),d1
@@ -74701,7 +74701,7 @@ loc_3AF2E:
 return_3AF32:
 	rts
 ; ===========================================================================
-
+; loc_3AF34:
 ObjB2_Main_WFZ_Start_load_smoke:
 	bsr.w	JmpTo25_SingleObjLoad2
 	bne.s	+
@@ -74710,16 +74710,16 @@ ObjB2_Main_WFZ_Start_load_smoke:
 	move.w	a0,objoff_2C(a1)
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
-+
++ ; return_3AF56:
 	rts
 ; ===========================================================================
-
+; loc_3AF58:
 ObjB2_Animate_Pilot:
 	subq.b	#1,objoff_37(a0)
 	bmi.s	+
 	rts
 ; ===========================================================================
-+
++ ; loc_3AF60:
 	move.b	#8,objoff_37(a0)
 	moveq	#0,d0
 	move.b	objoff_36(a0),d0
@@ -74727,22 +74727,23 @@ ObjB2_Animate_Pilot:
 	cmpi.w	#2,(Player_mode).w
 	bne.s	+
 	moveq	#Sonic_pilot_frames_end-Sonic_pilot_frames,d1
-+
++ ; loc_3AF78:
 	addq.b	#1,d0
 	cmp.w	d1,d0
 	blo.s	+
 	moveq	#0,d0
-+
++ ; loc_3AF80:
 	move.b	d0,objoff_36(a0)
 	cmpi.w	#2,(Player_mode).w
 	bne.s	+
 	move.b	Sonic_pilot_frames(pc,d0.w),d0
 	bra.w	JmpTo_LoadSonicDynPLC_Part2
 ; ===========================================================================
-+
++ ; loc_3AF94:
 	move.b	Tails_pilot_frames(pc,d0.w),d0
 	bra.w	JmpTo_LoadTailsDynPLC_Part2
 ; ===========================================================================
+; byte_3AF9C:
 Sonic_pilot_frames:
 	dc.b $2D
 	dc.b $2E	; 1
@@ -74750,6 +74751,7 @@ Sonic_pilot_frames:
 	dc.b $30	; 3
 Sonic_pilot_frames_end:
 
+; byte_3AFA0:
 Tails_pilot_frames:
 	dc.b $10
 	dc.b $10	; 1
@@ -74811,6 +74813,7 @@ byte_3AFE6:	dc.b   0,  4,  5,  6,  7,$FF
 ; off_3AFEC:
 Ani_objB2_b:	offsetTable
 		offsetTableEntry.w +	; 0
+; byte_3AFEE:
 +		dc.b   0,  1,  2,$FF
 		even
 ; -----------------------------------------------------------------------------
