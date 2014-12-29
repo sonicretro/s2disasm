@@ -44365,11 +44365,11 @@ Obj1E_Main:
 	jmp	Obj1E_Modes(pc,d0.w)
 ; ===========================================================================
 ; off_225F4:
-Obj1E_Modes:
-	dc.w loc_225FC - Obj1E_Modes; 0
-	dc.w loc_2271A - Obj1E_Modes; 2
-	dc.w loc_227FE - Obj1E_Modes; 4
-	dc.w loc_2286A - Obj1E_Modes; 6
+Obj1E_Modes:	offsetTable
+		offsetTableEntry.w loc_225FC	; 0
+		offsetTableEntry.w loc_2271A	; 2
+		offsetTableEntry.w loc_227FE	; 4
+		offsetTableEntry.w loc_2286A	; 6
 ; ===========================================================================
 
 loc_225FC:
