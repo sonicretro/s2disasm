@@ -69918,9 +69918,9 @@ Obj98:
 	jmp	Obj98_Index(pc,d1.w)
 ; ===========================================================================
 ; off_376F6: Obj98_States:
-Obj98_Index:
-	dc.w Obj98_Init - Obj98_Index
-	dc.w Obj98_Main - Obj98_Index; 1
+Obj98_Index:	offsetTable
+		offsetTableEntry.w Obj98_Init	; 0
+		offsetTableEntry.w Obj98_Main	; 2
 ; ===========================================================================
 ; loc_376FA:
 Obj98_Init: ;;
