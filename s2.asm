@@ -80372,7 +80372,7 @@ Touch_NoDuck:
 ; loc_3F5A0:
 Touch_Loop:
 	move.b	collision_flags(a1),d0
-	bne.w	Touch_Height
+	bne.w	Touch_Width
 ; loc_3F5A8:
 Touch_NextObj:
 	lea	next_object(a1),a1 ; load obj address ; goto next object
@@ -80381,8 +80381,8 @@ Touch_NextObj:
 	moveq	#0,d0
 	rts
 ; ===========================================================================
-; loc_3F5B4:
-Touch_Height:
+; loc_3F5B4: Touch_Height:
+Touch_Width:
 	andi.w	#$3F,d0
 	add.w	d0,d0
 	lea	Touch_Sizes(pc,d0.w),a2
@@ -80394,15 +80394,15 @@ Touch_Height:
 	bcc.s	loc_3F5D6
 	add.w	d1,d1
 	add.w	d1,d0
-	bcs.s	Touch_Width
+	bcs.s	Touch_Height
 	bra.w	Touch_NextObj
 ; ===========================================================================
 
 loc_3F5D6:
 	cmp.w	d4,d0
 	bhi.w	Touch_NextObj
-; loc_3F5DC:
-Touch_Width:
+; loc_3F5DC: Touch_Width:
+Touch_Height:
 	moveq	#0,d1
 	move.b	(a2)+,d1
 	move.w	y_pos(a1),d0
