@@ -32,6 +32,9 @@ zeroOffsetOptimization = 0|allOptimizations
 useFullWaterTables = 0
 ;	| If 1, zone offset tables for water levels cover all level slots instead of only slots 8-$F
 ;	| Set to 1 if you've shifted level IDs around or you want water in levels with a level slot below 8
+gameRevision = 1
+;	| If 0, a REV00 ROM is built
+;	| Otherwise, builds a REV01 ROM, which contains some fixes
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; AS-specific macros and assembler settings
@@ -76,7 +79,11 @@ Header:
 	dc.b "(C)SEGA 1992.SEP" ; Copyright/Date
 	dc.b "SONIC THE             HEDGEHOG 2                " ; Domestic name
 	dc.b "SONIC THE             HEDGEHOG 2                " ; International name
+    if gameRevision=0
+	dc.b "GM 00001051-00"   ; Version
+    else
 	dc.b "GM 00001051-01"   ; Version
+    endif
 ; word_18E
 Checksum:
 	dc.w $D951		; Checksum (patched later if incorrect)
@@ -275,9 +282,11 @@ GameProgram:
 	tst.w	(VDP_control_port).l
 ; loc_306:
 CheckSumCheck:
+    if gameRevision<>0
 	move.w	(VDP_control_port).l,d1
 	btst	#1,d1
-	bne.s	CheckSumCheck
+	bne.s	CheckSumCheck	; wait until DMA is completed
+    endif
 	btst	#6,(HW_Expansion_Control).l
 	beq.s	ChecksumTest
 	cmpi.l	#'init',(Checksum_fourcc).w ; has checksum routine already run?
@@ -13711,7 +13720,11 @@ byte_BA81:	creditText 0,"YOUICHI  TAKAHASHI"
 byte_BAA2:	creditText 1,"SUPPORTERS"
 byte_BAB8:	creditText 0,"DAIZABUROU  SAKURAI"
 byte_BADC:	creditText 0,"HISASHI  SUZUKI"
+    if gameRevision=0
+byte_BAF7:	creditText 0,"TOHMAS  KALINSKE"	; typo
+    else
 byte_BAF7:	creditText 0,"THOMAS  KALINSKE"
+    endif
 byte_BB16:	creditText 0,"FUJIO  MINEGISHI"
 byte_BB32:	creditText 0,"TAKAHARU UTSUNOMIYA"
 byte_BB58:	creditText 1,"SPECIAL  THANKS"
@@ -14082,14 +14095,14 @@ InitCameraValues:
 ; off_C296:
 InitCam_Index: zoneOrderedOffsetTable 2,1
 	zoneOffsetTableEntry.w InitCam_EHZ
-	zoneOffsetTableEntry.w InitCam_Std	; 1
-	zoneOffsetTableEntry.w InitCam_Std	; 2
-	zoneOffsetTableEntry.w InitCam_Std	; 3
+	zoneOffsetTableEntry.w InitCam_Null0	; 1
+	zoneOffsetTableEntry.w InitCam_WZ	; 2
+	zoneOffsetTableEntry.w InitCam_Null0	; 3
 	zoneOffsetTableEntry.w InitCam_Std	; 4 MTZ
 	zoneOffsetTableEntry.w InitCam_Std	; 5 MTZ3
 	zoneOffsetTableEntry.w InitCam_Null1	; 6
 	zoneOffsetTableEntry.w InitCam_HTZ	; 7
-	zoneOffsetTableEntry.w InitCam_Null2	; 8
+	zoneOffsetTableEntry.w InitCam_HPZ	; 8
 	zoneOffsetTableEntry.w InitCam_Null2	; 9
 	zoneOffsetTableEntry.w InitCam_OOZ	; 10
 	zoneOffsetTableEntry.w InitCam_MCZ	; 11
@@ -14115,6 +14128,23 @@ InitCam_EHZ:
 	clr.l	(Camera_BG2_Y_pos_P2).w
 	clr.l	(Camera_BG3_Y_pos_P2).w
 	rts
+; ===========================================================================
+; wtf:
+InitCam_Null0:
+    if gameRevision=0
+	rts
+    endif
+; ===========================================================================
+; Wood_Zone_BG:
+InitCam_WZ:
+    if gameRevision=0
+	asr.w	#2,d0
+	addi.w	#$400,d0
+	move.w	d0,(Camera_BG_Y_pos).w
+	asr.w	#3,d1
+	move.w	d1,(Camera_BG_X_pos).w
+	rts
+    endif
 ; ===========================================================================
 ;loc_C2E4:
 InitCam_Std:
@@ -14143,6 +14173,29 @@ InitCam_HTZ:
 	clr.l	(Camera_BG2_Y_pos_P2).w
 	clr.l	(Camera_BG3_Y_pos_P2).w
 	rts
+; ===========================================================================
+; Hidden_Palace_Zone_BG:
+InitCam_HPZ:
+    if gameRevision=0
+	asr.w	#1,d0
+	move.w	d0,(Camera_BG_Y_pos).w
+	clr.l	(Camera_BG_X_pos).w
+	rts    
+    endif
+; ===========================================================================	
+; Unknown_Zone_BG:
+InitCam_CCZ:
+    if gameRevision=0
+	asl.l	#4,d0
+	move.l	d0,d2
+	asl.l	#1,d0
+	add.l	d2,d0
+	asr.l	#8,d0
+	addq.w	#1,d0
+	move.w	d0,(Camera_BG_Y_pos).w
+	clr.l	(Camera_BG_X_pos).w
+	rts
+    endif
 ; ===========================================================================
 ;return_C320:
 InitCam_Null2:
@@ -18057,6 +18110,10 @@ sub_E59C:
 	rts
 ; End of function sub_E59C
 
+ ; ===========================================================================
+    if gameRevision=0
+	nop
+    endif
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -22685,11 +22742,22 @@ CollectRing_Sonic:
 	addq.w	#1,(Rings_Collected).w	; add 1 to the number of collected rings
 
 CollectRing_1P:
+
+    if gameRevision=0
+	cmpi.w	#999,(Ring_count).w	; does the player 1 have 999 or more rings?
+	bhs.s	+			; if yes, skip the increment
+	addq.w	#1,(Ring_count).w	; add 1 to the ring count
++
+	ori.b	#1,(Update_HUD_rings).w	; set flag to update the ring counter in the HUD
+	move.w	#SndID_Ring,d0		; prepare to play the ring sound
+    else
 	move.w	#SndID_Ring,d0		; prepare to play the ring sound
 	cmpi.w	#999,(Ring_count).w	; does the player 1 have 999 or more rings?
 	bhs.s	JmpTo_PlaySoundStereo	; if yes, play the ring sound
 	addq.w	#1,(Ring_count).w	; add 1 to the ring count
 	ori.b	#1,(Update_HUD_rings).w	; set flag to update the ring counter in the HUD
+    endif
+
 	cmpi.w	#100,(Ring_count).w	; does the player 1 have less than 100 rings?
 	blo.s	JmpTo_PlaySoundStereo	; if yes, play the ring sound
 	bset	#1,(Extra_life_flags).w	; test and set the flag for the first extra life
@@ -23448,6 +23516,19 @@ tails_1up:
 ; ---------------------------------------------------------------------------
 super_ring:
 	addq.w	#1,(a2)
+
+    if gameRevision=0
+	lea	(Ring_count).w,a2
+	lea	(Update_HUD_rings).w,a3
+	lea	(Extra_life_flags).w,a4
+	cmpa.w	#MainCharacter,a1
+	beq.s	+
+	lea	(Ring_count_2P).w,a2
+	lea	(Update_HUD_rings_2P).w,a3
+	lea	(Extra_life_flags_2P).w,a4
++	; give player 10 rings
+	addi.w	#10,(a2)
+    else
 	lea	(Ring_count).w,a2
 	lea	(Update_HUD_rings).w,a3
 	lea	(Extra_life_flags).w,a4
@@ -23469,6 +23550,8 @@ super_ring:
 	cmpi.w	#999,(a2)
 	blo.s	+
 	move.w	#999,(a2)
+    endif
+
 +
 	ori.b	#1,(a3)
 	cmpi.w	#100,(a2)
@@ -23602,8 +23685,10 @@ process_swap_table:
 
 	move.b	#1,(MainCharacter+next_anim).w
 	move.b	#1,(Sidekick+next_anim).w
+    if gameRevision<>0
 	move.b	#0,(MainCharacter+mapping_frame).w
 	move.b	#0,(Sidekick+mapping_frame).w
+    endif
 	move.b	#-1,(Sonic_LastLoadedDPLC).w
 	move.b	#-1,(Tails_LastLoadedDPLC).w
 	move.b	#-1,(TailsTails_LastLoadedDPLC).w
@@ -27708,8 +27793,20 @@ BuildSprites_LevelLoop:
 ; loc_16630:
 BuildSprites_ObjLoop:
 	movea.w	(a4,d6.w),a0 ; a0=object
-	tst.b	id(a0)		; is this object slot occupied?
+
+    if gameRevision=0
+	; the additional check prevents a crash triggered by placing an object in debug mode while dead
+	; unfortunately, the code it branches *to* causes a crash of its own
+	tst.b	id(a0)			; is this object slot occupied?
+	beq.w	BuildSprites_Unknown	; if not, branch
+	tst.l	mappings(a0)		; does this object have any mappings?
+	beq.w	BuildSprites_Unknown	; if not, branch
+    else
+	; REV01 uses a better branch, but removed the useful check
+	tst.b	id(a0)			; is this object slot occupied?
 	beq.w	BuildSprites_NextObj	; if not, check next one
+    endif
+
 	andi.b	#$7F,render_flags(a0)	; clear on-screen flag
 	move.b	render_flags(a0),d0
 	move.b	d0,d4
@@ -27796,6 +27893,12 @@ BuildSprites_NextLevel:
 	move.b	#0,-5(a2)	; set link field to 0
 	rts
 ; ===========================================================================
+    if gameRevision=0
+BuildSprites_Unknown:
+	; in the Simon Wait beta, this was a simple BranchTo, but later builds have this mystery line
+	move.w	(1).w,d0	; causes a crash on hardware because of the word operation at an odd address
+	bra.s	BuildSprites_NextObj
+    endif
 ; loc_1671C:
 BuildSprites_MultiDraw:
 	move.l	a4,-(sp)
@@ -28749,7 +28852,9 @@ byte_16F06:
 +	moveq	#1,d0
 	rts
 ; ===========================================================================
+    if gameRevision<>0
 	nop
+    endif
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -30510,13 +30615,24 @@ return_18028:
 ; CNZ act 1 object layout for 2-player mode (various objects were deleted)
 ;---------------------------------------------------------------------------------------
 ; byte_1802A;
+    if gameRevision=0
+Objects_CNZ1_2P:	BINCLUDE	"level/objects/CNZ_1_2P (REV00).bin"
+    else
+    ; a Crawl badnik was moved slightly further away from a ledge
+    ; 2 flippers were moved closer to a wall
 Objects_CNZ1_2P:	BINCLUDE	"level/objects/CNZ_1_2P.bin"
+    endif
 ;---------------------------------------------------------------------------------------
 ; CNZ act 2 object layout for 2-player mode (various objects were deleted)
 ;---------------------------------------------------------------------------------------
 ; byte_18492:
+    if gameRevision=0
+Objects_CNZ2_2P:	BINCLUDE	"level/objects/CNZ_2_2P (REV00).bin"
+    else
+    ; 4 Crawl badniks were slightly moved, placing them closer/farther away from ledges
+    ; 2 flippers were moved away from a wall to keep players from getting stuck behind them
 Objects_CNZ2_2P:	BINCLUDE	"level/objects/CNZ_2_2P.bin"
-
+    endif
 
 
 
@@ -37351,6 +37467,10 @@ Obj02_Finished:
 ; loc_1CCEC:
 Obj02_ResetLevel:
 	tst.b	(Time_Over_flag).w
+
+    if gameRevision=0
+	bne.s	Obj02_ResetLevel_Part3
+    else
 	beq.s	Obj02_ResetLevel_Part2
 	tst.b	(Time_Over_flag_2P).w
 	beq.s	Obj02_ResetLevel_Part3
@@ -37359,6 +37479,8 @@ Obj02_ResetLevel:
 	clr.b	(Update_HUD_timer_2P).w
 	move.b	#8,routine(a0)
 	rts
+    endif
+
 ; ---------------------------------------------------------------------------
 Obj02_ResetLevel_Part2:
 	tst.b	(Time_Over_flag_2P).w
@@ -42467,12 +42589,19 @@ Obj74_Main:
 	move.w	x_pos(a0),d4
 	bsr.w	SolidObject_Always
 	tst.w	(Two_player_mode).w
-	bne.s	+	; rts
+	bne.s	+
 	move.w	x_pos(a0),d0
 	andi.w	#$FF80,d0
 	sub.w	(Camera_X_pos_coarse).w,d0
 	cmpi.w	#$280,d0
 	bhi.w	JmpTo18_DeleteObject
+    if gameRevision=0
+    ; this object was visible with debug mode in REV00
++
+	tst.w	(Debug_placement_mode).w
+	beq.s	+	; rts
+	jmp	(DisplaySprite).l
+    endif
 +
 	rts
 ; ===========================================================================
@@ -49268,13 +49397,22 @@ loc_2702C:
 	sub.w	(Camera_X_pos_coarse).w,d0
 	cmpi.w	#$280,d0
 	bhi.w	JmpTo33_DeleteObject
+    if gameRevision=0
+       ; this object was visible with debug mode in REV00
+	tst.w	(Debug_placement_mode).w
+	beq.s	+	; rts
+	bsr.w	JmpTo46_DisplaySprite
++
+    endif
 	rts
 ; ===========================================================================
-
 loc_27042:
+    if gameRevision<>0
+	; REV00 didn't prevent the player from bouncing if they were hurt or dead
 	cmpi.b	#4,routine(a1)
 	blo.s	loc_2704C
 	rts
+    endif
 ; ===========================================================================
 
 loc_2704C:
@@ -49335,6 +49473,12 @@ loc_270DC:
 ; sprite mappings
 ; ----------------------------------------------------------------------------
 Obj66_MapUnc_27120:	BINCLUDE "mappings/sprite/obj66.bin"
+; ===========================================================================
+
+    if gameRevision=0
+JmpTo46_DisplaySprite 
+	jmp	(DisplaySprite).l
+    endif
 ; ===========================================================================
 
 JmpTo33_DeleteObject 
@@ -54139,8 +54283,10 @@ return_2AD78:
 ; ===========================================================================
 
 loc_2AD7A:
+    if gameRevision<>0
 	cmpi.b	#4,routine(a1)
 	bhs.s	return_2AD78
+    endif
 	subq.b	#1,d0
 	bne.w	loc_2AE0C
 	tst.b	render_flags(a1)
@@ -54304,8 +54450,10 @@ return_2AF78:
 ; ===========================================================================
 
 loc_2AF7A:
+    if gameRevision<>0
 	cmpi.b	#4,routine(a1)
 	bhs.s	return_2AF78
+    endif
 	subq.b	#1,d0
 	bne.w	loc_2B018
 	tst.b	render_flags(a1)
@@ -84972,6 +85120,13 @@ PlrList_ResultsTails: plrlistheader
 	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
 PlrList_ResultsTails_End
 
+    if gameRevision=0
+	; Unknown
+	plreq ArtTile_ArtNem_MiniCharacter, ArtNem_MiniTails
+	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
+	dc.l	0
+    endif
+
 
 
 
@@ -86761,11 +86916,25 @@ Off_Objects: zoneOrderedOffsetTable 2,2
 		BINCLUDE	"level/objects/Null_1.bin"
 
 Objects_EHZ_1:	BINCLUDE	"level/objects/EHZ_1.bin"
+
+    if gameRevision=0
+Objects_EHZ_2:	BINCLUDE	"level/objects/EHZ_2 (REV00).bin"
+    else
+; a collision switcher was moved
 Objects_EHZ_2:	BINCLUDE	"level/objects/EHZ_2.bin"
+    endif
+
 Objects_MTZ_1:	BINCLUDE	"level/objects/MTZ_1.bin"
 Objects_MTZ_2:	BINCLUDE	"level/objects/MTZ_2.bin"
 Objects_MTZ_3:	BINCLUDE	"level/objects/MTZ_3.bin"
+
+    if gameRevision=0
+Objects_WFZ_1:	BINCLUDE	"level/objects/WFZ_1 (REV00).bin"
+    else
+; lampposts' 'remember state' flags were set
 Objects_WFZ_1:	BINCLUDE	"level/objects/WFZ_1.bin"
+    endif
+
 Objects_WFZ_2:	BINCLUDE	"level/objects/WFZ_2.bin"
 Objects_HTZ_1:	BINCLUDE	"level/objects/HTZ_1.bin"
 Objects_HTZ_2:	BINCLUDE	"level/objects/HTZ_2.bin"
@@ -86779,8 +86948,16 @@ Objects_OOZ_1:	BINCLUDE	"level/objects/OOZ_1.bin"
 Objects_OOZ_2:	BINCLUDE	"level/objects/OOZ_2.bin"
 Objects_MCZ_1:	BINCLUDE	"level/objects/MCZ_1.bin"
 Objects_MCZ_2:	BINCLUDE	"level/objects/MCZ_2.bin"
+
+    if gameRevision=0
+Objects_CNZ_1:	BINCLUDE	"level/objects/CNZ_1 (REV00).bin"
+Objects_CNZ_2:	BINCLUDE	"level/objects/CNZ_2 (REV00).bin"
+    else
+; the signposts were moved up slightly so they weren't poking out the bottom of the ground
 Objects_CNZ_1:	BINCLUDE	"level/objects/CNZ_1.bin"
 Objects_CNZ_2:	BINCLUDE	"level/objects/CNZ_2.bin"
+    endif
+
 Objects_CPZ_1:	BINCLUDE	"level/objects/CPZ_1.bin"
 Objects_CPZ_2:	BINCLUDE	"level/objects/CPZ_2.bin"
 Objects_DEZ_1:	BINCLUDE	"level/objects/DEZ_1.bin"

@@ -30,8 +30,8 @@ set USEANSI=n
 REM // allow the user to choose to print error messages out by supplying the -pe parameter
 IF "%1"=="-pe" ( "win32/asw" -xx -c -A -L s2.asm ) ELSE "win32/asw" -xx -c -E -A -L s2.asm
 
-REM // if there were errors, a log file is produced
-IF EXIST s2.log goto LABLERROR4
+REM // if there were errors, there won't be any s2.p output
+IF NOT EXIST s2.p goto LABLERROR5
 
 REM // combine the assembler output into a rom
 IF EXIST s2.p "win32/s2p2bin" s2.p s2built.bin s2.h
@@ -42,11 +42,12 @@ IF EXIST s2built.bin "win32/fixpointer" s2.h s2built.bin   off_3A294 MapRUnc_Son
 REM REM // fix the rom header (checksum)
 IF EXIST s2built.bin "win32/fixheader" s2built.bin
 
+REM // if there were errors/warnings, a log file is produced
+IF EXIST s2.log goto LABLERROR4
+
 
 REM // done -- pause if we seem to have failed, then exit
-IF NOT EXIST s2.p goto LABLPAUSE
 IF EXIST s2built.bin exit /b
-:LABLPAUSE
 
 pause
 
@@ -78,7 +79,20 @@ REM // display a noticeable message
 echo.
 echo **********************************************************************
 echo *                                                                    *
-echo *   There were build errors/warnings. See s2.log for more details.   *
+echo *      There were build warnings. See s2.log for more details.       *
+echo *                                                                    *
+echo **********************************************************************
+echo.
+pause
+
+exit /b
+
+:LABLERROR5
+REM // display a noticeable message
+echo.
+echo **********************************************************************
+echo *                                                                    *
+echo *       There were build errors. See s2.log for more details.        *
 echo *                                                                    *
 echo **********************************************************************
 echo.
