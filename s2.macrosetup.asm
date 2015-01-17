@@ -17,11 +17,7 @@ notZ80 function cpu,(cpu<>128)&&(cpu<>32988)
 org macro address
 	if notZ80(MOMCPU)
 		if address < *
-			if assembleZ80SoundDriver
-				error "too much stuff before org $\{address} ($\{(*-address)} bytes)"
-			else
-				error "too much stuff before org $\{address} ($\{(*-address)} bytes) ... try setting assembleZ80SoundDriver=1 in the asm file"
-			endif
+			error "too much stuff before org $\{address} ($\{(*-address)} bytes)"
 		elseif address > *
 paddingSoFar	set paddingSoFar + address - *
 			!org address
