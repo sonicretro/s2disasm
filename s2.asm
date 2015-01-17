@@ -18,7 +18,7 @@
 ; ASSEMBLY OPTIONS:
 ;
 padToPowerOfTwo = 1
-;	| If 1, pads the end of the rom to the next power of two bytes (for real hardware)
+;	| If 1, pads the end of the ROM to the next power of two bytes (for real hardware)
 ;
 allOptimizations = 0
 ;	| If 1, enables all optimizations
@@ -17800,7 +17800,7 @@ CalcBlockVRAMPosB:
 	move.w	d4,d0
 	rts
 ; ===========================================================================
-; interestingly, this subroutine was in the sonic 1 rom, unused
+; interestingly, this subroutine was in the Sonic 1 ROM, unused
 +
 	add.w	4(a3),d4
 	add.w	(a3),d5
@@ -85544,7 +85544,7 @@ ArtNem_Signpost:	BINCLUDE	"art/nemesis/Signpost.bin"
 ;---------------------------------------------------------------------------------------
 ; Uncompressed art
 ; Signpost		; ArtUnc_7A18A:
-; Yep, it's in the rom twice, once compressed and once uncompressed
+; Yep, it's in the ROM twice: once compressed and once uncompressed
 	even
 ArtUnc_Signpost:	BINCLUDE	"art/uncompressed/Signpost.bin"
 ;---------------------------------------------------------------------------------------
@@ -89299,7 +89299,7 @@ paddingSoFar	:= paddingSoFar+1
 	endif
 	if MOMPASS=2
 		; "About" because it will be off by the same amount that Size_of_Snd_driver_guess is incorrect (if you changed it), and because I may have missed a small amount of internal padding somewhere
-		message "rom size is $\{*} bytes (\{*/1024.0} kb). About $\{paddingSoFar} bytes are padding. "
+		message "ROM size is $\{*} bytes (\{*/1024.0} kb). About $\{paddingSoFar} bytes are padding. "
 	endif
 	; share these symbols externally (WARNING: don't rename, move or remove these labels!)
 	shared word_728C_user,Obj5F_MapUnc_7240,off_3A294,MapRUnc_Sonic,movewZ80CompSize

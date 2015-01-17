@@ -8,7 +8,7 @@
 ;
 ; Set your editor's tab width to 8 characters wide for viewing this file.
 ;
-; This code is compressed in the rom, but you can edit it here as uncompressed
+; This code is compressed in the ROM, but you can edit it here as uncompressed
 ; and it will automatically be assembled and compressed into the correct place
 ; during the build process.
 ;
