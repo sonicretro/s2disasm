@@ -47939,10 +47939,10 @@ loc_25B28:
 	move.w	off_25B36(pc,d0.w),d1
 	jmp	off_25B36(pc,d1.w)
 ; ===========================================================================
-off_25B36:
-	dc.w loc_25B3C - off_25B36
-	dc.w loc_25B66 - off_25B36; 1
-	dc.w return_25B64 - off_25B36; 2
+off_25B36:	offsetTable
+		offsetTableEntry.w loc_25B3C	; 0
+		offsetTableEntry.w loc_25B66	; 2
+		offsetTableEntry.w return_25B64	; 4
 ; ===========================================================================
 
 loc_25B3C:
