@@ -55549,7 +55549,8 @@ Ani_objD6:	offsetTable
 		offsetTableEntry.w byte_2BEB4	; 0
 		offsetTableEntry.w byte_2BEB7	; 1
 byte_2BEB4:	dc.b  $F,  0,$FF
-byte_2BEB7:	dc.b   1,  1,  0,$FF,  0
+byte_2BEB7:	dc.b   1,  1,  0,$FF
+	even
 ; ------------------------------------------------------------------------------
 ; sprite mappings
 ; ------------------------------------------------------------------------------
@@ -69409,7 +69410,7 @@ loc_37028:
 	tst.b	render_flags(a0)
 	bpl.w	JmpTo65_DeleteObject
 	bchg	#0,render_flags(a0)
-	bsr.w   JmpTo26_ObjectMove
+	bsr.w	JmpTo26_ObjectMove
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 
