@@ -1058,13 +1058,13 @@ Horiz_block_crossed_flag_P2:	ds.b	1	; toggles between 0 and $10 when you cross a
 Verti_block_crossed_flag_P2:	ds.b	1	; toggles between 0 and $10 when you cross a block boundary vertically
 				ds.b	6	; $FFFFEE4A-$FFFFEE4F ; seems unused
 Scroll_flags:			ds.w	1	; bitfield ; bit 0 = redraw top row, bit 1 = redraw bottom row, bit 2 = redraw left-most column, bit 3 = redraw right-most column
-Scroll_flags_BG:		ds.w	1	; bitfield ; bit 0-3 as above, bit 4-7 unknown (used by some deformation routines)
-Scroll_flags_BG2:		ds.w	1	; used in CPZ; bit 0-1 unknown
-Scroll_flags_BG3:		ds.w	1	; used in CPZ; bit 0-1 unknown
+Scroll_flags_BG:		ds.w	1	; bitfield ; bits 0-3 as above, bit 4 = redraw top row (except leftmost block), bit 5 = redraw bottom row (except leftmost block), bits 6-7 = as bits 0-1
+Scroll_flags_BG2:		ds.w	1	; bitfield ; essentially unused; bit 0 = redraw left-most column, bit 1 = redraw right-most column
+Scroll_flags_BG3:		ds.w	1	; bitfield ; for CPZ; bits 0-3 as Scroll_flags_BG but using Y-dependent BG camera; bits 4-5 = bits 2-3; bits 6-7 = bits 2-3
 Scroll_flags_P2:		ds.w	1	; bitfield ; bit 0 = redraw top row, bit 1 = redraw bottom row, bit 2 = redraw left-most column, bit 3 = redraw right-most column
-Scroll_flags_BG_P2:		ds.w	1	; bitfield ; bit 0-3 as above, bit 4-7 unknown (used by some deformation routines)
-Scroll_flags_BG2_P2:	ds.w	1	; used in CPZ; bit 0-1 unknown
-Scroll_flags_BG3_P2:	ds.w	1	; used in CPZ; bit 0-1 unknown
+Scroll_flags_BG_P2:		ds.w	1	; bitfield ; bits 0-3 as above, bit 4 = redraw top row (except leftmost block), bit 5 = redraw bottom row (except leftmost block), bits 6-7 = as bits 0-1
+Scroll_flags_BG2_P2:	ds.w	1	; bitfield ; essentially unused; bit 0 = redraw left-most column, bit 1 = redraw right-most column
+Scroll_flags_BG3_P2:	ds.w	1	; bitfield ; for CPZ; bits 0-3 as Scroll_flags_BG but using Y-dependent BG camera; bits 4-5 = bits 2-3; bits 6-7 = bits 2-3
 Camera_RAM_copy:		ds.l	2	; copied over every V-int
 Camera_BG_copy:			ds.l	2	; copied over every V-int
 Camera_BG2_copy:		ds.l	2	; copied over every V-int
@@ -1107,10 +1107,10 @@ Deform_lock:			ds.b	1	; set to 1 to stop all deformation
 Camera_Max_Y_Pos_Changing:	ds.b	1
 Dynamic_Resize_Routine:		ds.b	1
 				ds.b	2	; $FFFFEEE0-$FFFFEEE1
-unk_EEE2:			ds.w	1	; Used to control background scrolling in X in WFZ ending and HTZ screen shake
-unk_EEE4:			ds.w	1	; Used to control background scrolling in Y in WFZ ending and HTZ screen shake
-unk_EEE6:			ds.w	1	; Used as some sort of timer in HTZ2 screen shake
-unk_EEE8:			ds.b	1	; Flag of some sort to control vertical direction for screen shake in HTZ2
+Camera_BG_X_offset:		ds.w	1	; Used to control background scrolling in X in WFZ ending and HTZ screen shake
+Camera_BG_Y_offset:		ds.w	1	; Used to control background scrolling in Y in WFZ ending and HTZ screen shake
+HTZ_Terrain_Delay:			ds.w	1	; During HTZ screen shake, this is a delay between rising and sinking terrain during which there is no shaking
+HTZ_Terrain_Direction:		ds.b	1	; During HTZ screen shake, 0 if terrain/lava is rising, 1 if lowering
 				ds.b	3	; $FFFFEEE9-$FFFFEEEB ; seems unused
 Vscroll_Factor_P2_HInt:	ds.l	1
 Camera_X_pos_copy:		ds.l	1
@@ -1207,7 +1207,7 @@ Ending_PalCycle_flag:	ds.b	1
 
 SegaScr_VInt_Subrout:
 Ending_VInt_Subrout:
-WFZ_Event_Counter:		ds.w	1
+WFZ_BG_Y_Speed:		ds.w	1
 				ds.w	1	; $FFFFF664-$FFFFF665 ; seems unused
 PalCycle_Timer2:		ds.w	1
 PalCycle_Timer3:		ds.w	1

@@ -15860,7 +15860,7 @@ SwScrl_CPZ:
 	bne.s	+
 	subq.w	#1,(TempArray_LayerDef).w
 +
-	lea	(byte_DDD0+1).l,a0
+	lea	(CPZ_CameraSections+1).l,a0
 	move.w	(Camera_BG_Y_pos).w,d0
 	move.w	d0,d2
 	andi.w	#$3F0,d0
@@ -16752,12 +16752,12 @@ LoadTilesAsYouMove:
 	lea	(Level_Layout+$80).w,a4	; first background line
 	move.w	#$6000,d2			; This selects a VRAM write and moves to PNT B
 	bsr.w	Draw_BG1
-	lea	(Scroll_flags_BG2_copy).w,a2
-	lea	(Camera_BG2_copy).w,a3	; used in CPZ deformation routine
-	bsr.w	Draw_BG2
-	lea	(Scroll_flags_BG3_copy).w,a2	; referred to in CPZ deformation routine
+	lea	(Scroll_flags_BG2_copy).w,a2	; referred to in CPZ deformation routine, but cleared right after
+	lea	(Camera_BG2_copy).w,a3
+	bsr.w	Draw_BG2	; Essentially unused, though
+	lea	(Scroll_flags_BG3_copy).w,a2
 	lea	(Camera_BG3_copy).w,a3
-	bsr.w	Draw_BG3	; apparently unused, though
+	bsr.w	Draw_BG3	; used in CPZ deformation routine
 	tst.w	(Two_player_mode).w
 	beq.s	+
 	lea	(Scroll_flags_copy_P2).w,a2
@@ -17001,7 +17001,12 @@ Draw_BG2:
 ; End of function Draw_BG2
 
 ; ===========================================================================
-byte_DCD6:	; unused array
+; Scrap Brain Zone 1 block positioning array -- S1 left-over
+; Each entry is an index into BGCameraLookup; used to decide the camera to use
+; for given block for reloading BG. A entry of 0 means assume X = 0 for section,
+; but otherwise loads camera Y for selected camera.
+;byte_DCD6
+SBZ_CameraSections:
 	dc.b   0
 	dc.b   0	; 1
 	dc.b   0	; 2
@@ -17035,8 +17040,10 @@ byte_DCD6:	; unused array
 	dc.b   2	; 30
 	dc.b   2	; 31
 	dc.b   2	; 32
-	dc.b   0	; 33
+	even
 ; ===========================================================================
+; Scrap Brain Zone 1 drawing code -- S1 left-over
+; Compare with CPZ drawing code
 ; begin unused routine
 	moveq	#-$10,d4
 	bclr	#0,(a2)
@@ -17045,14 +17052,14 @@ byte_DCD6:	; unused array
 	beq.s	+++
 	move.w	#$E0,d4
 +
-	lea	byte_DCD6+1(pc),a0
+	lea	SBZ_CameraSections+1(pc),a0
 	move.w	(Camera_BG_Y_pos).w,d0
 	add.w	d4,d0
 	andi.w	#$1F0,d0
 	lsr.w	#4,d0
 	move.b	(a0,d0.w),d0
-	lea	(word_DE7E).l,a3
-	movea.w	(a3,d0.w),a3
+	lea	(BGCameraLookup).l,a3
+	movea.w	(a3,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
 	beq.s	+
 	moveq	#-$10,d5
 	movem.l	d4-d5,-(sp)
@@ -17083,7 +17090,7 @@ byte_DCD6:	; unused array
 	move.b	d0,(a2)
 	move.w	#320,d5
 +
-	lea	byte_DCD6(pc),a0
+	lea	SBZ_CameraSections(pc),a0
 	move.w	(Camera_BG_Y_pos).w,d0
 	andi.w	#$1F0,d0
 	lsr.w	#4,d0
@@ -17099,6 +17106,7 @@ Draw_BG3:
 	beq.w	++	; rts
 	cmpi.b	#chemical_plant_zone,(Current_Zone).w
 	beq.w	Draw_BG3_CPZ
+	; S1 left-over: GHZ used this
 	bclr	#0,(a2)
 	beq.s	+
 	move.w	#$40,d4
@@ -17121,7 +17129,12 @@ Draw_BG3:
 +
 	rts
 ; ===========================================================================
-byte_DDD0:
+; Chemical Plant Zone 1 block positioning array
+; Each entry is an index into BGCameraLookup; used to decide the camera to use
+; for given block for reloading BG. A entry of 0 means assume X = 0 for section,
+; but otherwise loads camera Y for selected camera.
+;byte_DDD0
+CPZ_CameraSections:
 	dc.b   2
 	dc.b   2	; 1
 	dc.b   2	; 2
@@ -17187,7 +17200,7 @@ byte_DDD0:
 	dc.b   4	; 62
 	dc.b   4	; 63
 	dc.b   4	; 64
-	dc.b   0	; 65
+	even
 ; ===========================================================================
 ; loc_DE12:
 Draw_BG3_CPZ:
@@ -17198,13 +17211,13 @@ Draw_BG3_CPZ:
 	beq.s	++
 	move.w	#$E0,d4		; bit1 = bottom row
 +
-	lea	byte_DDD0+1(pc),a0
+	lea	CPZ_CameraSections+1(pc),a0
 	move.w	(Camera_BG_Y_pos).w,d0
 	add.w	d4,d0
 	andi.w	#$3F0,d0
 	lsr.w	#4,d0
 	move.b	(a0,d0.w),d0
-	movea.w	word_DE7E(pc,d0.w),a3	; Camera, either BG1 or BG2 depending on Y
+	movea.w	BGCameraLookup(pc,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
 	moveq	#-$10,d5
 	movem.l	d4-d5,-(sp)
 	bsr.w	CalcBlockVRAMPos
@@ -17225,18 +17238,19 @@ Draw_BG3_CPZ:
 	move.b	d0,(a2)
 	move.w	#320,d5
 +
-	lea	byte_DDD0(pc),a0
+	lea	CPZ_CameraSections(pc),a0
 	move.w	(Camera_BG_Y_pos).w,d0
 	andi.w	#$7F0,d0
 	lsr.w	#4,d0
 	lea	(a0,d0.w),a0
 	bra.w	loc_DE86
 ; ===========================================================================
-word_DE7E:
-	dc.w Camera_BG_copy	; BG Camera
-	dc.w Camera_BG_copy	; BG Camera
+;word_DE7E
+BGCameraLookup:
+	dc.w Camera_BG_copy		; BG Camera
+	dc.w Camera_BG_copy		; BG Camera
 	dc.w Camera_BG2_copy	; BG2 Camera
-	dc.w Camera_BG3_copy	; BG3 Camera (only referenced in unused array)
+	dc.w Camera_BG3_copy	; BG3 Camera
 ; ===========================================================================
 
 loc_DE86:
@@ -17249,10 +17263,10 @@ loc_DE86:
 	move.b	(a0)+,d0
 	btst	d0,(a2)
 	beq.s	+
-	movea.w	word_DE7E(pc,d0.w),a3
+	movea.w	BGCameraLookup(pc,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
 	movem.l	d4-d5/a0,-(sp)
 	movem.l	d4-d5,-(sp)
-	bsr.w	sub_E244
+	bsr.w	GetBlockPtr
 	movem.l	(sp)+,d4-d5
 	bsr.w	CalcBlockVRAMPos
 	bsr.w	ProcessAndWriteBlock2
@@ -17272,10 +17286,10 @@ loc_DE86:
 	move.b	(a0)+,d0
 	btst	d0,(a2)
 	beq.s	+
-	movea.w	word_DE7E(pc,d0.w),a3
+	movea.w	BGCameraLookup(pc,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
 	movem.l	d4-d5/a0,-(sp)
 	movem.l	d4-d5,-(sp)
-	bsr.w	sub_E244
+	bsr.w	GetBlockPtr
 	movem.l	(sp)+,d4-d5
 	bsr.w	CalcBlockVRAMPos
 	bsr.w	ProcessAndWriteBlock2_2P
@@ -17714,34 +17728,34 @@ loc_E234:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-
-sub_E244:
+;sub_E244
+GetBlockPtr:
 	add.w	(a3),d5
 	add.w	4(a3),d4
 	lea	(Block_Table).w,a1
-	move.w	d4,d3
+	move.w	d4,d3		; d3 = camera Y pos + offset
 	add.w	d3,d3
-	andi.w	#$F00,d3
-	lsr.w	#3,d5
+	andi.w	#$F00,d3	; limit to units of $100 ($100 = $80 * 2, $80 = height of a 128x128)
+	lsr.w	#3,d5		; divide by 8
 	move.w	d5,d0
-	lsr.w	#4,d0
+	lsr.w	#4,d0		; divide by 16 (overall division of 128)
 	andi.w	#$7F,d0
-	add.w	d3,d0
+	add.w	d3,d0		; get offset of current 128x128 in the level layout table
 	moveq	#-1,d3
-	clr.w	d3
-	move.b	(a4,d0.w),d3
-	lsl.w	#7,d3
-	andi.w	#$70,d4
-	andi.w	#$E,d5
-	add.w	d4,d3
-	add.w	d5,d3
-	movea.l	d3,a0
+	clr.w	d3		; d3 = $FFFF0000
+	move.b	(a4,d0.w),d3	; get tile ID of the current 128x128 tile
+	lsl.w	#7,d3		; multiply by 128, the size in bytes of a 128x128 in RAM
+	andi.w	#$70,d4		; round down to nearest 16-pixel boundary
+	andi.w	#$E,d5		; force this to be a multiple of 16
+	add.w	d4,d3		; add vertical offset of current 16x16
+	add.w	d5,d3		; add horizontal offset of current 16x16
+	movea.l	d3,a0		; store address, in the metablock table, of the current 16x16
 	move.w	(a0),d3
 	andi.w	#$3FF,d3
 	lsl.w	#3,d3
 	adda.w	d3,a1
 	rts
-; End of function sub_E244
+; End of function GetBlockPtr
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -18431,8 +18445,8 @@ LevEvents_WFZ_Routine1:
 	moveq	#0,d0
 	move.w	d0,(Camera_BG_X_pos_diff).w
 	move.w	d0,(Camera_BG_Y_pos_diff).w
-	move.w	d0,(unk_EEE2).w
-	move.w	d0,(unk_EEE4).w
+	move.w	d0,(Camera_BG_X_offset).w
+	move.w	d0,(Camera_BG_Y_offset).w
 	addq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_WFZ_Routine2
 	rts
 ; ===========================================================================
@@ -18443,62 +18457,62 @@ LevEvents_WFZ_Routine2:
 	cmpi.w	#$580,(Camera_Y_pos).w
 	blo.s	+
 	addq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_WFZ_Routine3
-	move.w	#0,(WFZ_Event_Counter).w
+	move.w	#0,(WFZ_BG_Y_Speed).w
 +
 	move.w	(Camera_X_pos_diff).w,(Camera_BG_X_pos_diff).w
 	move.w	(Camera_Y_pos_diff).w,(Camera_BG_Y_pos_diff).w
 	move.w	(Camera_X_pos).w,d0
 	move.w	(Camera_Y_pos).w,d1
-	bra.w	sub_EB78
+	bra.w	ScrollBG
 ; ===========================================================================
 ; loc_E8C0:
 LevEvents_WFZ_Routine3:
-	cmpi.w	#$800,(unk_EEE2).w
+	cmpi.w	#$800,(Camera_BG_X_offset).w
 	beq.s	+
-	addq.w	#2,(unk_EEE2).w
+	addq.w	#2,(Camera_BG_X_offset).w
 +
-	cmpi.w	#$600,(unk_EEE2).w
+	cmpi.w	#$600,(Camera_BG_X_offset).w
 	blt.s	LevEvents_WFZ_Routine3_Part2
-	move.w	(WFZ_Event_Counter).w,d0
+	move.w	(WFZ_BG_Y_Speed).w,d0
 	moveq	#4,d1
 	cmpi.w	#$840,d0
 	bhs.s	+
 	add.w	d1,d0
-	move.w	d0,(WFZ_Event_Counter).w
+	move.w	d0,(WFZ_BG_Y_Speed).w
 +
 	lsr.w	#8,d0
-	add.w	d0,(unk_EEE4).w
+	add.w	d0,(Camera_BG_Y_offset).w
 ; loc_E8EC:
 LevEvents_WFZ_Routine3_Part2:
 	move.w	(Camera_X_pos_diff).w,(Camera_BG_X_pos_diff).w
 	move.w	(Camera_Y_pos_diff).w,(Camera_BG_Y_pos_diff).w
 	move.w	(Camera_X_pos).w,d0
 	move.w	(Camera_Y_pos).w,d1
-	bra.w	sub_EB78
+	bra.w	ScrollBG
 ; ===========================================================================
 ; loc_E904:
 LevEvents_WFZ_Routine4:
-	cmpi.w	#-$2C0,(unk_EEE2).w
+	cmpi.w	#-$2C0,(Camera_BG_X_offset).w
 	beq.s	++
-	subi.w	#2,(unk_EEE2).w
-	cmpi.w	#$1B81,(unk_EEE4).w
+	subi.w	#2,(Camera_BG_X_offset).w
+	cmpi.w	#$1B81,(Camera_BG_Y_offset).w
 	beq.s	++
-	move.w	(WFZ_Event_Counter).w,d0
+	move.w	(WFZ_BG_Y_Speed).w,d0
 	beq.s	+
 	moveq	#4,d1
 	neg.w	d1
 	add.w	d1,d0
-	move.w	d0,(WFZ_Event_Counter).w
+	move.w	d0,(WFZ_BG_Y_Speed).w
 	lsr.w	#8,d0
 +
 	addq.w	#1,d0
-	add.w	d0,(unk_EEE4).w
+	add.w	d0,(Camera_BG_Y_offset).w
 +
 	move.w	(Camera_X_pos_diff).w,(Camera_BG_X_pos_diff).w
 	move.w	(Camera_Y_pos_diff).w,(Camera_BG_Y_pos_diff).w
 	move.w	(Camera_X_pos).w,d0
 	move.w	(Camera_Y_pos).w,d1
-	bra.w	sub_EB78
+	bra.w	ScrollBG
 ; ===========================================================================
 ; loc_E94A:
 LevEvents_WFZ_Routine5:
@@ -18556,10 +18570,10 @@ LevEvents_HTZ_Routine1:
 	moveq	#0,d0
 	move.w	d0,(Camera_BG_X_pos_diff).w
 	move.w	d0,(Camera_BG_Y_pos_diff).w
-	move.w	d0,(unk_EEE2).w
-	move.w	#320,(unk_EEE4).w
+	move.w	d0,(Camera_BG_X_offset).w
+	move.w	#320,(Camera_BG_Y_offset).w
 	subi.w	#$100,(Camera_BG_Y_pos).w
-	move.w	#0,(unk_EEE6).w
+	move.w	#0,(HTZ_Terrain_Delay).w
 	addq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ_Routine2
 -
 	rts
@@ -18572,7 +18586,7 @@ LevEvents_HTZ_Routine1_Part2:
 	moveq	#0,d1
 	move.w	d1,(Camera_BG_X_pos_diff).w
 	move.w	d1,(Camera_BG_Y_pos_diff).w
-	bsr.w	sub_EB78
+	bsr.w	ScrollBG
 	or.w	d0,d1
 	bne.s	-	; rts
 	move.b	#0,(Screen_Shaking_Flag_HTZ).w
@@ -18583,77 +18597,77 @@ LevEvents_HTZ_Routine2:
 	cmpi.w	#$1978,(Camera_X_pos).w
 	blo.w	LevEvents_HTZ_Routine2_Continue
 	cmpi.w	#$1E00,(Camera_X_pos).w
-	blo.s	+
+	blo.s	.keep_shaking
 	move.b	#0,(Screen_Shaking_Flag).w
 	bra.s	LevEvents_HTZ_Routine2_Continue
 ; ---------------------------------------------------------------------------
-+
-	tst.b	(unk_EEE8).w
-	bne.s	+
-	cmpi.w	#320,(unk_EEE4).w
-	beq.s	++
+.keep_shaking:
+	tst.b	(HTZ_Terrain_Direction).w
+	bne.s	.sinking
+	cmpi.w	#320,(Camera_BG_Y_offset).w
+	beq.s	.flip_delay
 	move.w	(Timer_frames).w,d0
 	move.w	d0,d1
 	andi.w	#3,d0
 	bne.s	LevEvents_HTZ_Routine2_Continue
-	addq.w	#1,(unk_EEE4).w
+	addq.w	#1,(Camera_BG_Y_offset).w
 	andi.w	#$3F,d1
 	bne.s	LevEvents_HTZ_Routine2_Continue
 	move.w	#SndID_Rumbling2,d0 ; rumbling sound
 	jsr	(PlaySound).l
 	bra.s	LevEvents_HTZ_Routine2_Continue
 ; ---------------------------------------------------------------------------
-+
-	cmpi.w	#$E0,(unk_EEE4).w
-	beq.s	+
+.sinking:
+	cmpi.w	#224,(Camera_BG_Y_offset).w
+	beq.s	.flip_delay
 	move.w	(Timer_frames).w,d0
 	move.w	d0,d1
 	andi.w	#3,d0
 	bne.s	LevEvents_HTZ_Routine2_Continue
-	subq.w	#1,(unk_EEE4).w
+	subq.w	#1,(Camera_BG_Y_offset).w
 	andi.w	#$3F,d1
 	bne.s	LevEvents_HTZ_Routine2_Continue
 	move.w	#SndID_Rumbling2,d0
 	jsr	(PlaySound).l
 	bra.s	LevEvents_HTZ_Routine2_Continue
 ; ---------------------------------------------------------------------------
-+
+.flip_delay:
 	move.b	#0,(Screen_Shaking_Flag).w
-	subq.w	#1,(unk_EEE6).w
+	subq.w	#1,(HTZ_Terrain_Delay).w
 	bpl.s	LevEvents_HTZ_Routine2_Continue
-	move.w	#$78,(unk_EEE6).w
-	eori.b	#1,(unk_EEE8).w
+	move.w	#$78,(HTZ_Terrain_Delay).w
+	eori.b	#1,(HTZ_Terrain_Direction).w
 	move.b	#1,(Screen_Shaking_Flag).w
 
 ; loc_EAA0:
 LevEvents_HTZ_Routine2_Continue:
 	cmpi.w	#$1800,(Camera_X_pos).w
-	blo.s	+
+	blo.s	.exit_left
 	cmpi.w	#$1F00,(Camera_X_pos).w
-	bhs.s	++
+	bhs.s	.exit_right
 	move.w	(Camera_X_pos_diff).w,(Camera_BG_X_pos_diff).w
 	move.w	(Camera_Y_pos_diff).w,(Camera_BG_Y_pos_diff).w
 	move.w	(Camera_X_pos).w,d0
 	move.w	(Camera_Y_pos).w,d1
-	bra.w	sub_EB78
+	bra.w	ScrollBG
 ; ---------------------------------------------------------------------------
-+
+.exit_left:
 	move.l	#$4000000,(Camera_BG_X_pos).w
 	moveq	#0,d0
 	move.l	d0,(Camera_BG_Y_pos).w
-	move.l	d0,(unk_EEE2).w
-	move.b	d0,(unk_EEE8).w
+	move.l	d0,(Camera_BG_X_offset).w
+	move.b	d0,(HTZ_Terrain_Direction).w
 	subq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ_Routine1
 	move.w	#MusID_StopSFX,d0
 	jsr	(PlaySound).l
 	rts
 ; ---------------------------------------------------------------------------
-+
+.exit_right:
 	move.l	#$4000000,(Camera_BG_X_pos).w
 	moveq	#0,d0
 	move.l	d0,(Camera_BG_Y_pos).w
-	move.l	d0,(unk_EEE2).w
-	move.b	d0,(unk_EEE8).w
+	move.l	d0,(Camera_BG_X_offset).w
+	move.b	d0,(HTZ_Terrain_Direction).w
 	addq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ_Routine3
 	move.w	#MusID_StopSFX,d0
 	jsr	(PlaySound).l
@@ -18670,10 +18684,10 @@ LevEvents_HTZ_Routine3:
 	moveq	#0,d0
 	move.w	d0,(Camera_BG_X_pos_diff).w
 	move.w	d0,(Camera_BG_Y_pos_diff).w
-	move.w	d0,(unk_EEE2).w
-	move.w	#320,(unk_EEE4).w
+	move.w	d0,(Camera_BG_X_offset).w
+	move.w	#320,(Camera_BG_Y_offset).w
 	subi.w	#$100,(Camera_BG_Y_pos).w
-	move.w	#0,(unk_EEE6).w
+	move.w	#0,(HTZ_Terrain_Delay).w
 	subq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ_Routine2
 -
 	rts
@@ -18686,7 +18700,7 @@ LevEvents_HTZ_Routine3_Part2:
 	moveq	#0,d1
 	move.w	d1,(Camera_BG_X_pos_diff).w
 	move.w	d1,(Camera_BG_Y_pos_diff).w
-	bsr.w	sub_EB78
+	bsr.w	ScrollBG
 	or.w	d0,d1
 	bne.s	-	; rts
 	move.b	#0,(Screen_Shaking_Flag_HTZ).w
@@ -18694,55 +18708,71 @@ LevEvents_HTZ_Routine3_Part2:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; something for dynamic level events
-
-sub_EB78:
+; Computes how much the background layer has been scrolled in X and Y and
+; stores result to Camera_BG_X_pos_diff and Camera_BG_Y_pos_diff.
+; Caps maximum scroll speed to 16 pixels per frame in either direction.
+; This is used to decide how much of the BG needs to be reloaded.
+;
+; Used for rising lava/terrain in HTZ, and for WFZ->DEZ transition in WFZ.
+;
+; Input:
+; 	d0	Target X position of background
+; 	d1	Target Y position of background
+;sub_EB78
+ScrollBG:
 	sub.w	(Camera_BG_X_pos).w,d0
-	sub.w	(unk_EEE2).w,d0
-	bpl.s	++
-	cmpi.w	#-$10,d0
-	bgt.s	+
-	move.w	#-$10,d0
-+
-	bra.s	++
+	sub.w	(Camera_BG_X_offset).w,d0
+	bpl.s	.going_right
+	cmpi.w	#-16,d0
+	bgt.s	.skip_x_cap
+	move.w	#-16,d0
+
+.skip_x_cap:
+	bra.s	.move_x
 ; ===========================================================================
-+
-	cmpi.w	#$10,d0
-	blo.s	+
-	move.w	#$10,d0
-+
+.going_right:
+	cmpi.w	#16,d0
+	blo.s	.move_x
+	move.w	#16,d0
+
+.move_x:
 	move.b	d0,(Camera_BG_X_pos_diff).w
 	sub.w	(Camera_BG_Y_pos).w,d1
-	sub.w	(unk_EEE4).w,d1
-	bpl.s	++
-	cmpi.w	#-$10,d1
-	bgt.s	+
-	move.w	#-$10,d1
-+
-	bra.s	++
+	sub.w	(Camera_BG_Y_offset).w,d1
+	bpl.s	.going_down
+	cmpi.w	#-16,d1
+	bgt.s	.skip_y_cap
+	move.w	#-16,d1
+
+.skip_y_cap:
+	bra.s	.move_y
 ; ===========================================================================
-+
-	cmpi.w	#$10,d1
-	blo.s	+
-	move.w	#$10,d1
-+
+.going_down:
+	cmpi.w	#16,d1
+	blo.s	.move_y
+	move.w	#16,d1
+
+.move_y:
 	move.b	d1,(Camera_BG_Y_pos_diff).w
 	rts
-; End of function sub_EB78
+; End of function ScrollBG
 
 ; ===========================================================================
 	; unused/dead code
+	; This code is probably meant for testing the background scrolling code
+	; used by HTZ and WFZ. It would allows the BG position to be shifted up
+	; and down by the second controller.
 	btst	#button_up,(Ctrl_2_Held).w
 	beq.s	+
-	tst.w	(unk_EEE4).w
+	tst.w	(Camera_BG_Y_offset).w
 	beq.s	+
-	subq.w	#1,(unk_EEE4).w
+	subq.w	#1,(Camera_BG_Y_offset).w
 +
 	btst	#button_down,(Ctrl_2_Held).w
 	beq.s	+
-	cmpi.w	#$700,(unk_EEE4).w
+	cmpi.w	#$700,(Camera_BG_Y_offset).w
 	beq.s	+
-	addq.w	#1,(unk_EEE4).w
+	addq.w	#1,(Camera_BG_Y_offset).w
 +
 	rts
 ; ===========================================================================
@@ -18770,35 +18800,36 @@ LevEvents_HTZ2_Index: offsetTable
 ; loc_EC0E:
 LevEvents_HTZ2_Routine1:
 	cmpi.w	#$14C0,(Camera_X_pos).w
-	blo.s	++
+	blo.s	LevEvents_HTZ2_Routine1_Part2
 	move.b	#1,(Screen_Shaking_Flag_HTZ).w
 	move.l	(Camera_X_pos).w,(Camera_BG_X_pos).w
 	move.l	(Camera_Y_pos).w,(Camera_BG_Y_pos).w
 	moveq	#0,d0
 	move.w	d0,(Camera_BG_X_pos_diff).w
 	move.w	d0,(Camera_BG_Y_pos_diff).w
-	move.w	d0,(unk_EEE2).w
-	move.w	#$2C0,(unk_EEE4).w
+	move.w	d0,(Camera_BG_X_offset).w
+	move.w	#$2C0,(Camera_BG_Y_offset).w
 	subi.w	#$100,(Camera_BG_Y_pos).w
-	move.w	#0,(unk_EEE6).w
+	move.w	#0,(HTZ_Terrain_Delay).w
 	addq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ2_Routine2
 	cmpi.w	#$380,(Camera_Y_pos).w
 	blo.s	+	; rts
-	move.w	#-$680,(unk_EEE2).w
+	move.w	#-$680,(Camera_BG_X_offset).w
 	addi.w	#$480,(Camera_BG_X_pos).w
-	move.w	#$300,(unk_EEE4).w
+	move.w	#$300,(Camera_BG_Y_offset).w
 	addq.b	#6,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ2_Routine5
 /
 	rts
 ; ---------------------------------------------------------------------------
-+
+
+LevEvents_HTZ2_Routine1_Part2:
 	tst.b	(Screen_Shaking_Flag_HTZ).w
 	beq.s	-	; rts
 	move.w	#$200,d0
 	moveq	#0,d1
 	move.w	d1,(Camera_BG_X_pos_diff).w
 	move.w	d1,(Camera_BG_Y_pos_diff).w
-	bsr.w	sub_EB78
+	bsr.w	ScrollBG
 	or.w	d0,d1
 	bne.s	-	; rts
 	move.b	#0,(Screen_Shaking_Flag_HTZ).w
@@ -18810,77 +18841,77 @@ LevEvents_HTZ2_Routine2:
 	cmpi.w	#$1678,(Camera_X_pos).w
 	blo.w	LevEvents_HTZ2_Routine2_Continue
 	cmpi.w	#$1A00,(Camera_X_pos).w
-	blo.s	+
+	blo.s	.keep_shaking
 	move.b	#0,(Screen_Shaking_Flag).w
 	bra.s	LevEvents_HTZ2_Routine2_Continue
 ; ---------------------------------------------------------------------------
-+
-	tst.b	(unk_EEE8).w
-	bne.s	+
-	cmpi.w	#$2C0,(unk_EEE4).w
-	beq.s	++
+.keep_shaking:
+	tst.b	(HTZ_Terrain_Direction).w
+	bne.s	.sinking
+	cmpi.w	#$2C0,(Camera_BG_Y_offset).w
+	beq.s	.flip_delay
 	move.w	(Timer_frames).w,d0
 	move.w	d0,d1
 	andi.w	#3,d0
 	bne.s	LevEvents_HTZ2_Routine2_Continue
-	addq.w	#1,(unk_EEE4).w
+	addq.w	#1,(Camera_BG_Y_offset).w
 	andi.w	#$3F,d1
 	bne.s	LevEvents_HTZ2_Routine2_Continue
 	move.w	#SndID_Rumbling2,d0
 	jsr	(PlaySound).l
 	bra.s	LevEvents_HTZ2_Routine2_Continue
 ; ---------------------------------------------------------------------------
-+
-	cmpi.w	#0,(unk_EEE4).w
-	beq.s	+
+.sinking:
+	cmpi.w	#0,(Camera_BG_Y_offset).w
+	beq.s	.flip_delay
 	move.w	(Timer_frames).w,d0
 	move.w	d0,d1
 	andi.w	#3,d0
 	bne.s	LevEvents_HTZ2_Routine2_Continue
-	subq.w	#1,(unk_EEE4).w
+	subq.w	#1,(Camera_BG_Y_offset).w
 	andi.w	#$3F,d1
 	bne.s	LevEvents_HTZ2_Routine2_Continue
 	move.w	#SndID_Rumbling2,d0
 	jsr	(PlaySound).l
 	bra.s	LevEvents_HTZ2_Routine2_Continue
 ; ---------------------------------------------------------------------------
-+
+.flip_delay:
 	move.b	#0,(Screen_Shaking_Flag).w
-	subq.w	#1,(unk_EEE6).w
+	subq.w	#1,(HTZ_Terrain_Delay).w
 	bpl.s	LevEvents_HTZ2_Routine2_Continue
-	move.w	#$78,(unk_EEE6).w
-	eori.b	#1,(unk_EEE8).w
+	move.w	#$78,(HTZ_Terrain_Delay).w
+	eori.b	#1,(HTZ_Terrain_Direction).w
 	move.b	#1,(Screen_Shaking_Flag).w
 
 ; loc_ED22:
 LevEvents_HTZ2_Routine2_Continue:
 	cmpi.w	#$14C0,(Camera_X_pos).w
-	blo.s	+
+	blo.s	.exit_left
 	cmpi.w	#$1B00,(Camera_X_pos).w
-	bhs.s	++
+	bhs.s	.exit_right
 	move.w	(Camera_X_pos_diff).w,(Camera_BG_X_pos_diff).w
 	move.w	(Camera_Y_pos_diff).w,(Camera_BG_Y_pos_diff).w
 	move.w	(Camera_X_pos).w,d0
 	move.w	(Camera_Y_pos).w,d1
-	bra.w	sub_EB78
+	bra.w	ScrollBG
 ; ---------------------------------------------------------------------------
-+
+.exit_left:
 	move.l	#$4000000,(Camera_BG_X_pos).w
 	moveq	#0,d0
 	move.l	d0,(Camera_BG_Y_pos).w
-	move.l	d0,(unk_EEE2).w
-	move.b	d0,(unk_EEE8).w
+	move.l	d0,(Camera_BG_X_offset).w
+	move.b	d0,(HTZ_Terrain_Direction).w
 	subq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ2_Routine1
 	move.w	#MusID_StopSFX,d0
 	jsr	(PlaySound).l
 	rts
 ; ---------------------------------------------------------------------------
-+
+.exit_right:
 	move.l	#$4000000,(Camera_BG_X_pos).w
 	moveq	#0,d0
 	move.l	d0,(Camera_BG_Y_pos).w
-	move.l	d0,(unk_EEE2).w
-	move.b	d0,(unk_EEE8).w
+	move.l	d0,(Camera_BG_X_offset).w
+	move.b	d0,(HTZ_Terrain_Direction).w
 	addq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ2_Routine3
 	move.w	#MusID_StopSFX,d0
 	jsr	(PlaySound).l
@@ -18889,29 +18920,30 @@ LevEvents_HTZ2_Routine2_Continue:
 ; loc_ED96:
 LevEvents_HTZ2_Routine3:
 	cmpi.w	#$1B00,(Camera_X_pos).w
-	bhs.s	+
+	bhs.s	LevEvents_HTZ2_Routine3_Part2
 	move.b	#1,(Screen_Shaking_Flag_HTZ).w
 	move.l	(Camera_X_pos).w,(Camera_BG_X_pos).w
 	move.l	(Camera_Y_pos).w,(Camera_BG_Y_pos).w
 	moveq	#0,d0
 	move.w	d0,(Camera_BG_X_pos_diff).w
 	move.w	d0,(Camera_BG_Y_pos_diff).w
-	move.w	d0,(unk_EEE2).w
-	move.w	#$2C0,(unk_EEE4).w
+	move.w	d0,(Camera_BG_X_offset).w
+	move.w	#$2C0,(Camera_BG_Y_offset).w
 	subi.w	#$100,(Camera_BG_Y_pos).w
-	move.w	#0,(unk_EEE6).w
+	move.w	#0,(HTZ_Terrain_Delay).w
 	subq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ2_Routine2
 -
 	rts
 ; ===========================================================================
-+
+
+LevEvents_HTZ2_Routine3_Part2:
 	tst.b	(Screen_Shaking_Flag_HTZ).w
 	beq.s	-	; rts
 	move.w	#$200,d0
 	moveq	#0,d1
 	move.w	d1,(Camera_BG_X_pos_diff).w
 	move.w	d1,(Camera_BG_Y_pos_diff).w
-	bsr.w	sub_EB78
+	bsr.w	ScrollBG
 	or.w	d0,d1
 	bne.s	-	; rts
 	move.b	#0,(Screen_Shaking_Flag_HTZ).w
@@ -18920,73 +18952,74 @@ LevEvents_HTZ2_Routine3:
 ; loc_EDFA:
 LevEvents_HTZ2_Routine4:
 	cmpi.w	#$15F0,(Camera_X_pos).w
-	blo.w	+++
+	blo.w	LevEvents_HTZ2_Routine4_Continue
 	cmpi.w	#$1AC0,(Camera_X_pos).w
-	bhs.s	+++
-	tst.b	(unk_EEE8).w
-	bne.s	+
-	cmpi.w	#$300,(unk_EEE4).w
-	beq.s	++
+	bhs.s	LevEvents_HTZ2_Routine4_Continue
+	tst.b	(HTZ_Terrain_Direction).w
+	bne.s	.sinking
+	cmpi.w	#$300,(Camera_BG_Y_offset).w
+	beq.s	.flip_delay
 	move.w	(Timer_frames).w,d0
 	move.w	d0,d1
 	andi.w	#3,d0
-	bne.s	+++
-	addq.w	#1,(unk_EEE4).w
+	bne.s	LevEvents_HTZ2_Routine4_Continue
+	addq.w	#1,(Camera_BG_Y_offset).w
 	andi.w	#$3F,d1
-	bne.s	+++
+	bne.s	LevEvents_HTZ2_Routine4_Continue
 	move.w	#SndID_Rumbling2,d0
 	jsr	(PlaySound).l
-	bra.s	+++
+	bra.s	LevEvents_HTZ2_Routine4_Continue
 ; ===========================================================================
-+
-	cmpi.w	#0,(unk_EEE4).w
-	beq.s	+
+.sinking:
+	cmpi.w	#0,(Camera_BG_Y_offset).w
+	beq.s	.flip_delay
 	move.w	(Timer_frames).w,d0
 	move.w	d0,d1
 	andi.w	#3,d0
-	bne.s	++
-	subq.w	#1,(unk_EEE4).w
+	bne.s	LevEvents_HTZ2_Routine4_Continue
+	subq.w	#1,(Camera_BG_Y_offset).w
 	andi.w	#$3F,d1
-	bne.s	++
+	bne.s	LevEvents_HTZ2_Routine4_Continue
 	move.w	#SndID_Rumbling2,d0
 	jsr	(PlaySound).l
-	bra.s	++
+	bra.s	LevEvents_HTZ2_Routine4_Continue
 ; ===========================================================================
-+
+.flip_delay:
 	move.b	#0,(Screen_Shaking_Flag).w
-	subq.w	#1,(unk_EEE6).w
-	bpl.s	+
-	move.w	#$78,(unk_EEE6).w
-	eori.b	#1,(unk_EEE8).w
+	subq.w	#1,(HTZ_Terrain_Delay).w
+	bpl.s	LevEvents_HTZ2_Routine4_Continue
+	move.w	#$78,(HTZ_Terrain_Delay).w
+	eori.b	#1,(HTZ_Terrain_Direction).w
 	move.b	#1,(Screen_Shaking_Flag).w
-+
+
+LevEvents_HTZ2_Routine4_Continue:
 	cmpi.w	#$14C0,(Camera_X_pos).w
-	blo.s	+
+	blo.s	.exit_left
 	cmpi.w	#$1B00,(Camera_X_pos).w
-	bhs.s	++
+	bhs.s	.exit_right
 	move.w	(Camera_X_pos_diff).w,(Camera_BG_X_pos_diff).w
 	move.w	(Camera_Y_pos_diff).w,(Camera_BG_Y_pos_diff).w
 	move.w	(Camera_X_pos).w,d0
 	move.w	(Camera_Y_pos).w,d1
-	bra.w	sub_EB78
+	bra.w	ScrollBG
 ; ===========================================================================
-+
+.exit_left:
 	move.l	#$4000000,(Camera_BG_X_pos).w
 	moveq	#0,d0
 	move.l	d0,(Camera_BG_Y_pos).w
-	move.l	d0,(unk_EEE2).w
-	move.b	d0,(unk_EEE8).w
+	move.l	d0,(Camera_BG_X_offset).w
+	move.b	d0,(HTZ_Terrain_Direction).w
 	subq.b	#6,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ2_Routine1
 	move.w	#MusID_StopSFX,d0
 	jsr	(PlaySound).l
 	rts
 ; ===========================================================================
-+
+.exit_right:
 	move.l	#$4000000,(Camera_BG_X_pos).w
 	moveq	#0,d0
 	move.l	d0,(Camera_BG_Y_pos).w
-	move.l	d0,(unk_EEE2).w
-	move.b	d0,(unk_EEE8).w
+	move.l	d0,(Camera_BG_X_offset).w
+	move.b	d0,(HTZ_Terrain_Direction).w
 	addq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ2_Routine5
 	move.w	#MusID_StopSFX,d0
 	jsr	(PlaySound).l
@@ -18995,30 +19028,31 @@ LevEvents_HTZ2_Routine4:
 ; loc_EEF8:
 LevEvents_HTZ2_Routine5:
 	cmpi.w	#$1B00,(Camera_X_pos).w
-	bhs.s	+
+	bhs.s	LevEvents_HTZ2_Routine5_Part2
 	move.b	#1,(Screen_Shaking_Flag_HTZ).w
 	move.l	(Camera_X_pos).w,(Camera_BG_X_pos).w
 	move.l	(Camera_Y_pos).w,(Camera_BG_Y_pos).w
 	moveq	#0,d0
 	move.w	d0,(Camera_BG_X_pos_diff).w
 	move.w	d0,(Camera_BG_Y_pos_diff).w
-	move.w	#-$680,(unk_EEE2).w
+	move.w	#-$680,(Camera_BG_X_offset).w
 	addi.w	#$480,(Camera_BG_X_pos).w
-	move.w	#$300,(unk_EEE4).w
+	move.w	#$300,(Camera_BG_Y_offset).w
 	subi.w	#$100,(Camera_BG_Y_pos).w
-	move.w	#0,(unk_EEE6).w
+	move.w	#0,(HTZ_Terrain_Delay).w
 	subq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ2_Routine4
 -
 	rts
 ; ===========================================================================
-+
+
+LevEvents_HTZ2_Routine5_Part2:
 	tst.b	(Screen_Shaking_Flag_HTZ).w
 	beq.s	-	; rts
 	move.w	#$200,d0
 	moveq	#0,d1
 	move.w	d1,(Camera_BG_X_pos_diff).w
 	move.w	d1,(Camera_BG_Y_pos_diff).w
-	bsr.w	sub_EB78
+	bsr.w	ScrollBG
 	or.w	d0,d1
 	bne.s	-	; rts
 	move.b	#0,(Screen_Shaking_Flag_HTZ).w
@@ -45602,7 +45636,7 @@ Obj30_Init:
 ; loc_23944:
 Obj30_Main:
 	move.w	objoff_32(a0),d0
-	add.w	(unk_EEE4).w,d0
+	add.w	(Camera_BG_Y_offset).w,d0
 	move.w	d0,y_pos(a0)
 	moveq	#0,d0
 	move.b	subtype(a0),d0
@@ -74356,7 +74390,7 @@ ObjB2_Move_Leader_egde:
 ; ===========================================================================
 ; loc_3AA4C:
 ObjB2_Wait_for_plane:
-	cmpi.w	#$380,(unk_EEE2).w
+	cmpi.w	#$380,(Camera_BG_X_offset).w
 	bhs.s	+
 	clr.w	(Ctrl_1_Logical).w
 	bra.w	ObjB2_Waiting_animation
@@ -74452,7 +74486,7 @@ ObjB2_Jump_to_ship:
 loc_3AB8A:
 	cmpi.w	#$460,objoff_2A(a0)
 	blo.s	ObjB2_Dock_on_DEZ
-	move.b	#6,(Dynamic_Resize_Routine).w
+	move.b	#6,(Dynamic_Resize_Routine).w ; => LevEvents_WFZ_Routine4
 	addq.b	#2,routine_secondary(a0)
 	lea	(word_3AFB8).l,a2
 	bsr.w	LoadChildObject
@@ -75775,7 +75809,7 @@ ObjBC_Init:
 ; loc_3BBDA:
 ObjBC_Main:
 	move.w	objoff_2C(a0),d0
-	move.w	(unk_EEE2).w,d1
+	move.w	(Camera_BG_X_offset).w,d1
 	cmpi.w	#$380,d1
 	bhs.w	JmpTo65_DeleteObject
 	add.w	d1,d0
