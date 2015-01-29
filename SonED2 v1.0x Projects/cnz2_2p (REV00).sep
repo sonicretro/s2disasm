@@ -1,0 +1,43 @@
+Type: 2
+
+Zone ID:    C
+Act ID:     2
+
+Object Def: objdef\s2obj
+
+8x8 Tiles:     ..\art\kosinski\CNZ.bin
+
+16x16 Tiles:   ..\mappings\16x16\CNZ.bin
+
+128x128 Tiles: ..\mappings\128x128\CNZ.bin
+
+Level Layout:  ..\level\layout\CNZ_2.bin
+
+Objects:       ..\level\objects\CNZ_2_2P (REV00).bin
+Rings:         ..\level\rings\CNZ_2.bin
+Misc:          ..\level\objects\CNZ 2 bumpers.bin
+
+Palettes-
+
+ Number of files: 2
+
+  Palette 1-
+
+   Start index:        0
+   Number of entries: 16
+   File:              ..\art\palettes\SonicAndTails.bin
+
+  Palette 2-
+
+   Start index:       16
+   Number of entries: 48
+   File:              ..\art\palettes\CNZ.bin
+
+Angle Array:             ..\collision\Curve and resistance mapping.bin
+Collision Array:         ..\collision\Collision array 1.bin
+Rotated Collision Array: ..\collision\Collision array 2.bin
+
+Collision Index 1: ..\collision\CNZ primary 16x16 collision index.bin
+Collision Index 2: ..\collision\CNZ secondary 16x16 collision index.bin
+
+-EOF-

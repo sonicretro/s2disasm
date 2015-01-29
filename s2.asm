@@ -18,7 +18,7 @@
 ; ASSEMBLY OPTIONS:
 ;
 padToPowerOfTwo = 1
-;	| If 1, pads the end of the rom to the next power of two bytes (for real hardware)
+;	| If 1, pads the end of the ROM to the next power of two bytes (for real hardware)
 ;
 allOptimizations = 0
 ;	| If 1, enables all optimizations
@@ -32,6 +32,9 @@ zeroOffsetOptimization = 0|allOptimizations
 useFullWaterTables = 0
 ;	| If 1, zone offset tables for water levels cover all level slots instead of only slots 8-$F
 ;	| Set to 1 if you've shifted level IDs around or you want water in levels with a level slot below 8
+gameRevision = 1
+;	| If 0, a REV00 ROM is built
+;	| Otherwise, builds a REV01 ROM, which contains some fixes
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; AS-specific macros and assembler settings
@@ -76,7 +79,11 @@ Header:
 	dc.b "(C)SEGA 1992.SEP" ; Copyright/Date
 	dc.b "SONIC THE             HEDGEHOG 2                " ; Domestic name
 	dc.b "SONIC THE             HEDGEHOG 2                " ; International name
+    if gameRevision=0
+	dc.b "GM 00001051-00"   ; Version
+    else
 	dc.b "GM 00001051-01"   ; Version
+    endif
 ; word_18E
 Checksum:
 	dc.w $D951		; Checksum (patched later if incorrect)
@@ -275,9 +282,11 @@ GameProgram:
 	tst.w	(VDP_control_port).l
 ; loc_306:
 CheckSumCheck:
+    if gameRevision<>0
 	move.w	(VDP_control_port).l,d1
 	btst	#1,d1
-	bne.s	CheckSumCheck
+	bne.s	CheckSumCheck	; wait until DMA is completed
+    endif
 	btst	#6,(HW_Expansion_Control).l
 	beq.s	ChecksumTest
 	cmpi.l	#'init',(Checksum_fourcc).w ; has checksum routine already run?
@@ -4086,7 +4095,11 @@ JmpTo_SwScrl_Title
 ; End of function JmpTo_SwScrl_Title
 
 ; ===========================================================================
-	dc.w 0
+	align 4
+
+
+
+
 ;----------------------------------------------------------------------------
 ; 1P Music Playlist
 ;----------------------------------------------------------------------------
@@ -13708,7 +13721,11 @@ byte_BA81:	creditText 0,"YOUICHI  TAKAHASHI"
 byte_BAA2:	creditText 1,"SUPPORTERS"
 byte_BAB8:	creditText 0,"DAIZABUROU  SAKURAI"
 byte_BADC:	creditText 0,"HISASHI  SUZUKI"
+    if gameRevision=0
+byte_BAF7:	creditText 0,"TOHMAS  KALINSKE"	; typo
+    else
 byte_BAF7:	creditText 0,"THOMAS  KALINSKE"
+    endif
 byte_BB16:	creditText 0,"FUJIO  MINEGISHI"
 byte_BB32:	creditText 0,"TAKAHARU UTSUNOMIYA"
 byte_BB58:	creditText 1,"SPECIAL  THANKS"
@@ -14079,14 +14096,14 @@ InitCameraValues:
 ; off_C296:
 InitCam_Index: zoneOrderedOffsetTable 2,1
 	zoneOffsetTableEntry.w InitCam_EHZ
-	zoneOffsetTableEntry.w InitCam_Std	; 1
-	zoneOffsetTableEntry.w InitCam_Std	; 2
-	zoneOffsetTableEntry.w InitCam_Std	; 3
+	zoneOffsetTableEntry.w InitCam_Null0	; 1
+	zoneOffsetTableEntry.w InitCam_WZ	; 2
+	zoneOffsetTableEntry.w InitCam_Null0	; 3
 	zoneOffsetTableEntry.w InitCam_Std	; 4 MTZ
 	zoneOffsetTableEntry.w InitCam_Std	; 5 MTZ3
 	zoneOffsetTableEntry.w InitCam_Null1	; 6
 	zoneOffsetTableEntry.w InitCam_HTZ	; 7
-	zoneOffsetTableEntry.w InitCam_Null2	; 8
+	zoneOffsetTableEntry.w InitCam_HPZ	; 8
 	zoneOffsetTableEntry.w InitCam_Null2	; 9
 	zoneOffsetTableEntry.w InitCam_OOZ	; 10
 	zoneOffsetTableEntry.w InitCam_MCZ	; 11
@@ -14112,6 +14129,23 @@ InitCam_EHZ:
 	clr.l	(Camera_BG2_Y_pos_P2).w
 	clr.l	(Camera_BG3_Y_pos_P2).w
 	rts
+; ===========================================================================
+; wtf:
+InitCam_Null0:
+    if gameRevision=0
+	rts
+    endif
+; ===========================================================================
+; Wood_Zone_BG:
+InitCam_WZ:
+    if gameRevision=0
+	asr.w	#2,d0
+	addi.w	#$400,d0
+	move.w	d0,(Camera_BG_Y_pos).w
+	asr.w	#3,d1
+	move.w	d1,(Camera_BG_X_pos).w
+	rts
+    endif
 ; ===========================================================================
 ;loc_C2E4:
 InitCam_Std:
@@ -14140,6 +14174,29 @@ InitCam_HTZ:
 	clr.l	(Camera_BG2_Y_pos_P2).w
 	clr.l	(Camera_BG3_Y_pos_P2).w
 	rts
+; ===========================================================================
+; Hidden_Palace_Zone_BG:
+InitCam_HPZ:
+    if gameRevision=0
+	asr.w	#1,d0
+	move.w	d0,(Camera_BG_Y_pos).w
+	clr.l	(Camera_BG_X_pos).w
+	rts    
+    endif
+; ===========================================================================	
+; Unknown_Zone_BG:
+InitCam_CCZ:
+    if gameRevision=0
+	asl.l	#4,d0
+	move.l	d0,d2
+	asl.l	#1,d0
+	add.l	d2,d0
+	asr.l	#8,d0
+	addq.w	#1,d0
+	move.w	d0,(Camera_BG_Y_pos).w
+	clr.l	(Camera_BG_X_pos).w
+	rts
+    endif
 ; ===========================================================================
 ;return_C320:
 InitCam_Null2:
@@ -15804,7 +15861,7 @@ SwScrl_CPZ:
 	bne.s	+
 	subq.w	#1,(TempArray_LayerDef).w
 +
-	lea	(byte_DDD0+1).l,a0
+	lea	(CPZ_CameraSections+1).l,a0
 	move.w	(Camera_BG_Y_pos).w,d0
 	move.w	d0,d2
 	andi.w	#$3F0,d0
@@ -16696,12 +16753,12 @@ LoadTilesAsYouMove:
 	lea	(Level_Layout+$80).w,a4	; first background line
 	move.w	#$6000,d2			; This selects a VRAM write and moves to PNT B
 	bsr.w	Draw_BG1
-	lea	(Scroll_flags_BG2_copy).w,a2
-	lea	(Camera_BG2_copy).w,a3	; used in CPZ deformation routine
-	bsr.w	Draw_BG2
-	lea	(Scroll_flags_BG3_copy).w,a2	; referred to in CPZ deformation routine
+	lea	(Scroll_flags_BG2_copy).w,a2	; referred to in CPZ deformation routine, but cleared right after
+	lea	(Camera_BG2_copy).w,a3
+	bsr.w	Draw_BG2	; Essentially unused, though
+	lea	(Scroll_flags_BG3_copy).w,a2
 	lea	(Camera_BG3_copy).w,a3
-	bsr.w	Draw_BG3	; apparently unused, though
+	bsr.w	Draw_BG3	; used in CPZ deformation routine
 	tst.w	(Two_player_mode).w
 	beq.s	+
 	lea	(Scroll_flags_copy_P2).w,a2
@@ -16945,7 +17002,12 @@ Draw_BG2:
 ; End of function Draw_BG2
 
 ; ===========================================================================
-byte_DCD6:	; unused array
+; Scrap Brain Zone 1 block positioning array -- S1 left-over
+; Each entry is an index into BGCameraLookup; used to decide the camera to use
+; for given block for reloading BG. A entry of 0 means assume X = 0 for section,
+; but otherwise loads camera Y for selected camera.
+;byte_DCD6
+SBZ_CameraSections:
 	dc.b   0
 	dc.b   0	; 1
 	dc.b   0	; 2
@@ -16979,8 +17041,10 @@ byte_DCD6:	; unused array
 	dc.b   2	; 30
 	dc.b   2	; 31
 	dc.b   2	; 32
-	dc.b   0	; 33
+	even
 ; ===========================================================================
+; Scrap Brain Zone 1 drawing code -- S1 left-over
+; Compare with CPZ drawing code
 ; begin unused routine
 	moveq	#-$10,d4
 	bclr	#0,(a2)
@@ -16989,14 +17053,14 @@ byte_DCD6:	; unused array
 	beq.s	+++
 	move.w	#$E0,d4
 +
-	lea	byte_DCD6+1(pc),a0
+	lea	SBZ_CameraSections+1(pc),a0
 	move.w	(Camera_BG_Y_pos).w,d0
 	add.w	d4,d0
 	andi.w	#$1F0,d0
 	lsr.w	#4,d0
 	move.b	(a0,d0.w),d0
-	lea	(word_DE7E).l,a3
-	movea.w	(a3,d0.w),a3
+	lea	(BGCameraLookup).l,a3
+	movea.w	(a3,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
 	beq.s	+
 	moveq	#-$10,d5
 	movem.l	d4-d5,-(sp)
@@ -17027,7 +17091,7 @@ byte_DCD6:	; unused array
 	move.b	d0,(a2)
 	move.w	#320,d5
 +
-	lea	byte_DCD6(pc),a0
+	lea	SBZ_CameraSections(pc),a0
 	move.w	(Camera_BG_Y_pos).w,d0
 	andi.w	#$1F0,d0
 	lsr.w	#4,d0
@@ -17043,6 +17107,7 @@ Draw_BG3:
 	beq.w	++	; rts
 	cmpi.b	#chemical_plant_zone,(Current_Zone).w
 	beq.w	Draw_BG3_CPZ
+	; S1 left-over: GHZ used this
 	bclr	#0,(a2)
 	beq.s	+
 	move.w	#$40,d4
@@ -17065,7 +17130,12 @@ Draw_BG3:
 +
 	rts
 ; ===========================================================================
-byte_DDD0:
+; Chemical Plant Zone 1 block positioning array
+; Each entry is an index into BGCameraLookup; used to decide the camera to use
+; for given block for reloading BG. A entry of 0 means assume X = 0 for section,
+; but otherwise loads camera Y for selected camera.
+;byte_DDD0
+CPZ_CameraSections:
 	dc.b   2
 	dc.b   2	; 1
 	dc.b   2	; 2
@@ -17131,7 +17201,7 @@ byte_DDD0:
 	dc.b   4	; 62
 	dc.b   4	; 63
 	dc.b   4	; 64
-	dc.b   0	; 65
+	even
 ; ===========================================================================
 ; loc_DE12:
 Draw_BG3_CPZ:
@@ -17142,13 +17212,13 @@ Draw_BG3_CPZ:
 	beq.s	++
 	move.w	#$E0,d4		; bit1 = bottom row
 +
-	lea	byte_DDD0+1(pc),a0
+	lea	CPZ_CameraSections+1(pc),a0
 	move.w	(Camera_BG_Y_pos).w,d0
 	add.w	d4,d0
 	andi.w	#$3F0,d0
 	lsr.w	#4,d0
 	move.b	(a0,d0.w),d0
-	movea.w	word_DE7E(pc,d0.w),a3	; Camera, either BG1 or BG2 depending on Y
+	movea.w	BGCameraLookup(pc,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
 	moveq	#-$10,d5
 	movem.l	d4-d5,-(sp)
 	bsr.w	CalcBlockVRAMPos
@@ -17169,18 +17239,19 @@ Draw_BG3_CPZ:
 	move.b	d0,(a2)
 	move.w	#320,d5
 +
-	lea	byte_DDD0(pc),a0
+	lea	CPZ_CameraSections(pc),a0
 	move.w	(Camera_BG_Y_pos).w,d0
 	andi.w	#$7F0,d0
 	lsr.w	#4,d0
 	lea	(a0,d0.w),a0
 	bra.w	loc_DE86
 ; ===========================================================================
-word_DE7E:
-	dc.w Camera_BG_copy	; BG Camera
-	dc.w Camera_BG_copy	; BG Camera
+;word_DE7E
+BGCameraLookup:
+	dc.w Camera_BG_copy		; BG Camera
+	dc.w Camera_BG_copy		; BG Camera
 	dc.w Camera_BG2_copy	; BG2 Camera
-	dc.w Camera_BG3_copy	; BG3 Camera (only referenced in unused array)
+	dc.w Camera_BG3_copy	; BG3 Camera
 ; ===========================================================================
 
 loc_DE86:
@@ -17193,10 +17264,10 @@ loc_DE86:
 	move.b	(a0)+,d0
 	btst	d0,(a2)
 	beq.s	+
-	movea.w	word_DE7E(pc,d0.w),a3
+	movea.w	BGCameraLookup(pc,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
 	movem.l	d4-d5/a0,-(sp)
 	movem.l	d4-d5,-(sp)
-	bsr.w	sub_E244
+	bsr.w	GetBlockPtr
 	movem.l	(sp)+,d4-d5
 	bsr.w	CalcBlockVRAMPos
 	bsr.w	ProcessAndWriteBlock2
@@ -17216,10 +17287,10 @@ loc_DE86:
 	move.b	(a0)+,d0
 	btst	d0,(a2)
 	beq.s	+
-	movea.w	word_DE7E(pc,d0.w),a3
+	movea.w	BGCameraLookup(pc,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
 	movem.l	d4-d5/a0,-(sp)
 	movem.l	d4-d5,-(sp)
-	bsr.w	sub_E244
+	bsr.w	GetBlockPtr
 	movem.l	(sp)+,d4-d5
 	bsr.w	CalcBlockVRAMPos
 	bsr.w	ProcessAndWriteBlock2_2P
@@ -17658,34 +17729,34 @@ loc_E234:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-
-sub_E244:
+;sub_E244
+GetBlockPtr:
 	add.w	(a3),d5
 	add.w	4(a3),d4
 	lea	(Block_Table).w,a1
-	move.w	d4,d3
+	move.w	d4,d3		; d3 = camera Y pos + offset
 	add.w	d3,d3
-	andi.w	#$F00,d3
-	lsr.w	#3,d5
+	andi.w	#$F00,d3	; limit to units of $100 ($100 = $80 * 2, $80 = height of a 128x128)
+	lsr.w	#3,d5		; divide by 8
 	move.w	d5,d0
-	lsr.w	#4,d0
+	lsr.w	#4,d0		; divide by 16 (overall division of 128)
 	andi.w	#$7F,d0
-	add.w	d3,d0
+	add.w	d3,d0		; get offset of current 128x128 in the level layout table
 	moveq	#-1,d3
-	clr.w	d3
-	move.b	(a4,d0.w),d3
-	lsl.w	#7,d3
-	andi.w	#$70,d4
-	andi.w	#$E,d5
-	add.w	d4,d3
-	add.w	d5,d3
-	movea.l	d3,a0
+	clr.w	d3		; d3 = $FFFF0000
+	move.b	(a4,d0.w),d3	; get tile ID of the current 128x128 tile
+	lsl.w	#7,d3		; multiply by 128, the size in bytes of a 128x128 in RAM
+	andi.w	#$70,d4		; round down to nearest 16-pixel boundary
+	andi.w	#$E,d5		; force this to be a multiple of 16
+	add.w	d4,d3		; add vertical offset of current 16x16
+	add.w	d5,d3		; add horizontal offset of current 16x16
+	movea.l	d3,a0		; store address, in the metablock table, of the current 16x16
 	move.w	(a0),d3
 	andi.w	#$3FF,d3
 	lsl.w	#3,d3
 	adda.w	d3,a1
 	rts
-; End of function sub_E244
+; End of function GetBlockPtr
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -17744,7 +17815,7 @@ CalcBlockVRAMPosB:
 	move.w	d4,d0
 	rts
 ; ===========================================================================
-; interestingly, this subroutine was in the sonic 1 rom, unused
+; interestingly, this subroutine was in the Sonic 1 ROM, unused
 +
 	add.w	4(a3),d4
 	add.w	(a3),d5
@@ -18054,6 +18125,10 @@ sub_E59C:
 	rts
 ; End of function sub_E59C
 
+ ; ===========================================================================
+    if gameRevision=0
+	nop
+    endif
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -18371,8 +18446,8 @@ LevEvents_WFZ_Routine1:
 	moveq	#0,d0
 	move.w	d0,(Camera_BG_X_pos_diff).w
 	move.w	d0,(Camera_BG_Y_pos_diff).w
-	move.w	d0,(unk_EEE2).w
-	move.w	d0,(unk_EEE4).w
+	move.w	d0,(Camera_BG_X_offset).w
+	move.w	d0,(Camera_BG_Y_offset).w
 	addq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_WFZ_Routine2
 	rts
 ; ===========================================================================
@@ -18383,62 +18458,62 @@ LevEvents_WFZ_Routine2:
 	cmpi.w	#$580,(Camera_Y_pos).w
 	blo.s	+
 	addq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_WFZ_Routine3
-	move.w	#0,(WFZ_Event_Counter).w
+	move.w	#0,(WFZ_BG_Y_Speed).w
 +
 	move.w	(Camera_X_pos_diff).w,(Camera_BG_X_pos_diff).w
 	move.w	(Camera_Y_pos_diff).w,(Camera_BG_Y_pos_diff).w
 	move.w	(Camera_X_pos).w,d0
 	move.w	(Camera_Y_pos).w,d1
-	bra.w	sub_EB78
+	bra.w	ScrollBG
 ; ===========================================================================
 ; loc_E8C0:
 LevEvents_WFZ_Routine3:
-	cmpi.w	#$800,(unk_EEE2).w
+	cmpi.w	#$800,(Camera_BG_X_offset).w
 	beq.s	+
-	addq.w	#2,(unk_EEE2).w
+	addq.w	#2,(Camera_BG_X_offset).w
 +
-	cmpi.w	#$600,(unk_EEE2).w
+	cmpi.w	#$600,(Camera_BG_X_offset).w
 	blt.s	LevEvents_WFZ_Routine3_Part2
-	move.w	(WFZ_Event_Counter).w,d0
+	move.w	(WFZ_BG_Y_Speed).w,d0
 	moveq	#4,d1
 	cmpi.w	#$840,d0
 	bhs.s	+
 	add.w	d1,d0
-	move.w	d0,(WFZ_Event_Counter).w
+	move.w	d0,(WFZ_BG_Y_Speed).w
 +
 	lsr.w	#8,d0
-	add.w	d0,(unk_EEE4).w
+	add.w	d0,(Camera_BG_Y_offset).w
 ; loc_E8EC:
 LevEvents_WFZ_Routine3_Part2:
 	move.w	(Camera_X_pos_diff).w,(Camera_BG_X_pos_diff).w
 	move.w	(Camera_Y_pos_diff).w,(Camera_BG_Y_pos_diff).w
 	move.w	(Camera_X_pos).w,d0
 	move.w	(Camera_Y_pos).w,d1
-	bra.w	sub_EB78
+	bra.w	ScrollBG
 ; ===========================================================================
 ; loc_E904:
 LevEvents_WFZ_Routine4:
-	cmpi.w	#-$2C0,(unk_EEE2).w
+	cmpi.w	#-$2C0,(Camera_BG_X_offset).w
 	beq.s	++
-	subi.w	#2,(unk_EEE2).w
-	cmpi.w	#$1B81,(unk_EEE4).w
+	subi.w	#2,(Camera_BG_X_offset).w
+	cmpi.w	#$1B81,(Camera_BG_Y_offset).w
 	beq.s	++
-	move.w	(WFZ_Event_Counter).w,d0
+	move.w	(WFZ_BG_Y_Speed).w,d0
 	beq.s	+
 	moveq	#4,d1
 	neg.w	d1
 	add.w	d1,d0
-	move.w	d0,(WFZ_Event_Counter).w
+	move.w	d0,(WFZ_BG_Y_Speed).w
 	lsr.w	#8,d0
 +
 	addq.w	#1,d0
-	add.w	d0,(unk_EEE4).w
+	add.w	d0,(Camera_BG_Y_offset).w
 +
 	move.w	(Camera_X_pos_diff).w,(Camera_BG_X_pos_diff).w
 	move.w	(Camera_Y_pos_diff).w,(Camera_BG_Y_pos_diff).w
 	move.w	(Camera_X_pos).w,d0
 	move.w	(Camera_Y_pos).w,d1
-	bra.w	sub_EB78
+	bra.w	ScrollBG
 ; ===========================================================================
 ; loc_E94A:
 LevEvents_WFZ_Routine5:
@@ -18496,10 +18571,10 @@ LevEvents_HTZ_Routine1:
 	moveq	#0,d0
 	move.w	d0,(Camera_BG_X_pos_diff).w
 	move.w	d0,(Camera_BG_Y_pos_diff).w
-	move.w	d0,(unk_EEE2).w
-	move.w	#320,(unk_EEE4).w
+	move.w	d0,(Camera_BG_X_offset).w
+	move.w	#320,(Camera_BG_Y_offset).w
 	subi.w	#$100,(Camera_BG_Y_pos).w
-	move.w	#0,(unk_EEE6).w
+	move.w	#0,(HTZ_Terrain_Delay).w
 	addq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ_Routine2
 -
 	rts
@@ -18512,7 +18587,7 @@ LevEvents_HTZ_Routine1_Part2:
 	moveq	#0,d1
 	move.w	d1,(Camera_BG_X_pos_diff).w
 	move.w	d1,(Camera_BG_Y_pos_diff).w
-	bsr.w	sub_EB78
+	bsr.w	ScrollBG
 	or.w	d0,d1
 	bne.s	-	; rts
 	move.b	#0,(Screen_Shaking_Flag_HTZ).w
@@ -18523,77 +18598,77 @@ LevEvents_HTZ_Routine2:
 	cmpi.w	#$1978,(Camera_X_pos).w
 	blo.w	LevEvents_HTZ_Routine2_Continue
 	cmpi.w	#$1E00,(Camera_X_pos).w
-	blo.s	+
+	blo.s	.keep_shaking
 	move.b	#0,(Screen_Shaking_Flag).w
 	bra.s	LevEvents_HTZ_Routine2_Continue
 ; ---------------------------------------------------------------------------
-+
-	tst.b	(unk_EEE8).w
-	bne.s	+
-	cmpi.w	#320,(unk_EEE4).w
-	beq.s	++
+.keep_shaking:
+	tst.b	(HTZ_Terrain_Direction).w
+	bne.s	.sinking
+	cmpi.w	#320,(Camera_BG_Y_offset).w
+	beq.s	.flip_delay
 	move.w	(Timer_frames).w,d0
 	move.w	d0,d1
 	andi.w	#3,d0
 	bne.s	LevEvents_HTZ_Routine2_Continue
-	addq.w	#1,(unk_EEE4).w
+	addq.w	#1,(Camera_BG_Y_offset).w
 	andi.w	#$3F,d1
 	bne.s	LevEvents_HTZ_Routine2_Continue
 	move.w	#SndID_Rumbling2,d0 ; rumbling sound
 	jsr	(PlaySound).l
 	bra.s	LevEvents_HTZ_Routine2_Continue
 ; ---------------------------------------------------------------------------
-+
-	cmpi.w	#$E0,(unk_EEE4).w
-	beq.s	+
+.sinking:
+	cmpi.w	#224,(Camera_BG_Y_offset).w
+	beq.s	.flip_delay
 	move.w	(Timer_frames).w,d0
 	move.w	d0,d1
 	andi.w	#3,d0
 	bne.s	LevEvents_HTZ_Routine2_Continue
-	subq.w	#1,(unk_EEE4).w
+	subq.w	#1,(Camera_BG_Y_offset).w
 	andi.w	#$3F,d1
 	bne.s	LevEvents_HTZ_Routine2_Continue
 	move.w	#SndID_Rumbling2,d0
 	jsr	(PlaySound).l
 	bra.s	LevEvents_HTZ_Routine2_Continue
 ; ---------------------------------------------------------------------------
-+
+.flip_delay:
 	move.b	#0,(Screen_Shaking_Flag).w
-	subq.w	#1,(unk_EEE6).w
+	subq.w	#1,(HTZ_Terrain_Delay).w
 	bpl.s	LevEvents_HTZ_Routine2_Continue
-	move.w	#$78,(unk_EEE6).w
-	eori.b	#1,(unk_EEE8).w
+	move.w	#$78,(HTZ_Terrain_Delay).w
+	eori.b	#1,(HTZ_Terrain_Direction).w
 	move.b	#1,(Screen_Shaking_Flag).w
 
 ; loc_EAA0:
 LevEvents_HTZ_Routine2_Continue:
 	cmpi.w	#$1800,(Camera_X_pos).w
-	blo.s	+
+	blo.s	.exit_left
 	cmpi.w	#$1F00,(Camera_X_pos).w
-	bhs.s	++
+	bhs.s	.exit_right
 	move.w	(Camera_X_pos_diff).w,(Camera_BG_X_pos_diff).w
 	move.w	(Camera_Y_pos_diff).w,(Camera_BG_Y_pos_diff).w
 	move.w	(Camera_X_pos).w,d0
 	move.w	(Camera_Y_pos).w,d1
-	bra.w	sub_EB78
+	bra.w	ScrollBG
 ; ---------------------------------------------------------------------------
-+
+.exit_left:
 	move.l	#$4000000,(Camera_BG_X_pos).w
 	moveq	#0,d0
 	move.l	d0,(Camera_BG_Y_pos).w
-	move.l	d0,(unk_EEE2).w
-	move.b	d0,(unk_EEE8).w
+	move.l	d0,(Camera_BG_X_offset).w
+	move.b	d0,(HTZ_Terrain_Direction).w
 	subq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ_Routine1
 	move.w	#MusID_StopSFX,d0
 	jsr	(PlaySound).l
 	rts
 ; ---------------------------------------------------------------------------
-+
+.exit_right:
 	move.l	#$4000000,(Camera_BG_X_pos).w
 	moveq	#0,d0
 	move.l	d0,(Camera_BG_Y_pos).w
-	move.l	d0,(unk_EEE2).w
-	move.b	d0,(unk_EEE8).w
+	move.l	d0,(Camera_BG_X_offset).w
+	move.b	d0,(HTZ_Terrain_Direction).w
 	addq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ_Routine3
 	move.w	#MusID_StopSFX,d0
 	jsr	(PlaySound).l
@@ -18610,10 +18685,10 @@ LevEvents_HTZ_Routine3:
 	moveq	#0,d0
 	move.w	d0,(Camera_BG_X_pos_diff).w
 	move.w	d0,(Camera_BG_Y_pos_diff).w
-	move.w	d0,(unk_EEE2).w
-	move.w	#320,(unk_EEE4).w
+	move.w	d0,(Camera_BG_X_offset).w
+	move.w	#320,(Camera_BG_Y_offset).w
 	subi.w	#$100,(Camera_BG_Y_pos).w
-	move.w	#0,(unk_EEE6).w
+	move.w	#0,(HTZ_Terrain_Delay).w
 	subq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ_Routine2
 -
 	rts
@@ -18626,7 +18701,7 @@ LevEvents_HTZ_Routine3_Part2:
 	moveq	#0,d1
 	move.w	d1,(Camera_BG_X_pos_diff).w
 	move.w	d1,(Camera_BG_Y_pos_diff).w
-	bsr.w	sub_EB78
+	bsr.w	ScrollBG
 	or.w	d0,d1
 	bne.s	-	; rts
 	move.b	#0,(Screen_Shaking_Flag_HTZ).w
@@ -18634,55 +18709,71 @@ LevEvents_HTZ_Routine3_Part2:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; something for dynamic level events
-
-sub_EB78:
+; Computes how much the background layer has been scrolled in X and Y and
+; stores result to Camera_BG_X_pos_diff and Camera_BG_Y_pos_diff.
+; Caps maximum scroll speed to 16 pixels per frame in either direction.
+; This is used to decide how much of the BG needs to be reloaded.
+;
+; Used for rising lava/terrain in HTZ, and for WFZ->DEZ transition in WFZ.
+;
+; Input:
+; 	d0	Target X position of background
+; 	d1	Target Y position of background
+;sub_EB78
+ScrollBG:
 	sub.w	(Camera_BG_X_pos).w,d0
-	sub.w	(unk_EEE2).w,d0
-	bpl.s	++
-	cmpi.w	#-$10,d0
-	bgt.s	+
-	move.w	#-$10,d0
-+
-	bra.s	++
+	sub.w	(Camera_BG_X_offset).w,d0
+	bpl.s	.going_right
+	cmpi.w	#-16,d0
+	bgt.s	.skip_x_cap
+	move.w	#-16,d0
+
+.skip_x_cap:
+	bra.s	.move_x
 ; ===========================================================================
-+
-	cmpi.w	#$10,d0
-	blo.s	+
-	move.w	#$10,d0
-+
+.going_right:
+	cmpi.w	#16,d0
+	blo.s	.move_x
+	move.w	#16,d0
+
+.move_x:
 	move.b	d0,(Camera_BG_X_pos_diff).w
 	sub.w	(Camera_BG_Y_pos).w,d1
-	sub.w	(unk_EEE4).w,d1
-	bpl.s	++
-	cmpi.w	#-$10,d1
-	bgt.s	+
-	move.w	#-$10,d1
-+
-	bra.s	++
+	sub.w	(Camera_BG_Y_offset).w,d1
+	bpl.s	.going_down
+	cmpi.w	#-16,d1
+	bgt.s	.skip_y_cap
+	move.w	#-16,d1
+
+.skip_y_cap:
+	bra.s	.move_y
 ; ===========================================================================
-+
-	cmpi.w	#$10,d1
-	blo.s	+
-	move.w	#$10,d1
-+
+.going_down:
+	cmpi.w	#16,d1
+	blo.s	.move_y
+	move.w	#16,d1
+
+.move_y:
 	move.b	d1,(Camera_BG_Y_pos_diff).w
 	rts
-; End of function sub_EB78
+; End of function ScrollBG
 
 ; ===========================================================================
 	; unused/dead code
+	; This code is probably meant for testing the background scrolling code
+	; used by HTZ and WFZ. It would allows the BG position to be shifted up
+	; and down by the second controller.
 	btst	#button_up,(Ctrl_2_Held).w
 	beq.s	+
-	tst.w	(unk_EEE4).w
+	tst.w	(Camera_BG_Y_offset).w
 	beq.s	+
-	subq.w	#1,(unk_EEE4).w
+	subq.w	#1,(Camera_BG_Y_offset).w
 +
 	btst	#button_down,(Ctrl_2_Held).w
 	beq.s	+
-	cmpi.w	#$700,(unk_EEE4).w
+	cmpi.w	#$700,(Camera_BG_Y_offset).w
 	beq.s	+
-	addq.w	#1,(unk_EEE4).w
+	addq.w	#1,(Camera_BG_Y_offset).w
 +
 	rts
 ; ===========================================================================
@@ -18710,35 +18801,36 @@ LevEvents_HTZ2_Index: offsetTable
 ; loc_EC0E:
 LevEvents_HTZ2_Routine1:
 	cmpi.w	#$14C0,(Camera_X_pos).w
-	blo.s	++
+	blo.s	LevEvents_HTZ2_Routine1_Part2
 	move.b	#1,(Screen_Shaking_Flag_HTZ).w
 	move.l	(Camera_X_pos).w,(Camera_BG_X_pos).w
 	move.l	(Camera_Y_pos).w,(Camera_BG_Y_pos).w
 	moveq	#0,d0
 	move.w	d0,(Camera_BG_X_pos_diff).w
 	move.w	d0,(Camera_BG_Y_pos_diff).w
-	move.w	d0,(unk_EEE2).w
-	move.w	#$2C0,(unk_EEE4).w
+	move.w	d0,(Camera_BG_X_offset).w
+	move.w	#$2C0,(Camera_BG_Y_offset).w
 	subi.w	#$100,(Camera_BG_Y_pos).w
-	move.w	#0,(unk_EEE6).w
+	move.w	#0,(HTZ_Terrain_Delay).w
 	addq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ2_Routine2
 	cmpi.w	#$380,(Camera_Y_pos).w
 	blo.s	+	; rts
-	move.w	#-$680,(unk_EEE2).w
+	move.w	#-$680,(Camera_BG_X_offset).w
 	addi.w	#$480,(Camera_BG_X_pos).w
-	move.w	#$300,(unk_EEE4).w
+	move.w	#$300,(Camera_BG_Y_offset).w
 	addq.b	#6,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ2_Routine5
 /
 	rts
 ; ---------------------------------------------------------------------------
-+
+
+LevEvents_HTZ2_Routine1_Part2:
 	tst.b	(Screen_Shaking_Flag_HTZ).w
 	beq.s	-	; rts
 	move.w	#$200,d0
 	moveq	#0,d1
 	move.w	d1,(Camera_BG_X_pos_diff).w
 	move.w	d1,(Camera_BG_Y_pos_diff).w
-	bsr.w	sub_EB78
+	bsr.w	ScrollBG
 	or.w	d0,d1
 	bne.s	-	; rts
 	move.b	#0,(Screen_Shaking_Flag_HTZ).w
@@ -18750,77 +18842,77 @@ LevEvents_HTZ2_Routine2:
 	cmpi.w	#$1678,(Camera_X_pos).w
 	blo.w	LevEvents_HTZ2_Routine2_Continue
 	cmpi.w	#$1A00,(Camera_X_pos).w
-	blo.s	+
+	blo.s	.keep_shaking
 	move.b	#0,(Screen_Shaking_Flag).w
 	bra.s	LevEvents_HTZ2_Routine2_Continue
 ; ---------------------------------------------------------------------------
-+
-	tst.b	(unk_EEE8).w
-	bne.s	+
-	cmpi.w	#$2C0,(unk_EEE4).w
-	beq.s	++
+.keep_shaking:
+	tst.b	(HTZ_Terrain_Direction).w
+	bne.s	.sinking
+	cmpi.w	#$2C0,(Camera_BG_Y_offset).w
+	beq.s	.flip_delay
 	move.w	(Timer_frames).w,d0
 	move.w	d0,d1
 	andi.w	#3,d0
 	bne.s	LevEvents_HTZ2_Routine2_Continue
-	addq.w	#1,(unk_EEE4).w
+	addq.w	#1,(Camera_BG_Y_offset).w
 	andi.w	#$3F,d1
 	bne.s	LevEvents_HTZ2_Routine2_Continue
 	move.w	#SndID_Rumbling2,d0
 	jsr	(PlaySound).l
 	bra.s	LevEvents_HTZ2_Routine2_Continue
 ; ---------------------------------------------------------------------------
-+
-	cmpi.w	#0,(unk_EEE4).w
-	beq.s	+
+.sinking:
+	cmpi.w	#0,(Camera_BG_Y_offset).w
+	beq.s	.flip_delay
 	move.w	(Timer_frames).w,d0
 	move.w	d0,d1
 	andi.w	#3,d0
 	bne.s	LevEvents_HTZ2_Routine2_Continue
-	subq.w	#1,(unk_EEE4).w
+	subq.w	#1,(Camera_BG_Y_offset).w
 	andi.w	#$3F,d1
 	bne.s	LevEvents_HTZ2_Routine2_Continue
 	move.w	#SndID_Rumbling2,d0
 	jsr	(PlaySound).l
 	bra.s	LevEvents_HTZ2_Routine2_Continue
 ; ---------------------------------------------------------------------------
-+
+.flip_delay:
 	move.b	#0,(Screen_Shaking_Flag).w
-	subq.w	#1,(unk_EEE6).w
+	subq.w	#1,(HTZ_Terrain_Delay).w
 	bpl.s	LevEvents_HTZ2_Routine2_Continue
-	move.w	#$78,(unk_EEE6).w
-	eori.b	#1,(unk_EEE8).w
+	move.w	#$78,(HTZ_Terrain_Delay).w
+	eori.b	#1,(HTZ_Terrain_Direction).w
 	move.b	#1,(Screen_Shaking_Flag).w
 
 ; loc_ED22:
 LevEvents_HTZ2_Routine2_Continue:
 	cmpi.w	#$14C0,(Camera_X_pos).w
-	blo.s	+
+	blo.s	.exit_left
 	cmpi.w	#$1B00,(Camera_X_pos).w
-	bhs.s	++
+	bhs.s	.exit_right
 	move.w	(Camera_X_pos_diff).w,(Camera_BG_X_pos_diff).w
 	move.w	(Camera_Y_pos_diff).w,(Camera_BG_Y_pos_diff).w
 	move.w	(Camera_X_pos).w,d0
 	move.w	(Camera_Y_pos).w,d1
-	bra.w	sub_EB78
+	bra.w	ScrollBG
 ; ---------------------------------------------------------------------------
-+
+.exit_left:
 	move.l	#$4000000,(Camera_BG_X_pos).w
 	moveq	#0,d0
 	move.l	d0,(Camera_BG_Y_pos).w
-	move.l	d0,(unk_EEE2).w
-	move.b	d0,(unk_EEE8).w
+	move.l	d0,(Camera_BG_X_offset).w
+	move.b	d0,(HTZ_Terrain_Direction).w
 	subq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ2_Routine1
 	move.w	#MusID_StopSFX,d0
 	jsr	(PlaySound).l
 	rts
 ; ---------------------------------------------------------------------------
-+
+.exit_right:
 	move.l	#$4000000,(Camera_BG_X_pos).w
 	moveq	#0,d0
 	move.l	d0,(Camera_BG_Y_pos).w
-	move.l	d0,(unk_EEE2).w
-	move.b	d0,(unk_EEE8).w
+	move.l	d0,(Camera_BG_X_offset).w
+	move.b	d0,(HTZ_Terrain_Direction).w
 	addq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ2_Routine3
 	move.w	#MusID_StopSFX,d0
 	jsr	(PlaySound).l
@@ -18829,29 +18921,30 @@ LevEvents_HTZ2_Routine2_Continue:
 ; loc_ED96:
 LevEvents_HTZ2_Routine3:
 	cmpi.w	#$1B00,(Camera_X_pos).w
-	bhs.s	+
+	bhs.s	LevEvents_HTZ2_Routine3_Part2
 	move.b	#1,(Screen_Shaking_Flag_HTZ).w
 	move.l	(Camera_X_pos).w,(Camera_BG_X_pos).w
 	move.l	(Camera_Y_pos).w,(Camera_BG_Y_pos).w
 	moveq	#0,d0
 	move.w	d0,(Camera_BG_X_pos_diff).w
 	move.w	d0,(Camera_BG_Y_pos_diff).w
-	move.w	d0,(unk_EEE2).w
-	move.w	#$2C0,(unk_EEE4).w
+	move.w	d0,(Camera_BG_X_offset).w
+	move.w	#$2C0,(Camera_BG_Y_offset).w
 	subi.w	#$100,(Camera_BG_Y_pos).w
-	move.w	#0,(unk_EEE6).w
+	move.w	#0,(HTZ_Terrain_Delay).w
 	subq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ2_Routine2
 -
 	rts
 ; ===========================================================================
-+
+
+LevEvents_HTZ2_Routine3_Part2:
 	tst.b	(Screen_Shaking_Flag_HTZ).w
 	beq.s	-	; rts
 	move.w	#$200,d0
 	moveq	#0,d1
 	move.w	d1,(Camera_BG_X_pos_diff).w
 	move.w	d1,(Camera_BG_Y_pos_diff).w
-	bsr.w	sub_EB78
+	bsr.w	ScrollBG
 	or.w	d0,d1
 	bne.s	-	; rts
 	move.b	#0,(Screen_Shaking_Flag_HTZ).w
@@ -18860,73 +18953,74 @@ LevEvents_HTZ2_Routine3:
 ; loc_EDFA:
 LevEvents_HTZ2_Routine4:
 	cmpi.w	#$15F0,(Camera_X_pos).w
-	blo.w	+++
+	blo.w	LevEvents_HTZ2_Routine4_Continue
 	cmpi.w	#$1AC0,(Camera_X_pos).w
-	bhs.s	+++
-	tst.b	(unk_EEE8).w
-	bne.s	+
-	cmpi.w	#$300,(unk_EEE4).w
-	beq.s	++
+	bhs.s	LevEvents_HTZ2_Routine4_Continue
+	tst.b	(HTZ_Terrain_Direction).w
+	bne.s	.sinking
+	cmpi.w	#$300,(Camera_BG_Y_offset).w
+	beq.s	.flip_delay
 	move.w	(Timer_frames).w,d0
 	move.w	d0,d1
 	andi.w	#3,d0
-	bne.s	+++
-	addq.w	#1,(unk_EEE4).w
+	bne.s	LevEvents_HTZ2_Routine4_Continue
+	addq.w	#1,(Camera_BG_Y_offset).w
 	andi.w	#$3F,d1
-	bne.s	+++
+	bne.s	LevEvents_HTZ2_Routine4_Continue
 	move.w	#SndID_Rumbling2,d0
 	jsr	(PlaySound).l
-	bra.s	+++
+	bra.s	LevEvents_HTZ2_Routine4_Continue
 ; ===========================================================================
-+
-	cmpi.w	#0,(unk_EEE4).w
-	beq.s	+
+.sinking:
+	cmpi.w	#0,(Camera_BG_Y_offset).w
+	beq.s	.flip_delay
 	move.w	(Timer_frames).w,d0
 	move.w	d0,d1
 	andi.w	#3,d0
-	bne.s	++
-	subq.w	#1,(unk_EEE4).w
+	bne.s	LevEvents_HTZ2_Routine4_Continue
+	subq.w	#1,(Camera_BG_Y_offset).w
 	andi.w	#$3F,d1
-	bne.s	++
+	bne.s	LevEvents_HTZ2_Routine4_Continue
 	move.w	#SndID_Rumbling2,d0
 	jsr	(PlaySound).l
-	bra.s	++
+	bra.s	LevEvents_HTZ2_Routine4_Continue
 ; ===========================================================================
-+
+.flip_delay:
 	move.b	#0,(Screen_Shaking_Flag).w
-	subq.w	#1,(unk_EEE6).w
-	bpl.s	+
-	move.w	#$78,(unk_EEE6).w
-	eori.b	#1,(unk_EEE8).w
+	subq.w	#1,(HTZ_Terrain_Delay).w
+	bpl.s	LevEvents_HTZ2_Routine4_Continue
+	move.w	#$78,(HTZ_Terrain_Delay).w
+	eori.b	#1,(HTZ_Terrain_Direction).w
 	move.b	#1,(Screen_Shaking_Flag).w
-+
+
+LevEvents_HTZ2_Routine4_Continue:
 	cmpi.w	#$14C0,(Camera_X_pos).w
-	blo.s	+
+	blo.s	.exit_left
 	cmpi.w	#$1B00,(Camera_X_pos).w
-	bhs.s	++
+	bhs.s	.exit_right
 	move.w	(Camera_X_pos_diff).w,(Camera_BG_X_pos_diff).w
 	move.w	(Camera_Y_pos_diff).w,(Camera_BG_Y_pos_diff).w
 	move.w	(Camera_X_pos).w,d0
 	move.w	(Camera_Y_pos).w,d1
-	bra.w	sub_EB78
+	bra.w	ScrollBG
 ; ===========================================================================
-+
+.exit_left:
 	move.l	#$4000000,(Camera_BG_X_pos).w
 	moveq	#0,d0
 	move.l	d0,(Camera_BG_Y_pos).w
-	move.l	d0,(unk_EEE2).w
-	move.b	d0,(unk_EEE8).w
+	move.l	d0,(Camera_BG_X_offset).w
+	move.b	d0,(HTZ_Terrain_Direction).w
 	subq.b	#6,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ2_Routine1
 	move.w	#MusID_StopSFX,d0
 	jsr	(PlaySound).l
 	rts
 ; ===========================================================================
-+
+.exit_right:
 	move.l	#$4000000,(Camera_BG_X_pos).w
 	moveq	#0,d0
 	move.l	d0,(Camera_BG_Y_pos).w
-	move.l	d0,(unk_EEE2).w
-	move.b	d0,(unk_EEE8).w
+	move.l	d0,(Camera_BG_X_offset).w
+	move.b	d0,(HTZ_Terrain_Direction).w
 	addq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ2_Routine5
 	move.w	#MusID_StopSFX,d0
 	jsr	(PlaySound).l
@@ -18935,30 +19029,31 @@ LevEvents_HTZ2_Routine4:
 ; loc_EEF8:
 LevEvents_HTZ2_Routine5:
 	cmpi.w	#$1B00,(Camera_X_pos).w
-	bhs.s	+
+	bhs.s	LevEvents_HTZ2_Routine5_Part2
 	move.b	#1,(Screen_Shaking_Flag_HTZ).w
 	move.l	(Camera_X_pos).w,(Camera_BG_X_pos).w
 	move.l	(Camera_Y_pos).w,(Camera_BG_Y_pos).w
 	moveq	#0,d0
 	move.w	d0,(Camera_BG_X_pos_diff).w
 	move.w	d0,(Camera_BG_Y_pos_diff).w
-	move.w	#-$680,(unk_EEE2).w
+	move.w	#-$680,(Camera_BG_X_offset).w
 	addi.w	#$480,(Camera_BG_X_pos).w
-	move.w	#$300,(unk_EEE4).w
+	move.w	#$300,(Camera_BG_Y_offset).w
 	subi.w	#$100,(Camera_BG_Y_pos).w
-	move.w	#0,(unk_EEE6).w
+	move.w	#0,(HTZ_Terrain_Delay).w
 	subq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ2_Routine4
 -
 	rts
 ; ===========================================================================
-+
+
+LevEvents_HTZ2_Routine5_Part2:
 	tst.b	(Screen_Shaking_Flag_HTZ).w
 	beq.s	-	; rts
 	move.w	#$200,d0
 	moveq	#0,d1
 	move.w	d1,(Camera_BG_X_pos_diff).w
 	move.w	d1,(Camera_BG_Y_pos_diff).w
-	bsr.w	sub_EB78
+	bsr.w	ScrollBG
 	or.w	d0,d1
 	bne.s	-	; rts
 	move.b	#0,(Screen_Shaking_Flag_HTZ).w
@@ -21310,7 +21405,11 @@ JmpTo_SolidObject
 ; End of function JmpTo_SolidObject
 
 ; ===========================================================================
-	dc.w 0
+	align 4
+
+
+
+
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object 1A - Collapsing platform from either OOZ or MCZ
@@ -22696,11 +22795,22 @@ CollectRing_Sonic:
 	addq.w	#1,(Rings_Collected).w	; add 1 to the number of collected rings
 
 CollectRing_1P:
+
+    if gameRevision=0
+	cmpi.w	#999,(Ring_count).w	; does the player 1 have 999 or more rings?
+	bhs.s	+			; if yes, skip the increment
+	addq.w	#1,(Ring_count).w	; add 1 to the ring count
++
+	ori.b	#1,(Update_HUD_rings).w	; set flag to update the ring counter in the HUD
+	move.w	#SndID_Ring,d0		; prepare to play the ring sound
+    else
 	move.w	#SndID_Ring,d0		; prepare to play the ring sound
 	cmpi.w	#999,(Ring_count).w	; does the player 1 have 999 or more rings?
 	bhs.s	JmpTo_PlaySoundStereo	; if yes, play the ring sound
 	addq.w	#1,(Ring_count).w	; add 1 to the ring count
 	ori.b	#1,(Update_HUD_rings).w	; set flag to update the ring counter in the HUD
+    endif
+
 	cmpi.w	#100,(Ring_count).w	; does the player 1 have less than 100 rings?
 	blo.s	JmpTo_PlaySoundStereo	; if yes, play the ring sound
 	bset	#1,(Extra_life_flags).w	; test and set the flag for the first extra life
@@ -23459,6 +23569,19 @@ tails_1up:
 ; ---------------------------------------------------------------------------
 super_ring:
 	addq.w	#1,(a2)
+
+    if gameRevision=0
+	lea	(Ring_count).w,a2
+	lea	(Update_HUD_rings).w,a3
+	lea	(Extra_life_flags).w,a4
+	cmpa.w	#MainCharacter,a1
+	beq.s	+
+	lea	(Ring_count_2P).w,a2
+	lea	(Update_HUD_rings_2P).w,a3
+	lea	(Extra_life_flags_2P).w,a4
++	; give player 10 rings
+	addi.w	#10,(a2)
+    else
 	lea	(Ring_count).w,a2
 	lea	(Update_HUD_rings).w,a3
 	lea	(Extra_life_flags).w,a4
@@ -23480,6 +23603,8 @@ super_ring:
 	cmpi.w	#999,(a2)
 	blo.s	+
 	move.w	#999,(a2)
+    endif
+
 +
 	ori.b	#1,(a3)
 	cmpi.w	#100,(a2)
@@ -23613,8 +23738,10 @@ process_swap_table:
 
 	move.b	#1,(MainCharacter+next_anim).w
 	move.b	#1,(Sidekick+next_anim).w
+    if gameRevision<>0
 	move.b	#0,(MainCharacter+mapping_frame).w
 	move.b	#0,(Sidekick+mapping_frame).w
+    endif
 	move.b	#-1,(Sonic_LastLoadedDPLC).w
 	move.b	#-1,(Tails_LastLoadedDPLC).w
 	move.b	#-1,(TailsTails_LastLoadedDPLC).w
@@ -27783,8 +27910,20 @@ BuildSprites_LevelLoop:
 ; loc_16630:
 BuildSprites_ObjLoop:
 	movea.w	(a4,d6.w),a0 ; a0=object
-	tst.b	id(a0)		; is this object slot occupied?
+
+    if gameRevision=0
+	; the additional check prevents a crash triggered by placing an object in debug mode while dead
+	; unfortunately, the code it branches *to* causes a crash of its own
+	tst.b	id(a0)			; is this object slot occupied?
+	beq.w	BuildSprites_Unknown	; if not, branch
+	tst.l	mappings(a0)		; does this object have any mappings?
+	beq.w	BuildSprites_Unknown	; if not, branch
+    else
+	; REV01 uses a better branch, but removed the useful check
+	tst.b	id(a0)			; is this object slot occupied?
 	beq.w	BuildSprites_NextObj	; if not, check next one
+    endif
+
 	andi.b	#$7F,render_flags(a0)	; clear on-screen flag
 	move.b	render_flags(a0),d0
 	move.b	d0,d4
@@ -27871,6 +28010,12 @@ BuildSprites_NextLevel:
 	move.b	#0,-5(a2)	; set link field to 0
 	rts
 ; ===========================================================================
+    if gameRevision=0
+BuildSprites_Unknown:
+	; in the Simon Wait beta, this was a simple BranchTo, but later builds have this mystery line
+	move.w	(1).w,d0	; causes a crash on hardware because of the word operation at an odd address
+	bra.s	BuildSprites_NextObj
+    endif
 ; loc_1671C:
 BuildSprites_MultiDraw:
 	move.l	a4,-(sp)
@@ -28824,7 +28969,9 @@ byte_16F06:
 +	moveq	#1,d0
 	rts
 ; ===========================================================================
+    if gameRevision<>0
 	nop
+    endif
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -30585,13 +30732,24 @@ return_18028:
 ; CNZ act 1 object layout for 2-player mode (various objects were deleted)
 ;---------------------------------------------------------------------------------------
 ; byte_1802A;
+    if gameRevision=0
+Objects_CNZ1_2P:	BINCLUDE	"level/objects/CNZ_1_2P (REV00).bin"
+    else
+    ; a Crawl badnik was moved slightly further away from a ledge
+    ; 2 flippers were moved closer to a wall
 Objects_CNZ1_2P:	BINCLUDE	"level/objects/CNZ_1_2P.bin"
+    endif
 ;---------------------------------------------------------------------------------------
 ; CNZ act 2 object layout for 2-player mode (various objects were deleted)
 ;---------------------------------------------------------------------------------------
 ; byte_18492:
+    if gameRevision=0
+Objects_CNZ2_2P:	BINCLUDE	"level/objects/CNZ_2_2P (REV00).bin"
+    else
+    ; 4 Crawl badniks were slightly moved, placing them closer/farther away from ledges
+    ; 2 flippers were moved away from a wall to keep players from getting stuck behind them
 Objects_CNZ2_2P:	BINCLUDE	"level/objects/CNZ_2_2P.bin"
-
+    endif
 
 
 
@@ -37444,6 +37602,10 @@ Obj02_Finished:
 ; loc_1CCEC:
 Obj02_ResetLevel:
 	tst.b	(Time_Over_flag).w
+
+    if gameRevision=0
+	bne.s	Obj02_ResetLevel_Part3
+    else
 	beq.s	Obj02_ResetLevel_Part2
 	tst.b	(Time_Over_flag_2P).w
 	beq.s	Obj02_ResetLevel_Part3
@@ -37452,6 +37614,8 @@ Obj02_ResetLevel:
 	clr.b	(Update_HUD_timer_2P).w
 	move.b	#8,routine(a0)
 	rts
+    endif
+
 ; ---------------------------------------------------------------------------
 Obj02_ResetLevel_Part2:
 	tst.b	(Time_Over_flag_2P).w
@@ -42575,12 +42739,19 @@ Obj74_Main:
 	move.w	x_pos(a0),d4
 	bsr.w	SolidObject_Always
 	tst.w	(Two_player_mode).w
-	bne.s	+	; rts
+	bne.s	+
 	move.w	x_pos(a0),d0
 	andi.w	#$FF80,d0
 	sub.w	(Camera_X_pos_coarse).w,d0
 	cmpi.w	#$280,d0
 	bhi.w	JmpTo18_DeleteObject
+    if gameRevision=0
+    ; this object was visible with debug mode in REV00
++
+	tst.w	(Debug_placement_mode).w
+	beq.s	+	; rts
+	jmp	(DisplaySprite).l
+    endif
 +
 	rts
 ; ===========================================================================
@@ -45581,7 +45752,7 @@ Obj30_Init:
 ; loc_23944:
 Obj30_Main:
 	move.w	objoff_32(a0),d0
-	add.w	(unk_EEE4).w,d0
+	add.w	(Camera_BG_Y_offset).w,d0
 	move.w	d0,y_pos(a0)
 	moveq	#0,d0
 	move.b	subtype(a0),d0
@@ -47918,10 +48089,10 @@ loc_25B28:
 	move.w	off_25B36(pc,d0.w),d1
 	jmp	off_25B36(pc,d1.w)
 ; ===========================================================================
-off_25B36:
-	dc.w loc_25B3C - off_25B36
-	dc.w loc_25B66 - off_25B36; 1
-	dc.w return_25B64 - off_25B36; 2
+off_25B36:	offsetTable
+		offsetTableEntry.w loc_25B3C	; 0
+		offsetTableEntry.w loc_25B66	; 2
+		offsetTableEntry.w return_25B64	; 4
 ; ===========================================================================
 
 loc_25B3C:
@@ -49376,13 +49547,22 @@ loc_2702C:
 	sub.w	(Camera_X_pos_coarse).w,d0
 	cmpi.w	#$280,d0
 	bhi.w	JmpTo33_DeleteObject
+    if gameRevision=0
+       ; this object was visible with debug mode in REV00
+	tst.w	(Debug_placement_mode).w
+	beq.s	+	; rts
+	bsr.w	JmpTo46_DisplaySprite
++
+    endif
 	rts
 ; ===========================================================================
-
 loc_27042:
+    if gameRevision<>0
+	; REV00 didn't prevent the player from bouncing if they were hurt or dead
 	cmpi.b	#4,routine(a1)
 	blo.s	loc_2704C
 	rts
+    endif
 ; ===========================================================================
 
 loc_2704C:
@@ -49443,6 +49623,12 @@ loc_270DC:
 ; sprite mappings
 ; ----------------------------------------------------------------------------
 Obj66_MapUnc_27120:	include "mappings/sprite/obj66.asm"
+; ===========================================================================
+
+    if gameRevision=0
+JmpTo46_DisplaySprite 
+	jmp	(DisplaySprite).l
+    endif
 ; ===========================================================================
 
 JmpTo33_DeleteObject 
@@ -52651,7 +52837,8 @@ Ani_obj7B:	offsetTable
 		offsetTableEntry.w byte_29777	; 3
 byte_29770:	dc.b  $F,  0,$FF
 byte_29773:	dc.b   0,  3,$FD,  0
-byte_29777:	dc.b   5,  1,  2,  2,  2,  4,$FD,  0,  0
+byte_29777:	dc.b   5,  1,  2,  2,  2,  4,$FD,  0
+		even
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
@@ -54247,8 +54434,10 @@ return_2AD78:
 ; ===========================================================================
 
 loc_2AD7A:
+    if gameRevision<>0
 	cmpi.b	#4,routine(a1)
 	bhs.s	return_2AD78
+    endif
 	subq.b	#1,d0
 	bne.w	loc_2AE0C
 	tst.b	render_flags(a1)
@@ -54412,8 +54601,10 @@ return_2AF78:
 ; ===========================================================================
 
 loc_2AF7A:
+    if gameRevision<>0
 	cmpi.b	#4,routine(a1)
 	bhs.s	return_2AF78
+    endif
 	subq.b	#1,d0
 	bne.w	loc_2B018
 	tst.b	render_flags(a1)
@@ -55508,7 +55699,8 @@ Ani_objD6:	offsetTable
 		offsetTableEntry.w byte_2BEB4	; 0
 		offsetTableEntry.w byte_2BEB7	; 1
 byte_2BEB4:	dc.b  $F,  0,$FF
-byte_2BEB7:	dc.b   1,  1,  0,$FF,  0
+byte_2BEB7:	dc.b   1,  1,  0,$FF
+	even
 ; ------------------------------------------------------------------------------
 ; sprite mappings
 ; ------------------------------------------------------------------------------
@@ -61805,7 +61997,7 @@ byte_30D30:	dc.b   1,  4,  6,  5,  4,  6,  4,  5,  4,  6,  4,  4,  6,  5,  4,  6
 		dc.b   4,  5,  4,  6,  4,$FD,  1; 16
 byte_30D47:	dc.b  $F,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4
 		dc.b   4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,$F9; 16
-		dc.b   0	; 32
+	even
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
@@ -63115,7 +63307,8 @@ byte_320C8:	dc.b   7,  8,  9,  8,  9,  8,  9,  8,  9,$FD,  3
 byte_320D3:	dc.b   7, $A, $A, $A, $A, $A, $A, $A,$FD,  3
 byte_320DD:	dc.b   3,$13,$14,$FF
 byte_320E1:	dc.b   1,  0,$FF
-byte_320E4:	dc.b   1, $F,$10,$11,$FF,  0
+byte_320E4:	dc.b   1, $F,$10,$11,$FF
+	even
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
@@ -69377,7 +69570,7 @@ loc_37028:
 	tst.b	render_flags(a0)
 	bpl.w	JmpTo65_DeleteObject
 	bchg	#0,render_flags(a0)
-	bsr.w   JmpTo26_ObjectMove
+	bsr.w	JmpTo26_ObjectMove
 	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 
@@ -74336,7 +74529,7 @@ ObjB2_Move_Leader_egde:
 ; ===========================================================================
 ; loc_3AA4C:
 ObjB2_Wait_for_plane:
-	cmpi.w	#$380,(unk_EEE2).w
+	cmpi.w	#$380,(Camera_BG_X_offset).w
 	bhs.s	+
 	clr.w	(Ctrl_1_Logical).w
 	bra.w	ObjB2_Waiting_animation
@@ -74432,7 +74625,7 @@ ObjB2_Jump_to_ship:
 loc_3AB8A:
 	cmpi.w	#$460,objoff_2A(a0)
 	blo.s	ObjB2_Dock_on_DEZ
-	move.b	#6,(Dynamic_Resize_Routine).w
+	move.b	#6,(Dynamic_Resize_Routine).w ; => LevEvents_WFZ_Routine4
 	addq.b	#2,routine_secondary(a0)
 	lea	(word_3AFB8).l,a2
 	bsr.w	LoadChildObject
@@ -75755,7 +75948,7 @@ ObjBC_Init:
 ; loc_3BBDA:
 ObjBC_Main:
 	move.w	objoff_2C(a0),d0
-	move.w	(unk_EEE2).w,d1
+	move.w	(Camera_BG_X_offset).w,d1
 	cmpi.w	#$380,d1
 	bhs.w	JmpTo65_DeleteObject
 	add.w	d1,d0
@@ -85100,6 +85293,13 @@ PlrList_ResultsTails: plrlistheader
 	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
 PlrList_ResultsTails_End
 
+    if gameRevision=0
+	; Unknown
+	plreq ArtTile_ArtNem_MiniCharacter, ArtNem_MiniTails
+	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
+	dc.l	0
+    endif
+
 
 
 
@@ -85515,7 +85715,7 @@ ArtNem_Signpost:	BINCLUDE	"art/nemesis/Signpost.bin"
 ;---------------------------------------------------------------------------------------
 ; Uncompressed art
 ; Signpost		; ArtUnc_7A18A:
-; Yep, it's in the rom twice, once compressed and once uncompressed
+; Yep, it's in the ROM twice: once compressed and once uncompressed
 	even
 ArtUnc_Signpost:	BINCLUDE	"art/uncompressed/Signpost.bin"
 ;---------------------------------------------------------------------------------------
@@ -86887,11 +87087,25 @@ Off_Objects: zoneOrderedOffsetTable 2,2
 		BINCLUDE	"level/objects/Null_1.bin"
 
 Objects_EHZ_1:	BINCLUDE	"level/objects/EHZ_1.bin"
+
+    if gameRevision=0
+Objects_EHZ_2:	BINCLUDE	"level/objects/EHZ_2 (REV00).bin"
+    else
+; a collision switcher was moved
 Objects_EHZ_2:	BINCLUDE	"level/objects/EHZ_2.bin"
+    endif
+
 Objects_MTZ_1:	BINCLUDE	"level/objects/MTZ_1.bin"
 Objects_MTZ_2:	BINCLUDE	"level/objects/MTZ_2.bin"
 Objects_MTZ_3:	BINCLUDE	"level/objects/MTZ_3.bin"
+
+    if gameRevision=0
+Objects_WFZ_1:	BINCLUDE	"level/objects/WFZ_1 (REV00).bin"
+    else
+; lampposts' 'remember state' flags were set
 Objects_WFZ_1:	BINCLUDE	"level/objects/WFZ_1.bin"
+    endif
+
 Objects_WFZ_2:	BINCLUDE	"level/objects/WFZ_2.bin"
 Objects_HTZ_1:	BINCLUDE	"level/objects/HTZ_1.bin"
 Objects_HTZ_2:	BINCLUDE	"level/objects/HTZ_2.bin"
@@ -86905,8 +87119,16 @@ Objects_OOZ_1:	BINCLUDE	"level/objects/OOZ_1.bin"
 Objects_OOZ_2:	BINCLUDE	"level/objects/OOZ_2.bin"
 Objects_MCZ_1:	BINCLUDE	"level/objects/MCZ_1.bin"
 Objects_MCZ_2:	BINCLUDE	"level/objects/MCZ_2.bin"
+
+    if gameRevision=0
+Objects_CNZ_1:	BINCLUDE	"level/objects/CNZ_1 (REV00).bin"
+Objects_CNZ_2:	BINCLUDE	"level/objects/CNZ_2 (REV00).bin"
+    else
+; the signposts were moved up slightly so they weren't poking out the bottom of the ground
 Objects_CNZ_1:	BINCLUDE	"level/objects/CNZ_1.bin"
 Objects_CNZ_2:	BINCLUDE	"level/objects/CNZ_2.bin"
+    endif
+
 Objects_CPZ_1:	BINCLUDE	"level/objects/CPZ_1.bin"
 Objects_CPZ_2:	BINCLUDE	"level/objects/CPZ_2.bin"
 Objects_DEZ_1:	BINCLUDE	"level/objects/DEZ_1.bin"
@@ -89248,7 +89470,7 @@ paddingSoFar	:= paddingSoFar+1
 	endif
 	if MOMPASS=2
 		; "About" because it will be off by the same amount that Size_of_Snd_driver_guess is incorrect (if you changed it), and because I may have missed a small amount of internal padding somewhere
-		message "rom size is $\{*} bytes (\{*/1024.0} kb). About $\{paddingSoFar} bytes are padding. "
+		message "ROM size is $\{*} bytes (\{*/1024.0} kb). About $\{paddingSoFar} bytes are padding. "
 	endif
 	; share these symbols externally (WARNING: don't rename, move or remove these labels!)
 	shared movewZ80CompSize
