@@ -15148,14 +15148,14 @@ SwScrl_OOZ:
 	move.w	#$DF,d6
 	add.w	d6,d1
 	move.w	d7,d0
-	bsr.s	sub_CD1C
-	bsr.s	sub_CD10
-	bsr.s	sub_CD16
-	bsr.s	sub_CD0A
+	bsr.s	OOZ_BGScroll_Lines
+	bsr.s	OOZ_BGScroll_MediumClouds
+	bsr.s	OOZ_BGScroll_SlowClouds
+	bsr.s	OOZ_BGScroll_FastClouds
 	move.w	d7,d0
 	asr.w	#4,d0
 	moveq	#6,d1
-	bsr.s	sub_CD1C
+	bsr.s	OOZ_BGScroll_Lines
 	move.b	(Vint_runcount+3).w,d1
 	andi.w	#7,d1
 	bne.s	+
@@ -15174,63 +15174,65 @@ SwScrl_OOZ:
 	bmi.s	+	; rts
 	dbf	d1,-
 
-	bsr.s	sub_CD10
-	bsr.s	sub_CD16
-	bsr.s	sub_CD0A
-	bsr.s	sub_CD16
-	bsr.s	sub_CD10
+	bsr.s	OOZ_BGScroll_MediumClouds
+	bsr.s	OOZ_BGScroll_SlowClouds
+	bsr.s	OOZ_BGScroll_FastClouds
+	bsr.s	OOZ_BGScroll_SlowClouds
+	bsr.s	OOZ_BGScroll_MediumClouds
 	move.w	d7,d0
 	moveq	#$47,d1
-	bsr.s	sub_CD1C
+	bsr.s	OOZ_BGScroll_Lines
 +	rts
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-
-sub_CD0A:
+;sub_CD0A
+OOZ_BGScroll_FastClouds:
 	move.w	d7,d0
 	asr.w	#2,d0
 	bra.s	+
-; End of function sub_CD0A
+; End of function OOZ_BGScroll_FastClouds
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-
-sub_CD10:
+;sub_CD10
+OOZ_BGScroll_MediumClouds:
 	move.w	d7,d0
 	asr.w	#3,d0
 	bra.s	+
-; End of function sub_CD10
+; End of function OOZ_BGScroll_MediumClouds
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-
-sub_CD16:
+;sub_CD16
+OOZ_BGScroll_SlowClouds:
 	move.w	d7,d0
 	asr.w	#4,d0
 
 +
 	moveq	#7,d1
-; End of function sub_CD16
+; End of function OOZ_BGScroll_SlowClouds
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+; Scrolls min(d6,d1+1) lines by an (constant) amount specified in d0
 
-sub_CD1C:
+;sub_CD1C
+OOZ_BGScroll_Lines:
 	move.l	d0,-(a1)
 	subq.w	#1,d6
 	bmi.s	+
-	dbf	d1,sub_CD1C
+	dbf	d1,OOZ_BGScroll_Lines
 
 	rts
 ; ===========================================================================
 +
 	addq.l	#4,sp
 	rts
-; End of function sub_CD1C
+; End of function OOZ_BGScroll_Lines
 
 ; ===========================================================================
 ; loc_CD2C:
