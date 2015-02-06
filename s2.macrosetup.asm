@@ -202,3 +202,66 @@ _tst	macro
 	endm
 
     endif
+
+	; in REV02, almost all possible add/sub optimizations were made.
+	; this toggle allows you to have them in any revision
+    if addsubOptimize
+	; if addsubOptimize, optimize these
+addi_	macro
+		!addq.ATTRIBUTE ALLARGS
+	endm
+subi_	macro
+		!subq.ATTRIBUTE ALLARGS
+	endm
+adda_	macro
+		!addq.ATTRIBUTE ALLARGS
+	endm
+
+    else
+
+	; otherwise, leave them unoptimized
+addi_	macro
+		!addi.ATTRIBUTE ALLARGS
+	endm
+subi_	macro
+		!subi.ATTRIBUTE ALLARGS
+	endm
+adda_	macro
+		!adda.ATTRIBUTE ALLARGS
+	endm
+
+    endif
+
+; depending on if relativeLea is set or not, this will create a pc-relative lea or an absolute long lea.
+lea_ macro address,reg
+	if relativeLea
+		!lea address(pc),reg
+	else
+		!lea (address).l,reg
+	endif
+    endm
+
+	; this even will only exist in REV02 (unnecessary)
+rev02even macro
+	if gameRevision=2
+		even
+	endif
+    endm
+
+    ; depending on if removeJmpTos is set or not, these macros will create a jump directly
+    ; to the destination, or create a branch to a JmpTo
+jsrto macro direct, indirect
+	if removeJmpTos
+		!jsr direct	; jump directly to address
+	else
+		!bsr.w indirect	; otherwise, branch to an indirect JmpTo
+	endif
+    endm
+
+jmpto macro direct, indirect
+	if removeJmpTos
+		!jmp direct	; jump directly to address
+	else
+		!bra.w indirect	; otherwise, branch to an indirect JmpTo
+	endif
+    endm
