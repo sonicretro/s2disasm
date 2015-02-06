@@ -18508,9 +18508,9 @@ LevEvents_HTZ:
 ; ===========================================================================
 ; off_E99C:
 LevEvents_HTZ_Index: offsetTable
-	offsetTableEntry.w LevEvents_HTZ_Routine1	; 0
-	offsetTableEntry.w LevEvents_HTZ_Routine2	; 2
-	offsetTableEntry.w LevEvents_HTZ_Routine3	; 4
+	offsetTableEntry.w LevEvents_HTZ_Routine1	; 0 left of earthquake
+	offsetTableEntry.w LevEvents_HTZ_Routine2	; 2 earthquake
+	offsetTableEntry.w LevEvents_HTZ_Routine3	; 4 right of earthquake
 ; ===========================================================================
 ; loc_E9A2:
 LevEvents_HTZ_Routine1:
@@ -18741,15 +18741,15 @@ LevEvents_HTZ2:
 ; ===========================================================================
 ; off_EBFC:
 LevEvents_HTZ2_Index: offsetTable
-	offsetTableEntry.w LevEvents_HTZ2_Routine1	;   0
-	offsetTableEntry.w LevEvents_HTZ2_Routine2	;   2
-	offsetTableEntry.w LevEvents_HTZ2_Routine3	;   4
-	offsetTableEntry.w LevEvents_HTZ2_Routine4	;   6
-	offsetTableEntry.w LevEvents_HTZ2_Routine5	;   8
-	offsetTableEntry.w LevEvents_HTZ2_Routine6	;  $A
-	offsetTableEntry.w LevEvents_HTZ2_Routine7	;  $C
-	offsetTableEntry.w LevEvents_HTZ2_Routine8	;  $E
-	offsetTableEntry.w LevEvents_HTZ2_Routine9	; $10
+	offsetTableEntry.w LevEvents_HTZ2_Routine1	;   0 earthquake left
+	offsetTableEntry.w LevEvents_HTZ2_Routine2	;   2 earthquake (top)
+	offsetTableEntry.w LevEvents_HTZ2_Routine3	;   4 earthquake right (top)
+	offsetTableEntry.w LevEvents_HTZ2_Routine4	;   6 earthquake (bottom)
+	offsetTableEntry.w LevEvents_HTZ2_Routine5	;   8 earthquake right (bottom)
+	offsetTableEntry.w LevEvents_HTZ2_Routine6	;  $A boss area cutoff
+	offsetTableEntry.w LevEvents_HTZ2_Routine7	;  $C boss area camera shift
+	offsetTableEntry.w LevEvents_HTZ2_Routine8	;  $E boss begin
+	offsetTableEntry.w LevEvents_HTZ2_Routine9	; $10 boss end / extend camera
 ; ===========================================================================
 ; loc_EC0E:
 LevEvents_HTZ2_Routine1:
