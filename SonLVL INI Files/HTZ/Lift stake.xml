@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.HTZ" TypeName="Stake" Language="cs" Name="Lift stake" Image="img1" RememberState="false">
+  <Images>
+    <ImageFromMappings id="img1">
+      <ArtFile filename="../art/nemesis/HTZ zip-line platform.bin" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj16.bin" frame="3" startpal="2" />
+    </ImageFromMappings>
+    <ImageFromMappings id="img2">
+      <ArtFile filename="../art/nemesis/HTZ zip-line platform.bin" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj16.bin" frame="4" startpal="2" />
+    </ImageFromMappings>
+    <ImageFromMappings id="img3">
+      <ArtFile filename="LevelArt" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj1C_a.bin" frame="0" startpal="2" />
+    </ImageFromMappings>
+    <ImageFromMappings id="img4">
+      <ArtFile filename="LevelArt" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj1C_a.bin" frame="1" startpal="2" />
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="04" name="Stake (left)" image="img1" />
+    <Subtype id="05" name="Stake (right)" image="img2" />
+    <Subtype id="07" name="Ground edge (left)" image="img3" />
+    <Subtype id="08" name="Ground edge (right)" image="img4" />
+  </Subtypes>
+</ObjDef>
