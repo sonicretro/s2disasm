@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.HTZ" TypeName="Sol" Language="cs" Name="Sol" RememberState="true">
+  <Images>
+    <ImageFromMappings id="fireball">
+      <ArtFile filename="../art/nemesis/Fireball 1 (Buzzer).bin" offset="29632" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj95.bin" frame="3" startpal="0" />
+    </ImageFromMappings>
+    <ImageFromMappings id="body">
+      <ArtFile filename="../art/nemesis/Sol badnik from HTZ.bin" offset="31680" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj95.bin" frame="0" startpal="0" />
+    </ImageFromMappings>
+  </Images>
+  <DefaultImage>
+    <ImageRef image="fireball">
+      <Offset X="-7" Y="-15" />
+    </ImageRef>
+    <ImageRef image="fireball">
+      <Offset X="6" Y="14" />
+    </ImageRef>
+    <ImageRef image="fireball">
+      <Offset X="-15" Y="6" />
+    </ImageRef>
+    <ImageRef image="fireball">
+      <Offset X="14" Y="-7" />
+    </ImageRef>
+    <ImageRef image="body" />
+  </DefaultImage>
+  <Display>
+    <DisplayOption>
+    <ImageRef image="fireball">
+      <Offset X="-7" Y="-15" />
+    </ImageRef>
+    <ImageRef image="fireball">
+      <Offset X="6" Y="14" />
+    </ImageRef>
+    <ImageRef image="fireball">
+      <Offset X="-15" Y="6" />
+    </ImageRef>
+    <ImageRef image="fireball">
+      <Offset X="14" Y="-7" />
+    </ImageRef>
+      <ImageRef image="body" />
+    </DisplayOption>
+  </Display>
+</ObjDef>
