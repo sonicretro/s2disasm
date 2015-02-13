@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.HTZ" TypeName="SmashGround" Language="cs" Name="Smashable ground" Image="img1" RememberState="false">
+<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.HTZ" TypeName="SmashGround" Language="cs" Name="Smashable ground" Image="img1" RememberState="true">
   <Images>
     <ImageFromMappings id="img1">
       <ArtFile filename="LevelArt" />
@@ -28,5 +28,23 @@
     <Subtype id="04" name="Partly broken (2)" image="img3" />
     <Subtype id="06" name="Partly broken (3)" image="img4" />
     <Subtype id="08" name="Partly broken (4)" image="img5" />
+    <Subtype id="80" name="Full - Jump-breakable" image="img1" />
+    <Subtype id="82" name="Partly broken (1) - Jump-breakable" image="img2" />
+    <Subtype id="84" name="Partly broken (2) - Jump-breakable" image="img3" />
+    <Subtype id="86" name="Partly broken (3) - Jump-breakable" image="img4" />
+    <Subtype id="88" name="Partly broken (4) - Jump-breakable" image="img5" />
   </Subtypes>
+  <Properties>
+    <BitsProperty name="Destruction" type="DestructionLevel" startbit="1" length="3" />
+    <BitsProperty name="DestroyableByJumping" displayname="Destroyable by jumping" type="bool" startbit="7" length="1" />
+  </Properties>
+  <Enums>
+    <Enum name="DestructionLevel">
+      <EnumMember name="Full" />
+      <EnumMember name="Partly broken (1)" />
+      <EnumMember name="Partly broken (2)" />
+      <EnumMember name="Partly broken (3)" />
+      <EnumMember name="Partly broken (4)" />
+    </Enum>
+  </Enums>
 </ObjDef>
