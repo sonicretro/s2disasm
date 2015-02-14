@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.OOZ" TypeName="Fan" Language="cs" Name="Fan" Image="up" RememberState="false">
+  <Images>
+    <ImageFromMappings id="up">
+      <ArtFile filename="../art/nemesis/Fan from OOZ.bin" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj3F_a.bin" frame="0" startpal="3" />
+    </ImageFromMappings>
+    <ImageFromMappings id="side">
+      <ArtFile filename="../art/nemesis/Fan from OOZ.bin" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj3F_b.bin" frame="0" startpal="3" />
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="00" name="Sideways - On/Off" image="up" />
+    <Subtype id="01" name="Sideways - On/Off Reverse" image="up" />
+    <Subtype id="02" name="Sideways - Always On" image="up" />
+    <Subtype id="03" name="Sideways - Always On Reverse" image="up" />
+    <Subtype id="80" name="Up - On/Off" image="side" />
+    <Subtype id="81" name="Up - On/Off Reverse" image="side" />
+    <Subtype id="82" name="Up - Always On" image="side" />
+    <Subtype id="83" name="Up - Always On Reverse" image="side" />
+  </Subtypes>
+  <Properties>
+    <BitsProperty name="Direction" type="FanDirection" startbit="7" length="1" />
+    <BitsProperty name="FanAlwaysOn" displayname="Always On" type="bool" startbit="1" length="1" />
+    <BitsProperty name="FanReverse" displayname="Reverse Animation" type="bool" startbit="0" length="1" />
+  </Properties>
+  <Enums>
+    <Enum name="FanDirection">
+      <EnumMember name="Sideways" />
+      <EnumMember name="Up" />
+    </Enum>
+  </Enums>
+</ObjDef>

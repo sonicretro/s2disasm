@@ -7,7 +7,7 @@
     </ImageFromMappings>
   </Images>
   <Subtypes>
-    <Subtype id="00" name="Gives out points" image="img1" />
-    <Subtype id="01" name="Gives out rings" image="img1" />
+    <Subtype id="00" name="Gives Points" image="img1" />
+    <Subtype id="01" name="Gives Rings" image="img1" />
   </Subtypes>
 </ObjDef>

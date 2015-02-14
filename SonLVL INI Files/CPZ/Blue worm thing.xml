@@ -7,9 +7,67 @@
     </ImageFromMappings>
   </Images>
   <Subtypes>
-    <Subtype id="05" name="Back and Forth" image="img1" />
-    <Subtype id="15" name="Square Tube" image="img1" />
+    <Subtype id="00" name="Back and Forth - 1 Segment" image="img1" />
+    <Subtype id="01" name="Back and Forth - 2 Segments" image="img1" />
+    <Subtype id="02" name="Back and Forth - 3 Segments" image="img1" />
+    <Subtype id="03" name="Back and Forth - 4 Segments" image="img1" />
+    <Subtype id="04" name="Back and Forth - 5 Segments" image="img1" />
+    <Subtype id="05" name="Back and Forth - 6 Segments" image="img1" />
+    <Subtype id="06" name="Back and Forth - 7 Segments" image="img1" />
+    <Subtype id="07" name="Back and Forth - 8 Segments" image="img1" />
+    <Subtype id="08" name="Back and Forth - 9 Segments" image="img1" />
+    <Subtype id="09" name="Back and Forth - 10 Segments" image="img1" />
+    <Subtype id="0A" name="Back and Forth - 11 Segments" image="img1" />
+    <Subtype id="0B" name="Back and Forth - 12 Segments" image="img1" />
+    <Subtype id="0C" name="Back and Forth - 13 Segments" image="img1" />
+    <Subtype id="0D" name="Back and Forth - 14 Segments" image="img1" />
+    <Subtype id="0E" name="Back and Forth - 15 Segments" image="img1" />
+    <Subtype id="0F" name="Back and Forth - 16 Segments" image="img1" />
+    <Subtype id="10" name="Square Tube - 1 Segment" image="img1" />
+    <Subtype id="11" name="Square Tube - 2 Segments" image="img1" />
+    <Subtype id="12" name="Square Tube - 3 Segments" image="img1" />
+    <Subtype id="13" name="Square Tube - 4 Segments" image="img1" />
+    <Subtype id="14" name="Square Tube - 5 Segments" image="img1" />
+    <Subtype id="15" name="Square Tube - 6 Segments" image="img1" />
+    <Subtype id="16" name="Square Tube - 7 Segments" image="img1" />
+    <Subtype id="17" name="Square Tube - 8 Segments" image="img1" />
+    <Subtype id="18" name="Square Tube - 9 Segments" image="img1" />
+    <Subtype id="19" name="Square Tube - 10 Segments" image="img1" />
+    <Subtype id="1A" name="Square Tube - 11 Segments" image="img1" />
+    <Subtype id="1B" name="Square Tube - 12 Segments" image="img1" />
+    <Subtype id="1C" name="Square Tube - 13 Segments" image="img1" />
+    <Subtype id="1D" name="Square Tube - 14 Segments" image="img1" />
+    <Subtype id="1E" name="Square Tube - 15 Segments" image="img1" />
+    <Subtype id="1F" name="Square Tube - 16 Segments" image="img1" />
   </Subtypes>
+  <Properties>
+    <BitsProperty name="Direction" type="WormSegments" startbit="0" length="4" />
+    <BitsProperty name="Behaviour" type="WormBehaviour" startbit="4" length="1" />
+  </Properties>
+  <Enums>
+    <Enum name="WormSegments">
+      <EnumMember name="1" />
+      <EnumMember name="2" />
+      <EnumMember name="3" />
+      <EnumMember name="4" />
+      <EnumMember name="5" />
+      <EnumMember name="6" />
+      <EnumMember name="7" />
+      <EnumMember name="8" />
+      <EnumMember name="9" />
+      <EnumMember name="10" />
+      <EnumMember name="11" />
+      <EnumMember name="12" />
+      <EnumMember name="13" />
+      <EnumMember name="14" />
+      <EnumMember name="15" />
+      <EnumMember name="16" />
+    </Enum>
+    <Enum name="WormBehaviour">
+      <EnumMember name="Back and Forth" />
+      <EnumMember name="Square Tube" />
+    </Enum>
+  </Enums>
   <Display>
     <DisplayOption>
       <ImageRef image="img1" />

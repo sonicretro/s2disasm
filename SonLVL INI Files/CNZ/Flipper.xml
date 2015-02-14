@@ -11,7 +11,7 @@
     </ImageFromMappings>
   </Images>
   <Subtypes>
-    <Subtype id="00" name="00" image="img1" />
-    <Subtype id="01" name="01" image="img2" />
+    <Subtype id="00" name="Horizontal" image="img1" />
+    <Subtype id="01" name="Vertical" image="img2" />
   </Subtypes>
 </ObjDef>

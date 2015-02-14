@@ -12,7 +12,7 @@
   </Images>
   <Subtypes>
     <Subtype id="0F" name="Brick" image="img1" />
-    <Subtype id="16" name="Spike ball (small radius)" image="img2" />
-    <Subtype id="17" name="Spike ball (large radius)" image="img2" />
+    <Subtype id="16" name="Spike Ball (Small Radius)" image="img2" />
+    <Subtype id="17" name="Spike Ball (Large Radius)" image="img2" />
   </Subtypes>
 </ObjDef>
