@@ -52799,11 +52799,10 @@ Obj7B_Index:	offsetTable
 		offsetTableEntry.w Obj7B_Init	; 0
 		offsetTableEntry.w Obj7B_Main	; 2
 ; ===========================================================================
-byte_295C4:
-	dc.b $F0	; 0
-	dc.b   0	; 1
-	dc.b $F5	; 2
-	dc.b $80	; 3
+; byte_295C4:
+Obj7B_Strength:
+	dc.w -$1000	; 0
+	dc.w  -$A80	; 2
 ; ===========================================================================
 ; loc_295C8:
 Obj7B_Init:
@@ -52815,7 +52814,7 @@ Obj7B_Init:
 	move.b	#1,priority(a0)
 	move.b	subtype(a0),d0
 	andi.w	#2,d0
-	move.w	byte_295C4(pc,d0.w),objoff_30(a0)
+	move.w	Obj7B_Strength(pc,d0.w),objoff_30(a0)
 	jsrto	(Adjust2PArtPointer).l, JmpTo42_Adjust2PArtPointer
 ; loc_295FE:
 Obj7B_Main:
