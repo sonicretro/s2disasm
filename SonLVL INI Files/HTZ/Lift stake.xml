@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.HTZ" TypeName="LiftStake" Language="cs" Name="Lift stake" Image="img1" RememberState="false">
+<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.HTZ" TypeName="LiftStake" Language="cs" Name="Lift stake" Image="img1" RememberState="false" DefaultSubtype="04">
   <Images>
     <ImageFromMappings id="img1">
       <ArtFile filename="../art/nemesis/HTZ zip-line platform.bin" />

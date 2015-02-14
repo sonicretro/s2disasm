@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.MCZ" TypeName="Drawbridge" Language="cs" Name="Drawbridge" Image="img1" RememberState="false">
+  <Images>
+    <ImageFromMappings id="log">
+      <ArtFile filename="../art/nemesis/Drawbridge logs from MCZ.bin" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj81.bin" frame="1" startpal="3" />
+    </ImageFromMappings>
+  </Images>
+  <DefaultImage>
+    <ImageRef image="log">
+      <Offset Y="-16" />
+    </ImageRef>
+    <ImageRef image="log">
+      <Offset Y="-32" />
+    </ImageRef>
+    <ImageRef image="log">
+      <Offset Y="-48" />
+    </ImageRef>
+    <ImageRef image="log">
+      <Offset Y="-64" />
+    </ImageRef>
+    <ImageRef image="log">
+      <Offset Y="-80" />
+    </ImageRef>
+    <ImageRef image="log">
+      <Offset Y="-96" />
+    </ImageRef>
+    <ImageRef image="log">
+      <Offset Y="-112" />
+    </ImageRef>
+    <ImageRef image="log">
+      <Offset Y="-128" />
+    </ImageRef>
+  </DefaultImage>
+  <Display>
+    <DisplayOption>
+    <ImageRef image="log">
+      <Offset Y="-16" />
+    </ImageRef>
+    <ImageRef image="log">
+      <Offset Y="-32" />
+    </ImageRef>
+    <ImageRef image="log">
+      <Offset Y="-48" />
+    </ImageRef>
+    <ImageRef image="log">
+      <Offset Y="-64" />
+    </ImageRef>
+    <ImageRef image="log">
+      <Offset Y="-80" />
+    </ImageRef>
+    <ImageRef image="log">
+      <Offset Y="-96" />
+    </ImageRef>
+    <ImageRef image="log">
+      <Offset Y="-112" />
+    </ImageRef>
+    <ImageRef image="log">
+      <Offset Y="-128" />
+    </ImageRef>
+    </DisplayOption>
+  </Display>
+</ObjDef>
