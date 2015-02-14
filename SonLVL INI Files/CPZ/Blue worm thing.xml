@@ -41,7 +41,7 @@
     <Subtype id="1F" name="Square Tube - 16 Segments" image="img1" />
   </Subtypes>
   <Properties>
-    <BitsProperty name="Direction" type="WormSegments" startbit="0" length="4" />
+    <BitsProperty name="Segments" type="WormSegments" startbit="0" length="4" />
     <BitsProperty name="Behaviour" type="WormBehaviour" startbit="4" length="1" />
   </Properties>
   <Enums>
