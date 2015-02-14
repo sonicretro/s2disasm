@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.OOZ" TypeName="Fan" Language="cs" Name="Fan" Image="up" RememberState="false">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Fan" Image="up" RememberState="false">
   <Images>
     <ImageFromMappings id="up">
       <ArtFile filename="../art/nemesis/Fan from OOZ.bin" />

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.CNZ" TypeName="Cage" Language="cs" Name="Cage" Image="img1" RememberState="false">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Cage" Image="img1" RememberState="false">
   <Images>
     <ImageFromMappings id="img1">
       <ArtFile filename="../art/nemesis/CNZ slot machine bars.bin" />

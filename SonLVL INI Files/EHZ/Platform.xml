@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Namespace="S2ObjectDefinitions.EHZ" TypeName="Platform" Language="cs" Name="Platform" Image="img1" RememberState="false" DrawOffscreen="false">
+<ObjDef xmlns="http://www.sonicretro.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="Platform" Image="img1" RememberState="false" DrawOffscreen="false">
   <Images>
     <ImageFromMappings id="img1">
       <ArtFile filename="LevelArt" />

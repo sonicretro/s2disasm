@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.HTZ" TypeName="SmashGround" Language="cs" Name="Smashable ground" Image="img1" RememberState="true">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Smashable ground" Image="img1" RememberState="true">
   <Images>
     <ImageFromMappings id="img1">
       <ArtFile filename="LevelArt" />

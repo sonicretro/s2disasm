@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.MTZ" TypeName="CrushingPiston" Language="cs" Name="Crushing piston" Image="img1" RememberState="false" DefaultSubtype="01">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Crushing piston" Image="img1" RememberState="false" DefaultSubtype="01">
   <Images>
     <ImageFromMappings id="img1">
       <ArtFile filename="LevelArt" />

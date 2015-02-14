@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.MCZ" TypeName="Brick" Language="cs" Name="Brick/Spike ball" Image="img1" RememberState="false" DefaultSubtype="0F" >
+<ObjDef xmlns="http://www.sonicretro.org" Name="Brick/Spike ball" Image="img1" RememberState="false" DefaultSubtype="0F" >
   <Images>
     <ImageFromMappings id="img1">
       <ArtFile filename="LevelArt" />

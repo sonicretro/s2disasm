@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.HTZ" TypeName="Sol" Language="cs" Name="Sol" RememberState="true">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Sol" RememberState="true">
   <Images>
     <ImageFromMappings id="fireball">
       <ArtFile filename="../art/nemesis/Fireball 1 (Buzzer).bin" offset="29632" />

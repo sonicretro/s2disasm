@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.OOZ" TypeName="FallingOil" Language="cs" Name="Falling oil" Image="img1" RememberState="false" DefaultSubtype="0A">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Falling oil" Image="img1" RememberState="false" DefaultSubtype="0A">
   <Images>
     <ImageFromMappings id="img1">
       <ArtFile filename="../art/nemesis/Cascading oil from OOZ.bin" />

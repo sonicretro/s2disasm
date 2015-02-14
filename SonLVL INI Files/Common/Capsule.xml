@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.Common" TypeName="Capsule" Language="cs" Name="Egg Prison" RememberState="true">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Egg Prison" RememberState="true">
   <Images>
     <ImageFromMappings id="img1">
       <ArtFile filename="../art/nemesis/Egg Prison.bin" />
