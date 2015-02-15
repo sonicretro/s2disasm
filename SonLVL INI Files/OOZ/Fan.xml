@@ -11,24 +11,28 @@
     </ImageFromMappings>
   </Images>
   <Subtypes>
-    <Subtype id="00" name="Sideways - On/Off" image="up" />
-    <Subtype id="01" name="Sideways - On/Off Reverse" image="up" />
-    <Subtype id="02" name="Sideways - Always On" image="up" />
-    <Subtype id="03" name="Sideways - Always On Reverse" image="up" />
-    <Subtype id="80" name="Up - On/Off" image="side" />
-    <Subtype id="81" name="Up - On/Off Reverse" image="side" />
-    <Subtype id="82" name="Up - Always On" image="side" />
-    <Subtype id="83" name="Up - Always On Reverse" image="side" />
+    <Subtype id="00" name="Sideways - Push Sonic - On/Off" image="up" />
+    <Subtype id="01" name="Sideways - Pull Sonic - On/Off" image="up" />
+    <Subtype id="02" name="Sideways - Push Sonic - Always On" image="up" />
+    <Subtype id="03" name="Sideways - Pull Sonic - Always On" image="up" />
+    <Subtype id="80" name="Up - Push Sonic - On/Off" image="side" />
+    <Subtype id="81" name="Up - Pull Sonic - On/Off" image="side" />
+    <Subtype id="82" name="Up - Push Sonic - Always On" image="side" />
+    <Subtype id="83" name="Up - Pull Sonic - Always On" image="side" />
   </Subtypes>
   <Properties>
     <BitsProperty name="Direction" type="FanDirection" startbit="7" length="1" />
     <BitsProperty name="FanAlwaysOn" displayname="Always On" type="bool" startbit="1" length="1" />
-    <BitsProperty name="FanReverse" displayname="Reverse Animation" type="bool" startbit="0" length="1" />
+    <BitsProperty name="Behaviour" type="FanBehaviour" startbit="0" length="1" />
   </Properties>
   <Enums>
     <Enum name="FanDirection">
       <EnumMember name="Sideways" />
       <EnumMember name="Up" />
+    </Enum>
+    <Enum name="FanBehaviour">
+      <EnumMember name="Push Sonic" />
+      <EnumMember name="Pull Sonic" />
     </Enum>
   </Enums>
 </ObjDef>
