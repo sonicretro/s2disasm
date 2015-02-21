@@ -51482,7 +51482,7 @@ Obj70_Index:	offsetTable
 Obj70_Init:
 	moveq	#7,d1
 	moveq	#0,d4
-	lea	(byte_28726).l,a2
+	lea	(Obj70_Positions).l,a2
 	movea.l	a0,a1
 	move.w	x_pos(a0),d2
 	move.w	y_pos(a0),d3
@@ -51551,7 +51551,7 @@ loc_28684:
 loc_286A2:
 	move.w	d1,objoff_36(a0)
 	add.w	objoff_34(a0),d1
-	lea	byte_28726(pc,d1.w),a1
+	lea	Obj70_Positions(pc,d1.w),a1
 	move.b	(a1)+,d0
 	ext.w	d0
 	add.w	objoff_32(a0),d0
@@ -51600,13 +51600,45 @@ byte_28706:
 	dc.b $10,$10	; 26
 	dc.b $10,$10	; 28
 	dc.b $10,$10	; 30
-byte_28726:
-	dc.b   0,$B8,  0,$32,$CE,  4,$48,  0,  8,$32,$32, $C,  0,$48,$10,$CE; 16
-	dc.b $32,$14,$B8,  0,$18,$CE,$CE,$1C, $D,$B8,  1,$3F,$DA,  5,$48, $C; 32
-	dc.b   9,$27,$3C, $D,$F3,$48,$11,$C1,$26,$15,$B8,$F4,$19,$D9,$C4,$1D; 48
-	dc.b $19,$BC,  2,$46,$E9,  6,$46,$17, $A,$19,$44, $E,$E7,$44,$12,$BA; 64
-	dc.b $17,$16,$BA,$E9,$1A,$E7,$BC,$1E,$27,$C4,  3,$48,$F4,  7,$3F,$26; 80
-	dc.b  $B, $D,$48, $F,$D9,$3C,$13,$B8, $C,$17,$C1,$DA,$1B,$F3,$B8,$1F; 96
+; byte_28726:
+Obj70_Positions:
+	; initial positions
+	; x_pos, y_pos, mapping_frame
+	dc.b   0,$B8,  0
+	dc.b $32,$CE,  4
+	dc.b $48,  0,  8
+	dc.b $32,$32, $C
+	dc.b   0,$48,$10
+	dc.b $CE,$32,$14
+	dc.b $B8,  0,$18
+	dc.b $CE,$CE,$1C
+
+	dc.b  $D,$B8,  1
+	dc.b $3F,$DA,  5
+	dc.b $48, $C,  9
+	dc.b $27,$3C, $D
+	dc.b $F3,$48,$11
+	dc.b $C1,$26,$15
+	dc.b $B8,$F4,$19
+	dc.b $D9,$C4,$1D
+
+	dc.b $19,$BC,  2
+	dc.b $46,$E9,  6
+	dc.b $46,$17, $A
+	dc.b $19,$44, $E
+	dc.b $E7,$44,$12
+	dc.b $BA,$17,$16
+	dc.b $BA,$E9,$1A
+	dc.b $E7,$BC,$1E
+
+	dc.b $27,$C4,  3
+	dc.b $48,$F4,  7
+	dc.b $3F,$26, $B
+	dc.b  $D,$48, $F
+	dc.b $D9,$3C,$13
+	dc.b $B8, $C,$17
+	dc.b $C1,$DA,$1B
+	dc.b $F3,$B8,$1F
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
