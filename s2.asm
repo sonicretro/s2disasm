@@ -52800,9 +52800,10 @@ Obj7B_Index:	offsetTable
 		offsetTableEntry.w Obj7B_Main	; 2
 ; ===========================================================================
 ; byte_295C4:
-Obj7B_Strength:
-	dc.w -$1000	; 0
-	dc.w  -$A80	; 2
+Obj7B_Strengths:
+	; Speed applied on Sonic
+	dc.w -$1000
+	dc.w  -$A80
 ; ===========================================================================
 ; loc_295C8:
 Obj7B_Init:
@@ -52814,7 +52815,7 @@ Obj7B_Init:
 	move.b	#1,priority(a0)
 	move.b	subtype(a0),d0
 	andi.w	#2,d0
-	move.w	Obj7B_Strength(pc,d0.w),objoff_30(a0)
+	move.w	Obj7B_Strengths(pc,d0.w),objoff_30(a0)
 	jsrto	(Adjust2PArtPointer).l, JmpTo42_Adjust2PArtPointer
 ; loc_295FE:
 Obj7B_Main:
