@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Name="Brick/Spike ball" Image="brick" DefaultSubtype="0F">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Brick/Spike Ball" Image="brick" DefaultSubtype="0F">
   <Images>
     <ImageFromMappings id="spikeball">
       <ArtFile filename="LevelArt" />

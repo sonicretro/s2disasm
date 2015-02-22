@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Name="Crushing piston" Image="large" DefaultSubtype="01">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Crushing Piston" Image="large" DefaultSubtype="01">
   <Images>
     <ImageFromMappings id="large">
       <ArtFile filename="LevelArt" />

@@ -23,7 +23,7 @@ namespace S2ObjectDefinitions.Common
 
         public override string Name
         {
-            get { return "Invisible solid block"; }
+            get { return "Invisible Solid Block"; }
         }
 
         public override bool RememberState

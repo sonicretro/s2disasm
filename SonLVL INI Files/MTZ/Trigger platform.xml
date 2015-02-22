@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Name="Trigger platform" Image="large" DefaultSubtype="B0">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Trigger Platform" Image="large" DefaultSubtype="B0">
   <Images>
     <ImageFromMappings id="large">
       <ArtFile filename="LevelArt" />

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Name="Smashable ground" Image="intact" RememberState="true">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Smashable Ground" Image="intact" RememberState="true">
   <Images>
     <ImageFromMappings id="intact">
       <ArtFile filename="LevelArt" />
