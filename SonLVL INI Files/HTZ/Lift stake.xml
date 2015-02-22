@@ -1,27 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Name="Lift stake" Image="img1" DefaultSubtype="04">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Lift stake" Image="stakeleft" DefaultSubtype="04">
   <Images>
-    <ImageFromMappings id="img1">
+    <ImageFromMappings id="stakeleft">
       <ArtFile filename="../art/nemesis/HTZ zip-line platform.bin" />
       <MapFile type="Binary" filename="../mappings/sprite/obj16.bin" frame="3" startpal="2" />
     </ImageFromMappings>
-    <ImageFromMappings id="img2">
+    <ImageFromMappings id="stakeright">
       <ArtFile filename="../art/nemesis/HTZ zip-line platform.bin" />
       <MapFile type="Binary" filename="../mappings/sprite/obj16.bin" frame="4" startpal="2" />
     </ImageFromMappings>
-    <ImageFromMappings id="img3">
+    <ImageFromMappings id="groundleft">
       <ArtFile filename="LevelArt" />
       <MapFile type="Binary" filename="../mappings/sprite/obj1C_a.bin" frame="0" startpal="2" />
     </ImageFromMappings>
-    <ImageFromMappings id="img4">
+    <ImageFromMappings id="groundright">
       <ArtFile filename="LevelArt" />
       <MapFile type="Binary" filename="../mappings/sprite/obj1C_a.bin" frame="1" startpal="2" />
     </ImageFromMappings>
   </Images>
   <Subtypes>
-    <Subtype id="04" name="Stake (left)" image="img1" />
-    <Subtype id="05" name="Stake (right)" image="img2" />
-    <Subtype id="07" name="Ground edge (left)" image="img3" />
-    <Subtype id="08" name="Ground edge (right)" image="img4" />
+    <Subtype id="04" name="Stake (left)" image="stakeleft" />
+    <Subtype id="05" name="Stake (right)" image="stakeright" />
+    <Subtype id="07" name="Ground edge (left)" image="groundleft" />
+    <Subtype id="08" name="Ground edge (right)" image="groundright" />
   </Subtypes>
 </ObjDef>

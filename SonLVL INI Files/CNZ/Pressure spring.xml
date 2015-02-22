@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Name="Pressure spring" Image="img1">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Pressure spring" Image="up">
   <Images>
-    <ImageFromMappings id="img1">
+    <ImageFromMappings id="up">
       <ArtFile filename="../art/nemesis/Vertical impulse spring.bin" />
       <MapFile type="Binary" filename="../mappings/sprite/obj85_a.bin" frame="0" startpal="0" />
     </ImageFromMappings>
-    <ImageFromMappings id="img2">
+    <ImageFromMappings id="diagonal">
       <ArtFile filename="../art/nemesis/Diagonal impulse spring from CNZ.bin" />
       <MapFile type="Binary" filename="../mappings/sprite/obj85_b.bin" frame="0" startpal="0" />
     </ImageFromMappings>
   </Images>
   <Subtypes>
-    <Subtype id="00" name="Up" image="img1" />
-    <Subtype id="81" name="Diagonal" image="img2" />
+    <Subtype id="00" name="Up" image="up" />
+    <Subtype id="81" name="Diagonal" image="diagonal" />
   </Subtypes>
 </ObjDef>

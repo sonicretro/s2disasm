@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Name="Platform moving in a circle" Image="img2" DefaultSubtype="10">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Platform moving in a circle" Image="connector" DefaultSubtype="10">
   <Images>
-    <ImageFromMappings id="img1">
+    <ImageFromMappings id="edge">
       <ArtFile filename="LevelArt" />
       <MapFile type="Binary" filename="../mappings/sprite/obj6E.bin" frame="0" startpal="3" />
     </ImageFromMappings>
-    <ImageFromMappings id="img2">
+    <ImageFromMappings id="connector">
       <ArtFile filename="LevelArt" />
       <MapFile type="Binary" filename="../mappings/sprite/obj6E.bin" frame="1" startpal="3" />
     </ImageFromMappings>
-    <ImageFromMappings id="img3">
+    <ImageFromMappings id="center">
       <ArtFile filename="LevelArt" />
       <MapFile type="Binary" filename="../mappings/sprite/obj6E.bin" frame="2" startpal="3" />
     </ImageFromMappings>
-    <ImageFromMappings id="img4">
+    <ImageFromMappings id="indent">
       <ArtFile filename="../art/nemesis/Large spinning wheel from MTZ - indent.bin" />
       <MapFile type="Binary" filename="../mappings/sprite/obj6E.bin" frame="3" startpal="3" />
     </ImageFromMappings>
   </Images>
   <Subtypes>
-    <Subtype id="00" name="Edge piece" image="img1" />
-    <Subtype id="10" name="Connector" image="img2" />
-    <Subtype id="20" name="Central platform" image="img3" />
-    <Subtype id="31" name="Indent" image="img4" />
+    <Subtype id="00" name="Edge piece" image="edge" />
+    <Subtype id="10" name="Connector" image="connector" />
+    <Subtype id="20" name="Central platform" image="center" />
+    <Subtype id="31" name="Indent" image="indent" />
   </Subtypes>
 </ObjDef>

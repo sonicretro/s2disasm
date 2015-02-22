@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Name="Brick/Spike ball" Image="img1" DefaultSubtype="0F">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Brick/Spike ball" Image="brick" DefaultSubtype="0F">
   <Images>
-    <ImageFromMappings id="img1">
-      <ArtFile filename="LevelArt" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj75.bin" frame="2" startpal="1" />
-    </ImageFromMappings>
-    <ImageFromMappings id="img2">
+    <ImageFromMappings id="spikeball">
       <ArtFile filename="LevelArt" />
       <MapFile type="Binary" filename="../mappings/sprite/obj75.bin" frame="0" startpal="1" />
     </ImageFromMappings>
+    <ImageFromMappings id="brick">
+      <ArtFile filename="LevelArt" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj75.bin" frame="2" startpal="1" />
+    </ImageFromMappings>
   </Images>
   <Subtypes>
-    <Subtype id="0F" name="Brick" image="img1" />
-    <Subtype id="16" name="Spike Ball (Small Radius)" image="img2" />
-    <Subtype id="17" name="Spike Ball (Large Radius)" image="img2" />
+    <Subtype id="0F" name="Brick" image="brick" />
+    <Subtype id="16" name="Spike Ball (Small Radius)" image="spikeball" />
+    <Subtype id="17" name="Spike Ball (Large Radius)" image="spikeball" />
   </Subtypes>
 </ObjDef>

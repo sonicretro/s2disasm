@@ -1,21 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Name="Platform" Image="img1">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Platform" Image="small">
   <Images>
-    <ImageFromMappings id="img1">
+    <ImageFromMappings id="small">
       <ArtFile filename="LevelArt" />
       <MapFile type="Binary" filename="../mappings/sprite/obj18_b.bin" frame="0" startpal="2" />
     </ImageFromMappings>
-    <ImageFromMappings id="img2">
+    <ImageFromMappings id="large">
       <ArtFile filename="LevelArt" />
       <MapFile type="Binary" filename="../mappings/sprite/obj18_b.bin" frame="1" startpal="2" />
     </ImageFromMappings>
   </Images>
   <Subtypes>
-    <Subtype id="00" name="Stationary" image="img1" />
-    <Subtype id="01" name="Horizontal" image="img1" />
-    <Subtype id="02" name="Vertical" image="img1" />
-    <Subtype id="03" name="Falling" image="img1" />
-    <Subtype id="9A" name="Large" image="img2" />
+    <Subtype id="00" name="Stationary" image="small" />
+    <Subtype id="01" name="Horizontal" image="small" />
+    <Subtype id="02" name="Vertical" image="small" />
+    <Subtype id="03" name="Falling" image="small" />
+    <Subtype id="9A" name="Large" image="large" />
   </Subtypes>
   <Properties>
     <BitsProperty name="Movement" type="PlatformMovement" startbit="0" length="2" />
@@ -41,11 +41,11 @@
   <Display>
     <DisplayOption>
       <Condition property="ArtSize" value="Small" />
-      <ImageRef image="img1" />
+      <ImageRef image="small" />
     </DisplayOption>
     <DisplayOption>
       <Condition property="ArtSize" value="Large" />
-      <ImageRef image="img2" />
+      <ImageRef image="large" />
     </DisplayOption>
   </Display>
 </ObjDef>
