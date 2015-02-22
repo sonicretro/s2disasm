@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Name="Spring wall" Image="img1" RememberState="false" DefaultSubtype="01">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Spring wall" Image="img1" RememberState="false" DefaultSubtype="01" Debug="true">
   <Images>
     <ImageFromMappings id="img1">
       <ArtFile filename="../art/nemesis/Monitor and contents.bin" />
