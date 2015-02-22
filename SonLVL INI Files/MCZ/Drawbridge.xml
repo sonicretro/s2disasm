@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Name="Drawbridge" RememberState="false">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Drawbridge">
   <Images>
     <ImageFromMappings id="log">
       <ArtFile filename="../art/nemesis/Drawbridge logs from MCZ.bin" />

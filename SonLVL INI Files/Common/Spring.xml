@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Name="Spring" Image="vertred" RememberState="false">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Spring" Image="vertred">
   <Images>
     <ImageFromMappings id="vertred">
       <ArtFile filename="../art/nemesis/Vertical spring.bin" />

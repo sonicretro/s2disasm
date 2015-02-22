@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Name="Platform moving in a circle" Image="img2" RememberState="false" DefaultSubtype="10">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Platform moving in a circle" Image="img2" DefaultSubtype="10">
   <Images>
     <ImageFromMappings id="img1">
       <ArtFile filename="LevelArt" />
