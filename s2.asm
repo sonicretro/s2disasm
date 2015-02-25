@@ -48536,10 +48536,14 @@ Obj40_Index:	offsetTable
 		offsetTableEntry.w Obj40_Init	; 0
 		offsetTableEntry.w Obj40_Main	; 2
 ; ---------------------------------------------------------------------------
-word_26386:
-	dc.w $FC00	; 0
-	dc.w $F600	; 1
-	dc.w $F800	; 2
+; it seems this object's strength was once controlled by subtype
+; these would be applied to the player's y_vel
+; word_26386:
+Obj40_Strengths:
+	dc.w -$400	; 0
+	dc.w -$A00	; 2
+	; inaccessible
+	dc.w -$800	; 4
 ; ===========================================================================
 ; loc_2638C:
 Obj40_Init:
@@ -48552,8 +48556,8 @@ Obj40_Init:
 	move.b	#4,priority(a0)
 	bset	#7,status(a0)
 	move.b	subtype(a0),d0
-	andi.w	#2,d0
-	move.w	word_26386(pc,d0.w),objoff_30(a0)
+	andi.w	#2,d0		; there is enough data for this to be capped at 4
+	move.w	Obj40_Strengths(pc,d0.w),objoff_30(a0)	; this is never read
 ; loc_263C8:
 Obj40_Main:
 	lea	(Ani_obj40).l,a1
