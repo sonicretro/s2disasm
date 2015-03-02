@@ -26882,10 +26882,10 @@ Obj3B_Main:
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
-    if gameRevision<2
 Obj3B_MapUnc_15D2E:	BINCLUDE "mappings/sprite/obj3B.bin"
-    else
-Obj3B_MapUnc_15D2E:	BINCLUDE "mappings/sprite/obj3B (REV02).bin"
+
+    if ~~removeJmpTos
+	align 4
     endif
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -29299,10 +29299,10 @@ RingsMgr_SortRings:
 ; -------------------------------------------------------------------------------
 
 ; off_1736A:
-    if gameRevision<2
 MapUnc_Rings:	BINCLUDE "mappings/sprite/Rings.bin"
-    else
-MapUnc_Rings:	BINCLUDE "mappings/sprite/Rings (REV02).bin"
+
+    if ~~removeJmpTos
+	align 4
     endif
 
 
@@ -57184,10 +57184,10 @@ byte_2CBF8:	dc.b   7,  0,  1,$FD,  1
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
-    if gameRevision<2
 Obj4A_MapUnc_2CBFE:	BINCLUDE "mappings/sprite/obj4A.bin"
-    else
-Obj4A_MapUnc_2CBFE:	BINCLUDE "mappings/sprite/obj4A (REV02).bin"
+
+    if ~~removeJmpTos
+	align 4
     endif
 ; ===========================================================================
 
@@ -57757,10 +57757,10 @@ byte_2D2E1:	dc.b	$09, $01, $01, $01, $01, $01, $FD, $00
 ; sprite mappings -- Buzz Bomber Sprite Table
 ; ----------------------------------------------------------------------------
 ; MapUnc_2D2EA: SprTbl_Buzzer:
-    if gameRevision<2
 Obj4B_MapUnc_2D2EA:	BINCLUDE "mappings/sprite/obj4B.bin"
-    else
-Obj4B_MapUnc_2D2EA:	BINCLUDE "mappings/sprite/obj4B (REV02).bin"
+
+    if ~~removeJmpTos
+	align 4
     endif
 ; ===========================================================================
 
@@ -57862,10 +57862,10 @@ byte_2D43E:	dc.b   7,  0,$FF
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
-    if gameRevision<2
 Obj5C_MapUnc_2D442:	BINCLUDE "mappings/sprite/obj5C.bin"
-    else
-Obj5C_MapUnc_2D442:	BINCLUDE "mappings/sprite/obj5C (REV02).bin"
+
+    if ~~removeJmpTos
+	align 4
     endif
 ; ===========================================================================
 
@@ -61379,10 +61379,10 @@ byte_302B7:	dc.b   3, $E, $F,$FF
 ; ----------------------------------------------------------------------------
 ; sprite mappings - uses ArtNem_Eggpod + ?
 ; ----------------------------------------------------------------------------
-    if gameRevision<2
 Obj52_MapUnc_302BC:	BINCLUDE "mappings/sprite/obj52_b.bin"
-    else
-Obj52_MapUnc_302BC:	BINCLUDE "mappings/sprite/obj52_b (REV02).bin"
+
+    if ~~removeJmpTos
+	align 4
     endif
 ; ===========================================================================
 
@@ -64567,10 +64567,10 @@ byte_32DC3:	dc.b   7,$11,$FF
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
-    if gameRevision<2
 Obj54_MapUnc_32DC6:	BINCLUDE "mappings/sprite/obj54.bin"
-    else
-Obj54_MapUnc_32DC6:	BINCLUDE "mappings/sprite/obj54 (REV02).bin"
+
+    if ~~removeJmpTos
+	align 4
     endif
 ; ===========================================================================
 
