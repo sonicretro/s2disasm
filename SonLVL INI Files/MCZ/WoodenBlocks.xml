@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="Wooden Blocks" Image="block" DefaultSubtype="18">
+  <Images>
+    <ImageFromMappings id="block">
+      <ArtFile filename="../art/nemesis/Large wooden box from MCZ.bin" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj6A.bin" frame="0" startpal="2" />
+    </ImageFromMappings>
+  </Images>
+  <Display>
+    <DisplayOption>
+    <ImageRef image="block" xflip="NeverFlip" />
+    <ImageRef image="block" xflip="NeverFlip">
+      <Offset X="64" Y="64" />
+    </ImageRef>
+    <ImageRef image="block" xflip="NeverFlip">
+      <Offset X="-64" Y="64" />
+    </ImageRef>
+    </DisplayOption>
+  </Display>
+</ObjDef>

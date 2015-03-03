@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="Spiked Rectangle from Wall" Image="rectangle">
+  <Images>
+    <ImageFromMappings id="rectangle">
+      <ArtFile filename="LevelArt" />
+      <ArtFile filename="../art/nemesis/Long horizontal spike.bin" offset="34176" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj76.bin" frame="0" startpal="0" />
+    </ImageFromMappings>
+  </Images>
+  <Properties>
+    <BitsProperty name="SpriteWidthHeight" displayname="Sprite/Width/Height" type="SpriteType" startbit="0" length="8" />
+  </Properties>
+  <Enums>
+    <Enum name="SpriteType">
+      <EnumMember name="Frame 0 - Width 40 - Height 10" />
+    </Enum>
+  </Enums>
+  <Display>
+    <DisplayOption>
+      <Condition property="SpriteWidthHeight" value="Frame 0 - Width 40 - Height 10" />
+      <ImageRef image="rectangle" />
+    </DisplayOption>
+  </Display>
+</ObjDef>

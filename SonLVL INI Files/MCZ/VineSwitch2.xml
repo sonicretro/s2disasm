@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="Vine Switch - Open Logs and Move Down" Image="vineswitch">
+  <Images>
+    <ImageFromMappings id="vineswitch">
+      <ArtFile filename="../art/nemesis/Vine that lowers from MCZ.bin"/>
+      <MapFile type="Binary" filename="../mappings/sprite/obj80_a.bin" frame="0" startpal="3"/>
+    </ImageFromMappings>
+  </Images>
+  <Properties>
+    <BitsProperty name="ActAsSwitch" displayname="Act as Switch" type="bool" startbit="7" length="1" />
+    <BitsProperty name="Behaviour" type="VineBehaviour" startbit="4" length="1" />
+    <BitsProperty name="SwitchID" displayname="Switch ID" type="SwitchID" startbit="0" length="4" />
+  </Properties>
+  <Enums>
+    <Enum name="VineBehaviour">
+      <EnumMember name="Lower Player" />
+      <EnumMember name="Raise Player" />
+    </Enum>
+    <Enum name="SwitchID">
+      <EnumMember name="Switch 00" />
+      <EnumMember name="Switch 01" />
+      <EnumMember name="Switch 02" />
+      <EnumMember name="Switch 03" />
+      <EnumMember name="Switch 04" />
+      <EnumMember name="Switch 05" />
+      <EnumMember name="Switch 06" />
+      <EnumMember name="Switch 07" />
+      <EnumMember name="Switch 08" />
+      <EnumMember name="Switch 09" />
+      <EnumMember name="Switch 0A" />
+      <EnumMember name="Switch 0B" />
+      <EnumMember name="Switch 0C" />
+      <EnumMember name="Switch 0D" />
+      <EnumMember name="Switch 0E" />
+      <EnumMember name="Switch 0F" />
+    </Enum>
+  </Enums>
+  <Display>
+    <DisplayOption>
+      <ImageRef image="vineswitch" />
+    </DisplayOption>
+  </Display>
+</ObjDef>
