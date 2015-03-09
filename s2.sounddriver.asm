@@ -2145,7 +2145,7 @@ zSpeedUpMusic:
 	or	a
 	ld	a,(zTempoTurbo)
 	jr	z,zSetTempo
-	jr	zloc_BE0
+	jr	zSetTempo_1up
 
 ; ===========================================================================
 ; zloc_BCB:
@@ -2156,7 +2156,7 @@ zSlowDownMusic:
 	or	a
 	ld	a,(zTempoMod)
 	jr	z,zSetTempo
-	jr	zloc_BE0
+	jr	zSetTempo_1up
 
 ; ===========================================================================
 ; helper routines for changing the tempo
@@ -2166,10 +2166,11 @@ zSetTempo:
 	ld	(zSpeedUpFlag),a
 	ret
 ; ---------------------------------------------------------------------------
-zloc_BE0:
-	ld	(1E3Ah),a
+;zloc_BE0
+zSetTempo_1up:
+	ld	(z1upBackup+zCurrentTempo-zComRange),a	; Store new tempo value 
 	ld	a,b
-	ld	(1E4Ch),a
+	ld	(z1upBackup+zSpeedUpFlag-zComRange),a
 	ret
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
