@@ -86281,7 +86281,7 @@ ArtUnc_Splash:	BINCLUDE	"art/uncompressed/Splash.bin"
 ;--------------------------------------------------------------------------------------
 ; Uncompressed art
 ; Smoke from dashing		; ArtUnc_7287C:
-ArtUnc_Dust:	BINCLUDE	"art/uncompressed/Spindash smoke.bin"
+ArtUnc_Dust:	BINCLUDE	"art/uncompressed/Skid smoke.bin"
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (14 blocks)
 ; Supersonic stars		; ArtNem_7393C:		
