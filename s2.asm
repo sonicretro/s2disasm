@@ -89268,7 +89268,7 @@ MusCred_Voices:	dc.b $3A,$01,$01,$07,$01,$8E,$8D,$8E,$53,$0E,$0E,$0E
 
 ; NOTE: the exact order of this list determines the priority of each sound, since it determines the sound's SndID.
 ;       a sound can get dropped if a higher-priority sound is already playing.
-;       the rules for sound priority are currently unknown, but you can generally swap pointer lines around to resolve priority conflicts.
+;	see zSFXPriority for the priority allocation itself.
 ; loc_FEE91: SoundPoint:
 SoundIndex:
 SndPtr_Jump:		rom_ptr_z80	Sound20	; jumping sound
@@ -89280,7 +89280,7 @@ SndPtr_BlockPush:	rom_ptr_z80	Sound25	; block push sound
 SndPtr_HurtBySpikes:	rom_ptr_z80	Sound26	; spiky impalement sound
 SndPtr_Sparkle:		rom_ptr_z80	Sound27	; sparkling sound
 SndPtr_Beep:		rom_ptr_z80	Sound28	; short beep
-SndPtr_Bwoop:		rom_ptr_z80	Sound29	; bwoop
+SndPtr_Bwoop:		rom_ptr_z80	Sound29	; bwoop (unused)
 SndPtr_Splash:		rom_ptr_z80	Sound2A	; splash sound
 SndPtr_Swish:		rom_ptr_z80	Sound2B	; swish
 SndPtr_BossHit:		rom_ptr_z80	Sound2C	; boss hit
@@ -89289,7 +89289,7 @@ SndPtr_ArrowFiring:
 SndPtr_LavaBall:	rom_ptr_z80	Sound2E	; arrow firing
 SndPtr_Shield:		rom_ptr_z80	Sound2F	; shield sound
 SndPtr_LaserBeam:	rom_ptr_z80	Sound30	; laser beam
-SndPtr_Zap:		rom_ptr_z80	Sound31	; zap
+SndPtr_Zap:		rom_ptr_z80	Sound31	; zap (unused)
 SndPtr_Drown:		rom_ptr_z80	Sound32	; drownage
 SndPtr_FireBurn:	rom_ptr_z80	Sound33	; fire + burn
 SndPtr_Bumper:		rom_ptr_z80	Sound34	; bumper bing
@@ -89297,9 +89297,9 @@ SndPtr_Ring:
 SndPtr_RingRight:	rom_ptr_z80	Sound35	; ring sound
 SndPtr_SpikesMove:	rom_ptr_z80	Sound36
 SndPtr_Rumbling:	rom_ptr_z80	Sound37	; rumbling
-			rom_ptr_z80	Sound38
+			rom_ptr_z80	Sound38	; (unused)
 SndPtr_Smash:		rom_ptr_z80	Sound39	; smash/breaking
-			rom_ptr_z80	Sound3A	; nondescript ding
+			rom_ptr_z80	Sound3A	; nondescript ding (unused)
 SndPtr_DoorSlam:	rom_ptr_z80	Sound3B	; door slamming shut
 SndPtr_SpindashRelease:	rom_ptr_z80	Sound3C	; spindash unleashed
 SndPtr_Hammer:		rom_ptr_z80	Sound3D	; slide-thunk
@@ -89308,13 +89308,13 @@ SndPtr_ContinueJingle:	rom_ptr_z80	Sound3F	; got continue
 SndPtr_CasinoBonus:	rom_ptr_z80	Sound40	; short bonus ding
 SndPtr_Explosion:	rom_ptr_z80	Sound41	; badnik bust
 SndPtr_WaterWarning:	rom_ptr_z80	Sound42	; warning ding-ding
-SndPtr_EnterGiantRing:	rom_ptr_z80	Sound43	; special stage ring flash (unused)
+SndPtr_EnterGiantRing:	rom_ptr_z80	Sound43	; special stage ring flash (mostly unused)
 SndPtr_BossExplosion:	rom_ptr_z80	Sound44	; thunk
 SndPtr_TallyEnd:	rom_ptr_z80	Sound45	; cha-ching
 SndPtr_RingSpill:	rom_ptr_z80	Sound46	; losing rings
-			rom_ptr_z80	Sound47	; chain pull chink-chink
+			rom_ptr_z80	Sound47	; chain pull chink-chink (unused)
 SndPtr_Flamethrower:	rom_ptr_z80	Sound48	; flamethrower
-SndPtr_Bonus:		rom_ptr_z80	Sound49	; bonus pwoieeew (unused)
+SndPtr_Bonus:		rom_ptr_z80	Sound49	; bonus pwoieeew (mostly unused)
 SndPtr_SpecStageEntry:	rom_ptr_z80	Sound4A	; special stage entry
 SndPtr_SlowSmash:	rom_ptr_z80	Sound4B	; slower smash/crumble
 SndPtr_Spring:		rom_ptr_z80	Sound4C	; spring boing
@@ -89322,8 +89322,8 @@ SndPtr_Blip:		rom_ptr_z80	Sound4D	; selection blip
 SndPtr_RingLeft:	rom_ptr_z80	Sound4E	; another ring sound (only plays in the left speaker?)
 SndPtr_Signpost:	rom_ptr_z80	Sound4F	; signpost spin sound
 SndPtr_CNZBossZap:	rom_ptr_z80	Sound50	; mosquito zapper
-			rom_ptr_z80	Sound51
-			rom_ptr_z80	Sound52
+			rom_ptr_z80	Sound51	; (unused)
+			rom_ptr_z80	Sound52	; (unused)
 SndPtr_Signpost2P:	rom_ptr_z80	Sound53
 SndPtr_OOZLidPop:	rom_ptr_z80	Sound54	; OOZ lid pop sound
 SndPtr_SlidingSpike:	rom_ptr_z80	Sound55
@@ -89346,7 +89346,7 @@ SndPtr_HTZLiftClick:	rom_ptr_z80	Sound64	; HTZ track click sound
 SndPtr_Leaves:		rom_ptr_z80	Sound65	; kicking up leaves sound
 SndPtr_MegaMackDrop:	rom_ptr_z80	Sound66	; leaf splash?
 SndPtr_DrawbridgeMove:	rom_ptr_z80	Sound67
-SndPtr_QuickDoorSlam:	rom_ptr_z80	Sound68	; door slamming quickly (seems unused)
+SndPtr_QuickDoorSlam:	rom_ptr_z80	Sound68	; door slamming quickly (unused)
 SndPtr_DrawbridgeDown:	rom_ptr_z80	Sound69
 SndPtr_LaserBurst:	rom_ptr_z80	Sound6A	; robotic laser burst
 SndPtr_Scatter:
@@ -89443,7 +89443,7 @@ Sound28:	dc.w $0000,$0101
 		dc.w $8080,z80_ptr(+),$E803
 +		dc.b $F5,$04,$CB,$04,$F2
 
-; bwoop
+; bwoop (unused)
 Sound29:	dc.w $0000,$0101
 		dc.w $80A0,z80_ptr(+),$0000
 +		dc.b $F0,$01,$01,$E6,$35,$8E,$06,$F2
@@ -89515,7 +89515,7 @@ Sound30:	dc.w z80_ptr(ssamp30),$0101 ; sound header... a voice and 1 script entr
 ssamp30:	dc.b $83,$1F,$1F,$15,$1F,$1F,$1F,$1F,$1F,$00,$00,$00 ; voice
 		dc.b $00,$02,$02,$02,$02,$2F,$FF,$2F,$3F,$0B,$01,$16,$82 ; (fixed length)
 
-; zap
+; zap (unused)
 Sound31:	dc.w z80_ptr(ssamp31),$0101
 		dc.w $8005,z80_ptr(+),$FB02
 +		dc.b $EF,$00,$B3,$05,$80,$01,$B3,$09,$F2
@@ -89588,7 +89588,7 @@ Sound37:	dc.w z80_ptr(ssamp37),$0101
 ssamp37:	dc.b $FA,$21,$10,$30,$32,$1F,$1F,$1F,$1F,$05,$09,$18
 		dc.b $02,$06,$06,$0F,$02,$1F,$4F,$2F,$2F,$0F,$0E,$1A,$80
 
-
+; (unused)
 Sound38:	dc.w $0000,$0101
 		dc.w $80C0,z80_ptr(+),$0000
 +		dc.b $F0,$01,$01,$F0,$08,$F3,$E7,$B4,$08
@@ -89614,7 +89614,7 @@ s39s4:		dc.b $F0,$01,$01,$0F,$05,$F3,$E7
 		dc.w $03F7,$0005,z80_ptr(-)
 		dc.b $F2
 
-; nondescript ding
+; nondescript ding (unused)
 Sound3A:	dc.w z80_ptr(ssamp3A),$0101
 		dc.w $8005,z80_ptr(+),$0007
 +		dc.b $EF,$00,$AE,$08,$F2
@@ -89699,7 +89699,7 @@ Sound42:	dc.w z80_ptr(ssamp3F),$0101
 		dc.w $8005,z80_ptr(+),$0C08
 +		dc.b $EF,$00,$BA,$08,$BA,$25,$F2
 
-; special stage ring flash (unused)
+; special stage ring flash (mostly unused)
 Sound43:	dc.w z80_ptr(ssamp43),$0102
 		dc.w $8004,z80_ptr(+),$0C00
 		dc.w $8005,z80_ptr(++),$0013
@@ -89742,7 +89742,7 @@ Sound46:	dc.w z80_ptr(ringsamp),$0102
 +		dc.b $EF,$00,$C6,$02,$05,$05,$05,$05,$05,$05,$3A,$F2
 +		dc.b $EF,$00,$80,$02,$C4,$02,$05,$15,$02,$05,$32,$F2
 
-; chain pull chink-chink
+; chain pull chink-chink (unused)
 Sound47:	dc.w z80_ptr(ssamp47),$0101
 		dc.w $8005,z80_ptr(+),$0000
 +		dc.b $EF,$00,$BE,$05,$80,$04,$BE,$04,$80,$04,$F2
@@ -89754,7 +89754,7 @@ Sound48:	dc.w $0000,$0101
 		dc.w $80C0,z80_ptr(+),$0000
 +		dc.b $F5,$00,$F3,$E7,$A7,$25,$F2
 
-; bonus pwoieeew (unused)
+; bonus pwoieeew (mostly unused)
 Sound49:	dc.w z80_ptr(ssamp49),$0101
 		dc.w $8005,z80_ptr(+),$0E00
 +		dc.b $EF,$00,$F0,$01,$01,$33,$18,$B9,$1A,$F2
@@ -89823,7 +89823,7 @@ Sound50:	dc.w z80_ptr(ssamp50),$0101
 ssamp50:	dc.b $83,$12,$13,$10,$1E,$1F,$1F,$1F,$1F,$00,$00,$00
 		dc.b $00,$02,$02,$02,$02,$2F,$FF,$2F,$3F,$06,$34,$10,$87
 
-
+; (unused)
 Sound51:	dc.w z80_ptr(ssamp51),$0102
 		dc.w $80C0,z80_ptr(+),$0001
 		dc.w $8005,z80_ptr(++),$000B
@@ -89832,7 +89832,7 @@ Sound51:	dc.w z80_ptr(ssamp51),$0102
 ssamp51:	dc.b $3C,$02,$01,$00,$01,$1F,$1F,$1F,$1F,$00,$19,$0E
 		dc.b $10,$00,$00,$0C,$0F,$0F,$FF,$EF,$FF,$05,$00,$80,$80
 
-
+; (unused)
 Sound52:	dc.w z80_ptr(ssamp52),$0101
 		dc.w $8005,z80_ptr(+),$0002
 +		dc.b $F0,$01,$01,$2A,$07,$EF,$00
@@ -90052,7 +90052,7 @@ Sound67:	dc.w z80_ptr(ssamp67),$0101
 		dc.b $0A,$A0,$0A,$A4,$08,$A8,$08,$AC,$08,$B0,$08,$F2
 ssamp67:	; another not-really-used sample (like Sound65)
 
-; door slamming quickly (seems unused)
+; door slamming quickly (unused)
 Sound68:	dc.w z80_ptr(ssamp68),$0101
 		dc.w $8005,z80_ptr(+),$F400
 +		dc.b $EF,$00,$9B,$04,$A5,$06,$F2
