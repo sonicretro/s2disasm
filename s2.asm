@@ -246,11 +246,10 @@ VDPInitValues_End:
 	dc.l	vdpComm($0000,VRAM,DMA) ; value for VRAM write mode
 
 	; Z80 instructions (not the sound driver; that gets loaded later)
-	; I think this is basically unused but I've made some sense of it anyway...
 Z80StartupCodeBegin: ; loc_2CA:
     if (*)+$26 < $10000
     save
-    CPU Z80 ; start compiling Z80 code
+    CPU Z80 ; start assembling Z80 code
     phase 0 ; pretend we're at address 0
 	xor	a	; clear a to 0
 	ld	bc,((Z80_RAM_End-Z80_RAM)-zStartupCodeEndLoc)-1 ; prepare to loop this many times
@@ -275,14 +274,14 @@ Z80StartupCodeBegin: ; loc_2CA:
 	ld	sp,hl	; clear sp
 	di		; clear iff1 (for interrupt handler)
 	im	1	; interrupt handling mode = 1
-	ld	(hl),0E9H ; replace the first instruction with a jump to itself
+	ld	(hl),0E9h ; replace the first instruction with a jump to itself
 	jp	(hl)	  ; jump to the first instruction (to stay there forever)
 zStartupCodeEndLoc:
     dephase ; stop pretending
 	restore
     padding off ; unfortunately our flags got reset so we have to set them again...
     else ; due to an address range limitation I could work around but don't think is worth doing so:
-;	message "Warning: using pre-assembled Z80 startup code."
+	message "Warning: using pre-assembled Z80 startup code."
 	dc.w $AF01,$D91F,$1127,$0021,$2600,$F977,$EDB0,$DDE1,$FDE1,$ED47,$ED4F,$D1E1,$F108,$D9C1,$D1E1,$F1F9,$F3ED,$5636,$E9E9
     endif
 Z80StartupCodeEnd:
