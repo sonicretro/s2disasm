@@ -44,8 +44,8 @@ cnop macro offset,alignment
 
 ; redefine align in terms of cnop, for the padding counter
 align macro alignment
-		cnop 0,alignment
-	endm
+	cnop 0,alignment
+    endm
 
 ; define the even pseudo-instruction
 even macro
