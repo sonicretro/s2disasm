@@ -159,6 +159,7 @@ zMusicData =	$1380 ; don't change this unless you change all the pointers in the
 zComRange =	zMusicData+$800 ; 1B80h ; most communication between Z80 and 68k happens in here, among other things (like stack storage)
 
 	phase zComRange
+zVariablesStart:
 zSFXPriorityVal:	ds.b 1
 zTempoTimeout:		ds.b 1
 zCurrentTempo:		ds.b 1	; Stores current tempo value here
@@ -182,10 +183,43 @@ zSpeedUpFlag:		ds.b 1
 zDACEnabled:		ds.b 1
 zMusicBankNumber:	ds.b 1
 zIsPalFlag:		ds.b 1	; I think this flags if system is PAL
-zTracksStart:	; This is the beginning of all BGM track memory
+zVariablesEnd:
 
-z1upBackup = $1E38			; When extra life plays, it backs up a large amount of memory (all track data plus 36 bytes)
-z1upBackupSz = 10*zTrack.len+$18		; ... specifically, this value
+zTracksStart:	; This is the beginning of all BGM track memory
+zSongDAC:		zTrack
+zSongFM1:		zTrack
+zSongFM2:		zTrack
+zSongFM3:		zTrack
+zSongFM4:		zTrack
+zSongFM5:		zTrack
+zSongFM6:		zTrack
+zSongPSG1:		zTrack
+zSongPSG2:		zTrack
+zSongPSG3:		zTrack
+zTracksEnd:
+
+zTracksSFXStart:
+zSFX_FM3:		zTrack
+zSFX_FM4:		zTrack
+zSFX_FM5:		zTrack
+zSFX_PSG1:		zTrack
+zSFX_PSG2:		zTrack
+zSFX_PSG3:		zTrack
+zTracksSFXEnd:
+
+zTracksSaveStart:; When extra life plays, it backs up a large amount of memory (all track data plus 36 bytes)
+			ds.b zVariablesEnd-zVariablesStart
+zSaveSongDAC:		zTrack
+zSaveSongFM1:		zTrack
+zSaveSongFM2:		zTrack
+zSaveSongFM3:		zTrack
+zSaveSongFM4:		zTrack
+zSaveSongFM5:		zTrack
+zSaveSongFM6:		zTrack
+zSaveSongPSG1:		zTrack
+zSaveSongPSG2:		zTrack
+zSaveSongPSG3:		zTrack
+zTracksSaveEnd:
 ; see the very end for another set of variables
 	dephase
 
@@ -632,15 +666,15 @@ zDACDecodeTbl:
 ;zbyte_1C3
 zMusicTrackOffs:
 	; These are offsets to different music tracks starting with FM3
-	dw	zTracksStart+zTrack.len*3,                   0000h, zTracksStart+zTrack.len*4, zTracksStart+zTrack.len*5	; FM3, 0, FM4, FM5
-	dw	zTracksStart+zTrack.len*7, zTracksStart+zTrack.len*8, zTracksStart+zTrack.len*9, zTracksStart+zTrack.len*9	; PSG1, PSG2, PSG3, PSG3 (noise alternate)
+	dw	zSongFM3,      0000h,  zSongFM4,  zSongFM5	; FM3, 0, FM4, FM5
+	dw	zSongPSG1, zSongPSG2, zSongPSG3, zSongPSG3	; PSG1, PSG2, PSG3, PSG3 (noise alternate)
 	
 	ensure1byteoffset 10h
 ;zbyte_1D3
 zSFXTrackOffs:
 	; These are offsets to different sound effect tracks starting with FM3
-	dw	zTracksStart+zTrack.len*10,                    0000h, zTracksStart+zTrack.len*11, zTracksStart+zTrack.len*12	; FM3, 0, FM4, FM5
-	dw	zTracksStart+zTrack.len*13, zTracksStart+zTrack.len*14, zTracksStart+zTrack.len*15, zTracksStart+zTrack.len*15	; PSG1, PSG2, PSG3, PSG3 (noise alternate)
+	dw	zSFX_FM3,      0000h,  zSFX_FM4,  zSFX_FM5	; FM3, 0, FM4, FM5
+	dw	zSFX_PSG1, zSFX_PSG2, zSFX_PSG3, zSFX_PSG3	; PSG1, PSG2, PSG3, PSG3 (noise alternate)
 ; ---------------------------------------------------------------------------
 
 zDACUpdateTrack:
@@ -1211,7 +1245,7 @@ zPauseMusic:
 
 	ld	a,0FFh			; a = 0FFH
 	ld	(zDoSFXFlag),a	; Set flag to say we are updating SFX
-	ld	ix,zTracksStart+zTrack.len*10	; ix = pointer to SFX track RAM
+	ld	ix,zTracksSFXStart	; ix = pointer to SFX track RAM
 	ld	b,3				; 3 FM
 	call	zResumeTrack
 	xor	a				; a = 0
@@ -1411,7 +1445,7 @@ zPlayMusic:
 	add	ix,de						; Next track
 	djnz	-
 
-	ld	ix,zTracksStart+zTrack.len*10		; 'ix' points to start of SFX track memory (10 prior tracks were DAC, 6 FM, 3 PSG)
+	ld	ix,zTracksSFXStart		; 'ix' points to start of SFX track memory (10 prior tracks were DAC, 6 FM, 3 PSG)
 	ld	b,6							; 6 SFX tracks total (3FM, 3PSG)
 
 -	res	7,(ix+zTrack.PlaybackControl)					; Clear "is playing" bit!  (No SFX allowed!)
@@ -1420,9 +1454,9 @@ zPlayMusic:
 
 	; This performs a "massive" backup of all of the current track positions 
 	; for restoration after 1-up BGM completes
-	ld	de,z1upBackup		; Backup memory address
+	ld	de,zTracksSaveStart	; Backup memory address
 	ld	hl,zComRange		; Starts from zComRange
-	ld	bc,z1upBackupSz		; for this many bytes
+	ld	bc,zTracksSaveEnd-zTracksSaveStart		; for this many bytes
 	ldir					; Go!
 	ld	a,80h
 	ld	(z1upPlaying),a	; Set 1-up song playing flag
@@ -1601,7 +1635,7 @@ zloc_884:
 	jp	z,zloc_8D0			; If zero, skip this part!
 	ld	b,a					; 'a' -> 'b' (num PSG tracks this song, for loop)
 	push	iy				; Save 'iy'
-	ld	iy,zTracksStart+zTrack.len*7		; 'iy' points to start of PSG track memory (7 prior tracks were DAC and 6 FM)
+	ld	iy,zSongPSG1		; 'iy' points to start of PSG track memory (7 prior tracks were DAC and 6 FM)
 	ld	c,(ix+4)			; Get tempo divider -> 'c'
 	ld	de,zPSGInitBytes	; 'de' points to zPSGInitBytes
 
@@ -1638,7 +1672,7 @@ zloc_884:
 	; End of PSG tracks init, begin SFX tracks init
 
 zloc_8D0:
-	ld	ix,zTracksStart+zTrack.len*10		; 'ix' points to start of SFX track memory (10 prior tracks were DAC, 6 FM, 3 PSG)
+	ld	ix,zTracksSFXStart		; 'ix' points to start of SFX track memory (10 prior tracks were DAC, 6 FM, 3 PSG)
 	ld	b,6					; 6 SFX tracks total (3FM, 3PSG)
 	ld	de,zTrack.len			; size between tracks
 
@@ -1670,7 +1704,7 @@ zloc_8FB:
 	djnz	zloc_8D9		; Loop for all tracks
 	; End of SFX tracks init...
 
-	ld	ix,zTracksStart+zTrack.len*1	; 'ix' points to first FM music track
+	ld	ix,zSongFM1	; 'ix' points to first FM music track
 	ld	b,6							; For all 6 of those...
 
 -	call	zFMNoteOff				; Send Key Off
@@ -1902,7 +1936,7 @@ zloc_KillSFXPrio:
 zStopSoundEffects:
 	xor	a
 	ld	(zSFXPriorityVal),a					; Reset SFX priority
-	ld	ix,zTracksStart+zTrack.len*10		; 'ix' points to start of SFX track memory (10 prior tracks were DAC, 6 FM, 3 PSG)
+	ld	ix,zTracksSFXStart		; 'ix' points to start of SFX track memory (10 prior tracks were DAC, 6 FM, 3 PSG)
 	ld	b,6								; All 6 SFX tracks...
 
 zloc_A46:
@@ -1975,7 +2009,7 @@ zFadeOutMusic:
 	ld	a,28h
 	ld	(zFadeOutCounter),a			; Set total frames to decrease volume over
 	xor	a
-	ld	(zTracksStart),a		; Stop DAC track (can't fade it)
+	ld	(zSongDAC.PlaybackControl),a		; Stop DAC track (can't fade it)
 	ld	(zSpeedUpFlag),a		; No speed shoe tempo?
 	ret
 
@@ -1994,7 +2028,7 @@ zUpdateFadeout:
 	jp	z,zClearTrackPlaybackMem	; If it hits zero, clear everything!
 	ld	(ix+5),3					; Otherwise, reload tick count with 3 (zFadeOutDelay)
 	push	ix
-	ld	ix,zTracksStart+zTrack.len*1	; 'ix' points to first FM music track
+	ld	ix,zSongFM1	; 'ix' points to first FM music track
 	ld	b,6							; 6 FM tracks to follow...
 
 zloc_AED:
@@ -2090,7 +2124,7 @@ zClearTrackPlaybackMem:
 	ld	hl,zComRange
 	ld	de,zComRange+1
 	ld	(hl),0						; Starting byte is 00h
-	ld	bc,2B7h						; For 695 bytes...
+	ld	bc,(zTracksSFXEnd-zComRange)-1						; For 695 bytes...
 	ldir							; 695 bytes of clearing!  (Because it will keep copying the byte prior to the byte after; thus 00h repeatedly)
 	ld	a,80h
 	ld	(zQueueToPlay),a			; Nothing is queued
@@ -2125,7 +2159,7 @@ zInitMusicPlayback:
 	ld	hl,zComRange
 	ld	de,zComRange+1
 	ld	(hl),0
-	ld	bc,z1upBackupSz-1			; this many bytes (from start of zComRange to just short of end of PSG3 music track)
+	ld	bc,(zTracksSaveEnd-zTracksSaveStart)-1			; this many bytes (from start of zComRange to just short of end of PSG3 music track)
 	ldir
 	; Restore those queue/flags:
 	pop	bc
@@ -2176,9 +2210,9 @@ zSetTempo:
 ; ---------------------------------------------------------------------------
 ;zloc_BE0
 zSetTempo_1up:
-	ld	(z1upBackup+zCurrentTempo-zComRange),a	; Store new tempo value 
+	ld	(zTracksSaveStart+zCurrentTempo-zComRange),a	; Store new tempo value 
 	ld	a,b
-	ld	(z1upBackup+zSpeedUpFlag-zComRange),a
+	ld	(zTracksSaveStart+zSpeedUpFlag-zComRange),a
 	ret
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
@@ -2195,9 +2229,9 @@ zUpdateFadeIn:
 	ld	a,(zFadeInCounter)			; Get current fade out frame count
 	or	a
 	jr	nz,+						; If fadeout hasn't reached zero yet, skip this
-	ld	a,(zTracksStart)			; Get DAC's playback control byte
+	ld	a,(zSongDAC.PlaybackControl)			; Get DAC's playback control byte
 	and	0FBh						; Clear "SFX is overriding" bit
-	ld	(zTracksStart),a			; Set that
+	ld	(zSongDAC.PlaybackControl),a			; Set that
 	xor	a
 	ld	(zFadeInFlag),a			; Done fading-in, SFX can play now 
 	ret
@@ -2205,7 +2239,7 @@ zUpdateFadeIn:
 	dec	(ix+10h)					; Otherwise, we decrement fadein! (zFadeInCounter)
 	ld	(ix+0Fh),2					; Otherwise, reload tick count with 2 (little faster than fadeout) (zFadeInDelay)
 	push	ix
-	ld	ix,zTracksStart+zTrack.len*1	; 'ix' points to first FM music track
+	ld	ix,zSongFM1	; 'ix' points to first FM music track
 	ld	b,6							; 6 FM tracks to follow...
 
 -	bit	7,(ix+zTrack.PlaybackControl)					; Is this track playing?
@@ -2463,22 +2497,22 @@ cfJumpReturn:
 cfFadeInToPrevious:
 	; This performs a "massive" restoration of all of the current 
 	; track positions as they were prior to 1-up BGM
-	ld	hl,z1upBackup		; Backup memory address
+	ld	hl,zTracksSaveStart	; Backup memory address
 	ld	de,zComRange		; Ends at zComRange
-	ld	bc,z1upBackupSz		; for this many bytes
+	ld	bc,zTracksSaveEnd-zTracksSaveStart		; for this many bytes
 	ldir					; Go!
 	
 	call	zBankSwitchToMusic
-	ld	a,(zTracksStart)	; Get DAC's playback bit
+	ld	a,(zSongDAC.PlaybackControl)	; Get DAC's playback bit
 	or	4
-	ld	(zTracksStart),a	; Set "SFX is overriding" on it (not normal, but will work for this purpose)
+	ld	(zSongDAC.PlaybackControl),a	; Set "SFX is overriding" on it (not normal, but will work for this purpose)
 	ld	a,(zFadeInCounter)	; Get current count of many frames to continue bringing volume up
 	ld	c,a					; 
 	ld	a,28h				; 
 	sub	c					; a = 28h - c (don't overlap fade-ins?)
 	ld	c,a					; 'a' -> 'c'
 	ld	b,6							; 6 FM tracks to follow...
-	ld	ix,zTracksStart+zTrack.len*1	; 'ix' points to first FM music track
+	ld	ix,zSongFM1	; 'ix' points to first FM music track
 
 -	bit	7,(ix+zTrack.PlaybackControl)			; Is this track playing?
 	jr	z,+					; If not, do nothing
