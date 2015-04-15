@@ -1089,7 +1089,7 @@ loc_1072:
 sndDriverInput:
 	lea	(Music_to_play&$00FFFFFF).l,a0
 	lea	(Z80_RAM+zComRange).l,a1 ; $A01B80
-	cmpi.b	#$80,zAbsVar.zQueueToPlay-zComRange(a1)	; If this (zReadyFlag) isn't $80, the driver is processing a previous sound request.
+	cmpi.b	#$80,zAbsVar.QueueToPlay-zComRange(a1)	; If this (zReadyFlag) isn't $80, the driver is processing a previous sound request.
 	bne.s	loc_10C4	; So we'll wait until at least the next frame before putting anything in there.
 	_move.b	0(a0),d0
 	beq.s	loc_10A4
@@ -1107,22 +1107,22 @@ loc_10AE:		; Check that the sound is not FE or FF
 	subi.b	#$FE,d1
 	bcs.s	loc_10C0
 	addi.b	#$7F,d1
-	move.b	d1,zAbsVar.zStopMusic-zComRange(a1)
+	move.b	d1,zAbsVar.StopMusic-zComRange(a1)
 	bra.s	loc_10C4
 ; ---------------------------------------------------------------------------
 
 loc_10C0:
-	move.b	d0,zAbsVar.zQueueToPlay-zComRange(a1)
+	move.b	d0,zAbsVar.QueueToPlay-zComRange(a1)
 
 loc_10C4:
 	moveq	#4-1,d1
 				; FFE4 (Music_to_play_2) goes to 1B8C (zMusicToPlay),
 -	move.b	1(a0,d1.w),d0	; FFE3 (unk_FFE3) goes to 1B8B, (unknown)
 	beq.s	+		; FFE2 (SFX_to_play_2) goes to 1B8A (zSFXToPlay2),
-	tst.b	zAbsVar.zSFXToPlay-zComRange(a1,d1.w)	; FFE1 (SFX_to_play) goes to 1B89 (zSFXToPlay).
+	tst.b	zAbsVar.SFXToPlay-zComRange(a1,d1.w)	; FFE1 (SFX_to_play) goes to 1B89 (zSFXToPlay).
 	bne.s	+
 	clr.b	1(a0,d1.w)
-	move.b	d0,zAbsVar.zSFXToPlay-zComRange(a1,d1.w)
+	move.b	d0,zAbsVar.SFXToPlay-zComRange(a1,d1.w)
 +
 	dbf	d1,-
 	rts

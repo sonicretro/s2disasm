@@ -147,29 +147,29 @@ zTrack STRUCT DOTS
 zTrack ENDSTRUCT
 
 zVar STRUCT DOTS
-	zSFXPriorityVal:	ds.b 1
-	zTempoTimeout:		ds.b 1
-	zCurrentTempo:		ds.b 1	; Stores current tempo value here
-	zStopMusic:		ds.b 1	; Set to 7Fh to pause music, set to 80h to unpause. Otherwise 00h
-	zFadeOutCounter:	ds.b 1
-	zFadeOutDelay:		ds.b 1
-	zCommunication:		ds.b 1	; Unused byte used to synchronise gameplay events with music
-	zDACUpdating:		ds.b 1 ; Set to FFh while DAC is updating, then back to 00h
-	zQueueToPlay:		ds.b 1	; if NOT set to 80h, means new index was requested by 68K
-	zSFXToPlay:		ds.b 1	; When Genesis wants to play "normal" sound, it writes it here
-	zSFXStereoToPlay:	ds.b 1	; When Genesis wants to play alternating stereo sound, it writes it here
-	zSFXUnknown:		ds.b 1 ; Unknown type of sound queue, but it's in Genesis code like it was once used
-	zVoiceTblPtr:		ds.b 2	; address of the voices
-	zFadeInFlag:		ds.b 1
-	zFadeInDelay:		ds.b 1
-	zFadeInCounter:		ds.b 1
-	z1upPlaying:		ds.b 1
-	zTempoMod:		ds.b 1
-	zTempoTurbo:		ds.b 1	; Stores the tempo if speed shoes are acquired (or 7Bh is played anywho)
-	zSpeedUpFlag:		ds.b 1
-	zDACEnabled:		ds.b 1
-	zMusicBankNumber:	ds.b 1
-	zIsPalFlag:		ds.b 1	; I think this flags if system is PAL
+	SFXPriorityVal:		ds.b 1
+	TempoTimeout:		ds.b 1
+	CurrentTempo:		ds.b 1	; Stores current tempo value here
+	StopMusic:		ds.b 1	; Set to 7Fh to pause music, set to 80h to unpause. Otherwise 00h
+	FadeOutCounter:		ds.b 1
+	FadeOutDelay:		ds.b 1
+	Communication:		ds.b 1	; Unused byte used to synchronise gameplay events with music
+	DACUpdating:		ds.b 1 ; Set to FFh while DAC is updating, then back to 00h
+	QueueToPlay:		ds.b 1	; if NOT set to 80h, means new index was requested by 68K
+	SFXToPlay:		ds.b 1	; When Genesis wants to play "normal" sound, it writes it here
+	SFXStereoToPlay:	ds.b 1	; When Genesis wants to play alternating stereo sound, it writes it here
+	SFXUnknown:		ds.b 1 ; Unknown type of sound queue, but it's in Genesis code like it was once used
+	VoiceTblPtr:		ds.b 2	; address of the voices
+	FadeInFlag:		ds.b 1
+	FadeInDelay:		ds.b 1
+	FadeInCounter:		ds.b 1
+	1upPlaying:		ds.b 1
+	TempoMod:		ds.b 1
+	TempoTurbo:		ds.b 1	; Stores the tempo if speed shoes are acquired (or 7Bh is played anywho)
+	SpeedUpFlag:		ds.b 1
+	DACEnabled:		ds.b 1
+	MusicBankNumber:	ds.b 1
+	IsPalFlag:		ds.b 1	; I think this flags if system is PAL
 zVar ENDSTRUCT
 
 ; equates: standard (for Genesis games) addresses in the memory map
@@ -359,7 +359,7 @@ zVInt:    rsttarget
 	xor	a						; Clear 'a'
 	ld	(zDoSFXFlag),a			; Not updating SFX (updating music)
 	ld	ix,zComRange			; ix points to zComRange
-	ld	a,(zAbsVar.zStopMusic)			; Get pause/unpause flag
+	ld	a,(zAbsVar.StopMusic)			; Get pause/unpause flag
 	or	a						; test 'a'
 	jr	z,zUpdateEverything		; If zero, go to zUpdateEverything
 	call	zPauseMusic
@@ -368,20 +368,20 @@ zVInt:    rsttarget
 
 ;zloc_51
 zUpdateEverything:
-	ld	a,(zAbsVar.zFadeOutCounter)			; are we fading out?
+	ld	a,(zAbsVar.FadeOutCounter)			; are we fading out?
 	or	a
 	call	nz,zUpdateFadeout	; If so, update that
-	ld	a,(zAbsVar.zFadeInFlag)		; are we fading in?
+	ld	a,(zAbsVar.FadeInFlag)		; are we fading in?
 	or	a
 	call	nz,zUpdateFadeIn	; If so, update that
-	ld	a,(zAbsVar.zSFXToPlay)			; zComRange+09h -- play normal sound
-	or	(ix+zVar.zSFXStereoToPlay)				; zComRange+0Ah (zSFXStereoToPlay) -- play stereo sound (alternating speakers)
-	or	(ix+zVar.zSFXUnknown)				; zComRange+0Bh (zSFXUnknown) -- "unknown" slot
+	ld	a,(zAbsVar.SFXToPlay)			; zComRange+09h -- play normal sound
+	or	(ix+zVar.SFXStereoToPlay)				; zComRange+0Ah (SFXStereoToPlay) -- play stereo sound (alternating speakers)
+	or	(ix+zVar.SFXUnknown)				; zComRange+0Bh (SFXUnknown) -- "unknown" slot
 	call	nz,zCycleQueue		; If any of those are non-zero, cycle queue
 	
 	; Apparently if this is 80h, it does not play anything new,
 	; otherwise it cues up the next play (flag from 68K for new item)
-	ld	a,	(zAbsVar.zQueueToPlay)
+	ld	a,	(zAbsVar.QueueToPlay)
 	cp		80h
 	call	nz,zPlaySoundByIndex	; If not 80h, we need to play something new!
 	
@@ -395,7 +395,7 @@ zUpdateEverything:
 	; If the system is PAL, then this performs some timing adjustments
 	; (i.e. you need to update 1.2x as much to keep up the same rate)
 	ld	hl,zPalModeByte		; Get address of zPalModeByte
-	ld	a,(zAbsVar.zIsPalFlag)		; Get zIsPalFlag -> 'a'
+	ld	a,(zAbsVar.IsPalFlag)		; Get IsPalFlag -> 'a'
 	and	(hl)				; 'And' them together
 	jr	z,+					; If it comes out zero, do nothing
 	ld	hl,zPALUpdTick
@@ -489,12 +489,12 @@ zUpdateMusic:
 	
 	; DAC updates
 	ld	a,0FFh
-	ld	(zAbsVar.zDACUpdating),a		; Store FFh to zDACUpdating
+	ld	(zAbsVar.DACUpdating),a		; Store FFh to DACUpdating
 	ld	ix,zTracksStart		; Point "ix" to zTracksStart
 	bit	7,(ix+zTrack.PlaybackControl)			; Is bit 7 (80h) set on playback control byte? (means "is playing")
 	call	nz,zDACUpdateTrack		; If so, zDACUpdateTrack
 	xor	a					; Clear A
-	ld	(zAbsVar.zDACUpdating),a		; Store 0 to zDACUpdating
+	ld	(zAbsVar.DACUpdating),a		; Store 0 to DACUpdating
 	ld	b,(zSongPSG1-zSongFM1)/zTrack.len				; Loop 6 times (FM)...
 
 -	push	bc
@@ -530,9 +530,9 @@ TempoWait:
 	; frame, or 30 times a second.
 
 	ld	ix,zComRange		; ix points to zComRange
-	ld	a,(ix+zVar.zCurrentTempo)			; tempo value
-	add	a,(ix+zVar.zTempoTimeout)			; Adds previous value to (ix+1 - zTempoTimeout)
-	ld	(ix+zVar.zTempoTimeout),a			; Store this as new (ix+1 - zTempoTimeout)
+	ld	a,(ix+zVar.CurrentTempo)			; tempo value
+	add	a,(ix+zVar.TempoTimeout)			; Adds previous value to (ix+1 - TempoTimeout)
+	ld	(ix+zVar.TempoTimeout),a			; Store this as new (ix+1 - TempoTimeout)
 	ret	c					; If addition overflowed (answer greater than FFh), return
 	
 	; So if adding tempo value did NOT overflow, then we add 1 to all durations
@@ -1236,7 +1236,7 @@ zPauseMusic:
 	jp	zPSGSilenceAll
 +
 	push	ix			; Save ix
-	ld	(ix+zVar.zStopMusic),0		; Clear pause/unpause flag (zStopMusic)
+	ld	(ix+zVar.StopMusic),0		; Clear pause/unpause flag (StopMusic)
 	xor	a				; a = 0
 	ld	(zPaused),a		; Clear paused flag
 	ld	ix,zTracksStart	; ix = pointer to track RAM
@@ -1285,11 +1285,11 @@ zResumeTrack:
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
 ;zsub_674
 zCycleQueue:
-	ld	a,(zAbsVar.zQueueToPlay)	; Check if a sound request was made zComRange+08h
+	ld	a,(zAbsVar.QueueToPlay)	; Check if a sound request was made zComRange+08h
 	cp	80h					; Is queue slot equal to 80h?
 	ret	nz					; If not, return
-	ld	hl,zAbsVar.zSFXToPlay		; Get address of next sound
-	ld	a,(zAbsVar.zSFXPriorityVal)		; Get current SFX priority
+	ld	hl,zAbsVar.SFXToPlay		; Get address of next sound
+	ld	a,(zAbsVar.SFXPriorityVal)		; Get current SFX priority
 	ld	c,a					; a -> c
 	ld	b,3					; b = 3
 
@@ -1317,7 +1317,7 @@ zCycleQueue:
 	ld	a,c					; Get back SFX priority
 	or	a					; Is it negative (jumping sound)?
 	ret	m					; Return if so
-	ld	(zAbsVar.zSFXPriorityVal),a		; Store the new priority
+	ld	(zAbsVar.SFXPriorityVal),a		; Store the new priority
 	ret
 ; ---------------------------------------------------------------------------
 zlocQueueNext:
@@ -1326,7 +1326,7 @@ zlocQueueNext:
 ; ---------------------------------------------------------------------------
 zlocQueueItem:
 	ld	a,e				; restore a to be the last queue item read
-	ld	(zAbsVar.zQueueToPlay),a	; Put it as the next item to play
+	ld	(zAbsVar.QueueToPlay),a	; Put it as the next item to play
 	ret
 ; End of function zCycleQueue
 
@@ -1343,7 +1343,7 @@ zPlaySoundByIndex:
 	ret	c		; return if id is less than the first music id
     endif
 	
-	ld	(ix+zVar.zQueueToPlay),80h					; Rewrite zComRange+8 (zQueueToPlay) flag so we know nothing new is coming in 
+	ld	(ix+zVar.QueueToPlay),80h					; Rewrite zComRange+8 (QueueToPlay) flag so we know nothing new is coming in 
 	cp	MusID__End					; is it music (less than index 20)?
 	jp	c,zPlayMusic				; if yes, branch to play the music
 	cp	SndID__First				; is it not a sound? (this check is redundant if MusID__End == SndID__First...)
@@ -1394,7 +1394,7 @@ zPlaySegaSound:
 	ld	de,(Snd_Sega_End - Snd_Sega)/2	; was: 30BAh
 	ld	a,2Ah			; DAC data register
 	ld	(zYM2612_A0),a	; Select it
-	ld	c,80h			; If zQueueToPlay is not this, stops Sega PCM
+	ld	c,80h			; If QueueToPlay is not this, stops Sega PCM
 
 -	ld	a,(hl)			; Get next PCM byte
 	ld	(zYM2612_D0),a	; Send to DAC
@@ -1404,7 +1404,7 @@ zPlaySegaSound:
 	djnz	$			; Delay loop
 
 	nop
-	ld	a,(zAbsVar.zQueueToPlay)	; Get next item to play
+	ld	a,(zAbsVar.QueueToPlay)	; Get next item to play
 	cp	c				; Is it 80h?
 	jr	nz,+			; If not, stop Sega PCM
 	ld	a,(hl)			; Get next PCM byte
@@ -1421,7 +1421,7 @@ zPlaySegaSound:
 	jp	nz,-			; If not, loop
 +
 	call	zBankSwitchToMusic
-	ld	a,(zAbsVar.zDACEnabled)	; DAC status
+	ld	a,(zAbsVar.DACEnabled)	; DAC status
 	ld	c,a				; c = DAC status
 	ld	a,2Bh			; DAC enable/disable register
 	rst	zWriteFMI
@@ -1436,7 +1436,7 @@ zPlayMusic:
 	cp	MusID_ExtraLife				; If NOT 1-up sound...
 	jr	nz,zloc_784					; ... skip over the following code
 	; The following code disables all sound (technically for duration of 1-up)
-	ld	a,(zAbsVar.z1upPlaying)			; Check if 1-up sound is already playing
+	ld	a,(zAbsVar.1upPlaying)			; Check if 1-up sound is already playing
 	or	a							; Test it
 	jr	nz,zBGMLoad					; If it is, then just reload it!  (I suppose a humorous restore-to-1up could happen otherwise... with no good results after that)
 	ld	ix,zTracksStart				; Starting at beginning of all tracks...
@@ -1461,17 +1461,17 @@ zPlayMusic:
 	ld	bc,zTracksSaveEnd-zTracksSaveStart		; for this many bytes
 	ldir					; Go!
 	ld	a,80h
-	ld	(zAbsVar.z1upPlaying),a	; Set 1-up song playing flag
+	ld	(zAbsVar.1upPlaying),a	; Set 1-up song playing flag
 	xor	a
-	ld	(zAbsVar.zSFXPriorityVal),a		; Clears SFX priority
+	ld	(zAbsVar.SFXPriorityVal),a		; Clears SFX priority
 	jr	zBGMLoad			; Now load 1-up BGM
 ; ---------------------------------------------------------------------------
 
 zloc_784:
 	xor	a
-	ld	(zAbsVar.z1upPlaying),a	; clear 1-up is playing flag (it isn't)
-	ld	(zAbsVar.zFadeInCounter),a	; clear fade-in frame count
-	ld	(zAbsVar.zFadeOutCounter),a		; clear fade-out frame count
+	ld	(zAbsVar.1upPlaying),a	; clear 1-up is playing flag (it isn't)
+	ld	(zAbsVar.FadeInCounter),a	; clear fade-in frame count
+	ld	(zAbsVar.FadeOutCounter),a		; clear fade-out frame count
 
 ;zloc_78E
 zBGMLoad:
@@ -1483,21 +1483,21 @@ zBGMLoad:
 	ld	hl,zSpedUpTempoTable			; Load 'hl' of "sped up" tempos [I think]
 	add	hl,de					; Offset by 16-bit version of song index to proper tempo
 	ld	a,(hl)					; Get value at this location -> 'a'
-	ld	(zAbsVar.zTempoTurbo),a		; Store 'a' here (provides an alternate tempo or something for speed up mode)
+	ld	(zAbsVar.TempoTurbo),a		; Store 'a' here (provides an alternate tempo or something for speed up mode)
 	ld	hl,zMasterPlaylist		; Get address of the zMasterPlaylist
 	add	hl,de					; Add the 16-bit offset here
 	ld	a,(hl)					; Get "fixed" index
 	ld	b,a						; 'a' -> 'b'
 	; The following instructions enable a bankswitch routine
 	and	80h						; Get only 'bank' bit
-	ld	(zAbsVar.zMusicBankNumber),a		; Store this (use to enable alternate bank)
+	ld	(zAbsVar.MusicBankNumber),a		; Store this (use to enable alternate bank)
 	ld	a,b						; Restore 'a'
 	add	a,a						; Adding a+a causes a possible overflow and a multiplication by 2
 	add	a,a						; Now multiplied by 4 and another possible overflow
 	ld	c,a						; Result -> 'c'
 	ccf							; Invert carry flag...
 	sbc	a,a						; ... so that this sets a to FFh if bit 6 of original a was clear (allow PAL double-update), zero otherwise (do not allow PAL double-update)
-	ld	(zAbsVar.zIsPalFlag),a			; Set zIsPalFlag
+	ld	(zAbsVar.IsPalFlag),a			; Set IsPalFlag
 	ld	a,c						; Put prior multiply result back in
 	add	a,a						; Now multiplied by 8!
 	sbc	a,a						; This is FFh if bit 5 of original a was set (uncompressed song), zero otherwise (compressed song)
@@ -1543,18 +1543,18 @@ zBGMLoad:
 	pop	ix					; ix = de (BGM's starting address)
 	ld	e,(ix+0)			; Get voice table pointer low byte -> 'e'
 	ld	d,(ix+1)			; Get voice table pointer high byte -> 'd'
-	ld	(zAbsVar.zVoiceTblPtr),de	; Set master copy of this value in local memory
+	ld	(zAbsVar.VoiceTblPtr),de	; Set master copy of this value in local memory
 	ld	a,(ix+5)			; Get main tempo value
-	ld	(zAbsVar.zTempoMod),a	; Store it at (zComRange+12h)
+	ld	(zAbsVar.TempoMod),a	; Store it at (zComRange+12h)
 	ld	b,a					; tempo -> 'b'
-	ld	a,(zAbsVar.zSpeedUpFlag)	; Get found speed shoe flag (zComRange+14h) (preloaded before this)
+	ld	a,(zAbsVar.SpeedUpFlag)	; Get found speed shoe flag (zComRange+14h) (preloaded before this)
 	or	a					; test it
 	ld	a,b					; Restore normal song tempo
 	jr	z,+					; if the speed shoe flag was zero, skip this step
-	ld	a,(zAbsVar.zTempoTurbo)		; Put the corresponding speed shoe tempo for song
+	ld	a,(zAbsVar.TempoTurbo)		; Put the corresponding speed shoe tempo for song
 +
-	ld	(zAbsVar.zCurrentTempo),a		; Current tempo for TempoWait
-	ld	(zAbsVar.zTempoTimeout),a		; Tempo accumulator for TempoWait
+	ld	(zAbsVar.CurrentTempo),a		; Current tempo for TempoWait
+	ld	(zAbsVar.TempoTimeout),a		; Tempo accumulator for TempoWait
 	ld	a,5
 	ld	(zPALUpdTick),a		; reset PAL update tick to 5 (update immediately)
 	push	ix
@@ -1625,7 +1625,7 @@ zBGMLoad:
 	ld	c,a					; Set this as value to be used in FM register write coming up...
 
 zloc_87E:
-	ld	(zAbsVar.zDACEnabled),a	; Note whether FM Channel 6 is in use (enables DAC if not)
+	ld	(zAbsVar.DACEnabled),a	; Note whether FM Channel 6 is in use (enables DAC if not)
 	ld	a,2Bh				; Set DAC Enable appropriately
 	rst	zWriteFMI			; Set it!
 
@@ -1735,8 +1735,8 @@ zPSGInitBytes:
 ; zloc_920:
 zPlaySound_CheckRing:
 	ld	c,a								; Store sound index -> 'c'
-	ld	a,(ix+zVar.z1upPlaying)						; Get "is 1-up playing" flag... (z1upPlaying)
-	or	(ix+zVar.zFadeInFlag)						; Or it with fading in flag (zFadeInFlag)
+	ld	a,(ix+zVar.1upPlaying)						; Get "is 1-up playing" flag... (1upPlaying)
+	or	(ix+zVar.FadeInFlag)						; Or it with fading in flag (FadeInFlag)
 	jp	nz,zloc_KillSFXPrio				; If either is set, SFX cannot be played!!
 	xor	a
 	ld	(zSpindashActiveFlag),a			; Clear spindash sound flag
@@ -1927,7 +1927,7 @@ zloc_A26:
 
 zloc_KillSFXPrio:
 	xor	a
-	ld	(zAbsVar.zSFXPriorityVal),a					; Reset SFX priority
+	ld	(zAbsVar.SFXPriorityVal),a					; Reset SFX priority
 	ret
 ; End of function zPlaySoundByIndex
 
@@ -1937,7 +1937,7 @@ zloc_KillSFXPrio:
 ; zsub_A3C:
 zStopSoundEffects:
 	xor	a
-	ld	(zAbsVar.zSFXPriorityVal),a					; Reset SFX priority
+	ld	(zAbsVar.SFXPriorityVal),a					; Reset SFX priority
 	ld	ix,zTracksSFXStart		; 'ix' points to start of SFX track memory (10 prior tracks were DAC, 6 FM, 3 PSG)
 	ld	b,(zTracksSFXEnd-zTracksSFXStart)/zTrack.len								; All 6 SFX tracks...
 
@@ -2007,12 +2007,12 @@ zloc_AB6:
 ; zloc_ABF:
 zFadeOutMusic:
 	ld	a,3
-	ld	(zAbsVar.zFadeOutDelay),a			; Set delay ticker to 3
+	ld	(zAbsVar.FadeOutDelay),a			; Set delay ticker to 3
 	ld	a,28h
-	ld	(zAbsVar.zFadeOutCounter),a			; Set total frames to decrease volume over
+	ld	(zAbsVar.FadeOutCounter),a			; Set total frames to decrease volume over
 	xor	a
 	ld	(zSongDAC.PlaybackControl),a		; Stop DAC track (can't fade it)
-	ld	(zAbsVar.zSpeedUpFlag),a		; No speed shoe tempo?
+	ld	(zAbsVar.SpeedUpFlag),a		; No speed shoe tempo?
 	ret
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
@@ -2020,15 +2020,15 @@ zFadeOutMusic:
 
 ;zsub_AD1
 zUpdateFadeout:
-	ld	a,(zAbsVar.zFadeOutDelay)				; Get current tick count before next volume decrease
+	ld	a,(zAbsVar.FadeOutDelay)				; Get current tick count before next volume decrease
 	or	a
 	jr	z,+							; If not yet zero...
-	dec	(ix+zVar.zFadeOutDelay)						; Just decrement it (zFadeOutDelay)
+	dec	(ix+zVar.FadeOutDelay)						; Just decrement it (FadeOutDelay)
 	ret
 +
-	dec	(ix+zVar.zFadeOutCounter)						; Otherwise, decrement fadeout! (zFadeOutCounter)
+	dec	(ix+zVar.FadeOutCounter)						; Otherwise, decrement fadeout! (FadeOutCounter)
 	jp	z,zClearTrackPlaybackMem	; If it hits zero, clear everything!
-	ld	(ix+zVar.zFadeOutDelay),3					; Otherwise, reload tick count with 3 (zFadeOutDelay)
+	ld	(ix+zVar.FadeOutDelay),3					; Otherwise, reload tick count with 3 (FadeOutDelay)
 	push	ix
 	ld	ix,zSongFM1	; 'ix' points to first FM music track
 	ld	b,(zSongPSG1-zSongFM1)/zTrack.len							; 6 FM tracks to follow...
@@ -2106,7 +2106,7 @@ zFMSilenceAll:
 ; zloc_B4E:
 zStopSoundAndMusic:
 	xor	a
-	ld	(zAbsVar.zStopMusic),a
+	ld	(zAbsVar.StopMusic),a
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -2118,7 +2118,7 @@ zClearTrackPlaybackMem:
 	ld	c,80h						; Enable DAC
 	rst	zWriteFMI					; Write it!
 	ld	a,c							; 80h -> 'a'
-	ld	(zAbsVar.zDACEnabled),a			; Store that to DAC Enabled byte
+	ld	(zAbsVar.DACEnabled),a			; Store that to DAC Enabled byte
 	ld	a,27h						; Channel 3 special settings
 	ld	c,0							; All clear
 	rst	zWriteFMI					; Write it!
@@ -2129,7 +2129,7 @@ zClearTrackPlaybackMem:
 	ld	bc,(zTracksSFXEnd-zComRange)-1						; For 695 bytes...
 	ldir							; 695 bytes of clearing!  (Because it will keep copying the byte prior to the byte after; thus 00h repeatedly)
 	ld	a,80h
-	ld	(zAbsVar.zQueueToPlay),a			; Nothing is queued
+	ld	(zAbsVar.QueueToPlay),a			; Nothing is queued
 	call	zFMSilenceAll			; Silence FM
 	jp	zPSGSilenceAll				; Silence PSG
 ; End of function zClearTrackPlaybackMem
@@ -2148,14 +2148,14 @@ zInitMusicPlayback:
 
 	; Save some queues/flags:
 	ld	ix,zComRange
-	ld	b,(ix+zVar.zSFXPriorityVal)
-	ld	c,(ix+zVar.z1upPlaying)		; 1-up playing flag (z1upPlaying)
+	ld	b,(ix+zVar.SFXPriorityVal)
+	ld	c,(ix+zVar.1upPlaying)		; 1-up playing flag (1upPlaying)
 	push	bc
-	ld	b,(ix+zVar.zSpeedUpFlag)		; speed shoe flag
-	ld	c,(ix+zVar.zFadeInCounter)		; fade in frames (zFadeInCounter)
+	ld	b,(ix+zVar.SpeedUpFlag)		; speed shoe flag
+	ld	c,(ix+zVar.FadeInCounter)		; fade in frames (FadeInCounter)
 	push	bc
-	ld	b,(ix+zVar.zSFXToPlay)		; SFX queue slot
-	ld	c,(ix+zVar.zSFXStereoToPlay)		; Stereo SFX queue slot
+	ld	b,(ix+zVar.SFXToPlay)		; SFX queue slot
+	ld	c,(ix+zVar.SFXStereoToPlay)		; Stereo SFX queue slot
 	push	bc
 	; The following clears all playback memory and non-SFX tracks
 	ld	hl,zComRange
@@ -2165,16 +2165,16 @@ zInitMusicPlayback:
 	ldir
 	; Restore those queue/flags:
 	pop	bc
-	ld	(ix+zVar.zSFXToPlay),b		; SFX queue slot
-	ld	(ix+zVar.zSFXStereoToPlay),c		; Stereo SFX queue slot
+	ld	(ix+zVar.SFXToPlay),b		; SFX queue slot
+	ld	(ix+zVar.SFXStereoToPlay),c		; Stereo SFX queue slot
 	pop	bc
-	ld	(ix+zVar.zSpeedUpFlag),b		; speed shoe flag
-	ld	(ix+zVar.zFadeInCounter),c		; fade in frames (zFadeInCounter)
+	ld	(ix+zVar.SpeedUpFlag),b		; speed shoe flag
+	ld	(ix+zVar.FadeInCounter),c		; fade in frames (FadeInCounter)
 	pop	bc
-	ld	(ix+zVar.zSFXPriorityVal),b
-	ld	(ix+zVar.z1upPlaying),c		; 1-up playing flag (z1upPlaying)
+	ld	(ix+zVar.SFXPriorityVal),b
+	ld	(ix+zVar.1upPlaying),c		; 1-up playing flag (1upPlaying)
 	ld	a,80h
-	ld	(zAbsVar.zQueueToPlay),a
+	ld	(zAbsVar.QueueToPlay),a
 	; Silence hardware!
 	call	zFMSilenceAll
 	jp	zPSGSilenceAll
@@ -2185,9 +2185,9 @@ zInitMusicPlayback:
 ; increases the tempo of the music
 zSpeedUpMusic:
 	ld	b,80h
-	ld	a,(zAbsVar.z1upPlaying)
+	ld	a,(zAbsVar.1upPlaying)
 	or	a
-	ld	a,(zAbsVar.zTempoTurbo)
+	ld	a,(zAbsVar.TempoTurbo)
 	jr	z,zSetTempo
 	jr	zSetTempo_1up
 
@@ -2196,25 +2196,25 @@ zSpeedUpMusic:
 ; returns the music tempo to normal
 zSlowDownMusic:
 	ld	b,0
-	ld	a,(zAbsVar.z1upPlaying)
+	ld	a,(zAbsVar.1upPlaying)
 	or	a
-	ld	a,(zAbsVar.zTempoMod)
+	ld	a,(zAbsVar.TempoMod)
 	jr	z,zSetTempo
 	jr	zSetTempo_1up
 
 ; ===========================================================================
 ; helper routines for changing the tempo
 zSetTempo:
-	ld	(zAbsVar.zCurrentTempo),a		; Store new tempo value 
+	ld	(zAbsVar.CurrentTempo),a		; Store new tempo value 
 	ld	a,b
-	ld	(zAbsVar.zSpeedUpFlag),a
+	ld	(zAbsVar.SpeedUpFlag),a
 	ret
 ; ---------------------------------------------------------------------------
 ;zloc_BE0
 zSetTempo_1up:
-	ld	(zSaveVar.zCurrentTempo),a	; Store new tempo value 
+	ld	(zSaveVar.CurrentTempo),a	; Store new tempo value 
 	ld	a,b
-	ld	(zSaveVar.zSpeedUpFlag),a
+	ld	(zSaveVar.SpeedUpFlag),a
 	ret
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
@@ -2222,24 +2222,24 @@ zSetTempo_1up:
 
 ;zsub_BE8
 zUpdateFadeIn:
-	ld	a,(zAbsVar.zFadeInDelay)			; Get current tick count before next volume increase
+	ld	a,(zAbsVar.FadeInDelay)			; Get current tick count before next volume increase
 	or	a
 	jr	z,+							; If not yet zero...
-	dec	(ix+zVar.zFadeInDelay)					; Just decrement it (zFadeInDelay)
+	dec	(ix+zVar.FadeInDelay)					; Just decrement it (FadeInDelay)
 	ret
 +
-	ld	a,(zAbsVar.zFadeInCounter)			; Get current fade out frame count
+	ld	a,(zAbsVar.FadeInCounter)			; Get current fade out frame count
 	or	a
 	jr	nz,+						; If fadeout hasn't reached zero yet, skip this
 	ld	a,(zSongDAC.PlaybackControl)			; Get DAC's playback control byte
 	and	0FBh						; Clear "SFX is overriding" bit
 	ld	(zSongDAC.PlaybackControl),a			; Set that
 	xor	a
-	ld	(zAbsVar.zFadeInFlag),a			; Done fading-in, SFX can play now 
+	ld	(zAbsVar.FadeInFlag),a			; Done fading-in, SFX can play now 
 	ret
 +
-	dec	(ix+zVar.zFadeInCounter)					; Otherwise, we decrement fadein! (zFadeInCounter)
-	ld	(ix+zVar.zFadeInDelay),2					; Otherwise, reload tick count with 2 (little faster than fadeout) (zFadeInDelay)
+	dec	(ix+zVar.FadeInCounter)					; Otherwise, we decrement fadein! (FadeInCounter)
+	ld	(ix+zVar.FadeInDelay),2					; Otherwise, reload tick count with 2 (little faster than fadeout) (FadeInDelay)
 	push	ix
 	ld	ix,zSongFM1	; 'ix' points to first FM music track
 	ld	b,(zSongPSG1-zSongFM1)/zTrack.len								; 6 FM tracks to follow...
@@ -2319,7 +2319,7 @@ zFMNoteOff:
 
 ; zsub_C63:
 zBankSwitchToMusic:
-	ld	a,(zAbsVar.zMusicBankNumber)
+	ld	a,(zAbsVar.MusicBankNumber)
 	or	a
 	jr	nz,+
 
@@ -2472,7 +2472,7 @@ cfAlterNotes:
 ; Used for triggering a boss' attacks in Ristar
 ;zloc_D1E cfUnknown1
 cfSetCommunication:
-	ld	(zAbsVar.zCommunication),a
+	ld	(zAbsVar.Communication),a
 	ret
 ; ---------------------------------------------------------------------------
 
@@ -2508,7 +2508,7 @@ cfFadeInToPrevious:
 	ld	a,(zSongDAC.PlaybackControl)	; Get DAC's playback bit
 	or	4
 	ld	(zSongDAC.PlaybackControl),a	; Set "SFX is overriding" on it (not normal, but will work for this purpose)
-	ld	a,(zAbsVar.zFadeInCounter)	; Get current count of many frames to continue bringing volume up
+	ld	a,(zAbsVar.FadeInCounter)	; Get current count of many frames to continue bringing volume up
 	ld	c,a					; 
 	ld	a,28h				; 
 	sub	c					; a = 28h - c (don't overlap fade-ins?)
@@ -2548,12 +2548,12 @@ cfFadeInToPrevious:
 	djnz	-				; Keep going for all FM tracks...
 
 	ld	a,80h
-	ld	(zAbsVar.zFadeInFlag),a	; Stop any SFX during fade-in
+	ld	(zAbsVar.FadeInFlag),a	; Stop any SFX during fade-in
 	ld	a,28h
-	ld	(zAbsVar.zFadeInCounter),a	; Fade in for 28h frames
+	ld	(zAbsVar.FadeInCounter),a	; Fade in for 28h frames
 	xor	a
-	ld	(zAbsVar.z1upPlaying),a	; Set to zero; 1-up ain't playin' no more
-	ld	a,(zAbsVar.zDACEnabled)	; DAC not yet enabled...
+	ld	(zAbsVar.1upPlaying),a	; Set to zero; 1-up ain't playin' no more
+	ld	a,(zAbsVar.DACEnabled)	; DAC not yet enabled...
 	ld	c,a
 	ld	a,2Bh
 	rst	zWriteFMI			; Tell hardware his DAC ain't enabled yet either
@@ -2605,7 +2605,7 @@ cfAddKey:
 ; (via Saxman's doc): set music tempo to xx 
 ;zloc_DD8
 cfSetTempo:
-	ld	(zAbsVar.zCurrentTempo),a		; Set tempo
+	ld	(zAbsVar.CurrentTempo),a		; Set tempo
 	ret
 ; ---------------------------------------------------------------------------
 
@@ -2692,10 +2692,10 @@ cfSetVoiceCont:
 	ld	a,(zDoSFXFlag)		; Check SFX flag 0 = updating music, 80h means busy (don't supply me a sound, plz), FFh set means updating SFX (use custom voice table)
 	or	a					; test
 	ld	a,c					; c -> a (restored 'a')
-	jr	z,zSetVoiceMusic	; If not busy, jump to zSetVoiceMusic (set 'hl' to zVoiceTblPtr)
+	jr	z,zSetVoiceMusic	; If not busy, jump to zSetVoiceMusic (set 'hl' to VoiceTblPtr)
 	ld	l,(ix+zTrack.VoicePtrLow)			; get low byte of custom voice table
 	ld	h,(ix+zTrack.VoicePtrHigh)			; get high byte of custom voice table
-	jr	zSetVoice			; Do not set 'hl' to zVoiceTblPtr
+	jr	zSetVoice			; Do not set 'hl' to VoiceTblPtr
 ; End of function cfSetVoiceCont
 
 
@@ -2705,7 +2705,7 @@ cfSetVoiceCont:
 ;zsub_E21
 zSetVoiceMusic:
 	; Set 'hl' to normal voice table pointer
-	ld	hl,(zAbsVar.zVoiceTblPtr)
+	ld	hl,(zAbsVar.VoiceTblPtr)
 
 ;zloc_E24
 zSetVoice:
@@ -2891,7 +2891,7 @@ cfStopTrack:
 	res	4,(ix+zTrack.PlaybackControl)			; Clear playback byte bit 4 (10h) -- do not attack
 	bit	7,(ix+zTrack.VoiceControl)			; Is voice control bit 7 (80h) a PSG track set?
 	jr	nz,zStopPSGTrack	; If so, skip this next part...
-	ld	a,(zAbsVar.zDACUpdating)	; Is DAC updating?  (FF if so)
+	ld	a,(zAbsVar.DACUpdating)	; Is DAC updating?  (FF if so)
 	or	a					; test it
 	jp	m,zDACStopTrack		; If DAC is updating, go here (we're in a DAC track)
 	call	zFMNoteOff		; Otherwise, stop this FM track
@@ -2907,7 +2907,7 @@ zStopPSGTrack:
 	or	a					; test it
 	jp	p,zStopMusicTrack	; If not, jump to zStopMusicTrack
 	xor	a					; a = 0
-	ld	(zAbsVar.zSFXPriorityVal),a		; Reset SFX priority
+	ld	(zAbsVar.SFXPriorityVal),a		; Reset SFX priority
 	ld	a,(ix+zTrack.VoiceControl)			; Load "voice control" byte
 	or	a					; test it..
 	jp	m,zStopPSGSFXTrack	; If this is PSG SFX track, jump to zStopPSGSFXTrack
