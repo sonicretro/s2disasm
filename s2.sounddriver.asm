@@ -411,7 +411,7 @@ zUpdateEverything:
 	ld	(zDoSFXFlag),a			; Set zDoSFXFlag = 80h (updating sound effects)
 
 	; FM SFX channels
-	ld	b,3						; Only 3 FM channels for SFX (FM3, FM4, FM5)
+	ld	b,(zSFX_PSG1-zSFX_FM3)/zTrack.len					; Only 3 FM channels for SFX (FM3, FM4, FM5)
 
 -	push	bc	
 	ld	de,zTrack.len				; Spacing between tracks
@@ -422,7 +422,7 @@ zUpdateEverything:
 	djnz	-
 
 	; PSG SFX channels
-	ld	b,3						; All PSG channels available
+	ld	b,(zTracksSFXEnd-zSFX_PSG1)/zTrack.len						; All PSG channels available
 
 -	push	bc
 	ld	de,zTrack.len				; Spacing between tracks
@@ -493,7 +493,7 @@ zUpdateMusic:
 	call	nz,zDACUpdateTrack		; If so, zDACUpdateTrack
 	xor	a					; Clear A
 	ld	(zDACUpdating),a		; Store 0 to zDACUpdating
-	ld	b,6				; Loop 6 times (FM)...
+	ld	b,(zSongPSG1-zSongFM1)/zTrack.len				; Loop 6 times (FM)...
 
 -	push	bc
 	ld	de,zTrack.len		; Space between tracks
@@ -503,7 +503,7 @@ zUpdateMusic:
 	pop	bc
 	djnz	-
 
-	ld	b,3				; Loop 3 times (PSG)...
+	ld	b,(zTracksEnd-zSongPSG1)/zTrack.len				; Loop 3 times (PSG)...
 
 -	push	bc
 	ld	de,zTrack.len		; Space between tracks
@@ -536,7 +536,7 @@ TempoWait:
 	; So if adding tempo value did NOT overflow, then we add 1 to all durations
 	ld	hl,zTracksStart+zTrack.DurationTimeout	; Start at first track's delay counter (counting up to delay)
 	ld	de,zTrack.len			; Offset between tracks 
-	ld	b,0Ah				; Loop for all tracks
+	ld	b,(zTracksEnd-zTracksStart)/zTrack.len				; Loop for all tracks
 
 -	inc	(hl)				; Increasing delay tick counter to target
 	add	hl,de				; Next track...
@@ -1238,7 +1238,7 @@ zPauseMusic:
 	xor	a				; a = 0
 	ld	(zPaused),a		; Clear paused flag
 	ld	ix,zTracksStart	; ix = pointer to track RAM
-	ld	b,7				; 1 DAC + 6 FM
+	ld	b,(zSongPSG1-zTracksStart)/zTrack.len				; 1 DAC + 6 FM
 	call	zResumeTrack
 
 	bankswitch SoundIndex	; Now for SFX
@@ -1246,7 +1246,7 @@ zPauseMusic:
 	ld	a,0FFh			; a = 0FFH
 	ld	(zDoSFXFlag),a	; Set flag to say we are updating SFX
 	ld	ix,zTracksSFXStart	; ix = pointer to SFX track RAM
-	ld	b,3				; 3 FM
+	ld	b,(zSFX_PSG1-zTracksSFXStart)/zTrack.len				; 3 FM
 	call	zResumeTrack
 	xor	a				; a = 0
 	ld	(zDoSFXFlag),a	; Clear SFX updating flag
@@ -1439,14 +1439,14 @@ zPlayMusic:
 	jr	nz,zBGMLoad					; If it is, then just reload it!  (I suppose a humorous restore-to-1up could happen otherwise... with no good results after that)
 	ld	ix,zTracksStart				; Starting at beginning of all tracks...
 	ld	de,zTrack.len					; Each track size
-	ld	b,0Ah						; All 10 (DAC, 6FM, 3PSG) tracks
+	ld	b,(zTracksEnd-zTracksStart)/zTrack.len						; All 10 (DAC, 6FM, 3PSG) tracks
 
 -	res	2,(ix+zTrack.PlaybackControl)					; Clear "SFX is overriding" bit (no SFX are allowed!)
 	add	ix,de						; Next track
 	djnz	-
 
 	ld	ix,zTracksSFXStart		; 'ix' points to start of SFX track memory (10 prior tracks were DAC, 6 FM, 3 PSG)
-	ld	b,6							; 6 SFX tracks total (3FM, 3PSG)
+	ld	b,(zTracksSFXEnd-zTracksSFXStart)/zTrack.len							; 6 SFX tracks total (3FM, 3PSG)
 
 -	res	7,(ix+zTrack.PlaybackControl)					; Clear "is playing" bit!  (No SFX allowed!)
 	add	ix,de						; Next track
@@ -1673,7 +1673,7 @@ zloc_884:
 
 zloc_8D0:
 	ld	ix,zTracksSFXStart		; 'ix' points to start of SFX track memory (10 prior tracks were DAC, 6 FM, 3 PSG)
-	ld	b,6					; 6 SFX tracks total (3FM, 3PSG)
+	ld	b,(zTracksSFXEnd-zTracksSFXStart)/zTrack.len					; 6 SFX tracks total (3FM, 3PSG)
 	ld	de,zTrack.len			; size between tracks
 
 zloc_8D9:
@@ -1705,13 +1705,13 @@ zloc_8FB:
 	; End of SFX tracks init...
 
 	ld	ix,zSongFM1	; 'ix' points to first FM music track
-	ld	b,6							; For all 6 of those...
+	ld	b,(zSongPSG1-zSongFM1)/zTrack.len							; For all 6 of those...
 
 -	call	zFMNoteOff				; Send Key Off
 	add	ix,de						; Next track
 	djnz	-
 
-	ld	b,3							; For all 3 PSG tracks...
+	ld	b,(zTracksEnd-zSongPSG1)/zTrack.len								; For all 3 PSG tracks...
 
 -	call	zPSGNoteOff				; Send Note Off
 	add	ix,de						; Next track
@@ -1937,7 +1937,7 @@ zStopSoundEffects:
 	xor	a
 	ld	(zSFXPriorityVal),a					; Reset SFX priority
 	ld	ix,zTracksSFXStart		; 'ix' points to start of SFX track memory (10 prior tracks were DAC, 6 FM, 3 PSG)
-	ld	b,6								; All 6 SFX tracks...
+	ld	b,(zTracksSFXEnd-zTracksSFXStart)/zTrack.len								; All 6 SFX tracks...
 
 zloc_A46:
 	push	bc							; Save 'bc'
@@ -2029,7 +2029,7 @@ zUpdateFadeout:
 	ld	(ix+5),3					; Otherwise, reload tick count with 3 (zFadeOutDelay)
 	push	ix
 	ld	ix,zSongFM1	; 'ix' points to first FM music track
-	ld	b,6							; 6 FM tracks to follow...
+	ld	b,(zSongPSG1-zSongFM1)/zTrack.len							; 6 FM tracks to follow...
 
 zloc_AED:
 	bit	7,(ix+zTrack.PlaybackControl)					; Is this track playing?
@@ -2047,7 +2047,7 @@ zloc_B04:
 	ld	de,zTrack.len	
 	add	ix,de						; Next track
 	djnz	zloc_AED				; Keep going for all FM tracks...
-	ld	b,3							; 3 PSG tracks to follow...
+	ld	b,(zTracksEnd-zSongPSG1)/zTrack.len							; 3 PSG tracks to follow...
 
 zloc_B0D:
 	bit	7,(ix+zTrack.PlaybackControl)					; Is this track playing?
@@ -2240,7 +2240,7 @@ zUpdateFadeIn:
 	ld	(ix+0Fh),2					; Otherwise, reload tick count with 2 (little faster than fadeout) (zFadeInDelay)
 	push	ix
 	ld	ix,zSongFM1	; 'ix' points to first FM music track
-	ld	b,6							; 6 FM tracks to follow...
+	ld	b,(zSongPSG1-zSongFM1)/zTrack.len								; 6 FM tracks to follow...
 
 -	bit	7,(ix+zTrack.PlaybackControl)					; Is this track playing?
 	jr	z,+							; If not, do nothing
@@ -2253,7 +2253,7 @@ zUpdateFadeIn:
 	add	ix,de						; Next track
 	djnz	-						; Keep going for all FM tracks...
 
-	ld	b,3							; 3 PSG tracks to follow...
+	ld	b,(zTracksEnd-zSongPSG1)/zTrack.len							; 3 PSG tracks to follow...
 
 -	bit	7,(ix+zTrack.PlaybackControl)					; Is this track playing?
 	jr	z,+							; If not, do nothing
@@ -2511,7 +2511,7 @@ cfFadeInToPrevious:
 	ld	a,28h				; 
 	sub	c					; a = 28h - c (don't overlap fade-ins?)
 	ld	c,a					; 'a' -> 'c'
-	ld	b,6							; 6 FM tracks to follow...
+	ld	b,(zSongPSG1-zSongFM1)/zTrack.len							; 6 FM tracks to follow...
 	ld	ix,zSongFM1	; 'ix' points to first FM music track
 
 -	bit	7,(ix+zTrack.PlaybackControl)			; Is this track playing?
@@ -2531,7 +2531,7 @@ cfFadeInToPrevious:
 	add	ix,de				; Next track
 	djnz	-				; Keep going for all FM tracks...
 
-	ld	b,3					; 3 PSG tracks to follow...
+	ld	b,(zTracksEnd-zSongPSG1)/zTrack.len					; 3 PSG tracks to follow...
 
 -	bit	7,(ix+zTrack.PlaybackControl)			; Is this track playing?
 	jr	z,+					; If not, do nothing
@@ -2613,7 +2613,7 @@ cfSetTempoMod:
 	push	ix			; Save 'ix'
 	ld	ix,zTracksStart	; Start at beginning of track memory
 	ld	de,zTrack.len		; Track size
-	ld	b,0Ah			; All 10 tracks
+	ld	b,(zTracksEnd-zTracksStart)/zTrack.len			; All 10 tracks
 
 -	ld	(ix+zTrack.TempoDivider),a		; Sets the timing divisor for ALL tracks; this can result in total half-speed, quarter-speed, etc.
 	add	ix,de
