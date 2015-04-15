@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="Falling Oil" Image="img1" DefaultSubtype="0A">
+  <Images>
+    <ImageFromMappings id="img1">
+      <ArtFile filename="../art/nemesis/Cascading oil from OOZ.bin" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj1C_c.asm" frame="0" startpal="2" />
+    </ImageFromMappings>
+    <ImageFromMappings id="img2">
+      <ArtFile filename="../art/nemesis/Cascading oil from OOZ.bin" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj1C_c.asm" frame="2" startpal="2" />
+    </ImageFromMappings>
+    <ImageFromMappings id="img3">
+      <ArtFile filename="../art/nemesis/Cascading oil from OOZ.bin" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj1C_c.asm" frame="4" startpal="2" />
+    </ImageFromMappings>
+    <ImageFromMappings id="img4">
+      <ArtFile filename="../art/nemesis/Cascading oil from OOZ.bin" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj1C_c.asm" frame="5" startpal="2" />
+    </ImageFromMappings>
+    <ImageFromMappings id="img5">
+      <ArtFile filename="../art/nemesis/Cascading oil from OOZ.bin" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj1C_d.asm" frame="0" startpal="2" />
+    </ImageFromMappings>
+    <ImageFromMappings id="img6">
+      <ArtFile filename="../art/nemesis/Cascading oil from OOZ.bin" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj1C_d.asm" frame="1" startpal="2" />
+    </ImageFromMappings>
+    <ImageFromMappings id="img7">
+      <ArtFile filename="../art/nemesis/Cascading oil from OOZ.bin" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj1C_d.asm" frame="2" startpal="2" />
+    </ImageFromMappings>
+    <ImageFromMappings id="img8">
+      <ArtFile filename="../art/nemesis/Cascading oil from OOZ.bin" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj1C_d.asm" frame="3" startpal="2" />
+    </ImageFromMappings>
+    <ImageFromMappings id="img9">
+      <ArtFile filename="../art/nemesis/Cascading oil from OOZ.bin" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj1C_d.asm" frame="4" startpal="2" />
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="0A" name="0A" image="img1" />
+    <Subtype id="0C" name="0C" image="img2" />
+    <Subtype id="0E" name="0E" image="img3" />
+    <Subtype id="0F" name="0F" image="img4" />
+    <Subtype id="10" name="10" image="img5" />
+    <Subtype id="11" name="11" image="img6" />
+    <Subtype id="12" name="12" image="img7" /> 
+    <Subtype id="13" name="13" image="img8" />
+    <Subtype id="14" name="14" image="img9" />
+  </Subtypes>
+</ObjDef>

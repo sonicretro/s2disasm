@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="Cage" Image="cage">
+  <Images>
+    <ImageFromMappings id="cage">
+      <ArtFile filename="../art/nemesis/CNZ slot machine bars.bin" />
+      <MapFile type="ASM" filename="../mappings/sprite/objD6_b.asm" frame="0" startpal="0" />
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="00" name="Gives Points" image="cage" />
+    <Subtype id="01" name="Gives Rings" image="cage" />
+  </Subtypes>
+</ObjDef>

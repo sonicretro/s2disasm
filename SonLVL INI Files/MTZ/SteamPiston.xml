@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="Steam Piston Spring" Image="piston" DefaultSubtype="01">
+  <Images>
+    <ImageFromMappings id="piston">
+      <ArtFile filename="LevelArt" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj42.asm" frame="7" startpal="3" />
+    </ImageFromMappings>
+  </Images>
+  <Properties>
+    <BitsProperty name="Behaviour" type="PistonBehaviour" startbit="0" length="2" />
+    <BitsProperty name="Layer" type="PistonLayer" startbit="2" length="2" />
+    <BitsProperty name="KillTransverseSpeed" displayname="Kill Transverse Speed" type="bool" startbit="7" length="1" />
+  </Properties>
+  <Enums>
+    <Enum name="PistonBehaviour">
+      <EnumMember name="Don't Twirl" />
+      <EnumMember name="Twirl Twice" />
+      <EnumMember name="Twirl Once" />
+    </Enum>
+    <Enum name="PistonLayer">
+      <EnumMember name="No Change" />
+      <EnumMember name="Layer 1" />
+      <EnumMember name="Layer 2" />
+      <EnumMember name="No Change 2" />
+    </Enum>
+  </Enums>
+  <Display>
+    <DisplayOption>
+      <ImageRef image="piston" />
+    </DisplayOption>
+  </Display>
+</ObjDef>

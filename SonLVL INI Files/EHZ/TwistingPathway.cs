@@ -52,11 +52,6 @@ namespace S2ObjectDefinitions.EHZ
             get { return "Twisting Pathway"; }
         }
 
-        public override bool RememberState
-        {
-            get { return false; }
-        }
-
         public override string SubtypeName(byte subtype)
         {
             return string.Empty;

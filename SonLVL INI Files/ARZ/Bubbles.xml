@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.ARZ" TypeName="Bubbles" Language="cs" Name="Bubbles" Image="bubblegenerator" DefaultSubtype="80">
+  <Images>
+    <ImageFromMappings id="bubblegenerator">
+      <ArtFile filename="../art/nemesis/Bubble generator.bin"/>
+      <MapFile type="ASM" filename="../s2.asm" label="word_1FCA2" startpal="0" />
+    </ImageFromMappings>
+  </Images>
+  <Properties>
+    <CustomProperty name="Delay" displayname="Bubble-Making Delay" type="int">
+      <get><![CDATA[return obj.SubType & 0x7F;]]></get>
+      <set><![CDATA[obj.SubType = (byte)(System.Math.Min(0x7F, value) | 0x80);]]></set>
+    </CustomProperty>
+  </Properties>
+  <Display>
+    <DisplayOption>
+      <ImageRef image="bubblegenerator" />
+    </DisplayOption>
+  </Display>
+</ObjDef>

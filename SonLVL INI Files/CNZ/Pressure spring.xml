@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="Pressure Spring" Image="up">
+  <Images>
+    <ImageFromMappings id="up">
+      <ArtFile filename="../art/nemesis/Vertical impulse spring.bin" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj85_a.asm" frame="0" startpal="0" />
+    </ImageFromMappings>
+    <ImageFromMappings id="diagonal">
+      <ArtFile filename="../art/nemesis/Diagonal impulse spring from CNZ.bin" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj85_b.asm" frame="0" startpal="0" />
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="00" name="Up" image="up" />
+    <Subtype id="81" name="Diagonal" image="diagonal" />
+  </Subtypes>
+</ObjDef>

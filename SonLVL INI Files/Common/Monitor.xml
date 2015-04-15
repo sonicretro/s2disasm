@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.Common" TypeName="Monitor" Language="cs" Name="Monitor" Image="static" RememberState="true">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Monitor" Image="static" RememberState="true">
   <Images>
     <ImageFromMappings id="static">
       <ArtFile filename="../art/nemesis/Monitor and contents.bin" />

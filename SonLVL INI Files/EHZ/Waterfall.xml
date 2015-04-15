@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.EHZ" TypeName="Waterfall" Language="cs" Name="Waterfall" Image="img1" RememberState="false">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Waterfall" Image="img1">
   <Images>
     <ImageFromMappings id="img1">
       <ArtFile filename="../art/nemesis/Waterfall tiles.bin" />

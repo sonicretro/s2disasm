@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="Smashable Ground" Image="intact" RememberState="true">
+  <Images>
+    <ImageFromMappings id="intact">
+      <ArtFile filename="LevelArt" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj2F.asm" frame="0" startpal="2" />
+    </ImageFromMappings>
+    <ImageFromMappings id="broken1">
+      <ArtFile filename="LevelArt" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj2F.asm" frame="2" startpal="2" />
+    </ImageFromMappings>
+    <ImageFromMappings id="broken2">
+      <ArtFile filename="LevelArt" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj2F.asm" frame="4" startpal="2" />
+    </ImageFromMappings>
+    <ImageFromMappings id="broken3">
+      <ArtFile filename="LevelArt" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj2F.asm" frame="6" startpal="2" />
+    </ImageFromMappings>
+    <ImageFromMappings id="broken4">
+      <ArtFile filename="LevelArt" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj2F.asm" frame="8" startpal="2" />
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="00" name="Full" image="intact" />
+    <Subtype id="02" name="Partly broken (1)" image="broken1" />
+    <Subtype id="04" name="Partly broken (2)" image="broken2" />
+    <Subtype id="06" name="Partly broken (3)" image="broken3" />
+    <Subtype id="08" name="Partly broken (4)" image="broken4" />
+    <Subtype id="80" name="Full - Jump-breakable" image="intact" />
+    <Subtype id="82" name="Partly broken (1) - Jump-breakable" image="broken1" />
+    <Subtype id="84" name="Partly broken (2) - Jump-breakable" image="broken2" />
+    <Subtype id="86" name="Partly broken (3) - Jump-breakable" image="broken3" />
+    <Subtype id="88" name="Partly broken (4) - Jump-breakable" image="broken4" />
+  </Subtypes>
+  <Properties>
+    <BitsProperty name="Destruction" type="DestructionLevel" startbit="1" length="3" />
+    <BitsProperty name="DestroyableByJumping" displayname="Destroyable by jumping" type="bool" startbit="7" length="1" />
+  </Properties>
+  <Enums>
+    <Enum name="DestructionLevel">
+      <EnumMember name="Full" />
+      <EnumMember name="Partly broken (1)" />
+      <EnumMember name="Partly broken (2)" />
+      <EnumMember name="Partly broken (3)" />
+      <EnumMember name="Partly broken (4)" />
+    </Enum>
+  </Enums>
+</ObjDef>

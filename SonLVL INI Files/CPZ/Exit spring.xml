@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="Exit Spring" Image="spring" DefaultSubtype="02">
+  <Images>
+    <ImageFromMappings id="spring">
+      <ArtFile filename="../art/nemesis/CPZ spintube exit cover.bin" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj7B.asm" frame="0" startpal="0" />
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="00" name="Strong Spring" image="spring" />
+    <Subtype id="02" name="Weak Spring" image="spring" />
+  </Subtypes>
+  <Properties>
+    <BitsProperty name="Strength" type="ESpringStrength" startbit="1" length="1" />
+  </Properties>
+  <Enums>
+    <Enum name="ESpringStrength">
+      <EnumMember name="Strong" />
+      <EnumMember name="Weak" />
+    </Enum>
+  </Enums>
+</ObjDef>

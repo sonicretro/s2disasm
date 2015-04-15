@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="Brick/Spike Ball" Image="brick" DefaultSubtype="0F">
+  <Images>
+    <ImageFromMappings id="spikeball">
+      <ArtFile filename="LevelArt" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj75.asm" frame="0" startpal="1" />
+    </ImageFromMappings>
+    <ImageFromMappings id="brick">
+      <ArtFile filename="LevelArt" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj75.asm" frame="2" startpal="1" />
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="0F" name="Brick" image="brick" />
+    <Subtype id="16" name="Spike Ball (Small Radius)" image="spikeball" />
+    <Subtype id="17" name="Spike Ball (Large Radius)" image="spikeball" />
+  </Subtypes>
+</ObjDef>

@@ -1,0 +1,731 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.ARZ" TypeName="SwingingPlatform" Language="cs" Name="Swinging Platform" Image="platform">
+  <Images>
+    <ImageFromMappings id="platform">
+      <ArtFile filename="LevelArt" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj83.asm" frame="0" startpal="0" />
+    </ImageFromMappings>
+    <ImageFromMappings id="link">
+      <ArtFile filename="LevelArt" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj83.asm" frame="1" startpal="0" />
+    </ImageFromMappings>
+    <ImageFromMappings id="base">
+      <ArtFile filename="LevelArt" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj83.asm" frame="2" startpal="0" />
+    </ImageFromMappings>
+  </Images>
+  <Properties>
+    <CustomProperty name="Behaviour" type="PlatformBehaviour">
+      <get><![CDATA[return obj.SubType & 0xF0;]]></get>
+      <set><![CDATA[obj.SubType = (byte)(value | (obj.SubType & ~0xF0));]]></set>
+    </CustomProperty>
+    <CustomProperty name="Chainlinks" type="int">
+      <get><![CDATA[return obj.SubType & 0x0F;]]></get>
+      <set><![CDATA[
+      value = (byte)(System.Math.Max(0x01, value));
+      obj.SubType = (byte)(System.Math.Min(0x08, value) | (obj.SubType & ~0x0F));]]>
+      </set>
+    </CustomProperty>
+  </Properties>
+  <Enums>
+    <Enum name="PlatformBehaviour">
+      <EnumMember name="Normal" />
+      <EnumMember name="Bounce (Left)" value="16" />
+      <EnumMember name="Bounce (Right)" value="48" />
+      <EnumMember name="Detach" value="128" />
+    </Enum>
+  </Enums>
+  <Display>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="1" />
+      <Condition property="Behaviour" value="Normal" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="24" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="2" />
+      <Condition property="Behaviour" value="Normal" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="40" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="3" />
+      <Condition property="Behaviour" value="Normal" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="56" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="4" />
+      <Condition property="Behaviour" value="Normal" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="64" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="72" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="5" />
+      <Condition property="Behaviour" value="Normal" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="64" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="80" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="88" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="6" />
+      <Condition property="Behaviour" value="Normal" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="64" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="80" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="96" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="104" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="7" />
+      <Condition property="Behaviour" value="Normal" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="64" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="80" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="96" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="112" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="120" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="8" />
+      <Condition property="Behaviour" value="Normal" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="64" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="80" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="96" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="112" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="128" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="136" />
+      </ImageRef>
+    </DisplayOption>
+
+    <DisplayOption>
+      <Condition property="Chainlinks" value="1" />
+      <Condition property="Behaviour" value="Bounce (Left)" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="24" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="2" />
+      <Condition property="Behaviour" value="Bounce (Left)" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="40" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="3" />
+      <Condition property="Behaviour" value="Bounce (Left)" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="56" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="4" />
+      <Condition property="Behaviour" value="Bounce (Left)" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="64" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="72" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="5" />
+      <Condition property="Behaviour" value="Bounce (Left)" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="64" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="80" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="88" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="6" />
+      <Condition property="Behaviour" value="Bounce (Left)" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="64" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="80" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="96" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="104" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="7" />
+      <Condition property="Behaviour" value="Bounce (Left)" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="64" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="80" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="96" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="112" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="120" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="8" />
+      <Condition property="Behaviour" value="Bounce (Left)" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="64" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="80" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="96" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="112" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="128" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="136" />
+      </ImageRef>
+    </DisplayOption>
+
+    <DisplayOption>
+      <Condition property="Chainlinks" value="1" />
+      <Condition property="Behaviour" value="Bounce (Right)" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="24" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="2" />
+      <Condition property="Behaviour" value="Bounce (Right)" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="40" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="3" />
+      <Condition property="Behaviour" value="Bounce (Right)" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="56" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="4" />
+      <Condition property="Behaviour" value="Bounce (Right)" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="64" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="72" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="5" />
+      <Condition property="Behaviour" value="Bounce (Right)" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="64" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="80" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="88" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="6" />
+      <Condition property="Behaviour" value="Bounce (Right)" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="64" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="80" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="96" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="104" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="7" />
+      <Condition property="Behaviour" value="Bounce (Right)" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="64" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="80" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="96" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="112" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="120" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="8" />
+      <Condition property="Behaviour" value="Bounce (Right)" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="64" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="80" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="96" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="112" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="128" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="136" />
+      </ImageRef>
+    </DisplayOption>
+
+    <DisplayOption>
+      <Condition property="Chainlinks" value="1" />
+      <Condition property="Behaviour" value="Detach" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="24" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="2" />
+      <Condition property="Behaviour" value="Detach" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="40" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="3" />
+      <Condition property="Behaviour" value="Detach" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="56" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="4" />
+      <Condition property="Behaviour" value="Detach" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="64" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="72" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="5" />
+      <Condition property="Behaviour" value="Detach" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="64" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="80" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="88" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="6" />
+      <Condition property="Behaviour" value="Detach" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="64" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="80" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="96" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="104" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="7" />
+      <Condition property="Behaviour" value="Detach" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="64" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="80" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="96" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="112" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="120" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Chainlinks" value="8" />
+      <Condition property="Behaviour" value="Detach" />
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="16" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="32" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="48" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="64" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="80" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="96" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="112" />
+      </ImageRef>
+      <ImageRef image="link" xflip="NeverFlip">
+        <Offset Y="128" />
+      </ImageRef>
+      <ImageRef image="base" xflip="NeverFlip" />
+      <ImageRef image="platform" xflip="NeverFlip">
+        <Offset Y="136" />
+      </ImageRef>
+    </DisplayOption>
+  </Display>
+</ObjDef>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="Crushing Piston" Image="large" DefaultSubtype="01">
+  <Images>
+    <ImageFromMappings id="large">
+      <ArtFile filename="LevelArt" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj64.asm" frame="0" startpal="1" />
+    </ImageFromMappings>
+    <ImageFromMappings id="small">
+      <ArtFile filename="LevelArt" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj64.asm" frame="1" startpal="1" />
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="01" name="Large" image="large" />
+    <Subtype id="11" name="Small" image="small" />
+  </Subtypes>
+</ObjDef>

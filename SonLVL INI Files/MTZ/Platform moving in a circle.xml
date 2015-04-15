@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="Platform Moving in a Circle" Image="connector" DefaultSubtype="10">
+  <Images>
+    <ImageFromMappings id="edge">
+      <ArtFile filename="LevelArt" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj6E.asm" frame="0" startpal="3" />
+    </ImageFromMappings>
+    <ImageFromMappings id="connector">
+      <ArtFile filename="LevelArt" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj6E.asm" frame="1" startpal="3" />
+    </ImageFromMappings>
+    <ImageFromMappings id="center">
+      <ArtFile filename="LevelArt" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj6E.asm" frame="2" startpal="3" />
+    </ImageFromMappings>
+    <ImageFromMappings id="indent">
+      <ArtFile filename="../art/nemesis/Large spinning wheel from MTZ - indent.bin" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj6E.asm" frame="3" startpal="3" />
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="00" name="Edge piece" image="edge" />
+    <Subtype id="10" name="Connector" image="connector" />
+    <Subtype id="20" name="Central platform" image="center" />
+    <Subtype id="31" name="Indent" image="indent" />
+  </Subtypes>
+</ObjDef>

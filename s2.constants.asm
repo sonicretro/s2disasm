@@ -1109,7 +1109,7 @@ Dynamic_Resize_Routine:		ds.b	1
 				ds.b	2	; $FFFFEEE0-$FFFFEEE1
 Camera_BG_X_offset:		ds.w	1	; Used to control background scrolling in X in WFZ ending and HTZ screen shake
 Camera_BG_Y_offset:		ds.w	1	; Used to control background scrolling in Y in WFZ ending and HTZ screen shake
-HTZ_Terrain_Delay:			ds.w	1	; During HTZ screen shake, this is a delay between rising and sinking terrain during which there is no shaking
+HTZ_Terrain_Delay:		ds.w	1	; During HTZ screen shake, this is a delay between rising and sinking terrain during which there is no shaking
 HTZ_Terrain_Direction:		ds.b	1	; During HTZ screen shake, 0 if terrain/lava is rising, 1 if lowering
 				ds.b	3	; $FFFFEEE9-$FFFFEEEB ; seems unused
 Vscroll_Factor_P2_HInt:	ds.l	1
@@ -1207,7 +1207,7 @@ Ending_PalCycle_flag:	ds.b	1
 
 SegaScr_VInt_Subrout:
 Ending_VInt_Subrout:
-WFZ_BG_Y_Speed:		ds.w	1
+WFZ_BG_Y_Speed:			ds.w	1
 				ds.w	1	; $FFFFF664-$FFFFF665 ; seems unused
 PalCycle_Timer2:		ds.w	1
 PalCycle_Timer3:		ds.w	1
@@ -1528,6 +1528,9 @@ SlotMachine_Slot2Rout:	ds.b	1
 SlotMachine_Slot3Pos:	ds.w	1
 SlotMachine_Slot3Speed:	ds.b	1
 SlotMachine_Slot3Rout:	ds.b	1
+
+    if gameRevision<2
+	; These are only here in REV00 and REV01
 				ds.b	$10	; $FFFFFF60-$FFFFFF6F ; seems unused
 
 Player_mode:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails
@@ -1535,6 +1538,8 @@ Player_option:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails
 
 Two_player_items:		ds.w	1
 				ds.b	$A	; $FFFFFF76-$FFFFFF7F ; seems unused
+    endif
+
 LevSel_HoldTimer:		ds.w	1
 Level_select_zone:		ds.w	1
 Sound_test_sound:		ds.w	1
@@ -1551,7 +1556,18 @@ Level_Music:			ds.w	1
 Bonus_Countdown_3:		ds.w	1
 				ds.b	4	; $FFFFFF94-$FFFFFF97 ; seems unused
 Game_Over_2P:			ds.w	1
+
+    if gameRevision<2
+	; Unused in REV00/REV01
 				ds.b	6	; $FFFFFF9A-$FFFFFF9F ; seems unused
+    else
+	; Used by these relocated variables in REV02
+Player_mode:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails
+Player_option:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails
+
+Two_player_items:		ds.w	1
+    endif
+
 SS2p_RingBuffer:		ds.w	6
 				ds.b	4	; $FFFFFFAC-$FFFFFFAF ; seems unused
 Got_Emerald:			ds.b	1
@@ -1593,6 +1609,14 @@ Ending_demo_number:		ds.w	1 ; zone for the ending demos (2 bytes, unused)
 Graphics_Flags:			ds.w	1 ; misc. bitfield
 Debug_mode_flag:		ds.w	1 ; (2 bytes)
 Checksum_fourcc:		ds.l	1 ; (4 bytes)
+
+    if gameRevision=2
+	; Might have been used by Sonic Compilation
+				ds.b	4	; unused
+unk_FFE4:			ds.l	1	; has 'SEGA' written to it
+				ds.b	$18	; unused
+    endif
+
 RAM_End
 
     if * > 0	; Don't declare more space than the RAM can contain!

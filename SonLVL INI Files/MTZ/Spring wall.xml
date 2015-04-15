@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="Spring Wall" Image="small" DefaultSubtype="01" Debug="true">
+  <Images>
+    <ImageFromMappings id="small">
+      <ArtFile filename="../art/nemesis/Monitor and contents.bin" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj66.asm" frame="0" startpal="0" />
+    </ImageFromMappings>
+    <ImageFromMappings id="large">
+      <ArtFile filename="../art/nemesis/Monitor and contents.bin" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj66.asm" frame="1" startpal="0" />
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="01" name="Small" image="small" />
+    <Subtype id="11" name="Large" image="large" />
+  </Subtypes>
+</ObjDef>

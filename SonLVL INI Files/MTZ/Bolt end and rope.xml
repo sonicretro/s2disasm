@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="Bolt End and Rope" Image="roperight">
+  <Images>
+    <ImageFromMappings id="roperight">
+      <ArtFile filename="../art/nemesis/Bolt end and rope from MTZ.bin" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj1C_e.asm" frame="0" startpal="2" />
+    </ImageFromMappings>
+    <ImageFromMappings id="ropeleft">
+      <ArtFile filename="../art/nemesis/Bolt end and rope from MTZ.bin" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj1C_e.asm" frame="1" startpal="2" />
+    </ImageFromMappings>
+    <ImageFromMappings id="boltend">
+      <ArtFile filename="../art/nemesis/Bolt end and rope from MTZ.bin" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj1C_e.asm" frame="2" startpal="1" />
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="00" name="Rope (right)" image="roperight" />
+    <Subtype id="01" name="Rope (left)" image="ropeleft" />
+    <Subtype id="03" name="Bolt end" image="boltend" />
+  </Subtypes>
+</ObjDef>

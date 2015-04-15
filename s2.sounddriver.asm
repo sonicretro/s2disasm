@@ -33,7 +33,7 @@
 	; even if it does require a little post-processing to work.  And actually, with
 	; some tweaks, I think I can get this beast on relative addresses... heheheh
 
-	; LOTS of decoding work and relabeling of unknowns!  This is a much more complete disasm ;)
+	; LOTS of decoding work and relabelling of unknowns!  This is a much more complete disasm ;)
 
 	; zComRange:	@ 1B80h
 	; 	+00h	-- Priority of current SFX (cleared when 1-up song is playing)
@@ -928,7 +928,7 @@ zFMUpdateFreq:
 +
 	add	hl,de			; Alter frequency just a tad
 	ld	c,h				; Upper part of frequency as data to FM ('c')
-	ld	a,(ix+1)		; "playback control" byte -> 'a'
+	ld	a,(ix+1)		; "voice control" byte -> 'a'
 	and	3				; Strip to only channel assignment 
 	add	a,0A4h			; Change to proper register
 	rst	zWriteFMIorII	; Write it!
@@ -1943,7 +1943,7 @@ zloc_A9B:
 	ld	ix,(zMusicTrackOffs) ; self-modified code from just above; 'ix' points to corresponding Music PSG track
 	res	2,(ix+0)						; tell this track it is is no longer overridden by SFX!
 	set	1,(ix+0)						; Set track to rest
-	ld	a,(ix+1)						; Get playback control
+	ld	a,(ix+1)						; Get voice control
 	cp	0E0h							; Is this a PSG 3 noise (not tone) track?
 	jr	nz,+							; If it isn't, don't do next part (non-PSG Noise doesn't restore)
 	ld	a,(ix+1Bh)						; Get PSG noise setting
@@ -2145,7 +2145,7 @@ zSpeedUpMusic:
 	or	a
 	ld	a,(zTempoTurbo)
 	jr	z,zSetTempo
-	jr	zloc_BE0
+	jr	zSetTempo_1up
 
 ; ===========================================================================
 ; zloc_BCB:
@@ -2156,7 +2156,7 @@ zSlowDownMusic:
 	or	a
 	ld	a,(zTempoMod)
 	jr	z,zSetTempo
-	jr	zloc_BE0
+	jr	zSetTempo_1up
 
 ; ===========================================================================
 ; helper routines for changing the tempo
@@ -2166,10 +2166,11 @@ zSetTempo:
 	ld	(zSpeedUpFlag),a
 	ret
 ; ---------------------------------------------------------------------------
-zloc_BE0:
-	ld	(1E3Ah),a
+;zloc_BE0
+zSetTempo_1up:
+	ld	(z1upBackup+zCurrentTempo-zComRange),a	; Store new tempo value 
 	ld	a,b
-	ld	(1E4Ch),a
+	ld	(z1upBackup+zSpeedUpFlag-zComRange),a
 	ret
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||

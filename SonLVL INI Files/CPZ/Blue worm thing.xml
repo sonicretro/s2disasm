@@ -1,18 +1,76 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.CPZ" TypeName="Worm" Language="cs" Name="Blue worm thing" Image="img1" RememberState="false">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Blue Worm Thing" Image="segment" DefaultSubtype="15">
   <Images>
-    <ImageFromMappings id="img1">
+    <ImageFromMappings id="segment">
       <ArtFile filename="../art/nemesis/CPZ worm enemy.bin" />
       <MapFile type="ASM" filename="../mappings/sprite/obj1D.asm" frame="0" startpal="3" />
     </ImageFromMappings>
   </Images>
   <Subtypes>
-    <Subtype id="05" name="Back and Forth" image="img1" />
-    <Subtype id="15" name="Square Tube" image="img1" />
+    <Subtype id="00" name="Back and Forth - 1 Segment" image="segment" />
+    <Subtype id="01" name="Back and Forth - 2 Segments" image="segment" />
+    <Subtype id="02" name="Back and Forth - 3 Segments" image="segment" />
+    <Subtype id="03" name="Back and Forth - 4 Segments" image="segment" />
+    <Subtype id="04" name="Back and Forth - 5 Segments" image="segment" />
+    <Subtype id="05" name="Back and Forth - 6 Segments" image="segment" />
+    <Subtype id="06" name="Back and Forth - 7 Segments" image="segment" />
+    <Subtype id="07" name="Back and Forth - 8 Segments" image="segment" />
+    <Subtype id="08" name="Back and Forth - 9 Segments" image="segment" />
+    <Subtype id="09" name="Back and Forth - 10 Segments" image="segment" />
+    <Subtype id="0A" name="Back and Forth - 11 Segments" image="segment" />
+    <Subtype id="0B" name="Back and Forth - 12 Segments" image="segment" />
+    <Subtype id="0C" name="Back and Forth - 13 Segments" image="segment" />
+    <Subtype id="0D" name="Back and Forth - 14 Segments" image="segment" />
+    <Subtype id="0E" name="Back and Forth - 15 Segments" image="segment" />
+    <Subtype id="0F" name="Back and Forth - 16 Segments" image="segment" />
+    <Subtype id="10" name="Square Tube - 1 Segment" image="segment" />
+    <Subtype id="11" name="Square Tube - 2 Segments" image="segment" />
+    <Subtype id="12" name="Square Tube - 3 Segments" image="segment" />
+    <Subtype id="13" name="Square Tube - 4 Segments" image="segment" />
+    <Subtype id="14" name="Square Tube - 5 Segments" image="segment" />
+    <Subtype id="15" name="Square Tube - 6 Segments" image="segment" />
+    <Subtype id="16" name="Square Tube - 7 Segments" image="segment" />
+    <Subtype id="17" name="Square Tube - 8 Segments" image="segment" />
+    <Subtype id="18" name="Square Tube - 9 Segments" image="segment" />
+    <Subtype id="19" name="Square Tube - 10 Segments" image="segment" />
+    <Subtype id="1A" name="Square Tube - 11 Segments" image="segment" />
+    <Subtype id="1B" name="Square Tube - 12 Segments" image="segment" />
+    <Subtype id="1C" name="Square Tube - 13 Segments" image="segment" />
+    <Subtype id="1D" name="Square Tube - 14 Segments" image="segment" />
+    <Subtype id="1E" name="Square Tube - 15 Segments" image="segment" />
+    <Subtype id="1F" name="Square Tube - 16 Segments" image="segment" />
   </Subtypes>
+  <Properties>
+    <BitsProperty name="Segments" type="WormSegments" startbit="0" length="4" />
+    <BitsProperty name="Behaviour" type="WormBehaviour" startbit="4" length="1" />
+  </Properties>
+  <Enums>
+    <Enum name="WormSegments">
+      <EnumMember name="1" />
+      <EnumMember name="2" />
+      <EnumMember name="3" />
+      <EnumMember name="4" />
+      <EnumMember name="5" />
+      <EnumMember name="6" />
+      <EnumMember name="7" />
+      <EnumMember name="8" />
+      <EnumMember name="9" />
+      <EnumMember name="10" />
+      <EnumMember name="11" />
+      <EnumMember name="12" />
+      <EnumMember name="13" />
+      <EnumMember name="14" />
+      <EnumMember name="15" />
+      <EnumMember name="16" />
+    </Enum>
+    <Enum name="WormBehaviour">
+      <EnumMember name="Back and Forth" />
+      <EnumMember name="Square Tube" />
+    </Enum>
+  </Enums>
   <Display>
     <DisplayOption>
-      <ImageRef image="img1" />
+      <ImageRef image="segment" />
     </DisplayOption>
   </Display>
 </ObjDef>

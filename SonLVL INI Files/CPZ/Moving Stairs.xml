@@ -1,27 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.CPZ" TypeName="MovingStairs" Language="cs" Name="Moving Stairs" Image="img1" RememberState="false">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Moving Stairs" Image="segment">
   <Images>
-    <ImageFromMappings id="img1">
+    <ImageFromMappings id="segment">
       <ArtFile filename="../art/nemesis/Moving block from CPZ.bin" />
       <MapFile type="ASM" filename="../mappings/sprite/obj6B.asm" frame="0" startpal="3" />
     </ImageFromMappings>
   </Images>
   <Subtypes>
-    <Subtype id="18" name="Small" image="img1" />
-    <Subtype id="19" name="Large" image="img1" />
+    <Subtype id="18" name="Small" image="segment" />
+    <Subtype id="19" name="Large" image="segment" />
   </Subtypes>
   <Display>
     <DisplayOption>
       <Condition property="SubType" value="24" />
       <Condition property="YFlip" value="false" />
-	  <ImageRef image="img1" yflip="NeverFlip">
+      <ImageRef image="segment" yflip="NeverFlip">
         <Offset X="16" Y="-16" />
       </ImageRef>
     </DisplayOption>
     <DisplayOption>
       <Condition property="SubType" value="24" />
       <Condition property="YFlip" value="true" />
-	  <ImageRef image="img1" yflip="NeverFlip">
+      <ImageRef image="segment" yflip="NeverFlip">
         <Offset X="-16" Y="16" />
       </ImageRef>
     </DisplayOption>
@@ -29,10 +29,10 @@
       <Condition property="SubType" value="25" />
       <Condition property="XFlip" value="false" />
       <Condition property="YFlip" value="false" />
-	  <ImageRef image="img1" yflip="NeverFlip">
+      <ImageRef image="segment" yflip="NeverFlip">
         <Offset X="16" Y="-16" />
       </ImageRef>
-	  <ImageRef image="img1" yflip="NeverFlip">
+      <ImageRef image="segment" yflip="NeverFlip">
         <Offset X="48" Y="-48" />
       </ImageRef>
     </DisplayOption>
@@ -40,10 +40,10 @@
       <Condition property="SubType" value="25" />
       <Condition property="XFlip" value="false" />
       <Condition property="YFlip" value="true" />
-	  <ImageRef image="img1" yflip="NeverFlip">
+      <ImageRef image="segment" yflip="NeverFlip">
         <Offset X="-16" Y="16" />
       </ImageRef>
-	  <ImageRef image="img1" yflip="NeverFlip">
+      <ImageRef image="segment" yflip="NeverFlip">
         <Offset X="-48" Y="48" />
       </ImageRef>
     </DisplayOption>
@@ -51,7 +51,7 @@
       <Condition property="SubType" value="25" />
       <Condition property="XFlip" value="true" />
       <Condition property="YFlip" value="false" />
-	  <ImageRef image="img1" yflip="NeverFlip">
+      <ImageRef image="segment" yflip="NeverFlip">
         <Offset X="48" Y="-48" />
       </ImageRef>
     </DisplayOption>
@@ -59,7 +59,7 @@
       <Condition property="SubType" value="25" />
       <Condition property="XFlip" value="true" />
       <Condition property="YFlip" value="true" />
-	  <ImageRef image="img1" yflip="NeverFlip">
+      <ImageRef image="segment" yflip="NeverFlip">
         <Offset X="-48" Y="48" />
       </ImageRef>
     </DisplayOption>

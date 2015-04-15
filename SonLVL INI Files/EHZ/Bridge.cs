@@ -25,11 +25,6 @@ namespace S2ObjectDefinitions.EHZ
             get { return "Bridge"; }
         }
 
-        public override bool RememberState
-        {
-            get { return false; }
-        }
-
         public override byte DefaultSubtype
         {
             get { return 8; }
