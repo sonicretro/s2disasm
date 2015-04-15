@@ -375,8 +375,8 @@ zUpdateEverything:
 	or	a
 	call	nz,zUpdateFadeIn	; If so, update that
 	ld	a,(zAbsVar.SFXToPlay)			; zComRange+09h -- play normal sound
-	or	(ix+zVar.SFXStereoToPlay)				; zComRange+0Ah (SFXStereoToPlay) -- play stereo sound (alternating speakers)
-	or	(ix+zVar.SFXUnknown)				; zComRange+0Bh (SFXUnknown) -- "unknown" slot
+	or	(ix+zVar.SFXStereoToPlay)				; zComRange+0Ah -- play stereo sound (alternating speakers)
+	or	(ix+zVar.SFXUnknown)				; zComRange+0Bh -- "unknown" slot
 	call	nz,zCycleQueue		; If any of those are non-zero, cycle queue
 	
 	; Apparently if this is 80h, it does not play anything new,
@@ -531,8 +531,8 @@ TempoWait:
 
 	ld	ix,zComRange		; ix points to zComRange
 	ld	a,(ix+zVar.CurrentTempo)			; tempo value
-	add	a,(ix+zVar.TempoTimeout)			; Adds previous value to (ix+1 - TempoTimeout)
-	ld	(ix+zVar.TempoTimeout),a			; Store this as new (ix+1 - TempoTimeout)
+	add	a,(ix+zVar.TempoTimeout)			; Adds previous value to
+	ld	(ix+zVar.TempoTimeout),a			; Store this as new
 	ret	c					; If addition overflowed (answer greater than FFh), return
 	
 	; So if adding tempo value did NOT overflow, then we add 1 to all durations
@@ -1236,7 +1236,7 @@ zPauseMusic:
 	jp	zPSGSilenceAll
 +
 	push	ix			; Save ix
-	ld	(ix+zVar.StopMusic),0		; Clear pause/unpause flag (StopMusic)
+	ld	(ix+zVar.StopMusic),0		; Clear pause/unpause flag
 	xor	a				; a = 0
 	ld	(zPaused),a		; Clear paused flag
 	ld	ix,zTracksStart	; ix = pointer to track RAM
@@ -1343,7 +1343,7 @@ zPlaySoundByIndex:
 	ret	c		; return if id is less than the first music id
     endif
 	
-	ld	(ix+zVar.QueueToPlay),80h					; Rewrite zComRange+8 (QueueToPlay) flag so we know nothing new is coming in 
+	ld	(ix+zVar.QueueToPlay),80h					; Rewrite zComRange+8 flag so we know nothing new is coming in 
 	cp	MusID__End					; is it music (less than index 20)?
 	jp	c,zPlayMusic				; if yes, branch to play the music
 	cp	SndID__First				; is it not a sound? (this check is redundant if MusID__End == SndID__First...)
@@ -1735,8 +1735,8 @@ zPSGInitBytes:
 ; zloc_920:
 zPlaySound_CheckRing:
 	ld	c,a								; Store sound index -> 'c'
-	ld	a,(ix+zVar.1upPlaying)						; Get "is 1-up playing" flag... (1upPlaying)
-	or	(ix+zVar.FadeInFlag)						; Or it with fading in flag (FadeInFlag)
+	ld	a,(ix+zVar.1upPlaying)						; Get "is 1-up playing" flag...
+	or	(ix+zVar.FadeInFlag)						; Or it with fading in flag
 	jp	nz,zloc_KillSFXPrio				; If either is set, SFX cannot be played!!
 	xor	a
 	ld	(zSpindashActiveFlag),a			; Clear spindash sound flag
@@ -2023,12 +2023,12 @@ zUpdateFadeout:
 	ld	a,(zAbsVar.FadeOutDelay)				; Get current tick count before next volume decrease
 	or	a
 	jr	z,+							; If not yet zero...
-	dec	(ix+zVar.FadeOutDelay)						; Just decrement it (FadeOutDelay)
+	dec	(ix+zVar.FadeOutDelay)						; Just decrement it
 	ret
 +
-	dec	(ix+zVar.FadeOutCounter)						; Otherwise, decrement fadeout! (FadeOutCounter)
+	dec	(ix+zVar.FadeOutCounter)						; Otherwise, decrement fadeout!
 	jp	z,zClearTrackPlaybackMem	; If it hits zero, clear everything!
-	ld	(ix+zVar.FadeOutDelay),3					; Otherwise, reload tick count with 3 (FadeOutDelay)
+	ld	(ix+zVar.FadeOutDelay),3					; Otherwise, reload tick count with 3
 	push	ix
 	ld	ix,zSongFM1	; 'ix' points to first FM music track
 	ld	b,(zSongPSG1-zSongFM1)/zTrack.len							; 6 FM tracks to follow...
@@ -2149,10 +2149,10 @@ zInitMusicPlayback:
 	; Save some queues/flags:
 	ld	ix,zComRange
 	ld	b,(ix+zVar.SFXPriorityVal)
-	ld	c,(ix+zVar.1upPlaying)		; 1-up playing flag (1upPlaying)
+	ld	c,(ix+zVar.1upPlaying)		; 1-up playing flag
 	push	bc
 	ld	b,(ix+zVar.SpeedUpFlag)		; speed shoe flag
-	ld	c,(ix+zVar.FadeInCounter)		; fade in frames (FadeInCounter)
+	ld	c,(ix+zVar.FadeInCounter)		; fade in frames
 	push	bc
 	ld	b,(ix+zVar.SFXToPlay)		; SFX queue slot
 	ld	c,(ix+zVar.SFXStereoToPlay)		; Stereo SFX queue slot
@@ -2169,10 +2169,10 @@ zInitMusicPlayback:
 	ld	(ix+zVar.SFXStereoToPlay),c		; Stereo SFX queue slot
 	pop	bc
 	ld	(ix+zVar.SpeedUpFlag),b		; speed shoe flag
-	ld	(ix+zVar.FadeInCounter),c		; fade in frames (FadeInCounter)
+	ld	(ix+zVar.FadeInCounter),c		; fade in frames
 	pop	bc
 	ld	(ix+zVar.SFXPriorityVal),b
-	ld	(ix+zVar.1upPlaying),c		; 1-up playing flag (1upPlaying)
+	ld	(ix+zVar.1upPlaying),c		; 1-up playing flag
 	ld	a,80h
 	ld	(zAbsVar.QueueToPlay),a
 	; Silence hardware!
@@ -2225,7 +2225,7 @@ zUpdateFadeIn:
 	ld	a,(zAbsVar.FadeInDelay)			; Get current tick count before next volume increase
 	or	a
 	jr	z,+							; If not yet zero...
-	dec	(ix+zVar.FadeInDelay)					; Just decrement it (FadeInDelay)
+	dec	(ix+zVar.FadeInDelay)					; Just decrement it
 	ret
 +
 	ld	a,(zAbsVar.FadeInCounter)			; Get current fade out frame count
@@ -2238,8 +2238,8 @@ zUpdateFadeIn:
 	ld	(zAbsVar.FadeInFlag),a			; Done fading-in, SFX can play now 
 	ret
 +
-	dec	(ix+zVar.FadeInCounter)					; Otherwise, we decrement fadein! (FadeInCounter)
-	ld	(ix+zVar.FadeInDelay),2					; Otherwise, reload tick count with 2 (little faster than fadeout) (FadeInDelay)
+	dec	(ix+zVar.FadeInCounter)					; Otherwise, we decrement fadein!
+	ld	(ix+zVar.FadeInDelay),2					; Otherwise, reload tick count with 2 (little faster than fadeout)
 	push	ix
 	ld	ix,zSongFM1	; 'ix' points to first FM music track
 	ld	b,(zSongPSG1-zSongFM1)/zTrack.len								; 6 FM tracks to follow...
