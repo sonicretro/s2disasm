@@ -1104,7 +1104,7 @@ loc_10A4:
 
 loc_10AE:		; Check that the sound is not FE or FF
 	move.b	d0,d1	; If it is, we need to put it in $A01B83 as $7F or $80 respectively
-	subi.b	#$FE,d1
+	subi.b	#MusID_Pause,d1
 	bcs.s	loc_10C0
 	addi.b	#$7F,d1
 	move.b	d1,zAbsVar.StopMusic-zComRange(a1)
