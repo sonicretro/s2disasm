@@ -799,19 +799,25 @@ SndID_LargeLaser =	id(SndPtr_LargeLaser)		; EF
 SndID_OilSlide =	id(SndPtr_OilSlide)		; F0
 SndID__End =		id(SndPtr__End)			; F1
     if MOMPASS == 2
-	if SndID__End > MusID_StopSFX
-		fatal "You have too many SndPtrs. SndID__End ($\{SndID__End}) can't exceed MusID_StopSFX ($\{MusID_StopSFX})."
+	if SndID__End > CmdID__First
+		fatal "You have too many SndPtrs. SndID__End ($\{SndID__End}) can't exceed CmdID__First ($\{CmdID__First})."
 	endif
     endif
 
-; Special sound IDs
+; Sound command IDs
+offset :=	zCommandIndex
+ptrsize :=	4
+idstart :=	$F8
 
-MusID_StopSFX =		$78+$80			; F8
-MusID_FadeOut =		$79+$80			; F9
-SndID_SegaSound =	$7A+$80			; FA
-MusID_SpeedUp =		$7B+$80			; FB
-MusID_SlowDown =	$7C+$80			; FC
-MusID_Stop =		$7D+$80			; FD
+CmdID__First = idstart
+MusID_StopSFX =		id(CmdPtr_StopSFX)	; F8
+MusID_FadeOut =		id(CmdPtr_FadeOut)	; F9
+SndID_SegaSound =	id(CmdPtr_SegaSound)	; FA
+MusID_SpeedUp =		id(CmdPtr_SpeedUp)	; FB
+MusID_SlowDown =	id(CmdPtr_SlowDown)	; FC
+MusID_Stop =		id(CmdPtr_Stop)		; FD
+CmdID__End =		id(CmdPtr__End)		; FE
+
 MusID_Pause =		$7E+$80			; FE
 MusID_Unpause =		$7F+$80			; FF
 

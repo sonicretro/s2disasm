@@ -1299,7 +1299,7 @@ zCycleQueue:
 	inc	hl					; hl = pointer to next queue item
 	cp	MusID__First		; Is it before first music?
 	jr	c,zlocQueueNext		; if so, branch
-	cp	MusID_StopSFX		; Is it a special command?
+	cp	CmdID__First		; Is it a special command?
 	jr	nc,zlocQueueItem	; If so, branch
 	sub	SndID__First		; Subtract first SFX index
 	jr	c,zlocQueueItem		; If it was music, branch
@@ -1350,12 +1350,12 @@ zPlaySoundByIndex:
 	ret	c							; if it isn't a sound, return (do nothing)
 	cp	SndID__End					; is it a sound (less than index 71)?
 	jp	c,zPlaySound_CheckRing		; if yes, branch to play the sound
-	cp	MusID_StopSFX				; is it after the last regular sound but before the first special sound command (between 71 and 78)?
+	cp	CmdID__First				; is it after the last regular sound but before the first special sound command (between 71 and 78)?
 	ret	c							; if yes, return (do nothing)
 	cp	MusID_Pause					; is it sound 7E or 7F (pause all or resume all)
 	ret	nc							; if yes, return (those get handled elsewhere)
 	; Otherwise, this is a special command to the music engine...
-	sub	MusID_StopSFX	; convert index 78-7D to a lookup into the following jump table
+	sub	CmdID__First	; convert index 78-7D to a lookup into the following jump table
 	add	a,a
 	add	a,a
 	ld	(zloc_6D5+1),a	; store into the instruction after zloc_6D5 (self-modifying code)
@@ -1364,23 +1364,21 @@ zPlaySoundByIndex:
 zloc_6D5:
 	jr	$
 ; ---------------------------------------------------------------------------
-	jp	zStopSoundEffects ; sound test index 78
-	nop
-; ---------------------------------------------------------------------------
-	jp	zFadeOutMusic ; 79
-	nop
-; ---------------------------------------------------------------------------
-	jp	zPlaySegaSound ; 7A
-	nop
-; ---------------------------------------------------------------------------
-	jp	zSpeedUpMusic ; 7B
-	nop
-; ---------------------------------------------------------------------------
-	jp	zSlowDownMusic ; 7C
-	nop
-; ---------------------------------------------------------------------------
-	jp	zStopSoundAndMusic ; 7D
-	nop
+zCommandIndex:
+
+CmdPtr_StopSFX:		jp	zStopSoundEffects ; sound test index 78
+			nop
+CmdPtr_FadeOut:		jp	zFadeOutMusic ; 79
+			nop
+CmdPtr_SegaSound:	jp	zPlaySegaSound ; 7A
+			nop
+CmdPtr_SpeedUp:		jp	zSpeedUpMusic ; 7B
+			nop
+CmdPtr_SlowDown:	jp	zSlowDownMusic ; 7C
+			nop
+CmdPtr_Stop:		jp	zStopSoundAndMusic ; 7D
+			nop
+CmdPtr__End:
 ; ---------------------------------------------------------------------------
 ; zloc_6EF:
 zPlaySegaSound:
