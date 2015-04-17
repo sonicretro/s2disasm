@@ -709,6 +709,11 @@ MusID_Emerald =		id(zMusIDPtr_Emerald)	; 9D
 MusID_Credits =		id(zMusIDPtr_Credits)	; 9E
 MusID_Countdown =	id(zMusIDPtr_Countdown)	; 9F
 MusID__End =		id(zMusIDPtr__End)	; A0
+    if MOMPASS == 2
+	if MusID__End > SndID__First
+		fatal "You have too many SndPtrs. MusID__End ($\{MusID__End}) can't exceed SndID__First ($\{SndID__First})."
+	endif
+    endif
 
 ; Sound IDs
 offset :=	SoundIndex
