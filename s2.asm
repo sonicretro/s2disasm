@@ -88027,14 +88027,14 @@ SndDAC_End
 ; ---------------------------------------------------------------------------
 ; Music pointers
 ; ---------------------------------------------------------------------------
-	align $8000
-
 ; loc_F0000:
-MusicPoint1:
+MusicPoint1:	startBank
 MusPtr_Continue:	rom_ptr_z80	Mus_Continue
 
 
 Mus_Continue:   BINCLUDE	"sound/music/Continue.bin"
+
+	finishBank
 
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (20 blocks)
@@ -88166,11 +88166,8 @@ Snd_Sega_End:
 ; ------------------------------------------------------------------------------
 ; Music pointers
 ; ------------------------------------------------------------------------------
-	align $8000
-soundBankStart	:= *
-
 ; loc_F8000:
-MusicPoint2:
+MusicPoint2:	startBank
 MusPtr_CNZ_2P:		rom_ptr_z80	Mus_CNZ_2P
 MusPtr_EHZ:		rom_ptr_z80	Mus_EHZ
 MusPtr_MTZ:		rom_ptr_z80	Mus_MTZ
@@ -90136,11 +90133,7 @@ Sound70:	dc.w $0000,$0101
 		dc.b $F2
 
 
-	if * > soundBankStart + $8000
-		fatal "soundBank must fit in $8000 bytes but was $\{*-soundBankStart}. Try moving something to the other bank."
-	else
-		;message "soundBank has $\{$8000+soundBankStart-*} bytes free at end."
-	endif
+	finishBank
 
 ; end of 'ROM'
 	if padToPowerOfTwo && (*)&(*-1)
