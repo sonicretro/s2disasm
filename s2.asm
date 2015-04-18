@@ -88031,10 +88031,10 @@ SndDAC_End
 
 ; loc_F0000:
 MusicPoint1:
-MusPtr_Continue:	rom_ptr_z80	Mus_Continue-MusicPoint2
+MusPtr_Continue:	rom_ptr_z80	Mus_Continue
 
 
-Mus_Continue:   BINCLUDE    "sound/music/Continue.bin"
+Mus_Continue:   BINCLUDE	"sound/music/Continue.bin"
 
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (20 blocks)
