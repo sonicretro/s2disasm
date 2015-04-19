@@ -2364,7 +2364,7 @@ coordflagLookup:
 	jp	cfSetTempoDivider	; E5
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfSetVolume		; E6
+	jp	cfChangeFMVolume	; E6
 	nop
 ; ---------------------------------------------------------------------------
 	jp	cfPreventAttack		; E7
@@ -2382,7 +2382,7 @@ coordflagLookup:
 	jp	cfSetTempoMod		; EB
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfChangeVolume		; EC
+	jp	cfChangePSGVolume	; EC
 	nop
 ; ---------------------------------------------------------------------------
 	jp	cfUnused1		; ED
@@ -2569,8 +2569,8 @@ cfSetTempoDivider:
 ; ---------------------------------------------------------------------------
 
 ; (via Saxman's doc): Change channel volume BY xx; xx is signed 
-;zloc_DBB
-cfSetVolume:
+;zloc_DBB cfSetVolume
+cfChangeFMVolume:
 	add	a,(ix+zTrack.Volume)		; Add to current volume
 	ld	(ix+zTrack.Volume),a		; Update volume
 	jp	zSetChanVol		; Immediately set this new volume
@@ -2645,8 +2645,8 @@ zVolTLMaskTbl:
 ; volume change at voice may be necessary... or my guess anyway.
 
 ; Alternatively, just think of it as a volume setting optimized for PSG :P
-;zloc_DF9
-cfChangeVolume:
+;zloc_DF9 cfChangeVolume
+cfChangePSGVolume:
 	add	a,(ix+zTrack.Volume)	; Add to channel volume
 	ld	(ix+zTrack.Volume),a	; Store updated volume
 	ret
