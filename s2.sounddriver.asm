@@ -2159,7 +2159,7 @@ zInitMusicPlayback:
 	ld	hl,zComRange
 	ld	de,zComRange+1
 	ld	(hl),0
-	ld	bc,(zTracksSaveEnd-zTracksSaveStart)-1			; this many bytes (from start of zComRange to just short of end of PSG3 music track)
+	ld	bc,(zTracksEnd-zComRange)-1			; this many bytes (from start of zComRange to just short of end of PSG3 music track)
 	ldir
 	; Restore those queue/flags:
 	pop	bc
