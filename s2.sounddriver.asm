@@ -2385,10 +2385,10 @@ coordflagLookup:
 	jp	cfChangePSGVolume	; EC
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfUnused1		; ED
+	jp	cfClearPush		; ED
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfUnused2		; EE
+	jp	cfStopSpecialFM4	; EE
 	nop
 ; ---------------------------------------------------------------------------
 	jp	cfSetVoice		; EF
@@ -2653,19 +2653,19 @@ cfChangePSGVolume:
 ; ---------------------------------------------------------------------------
 
 ; Unused command EDh
-; This used to be Sonic 1's cfClearPush. But that function hasn't been ported.
-; So this broken code is all that's left of it.
-;zlocret_E00 cfUnused
-cfUnused1:
+; This used to be Sonic 1's cfClearPush. The whole Push SFX feature
+; was retained when the driver was ported to Z80, but eventually removed in Beta 5.
+; This broken code is all that's left of it.
+;zlocret_E00 cfUnused cfUnused1
+cfClearPush:
 	; Dangerous!  It doesn't put back the byte read, meaning one gets skipped!
 	ret
 ; ---------------------------------------------------------------------------
 
-; (via Saxman's doc): "Something with Voice Selection" 
-; But actually, this doesn't do anything but put back the next byte read, so...
+; Unused command EEh
 ; This used to be Sonic 1's cfStopSpecialFM4. But the Special SFX function hasn't been ported...
-;zloc_E01 cfVoiceUNK
-cfUnused2:
+;zloc_E01 cfVoiceUNK cfUnused2
+cfStopSpecialFM4:
 	dec	hl		; Put back byte; does nothing
 	ret
 ; ---------------------------------------------------------------------------
