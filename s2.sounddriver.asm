@@ -4,6 +4,11 @@
 ; Additional disassembly work by RAS Oct 2008
 ; RAS' work merged into SVN by Flamewing
 ; ---------------------------------------------------------------------------
+
+FixDriverBugs = 0
+OptimiseDriver = 0
+
+; ---------------------------------------------------------------------------
 ; NOTES:
 ;
 ; Set your editor's tab width to 8 characters wide for viewing this file.
@@ -910,12 +915,20 @@ zDoModulation:
 	ld	h,(ix+zTrack.ModulationValHigh)		; Get 16-bit modulation value
 	
 	; This is a 16-bit sign extension for 'bc'
+    if OptimiseDriver
+	ld	a,(ix+zTrack.ModulationDelta)		; Get current modulation change per step -> 'a'
+	ld	c,a							; bc = sign extension of delta
+	rla									; Carry contains sign of delta
+	sbc	a,a							; a = 0 or -1 if carry is 0 or 1
+	ld	b,a							; bc = sign extension of delta
+    else
 	ld	b,0
 	ld	c,(ix+zTrack.ModulationDelta)		; Get current modulation change per step -> 'c'
 	bit	7,c				
 	jp	z,+
 	ld	b,0FFh			; Sign extend if negative
 +
+    endif
 	add	hl,bc			; Add to current modulation value
 	ld	(ix+zTrack.ModulationValLow),l
 	ld	(ix+zTrack.ModulationValHigh),h		; Store new 16-bit modulation value
@@ -1175,8 +1188,16 @@ zloc_515:				; If you get here, then "do not attack next note" was set...
 
 zloc_522:
 	; This just decrements the flutter to keep it in place; no more volume changes in this list
-	dec	(ix+zTrack.VolFlutter)
-	ret
+    if FixDriverBugs
+	ld	a,(ix+zTrack.VolFlutter)
+	sub	2						; Put index back (before final volume value)
+	ld	(ix+zTrack.VolFlutter),a
+	jr	zPSGDoVolFX				; Loop back and update volume 
+    else
+	; DANGER! This effectively halts all future volume updates, breaking fades.
+	dec	(ix+zTrack.VolFlutter)	; Put index back (before flag 80h)
+	ret							; Return and don't update volume on this frame (!!!)
+    endif
 ; End of function zPSGDoVolFX
 
 
@@ -1236,8 +1257,13 @@ zPauseMusic:
 	jp	zPSGSilenceAll
 +
 	push	ix			; Save ix
+    if OptimiseDriver
+	xor	a				; a = 0
+	ld	(zAbsVar.StopMusic),a		; Clear pause/unpause flag
+    else
 	ld	(ix+zVar.StopMusic),0		; Clear pause/unpause flag
 	xor	a				; a = 0
+    endif
 	ld	(zPaused),a		; Clear paused flag
 	ld	ix,zTracksStart	; ix = pointer to track RAM
 	ld	b,(zSongPSG1-zTracksStart)/zTrack.len				; 1 DAC + 6 FM
@@ -1382,6 +1408,13 @@ CmdPtr__End:
 ; ---------------------------------------------------------------------------
 ; zloc_6EF:
 zPlaySegaSound:
+    if FixDriverBugs
+	; reset panning (don't want Sega sound playing on only one speaker)
+	ld	a,0B6h			; Set Panning / AMS / FMS
+	ld	c,0C0h			; default Panning / AMS / FMS settings (only stereo L/R enabled)
+	rst	zWriteFMII		; Set it!
+    endif
+
 	ld	a,2Bh			; DAC enable/disable register
 	ld	c,80h			; Command to enable DAC
 	rst	zWriteFMI
@@ -1584,10 +1617,15 @@ zBGMLoad:
 	adc	a,iyu
 	sub	e
 	ld	d,a					; de = iy + 3 ('de' is pointing to track offset address)
+    if OptimiseDriver
+	ld	bc,4
+	ldir						; while (bc-- > 0) *de++ = *hl++; (copy track address, default key offset, default volume)
+    else
 	ldi						; *de++ = *hl++ (copy track address low byte from header to track's copy of this value)
 	ldi						; *de++ = *hl++ (copy track address high byte from header to track's copy of this value)
 	ldi						; *de++ = *hl++ (default key offset, typically 0, can be set later by coord flag E9)
 	ldi						; *de++ = *hl++ (track default volume)
+    endif
 	ld	de,zTrack.len			; size of all tracks -> 'de'
 	add	iy,de				; offset to next track!
 	pop	bc					; restore 'bc' (number of channels and tempo divider)
@@ -1654,10 +1692,15 @@ zloc_884:
 	adc	a,iyu
 	sub	e
 	ld	d,a					; de = iy + 3 ('de' is pointing to track offset address)
+    if OptimiseDriver
+	ld	bc,4
+	ldir						; while (bc-- > 0) *de++ = *hl++; (copy track address, default key offset, default volume)
+    else
 	ldi						; *de++ = *hl++ (copy track address low byte from header to track's copy of this value)
 	ldi						; *de++ = *hl++ (copy track address high byte from header to track's copy of this value)
 	ldi						; *de++ = *hl++ (default key offset, typically 0, can be set later by coord flag E9)
 	ldi						; *de++ = *hl++ (track default volume)
+    endif
 	inc	hl					; Get default PSG tone
 	ld	a,(hl)				; -> 'a'
 	inc	hl					; This byte is usually the same as the prior, unused
@@ -1753,7 +1796,9 @@ zPlaySound_CheckRing:
 ; ---------------------------------------------------------------------------
 ; zloc_942:
 zPlaySound_CheckGloop:
+    if OptimiseDriver=0
 	ld	a,c
+    endif
 	cp	SndID_Gloop ; is this the bloop/gloop noise?
 	jr	nz,zPlaySound_CheckSpindash ; if not, branch
 	ld	a,(zGloopFlag)
@@ -1765,7 +1810,9 @@ zPlaySound_CheckGloop:
 ; ---------------------------------------------------------------------------
 ; zloc_953:
 zPlaySound_CheckSpindash:
+    if OptimiseDriver=0
 	ld	a,c
+    endif
 	cp	SndID_SpindashRev ; is this the spindash rev sound playing?
 	jr	nz,zPlaySound ; if not, branch
 
@@ -1889,9 +1936,14 @@ zloc_9D9:
 	adc	a,d
 	sub	e
 	ld	d,a								; de += 1 (skip timing divisor; already set)
+    if OptimiseDriver
+	ld	bc,3
+	ldir						; while (bc-- > 0) *de++ = *hl++; (copy track address, default key offset)
+    else
 	ldi									; *de++ = *hl++ (track position low byte)
 	ldi									; *de++ = *hl++ (track position high byte)
 	ldi									; *de++ = *hl++ (key offset)
+    endif
 	
 	; If spindash active, the following block updates its frequency specially:
 	ld	a,(zSpindashActiveFlag)
@@ -2061,7 +2113,16 @@ zloc_B0D:
 +
 	push	bc
 	ld	b,(ix+zTrack.Volume)					; Channel volume -> 'b'
-	call	zPSGUpdateVol			; Update volume
+    if FixDriverBugs
+	ld	a,(ix+zTrack.VoiceIndex)
+	or	a							; Is this track using volume envelope 0 (no envelope)?
+	call	z,zPSGUpdateVol			; If so, update volume (this code is only run on envelope 1+, so we need to do it here for envelope 0)
+    else
+	; DANGER! This code ignores volume envelopes, breaking fade on envelope-using tracks.
+	; (It's also a part of the envelope-processing code, so calling it here is redundant)
+	; This is only useful for envelope 0 (no envelope).
+	call	zPSGUpdateVol			; Update volume (ignores current envelope!!!)
+    endif
 	pop	bc
 
 zloc_B2C:
@@ -2260,7 +2321,16 @@ zUpdateFadeIn:
 	dec	(ix+zTrack.Volume)						; decrement channel volume (remember -- lower is louder!)
 	push	bc
 	ld	b,(ix+zTrack.Volume)					; Channel volume -> 'b'
-	call	zPSGUpdateVol			; Update volume
+    if FixDriverBugs
+	ld	a,(ix+zTrack.VoiceIndex)
+	or	a							; Is this track using volume envelope 0 (no envelope)?
+	call	z,zPSGUpdateVol			; If so, update volume (this code is only run on envelope 1+, so we need to do it here for envelope 0)
+    else
+	; DANGER! This code ignores volume envelopes, breaking fade on envelope-using tracks.
+	; (It's also a part of the envelope-processing code, so calling it here is redundant)
+	; This is only useful for envelope 0 (no envelope).
+	call	zPSGUpdateVol			; Update volume (ignores current envelope!!!)
+    endif
 	pop	bc
 +
 	ld	de,zTrack.len
@@ -2540,6 +2610,14 @@ cfFadeInToPrevious:
 	ld	a,(ix+zTrack.Volume)			; Get channel volume
 	add	a,c					; Apply current fade value
 	ld	(ix+zTrack.Volume),a			; Store it back
+    if FixDriverBugs
+	; Restore PSG noise type
+	ld	a,(ix+zTrack.VoiceControl)
+	cp	0E0h						; Is this the Noise Channel?
+	jr	nz,+						; If not, branch
+	ld	a,(ix+zTrack.PSGNoise)
+	ld	(zPSG),a					; Restore Noise setting
+    endif
 +
 	ld	de,zTrack.len
 	add	ix,de				; Next track
@@ -2658,8 +2736,10 @@ cfChangePSGVolume:
 ; This broken code is all that's left of it.
 ;zlocret_E00 cfUnused cfUnused1
 cfClearPush:
+    if (OptimiseDriver=0)||(FixDriverBugs=0)
 	; Dangerous!  It doesn't put back the byte read, meaning one gets skipped!
 	ret
+    endif
 ; ---------------------------------------------------------------------------
 
 ; Unused command EEh
@@ -2711,6 +2791,15 @@ zSetVoice:
 	; 'a' is the voice index to set
 	; 'hl' is set to the address of the voice table pointer (can be substituted, probably mainly for SFX)
 
+    if OptimiseDriver
+	ld	e,a
+	ld	d,0
+	
+	ld	b,25
+
+-	add	hl,de
+	djnz	-
+    else
 	push	hl				; push 'hl' for the end of the following block...
 	
 	; The following is a crazy block designed to 'multiply' our target voice value by 25...
@@ -2730,6 +2819,7 @@ zSetVoice:
 	pop	de					; old 'hl' value -> 'de'
 	add	hl,de				; hl += de (Adds address from the very beginning)
 	; End crazy multiply-by-25 block
+    endif
 	
 	; Sets up a value for future Total Level setting...
 	ld	a,(hl)				; Get feedback/algorithm -> a
@@ -2859,9 +2949,14 @@ zSetModulation:
 	sub	e				; subtract 'e'
 	ld	d,a				; Basically, 'd' is now the appropriate upper byte of the address, completing de = (ix + 19)
 						; Copying next three bytes 
+    if OptimiseDriver
+	ld	bc,3
+	ldir						; while (bc-- > 0) *de++ = *hl++; (wait, modulation speed, modulation change)
+    else
 	ldi					; *(de)++ = *(hl)++		(Wait for ww period of time before modulation starts)
 	ldi					; *(de)++ = *(hl)++		(Modulation Speed)
 	ldi					; *(de)++ = *(hl)++		(Modulation change per Mod. Step)
+    endif
 	ld	a,(hl)			; Get Number of steps in modulation 
 	inc	hl				; Next byte...
 	srl	a				; divide number of steps by 2
