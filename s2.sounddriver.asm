@@ -3161,8 +3161,7 @@ cfJumpToGosub:
 	ret
 ; ---------------------------------------------------------------------------
 
-; This is not listed as a valid Sonic 2 coord flag, and it just looks weird:
-; (It might be dead code?)
+; Leftover from Sonic 1: was used in SYZ's music.
 ;zloc_FCC
 cfOpF9:
 	ld	a,88h		; D1L/RR of Operator 3
