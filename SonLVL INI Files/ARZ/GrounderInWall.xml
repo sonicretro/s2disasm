@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="Grounder in Wall" Image="grounder" RememberState="true" DefaultSubtype="2">
+  <Images>
+    <ImageFromMappings id="grounder">
+      <ArtFile filename="../art/nemesis/Grounder from ARZ.bin" />
+      <MapFile type="ASM" filename="../s2.asm" label="word_36D02" startpal="1" />
+    </ImageFromMappings>
+  </Images>
+  <Display>
+    <DisplayOption>
+      <ImageRef image="grounder" yflip="NeverFlip" />
+    </DisplayOption>
+  </Display>
+</ObjDef>
