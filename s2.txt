@@ -22,6 +22,7 @@
 #dir	sound/PCM
 #dir	collision
 #dir	misc
+#dir	startpos
 
 
 /***********************Palettes***************************/
@@ -692,6 +693,28 @@
 #split	0x0B90F4,0x0BB944,mappings/128x128/CPZ_DEZ.bin
 #split	0x0C1434,0x0C4074,mappings/128x128/ARZ.bin
 #split	0x0C85E4,0x0CA904,mappings/128x128/WFZ_SCZ.bin
+
+/***********************Start positions***************************/
+#split	0x00C1D0,0x00C1D4,startpos/EHZ_1.bin
+#split	0x00C1D4,0x00C1D8,startpos/EHZ_2.bin
+#split	0x00C1F0,0x00C1F4,startpos/MTZ_1.bin
+#split	0x00C1F4,0x00C1F8,startpos/MTZ_2.bin
+#split	0x00C1F8,0x00C1FC,startpos/MTZ_3.bin
+#split	0x00C200,0x00C204,startpos/WFZ.bin
+#split	0x00C208,0x00C20C,startpos/HTZ_1.bin
+#split	0x00C20C,0x00C210,startpos/HTZ_2.bin
+#split	0x00C220,0x00C224,startpos/OOZ_1.bin
+#split	0x00C224,0x00C228,startpos/OOZ_2.bin
+#split	0x00C228,0x00C22C,startpos/MCZ_1.bin
+#split	0x00C22C,0x00C230,startpos/MCZ_2.bin
+#split	0x00C230,0x00C234,startpos/CNZ_1.bin
+#split	0x00C234,0x00C238,startpos/CNZ_2.bin
+#split	0x00C238,0x00C23C,startpos/CPZ_1.bin
+#split	0x00C23C,0x00C240,startpos/CPZ_2.bin
+#split	0x00C240,0x00C244,startpos/DEZ.bin
+#split	0x00C248,0x00C24C,startpos/ARZ_1.bin
+#split	0x00C24C,0x00C250,startpos/ARZ_2.bin
+#split	0x00C250,0x00C254,startpos/SCZ.bin
 
 
 /***********************Special stage level mappings***************************/
