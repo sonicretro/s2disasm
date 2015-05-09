@@ -372,8 +372,8 @@
 #split	0x00FC70,0x00FC88,mappings/sprite/obj11_b.bin
 #split	0x0101E8,0x01021E,mappings/sprite/obj15_a.bin
 #split	0x01021E,0x010256,mappings/sprite/obj83.bin
-#split	0x010256,0x0102DE,mappings/sprite/obj7A_a.bin
-#split	0x0102DE,0x0102F6,mappings/sprite/obj15_b.bin
+//#split	0x010256,0x0102DE,mappings/sprite/obj7A_a.bin
+//#split	0x0102DE,0x0102F6,mappings/sprite/obj15_b.bin
 #split	0x010452,0x0104AA,mappings/sprite/obj17.bin
 #split	0x0107F6,0x01084E,mappings/sprite/obj18_a.bin
 #split	0x01084E,0x0108A6,mappings/sprite/obj18_b.bin
@@ -404,9 +404,9 @@
 #split	0x012D36,0x012E16,mappings/sprite/obj26.bin
 #split	0x0136A8,0x013B70,mappings/sprite/obj0E.bin
 #split	0x013B70,0x013C3C,mappings/sprite/obj0F.bin
-#split	0x0147BA,0x014C6C,mappings/sprite/obj34.bin
+//#split	0x0147BA,0x014C6C,mappings/sprite/obj34.bin
 #split	0x014C6C,0x014CBC,mappings/sprite/obj39.bin
-#split	0x014CBC,0x014ED0,mappings/sprite/obj3A.bin
+//#split	0x014CBC,0x014ED0,mappings/sprite/obj3A.bin
 #split	0x014ED0,0x015584,mappings/sprite/obj6F.bin
 #split	0x015B68,0x015CC8,mappings/sprite/obj36.bin
 #split	0x015D2E,0x015D44,mappings/sprite/obj3B.bin
@@ -565,10 +565,10 @@
 #split	0x03D0EE,0x03D1DE,mappings/sprite/objC6_a.bin
 #split	0x03D1DE,0x03D23E,mappings/sprite/objC6_b.bin
 #split	0x03D450,0x03D4C8,mappings/sprite/objC8.bin
-#split	0x03E318,0x03E3D0,mappings/sprite/objC7_a.bin
-#split	0x03E3D8,0x03E40C,mappings/sprite/objC7_b.bin
-#split	0x03E438,0x03E55C,mappings/sprite/objC7_c.bin
-#split	0x03E5F8,0x03E89E,mappings/sprite/objC7_d.bin
+//#split	0x03E318,0x03E3D0,mappings/sprite/objC7_a.bin
+//#split	0x03E3D8,0x03E40C,mappings/sprite/objC7_b.bin
+//#split	0x03E438,0x03E55C,mappings/sprite/objC7_c.bin
+#split	0x03E5F8,0x03E89E,mappings/sprite/objC7.bin
 #split	0x03EB4E,0x03F1DA,mappings/sprite/obj8A.bin
 #split	0x03F436,0x03F546,mappings/sprite/obj3E.bin
 #split	0x040A9A,0x040BEA,mappings/sprite/hud_a.bin
@@ -673,15 +673,15 @@
 #split	0x0C4074,0x0C5004,mappings/16x16/WFZ_SCZ.bin
 
 /******************animated 16x16 block mappings***********************/
-#split	0x040372,0x0403EE,mappings/16x16/AnimEHZ.bin
-#split	0x0403EE,0x0404C2,mappings/16x16/AnimMTZ.bin
-#split	0x0404C2,0x0405B6,mappings/16x16/AnimHPZ.bin
-#split	0x0405B6,0x04061A,mappings/16x16/AnimOOZ.bin
-#split	0x04061A,0x0406BE,mappings/16x16/AnimCNZ.bin
-#split	0x0406BE,0x040762,mappings/16x16/AnimCNZ2P.bin
-#split	0x040762,0x04076E,mappings/16x16/AnimCPZ.bin
-#split	0x04076E,0x04077A,mappings/16x16/AnimDEZ.bin
-#split	0x04077A,0x0407BE,mappings/16x16/AnimARZ.bin
+//#split	0x040372,0x0403EE,mappings/16x16/AnimEHZ.bin
+//#split	0x0403EE,0x0404C2,mappings/16x16/AnimMTZ.bin
+//#split	0x0404C2,0x0405B6,mappings/16x16/AnimHPZ.bin
+//#split	0x0405B6,0x04061A,mappings/16x16/AnimOOZ.bin
+//#split	0x04061A,0x0406BE,mappings/16x16/AnimCNZ.bin
+//#split	0x0406BE,0x040762,mappings/16x16/AnimCNZ2P.bin
+//#split	0x040762,0x04076E,mappings/16x16/AnimCPZ.bin
+//#split	0x04076E,0x04077A,mappings/16x16/AnimDEZ.bin
+//#split	0x04077A,0x0407BE,mappings/16x16/AnimARZ.bin
 
 /***********************128x128 block mappings***************************/
 #split	0x099D34,0x09CFD4,mappings/128x128/EHZ_HTZ.bin
@@ -757,8 +757,8 @@
 #split	0x0E24FE,0x0E34EE,misc/Special stage object perspective data (Kosinski compression).bin
 #split	0x0E34EE,0x0E35F2,misc/Special stage level layouts (Nemesis compression).bin
 #split	0x0E35F2,0x0E427D,misc/Special stage object location lists (Kosinski compression).bin
-#split	0x022980,0x022E88,misc/obj1E_a.bin
-#split	0x022E88,0x022FEE,misc/obj1E_b.bin
+//#split	0x022980,0x022E88,misc/obj1E_a.bin
+//#split	0x022E88,0x022FEE,misc/obj1E_b.bin
 #split	0x0033CE,0x00364E,misc/sinewave.bin
 #split	0x0036B4,0x0037B6,misc/angles.bin
 
@@ -839,7 +839,7 @@
 
 
 /***********************Sound driver***************************/
-#split	0x0EC0E8,0x0ED04C,sound/Sound driver.bin
+//#split	0x0EC0E8,0x0ED04C,sound/Sound driver.bin
 
 
 /***********************PCM samples****************************/
