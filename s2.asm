@@ -86279,7 +86279,7 @@ ArtNem_Invincible_stars:	BINCLUDE	"art/nemesis/Invincibility stars.bin"
 ArtUnc_Splash:	BINCLUDE	"art/uncompressed/Splash.bin"
 ;--------------------------------------------------------------------------------------
 ; Uncompressed art
-; Smoke from Skidding		; ArtUnc_7292C:
+; Smoke from Skidding		; ArtUnc_7373C:
 ArtUnc_SkidDust:	BINCLUDE	"art/uncompressed/Skid smoke.bin"
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (14 blocks)
