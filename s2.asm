@@ -87110,7 +87110,7 @@ MapEng_EndingTailsPlane:	BINCLUDE	"mappings/misc/Closeup of Tails flying plane i
 MapEng_EndingSonicPlane:	BINCLUDE	"mappings/misc/Closeup of Sonic flying plane in ending sequence.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
-; Strange unused mappings
+; Strange unused mappings (duplicate of MapEng_EndGameLogo)
 ; MapEng_9082A:
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 1.bin"
 ;--------------------------------------------------------------------------------------
@@ -87150,7 +87150,7 @@ MapEng_EndingSonicPlane:	BINCLUDE	"mappings/misc/Closeup of Sonic flying plane i
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 8.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
-; Strange unused mappings (different)
+; Strange unused mappings (same as above)
 ; MapEng_9096A:
 	BINCLUDE	"mappings/misc/Strange unused mappings 2.bin"
 ;--------------------------------------------------------------------------------------
