@@ -412,6 +412,7 @@
 #split	0x015B68,0x015CC8,mappings/sprite/obj36.bin
 #split	0x015D2E,0x015D42,mappings/sprite/obj3B.bin
 #split	0x015ECC,0x015F98,mappings/sprite/obj3C.bin
+#split	0x01736A,0x0173BA,mappings/sprite/Rings.bin
 #split	0x0195BE,0x019656,mappings/sprite/obj0D_a.bin
 #split	0x019656,0x0196EE,mappings/sprite/obj0D_b.bin
 #split	0x01DBE4,0x01DCBC,mappings/sprite/obj38.bin
@@ -595,6 +596,7 @@
 #split	0x009AB2,0x009ADE,mappings/misc/Options Screen.bin
 #split	0x009ADE,0x009C32,mappings/misc/Level Select.bin
 #split	0x009C32,0x009C64,mappings/misc/Level Select Icons.bin
+#split	0x00B23A,0x00B262,mappings/misc/Sonic 2 end of game logo.bin
 #split	0x074D0E,0x074DC6,mappings/misc/SEGA mappings.bin
 #split	0x074DC6,0x074E3A,mappings/misc/Mappings for title screen background.bin
 #split	0x074E3A,0x074E86,mappings/misc/Mappings for title screen background 2.bin
