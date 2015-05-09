@@ -131,8 +131,8 @@
 #split	0x04FEFE,0x04FFFE,art/uncompressed/ARZ waterfall patterns - 3.bin
 #split	0x050000,0x064320,art/uncompressed/Sonic's art.bin
 #split	0x064320,0x06FBE0,art/uncompressed/Tails's art.bin
-#split	0x071FFC,0x07287C,art/uncompressed/Splash.bin
-#split	0x07287C,0x07393C,art/uncompressed/Spindash smoke.bin
+#split	0x071FFC,0x07373C,art/uncompressed/Splash.bin
+#split	0x07373C,0x07393C,art/uncompressed/Skid smoke.bin
 #split	0x07A18A,0x07AB4A,art/uncompressed/Signpost.bin
 #split	0x07AF80,0x07B400,art/uncompressed/Numbers for drowning countdown.bin
 #split	0x07CD2C,0x07D22C,art/uncompressed/Sonic and Miles animated background.bin
