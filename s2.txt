@@ -413,7 +413,6 @@
 #split	0x015ECC,0x015F98,mappings/sprite/obj3C.bin
 #split	0x0195BE,0x019656,mappings/sprite/obj0D_a.bin
 #split	0x019656,0x0196EE,mappings/sprite/obj0D_b.bin
-#split	0x0196EE,0x019714,mappings/sprite/obj0D_c.bin
 #split	0x01DBE4,0x01DCBC,mappings/sprite/obj38.bin
 #split	0x01DCBC,0x01DD20,mappings/sprite/obj35.bin
 #split	0x01DF5E,0x01E074,mappings/sprite/obj08.bin
@@ -583,6 +582,7 @@
 #split	0x07446C,0x074876,mappings/spriteDPLC/Tails.bin
 #split	0x01E074,0x01E0F0,mappings/spriteDPLC/obj08.bin
 #split	0x0345FA,0x0347E0,mappings/spriteDPLC/obj09.bin
+#split	0x0196EE,0x019716,mappings/spriteDPLC/obj0D.bin
 
 /*********************Misc mappings************************/
 #split	0x008804,0x0088CE,mappings/misc/2P Act Results.bin
