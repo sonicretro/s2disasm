@@ -46987,7 +46987,7 @@ loc_24BC4:
 	beq.s	BranchTo_JmpTo25_DeleteObject
 	bclr	#7,2(a2,d0.w)
 
-    if removeJmptos
+    if removeJmpTos
 JmpTo25_DeleteObject 
     endif
 
