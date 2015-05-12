@@ -22,6 +22,7 @@
 #dir	sound/PCM
 #dir	collision
 #dir	misc
+#dir	startpos
 
 
 /***********************Palettes***************************/
@@ -131,8 +132,8 @@
 #split	0x04FEFE,0x04FFFE,art/uncompressed/ARZ waterfall patterns - 3.bin
 #split	0x050000,0x064320,art/uncompressed/Sonic's art.bin
 #split	0x064320,0x06FBE0,art/uncompressed/Tails's art.bin
-#split	0x071FFC,0x07287C,art/uncompressed/Splash.bin
-#split	0x07287C,0x07393C,art/uncompressed/Spindash smoke.bin
+#split	0x071FFC,0x07373C,art/uncompressed/Splash.bin
+#split	0x07373C,0x07393C,art/uncompressed/Skid smoke.bin
 #split	0x07A18A,0x07AB4A,art/uncompressed/Signpost.bin
 #split	0x07AF80,0x07B400,art/uncompressed/Numbers for drowning countdown.bin
 #split	0x07CD2C,0x07D22C,art/uncompressed/Sonic and Miles animated background.bin
@@ -372,8 +373,8 @@
 #split	0x00FC70,0x00FC88,mappings/sprite/obj11_b.bin
 #split	0x0101E8,0x01021E,mappings/sprite/obj15_a.bin
 #split	0x01021E,0x010256,mappings/sprite/obj83.bin
-#split	0x010256,0x0102DE,mappings/sprite/obj7A_a.bin
-#split	0x0102DE,0x0102F6,mappings/sprite/obj15_b.bin
+//#split	0x010256,0x0102DE,mappings/sprite/obj7A_a.bin
+//#split	0x0102DE,0x0102F6,mappings/sprite/obj15_b.bin
 #split	0x010452,0x0104AA,mappings/sprite/obj17.bin
 #split	0x0107F6,0x01084E,mappings/sprite/obj18_a.bin
 #split	0x01084E,0x0108A6,mappings/sprite/obj18_b.bin
@@ -404,16 +405,16 @@
 #split	0x012D36,0x012E16,mappings/sprite/obj26.bin
 #split	0x0136A8,0x013B70,mappings/sprite/obj0E.bin
 #split	0x013B70,0x013C3C,mappings/sprite/obj0F.bin
-#split	0x0147BA,0x014C6C,mappings/sprite/obj34.bin
+//#split	0x0147BA,0x014C6C,mappings/sprite/obj34.bin
 #split	0x014C6C,0x014CBC,mappings/sprite/obj39.bin
-#split	0x014CBC,0x014ED0,mappings/sprite/obj3A.bin
+//#split	0x014CBC,0x014ED0,mappings/sprite/obj3A.bin
 #split	0x014ED0,0x015584,mappings/sprite/obj6F.bin
 #split	0x015B68,0x015CC8,mappings/sprite/obj36.bin
-#split	0x015D2E,0x015D44,mappings/sprite/obj3B.bin
+#split	0x015D2E,0x015D42,mappings/sprite/obj3B.bin
 #split	0x015ECC,0x015F98,mappings/sprite/obj3C.bin
+#split	0x01736A,0x0173BA,mappings/sprite/Rings.bin
 #split	0x0195BE,0x019656,mappings/sprite/obj0D_a.bin
 #split	0x019656,0x0196EE,mappings/sprite/obj0D_b.bin
-#split	0x0196EE,0x019716,mappings/sprite/obj0D_c.bin
 #split	0x01DBE4,0x01DCBC,mappings/sprite/obj38.bin
 #split	0x01DCBC,0x01DD20,mappings/sprite/obj35.bin
 #split	0x01DF5E,0x01E074,mappings/sprite/obj08.bin
@@ -495,10 +496,10 @@
 #split	0x02BEBC,0x02BF24,mappings/sprite/objD6_b.bin
 #split	0x02C626,0x02C692,mappings/sprite/objD7.bin
 #split	0x02C8C4,0x02C90C,mappings/sprite/objD8.bin
-#split	0x02D2EA,0x02D368,mappings/sprite/obj4B.bin
-#split	0x02CBFE,0x02CCA4,mappings/sprite/obj4A.bin
+#split	0x02D2EA,0x02D366,mappings/sprite/obj4B.bin
+#split	0x02CBFE,0x02CCA2,mappings/sprite/obj4A.bin
 #split	0x02CF94,0x02D030,mappings/sprite/obj50.bin
-#split	0x02D442,0x02D47C,mappings/sprite/obj5C.bin
+#split	0x02D442,0x02D47A,mappings/sprite/obj5C.bin
 #split	0x02D50A,0x02D55E,mappings/sprite/obj58.bin
 #split	0x02EADC,0x02ED5C,mappings/sprite/obj5D_a.bin
 #split	0x02ED8C,0x02EE88,mappings/sprite/obj5D_b.bin
@@ -508,12 +509,12 @@
 #split	0x02FA58,0x02FAC8,mappings/sprite/obj56_b.bin
 #split	0x02FAF8,0x02FBF4,mappings/sprite/obj56_c.bin
 #split	0x030258,0x030288,mappings/sprite/obj52_a.bin
-#split	0x0302BC,0x030430,mappings/sprite/obj52_b.bin
+#split	0x0302BC,0x03042E,mappings/sprite/obj52_b.bin
 #split	0x030D68,0x030DC8,mappings/sprite/obj89_a.bin
 #split	0x030E04,0x030F54,mappings/sprite/obj89_b.bin
 #split	0x0316EC,0x0318B8,mappings/sprite/obj57.bin
 #split	0x0320EA,0x03224C,mappings/sprite/obj51.bin
-#split	0x032DC6,0x032F4C,mappings/sprite/obj54.bin
+#split	0x032DC6,0x032F4A,mappings/sprite/obj54.bin
 #split	0x033756,0x03389C,mappings/sprite/obj55.bin
 #split	0x034212,0x034492,mappings/sprite/obj09.bin
 #split	0x034492,0x0345FA,mappings/sprite/obj63.bin
@@ -565,10 +566,10 @@
 #split	0x03D0EE,0x03D1DE,mappings/sprite/objC6_a.bin
 #split	0x03D1DE,0x03D23E,mappings/sprite/objC6_b.bin
 #split	0x03D450,0x03D4C8,mappings/sprite/objC8.bin
-#split	0x03E318,0x03E3D0,mappings/sprite/objC7_a.bin
-#split	0x03E3D8,0x03E40C,mappings/sprite/objC7_b.bin
-#split	0x03E438,0x03E55C,mappings/sprite/objC7_c.bin
-#split	0x03E5F8,0x03E89E,mappings/sprite/objC7_d.bin
+//#split	0x03E318,0x03E3D0,mappings/sprite/objC7_a.bin
+//#split	0x03E3D8,0x03E40C,mappings/sprite/objC7_b.bin
+//#split	0x03E438,0x03E55C,mappings/sprite/objC7_c.bin
+#split	0x03E5F8,0x03E89E,mappings/sprite/objC7.bin
 #split	0x03EB4E,0x03F1DA,mappings/sprite/obj8A.bin
 #split	0x03F436,0x03F546,mappings/sprite/obj3E.bin
 #split	0x040A9A,0x040BEA,mappings/sprite/hud_a.bin
@@ -583,6 +584,7 @@
 #split	0x07446C,0x074876,mappings/spriteDPLC/Tails.bin
 #split	0x01E074,0x01E0F0,mappings/spriteDPLC/obj08.bin
 #split	0x0345FA,0x0347E0,mappings/spriteDPLC/obj09.bin
+#split	0x0196EE,0x019716,mappings/spriteDPLC/obj0D.bin
 
 /*********************Misc mappings************************/
 #split	0x008804,0x0088CE,mappings/misc/2P Act Results.bin
@@ -594,6 +596,7 @@
 #split	0x009AB2,0x009ADE,mappings/misc/Options Screen.bin
 #split	0x009ADE,0x009C32,mappings/misc/Level Select.bin
 #split	0x009C32,0x009C64,mappings/misc/Level Select Icons.bin
+#split	0x00B23A,0x00B262,mappings/misc/Sonic 2 end of game logo.bin
 #split	0x074D0E,0x074DC6,mappings/misc/SEGA mappings.bin
 #split	0x074DC6,0x074E3A,mappings/misc/Mappings for title screen background.bin
 #split	0x074E3A,0x074E86,mappings/misc/Mappings for title screen background 2.bin
@@ -673,15 +676,15 @@
 #split	0x0C4074,0x0C5004,mappings/16x16/WFZ_SCZ.bin
 
 /******************animated 16x16 block mappings***********************/
-#split	0x040372,0x0403EE,mappings/16x16/AnimEHZ.bin
-#split	0x0403EE,0x0404C2,mappings/16x16/AnimMTZ.bin
-#split	0x0404C2,0x0405B6,mappings/16x16/AnimHPZ.bin
-#split	0x0405B6,0x04061A,mappings/16x16/AnimOOZ.bin
-#split	0x04061A,0x0406BE,mappings/16x16/AnimCNZ.bin
-#split	0x0406BE,0x040762,mappings/16x16/AnimCNZ2P.bin
-#split	0x040762,0x04076E,mappings/16x16/AnimCPZ.bin
-#split	0x04076E,0x04077A,mappings/16x16/AnimDEZ.bin
-#split	0x04077A,0x0407BE,mappings/16x16/AnimARZ.bin
+//#split	0x040372,0x0403EE,mappings/16x16/AnimEHZ.bin
+//#split	0x0403EE,0x0404C2,mappings/16x16/AnimMTZ.bin
+//#split	0x0404C2,0x0405B6,mappings/16x16/AnimHPZ.bin
+//#split	0x0405B6,0x04061A,mappings/16x16/AnimOOZ.bin
+//#split	0x04061A,0x0406BE,mappings/16x16/AnimCNZ.bin
+//#split	0x0406BE,0x040762,mappings/16x16/AnimCNZ2P.bin
+//#split	0x040762,0x04076E,mappings/16x16/AnimCPZ.bin
+//#split	0x04076E,0x04077A,mappings/16x16/AnimDEZ.bin
+//#split	0x04077A,0x0407BE,mappings/16x16/AnimARZ.bin
 
 /***********************128x128 block mappings***************************/
 #split	0x099D34,0x09CFD4,mappings/128x128/EHZ_HTZ.bin
@@ -692,6 +695,28 @@
 #split	0x0B90F4,0x0BB944,mappings/128x128/CPZ_DEZ.bin
 #split	0x0C1434,0x0C4074,mappings/128x128/ARZ.bin
 #split	0x0C85E4,0x0CA904,mappings/128x128/WFZ_SCZ.bin
+
+/***********************Start positions***************************/
+#split	0x00C1D0,0x00C1D4,startpos/EHZ_1.bin
+#split	0x00C1D4,0x00C1D8,startpos/EHZ_2.bin
+#split	0x00C1F0,0x00C1F4,startpos/MTZ_1.bin
+#split	0x00C1F4,0x00C1F8,startpos/MTZ_2.bin
+#split	0x00C1F8,0x00C1FC,startpos/MTZ_3.bin
+#split	0x00C200,0x00C204,startpos/WFZ.bin
+#split	0x00C208,0x00C20C,startpos/HTZ_1.bin
+#split	0x00C20C,0x00C210,startpos/HTZ_2.bin
+#split	0x00C220,0x00C224,startpos/OOZ_1.bin
+#split	0x00C224,0x00C228,startpos/OOZ_2.bin
+#split	0x00C228,0x00C22C,startpos/MCZ_1.bin
+#split	0x00C22C,0x00C230,startpos/MCZ_2.bin
+#split	0x00C230,0x00C234,startpos/CNZ_1.bin
+#split	0x00C234,0x00C238,startpos/CNZ_2.bin
+#split	0x00C238,0x00C23C,startpos/CPZ_1.bin
+#split	0x00C23C,0x00C240,startpos/CPZ_2.bin
+#split	0x00C240,0x00C244,startpos/DEZ.bin
+#split	0x00C248,0x00C24C,startpos/ARZ_1.bin
+#split	0x00C24C,0x00C250,startpos/ARZ_2.bin
+#split	0x00C250,0x00C254,startpos/SCZ.bin
 
 
 /***********************Special stage level mappings***************************/
@@ -757,8 +782,8 @@
 #split	0x0E24FE,0x0E34EE,misc/Special stage object perspective data (Kosinski compression).bin
 #split	0x0E34EE,0x0E35F2,misc/Special stage level layouts (Nemesis compression).bin
 #split	0x0E35F2,0x0E427D,misc/Special stage object location lists (Kosinski compression).bin
-#split	0x022980,0x022E88,misc/obj1E_a.bin
-#split	0x022E88,0x022FEE,misc/obj1E_b.bin
+//#split	0x022980,0x022E88,misc/obj1E_a.bin
+//#split	0x022E88,0x022FEE,misc/obj1E_b.bin
 #split	0x0033CE,0x00364E,misc/sinewave.bin
 #split	0x0036B4,0x0037B6,misc/angles.bin
 
@@ -839,7 +864,7 @@
 
 
 /***********************Sound driver***************************/
-#split	0x0EC0E8,0x0ED04C,sound/Sound driver.bin
+//#split	0x0EC0E8,0x0ED04C,sound/Sound driver.bin
 
 
 /***********************PCM samples****************************/

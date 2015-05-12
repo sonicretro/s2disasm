@@ -624,8 +624,8 @@ ObjID_Balkiry =			id(ObjPtr_Balkiry)		; AC
 ObjID_CluckerBase =		id(ObjPtr_CluckerBase)		; AD
 ObjID_Clucker =			id(ObjPtr_Clucker)		; AE
 ObjID_MechaSonic =		id(ObjPtr_MechaSonic)		; AF
-ObjID_SegaScreen =		id(ObjPtr_SegaScreen)		; B0
-ObjID_SonicOnSegaScr =		id(ObjPtr_SonicOnSegaScr)	; B1
+ObjID_SonicOnSegaScr =	id(ObjPtr_SonicOnSegaScr)	; B0
+ObjID_SegaHideTM =		id(ObjPtr_SegaHideTM)	; B1
 ObjID_Tornado =			id(ObjPtr_Tornado)		; B2
 ObjID_Cloud =			id(ObjPtr_Cloud)		; B3
 ObjID_VPropeller =		id(ObjPtr_VPropeller)		; B4
@@ -709,6 +709,11 @@ MusID_Emerald =		id(zMusIDPtr_Emerald)	; 9D
 MusID_Credits =		id(zMusIDPtr_Credits)	; 9E
 MusID_Countdown =	id(zMusIDPtr_Countdown)	; 9F
 MusID__End =		id(zMusIDPtr__End)	; A0
+    if MOMPASS == 2
+	if MusID__End > SndID__First
+		fatal "You have too many SndPtrs. MusID__End ($\{MusID__End}) can't exceed SndID__First ($\{SndID__First})."
+	endif
+    endif
 
 ; Sound IDs
 offset :=	SoundIndex
@@ -799,19 +804,25 @@ SndID_LargeLaser =	id(SndPtr_LargeLaser)		; EF
 SndID_OilSlide =	id(SndPtr_OilSlide)		; F0
 SndID__End =		id(SndPtr__End)			; F1
     if MOMPASS == 2
-	if SndID__End > MusID_StopSFX
-		fatal "You have too many SndPtrs. SndID__End ($\{SndID__End}) can't exceed MusID_StopSFX ($\{MusID_StopSFX})."
+	if SndID__End > CmdID__First
+		fatal "You have too many SndPtrs. SndID__End ($\{SndID__End}) can't exceed CmdID__First ($\{CmdID__First})."
 	endif
     endif
 
-; Special sound IDs
+; Sound command IDs
+offset :=	zCommandIndex
+ptrsize :=	4
+idstart :=	$F8
 
-MusID_StopSFX =		$78+$80			; F8
-MusID_FadeOut =		$79+$80			; F9
-SndID_SegaSound =	$7A+$80			; FA
-MusID_SpeedUp =		$7B+$80			; FB
-MusID_SlowDown =	$7C+$80			; FC
-MusID_Stop =		$7D+$80			; FD
+CmdID__First = idstart
+MusID_StopSFX =		id(CmdPtr_StopSFX)	; F8
+MusID_FadeOut =		id(CmdPtr_FadeOut)	; F9
+SndID_SegaSound =	id(CmdPtr_SegaSound)	; FA
+MusID_SpeedUp =		id(CmdPtr_SpeedUp)	; FB
+MusID_SlowDown =	id(CmdPtr_SlowDown)	; FC
+MusID_Stop =		id(CmdPtr_Stop)		; FD
+CmdID__End =		id(CmdPtr__End)		; FE
+
 MusID_Pause =		$7E+$80			; FE
 MusID_Unpause =		$7F+$80			; FF
 
@@ -1631,7 +1642,7 @@ SegaScr_Object_RAM:
 				ds.b	object_size
 SegaScreenObject:		; Sega screen
 				ds.b	object_size
-SonicOnSegaScreen:		; Sonic on Sega screen
+SegaHideTM:				; Object that hides TM symbol on JP region
 				ds.b	object_size
 
 				ds.b	($80-3)*object_size

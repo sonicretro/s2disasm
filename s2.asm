@@ -1089,7 +1089,7 @@ loc_1072:
 sndDriverInput:
 	lea	(Music_to_play&$00FFFFFF).l,a0
 	lea	(Z80_RAM+zComRange).l,a1 ; $A01B80
-	cmpi.b	#$80,8(a1)	; If this (zReadyFlag) isn't $80, the driver is processing a previous sound request.
+	cmpi.b	#$80,zAbsVar.QueueToPlay-zComRange(a1)	; If this (zReadyFlag) isn't $80, the driver is processing a previous sound request.
 	bne.s	loc_10C4	; So we'll wait until at least the next frame before putting anything in there.
 	_move.b	0(a0),d0
 	beq.s	loc_10A4
@@ -1104,25 +1104,25 @@ loc_10A4:
 
 loc_10AE:		; Check that the sound is not FE or FF
 	move.b	d0,d1	; If it is, we need to put it in $A01B83 as $7F or $80 respectively
-	subi.b	#$FE,d1
+	subi.b	#MusID_Pause,d1
 	bcs.s	loc_10C0
 	addi.b	#$7F,d1
-	move.b	d1,3(a1)
+	move.b	d1,zAbsVar.StopMusic-zComRange(a1)
 	bra.s	loc_10C4
 ; ---------------------------------------------------------------------------
 
 loc_10C0:
-	move.b	d0,8(a1)
+	move.b	d0,zAbsVar.QueueToPlay-zComRange(a1)
 
 loc_10C4:
 	moveq	#4-1,d1
 				; FFE4 (Music_to_play_2) goes to 1B8C (zMusicToPlay),
 -	move.b	1(a0,d1.w),d0	; FFE3 (unk_FFE3) goes to 1B8B, (unknown)
 	beq.s	+		; FFE2 (SFX_to_play_2) goes to 1B8A (zSFXToPlay2),
-	tst.b	9(a1,d1.w)	; FFE1 (SFX_to_play) goes to 1B89 (zSFXToPlay).
+	tst.b	zAbsVar.SFXToPlay-zComRange(a1,d1.w)	; FFE1 (SFX_to_play) goes to 1B89 (zSFXToPlay).
 	bne.s	+
 	clr.b	1(a0,d1.w)
-	move.b	d0,9(a1,d1.w)
+	move.b	d0,zAbsVar.SFXToPlay-zComRange(a1,d1.w)
 +
 	dbf	d1,-
 	rts
@@ -3723,8 +3723,8 @@ SegaScreen:
 	tst.b	(Graphics_Flags).w ; are we on a Japanese Mega Drive?
 	bmi.s	SegaScreen_Contin ; if not, branch
 	; load an extra sprite to hide the TM (trademark) symbol on the SEGA screen
-	lea	(SonicOnSegaScreen).w,a1
-	move.b	#ObjID_SonicOnSegaScr,id(a1)	; load objB1 at $FFFFB080
+	lea	(SegaHideTM).w,a1
+	move.b	#ObjID_SegaHideTM,id(a1)	; load objB1 at $FFFFB080
 	move.b	#$4E,subtype(a1) ; <== ObjB1_SubObjData
 ; loc_38CE:
 SegaScreen_Contin:
@@ -3735,7 +3735,7 @@ SegaScreen_Contin:
 	move.w	#0,(SegaScr_VInt_Subrout).w
 	move.w	#0,(SegaScr_PalDone_Flag).w
 	lea	(SegaScreenObject).w,a1
-	move.b	#ObjID_SegaScreen,id(a1) ; load objB0 (sega screen?) at $FFFFB040
+	move.b	#ObjID_SonicOnSegaScr,id(a1) ; load objB0 (sega screen?) at $FFFFB040
 	move.b	#$4C,subtype(a1) ; <== ObjB0_SubObjData
 	move.w	#$F0,(Demo_Time_left).w
 	move.w	(VDP_Reg1_val).w,d0
@@ -27379,8 +27379,8 @@ ObjPtr_Balkiry:		dc.l ObjAC	; Balkiry (jet badnik) from SCZ
 ObjPtr_CluckerBase:	dc.l ObjAD	; Clucker's base from WFZ
 ObjPtr_Clucker:		dc.l ObjAE	; Clucker (chicken badnik) from WFZ
 ObjPtr_MechaSonic:	dc.l ObjAF	; Mecha Sonic / Silver Sonic from DEZ
-ObjPtr_SegaScreen:	dc.l ObjB0	; SEGA screen? (Unknown)
-ObjPtr_SonicOnSegaScr:	dc.l ObjB1	; Sonic on the Sega screen
+ObjPtr_SonicOnSegaScr:	dc.l ObjB0	; Sonic on the Sega screen
+ObjPtr_SegaHideTM:	dc.l ObjB1	; Object that hides TM symbol on JP region
 ObjPtr_Tornado:		dc.l ObjB2	; The Tornado (Tails' plane)
 ObjPtr_Cloud:		dc.l ObjB3	; Clouds (placeable object) from SCZ
 ObjPtr_VPropeller:	dc.l ObjB4	; Vertical propeller from WFZ
@@ -47095,7 +47095,7 @@ loc_24BC4:
 	beq.s	BranchTo_JmpTo25_DeleteObject
 	bclr	#7,2(a2,d0.w)
 
-    if removeJmptos
+    if removeJmpTos
 JmpTo25_DeleteObject 
     endif
 
@@ -74232,7 +74232,7 @@ ObjAF_MapUnc_3A08C:	include "mappings/sprite/objAF_b.asm"
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
-; Object B0 - SEGA screen? (Unknown)
+; Object B0 - Sonic on the Sega screen
 ; ----------------------------------------------------------------------------
 ; Sprite_3A1DC:
 ObjB0:
@@ -74451,7 +74451,7 @@ return_3A3F6:
 	rts
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
-; Object B1 - Sonic on the Sega screen
+; Object B1 - Object that hides TM symbol on JP region
 ; ----------------------------------------------------------------------------
 ; Sprite_3A3F8:
 ObjB1:
@@ -86405,7 +86405,7 @@ ArtNem_Invincible_stars:	BINCLUDE	"art/nemesis/Invincibility stars.bin"
 ArtUnc_Splash:	BINCLUDE	"art/uncompressed/Splash.bin"
 ;--------------------------------------------------------------------------------------
 ; Uncompressed art
-; Smoke from Skidding		; ArtUnc_7292C:
+; Smoke from Skidding		; ArtUnc_7373C:
 ArtUnc_SkidDust:	BINCLUDE	"art/uncompressed/Skid smoke.bin"
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (14 blocks)
@@ -87236,7 +87236,7 @@ MapEng_EndingTailsPlane:	BINCLUDE	"mappings/misc/Closeup of Tails flying plane i
 MapEng_EndingSonicPlane:	BINCLUDE	"mappings/misc/Closeup of Sonic flying plane in ending sequence.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
-; Strange unused mappings
+; Strange unused mappings (duplicate of MapEng_EndGameLogo)
 ; MapEng_9082A:
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 1.bin"
 ;--------------------------------------------------------------------------------------
@@ -87276,7 +87276,7 @@ MapEng_EndingSonicPlane:	BINCLUDE	"mappings/misc/Closeup of Sonic flying plane i
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 8.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
-; Strange unused mappings (different)
+; Strange unused mappings (same as above)
 ; MapEng_9096A:
 	BINCLUDE	"mappings/misc/Strange unused mappings 2.bin"
 ;--------------------------------------------------------------------------------------
@@ -88153,14 +88153,14 @@ SndDAC_End
 ; ---------------------------------------------------------------------------
 ; Music pointers
 ; ---------------------------------------------------------------------------
-	align $8000
-
 ; loc_F0000:
-MusicPoint1:
-MusPtr_Continue:	rom_ptr_z80	Mus_Continue-MusicPoint2
+MusicPoint1:	startBank
+MusPtr_Continue:	rom_ptr_z80	Mus_Continue
 
 
-Mus_Continue:   BINCLUDE    "sound/music/Continue.bin"
+Mus_Continue:   BINCLUDE	"sound/music/Continue.bin"
+
+	finishBank
 
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (20 blocks)
@@ -88292,11 +88292,8 @@ Snd_Sega_End:
 ; ------------------------------------------------------------------------------
 ; Music pointers
 ; ------------------------------------------------------------------------------
-	align $8000
-soundBankStart	:= *
-
 ; loc_F8000:
-MusicPoint2:
+MusicPoint2:	startBank
 MusPtr_CNZ_2P:		rom_ptr_z80	Mus_CNZ_2P
 MusPtr_EHZ:		rom_ptr_z80	Mus_EHZ
 MusPtr_MTZ:		rom_ptr_z80	Mus_MTZ
@@ -90262,11 +90259,7 @@ Sound70:	dc.w $0000,$0101
 		dc.b $F2
 
 
-	if * > soundBankStart + $8000
-		fatal "soundBank must fit in $8000 bytes but was $\{*-soundBankStart}. Try moving something to the other bank."
-	else
-		;message "soundBank has $\{$8000+soundBankStart-*} bytes free at end."
-	endif
+	finishBank
 
 ; end of 'ROM'
 	if padToPowerOfTwo && (*)&(*-1)
