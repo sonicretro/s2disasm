@@ -624,8 +624,8 @@ ObjID_Balkiry =			id(ObjPtr_Balkiry)		; AC
 ObjID_CluckerBase =		id(ObjPtr_CluckerBase)		; AD
 ObjID_Clucker =			id(ObjPtr_Clucker)		; AE
 ObjID_MechaSonic =		id(ObjPtr_MechaSonic)		; AF
-ObjID_SegaScreen =		id(ObjPtr_SegaScreen)		; B0
-ObjID_SonicOnSegaScr =		id(ObjPtr_SonicOnSegaScr)	; B1
+ObjID_SonicOnSegaScr =	id(ObjPtr_SonicOnSegaScr)	; B0
+ObjID_SegaHideTM =		id(ObjPtr_SegaHideTM)	; B1
 ObjID_Tornado =			id(ObjPtr_Tornado)		; B2
 ObjID_Cloud =			id(ObjPtr_Cloud)		; B3
 ObjID_VPropeller =		id(ObjPtr_VPropeller)		; B4
@@ -1642,7 +1642,7 @@ SegaScr_Object_RAM:
 				ds.b	object_size
 SegaScreenObject:		; Sega screen
 				ds.b	object_size
-SonicOnSegaScreen:		; Sonic on Sega screen
+SegaHideTM:				; Object that hides TM symbol on JP region
 				ds.b	object_size
 
 				ds.b	($80-3)*object_size

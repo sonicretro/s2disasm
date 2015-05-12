@@ -3723,8 +3723,8 @@ SegaScreen:
 	tst.b	(Graphics_Flags).w ; are we on a Japanese Mega Drive?
 	bmi.s	SegaScreen_Contin ; if not, branch
 	; load an extra sprite to hide the TM (trademark) symbol on the SEGA screen
-	lea	(SonicOnSegaScreen).w,a1
-	move.b	#ObjID_SonicOnSegaScr,id(a1)	; load objB1 at $FFFFB080
+	lea	(SegaHideTM).w,a1
+	move.b	#ObjID_SegaHideTM,id(a1)	; load objB1 at $FFFFB080
 	move.b	#$4E,subtype(a1) ; <== ObjB1_SubObjData
 ; loc_38CE:
 SegaScreen_Contin:
@@ -3735,7 +3735,7 @@ SegaScreen_Contin:
 	move.w	#0,(SegaScr_VInt_Subrout).w
 	move.w	#0,(SegaScr_PalDone_Flag).w
 	lea	(SegaScreenObject).w,a1
-	move.b	#ObjID_SegaScreen,id(a1) ; load objB0 (sega screen?) at $FFFFB040
+	move.b	#ObjID_SonicOnSegaScr,id(a1) ; load objB0 (sega screen?) at $FFFFB040
 	move.b	#$4C,subtype(a1) ; <== ObjB0_SubObjData
 	move.w	#$F0,(Demo_Time_left).w
 	move.w	(VDP_Reg1_val).w,d0
@@ -27304,8 +27304,8 @@ ObjPtr_Balkiry:		dc.l ObjAC	; Balkiry (jet badnik) from SCZ
 ObjPtr_CluckerBase:	dc.l ObjAD	; Clucker's base from WFZ
 ObjPtr_Clucker:		dc.l ObjAE	; Clucker (chicken badnik) from WFZ
 ObjPtr_MechaSonic:	dc.l ObjAF	; Mecha Sonic / Silver Sonic from DEZ
-ObjPtr_SegaScreen:	dc.l ObjB0	; SEGA screen? (Unknown)
-ObjPtr_SonicOnSegaScr:	dc.l ObjB1	; Sonic on the Sega screen
+ObjPtr_SonicOnSegaScr:	dc.l ObjB0	; Sonic on the Sega screen
+ObjPtr_SegaHideTM:	dc.l ObjB1	; Object that hides TM symbol on JP region
 ObjPtr_Tornado:		dc.l ObjB2	; The Tornado (Tails' plane)
 ObjPtr_Cloud:		dc.l ObjB3	; Clouds (placeable object) from SCZ
 ObjPtr_VPropeller:	dc.l ObjB4	; Vertical propeller from WFZ
@@ -74097,7 +74097,7 @@ ObjAF_MapUnc_3A08C:	BINCLUDE "mappings/sprite/objAF_b.bin"
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
-; Object B0 - SEGA screen? (Unknown)
+; Object B0 - Sonic on the Sega screen
 ; ----------------------------------------------------------------------------
 ; Sprite_3A1DC:
 ObjB0:
@@ -74323,7 +74323,7 @@ return_3A3F6:
 	rts
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
-; Object B1 - Sonic on the Sega screen
+; Object B1 - Object that hides TM symbol on JP region
 ; ----------------------------------------------------------------------------
 ; Sprite_3A3F8:
 ObjB1:
