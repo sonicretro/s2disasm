@@ -26841,7 +26841,7 @@ Obj36_MapUnc_15B68:	BINCLUDE "mappings/sprite/obj36.bin"
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
-; Object 3B - Solid block
+; Object 3B - Purple rock (leftover from S1)
 ; ----------------------------------------------------------------------------
 ; Sprite_15CC8:
 Obj3B:
@@ -26859,7 +26859,7 @@ Obj3B_Index:	offsetTable
 Obj3B_Init:
 	addq.b	#2,routine(a0)
 	move.l	#Obj3B_MapUnc_15D2E,mappings(a0)
-	move.w	#make_art_tile(ArtTile_ArtNem_Solid_Block,3,0),art_tile(a0)
+	move.w	#make_art_tile(ArtTile_ArtNem_GHZ_Purple_Rock,3,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	move.b	#4,render_flags(a0)
 	move.b	#$13,width_pixels(a0)
@@ -26879,7 +26879,7 @@ Obj3B_Main:
 	bra.w	DisplaySprite
 ; ===========================================================================
 ; -------------------------------------------------------------------------------
-; sprite mappings
+; Unused sprite mappings
 ; -------------------------------------------------------------------------------
 Obj3B_MapUnc_15D2E:	BINCLUDE "mappings/sprite/obj3B.bin"
 
@@ -27181,7 +27181,7 @@ ObjPtr_Shield:		dc.l Obj38	; Shield
 ObjPtr_GameOver:
 ObjPtr_TimeOver:	dc.l Obj39	; Game/Time Over text
 ObjPtr_Results:		dc.l Obj3A	; End of level results screen
-ObjPtr_SolidBlock:	dc.l Obj3B	; Solid block
+			dc.l Obj3B	; Purple rock (from Sonic 1, unused)
 			dc.l Obj3C	; Breakable wall (leftover from S1) (mostly unused)
 ObjPtr_OOZLauncher:	dc.l Obj3D	; Block thingy in OOZ that launches you into the round ball things
 ObjPtr_EggPrison:	dc.l Obj3E	; Egg prison

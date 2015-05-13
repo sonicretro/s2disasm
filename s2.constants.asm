@@ -510,7 +510,6 @@ ObjID_Shield =			id(ObjPtr_Shield)		; 38
 ObjID_GameOver =		id(ObjPtr_GameOver)		; 39
 ObjID_TimeOver =		id(ObjPtr_TimeOver)		; 39
 ObjID_Results =			id(ObjPtr_Results)		; 3A
-ObjID_SolidBlock =		id(ObjPtr_SolidBlock)		; 3B
 ObjID_OOZLauncher =		id(ObjPtr_OOZLauncher)		; 3D
 ObjID_EggPrison =		id(ObjPtr_EggPrison)		; 3E
 ObjID_Fan =			id(ObjPtr_Fan)			; 3F
@@ -2385,5 +2384,5 @@ ArtTile_ArtNem_FloatPlatform          = $0418
 ArtTile_ArtNem_BigRing_Flash          = $0462
 ArtTile_ArtNem_EndPoints              = $04B6
 ArtTile_ArtNem_BreakWall              = $0590
-ArtTile_ArtNem_Solid_Block            = $06C0
+ArtTile_ArtNem_GHZ_Purple_Rock        = $06C0
 
