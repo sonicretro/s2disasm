@@ -21302,7 +21302,8 @@ JmpTo_SolidObject
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
-; Object 1A - Collapsing platform from either OOZ or MCZ
+; Object 1A - Collapsing platform from HPZ (and GHZ)
+; also supports OOZ, but never made use of
 ; ----------------------------------------------------------------------------
 ; Sprite_108BC:
 Obj1A:
@@ -21419,7 +21420,7 @@ loc_109F8:
 	bra.w	DisplaySprite
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
-; Object 1F - Collapsing platform from ARZ
+; Object 1F - Collapsing platform from ARZ, MCZ and OOZ (and MZ, SLZ and SBZ)
 ; ----------------------------------------------------------------------------
 ; Sprite_10A08:
 Obj1F:
@@ -21438,7 +21439,7 @@ Obj1F_Index:	offsetTable
 loc_10A1C:
 	addq.b	#2,routine(a0)
 	move.l	#Obj1F_MapUnc_10F0C,mappings(a0)
-	move.w	#make_art_tile(ArtTile_ArtNem_UncPlatform,2,0),art_tile(a0)
+	move.w	#make_art_tile(ArtTile_ArtNem_MZ_Platform,2,0),art_tile(a0)
 	ori.b	#4,render_flags(a0)
 	move.b	#4,priority(a0)
 	move.b	#7,objoff_38(a0)
@@ -21627,11 +21628,11 @@ Obj1A_GHZ_SlopeData:
 	dc.b $2D,$2D,$2E,$2E,$2F,$2F,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30; 32
 	even
 ; -------------------------------------------------------------------------------
-; sprite mappings
+; sprite mappings (GHZ)
 ; -------------------------------------------------------------------------------
 Obj1A_MapUnc_10C6C:	BINCLUDE "mappings/sprite/obj1A_a.bin"
 ; ----------------------------------------------------------------------------
-; sprite mappings
+; sprite mappings (MZ, SLZ, SBZ)
 ; ----------------------------------------------------------------------------
 Obj1F_MapUnc_10F0C:	BINCLUDE "mappings/sprite/obj1F_a.bin"
 
@@ -21645,19 +21646,19 @@ Obj1A_HPZ_SlopeData
 	dc.b $10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10
 	dc.b $10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10,$10
 ; ----------------------------------------------------------------------------
-; sprite mappings
+; sprite mappings (HPZ)
 ; ----------------------------------------------------------------------------
 Obj1A_MapUnc_1101C:	BINCLUDE "mappings/sprite/obj1A_b.bin"
 ; ----------------------------------------------------------------------------
-; sprite mappings
+; sprite mappings (OOZ)
 ; ----------------------------------------------------------------------------
 Obj1F_MapUnc_110C6:	BINCLUDE "mappings/sprite/obj1F_b.bin"
 ; -------------------------------------------------------------------------------
-; sprite mappings
+; sprite mappings (MCZ)
 ; -------------------------------------------------------------------------------
 Obj1F_MapUnc_11106:	BINCLUDE "mappings/sprite/obj1F_c.bin"
 ; -------------------------------------------------------------------------------
-; sprite mappings
+; sprite mappings (ARZ)
 ; -------------------------------------------------------------------------------
 Obj1F_MapUnc_1115E:	BINCLUDE "mappings/sprite/obj1F_d.bin"
 ; ===========================================================================
@@ -27144,14 +27145,14 @@ ObjPtr_EHZPlatform:	dc.l Obj18	; Stationary floating platform from ARZ and EHZ
 ObjPtr_CPZPlatform:
 ObjPtr_OOZMovingPform:
 ObjPtr_WFZPlatform:	dc.l Obj19	; Platform from CPZ, OOZ and WFZ
-ObjPtr_HPZCollapsPform:	dc.l Obj1A	; Collapsing platform from either OOZ or MCZ
+ObjPtr_HPZCollapsPform:	dc.l Obj1A	; Collapsing platform from HPZ (and GHZ)
 ObjPtr_SpeedBooster:	dc.l Obj1B	; Speed booster from from CPZ
 ObjPtr_Scenery:
 ObjPtr_BridgeStake:
 ObjPtr_FallingOil:	dc.l Obj1C	; Bridge stake in Emerald Hill Zone and Hill Top Zone, falling oil in Oil Ocean Zone
 ObjPtr_BlueBalls:	dc.l Obj1D	; Blue balls in CPZ (jumping droplets hazard)
 ObjPtr_CPZSpinTube:	dc.l Obj1E	; Spin tube from CPZ
-ObjPtr_CollapsPform:	dc.l Obj1F	; Collapsing platform from ARZ
+ObjPtr_CollapsPform:	dc.l Obj1F	; Collapsing platform from ARZ, MCZ and OOZ (and MZ, SLZ and SBZ)
 ObjPtr_LavaBubble:	dc.l Obj20	; Lava bubble from Hill Top Zone (boss weapon)
 ObjPtr_HUD:		dc.l Obj21	; Score/Rings/Time display (HUD)
 ObjPtr_ArrowShooter:	dc.l Obj22	; Arrow shooter from ARZ
