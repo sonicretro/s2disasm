@@ -6,68 +6,68 @@ using System;
 
 namespace S2ObjectDefinitions.EHZ
 {
-    class TwistingPathway : ObjectDefinition
-    {
-        private Sprite img;
-        private Sprite sprite;
+	class TwistingPathway : ObjectDefinition
+	{
+		private Sprite img;
+		private Sprite sprite;
 
-        public override void Init(ObjectData data)
-        {
-            img = ObjectHelper.UnknownObject;
-            List<Sprite> sprs = new List<Sprite>();
-            int left = -208;
-            int right = 208;
-            int top = 0;
-            int bottom = 0;
-            for (int i = 0; i < Obj06_CosineTable.Length; i++)
-            {
-                top = Math.Min(Obj06_CosineTable[i], top);
-                bottom = Math.Max(Obj06_CosineTable[i], bottom);
-            }
-            Point offset = new Point(left, top);
-            BitmapBits bmp = new BitmapBits(right - left, bottom - top);
-            for (int x = 0; x < 0x1A0; x++)
-            {
-                int y = Obj06_CosineTable[x] - top;
-                if (x < bmp.Width & y >= 0 & y < bmp.Height)
-                    bmp[x, y] = 0x1C;
-            }
-            sprs.Add(new Sprite(bmp, offset));
-            offset = new Point(-192, 0);
-            bmp = new BitmapBits(0x180, 53);
-            bmp.DrawLine(0x1C, 192, 0, 192, 52);
-            bmp.DrawLine(0x1C, 0, 52, 0x180, 52);
-            sprs.Add(new Sprite(bmp, offset));
-            sprs.Add(img);
-            sprite = new Sprite(sprs.ToArray());
-        }
+		public override void Init(ObjectData data)
+		{
+			img = ObjectHelper.UnknownObject;
+			List<Sprite> sprs = new List<Sprite>();
+			int left = -208;
+			int right = 208;
+			int top = 0;
+			int bottom = 0;
+			for (int i = 0; i < Obj06_CosineTable.Length; i++)
+			{
+				top = Math.Min(Obj06_CosineTable[i], top);
+				bottom = Math.Max(Obj06_CosineTable[i], bottom);
+			}
+			Point offset = new Point(left, top);
+			BitmapBits bmp = new BitmapBits(right - left, bottom - top);
+			for (int x = 0; x < 0x1A0; x++)
+			{
+				int y = Obj06_CosineTable[x] - top;
+				if (x < bmp.Width & y >= 0 & y < bmp.Height)
+					bmp[x, y] = 0x1C;
+			}
+			sprs.Add(new Sprite(bmp, offset));
+			offset = new Point(-192, 0);
+			bmp = new BitmapBits(0x180, 53);
+			bmp.DrawLine(0x1C, 192, 0, 192, 52);
+			bmp.DrawLine(0x1C, 0, 52, 0x180, 52);
+			sprs.Add(new Sprite(bmp, offset));
+			sprs.Add(img);
+			sprite = new Sprite(sprs.ToArray());
+		}
 
-        public override ReadOnlyCollection<byte> Subtypes
-        {
-            get { return new ReadOnlyCollection<byte>(new byte[] { 0 }); }
-        }
+		public override ReadOnlyCollection<byte> Subtypes
+		{
+			get { return new ReadOnlyCollection<byte>(new byte[] { 0 }); }
+		}
 
-        public override string Name
-        {
-            get { return "Twisting Pathway"; }
-        }
+		public override string Name
+		{
+			get { return "Twisting Pathway"; }
+		}
 
-        public override string SubtypeName(byte subtype)
-        {
-            return string.Empty;
-        }
+		public override string SubtypeName(byte subtype)
+		{
+			return string.Empty;
+		}
 
-        public override Sprite Image
-        {
-            get { return img; }
-        }
+		public override Sprite Image
+		{
+			get { return img; }
+		}
 
-        public override Sprite SubtypeImage(byte subtype)
-        {
-            return img;
-        }
+		public override Sprite SubtypeImage(byte subtype)
+		{
+			return img;
+		}
 
-        private int[] Obj06_CosineTable = {
+		private int[] Obj06_CosineTable = {
 	      32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, // 16
 	      32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 31, 31, // 32
 	      31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 30, 30, 30, // 48
@@ -94,18 +94,18 @@ namespace S2ObjectDefinitions.EHZ
 	      29, 30, 30, 30, 30, 30, 30, 30, 31, 31, 31, 31, 31, 31, 31, 31, //384
 	      31, 31, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, //400
 	      32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, //416
-                                          };
+										  };
         
-        public override Sprite GetSprite(ObjectEntry obj)
-        {
-            return new Sprite(sprite.Image, new Point(sprite.X + obj.X, sprite.Y + obj.Y));
-        }
+		public override Sprite GetSprite(ObjectEntry obj)
+		{
+			return new Sprite(sprite.Image, new Point(sprite.X + obj.X, sprite.Y + obj.Y));
+		}
 
-        public override Rectangle GetBounds(ObjectEntry obj, Point camera)
-        {
-            return new Rectangle(obj.X + img.X - camera.X, obj.Y + img.Y - camera.Y, img.Width, img.Height);
-        }
+		public override Rectangle GetBounds(ObjectEntry obj, Point camera)
+		{
+			return new Rectangle(obj.X + img.X - camera.X, obj.Y + img.Y - camera.Y, img.Width, img.Height);
+		}
 
-        public override bool Debug { get { return true; } }
-    }
+		public override bool Debug { get { return true; } }
+	}
 }
