@@ -47334,9 +47334,9 @@ loc_24F74:
 	move.w	off_24F80(pc,d0.w),d0
 	jmp	off_24F80(pc,d0.w)
 ; ===========================================================================
-off_24F80:
-	dc.w loc_24F84 - off_24F80
-	dc.w loc_25036 - off_24F80; 1
+off_24F80:	offsetTable
+		offsetTableEntry.w loc_24F84	; 0
+		offsetTableEntry.w loc_25036	; 2
 ; ===========================================================================
 
 loc_24F84:
@@ -62257,13 +62257,13 @@ Obj89_MapUnc_30D68:	BINCLUDE "mappings/sprite/obj89_a.bin"
 
 ; animation script
 ; off_30DC8:
-Ani_obj89_b:
-	dc.w byte_30DD4 - Ani_obj89_b
-	dc.w byte_30DEA - Ani_obj89_b
-	dc.w byte_30DEE - Ani_obj89_b
-	dc.w byte_30DF1 - Ani_obj89_b
-	dc.w byte_30DFD - Ani_obj89_b
-	dc.w byte_30E00 - Ani_obj89_b
+Ani_obj89_b:	offsetTable
+		offsetTableEntry.w byte_30DD4	;  0
+		offsetTableEntry.w byte_30DEA	;  2
+		offsetTableEntry.w byte_30DEE	;  4
+		offsetTableEntry.w byte_30DF1	;  6
+		offsetTableEntry.w byte_30DFD	;  8
+		offsetTableEntry.w byte_30E00	; $A
 byte_30DD4:	dc.b   7,  0,  1,$FF,  2,  3,  2,  3,  2,  3,  2,  3,$FF,  4,  4,  4
 		dc.b   4,  4,  4,  4,  4,$FF; 16
 	rev02even
@@ -73015,8 +73015,8 @@ ObjA8_SubObjData2:
 	subObjData ObjAA_MapUnc_39228,make_art_tile(ArtTile_ArtNem_Grabber,1,1),4,5,4,0
 ; animation script
 ; off_39214:
-Ani_objA7:
-	dc.w byte_39216 - Ani_objA7
+Ani_objA7:	offsetTable
+		offsetTableEntry.w byte_39216	; 0
 byte_39216:
 	dc.b   7,  0,  1,$FF
 	even
