@@ -84546,9 +84546,9 @@ __LABEL__ label *
     endm
 
 ; macro to define debug list object data
-dbglistobj macro   obj, mapaddr,  decl, frame, flags, vram
+dbglistobj macro   obj, mapaddr, subtype, frame, flags, vram
 	dc.l obj<<24|mapaddr
-	dc.w decl<<8|frame
+	dc.b subtype,frame
 	dc.w flags<<12|vram
     endm
 
