@@ -19328,7 +19328,7 @@ LevEvents_CNZ2_Routine1:
 	move.w	(Camera_X_pos).w,(Tails_Min_X_pos).w
 	move.w	#$62E,(Camera_Max_Y_pos).w
 	move.w	#$62E,(Tails_Max_Y_pos).w
-	move.b	#-7,(Level_Layout+$C54).w
+	move.b	#$F9,(Level_Layout+$C54).w
 	addq.b	#2,(Dynamic_Resize_Routine).w
 +
 	rts
@@ -19342,7 +19342,7 @@ LevEvents_CNZ2_Routine1:
 LevEvents_CNZ2_Routine2:
 	cmpi.w	#$2890,(Camera_X_pos).w
 	blo.s	+	; rts
-	move.b	#-7,(Level_Layout+$C50).w
+	move.b	#$F9,(Level_Layout+$C50).w
 	move.w	#$2860,(Camera_Min_X_pos).w
 	move.w	#$28E0,(Camera_Max_X_pos).w
 	move.w	#$2860,(Tails_Min_X_pos).w
@@ -63283,7 +63283,7 @@ loc_31D7E:
 	andi.b	#$F0,6(a1)
 	ori.b	#3,6(a1)
 	_move.b	#8,0(a1)
-	move.b	#-$23,(Level_Layout+$C54).w
+	move.b	#$DD,(Level_Layout+$C54).w
 	move.b	#1,(Dirty_flag).w
 	move.w	#-$12,(Boss_Countdown).w
 
