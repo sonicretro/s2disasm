@@ -74784,7 +74784,7 @@ ObjB2_Main_WFZ_End:
 ; off_3A970:
 ObjB2_Main_WFZ_states:	offsetTable
 		offsetTableEntry.w ObjB2_Wait_Leader_position	;   0
-		offsetTableEntry.w ObjB2_Move_Leader_egde	;   2
+		offsetTableEntry.w ObjB2_Move_Leader_edge	;   2
 		offsetTableEntry.w ObjB2_Wait_for_plane	;   4
 		offsetTableEntry.w ObjB2_Prepare_to_jump	;   6
 		offsetTableEntry.w ObjB2_Jump_to_plane	;   8
@@ -74829,8 +74829,8 @@ ObjB2_Wait_Leader_position:
 	clr.w	y_pos(a1)
 	rts
 ; ===========================================================================
-; loc_3AA0E:
-ObjB2_Move_Leader_egde:
+; loc_3AA0E: ObjB2_Move_Leader_egde:
+ObjB2_Move_Leader_edge:
 	lea	(MainCharacter).w,a1 ; a1=character
 	cmpi.w	#$2E30,x_pos(a1)
 	bhs.s	+
