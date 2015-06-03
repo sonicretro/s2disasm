@@ -2368,7 +2368,7 @@ ArtTile_ArtNem_life_counter_lives     = ArtTile_ArtNem_life_counter + 9
 ; Unused objects, objects with mappings never loaded, objects with
 ; missing mappings and/or tiles, objects whose mappings and/or tiles
 ; are never loaded.
-ArtTile_ArtNem_UncPlatform            = $02B8
+ArtTile_ArtNem_MZ_Platform            = $02B8
 ArtTile_ArtUnc_HPZPulseOrb_1          = $02E8
 ArtTile_ArtUnc_HPZPulseOrb_2          = $02F0
 ArtTile_ArtUnc_HPZPulseOrb_3          = $02F8
