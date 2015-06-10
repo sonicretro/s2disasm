@@ -4,7 +4,7 @@
 
 if [[ ! -f bin/s2p2bin_plus ]]; then
 	echo "Compiling s2p2bin_plus..."
-	g++ -O3 -s -o bin/s2p2bin_plus build_source/s2p2bin_plus.cpp build_source/saxman.cpp &> /dev/null
+	g++ -O3 -s -o bin/s2p2bin_plus build_source/s2p2bin_plus.cpp build_source/FW_KENSC/saxman.cpp &> /dev/null
 fi
 
 if [[ ! -f bin/fixpointer ]]; then
