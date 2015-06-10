@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 
 	if(codeFileName && romFileName)
 	{
-		printf("\ns2p2bin_plus: generating %s from %s", romFileName, codeFileName);
+		printf("\ns2p2bin_plus: generating %s from %s...", romFileName, codeFileName);
 		
 		FILE* from = fopen(codeFileName, "rb");
 		if(from)
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 				if(built)
 				{
 					editShareFile();
-					printf(" ... done.");
+					printf("\n...done");
 				}
 				else
 				{
