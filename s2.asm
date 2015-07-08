@@ -11906,6 +11906,7 @@ LevelSelect_SwitchTable:
 	dc.b 6		; 19
 	dc.b 8		; 20
 	dc.b $A		; 21
+	even
 ; ===========================================================================
 
 ;loc_95B8:
@@ -12038,6 +12039,7 @@ LevSel_IconTable:
 	dc.b  $B	;$13	DEZ
 	dc.b  $C	;$14	Special Stage
 	dc.b  $E	;$15	Sound Test
+	even
 ;byte_96EE:
 LevSel_MarkTable:	; 4 bytes per level select entry
 ; line primary, 2*column ($E fields), line secondary, 2*column secondary (1 field)
