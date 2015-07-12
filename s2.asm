@@ -34719,11 +34719,11 @@ CheckGameOver:
 	cmp.w	y_pos(a0),d0
 	bge.w	return_1B31A
 	move.b	#8,routine(a0)	; => Obj01_Gone
-	move.w	#$3C,spindash_counter(a0)
+	move.w	#$3C,restart_countdown(a0)
 	addq.b	#1,(Update_HUD_lives).w	; update lives counter
 	subq.b	#1,(Life_count).w	; subtract 1 from number of lives
 	bne.s	Obj01_ResetLevel	; if it's not a game over, branch
-	move.w	#0,spindash_counter(a0)
+	move.w	#0,restart_countdown(a0)
 	move.b	#ObjID_GameOver,(GameOver_GameText+id).w ; load Obj39 (game over text)
 	move.b	#ObjID_GameOver,(GameOver_OverText+id).w ; load Obj39 (game over text)
 	move.b	#1,(GameOver_OverText+mapping_frame).w
@@ -34748,7 +34748,7 @@ Obj01_Finished:
 Obj01_ResetLevel:
 	tst.b	(Time_Over_flag).w
 	beq.s	Obj01_ResetLevel_Part2
-	move.w	#0,spindash_counter(a0)
+	move.w	#0,restart_countdown(a0)
 	move.b	#ObjID_TimeOver,(TimeOver_TimeText+id).w ; load Obj39
 	move.b	#ObjID_TimeOver,(TimeOver_OverText+id).w ; load Obj39
 	move.b	#2,(TimeOver_TimeText+mapping_frame).w
@@ -34774,7 +34774,7 @@ Obj01_ResetLevel_Part2:
 	move.w	#0,inertia(a0)
 	move.b	#2,status(a0)
 	move.w	#0,move_lock(a0)
-	move.w	#0,spindash_counter(a0)
+	move.w	#0,restart_countdown(a0)
 
 return_1B31A:
 	rts
@@ -34784,9 +34784,9 @@ return_1B31A:
 ; ---------------------------------------------------------------------------
 ; loc_1B31C: Obj_01_Sub_8:
 Obj01_Gone:
-	tst.w	spindash_counter(a0)
+	tst.w	restart_countdown(a0)
 	beq.s	+
-	subq.w	#1,spindash_counter(a0)
+	subq.w	#1,restart_countdown(a0)
 	bne.s	+
 	move.w	#1,(Level_Inactive_flag).w
 +
@@ -37458,7 +37458,7 @@ Obj02_CheckGameOver_2Pmode:
 	addq.b	#1,(Update_HUD_lives_2P).w
 	subq.b	#1,(Life_count_2P).w
 	bne.s	Obj02_ResetLevel
-	move.w	#0,spindash_counter(a0)
+	move.w	#0,restart_countdown(a0)
 	move.b	#ObjID_GameOver,(GameOver_GameText+id).w ; load Obj39
 	move.b	#ObjID_GameOver,(GameOver_OverText+id).w ; load Obj39
 	move.b	#1,(GameOver_OverText+mapping_frame).w
@@ -37489,7 +37489,7 @@ Obj02_ResetLevel:
 	beq.s	Obj02_ResetLevel_Part2
 	tst.b	(Time_Over_flag_2P).w
 	beq.s	Obj02_ResetLevel_Part3
-	move.w	#0,spindash_counter(a0)
+	move.w	#0,restart_countdown(a0)
 	clr.b	(Update_HUD_timer).w
 	clr.b	(Update_HUD_timer_2P).w
 	move.b	#8,routine(a0)
@@ -37500,7 +37500,7 @@ Obj02_ResetLevel:
 Obj02_ResetLevel_Part2:
 	tst.b	(Time_Over_flag_2P).w
 	beq.s	Obj02_ResetLevel_Part3
-	move.w	#0,spindash_counter(a0)
+	move.w	#0,restart_countdown(a0)
 	move.b	#ObjID_TimeOver,(TimeOver_TimeText+id).w ; load Obj39
 	move.b	#ObjID_TimeOver,(TimeOver_OverText+id).w ; load Obj39
 	move.b	#2,(TimeOver_TimeText+mapping_frame).w
@@ -37533,9 +37533,9 @@ return_1CD8E:
 ; ---------------------------------------------------------------------------
 ; loc_1CD90:
 Obj02_Gone:
-	tst.w	spindash_counter(a0)
+	tst.w	restart_countdown(a0)
 	beq.s	+
-	subq.w	#1,spindash_counter(a0)
+	subq.w	#1,restart_countdown(a0)
 	bne.s	+
 	move.w	#1,(Level_Inactive_flag).w
 +
