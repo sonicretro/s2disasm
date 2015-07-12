@@ -84301,15 +84301,17 @@ Debug_Init:
 	clr.b	(Scroll_lock).w
 	move.b	#0,mapping_frame(a0)
 	move.b	#AniIDSonAni_Walk,anim(a0)
-	cmpi.b	#GameModeID_SpecialStage,(Game_Mode).w ; special stage mode?
-	bne.s	+		; if not, branch
-	moveq	#6,d0
-	bra.s	++
+	; S1 leftover
+	cmpi.b	#GameModeID_SpecialStage,(Game_Mode).w ; special stage mode? (you can't enter debug mode in S2's special stage)
+	bne.s	.islevel	; if not, branch
+	moveq	#6,d0		; force zone 6's debug object list (was the ending in S1)
+	bra.s	.selectlist
 ; ===========================================================================
-+
+.islevel:
 	moveq	#0,d0
 	move.b	(Current_Zone).w,d0
-+
+
+.selectlist:
 	lea	(JmpTbl_DbgObjLists).l,a2
 	add.w	d0,d0
 	adda.w	(a2,d0.w),a2
@@ -84323,12 +84325,15 @@ Debug_Init:
 	move.b	#1,(Debug_Speed).w
 ; loc_41B0C:
 Debug_Main:
-	moveq	#6,d0
-	cmpi.b	#GameModeID_SpecialStage,(Game_Mode).w	; special stage mode?
-	beq.s	+		; if yes, branch
+	; S1 leftover
+	moveq	#6,d0		; force zone 6's debug object list (was the ending in S1)
+	cmpi.b	#GameModeID_SpecialStage,(Game_Mode).w	; special stage mode? (you can't enter debug mode in S2's special stage)
+	beq.s	.isntlevel	; if yes, branch
+
 	moveq	#0,d0
 	move.b	(Current_Zone).w,d0
-+
+
+.isntlevel:
 	lea	(JmpTbl_DbgObjLists).l,a2
 	add.w	d0,d0
 	adda.w	(a2,d0.w),a2
