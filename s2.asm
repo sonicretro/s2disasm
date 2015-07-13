@@ -8874,7 +8874,7 @@ Obj5E:
 	add.w	d1,d1
 	moveq	#0,d2
 	moveq	#0,d3
-	lea	(off_7042).l,a1
+	lea	(SSHUDLayout).l,a1
 	lea	sub2_x_pos(a0),a2
 	adda.w	(a1,d1.w),a1
 	move.b	(a1)+,d3
@@ -8890,24 +8890,60 @@ Obj5E:
 
 	rts
 ; ===========================================================================
-; unknown
-off_7042:	offsetTable
-		offsetTableEntry.w byte_7052	; 0
-		offsetTableEntry.w byte_7057	; 1
-		offsetTableEntry.w byte_705A	; 2
-		offsetTableEntry.w byte_705D	; 3
-		offsetTableEntry.w byte_7062	; 4
-		offsetTableEntry.w byte_7065	; 5
-		offsetTableEntry.w byte_7068	; 6
-		offsetTableEntry.w byte_706C	; 7
-byte_7052:	dc.b   3,$80,  0,  1,  3
-byte_7057:	dc.b   1,$D4,  0
-byte_705A:	dc.b   1,$38,  1
-byte_705D:	dc.b   3,$80,  0,  2,  3
-byte_7062:	dc.b   1,$D4,  0
-byte_7065:	dc.b   1,$38,  2
-byte_7068:	dc.b   2,$80,  0,  1
-byte_706C:	dc.b   2,$80,  0,  2
+; off_7042:
+SSHUDLayout:	offsetTable
+		offsetTableEntry.w SSHUD_SonicMilesTotal	; 0
+		offsetTableEntry.w SSHUD_Sonic			; 1
+		offsetTableEntry.w SSHUD_Miles			; 2
+		offsetTableEntry.w SSHUD_SonicTailsTotal	; 3
+		offsetTableEntry.w SSHUD_Sonic_2		; 4
+		offsetTableEntry.w SSHUD_Tails			; 5
+		offsetTableEntry.w SSHUD_SonicMiles		; 6
+		offsetTableEntry.w SSHUD_SonicTails		; 7
+
+; byte_7052:
+SSHUD_SonicMilesTotal:
+	dc.b   3		; Sprite count
+	dc.b   $80		; X-pos
+	dc.b   0,  1,  3	; Sprite 1 frame, Sprite 2 frame, etc
+; byte_7057:
+SSHUD_Sonic:
+	dc.b   1
+	dc.b   $D4
+	dc.b   0
+; byte_705A:
+SSHUD_Miles:
+	dc.b   1
+	dc.b   $38
+	dc.b   1
+
+; byte_705D:
+SSHUD_SonicTailsTotal:
+	dc.b   3
+	dc.b   $80
+	dc.b   0,  2,  3
+; byte_7062:
+SSHUD_Sonic_2:
+	dc.b   1
+	dc.b   $D4
+	dc.b   0
+; byte_7065:
+SSHUD_Tails:
+	dc.b   1
+	dc.b   $38
+	dc.b   2
+
+; 2 player
+; byte_7068:
+SSHUD_SonicMiles:
+	dc.b   2
+	dc.b   $80
+	dc.b   0,  1
+; byte_706C:
+SSHUD_SonicTails:
+	dc.b   2
+	dc.b   $80
+	dc.b   0,  2
 ; -----------------------------------------------------------------------------------
 ; sprite mappings
 ; -----------------------------------------------------------------------------------
