@@ -6193,7 +6193,7 @@ SpecialStage_Unpause:
 
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
-; Animated color of the twinking stars in the special stage background
+; Animated color of the twinkling stars in the special stage background
 ; ---------------------------------------------------------------------------
 ; loc_542A: Pal_UNK8:
 Pal_SpecialStageStars:	dc.w  $EEE, $CCC, $AAA,	$888, $888, $AAA, $CCC,	$EEE
