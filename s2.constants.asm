@@ -330,7 +330,7 @@ idstart :=	0
 
 PalID_SEGA =	id(PalPtr_SEGA) ; 0
 PalID_Title =	id(PalPtr_Title) ; 1
-PalID_UNK1 =	id(PalPtr_UNK1) ; 2
+PalID_MenuB =	id(PalPtr_MenuB) ; 2
 PalID_BGND =	id(PalPtr_BGND) ; 3
 PalID_EHZ =	id(PalPtr_EHZ) ; 4
 PalID_EHZ2 =	id(PalPtr_EHZ2) ; 5
@@ -353,8 +353,8 @@ PalID_HPZ_U =	id(PalPtr_HPZ_U) ; 15
 PalID_CPZ_U =	id(PalPtr_CPZ_U) ; 16
 PalID_ARZ_U =	id(PalPtr_ARZ_U) ; 17
 PalID_SS =	id(PalPtr_SS) ; 18
-PalID_UNK2 =	id(PalPtr_UNK2) ; 19
-PalID_UNK3 =	id(PalPtr_UNK3) ; 1A
+PalID_MCZ_B =	id(PalPtr_MCZ_B) ; 19
+PalID_CNZ_B =	id(PalPtr_CNZ_B) ; 1A
 PalID_SS1 =	id(PalPtr_SS1) ; 1B
 PalID_SS2 =	id(PalPtr_SS2) ; 1C
 PalID_SS3 =	id(PalPtr_SS3) ; 1D
@@ -362,12 +362,12 @@ PalID_SS4 =	id(PalPtr_SS4) ; 1E
 PalID_SS5 =	id(PalPtr_SS5) ; 1F
 PalID_SS6 =	id(PalPtr_SS6) ; 20
 PalID_SS7 =	id(PalPtr_SS7) ; 21
-PalID_UNK4 =	id(PalPtr_UNK4) ; 22
-PalID_UNK5 =	id(PalPtr_UNK5) ; 23
-PalID_UNK6 =	id(PalPtr_UNK6) ; 24
+PalID_SS1_2p =	id(PalPtr_SS1_2p) ; 22
+PalID_SS2_2p =	id(PalPtr_SS2_2p) ; 23
+PalID_SS3_2p =	id(PalPtr_SS3_2p) ; 24
 PalID_OOZ_B =	id(PalPtr_OOZ_B) ; 25
 PalID_Menu =	id(PalPtr_Menu) ; 26
-PalID_UNK7 =	id(PalPtr_UNK7) ; 27
+PalID_Result =	id(PalPtr_Result) ; 27
 
 ; PLC IDs
 offset :=	ArtLoadCues
