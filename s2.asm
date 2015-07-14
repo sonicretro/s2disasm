@@ -2655,7 +2655,7 @@ PalCycle_WFZ:
 	tst.b	(WFZ_SCZ_Fire_Toggle).w
 	beq.s	+
 	move.w	#5,(PalCycle_Timer).w
-	lea	(word_20C2).l,a0
+	lea	(CyclingPal_WFZBelt).l,a0
 +	move.w	(PalCycle_Frame).w,d0
 	addq.w	#8,(PalCycle_Frame).w
 	cmpi.w	#$20,(PalCycle_Frame).w
@@ -2667,7 +2667,7 @@ PalCycle_WFZ:
 +	subq.w	#1,(PalCycle_Timer2).w
 	bpl.s	++	; subq.w
 	move.w	#3,(PalCycle_Timer2).w
-	lea	(CyclingPal_CPZ4).l,a0
+	lea	(CyclingPal_WFZ1).l,a0
 	move.w	(PalCycle_Frame2).w,d0
 	addq.w	#2,(PalCycle_Frame2).w
 	cmpi.w	#$44,(PalCycle_Frame2).w
@@ -2678,7 +2678,7 @@ PalCycle_WFZ:
 	subq.w	#1,(PalCycle_Timer3).w
 	bpl.s	++	; rts
 	move.w	#5,(PalCycle_Timer3).w
-	lea	(word_2126).l,a0
+	lea	(CyclingPal_WFZ2).l,a0
 	move.w	(PalCycle_Frame3).w,d0
 	addq.w	#2,(PalCycle_Frame3).w
 	cmpi.w	#$18,(PalCycle_Frame3).w
@@ -2748,13 +2748,15 @@ CyclingPal_CPZ3:
 ; word_20A2:
 CyclingPal_WFZFire:
 	BINCLUDE "art/palettes/WFZ Fire Cycle.bin"; Wing Fortress Fire Cycle palette
-word_20C2:
-	BINCLUDE "art/palettes/unk_20C2.bin"; Unknown palette
-; word_20E2:
-CyclingPal_CPZ4:
-	BINCLUDE "art/palettes/CPZ Cycle 4.bin"; Chemical Plant Cycle 4
-word_2126:
-	BINCLUDE "art/palettes/unk_2126.bin"; Unknown palette
+; word_20C2:
+CyclingPal_WFZBelt:
+	BINCLUDE "art/palettes/WFZ Conveyor Cycle.bin"; Wing Fortress Conveyor Belt Cycle palette
+; word_20E2: CyclingPal_CPZ4:
+CyclingPal_WFZ1:
+	BINCLUDE "art/palettes/WFZ Cycle 1.bin"; Wing Fortress Flashing Light Cycle 1
+; word_2126:
+CyclingPal_WFZ2:
+	BINCLUDE "art/palettes/WFZ Cycle 2.bin"; Wing Fortress Flashing Light Cycle 2
 ; ----------------------------------------------------------------------------
 
 
