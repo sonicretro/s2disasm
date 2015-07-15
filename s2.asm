@@ -2690,7 +2690,7 @@ PalCycle_WFZ:
 
 ; ----------------------------------------------------------------------------
 ; word_1E5A:
-	BINCLUDE "art/palettes/Title Water.bin"; Title Screen Water palette (unused)
+	BINCLUDE "art/palettes/Title Water.bin"; S1 Title Screen Water palette (unused)
 ; word_1E7A:
 CyclingPal_EHZ_ARZ_Water:
 	BINCLUDE "art/palettes/EHZ ARZ Water.bin"; Emerald Hill/Aquatic Ruin Rotating Water palette
