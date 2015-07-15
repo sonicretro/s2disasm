@@ -49796,7 +49796,7 @@ Obj67_Index:	offsetTable
 Obj67_Init:
 	addq.b	#2,routine(a0)
 	move.l	#Obj67_MapUnc_27548,mappings(a0)
-	move.w	#make_art_tile(ArtTile_ArtNem_MtzUnkBlocks,3,0),art_tile(a0)
+	move.w	#make_art_tile(ArtTile_ArtNem_MtzSpinTubeFlash,3,0),art_tile(a0)
 	ori.b	#4,render_flags(a0)
 	move.b	#$10,width_pixels(a0)
 	move.b	#5,priority(a0)
@@ -85206,7 +85206,7 @@ PlrList_Mtz2: plrlistheader
 	plreq ArtTile_ArtNem_MtzAsstBlocks, ArtNem_MtzAsstBlocks
 	plreq ArtTile_ArtNem_MtzLavaBubble, ArtNem_MtzLavaBubble
 	plreq ArtTile_ArtNem_MtzCog, ArtNem_MtzCog
-	plreq ArtTile_ArtNem_MtzUnkBlocks, ArtNem_MtzUnkBlocks
+	plreq ArtTile_ArtNem_MtzSpinTubeFlash, ArtNem_MtzSpinTubeFlash
 PlrList_Mtz2_End
 ;---------------------------------------------------------------------------------------
 ; PATTERN LOAD REQUEST LIST
@@ -88168,8 +88168,8 @@ ArtNem_BoltEnd_Rope:	BINCLUDE	"art/nemesis/Bolt end and rope from MTZ.bin"
 ArtNem_MtzCog:	BINCLUDE	"art/nemesis/Small cog from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (4 blocks)
-; Unknown. Four blocks that are all the same colour from MTZ.
-ArtNem_MtzUnkBlocks:	BINCLUDE	"art/nemesis/Unknown MTZ sprite.bin"
+; Flash inside spin tube from MTZ
+ArtNem_MtzSpinTubeFlash:	BINCLUDE	"art/nemesis/Spin tube flash from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (32 blocks)
 ; Large wooden box from MCZ	; ArtNem_F187C:

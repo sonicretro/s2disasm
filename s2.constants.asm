@@ -2118,7 +2118,7 @@ ArtTile_ArtNem_MtzMantis              = $043C
 ArtTile_ArtNem_MtzAsstBlocks          = $0500
 ArtTile_ArtNem_MtzLavaBubble          = $0536
 ArtTile_ArtNem_MtzCog                 = $055F
-ArtTile_ArtNem_MtzUnkBlocks           = $056B
+ArtTile_ArtNem_MtzSpinTubeFlash       = $056B
 
 ; WFZ
 ArtTile_ArtNem_WfzScratch             = $0379
