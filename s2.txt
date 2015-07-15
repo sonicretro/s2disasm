@@ -40,16 +40,16 @@
 #split	0x001F8E,0x001FB2,art/palettes/CNZ Cycle 1.bin
 #split	0x001FB2,0x001FC4,art/palettes/CNZ Cycle 3.bin
 #split	0x001FC4,0x001FEC,art/palettes/CNZ Cycle 4.bin
-#split	0x001FEC,0x001FFE,art/palettes/unk_1FEC.bin
-#split	0x001FFE,0x002012,art/palettes/unk_1FFE.bin
-#split	0x002012,0x002022,art/palettes/unk_2012.bin
+#split	0x001FEC,0x001FFE,art/palettes/CNZ Boss Cycle 1.bin
+#split	0x001FFE,0x002012,art/palettes/CNZ Boss Cycle 2.bin
+#split	0x002012,0x002022,art/palettes/CNZ Boss Cycle 3.bin
 #split	0x002022,0x002058,art/palettes/CPZ Cycle 1.bin
 #split	0x002058,0x002082,art/palettes/CPZ Cycle 2.bin
 #split	0x002082,0x0020A2,art/palettes/CPZ Cycle 3.bin
 #split	0x0020A2,0x0020C2,art/palettes/WFZ Fire Cycle.bin
-#split	0x0020C2,0x0020E2,art/palettes/unk_20C2.bin
-#split	0x0020E2,0x002126,art/palettes/CPZ Cycle 4.bin
-#split	0x002126,0x00213E,art/palettes/unk_2126.bin
+#split	0x0020C2,0x0020E2,art/palettes/WFZ Conveyor Cycle.bin
+#split	0x0020E2,0x002126,art/palettes/WFZ Cycle 1.bin
+#split	0x002126,0x00213E,art/palettes/WFZ Cycle 2.bin
 #split	0x002246,0x0022C6,art/palettes/Super Sonic transformation.bin
 #split	0x0022C6,0x002346,art/palettes/CPZWater SS transformation.bin
 #split	0x002346,0x0023C6,art/palettes/ARZWater SS transformation.bin
@@ -57,7 +57,7 @@
 #split	0x0026E2,0x002712,art/palettes/Unused Sega logo 2.bin
 #split	0x0028C2,0x002942,art/palettes/Sega screen.bin
 #split	0x002942,0x002962,art/palettes/Title screen.bin
-#split	0x002962,0x0029E2,art/palettes/Unknown 1.bin
+#split	0x002962,0x0029E2,art/palettes/S2B Level Select.bin
 #split	0x0029E2,0x002A02,art/palettes/SonicAndTails.bin
 #split	0x002A02,0x002A22,art/palettes/SonicAndTails2.bin
 #split	0x002A22,0x002A82,art/palettes/EHZ.bin
@@ -76,8 +76,8 @@
 #split	0x002F42,0x002FA2,art/palettes/ARZ.bin
 #split	0x002FA2,0x003022,art/palettes/ARZ underwater.bin
 #split	0x003022,0x003082,art/palettes/SCZ.bin
-#split	0x003082,0x0030A2,art/palettes/Unknown 2.bin
-#split	0x0030A2,0x0030C2,art/palettes/Unknown 3.bin
+#split	0x003082,0x0030A2,art/palettes/MCZ Boss.bin
+#split	0x0030A2,0x0030C2,art/palettes/CNZ Boss.bin
 #split	0x0030C2,0x0030E2,art/palettes/OOZ Boss.bin
 #split	0x0030E2,0x003162,art/palettes/Menu.bin
 #split	0x003162,0x0031C2,art/palettes/Special Stage Main.bin
@@ -340,7 +340,7 @@
 #split	0x0F167C,0x0F16EC,art/nemesis/Lava cup from MTZ.bin
 #split	0x0F16EC,0x0F178E,art/nemesis/Bolt end and rope from MTZ.bin
 #split	0x0F178E,0x0F1870,art/nemesis/Small cog from MTZ.bin
-#split	0x0F1870,0x0F187C,art/nemesis/Unknown MTZ sprite.bin
+#split	0x0F1870,0x0F187C,art/nemesis/Spin tube flash from MTZ.bin
 #split	0x0F187C,0x0F1ABA,art/nemesis/Large wooden box from MCZ.bin
 #split	0x0F1ABA,0x0F1C64,art/nemesis/Collapsing platform from MCZ.bin
 #split	0x0F1C64,0x0F1D5C,art/nemesis/Pull switch from MCZ.bin
