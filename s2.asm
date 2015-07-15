@@ -2583,20 +2583,20 @@ CNZ_SkipToBossPalCycle:
 	cmpi.w	#6,(PalCycle_Frame2).w
 	blo.s	+
 	move.w	#0,(PalCycle_Frame2).w
-+	lea	(word_1FEC).l,a0
++	lea	(CyclingPal_CNZ1_B).l,a0
 	lea	(a0,d0.w),a0
 	lea	(Normal_palette).w,a1
 	_move.w	0(a0),$24(a1)
 	move.w	6(a0),$26(a1)
 	move.w	$C(a0),$28(a1)
-	lea	(word_1FFE).l,a0
+	lea	(CyclingPal_CNZ2_B).l,a0
 	move.w	(PalCycle_Frame3).w,d0
 	addq.w	#2,(PalCycle_Frame3).w
 	cmpi.w	#$14,(PalCycle_Frame3).w
 	blo.s	+
 	move.w	#0,(PalCycle_Frame3).w
 +	move.w	(a0,d0.w),$3C(a1)
-	lea	(word_2012).l,a0
+	lea	(CyclingPal_CNZ3_B).l,a0
 	move.w	(PalCycle_Frame2_CNZ).w,d0
 	addq.w	#2,(PalCycle_Frame2_CNZ).w
 	andi.w	#$E,(PalCycle_Frame2_CNZ).w
@@ -2730,12 +2730,15 @@ CyclingPal_CNZ3:
 ; word_1FC4:
 CyclingPal_CNZ4:
 	BINCLUDE "art/palettes/CNZ Cycle 4.bin"; Casino Night Cycle 4
-word_1FEC:
-	BINCLUDE "art/palettes/unk_1FEC.bin"; Unknown palette
-word_1FFE:
-	BINCLUDE "art/palettes/unk_1FFE.bin"; Unknown palette
-word_2012:
-	BINCLUDE "art/palettes/unk_2012.bin"; Unknown palette
+; word_1FEC:
+CyclingPal_CNZ1_B:
+	BINCLUDE "art/palettes/CNZ Boss Cycle 1.bin"; Casino Night Boss Cycle 1
+; word_1FFE:
+CyclingPal_CNZ2_B:
+	BINCLUDE "art/palettes/CNZ Boss Cycle 2.bin"; Casino Night Boss Cycle 2
+; word_2012:
+CyclingPal_CNZ3_B:
+	BINCLUDE "art/palettes/CNZ Boss Cycle 3.bin"; Casino Night Boss Cycle 3
 ; word_2022:
 CyclingPal_CPZ1:
 	BINCLUDE "art/palettes/CPZ Cycle 1.bin"; Chemical Plant Cycle 1
