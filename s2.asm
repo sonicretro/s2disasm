@@ -85083,7 +85083,8 @@ PLCptr_ResultsTails:	offsetTableEntry.w PlrList_ResultsTails		; 66
 ; must be on the same line as a label that has a corresponding _End label later
 plrlistheader macro {INTLABEL}
 __LABEL__ label *
-	dc.w ((__LABEL___End - __LABEL__ - 8) / 6)
+	dc.w (((__LABEL___End - __LABEL__Plc) / 6) - 1)
+__LABEL__Plc:
     endm
 
 ; macro for a pattern load request
