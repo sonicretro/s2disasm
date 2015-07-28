@@ -82213,7 +82213,7 @@ zoneanimdecl macro duration,artaddr,vramaddr,numentries,numvramtiles
 zoneanimdeclanonid := zoneanimdeclanonid + 1
 start:
 	dc.l (duration&$FF)<<24|artaddr
-	dc.w vramaddr
+	dc.w tiles_to_bytes(vramaddr)
 	dc.b numentries, numvramtiles
 zoneanimcount := zoneanimcount + 1
     endm
@@ -82221,7 +82221,7 @@ zoneanimcount := zoneanimcount + 1
 ; loc_3FF94:
 Animated_EHZ:	zoneanimstart
 	; Flowers
-	zoneanimdecl -1, ArtUnc_Flowers1, tiles_to_bytes(ArtTile_ArtUnc_Flowers1), 6, 2
+	zoneanimdecl -1, ArtUnc_Flowers1, ArtTile_ArtUnc_Flowers1, 6, 2
 	dc.b   0,$7F		; Start of the script proper
 	dc.b   2,$13
 	dc.b   0,  7
@@ -82229,7 +82229,7 @@ Animated_EHZ:	zoneanimstart
 	dc.b   0,  7
 	dc.b   2,  7
 	; Flowers
-	zoneanimdecl -1, ArtUnc_Flowers2, tiles_to_bytes(ArtTile_ArtUnc_Flowers2), 8, 2
+	zoneanimdecl -1, ArtUnc_Flowers2, ArtTile_ArtUnc_Flowers2, 8, 2
 	dc.b   2,$7F
 	dc.b   0, $B
 	dc.b   2, $B
@@ -82239,11 +82239,11 @@ Animated_EHZ:	zoneanimstart
 	dc.b   2,  5
 	dc.b   0,  5
 	; Flowers
-	zoneanimdecl 7, ArtUnc_Flowers3, tiles_to_bytes(ArtTile_ArtUnc_Flowers3), 2, 2
+	zoneanimdecl 7, ArtUnc_Flowers3, ArtTile_ArtUnc_Flowers3, 2, 2
 	dc.b   0
 	dc.b   2
 	; Flowers
-	zoneanimdecl -1, ArtUnc_Flowers4, tiles_to_bytes(ArtTile_ArtUnc_Flowers4), 8, 2
+	zoneanimdecl -1, ArtUnc_Flowers4, ArtTile_ArtUnc_Flowers4, 8, 2
 	dc.b   0,$7F
 	dc.b   2,  7
 	dc.b   0,  7
@@ -82253,7 +82253,7 @@ Animated_EHZ:	zoneanimstart
 	dc.b   0, $B
 	dc.b   2, $B
 	; Pulsing thing against checkered background
-	zoneanimdecl -1, ArtUnc_EHZPulseBall, tiles_to_bytes(ArtTile_ArtUnc_EHZPulseBall), 6, 2
+	zoneanimdecl -1, ArtUnc_EHZPulseBall, ArtTile_ArtUnc_EHZPulseBall, 6, 2
 	dc.b   0,$17
 	dc.b   2,  9
 	dc.b   4, $B
@@ -82265,7 +82265,7 @@ Animated_EHZ:	zoneanimstart
 
 Animated_MTZ:	zoneanimstart
 	; Spinning metal cylinder
-	zoneanimdecl 0, ArtUnc_MTZCylinder, tiles_to_bytes(ArtTile_ArtUnc_MTZCylinder), 8,$10
+	zoneanimdecl 0, ArtUnc_MTZCylinder, ArtTile_ArtUnc_MTZCylinder, 8,$10
 	dc.b   0
 	dc.b $10
 	dc.b $20
@@ -82275,7 +82275,7 @@ Animated_MTZ:	zoneanimstart
 	dc.b $60
 	dc.b $70
 	; lava
-	zoneanimdecl $D, ArtUnc_Lava, tiles_to_bytes(ArtTile_ArtUnc_Lava), 6,$C
+	zoneanimdecl $D, ArtUnc_Lava, ArtTile_ArtUnc_Lava, 6,$C
 	dc.b   0
 	dc.b  $C
 	dc.b $18
@@ -82283,13 +82283,13 @@ Animated_MTZ:	zoneanimstart
 	dc.b $18
 	dc.b  $C
 	; MTZ background animated section
-	zoneanimdecl -1, ArtUnc_MTZAnimBack, tiles_to_bytes(ArtTile_ArtUnc_MTZAnimBack_1), 4, 6
+	zoneanimdecl -1, ArtUnc_MTZAnimBack, ArtTile_ArtUnc_MTZAnimBack_1, 4, 6
 	dc.b   0,$13
 	dc.b   6,  7
 	dc.b  $C,$13
 	dc.b   6,  7
 	; MTZ background animated section
-	zoneanimdecl -1, ArtUnc_MTZAnimBack, tiles_to_bytes(ArtTile_ArtUnc_MTZAnimBack_2), 4, 6
+	zoneanimdecl -1, ArtUnc_MTZAnimBack, ArtTile_ArtUnc_MTZAnimBack_2, 4, 6
 	dc.b  $C,$13
 	dc.b   6,  7
 	dc.b   0,$13
@@ -82299,7 +82299,7 @@ Animated_MTZ:	zoneanimstart
 
 Animated_HTZ:	zoneanimstart
 	; Flowers
-	zoneanimdecl -1, ArtUnc_Flowers1, tiles_to_bytes(ArtTile_ArtUnc_Flowers1), 6, 2
+	zoneanimdecl -1, ArtUnc_Flowers1, ArtTile_ArtUnc_Flowers1, 6, 2
 	dc.b   0,$7F
 	dc.b   2,$13
 	dc.b   0,  7
@@ -82307,7 +82307,7 @@ Animated_HTZ:	zoneanimstart
 	dc.b   0,  7
 	dc.b   2,  7
 	; Flowers
-	zoneanimdecl -1, ArtUnc_Flowers2, tiles_to_bytes(ArtTile_ArtUnc_Flowers2), 8, 2
+	zoneanimdecl -1, ArtUnc_Flowers2, ArtTile_ArtUnc_Flowers2, 8, 2
 	dc.b   2,$7F
 	dc.b   0, $B
 	dc.b   2, $B
@@ -82317,11 +82317,11 @@ Animated_HTZ:	zoneanimstart
 	dc.b   2,  5
 	dc.b   0,  5
 	; Flowers
-	zoneanimdecl 7, ArtUnc_Flowers3, tiles_to_bytes(ArtTile_ArtUnc_Flowers3), 2, 2
+	zoneanimdecl 7, ArtUnc_Flowers3, ArtTile_ArtUnc_Flowers3, 2, 2
 	dc.b   0
 	dc.b   2
 	; Flowers
-	zoneanimdecl -1, ArtUnc_Flowers4, tiles_to_bytes(ArtTile_ArtUnc_Flowers4), 8, 2
+	zoneanimdecl -1, ArtUnc_Flowers4, ArtTile_ArtUnc_Flowers4, 8, 2
 	dc.b   0,$7F
 	dc.b   2,  7
 	dc.b   0,  7
@@ -82331,7 +82331,7 @@ Animated_HTZ:	zoneanimstart
 	dc.b   0, $B
 	dc.b   2, $B
 	; Pulsing thing against checkered background
-	zoneanimdecl -1, ArtUnc_EHZPulseBall, tiles_to_bytes(ArtTile_ArtUnc_EHZPulseBall), 6, 2
+	zoneanimdecl -1, ArtUnc_EHZPulseBall, ArtTile_ArtUnc_EHZPulseBall, 6, 2
 	dc.b   0,$17
 	dc.b   2,  9
 	dc.b   4, $B
@@ -82344,7 +82344,7 @@ Animated_HTZ:	zoneanimstart
 ; word_4009C: Animated_OOZ:
 Animated_HPZ:	zoneanimstart
 	; Supposed to be the pulsing orb from HPZ, but uses OOZ's pulsing ball art
-	zoneanimdecl 8, ArtUnc_OOZPulseBall, tiles_to_bytes(ArtTile_ArtUnc_HPZPulseOrb_1), 6, 8
+	zoneanimdecl 8, ArtUnc_OOZPulseBall, ArtTile_ArtUnc_HPZPulseOrb_1, 6, 8
 	dc.b   0
 	dc.b   0
 	dc.b   8
@@ -82352,7 +82352,7 @@ Animated_HPZ:	zoneanimstart
 	dc.b $10
 	dc.b   8
 	; Supposed to be the pulsing orb from HPZ, but uses OOZ's pulsing ball art
-	zoneanimdecl 8, ArtUnc_OOZPulseBall, tiles_to_bytes(ArtTile_ArtUnc_HPZPulseOrb_2), 6, 8
+	zoneanimdecl 8, ArtUnc_OOZPulseBall, ArtTile_ArtUnc_HPZPulseOrb_2, 6, 8
 	dc.b   8
 	dc.b $10
 	dc.b $10
@@ -82360,7 +82360,7 @@ Animated_HPZ:	zoneanimstart
 	dc.b   0
 	dc.b   0
 	; Supposed to be the pulsing orb from HPZ, but uses OOZ's pulsing ball art
-	zoneanimdecl 8, ArtUnc_OOZPulseBall, tiles_to_bytes(ArtTile_ArtUnc_HPZPulseOrb_3), 6, 8
+	zoneanimdecl 8, ArtUnc_OOZPulseBall, ArtTile_ArtUnc_HPZPulseOrb_3, 6, 8
 	dc.b $10
 	dc.b   8
 	dc.b   0
@@ -82373,25 +82373,25 @@ Animated_HPZ:	zoneanimstart
 ; word_400C8:  Animated_OOZ2:
 Animated_OOZ:	zoneanimstart
 	; Pulsing ball from OOZ
-	zoneanimdecl -1, ArtUnc_OOZPulseBall, tiles_to_bytes(ArtTile_ArtUnc_OOZPulseBall), 4, 4
+	zoneanimdecl -1, ArtUnc_OOZPulseBall, ArtTile_ArtUnc_OOZPulseBall, 4, 4
 	dc.b   0, $B
 	dc.b   4,  5
 	dc.b   8,  9
 	dc.b   4,  3
 	; Square rotating around ball in OOZ
-	zoneanimdecl 6, ArtUnc_OOZSquareBall1, tiles_to_bytes(ArtTile_ArtUnc_OOZSquareBall1), 4, 4
+	zoneanimdecl 6, ArtUnc_OOZSquareBall1, ArtTile_ArtUnc_OOZSquareBall1, 4, 4
 	dc.b   0
 	dc.b   4
 	dc.b   8
 	dc.b  $C
 	; Square rotating around ball
-	zoneanimdecl 6, ArtUnc_OOZSquareBall2, tiles_to_bytes(ArtTile_ArtUnc_OOZSquareBall2), 4, 4
+	zoneanimdecl 6, ArtUnc_OOZSquareBall2, ArtTile_ArtUnc_OOZSquareBall2, 4, 4
 	dc.b   0
 	dc.b   4
 	dc.b   8
 	dc.b  $C
 	; Oil
-	zoneanimdecl $11, ArtUnc_Oil1, tiles_to_bytes(ArtTile_ArtUnc_Oil1), 6,$10
+	zoneanimdecl $11, ArtUnc_Oil1, ArtTile_ArtUnc_Oil1, 6,$10
 	dc.b   0
 	dc.b $10
 	dc.b $20
@@ -82399,7 +82399,7 @@ Animated_OOZ:	zoneanimstart
 	dc.b $20
 	dc.b $10
 	; Oil
-	zoneanimdecl $11, ArtUnc_Oil2, tiles_to_bytes(ArtTile_ArtUnc_Oil2), 6,$10
+	zoneanimdecl $11, ArtUnc_Oil2, ArtTile_ArtUnc_Oil2, 6,$10
 	dc.b   0
 	dc.b $10
 	dc.b $20
@@ -82411,7 +82411,7 @@ Animated_OOZ:	zoneanimstart
 
 Animated_CNZ:	zoneanimstart
 	; Flipping foreground section in CNZ
-	zoneanimdecl -1, ArtUnc_CNZFlipTiles, tiles_to_bytes(ArtTile_ArtUnc_CNZFlipTiles_2), $10,$10
+	zoneanimdecl -1, ArtUnc_CNZFlipTiles, ArtTile_ArtUnc_CNZFlipTiles_2, $10,$10
 	dc.b   0,$C7
 	dc.b $10,  5
 	dc.b $20,  5
@@ -82429,7 +82429,7 @@ Animated_CNZ:	zoneanimstart
 	dc.b $20,  5
 	dc.b $60,  5
 	; Flipping foreground section in CNZ
-	zoneanimdecl -1, ArtUnc_CNZFlipTiles, tiles_to_bytes(ArtTile_ArtUnc_CNZFlipTiles_1), $10,$10
+	zoneanimdecl -1, ArtUnc_CNZFlipTiles, ArtTile_ArtUnc_CNZFlipTiles_1, $10,$10
 	dc.b $70,  5
 	dc.b $80,  5
 	dc.b $20,  5
@@ -82452,7 +82452,7 @@ Animated_CNZ:	zoneanimstart
 ; word_40160:
 Animated_CNZ_2P:	zoneanimstart
 	; Flipping foreground section in CNZ
-	zoneanimdecl -1, ArtUnc_CNZFlipTiles, tiles_to_bytes(ArtTile_ArtUnc_CNZFlipTiles_2_2p), $10,$10
+	zoneanimdecl -1, ArtUnc_CNZFlipTiles, ArtTile_ArtUnc_CNZFlipTiles_2_2p, $10,$10
 	dc.b   0,$C7
 	dc.b $10,  5
 	dc.b $20,  5
@@ -82470,7 +82470,7 @@ Animated_CNZ_2P:	zoneanimstart
 	dc.b $20,  5
 	dc.b $60,  5
 	; Flipping foreground section in CNZ
-	zoneanimdecl -1, ArtUnc_CNZFlipTiles, tiles_to_bytes(ArtTile_ArtUnc_CNZFlipTiles_1_2p), $10,$10
+	zoneanimdecl -1, ArtUnc_CNZFlipTiles, ArtTile_ArtUnc_CNZFlipTiles_1_2p, $10,$10
 	dc.b $70,  5
 	dc.b $80,  5
 	dc.b $20,  5
@@ -82492,7 +82492,7 @@ Animated_CNZ_2P:	zoneanimstart
 
 Animated_CPZ:	zoneanimstart
 	; Animated background section in CPZ and DEZ
-	zoneanimdecl 4, ArtUnc_CPZAnimBack, tiles_to_bytes(ArtTile_ArtUnc_CPZAnimBack), 8, 2
+	zoneanimdecl 4, ArtUnc_CPZAnimBack, ArtTile_ArtUnc_CPZAnimBack, 8, 2
 	dc.b   0
 	dc.b   2
 	dc.b   4
@@ -82506,7 +82506,7 @@ Animated_CPZ:	zoneanimstart
 
 Animated_DEZ:	zoneanimstart
 	; Animated background section in CPZ and DEZ
-	zoneanimdecl 4, ArtUnc_CPZAnimBack, tiles_to_bytes(ArtTile_ArtUnc_DEZAnimBack), 8, 2
+	zoneanimdecl 4, ArtUnc_CPZAnimBack, ArtTile_ArtUnc_DEZAnimBack, 8, 2
 	dc.b   0
 	dc.b   2
 	dc.b   4
@@ -82520,19 +82520,19 @@ Animated_DEZ:	zoneanimstart
 
 Animated_ARZ:	zoneanimstart
 	; Waterfall patterns
-	zoneanimdecl 5, ArtUnc_Waterfall1, tiles_to_bytes(ArtTile_ArtUnc_Waterfall1_2), 2, 4
+	zoneanimdecl 5, ArtUnc_Waterfall1, ArtTile_ArtUnc_Waterfall1_2, 2, 4
 	dc.b   0
 	dc.b   4
 	; Waterfall patterns
-	zoneanimdecl 5, ArtUnc_Waterfall1, tiles_to_bytes(ArtTile_ArtUnc_Waterfall1_1), 2, 4
+	zoneanimdecl 5, ArtUnc_Waterfall1, ArtTile_ArtUnc_Waterfall1_1, 2, 4
 	dc.b   4
 	dc.b   0
 	; Waterfall patterns
-	zoneanimdecl 5, ArtUnc_Waterfall2, tiles_to_bytes(ArtTile_ArtUnc_Waterfall2), 2, 4
+	zoneanimdecl 5, ArtUnc_Waterfall2, ArtTile_ArtUnc_Waterfall2, 2, 4
 	dc.b   0
 	dc.b   4
 	; Waterfall patterns
-	zoneanimdecl 5, ArtUnc_Waterfall3, tiles_to_bytes(ArtTile_ArtUnc_Waterfall3), 2, 4
+	zoneanimdecl 5, ArtUnc_Waterfall3, ArtTile_ArtUnc_Waterfall3, 2, 4
 	dc.b   0
 	dc.b   4
 
