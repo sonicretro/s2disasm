@@ -82197,7 +82197,7 @@ loc_3FF30:
 ; decompressed that the VBLANK window would close before all the animating was done.
 
 zoneanimstart macro {INTLABEL}
-Animated___LABEL__ label *
+__LABEL__ label *
 zoneanimcount := 0
 zoneanimcur := "__LABEL__"
 	dc.w zoneanimcount___LABEL__	; Number of scripts for a zone (-1)
@@ -82219,7 +82219,7 @@ zoneanimcount := zoneanimcount + 1
     endm
 
 ; loc_3FF94:
-EHZ:	zoneanimstart
+Animated_EHZ:	zoneanimstart
 	; Flowers
 	zoneanimdecl -1, ArtUnc_Flowers1, tiles_to_bytes(ArtTile_ArtUnc_Flowers1), 6, 2
 	dc.b   0,$7F		; Start of the script proper
@@ -82263,7 +82263,7 @@ EHZ:	zoneanimstart
 
 	zoneanimend
 
-MTZ:	zoneanimstart
+Animated_MTZ:	zoneanimstart
 	; Spinning metal cylinder
 	zoneanimdecl 0, ArtUnc_MTZCylinder, tiles_to_bytes(ArtTile_ArtUnc_MTZCylinder), 8,$10
 	dc.b   0
@@ -82297,7 +82297,7 @@ MTZ:	zoneanimstart
 
 	zoneanimend
 
-HTZ:	zoneanimstart
+Animated_HTZ:	zoneanimstart
 	; Flowers
 	zoneanimdecl -1, ArtUnc_Flowers1, tiles_to_bytes(ArtTile_ArtUnc_Flowers1), 6, 2
 	dc.b   0,$7F
@@ -82342,7 +82342,7 @@ HTZ:	zoneanimstart
 	zoneanimend
 
 ; word_4009C: Animated_OOZ:
-HPZ:	zoneanimstart
+Animated_HPZ:	zoneanimstart
 	; Supposed to be the pulsing orb from HPZ, but uses OOZ's pulsing ball art
 	zoneanimdecl 8, ArtUnc_OOZPulseBall, tiles_to_bytes(ArtTile_ArtUnc_HPZPulseOrb_1), 6, 8
 	dc.b   0
@@ -82371,7 +82371,7 @@ HPZ:	zoneanimstart
 	zoneanimend
 
 ; word_400C8:  Animated_OOZ2:
-OOZ:	zoneanimstart
+Animated_OOZ:	zoneanimstart
 	; Pulsing ball from OOZ
 	zoneanimdecl -1, ArtUnc_OOZPulseBall, tiles_to_bytes(ArtTile_ArtUnc_OOZPulseBall), 4, 4
 	dc.b   0, $B
@@ -82409,7 +82409,7 @@ OOZ:	zoneanimstart
 
 	zoneanimend
 
-CNZ:	zoneanimstart
+Animated_CNZ:	zoneanimstart
 	; Flipping foreground section in CNZ
 	zoneanimdecl -1, ArtUnc_CNZFlipTiles, tiles_to_bytes(ArtTile_ArtUnc_CNZFlipTiles_2), $10,$10
 	dc.b   0,$C7
@@ -82450,7 +82450,7 @@ CNZ:	zoneanimstart
 	zoneanimend
 
 ; word_40160:
-CNZ_2P:	zoneanimstart
+Animated_CNZ_2P:	zoneanimstart
 	; Flipping foreground section in CNZ
 	zoneanimdecl -1, ArtUnc_CNZFlipTiles, tiles_to_bytes(ArtTile_ArtUnc_CNZFlipTiles_2_2p), $10,$10
 	dc.b   0,$C7
@@ -82490,7 +82490,7 @@ CNZ_2P:	zoneanimstart
 
 	zoneanimend
 
-CPZ:	zoneanimstart
+Animated_CPZ:	zoneanimstart
 	; Animated background section in CPZ and DEZ
 	zoneanimdecl 4, ArtUnc_CPZAnimBack, tiles_to_bytes(ArtTile_ArtUnc_CPZAnimBack), 8, 2
 	dc.b   0
@@ -82504,7 +82504,7 @@ CPZ:	zoneanimstart
 
 	zoneanimend
 
-DEZ:	zoneanimstart
+Animated_DEZ:	zoneanimstart
 	; Animated background section in CPZ and DEZ
 	zoneanimdecl 4, ArtUnc_CPZAnimBack, tiles_to_bytes(ArtTile_ArtUnc_DEZAnimBack), 8, 2
 	dc.b   0
@@ -82518,7 +82518,7 @@ DEZ:	zoneanimstart
 
 	zoneanimend
 
-ARZ:	zoneanimstart
+Animated_ARZ:	zoneanimstart
 	; Waterfall patterns
 	zoneanimdecl 5, ArtUnc_Waterfall1, tiles_to_bytes(ArtTile_ArtUnc_Waterfall1_2), 2, 4
 	dc.b   0
