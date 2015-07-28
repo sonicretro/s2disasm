@@ -82559,7 +82559,7 @@ Animated_Null:
 ; exactly 2 screens (a boss fight or cutscene?),
 ; once every 8 frames, make the entire screen refresh and do... SOMETHING...
 ; (in 2 separate 512-byte blocks of memory, move around a bunch of bytes)
-; Maybe some abandonded scrolling effect?
+; Maybe some abandoned scrolling effect?
 ; ---------------------------------------------------------------------------
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
