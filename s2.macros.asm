@@ -224,6 +224,29 @@ subObjData macro mappings,vram,renderflags,priority,width,collision
 	dc.b renderflags,priority,width,collision
     endm
 
+; macros for defining animated PLC script lists
+zoneanimstart macro {INTLABEL}
+__LABEL__ label *
+zoneanimcount := 0
+zoneanimcur := "__LABEL__"
+	dc.w zoneanimcount___LABEL__	; Number of scripts for a zone (-1)
+    endm
+
+zoneanimend macro
+zoneanimcount_{"\{zoneanimcur}"} = zoneanimcount-1
+    endm
+
+zoneanimdeclanonid := 0
+
+zoneanimdecl macro duration,artaddr,vramaddr,numentries,numvramtiles
+zoneanimdeclanonid := zoneanimdeclanonid + 1
+start:
+	dc.l (duration&$FF)<<24|artaddr
+	dc.w tiles_to_bytes(vramaddr)
+	dc.b numentries, numvramtiles
+zoneanimcount := zoneanimcount + 1
+    endm
+
 ; macros to convert from tile index to art tiles, block mapping or VRAM address.
 make_art_tile function addr,pal,pri,((pri&1)<<15)|((pal&3)<<13)|(addr&tile_mask)
 make_art_tile_2p function addr,pal,pri,((pri&1)<<15)|((pal&3)<<13)|((addr&tile_mask)>>1)

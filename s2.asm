@@ -10973,19 +10973,18 @@ Text2P_Blank:		menutxt	"    "		; byte_87C1:
 ; MENU ANIMATION SCRIPT
 ; ------------------------------------------------------------------------
 ;word_87C6:
-Anim_SonicMilesBG:
-	dc.w   0
-; Sonic/Miles animated background
-	dc.l $FF<<24|ArtUnc_MenuBack
-	dc.w $20
-	dc.b 6
-	dc.b $A
+Anim_SonicMilesBG:	zoneanimstart
+	; Sonic/Miles animated background
+	zoneanimdecl  -1, ArtUnc_MenuBack,    1,  6, $A
 	dc.b   0,$C7
-	dc.b  $A,  5	; 2
-	dc.b $14,  5	; 4
-	dc.b $1E,$C7	; 6
-	dc.b $14,  5	; 8
-	dc.b  $A,  5	; 10
+	dc.b  $A,  5
+	dc.b $14,  5
+	dc.b $1E,$C7
+	dc.b $14,  5
+	dc.b  $A,  5
+	even
+
+	zoneanimend
 
 ; off_87DC:
 TwoPlayerResultsPointers:
@@ -82195,28 +82194,6 @@ loc_3FF30:
 ; thus animating them. All the relevant art must be uncompressed, because
 ; otherwise the subroutine would spend so much time waiting for the art to be
 ; decompressed that the VBLANK window would close before all the animating was done.
-
-zoneanimstart macro {INTLABEL}
-__LABEL__ label *
-zoneanimcount := 0
-zoneanimcur := "__LABEL__"
-	dc.w zoneanimcount___LABEL__	; Number of scripts for a zone (-1)
-    endm
-
-zoneanimend macro
-zoneanimcount_{"\{zoneanimcur}"} = zoneanimcount-1
-    endm
-
-zoneanimdeclanonid := 0
-
-zoneanimdecl macro duration,artaddr,vramaddr,numentries,numvramtiles
-zoneanimdeclanonid := zoneanimdeclanonid + 1
-start:
-	dc.l (duration&$FF)<<24|artaddr
-	dc.w tiles_to_bytes(vramaddr)
-	dc.b numentries, numvramtiles
-zoneanimcount := zoneanimcount + 1
-    endm
 
 ;    zoneanimdecl -1, ArtUnc_Flowers1, ArtTile_ArtUnc_Flowers1, 6, 2
 ;	-1			Global frame duration. If -1, then each frame will use its own duration, instead
