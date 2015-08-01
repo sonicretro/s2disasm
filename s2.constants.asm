@@ -1969,7 +1969,6 @@ ArtTile_VRAM_Start                    = $0000
 
 ; Common to 1p and 2p menus.
 ArtTile_ArtNem_FontStuff              = $0010
-ArtTile_MapEng_MenuBack               = $0700
 
 ; Sega screen
 ArtTile_ArtNem_Sega_Logo              = $0001

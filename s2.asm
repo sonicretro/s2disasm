@@ -10038,7 +10038,7 @@ TwoPlayerResults:
 	move.w	#make_art_tile(ArtTile_VRAM_Start,3,0),d0
 	bsr.w	EniDec
 	lea	(Chunk_Table).l,a1
-	move.l	#vdpComm(tiles_to_bytes(ArtTile_MapEng_MenuBack),VRAM,WRITE),d0
+	move.l	#vdpComm(VRAM_Plane_B_Name_Table,VRAM,WRITE),d0
 	moveq	#$27,d1
 	moveq	#$1B,d2
 	jsrto	(PlaneMapToVRAM).l, PlaneMapToVRAM
@@ -11066,7 +11066,7 @@ MenuScreen:
 	move.w	#make_art_tile(ArtTile_VRAM_Start,3,0),d0
 	bsr.w	EniDec
 	lea	(Chunk_Table).l,a1
-	move.l	#vdpComm(tiles_to_bytes(ArtTile_MapEng_MenuBack),VRAM,WRITE),d0
+	move.l	#vdpComm(VRAM_Plane_B_Name_Table,VRAM,WRITE),d0
 	moveq	#$27,d1
 	moveq	#$1B,d2
 	jsrto	(PlaneMapToVRAM).l, JmpTo_PlaneMapToVRAM	; fullscreen background
