@@ -82216,6 +82216,7 @@ Animated_EHZ:	zoneanimstart
 	dc.b   2,  7
 	dc.b   0,  7
 	dc.b   2,  7
+	even
 	; Flowers
 	zoneanimdecl -1, ArtUnc_Flowers2, ArtTile_ArtUnc_Flowers2, 8, 2
 	dc.b   2,$7F
@@ -82226,10 +82227,12 @@ Animated_EHZ:	zoneanimstart
 	dc.b   0,  5
 	dc.b   2,  5
 	dc.b   0,  5
+	even
 	; Flowers
 	zoneanimdecl 7, ArtUnc_Flowers3, ArtTile_ArtUnc_Flowers3, 2, 2
 	dc.b   0
 	dc.b   2
+	even
 	; Flowers
 	zoneanimdecl -1, ArtUnc_Flowers4, ArtTile_ArtUnc_Flowers4, 8, 2
 	dc.b   0,$7F
@@ -82240,6 +82243,7 @@ Animated_EHZ:	zoneanimstart
 	dc.b   2, $B
 	dc.b   0, $B
 	dc.b   2, $B
+	even
 	; Pulsing thing against checkered background
 	zoneanimdecl -1, ArtUnc_EHZPulseBall, ArtTile_ArtUnc_EHZPulseBall, 6, 2
 	dc.b   0,$17
@@ -82248,6 +82252,7 @@ Animated_EHZ:	zoneanimstart
 	dc.b   6,$17
 	dc.b   4, $B
 	dc.b   2,  9
+	even
 
 	zoneanimend
 
@@ -82262,6 +82267,7 @@ Animated_MTZ:	zoneanimstart
 	dc.b $50
 	dc.b $60
 	dc.b $70
+	even
 	; lava
 	zoneanimdecl $D, ArtUnc_Lava, ArtTile_ArtUnc_Lava, 6,$C
 	dc.b   0
@@ -82270,18 +82276,21 @@ Animated_MTZ:	zoneanimstart
 	dc.b $24
 	dc.b $18
 	dc.b  $C
+	even
 	; MTZ background animated section
 	zoneanimdecl -1, ArtUnc_MTZAnimBack, ArtTile_ArtUnc_MTZAnimBack_1, 4, 6
 	dc.b   0,$13
 	dc.b   6,  7
 	dc.b  $C,$13
 	dc.b   6,  7
+	even
 	; MTZ background animated section
 	zoneanimdecl -1, ArtUnc_MTZAnimBack, ArtTile_ArtUnc_MTZAnimBack_2, 4, 6
 	dc.b  $C,$13
 	dc.b   6,  7
 	dc.b   0,$13
 	dc.b   6,  7
+	even
 
 	zoneanimend
 
@@ -82294,6 +82303,7 @@ Animated_HTZ:	zoneanimstart
 	dc.b   2,  7
 	dc.b   0,  7
 	dc.b   2,  7
+	even
 	; Flowers
 	zoneanimdecl -1, ArtUnc_Flowers2, ArtTile_ArtUnc_Flowers2, 8, 2
 	dc.b   2,$7F
@@ -82304,10 +82314,12 @@ Animated_HTZ:	zoneanimstart
 	dc.b   0,  5
 	dc.b   2,  5
 	dc.b   0,  5
+	even
 	; Flowers
 	zoneanimdecl 7, ArtUnc_Flowers3, ArtTile_ArtUnc_Flowers3, 2, 2
 	dc.b   0
 	dc.b   2
+	even
 	; Flowers
 	zoneanimdecl -1, ArtUnc_Flowers4, ArtTile_ArtUnc_Flowers4, 8, 2
 	dc.b   0,$7F
@@ -82318,6 +82330,7 @@ Animated_HTZ:	zoneanimstart
 	dc.b   2, $B
 	dc.b   0, $B
 	dc.b   2, $B
+	even
 	; Pulsing thing against checkered background
 	zoneanimdecl -1, ArtUnc_EHZPulseBall, ArtTile_ArtUnc_EHZPulseBall, 6, 2
 	dc.b   0,$17
@@ -82326,6 +82339,7 @@ Animated_HTZ:	zoneanimstart
 	dc.b   6,$17
 	dc.b   4, $B
 	dc.b   2,  9
+	even
 
 	zoneanimend
 
@@ -82339,6 +82353,7 @@ Animated_HPZ:	zoneanimstart
 	dc.b $10
 	dc.b $10
 	dc.b   8
+	even
 	; Supposed to be the pulsing orb from HPZ, but uses OOZ's pulsing ball art
 	zoneanimdecl 8, ArtUnc_OOZPulseBall, ArtTile_ArtUnc_HPZPulseOrb_2, 6, 8
 	dc.b   8
@@ -82347,6 +82362,7 @@ Animated_HPZ:	zoneanimstart
 	dc.b   8
 	dc.b   0
 	dc.b   0
+	even
 	; Supposed to be the pulsing orb from HPZ, but uses OOZ's pulsing ball art
 	zoneanimdecl 8, ArtUnc_OOZPulseBall, ArtTile_ArtUnc_HPZPulseOrb_3, 6, 8
 	dc.b $10
@@ -82355,6 +82371,7 @@ Animated_HPZ:	zoneanimstart
 	dc.b   0
 	dc.b   8
 	dc.b $10
+	even
 
 	zoneanimend
 
@@ -82366,18 +82383,21 @@ Animated_OOZ:	zoneanimstart
 	dc.b   4,  5
 	dc.b   8,  9
 	dc.b   4,  3
+	even
 	; Square rotating around ball in OOZ
 	zoneanimdecl 6, ArtUnc_OOZSquareBall1, ArtTile_ArtUnc_OOZSquareBall1, 4, 4
 	dc.b   0
 	dc.b   4
 	dc.b   8
 	dc.b  $C
+	even
 	; Square rotating around ball
 	zoneanimdecl 6, ArtUnc_OOZSquareBall2, ArtTile_ArtUnc_OOZSquareBall2, 4, 4
 	dc.b   0
 	dc.b   4
 	dc.b   8
 	dc.b  $C
+	even
 	; Oil
 	zoneanimdecl $11, ArtUnc_Oil1, ArtTile_ArtUnc_Oil1, 6,$10
 	dc.b   0
@@ -82386,6 +82406,7 @@ Animated_OOZ:	zoneanimstart
 	dc.b $30
 	dc.b $20
 	dc.b $10
+	even
 	; Oil
 	zoneanimdecl $11, ArtUnc_Oil2, ArtTile_ArtUnc_Oil2, 6,$10
 	dc.b   0
@@ -82394,6 +82415,7 @@ Animated_OOZ:	zoneanimstart
 	dc.b $30
 	dc.b $20
 	dc.b $10
+	even
 
 	zoneanimend
 
@@ -82416,6 +82438,7 @@ Animated_CNZ:	zoneanimstart
 	dc.b $50,  5
 	dc.b $20,  5
 	dc.b $60,  5
+	even
 	; Flipping foreground section in CNZ
 	zoneanimdecl -1, ArtUnc_CNZFlipTiles, ArtTile_ArtUnc_CNZFlipTiles_1, $10,$10
 	dc.b $70,  5
@@ -82434,6 +82457,7 @@ Animated_CNZ:	zoneanimstart
 	dc.b $B0,  5
 	dc.b $20,  5
 	dc.b $C0,  5
+	even
 
 	zoneanimend
 
@@ -82457,6 +82481,7 @@ Animated_CNZ_2P:	zoneanimstart
 	dc.b $50,  5
 	dc.b $20,  5
 	dc.b $60,  5
+	even
 	; Flipping foreground section in CNZ
 	zoneanimdecl -1, ArtUnc_CNZFlipTiles, ArtTile_ArtUnc_CNZFlipTiles_1_2p, $10,$10
 	dc.b $70,  5
@@ -82475,6 +82500,7 @@ Animated_CNZ_2P:	zoneanimstart
 	dc.b $B0,  5
 	dc.b $20,  5
 	dc.b $C0,  5
+	even
 
 	zoneanimend
 
@@ -82489,6 +82515,7 @@ Animated_CPZ:	zoneanimstart
 	dc.b  $A
 	dc.b  $C
 	dc.b  $E
+	even
 
 	zoneanimend
 
@@ -82503,6 +82530,7 @@ Animated_DEZ:	zoneanimstart
 	dc.b  $A
 	dc.b  $C
 	dc.b  $E
+	even
 
 	zoneanimend
 
@@ -82511,18 +82539,22 @@ Animated_ARZ:	zoneanimstart
 	zoneanimdecl 5, ArtUnc_Waterfall1, ArtTile_ArtUnc_Waterfall1_2, 2, 4
 	dc.b   0
 	dc.b   4
+	even
 	; Waterfall patterns
 	zoneanimdecl 5, ArtUnc_Waterfall1, ArtTile_ArtUnc_Waterfall1_1, 2, 4
 	dc.b   4
 	dc.b   0
+	even
 	; Waterfall patterns
 	zoneanimdecl 5, ArtUnc_Waterfall2, ArtTile_ArtUnc_Waterfall2, 2, 4
 	dc.b   0
 	dc.b   4
+	even
 	; Waterfall patterns
 	zoneanimdecl 5, ArtUnc_Waterfall3, ArtTile_ArtUnc_Waterfall3, 2, 4
 	dc.b   0
 	dc.b   4
+	even
 
 	zoneanimend
 
