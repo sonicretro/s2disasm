@@ -1031,12 +1031,15 @@ VDP_Command_Buffer_Slot:	ds.l	1	; stores the address of the next open slot for a
 
 Sprite_Table_2:			ds.b	$300	; Sprite attribute table buffer for the bottom split screen in 2-player mode
 Horiz_Scroll_Buf:		ds.b	$400
+Horiz_Scroll_Buf_End:
 Sonic_Stat_Record_Buf:		ds.b	$100
 Sonic_Pos_Record_Buf:		ds.b	$100
 Tails_Pos_Record_Buf:		ds.b	$100
 CNZ_saucer_data:		ds.b	$40	; the number of saucer bumpers in a group which have been destroyed. Used to decide when to give 500 points instead of 10
+CNZ_saucer_data_End:
 				ds.b	$C0	; $FFFFE740-$FFFFE7FF ; unused as far as I can tell
 Ring_Positions:			ds.b	$600
+Ring_Positions_End:
 
 Camera_RAM:
 Camera_X_pos:			ds.l	1
@@ -1134,6 +1137,7 @@ Camera_RAM_End:
 
 Block_cache:			ds.b	$80
 Ring_consumption_table:		ds.b	$80	; contains RAM addresses of rings currently being consumed
+Ring_consumption_table_End:
 
 Underwater_palette_2:		ds.w palette_line_size	; not sure what it's used for but it's only used when there's water
 Underwater_palette_2_line2:	ds.w palette_line_size
@@ -1359,6 +1363,7 @@ Anim_Counters:			ds.b	$10	; $FFFFF7F0-$FFFFF7FF
 Misc_Variables_End:
 
 Sprite_Table:			ds.b	$280	; Sprite attribute table buffer
+Sprite_Table_End:
 				ds.b	$80	; unused, but SAT buffer can spill over into this area when there are too many sprites on-screen
 
 Normal_palette:			ds.w	palette_line_size
@@ -1731,6 +1736,7 @@ SS_Object_RAM_End:
 
 				; The special stage mode also uses the rest of the RAM for
 				; different purposes.
+SS_Misc_Variables:
 PNT_Buffer:			ds.b	$700
 PNT_Buffer_End:
 SS_Horiz_Scroll_Buf_2:		ds.b	$400
@@ -1797,9 +1803,12 @@ SS_NoRingsTogoLifetime:	ds.w	1
 SS_RingsToGoBCD:		ds.w	1
 SS_HideRingsToGo:	ds.b	1
 SS_TriggerRingsToGo:	ds.b	1
+			ds.b	$58	; unused
+SS_Misc_Variables_End:
 
 	phase	ramaddr(Horiz_Scroll_Buf)	; Still in SS RAM
 SS_Horiz_Scroll_Buf_1:		ds.b	$400
+SS_Horiz_Scroll_Buf_1_End:
 
 	phase	ramaddr($FFFFF73E)	; Still in SS RAM
 SS_Offset_X:			ds.w	1
@@ -1808,6 +1817,7 @@ SS_Swap_Positions_Flag:	ds.b	1
 
 	phase	ramaddr(Sprite_Table)	; Still in SS RAM
 SS_Sprite_Table:			ds.b	$280	; Sprite attribute table buffer
+SS_Sprite_Table_End:
 				ds.b	$80	; unused, but SAT buffer can spill over into this area when there are too many sprites on-screen
 
 

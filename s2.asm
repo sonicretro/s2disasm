@@ -1279,8 +1279,9 @@ ClearScreen:
 	clr.l	(Vscroll_Factor).w
 	clr.l	(unk_F61A).w
 
-	clearRAM Sprite_Table,$284
-	clearRAM Horiz_Scroll_Buf,$404
+	; These '+4's shouldn't be here; clearRAM accidentally clears an additional 4 bytes
+	clearRAM Sprite_Table,(Sprite_Table_End-Sprite_Table)+4
+	clearRAM Horiz_Scroll_Buf,(Horiz_Scroll_Buf_End-Horiz_Scroll_Buf)+4
 
 	startZ80
 	rts
@@ -4252,12 +4253,13 @@ Level:
 	bsr.w	LoadPLC
 ; loc_3F48:
 Level_ClrRam:
-	clearRAM Sprite_Table_Input,$400
+	clearRAM Sprite_Table_Input,(Sprite_Table_Input_End-Sprite_Table_Input)
 	clearRAM Object_RAM,(LevelOnly_Object_RAM_End-Object_RAM) ; clear object RAM
 	clearRAM MiscLevelVariables,(MiscLevelVariables_End-MiscLevelVariables)
 	clearRAM Misc_Variables,(Misc_Variables_End-Misc_Variables)
 	clearRAM Oscillating_Data,(Oscillating_variables_End-Oscillating_variables)
-	clearRAM CNZ_saucer_data,$100
+	; The '+C0' shouldn't be here; CNZ_saucer_data is only $40 bytes large
+	clearRAM CNZ_saucer_data,(CNZ_saucer_data_End-CNZ_saucer_data)+$C0
 
 	cmpi.w	#chemical_plant_zone_act_2,(Current_ZoneAndAct).w ; CPZ 2
 	beq.s	Level_InitWater
@@ -4376,7 +4378,7 @@ Level_TtlCard:
 	clr.w	(Vscroll_Factor_FG).w
 	move.w	#-$E0,(Vscroll_Factor_P2_FG).w
 
-	clearRAM Horiz_Scroll_Buf,$400
+	clearRAM Horiz_Scroll_Buf,(Horiz_Scroll_Buf_End-Horiz_Scroll_Buf)
 
 	bsr.w	LoadZoneTiles
 	jsrto	(loadZoneBlockMaps).l, JmpTo_loadZoneBlockMaps
@@ -5971,10 +5973,11 @@ SpecialStage:
 ; | Now we clear out some regions in main RAM where we want to store some  |
 ; | of our data structures.                                                |
 ; \------------------------------------------------------------------------/
-	clearRAM SS_Sprite_Table,$284	; Sprite attribute table buffer
-	clearRAM SS_Horiz_Scroll_Buf_1,$404	; H scroll table buffer, $404 bytes
-	clearRAM PNT_Buffer,$C04	; PNT buffer
-	clearRAM SS_Sprite_Table_Input,$400
+	; These '+4's shouldn't be here; clearRAM accidentally clears an additional 4 bytes
+	clearRAM SS_Sprite_Table,(SS_Sprite_Table_End-SS_Sprite_Table)+4
+	clearRAM SS_Horiz_Scroll_Buf_1,(SS_Horiz_Scroll_Buf_1_End-SS_Horiz_Scroll_Buf_1)+4
+	clearRAM SS_Misc_Variables,(SS_Misc_Variables_End-SS_Misc_Variables)+4
+	clearRAM SS_Sprite_Table_Input,(SS_Sprite_Table_Input_End-SS_Sprite_Table_Input)
 	clearRAM SS_Object_RAM,(SS_Object_RAM_End-SS_Object_RAM)
 
 	move	#$2300,sr
@@ -6158,7 +6161,7 @@ SpecialStage:
 	move.w	#MusID_EndLevel,d0
 	jsr	(PlaySound).l
 
-	clearRAM SS_Sprite_Table_Input,$400
+	clearRAM SS_Sprite_Table_Input,(SS_Sprite_Table_Input_End-SS_Sprite_Table_Input)
 	clearRAM SS_Object_RAM,(SS_Object_RAM_End-SS_Object_RAM)
 
 	move.b	#ObjID_SSResults,(SpecialStageResults+id).w ; load Obj6F (special stage results) at $FFFFB800
@@ -10024,7 +10027,7 @@ TwoPlayerResults:
 	move.w	#$8C81,(a6)		; H res 40 cells, no interlace, S/H disabled
 	move.w	#$9001,(a6)		; Scroll table size: 64x32
 
-	clearRAM Sprite_Table_Input,$400
+	clearRAM Sprite_Table_Input,(Sprite_Table_Input_End-Sprite_Table_Input)
 	clearRAM VSRslts_Object_RAM,(VSRslts_Object_RAM_End-VSRslts_Object_RAM)
 
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_FontStuff),VRAM,WRITE),(VDP_control_port).l
@@ -11046,7 +11049,7 @@ MenuScreen:
 	move.w	#$8C81,(a6)		; H res 40 cells, no interlace, S/H disabled
 	move.w	#$9001,(a6)		; Scroll table size: 64x32
 
-	clearRAM Sprite_Table_Input,$400
+	clearRAM Sprite_Table_Input,(Sprite_Table_Input_End-Sprite_Table_Input)
 	clearRAM Menus_Object_RAM,(Menus_Object_RAM_End-Menus_Object_RAM)
 
 	; load background + graphics of font/LevSelPics
@@ -12323,7 +12326,8 @@ EndingSequence:
 	move.w	d0,(Ending_VInt_Subrout).w
 	move.w	d0,(Credits_Trigger).w
 
-	clearRAM Horiz_Scroll_Buf,$404
+	; The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
+	clearRAM Horiz_Scroll_Buf,(Horiz_Scroll_Buf_End-Horiz_Scroll_Buf)+4
 
 	move.w	#$7FFF,(PalCycle_Timer).w
 	lea	(CutScene).w,a1
@@ -12398,7 +12402,8 @@ EndgameCredits:
 	move.w	d0,(Ending_VInt_Subrout).w
 	move.w	d0,(Credits_Trigger).w
 
-	clearRAM Horiz_Scroll_Buf,$404
+	; The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
+	clearRAM Horiz_Scroll_Buf,(Horiz_Scroll_Buf_End-Horiz_Scroll_Buf)+4
 
 	moveq	#MusID_Credits,d0
 	jsrto	(PlaySound).l, JmpTo2_PlaySound
@@ -24805,7 +24810,7 @@ Obj34_Init:
 	clr.w	(Vscroll_Factor_FG).w
 	move.w	#-$E0,(Vscroll_Factor_P2_FG).w
 
-	clearRAM Horiz_Scroll_Buf,$400
+	clearRAM Horiz_Scroll_Buf,(Horiz_Scroll_Buf_End-Horiz_Scroll_Buf)
 
 	rts
 ; ===========================================================================
@@ -29251,12 +29256,12 @@ SpriteSizes_2P_3:
 
 ; loc_172A4:
 RingsManager_Setup:
-	clearRAM Ring_Positions,$600
+	clearRAM Ring_Positions,(Ring_Positions_End-Ring_Positions)
 	; d0 = 0
 	lea	(Ring_consumption_table).w,a1
 
-	move.w	#bytesToLcnt($40),d1	; coding error, should be $80 not $40
--	move.l	d0,(a1)+
+	move.w	#bytesToLcnt(Ring_consumption_table_End-Ring_consumption_table-$40),d1	; coding error, that '-$40' shouldn't be there
+-	move.l	d0,(a1)+	; only half of Ring_consumption_table is cleared
 	dbf	d1,-
 
 	moveq	#0,d5
@@ -56862,7 +56867,7 @@ loc_2C806:
 	move.b	#4,routine(a0)
 	lea	(CNZ_saucer_data).w,a1
 	move.b	subtype(a0),d1
-	andi.w	#$3F,d1
+	andi.w	#$3F,d1		; This means CNZ_saucer_data is only $40 bytes large
 	lea	(a1,d1.w),a1
 	addq.b	#1,(a1)
 	cmpi.b	#3,(a1)
@@ -68461,7 +68466,8 @@ loc_361D8:
 	move.l	d1,(a1)+
 	dbf	d0,loc_361D8
 
-	clearRAM Sprite_Table,$284
+	; The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
+	clearRAM Sprite_Table,(Sprite_Table_End-Sprite_Table)+4
 
 	rts
 ; ===========================================================================
@@ -74308,7 +74314,7 @@ loc_3A346:
 	bchg	#0,status(a0)
 
 	; This clears a lot more than the horizontal scroll buffer, which is $400 bytes (960 bytes according to docs)
-	clearRAM Horiz_Scroll_Buf,$1004
+	clearRAM Horiz_Scroll_Buf,$1000+4	; That '+4' shouldn't be there; accidentally clears an additional 4 bytes
 
 	; Initialize streak horizontal offsets for Sonic going right.
 	; 9 full lines (8 pixels) + 7 pixels, 2-byte interleaved entries for PNT A and PNT B
