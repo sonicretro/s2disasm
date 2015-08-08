@@ -8838,7 +8838,11 @@ SSSingleObjLoad2:
 	movea.l	a0,a1
 	move.w	#SS_Dynamic_Object_RAM_End,d5
 	sub.w	a0,d5
+    if object_size=$40
 	lsr.w	#6,d5
+    else
+	divu.w	#object_size,d5
+    endif
 	subq.w	#1,d5
 	bcs.s	+	; rts
 
@@ -20636,11 +20640,19 @@ Obj15_State4:
 	bset	#1,status(a1)
 	move.w	a0,d0
 	subi.w	#Object_RAM,d0
+    if object_size=$40
 	lsr.w	#6,d0
+    else
+	divu.w	#object_size,d0
+    endif
 	andi.w	#$7F,d0
 	move.w	a1,d1
 	subi.w	#Object_RAM,d1
+    if object_size=$40
 	lsr.w	#6,d1
+    else
+	divu.w	#object_size,d1
+    endif
 	andi.w	#$7F,d1
 	lea	(MainCharacter).w,a1 ; a1=character
 	cmp.b	interact(a1),d0
@@ -20860,7 +20872,11 @@ Obj17_MakeHelix:
 	addq.b	#1,subtype(a0)
 	move.w	a1,d5
 	subi.w	#Object_RAM,d5
+    if object_size=$40
 	lsr.w	#6,d5
+    else
+	divu.w	#object_size,d5
+    endif
 	andi.w	#$7F,d5
 	move.b	d5,(a2)+
 	move.b	#4,routine(a1)
@@ -20907,7 +20923,11 @@ Obj17_DelAll:
 Obj17_DelLoop:
 	moveq	#0,d0
 	move.b	(a2)+,d0
+    if object_size=$40
 	lsl.w	#6,d0
+    else
+	mulu.w	#object_size,d0
+    endif
 	addi.l	#Object_RAM,d0
 	movea.l	d0,a1 ; a1=object
 	bsr.w	DeleteObject2	; delete object
@@ -23766,7 +23786,11 @@ swap_loop_objects:
 	beq.s	+		; if not, branch
 	moveq	#0,d0
 	move.b	interact(a1),d0
+    if object_size=$40
 	lsl.w	#6,d0
+    else
+	mulu.w	#object_size,d0
+    endif
 	addi.l	#Object_RAM,d0
 	movea.l	d0,a2	; a2=object
 	bclr	#4,status(a2)
@@ -23788,7 +23812,11 @@ swap_loop_objects:
 	beq.s	+		; if not, branch
 	moveq	#0,d0
 	move.b	interact(a1),d0
+    if object_size=$40
 	lsl.w	#6,d0
+    else
+	mulu.w	#object_size,d0
+    endif
 	addi.l	#Object_RAM,d0
 	movea.l	d0,a2	; a2=object
 	bclr	#3,status(a2)
@@ -30576,7 +30604,11 @@ SingleObjLoad2:
 	movea.l	a0,a1
 	move.w	#Dynamic_Object_RAM_End,d0	; $D000
 	sub.w	a0,d0	; subtract current object location
+    if object_size=$40
 	lsr.w	#6,d0	; divide by $40
+    else
+	divu.w	#object_size,d0
+    endif
 	subq.w	#1,d0	; keep from going over the object zone
 	bcs.s	return_18014
 
@@ -32661,7 +32693,11 @@ RideObject_SetRide:
 	beq.s	loc_19E30
 	moveq	#0,d0
 	move.b	interact(a1),d0
+    if object_size=$40
 	lsl.w	#6,d0
+    else
+	mulu.w	#object_size,d0
+    endif
 	addi.l	#Object_RAM,d0
 	movea.l	d0,a3	; a3=object
 	bclr	d6,status(a3)
@@ -32669,7 +32705,11 @@ RideObject_SetRide:
 loc_19E30:
 	move.w	a0,d0
 	subi.w	#Object_RAM,d0
+    if object_size=$40
 	lsr.w	#6,d0
+    else
+	divu.w	#object_size,d0
+    endif
 	andi.w	#$7F,d0
 	move.b	d0,interact(a1)
 	move.b	#0,angle(a1)
@@ -33200,7 +33240,11 @@ Obj01_NotRight:
 	beq.w	Sonic_Balance
 	moveq	#0,d0
 	move.b	interact(a0),d0
+    if object_size=$40
 	lsl.w	#6,d0
+    else
+	mulu.w	#object_size,d0
+    endif
 	lea	(Object_RAM).w,a1 ; a1=character
 	lea	(a1,d0.w),a1 ; a1=object
 	tst.b	status(a1)
@@ -35904,7 +35948,11 @@ TailsCPU_CheckDespawn:
 
 	moveq	#0,d0
 	move.b	interact(a0),d0
+    if object_size=$40
 	lsl.w	#6,d0
+    else
+	mulu.w	#object_size,d0
+    endif
 	addi.l	#Object_RAM,d0
 	movea.l	d0,a3	; a3=object
 	move.b	(Tails_interact_ID).w,d0
@@ -35927,7 +35975,11 @@ TailsCPU_ResetRespawnTimer:
 TailsCPU_UpdateObjInteract:
 	moveq	#0,d0
 	move.b	interact(a0),d0
+    if object_size=$40
 	lsl.w	#6,d0
+    else
+	mulu.w	#object_size,d0
+    endif
 	addi.l	#Object_RAM,d0
 	movea.l	d0,a3	; a3=object
 	move.b	(a3),(Tails_interact_ID).w
@@ -36182,7 +36234,11 @@ Obj02_NotRight:
 	beq.s	Tails_Balance
 	moveq	#0,d0
 	move.b	interact(a0),d0
+    if object_size=$40
 	lsl.w	#6,d0
+    else
+	mulu.w	#object_size,d0
+    endif
 	lea	(Object_RAM).w,a1 ; a1=character
 	lea	(a1,d0.w),a1 ; a1=object
 	tst.b	status(a1)
@@ -47431,7 +47487,11 @@ loc_25002:
 	bset	#3,status(a1)
 	move.w	a0,d0
 	subi.w	#Object_RAM,d0
+    if object_size=$40
 	lsr.w	#6,d0
+    else
+	divu.w	#object_size,d0
+    endif
 	andi.w	#$7F,d0
 	move.b	d0,interact(a1)
 	move.w	#SndID_Roll,d0
@@ -47638,14 +47698,22 @@ loc_252F0:
 	beq.s	+
 	moveq	#0,d0
 	move.b	interact(a1),d0
+    if object_size=$40
 	lsl.w	#6,d0
+    else
+	mulu.w	#object_size,d0
+    endif
 	addi.l	#Object_RAM,d0
 	movea.l	d0,a3	; a3=object
 	move.b	#0,(a3,d2.w)
 +
 	move.w	a0,d0
 	subi.w	#Object_RAM,d0
+    if object_size=$40
 	lsr.w	#6,d0
+    else
+	divu.w	#object_size,d0
+    endif
 	andi.w	#$7F,d0
 	move.b	d0,interact(a1)
 	addq.b	#2,(a4)
@@ -51853,7 +51921,11 @@ Obj73_LoadSubObject:
 	addq.b	#1,objoff_29(a0)
 	move.w	a1,d5
 	subi.w	#Object_RAM,d5
+    if object_size=$40
 	lsr.w	#6,d5
+    else
+	divu.w	#object_size,d5
+    endif
 	andi.w	#$7F,d5
 	move.b	d5,(a2)+
 	move.b	#4,routine(a1)
@@ -51873,7 +51945,11 @@ Obj73_LoadSubObject_End:
 
 	move.w	a0,d5
 	subi.w	#Object_RAM,d5
+    if object_size=$40
 	lsr.w	#6,d5
+    else
+	divu.w	#object_size,d5
+    endif
 	andi.w	#$7F,d5
 	move.b	d5,(a2)+
 ; loc_28AD6:
@@ -51903,7 +51979,11 @@ loc_28AF4:
 loc_28B16:
 	moveq	#0,d4
 	move.b	(a2)+,d4
+    if object_size=$40
 	lsl.w	#6,d4
+    else
+	mulu.w	#object_size,d4
+    endif
 	addi.l	#Object_RAM,d4
 	movea.l	d4,a1 ; a1=object
 	moveq	#0,d4
@@ -51936,7 +52016,11 @@ loc_28B46:
 	move.b	(a2)+,d2
 -	moveq	#0,d0
 	move.b	(a2)+,d0
+    if object_size=$40
 	lsl.w	#6,d0
+    else
+	mulu.w	#object_size,d0
+    endif
 	addi.l	#Object_RAM,d0
 	movea.l	d0,a1	; a1=object
 	jsrto	(DeleteObject2).l, JmpTo_DeleteObject2
@@ -70013,7 +70097,11 @@ Obj95_NextFireball:
 	addq.b	#1,(a3)
 	move.w	a1,d5
 	subi.w	#MainCharacter,d5
+    if object_size=$40
 	lsr.w	#6,d5
+    else
+	divu.w	#object_size,d5
+    endif
 	andi.w	#$7F,d5
 	move.b	d5,(a2)+
 	_move.b	id(a0),id(a1) ; load obj95
