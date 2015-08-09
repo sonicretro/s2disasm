@@ -66792,7 +66792,7 @@ loc_34F28:
 	move.w	#8,d6
 	bsr.w	loc_350A0
 	bcc.s	return_34F68
-	move.b	#1,$21(a1)
+	move.b	#1,collision_property(a1)
 	move.w	#SndID_SlowSmash,d0
 	jsr	(PlaySoundStereo).l
 	move.b	#6,routine(a0)
