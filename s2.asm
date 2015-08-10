@@ -14750,18 +14750,24 @@ SwScrl_WFZ:
 	bsr.w	SetVertiScrollFlagsBG
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	move.l	(Camera_BG_X_pos).w,d0
+	; This can be removed if the getaway ship's entry uses d0 instead.
 	move.l	d0,d1
 	lea	(TempArray_LayerDef).w,a2
-	move.l	d0,(a2)+
-	move.l	d1,(a2)+
-	addi.l	#$8000,(a2)+
-	addi.l	#$4000,(a2)+
-	addi.l	#$2000,(a2)+
-	lea	(byte_C8CA).l,a3
+	move.l	d0,(a2)+				; Static parts of BG (generally no clouds in them)
+	move.l	d1,(a2)+				; Eggman's getaway ship
+	; Note: this is bugged: this tallies only the cloud speeds. It works fine
+	; if you are standing still, but makes the clouds move faster when going
+	; right and slower when going left. This is exactly the opposite of what
+	; should happen.
+	addi.l	#$8000,(a2)+			; Larger clouds
+	addi.l	#$4000,(a2)+			; Medium clouds
+	addi.l	#$2000,(a2)+			; Small clouds
+	lea	(SwScrl_WFZ_Transition_Array).l,a3
 	cmpi.w	#$2700,(Camera_X_pos).w
-	bhs.s	+
-	lea	(byte_C916).l,a3
-+
+	bhs.s	.got_array
+	lea	(SwScrl_WFZ_Normal_Array).l,a3
+
+.got_array:
 	lea	(TempArray_LayerDef).w,a2
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_BG_Y_pos).w,d1
@@ -14769,44 +14775,60 @@ SwScrl_WFZ:
 	moveq	#0,d0
 	moveq	#0,d3
 
--	move.b	(a3)+,d0
-	addq.w	#1,a3
-	sub.w	d0,d1
-	bcc.s	-
+	; Find the first visible scrolling section
+.seg_loop:
+	move.b	(a3)+,d0				; Number of lines in this segment
+	addq.w	#1,a3					; Skip index
+	sub.w	d0,d1					; Does this segment have any visible lines?
+	bcc.s	.seg_loop				; Branch if not
 
-	neg.w	d1
-	move.w	#bytesToLcnt($380),d2
+	neg.w	d1						; d1 = number of lines to draw in this segment
+	move.w	#bytesToLcnt($380),d2	; Number of rows in hscroll buffer
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
-	move.b	-1(a3),d3
-	move.w	(a2,d3.w),d0
-	neg.w	d0
+	move.b	-1(a3),d3				; Fetch TempArray_LayerDef index
+	move.w	(a2,d3.w),d0			; Fetch scroll value for this row...
+	neg.w	d0						; ... and flip sign for VDP
 
--	move.l	d0,(a1)+
-	subq.w	#1,d1
-	bne.s	+
-	move.b	(a3)+,d1
-	move.b	(a3)+,d3
-	move.w	(a2,d3.w),d0
-	neg.w	d0
-+	dbf	d2,-
+.row_loop:
+	move.l	d0,(a1)+
+	subq.w	#1,d1					; Has the current segment finished?
+	bne.s	.next_row				; Branch if not
+	move.b	(a3)+,d1				; Fetch a new line count
+	move.b	(a3)+,d3				; Fetch TempArray_LayerDef index
+	move.w	(a2,d3.w),d0			; Fetch scroll value for this row...
+	neg.w	d0						; ... and flip sign for VDP
+
+.next_row:
+	dbf	d2,.row_loop
 
 	rts
 ; ===========================================================================
-; unknown data
-byte_C8CA:
+; WFZ BG scrolling data
+; Each pair of bytes corresponds to one scrolling segment of the BG, and
+; the bytes have the following meaning:
+; 	number of lines, index into TempArray_LayerDef
+; byte_C8CA
+SwScrl_WFZ_Transition_Array:
 	dc.b $C0,  0,$C0,  0,$80,  0,$20,  8,$30, $C,$30,$10,$20,  8,$30, $C
 	dc.b $30,$10,$20,  8,$30, $C,$30,$10,$20,  8,$30, $C,$30,$10,$20,  8; 16
 	dc.b $30, $C,$30,$10,$20,  8,$30, $C,$30,$10,$20,  8,$30, $C,$30,$10; 32
 	dc.b $80,  4,$80,  4,$20,  8,$30, $C,$30,$10,$20,  8,$30, $C,$30,$10; 48
 	dc.b $20,  8,$30, $C,$30,$10,$C0,  0,$C0,  0,$80,  0; 64
-byte_C916:
+;byte_C916
+SwScrl_WFZ_Normal_Array:
 	dc.b $C0,  0,$C0,  0,$80,  0,$20,  8,$30, $C,$30,$10,$20,  8,$30, $C
 	dc.b $30,$10,$20,  8,$30, $C,$30,$10,$20,  8,$30, $C,$30,$10,$20,  8; 16
 	dc.b $30, $C,$30,$10,$20,  8,$30, $C,$30,$10,$20,  8,$30, $C,$30,$10; 32
 	dc.b $20,  8,$30, $C,$30,$10,$20,  8,$30, $C,$30,$10,$20,  8,$30, $C; 48
 	dc.b $30,$10,$20,  8,$30, $C,$30,$10,$C0,  0,$C0,  0,$80,  0; 64
+; Note: this array is missing $80 lines compared to the transition array.
+; This causes the lower clouds to read data from the start of SwScrl_HTZ.
+; These are the missing entries:
+    if 1==0
+	dc.b $20,  8,$30, $C,$30,$10
+    endif
 ; ===========================================================================
 ; loc_C964:
 SwScrl_HTZ:
