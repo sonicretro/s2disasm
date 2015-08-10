@@ -2225,7 +2225,6 @@ ArtTile_ArtUnc_CNZSlotPics_2_2p       = $0760
 ArtTile_ArtUnc_CNZSlotPics_3_2p       = $0770
 
 ; CPZ
-ArtTile_ArtNem_ConstructionStripes_1  = $0328
 ArtTile_ArtUnc_CPZAnimBack            = $0370
 ArtTile_ArtNem_CPZMetalThings         = $0373
 ArtTile_ArtNem_ConstructionStripes_2  = $0394
@@ -2241,6 +2240,7 @@ ArtTile_ArtNem_Spiny                  = $052D
 
 ; DEZ
 ArtTile_ArtUnc_DEZAnimBack            = $0326
+ArtTile_ArtNem_ConstructionStripes_1  = $0328
 
 ; ARZ
 ArtTile_ArtNem_ARZBarrierThing        = $03F8
@@ -2309,7 +2309,6 @@ ArtTile_ArtNem_WFZBoss                = $0379
 ArtTile_ArtNem_DEZBoss                = $0330
 ArtTile_ArtNem_DEZWindow              = $0378
 ArtTile_ArtNem_SilverSonic            = $0380
-ArtTile_ArtNem_RobotnikUpper_DEZ      = ArtTile_ArtNem_RobotnikUpper - $1D8 ; Bad reused mappings...
 
 ; ---------------------------------------------------------------------------
 ; Universal locations.

@@ -78286,7 +78286,7 @@ ObjC6_SubObjData3:
 	subObjData ObjC6_MapUnc_3D0EE,make_art_tile(ArtTile_ArtKos_LevelArt,0,0),4,5,$18,0
 ; off_3D0BC:
 ObjC6_SubObjData4:
-	subObjData ObjC6_MapUnc_3D1DE,make_art_tile(ArtTile_ArtNem_RobotnikUpper_DEZ,1,0),4,1,8,0
+	subObjData ObjC6_MapUnc_3D1DE,make_art_tile(ArtTile_ArtNem_ConstructionStripes_1,1,0),4,1,8,0
 ; off_3D0C6:
 ObjC6_SubObjData:
 	subObjData ObjC6_MapUnc_3D0EE,make_art_tile(ArtTile_ArtKos_LevelArt,0,0),4,5,4,0
