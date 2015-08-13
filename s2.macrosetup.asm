@@ -4,6 +4,7 @@
 	;listing on			; Want full listing file
 	;listing noskipped	; Want listing file, but only the non-skipped part of conditional assembly
 	listing purecode	; Want listing file, but only the final code in expanded macros
+	page	0	; Don't want form feeds
 	supmode on	; we don't need warnings about privileged instructions
 
 
