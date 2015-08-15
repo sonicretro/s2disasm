@@ -11683,30 +11683,42 @@ off_92F2:
 ; ===========================================================================
 ; loc_92F6:
 MenuScreen_LevelSelect:
+	; Load foreground (sans zone icon)
 	lea	(Chunk_Table).l,a1
 	lea	(MapEng_LevSel).l,a0	; 2 bytes per 8x8 tile, compressed
 	move.w	#make_art_tile(ArtTile_VRAM_Start,0,0),d0
 	bsr.w	EniDec
+
 	lea	(Chunk_Table).l,a1
 	move.l	#vdpComm(VRAM_Plane_A_Name_Table,VRAM,WRITE),d0
 	moveq	#$27,d1
 	moveq	#$1B,d2	; 40x28 = whole screen
 	jsrto	(PlaneMapToVRAM).l, JmpTo_PlaneMapToVRAM	; display patterns
+
+	; Draw sound test number
 	moveq	#palette_line_0,d3
 	bsr.w	LevelSelect_DrawSoundNumber
+
+	; Load zone icon
 	lea	(Chunk_Table+$8C0).l,a1
 	lea	(MapEng_LevSelIcon).l,a0
 	move.w	#make_art_tile(ArtTile_ArtNem_LevelSelectPics,0,0),d0
 	bsr.w	EniDec
+
 	bsr.w	LevelSelect_DrawIcon
+
 	clr.w	(Player_mode).w
 	clr.w	(Results_Screen_2P).w	; VsRSID_Act
 	clr.b	(Level_started_flag).w
 	clr.w	(Anim_Counters).w
+
+	; Animate background (loaded back in MenuScreen)
 	lea	(Anim_SonicMilesBG).l,a2
 	jsrto	(Dynamic_Normal).l, JmpTo2_Dynamic_Normal	; background
+
 	moveq	#PalID_Menu,d0
 	bsr.w	PalLoad1
+
 	lea	(Normal_palette_line3).w,a1
 	lea	(Target_palette_line3).w,a2
 
@@ -11717,33 +11729,43 @@ MenuScreen_LevelSelect:
 
 	move.b	#MusID_Options,d0
 	jsrto	(PlayMusic).l, JmpTo_PlayMusic
+
 	move.w	#$707,(Demo_Time_left).w
 	clr.w	(Two_player_mode).w
 	clr.l	(Camera_X_pos).w
 	clr.l	(Camera_Y_pos).w
 	clr.w	(Correct_cheat_entries).w
 	clr.w	(Correct_cheat_entries_2).w
+
 	move.b	#$16,(Vint_routine).w
 	bsr.w	WaitForVint
+
 	move.w	(VDP_Reg1_val).w,d0
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
+
 	bsr.w	Pal_FadeTo
 
 ;loc_93AC:
 LevelSelect_Main:	; routine running during level select
 	move.b	#$16,(Vint_routine).w
 	bsr.w	WaitForVint
+
 	move	#$2700,sr
+
 	moveq	#palette_line_0,d3	; palette line << 13
 	bsr.w	LevelSelect_MarkFields	; unmark fields
 	bsr.w	LevSelControls	; possible change selected fields
 	move.w	#palette_line_3,d3	; palette line << 13
 	bsr.w	LevelSelect_MarkFields	; mark fields
+
 	bsr.w	LevelSelect_DrawIcon
+
 	move	#$2300,sr
+
 	lea	(Anim_SonicMilesBG).l,a2
 	jsrto	(Dynamic_Normal).l, JmpTo2_Dynamic_Normal
+
 	move.b	(Ctrl_1_Press).w,d0
 	or.b	(Ctrl_2_Press).w,d0
 	andi.b	#button_start_mask,d0	; start pressed?
