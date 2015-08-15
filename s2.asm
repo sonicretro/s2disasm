@@ -11692,7 +11692,7 @@ MenuScreen_LevelSelect:
 	moveq	#$27,d1
 	moveq	#$1B,d2	; 40x28 = whole screen
 	jsrto	(PlaneMapToVRAM).l, JmpTo_PlaneMapToVRAM	; display patterns
-	moveq	#0,d3
+	moveq	#palette_line_0,d3
 	bsr.w	LevelSelect_DrawSoundNumber
 	lea	(Chunk_Table+$8C0).l,a1
 	lea	(MapEng_LevSelIcon).l,a0
