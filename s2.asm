@@ -1947,7 +1947,7 @@ ProcessDPLC_Main:
 	lea	(VDP_control_port).l,a4
 	lsl.l	#2,d0		; set up target VRAM address
 	lsr.w	#2,d0
-	ori.w	#$4000,d0
+	ori.w	#vdpComm($0000,VRAM,WRITE)>>16,d0
 	swap	d0
 	move.l	d0,(a4)
 	subq.w	#4,a4
@@ -2010,7 +2010,7 @@ RunPLC_ROM:
 	move.w	(a1)+,d0
 	lsl.l	#2,d0
 	lsr.w	#2,d0
-	ori.w	#$4000,d0
+	ori.w	#vdpComm($0000,VRAM,WRITE)>>16,d0
 	swap	d0
 	move.l	d0,(VDP_control_port).l
 	bsr.w	NemDec
@@ -11976,10 +11976,10 @@ LevelSelect_MarkFields:
 	move.b	(a3),d1
 	lsl.w	#7,d1
 	add.b	1(a3),d1
-	addi.w	#-$4000,d1
+	addi.w	#VRAM_Plane_A_Name_Table,d1
 	lsl.l	#2,d1
 	lsr.w	#2,d1
-	ori.w	#$4000,d1
+	ori.w	#vdpComm($0000,VRAM,WRITE)>>16,d1
 	swap	d1
 	move.l	d1,4(a6)
 
@@ -12002,10 +12002,10 @@ LevelSelect_MarkFields:
 	move.b	(a3),d1
 	lsl.w	#7,d1
 	add.b	1(a3),d1
-	addi.w	#-$4000,d1
+	addi.w	#VRAM_Plane_A_Name_Table,d1
 	lsl.l	#2,d1
 	lsr.w	#2,d1
-	ori.w	#$4000,d1
+	ori.w	#vdpComm($0000,VRAM,WRITE)>>16,d1
 	swap	d1
 	move.l	d1,4(a6)
 	move.w	(a1)+,d0
@@ -13640,7 +13640,7 @@ sub_B29E:
 	andi.l	#$FFFF,d0
 	lsl.l	#2,d0
 	lsr.w	#2,d0
-	ori.w	#$4000,d0
+	ori.w	#vdpComm($0000,VRAM,WRITE)>>16,d0
 	swap	d0
 	rts
 ; End of function sub_B29E
@@ -26511,7 +26511,7 @@ sub_15792:
 	andi.l	#$FFFF,d0
 	lsl.l	#2,d0
 	lsr.w	#2,d0
-	ori.w	#$4000,d0
+	ori.w	#vdpComm($0000,VRAM,WRITE)>>16,d0
 	swap	d0
 	rts
 ; End of function sub_15792
