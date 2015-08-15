@@ -3845,7 +3845,7 @@ TitleScreen:
 	lea	(off_B2B0).l,a1
 	jsr	(loc_B272).l
 
-	clearRAM Target_palette,$80	; fill palette with 0 (black)
+	clearRAM Target_palette,palette_line_size*2*4	; fill palette with 0 (black)
 	moveq	#PalID_BGND,d0
 	bsr.w	PalLoad1
 	bsr.w	Pal_FadeTo
@@ -3911,7 +3911,7 @@ TitleScreen:
 	moveq	#$1B,d2
 	jsrto	(PlaneMapToVRAM).l, PlaneMapToVRAM
 
-	clearRAM Normal_palette,$100	; fill two palettes with 0 (black)
+	clearRAM Normal_palette,palette_line_size*2*4*2	; fill two palettes with 0 (black)
 
 	moveq	#PalID_Title,d0
 	bsr.w	PalLoad1
@@ -11722,7 +11722,7 @@ MenuScreen_LevelSelect:
 	lea	(Normal_palette_line3).w,a1
 	lea	(Target_palette_line3).w,a2
 
-	moveq	#7,d1
+	moveq	#bytesToLcnt(palette_line_size*2),d1
 -	move.l	(a1),(a2)+
 	clr.l	(a1)+
 	dbf	d1,-
