@@ -12087,7 +12087,7 @@ LevelSelect_DrawIcon:
 	lea	(a1,d0.w),a1
 	lea	(Normal_palette_line3).w,a2
 
-	moveq	#7,d1
+	moveq	#bytesToLcnt(palette_line_size*2),d1
 -	move.l	(a1)+,(a2)+
 	dbf	d1,-
 
