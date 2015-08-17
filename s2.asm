@@ -16789,7 +16789,7 @@ SetHorizScrollFlagsBG2:	; only used by CPZ
 	lea	(Scroll_flags_BG).w,a2
 	lea	(Camera_BG_X_pos).w,a3
 	lea	(Level_Layout+$80).w,a4
-	move.w	#$6000,d2
+	move.w	#vdpComm(VRAM_Plane_B_Name_Table,VRAM,WRITE)>>16,d2
 	bsr.w	Draw_BG1
 	lea	(Scroll_flags_BG2).w,a2
 	lea	(Camera_BG2_X_pos).w,a3
@@ -16812,7 +16812,7 @@ LoadTilesAsYouMove:
 	lea	(Scroll_flags_BG_copy).w,a2
 	lea	(Camera_BG_copy).w,a3
 	lea	(Level_Layout+$80).w,a4	; first background line
-	move.w	#$6000,d2			; This selects a VRAM write and moves to PNT B
+	move.w	#vdpComm(VRAM_Plane_B_Name_Table,VRAM,WRITE)>>16,d2
 	bsr.w	Draw_BG1
 	lea	(Scroll_flags_BG2_copy).w,a2	; referred to in CPZ deformation routine, but cleared right after
 	lea	(Camera_BG2_copy).w,a3
@@ -16825,14 +16825,14 @@ LoadTilesAsYouMove:
 	lea	(Scroll_flags_copy_P2).w,a2
 	lea	(Camera_P2_copy).w,a3	; second player camera
 	lea	(Level_Layout).w,a4
-	move.w	#$6000,d2			; This selects a VRAM write and moves to player 2's PNT A (2p mode)
+	move.w	#vdpComm(VRAM_Plane_A_Name_Table_2P,VRAM,WRITE)>>16,d2
 	bsr.w	Draw_FG_P2
 
 +
 	lea	(Scroll_flags_copy).w,a2
 	lea	(Camera_RAM_copy).w,a3
 	lea	(Level_Layout).w,a4
-	move.w	#$4000,d2			; This selects a VRAM write and moves to PNT A
+	move.w	#vdpComm(VRAM_Plane_A_Name_Table,VRAM,WRITE)>>16,d2
 	tst.b	(Dirty_flag).w
 
 	; comment out this line to disable blast processing
@@ -17835,7 +17835,8 @@ CalcBlockVRAMPos2:
 	lsl.w	#4,d4		; make it into units of $100 - the height in plane A of a 16x16
 	lsr.w	#2,d5		; make it into units of 4 - the width in plane A of a 16x16
 	add.w	d5,d4		; combine the two to get final address
-	moveq	#3,d0		; access a VDP address in plane name table A ($C000) or B ($E000) if d2 has bit 13 unset or set
+	; access a VDP address in plane name table A ($C000) or B ($E000) if d2 has bit 13 unset or set
+	moveq	#vdpComm(VRAM_Plane_A_Name_Table,VRAM,WRITE)&$FFFF,d0
 	swap	d0
 	move.w	d4,d0		; make word-swapped VDP command
 	rts
@@ -17850,7 +17851,8 @@ loc_E2AC:
 	lsl.w	#3,d4
 	lsr.w	#2,d5
 	add.w	d5,d4
-	moveq	#3,d0		; access a VDP address in plane name table A ($C000) or B ($E000) if d2 has bit 13 unset or set
+	; access a VDP address in plane name table A ($C000) or B ($E000) if d2 has bit 13 unset or set
+	moveq	#vdpComm(VRAM_Plane_A_Name_Table,VRAM,WRITE)&$FFFF,d0
 	swap	d0
 	move.w	d4,d0
 	rts
@@ -17871,7 +17873,8 @@ CalcBlockVRAMPosB:
 	lsl.w	#4,d4
 	lsr.w	#2,d5
 	add.w	d5,d4
-	moveq	#2,d0		; access a VDP address in 2p plane name table A ($A000) or B ($8000) if d2 has bit 13 unset or set
+	; access a VDP address in 2p plane name table A ($A000) or B ($8000) if d2 has bit 13 unset or set
+	moveq	#vdpComm(VRAM_Plane_A_Name_Table_2P,VRAM,WRITE)&$FFFF,d0
 	swap	d0
 	move.w	d4,d0
 	rts
@@ -17885,7 +17888,8 @@ CalcBlockVRAMPosB:
 	lsl.w	#3,d4
 	lsr.w	#2,d5
 	add.w	d5,d4
-	moveq	#2,d0		; access a VDP address in 2p plane name table A ($A000) or B ($8000) if d2 has bit 13 unset or set
+	; access a VDP address in 2p plane name table A ($A000) or B ($8000) if d2 has bit 13 unset or set
+	moveq	#vdpComm(VRAM_Plane_A_Name_Table_2P,VRAM,WRITE)&$FFFF,d0
 	swap	d0
 	move.w	d4,d0
 	rts
@@ -17900,7 +17904,7 @@ DrawInitialBG:
 	lea	(VDP_data_port).l,a6
 	lea	(Camera_BG_X_pos).w,a3
 	lea	(Level_Layout+$80).w,a4	; background
-	move.w	#$6000,d2			; This selects a VRAM write and moves to PNT B
+	move.w	#vdpComm(VRAM_Plane_B_Name_Table,VRAM,WRITE)>>16,d2
 	moveq	#0,d4
 	cmpi.b	#casino_night_zone,(Current_Zone).w
 	beq.w	++
@@ -26479,7 +26483,7 @@ loc_15714:
 	beq.s	loc_15758
 	lea	(Camera_X_pos_P2).w,a3
 	lea	(Level_Layout).w,a4
-	move.w	#$6000,d2			; This selects a VRAM write and moves to player 2's PNT A (2p mode)
+	move.w	#vdpComm(VRAM_Plane_A_Name_Table_2P,VRAM,WRITE)>>16,d2
 
 	moveq	#1,d6
 -	movem.l	d4-d6,-(sp)
@@ -26497,7 +26501,7 @@ loc_15714:
 loc_15758:
 	lea	(Camera_X_pos).w,a3
 	lea	(Level_Layout).w,a4
-	move.w	#$4000,d2			; This selects a VRAM write and moves to PNT A
+	move.w	#vdpComm(VRAM_Plane_A_Name_Table,VRAM,WRITE)>>16,d2
 	move.w	(TitleCard_Background+objoff_36).w,d4
 
 	moveq	#1,d6
