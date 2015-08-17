@@ -84687,6 +84687,7 @@ loc_41C82:
 	move.b	#9,x_radius(a1)
 	move.w	(Camera_Min_Y_pos_Debug_Copy).w,(Camera_Min_Y_pos).w
 	move.w	(Camera_Max_Y_pos_Debug_Copy).w,(Camera_Max_Y_pos).w
+	; useless leftover; this is for S1's special stage
 	cmpi.b	#GameModeID_SpecialStage,(Game_Mode).w	; special stage mode?
 	bne.s	return_41CB6		; if not, branch
 	move.b	#AniIDSonAni_Roll,(MainCharacter+anim).w
