@@ -4489,9 +4489,9 @@ Level_FromCheckpoint:
 +
 	bsr.w	PalLoad4_Water
 +
-	move.w	#-1,(TitleCard_ZoneName+objoff_3E).w
+	move.w	#-1,(TitleCard_ZoneName+titlecard_leaveflag).w
 	move.b	#$E,(TitleCard_Left+routine).w	; make the left part move offscreen
-	move.w	#$A,(TitleCard_Left+objoff_34).w
+	move.w	#$A,(TitleCard_Left+titlecard_location).w
 
 -	move.b	#$C,(Vint_routine).w
 	bsr.w	WaitForVint
@@ -24839,8 +24839,13 @@ JmpTo4_PlayMusic
 ; ----------------------------------------------------------------------------
 ; Object 34 - level title card (screen with red, yellow, and blue)
 ; ----------------------------------------------------------------------------
-titlecard_x_target = objoff_30	; the X position the object will reach
-titlecard_x_source = objoff_32	; the X position the object starts from and will end at
+titlecard_x_target     = objoff_30	; the X position the object will reach
+titlecard_x_source     = objoff_32	; the X position the object starts from and will end at
+titlecard_location     = objoff_34	; point up to which titlecard is drawn
+titlecard_vram_dest    = objoff_36	; target of VRAM write
+titlecard_vram_dest_2P = objoff_38	; target of VRAM write
+titlecard_split_point  = objoff_3A	; point to split drawing for yellow and red portions
+titlecard_leaveflag    = objoff_3E	; whether or not titlecard is leaving screen
 ; Sprite_13C48:
 Obj34: ; (note: screen-space obj)
 	moveq	#0,d0
@@ -24882,7 +24887,7 @@ Obj34_Init:
 	lea	next_object(a1),a1 ; a1=object
 	dbf	d1,-
 
-	move.w	#$26,(TitleCard_Bottom+objoff_34).w
+	move.w	#$26,(TitleCard_Bottom+titlecard_location).w
 	clr.w	(Vscroll_Factor_FG).w
 	move.w	#-$E0,(Vscroll_Factor_P2_FG).w
 
@@ -24936,26 +24941,26 @@ Obj34_BackgroundIn:	; the blue background (green when playing as Knuckles), comi
 	moveq	#$20,d0
 	moveq	#7,d1
 +
-	move.w	objoff_34(a0),d2
+	move.w	titlecard_location(a0),d2
 	cmp.w	d0,d2
 	beq.s	++	; rts
 	lsl.w	d1,d2
 	move.w	#VRAM_Plane_A_Name_Table,d0
 	add.w	d2,d0
-	move.w	d0,objoff_36(a0)
+	move.w	d0,titlecard_vram_dest(a0)
 	tst.b	d6
 	beq.s	+
 	addi.w	#VRAM_Plane_A_Name_Table_2P,d2
-	move.w	d2,objoff_38(a0)
+	move.w	d2,titlecard_vram_dest_2P(a0)
 +
-	addq.w	#1,objoff_34(a0)
+	addq.w	#1,titlecard_location(a0)
 +
 	rts
 ; ===========================================================================
 ; loc_13D58:
 Obj34_BottomPartIn:	; the yellow part at the bottom, coming in
 	jsr	Obj34_Wait(pc)
-	move.w	objoff_34(a0),d0
+	move.w	titlecard_location(a0),d0
 	bmi.w	Obj34_MoveTowardsTargetPosition
 	add.w	d0,d0
 	move.w	#$80*$14/2,d1		; $14 half-cells down (for 2P mode)
@@ -24967,33 +24972,33 @@ Obj34_BottomPartIn:	; the yellow part at the bottom, coming in
 	move.w	#VRAM_Plane_A_Name_Table,d2
 	add.w	d0,d2
 	add.w	d1,d2
-	move.w	d2,objoff_36(a0)
+	move.w	d2,titlecard_vram_dest(a0)
 	tst.b	d6
 	beq.s	+
 	addi.w	#VRAM_Plane_A_Name_Table_2P,d1
 	add.w	d0,d1
-	move.w	d1,objoff_38(a0)
+	move.w	d1,titlecard_vram_dest_2P(a0)
 +
-	subq.w	#2,objoff_34(a0)
-	move.w	objoff_34(a0),objoff_3A(a0)
-	cmpi.w	#6,objoff_34(a0) ; if objoff_34(a0) is 6,
-	seq	objoff_34(a0) ; then set it to $FF, else set it to $00
+	subq.w	#2,titlecard_location(a0)
+	move.w	titlecard_location(a0),titlecard_split_point(a0)
+	cmpi.w	#6,titlecard_location(a0) ; if titlecard_location(a0) is 6,
+	seq	titlecard_location(a0) ; then set it to $FF, else set it to $00
 	bra.w	Obj34_MoveTowardsTargetPosition
 ; ===========================================================================
 ; loc_13DA6:
 Obj34_LeftPartIn:	; the red part on the left, coming in
 	jsr	Obj34_Wait(pc)
-	tst.w	objoff_34(a0)
+	tst.w	titlecard_location(a0)
 	bmi.w	Obj34_MoveTowardsTargetPosition
-	move.w	#VRAM_Plane_A_Name_Table,objoff_36(a0)
+	move.w	#VRAM_Plane_A_Name_Table,titlecard_vram_dest(a0)
 	tst.w	(Two_player_mode).w
 	beq.s	+
-	move.w	#VRAM_Plane_A_Name_Table_2P,objoff_38(a0)
+	move.w	#VRAM_Plane_A_Name_Table_2P,titlecard_vram_dest_2P(a0)
 +
-	addq.w	#2,objoff_34(a0)
-	move.w	objoff_34(a0),objoff_3A(a0)
-	cmpi.w	#$E,objoff_34(a0)
-	seq	objoff_34(a0)
+	addq.w	#2,titlecard_location(a0)
+	move.w	titlecard_location(a0),titlecard_split_point(a0)
+	cmpi.w	#$E,titlecard_location(a0)
+	seq	titlecard_location(a0)
 	bra.w	Obj34_MoveTowardsTargetPosition
 ; ===========================================================================
 ; loc_13DDC:
@@ -25052,31 +25057,31 @@ BranchTo9_DeleteObject
 ; ===========================================================================
 ; loc_13E42:
 Obj34_LeftPartOut:	; red part on the left, going out
-	move.w	objoff_34(a0),d0
+	move.w	titlecard_location(a0),d0
 	bpl.s	+
 	move.b	#$10,TitleCard_Bottom-TitleCard_Left+routine(a0)
-	clr.w	TitleCard_Bottom-TitleCard_Left+objoff_34(a0)
+	clr.w	TitleCard_Bottom-TitleCard_Left+titlecard_location(a0)
 	bra.s	BranchTo9_DeleteObject
 ; ===========================================================================
 +
 	add.w	d0,d0
-	move.w	#VRAM_Plane_A_Name_Table,objoff_36(a0)
-	add.w	d0,objoff_36(a0)
+	move.w	#VRAM_Plane_A_Name_Table,titlecard_vram_dest(a0)
+	add.w	d0,titlecard_vram_dest(a0)
 	tst.w	(Two_player_mode).w
 	beq.s	+
-	move.w	#VRAM_Plane_A_Name_Table_2P,objoff_38(a0)
-	add.w	d0,objoff_38(a0)
+	move.w	#VRAM_Plane_A_Name_Table_2P,titlecard_vram_dest_2P(a0)
+	add.w	d0,titlecard_vram_dest_2P(a0)
 +
-	subq.w	#4,objoff_34(a0)
-	cmpi.w	#-2,objoff_34(a0)
+	subq.w	#4,titlecard_location(a0)
+	cmpi.w	#-2,titlecard_location(a0)
 	bne.s	+
-	clr.w	objoff_34(a0)
+	clr.w	titlecard_location(a0)
 +
 	bra.w	loc_13EC4
 ; ===========================================================================
 ; loc_13E84:
 Obj34_BottomPartOut:	; yellow part at the bottom, going out
-	move.w	objoff_34(a0),d0
+	move.w	titlecard_location(a0),d0
 	cmpi.w	#$28,d0
 	bne.s	+
 	move.b	#$12,TitleCard_Background-TitleCard_Bottom+routine(a0)
@@ -25093,14 +25098,14 @@ Obj34_BottomPartOut:	; yellow part at the bottom, going out
 	move.w	#VRAM_Plane_A_Name_Table,d2
 	add.w	d0,d2
 	add.w	d1,d2
-	move.w	d2,objoff_36(a0)
+	move.w	d2,titlecard_vram_dest(a0)
 	tst.b	d6
 	beq.s	+
 	addi.w	#VRAM_Plane_A_Name_Table_2P,d1
 	add.w	d0,d1
-	move.w	d1,objoff_38(a0)
+	move.w	d1,titlecard_vram_dest_2P(a0)
 +
-	addq.w	#4,objoff_34(a0)
+	addq.w	#4,titlecard_location(a0)
 
 loc_13EC4:
 	moveq	#$20,d0
@@ -25125,15 +25130,15 @@ Obj34_BackgroundOutInit:	; the background, going out
 	move.l	(sp)+,d7
 	movea.l	(sp)+,a0 ; load 0bj address
 	addi_.b	#2,routine(a0)
-	move.w	#$F0,objoff_34(a0)
+	move.w	#$F0,titlecard_location(a0)
 ; loc_13EFE:
 Obj34_BackgroundOut:
-	move.w	objoff_34(a0),d0
+	move.w	titlecard_location(a0),d0
 	subi.w	#$20,d0
 	cmpi.w	#-$30,d0
 	beq.w	BranchTo9_DeleteObject
-	move.w	d0,objoff_34(a0)
-	move.w	d0,objoff_36(a0)
+	move.w	d0,titlecard_location(a0)
+	move.w	d0,titlecard_vram_dest(a0)
 	rts
 ; ===========================================================================
 ; loc_13F18:
@@ -26313,7 +26318,7 @@ Obj6F_MapUnc_14ED0:	BINCLUDE "mappings/sprite/obj6F.bin"
 ;loc_15584: ; level title card drawing function called from Vint
 DrawLevelTitleCard:
 	lea	(VDP_data_port).l,a6
-	tst.w	(TitleCard_ZoneName+objoff_3E).w
+	tst.w	(TitleCard_ZoneName+titlecard_leaveflag).w
 	bne.w	loc_15670
 	moveq	#$3F,d5
 	move.l	#make_block_tile_pair(ArtTile_ArtNem_TitleCard+$5A,0,0,0,1),d6
@@ -26323,15 +26328,15 @@ DrawLevelTitleCard:
 	move.l	#make_block_tile_pair_2p(ArtTile_ArtNem_TitleCard+$5A,0,0,0,1),d6
 
 loc_155A8:
-	lea	(TitleCard_Background+objoff_36).w,a0
-	moveq	#1,d7
+	lea	(TitleCard_Background+titlecard_vram_dest).w,a0
+	moveq	#1,d7	; Once for P1, once for P2 (if in 2p mode)
 
 loc_155AE:
 	move.w	(a0)+,d0
 	beq.s	loc_155C6
 	clr.w	-2(a0)
 	jsr	sub_15792(pc)
-	move.l	d0,4(a6)
+	move.l	d0,VDP_control_port-VDP_data_port(a6)
 	move.w	d5,d4
 
 loc_155C0:
@@ -26341,7 +26346,7 @@ loc_155C0:
 loc_155C6:
 	dbf	d7,loc_155AE
 	moveq	#$26,d1
-	sub.w	(TitleCard_Bottom+objoff_3A).w,d1
+	sub.w	(TitleCard_Bottom+titlecard_split_point).w,d1
 	lsr.w	#1,d1
 	subq.w	#1,d1
 	moveq	#7,d5
@@ -26352,8 +26357,8 @@ loc_155C6:
 	move.l	#make_block_tile_pair_2p(ArtTile_ArtNem_TitleCard+$5C,0,0,1,1),d6
 
 loc_155EA:
-	lea	(TitleCard_Bottom+objoff_36).w,a0
-	moveq	#1,d7
+	lea	(TitleCard_Bottom+titlecard_vram_dest).w,a0
+	moveq	#1,d7	; Once for P1, once for P2 (if in 2p mode)
 
 loc_155F0:
 	move.w	(a0)+,d0
@@ -26363,7 +26368,7 @@ loc_155F0:
 	move.w	d5,d4
 
 loc_155FE:
-	move.l	d0,4(a6)
+	move.l	d0,VDP_control_port-VDP_data_port(a6)
 	move.w	d1,d3
 
 loc_15604:
@@ -26374,7 +26379,7 @@ loc_15604:
 
 loc_15614:
 	dbf	d7,loc_155F0
-	move.w	(TitleCard_Left+objoff_3A).w,d1 ; horizontal draw from left until this position
+	move.w	(TitleCard_Left+titlecard_split_point).w,d1 ; horizontal draw from left until this position
 	subq.w	#1,d1
 	moveq	#$D,d5
 	move.l	#make_block_tile_pair(ArtTile_ArtNem_TitleCard+$58,0,0,0,1),d6 ; VRAM location of graphic to fill on left side
@@ -26384,9 +26389,9 @@ loc_15614:
 	move.l	#make_block_tile_pair_2p(ArtTile_ArtNem_TitleCard+$58,0,0,0,1),d6 ; VRAM location of graphic to fill on left side (2p)
 
 loc_15634:
-	lea	(TitleCard_Left+objoff_36).w,a0 ; obj34 red title card left side part
-	moveq	#1,d7
-	move.w	#$8F80,4(a6)		; VRAM pointer increment: $0080
+	lea	(TitleCard_Left+titlecard_vram_dest).w,a0 ; obj34 red title card left side part
+	moveq	#1,d7	; Once for P1, once for P2 (if in 2p mode)
+	move.w	#$8F80,VDP_control_port-VDP_data_port(a6)	; VRAM pointer increment: $0080
 
 loc_15640:
 	move.w	(a0)+,d0
@@ -26396,7 +26401,7 @@ loc_15640:
 	move.w	d1,d4
 
 loc_1564E:
-	move.l	d0,4(a6)
+	move.l	d0,VDP_control_port-VDP_data_port(a6)
 	move.w	d5,d3
 
 loc_15654:
@@ -26407,7 +26412,7 @@ loc_15654:
 
 loc_15664:
 	dbf	d7,loc_15640
-	move.w	#$8F02,4(a6)		; VRAM pointer increment: $0002
+	move.w	#$8F02,VDP_control_port-VDP_data_port(a6)	; VRAM pointer increment: $0002
 	rts
 ; ===========================================================================
 
@@ -26423,9 +26428,9 @@ loc_15670:
 	move.l	#make_block_tile_pair_2p(ArtTile_ArtNem_TitleCard+$5A,0,0,0,1),d5
 	move.l	#make_block_tile_pair_2p(ArtTile_ArtNem_TitleCard+$5C,0,0,1,1),d6
 +
-	lea	(TitleCard_Left+objoff_36).w,a0
-	moveq	#1,d7
-	move.w	#$8F80,4(a6)		; VRAM pointer increment: $0080
+	lea	(TitleCard_Left+titlecard_vram_dest).w,a0
+	moveq	#1,d7	; Once for P1, once for P2 (if in 2p mode)
+	move.w	#$8F80,VDP_control_port-VDP_data_port(a6)	; VRAM pointer increment: $0080
 
 loc_156A2:
 	move.w	(a0)+,d0
@@ -26435,7 +26440,7 @@ loc_156A2:
 	moveq	#3,d2
 
 loc_156B0:
-	move.l	d0,4(a6)
+	move.l	d0,VDP_control_port-VDP_data_port(a6)
 
 	move.w	d3,d1
 -	move.l	d5,(a6)
@@ -26450,7 +26455,7 @@ loc_156B0:
 
 loc_156CE:
 	dbf	d7,loc_156A2
-	move.w	#$8F02,4(a6)		; VRAM pointer increment: $0002
+	move.w	#$8F02,VDP_control_port-VDP_data_port(a6)	; VRAM pointer increment: $0002
 	moveq	#7,d5
 	move.l	#make_block_tile_pair(ArtTile_ArtNem_TitleCard+$5A,0,0,0,1),d6
 	tst.w	(Two_player_mode).w
@@ -26458,8 +26463,8 @@ loc_156CE:
 	moveq	#3,d5
 	move.l	#make_block_tile_pair_2p(ArtTile_ArtNem_TitleCard+$5A,0,0,0,1),d6
 +
-	lea	(TitleCard_Bottom+objoff_36).w,a0
-	moveq	#1,d7
+	lea	(TitleCard_Bottom+titlecard_vram_dest).w,a0
+	moveq	#1,d7	; Once for P1, once for P2 (if in 2p mode)
 
 loc_156F4:
 	move.w	(a0)+,d0
@@ -26468,7 +26473,7 @@ loc_156F4:
 	jsr	sub_15792(pc)
 
 	move.w	d5,d4
--	move.l	d0,4(a6)
+-	move.l	d0,VDP_control_port-VDP_data_port(a6)
 	move.l	d6,(a6)
 	move.l	d6,(a6)
 	addi.l	#vdpCommDelta($0080),d0
@@ -26476,9 +26481,9 @@ loc_156F4:
 
 loc_15714:
 	dbf	d7,loc_156F4
-	move.w	(TitleCard_Background+objoff_36).w,d4
+	move.w	(TitleCard_Background+titlecard_vram_dest).w,d4
 	beq.s	loc_1578C
-	lea	4(a6),a5
+	lea	VDP_control_port-VDP_data_port(a6),a5
 	tst.w	(Two_player_mode).w
 	beq.s	loc_15758
 	lea	(Camera_X_pos_P2).w,a3
@@ -26502,7 +26507,7 @@ loc_15758:
 	lea	(Camera_X_pos).w,a3
 	lea	(Level_Layout).w,a4
 	move.w	#vdpComm(VRAM_Plane_A_Name_Table,VRAM,WRITE)>>16,d2
-	move.w	(TitleCard_Background+objoff_36).w,d4
+	move.w	(TitleCard_Background+titlecard_vram_dest).w,d4
 
 	moveq	#1,d6
 -	movem.l	d4-d6,-(sp)
@@ -26518,7 +26523,7 @@ loc_15758:
 	dbf	d6,-
 
 loc_1578C:
-	clr.w	(TitleCard_Background+objoff_36).w
+	clr.w	(TitleCard_Background+titlecard_vram_dest).w
 	rts
 ; ===========================================================================
 
