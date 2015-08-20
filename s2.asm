@@ -1188,7 +1188,7 @@ VDPSetupGame:
 	lea	(VDP_control_port).l,a0
 	lea	(VDP_data_port).l,a1
 	lea	(VDPSetupArray).l,a2
-	moveq	#(VDPSetupArray_End-VDPSetupArray)/2-1,d7
+	moveq	#bytesToWcnt(VDPSetupArray_End-VDPSetupArray),d7
 ; loc_116C:
 VDP_Loop:
 	move.w	(a2)+,(a0)
@@ -1205,7 +1205,7 @@ VDP_Loop:
 
 	move.l	#vdpComm($0000,CRAM,WRITE),(VDP_control_port).l
 
-	move.w	#$3F,d7
+	move.w	#bytesToWcnt(palette_line_size*2*4),d7
 ; loc_11A0:
 VDP_ClrCRAM:
 	move.w	d0,(a1)
