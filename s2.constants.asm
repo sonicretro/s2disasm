@@ -1545,8 +1545,6 @@ SlotMachine_Slot3Pos:	ds.w	1
 SlotMachine_Slot3Speed:	ds.b	1
 SlotMachine_Slot3Rout:	ds.b	1
 
-    if gameRevision<2
-	; These are only here in REV00 and REV01
 				ds.b	$10	; $FFFFFF60-$FFFFFF6F ; seems unused
 
 Player_mode:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails
@@ -1554,7 +1552,6 @@ Player_option:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails
 
 Two_player_items:		ds.w	1
 				ds.b	$A	; $FFFFFF76-$FFFFFF7F ; seems unused
-    endif
 
 LevSel_HoldTimer:		ds.w	1
 Level_select_zone:		ds.w	1
@@ -1573,16 +1570,7 @@ Bonus_Countdown_3:		ds.w	1
 				ds.b	4	; $FFFFFF94-$FFFFFF97 ; seems unused
 Game_Over_2P:			ds.w	1
 
-    if gameRevision<2
-	; Unused in REV00/REV01
 				ds.b	6	; $FFFFFF9A-$FFFFFF9F ; seems unused
-    else
-	; Used by these relocated variables in REV02
-Player_mode:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails
-Player_option:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails
-
-Two_player_items:		ds.w	1
-    endif
 
 SS2p_RingBuffer:		ds.w	6
 				ds.b	4	; $FFFFFFAC-$FFFFFFAF ; seems unused
@@ -1625,13 +1613,6 @@ Ending_demo_number:		ds.w	1 ; zone for the ending demos (2 bytes, unused)
 Graphics_Flags:			ds.w	1 ; misc. bitfield
 Debug_mode_flag:		ds.w	1 ; (2 bytes)
 Checksum_fourcc:		ds.l	1 ; (4 bytes)
-
-    if gameRevision=2
-	; Might have been used by Sonic Compilation
-				ds.b	4	; unused
-unk_FFE4:			ds.l	1	; has 'SEGA' written to it
-				ds.b	$18	; unused
-    endif
 
 RAM_End
 

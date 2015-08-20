@@ -45,7 +45,7 @@ gameRevision = 1
 ;	| If 0, a REV00 ROM is built
 ;	| If 1, a REV01 ROM is built, which contains some fixes
 ;	| If 2, a (probable) REV02 ROM is built, which contains more fixes
-;	| (Bit-perfect REV02 requires skipChecksumCheck, removeJmpTos & addsubOptimize be set to 1,
+;	| (Bit-perfect REV02 requires removeJmpTos & addsubOptimize be set to 1,
 ;	| and also requires relativeLea to be 0)
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -95,7 +95,7 @@ Header:
 	dc.b "GM 00001051-00"   ; Version (REV00)
     elseif gameRevision=1
 	dc.b "GM 00001051-01"   ; Version (REV01)
-    else
+    else;if gameRevision=2
 	dc.b "GM 00001051-02"   ; Version (REV02)
     endif
 ; word_18E
@@ -119,17 +119,10 @@ EndOfHeader:
 ; ===========================================================================
 ; Crash/Freeze the 68000. Note that the Z80 continues to run, so the music keeps playing.
 ; loc_200:
-   if gameRevision<2
 ErrorTrap:
 	nop
 	nop
 	bra.s	ErrorTrap
-    else ; REV02
-ErrorTrap:
-	bra.s	ErrorTrap
-	nop
-	bra.s	ErrorTrap
-    endif
 
 ; ===========================================================================
 ; loc_206:
@@ -329,19 +322,10 @@ ChecksumLoop:
 	bne.w	ChecksumError	; if they don't match, branch
     endif
 ;checksum_good:
-    if gameRevision=2
-	move.l	#'SEGA',(unk_FFE4&$FFFFFF).l	; used by Sonic Compilation?
-    endif
-
 	lea	(System_Stack).w,a6
 	moveq	#0,d7
 
-    if gameRevision<2
 	move.w	#bytesToLcnt($200),d6
-    else
-	; this is to avoid clearing the $20 free bytes that the above 'SEGA' is a part of
-	move.w	#bytesToLcnt($200-$20),d6
-    endif
 -	move.l	d7,(a6)+
 	dbf	d6,-
 
@@ -80868,11 +80852,7 @@ Obj8A_Init:
 	move.w	#make_art_tile($0300,0,0),art_tile(a0)
 	jsrto	(Adjust2PArtPointer).l, JmpTo65_Adjust2PArtPointer
 	move.b	#$A,mapping_frame(a0)
-    if gameRevision<2
 	tst.b	($FFFFFFD3).w
-    else
-	tst.b	($FFFFFFB3).w	; some RAM was shifted in REV02
-    endif
 	beq.s	Obj8A_Display
 	cmpi.b	#button_down_mask|button_B_mask|button_C_mask|button_A_mask,(Ctrl_1_Held).w
 	bne.s	Obj8A_Display
@@ -85898,33 +85878,14 @@ PlrList_ResultsTails_End
 	; half of PlrList_ResultsTails
 	plreq ArtTile_ArtNem_MiniCharacter, ArtNem_MiniTails
 	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
+PlrList_ResultsTails_Dup_End
 	dc.l	0
     elseif gameRevision=2
-	; half of the DEZ PLR list
-	;plreq ArtTile_ArtNem_RobotnikRunning, ArtNem_RobotnikRunning	; cut in half
-	dc.w	ArtNem_RobotnikRunning&$FFFF		; cut in half
-	dc.w	tiles_to_bytes(ArtTile_ArtNem_RobotnikRunning)
+	; half of the second ARZ PLR list
+	;plreq ArtTile_ArtNem_Grounder, ArtNem_Grounder	; cut in half
+	;dc.l	ArtNem_Grounder
+	dc.w	tiles_to_bytes(ArtTile_ArtNem_Grounder)
 
-	plreq ArtTile_ArtNem_RobotnikUpper, ArtNem_RobotnikUpper
-	plreq ArtTile_ArtNem_RobotnikLower, ArtNem_RobotnikLower
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; ARZ Primary
-;---------------------------------------------------------------------------------------
-PlrList_Arz1_Dup: plrlistheader
-	plreq ArtTile_ArtNem_ARZBarrierThing, ArtNem_ARZBarrierThing
-	plreq ArtTile_ArtNem_WaterSurface, ArtNem_WaterSurface2
-	plreq ArtTile_ArtNem_Leaves, ArtNem_Leaves
-	plreq ArtTile_ArtNem_ArrowAndShooter, ArtNem_ArrowAndShooter
-PlrList_Arz1_Dup_End
-;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
-; ARZ Secondary
-;---------------------------------------------------------------------------------------
-PlrList_Arz2_Dup: plrlistheader
-	plreq ArtTile_ArtNem_ChopChop, ArtNem_ChopChop
-	plreq ArtTile_ArtNem_Whisp, ArtNem_Whisp
-	plreq ArtTile_ArtNem_Grounder, ArtNem_Grounder
 	plreq ArtTile_ArtNem_BigBubbles, ArtNem_BigBubbles
 	plreq ArtTile_ArtNem_Spikes, ArtNem_Spikes
 	plreq ArtTile_ArtNem_LeverSpring, ArtNem_LeverSpring
