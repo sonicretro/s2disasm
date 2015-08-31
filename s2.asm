@@ -9035,11 +9035,20 @@ word_728C_user: lea	(Obj5F_MapUnc_7240+$4C).l,a2 ; word_728C
 -	bsr.w	SSSingleObjLoad
 	bne.s	+
 	moveq	#0,d0
+
+    if object_size&3
+	move.w	#bytesToWcnt(object_size),d1
+
+-	move.w	(a0,d0.w),(a1,d0.w)
+	addq.w	#2,d0
+	dbf	d1,-
+    else
 	move.w	#bytesToLcnt(object_size),d1
 
 -	move.l	(a0,d0.w),(a1,d0.w)
 	addq.w	#4,d0
 	dbf	d1,-
+    endif
 
 	move.b	d3,mapping_frame(a1)
 	addq.w	#1,d3
@@ -20654,10 +20663,17 @@ Obj15_State4:
 	bne.s	loc_100E4
 	moveq	#0,d0
 
+    if object_size&3
+	move.w	#bytesToWcnt(object_size),d1
+-	move.w	(a0,d0.w),(a1,d0.w)
+	addq.w	#2,d0
+	dbf	d1,-
+    else
 	move.w	#bytesToLcnt(object_size),d1
 -	move.l	(a0,d0.w),(a1,d0.w)
 	addq.w	#4,d0
 	dbf	d1,-
+    endif
 
 	move.b	#$A,routine(a1)
 	cmpi.b	#aquatic_ruin_zone,(Current_Zone).w
@@ -27655,10 +27671,19 @@ DeleteObject:
 ; sub_164E8:
 DeleteObject2:
 	moveq	#0,d1
+
+    if object_size&3
+	moveq	#bytesToWcnt(next_object),d0 ; we want to clear up to the next object
+	; delete the object by setting all of its bytes to 0
+-	move.w	d1,(a1)+
+	dbf	d0,-
+    else
 	moveq	#bytesToLcnt(next_object),d0 ; we want to clear up to the next object
 	; delete the object by setting all of its bytes to 0
 -	move.l	d1,(a1)+
 	dbf	d0,-
+    endif
+
 	rts
 ; End of function DeleteObject2
 
@@ -30501,12 +30526,21 @@ ObjMan2P_UnkSub3_DeleteBlockLoop:
 
 	; inlined DeleteObject2:
 +
+    if object_size&3
+	moveq	#bytesToWcnt(next_object),d0 ; we want to clear up to the next object
+	; note: d1 is already 0
+
+	; delete the object by setting all of its bytes to 0
+-	move.w	d1,(a1)+
+	dbf	d0,-
+    else
 	moveq	#bytesToLcnt(next_object),d0 ; we want to clear up to the next object
 	; note: d1 is already 0
 
 	; delete the object by setting all of its bytes to 0
 -	move.l	d1,(a1)+
 	dbf	d0,-
+    endif
 
 ;loc_17F26:
 ObjMan2P_UnkSub3_DeleteBlock_SkipObj:
@@ -45340,12 +45374,23 @@ loc_231D2:
 	jsrto	(SingleObjLoad2).l, JmpTo6_SingleObjLoad2
 	bne.s	loc_23224
 	moveq	#0,d0
+
+    if object_size&3
+	move.w	#bytesToWcnt(object_size),d1
+
+loc_231F0:
+	move.w	(a0,d0.w),(a1,d0.w)
+	addq.w	#2,d0
+	dbf	d1,loc_231F0
+    else
 	move.w	#bytesToLcnt(object_size),d1
 
 loc_231F0:
 	move.l	(a0,d0.w),(a1,d0.w)
 	addq.w	#4,d0
 	dbf	d1,loc_231F0
+    endif
+
 	move.w	#9,objoff_32(a1)
 	move.w	#$200,anim(a1)
 	move.w	#$E,d0
@@ -61697,6 +61742,16 @@ Obj89_Init_RaisePillars:
 	jsrto	(SingleObjLoad2).l, JmpTo22_SingleObjLoad2
 	bne.s	Obj89_Init_Standard
 	moveq	#0,d0
+
+    if object_size&3
+	move.w	#bytesToWcnt(object_size),d1
+
+; loc_305DC:
+Obj89_Init_DuplicatePillar:
+	move.w	(a2,d0.w),(a1,d0.w)
+	addq.w	#2,d0
+	dbf	d1,Obj89_Init_DuplicatePillar
+    else
 	move.w	#bytesToLcnt(object_size),d1
 
 ; loc_305DC:
@@ -61704,6 +61759,8 @@ Obj89_Init_DuplicatePillar:
 	move.l	(a2,d0.w),(a1,d0.w)
 	addq.w	#4,d0
 	dbf	d1,Obj89_Init_DuplicatePillar
+    endif
+
 	bset	#0,render_flags(a1)
 	move.w	#$2B70,x_pos(a1)		; move pillar to other side of boss area
 
@@ -63686,12 +63743,23 @@ loc_32030:
 	jsrto	(SingleObjLoad2).l, JmpTo23_SingleObjLoad2
 	bne.s	return_3207E
 	moveq	#0,d0
+
+    if object_size&3
+	move.w	#bytesToWcnt(object_size),d1
+
+loc_3206E:
+	move.w	(a0,d0.w),(a1,d0.w)
+	addq.w	#2,d0
+	dbf	d1,loc_3206E
+    else
 	move.w	#bytesToLcnt(object_size),d1
 
 loc_3206E:
 	move.l	(a0,d0.w),(a1,d0.w)
 	addq.w	#4,d0
 	dbf	d1,loc_3206E
+    endif
+
 	neg.w	x_vel(a1)
 
 return_3207E:
@@ -65449,11 +65517,20 @@ Obj55_Wave:
 	jsrto	(SingleObjLoad2).l, JmpTo24_SingleObjLoad2
 	bne.s	Obj55_Wave_End
 	moveq	#0,d0
+
+    if object_size&3
+	move.w	#bytesToWcnt(object_size),d1
+
+-	move.w	(a0,d0.w),(a1,d0.w)	; make new object a copy of this one
+	addq.w	#2,d0
+	dbf	d1,-
+    else
 	move.w	#bytesToLcnt(object_size),d1
 
 -	move.l	(a0,d0.w),(a1,d0.w)	; make new object a copy of this one
 	addq.w	#4,d0
 	dbf	d1,-
+    endif
 
 	move.w	#5,Obj55_Wave_delay(a1)
 	move.w	#$200,anim(a1)
@@ -68574,15 +68651,24 @@ byte_361C8:
 ;loc_361CC
 SSClearObjs:
 	movea.l	#(SS_Object_RAM&$FFFFFF),a1
+
+    if object_size=$40
 	move.w	#(SS_Object_RAM_End-SS_Object_RAM)/(object_size/4)-1,d0
 	moveq	#0,d1
 
 loc_361D8:
+    rept (object_size/4)/4
 	move.l	d1,(a1)+
-	move.l	d1,(a1)+
-	move.l	d1,(a1)+
-	move.l	d1,(a1)+
+    endm
 	dbf	d0,loc_361D8
+    else
+	move.w	#bytesToWcnt(SS_Object_RAM_End-SS_Object_RAM),d0
+	moveq	#0,d1
+
+loc_361D8:
+	move.w	d1,(a1)+
+	dbf	d0,loc_361D8
+    endif
 
 	; The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
 	clearRAM Sprite_Table,(Sprite_Table_End-Sprite_Table)+4
