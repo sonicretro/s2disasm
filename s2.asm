@@ -9036,18 +9036,13 @@ word_728C_user: lea	(Obj5F_MapUnc_7240+$4C).l,a2 ; word_728C
 	bne.s	+
 	moveq	#0,d0
 
-    if object_size&3
-	move.w	#bytesToWcnt(object_size),d1
-
--	move.w	(a0,d0.w),(a1,d0.w)
-	addq.w	#2,d0
-	dbf	d1,-
-    else
 	move.w	#bytesToLcnt(object_size),d1
 
 -	move.l	(a0,d0.w),(a1,d0.w)
 	addq.w	#4,d0
 	dbf	d1,-
+    if object_size&3
+	move.w	(a0,d0.w),(a1,d0.w)
     endif
 
 	move.b	d3,mapping_frame(a1)
@@ -20663,16 +20658,12 @@ Obj15_State4:
 	bne.s	loc_100E4
 	moveq	#0,d0
 
-    if object_size&3
-	move.w	#bytesToWcnt(object_size),d1
--	move.w	(a0,d0.w),(a1,d0.w)
-	addq.w	#2,d0
-	dbf	d1,-
-    else
 	move.w	#bytesToLcnt(object_size),d1
 -	move.l	(a0,d0.w),(a1,d0.w)
 	addq.w	#4,d0
 	dbf	d1,-
+    if object_size&3
+	move.w	(a0,d0.w),(a1,d0.w)
     endif
 
 	move.b	#$A,routine(a1)
@@ -27672,16 +27663,12 @@ DeleteObject:
 DeleteObject2:
 	moveq	#0,d1
 
-    if object_size&3
-	moveq	#bytesToWcnt(next_object),d0 ; we want to clear up to the next object
-	; delete the object by setting all of its bytes to 0
--	move.w	d1,(a1)+
-	dbf	d0,-
-    else
 	moveq	#bytesToLcnt(next_object),d0 ; we want to clear up to the next object
 	; delete the object by setting all of its bytes to 0
 -	move.l	d1,(a1)+
 	dbf	d0,-
+    if object_size&3
+	move.w	d1,(a1)+
     endif
 
 	rts
@@ -30526,20 +30513,14 @@ ObjMan2P_UnkSub3_DeleteBlockLoop:
 
 	; inlined DeleteObject2:
 +
-    if object_size&3
-	moveq	#bytesToWcnt(next_object),d0 ; we want to clear up to the next object
-	; note: d1 is already 0
-
-	; delete the object by setting all of its bytes to 0
--	move.w	d1,(a1)+
-	dbf	d0,-
-    else
 	moveq	#bytesToLcnt(next_object),d0 ; we want to clear up to the next object
 	; note: d1 is already 0
 
 	; delete the object by setting all of its bytes to 0
 -	move.l	d1,(a1)+
 	dbf	d0,-
+    if object_size&3
+	move.w	d1,(a1)+
     endif
 
 ;loc_17F26:
@@ -45375,20 +45356,14 @@ loc_231D2:
 	bne.s	loc_23224
 	moveq	#0,d0
 
-    if object_size&3
-	move.w	#bytesToWcnt(object_size),d1
-
-loc_231F0:
-	move.w	(a0,d0.w),(a1,d0.w)
-	addq.w	#2,d0
-	dbf	d1,loc_231F0
-    else
 	move.w	#bytesToLcnt(object_size),d1
 
 loc_231F0:
 	move.l	(a0,d0.w),(a1,d0.w)
 	addq.w	#4,d0
 	dbf	d1,loc_231F0
+    if object_size&3
+	move.w	(a0,d0.w),(a1,d0.w)
     endif
 
 	move.w	#9,objoff_32(a1)
@@ -61743,15 +61718,6 @@ Obj89_Init_RaisePillars:
 	bne.s	Obj89_Init_Standard
 	moveq	#0,d0
 
-    if object_size&3
-	move.w	#bytesToWcnt(object_size),d1
-
-; loc_305DC:
-Obj89_Init_DuplicatePillar:
-	move.w	(a2,d0.w),(a1,d0.w)
-	addq.w	#2,d0
-	dbf	d1,Obj89_Init_DuplicatePillar
-    else
 	move.w	#bytesToLcnt(object_size),d1
 
 ; loc_305DC:
@@ -61759,6 +61725,8 @@ Obj89_Init_DuplicatePillar:
 	move.l	(a2,d0.w),(a1,d0.w)
 	addq.w	#4,d0
 	dbf	d1,Obj89_Init_DuplicatePillar
+    if object_size&3
+	move.w	(a2,d0.w),(a1,d0.w)
     endif
 
 	bset	#0,render_flags(a1)
@@ -63744,20 +63712,14 @@ loc_32030:
 	bne.s	return_3207E
 	moveq	#0,d0
 
-    if object_size&3
-	move.w	#bytesToWcnt(object_size),d1
-
-loc_3206E:
-	move.w	(a0,d0.w),(a1,d0.w)
-	addq.w	#2,d0
-	dbf	d1,loc_3206E
-    else
 	move.w	#bytesToLcnt(object_size),d1
 
 loc_3206E:
 	move.l	(a0,d0.w),(a1,d0.w)
 	addq.w	#4,d0
 	dbf	d1,loc_3206E
+    if object_size&3
+	move.w	(a0,d0.w),(a1,d0.w)
     endif
 
 	neg.w	x_vel(a1)
@@ -65518,18 +65480,13 @@ Obj55_Wave:
 	bne.s	Obj55_Wave_End
 	moveq	#0,d0
 
-    if object_size&3
-	move.w	#bytesToWcnt(object_size),d1
-
--	move.w	(a0,d0.w),(a1,d0.w)	; make new object a copy of this one
-	addq.w	#2,d0
-	dbf	d1,-
-    else
 	move.w	#bytesToLcnt(object_size),d1
 
 -	move.l	(a0,d0.w),(a1,d0.w)	; make new object a copy of this one
 	addq.w	#4,d0
 	dbf	d1,-
+    if object_size&3
+	move.w	(a0,d0.w),(a1,d0.w)	; make new object a copy of this one
     endif
 
 	move.w	#5,Obj55_Wave_delay(a1)
@@ -68652,22 +68609,25 @@ byte_361C8:
 SSClearObjs:
 	movea.l	#(SS_Object_RAM&$FFFFFF),a1
 
-    if object_size=$40
-	move.w	#(SS_Object_RAM_End-SS_Object_RAM)/(object_size/4)-1,d0
+	move.w	#(SS_Object_RAM_End-SS_Object_RAM)/$10-1,d0
 	moveq	#0,d1
 
 loc_361D8:
-    rept (object_size/4)/4
+    rept $10/4
 	move.l	d1,(a1)+
     endm
 	dbf	d0,loc_361D8
-    else
-	move.w	#bytesToWcnt(SS_Object_RAM_End-SS_Object_RAM),d0
-	moveq	#0,d1
-
-loc_361D8:
+.c := ((SS_Object_RAM_End-SS_Object_RAM)#$10)/4
+    if .c
+    rept .c
+	move.l	d1,(a1)+
+    endm
+    endif
+.c := ((SS_Object_RAM_End-SS_Object_RAM)#$10)&2
+    if .c
+    rept .c
 	move.w	d1,(a1)+
-	dbf	d0,loc_361D8
+    endm
     endif
 
 	; The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
