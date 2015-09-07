@@ -1638,7 +1638,9 @@ zBGMLoad:
 	cp	7					; Does it equal 7?  (6 FM channels)
 	jr	nz,+				; If not, skip this next part
 	xor	a					; Clear 'a'
+    if OptimiseDriver=0
 	ld	c,a					; c = 0
+    endif
 	jr	zloc_87E			; jump to zloc_87E
 +
 	; Silence FM Channel 6 specifically if it's not in use
@@ -1658,9 +1660,14 @@ zBGMLoad:
 	ld	c,0C0h				; default Panning / AMS / FMS settings (only stereo L/R enabled)
 	rst	zWriteFMII			; Set it!
 	ld	a,80h				; FM Channel 6 is NOT in use (will enable DAC)
+    if OptimiseDriver=0
 	ld	c,a					; Set this as value to be used in FM register write coming up...
+    endif
 
 zloc_87E:
+    if OptimiseDriver
+	ld	c,a
+    endif
 	ld	(zAbsVar.DACEnabled),a	; Note whether FM Channel 6 is in use (enables DAC if not)
 	ld	a,2Bh				; Set DAC Enable appropriately
 	rst	zWriteFMI			; Set it!
