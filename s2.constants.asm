@@ -299,15 +299,39 @@ wood_zone_act_2 =		(wood_zone<<8)|$01
 hidden_palace_zone_act_1 =	(hidden_palace_zone<<8)|$00
 hidden_palace_zone_act_2 =	(hidden_palace_zone<<8)|$01
 
-; Game modes
-
-; some variables to help define those constants (redefined before a new set of IDs)
-offset :=	GameModesArray	; this is the start of the pointer table
+; ---------------------------------------------------------------------------
+; some variables and functions to help define those constants (redefined before a new set of IDs)
+offset :=	0		; this is the start of the pointer table
 ptrsize :=	1		; this is the size of a pointer (should be 1 if the ID is a multiple of the actual size)
 idstart :=	0		; value to add to all IDs
 
 ; function using these variables
 id function ptr,((ptr-offset)/ptrsize+idstart)
+
+; V-Int routines
+offset :=	Vint_SwitchTbl
+ptrsize :=	1
+idstart :=	0
+
+VintID_Lag =		id(Vint_Lag_ptr) ; 0
+VintID_SEGA =		id(Vint_SEGA_ptr) ; 2
+VintID_Title =		id(Vint_Title_ptr) ; 4
+VintID_Unused6 =	id(Vint_Unused6_ptr) ; 6
+VintID_Level =		id(Vint_Level_ptr) ; 8
+VintID_S2SS =		id(Vint_S2SS_ptr) ; A
+VintID_TitleCard =	id(Vint_TitleCard_ptr) ; C
+VintID_UnusedE =	id(Vint_UnusedE_ptr) ; E
+VintID_Pause =		id(Vint_Pause_ptr) ; 10
+VintID_Fade =		id(Vint_Fade_ptr) ; 12
+VintID_PCM =		id(Vint_PCM_ptr) ; 14
+VintID_Menu =		id(Vint_Menu_ptr) ; 16
+VintID_Ending =		id(Vint_Ending_ptr) ; 18
+VintID_CtrlDMA =	id(Vint_CtrlDMA_ptr) ; 1A
+
+; Game modes
+offset :=	GameModesArray
+ptrsize :=	1
+idstart :=	0
 
 GameModeID_SegaScreen =		id(GameMode_SegaScreen) ; 0
 GameModeID_TitleScreen =	id(GameMode_TitleScreen) ; 4
