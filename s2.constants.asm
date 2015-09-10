@@ -299,39 +299,15 @@ wood_zone_act_2 =		(wood_zone<<8)|$01
 hidden_palace_zone_act_1 =	(hidden_palace_zone<<8)|$00
 hidden_palace_zone_act_2 =	(hidden_palace_zone<<8)|$01
 
-; ---------------------------------------------------------------------------
-; some variables and functions to help define those constants (redefined before a new set of IDs)
-offset :=	0		; this is the start of the pointer table
+; Game modes
+
+; some variables to help define those constants (redefined before a new set of IDs)
+offset :=	GameModesArray	; this is the start of the pointer table
 ptrsize :=	1		; this is the size of a pointer (should be 1 if the ID is a multiple of the actual size)
 idstart :=	0		; value to add to all IDs
 
 ; function using these variables
 id function ptr,((ptr-offset)/ptrsize+idstart)
-
-; V-Int routines
-offset :=	Vint_SwitchTbl
-ptrsize :=	1
-idstart :=	0
-
-VintID_Lag =		id(Vint_Lag_ptr) ; 0
-VintID_SEGA =		id(Vint_SEGA_ptr) ; 2
-VintID_Title =		id(Vint_Title_ptr) ; 4
-VintID_Unused6 =	id(Vint_Unused6_ptr) ; 6
-VintID_Level =		id(Vint_Level_ptr) ; 8
-VintID_S2SS =		id(Vint_S2SS_ptr) ; A
-VintID_TitleCard =	id(Vint_TitleCard_ptr) ; C
-VintID_UnusedE =	id(Vint_UnusedE_ptr) ; E
-VintID_Pause =		id(Vint_Pause_ptr) ; 10
-VintID_Fade =		id(Vint_Fade_ptr) ; 12
-VintID_PCM =		id(Vint_PCM_ptr) ; 14
-VintID_Menu =		id(Vint_Menu_ptr) ; 16
-VintID_Ending =		id(Vint_Ending_ptr) ; 18
-VintID_CtrlDMA =	id(Vint_CtrlDMA_ptr) ; 1A
-
-; Game modes
-offset :=	GameModesArray
-ptrsize :=	1
-idstart :=	0
 
 GameModeID_SegaScreen =		id(GameMode_SegaScreen) ; 0
 GameModeID_TitleScreen =	id(GameMode_TitleScreen) ; 4
@@ -942,7 +918,7 @@ AniIDTailsAni_Fly			= id(TailsAni_Fly_ptr)			; 32 ; $20
 
 
 ; Other sizes
-palette_line_size =	$10	; 16 word entries
+palette_line_size =	$10*2	; 16 word entries
 
 ; ---------------------------------------------------------------------------
 ; I run the main 68k RAM addresses through this function
@@ -1163,15 +1139,15 @@ Block_cache:			ds.b	$80
 Ring_consumption_table:		ds.b	$80	; contains RAM addresses of rings currently being consumed
 Ring_consumption_table_End:
 
-Underwater_palette_2:		ds.w palette_line_size	; not sure what it's used for but it's only used when there's water
-Underwater_palette_2_line2:	ds.w palette_line_size
-Underwater_palette_2_line3:	ds.w palette_line_size
-Underwater_palette_2_line4:	ds.w palette_line_size
+Underwater_palette_2:		ds.b palette_line_size	; not sure what it's used for but it's only used when there's water
+Underwater_palette_2_line2:	ds.b palette_line_size
+Underwater_palette_2_line3:	ds.b palette_line_size
+Underwater_palette_2_line4:	ds.b palette_line_size
 
-Underwater_palette:		ds.w palette_line_size	; main palette for underwater parts of the screen
-Underwater_palette_line2:	ds.w palette_line_size
-Underwater_palette_line3:	ds.w palette_line_size
-Underwater_palette_line4:	ds.w palette_line_size
+Underwater_palette:		ds.b palette_line_size	; main palette for underwater parts of the screen
+Underwater_palette_line2:	ds.b palette_line_size
+Underwater_palette_line3:	ds.b palette_line_size
+Underwater_palette_line4:	ds.b palette_line_size
 
 				ds.b	$500	; $FFFFF100-$FFFFF5FF ; unused, leftover from the Sonic 1 sound driver (and used by it when you port it to Sonic 2)
 
@@ -1390,18 +1366,18 @@ Sprite_Table:			ds.b	$280	; Sprite attribute table buffer
 Sprite_Table_End:
 				ds.b	$80	; unused, but SAT buffer can spill over into this area when there are too many sprites on-screen
 
-Normal_palette:			ds.w	palette_line_size
-Normal_palette_line2:		ds.w	palette_line_size
-Normal_palette_line3:		ds.w	palette_line_size
-Normal_palette_line4:		ds.w	palette_line_size
+Normal_palette:			ds.b	palette_line_size
+Normal_palette_line2:		ds.b	palette_line_size
+Normal_palette_line3:		ds.b	palette_line_size
+Normal_palette_line4:		ds.b	palette_line_size
 Second_palette:
-Target_palette:			ds.w	palette_line_size
+Target_palette:			ds.b	palette_line_size
 Second_palette_line2:
-Target_palette_line2:		ds.w	palette_line_size
+Target_palette_line2:		ds.b	palette_line_size
 Second_palette_line3:
-Target_palette_line3:		ds.w	palette_line_size
+Target_palette_line3:		ds.b	palette_line_size
 Second_palette_line4:
-Target_palette_line4:		ds.w	palette_line_size
+Target_palette_line4:		ds.b	palette_line_size
 
 Object_Respawn_Table:
 Obj_respawn_index:		ds.w	$C0

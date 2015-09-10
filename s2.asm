@@ -408,7 +408,7 @@ LevelSelectMenu: ;;
 V_Int:
 	movem.l	d0-a6,-(sp)
 	tst.b	(Vint_routine).w
-	beq.w	Vint_Lag
+	beq.w	VintSub0
 
 -	move.w	(VDP_control_port).l,d0
 	andi.w	#8,d0
@@ -423,7 +423,7 @@ V_Int:
 -	dbf	d0,- ; wait here in a loop doing nothing for a while...
 +
 	move.b	(Vint_routine).w,d0
-	move.b	#VintID_Lag,(Vint_routine).w
+	move.b	#0,(Vint_routine).w
 	move.w	#1,(Hint_flag).w
 	andi.w	#$3E,d0
 	move.w	Vint_SwitchTbl(pc,d0.w),d0
@@ -435,23 +435,23 @@ VintRet:
 	rte
 ; ===========================================================================
 Vint_SwitchTbl: offsetTable
-Vint_Lag_ptr		offsetTableEntry.w Vint_Lag			;   0
-Vint_SEGA_ptr:		offsetTableEntry.w Vint_SEGA		;   2
-Vint_Title_ptr:		offsetTableEntry.w Vint_Title		;   4
-Vint_Unused6_ptr:	offsetTableEntry.w Vint_Unused6		;   6
-Vint_Level_ptr:		offsetTableEntry.w Vint_Level		;   8
-Vint_S2SS_ptr:		offsetTableEntry.w Vint_S2SS		;  $A
-Vint_TitleCard_ptr:	offsetTableEntry.w Vint_TitleCard	;  $C
-Vint_UnusedE_ptr:	offsetTableEntry.w Vint_UnusedE		;  $E
-Vint_Pause_ptr:		offsetTableEntry.w Vint_Pause		; $10
-Vint_Fade_ptr:		offsetTableEntry.w Vint_Fade		; $12
-Vint_PCM_ptr:		offsetTableEntry.w Vint_PCM			; $14
-Vint_Menu_ptr:		offsetTableEntry.w Vint_Menu		; $16
-Vint_Ending_ptr:	offsetTableEntry.w Vint_Ending		; $18
-Vint_CtrlDMA_ptr:	offsetTableEntry.w Vint_CtrlDMA		; $1A
+		offsetTableEntry.w VintSub0	;   0
+		offsetTableEntry.w VintSub2	;   2
+		offsetTableEntry.w VintSub4	;   4
+		offsetTableEntry.w VintSub6	;   6
+		offsetTableEntry.w VintSub8	;   8
+		offsetTableEntry.w VintSubA	;  $A
+		offsetTableEntry.w VintSubC	;  $C
+		offsetTableEntry.w VintSubE	;  $E
+		offsetTableEntry.w VintSub10	; $10
+		offsetTableEntry.w VintSub12	; $12
+		offsetTableEntry.w VintSub14	; $14
+		offsetTableEntry.w VintSub16	; $16
+		offsetTableEntry.w VintSub18	; $18
+		offsetTableEntry.w VintSub1A	; $1A
 ; ===========================================================================
-;VintSub0
-Vint_Lag:
+
+VintSub0:
 	cmpi.b	#GameModeID_TitleCard|GameModeID_Demo,(Game_Mode).w	; pre-level Demo Mode?
 	beq.s	loc_4C4
 	cmpi.b	#GameModeID_TitleCard|GameModeID_Level,(Game_Mode).w	; pre-level Zone play mode?
@@ -528,8 +528,8 @@ Vint0_noWater:
 
 ; This subroutine copies the H scroll table buffer (in main RAM) to the H scroll
 ; table (in VRAM).
-;VintSub2
-Vint_SEGA:
+
+VintSub2:
 	bsr.w	Do_ControllerPal
 
 	dma68kToVDP Horiz_Scroll_Buf,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
@@ -540,8 +540,8 @@ Vint_SEGA:
 +
 	rts
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-;VintSub14
-Vint_PCM:
+
+VintSub14:
 	move.b	(Vint_runcount+3).w,d0
 	andi.w	#$F,d0
 	bne.s	+
@@ -556,8 +556,8 @@ Vint_PCM:
 +
 	rts
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-;VintSub4
-Vint_Title:
+
+VintSub4:
 	bsr.w	Do_ControllerPal
 	bsr.w	ProcessDPLC
 	tst.w	(Demo_Time_left).w
@@ -566,17 +566,18 @@ Vint_Title:
 +
 	rts
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-;VintSub6
-Vint_Unused6:
+
+VintSub6:
 	bsr.w	Do_ControllerPal
 	rts
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-;VintSub10
-Vint_Pause:
+
+VintSub10:
 	cmpi.b	#GameModeID_SpecialStage,(Game_Mode).w	; Special Stage?
-	beq.w	Vint_Pause_specialStage
-;VintSub8
-Vint_Level:
+	beq.w	Vint10_specialStage
+
+VintSub8:
+
 	stopZ80
 
 	bsr.w	ReadJoypads
@@ -662,8 +663,8 @@ Do_Updates:
 ; End of function Do_Updates
 
 ; ---------------------------------------------------------------------------
-;Vint10_specialStage
-Vint_Pause_specialStage:
+
+Vint10_specialStage:
 	stopZ80
 
 	bsr.w	ReadJoypads
@@ -681,8 +682,8 @@ loc_86E:
 	startZ80
 	rts
 ; ========================================================================>>>
-;VintSubA
-Vint_S2SS:
+
+VintSubA:
 	stopZ80
 
 	bsr.w	ReadJoypads
@@ -841,15 +842,15 @@ SSAnim_Base_Duration:
 	dc.b  5	; 6
 	dc.b  0	; 7
 ; ===========================================================================
-;VintSub1A
-Vint_CtrlDMA:
+
+VintSub1A:
 	stopZ80
 	jsr	(ProcessDMAQueue).l
 	startZ80
 	rts
 ; ===========================================================================
-;VintSubC
-Vint_TitleCard:
+
+VintSubC:
 	stopZ80
 
 	bsr.w	ReadJoypads
@@ -883,21 +884,21 @@ loc_BD6:
 	bsr.w	ProcessDPLC
 	rts
 ; ===========================================================================
-;VintSubE
-Vint_UnusedE:
+
+VintSubE:
 	bsr.w	Do_ControllerPal
 	addq.b	#1,(VIntSubE_RunCount).w
-	move.b	#VintID_UnusedE,(Vint_routine).w
+	move.b	#$E,(Vint_routine).w
 	rts
 ; ===========================================================================
-;VintSub12
-Vint_Fade:
+
+VintSub12:
 	bsr.w	Do_ControllerPal
 	move.w	(Hint_counter_reserve).w,(a5)
 	bra.w	ProcessDPLC
 ; ===========================================================================
-;VintSub18
-Vint_Ending:
+
+VintSub18:
 	stopZ80
 
 	bsr.w	ReadJoypads
@@ -947,8 +948,8 @@ off_D3C:	offsetTable
 	jsrto	(PlaneMapToVRAM).l, PlaneMapToVRAM
 	rts
 ; ===========================================================================
-;VintSub16
-Vint_Menu:
+
+VintSub16:
 	stopZ80
 
 	bsr.w	ReadJoypads
@@ -1204,7 +1205,7 @@ VDP_Loop:
 
 	move.l	#vdpComm($0000,CRAM,WRITE),(VDP_control_port).l
 
-	move.w	#bytesToWcnt(palette_line_size*2*4),d7
+	move.w	#bytesToWcnt(palette_line_size*4),d7
 ; loc_11A0:
 VDP_ClrCRAM:
 	move.w	d0,(a1)
@@ -1366,7 +1367,7 @@ PauseGame:
 	move.b	#MusID_Pause,(Music_to_play).w	; pause music
 ; loc_13B2:
 Pause_Loop:
-	move.b	#VintID_Pause,(Vint_routine).w
+	move.b	#$10,(Vint_routine).w
 	bsr.w	WaitForVint
 	tst.b	(Slow_motion_flag).w	; is slow-motion cheat on?
 	beq.s	Pause_ChkStart		; if not, branch
@@ -2881,7 +2882,7 @@ Pal_ToBlack:
 	dbf	d0,Pal_ToBlack	; fill palette with $000 (black)
 
 	move.w	#$15,d4
--	move.b	#VintID_Fade,(Vint_routine).w
+-	move.b	#$12,(Vint_routine).w
 	bsr.w	WaitForVint
 	bsr.s	Pal_FadeIn
 	bsr.w	RunPLC_RAM
@@ -2969,7 +2970,7 @@ Pal_FadeFrom:
 	move.w	#$3F,(Palette_fade_range).w
 
 	move.w	#$15,d4
--	move.b	#VintID_Fade,(Vint_routine).w
+-	move.b	#$12,(Vint_routine).w
 	bsr.w	WaitForVint
 	bsr.s	Pal_FadeOut
 	bsr.w	RunPLC_RAM
@@ -3062,7 +3063,7 @@ Pal_MakeWhite:
 	dbf	d0,-
 
 	move.w	#$15,d4
--	move.b	#VintID_Fade,(Vint_routine).w
+-	move.b	#$12,(Vint_routine).w
 	bsr.w	WaitForVint
 	bsr.s	Pal_WhiteToBlack
 	bsr.w	RunPLC_RAM
@@ -3152,7 +3153,7 @@ Pal_MakeFlash:
 	move.w	#$3F,(Palette_fade_range).w
 
 	move.w	#$15,d4
--	move.b	#VintID_Fade,(Vint_routine).w
+-	move.b	#$12,(Vint_routine).w
 	bsr.w	WaitForVint
 	bsr.s	Pal_ToWhite
 	bsr.w	RunPLC_RAM
@@ -3414,7 +3415,7 @@ PalLoad4_Water:
 
 palptr	macro	ptr,lineno
 	dc.l ptr	; Pointer to palette
-	dc.w (Normal_palette+lineno*palette_line_size*2)&$FFFF	; Location in ram to load palette into
+	dc.w (Normal_palette+lineno*palette_line_size)&$FFFF	; Location in ram to load palette into
 	dc.w bytesToLcnt(ptr_End-ptr)	; Size of palette in (bytes / 4)
 	endm
 
@@ -3732,7 +3733,7 @@ SegaScreen_Contin:
 	move.w	d0,(VDP_control_port).l
 ; loc_390E:
 Sega_WaitPalette:
-	move.b	#VintID_SEGA,(Vint_routine).w
+	move.b	#2,(Vint_routine).w
 	bsr.w	WaitForVint
 	jsrto	(RunObjects).l, JmpTo_RunObjects
 	jsr	(BuildSprites).l
@@ -3740,12 +3741,12 @@ Sega_WaitPalette:
 	beq.s	Sega_WaitPalette
 	move.b	#SndID_SegaSound,d0
 	bsr.w	PlaySound	; play "SEGA" sound
-	move.b	#VintID_SEGA,(Vint_routine).w
+	move.b	#2,(Vint_routine).w
 	bsr.w	WaitForVint
 	move.w	#$B4,(Demo_Time_left).w
 ; loc_3940:
 Sega_WaitEnd:
-	move.b	#VintID_PCM,(Vint_routine).w
+	move.b	#$14,(Vint_routine).w
 	bsr.w	WaitForVint
 	tst.w	(Demo_Time_left).w
 	beq.s	Sega_GotoTitle
@@ -3828,7 +3829,7 @@ TitleScreen:
 	lea	(off_B2B0).l,a1
 	jsr	(loc_B272).l
 
-	clearRAM Target_palette,palette_line_size*2*4	; fill palette with 0 (black)
+	clearRAM Target_palette,palette_line_size*4	; fill palette with 0 (black)
 	moveq	#PalID_BGND,d0
 	bsr.w	PalLoad1
 	bsr.w	Pal_FadeTo
@@ -3894,7 +3895,7 @@ TitleScreen:
 	moveq	#$1B,d2
 	jsrto	(PlaneMapToVRAM).l, PlaneMapToVRAM
 
-	clearRAM Normal_palette,palette_line_size*2*4*2	; fill two palettes with 0 (black)
+	clearRAM Normal_palette,palette_line_size*4*2	; fill two palettes with 0 (black)
 
 	moveq	#PalID_Title,d0
 	bsr.w	PalLoad1
@@ -3933,7 +3934,7 @@ TitleScreen:
 
 ; loc_3C14:
 TitleScreen_Loop:
-	move.b	#VintID_Title,(Vint_routine).w
+	move.b	#4,(Vint_routine).w
 	bsr.w	WaitForVint
 	jsr	(RunObjects).l
 	jsrto	(SwScrl_Title).l, JmpTo_SwScrl_Title
@@ -4340,7 +4341,7 @@ Level_PlayBgm:
 	move.b	#ObjID_TitleCard,(TitleCard+id).w ; load Obj34 (level title card) at $FFFFB080
 ; loc_40DA:
 Level_TtlCard:
-	move.b	#VintID_TitleCard,(Vint_routine).w
+	move.b	#$C,(Vint_routine).w
 	bsr.w	WaitForVint
 	jsr	(RunObjects).l
 	jsr	(BuildSprites).l
@@ -4350,7 +4351,7 @@ Level_TtlCard:
 	bne.s	Level_TtlCard		; if not, branch
 	tst.l	(Plc_Buffer).w		; are there any items in the pattern load cue?
 	bne.s	Level_TtlCard		; if yes, branch
-	move.b	#VintID_TitleCard,(Vint_routine).w
+	move.b	#$C,(Vint_routine).w
 	bsr.w	WaitForVint
 	jsr	(Hud_Base).l
 +
@@ -4476,7 +4477,7 @@ Level_FromCheckpoint:
 	move.b	#$E,(TitleCard_Left+routine).w	; make the left part move offscreen
 	move.w	#$A,(TitleCard_Left+titlecard_location).w
 
--	move.b	#VintID_TitleCard,(Vint_routine).w
+-	move.b	#$C,(Vint_routine).w
 	bsr.w	WaitForVint
 	jsr	(RunObjects).l
 	jsr	(BuildSprites).l
@@ -4506,7 +4507,7 @@ Level_FromCheckpoint:
 ; loc_4360:
 Level_MainLoop:
 	bsr.w	PauseGame
-	move.b	#VintID_Level,(Vint_routine).w
+	move.b	#8,(Vint_routine).w
 	bsr.w	WaitForVint
 	addq.w	#1,(Timer_frames).w ; add 1 to level timer
 	bsr.w	MoveSonicInDemo
@@ -4554,7 +4555,7 @@ Level_MainLoop:
 	move.w	#$3F,(Palette_fade_range).w
 	clr.w	(PalChangeSpeed).w
 -
-	move.b	#VintID_Level,(Vint_routine).w
+	move.b	#8,(Vint_routine).w
 	bsr.w	WaitForVint
 	bsr.w	MoveSonicInDemo
 	jsr	(RunObjects).l
@@ -5868,7 +5869,7 @@ LoadZoneTiles:
 	move.w	d2,d1
 	jsr	(QueueDMATransfer).l
 	move.w	d7,-(sp)
-	move.b	#VintID_TitleCard,(Vint_routine).w
+	move.b	#$C,(Vint_routine).w
 	bsr.w	WaitForVint
 	bsr.w	RunPLC_RAM
 	move.w	(sp)+,d7
@@ -5994,14 +5995,14 @@ SpecialStage:
 	clr.w	(Ctrl_1_Logical).w
 	clr.w	(Ctrl_2_Logical).w
 
--	move.b	#VintID_S2SS,(Vint_routine).w
+-	move.b	#$A,(Vint_routine).w
 	bsr.w	WaitForVint
 	move.b	(SSTrack_drawing_index).w,d0
 	bne.s	-
 
 	bsr.w	SSTrack_Draw
 
--	move.b	#VintID_S2SS,(Vint_routine).w
+-	move.b	#$A,(Vint_routine).w
 	bsr.w	WaitForVint
 	bsr.w	SSTrack_Draw
 	bsr.w	SSLoadCurrentPerspective
@@ -6015,7 +6016,7 @@ SpecialStage:
 	jsr	(RunObjects).l
 	jsr	(BuildSprites).l
 	bsr.w	RunPLC_RAM
-	move.b	#VintID_CtrlDMA,(Vint_routine).w
+	move.b	#$1A,(Vint_routine).w
 	bsr.w	WaitForVint
 	move.w	#MusID_SpecStage,d0
 	bsr.w	PlayMusic
@@ -6029,7 +6030,7 @@ SpecialStage:
 	move.w	(Ctrl_2).w,(Ctrl_2_Logical).w
 	cmpi.b	#GameModeID_SpecialStage,(Game_Mode).w ; special stage mode?
 	bne.w	SpecialStage_Unpause		; if not, branch
-	move.b	#VintID_S2SS,(Vint_routine).w
+	move.b	#$A,(Vint_routine).w
 	bsr.w	WaitForVint
 	bsr.w	SSTrack_Draw
 	bsr.w	SSSetGeometryOffsets
@@ -6048,7 +6049,7 @@ SpecialStage:
 -	bsr.w	PauseGame
 	cmpi.b	#GameModeID_SpecialStage,(Game_Mode).w ; special stage mode?
 	bne.w	SpecialStage_Unpause		; if not, branch
-	move.b	#VintID_S2SS,(Vint_routine).w
+	move.b	#$A,(Vint_routine).w
 	bsr.w	WaitForVint
 	bsr.w	SSTrack_Draw
 	bsr.w	SSSetGeometryOffsets
@@ -6149,7 +6150,7 @@ SpecialStage:
 
 	move.b	#ObjID_SSResults,(SpecialStageResults+id).w ; load Obj6F (special stage results) at $FFFFB800
 -
-	move.b	#VintID_Level,(Vint_routine).w
+	move.b	#8,(Vint_routine).w
 	bsr.w	WaitForVint
 	jsr	(RunObjects).l
 	jsr	(BuildSprites).l
@@ -6176,7 +6177,7 @@ loc_540C:
 ; loc_541A:
 SpecialStage_Unpause:
 	move.b	#MusID_Unpause,(Music_to_play).w
-	move.b	#VintID_Level,(Vint_routine).w
+	move.b	#8,(Vint_routine).w
 	bra.w	WaitForVint
 
 
@@ -9673,14 +9674,14 @@ ContinueScreen:
 	move.b	#4,(ContinueIcons+routine).w ; => loc_7AD0
 	jsr	(RunObjects).l
 	jsr	(BuildSprites).l
-	move.b	#VintID_Menu,(Vint_routine).w
+	move.b	#$16,(Vint_routine).w
 	bsr.w	WaitForVint
 	move.w	(VDP_Reg1_val).w,d0
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
 	bsr.w	Pal_FadeTo
 -
-	move.b	#VintID_Menu,(Vint_routine).w
+	move.b	#$16,(Vint_routine).w
 	bsr.w	WaitForVint
 	cmpi.b	#4,(MainCharacter+routine).w
 	bhs.s	+
@@ -10077,14 +10078,14 @@ TwoPlayerResults:
 	clr.l	(Vscroll_Factor_P2).w
 	clr.l	(Vscroll_Factor_P2_HInt).w
 	move.b	#ObjID_HUD,(VSResults_HUD+id).w
-	move.b	#VintID_Menu,(Vint_routine).w
+	move.b	#$16,(Vint_routine).w
 	bsr.w	WaitForVint
 	move.w	(VDP_Reg1_val).w,d0
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
 	bsr.w	Pal_FadeTo
 
--	move.b	#VintID_Menu,(Vint_routine).w
+-	move.b	#$16,(Vint_routine).w
 	bsr.w	WaitForVint
 	lea	(Anim_SonicMilesBG).l,a2
 	jsrto	(Dynamic_Normal).l, JmpTo_Dynamic_Normal
@@ -11126,7 +11127,7 @@ MenuScreen:
 	clr.w	(Two_player_mode).w
 	clr.l	(Camera_X_pos).w
 	clr.l	(Camera_Y_pos).w
-	move.b	#VintID_Menu,(Vint_routine).w
+	move.b	#$16,(Vint_routine).w
 	bsr.w	WaitForVint
 	move.w	(VDP_Reg1_val).w,d0
 	ori.b	#$40,d0
@@ -11135,7 +11136,7 @@ MenuScreen:
 
 ;loc_8DA8:
 LevelSelect2P_Main:
-	move.b	#VintID_Menu,(Vint_routine).w
+	move.b	#$16,(Vint_routine).w
 	bsr.w	WaitForVint
 	move	#$2700,sr
 	bsr.w	ClearOld2PLevSelSelection
@@ -11256,7 +11257,7 @@ Update2PLevSelSelection:
 	lea	(a1,d0.w),a1
 	lea	(Normal_palette_line3).w,a2
 
-	moveq	#bytesToLcnt(palette_line_size*2),d1
+	moveq	#bytesToLcnt(palette_line_size),d1
 -	move.l	(a1)+,(a2)+
 	dbf	d1,-
 
@@ -11392,7 +11393,7 @@ MenuScreen_Options:
 	clr.l	(Camera_Y_pos).w
 	clr.w	(Correct_cheat_entries).w
 	clr.w	(Correct_cheat_entries_2).w
-	move.b	#VintID_Menu,(Vint_routine).w
+	move.b	#$16,(Vint_routine).w
 	bsr.w	WaitForVint
 	move.w	(VDP_Reg1_val).w,d0
 	ori.b	#$40,d0
@@ -11400,7 +11401,7 @@ MenuScreen_Options:
 	bsr.w	Pal_FadeTo
 ; loc_9060:
 OptionScreen_Main:
-	move.b	#VintID_Menu,(Vint_routine).w
+	move.b	#$16,(Vint_routine).w
 	bsr.w	WaitForVint
 	move	#$2700,sr
 	bsr.w	OptionScreen_DrawUnselected
@@ -11709,7 +11710,7 @@ MenuScreen_LevelSelect:
 	lea	(Normal_palette_line3).w,a1
 	lea	(Target_palette_line3).w,a2
 
-	moveq	#bytesToLcnt(palette_line_size*2),d1
+	moveq	#bytesToLcnt(palette_line_size),d1
 -	move.l	(a1),(a2)+
 	clr.l	(a1)+
 	dbf	d1,-
@@ -11724,7 +11725,7 @@ MenuScreen_LevelSelect:
 	clr.w	(Correct_cheat_entries).w
 	clr.w	(Correct_cheat_entries_2).w
 
-	move.b	#VintID_Menu,(Vint_routine).w
+	move.b	#$16,(Vint_routine).w
 	bsr.w	WaitForVint
 
 	move.w	(VDP_Reg1_val).w,d0
@@ -11735,7 +11736,7 @@ MenuScreen_LevelSelect:
 
 ;loc_93AC:
 LevelSelect_Main:	; routine running during level select
-	move.b	#VintID_Menu,(Vint_routine).w
+	move.b	#$16,(Vint_routine).w
 	bsr.w	WaitForVint
 
 	move	#$2700,sr
@@ -12074,7 +12075,7 @@ LevelSelect_DrawIcon:
 	lea	(a1,d0.w),a1
 	lea	(Normal_palette_line3).w,a2
 
-	moveq	#bytesToLcnt(palette_line_size*2),d1
+	moveq	#bytesToLcnt(palette_line_size),d1
 -	move.l	(a1)+,(a2)+
 	dbf	d1,-
 
@@ -12311,14 +12312,14 @@ EndingSequence:
 	move.l	#$EEE0EEE,d1
 	lea	(Normal_palette).w,a1
 
-	moveq	#bytesToLcnt(palette_line_size*2*4),d0
+	moveq	#bytesToLcnt(palette_line_size*4),d0
 -	move.l	d1,(a1)+
 	dbf	d0,-
 
 	lea	(Pal_AC7E).l,a1
 	lea	(Target_palette).w,a2
 
-	moveq	#bytesToLcnt(palette_line_size*2*4),d0
+	moveq	#bytesToLcnt(palette_line_size*4),d0
 -	move.l	(a1)+,(a2)+
 	dbf	d0,-
 
@@ -12353,13 +12354,13 @@ EndingSequence:
 	move.w	#$10,objoff_2E(a1)
 	move.w	#$100,objoff_3C(a1)
 +
-	move.b	#VintID_Ending,(Vint_routine).w
+	move.b	#$18,(Vint_routine).w
 	bsr.w	WaitForVint
 	move.w	(VDP_Reg1_val).w,d0
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
 -
-	move.b	#VintID_Ending,(Vint_routine).w
+	move.b	#$18,(Vint_routine).w
 	bsr.w	WaitForVint
 	addq.w	#1,(Timer_frames).w
 	jsr	(RandomNumber).l
@@ -12437,7 +12438,7 @@ EndgameCredits:
 	beq.s	+
 	move.w	#$144,d0
 
-/	move.b	#VintID_Ending,(Vint_routine).w
+/	move.b	#$18,(Vint_routine).w
 	bsr.w	WaitForVint
 	dbf	d0,-
 
@@ -12466,12 +12467,12 @@ EndgameCredits:
 	bsr.w	EndgameLogoFlash
 
 	move.w	#$3B,d0
--	move.b	#VintID_Ending,(Vint_routine).w
+-	move.b	#$18,(Vint_routine).w
 	bsr.w	WaitForVint
 	dbf	d0,-
 
 	move.w	#$257,d6
--	move.b	#VintID_Ending,(Vint_routine).w
+-	move.b	#$18,(Vint_routine).w
 	bsr.w	WaitForVint
 	addq.w	#1,(CreditsScreenIndex).w
 	bsr.w	EndgameLogoFlash
