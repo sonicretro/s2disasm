@@ -68630,7 +68630,7 @@ loc_361D8:
     endif
 
 	; The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
-	clearRAM Sprite_Table,(Sprite_Table_End-Sprite_Table)+4
+	clearRAM SS_Sprite_Table,(SS_Sprite_Table_End-SS_Sprite_Table)+4
 
 	rts
 ; ===========================================================================
