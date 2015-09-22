@@ -1053,7 +1053,9 @@ Secondary_Collision:		ds.b	$300
 VDP_Command_Buffer:		ds.w	7*$12	; stores 18 ($12) VDP commands to issue the next time ProcessDMAQueue is called
 VDP_Command_Buffer_Slot:	ds.l	1	; stores the address of the next open slot for a queued VDP command
 
-Sprite_Table_2:			ds.b	$300	; Sprite attribute table buffer for the bottom split screen in 2-player mode
+Sprite_Table_2:			ds.b	$280	; Sprite attribute table buffer for the bottom split screen in 2-player mode
+				ds.b	$80	; unused, but SAT buffer can spill over into this area when there are too many sprites on-screen
+
 Horiz_Scroll_Buf:		ds.b	$400
 Horiz_Scroll_Buf_End:
 Sonic_Stat_Record_Buf:		ds.b	$100
