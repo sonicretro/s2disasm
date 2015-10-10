@@ -2381,6 +2381,11 @@ ArtTile_ArtNem_life_counter           = ArtTile_ArtNem_HUD + $10A
 ArtTile_ArtNem_life_counter_lives     = ArtTile_ArtNem_life_counter + 9
 
 ; ---------------------------------------------------------------------------
+; 2p-mode HUD.
+ArtTile_Art_HUD_Text_2P               = ArtTile_ArtNem_HUD
+ArtTile_Art_HUD_Numbers_2P            = ArtTile_HUD_Score_E
+
+; ---------------------------------------------------------------------------
 ; Unused objects, objects with mappings never loaded, objects with
 ; missing mappings and/or tiles, objects whose mappings and/or tiles
 ; are never loaded.

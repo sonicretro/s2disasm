@@ -83499,7 +83499,7 @@ BuildHUD_P1_Continued:
 	move.w	#$90,d3
 	move.w	#$188,d2
 	lea	(HUD_MapUnc_40BEA).l,a1
-	movea.w	#make_art_tile_2p(ArtTile_ArtNem_HUD,0,1),a3
+	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Text_2P,0,1),a3
 	add.w	d1,d1
 	adda.w	(a1,d1.w),a1
 	move.w	(a1)+,d1
@@ -83507,7 +83507,7 @@ BuildHUD_P1_Continued:
 	jsrto	(DrawSprite_2P_Loop).l, JmpTo_DrawSprite_2P_Loop
 	move.w	#$B8,d3
 	move.w	#$108,d2
-	movea.w	#make_art_tile_2p($06E2,0,1),a3
+	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Numbers_2P,0,1),a3
 	moveq	#0,d7
 	move.b	(Timer_minute).w,d7
 	bsr.w	sub_4092E
@@ -83517,7 +83517,7 @@ BuildHUD_P1_Continued:
 	bsr.w	loc_40938
 	move.w	#$C0,d3
 	move.w	#$118,d2
-	movea.w	#make_art_tile_2p($06E2,0,1),a3
+	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Numbers_2P,0,1),a3
 	moveq	#0,d7
 	move.w	(Ring_count).w,d7
 	bsr.w	sub_40984
@@ -83527,7 +83527,7 @@ BuildHUD_P1_Continued:
 	beq.s	+
 	move.w	#$110,d3
 	move.w	#$1B8,d2
-	movea.w	#make_art_tile_2p($06E2,0,1),a3
+	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Numbers_2P,0,1),a3
 	moveq	#0,d7
 	move.b	(Loser_Time_Left).w,d7
 	bsr.w	loc_40938
@@ -83536,7 +83536,7 @@ BuildHUD_P1_Continued:
 	move.w	#$90,d3
 	move.w	#$188,d2
 	lea	(HUD_MapUnc_40BEA).l,a1
-	movea.w	#make_art_tile_2p(ArtTile_ArtNem_HUD,0,1),a3
+	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Text_2P,0,1),a3
 	add.w	d1,d1
 	adda.w	(a1,d1.w),a1
 	move.w	(a1)+,d1
@@ -83676,7 +83676,7 @@ BuildHUD_P2_Continued:
 	move.w	#$90,d3
 	move.w	#$268,d2
 	lea	(HUD_MapUnc_40BEA).l,a1
-	movea.w	#make_art_tile_2p($06CA,0,1),a3
+	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Text_2P,0,1),a3
 	add.w	d1,d1
 	adda.w	(a1,d1.w),a1
 	move.w	(a1)+,d1
@@ -83684,7 +83684,7 @@ BuildHUD_P2_Continued:
 	jsrto	(DrawSprite_2P_Loop).l, JmpTo_DrawSprite_2P_Loop
 	move.w	#$B8,d3
 	move.w	#$1E8,d2
-	movea.w	#make_art_tile_2p($06E2,0,1),a3
+	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Numbers_2P,0,1),a3
 	moveq	#0,d7
 	move.b	(Timer_minute_2P).w,d7
 	bsr.w	sub_4092E
@@ -83694,7 +83694,7 @@ BuildHUD_P2_Continued:
 	bsr.w	loc_40938
 	move.w	#$C0,d3
 	move.w	#$1F8,d2
-	movea.w	#make_art_tile_2p($06E2,0,1),a3
+	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Numbers_2P,0,1),a3
 	moveq	#0,d7
 	move.w	(Ring_count_2P).w,d7
 	bsr.w	sub_40984
@@ -83704,7 +83704,7 @@ BuildHUD_P2_Continued:
 	beq.s	+
 	move.w	#$110,d3
 	move.w	#$298,d2
-	movea.w	#make_art_tile_2p($06E2,0,1),a3
+	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Numbers_2P,0,1),a3
 	moveq	#0,d7
 	move.b	(Loser_Time_Left).w,d7
 	bsr.w	loc_40938
@@ -83713,7 +83713,7 @@ BuildHUD_P2_Continued:
 	move.w	#$90,d3
 	move.w	#$268,d2
 	lea	(HUD_MapUnc_40BEA).l,a1
-	movea.w	#make_art_tile_2p($0680,0,1),a3
+	movea.w	#make_art_tile_2p(ArtTile_ArtNem_Powerups,0,1),a3
 	add.w	d1,d1
 	adda.w	(a1,d1.w),a1
 	move.w	(a1)+,d1
@@ -84135,7 +84135,7 @@ loc_410B0:
 loc_410BC:
 	bsr.w	Hud_Lives2
 	move.l	#Art_Hud,d1 ; source addreses
-	move.w	#tiles_to_bytes(ArtTile_HUD_Score_E),d2 ; destination VRAM address
+	move.w	#tiles_to_bytes(ArtTile_Art_HUD_Numbers_2P),d2 ; destination VRAM address
 	move.w	#$160,d3 ; DMA transfer length
 	jmp	(QueueDMATransfer).l
 ; ===========================================================================
