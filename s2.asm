@@ -57198,7 +57198,7 @@ Obj4A:
 Obj4A_Index:	offsetTable
 		offsetTableEntry.w Obj4A_Init	; 0
 		offsetTableEntry.w Obj4A_Main	; 2
-		offsetTableEntry.w loc_2CA46	; 4 - unused?
+		offsetTableEntry.w Obj4A_Angry	; 4 - unused
 		offsetTableEntry.w Obj4A_Bullet	; 6
 ; ===========================================================================
 ; loc_2CA2A:
@@ -57213,8 +57213,8 @@ Obj4A_Bullet:
 	jsrto	(AnimateSprite).l, JmpTo13_AnimateSprite
 	jmpto	(MarkObjGone).l, JmpTo32_MarkObjGone
 ; ===========================================================================
-
-loc_2CA46:
+; loc_2CA46:
+Obj4A_Angry:	; Used by removed sub-object
 	subq.w	#1,objoff_2C(a0)
 	beq.w	JmpTo47_DeleteObject
 	jmpto	(DisplaySprite).l, JmpTo31_DisplaySprite
@@ -57331,6 +57331,9 @@ Obj4A_MoveDown:
 ; ===========================================================================
 ; loc_2CB70:
 Obj4A_FireBullet:
+	; In the Simon Wai beta, the object loads another object
+	; here, which makes it look angry as it fires.
+	; This object would have used Obj4A_Angry.
 	jsr	(SingleObjLoad).l
 	bne.s	+	; rts
 	_move.b	#ObjID_Octus,id(a1) ; load obj4A
