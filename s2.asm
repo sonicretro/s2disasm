@@ -21411,6 +21411,10 @@ JmpTo_SolidObject
 ; ----------------------------------------------------------------------------
 ; Object 1A - Collapsing platform from HPZ (and GHZ)
 ; also supports OOZ, but never made use of
+;
+; Unlike Object 1F, this supports sloped platforms and subtype-dependant
+; mappings. Both are used by GHZ, the latter to allow different shading
+; on right-facing ledges.
 ; ----------------------------------------------------------------------------
 ; Sprite_108BC:
 Obj1A:
@@ -21421,30 +21425,36 @@ Obj1A:
 ; ===========================================================================
 ; off_108CA:
 Obj1A_Index:	offsetTable
-		offsetTableEntry.w loc_108D0	; 0
-		offsetTableEntry.w loc_1097C	; 2
-		offsetTableEntry.w loc_109B4	; 4
+		offsetTableEntry.w Obj1A_Init		; 0
+		offsetTableEntry.w Obj1A_Main		; 2
+		offsetTableEntry.w Obj1A_Fragment	; 4
 ; ===========================================================================
 
-loc_108D0:
+collapsing_platform_delay_pointer = objoff_34
+collapsing_platform_delay_counter = objoff_38
+collapsing_platform_stood_on_flag = objoff_3A
+collapsing_platform_slope_pointer = objoff_3C
+
+; loc_108D0:
+Obj1A_Init:
 	addq.b	#2,routine(a0)
 	move.l	#Obj1A_MapUnc_10C6C,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,2,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	ori.b	#4,render_flags(a0)
 	move.b	#4,priority(a0)
-	move.b	#7,objoff_38(a0)
+	move.b	#7,collapsing_platform_delay_counter(a0)
 	move.b	subtype(a0),mapping_frame(a0)
-	move.l	#Obj1A_DelayData,objoff_34(a0)
+	move.l	#Obj1A_DelayData,collapsing_platform_delay_pointer(a0)
 	cmpi.b	#hidden_palace_zone,(Current_Zone).w
 	bne.s	+
 	move.l	#Obj1A_MapUnc_1101C,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_HPZPlatform,2,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	move.b	#$30,width_pixels(a0)
-	move.l	#Obj1A_HPZ_SlopeData,objoff_3C(a0)
-	move.l	#Obj1A_HPZ_DelayData,objoff_34(a0)
-	bra.s	loc_1097C
+	move.l	#Obj1A_HPZ_SlopeData,collapsing_platform_slope_pointer(a0)
+	move.l	#Obj1A_HPZ_DelayData,collapsing_platform_delay_pointer(a0)
+	bra.s	Obj1A_Main
 ; ===========================================================================
 +
 	cmpi.b	#oil_ocean_zone,(Current_Zone).w
@@ -21453,60 +21463,56 @@ loc_108D0:
 	move.w	#make_art_tile(ArtTile_ArtNem_OOZPlatform,3,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	move.b	#$40,width_pixels(a0)
-	move.l	#Obj1A_OOZ_SlopeData,objoff_3C(a0)
-	bra.s	loc_1097C
+	move.l	#Obj1A_OOZ_SlopeData,collapsing_platform_slope_pointer(a0)
+	bra.s	Obj1A_Main
 ; ===========================================================================
 +
-	move.l	#Obj1A_GHZ_SlopeData,objoff_3C(a0)
+	move.l	#Obj1A_GHZ_SlopeData,collapsing_platform_slope_pointer(a0)
 	move.b	#$34,width_pixels(a0)
 	move.b	#$38,y_radius(a0)
 	bset	#4,render_flags(a0)
-
-loc_1097C:
-	tst.b	objoff_3A(a0)
+; loc_1097C:
+Obj1A_Main:
+	tst.b	collapsing_platform_stood_on_flag(a0)
 	beq.s	+
-	tst.b	objoff_38(a0)
-	beq.w	loc_10B68
-	subq.b	#1,objoff_38(a0)
+	tst.b	collapsing_platform_delay_counter(a0)
+	beq.w	Obj1A_CreateFragments	; time up; collapse
+	subq.b	#1,collapsing_platform_delay_counter(a0)
 +
 	move.b	status(a0),d0
 	andi.b	#standing_mask,d0
 	beq.s	sub_1099E
-	move.b	#1,objoff_3A(a0)
+	move.b	#1,collapsing_platform_stood_on_flag(a0)
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
 sub_1099E:
-
 	moveq	#0,d1
 	move.b	width_pixels(a0),d1
-	movea.l	objoff_3C(a0),a2 ; a2=object
+	movea.l	collapsing_platform_slope_pointer(a0),a2 ; a2=object
 	move.w	x_pos(a0),d4
 	jsrto	(SlopedPlatform).l, JmpTo_SlopedPlatform
 	bra.w	MarkObjGone
 ; End of function sub_1099E
 
 ; ===========================================================================
-
-loc_109B4:
-	tst.b	objoff_38(a0)
-	beq.s	loc_109F8
-	tst.b	objoff_3A(a0)
+; loc_109B4:
+Obj1A_Fragment:
+	tst.b	collapsing_platform_delay_counter(a0)
+	beq.s	Obj1A_FragmentFall	; time up; collapse
+	tst.b	collapsing_platform_stood_on_flag(a0)
 	bne.s	+
-	subq.b	#1,objoff_38(a0)
+	subq.b	#1,collapsing_platform_delay_counter(a0)
 	bra.w	DisplaySprite
 ; ===========================================================================
 +
 	bsr.w	sub_1099E
-	subq.b	#1,objoff_38(a0)
+	subq.b	#1,collapsing_platform_delay_counter(a0)
 	bne.s	+
 	lea	(MainCharacter).w,a1 ; a1=character
 	bsr.s	sub_109DC
 	lea	(Sidekick).w,a1 ; a1=character
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
 
 sub_109DC:
 	btst	#3,status(a1)
@@ -21519,8 +21525,8 @@ sub_109DC:
 ; End of function sub_109DC
 
 ; ===========================================================================
-
-loc_109F8:
+; loc_109F8:
+Obj1A_FragmentFall:
 	bsr.w	ObjectMoveAndFall
 	tst.b	render_flags(a0)
 	bpl.w	DeleteObject
@@ -21538,32 +21544,32 @@ Obj1F:
 ; ===========================================================================
 ; off_10A16:
 Obj1F_Index:	offsetTable
-		offsetTableEntry.w loc_10A1C	; 0
-		offsetTableEntry.w loc_10AD6	; 2
-		offsetTableEntry.w loc_10B0E	; 4
+		offsetTableEntry.w Obj1F_Init		; 0
+		offsetTableEntry.w Obj1F_Main		; 2
+		offsetTableEntry.w Obj1F_Fragment	; 4
 ; ===========================================================================
-
-loc_10A1C:
+; loc_10A1C:
+Obj1F_Init:
 	addq.b	#2,routine(a0)
 	move.l	#Obj1F_MapUnc_10F0C,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_MZ_Platform,2,0),art_tile(a0)
 	ori.b	#4,render_flags(a0)
 	move.b	#4,priority(a0)
-	move.b	#7,objoff_38(a0)
+	move.b	#7,collapsing_platform_delay_counter(a0)
 	move.b	#$44,width_pixels(a0)
 	lea	(Obj1F_DelayData_EvenSubtype).l,a4
 	btst	#0,subtype(a0)
 	beq.s	+
 	lea	(Obj1F_DelayData_OddSubtype).l,a4
 +
-	move.l	a4,objoff_34(a0)
+	move.l	a4,collapsing_platform_delay_pointer(a0)
 	cmpi.b	#oil_ocean_zone,(Current_Zone).w
 	bne.s	+
 	move.l	#Obj1F_MapUnc_110C6,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_OOZPlatform,3,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	move.b	#$40,width_pixels(a0)
-	move.l	#Obj1F_OOZ_DelayData,objoff_34(a0)
+	move.l	#Obj1F_OOZ_DelayData,collapsing_platform_delay_pointer(a0)
 +
 	cmpi.b	#mystic_cave_zone,(Current_Zone).w
 	bne.s	+
@@ -21571,27 +21577,27 @@ loc_10A1C:
 	move.w	#make_art_tile(ArtTile_ArtNem_MCZCollapsePlat,3,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	move.b	#$20,width_pixels(a0)
-	move.l	#Obj1F_MCZ_DelayData,objoff_34(a0)
+	move.l	#Obj1F_MCZ_DelayData,collapsing_platform_delay_pointer(a0)
 +
 	cmpi.b	#aquatic_ruin_zone,(Current_Zone).w
-	bne.s	loc_10AD6
+	bne.s	Obj1F_Main
 	move.l	#Obj1F_MapUnc_1115E,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,2,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	move.b	#$20,width_pixels(a0)
-	move.l	#Obj1F_ARZ_DelayData,objoff_34(a0)
-
-loc_10AD6:
-	tst.b	objoff_3A(a0)
+	move.l	#Obj1F_ARZ_DelayData,collapsing_platform_delay_pointer(a0)
+; loc_10AD6:
+Obj1F_Main:
+	tst.b	collapsing_platform_stood_on_flag(a0)
 	beq.s	+
-	tst.b	objoff_38(a0)
-	beq.w	loc_10B62
-	subq.b	#1,objoff_38(a0)
+	tst.b	collapsing_platform_delay_counter(a0)
+	beq.w	Obj1F_CreateFragments	; time up; collapse
+	subq.b	#1,collapsing_platform_delay_counter(a0)
 +
 	move.b	status(a0),d0
 	andi.b	#standing_mask,d0
 	beq.s	sub_10AF8
-	move.b	#1,objoff_3A(a0)
+	move.b	#1,collapsing_platform_stood_on_flag(a0)
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -21606,25 +21612,22 @@ sub_10AF8:
 ; End of function sub_10AF8
 
 ; ===========================================================================
-
-loc_10B0E:
-	tst.b	objoff_38(a0)
-	beq.s	loc_10B52
-	tst.b	objoff_3A(a0)
+; loc_10B0E:
+Obj1F_Fragment:
+	tst.b	collapsing_platform_delay_counter(a0)
+	beq.s	Obj1F_FragmentFall	; time up; collapse
+	tst.b	collapsing_platform_stood_on_flag(a0)
 	bne.s	+
-	subq.b	#1,objoff_38(a0)
+	subq.b	#1,collapsing_platform_delay_counter(a0)
 	bra.w	DisplaySprite
 ; ===========================================================================
 +
 	bsr.w	sub_10AF8
-	subq.b	#1,objoff_38(a0)
+	subq.b	#1,collapsing_platform_delay_counter(a0)
 	bne.s	+	; rts
 	lea	(MainCharacter).w,a1 ; a1=character
 	bsr.s	sub_10B36
 	lea	(Sidekick).w,a1 ; a1=character
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
 
 sub_10B36:
 	btst	#3,status(a1)
@@ -21637,23 +21640,23 @@ sub_10B36:
 ; End of function sub_10B36
 
 ; ===========================================================================
-
-loc_10B52:
+; loc_10B52:
+Obj1F_FragmentFall:
 	bsr.w	ObjectMoveAndFall
 	tst.b	render_flags(a0)
 	bpl.w	DeleteObject
 	bra.w	DisplaySprite
 ; ===========================================================================
-
-loc_10B62:
+; loc_10B62:
+Obj1F_CreateFragments:
 	addq.b	#1,mapping_frame(a0)
 	bra.s	+
 ; ===========================================================================
-
-loc_10B68:
+; loc_10B68:
+Obj1A_CreateFragments:
 	addq.b	#2,mapping_frame(a0)
 +
-	movea.l	objoff_34(a0),a4
+	movea.l	collapsing_platform_delay_pointer(a0),a4
 	moveq	#0,d0
 	move.b	mapping_frame(a0),d0
 	add.w	d0,d0
@@ -21681,7 +21684,7 @@ loc_10B68:
 	move.b	priority(a0),priority(a1)
 	move.b	width_pixels(a0),width_pixels(a1)
 	move.b	y_radius(a0),y_radius(a1)
-	move.b	(a4)+,objoff_38(a1)
+	move.b	(a4)+,collapsing_platform_delay_counter(a1)
 	cmpa.l	a0,a1
 	bhs.s	+
 	bsr.w	DisplaySprite2
@@ -21727,7 +21730,7 @@ Obj1F_MCZ_DelayData:
 Obj1F_ARZ_DelayData:
 	dc.b $16,$1A,$18,$12,  6, $E, $A,  2
 	rev02even
-; S1 remnant: Height data for GHZ collapsing platform:
+; S1 remnant: Height data for GHZ collapsing platform (unused):
 ;byte_10C3C:
 Obj1A_GHZ_SlopeData:
 	dc.b $20,$20,$20,$20,$20,$20,$20,$20,$21,$21,$22,$22,$23,$23,$24,$24
@@ -21735,11 +21738,11 @@ Obj1A_GHZ_SlopeData:
 	dc.b $2D,$2D,$2E,$2E,$2F,$2F,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30; 32
 	even
 ; -------------------------------------------------------------------------------
-; sprite mappings (GHZ)
+; unused sprite mappings (GHZ)
 ; -------------------------------------------------------------------------------
 Obj1A_MapUnc_10C6C:	BINCLUDE "mappings/sprite/obj1A_a.bin"
 ; ----------------------------------------------------------------------------
-; sprite mappings (MZ, SLZ, SBZ)
+; unused sprite mappings (MZ, SLZ, SBZ)
 ; ----------------------------------------------------------------------------
 Obj1F_MapUnc_10F0C:	BINCLUDE "mappings/sprite/obj1F_a.bin"
 
