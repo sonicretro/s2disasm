@@ -81437,7 +81437,7 @@ loc_3F768:
 	tst.w	(Two_player_mode).w
 	beq.s	return_3F78A
 +
-	cmpi.b	#2,anim(a0)
+	cmpi.b	#AniIDSonAni_Roll,anim(a0)
 	bne.s	return_3F78A
 	neg.w	y_vel(a0)	; reverse Sonic's y-motion
 	move.b	#4,routine(a1)
@@ -81450,9 +81450,9 @@ return_3F78A:
 Touch_Enemy:
 	btst	#1,status_secondary(a0)	; is Sonic invincible?
 	bne.s	+			; if yes, branch
-	cmpi.b	#9,anim(a0)
+	cmpi.b	#AniIDSonAni_Spindash,anim(a0)
 	beq.s	+
-	cmpi.b	#2,anim(a0)		; is Sonic rolling?
+	cmpi.b	#AniIDSonAni_Roll,anim(a0)		; is Sonic rolling?
 	bne.w	Touch_ChkHurt		; if not, branch
 +
 	btst	#6,render_flags(a1)
