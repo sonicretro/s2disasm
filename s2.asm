@@ -21011,7 +21011,7 @@ Obj17_MapUnc_10452:	BINCLUDE "mappings/sprite/obj17.bin"
 
 
 ; ----------------------------------------------------------------------------
-; Object 18 - Stationary floating platform from ARZ and EHZ
+; Object 18 - Stationary floating platform from ARZ, EHZ and HTZ
 ; ----------------------------------------------------------------------------
 ; Sprite_104AC:
 Obj18:
