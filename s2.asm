@@ -42188,6 +42188,11 @@ Obj0B_Index:	offsetTable
 		offsetTableEntry.w loc_20104	; 2
 		offsetTableEntry.w loc_20112	; 4
 ; ===========================================================================
+
+obj0B_duration_current = objoff_30
+obj0B_duration_initial = objoff_32
+obj0B_delay = objoff_36
+
 ; loc_200B0:
 Obj0B_Init:
 	addq.b	#2,routine(a0)
@@ -42203,28 +42208,28 @@ Obj0B_Init:
 	addi.w	#$10,d0
 	move.w	d0,d1
 	subq.w	#1,d0
-	move.w	d0,objoff_30(a0)
-	move.w	d0,objoff_32(a0)
+	move.w	d0,obj0B_duration_current(a0)
+	move.w	d0,obj0B_duration_initial(a0)
 	moveq	#0,d0
 	move.b	subtype(a0),d0
 	andi.w	#$F,d0
 	addq.w	#1,d0
 	lsl.w	#4,d0
-	move.b	d0,objoff_36(a0)
+	move.b	d0,obj0B_delay(a0)
 
 loc_20104:
 	move.b	(Vint_runcount+3).w,d0
-	add.b	objoff_36(a0),d0
+	add.b	obj0B_delay(a0),d0
 	bne.s	loc_2013C
 	addq.b	#2,routine(a0)
 
 loc_20112:
-	subq.w	#1,objoff_30(a0)
+	subq.w	#1,obj0B_duration_current(a0)
 	bpl.s	loc_20130
-	move.w	#$7F,objoff_30(a0)
+	move.w	#$7F,obj0B_duration_current(a0)
 	tst.b	anim(a0)
 	beq.s	+
-	move.w	objoff_32(a0),objoff_30(a0)
+	move.w	obj0B_duration_initial(a0),obj0B_duration_current(a0)
 +
 	bchg	#0,anim(a0)
 
