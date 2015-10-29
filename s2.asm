@@ -8373,7 +8373,7 @@ SSPNT_RLELUT_Part2:
 	dc.w	make_block_tile($002C,0,0,0,0),$000F,	make_block_tile($002C,0,0,0,0),$0010	; $84
 
 ;unknown
-byte_6BFE:
+;byte_6BFE:
 	dc.b $FF,$FB,$FF,$FB,$FF,$FA,$FF,$FA; 528
 	dc.b $FF,$FA,$FF,$FA	; 544
 ; ===========================================================================
@@ -32066,7 +32066,7 @@ loc_1981E:
 ; unused/dead code for some SolidObject check
 ; This is for a sloped object that is sloped at the top and at the bottom.
 ; SolidObject_Unk: loc_19828:
-DoubleSlopedSolid:
+;DoubleSlopedSolid:
 	; a0=object
 	lea	(MainCharacter).w,a1 ; a1=character
 	moveq	#p1_standing_bit,d6
@@ -40390,7 +40390,7 @@ loc_1ECD4:
 ; ===========================================================================
 
 	; a bit of unused/dead code here
-CheckFloorDist:
+;CheckFloorDist:
 	move.w	y_pos(a0),d2 ; a0=character
 	move.w	x_pos(a0),d3
 
@@ -40707,7 +40707,7 @@ Sonic_CheckCeiling:
 
 ; ===========================================================================
 	; a bit of unused/dead code here
-CheckCeilingDist:
+;CheckCeilingDist:
 	move.w	y_pos(a0),d2 ; a0=character
 	move.w	x_pos(a0),d3
 
@@ -69810,7 +69810,6 @@ word_36D58:
 	dc.w  $C0C,  $24,  $12,$FFF0 ; 4
 word_36D6A:
 	dc.w 2
-word_36D6C:
 	dc.w $EC0F,  $10,    8,$FFF0
 	dc.w  $C0C,  $28,  $14,$FFF0 ; 4
 word_36D7C:
@@ -69818,7 +69817,6 @@ word_36D7C:
 	dc.w $F805,  $2C,  $16,$FFF8
 word_36D86:
 	dc.w 1
-word_36D88:
 	dc.w $FC00,  $30,  $18,$FFFC
 word_36D90:
 	dc.w 1
@@ -72307,8 +72305,6 @@ loc_387E4:
 loc_387EC:
 	move.w	objoff_2E(a0),d0
 	add.w	d0,x_vel(a0)
-
-loc_387F4:
 	jsrto	(ObjectMove).l, JmpTo26_ObjectMove
 	jmpto	(MarkObjGone_P1).l, JmpTo2_MarkObjGone_P1
 ; ===========================================================================
@@ -78579,13 +78575,12 @@ loc_3D3A4:
 	bset	#1,status(a1)
 	bclr	#4,status(a1)
 	bclr	#5,status(a1)
-
-loc_3D404:
 	clr.b	jumping(a1)
 	move.w	#SndID_Bumper,d0
 	jsr	(PlaySound).l
 	rts
 ; ===========================================================================
+	; unused
 	rts
 ; ===========================================================================
 
