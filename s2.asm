@@ -3872,7 +3872,7 @@ TitleScreen:
 	move.w	#make_art_tile(ArtTile_ArtNem_Title,2,0),d0
 	bsr.w	EniDec
 	lea	(Chunk_Table).l,a1
-	move.l	#vdpComm(VRAM_TtlScr_Plane_B_Name_Table + $50,VRAM,WRITE),d0
+	move.l	#vdpComm(VRAM_TtlScr_Plane_B_Name_Table + planeLocH40($28,0),VRAM,WRITE),d0
 	moveq	#$17,d1
 	moveq	#$1B,d2
 	jsrto	(PlaneMapToVRAM).l, PlaneMapToVRAM
