@@ -1165,10 +1165,10 @@ Block_cache:			ds.b	$80
 Ring_consumption_table:		ds.b	$80	; contains RAM addresses of rings currently being consumed
 Ring_consumption_table_End:
 
-Underwater_palette_2:		ds.b palette_line_size	; not sure what it's used for but it's only used when there's water
-Underwater_palette_2_line2:	ds.b palette_line_size
-Underwater_palette_2_line3:	ds.b palette_line_size
-Underwater_palette_2_line4:	ds.b palette_line_size
+Underwater_target_palette:		ds.b palette_line_size	; This is used by the screen-fading subroutines.
+Underwater_target_palette_line2:	ds.b palette_line_size	; While Underwater_palette contains the blacked-out palette caused by the fading,
+Underwater_target_palette_line3:	ds.b palette_line_size	; Underwater_target_palette will contain the palette the screen will ultimately fade in to.
+Underwater_target_palette_line4:	ds.b palette_line_size
 
 Underwater_palette:		ds.b palette_line_size	; main palette for underwater parts of the screen
 Underwater_palette_line2:	ds.b palette_line_size
@@ -1392,17 +1392,14 @@ Sprite_Table:			ds.b	$280	; Sprite attribute table buffer
 Sprite_Table_End:
 				ds.b	$80	; unused, but SAT buffer can spill over into this area when there are too many sprites on-screen
 
-Normal_palette:			ds.b	palette_line_size
+Normal_palette:			ds.b	palette_line_size	; main palette for non-underwater parts of the screen
 Normal_palette_line2:		ds.b	palette_line_size
 Normal_palette_line3:		ds.b	palette_line_size
 Normal_palette_line4:		ds.b	palette_line_size
-Second_palette:
-Target_palette:			ds.b	palette_line_size
-Second_palette_line2:
-Target_palette_line2:		ds.b	palette_line_size
-Second_palette_line3:
-Target_palette_line3:		ds.b	palette_line_size
-Second_palette_line4:
+
+Target_palette:			ds.b	palette_line_size	; This is used by the screen-fading subroutines.
+Target_palette_line2:		ds.b	palette_line_size	; While Normal_palette contains the blacked-out palette caused by the fading,
+Target_palette_line3:		ds.b	palette_line_size	; Target_palette will contain the palette the screen will ultimately fade in to.
 Target_palette_line4:		ds.b	palette_line_size
 
 Object_Respawn_Table:

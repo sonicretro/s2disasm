@@ -2913,7 +2913,7 @@ Pal_FadeIn:
 	beq.s	+	; rts
 	moveq	#0,d0
 	lea	(Underwater_palette).w,a0
-	lea	(Underwater_palette_2).w,a1
+	lea	(Underwater_target_palette).w,a1
 	move.b	(Palette_fade_start).w,d0
 	adda.w	d0,a0
 	adda.w	d0,a1
@@ -3091,7 +3091,7 @@ Pal_WhiteToBlack:
 	beq.s	+	; rts
 	moveq	#0,d0
 	lea	(Underwater_palette).w,a0
-	lea	(Underwater_palette_2).w,a1
+	lea	(Underwater_target_palette).w,a1
 	move.b	(Palette_fade_start).w,d0
 	adda.w	d0,a0
 	adda.w	d0,a1
@@ -3396,7 +3396,7 @@ PalLoad_Water_AfterFade:
 	adda.w	d0,a1
 	movea.l	(a1)+,a2
 	movea.w	(a1)+,a3
-	suba.l	#Normal_palette-Underwater_palette_2,a3
+	suba.l	#Normal_palette-Underwater_target_palette,a3
 
 	move.w	(a1)+,d7
 -	move.l	(a2)+,(a3)+
