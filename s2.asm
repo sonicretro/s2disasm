@@ -4291,7 +4291,7 @@ Level_InitWater:
 	move.w	#$8004,(a6)		; H-INT disabled
 	move.w	#$8720,(a6)		; Background palette/color: 2/0
 	move.w	#$8C81,(a6)		; H res 40 cells, no interlace
-	tst.b	(Night_mode_flag).w
+	tst.b	(Debug_options_flag).w
 	beq.s	++
 	btst	#button_C,(Ctrl_1_Held).w
 	beq.s	+
@@ -11947,7 +11947,7 @@ LevSelControls_CheckLR:
 	jsrto	(PlayMusic).l, JmpTo_PlayMusic
 	lea	(debug_cheat).l,a0
 	lea	(super_sonic_cheat).l,a2
-	lea	(Night_mode_flag).w,a1
+	lea	(Debug_options_flag).w,a1
 	moveq	#1,d2	; flag to tell the routine to enable the Super Sonic cheat
 	bsr.w	CheckCheats
 

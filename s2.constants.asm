@@ -1610,7 +1610,7 @@ Camera_Min_Y_pos_Debug_Copy:	ds.w	1
 Camera_Max_Y_pos_Debug_Copy:	ds.w	1
 Level_select_flag:		ds.b	1
 Slow_motion_flag:		ds.b	1
-Night_mode_flag:		ds.w	1
+Debug_options_flag:		ds.w	1	; if set, allows you to enable debug mode and "night mode"
 Correct_cheat_entries:		ds.w	1
 Correct_cheat_entries_2:	ds.w	1	; for 14 continues or 7 emeralds codes
 Two_player_mode:		ds.w	1	; flag (0 for main game)
