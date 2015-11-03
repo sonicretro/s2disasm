@@ -3726,7 +3726,7 @@ SegaScreen_Contin:
 	lea	(SegaScreenObject).w,a1
 	move.b	#ObjID_SonicOnSegaScr,id(a1) ; load objB0 (sega screen?) at $FFFFB040
 	move.b	#$4C,subtype(a1) ; <== ObjB0_SubObjData
-	move.w	#$F0,(Demo_Time_left).w
+	move.w	#4*60,(Demo_Time_left).w	; 4 seconds
 	move.w	(VDP_Reg1_val).w,d0
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
@@ -3742,7 +3742,7 @@ Sega_WaitPalette:
 	bsr.w	PlaySound	; play "SEGA" sound
 	move.b	#VintID_SEGA,(Vint_routine).w
 	bsr.w	WaitForVint
-	move.w	#$B4,(Demo_Time_left).w
+	move.w	#3*60,(Demo_Time_left).w	; 3 seconds
 ; loc_3940:
 Sega_WaitEnd:
 	move.b	#VintID_PCM,(Vint_routine).w
@@ -4550,7 +4550,7 @@ Level_MainLoop:
 	bne.s	+
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
 +
-	move.w	#$3C,(Demo_Time_left).w
+	move.w	#1*60,(Demo_Time_left).w	; 1 second
 	move.w	#$3F,(Palette_fade_range).w
 	clr.w	(PalChangeSpeed).w
 -
@@ -9686,7 +9686,7 @@ ContinueScreen:
 	bhs.s	+
 	move	#$2700,sr
 	move.w	(Demo_Time_left).w,d1
-	divu.w	#$3C,d1
+	divu.w	#60,d1
 	andi.l	#$F,d1
 	jsr	(ContScrCounter).l
 	move	#$2300,sr
