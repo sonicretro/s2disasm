@@ -3361,7 +3361,7 @@ Pal_Sega2:	BINCLUDE	"art/palettes/Unused Sega logo 2.bin"
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ; sub_2712: PalLoad1:
-PalLoad_AfterFade:
+PalLoad_ForFade:
 	lea	(PalPointers).l,a1
 	lsl.w	#3,d0
 	adda.w	d0,a1
@@ -3374,7 +3374,7 @@ PalLoad_AfterFade:
 	dbf	d7,-
 
 	rts
-; End of function PalLoad_AfterFade
+; End of function PalLoad_ForFade
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -3857,7 +3857,7 @@ TitleScreen:
 
 	clearRAM Target_palette,palette_line_size*4	; fill palette with 0 (black)
 	moveq	#PalID_BGND,d0
-	bsr.w	PalLoad_AfterFade
+	bsr.w	PalLoad_ForFade
 	bsr.w	Pal_FadeFromBlack
 	move	#$2700,sr
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_Title),VRAM,WRITE),(VDP_control_port).l
@@ -3924,7 +3924,7 @@ TitleScreen:
 	clearRAM Normal_palette,palette_line_size*4*2	; fill two palettes with 0 (black)
 
 	moveq	#PalID_Title,d0
-	bsr.w	PalLoad_AfterFade
+	bsr.w	PalLoad_ForFade
 	move.b	#0,(Debug_mode_flag).w
 	move.w	#0,(Two_player_mode).w
 	move.w	#$280,(Demo_Time_left).w
@@ -4382,7 +4382,7 @@ Level_TtlCard:
 	jsr	(Hud_Base).l
 +
 	moveq	#PalID_BGND,d0
-	bsr.w	PalLoad_AfterFade	; load Sonic's palette line
+	bsr.w	PalLoad_ForFade	; load Sonic's palette line
 	bsr.w	LevelSizeLoad
 	jsrto	(DeformBgLayer).l, JmpTo_DeformBgLayer
 	clr.w	(Vscroll_Factor_FG).w
@@ -9562,7 +9562,7 @@ SSInitPalAndData:
 	move.w	d0,(a2)+
 	move.w	d0,(a2)+
 	moveq	#PalID_SS,d0
-	bsr.w	PalLoad_AfterFade
+	bsr.w	PalLoad_ForFade
 	lea_	SpecialStage_Palettes,a1
 	moveq	#0,d0
 	move.b	(Current_Special_Stage).w,d0
@@ -9575,7 +9575,7 @@ SSInitPalAndData:
 	addi_.w	#6,d0
 +
 	move.w	(a1,d0.w),d0
-	bsr.w	PalLoad_AfterFade
+	bsr.w	PalLoad_ForFade
 	lea	(SSRAM_MiscKoz_SpecialObjectLocations).w,a0
 	adda.w	(a0,d1.w),a0
 	move.l	a0,(SS_CurrentLevelObjectLocations).w
@@ -9684,7 +9684,7 @@ ContinueScreen:
 	moveq	#$A,d1
 	jsr	(ContScrCounter).l
 	moveq	#PalID_SS1,d0
-	bsr.w	PalLoad_AfterFade
+	bsr.w	PalLoad_ForFade
 	move.w	#0,(Target_palette).w
 	move.b	#MusID_Continue,d0
 	bsr.w	PlayMusic
@@ -10088,7 +10088,7 @@ TwoPlayerResults:
 	moveq	#PLCID_Std1,d0
 	bsr.w	LoadPLC2
 	moveq	#PalID_Menu,d0
-	bsr.w	PalLoad_AfterFade
+	bsr.w	PalLoad_ForFade
 	moveq	#0,d0
 	move.b	#MusID_2PResult,d0
 	cmp.w	(Level_Music).w,d0
@@ -11138,7 +11138,7 @@ MenuScreen:
 	lea	(Anim_SonicMilesBG).l,a2
 	jsrto	(Dynamic_Normal).l, JmpTo2_Dynamic_Normal
 	moveq	#PalID_Menu,d0
-	bsr.w	PalLoad_AfterFade
+	bsr.w	PalLoad_ForFade
 	lea	(Normal_palette_line3).w,a1
 	lea	(Target_palette_line3).w,a2
 
@@ -11411,7 +11411,7 @@ MenuScreen_Options:
 	lea	(Anim_SonicMilesBG).l,a2
 	jsrto	(Dynamic_Normal).l, JmpTo2_Dynamic_Normal
 	moveq	#PalID_Menu,d0
-	bsr.w	PalLoad_AfterFade
+	bsr.w	PalLoad_ForFade
 	move.b	#MusID_Options,d0
 	jsrto	(PlayMusic).l, JmpTo_PlayMusic
 	clr.w	(Two_player_mode).w
@@ -11731,7 +11731,7 @@ MenuScreen_LevelSelect:
 	jsrto	(Dynamic_Normal).l, JmpTo2_Dynamic_Normal	; background
 
 	moveq	#PalID_Menu,d0
-	bsr.w	PalLoad_AfterFade
+	bsr.w	PalLoad_ForFade
 
 	lea	(Normal_palette_line3).w,a1
 	lea	(Target_palette_line3).w,a2
