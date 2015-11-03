@@ -3104,7 +3104,6 @@ Pal_FadeFromWhite:
 
 	tst.b	(Water_flag).w
 	beq.s	.skipunderwater
-
 	; Update underwater palette
 	moveq	#0,d0
 	lea	(Underwater_palette).w,a0
@@ -38500,6 +38499,9 @@ Obj0A_WobbleData:
 	dc.b -3,-3,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4;96
 	dc.b -4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-3;112
 	dc.b -3,-3,-3,-3,-3,-3,-2,-2,-2,-2,-2,-1,-1,-1,-1,-1;128
+
+	; Unused S1 leftover
+	; This was used by LZ's water ripple effect in REV01
 	dc.b  0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2;144
 	dc.b  2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3;160
 	dc.b  3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2;176
