@@ -258,3 +258,6 @@ make_block_tile_pair_2p function addr,flx,fly,pal,pri,((make_block_tile_2p(addr,
 
 ; function to calculate the location of a tile in plane mappings with a width of 64 cells
 planeLocH40 function col,line,(($80 * line) + (2 * col))
+
+; function to calculate the location of a tile in plane mappings with a width of 128 cells
+planeLocH80 function col,line,(($100 * line) + (2 * col))

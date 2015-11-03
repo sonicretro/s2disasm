@@ -944,7 +944,7 @@ off_D3C:	offsetTable
 	move.l	#vdpComm(VRAM_EndSeq_Plane_A_Name_Table + $80*$21 + $2C,VRAM,WRITE),d0	;$50AC0003
 	moveq	#$16,d1
 	moveq	#$E,d2
-	jsrto	(PlaneMapToVRAM).l, PlaneMapToVRAM
+	jsrto	(PlaneMapToVRAM_H40).l, PlaneMapToVRAM_H40
 	rts
 ; ===========================================================================
 ;VintSub16
@@ -1435,10 +1435,10 @@ Pause_SlowMo:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; sub_140E: ShowVDPGraphics:
-PlaneMapToVRAM:
+; sub_140E: ShowVDPGraphics: PlaneMapToVRAM:
+PlaneMapToVRAM_H40:
 	lea	(VDP_data_port).l,a6
-	move.l	#vdpCommDelta($0080),d4	; $800000
+	move.l	#vdpCommDelta(planeLocH40(0,1)),d4	; $800000
 -	move.l	d0,VDP_control_port-VDP_data_port(a6)	; move d0 to VDP_control_port
 	move.w	d1,d3
 -	move.w	(a1)+,(a6)	; from source address to destination in VDP
@@ -1446,7 +1446,7 @@ PlaneMapToVRAM:
 	add.l	d4,d0		; increase destination address by $80 (1 line)
 	dbf	d2,--		; next line
 	rts
-; End of function PlaneMapToVRAM
+; End of function PlaneMapToVRAM_H40
 
 ; ---------------------------------------------------------------------------
 ; Alternate subroutine to transfer a plane map to VRAM
@@ -1455,10 +1455,10 @@ PlaneMapToVRAM:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; sub_142E: ShowVDPGraphics2:
-PlaneMapToVRAM2:
+; sub_142E: ShowVDPGraphics2: PlaneMapToVRAM2:
+PlaneMapToVRAM_H80_SpecialStage:
 	lea	(VDP_data_port).l,a6
-	move.l	#vdpCommDelta($0100),d4	; $1000000
+	move.l	#vdpCommDelta(planeLocH80(0,1)),d4	; $1000000
 -	move.l	d0,VDP_control_port-VDP_data_port(a6)
 	move.w	d1,d3
 -	move.w	(a1)+,(a6)
@@ -1466,7 +1466,7 @@ PlaneMapToVRAM2:
 	add.l	d4,d0
 	dbf	d2,--
 	rts
-; End of function PlaneMapToVRAM2
+; End of function PlaneMapToVRAM_H80_SpecialStage
 
 
 ; ---------------------------------------------------------------------------
@@ -3708,7 +3708,7 @@ SegaScreen:
 	move.l	#vdpComm(VRAM_SegaScr_Plane_B_Name_Table,VRAM,WRITE),d0
 	moveq	#$27,d1		; 40 cells wide
 	moveq	#$1B,d2		; 28 cells tall
-	bsr.w	PlaneMapToVRAM3
+	bsr.w	PlaneMapToVRAM_H80_Sega
 	tst.b	(Graphics_Flags).w ; are we on a Japanese Mega Drive?
 	bmi.s	SegaScreen_Contin ; if not, branch
 	; load an extra sprite to hide the TM (trademark) symbol on the SEGA screen
@@ -3761,16 +3761,16 @@ Sega_GotoTitle:
 	rts
 
 ; ---------------------------------------------------------------------------
-; Subroutine that does the exact same thing as PlaneMapToVRAM2
+; Subroutine that does the exact same thing as PlaneMapToVRAM_H80_SpecialStage
 ; (this one is used at the Sega screen)
 ; ---------------------------------------------------------------------------
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; sub_396E: ShowVDPGraphics3:
-PlaneMapToVRAM3:
+; sub_396E: ShowVDPGraphics3: PlaneMapToVRAM3:
+PlaneMapToVRAM_H80_Sega:
 	lea	(VDP_data_port).l,a6
-	move.l	#vdpCommDelta($0100),d4	; $1000000
+	move.l	#vdpCommDelta(planeLocH80(0,1)),d4	; $1000000
 -	move.l	d0,VDP_control_port-VDP_data_port(a6)
 	move.w	d1,d3
 -	move.w	(a1)+,(a6)
@@ -3778,7 +3778,7 @@ PlaneMapToVRAM3:
 	add.l	d4,d0
 	dbf	d2,--
 	rts
-; End of function PlaneMapToVRAM3
+; End of function PlaneMapToVRAM_H80_Sega
 
 ; ===========================================================================
 
@@ -3866,7 +3866,7 @@ TitleScreen:
 	move.l	#vdpComm(VRAM_TtlScr_Plane_B_Name_Table,VRAM,WRITE),d0
 	moveq	#$27,d1
 	moveq	#$1B,d2
-	jsrto	(PlaneMapToVRAM).l, PlaneMapToVRAM
+	jsrto	(PlaneMapToVRAM_H40).l, PlaneMapToVRAM_H40
 	lea	(Chunk_Table).l,a1
 	lea	(MapEng_TitleBack).l,a0
 	move.w	#make_art_tile(ArtTile_ArtNem_Title,2,0),d0
@@ -3875,7 +3875,7 @@ TitleScreen:
 	move.l	#vdpComm(VRAM_TtlScr_Plane_B_Name_Table + planeLocH40($28,0),VRAM,WRITE),d0
 	moveq	#$17,d1
 	moveq	#$1B,d2
-	jsrto	(PlaneMapToVRAM).l, PlaneMapToVRAM
+	jsrto	(PlaneMapToVRAM_H40).l, PlaneMapToVRAM_H40
 	lea	(Chunk_Table).l,a1
 	lea	(MapEng_TitleLogo).l,a0
 	move.w	#make_art_tile(ArtTile_ArtNem_Title,3,1),d0
@@ -3892,7 +3892,7 @@ TitleScreen:
 	move.l	#vdpComm(VRAM_TtlScr_Plane_A_Name_Table,VRAM,WRITE),d0
 	moveq	#$27,d1
 	moveq	#$1B,d2
-	jsrto	(PlaneMapToVRAM).l, PlaneMapToVRAM
+	jsrto	(PlaneMapToVRAM_H40).l, PlaneMapToVRAM_H40
 
 	clearRAM Normal_palette,palette_line_size*4*2	; fill two palettes with 0 (black)
 
@@ -8524,22 +8524,22 @@ SSPlaneB_Background:
 	move.l	#vdpComm(VRAM_SS_Plane_B_Name_Table + $0000,VRAM,WRITE),d0
 	moveq	#$1F,d1
 	moveq	#$1F,d2
-	jsrto	(PlaneMapToVRAM2).l, PlaneMapToVRAM2
+	jsrto	(PlaneMapToVRAM_H80_SpecialStage).l, PlaneMapToVRAM_H80_SpecialStage
 	lea	(Chunk_Table).l,a1
 	move.l	#vdpComm(VRAM_SS_Plane_B_Name_Table + $0040,VRAM,WRITE),d0
 	moveq	#$1F,d1
 	moveq	#$1F,d2
-	jsrto	(PlaneMapToVRAM2).l, PlaneMapToVRAM2
+	jsrto	(PlaneMapToVRAM_H80_SpecialStage).l, PlaneMapToVRAM_H80_SpecialStage
 	lea	(Chunk_Table).l,a1
 	move.l	#vdpComm(VRAM_SS_Plane_B_Name_Table + $0080,VRAM,WRITE),d0
 	moveq	#$1F,d1
 	moveq	#$1F,d2
-	jsrto	(PlaneMapToVRAM2).l, PlaneMapToVRAM2
+	jsrto	(PlaneMapToVRAM_H80_SpecialStage).l, PlaneMapToVRAM_H80_SpecialStage
 	lea	(Chunk_Table).l,a1
 	move.l	#vdpComm(VRAM_SS_Plane_B_Name_Table + $00C0,VRAM,WRITE),d0
 	moveq	#$1F,d1
 	moveq	#$1F,d2
-	jsrto	(PlaneMapToVRAM2).l, PlaneMapToVRAM2
+	jsrto	(PlaneMapToVRAM_H80_SpecialStage).l, PlaneMapToVRAM_H80_SpecialStage
 	move	#$2300,sr
 	rts
 ; End of function SSPlaneB_Background
@@ -10035,7 +10035,7 @@ TwoPlayerResults:
 	move.l	#vdpComm(VRAM_Plane_B_Name_Table,VRAM,WRITE),d0
 	moveq	#$27,d1
 	moveq	#$1B,d2
-	jsrto	(PlaneMapToVRAM).l, PlaneMapToVRAM
+	jsrto	(PlaneMapToVRAM_H40).l, PlaneMapToVRAM_H40
 	move.w	(Results_Screen_2P).w,d0
 	add.w	d0,d0
 	add.w	d0,d0
@@ -10051,7 +10051,7 @@ TwoPlayerResults:
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_TwoPlayerResults),VRAM,WRITE),d0
 	moveq	#$27,d1
 	moveq	#$1B,d2
-	jsrto	(PlaneMapToVRAM).l, PlaneMapToVRAM
+	jsrto	(PlaneMapToVRAM_H40).l, PlaneMapToVRAM_H40
 	clr.w	(VDP_Command_Buffer).w
 	move.l	#VDP_Command_Buffer,(VDP_Command_Buffer_Slot).w
 	clr.b	(Level_started_flag).w
@@ -11063,7 +11063,7 @@ MenuScreen:
 	move.l	#vdpComm(VRAM_Plane_B_Name_Table,VRAM,WRITE),d0
 	moveq	#$27,d1
 	moveq	#$1B,d2
-	jsrto	(PlaneMapToVRAM).l, JmpTo_PlaneMapToVRAM	; fullscreen background
+	jsrto	(PlaneMapToVRAM_H40).l, JmpTo_PlaneMapToVRAM_H40	; fullscreen background
 
 	cmpi.b	#GameModeID_OptionsMenu,(Game_Mode).w	; options menu?
 	beq.w	MenuScreen_Options	; if yes, branch
@@ -11248,7 +11248,7 @@ Update2PLevSelSelection:
 	move.l	(a3)+,d0
 	moveq	#$10,d1
 	moveq	#$B,d2
-	jsrto	(PlaneMapToVRAM).l, JmpTo_PlaneMapToVRAM
+	jsrto	(PlaneMapToVRAM_H40).l, JmpTo_PlaneMapToVRAM_H40
 	lea	(Pal_LevelIcons).l,a1
 	moveq	#0,d0
 	move.b	(a3),d0
@@ -11321,7 +11321,7 @@ ClearOld2PLevSelSelection:
 	move.l	(a3)+,d0
 	moveq	#$10,d1
 	moveq	#$B,d2
-	jmpto	(PlaneMapToVRAM).l, JmpTo_PlaneMapToVRAM
+	jmpto	(PlaneMapToVRAM_H40).l, JmpTo_PlaneMapToVRAM_H40
 ; End of function ClearOld2PLevSelSelection
 
 ; ===========================================================================
@@ -11559,7 +11559,7 @@ OptionScreen_DrawSelected:
 	move.l	(a3)+,d0
 	moveq	#$15,d1
 	moveq	#7,d2
-	jmpto	(PlaneMapToVRAM).l, JmpTo_PlaneMapToVRAM
+	jmpto	(PlaneMapToVRAM_H40).l, JmpTo_PlaneMapToVRAM_H40
 ; ===========================================================================
 
 ;loc_91F8
@@ -11598,7 +11598,7 @@ OptionScreen_DrawUnselected:
 	move.l	(a3)+,d0
 	moveq	#$15,d1
 	moveq	#7,d2
-	jmpto	(PlaneMapToVRAM).l, JmpTo_PlaneMapToVRAM
+	jmpto	(PlaneMapToVRAM_H40).l, JmpTo_PlaneMapToVRAM_H40
 ; ===========================================================================
 
 ;loc_9268
@@ -11680,7 +11680,7 @@ MenuScreen_LevelSelect:
 	move.l	#vdpComm(VRAM_Plane_A_Name_Table,VRAM,WRITE),d0
 	moveq	#$27,d1
 	moveq	#$1B,d2	; 40x28 = whole screen
-	jsrto	(PlaneMapToVRAM).l, JmpTo_PlaneMapToVRAM	; display patterns
+	jsrto	(PlaneMapToVRAM_H40).l, JmpTo_PlaneMapToVRAM_H40	; display patterns
 
 	; Draw sound test number
 	moveq	#palette_line_0,d3
@@ -12066,7 +12066,7 @@ LevelSelect_DrawIcon:
 	move.l	#vdpComm(VRAM_Plane_A_Name_Table+planeLocH40(27,22),VRAM,WRITE),d0
 	moveq	#3,d1
 	moveq	#2,d2
-	jsrto	(PlaneMapToVRAM).l, JmpTo_PlaneMapToVRAM
+	jsrto	(PlaneMapToVRAM_H40).l, JmpTo_PlaneMapToVRAM_H40
 	lea	(Pal_LevelIcons).l,a1
 	moveq	#0,d0
 	move.b	(a3),d0
@@ -12225,9 +12225,9 @@ JmpTo_PlaySound
 	jmp	(PlaySound).l
 JmpTo_PlayMusic 
 	jmp	(PlayMusic).l
-; loc_9C70:
-JmpTo_PlaneMapToVRAM 
-	jmp	(PlaneMapToVRAM).l
+; loc_9C70: JmpTo_PlaneMapToVRAM 
+JmpTo_PlaneMapToVRAM_H40 
+	jmp	(PlaneMapToVRAM_H40).l
 JmpTo2_Dynamic_Normal 
 	jmp	(Dynamic_Normal).l
 
@@ -12463,7 +12463,7 @@ EndgameCredits:
 	move.l	#vdpComm(VRAM_Plane_A_Name_Table+planeLocH40(12,11),VRAM,WRITE),d0
 	moveq	#$F,d1
 	moveq	#5,d2
-	jsrto	(PlaneMapToVRAM).l, JmpTo2_PlaneMapToVRAM
+	jsrto	(PlaneMapToVRAM_H40).l, JmpTo2_PlaneMapToVRAM_H40
 	clr.w	(CreditsScreenIndex).w
 	bsr.w	EndgameLogoFlash
 
@@ -12624,7 +12624,7 @@ loc_A256:
 	move.l	#vdpComm(VRAM_Plane_A_Name_Table + planeLocH40(14,8),VRAM,WRITE),d0
 	moveq	#$B,d1
 	moveq	#8,d2
-	jsrto	(PlaneMapToVRAM).l, JmpTo2_PlaneMapToVRAM
+	jsrto	(PlaneMapToVRAM_H40).l, JmpTo2_PlaneMapToVRAM_H40
 	move	#$2300,sr
 	movea.l	(sp)+,a0 ; load 0bj address
 	rts
@@ -13890,8 +13890,9 @@ JmpTo2_PlayMusic
 	jmp	(PlayMusic).l
 JmpTo_LoadChildObject 
 	jmp	(LoadChildObject).l
-JmpTo2_PlaneMapToVRAM 
-	jmp	(PlaneMapToVRAM).l
+; JmpTo2_PlaneMapToVRAM_H40 
+JmpTo2_PlaneMapToVRAM_H40 
+	jmp	(PlaneMapToVRAM_H40).l
 JmpTo2_ObjectMove 
 	jmp	(ObjectMove).l
 JmpTo_PalCycle_Load 
