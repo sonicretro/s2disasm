@@ -3417,7 +3417,7 @@ PalLoad_Water_Now:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ; sub_2764: PalLoad4_Water:
-PalLoad_Water_AfterFade:
+PalLoad_Water_ForFade:
 	lea	(PalPointers).l,a1
 	lsl.w	#3,d0
 	adda.w	d0,a1
@@ -3430,7 +3430,7 @@ PalLoad_Water_AfterFade:
 	dbf	d7,-
 
 	rts
-; End of function PalLoad_Water_AfterFade
+; End of function PalLoad_Water_ForFade
 
 ; ===========================================================================
 ;----------------------------------------------------------------------------
@@ -4497,7 +4497,7 @@ Level_FromCheckpoint:
 	beq.s	+
 	moveq	#PalID_ARZ_U,d0
 +
-	bsr.w	PalLoad_Water_AfterFade
+	bsr.w	PalLoad_Water_ForFade
 +
 	move.w	#-1,(TitleCard_ZoneName+titlecard_leaveflag).w
 	move.b	#$E,(TitleCard_Left+routine).w	; make the left part move offscreen
