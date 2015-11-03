@@ -74737,7 +74737,7 @@ loc_3A6A2:
 
 	lea	ObjB1_Streak_fade_to_right(pc),a1
 	; 9 full lines ($100 bytes each) plus $28 8-pixel cells
-	move.l	#vdpComm(VRAM_SegaScr_Plane_A_Name_Table + 9*$100 + $28*2,VRAM,WRITE),d0	; $49500003
+	move.l	#vdpComm(VRAM_SegaScr_Plane_A_Name_Table + planeLocH80($28,9),VRAM,WRITE),d0	; $49500003
 	bra.w	loc_3A710
 ; ===========================================================================
 
@@ -74746,13 +74746,13 @@ loc_3A6D4:
 
 	lea	ObjB1_Streak_fade_to_left(pc),a1
 	; $49A00003; 9 full lines ($100 bytes each) plus $50 8-pixel cells
-	move.l	#vdpComm(VRAM_SegaScr_Plane_A_Name_Table + 9*$100 + $50*2,VRAM,WRITE),d0
+	move.l	#vdpComm(VRAM_SegaScr_Plane_A_Name_Table + planeLocH80($50,9),VRAM,WRITE),d0
 	bra.w	loc_3A710
 loc_3A710:
 	lea	(VDP_data_port).l,a6
 	; This is the line delta; for each line, the code below
 	; writes $30 entries, leaving $50 untouched.
-	move.l	#vdpCommDelta($0100),d6	; $1000000
+	move.l	#vdpCommDelta(planeLocH80(0,1)),d6	; $1000000
 	moveq	#7,d1	; Inner loop: repeat 8 times
 	moveq	#9,d2	; Outer loop: repeat $A times
 -
