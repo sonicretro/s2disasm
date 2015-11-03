@@ -3333,8 +3333,8 @@ Pal_Sega2:	BINCLUDE	"art/palettes/Unused Sega logo 2.bin"
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; sub_2712:
-PalLoad1:
+; sub_2712: PalLoad1:
+PalLoad_AfterFade:
 	lea	(PalPointers).l,a1
 	lsl.w	#3,d0
 	adda.w	d0,a1
@@ -3347,13 +3347,13 @@ PalLoad1:
 	dbf	d7,-
 
 	rts
-; End of function PalLoad1
+; End of function PalLoad_AfterFade
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; sub_272E:
-PalLoad2:
+; sub_272E: PalLoad2:
+PalLoad_Now:
 	lea	(PalPointers).l,a1
 	lsl.w	#3,d0
 	adda.w	d0,a1
@@ -3365,13 +3365,13 @@ PalLoad2:
 	dbf	d7,-
 
 	rts
-; End of function PalLoad2
+; End of function PalLoad_Now
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; sub_2746:
-PalLoad3_Water:
+; sub_2746: PalLoad3_Water:
+PalLoad_Water_Now:
 	lea	(PalPointers).l,a1
 	lsl.w	#3,d0
 	adda.w	d0,a1
@@ -3384,13 +3384,13 @@ PalLoad3_Water:
 	dbf	d7,-
 
 	rts
-; End of function PalLoad3_Water
+; End of function PalLoad_Water_Now
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; sub_2764:
-PalLoad4_Water:
+; sub_2764: PalLoad4_Water:
+PalLoad_Water_AfterFade:
 	lea	(PalPointers).l,a1
 	lsl.w	#3,d0
 	adda.w	d0,a1
@@ -3403,7 +3403,7 @@ PalLoad4_Water:
 	dbf	d7,-
 
 	rts
-; End of function PalLoad4_Water
+; End of function PalLoad_Water_AfterFade
 
 ; ===========================================================================
 ;----------------------------------------------------------------------------
@@ -3718,7 +3718,7 @@ SegaScreen:
 ; loc_38CE:
 SegaScreen_Contin:
 	moveq	#PalID_SEGA,d0
-	bsr.w	PalLoad2
+	bsr.w	PalLoad_Now
 	move.w	#-$A,(PalCycle_Frame).w
 	move.w	#0,(PalCycle_Timer).w
 	move.w	#0,(SegaScr_VInt_Subrout).w
@@ -3830,7 +3830,7 @@ TitleScreen:
 
 	clearRAM Target_palette,palette_line_size*4	; fill palette with 0 (black)
 	moveq	#PalID_BGND,d0
-	bsr.w	PalLoad1
+	bsr.w	PalLoad_AfterFade
 	bsr.w	Pal_FadeTo
 	move	#$2700,sr
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_Title),VRAM,WRITE),(VDP_control_port).l
@@ -3897,7 +3897,7 @@ TitleScreen:
 	clearRAM Normal_palette,palette_line_size*4*2	; fill two palettes with 0 (black)
 
 	moveq	#PalID_Title,d0
-	bsr.w	PalLoad1
+	bsr.w	PalLoad_AfterFade
 	move.b	#0,(Debug_mode_flag).w
 	move.w	#0,(Two_player_mode).w
 	move.w	#$280,(Demo_Time_left).w
@@ -4306,7 +4306,7 @@ Level_InitWater:
 ; loc_407C:
 Level_LoadPal:
 	moveq	#PalID_BGND,d0
-	bsr.w	PalLoad2	; load Sonic's palette line
+	bsr.w	PalLoad_Now	; load Sonic's palette line
 	tst.b	(Water_flag).w	; does level have water?
 	beq.s	Level_GetBgm	; if not, branch
 	moveq	#PalID_HPZ_U,d0	; palette number $15
@@ -4318,7 +4318,7 @@ Level_LoadPal:
 	moveq	#PalID_ARZ_U,d0	; palette number $17
 ; loc_409E:
 Level_WaterPal:
-	bsr.w	PalLoad3_Water	; load underwater palette (with d0)
+	bsr.w	PalLoad_Water_Now	; load underwater palette (with d0)
 	tst.b	(Last_star_pole_hit).w ; is it the start of the level?
 	beq.s	Level_GetBgm	; if yes, branch
 	move.b	(Saved_Water_move).w,(Water_fullscreen_flag).w
@@ -4355,7 +4355,7 @@ Level_TtlCard:
 	jsr	(Hud_Base).l
 +
 	moveq	#PalID_BGND,d0
-	bsr.w	PalLoad1	; load Sonic's palette line
+	bsr.w	PalLoad_AfterFade	; load Sonic's palette line
 	bsr.w	LevelSizeLoad
 	jsrto	(DeformBgLayer).l, JmpTo_DeformBgLayer
 	clr.w	(Vscroll_Factor_FG).w
@@ -4470,7 +4470,7 @@ Level_FromCheckpoint:
 	beq.s	+
 	moveq	#PalID_ARZ_U,d0
 +
-	bsr.w	PalLoad4_Water
+	bsr.w	PalLoad_Water_AfterFade
 +
 	move.w	#-1,(TitleCard_ZoneName+titlecard_leaveflag).w
 	move.b	#$E,(TitleCard_Left+routine).w	; make the left part move offscreen
@@ -6113,7 +6113,7 @@ SpecialStage:
 	move.l	#VDP_Command_Buffer,(VDP_Command_Buffer_Slot).w
 	move	#$2300,sr
 	moveq	#PalID_Result,d0
-	bsr.w	PalLoad2
+	bsr.w	PalLoad_Now
 	moveq	#PLCID_Std1,d0
 	bsr.w	LoadPLC2
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_VRAM_Start+2),VRAM,WRITE),d0
@@ -9535,7 +9535,7 @@ SSInitPalAndData:
 	move.w	d0,(a2)+
 	move.w	d0,(a2)+
 	moveq	#PalID_SS,d0
-	bsr.w	PalLoad1
+	bsr.w	PalLoad_AfterFade
 	lea_	SpecialStage_Palettes,a1
 	moveq	#0,d0
 	move.b	(Current_Special_Stage).w,d0
@@ -9548,7 +9548,7 @@ SSInitPalAndData:
 	addi_.w	#6,d0
 +
 	move.w	(a1,d0.w),d0
-	bsr.w	PalLoad1
+	bsr.w	PalLoad_AfterFade
 	lea	(SSRAM_MiscKoz_SpecialObjectLocations).w,a0
 	adda.w	(a0,d1.w),a0
 	move.l	a0,(SS_CurrentLevelObjectLocations).w
@@ -9657,7 +9657,7 @@ ContinueScreen:
 	moveq	#$A,d1
 	jsr	(ContScrCounter).l
 	moveq	#PalID_SS1,d0
-	bsr.w	PalLoad1
+	bsr.w	PalLoad_AfterFade
 	move.w	#0,(Target_palette).w
 	move.b	#MusID_Continue,d0
 	bsr.w	PlayMusic
@@ -10061,7 +10061,7 @@ TwoPlayerResults:
 	moveq	#PLCID_Std1,d0
 	bsr.w	LoadPLC2
 	moveq	#PalID_Menu,d0
-	bsr.w	PalLoad1
+	bsr.w	PalLoad_AfterFade
 	moveq	#0,d0
 	move.b	#MusID_2PResult,d0
 	cmp.w	(Level_Music).w,d0
@@ -11111,7 +11111,7 @@ MenuScreen:
 	lea	(Anim_SonicMilesBG).l,a2
 	jsrto	(Dynamic_Normal).l, JmpTo2_Dynamic_Normal
 	moveq	#PalID_Menu,d0
-	bsr.w	PalLoad1
+	bsr.w	PalLoad_AfterFade
 	lea	(Normal_palette_line3).w,a1
 	lea	(Target_palette_line3).w,a2
 
@@ -11384,7 +11384,7 @@ MenuScreen_Options:
 	lea	(Anim_SonicMilesBG).l,a2
 	jsrto	(Dynamic_Normal).l, JmpTo2_Dynamic_Normal
 	moveq	#PalID_Menu,d0
-	bsr.w	PalLoad1
+	bsr.w	PalLoad_AfterFade
 	move.b	#MusID_Options,d0
 	jsrto	(PlayMusic).l, JmpTo_PlayMusic
 	clr.w	(Two_player_mode).w
@@ -11704,7 +11704,7 @@ MenuScreen_LevelSelect:
 	jsrto	(Dynamic_Normal).l, JmpTo2_Dynamic_Normal	; background
 
 	moveq	#PalID_Menu,d0
-	bsr.w	PalLoad1
+	bsr.w	PalLoad_AfterFade
 
 	lea	(Normal_palette_line3).w,a1
 	lea	(Target_palette_line3).w,a2
@@ -18022,7 +18022,7 @@ loadZoneBlockMaps:
 	addq.w	#4,a2
 	moveq	#0,d0
 	move.b	(a2),d0	; palette ID
-	jsrto	(PalLoad2).l, JmpTo_PalLoad2
+	jsrto	(PalLoad_Now).l, JmpTo_PalLoad_Now
 	rts
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -18186,8 +18186,9 @@ sub_E59C:
     endif
 
     if ~~removeJmpTos
-JmpTo_PalLoad2 
-	jmp	(PalLoad2).l
+; JmpTo_PalLoad2 
+JmpTo_PalLoad_Now 
+	jmp	(PalLoad_Now).l
 JmpTo_LoadPLC 
 	jmp	(LoadPLC).l
 JmpTo_KosDec 
@@ -19246,7 +19247,7 @@ LevEvents_OOZ2_Routine2:
 	moveq	#PLCID_OozBoss,d0
 	jsrto	(LoadPLC).l, JmpTo2_LoadPLC
 	moveq	#PalID_OOZ_B,d0
-	jsrto	(PalLoad2).l, JmpTo2_PalLoad2
+	jsrto	(PalLoad_Now).l, JmpTo2_PalLoad_Now
 +
 	rts
 ; ===========================================================================
@@ -19345,7 +19346,7 @@ LevEvents_MCZ2_Routine2:
 	moveq	#PLCID_MczBoss,d0
 	jsrto	(LoadPLC).l, JmpTo2_LoadPLC
 	moveq	#PalID_MCZ_B,d0
-	jsrto	(PalLoad2).l, JmpTo2_PalLoad2
+	jsrto	(PalLoad_Now).l, JmpTo2_PalLoad_Now
 +
 	rts
 ; ===========================================================================
@@ -19443,7 +19444,7 @@ LevEvents_CNZ2_Routine2:
 	moveq	#PLCID_CnzBoss,d0
 	jsrto	(LoadPLC).l, JmpTo2_LoadPLC
 	moveq	#PalID_CNZ_B,d0
-	jsrto	(PalLoad2).l, JmpTo2_PalLoad2
+	jsrto	(PalLoad_Now).l, JmpTo2_PalLoad_Now
 +
 	rts
 ; ===========================================================================
@@ -19788,8 +19789,9 @@ JmpTo_SingleObjLoad
 	jmp	(SingleObjLoad).l
 JmpTo3_PlaySound 
 	jmp	(PlaySound).l
-JmpTo2_PalLoad2 
-	jmp	(PalLoad2).l
+; JmpTo2_PalLoad2 
+JmpTo2_PalLoad_Now 
+	jmp	(PalLoad_Now).l
 JmpTo2_LoadPLC 
 	jmp	(LoadPLC).l
 JmpTo3_PlayMusic 
