@@ -2861,13 +2861,13 @@ CyclingPal_ARZUWTransformation:
 	BINCLUDE	"art/palettes/ARZWater SS transformation.bin"
 
 ; ---------------------------------------------------------------------------
-; Subroutine to fade out and fade in
+; Subroutine to fade in from black
 ; ---------------------------------------------------------------------------
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; sub_23C6:
-Pal_FadeTo:
+; sub_23C6: Pal_FadeTo:
+Pal_FadeFromBlack:
 	move.w	#$3F,(Palette_fade_range).w
 	moveq	#0,d0
 	lea	(Normal_palette).w,a0
@@ -2875,29 +2875,28 @@ Pal_FadeTo:
 	adda.w	d0,a0
 	moveq	#0,d1
 	move.b	(Palette_fade_length).w,d0
-; loc_23DE:
-Pal_ToBlack:
+; loc_23DE: Pal_ToBlack:
+.palettewrite:
 	move.w	d1,(a0)+
-	dbf	d0,Pal_ToBlack	; fill palette with $000 (black)
+	dbf	d0,.palettewrite	; fill palette with $000 (black)
 
 	move.w	#$15,d4
--	move.b	#VintID_Fade,(Vint_routine).w
+.nextframe:
+	move.b	#VintID_Fade,(Vint_routine).w
 	bsr.w	WaitForVint
-	bsr.s	Pal_FadeIn
+	bsr.s	.UpdateAllColours
 	bsr.w	RunPLC_RAM
-	dbf	d4,-
+	dbf	d4,.nextframe
 
 	rts
-; End of function Pal_FadeTo
+; End of function Pal_FadeFromBlack
 
 ; ---------------------------------------------------------------------------
-; Palette fade-in subroutine
+; Subroutine to update all colours once
 ; ---------------------------------------------------------------------------
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
-; sub_23FE:
-Pal_FadeIn:
+; sub_23FE: Pal_FadeIn:
+.UpdateAllColours:
+	; Update above-water palette
 	moveq	#0,d0
 	lea	(Normal_palette).w,a0
 	lea	(Target_palette).w,a1
@@ -2906,11 +2905,13 @@ Pal_FadeIn:
 	adda.w	d0,a1
 
 	move.b	(Palette_fade_length).w,d0
--	bsr.s	Pal_AddColor
-	dbf	d0,-
+.nextcolour:
+	bsr.s	.UpdateColour
+	dbf	d0,.nextcolour
 
 	tst.b	(Water_flag).w
-	beq.s	+	; rts
+	beq.s	.skipunderwater
+	; Update underwater palette
 	moveq	#0,d0
 	lea	(Underwater_palette).w,a0
 	lea	(Underwater_target_palette).w,a1
@@ -2919,137 +2920,147 @@ Pal_FadeIn:
 	adda.w	d0,a1
 
 	move.b	(Palette_fade_length).w,d0
--	bsr.s	Pal_AddColor
-	dbf	d0,-
-+
+.nextcolour2:
+	bsr.s	.UpdateColour
+	dbf	d0,.nextcolour2
+
+.skipunderwater:
 	rts
-; End of function Pal_FadeIn
 
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
-; sub_243E:
-Pal_AddColor:
+; ---------------------------------------------------------------------------
+; Subroutine to update a single colour once
+; ---------------------------------------------------------------------------
+; sub_243E: Pal_AddColor:
+.UpdateColour:
 	move.w	(a1)+,d2
 	move.w	(a0),d3
 	cmp.w	d2,d3
-	beq.s	Pal_AddNone
+	beq.s	.updatenone
+;.updateblue:
 	move.w	d3,d1
 	addi.w	#$200,d1	; increase blue value
 	cmp.w	d2,d1		; has blue reached threshold level?
-	bhi.s	Pal_AddGreen	; if yes, branch
+	bhi.s	.updategreen	; if yes, branch
 	move.w	d1,(a0)+	; update palette
 	rts
-; ===========================================================================
-; loc_2454:
-Pal_AddGreen:
+
+; loc_2454: Pal_AddGreen:
+.updategreen:
 	move.w	d3,d1
 	addi.w	#$20,d1		; increase green value
 	cmp.w	d2,d1
-	bhi.s	Pal_AddRed
+	bhi.s	.updatered
 	move.w	d1,(a0)+	; update palette
 	rts
-; ===========================================================================
-; loc_2462:
-Pal_AddRed:
+
+; loc_2462: Pal_AddRed:
+.updatered:
 	addq.w	#2,(a0)+	; increase red value
 	rts
-; ===========================================================================
-; loc_2466:
-Pal_AddNone:
+
+; loc_2466: Pal_AddNone:
+.updatenone:
 	addq.w	#2,a0
 	rts
-; End of function Pal_AddColor
 
+
+; ---------------------------------------------------------------------------
+; Subroutine to fade out to black
+; ---------------------------------------------------------------------------
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; sub_246A:
-Pal_FadeFrom:
+; sub_246A: Pal_FadeFrom:
+Pal_FadeToBlack:
 	move.w	#$3F,(Palette_fade_range).w
 
 	move.w	#$15,d4
--	move.b	#VintID_Fade,(Vint_routine).w
+.nextframe:
+	move.b	#VintID_Fade,(Vint_routine).w
 	bsr.w	WaitForVint
-	bsr.s	Pal_FadeOut
+	bsr.s	.UpdateAllColours
 	bsr.w	RunPLC_RAM
-	dbf	d4,-
+	dbf	d4,.nextframe
 
 	rts
-; End of function Pal_FadeFrom
+; End of function Pal_FadeToBlack
 
 ; ---------------------------------------------------------------------------
-; Palette fade-out subroutine
+; Subroutine to update all colours once
 ; ---------------------------------------------------------------------------
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
-; sub_248A:
-Pal_FadeOut:
+; sub_248A: Pal_FadeOut:
+.UpdateAllColours:
+	; Update above-water palette
 	moveq	#0,d0
 	lea	(Normal_palette).w,a0
 	move.b	(Palette_fade_start).w,d0
 	adda.w	d0,a0
 
 	move.b	(Palette_fade_length).w,d0
--	bsr.s	Pal_DecColor
-	dbf	d0,-
+.nextcolour:
+	bsr.s	.UpdateColour
+	dbf	d0,.nextcolour
 
+	; Notice how this one lacks a check for
+	; if Water_flag is set, unlike Pal_FadeFromBlack?
+
+	; Update underwater palette
 	moveq	#0,d0
 	lea	(Underwater_palette).w,a0
 	move.b	(Palette_fade_start).w,d0
 	adda.w	d0,a0
 
 	move.b	(Palette_fade_length).w,d0
--	bsr.s	Pal_DecColor
-	dbf	d0,-
+.nextcolour2:
+	bsr.s	.UpdateColour
+	dbf	d0,.nextcolour2
 
 	rts
-; End of function Pal_FadeOut
 
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
-; sub_24B8:
-Pal_DecColor:
+; ---------------------------------------------------------------------------
+; Subroutine to update a single colour once
+; ---------------------------------------------------------------------------
+; sub_24B8: Pal_DecColor:
+.UpdateColour:
 	move.w	(a0),d2
-	beq.s	Pal_DecNone
+	beq.s	.updatenone
+;.updatered:
 	move.w	d2,d1
 	andi.w	#$E,d1
-	beq.s	Pal_DecGreen
+	beq.s	.updategreen
 	subq.w	#2,(a0)+	; decrease red value
 	rts
-; ===========================================================================
-; loc_24C8:
-Pal_DecGreen:
+
+; loc_24C8: Pal_DecGreen:
+.updategreen:
 	move.w	d2,d1
 	andi.w	#$E0,d1
-	beq.s	Pal_DecBlue
+	beq.s	.updateblue
 	subi.w	#$20,(a0)+	; decrease green value
 	rts
-; ===========================================================================
-; loc_24D6:
-Pal_DecBlue:
+
+; loc_24D6: Pal_DecBlue:
+.updateblue:
 	move.w	d2,d1
 	andi.w	#$E00,d1
-	beq.s	Pal_DecNone
+	beq.s	.updatenone
 	subi.w	#$200,(a0)+	; decrease blue value
 	rts
-; ===========================================================================
-; loc_24E4:
-Pal_DecNone:
+
+; loc_24E4: Pal_DecNone:
+.updatenone:
 	addq.w	#2,a0
 	rts
-; End of function Pal_DecColor
+
 
 ; ---------------------------------------------------------------------------
-; Subroutine to fill the palette with white
+; Subroutine to fade in from white
 ; ---------------------------------------------------------------------------
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; sub_24E8:
-Pal_MakeWhite:
+; sub_24E8: Pal_MakeWhite:
+Pal_FadeFromWhite:
 	move.w	#$3F,(Palette_fade_range).w
 	moveq	#0,d0
 	lea	(Normal_palette).w,a0
@@ -3058,24 +3069,27 @@ Pal_MakeWhite:
 	move.w	#$EEE,d1
 
 	move.b	(Palette_fade_length).w,d0
--	move.w	d1,(a0)+
-	dbf	d0,-
+.palettewrite:
+	move.w	d1,(a0)+
+	dbf	d0,.palettewrite
 
 	move.w	#$15,d4
--	move.b	#VintID_Fade,(Vint_routine).w
+.nextframe:
+	move.b	#VintID_Fade,(Vint_routine).w
 	bsr.w	WaitForVint
-	bsr.s	Pal_WhiteToBlack
+	bsr.s	.UpdateAllColours
 	bsr.w	RunPLC_RAM
-	dbf	d4,-
+	dbf	d4,.nextframe
 
 	rts
-; End of function Pal_MakeWhite
+; End of function Pal_FadeFromWhite
 
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
-; sub_2522:
-Pal_WhiteToBlack:
+; ---------------------------------------------------------------------------
+; Subroutine to update all colours once
+; ---------------------------------------------------------------------------
+; sub_2522: Pal_WhiteToBlack:
+.UpdateAllColours:
+	; Update above-water palette
 	moveq	#0,d0
 	lea	(Normal_palette).w,a0
 	lea	(Target_palette).w,a1
@@ -3084,11 +3098,14 @@ Pal_WhiteToBlack:
 	adda.w	d0,a1
 
 	move.b	(Palette_fade_length).w,d0
--	bsr.s	Pal_DecColor2
-	dbf	d0,-
+.nextcolour:
+	bsr.s	.UpdateColour
+	dbf	d0,.nextcolour
 
 	tst.b	(Water_flag).w
-	beq.s	+	; rts
+	beq.s	.skipunderwater
+
+	; Update underwater palette
 	moveq	#0,d0
 	lea	(Underwater_palette).w,a0
 	lea	(Underwater_target_palette).w,a1
@@ -3097,134 +3114,145 @@ Pal_WhiteToBlack:
 	adda.w	d0,a1
 
 	move.b	(Palette_fade_length).w,d0
--	bsr.s	Pal_DecColor2
-	dbf	d0,-
+.nextcolour2:
+	bsr.s	.UpdateColour
+	dbf	d0,.nextcolour2
 
-+	rts
-; End of function Pal_WhiteToBlack
+.skipunderwater:
+	rts
 
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
-; sub_2562:
-Pal_DecColor2:
+; ---------------------------------------------------------------------------
+; Subroutine to update a single colour once
+; ---------------------------------------------------------------------------
+; sub_2562: Pal_DecColor2:
+.UpdateColour:
 	move.w	(a1)+,d2
 	move.w	(a0),d3
 	cmp.w	d2,d3
-	beq.s	Pal_DecNone2
+	beq.s	.updatenone
+;.updateblue:
 	move.w	d3,d1
 	subi.w	#$200,d1	; decrease blue value
-	bcs.s	Pal_DecGreen2
+	bcs.s	.updategreen
 	cmp.w	d2,d1
-	blo.s	Pal_DecGreen2
+	blo.s	.updategreen
 	move.w	d1,(a0)+
 	rts
-; ===========================================================================
-; loc_257A:
-Pal_DecGreen2:
+
+; loc_257A: Pal_DecGreen2:
+.updategreen:
 	move.w	d3,d1
 	subi.w	#$20,d1	; decrease green value
-	bcs.s	Pal_DecRed2
+	bcs.s	.updatered
 	cmp.w	d2,d1
-	blo.s	Pal_DecRed2
+	blo.s	.updatered
 	move.w	d1,(a0)+
 	rts
-; ===========================================================================
-; loc_258A:
-Pal_DecRed2:
+
+; loc_258A: Pal_DecRed2:
+.updatered:
 	subq.w	#2,(a0)+	; decrease red value
 	rts
-; ===========================================================================
-; loc_258E:
-Pal_DecNone2:
+
+; loc_258E: Pal_DecNone2:
+.updatenone:
 	addq.w	#2,a0
 	rts
-; End of function Pal_DecColor2
+
 
 ; ---------------------------------------------------------------------------
-; Subroutine to make a white flash when you enter a special stage
+; Subroutine to fade out to white (used when you enter a special stage)
 ; ---------------------------------------------------------------------------
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; sub_2592:
-Pal_MakeFlash:
+; sub_2592: Pal_MakeFlash:
+Pal_FadeToWhite:
 	move.w	#$3F,(Palette_fade_range).w
 
 	move.w	#$15,d4
--	move.b	#VintID_Fade,(Vint_routine).w
+.nextframe:
+	move.b	#VintID_Fade,(Vint_routine).w
 	bsr.w	WaitForVint
-	bsr.s	Pal_ToWhite
+	bsr.s	.UpdateAllColours
 	bsr.w	RunPLC_RAM
-	dbf	d4,-
+	dbf	d4,.nextframe
 
 	rts
-; End of function Pal_MakeFlash
+; End of function Pal_FadeToWhite
 
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
-; sub_25B2:
-Pal_ToWhite:
+; ---------------------------------------------------------------------------
+; Subroutine to update all colours once
+; ---------------------------------------------------------------------------
+; sub_25B2: Pal_ToWhite:
+.UpdateAllColours:
+	; Update above-water palette
 	moveq	#0,d0
 	lea	(Normal_palette).w,a0
 	move.b	(Palette_fade_start).w,d0
 	adda.w	d0,a0
 
 	move.b	(Palette_fade_length).w,d0
--	bsr.s	Pal_AddColor2
-	dbf	d0,-
+.nextcolour:
+	bsr.s	.UpdateColour
+	dbf	d0,.nextcolour
 
+	; Notice how this one lacks a check for
+	; if Water_flag is set, unlike Pal_FadeFromWhite?
+
+	; Update underwater palette
 	moveq	#0,d0
 	lea	(Underwater_palette).w,a0
 	move.b	(Palette_fade_start).w,d0
 	adda.w	d0,a0
 
 	move.b	(Palette_fade_length).w,d0
--	bsr.s	Pal_AddColor2
-	dbf	d0,-
+.nextcolour2:
+	bsr.s	.UpdateColour
+	dbf	d0,.nextcolour2
 
 	rts
-; End of function Pal_ToWhite
 
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
-; sub_25E0:
-Pal_AddColor2:
+; ---------------------------------------------------------------------------
+; Subroutine to update a single colour once
+; ---------------------------------------------------------------------------
+; sub_25E0: Pal_AddColor2:
+.UpdateColour:
 	move.w	(a0),d2
 	cmpi.w	#$EEE,d2
-	beq.s	Pal_AddNone2
+	beq.s	.updatenone
+;.updatered:
 	move.w	d2,d1
 	andi.w	#$E,d1
 	cmpi.w	#$E,d1
-	beq.s	Pal_AddGreen2
+	beq.s	.updategreen
 	addq.w	#2,(a0)+	; increase red value
 	rts
-; ===========================================================================
-; loc_25F8:
-Pal_AddGreen2:
+
+; loc_25F8: Pal_AddGreen2:
+.updategreen:
 	move.w	d2,d1
 	andi.w	#$E0,d1
 	cmpi.w	#$E0,d1
-	beq.s	Pal_AddBlue2
+	beq.s	.updateblue
 	addi.w	#$20,(a0)+	; increase green value
 	rts
-; ===========================================================================
-; loc_260A:
-Pal_AddBlue2:
+
+; loc_260A: Pal_AddBlue2:
+.updateblue:
 	move.w	d2,d1
 	andi.w	#$E00,d1
 	cmpi.w	#$E00,d1
-	beq.s	Pal_AddNone2
+	beq.s	.updatenone
 	addi.w	#$200,(a0)+	; increase blue value
 	rts
-; ===========================================================================
-; loc_261C:
-Pal_AddNone2:
+
+; loc_261C: Pal_AddNone2:
+.updatenone:
 	addq.w	#2,a0
 	rts
 ; End of function Pal_AddColor2
+
 
 ; Unused - dead code/data for old SEGA screen:
 
@@ -3667,7 +3695,7 @@ SegaScreen:
 	move.b	#MusID_Stop,d0
 	bsr.w	PlayMusic ; stop music
 	bsr.w	ClearPLC
-	bsr.w	Pal_FadeFrom
+	bsr.w	Pal_FadeToBlack
 
 	clearRAM Misc_Variables,(Misc_Variables_End-Misc_Variables)
 
@@ -3803,7 +3831,7 @@ TitleScreen:
 	move.b	#MusID_Stop,d0
 	bsr.w	PlayMusic
 	bsr.w	ClearPLC
-	bsr.w	Pal_FadeFrom
+	bsr.w	Pal_FadeToBlack
 	move	#$2700,sr
 	lea	(VDP_control_port).l,a6
 	move.w	#$8004,(a6)		; H-INT disabled
@@ -3831,7 +3859,7 @@ TitleScreen:
 	clearRAM Target_palette,palette_line_size*4	; fill palette with 0 (black)
 	moveq	#PalID_BGND,d0
 	bsr.w	PalLoad_AfterFade
-	bsr.w	Pal_FadeTo
+	bsr.w	Pal_FadeFromBlack
 	move	#$2700,sr
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_Title),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_Title).l,a0
@@ -3856,7 +3884,7 @@ TitleScreen:
 	move.w	#0,(PalCycle_Timer).w
 	move.w	#0,(Two_player_mode).w
 	move.b	#0,(Level_started_flag).w
-	bsr.w	Pal_FadeFrom
+	bsr.w	Pal_FadeToBlack
 	move	#$2700,sr
 	lea	(Chunk_Table).l,a1
 	lea	(MapEng_TitleScreen).l,a0
@@ -3929,7 +3957,7 @@ TitleScreen:
 	move.w	(VDP_Reg1_val).w,d0
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
-	bsr.w	Pal_FadeTo
+	bsr.w	Pal_FadeFromBlack
 
 ; loc_3C14:
 TitleScreen_Loop:
@@ -4194,7 +4222,7 @@ Level:
 	bsr.w	PlaySound	; fade out music
 +
 	bsr.w	ClearPLC
-	bsr.w	Pal_FadeFrom
+	bsr.w	Pal_FadeToBlack
 	tst.w	(Demo_mode_flag).w
 	bmi.s	Level_ClrRam
 	move	#$2700,sr
@@ -4563,7 +4591,7 @@ Level_MainLoop:
 	subq.w	#1,(PalChangeSpeed).w
 	bpl.s	+
 	move.w	#2,(PalChangeSpeed).w
-	bsr.w	Pal_FadeOut
+	bsr.w	Pal_FadeToBlack.UpdateAllColours
 +
 	tst.w	(Demo_Time_left).w
 	bne.s	-
@@ -5911,7 +5939,7 @@ SpecialStage:
 	bsr.w	PlaySound
 	move.b	#MusID_FadeOut,d0 ; fade out the music
 	bsr.w	PlayMusic
-	bsr.w	Pal_MakeFlash
+	bsr.w	Pal_FadeToWhite
 	tst.w	(Two_player_mode).w
 	beq.s	+
 	move.w	#0,(Two_player_mode).w
@@ -6022,7 +6050,7 @@ SpecialStage:
 	move.w	(VDP_Reg1_val).w,d0
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
-	bsr.w	Pal_MakeWhite
+	bsr.w	Pal_FadeFromWhite
 
 -	bsr.w	PauseGame
 	move.w	(Ctrl_1).w,(Ctrl_1_Logical).w
@@ -6098,7 +6126,7 @@ SpecialStage:
 	bne.s	+
 	st.b	(Perfect_rings_flag).w
 +
-	bsr.w	Pal_MakeFlash
+	bsr.w	Pal_FadeToWhite
 	tst.w	(Two_player_mode_copy).w
 	bne.w	loc_540C
 	move	#$2700,sr
@@ -6160,7 +6188,7 @@ SpecialStage:
 	bne.s	-
 	move.w	#SndID_SpecStageEntry,d0
 	bsr.w	PlaySound
-	bsr.w	Pal_MakeFlash
+	bsr.w	Pal_FadeToWhite
 	tst.w	(Two_player_mode_copy).w
 	bne.s	loc_540C
 	move.b	#GameModeID_Level,(Game_Mode).w ; => Level (Zone play mode)
@@ -9631,7 +9659,7 @@ JmpTo_Hud_Base
 ; ----------------------------------------------------------------------------
 ; loc_7870:
 ContinueScreen:
-	bsr.w	Pal_FadeFrom
+	bsr.w	Pal_FadeToBlack
 	move	#$2700,sr
 	move.w	(VDP_Reg1_val).w,d0
 	andi.b	#$BF,d0
@@ -9678,7 +9706,7 @@ ContinueScreen:
 	move.w	(VDP_Reg1_val).w,d0
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
-	bsr.w	Pal_FadeTo
+	bsr.w	Pal_FadeFromBlack
 -
 	move.b	#VintID_Menu,(Vint_routine).w
 	bsr.w	WaitForVint
@@ -10003,7 +10031,7 @@ JmpTo_Adjust2PArtPointer
 ; ===========================================================================
 ; loc_7D50:
 TwoPlayerResults:
-	bsr.w	Pal_FadeFrom
+	bsr.w	Pal_FadeToBlack
 	move	#$2700,sr
 	move.w	(VDP_Reg1_val).w,d0
 	andi.b	#$BF,d0
@@ -10082,7 +10110,7 @@ TwoPlayerResults:
 	move.w	(VDP_Reg1_val).w,d0
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
-	bsr.w	Pal_FadeTo
+	bsr.w	Pal_FadeFromBlack
 
 -	move.b	#VintID_Menu,(Vint_routine).w
 	bsr.w	WaitForVint
@@ -11025,7 +11053,7 @@ JmpTo_Dynamic_Normal
 ; ===========================================================================
 ; loc_8BD4:
 MenuScreen:
-	bsr.w	Pal_FadeFrom
+	bsr.w	Pal_FadeToBlack
 	move	#$2700,sr
 	move.w	(VDP_Reg1_val).w,d0
 	andi.b	#$BF,d0
@@ -11131,7 +11159,7 @@ MenuScreen:
 	move.w	(VDP_Reg1_val).w,d0
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
-	bsr.w	Pal_FadeTo
+	bsr.w	Pal_FadeFromBlack
 
 ;loc_8DA8:
 LevelSelect2P_Main:
@@ -11397,7 +11425,7 @@ MenuScreen_Options:
 	move.w	(VDP_Reg1_val).w,d0
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
-	bsr.w	Pal_FadeTo
+	bsr.w	Pal_FadeFromBlack
 ; loc_9060:
 OptionScreen_Main:
 	move.b	#VintID_Menu,(Vint_routine).w
@@ -11731,7 +11759,7 @@ MenuScreen_LevelSelect:
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
 
-	bsr.w	Pal_FadeTo
+	bsr.w	Pal_FadeFromBlack
 
 ;loc_93AC:
 LevelSelect_Main:	; routine running during level select
@@ -12383,7 +12411,7 @@ EndingSequence:
 EndgameCredits:
 	tst.b	(Credits_Trigger).w
 	beq.w	+++	; rts
-	bsr.w	Pal_FadeFrom
+	bsr.w	Pal_FadeToBlack
 	lea	(VDP_control_port).l,a6
 	move.w	#$8004,(a6)		; H-INT disabled
 	move.w	#$8230,(a6)		; PNT A base: $C000
@@ -12432,7 +12460,7 @@ EndgameCredits:
 -
 	jsrto	(ClearScreen).l, JmpTo_ClearScreen
 	bsr.w	ShowCreditsScreen
-	bsr.w	Pal_FadeTo
+	bsr.w	Pal_FadeFromBlack
 
 	move.w	#$18E,d0
 	btst	#6,(Graphics_Flags).w
@@ -12443,14 +12471,14 @@ EndgameCredits:
 	bsr.w	WaitForVint
 	dbf	d0,-
 
-	bsr.w	Pal_FadeFrom
+	bsr.w	Pal_FadeToBlack
 	lea	(off_B2CA).l,a1
 	addq.w	#1,(CreditsScreenIndex).w
 	move.w	(CreditsScreenIndex).w,d0
 	lsl.w	#2,d0
 	move.l	(a1,d0.w),d0
 	bpl.s	--
-	bsr.w	Pal_FadeFrom
+	bsr.w	Pal_FadeToBlack
 	jsrto	(ClearScreen).l, JmpTo_ClearScreen
 	move.l	#vdpComm($0000,VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_EndingTitle).l,a0
@@ -24545,7 +24573,7 @@ ObjC9_Main:
 	lea	(Target_palette).w,a1
 	adda.w	d1,a1
 
--	jsr	(a2)	; dynamic call! to Pal_AddColor, loc_1344C, or loc_1348A, assuming the PaletteChangerData pointers haven't been changed
+-	jsr	(a2)	; dynamic call! to Pal_FadeFromBlack.UpdateColour, loc_1344C, or loc_1348A, assuming the PaletteChangerData pointers haven't been changed
 	dbf	d0,-
 
 	movea.l	a3,a0
@@ -24568,14 +24596,14 @@ C9PalInfo macro codeptr,dataptr,loadtoOffset,length,fadeinTime,fadeinAmount
 	dc.b loadtoOffset, length, fadeinTime, fadeinAmount
     endm
 
-off_1338C:	C9PalInfo Pal_AddColor, Pal_1342C, $60, $F,2,$15
-off_13398:	C9PalInfo    loc_1344C, Pal_1340C, $40, $F,4,7
-off_133A4:	C9PalInfo    loc_1344C,  Pal_AD1E,   0, $F,8,7
-off_133B0:	C9PalInfo    loc_1348A,  Pal_AD1E,   0, $F,8,7
-off_133BC:	C9PalInfo    loc_1344C,  Pal_AC7E,   0,$1F,4,7
-off_133C8:	C9PalInfo    loc_1344C,  Pal_ACDE, $40,$1F,4,7
-off_133D4:	C9PalInfo    loc_1344C,  Pal_AD3E,   0, $F,4,7
-off_133E0:	C9PalInfo    loc_1344C,  Pal_AC9E,   0,$1F,4,7
+off_1338C:	C9PalInfo Pal_FadeFromBlack.UpdateColour, Pal_1342C, $60, $F,2,$15
+off_13398:	C9PalInfo                      loc_1344C, Pal_1340C, $40, $F,4,7
+off_133A4:	C9PalInfo                      loc_1344C,  Pal_AD1E,   0, $F,8,7
+off_133B0:	C9PalInfo                      loc_1348A,  Pal_AD1E,   0, $F,8,7
+off_133BC:	C9PalInfo                      loc_1344C,  Pal_AC7E,   0,$1F,4,7
+off_133C8:	C9PalInfo                      loc_1344C,  Pal_ACDE, $40,$1F,4,7
+off_133D4:	C9PalInfo                      loc_1344C,  Pal_AD3E,   0, $F,4,7
+off_133E0:	C9PalInfo                      loc_1344C,  Pal_AC9E,   0,$1F,4,7
 
 Pal_133EC:	BINCLUDE "art/palettes/Title Sonic.bin"
 Pal_1340C:	BINCLUDE "art/palettes/Title Background.bin"
@@ -79158,7 +79186,7 @@ loc_3D9D6:
 	lea	(Normal_palette).w,a0
 
 	moveq	#$3F,d0
--	jsrto	(Pal_AddColor2).l, JmpTo_Pal_AddColor2
+-	jsrto	(Pal_FadeToWhite.UpdateColour).l, JmpTo_Pal_FadeToWhite_UpdateColour
 	dbf	d0,-
 	movea.l	a1,a0
 	rts
@@ -80864,8 +80892,8 @@ JmpTo6_RandomNumber
 	jmp	(RandomNumber).l
 JmpTo2_MarkObjGone_P1 
 	jmp	(MarkObjGone_P1).l
-JmpTo_Pal_AddColor2 
-	jmp	(Pal_AddColor2).l
+JmpTo_Pal_FadeToWhite_UpdateColour 
+	jmp	(Pal_FadeToWhite.UpdateColour).l
 JmpTo_LoadTailsDynPLC_Part2 
 	jmp	(LoadTailsDynPLC_Part2).l
 JmpTo_LoadSonicDynPLC_Part2 
