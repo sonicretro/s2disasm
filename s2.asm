@@ -485,13 +485,13 @@ loc_4C4:
 	tst.b	(Water_fullscreen_flag).w
 	bne.s	loc_526
 
-	dma68kToVDP Normal_palette,$0000,$80,CRAM
+	dma68kToVDP Normal_palette,$0000,palette_line_size*4,CRAM
 
 	bra.s	loc_54A
 ; ---------------------------------------------------------------------------
 
 loc_526:
-	dma68kToVDP Underwater_palette,$0000,$80,CRAM
+	dma68kToVDP Underwater_palette,$0000,palette_line_size*4,CRAM
 
 loc_54A:
 	move.w	(Hint_counter_reserve).w,(a5)
@@ -611,13 +611,13 @@ Vint_Level:
 loc_6F8:
 	tst.b	(Water_fullscreen_flag).w
 	bne.s	loc_724
-	dma68kToVDP Normal_palette,$0000,$80,CRAM
+	dma68kToVDP Normal_palette,$0000,palette_line_size*4,CRAM
 	bra.s	loc_748
 ; ---------------------------------------------------------------------------
 
 loc_724:
 
-	dma68kToVDP Underwater_palette,$0000,$80,CRAM
+	dma68kToVDP Underwater_palette,$0000,palette_line_size*4,CRAM
 
 loc_748:
 	move.w	(Hint_counter_reserve).w,(a5)
@@ -688,7 +688,7 @@ Vint_S2SS:
 	bsr.w	ReadJoypads
 	bsr.w	SSSet_VScroll
 
-	dma68kToVDP Normal_palette,$0000,$80,CRAM
+	dma68kToVDP Normal_palette,$0000,palette_line_size*4,CRAM
 	dma68kToVDP SS_Sprite_Table,VRAM_SS_Sprite_Attribute_Table,VRAM_SS_Sprite_Attribute_Table_Size,VRAM
 
 	tst.b	(SS_Alternate_HorizScroll_Buf).w
@@ -856,12 +856,12 @@ Vint_TitleCard:
 	tst.b	(Water_fullscreen_flag).w
 	bne.s	loc_BB2
 
-	dma68kToVDP Normal_palette,$0000,$80,CRAM
+	dma68kToVDP Normal_palette,$0000,palette_line_size*4,CRAM
 	bra.s	loc_BD6
 ; ---------------------------------------------------------------------------
 
 loc_BB2:
-	dma68kToVDP Underwater_palette,$0000,$80,CRAM
+	dma68kToVDP Underwater_palette,$0000,palette_line_size*4,CRAM
 
 loc_BD6:
 	move.w	(Hint_counter_reserve).w,(a5)
@@ -902,7 +902,7 @@ Vint_Ending:
 
 	bsr.w	ReadJoypads
 
-	dma68kToVDP Normal_palette,$0000,$80,CRAM
+	dma68kToVDP Normal_palette,$0000,palette_line_size*4,CRAM
 	dma68kToVDP Sprite_Table,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
 	dma68kToVDP Horiz_Scroll_Buf,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
 
@@ -941,7 +941,7 @@ off_D3C:	offsetTable
 	move.w	#$8402,(a6)		; PNT B base: $4000
 	move.w	#$9011,(a6)		; Scroll table size: 64x64
 	lea	(Chunk_Table).l,a1
-	move.l	#vdpComm(VRAM_EndSeq_Plane_A_Name_Table + $80*$21 + $2C,VRAM,WRITE),d0	;$50AC0003
+	move.l	#vdpComm(VRAM_EndSeq_Plane_A_Name_Table + planeLocH40($16,$21),VRAM,WRITE),d0	;$50AC0003
 	moveq	#$16,d1
 	moveq	#$E,d2
 	jsrto	(PlaneMapToVRAM_H40).l, PlaneMapToVRAM_H40
@@ -953,7 +953,7 @@ Vint_Menu:
 
 	bsr.w	ReadJoypads
 
-	dma68kToVDP Normal_palette,$0000,$80,CRAM
+	dma68kToVDP Normal_palette,$0000,palette_line_size*4,CRAM
 	dma68kToVDP Sprite_Table,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
 	dma68kToVDP Horiz_Scroll_Buf,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
 
@@ -979,12 +979,12 @@ Do_ControllerPal:
 	tst.b	(Water_fullscreen_flag).w
 	bne.s	loc_EDA
 
-	dma68kToVDP Normal_palette,$0000,$80,CRAM
+	dma68kToVDP Normal_palette,$0000,palette_line_size*4,CRAM
 	bra.s	loc_EFE
 ; ---------------------------------------------------------------------------
 
 loc_EDA:
-	dma68kToVDP Underwater_palette,$0000,$80,CRAM
+	dma68kToVDP Underwater_palette,$0000,palette_line_size*4,CRAM
 
 loc_EFE:
 	dma68kToVDP Sprite_Table,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
