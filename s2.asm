@@ -54778,7 +54778,7 @@ Obj85_Up:
 	bne.s	+
 	or.w	(Ctrl_2).w,d0
 +
-	andi.w	#$7000,d0
+	andi.w	#(button_B_mask|button_C_mask|button_A_mask)<<8,d0
 	bne.s	return_2AD24
 	move.w	#$202,objoff_36(a0)
 	rts
@@ -54937,7 +54937,7 @@ Obj85_Diagonal:
 	bne.s	+
 	or.w	(Ctrl_2).w,d0
 +
-	andi.w	#$7000,d0
+	andi.w	#(button_B_mask|button_C_mask|button_A_mask)<<8,d0
 	bne.s	return_2AF04
 	move.w	#$202,objoff_36(a0)
 	rts
@@ -75519,7 +75519,7 @@ ObjB2_Move_obbey_player:
 	move.w	#$80,d3
 	andi.w	#(button_up_mask|button_down_mask)<<8,d2
 	beq.s	loc_3AE72
-	andi.w	#$200,d2
+	andi.w	#button_down_mask<<8,d2
 	bne.s	loc_3AE66
 	neg.w	d3
 
