@@ -62,6 +62,7 @@ next_tilt =		$36 ; angle on ground in front of sprite
 tilt =			$37 ; angle on ground
 stick_to_convex =	$38 ; 0 for normal, 1 to make Sonic stick to convex surfaces like the rotating discs in Sonic 1 and 3 (unused in Sonic 2 but fully functional)
 spindash_flag =		$39 ; 0 for normal, 1 for charging a spindash or forced rolling
+pinball_mode =		spindash_flag
 spindash_counter =	$3A ; and $3B
 restart_countdown =	spindash_counter; and 1+spindash_counter
 jumping =		$3C
