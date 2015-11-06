@@ -38214,6 +38214,9 @@ Obj05_Index:	offsetTable
 		offsetTableEntry.w Obj05_Init	; 0
 		offsetTableEntry.w Obj05_Main	; 2
 ; ===========================================================================
+
+Obj05_parent_prev_anim = objoff_30
+
 ; loc_1D212
 Obj05_Init:
 	addq.b	#2,routine(a0) ; => Obj05_Main
@@ -38242,12 +38245,14 @@ Obj05_Main:
 	beq.s	+
 	moveq	#4,d0
 +
-	cmp.b	objoff_30(a0),d0
-	beq.s	loc_1D288
-	move.b	d0,objoff_30(a0)
-	move.b	Obj05AniSelection(pc,d0.w),anim(a0)
-
-loc_1D288:
+	; This is here so Obj05Ani_Flick works
+	; It changes anim(a0) itself, so we don't want the below code changing it as well
+	cmp.b	Obj05_parent_prev_anim(a0),d0	; Did Tails' animation change?
+	beq.s	.display
+	move.b	d0,Obj05_parent_prev_anim(a0)
+	move.b	Obj05AniSelection(pc,d0.w),anim(a0)	; If so, update Tails' tails' animation
+; loc_1D288:
+.display:
 	lea	(Obj05AniData).l,a1
 	bsr.w	Tails_Animate_Part2
 	bsr.w	LoadTailsTailsDynPLC
