@@ -33278,7 +33278,7 @@ Obj01_MdAir:
 ; Called if Sonic is in a ball, but not airborne (thus, probably rolling)
 ; loc_1A30A:
 Obj01_MdRoll:
-	tst.b	spindash_flag(a0)
+	tst.b	pinball_mode(a0)
 	bne.s	+
 	bsr.w	Sonic_Jump
 +
@@ -33787,7 +33787,7 @@ Sonic_ApplyRollSpeedLeft:
 Sonic_CheckRollStop:
 	tst.w	inertia(a0)
 	bne.s	Obj01_Roll_ResetScr
-	tst.b	spindash_flag(a0) ; note: the spindash flag has a different meaning when Sonic's already rolling -- it's used to mean he's not allowed to stop rolling
+	tst.b	pinball_mode(a0) ; note: the spindash flag has a different meaning when Sonic's already rolling -- it's used to mean he's not allowed to stop rolling
 	bne.s	Sonic_KeepRolling
 	bclr	#2,status(a0)
 	move.b	#$13,y_radius(a0)
@@ -34148,7 +34148,7 @@ Sonic_JumpHeight:
 ; ---------------------------------------------------------------------------
 ; loc_1AB22:
 Sonic_UpVelCap:
-	tst.b	spindash_flag(a0)	; is Sonic charging a spindash or in a rolling-only area?
+	tst.b	pinball_mode(a0)	; is Sonic charging a spindash or in a rolling-only area?
 	bne.s	return_1AB36		; if yes, return
 	cmpi.w	#-$FC0,y_vel(a0)	; is Sonic moving up really fast?
 	bge.s	return_1AB36		; if not, return
@@ -34778,7 +34778,7 @@ return_1B09E:
 
 ; loc_1B0A0:
 Sonic_ResetOnFloor:
-	tst.b	spindash_flag(a0)
+	tst.b	pinball_mode(a0)
 	bne.s	Sonic_ResetOnFloor_Part3
 	move.b	#AniIDSonAni_Walk,anim(a0)
 ; loc_1B0AC:
@@ -36272,7 +36272,7 @@ Obj02_MdAir:
 ; Called if Tails is in a ball, but not airborne (thus, probably rolling)
 ; loc_1C05C:
 Obj02_MdRoll:
-	tst.b	spindash_flag(a0)
+	tst.b	pinball_mode(a0)
 	bne.s	+
 	bsr.w	Tails_Jump
 +
@@ -36679,7 +36679,7 @@ Tails_ApplyRollSpeedLeft:
 Tails_CheckRollStop:
 	tst.w	inertia(a0)
 	bne.s	Obj02_Roll_ResetScr
-	tst.b	spindash_flag(a0)  ; note: the spindash flag has a different meaning when Tails is already rolling -- it's used to mean he's not allowed to stop rolling
+	tst.b	pinball_mode(a0)  ; note: the spindash flag has a different meaning when Tails is already rolling -- it's used to mean he's not allowed to stop rolling
 	bne.s	Tails_KeepRolling
 	bclr	#2,status(a0)
 	move.b	#$F,y_radius(a0) ; sets standing height to only slightly higher than rolling height, unlike Sonic
@@ -37029,7 +37029,7 @@ Tails_JumpHeight:
 ; ---------------------------------------------------------------------------
 ; loc_1C6F8:
 Tails_UpVelCap:
-	tst.b	spindash_flag(a0)	; is Tails charging a spindash or in a rolling-only area?
+	tst.b	pinball_mode(a0)	; is Tails charging a spindash or in a rolling-only area?
 	bne.s	return_1C70C		; if yes, return
 	cmpi.w	#-$FC0,y_vel(a0)	; is Tails moving up really fast?
 	bge.s	return_1C70C		; if not, return
@@ -37553,7 +37553,7 @@ return_1CB4E:
 
 ; loc_1CB50:
 Tails_ResetOnFloor:
-	tst.b	spindash_flag(a0)
+	tst.b	pinball_mode(a0)
 	bne.s	Tails_ResetOnFloor_Part3
 	move.b	#AniIDTailsAni_Walk,anim(a0)
 ; loc_1CB5C:
@@ -43195,10 +43195,10 @@ Obj84_MainX:
 	bhs.s	return_21284
 	btst	#0,render_flags(a0)
 	bne.s	+
-	move.b	#1,spindash_flag(a1) ; enable must-roll "pinball mode"
+	move.b	#1,pinball_mode(a1) ; enable must-roll "pinball mode"
 	bra.s	loc_212C4
 ; ---------------------------------------------------------------------------
-+	move.b	#0,spindash_flag(a1) ; disable pinball mode
++	move.b	#0,pinball_mode(a1) ; disable pinball mode
 
 return_21284:
 	rts
@@ -43220,10 +43220,10 @@ Obj84_MainX_Alt:
 	bhs.s	return_21284
 	btst	#0,render_flags(a0)
 	beq.s	+
-	move.b	#1,spindash_flag(a1)
+	move.b	#1,pinball_mode(a1)
 	bra.s	loc_212C4
 ; ---------------------------------------------------------------------------
-+	move.b	#0,spindash_flag(a1)
++	move.b	#0,pinball_mode(a1)
 	rts
 ; ===========================================================================
 
@@ -43270,10 +43270,10 @@ Obj84_MainY:
 	bhs.s	return_21350
 	btst	#0,render_flags(a0)
 	bne.s	+
-	move.b	#1,spindash_flag(a1)
+	move.b	#1,pinball_mode(a1)
 	bra.w	loc_212C4
 ; ---------------------------------------------------------------------------
-+	move.b	#0,spindash_flag(a1)
++	move.b	#0,pinball_mode(a1)
 
 return_21350:
 	rts
@@ -43295,10 +43295,10 @@ Obj84_MainY_Alt:
 	bhs.s	return_21350
 	btst	#0,render_flags(a0)
 	beq.s	+
-	move.b	#1,spindash_flag(a1)
+	move.b	#1,pinball_mode(a1)
 	bra.w	loc_212C4
 ; ---------------------------------------------------------------------------
-+	move.b	#0,spindash_flag(a1)
++	move.b	#0,pinball_mode(a1)
 	rts
 
 
