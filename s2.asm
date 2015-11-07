@@ -4264,7 +4264,7 @@ Level:
 ; loc_3F48:
 Level_ClrRam:
 	clearRAM Sprite_Table_Input,(Sprite_Table_Input_End-Sprite_Table_Input)
-	clearRAM Object_RAM,(LevelOnly_Object_RAM_End-Object_RAM) ; clear object RAM
+	clearRAM Object_RAM,(Object_RAM_End-Object_RAM) ; clear object RAM
 	clearRAM MiscLevelVariables,(MiscLevelVariables_End-MiscLevelVariables)
 	clearRAM Misc_Variables,(Misc_Variables_End-Misc_Variables)
 	clearRAM Oscillating_Data,(Oscillating_variables_End-Oscillating_variables)
@@ -27222,7 +27222,7 @@ RunObjects:
 	cmpi.b	#GameModeID_Level,(Game_Mode).w	; regular level mode?
 	bne.s	RunObject ; if not in a level, branch to RunObject
 +
-	move.w	#(LevelOnly_Object_RAM_End-Object_RAM)/object_size-1,d7	; run the first $90 objects in levels
+	move.w	#(Object_RAM_End-Object_RAM)/object_size-1,d7	; run the first $90 objects in levels
 	tst.w	(Two_player_mode).w
 	bne.s	RunObject ; if in 2 player competition mode, branch to RunObject
 	

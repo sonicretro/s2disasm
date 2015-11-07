@@ -1046,8 +1046,9 @@ Tails_InvincibilityStars:
 				ds.b	object_size
 				ds.b	object_size
 LevelOnly_Object_RAM_End:
-				ds.b	8*object_size
+
 Object_RAM_End:
+				ds.b	$200	; unused
 
 Primary_Collision:		ds.b	$300
 Secondary_Collision:		ds.b	$300
