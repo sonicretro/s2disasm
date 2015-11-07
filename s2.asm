@@ -16850,12 +16850,12 @@ LoadTilesAsYouMove:
 	lea	(Camera_RAM_copy).w,a3
 	lea	(Level_Layout).w,a4
 	move.w	#vdpComm(VRAM_Plane_A_Name_Table,VRAM,WRITE)>>16,d2
-	tst.b	(Dirty_flag).w
+	tst.b	(Screen_redraw_flag).w
 
 	; comment out this line to disable blast processing
 	beq.s	Draw_FG
 
-	move.b	#0,(Dirty_flag).w
+	move.b	#0,(Screen_redraw_flag).w
 	moveq	#-$10,d4
 	moveq	#$F,d6
 ; loc_DACE:
@@ -63546,7 +63546,7 @@ loc_31D7E:
 	ori.b	#3,6(a1)
 	_move.b	#8,0(a1)
 	move.b	#$DD,(Level_Layout+$C54).w
-	move.b	#1,(Dirty_flag).w
+	move.b	#1,(Screen_redraw_flag).w
 	move.w	#-$12,(Boss_Countdown).w
 
 loc_31DB8:
@@ -77247,7 +77247,7 @@ ObjC2_Bust:
 	lea	(Level_Layout+$950).w,a1
 	move.l	#$6E787978,(a1)+
 	move.w	#$787A,(a1)+
-	move.b	#1,(Dirty_flag).w
+	move.b	#1,(Screen_redraw_flag).w
 +
 	jmpto	(MarkObjGone).l, JmpTo39_MarkObjGone
 ; ===========================================================================
@@ -82827,7 +82827,7 @@ Animated_Null:
 	subq.b	#1,(CPZ_UnkScroll_Timer).w
 	bpl.s	-	; rts	; do it every 8th frame
 	move.b	#7,(CPZ_UnkScroll_Timer).w
-	move.b	#1,(Dirty_flag).w
+	move.b	#1,(Screen_redraw_flag).w
 	lea	(Chunk_Table+$7500).l,a1 ; chunks $EA-$ED, $FFFF7500 - $FFFF7700
 	bsr.s	+
 	lea	(Chunk_Table+$7D00).l,a1 ; chunks $FA-$FD, $FFFF7D00 - $FFFF7F00

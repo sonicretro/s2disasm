@@ -1305,7 +1305,7 @@ CNZ_Visible_bumpers_end:			ds.l	1
 CNZ_Visible_bumpers_start_P2:			ds.l	1
 CNZ_Visible_bumpers_end_P2:			ds.l	1
 
-Dirty_flag:			ds.b	1	; if whole screen needs to redraw
+Screen_redraw_flag:			ds.b	1	; if whole screen needs to redraw, such as when you destroy that piston before the boss in WFZ
 CPZ_UnkScroll_Timer:	ds.b	1	; Used only in unused CPZ scrolling function
 WFZ_SCZ_Fire_Toggle:	ds.b	1
 				ds.b	1	; $FFFFF72F ; seems unused
