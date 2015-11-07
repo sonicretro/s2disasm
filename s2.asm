@@ -35950,8 +35950,8 @@ TailsCPU_Normal_SonicOK:
 ; loc_1BD76: TailsCPU_Normal_FollowLeft:
 	cmpi.w	#$10,d2
 	blo.s	+
-	andi.w	#$F3F3,d1 ; %1111001111110011
-	ori.w	#$0404,d1 ; %0000010000000100
+	andi.w	#~(((button_left_mask|button_right_mask)<<8)|(button_left_mask|button_right_mask)),d1	; AND out Sonic's left/right input...
+	ori.w	#(button_left_mask<<8)|button_left_mask,d1	; ...and give Tails his own
 +
 	tst.w	inertia(a0)
 	beq.s	TailsCPU_Normal_FilterAction
@@ -35965,8 +35965,8 @@ TailsCPU_Normal_SonicOK:
 TailsCPU_Normal_FollowRight:
 	cmpi.w	#$10,d2
 	blo.s	+
-	andi.w	#$F3F3,d1 ; %1111001111110011
-	ori.w	#$0808,d1 ; %0000100000001000
+	andi.w	#~(((button_left_mask|button_right_mask)<<8)|(button_left_mask|button_right_mask)),d1	; AND out Sonic's left/right input
+	ori.w	#(button_right_mask<<8)|button_right_mask,d1	; ...and give Tails his own
 +
 	tst.w	inertia(a0)
 	beq.s	TailsCPU_Normal_FilterAction
