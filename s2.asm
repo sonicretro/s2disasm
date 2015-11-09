@@ -27239,7 +27239,7 @@ RunObjects:
 
 ; sub_15FCC:
 RunObject:
-	move.b	(a0),d0	; get the object's ID
+	move.b	id(a0),d0	; get the object's ID
 	beq.s	RunNextObject ; if it's obj00, skip it
 
 	add.w	d0,d0
@@ -27272,7 +27272,7 @@ RunObjectsWhenPlayerIsDead:
 ; sub_15FF2:
 RunObjectDisplayOnly:
 	moveq	#0,d0
-	move.b	(a0),d0	; get the object's ID
+	move.b	id(a0),d0	; get the object's ID
 	beq.s	+	; if it's obj00, skip it
 	tst.b	render_flags(a0)	; should we render it?
 	bpl.s	+			; if not, skip it
