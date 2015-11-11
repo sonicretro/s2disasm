@@ -73021,12 +73021,12 @@ loc_38F88:
 BranchTo2_JmpTo45_DisplaySprite 
 	jmpto	(DisplaySprite).l, JmpTo45_DisplaySprite
 ; ===========================================================================
-		dc.w $B000	; -2
-		dc.w $B040	; -1
-word_38FE0:	dc.w $B000	; 0
-		dc.w $F604	; 1
-		dc.w $F606	; 2
-		dc.w $F604	; 3
+		dc.w MainCharacter	; -2
+		dc.w Sidekick	; -1
+word_38FE0:	dc.w MainCharacter	; 0
+		dc.w Ctrl_1_Held	; 1
+		dc.w Ctrl_2_Held	; 2
+		dc.w Ctrl_1_Held	; 3
 ; ===========================================================================
 
 loc_38FE8:
