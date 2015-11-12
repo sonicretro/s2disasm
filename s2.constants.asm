@@ -1405,10 +1405,10 @@ Target_palette_line3:		ds.b	palette_line_size	; Target_palette will contain the 
 Target_palette_line4:		ds.b	palette_line_size
 
 Object_Respawn_Table:
-Obj_respawn_index:		ds.w	$C0
-Object_Respawn_Table_End:
-
-				ds.b	$80	; Stack
+Obj_respawn_index:		ds.b	2		; respawn table indices of the next objects when moving left or right for the first player
+Obj_respawn_data:		ds.b	$100	; Maximum possible number of respawn entries that S2 can handle; for stock S2, $80 is enough
+Obj_respawn_data_End:
+				ds.b	$FE	; Stack; the first $7E bytes are cleared by ObjectsManager_Init, with possibly disastrous consequences. At least $A0 bytes are needed.
 System_Stack:
 
 SS_2p_Flag:				ds.w	1	; $FFFFFE00-$FFFFFE01 ; seems unused

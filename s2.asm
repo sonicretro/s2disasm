@@ -30064,7 +30064,8 @@ ObjectsManager_Init:
 	move.w	#$101,(a2)+	; the first two bytes are not used as respawn values
 	; instead, they are used to keep track of the current respawn indexes
 
-	move.w	#bytesToLcnt(Object_Respawn_Table_End-Object_Respawn_Table-2),d0 ; set loop counter
+	; The '+7E' shouldn't be here; this loop accidentally clears an additional $7E bytes
+	move.w	#bytesToLcnt(Obj_respawn_data_End-Obj_respawn_data+$7E),d0 ; set loop counter
 -	clr.l	(a2)+		; loop clears all other respawn values
 	dbf	d0,-
 
