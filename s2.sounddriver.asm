@@ -719,7 +719,7 @@ zloc_20E:
 zDACAfterDur:
 	ld	(ix+zTrack.DataPointerLow),	l		; Stores "hl" to the DAC track pointer memory
 	ld	(ix+zTrack.DataPointerHigh),	h
-	bit	2,(ix+zTrack.PlaybackControl)		; Is bit 2 (0x04) set on zTracksStart?
+	bit	2,(ix+zTrack.PlaybackControl)		; Is SFX overriding this track?
 	ret	nz				; If so, we're done
 	ld	a,(ix+zTrack.SavedDAC)		; Check next note to play
 	cp	80h				; Is it a rest?
@@ -1601,7 +1601,7 @@ zBGMLoad:
 	ld	c,(ix+4)			; Get tempo divider -> 'c'
 	ld	de,zFMDACInitBytes	; 'de' points to zFMDACInitBytes
 
--	ld	(iy+zTrack.PlaybackControl),82h			; At "playback control" byte of this track, set "track is playing" bit and "SFX is overriding" (?) bit (I think just to keep it from playing until init is done)
+-	ld	(iy+zTrack.PlaybackControl),82h			; Set "track is playing" bit and "track at rest" bit
 	ld	a,(de)				; Get current byte from zFMDACInitBytes -> 'a'
 	inc	de					; will get next byte from zFMDACInitBytes next time
 	ld	(iy+zTrack.VoiceControl),a			; Store this byte to "voice control" byte
@@ -1684,7 +1684,7 @@ zloc_884:
 	ld	c,(ix+4)			; Get tempo divider -> 'c'
 	ld	de,zPSGInitBytes	; 'de' points to zPSGInitBytes
 
--	ld	(iy+zTrack.PlaybackControl),82h			; At "playback control" byte of this track, set "track is playing" bit and "SFX is overriding" (?) bit (I think just to keep it from playing until init is done)
+-	ld	(iy+zTrack.PlaybackControl),82h			; Set "track is playing" bit and "track at rest" bit
 	ld	a,(de)				; Get current byte from zPSGInitBytes -> 'a'
 	inc	de					; will get next byte from zPSGInitBytes next time
 	ld	(iy+zTrack.VoiceControl),a			; Store this byte to "voice control" byte
@@ -2372,7 +2372,7 @@ zFMNoteOn:
 ;zsub_C56
 zFMNoteOff:
 	ld	a,(ix+zTrack.PlaybackControl)		; Load this track's playback control byte
-	and	14h				; Are bits 4 (0x10) or 2 (0x4) set?
+	and	14h				; Are bits 4 (no attack) or 2 (SFX overriding) set?
 	ret	nz				; If they are, return
 	ld	a,28h			; Otherwise, send a KEY ON/OFF
 	ld	c,(ix+zTrack.VoiceControl)		; Track's data for this key operation
@@ -2520,7 +2520,7 @@ cfPanningAMSFMS:
 		
 	bit	7,(ix+zTrack.VoiceControl)		; a PSG track
 	ret	m				; If so, quit!
-	bit	2,(ix+zTrack.PlaybackControl)		; If "do not attack next note" bit set...
+	bit	2,(ix+zTrack.PlaybackControl)		; If "SFX overriding" bit set...
 	ret	nz				; return
 	ld	c,a				; input val 'a' -> c
 	ld	a,(ix+zTrack.AMSFMSPan)		; old PAF value
