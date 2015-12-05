@@ -109,7 +109,7 @@ zTrack STRUCT DOTS
 	TempoDivider:		ds.b 1	; timing divisor; 1 = Normal, 2 = Half, 3 = Third...
 	DataPointerLow:		ds.b 1	; Track's position low byte
 	DataPointerHigh:	ds.b 1	; Track's position high byte
-	KeyOffset:		ds.b 1	; Key offset (from coord flag E9)
+	Transpose:		ds.b 1	; Transpose (from coord flag E9)
 	Volume:			ds.b 1	; channel volume (only ap plied at voice changes)
 	AMSFMSPan:		ds.b 1	; Panning / AMS / FMS settings
 	VoiceIndex:		ds.b 1	; Current voice in use OR current PSG tone
@@ -132,7 +132,7 @@ zTrack STRUCT DOTS
 	ModulationSteps:	ds.b 1	; Number of steps in modulation (divided by 2)
 	ModulationValLow:	ds.b 1	; Current modulation value low byte
 	ModulationValHigh:	ds.b 1	; Current modulation value high byte
-	FreqDisplacement:	ds.b 1	; Set by "alter notes" coord flag E1; used to add directly to FM/PSG frequency
+	Detune:			ds.b 1	; Set by detune coord flag E1; used to add directly to FM/PSG frequency
 	FeedbackAlgo:		ds.b 1	; zVolTLMaskTbl value set during voice setting (value based on algorithm indexing zGain table)
 	PSGNoise:		ds.b 1	; PSG noise setting
 	VoicePtrLow:		ds.b 1	; low byte of custom voice table (for SFX)
@@ -794,7 +794,7 @@ zFMSetFreq:
 	; 'a' holds a note to get frequency for
 	sub	80h
 	jr	z,zFMDoRest		; If this is a rest, jump to zFMDoRest
-	add	a,(ix+zTrack.KeyOffset)		; Add current channel key offset (coord flag E9)
+	add	a,(ix+zTrack.Transpose)		; Add current channel transpose (coord flag E9)
 	add	a,a				; Offset into Frequency table...
 	add	a,zFrequencies&0FFh
 	ld	(zloc_292+2),a	; store into the instruction after zloc_292 (self-modifying code)
@@ -971,7 +971,7 @@ zFMUpdateFreq:
 	bit	2,(ix+zTrack.PlaybackControl)		; Is SFX overriding this track?
 	ret	nz				; If so, quit!
 	ld	h,0				; h = 0
-	ld	l,(ix+zTrack.FreqDisplacement)		; Get frequency adjust value
+	ld	l,(ix+zTrack.Detune)		; Get detune value
 	; This is a 16-bit sign extension of (ix+19h)
 	bit	7,l				; Did prior value have 80h set?
 	jr	z,+				; If not, skip next step
@@ -1043,7 +1043,7 @@ zPSGDoNext:
 zPSGSetFreq:
 	sub	81h				; a = a-$81 (zero-based index from lowest note)
 	jr	c,+				; If carry (only time that happens if 80h because of earlier logic) this is a rest!
-	add	a,(ix+zTrack.KeyOffset)		; Add current channel key offset (coord flag E9)
+	add	a,(ix+zTrack.Transpose)		; Add current channel transpose (coord flag E9)
 	add	a,a				; Multiply note value by 2
 	add	a,zPSGFrequencies&0FFh	; Point to proper place in table
 	ld	(zloc_46D+2),a	; store into the instruction after zloc_46D (self-modifying code)
@@ -1077,7 +1077,7 @@ zPSGUpdateFreq:
 	ret	nz				; If either bit 1 ("track in rest") and 2 ("SFX overriding this track"), quit!
 	; This is a 16-bit sign extension of (ix+19h) -> 'hl'
 	ld	h,0
-	ld	l,(ix+zTrack.FreqDisplacement)		; hl = "alter notes" value (coord flag E9)
+	ld	l,(ix+zTrack.Detune)		; hl = detune value (coord flag E9)
 	bit	7,l				; Did prior value have 80h set?
 	jr	z,+				; If not, skip next step
 	ld	h,0FFh			; sign extend negative value
@@ -2426,7 +2426,7 @@ coordflagLookup:
 	jp	cfPanningAMSFMS		; E0
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfAlterNotes		; E1
+	jp	cfDetune		; E1
 	nop
 ; ---------------------------------------------------------------------------
 	jp	cfSetCommunication	; E2
@@ -2450,7 +2450,7 @@ coordflagLookup:
 	jp	cfNoteFill		; E8
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfAddKey		; E9
+	jp	cfChangeTransposition	; E9
 	nop
 ; ---------------------------------------------------------------------------
 	jp	cfSetTempo		; EA
@@ -2537,9 +2537,9 @@ cfPanningAMSFMS:
 
 ; (via Saxman's doc): Alter note values by xx 
 ; More or less a pitch bend; this is applied to the frequency as a signed value
-;zloc_D1A cfAlterNotesUNK
-cfAlterNotes:
-	ld	(ix+zTrack.FreqDisplacement),a		; set new frequency adjust
+;zloc_D1A cfAlterNotesUNK cfAlterNotes:
+cfDetune:
+	ld	(ix+zTrack.Detune),a		; set new detune value
 	ret
 ; ---------------------------------------------------------------------------
 
@@ -2678,10 +2678,10 @@ cfNoteFill:
 ; ---------------------------------------------------------------------------
 
 ; (via Saxman's doc): add xx to channel key 
-;zloc_DD1
-cfAddKey:
-	add	a,(ix+zTrack.KeyOffset)	; Add to current transpose value
-	ld	(ix+zTrack.KeyOffset),a	; Store updated transpose value
+;zloc_DD1 cfAddKey:
+cfChangeTransposition:
+	add	a,(ix+zTrack.Transpose)	; Add to current transpose value
+	ld	(ix+zTrack.Transpose),a	; Store updated transpose value
 	ret
 ; ---------------------------------------------------------------------------
 
