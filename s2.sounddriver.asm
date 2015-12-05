@@ -1460,9 +1460,12 @@ zPlaySegaSound:
 ; ---------------------------------------------------------------------------
 ; zloc_73D:
 zPlayMusic:
+    if FixDriverBugs=0
+	; This is a workaround for a bug, where playing a new song will distort any SFX that were already playing
 	push	af
 	call	zStopSoundEffects		; Stop all sounds before starting BGM
 	pop	af
+    endif
 	ld	(zCurSong),a				; Get current BGM
 	cp	MusID_ExtraLife				; If NOT 1-up sound...
 	jr	nz,zloc_784					; ... skip over the following code
@@ -1747,7 +1750,11 @@ zloc_8F1:
 	ld	(zloc_8F6+1),a			; store into the instruction after zloc_8F6 (self-modifying code)
 zloc_8F6:
 	ld	hl,(zMusicTrackOffs)	; This loads address of corresponding MUSIC track (the track that this SFX track would normally play over)
-	res	2,(hl)				; Clear the "SFX override" bit; this SFX track isn't overriding that music track now
+    if FixDriverBugs
+	set	2,(hl)				; Set the "SFX override" bit
+    else
+	res	2,(hl)				; Clear the "SFX override" bit (Why??? According to S1's driver, this should be a 'set')
+    endif
 
 zloc_8FB:
 	add	ix,de				; Next track..
@@ -2241,9 +2248,14 @@ zInitMusicPlayback:
 	ld	(ix+zVar.1upPlaying),c		; 1-up playing flag
 	ld	a,80h
 	ld	(zAbsVar.QueueToPlay),a
-	; Silence hardware!
+    if FixDriverBugs
+	ret
+    else
+	; This silences all channels, even those being used by SFX!
+	; zloc_8FB does the same thing, only better (it doesn't affect SFX channels)
 	call	zFMSilenceAll
 	jp	zPSGSilenceAll
+    endif
 ; End of function zInitMusicPlayback
 
 ; ---------------------------------------------------------------------------
