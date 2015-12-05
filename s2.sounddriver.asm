@@ -386,8 +386,8 @@ zUpdateEverything:
 	
 	; Apparently if this is 80h, it does not play anything new,
 	; otherwise it cues up the next play (flag from 68K for new item)
-	ld	a,	(zAbsVar.QueueToPlay)
-	cp		80h
+	ld	a,(zAbsVar.QueueToPlay)
+	cp	80h
 	call	nz,zPlaySoundByIndex	; If not 80h, we need to play something new!
 	
 	; Spindash update
@@ -656,8 +656,8 @@ zloc_1A8:
 	ensure1byteoffset 10h
 ;zbyte_1B3
 zDACDecodeTbl:
-	db	   0,	 1,   2,   4,   8,  10h,  20h,  40h
-	db	 80h,	-1,  -2,  -4,  -8, -10h, -20h, -40h
+	db	   0,    1,   2,   4,   8,  10h,  20h,  40h
+	db	 80h,   -1,  -2,  -4,  -8, -10h, -20h, -40h
 	
 	; The following two tables are used for when an SFX terminates
 	; its track to properly restore the music track it temporarily took
@@ -717,8 +717,8 @@ zloc_20E:
 
 ;zloc_211
 zDACAfterDur:
-	ld	(ix+zTrack.DataPointerLow),	l		; Stores "hl" to the DAC track pointer memory
-	ld	(ix+zTrack.DataPointerHigh),	h
+	ld	(ix+zTrack.DataPointerLow),l		; Stores "hl" to the DAC track pointer memory
+	ld	(ix+zTrack.DataPointerHigh),h
 	bit	2,(ix+zTrack.PlaybackControl)		; Is SFX overriding this track?
 	ret	nz				; If so, we're done
 	ld	a,(ix+zTrack.SavedDAC)		; Check next note to play
@@ -839,15 +839,15 @@ zSetDuration:
 ;zloc_2BA
 zFinishTrackUpdate:
 	; Common finish-up routine used by FM or PSG
-	ld	(ix+zTrack.DataPointerLow),	l		; Stores "hl" to the track pointer memory
-	ld	(ix+zTrack.DataPointerHigh),	h
+	ld	(ix+zTrack.DataPointerLow),l		; Stores "hl" to the track pointer memory
+	ld	(ix+zTrack.DataPointerHigh),h
 	ld	a,(ix+zTrack.SavedDuration)		; Last set duration
 	ld	(ix+zTrack.DurationTimeout),a		; ... put into ticker
 	bit	4,(ix+zTrack.PlaybackControl)		; Is bit 4 (10h) "do not attack next note" set on playback?
 	ret	nz				; If so, quit
 	ld	a,(ix+zTrack.NoteFillMaster)		; Master "note fill" value -> a
 	ld	(ix+zTrack.NoteFillTimeout),a		; Reset 0Fh "note fill" value to master
-	ld	(ix+zTrack.VolFlutter),	0		; Reset PSG flutter byte
+	ld	(ix+zTrack.VolFlutter),0		; Reset PSG flutter byte
 	bit	3,(ix+zTrack.PlaybackControl)		; is modulation turned on?
 	ret	z				; if not, quit
 	ld	l,(ix+zTrack.ModulationPtrLow)		; Otherwise, get address of modulation setting
