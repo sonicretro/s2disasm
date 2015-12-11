@@ -2551,13 +2551,24 @@ cfPanningAMSFMS:
 		
 	bit	7,(ix+zTrack.VoiceControl)		; a PSG track
 	ret	m				; If so, quit!
+    if FixDriverBugs=0
+	; This check is in the wrong place.
+	; If this flag is triggered by a music track while it's being overridden
+	; by an SFX, it will use the old panning when the SFX ends.
+	; This is because zTrack.AMSFMSPan doesn't get updated.
 	bit	2,(ix+zTrack.PlaybackControl)		; If "SFX overriding" bit set...
 	ret	nz				; return
+    endif
 	ld	c,a				; input val 'a' -> c
 	ld	a,(ix+zTrack.AMSFMSPan)		; old PAF value
 	and	37h				; retains bits 0-2, 3-4?
 	or	c				; OR'd with new settings
 	ld	(ix+zTrack.AMSFMSPan),a		; new PAF value
+    if FixDriverBugs
+	; The check should only stop hardware access, like this.
+	bit	2,(ix+zTrack.PlaybackControl)		; If "SFX overriding" bit set...
+	ret	nz				; return
+    endif
 	ld	c,a				; a -> c (YM2612 data write)
 	ld	a,(ix+zTrack.VoiceControl)		; Get voice control byte
 	and	3				; Channels only!
