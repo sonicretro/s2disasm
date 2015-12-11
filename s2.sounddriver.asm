@@ -1663,9 +1663,12 @@ zBGMLoad:
 	jr	zloc_87E			; jump to zloc_87E
 +
 	; Silence FM Channel 6 specifically if it's not in use
+    if OptimiseDriver=0
+	; A later call to zFMNoteOff does this, already
 	ld	a,28h				; Key on/off FM register
 	ld	c,6					; FM channel 6
 	rst	zWriteFMI			; All operators off
+    endif
 	ld	a,42h				; Starting at FM Channel 6 Operator 1 Total Level register
 	ld	c,0FFh				; Silence value
 	ld	b,4					; Write to all four FM Channel 6 operators
