@@ -601,10 +601,10 @@ zWaitLoop:
 	; that we'll call 'd'. At the start of decompression, d is $80. What happens is that d 
 	; is then added to the data extracted from the table using the nybble. So if the nybble 
 	; were 4, the 8 would be extracted from the table, then added to d, which is $80, 
-	; resulting in $88. This result is then put bank into d, then fed into the YM2612 for 
+	; resulting in $88. This result is then put back into d, then fed into the YM2612 for 
 	; processing. Then the next nybble is read, the data is extracted from the table, then 
 	; is added to d (remember, d is now changed because of the previous operation), then is 
-	; put bank into d, then is fed into the YM2612. This process is repeated until the number 
+	; put back into d, then is fed into the YM2612. This process is repeated until the number 
 	; of bytes as defined in the table above are read and decompressed."
 	
 	; In our case, the so-called 'd' value is shadow register 'a'
@@ -2051,7 +2051,7 @@ zloc_A6C:
 	call	zSetVoiceMusic				; Reset FM voice
 +
 	pop	ix
-	jp	zloc_AB6						; jump down to loo
+	jp	zloc_AB6						; jump down to loop
 ; ---------------------------------------------------------------------------
 
 zloc_A89:
