@@ -917,10 +917,10 @@ zDoModulation:
 	; This is a 16-bit sign extension for 'bc'
     if OptimiseDriver
 	ld	a,(ix+zTrack.ModulationDelta)		; Get current modulation change per step -> 'a'
-	ld	c,a							; bc = sign extension of delta
-	rla									; Carry contains sign of delta
-	sbc	a,a							; a = 0 or -1 if carry is 0 or 1
-	ld	b,a							; bc = sign extension of delta
+	ld	c,a
+	rla						; Carry contains sign of delta
+	sbc	a,a					; a = 0 or -1 if carry is 0 or 1
+	ld	b,a					; bc = sign extension of delta
     else
 	ld	b,0
 	ld	c,(ix+zTrack.ModulationDelta)		; Get current modulation change per step -> 'c'
@@ -970,13 +970,21 @@ zFMPrepareNote:
 zFMUpdateFreq:
 	bit	2,(ix+zTrack.PlaybackControl)		; Is SFX overriding this track?
 	ret	nz				; If so, quit!
+	; This is a 16-bit sign extension of (ix+19h)
+    if OptimiseDriver
+	ld	a,(ix+zTrack.Detune)		; Get detune value
+	ld	l,a
+	rla					; Carry contains sign of detune
+	sbc	a,a				; a = 0 or -1 if carry is 0 or 1
+	ld	h,a				; hl = sign extension of detune
+    else
 	ld	h,0				; h = 0
 	ld	l,(ix+zTrack.Detune)		; Get detune value
-	; This is a 16-bit sign extension of (ix+19h)
 	bit	7,l				; Did prior value have 80h set?
 	jr	z,+				; If not, skip next step
 	ld	h,0FFh			; h = FFh
 +
+    endif
 	add	hl,de			; Alter frequency just a tad
 	ld	c,h				; Upper part of frequency as data to FM ('c')
 	ld	a,(ix+zTrack.VoiceControl)		; "voice control" byte -> 'a'
@@ -1076,12 +1084,20 @@ zPSGUpdateFreq:
 	and	6
 	ret	nz				; If either bit 1 ("track in rest") and 2 ("SFX overriding this track"), quit!
 	; This is a 16-bit sign extension of (ix+19h) -> 'hl'
+    if OptimiseDriver
+	ld	a,(ix+zTrack.Detune)		; Get detune value
+	ld	l,a
+	rla					; Carry contains sign of detune
+	sbc	a,a				; a = 0 or -1 if carry is 0 or 1
+	ld	h,a				; hl = sign extension of detune
+    else
 	ld	h,0
 	ld	l,(ix+zTrack.Detune)		; hl = detune value (coord flag E9)
 	bit	7,l				; Did prior value have 80h set?
 	jr	z,+				; If not, skip next step
 	ld	h,0FFh			; sign extend negative value
 +
+    endif
 	add	hl,de			; Alter frequency just a tad
 	; This picks out the reg to write to the PSG
 	ld	a,(ix+zTrack.VoiceControl)		; Get "voice control" byte...
