@@ -1272,11 +1272,11 @@ zPauseMusic:
 	call	zFMSilenceAll
 	jp	zPSGSilenceAll
 +
-	push	ix			; Save ix
     if OptimiseDriver
 	xor	a				; a = 0
 	ld	(zAbsVar.StopMusic),a		; Clear pause/unpause flag
     else
+	push	ix			; Save ix (nothing uses this, beyond this point...)
 	ld	(ix+zVar.StopMusic),0		; Clear pause/unpause flag
 	xor	a				; a = 0
     endif
@@ -1294,8 +1294,10 @@ zPauseMusic:
 	call	zResumeTrack
 	xor	a				; a = 0
 	ld	(zDoSFXFlag),a	; Clear SFX updating flag
-	call	zBankSwitchToMusic	; Back to music
-	pop	ix				; Restore ix
+    if OptimiseDriver=0
+	call	zBankSwitchToMusic	; Back to music (Pointless: music isn't updated until the next frame)
+	pop	ix				; Restore ix (nothing uses this, beyond this point...)
+    endif
 	ret
 ; End of function zPauseMusic
 
