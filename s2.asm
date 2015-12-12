@@ -76216,6 +76216,9 @@ loc_3B7BC:
     if gameRevision<2
 	andi.b	#standing_mask,d0
     else
+	; I don't know what this change was meant to do, but it causes
+	; Sonic to not fall off ObjBD's ascending platforms when they retract,
+	; making him hover.
 	andi.b	#2,d0
     endif
 	beq.s	return_3B7F6
