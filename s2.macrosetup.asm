@@ -251,18 +251,18 @@ rev02even macro
 
     ; depending on if removeJmpTos is set or not, these macros will create a jump directly
     ; to the destination, or create a branch to a JmpTo
-jsrto macro direct, indirect
+jsrto macro directaddr, indirectaddr
 	if removeJmpTos
-		!jsr direct	; jump directly to address
+		!jsr directaddr	; jump directly to address
 	else
-		!bsr.w indirect	; otherwise, branch to an indirect JmpTo
+		!bsr.w indirectaddr	; otherwise, branch to an indirect JmpTo
 	endif
     endm
 
-jmpto macro direct, indirect
+jmpto macro directaddr, indirectaddr
 	if removeJmpTos
-		!jmp direct	; jump directly to address
+		!jmp directaddr	; jump directly to address
 	else
-		!bra.w indirect	; otherwise, branch to an indirect JmpTo
+		!bra.w indirectaddr	; otherwise, branch to an indirect JmpTo
 	endif
     endm
