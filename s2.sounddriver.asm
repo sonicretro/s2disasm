@@ -1320,11 +1320,14 @@ zResumeTrack:
 	jr	z,+				; Branch if not
 	bit	2,(ix+zTrack.PlaybackControl)		; Is SFX overriding track?
 	jr	nz,+			; Branch if not
+    if OptimiseDriver=0
+	; cfSetVoiceCont already does this
 	ld	c,(ix+zTrack.AMSFMSPan)		; AMS/FMS/panning flags
 	ld	a,(ix+zTrack.VoiceControl)		; Get voice control bits...
 	and	3				; ... the FM portion of them
 	add	a,0B4h			; Command to select AMS/FMS/panning register
 	rst	zWriteFMIorII
+    endif
 	push	bc			; Save bc
 	ld	c,(ix+zTrack.VoiceIndex)		; Current track FM instrument
 	call	cfSetVoiceCont
