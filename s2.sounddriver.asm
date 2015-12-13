@@ -1980,7 +1980,7 @@ zloc_9D9:
 	ld	(ix+zTrack.DurationTimeout),1						; current duration timeout to 1 (will expire immediately and thus update)
 	ld	(ix+zTrack.StackPointer),zTrack.GoSubStack				; Reset track "gosub" stack
 	ld	a,e
-	add	a,(zTrack.DataPointerLow-zTrack.VoiceControl)-1
+	add	a,zTrack.DataPointerLow-zTrack.TempoDivider
 	ld	e,a
 	adc	a,d
 	sub	e
