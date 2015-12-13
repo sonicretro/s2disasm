@@ -1634,17 +1634,26 @@ zBGMLoad:
 	push	iy				; Save 'iy'
 	ld	iy,zTracksStart		; 'iy' points to start of track memory
 	ld	c,(ix+4)			; Get tempo divider -> 'c'
+    if FixDriverBugs=0
+	; The bugfix in zInitMusicPlayback does this, already
 	ld	de,zFMDACInitBytes	; 'de' points to zFMDACInitBytes
+    endif
 
 -	ld	(iy+zTrack.PlaybackControl),82h			; Set "track is playing" bit and "track at rest" bit
+    if FixDriverBugs=0
+	; The bugfix in zInitMusicPlayback does this, already
 	ld	a,(de)				; Get current byte from zFMDACInitBytes -> 'a'
 	inc	de					; will get next byte from zFMDACInitBytes next time
 	ld	(iy+zTrack.VoiceControl),a			; Store this byte to "voice control" byte
+    endif
 	ld	(iy+zTrack.TempoDivider),c			; Store timing divisor from header for this track
 	ld	(iy+zTrack.StackPointer),zTrack.GoSubStack	; set "gosub" (coord flag F8h) stack init value (starts at end of this track's memory)
 	ld	(iy+zTrack.AMSFMSPan),0C0h			; default Panning / AMS / FMS settings (only stereo L/R enabled)
 	ld	(iy+zTrack.DurationTimeout),1			; set current duration timeout to 1 (should expire next update, play first note, etc.)
+    if FixDriverBugs=0
+	; The bugfix in zInitMusicPlayback does this, already
 	push	de				; saving zFMDACInitBytes pointer
+    endif
 	push	bc				; saving number of channels and tempo divider ('bc' gets needlessly damaged by 'ldi' instructions coming up)
 	ld	a,iyl				; current track pointer low byte -> 'a'
 	add	a,zTrack.DataPointerLow
@@ -1664,7 +1673,10 @@ zBGMLoad:
 	ld	de,zTrack.len			; size of all tracks -> 'de'
 	add	iy,de				; offset to next track!
 	pop	bc					; restore 'bc' (number of channels and tempo divider)
+    if FixDriverBugs=0
+	; The bugfix in zInitMusicPlayback does this, already
 	pop	de					; restore 'de' (zFMDACInitBytes current pointer)
+    endif
 	djnz	-				; loop for all tracks we're init'ing...
 	; End of FM+DAC track init loop
 
@@ -1720,16 +1732,25 @@ zloc_884:
 	push	iy				; Save 'iy'
 	ld	iy,zSongPSG1		; 'iy' points to start of PSG track memory (7 prior tracks were DAC and 6 FM)
 	ld	c,(ix+4)			; Get tempo divider -> 'c'
+    if FixDriverBugs=0
+	; The bugfix in zInitMusicPlayback does this, already
 	ld	de,zPSGInitBytes	; 'de' points to zPSGInitBytes
+    endif
 
 -	ld	(iy+zTrack.PlaybackControl),82h			; Set "track is playing" bit and "track at rest" bit
+    if FixDriverBugs=0
+	; The bugfix in zInitMusicPlayback does this, already
 	ld	a,(de)				; Get current byte from zPSGInitBytes -> 'a'
 	inc	de					; will get next byte from zPSGInitBytes next time
 	ld	(iy+zTrack.VoiceControl),a			; Store this byte to "voice control" byte
+    endif
 	ld	(iy+zTrack.TempoDivider),c			; Store timing divisor from header for this track
 	ld	(iy+zTrack.StackPointer),zTrack.GoSubStack	; "gosub" stack init value
 	ld	(iy+zTrack.DurationTimeout),1			; set current duration timeout to 1 (should expire next update, play first note, etc.)
+    if FixDriverBugs=0
+	; The bugfix in zInitMusicPlayback does this, already
 	push	de				; saving zPSGInitBytes pointer
+    endif
 	push	bc				; saving number of channels and tempo divider ('bc' gets needlessly damaged by 'ldi' instructions coming up)
 	ld	a,iyl				; current track pointer low byte -> 'a'
 	add	a,zTrack.DataPointerLow
@@ -1753,7 +1774,10 @@ zloc_884:
 	ld	de,zTrack.len			; size of all tracks -> 'de'
 	add	iy,de				; offset to next track!
 	pop	bc					; restore 'bc' (number of channels and tempo divider)
+    if FixDriverBugs=0
+	; The bugfix in zInitMusicPlayback does this, already
 	pop	de					; restore 'de' (zPSGInitBytes current pointer)
+    endif
 	djnz	-				; loop for all tracks we're init'ing...
 
 	pop	iy					; restore 'iy'
@@ -2283,7 +2307,24 @@ zInitMusicPlayback:
 	ld	(ix+zVar.1upPlaying),c		; 1-up playing flag
 	ld	a,80h
 	ld	(zAbsVar.QueueToPlay),a
+
     if FixDriverBugs
+	; If a music file's header doesn't define each and every channel, they
+	; won't be silenced by zloc_8FB, because their tracks aren't properly
+	; initialised. This can cause hanging notes. So, we'll set them up
+	; properly here.
+	ld	ix,zTracksStart			; Start at the first music track...
+	ld	b,(zTracksEnd-zTracksStart)/zTrack.len	; ...and continue to the last
+	ld	de,zTrack.len
+	ld	hl,zFMDACInitBytes		; This continues into zPSGInitBytes
+
+-	ld	(ix+zTrack.PlaybackControl),02h	; Set 'track at rest' bit to avoid hanging notes
+	ld	a,(hl)
+	inc	hl
+	ld	(ix+zTrack.VoiceControl),a	; Set channel type while we're at it, so subroutines understand what the track is
+	add	ix,de				; Next track
+	djnz	-				; loop for all channels
+
 	ret
     else
 	; This silences all channels, even those being used by SFX!
