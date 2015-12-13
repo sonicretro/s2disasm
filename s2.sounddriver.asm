@@ -2318,8 +2318,7 @@ zInitMusicPlayback:
 	ld	de,zTrack.len
 	ld	hl,zFMDACInitBytes		; This continues into zPSGInitBytes
 
--	ld	(ix+zTrack.PlaybackControl),02h	; Set 'track at rest' bit to avoid hanging notes
-	ld	a,(hl)
+-	ld	a,(hl)
 	inc	hl
 	ld	(ix+zTrack.VoiceControl),a	; Set channel type while we're at it, so subroutines understand what the track is
 	add	ix,de				; Next track
