@@ -59013,10 +59013,10 @@ Obj5D_Pipe_2_Load:
 	move.l	a0,Obj5D_parent(a1)
 
 Obj5D_Pipe_2_Load_Part2:
-    subq.w  #1,Obj5D_pipe_segments(a0)      ; is pipe fully extended?
-    blt.s   Obj5D_Pipe_2_Load_End           ; if yes, branch
+	subq.w  #1,Obj5D_pipe_segments(a0)	; is pipe fully extended?
+	blt.s   Obj5D_Pipe_2_Load_End		; if yes, branch
 
-    _move.b #ObjID_CPZBoss,id(a1) ; load obj5D
+	_move.b #ObjID_CPZBoss,id(a1)	; load obj5D
 	move.l	#Obj5D_MapUnc_2EADC,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_CPZBoss,1,0),art_tile(a1)
 	move.b	#4,render_flags(a1)
