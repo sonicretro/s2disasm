@@ -1205,9 +1205,8 @@ zloc_515:				; If you get here, then "do not attack next note" was set...
 zloc_522:
 	; This just decrements the flutter to keep it in place; no more volume changes in this list
     if FixDriverBugs
-	ld	a,(ix+zTrack.VolFlutter)
-	sub	2						; Put index back (before final volume value)
-	ld	(ix+zTrack.VolFlutter),a
+	dec	(ix+zTrack.VolFlutter)
+	dec	(ix+zTrack.VolFlutter)				; Put index back (before final volume value)
 	jr	zPSGDoVolFX				; Loop back and update volume 
     else
 	; DANGER! This effectively halts all future volume updates, breaking fades.
