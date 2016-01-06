@@ -36,9 +36,9 @@ dmaFillVRAM macro byte,addr,length
 	move.w	#$9780,(a5) ; VRAM fill
 	move.l	#$40000080|(((addr)&$3FFF)<<16)|(((addr)&$C000)>>14),(a5) ; Start at ...
 	move.w	#(byte)<<8,(VDP_data_port).l ; Fill with byte
-loop:	move.w	(a5),d1
+.loop:	move.w	(a5),d1
 	btst	#1,d1
-	bne.s	loop ; busy loop until the VDP is finished filling...
+	bne.s	.loop ; busy loop until the VDP is finished filling...
 	move.w	#$8F02,(a5) ; VRAM pointer increment: $0002
     endm
 
@@ -75,8 +75,8 @@ clearRAM macro addr,length
 ; tells the Z80 to stop, and waits for it to finish stopping (acquire bus)
 stopZ80 macro
 	move.w	#$100,(Z80_Bus_Request).l ; stop the Z80
-loop:	btst	#0,(Z80_Bus_Request).l
-	bne.s	loop ; loop until it says it's stopped
+.loop:	btst	#0,(Z80_Bus_Request).l
+	bne.s	.loop ; loop until it says it's stopped
     endm
 
 ; tells the Z80 to start again
@@ -114,9 +114,9 @@ finishBank macro
 ; macro to replace the destination with its absolute value
 abs macro destination
 	tst.ATTRIBUTE	destination
-	bpl.s	skip
+	bpl.s	.skip
 	neg.ATTRIBUTE	destination
-skip:
+.skip:
     endm
 
     if 0|allOptimizations
@@ -127,18 +127,18 @@ absw macro destination	; use a short branch instead
 ; macro to replace the destination with its absolute value using a word-sized branch
 absw macro destination
 	tst.ATTRIBUTE	destination
-	bpl.w	skip
+	bpl.w	.skip
 	neg.ATTRIBUTE	destination
-skip:
+.skip:
     endm
     endif
 
 ; macro to move the absolute value of the source in the destination
 mvabs macro source,destination
 	move.ATTRIBUTE	source,destination
-	bpl.s	skip
+	bpl.s	.skip
 	neg.ATTRIBUTE	destination
-skip:
+.skip:
     endm
 
 ; macro to declare an offset table
