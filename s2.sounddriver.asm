@@ -461,6 +461,8 @@ zUpdateDAC:
 	ld	a,(zCurDAC)			; Get current DAC sound
 	sub	81h					; Subtract 81h (first DAC index is 81h)
 	ld	(zCurDAC),a			; Store that as current DAC sound
+	; The following two instructions are dangerous: they discard the upper
+	; two bits of zCurDAC, meaning you can only have 40h DAC samples.
 	add	a,a
 	add	a,a					; a *= 4 (each DAC entry is a pointer and length, 2+2)
 	add	a,zDACPtrTbl&0FFh	; Get low byte into table -> 'a'
