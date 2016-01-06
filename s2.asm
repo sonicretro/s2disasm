@@ -16441,124 +16441,140 @@ loc_D758:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+; The upper 16 bits of Camera_Y_pos is the actual Y-pos, the lower ones seem
+; unused, yet this code goes to a strange extent to manage them.
 ;sub_D77A:
 ScrollVerti:
 	moveq	#0,d1
 	move.w	y_pos(a0),d0
 	sub.w	(a1),d0		; subtract camera Y pos
 	cmpi.w	#-$100,(Camera_Min_Y_pos).w ; does the level wrap vertically?
-	bne.s	+		; if not, branch
+	bne.s	.noWrap		; if not, branch
 	andi.w	#$7FF,d0
-+
+; loc_D78E:
+.noWrap:
 	btst	#2,status(a0)	; is the player rolling?
-	beq.s	+		; if not, branch
+	beq.s	.notRolling	; if not, branch
 	subq.w	#5,d0		; subtract difference between standing and rolling heights
-+
-	btst	#1,status(a0)	; is the player in the air?
-	beq.s	+		; if not, branch
+; loc_D798:
+.notRolling:
+	btst	#1,status(a0)			; is the player in the air?
+	beq.s	.checkBoundaryCrossed_onGround	; if not, branch
+;.checkBoundaryCrossed_inAir:
+	; If Sonic's in the air, he has $20 pixels above and below him to move without disturbing the camera.
+	; The camera movement is also only capped at $10 pixels.
 	addi.w	#$20,d0
-	sub.w	d3,d0		; subtract camera bias
-	bcs.s	loc_D7FC
+	sub.w	d3,d0
+	bcs.s	.doScroll_fast	; If Sonic is above the boundary, scroll to catch up to him
 	subi.w	#$40,d0
-	bcc.s	loc_D7FC
+	bcc.s	.doScroll_fast	; If Sonic is below the boundary, scroll to catch up to him
 	tst.b	(Camera_Max_Y_Pos_Changing).w	; is the max Y pos changing?
-	bne.s	loc_D80E	; if it is, branch
-	bra.s	++
+	bne.s	.scrollUpOrDown_maxYPosChanging	; if it is, branch
+	bra.s	.doNotScroll
 ; ===========================================================================
-+
-	sub.w	d3,d0		; subtract camera bias
-	bne.s	++
+; loc_D7B6:
+.checkBoundaryCrossed_onGround:
+	; On the ground, the camera follows Sonic very strictly.
+	sub.w	d3,d0				; subtract camera bias
+	bne.s	.decideScrollType		; If Sonic has moved, scroll to catch up to him
 	tst.b	(Camera_Max_Y_Pos_Changing).w	; is the max Y pos changing?
-	bne.s	loc_D80E	; if it is, branch
-+
-	clr.w	(a4)		; clear Y position difference
+	bne.s	.scrollUpOrDown_maxYPosChanging	; if it is, branch
+; loc_D7C0:
+.doNotScroll:
+	clr.w	(a4)		; clear Y position difference (Camera_Y_pos_bias)
 	rts
 ; ===========================================================================
-+
+; loc_D7C4:
+.decideScrollType:
 	cmpi.w	#$60,d3		; is the camera bias normal?
-	bne.s	loc_D7EA	; if not, branch
+	bne.s	.doScroll_slow	; if not, branch
 	mvabs.w	inertia(a0),d1	; get player ground velocity, force it to be positive
 	cmpi.w	#$800,d1	; is the player travelling very fast?
-	bhs.s	loc_D7FC	; if he is, branch
-	move.w	#$600,d1
-	cmpi.w	#6,d0		; is the positions difference greater than 6 pixels?
-	bgt.s	loc_D84A	; if it is, branch
-	cmpi.w	#-6,d0		; is the positions difference less than -6 pixels?
-	blt.s	loc_D824	; if it is, branch
-	bra.s	loc_D814
+	bhs.s	.doScroll_fast	; if he is, branch
+;.doScroll_medium:
+	move.w	#6<<8,d1	; If player is going too fast, cap camera movement to 6 pixels per frame
+	cmpi.w	#6,d0		; is player going down too fast?
+	bgt.s	.scrollDown_max	; if so, move camera at capped speed
+	cmpi.w	#-6,d0		; is player going up too fast?
+	blt.s	.scrollUp_max	; if so, move camera at capped speed
+	bra.s	.scrollUpOrDown	; otherwise, move camera at player's speed
 ; ===========================================================================
-
-loc_D7EA:
-	move.w	#$200,d1
-	cmpi.w	#2,d0
-	bgt.s	loc_D84A
-	cmpi.w	#-2,d0
-	blt.s	loc_D824
-	bra.s	loc_D814
+; loc_D7EA:
+.doScroll_slow:
+	move.w	#2<<8,d1	; If player is going too fast, cap camera movement to 2 pixels per frame
+	cmpi.w	#2,d0		; is player going down too fast?
+	bgt.s	.scrollDown_max	; if so, move camera at capped speed
+	cmpi.w	#-2,d0		; is player going up too fast?
+	blt.s	.scrollUp_max	; if so, move camera at capped speed
+	bra.s	.scrollUpOrDown	; otherwise, move camera at player's speed
 ; ===========================================================================
-
-loc_D7FC:
-	move.w	#$1000,d1
-	cmpi.w	#$10,d0
-	bgt.s	loc_D84A
-	cmpi.w	#-$10,d0
-	blt.s	loc_D824
-	bra.s	loc_D814
+; loc_D7FC:
+.doScroll_fast:
+	; related code appears in ScrollBG
+	move.w	#16<<8,d1	; If player is going too fast, cap camera movement to $10 pixels per frame
+	cmpi.w	#16,d0		; is player going down too fast?
+	bgt.s	.scrollDown_max	; if so, move camera at capped speed
+	cmpi.w	#-16,d0		; is player going up too fast?
+	blt.s	.scrollUp_max	; if so, move camera at capped speed
+	bra.s	.scrollUpOrDown	; otherwise, move camera at player's speed
 ; ===========================================================================
-
-loc_D80E:
-	moveq	#0,d0
+; loc_D80E:
+.scrollUpOrDown_maxYPosChanging:
+	moveq	#0,d0		; Distance for camera to move = 0
 	move.b	d0,(Camera_Max_Y_Pos_Changing).w	; clear camera max Y pos changing flag
-
-loc_D814:
+; loc_D814:
+.scrollUpOrDown:
 	moveq	#0,d1
 	move.w	d0,d1		; get position difference
 	add.w	(a1),d1		; add old camera Y position
 	tst.w	d0		; is the camera to scroll down?
-	bpl.w	loc_D852	; if it is, branch
-	bra.w	+
+	bpl.w	.scrollDown	; if it is, branch
+	bra.w	.scrollUp
 ; ===========================================================================
-
-loc_D824:
-	neg.w	d1
+; loc_D824:
+.scrollUp_max:
+	neg.w	d1	; make the value negative (since we're going backwards)
 	ext.l	d1
-	asl.l	#8,d1
-	add.l	(a1),d1
-	swap	d1		; calculate new camera pos
-+
+	asl.l	#8,d1	; move this into the upper word, so it lines up with the actual y_pos value in Camera_Y_pos
+	add.l	(a1),d1	; add the two, getting the new Camera_Y_pos value
+	swap	d1	; actual Y-coordinate is now the low word
+; loc_D82E:
+.scrollUp:
 	cmp.w	4(a2),d1	; is the new position less than the minimum Y pos?
-	bgt.s	loc_D868	; if not, branch
+	bgt.s	.doScroll	; if not, branch
 	cmpi.w	#-$100,d1
-	bgt.s	+
+	bgt.s	.minYPosReached
 	andi.w	#$7FF,d1
 	andi.w	#$7FF,(a1)
-	bra.s	loc_D868
+	bra.s	.doScroll
 ; ===========================================================================
-+
+; loc_D844:
+.minYPosReached:
 	move.w	4(a2),d1	; prevent camera from going any further up
-	bra.s	loc_D868
+	bra.s	.doScroll
 ; ===========================================================================
-
-loc_D84A:
+; loc_D84A:
+.scrollDown_max:
 	ext.l	d1
-	asl.l	#8,d1
-	add.l	(a1),d1
-	swap	d1		; calculate new camera pos
-
-loc_D852:
+	asl.l	#8,d1		; move this into the upper word, so it lines up with the actual y_pos value in Camera_Y_pos
+	add.l	(a1),d1		; add the two, getting the new Camera_Y_pos value
+	swap	d1		; actual Y-coordinate is now the low word
+; loc_D852:
+.scrollDown:
 	cmp.w	6(a2),d1	; is the new position greater than the maximum Y pos?
-	blt.s	loc_D868	; if not, branch
+	blt.s	.doScroll	; if not, branch
 	subi.w	#$800,d1
-	bcs.s	+
+	bcs.s	.maxYPosReached
 	subi.w	#$800,(a1)
-	bra.s	loc_D868
+	bra.s	.doScroll
 ; ===========================================================================
-+
+; loc_D864:
+.maxYPosReached:
 	move.w	6(a2),d1	; prevent camera from going any further down
-
-loc_D868:
-	move.w	(a1),d4		; get old pos
-	swap	d1
+; loc_D868:
+.doScroll:
+	move.w	(a1),d4		; get old pos (this instruction is a leftover from S1)
+	swap	d1		; actual Y-coordinate is now the high word, as Camera_Y_pos expects it
 	move.l	d1,d3
 	sub.l	(a1),d3
 	ror.l	#8,d3
