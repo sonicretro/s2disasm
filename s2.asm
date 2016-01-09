@@ -16518,6 +16518,7 @@ ScrollVerti:
 ; loc_D7FC:
 .doScroll_fast:
 	; related code appears in ScrollBG
+	; S3K uses 24 instead of 16
 	move.w	#16<<8,d1	; If player is going too fast, cap camera movement to $10 pixels per frame
 	cmpi.w	#16,d0		; is player going down too fast?
 	bgt.s	.scrollDown_max	; if so, move camera at capped speed
