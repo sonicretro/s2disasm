@@ -16378,9 +16378,9 @@ SetHorizScrollFlags:
 ScrollHoriz:
 	move.w	(a1),d4		; get camera X pos
 	tst.b	(Teleport_flag).w
-	bne.s	+++		; if a teleport is in progress, return
+	bne.s	.return		; if a teleport is in progress, return
 	move.w	(a5),d1		; should scrolling be delayed?
-	beq.s	+		; if not, branch
+	beq.s	.scrollNotDelayed	; if not, branch
 	subi.w	#$100,d1	; reduce delay value
 	move.w	d1,(a5)
 	moveq	#0,d1
@@ -16391,42 +16391,49 @@ ScrollHoriz:
 	sub.b	d1,d0
 	move.w	(a6,d0.w),d0	; get Sonic's position a certain number of frames ago
 	andi.w	#$3FFF,d0
-	bra.s	++		; use that value for scrolling
-; ===========================================================================
-+
-	move.w	x_pos(a0),d0
-+
-	sub.w	(a1),d0
-	subi.w	#144,d0		; is the player less than 144 pixels from the screen edge?
-	blt.s	++		; if he is, scroll left
-	subi.w	#16,d0		; is the player more than 159 pixels from the screen edge?
-	bge.s	loc_D758	; if he is, scroll right
-	clr.w	(a4)		; otherwise, don't scroll
-+
-	rts
-; ===========================================================================
-+
-	cmpi.w	#-16,d0
-	bgt.s	+
-	move.w	#-16,d0		; limit scrolling to 16 pixels per frame
-+
-	add.w	(a1),d0		; get new camera position
-	cmp.w	(a2),d0		; is it greater than the minimum position?
-	bgt.s	++		; if it is, branch
-	move.w	(a2),d0		; prevent camera from going any further back
-	bra.s	++
+	bra.s	.checkIfShouldScroll	; use that value for scrolling
 ; ===========================================================================
 
-loc_D758:
+.scrollNotDelayed:
+	move.w	x_pos(a0),d0
+
+.checkIfShouldScroll:
+	sub.w	(a1),d0
+	subi.w	#144,d0		; is the player less than 144 pixels from the screen edge?
+	blt.s	.scrollLeft	; if he is, scroll left
+	subi.w	#16,d0		; is the player more than 159 pixels from the screen edge?
+	bge.s	.scrollRight	; if he is, scroll right
+	clr.w	(a4)		; otherwise, don't scroll
+
+.return:
+	rts
+; ===========================================================================
+
+.scrollLeft:
+	cmpi.w	#-16,d0
+	bgt.s	.maxNotReached
+	move.w	#-16,d0		; limit scrolling to 16 pixels per frame
+
+.maxNotReached:
+	add.w	(a1),d0		; get new camera position
+	cmp.w	(a2),d0		; is it greater than the minimum position?
+	bgt.s	.doScroll		; if it is, branch
+	move.w	(a2),d0		; prevent camera from going any further back
+	bra.s	.doScroll
+; ===========================================================================
+; loc_D758:
+.scrollRight:
 	cmpi.w	#16,d0
-	blo.s	+
+	blo.s	.maxNotReached2
 	move.w	#16,d0
-+
+
+.maxNotReached2:
 	add.w	(a1),d0		; get new camera position
 	cmp.w	2(a2),d0	; is it less than the max position?
-	blt.s	+		; if it is, branch
+	blt.s	.doScroll	; if it is, branch
 	move.w	2(a2),d0	; prevent camera from going any further forward
-+
+
+.doScroll:
 	move.w	d0,d1
 	sub.w	(a1),d1		; subtract old camera position
 	asl.w	#8,d1		; shift up by a byte
