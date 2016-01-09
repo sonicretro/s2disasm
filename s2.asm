@@ -16393,10 +16393,10 @@ ScrollHoriz:
 	andi.w	#$3FFF,d0
 	bra.s	.checkIfShouldScroll	; use that value for scrolling
 ; ===========================================================================
-
+; loc_D72E:
 .scrollNotDelayed:
 	move.w	x_pos(a0),d0
-
+; loc_D732:
 .checkIfShouldScroll:
 	sub.w	(a1),d0
 	subi.w	#144,d0		; is the player less than 144 pixels from the screen edge?
@@ -16404,16 +16404,16 @@ ScrollHoriz:
 	subi.w	#16,d0		; is the player more than 159 pixels from the screen edge?
 	bge.s	.scrollRight	; if he is, scroll right
 	clr.w	(a4)		; otherwise, don't scroll
-
+; return_D742:
 .return:
 	rts
 ; ===========================================================================
-
+; loc_D744:
 .scrollLeft:
 	cmpi.w	#-16,d0
 	bgt.s	.maxNotReached
 	move.w	#-16,d0		; limit scrolling to 16 pixels per frame
-
+; loc_D74E:
 .maxNotReached:
 	add.w	(a1),d0		; get new camera position
 	cmp.w	(a2),d0		; is it greater than the minimum position?
@@ -16426,13 +16426,13 @@ ScrollHoriz:
 	cmpi.w	#16,d0
 	blo.s	.maxNotReached2
 	move.w	#16,d0
-
+; loc_D762:
 .maxNotReached2:
 	add.w	(a1),d0		; get new camera position
 	cmp.w	2(a2),d0	; is it less than the max position?
 	blt.s	.doScroll	; if it is, branch
 	move.w	2(a2),d0	; prevent camera from going any further forward
-
+; loc_D76E:
 .doScroll:
 	move.w	d0,d1
 	sub.w	(a1),d1		; subtract old camera position
