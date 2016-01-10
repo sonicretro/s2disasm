@@ -84660,7 +84660,7 @@ Debug_Init:
 	bhi.s	+
 	move.b	#0,(Debug_object).w
 +
-	bsr.w	sub_41CEC
+	bsr.w	LoadDebugObjectSprite
 	move.b	#$C,(Debug_Accel_Timer).w
 	move.b	#1,(Debug_Speed).w
 ; loc_41B0C:
@@ -84678,38 +84678,39 @@ Debug_Main:
 	add.w	d0,d0
 	adda.w	(a2,d0.w),a2
 	move.w	(a2)+,d6
-	bsr.w	sub_41B34
+	bsr.w	Debug_Control
 	jmp	(DisplaySprite).l
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-
-sub_41B34:
+; sub_41B34:
+Debug_Control:
+;Debug_ControlMovement:
 	moveq	#0,d4
 	move.w	#1,d1
 	move.b	(Ctrl_1_Press).w,d4
 	andi.w	#button_up_mask|button_down_mask|button_left_mask|button_right_mask,d4
-	bne.s	loc_41B76
+	bne.s	Debug_Move
 	move.b	(Ctrl_1_Held).w,d0
 	andi.w	#button_up_mask|button_down_mask|button_left_mask|button_right_mask,d0
-	bne.s	loc_41B5E
+	bne.s	Debug_ContinueMoving
 	move.b	#$C,(Debug_Accel_Timer).w
 	move.b	#$F,(Debug_Speed).w
-	bra.w	loc_41BDA
+	bra.w	Debug_ControlObjects
 ; ===========================================================================
-
-loc_41B5E:
+; loc_41B5E:
+Debug_ContinueMoving:
 	subq.b	#1,(Debug_Accel_Timer).w
-	bne.s	loc_41B7A
+	bne.s	Debug_TimerNotOver
 	move.b	#1,(Debug_Accel_Timer).w
 	addq.b	#1,(Debug_Speed).w
-	bne.s	loc_41B76
+	bne.s	Debug_Move
 	move.b	#-1,(Debug_Speed).w
-
-loc_41B76:
+; loc_41B76:
+Debug_Move:
 	move.b	(Ctrl_1_Held).w,d4
-
-loc_41B7A:
+; loc_41B7A:
+Debug_TimerNotOver:
 	moveq	#0,d1
 	move.b	(Debug_Speed).w,d1
 	addq.w	#1,d1
@@ -84717,72 +84718,84 @@ loc_41B7A:
 	asr.l	#4,d1
 	move.l	y_pos(a0),d2
 	move.l	x_pos(a0),d3
+
+	; Move up
 	btst	#button_up,d4
-	beq.s	loc_41BA4
+	beq.s	.upNotHeld
 	sub.l	d1,d2
 	moveq	#0,d0
 	move.w	(Camera_Min_Y_pos).w,d0
 	swap	d0
 	cmp.l	d0,d2
-	bge.s	loc_41BA4
+	bge.s	.minYPosNotReached
 	move.l	d0,d2
-
-loc_41BA4:
+.minYPosNotReached:
+; loc_41BA4:
+.upNotHeld:
+	; Move down
 	btst	#button_down,d4
-	beq.s	loc_41BBE
+	beq.s	.downNotHeld
 	add.l	d1,d2
 	moveq	#0,d0
 	move.w	(Camera_Max_Y_pos).w,d0
-	addi.w	#$DF,d0
+	addi.w	#224-1,d0
 	swap	d0
 	cmp.l	d0,d2
-	blt.s	loc_41BBE
+	blt.s	.maxYPosNotReached
 	move.l	d0,d2
-
-loc_41BBE:
+.maxYPosNotReached:
+; loc_41BBE:
+.downNotHeld:
+	; Move left
 	btst	#button_left,d4
-	beq.s	loc_41BCA
+	beq.s	.leftNotHeld
 	sub.l	d1,d3
-	bcc.s	loc_41BCA
+	bcc.s	.minXPosNotReached
 	moveq	#0,d3
-
-loc_41BCA:
+.minXPosNotReached:
+; loc_41BCA:
+.leftNotHeld:
+	; Move right
 	btst	#button_right,d4
-	beq.s	loc_41BD2
+	beq.s	.rightNotHeld
 	add.l	d1,d3
-
-loc_41BD2:
+; loc_41BD2:
+.rightNotHeld:
 	move.l	d2,y_pos(a0)
 	move.l	d3,x_pos(a0)
-
-loc_41BDA:
+; loc_41BDA:
+Debug_ControlObjects:
+;Debug_CycleObjectsBackwards:
 	btst	#button_A,(Ctrl_1_Held).w
-	beq.s	loc_41C12
+	beq.s	Debug_SpawnObject
 	btst	#button_C,(Ctrl_1_Press).w
-	beq.s	loc_41BF6
+	beq.s	Debug_CycleObjects
+	; Cycle backwards though object list
 	subq.b	#1,(Debug_object).w
-	bcc.s	BranchTo_sub_41CEC
+	bcc.s	BranchTo_LoadDebugObjectSprite
 	add.b	d6,(Debug_object).w
-	bra.s	BranchTo_sub_41CEC
+	bra.s	BranchTo_LoadDebugObjectSprite
 ; ===========================================================================
-
-loc_41BF6:
+; loc_41BF6:
+Debug_CycleObjects:
 	btst	#button_A,(Ctrl_1_Press).w
-	beq.s	loc_41C12
+	beq.s	Debug_SpawnObject
+	; Cycle forwards though object list
 	addq.b	#1,(Debug_object).w
 	cmp.b	(Debug_object).w,d6
-	bhi.s	BranchTo_sub_41CEC
+	bhi.s	BranchTo_LoadDebugObjectSprite
 	move.b	#0,(Debug_object).w
 
-BranchTo_sub_41CEC 
-	bra.w	sub_41CEC
+BranchTo_LoadDebugObjectSprite 
+	bra.w	LoadDebugObjectSprite
 ; ===========================================================================
-
-loc_41C12:
+; loc_41C12:
+Debug_SpawnObject:
 	btst	#button_C,(Ctrl_1_Press).w
-	beq.s	loc_41C56
+	beq.s	Debug_ExitDebugMode
+	; Spawn object
 	jsr	(SingleObjLoad).l
-	bne.s	loc_41C56
+	bne.s	Debug_ExitDebugMode
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
 	_move.b	mappings(a0),id(a1) ; load obj
@@ -84796,19 +84809,20 @@ loc_41C12:
 	rts
 ; ===========================================================================
 
-loc_41C56:
+Debug_ExitDebugMode:
 	btst	#button_B,(Ctrl_1_Press).w
 	beq.s	return_41CB6
+	; Exit debug mode
 	moveq	#0,d0
 	move.w	d0,(Debug_placement_mode).w
 	lea	(MainCharacter).w,a1 ; a1=character
 	move.l	#Mapunc_Sonic,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a1)
 	tst.w	(Two_player_mode).w
-	beq.s	loc_41C82
+	beq.s	.notTwoPlayerMode
 	move.w	#make_art_tile_2p(ArtTile_ArtUnc_Sonic,0,0),art_tile(a1)
-
-loc_41C82:
+; loc_41C82:
+.notTwoPlayerMode:
 	bsr.s	sub_41CB8
 	move.b	#$13,y_radius(a1)
 	move.b	#9,x_radius(a1)
@@ -84823,7 +84837,7 @@ loc_41C82:
 
 return_41CB6:
 	rts
-; End of function sub_41B34
+; End of function Debug_Control
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -84847,8 +84861,8 @@ sub_41CB8:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-
-sub_41CEC:
+; sub_41CEC:
+LoadDebugObjectSprite:
 	moveq	#0,d0
 	move.b	(Debug_object).w,d0
 	lsl.w	#3,d0
@@ -84857,7 +84871,7 @@ sub_41CEC:
 	move.b	5(a2,d0.w),mapping_frame(a0)
 	jsrto	(Adjust2PArtPointer).l, JmpTo66_Adjust2PArtPointer
 	rts
-; End of function sub_41CEC
+; End of function LoadDebugObjectSprite
 
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
