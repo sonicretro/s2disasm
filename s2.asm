@@ -27628,7 +27628,7 @@ MarkObjGone:
 	move.w	x_pos(a0),d0
 	andi.w	#$FF80,d0
 	sub.w	(Camera_X_pos_coarse).w,d0
-	cmpi.w	#$280,d0
+	cmpi.w	#$80+320+$40+$80,d0	; This gives an object $80 pixels of room offscreen before being unloaded (the $40 is there to round up 320 to a multiple of $80)
 	bhi.w	+
 	bra.w	DisplaySprite
 
@@ -27649,7 +27649,7 @@ MarkObjGone2:
 +
 	andi.w	#$FF80,d0
 	sub.w	(Camera_X_pos_coarse).w,d0
-	cmpi.w	#$280,d0
+	cmpi.w	#$80+320+$40+$80,d0	; This gives an object $80 pixels of room offscreen before being unloaded (the $40 is there to round up 320 to a multiple of $80)
 	bhi.w	+
 	bra.w	DisplaySprite
 +
@@ -27672,7 +27672,7 @@ MarkObjGone3:
 	move.w	x_pos(a0),d0
 	andi.w	#$FF80,d0
 	sub.w	(Camera_X_pos_coarse).w,d0
-	cmpi.w	#$280,d0
+	cmpi.w	#$80+320+$40+$80,d0	; This gives an object $80 pixels of room offscreen before being unloaded (the $40 is there to round up 320 to a multiple of $80)
 	bhi.w	+
 	rts
 +
@@ -27692,7 +27692,7 @@ MarkObjGone_P1:
 	move.w	x_pos(a0),d0
 	andi.w	#$FF80,d0
 	sub.w	(Camera_X_pos_coarse).w,d0
-	cmpi.w	#$280,d0
+	cmpi.w	#$80+320+$40+$80,d0	; This gives an object $80 pixels of room offscreen before being unloaded (the $40 is there to round up 320 to a multiple of $80)
 	bhi.w	+
 	bra.w	DisplaySprite
 +
