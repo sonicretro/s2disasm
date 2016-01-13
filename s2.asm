@@ -84808,7 +84808,7 @@ Debug_SpawnObject:
 	move.b	4(a2,d0.w),subtype(a1)
 	rts
 ; ===========================================================================
-
+; loc_41C56:
 Debug_ExitDebugMode:
 	btst	#button_B,(Ctrl_1_Press).w
 	beq.s	return_41CB6
