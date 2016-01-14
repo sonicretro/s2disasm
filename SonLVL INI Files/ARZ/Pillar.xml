@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Name="Falling Pillar" Image="platform">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Falling Pillar" Image="pillar">
   <Images>
     <ImageFromMappings id="platform">
       <ArtFile filename="LevelArt" />
@@ -11,8 +11,42 @@
     </ImageFromMappings>
   </Images>
   <Subtypes>
-    <Subtype id="00" name="Platform" image="platform" />
-    <Subtype id="10" name="Pillar" image="pillar" />
-    <Subtype id="11" name="Pillar" image="pillar" />
+    <Subtype id="00" name="Stationary Platform" image="platform" />
+    <Subtype id="03" name="Ascending Platform" image="platform" />
+    <Subtype id="07" name="Floating Platform" image="platform" />
+    <Subtype id="10" name="Stationary Pillar" image="pillar" />
+    <Subtype id="11" name="Falling Pillar" image="pillar" />
   </Subtypes>
+  <Properties>
+    <BitsProperty name="Behaviour" type="PlatformBehaviour" startbit="0" length="3"/>
+    <BitsProperty name="Sprite" type="PlatformSprite" startbit="4" length="1"/>
+  </Properties>
+  <Enums>
+    <Enum name="PlatformBehaviour">
+      <EnumMember name="Stationary"/>
+      <EnumMember name="Falls when stood on"/>
+      <EnumMember name="Invalid 1"/>
+      <EnumMember name="Moves up when stood on"/>
+      <EnumMember name="Invalid 2"/>
+      <EnumMember name="Unknown"/>
+      <EnumMember name="Invalid 3"/>
+      <EnumMember name="Floats to top of water"/>
+    </Enum>
+    <Enum name="PlatformSprite">
+      <EnumMember name="Platform"/>
+      <EnumMember name="Pillar"/>
+      <EnumMember name="Invalid 1 (unfinished and broken)"/>
+      <EnumMember name="Invalid 2 (unfinished and broken)"/>
+    </Enum>
+  </Enums>
+  <Display>
+    <DisplayOption>
+      <Condition property="Sprite" value="Platform"/>
+      <ImageRef image="platform"/>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Sprite" value="Pillar"/>
+      <ImageRef image="pillar"/>
+    </DisplayOption>
+  </Display>
 </ObjDef>
