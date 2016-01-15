@@ -16429,9 +16429,9 @@ ScrollHoriz:
 ; loc_D762:
 .maxNotReached2:
 	add.w	(a1),d0		; get new camera position
-	cmp.w	2(a2),d0	; is it less than the max position?
+	cmp.w	Camera_Max_X_pos-Camera_Min_X_pos(a2),d0	; is it less than the max position?
 	blt.s	.doScroll	; if it is, branch
-	move.w	2(a2),d0	; prevent camera from going any further forward
+	move.w	Camera_Max_X_pos-Camera_Min_X_pos(a2),d0	; prevent camera from going any further forward
 ; loc_D76E:
 .doScroll:
 	move.w	d0,d1
@@ -16548,7 +16548,7 @@ ScrollVerti:
 	swap	d1	; actual Y-coordinate is now the low word
 ; loc_D82E:
 .scrollUp:
-	cmp.w	4(a2),d1	; is the new position less than the minimum Y pos?
+	cmp.w	Camera_Min_Y_pos-Camera_Min_X_pos(a2),d1	; is the new position less than the minimum Y pos?
 	bgt.s	.doScroll	; if not, branch
 	cmpi.w	#-$100,d1
 	bgt.s	.minYPosReached
@@ -16558,7 +16558,7 @@ ScrollVerti:
 ; ===========================================================================
 ; loc_D844:
 .minYPosReached:
-	move.w	4(a2),d1	; prevent camera from going any further up
+	move.w	Camera_Min_Y_pos-Camera_Min_X_pos(a2),d1	; prevent camera from going any further up
 	bra.s	.doScroll
 ; ===========================================================================
 ; loc_D84A:
@@ -16569,7 +16569,7 @@ ScrollVerti:
 	swap	d1		; actual Y-coordinate is now the low word
 ; loc_D852:
 .scrollDown:
-	cmp.w	6(a2),d1	; is the new position greater than the maximum Y pos?
+	cmp.w	Camera_Max_Y_pos_now-Camera_Min_X_pos(a2),d1	; is the new position greater than the maximum Y pos?
 	blt.s	.doScroll	; if not, branch
 	subi.w	#$800,d1
 	bcs.s	.maxYPosReached
@@ -16578,7 +16578,7 @@ ScrollVerti:
 ; ===========================================================================
 ; loc_D864:
 .maxYPosReached:
-	move.w	6(a2),d1	; prevent camera from going any further down
+	move.w	Camera_Max_Y_pos_now-Camera_Min_X_pos(a2),d1	; prevent camera from going any further down
 ; loc_D868:
 .doScroll:
 	move.w	(a1),d4		; get old pos (this instruction is a leftover from S1)
