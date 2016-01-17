@@ -133,7 +133,7 @@ zTrack STRUCT DOTS
 	ModulationValLow:	ds.b 1	; Current modulation value low byte
 	ModulationValHigh:	ds.b 1	; Current modulation value high byte
 	Detune:			ds.b 1	; Set by detune coord flag E1; used to add directly to FM/PSG frequency
-	FeedbackAlgo:		ds.b 1	; zVolTLMaskTbl value set during voice setting (value based on algorithm indexing zGain table)
+	VolTLMask:		ds.b 1	; zVolTLMaskTbl value set during voice setting (value based on algorithm indexing zGain table)
 	PSGNoise:		ds.b 1	; PSG noise setting
 	VoicePtrLow:		ds.b 1	; low byte of custom voice table (for SFX)
 	VoicePtrHigh:		ds.b 1	; high byte of custom voice table (for SFX)
@@ -2973,7 +2973,7 @@ zloc_E65:
 	ld	e,a					; Puts this low byte into 'e'
 	ld	d,(zVolTLMaskTbl&0FF00h)>>8	; Get high byte -> 'd'
 	ld	a,(de)				; Get this zVolTLMaskTbl value by algorithm
-	ld	(ix+zTrack.FeedbackAlgo),a			; Store this zVolTLMaskTbl value into (ix+1Ah)
+	ld	(ix+zTrack.VolTLMask),a			; Store this zVolTLMaskTbl value into (ix+1Ah)
 	ld	e,a					; Store zVolTLMaskTbl value -> 'e'
 	ld	d,(ix+zTrack.Volume)			; Store channel volume -> 'd'
 	pop	af					; Restore 'a'; it's now back at appropriate 40h+ register for Total Level setting!
@@ -3013,7 +3013,7 @@ zSetChanVol:
 	ret	nz				; If so, quit!
 	bit	2,(ix+zTrack.PlaybackControl)		; If playback control byte "SFX is overriding this track" bit set...
 	ret	nz				; ... then quit!
-	ld	e,(ix+zTrack.FeedbackAlgo)		; zVolTLMaskTbl value from last voice setting (marks which specific TL operators need updating)
+	ld	e,(ix+zTrack.VolTLMask)		; zVolTLMaskTbl value from last voice setting (marks which specific TL operators need updating)
 	ld	a,(ix+zTrack.VoiceControl)		; Load current voice control byte
 	and	3				; Keep only bits 0-2
 	add	a,40h			; Add 40h -- appropriate TL register
