@@ -16581,7 +16581,7 @@ ScrollVerti:
 	move.w	Camera_Max_Y_pos_now-Camera_Min_X_pos(a2),d1	; prevent camera from going any further down
 ; loc_D868:
 .doScroll:
-	move.w	(a1),d4		; get old pos (this instruction is a leftover from S1)
+	move.w	(a1),d4		; get old pos (used by SetVertiScrollFlags)
 	swap	d1		; actual Y-coordinate is now the high word, as Camera_Y_pos expects it
 	move.l	d1,d3
 	sub.l	(a1),d3
