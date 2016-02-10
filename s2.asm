@@ -54195,24 +54195,34 @@ JmpTo16_ObjectMove
 ; ----------------------------------------------------------------------------
 ; Object 83 - 3 adjoined platforms from ARZ that rotate in a circle
 ; ----------------------------------------------------------------------------
+; OST Variables:
+Obj83_last_x_pos	= objoff_2C	; word
+Obj83_speed		= objoff_2E	; word
+Obj83_initial_x_pos	= objoff_30	; word
+Obj83_initial_y_pos	= objoff_32	; word
+; Child object RAM pointers
+Obj83_childobjptr_chains	= objoff_34	; longword	; chain multisprite object
+Obj83_childobjptr_platform2	= objoff_38	; longword	; 2nd platform object (parent object is 1st platform)
+Obj83_childobjptr_platform3	= objoff_3C	; longword	; 3rd platform object
+
 ; Sprite_2A4FC:
 Obj83:
 	btst	#6,render_flags(a0)
-	bne.w	+
+	bne.w	.isMultispriteObject
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj83_Index(pc,d0.w),d1
 	jmp	Obj83_Index(pc,d1.w)
 ; ===========================================================================
-+
+.isMultispriteObject:
 	move.w	#$280,d0
 	jmpto	(DisplaySprite3).l, JmpTo3_DisplaySprite3
 ; ===========================================================================
 ; off_2A51C:
 Obj83_Index:	offsetTable
-		offsetTableEntry.w Obj83_Init		; 0
-		offsetTableEntry.w Obj83_Main		; 2
-		offsetTableEntry.w Obj83_SubObject	; 4
+		offsetTableEntry.w Obj83_Init			; 0
+		offsetTableEntry.w Obj83_Main			; 2
+		offsetTableEntry.w Obj83_PlatformSubObject	; 4
 ; ===========================================================================
 ; loc_2A522:
 Obj83_Init:
@@ -54223,21 +54233,27 @@ Obj83_Init:
 	move.b	#4,render_flags(a0)
 	move.b	#4,priority(a0)
 	move.b	#$20,width_pixels(a0)
-	move.w	x_pos(a0),objoff_30(a0)
-	move.w	y_pos(a0),objoff_32(a0)
+	move.w	x_pos(a0),Obj83_initial_x_pos(a0)
+	move.w	y_pos(a0),Obj83_initial_y_pos(a0)
+
+	; Setup subtype variables (rotation speed and other unused variable)
 	move.b	subtype(a0),d1
 	move.b	d1,d0
-	andi.w	#$F,d1
+	andi.w	#$F,d1	; The lower 4 bits of subtype are unused, making these instructions useless
 	andi.b	#$F0,d0
 	ext.w	d0
 	asl.w	#3,d0
-	move.w	d0,objoff_2E(a0)
+	move.w	d0,Obj83_speed(a0)
+
+	; Set angle according to X-flip and Y-flip
 	move.b	status(a0),d0
 	ror.b	#2,d0
 	andi.b	#$C0,d0
 	move.b	d0,angle(a0)
+
+	; Create child object (chain multisprite)
 	jsrto	(SingleObjLoad2).l, JmpTo19_SingleObjLoad2
-	bne.s	+
+	bne.s	.noRAMforChildObjects
 
 	_move.b	id(a0),id(a1) ; load obj83
 	move.l	mappings(a0),mappings(a1)
@@ -54250,25 +54266,29 @@ Obj83_Init:
 	subq.w	#1,d1
 	lea	sub2_x_pos(a1),a2
 
--	addq.w	#next_subspr-2,a2
+.nextChildSprite:
+	addq.w	#next_subspr-2,a2
 	move.w	#1,(a2)+	; sub?_mapframe
-	dbf	d1,-
+	dbf	d1,.nextChildSprite
 
 	move.b	#1,mainspr_mapframe(a1)
 	move.b	#$40,mainspr_height(a1)
 	bset	#4,render_flags(a1)
-	move.l	a1,objoff_34(a0)
+	move.l	a1,Obj83_childobjptr_chains(a0)
+
+	; Create remaining child objects: platform 2 and 3
 	bsr.s	Obj83_LoadSubObject
-	move.l	a1,objoff_38(a0)
+	move.l	a1,Obj83_childobjptr_platform2(a0)
 	bsr.s	Obj83_LoadSubObject
-	move.l	a1,objoff_3C(a0)
-+
+	move.l	a1,Obj83_childobjptr_platform3(a0)
+
+.noRAMforChildObjects:
 	bra.s	Obj83_Main
 ; ===========================================================================
 ; loc_2A5DE:
 Obj83_LoadSubObject:
 	jsrto	(SingleObjLoad2).l, JmpTo19_SingleObjLoad2
-	bne.s	+	; rts
+	bne.s	.noRAMforChildObject	; rts
 	addq.b	#4,routine(a1)
 	_move.b	id(a0),id(a1) ; load obj
 	move.l	mappings(a0),mappings(a1)
@@ -54276,10 +54296,11 @@ Obj83_LoadSubObject:
 	move.b	#4,render_flags(a1)
 	move.b	#4,priority(a1)
 	move.b	#$20,width_pixels(a1)
-	move.w	x_pos(a0),objoff_30(a1)
-	move.w	y_pos(a0),objoff_32(a1)
-	move.w	x_pos(a0),objoff_2C(a1)
-+
+	move.w	x_pos(a0),Obj83_initial_x_pos(a1)
+	move.w	y_pos(a0),Obj83_initial_y_pos(a1)
+	move.w	x_pos(a0),Obj83_last_x_pos(a1)
+
+.noRAMforChildObject:
 	rts
 ; ===========================================================================
 ; loc_2A620:
@@ -54287,13 +54308,15 @@ Obj83_Main:
 	move.w	x_pos(a0),-(sp)
 	moveq	#0,d0
 	moveq	#0,d1
-	move.w	objoff_2E(a0),d0
+	move.w	Obj83_speed(a0),d0
 	add.w	d0,angle(a0)
-	move.w	objoff_32(a0),d2
-	move.w	objoff_30(a0),d3
+	move.w	Obj83_initial_y_pos(a0),d2
+	move.w	Obj83_initial_x_pos(a0),d3
 	moveq	#0,d6
-	movea.l	objoff_34(a0),a1 ; a1=object
+	movea.l	Obj83_childobjptr_chains(a0),a1 ; a1=object
 	lea	sub2_x_pos(a1),a2
+
+	; Update first row of chains
 	move.b	angle(a0),d0
 	jsrto	(CalcSine).l, JmpTo10_CalcSine
 	swap	d0
@@ -54306,20 +54329,22 @@ Obj83_Main:
 	swap	d5
 	add.w	d2,d4
 	add.w	d3,d5
-	move.w	d5,x_pos(a1)
-	move.w	d4,y_pos(a1)
+	move.w	d5,x_pos(a1)	; update chainlink mainsprite x_pos
+	move.w	d4,y_pos(a1)	; update chainlink mainsprite y_pos
 	move.l	d0,d4
 	move.l	d1,d5
 	add.l	d0,d4
 	add.l	d1,d5
-	moveq	#1,d6
-	bsr.w	loc_2A72E
+	moveq	#1,d6	; Update 2 chainlink childsprites (the third chainlink is the mainsprite, which has already been updated)
+	bsr.w	Obj83_UpdateChainSpritePosition
 	swap	d4
 	swap	d5
 	add.w	d2,d4
 	add.w	d3,d5
 	move.w	d5,x_pos(a0)
 	move.w	d4,y_pos(a0)
+
+	; Update second row of chains
 	move.b	angle(a0),d0
 	addi.b	#$55,d0
 	jsrto	(CalcSine).l, JmpTo10_CalcSine
@@ -54329,15 +54354,17 @@ Obj83_Main:
 	asr.l	#4,d1
 	move.l	d0,d4
 	move.l	d1,d5
-	moveq	#2,d6
-	bsr.w	loc_2A72E
+	moveq	#2,d6	; Update 3 chainlink childsprites
+	bsr.w	Obj83_UpdateChainSpritePosition
 	swap	d4
 	swap	d5
 	add.w	d2,d4
 	add.w	d3,d5
-	movea.l	objoff_38(a0),a1 ; a1=object
+	movea.l	Obj83_childobjptr_platform2(a0),a1 ; a1=object
 	move.w	d5,x_pos(a1)
 	move.w	d4,y_pos(a1)
+
+	; Update third row of chains
 	move.b	angle(a0),d0
 	subi.b	#$55,d0
 	jsrto	(CalcSine).l, JmpTo10_CalcSine
@@ -54347,15 +54374,16 @@ Obj83_Main:
 	asr.l	#4,d1
 	move.l	d0,d4
 	move.l	d1,d5
-	moveq	#2,d6
-	bsr.w	loc_2A72E
+	moveq	#2,d6	; Update 3 chainlink childsprites
+	bsr.w	Obj83_UpdateChainSpritePosition
 	swap	d4
 	swap	d5
 	add.w	d2,d4
 	add.w	d3,d5
-	movea.l	objoff_3C(a0),a1 ; a1=object
+	movea.l	Obj83_childobjptr_platform3(a0),a1 ; a1=object
 	move.w	d5,x_pos(a1)
 	move.w	d4,y_pos(a1)
+
 	moveq	#0,d1
 	move.b	width_pixels(a0),d1
 	addi.w	#$B,d1
@@ -54364,24 +54392,25 @@ Obj83_Main:
 	move.w	(sp)+,d4
 	jsrto	(PlatformObject).l, JmpTo7_PlatformObject
 	tst.w	(Two_player_mode).w
-	beq.s	+
+	beq.s	.notTwoPlayerMode
 	jmpto	(DisplaySprite).l, JmpTo27_DisplaySprite
 ; ===========================================================================
-+
-	move.w	objoff_30(a0),d0
+.notTwoPlayerMode:
+	move.w	Obj83_initial_x_pos(a0),d0
 	andi.w	#$FF80,d0
 	sub.w	(Camera_X_pos_coarse).w,d0
 	cmpi.w	#$280,d0
-	bhi.w	+
+	bhi.w	.objectOffscreen
 	jmpto	(DisplaySprite).l, JmpTo27_DisplaySprite
 ; ===========================================================================
-+
-	movea.l	objoff_34(a0),a1 ; a1=object
+.objectOffscreen:
+	movea.l	Obj83_childobjptr_chains(a0),a1 ; a1=object
 	jsrto	(DeleteObject2).l, JmpTo4_DeleteObject2
 	jmpto	(DeleteObject).l, JmpTo42_DeleteObject
 ; ===========================================================================
-
-loc_2A72E:
+; loc_2A72E:
+Obj83_UpdateChainSpritePosition:
+.nextChainSprite:
 	movem.l	d4-d5,-(sp)
 	swap	d4
 	swap	d5
@@ -54393,20 +54422,20 @@ loc_2A72E:
 	add.l	d0,d4
 	add.l	d1,d5
 	addq.w	#next_subspr-4,a2
-	dbf	d6,loc_2A72E
+	dbf	d6,.nextChainSprite
 	rts
 ; ===========================================================================
-; loc_2A74E:
-Obj83_SubObject:
+; loc_2A74E: Obj83_SubObject:
+Obj83_PlatformSubObject:
 	moveq	#0,d1
 	move.b	width_pixels(a0),d1
 	addi.w	#$B,d1
 	move.w	#8,d2
 	move.w	#9,d3
-	move.w	objoff_2C(a0),d4
+	move.w	Obj83_last_x_pos(a0),d4
 	jsrto	(PlatformObject).l, JmpTo7_PlatformObject
-	move.w	x_pos(a0),objoff_2C(a0)
-	move.w	objoff_30(a0),d0
+	move.w	x_pos(a0),Obj83_last_x_pos(a0)
+	move.w	Obj83_initial_x_pos(a0),d0
 	jmpto	(MarkObjGone2).l, JmpTo8_MarkObjGone2
 ; ===========================================================================
 
