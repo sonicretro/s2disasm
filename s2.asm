@@ -54346,7 +54346,7 @@ Obj83_Main:
 
 	; Update second row of chains
 	move.b	angle(a0),d0
-	addi.b	#$55,d0
+	addi.b	#256/3,d0	; 360 degrees = 256
 	jsrto	(CalcSine).l, JmpTo10_CalcSine
 	swap	d0
 	swap	d1
@@ -54366,7 +54366,7 @@ Obj83_Main:
 
 	; Update third row of chains
 	move.b	angle(a0),d0
-	subi.b	#$55,d0
+	subi.b	#256/3,d0	; 360 degrees = 256
 	jsrto	(CalcSine).l, JmpTo10_CalcSine
 	swap	d0
 	swap	d1
