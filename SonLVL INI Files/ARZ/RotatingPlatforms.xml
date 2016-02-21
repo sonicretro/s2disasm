@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="3 Rotating Platforms" Image="platform" DefaultSubtype="10">
+  <Images>
+    <ImageFromMappings id="platform">
+      <ArtFile filename="LevelArt" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj83.bin" frame="0" startpal="0" />
+    </ImageFromMappings>
+    <ImageFromMappings id="chainlink">
+      <ArtFile filename="LevelArt" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj83.bin" frame="1" startpal="0" />
+    </ImageFromMappings>
+  </Images>
+  <Properties>
+    <BitsProperty name="Speed" type="int" startbit="4" length="4" />
+  </Properties>
+  <Display>
+    <DisplayOption>
+      <ImageRef image="chainlink">
+        <Offset X="0" Y="15" />
+      </ImageRef>
+      <ImageRef image="chainlink">
+        <Offset X="0" Y="31" />
+      </ImageRef>
+      <ImageRef image="chainlink">
+        <Offset X="1" Y="47" />
+      </ImageRef>
+
+      <ImageRef image="chainlink">
+        <Offset X="-15" Y="-8" />
+      </ImageRef>
+      <ImageRef image="chainlink">
+        <Offset X="-29" Y="-15" />
+      </ImageRef>
+      <ImageRef image="chainlink">
+        <Offset X="-43" Y="-23" />
+      </ImageRef>
+
+      <ImageRef image="chainlink">
+        <Offset X="13" Y="-9" />
+      </ImageRef>
+      <ImageRef image="chainlink">
+        <Offset X="27" Y="-17" />
+      </ImageRef>
+      <ImageRef image="chainlink">
+        <Offset X="41" Y="-25" />
+      </ImageRef>
+
+      <ImageRef image="platform">
+        <Offset X="1" Y="63" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="-57" Y="-30" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="54" Y="-33" />
+      </ImageRef>
+    </DisplayOption>
+  </Display>
+</ObjDef>
