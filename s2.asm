@@ -12461,6 +12461,17 @@ EndgameCredits:
 	bsr.w	ShowCreditsScreen
 	bsr.w	Pal_FadeFromBlack
 
+	; Here's how to calculate new duration values for the below instructions.
+	; Each slide of the credits is displayed for $18E frames at 60 FPS, or $144 frames at 50 FPS.
+	; We also need to take into account how many frames the fade-in/fade-out take: which is $16 each.
+	; Also, there are 21 slides to display.
+	; That said, by doing '($18E+$16+$16)*21', we get the total number of frames it takes until
+	; the credits reach the Sonic 2 splash (which is technically not an actual slide in the credits).
+	; Dividing this by 60 will give us how many seconds it takes. The result being 154.7.
+	; Doing the same for 50 FPS, by dividing the result of '($144+$16+$16)*21' by 50, will give us 154.56.
+	; Now that we have the time it should take for the credits to end, we can adjust the calculation to account
+	; for any slides we may have added. For example, if you added a slide, bringing the total to 22,
+	; performing '((154.7*60)/22)-($16+$16)' will give you the new value to put in the 'move.w' instruction below.
 	move.w	#$18E,d0
 	btst	#6,(Graphics_Flags).w
 	beq.s	+
