@@ -1,0 +1,9 @@
+Palette File: ../art/palettes/Ending Sonic Far.bin
+Mapping File: ../mappings/misc/Closeup of Sonic flying plane in ending sequence.bin
+Art File: ../art/nemesis/Final image of Tornado with it and Sonic facing screen.bin
+Mapping Compression: Enigma
+Art Compression: Nemesis
+x-Size: 0x17
+y-Size: 0x0F
+Palette Offset: 0x00
+Palette Length: 0x20

@@ -1,0 +1,9 @@
+Palette File: ../art/palettes/Ending Photos.bin
+Mapping File: ../mappings/misc/End of game sequence frame 1.bin
+Art File: ../art/nemesis/Movie sequence at end of game.bin
+Mapping Compression: Enigma
+Art Compression: Nemesis
+x-Size: 0x0C
+y-Size: 0x09
+Palette Offset: 0x00
+Palette Length: 0x20
