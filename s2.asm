@@ -13991,7 +13991,9 @@ LevelSizeLoad:
 	move.l	d0,(Tails_Min_X_pos).w
 	move.l	(a0)+,d0
 	move.l	d0,(Camera_Min_Y_pos).w
-	move.l	d0,(unk_EEC4).w	; unused besides this one write...
+	; Warning: unk_EEC4 is only a word long, this line also writes to Camera_Max_Y_pos
+	; If you remove this instruction, the camera will scroll up until it kills Sonic
+	move.l	d0,(unk_EEC4).w	; unused besides this one write... 
 	move.l	d0,(Tails_Min_Y_pos).w
 	move.w	#$1010,(Horiz_block_crossed_flag).w
 	move.w	#(224/2)-16,(Camera_Y_pos_bias).w
