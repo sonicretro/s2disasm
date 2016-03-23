@@ -1,0 +1,9 @@
+Palette File: ../art/palettes/Title Emblem.bin
+Mapping File: ../mappings/misc/Sonic the Hedgehog 2 title screen logo mappings.bin
+Art File: ../art/nemesis/Main patterns from title screen.bin
+Mapping Compression: Enigma
+Art Compression: Nemesis
+x-Size: 0x28
+y-Size: 0x1C
+Palette Offset: 0x00
+Palette Length: 0x20
