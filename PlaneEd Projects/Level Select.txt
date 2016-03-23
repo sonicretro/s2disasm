@@ -1,0 +1,12 @@
+Palette File: ../art/palettes/Menu.bin
+Mapping File: ../mappings/misc/Level Select.bin
+Art File: ../art/nemesis/Standard font.bin
+Mapping Compression: Enigma
+Art Compression: Nemesis
+x-Size: 0x28
+y-Size: 0x1C
+Palette Offset: 0x00
+Palette Length: 0x80
+Tile Offset: 0x10
+Number Offset: 0x00
+Letter Offset: 0x0E
