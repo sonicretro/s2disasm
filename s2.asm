@@ -24254,22 +24254,20 @@ loc_13014:
 	bne.s	++
 	move.w	objoff_2C(a0),d0
 	addq.w	#2,d0
-	cmpi.w	#$C,d0
+	cmpi.w	#CyclingPal_TitleStar_End-CyclingPal_TitleStar,d0
 	blo.s	+
 	moveq	#0,d0
 +
 	move.w	d0,objoff_2C(a0)
-	move.w	word_1303A(pc,d0.w),(Normal_palette_line3+$A).w
+	move.w	CyclingPal_TitleStar(pc,d0.w),(Normal_palette_line3+$A).w
 +
 	bra.w	DisplaySprite
 ; ===========================================================================
-word_1303A:
-	dc.w  $E64
-	dc.w  $E86	; 1
-	dc.w  $E64	; 2
-	dc.w  $EA8	; 3
-	dc.w  $E64	; 4
-	dc.w  $ECA	; 5
+; word_1303A:
+CyclingPal_TitleStar:
+	binclude "art/palettes/Title Star Cycle.bin"
+CyclingPal_TitleStar_End
+
 word_13046:
 	dc.w  $108, $D0
 	dc.w  $100, $C0	; 2
