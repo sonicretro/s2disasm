@@ -5270,15 +5270,15 @@ LoadCollisionIndexes:
 ; ---------------------------------------------------------------------------
 Off_ColP: zoneOrderedTable 4,1
 	zoneTableEntry.l ColP_EHZHTZ
-	zoneTableEntry.l Off_Level	; 1
+	zoneTableEntry.l ColP_Invalid	; 1
 	zoneTableEntry.l ColP_MTZ	; 2
-	zoneTableEntry.l Off_Level	; 3
+	zoneTableEntry.l ColP_Invalid	; 3
 	zoneTableEntry.l ColP_MTZ	; 4
 	zoneTableEntry.l ColP_MTZ	; 5
 	zoneTableEntry.l ColP_WFZSCZ	; 6
 	zoneTableEntry.l ColP_EHZHTZ	; 7
-	zoneTableEntry.l ColP_OOZ	; 8
-	zoneTableEntry.l Off_Level	; 9
+	zoneTableEntry.l ColP_HPZ	; 8
+	zoneTableEntry.l ColP_Invalid	; 9
 	zoneTableEntry.l ColP_OOZ	; 10
 	zoneTableEntry.l ColP_MCZ	; 11
 	zoneTableEntry.l ColP_CNZ	; 12
@@ -5297,15 +5297,15 @@ Off_ColP: zoneOrderedTable 4,1
 ; ---------------------------------------------------------------------------
 Off_ColS: zoneOrderedTable 4,1
 	zoneTableEntry.l ColS_EHZHTZ
-	zoneTableEntry.l Off_Level	; 1
+	zoneTableEntry.l ColP_Invalid	; 1
 	zoneTableEntry.l ColP_MTZ	; 2
-	zoneTableEntry.l Off_Level	; 3
+	zoneTableEntry.l ColP_Invalid	; 3
 	zoneTableEntry.l ColP_MTZ	; 4
 	zoneTableEntry.l ColP_MTZ	; 5
 	zoneTableEntry.l ColS_WFZSCZ	; 6
 	zoneTableEntry.l ColS_EHZHTZ	; 7
-	zoneTableEntry.l ColP_OOZ	; 8
-	zoneTableEntry.l Off_Level	; 9
+	zoneTableEntry.l ColS_HPZ	; 8
+	zoneTableEntry.l ColP_Invalid	; 9
 	zoneTableEntry.l ColP_OOZ	; 10
 	zoneTableEntry.l ColP_MCZ	; 11
 	zoneTableEntry.l ColS_CNZ	; 12
@@ -82652,7 +82652,7 @@ Animated_HTZ:	zoneanimstart
 ; word_4009C: Animated_OOZ:
 Animated_HPZ:	zoneanimstart
 	; Supposed to be the pulsing orb from HPZ, but uses OOZ's pulsing ball art
-	zoneanimdecl 8, ArtUnc_OOZPulseBall, ArtTile_ArtUnc_HPZPulseOrb_1, 6, 8
+	zoneanimdecl 8, ArtUnc_HPZPulseOrb, ArtTile_ArtUnc_HPZPulseOrb_1, 6, 8
 	dc.b   0
 	dc.b   0
 	dc.b   8
@@ -82661,7 +82661,7 @@ Animated_HPZ:	zoneanimstart
 	dc.b   8
 	even
 	; Supposed to be the pulsing orb from HPZ, but uses OOZ's pulsing ball art
-	zoneanimdecl 8, ArtUnc_OOZPulseBall, ArtTile_ArtUnc_HPZPulseOrb_2, 6, 8
+	zoneanimdecl 8, ArtUnc_HPZPulseOrb, ArtTile_ArtUnc_HPZPulseOrb_2, 6, 8
 	dc.b   8
 	dc.b $10
 	dc.b $10
@@ -82670,7 +82670,7 @@ Animated_HPZ:	zoneanimstart
 	dc.b   0
 	even
 	; Supposed to be the pulsing orb from HPZ, but uses OOZ's pulsing ball art
-	zoneanimdecl 8, ArtUnc_OOZPulseBall, ArtTile_ArtUnc_HPZPulseOrb_3, 6, 8
+	zoneanimdecl 8, ArtUnc_HPZPulseOrb, ArtTile_ArtUnc_HPZPulseOrb_3, 6, 8
 	dc.b $10
 	dc.b   8
 	dc.b   0
@@ -84930,7 +84930,7 @@ JmpTbl_DbgObjLists: zoneOrderedOffsetTable 2,1
 	zoneOffsetTableEntry.w DbgObjList_MTZ	; 5
 	zoneOffsetTableEntry.w DbgObjList_WFZ	; 6
 	zoneOffsetTableEntry.w DbgObjList_HTZ	; 7
-	zoneOffsetTableEntry.w DbgObjList_OOZ	; 8
+	zoneOffsetTableEntry.w DbgObjList_HPZ	; 8
 	zoneOffsetTableEntry.w DbgObjList_Def	; 9
 	zoneOffsetTableEntry.w DbgObjList_OOZ	; $A
 	zoneOffsetTableEntry.w DbgObjList_MCZ	; $B
@@ -85087,6 +85087,11 @@ DbgObjList_HTZ: dbglistheader
 	dbglistobj ObjID_Sol, Obj95_MapUnc_372E6,   0,   0, make_art_tile(ArtTile_ArtKos_LevelArt,0,0)
 	dbglistobj ObjID_EggPrison, Obj3E_MapUnc_3F436,   0,   0, make_art_tile(ArtTile_ArtNem_Capsule,1,0)
 DbgObjList_HTZ_End
+
+DbgObjList_HPZ:; dbglistheader
+;	dbglistobj ObjID_Ring, Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+;	dbglistobj ObjID_Monitor, Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+;DbgObjList_HPZ_End
 
 DbgObjList_OOZ: dbglistheader
 	dbglistobj ObjID_Ring, Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
@@ -85313,7 +85318,7 @@ LevelArtPointers:
 	levartptrs PLCID_Mtz1,     PLCID_Mtz2,      PalID_MTZ,  ArtKos_MTZ, BM16_MTZ, BM128_MTZ ;   5 ; MTZ3 ; METROPOLIS ZONE ACT 3
 	levartptrs PLCID_Wfz1,     PLCID_Wfz2,      PalID_WFZ,  ArtKos_SCZ, BM16_WFZ, BM128_WFZ ;   6 ; WFZ  ; WING FORTRESS ZONE
 	levartptrs PLCID_Htz1,     PLCID_Htz2,      PalID_HTZ,  ArtKos_EHZ, BM16_EHZ, BM128_EHZ ;   7 ; HTZ  ; HILL TOP ZONE
-	levartptrs PLCID_Hpz1,     PLCID_Hpz2,      PalID_HPZ,  BM16_OOZ,   BM16_OOZ,  BM16_OOZ ;   8 ; HPZ  ; HIDDEN PALACE ZONE (UNUSED)
+	levartptrs PLCID_Hpz1,     PLCID_Hpz2,      PalID_HPZ,  ArtKos_HPZ, BM16_HPZ, BM128_HPZ ;   8 ; HPZ  ; HIDDEN PALACE ZONE (UNUSED)
 	levartptrs PLCID_Unused3,  PLCID_Unused4,   PalID_EHZ4, ArtKos_EHZ, BM16_EHZ, BM128_EHZ ;   9 ; LEV9 ; LEVEL 9 (UNUSED)
 	levartptrs PLCID_Ooz1,     PLCID_Ooz2,      PalID_OOZ,  ArtKos_OOZ, BM16_OOZ, BM128_OOZ ;  $A ; OOZ  ; OIL OCEAN ZONE
 	levartptrs PLCID_Mcz1,     PLCID_Mcz2,      PalID_MCZ,  ArtKos_MCZ, BM16_MCZ, BM128_MCZ ;  $B ; MCZ  ; MYSTIC CAVE ZONE
@@ -85384,8 +85389,8 @@ PLCptr_Wfz1:		offsetTableEntry.w PlrList_Wfz1			; 16
 PLCptr_Wfz2:		offsetTableEntry.w PlrList_Wfz2			; 17
 PLCptr_Htz1:		offsetTableEntry.w PlrList_Htz1			; 18
 PLCptr_Htz2:		offsetTableEntry.w PlrList_Htz2			; 19
-PLCptr_Hpz1:		offsetTableEntry.w PlrList_Ooz1			; 20
-PLCptr_Hpz2:		offsetTableEntry.w PlrList_Ooz1			; 21
+PLCptr_Hpz1:		offsetTableEntry.w PlrList_Hpz1			; 20
+PLCptr_Hpz2:		offsetTableEntry.w PlrList_Hpz2			; 21
 PLCptr_Unused3:		offsetTableEntry.w PlrList_Ooz1			; 22
 PLCptr_Unused4:		offsetTableEntry.w PlrList_Ooz1			; 23
 PLCptr_Ooz1:		offsetTableEntry.w PlrList_Ooz1			; 24
@@ -85626,6 +85631,19 @@ PlrList_Htz2: plrlistheader
 	plreq ArtTile_ArtNem_HtzFireball, ArtNem_HtzFireball
 	plreq ArtTile_ArtNem_HtzValveBarrier, ArtNem_HtzValveBarrier
 PlrList_Htz2_End
+;---------------------------------------------------------------------------------------
+; Pattern load queue
+; HPZ Primary
+;---------------------------------------------------------------------------------------
+PlrList_Hpz1: ;plrlistheader
+;	plreq ArtTile_ArtNem_WaterSurface, ArtNem_WaterSurface
+;PlrList_Hpz1_End
+;---------------------------------------------------------------------------------------
+; Pattern load queue
+; HPZ Secondary
+;---------------------------------------------------------------------------------------
+PlrList_Hpz2: ;plrlistheader
+;PlrList_Hpz2_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; OOZ Primary
@@ -86394,6 +86412,14 @@ ColS_EHZHTZ:	BINCLUDE	"collision/EHZ and HTZ secondary 16x16 collision index.bin
 ColP_MTZ:	BINCLUDE	"collision/MTZ primary 16x16 collision index.bin"
 	even
 ;---------------------------------------------------------------------------------------
+; HPZ primary 16x16 collision index (Kosinski compression)
+ColP_HPZ:	;BINCLUDE	"collision/HPZ primary 16x16 collision index.bin"
+	;even
+;---------------------------------------------------------------------------------------
+; HPZ secondary 16x16 collision index (Kosinski compression)
+ColS_HPZ:	;BINCLUDE	"collision/HPZ secondary 16x16 collision index.bin"
+	;even
+;---------------------------------------------------------------------------------------
 ; OOZ primary 16x16 collision index (Kosinski compression)
 ColP_OOZ:	BINCLUDE	"collision/OOZ primary 16x16 collision index.bin"
 	even
@@ -86435,6 +86461,8 @@ ColS_WFZSCZ:	BINCLUDE	"collision/WFZ and SCZ secondary 16x16 collision index.bin
 	even
 ;---------------------------------------------------------------------------------------
 
+ColP_Invalid:
+
 
 
 
@@ -86460,8 +86488,8 @@ Off_Level: zoneOrderedOffsetTable 2,2
 	zoneOffsetTableEntry.w Level_WFZ	; 13
 	zoneOffsetTableEntry.w Level_HTZ1	; 14
 	zoneOffsetTableEntry.w Level_HTZ2	; 15
-	zoneOffsetTableEntry.w Level_OOZ1	; 16
-	zoneOffsetTableEntry.w Level_OOZ1	; 17
+	zoneOffsetTableEntry.w Level_HPZ1	; 16
+	zoneOffsetTableEntry.w Level_HPZ1	; 17
 	zoneOffsetTableEntry.w Level_EHZ1	; 18
 	zoneOffsetTableEntry.w Level_EHZ1	; 19
 	zoneOffsetTableEntry.w Level_OOZ1	; 20
@@ -86511,6 +86539,10 @@ Level_HTZ1:	BINCLUDE	"level/layout/HTZ_1.bin"
 ; HTZ act 2 level layout (Kosinski compression)
 Level_HTZ2:	BINCLUDE	"level/layout/HTZ_2.bin"
 	even
+;---------------------------------------------------------------------------------------
+; HPZ act 1 level layout (Kosinski compression)
+Level_HPZ1:	;BINCLUDE	"level/layout/HPZ_1.bin"
+	;even
 ;---------------------------------------------------------------------------------------
 ; OOZ act 1 level layout (Kosinski compression)
 Level_OOZ1:	BINCLUDE	"level/layout/OOZ_1.bin"
@@ -86596,6 +86628,10 @@ ArtUnc_Lava:	BINCLUDE	"art/uncompressed/Lava.bin"
 ; Uncompressed art
 ; Animated section of MTZ background ; ArtUnc_4BD3E:
 ArtUnc_MTZAnimBack:	BINCLUDE	"art/uncompressed/Animated section of MTZ background.bin"
+;---------------------------------------------------------------------------------------
+; Uncompressed art
+; Pulsing orb in HPZ
+ArtUnc_HPZPulseOrb:	;BINCLUDE	"art/uncompressed/Pulsing orb (HPZ).bin"
 ;---------------------------------------------------------------------------------------
 ; Uncompressed art
 ; Pulsing ball in OOZ   ; ArtUnc_4BF7E:
@@ -87652,6 +87688,15 @@ ArtKos_MTZ:	BINCLUDE	"art/kosinski/MTZ.bin"
 ;-----------------------------------------------------------------------------------
 ; MTZ 128x128 block mappings (Kosinski compression)
 BM128_MTZ:	BINCLUDE	"mappings/128x128/MTZ.bin"
+;-----------------------------------------------------------------------------------
+; HPZ 16x16 block mappings (Kosinski compression)
+BM16_HPZ:	;BINCLUDE	"mappings/16x16/HPZ.bin"
+;-----------------------------------------------------------------------------------
+; HPZ main level patterns (Kosinski compression)
+ArtKos_HPZ:	;BINCLUDE	"art/kosinski/HPZ.bin"
+;-----------------------------------------------------------------------------------
+; HPZ 128x128 block mappings (Kosinski compression)
+BM128_HPZ:	;BINCLUDE	"mappings/128x128/HPZ.bin"
 ;-----------------------------------------------------------------------------------
 ; OOZ 16x16 block mappings (Kosinski compression)
 BM16_OOZ:	BINCLUDE	"mappings/16x16/OOZ.bin"
