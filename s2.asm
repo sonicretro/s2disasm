@@ -24872,6 +24872,7 @@ byte_1368E:
 	dc.b   7	; 3
 	dc.b   8	; 4
 	dc.b $FA	; 5
+	even
 byte_13694:
 	dc.b   1
 	dc.b   0	; 1
@@ -24880,7 +24881,7 @@ byte_13694:
 	dc.b   3	; 4
 	dc.b   4	; 5
 	dc.b $FA	; 6
-	dc.b   0	; 7
+	even
 byte_1369C:
 	dc.b   1
 	dc.b  $C	; 1
@@ -24889,12 +24890,13 @@ byte_1369C:
 	dc.b  $D	; 4
 	dc.b  $C	; 5
 	dc.b $FA	; 6
-	dc.b   0	; 7
+	even
 byte_136A4:
 	dc.b   3
 	dc.b  $C	; 1
 	dc.b  $F	; 2
 	dc.b $FF	; 3
+	even
 ; -----------------------------------------------------------------------------
 ; Sprite Mappings - Flashing stars from intro (Obj0E)
 ; -----------------------------------------------------------------------------
