@@ -82966,10 +82966,10 @@ LoadLevelBlocks_2P:
 	; is overwritten with VRAM data
 	move.w	(a0)+,d0
 	move.w	d0,d1
-	andi.w	#$F800,d0	; adjust VRAM addresses
-	andi.w	#$7FF,d1
-	lsr.w	#1,d1
-	or.w	d1,d0
+	andi.w	#nontile_mask,d0	; d0 holds the preserved non-tile data
+	andi.w	#tile_mask,d1		; d1 holds the tile index (overwrites loop counter!)
+	lsr.w	#1,d1			; half tile index
+	or.w	d1,d0			; put them back together
 	move.w	d0,(a1)+
 	dbf	d1,LoadLevelBlocks_2P	; loop using d1, which we just overwrote
 	rts
