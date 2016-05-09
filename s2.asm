@@ -82956,12 +82956,14 @@ loc_402D4:
 ; loc_40330:
 LoadLevelBlocks:
 	move.w	(a0)+,(a1)+	; copy blocks to RAM
-	dbf	d1,LoadLevelBlocks
+	dbf	d1,LoadLevelBlocks	; loop using d1
 +
 	rts
 ; ===========================================================================
 ; loc_40338:
 LoadLevelBlocks_2P:
+	; There's a bug in here, where d1, the loop counter,
+	; is overwritten with VRAM data
 	move.w	(a0)+,d0
 	move.w	d0,d1
 	andi.w	#$F800,d0	; adjust VRAM addresses
@@ -82969,7 +82971,7 @@ LoadLevelBlocks_2P:
 	lsr.w	#1,d1
 	or.w	d1,d0
 	move.w	d0,(a1)+
-	dbf	d1,LoadLevelBlocks_2P
+	dbf	d1,LoadLevelBlocks_2P	; loop using d1, which we just overwrote
 	rts
 ; ===========================================================================
 
