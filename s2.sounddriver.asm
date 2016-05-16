@@ -1169,7 +1169,7 @@ zPSGDoVolFX:
 	or	a				; test byte from before
 	jp	p,+				; Is it a positive value?
 	cp	80h				; Check if it's 80h (terminator to the "flutter" list)
-	jr	z,zloc_522		; If it is, then jump to zloc_522 (which just keeps at this flutter value, i.e. no more changes in volume)
+	jr	z,zVolEnvHold		; If it is, then jump to zVolEnvHold (which just keeps at this flutter value, i.e. no more changes in volume)
 +
 	add	a,b				; Apply this "flutter" to channel volume -> 'a'
 	ld	b,a				; a -> 'b'
@@ -1203,8 +1203,8 @@ zloc_515:				; If you get here, then "do not attack next note" was set...
 	jr	nz,zloc_505		; If it's not zero, then just process normally
 	ret
 ; ---------------------------------------------------------------------------
-
-zloc_522:
+; zloc_522:
+zVolEnvHold:
 	; This just decrements the flutter to keep it in place; no more volume changes in this list
     if FixDriverBugs
 	dec	(ix+zTrack.VolFlutter)
