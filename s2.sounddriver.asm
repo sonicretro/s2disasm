@@ -797,8 +797,9 @@ zFMSetFreq:
 	sub	80h
 	jr	z,zFMDoRest		; If this is a rest, jump to zFMDoRest
 	add	a,(ix+zTrack.Transpose)		; Add current channel transpose (coord flag E9)
+	add	a,a				; Offset into Frequency table...
     if OptimiseDriver
-	ld	d,12			; 12 notes per octave
+	ld	d,12*2			; 12 notes per octave
 	ld	c,0			; clear c (will hold octave bits)
 
 -	sub	d			; Subtract 1 octave from the note
@@ -811,7 +812,6 @@ zFMSetFreq:
 	sla	c
 	sla	c			; multiply octave value by 8, to get final octave bits
     endif
-	add	a,a				; Offset into Frequency table...
 	add	a,zFrequencies&0FFh
 	ld	(zloc_292+2),a	; store into the instruction after zloc_292 (self-modifying code)
 ;	ld	d,a
