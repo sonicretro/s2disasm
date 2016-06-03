@@ -1849,9 +1849,20 @@ zloc_8FB:
 	ld	ix,zSongFM1	; 'ix' points to first FM music track
 	ld	b,(zSongPSG1-zSongFM1)/zTrack.len							; For all 6 of those...
 
+    if FixDriverBugs
+	; zFMNoteOff isn't enough to silence the entire channel:
+	; For added measure, we set Total Level and Release Rate, too.
+-	push	bc
+	bit	2,(ix+0)		; Is bit 2 (SFX overriding) set?
+	call	z,zFMSilenceChannel	; If not, branch
+	add	ix,de						; Next track
+	pop	bc
+	djnz	-
+    else
 -	call	zFMNoteOff				; Send Key Off
 	add	ix,de						; Next track
 	djnz	-
+    endif
 
 	ld	b,(zTracksEnd-zSongPSG1)/zTrack.len								; For all 3 PSG tracks...
 
@@ -1860,6 +1871,32 @@ zloc_8FB:
 	djnz	-
 
 	ret
+
+    if FixDriverBugs
+zFMSilenceChannel:
+	call	zSetMaxRelRate
+	ld	a,(ix+1)		; Get voice control byte
+	and	3			; Channels only!
+	add	a,40h			; Set total level...
+	ld	c,7Fh			; ... to minimum envelope amplitude...
+	call	zFMOperatorWriteLoop	; ... for all operators of this track's channel
+	jp	zFMNoteOff
+
+zSetMaxRelRate:
+	ld	a,(ix+1)		; Get voice control byte
+	and	3			; Channels only!
+	add	a,80h			; Add register 80, set D1L to minimum and RR to maximum...
+	ld	c,0FFh			; ... for all operators on this track's channel
+
+zFMOperatorWriteLoop:
+	ld	b,4			; Loop 4 times
+
+.loop:
+	rst	zWriteFMIorII		; Write to part I or II, as appropriate
+	add	a,4			; a += 4
+	djnz	.loop			; Loop
+	ret
+    endif
 
 ; ---------------------------------------------------------------------------
 ; FM channel assignment bits
