@@ -1506,6 +1506,7 @@ QueueDMATransfer:
 
 	move.w	#$9700,d0 ; command to specify source address & $FE0000
 	lsr.l	#8,d1
+	;andi.b	#$7F,d1		; this instruction safely allows source to be in RAM; S3K added this
 	move.b	d1,d0
 	move.w	d0,(a1)+ ; store command
 
