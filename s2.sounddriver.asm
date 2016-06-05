@@ -299,6 +299,7 @@ zPalModeByte:
 	db	0
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
+    if OptimiseDriver=0	; This is redundant: the Z80 is slow enough to not need to worry about this
 	align	8
 ;zsub_8
 zFMBusyWait:    rsttarget
@@ -308,6 +309,7 @@ zFMBusyWait:    rsttarget
 	jr	c,zFMBusyWait
 	ret
 ; End of function zFMBusyWait
+    endif
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
 	align	8
@@ -323,12 +325,16 @@ zWriteFMIorII:    rsttarget
 ;zsub_18
 zWriteFMI:    rsttarget
 	; Write reg/data pair to part I; 'a' is register, 'c' is data
+    if OptimiseDriver=0
 	push	af
 	rst	zFMBusyWait ; 'rst' is like 'call' but only works for 8-byte aligned addresses <= 38h
 	pop	af
+    endif
 	ld	(zYM2612_A0),a
 	push	af
+    if OptimiseDriver=0
 	rst	zFMBusyWait
+    endif
 	ld	a,c
 	ld	(zYM2612_D0),a
 	pop	af
@@ -340,12 +346,16 @@ zWriteFMI:    rsttarget
 ;zsub_28
 zWriteFMII:    rsttarget
 	; Write reg/data pair to part II; 'a' is register, 'c' is data
+    if OptimiseDriver=0
 	push	af
 	rst	zFMBusyWait
 	pop	af
+    endif
 	ld	(zYM2612_A1),a
 	push	af
+    if OptimiseDriver=0
 	rst	zFMBusyWait
+    endif
 	ld	a,c
 	ld	(zYM2612_D1),a
 	pop	af
@@ -353,7 +363,7 @@ zWriteFMII:    rsttarget
 ; End of function zWriteFMII
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
-	align	8
+	org	38h
 zVInt:    rsttarget
 	; This is called every VBLANK (38h is the interrupt entry point,
 	; and VBLANK is the only one Z80 is hooked up to.)
