@@ -1949,7 +1949,7 @@ zPlaySound_CheckGloop:
 	ld	(zGloopFlag),a
 	or	a
 	ret	z ; sometimes don't play it
-	jp	zPlaySound ; now play the play the gloop sound
+	jp	zPlaySound ; now play the gloop sound
 ; ---------------------------------------------------------------------------
 ; zloc_953:
 zPlaySound_CheckSpindash:
