@@ -1,0 +1,10 @@
+Palette File: ../art/palettes/Sega screen.bin
+Mapping File: ../mappings/misc/SEGA mappings.bin
+Art File: ../art/nemesis/SEGA.bin
+Mapping Compression: Enigma
+Art Compression: Nemesis
+x-Size: 0x28
+y-Size: 0x1C
+Palette Offset: 0x20
+Palette Length: 0x20
+Tile Offset: 0x01

@@ -1,0 +1,9 @@
+Palette File: ../art/palettes/Menu.bin
+Mapping File: ../mappings/misc/Options Screen.bin
+Art File: ../art/nemesis/A menu box with a shadow.bin
+Mapping Compression: Enigma
+Art Compression: Nemesis
+x-Size: 0x16
+y-Size: 0x08
+Palette Offset: 0x20
+Palette Length: 0x20

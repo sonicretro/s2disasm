@@ -1,0 +1,10 @@
+Palette File: ../art/palettes/Special Stage Main.bin
+Mapping File: ../mappings/misc/Main background mappings for special stage.bin
+Art File: ../art/nemesis/Background art for special stage.bin
+Mapping Compression: Enigma
+Art Compression: Nemesis
+x-Size: 0x20
+y-Size: 0x10
+Palette Offset: 0x00
+Palette Length: 0x20
+Tile Offset: 0x00

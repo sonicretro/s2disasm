@@ -62,7 +62,9 @@ next_tilt =		$36 ; angle on ground in front of sprite
 tilt =			$37 ; angle on ground
 stick_to_convex =	$38 ; 0 for normal, 1 to make Sonic stick to convex surfaces like the rotating discs in Sonic 1 and 3 (unused in Sonic 2 but fully functional)
 spindash_flag =		$39 ; 0 for normal, 1 for charging a spindash or forced rolling
+pinball_mode =		spindash_flag
 spindash_counter =	$3A ; and $3B
+restart_countdown =	spindash_counter; and 1+spindash_counter
 jumping =		$3C
 interact =		$3D ; RAM address of the last object Sonic stood on, minus $FFFFB000 and divided by $40
 top_solid_bit =   $3E ; the bit to check for top solidity (either $C or $E)
@@ -298,15 +300,39 @@ wood_zone_act_2 =		(wood_zone<<8)|$01
 hidden_palace_zone_act_1 =	(hidden_palace_zone<<8)|$00
 hidden_palace_zone_act_2 =	(hidden_palace_zone<<8)|$01
 
-; Game modes
-
-; some variables to help define those constants (redefined before a new set of IDs)
-offset :=	GameModesArray	; this is the start of the pointer table
+; ---------------------------------------------------------------------------
+; some variables and functions to help define those constants (redefined before a new set of IDs)
+offset :=	0		; this is the start of the pointer table
 ptrsize :=	1		; this is the size of a pointer (should be 1 if the ID is a multiple of the actual size)
 idstart :=	0		; value to add to all IDs
 
 ; function using these variables
 id function ptr,((ptr-offset)/ptrsize+idstart)
+
+; V-Int routines
+offset :=	Vint_SwitchTbl
+ptrsize :=	1
+idstart :=	0
+
+VintID_Lag =		id(Vint_Lag_ptr) ; 0
+VintID_SEGA =		id(Vint_SEGA_ptr) ; 2
+VintID_Title =		id(Vint_Title_ptr) ; 4
+VintID_Unused6 =	id(Vint_Unused6_ptr) ; 6
+VintID_Level =		id(Vint_Level_ptr) ; 8
+VintID_S2SS =		id(Vint_S2SS_ptr) ; A
+VintID_TitleCard =	id(Vint_TitleCard_ptr) ; C
+VintID_UnusedE =	id(Vint_UnusedE_ptr) ; E
+VintID_Pause =		id(Vint_Pause_ptr) ; 10
+VintID_Fade =		id(Vint_Fade_ptr) ; 12
+VintID_PCM =		id(Vint_PCM_ptr) ; 14
+VintID_Menu =		id(Vint_Menu_ptr) ; 16
+VintID_Ending =		id(Vint_Ending_ptr) ; 18
+VintID_CtrlDMA =	id(Vint_CtrlDMA_ptr) ; 1A
+
+; Game modes
+offset :=	GameModesArray
+ptrsize :=	1
+idstart :=	0
 
 GameModeID_SegaScreen =		id(GameMode_SegaScreen) ; 0
 GameModeID_TitleScreen =	id(GameMode_TitleScreen) ; 4
@@ -329,7 +355,7 @@ idstart :=	0
 
 PalID_SEGA =	id(PalPtr_SEGA) ; 0
 PalID_Title =	id(PalPtr_Title) ; 1
-PalID_UNK1 =	id(PalPtr_UNK1) ; 2
+PalID_MenuB =	id(PalPtr_MenuB) ; 2
 PalID_BGND =	id(PalPtr_BGND) ; 3
 PalID_EHZ =	id(PalPtr_EHZ) ; 4
 PalID_EHZ2 =	id(PalPtr_EHZ2) ; 5
@@ -352,8 +378,8 @@ PalID_HPZ_U =	id(PalPtr_HPZ_U) ; 15
 PalID_CPZ_U =	id(PalPtr_CPZ_U) ; 16
 PalID_ARZ_U =	id(PalPtr_ARZ_U) ; 17
 PalID_SS =	id(PalPtr_SS) ; 18
-PalID_UNK2 =	id(PalPtr_UNK2) ; 19
-PalID_UNK3 =	id(PalPtr_UNK3) ; 1A
+PalID_MCZ_B =	id(PalPtr_MCZ_B) ; 19
+PalID_CNZ_B =	id(PalPtr_CNZ_B) ; 1A
 PalID_SS1 =	id(PalPtr_SS1) ; 1B
 PalID_SS2 =	id(PalPtr_SS2) ; 1C
 PalID_SS3 =	id(PalPtr_SS3) ; 1D
@@ -361,12 +387,12 @@ PalID_SS4 =	id(PalPtr_SS4) ; 1E
 PalID_SS5 =	id(PalPtr_SS5) ; 1F
 PalID_SS6 =	id(PalPtr_SS6) ; 20
 PalID_SS7 =	id(PalPtr_SS7) ; 21
-PalID_UNK4 =	id(PalPtr_UNK4) ; 22
-PalID_UNK5 =	id(PalPtr_UNK5) ; 23
-PalID_UNK6 =	id(PalPtr_UNK6) ; 24
+PalID_SS1_2p =	id(PalPtr_SS1_2p) ; 22
+PalID_SS2_2p =	id(PalPtr_SS2_2p) ; 23
+PalID_SS3_2p =	id(PalPtr_SS3_2p) ; 24
 PalID_OOZ_B =	id(PalPtr_OOZ_B) ; 25
 PalID_Menu =	id(PalPtr_Menu) ; 26
-PalID_UNK7 =	id(PalPtr_UNK7) ; 27
+PalID_Result =	id(PalPtr_Result) ; 27
 
 ; PLC IDs
 offset :=	ArtLoadCues
@@ -917,7 +943,7 @@ AniIDTailsAni_Fly			= id(TailsAni_Fly_ptr)			; 32 ; $20
 
 
 ; Other sizes
-palette_line_size =	$10	; 16 word entries
+palette_line_size =	$10*2	; 16 word entries
 
 ; ---------------------------------------------------------------------------
 ; I run the main 68k RAM addresses through this function
@@ -1020,22 +1046,28 @@ Tails_InvincibilityStars:
 				ds.b	object_size
 				ds.b	object_size
 LevelOnly_Object_RAM_End:
-				ds.b	8*object_size
+
 Object_RAM_End:
+				ds.b	$200	; unused
 
 Primary_Collision:		ds.b	$300
 Secondary_Collision:		ds.b	$300
 VDP_Command_Buffer:		ds.w	7*$12	; stores 18 ($12) VDP commands to issue the next time ProcessDMAQueue is called
 VDP_Command_Buffer_Slot:	ds.l	1	; stores the address of the next open slot for a queued VDP command
 
-Sprite_Table_2:			ds.b	$300	; Sprite attribute table buffer for the bottom split screen in 2-player mode
+Sprite_Table_2:			ds.b	$280	; Sprite attribute table buffer for the bottom split screen in 2-player mode
+				ds.b	$80	; unused, but SAT buffer can spill over into this area when there are too many sprites on-screen
+
 Horiz_Scroll_Buf:		ds.b	$400
+Horiz_Scroll_Buf_End:
 Sonic_Stat_Record_Buf:		ds.b	$100
 Sonic_Pos_Record_Buf:		ds.b	$100
 Tails_Pos_Record_Buf:		ds.b	$100
 CNZ_saucer_data:		ds.b	$40	; the number of saucer bumpers in a group which have been destroyed. Used to decide when to give 500 points instead of 10
+CNZ_saucer_data_End:
 				ds.b	$C0	; $FFFFE740-$FFFFE7FF ; unused as far as I can tell
 Ring_Positions:			ds.b	$600
+Ring_Positions_End:
 
 Camera_RAM:
 Camera_X_pos:			ds.l	1
@@ -1133,16 +1165,17 @@ Camera_RAM_End:
 
 Block_cache:			ds.b	$80
 Ring_consumption_table:		ds.b	$80	; contains RAM addresses of rings currently being consumed
+Ring_consumption_table_End:
 
-Underwater_palette_2:		ds.w palette_line_size	; not sure what it's used for but it's only used when there's water
-Underwater_palette_2_line2:	ds.w palette_line_size
-Underwater_palette_2_line3:	ds.w palette_line_size
-Underwater_palette_2_line4:	ds.w palette_line_size
+Underwater_target_palette:		ds.b palette_line_size	; This is used by the screen-fading subroutines.
+Underwater_target_palette_line2:	ds.b palette_line_size	; While Underwater_palette contains the blacked-out palette caused by the fading,
+Underwater_target_palette_line3:	ds.b palette_line_size	; Underwater_target_palette will contain the palette the screen will ultimately fade in to.
+Underwater_target_palette_line4:	ds.b palette_line_size
 
-Underwater_palette:		ds.w palette_line_size	; main palette for underwater parts of the screen
-Underwater_palette_line2:	ds.w palette_line_size
-Underwater_palette_line3:	ds.w palette_line_size
-Underwater_palette_line4:	ds.w palette_line_size
+Underwater_palette:		ds.b palette_line_size	; main palette for underwater parts of the screen
+Underwater_palette_line2:	ds.b palette_line_size
+Underwater_palette_line3:	ds.b palette_line_size
+Underwater_palette_line4:	ds.b palette_line_size
 
 				ds.b	$500	; $FFFFF100-$FFFFF5FF ; unused, leftover from the Sonic 1 sound driver (and used by it when you port it to Sonic 2)
 
@@ -1273,7 +1306,7 @@ CNZ_Visible_bumpers_end:			ds.l	1
 CNZ_Visible_bumpers_start_P2:			ds.l	1
 CNZ_Visible_bumpers_end_P2:			ds.l	1
 
-Dirty_flag:			ds.b	1	; if whole screen needs to redraw
+Screen_redraw_flag:			ds.b	1	; if whole screen needs to redraw, such as when you destroy that piston before the boss in WFZ
 CPZ_UnkScroll_Timer:	ds.b	1	; Used only in unused CPZ scrolling function
 WFZ_SCZ_Fire_Toggle:	ds.b	1
 				ds.b	1	; $FFFFF72F ; seems unused
@@ -1358,26 +1391,24 @@ Anim_Counters:			ds.b	$10	; $FFFFF7F0-$FFFFF7FF
 Misc_Variables_End:
 
 Sprite_Table:			ds.b	$280	; Sprite attribute table buffer
+Sprite_Table_End:
 				ds.b	$80	; unused, but SAT buffer can spill over into this area when there are too many sprites on-screen
 
-Normal_palette:			ds.w	palette_line_size
-Normal_palette_line2:		ds.w	palette_line_size
-Normal_palette_line3:		ds.w	palette_line_size
-Normal_palette_line4:		ds.w	palette_line_size
-Second_palette:
-Target_palette:			ds.w	palette_line_size
-Second_palette_line2:
-Target_palette_line2:		ds.w	palette_line_size
-Second_palette_line3:
-Target_palette_line3:		ds.w	palette_line_size
-Second_palette_line4:
-Target_palette_line4:		ds.w	palette_line_size
+Normal_palette:			ds.b	palette_line_size	; main palette for non-underwater parts of the screen
+Normal_palette_line2:		ds.b	palette_line_size
+Normal_palette_line3:		ds.b	palette_line_size
+Normal_palette_line4:		ds.b	palette_line_size
+
+Target_palette:			ds.b	palette_line_size	; This is used by the screen-fading subroutines.
+Target_palette_line2:		ds.b	palette_line_size	; While Normal_palette contains the blacked-out palette caused by the fading,
+Target_palette_line3:		ds.b	palette_line_size	; Target_palette will contain the palette the screen will ultimately fade in to.
+Target_palette_line4:		ds.b	palette_line_size
 
 Object_Respawn_Table:
-Obj_respawn_index:		ds.w	$C0
-Object_Respawn_Table_End:
-
-				ds.b	$80	; Stack
+Obj_respawn_index:		ds.b	2		; respawn table indices of the next objects when moving left or right for the first player
+Obj_respawn_data:		ds.b	$100	; Maximum possible number of respawn entries that S2 can handle; for stock S2, $80 is enough
+Obj_respawn_data_End:
+				ds.b	$FE	; Stack; the first $7E bytes are cleared by ObjectsManager_Init, with possibly disastrous consequences. At least $A0 bytes are needed.
 System_Stack:
 
 SS_2p_Flag:				ds.w	1	; $FFFFFE00-$FFFFFE01 ; seems unused
@@ -1539,8 +1570,6 @@ SlotMachine_Slot3Pos:	ds.w	1
 SlotMachine_Slot3Speed:	ds.b	1
 SlotMachine_Slot3Rout:	ds.b	1
 
-    if gameRevision<2
-	; These are only here in REV00 and REV01
 				ds.b	$10	; $FFFFFF60-$FFFFFF6F ; seems unused
 
 Player_mode:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails
@@ -1548,7 +1577,6 @@ Player_option:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails
 
 Two_player_items:		ds.w	1
 				ds.b	$A	; $FFFFFF76-$FFFFFF7F ; seems unused
-    endif
 
 LevSel_HoldTimer:		ds.w	1
 Level_select_zone:		ds.w	1
@@ -1567,16 +1595,7 @@ Bonus_Countdown_3:		ds.w	1
 				ds.b	4	; $FFFFFF94-$FFFFFF97 ; seems unused
 Game_Over_2P:			ds.w	1
 
-    if gameRevision<2
-	; Unused in REV00/REV01
 				ds.b	6	; $FFFFFF9A-$FFFFFF9F ; seems unused
-    else
-	; Used by these relocated variables in REV02
-Player_mode:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails
-Player_option:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails
-
-Two_player_items:		ds.w	1
-    endif
 
 SS2p_RingBuffer:		ds.w	6
 				ds.b	4	; $FFFFFFAC-$FFFFFFAF ; seems unused
@@ -1593,7 +1612,7 @@ Camera_Min_Y_pos_Debug_Copy:	ds.w	1
 Camera_Max_Y_pos_Debug_Copy:	ds.w	1
 Level_select_flag:		ds.b	1
 Slow_motion_flag:		ds.b	1
-Night_mode_flag:		ds.w	1
+Debug_options_flag:		ds.w	1	; if set, allows you to enable debug mode and "night mode"
 Correct_cheat_entries:		ds.w	1
 Correct_cheat_entries_2:	ds.w	1	; for 14 continues or 7 emeralds codes
 Two_player_mode:		ds.w	1	; flag (0 for main game)
@@ -1619,13 +1638,6 @@ Ending_demo_number:		ds.w	1 ; zone for the ending demos (2 bytes, unused)
 Graphics_Flags:			ds.w	1 ; misc. bitfield
 Debug_mode_flag:		ds.w	1 ; (2 bytes)
 Checksum_fourcc:		ds.l	1 ; (4 bytes)
-
-    if gameRevision=2
-	; Might have been used by Sonic Compilation
-				ds.b	4	; unused
-unk_FFE4:			ds.l	1	; has 'SEGA' written to it
-				ds.b	$18	; unused
-    endif
 
 RAM_End
 
@@ -1730,6 +1742,7 @@ SS_Object_RAM_End:
 
 				; The special stage mode also uses the rest of the RAM for
 				; different purposes.
+SS_Misc_Variables:
 PNT_Buffer:			ds.b	$700
 PNT_Buffer_End:
 SS_Horiz_Scroll_Buf_2:		ds.b	$400
@@ -1796,9 +1809,12 @@ SS_NoRingsTogoLifetime:	ds.w	1
 SS_RingsToGoBCD:		ds.w	1
 SS_HideRingsToGo:	ds.b	1
 SS_TriggerRingsToGo:	ds.b	1
+			ds.b	$58	; unused
+SS_Misc_Variables_End:
 
 	phase	ramaddr(Horiz_Scroll_Buf)	; Still in SS RAM
 SS_Horiz_Scroll_Buf_1:		ds.b	$400
+SS_Horiz_Scroll_Buf_1_End:
 
 	phase	ramaddr($FFFFF73E)	; Still in SS RAM
 SS_Offset_X:			ds.w	1
@@ -1807,6 +1823,7 @@ SS_Swap_Positions_Flag:	ds.b	1
 
 	phase	ramaddr(Sprite_Table)	; Still in SS RAM
 SS_Sprite_Table:			ds.b	$280	; Sprite attribute table buffer
+SS_Sprite_Table_End:
 				ds.b	$80	; unused, but SAT buffer can spill over into this area when there are too many sprites on-screen
 
 
@@ -1968,7 +1985,6 @@ ArtTile_VRAM_Start                    = $0000
 
 ; Common to 1p and 2p menus.
 ArtTile_ArtNem_FontStuff              = $0010
-ArtTile_MapEng_MenuBack               = $0700
 
 ; Sega screen
 ArtTile_ArtNem_Sega_Logo              = $0001
@@ -2117,7 +2133,7 @@ ArtTile_ArtNem_MtzMantis              = $043C
 ArtTile_ArtNem_MtzAsstBlocks          = $0500
 ArtTile_ArtNem_MtzLavaBubble          = $0536
 ArtTile_ArtNem_MtzCog                 = $055F
-ArtTile_ArtNem_MtzUnkBlocks           = $056B
+ArtTile_ArtNem_MtzSpinTubeFlash       = $056B
 
 ; WFZ
 ArtTile_ArtNem_WfzScratch             = $0379
@@ -2215,7 +2231,6 @@ ArtTile_ArtUnc_CNZSlotPics_2_2p       = $0760
 ArtTile_ArtUnc_CNZSlotPics_3_2p       = $0770
 
 ; CPZ
-ArtTile_ArtNem_ConstructionStripes_1  = $0328
 ArtTile_ArtUnc_CPZAnimBack            = $0370
 ArtTile_ArtNem_CPZMetalThings         = $0373
 ArtTile_ArtNem_ConstructionStripes_2  = $0394
@@ -2231,6 +2246,7 @@ ArtTile_ArtNem_Spiny                  = $052D
 
 ; DEZ
 ArtTile_ArtUnc_DEZAnimBack            = $0326
+ArtTile_ArtNem_ConstructionStripes_1  = $0328
 
 ; ARZ
 ArtTile_ArtNem_ARZBarrierThing        = $03F8
@@ -2299,7 +2315,6 @@ ArtTile_ArtNem_WFZBoss                = $0379
 ArtTile_ArtNem_DEZBoss                = $0330
 ArtTile_ArtNem_DEZWindow              = $0378
 ArtTile_ArtNem_SilverSonic            = $0380
-ArtTile_ArtNem_RobotnikUpper_DEZ      = ArtTile_ArtNem_RobotnikUpper - $1D8 ; Bad reused mappings...
 
 ; ---------------------------------------------------------------------------
 ; Universal locations.
@@ -2363,6 +2378,11 @@ ArtTile_ArtUnc_2p_life_counter        = ArtTile_ArtNem_HUD + $2A
 ArtTile_ArtUnc_2p_life_counter_lives  = ArtTile_ArtUnc_2p_life_counter + 9
 ArtTile_ArtNem_life_counter           = ArtTile_ArtNem_HUD + $10A
 ArtTile_ArtNem_life_counter_lives     = ArtTile_ArtNem_life_counter + 9
+
+; ---------------------------------------------------------------------------
+; 2p-mode HUD.
+ArtTile_Art_HUD_Text_2P               = ArtTile_ArtNem_HUD
+ArtTile_Art_HUD_Numbers_2P            = ArtTile_HUD_Score_E
 
 ; ---------------------------------------------------------------------------
 ; Unused objects, objects with mappings never loaded, objects with

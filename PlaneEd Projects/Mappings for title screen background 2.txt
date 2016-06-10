@@ -1,0 +1,10 @@
+Palette File: ../art/palettes/Title Background.bin
+Mapping File: ../mappings/misc/Mappings for title screen background 2.bin
+Art File: ../art/nemesis/Main patterns from title screen.bin
+Mapping Compression: Enigma
+Art Compression: Nemesis
+x-Size: 0x18
+y-Size: 0x1C
+Palette Offset: 0x00
+Palette Length: 0x20
+Tile Offset: 0x00

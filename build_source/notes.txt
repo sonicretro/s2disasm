@@ -9,6 +9,7 @@ splitrom.cpp -> splitrom.exe
 fixheader.cpp -> fixheader.exe
 fixpointer.cpp -> fixpointer.exe
 s2p2bin.cpp + KensSaxComp/S-Compressor.cpp -> s2p2bin.exe
+s2p2bin_plus.cpp + FW_KENSC/saxman.cpp -> s2p2bin_plus.exe
 
 
 As for AS, get it at http://john.ccac.rwth-aachen.de:8000/as/download.html

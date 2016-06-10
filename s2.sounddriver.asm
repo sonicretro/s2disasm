@@ -109,7 +109,7 @@ zTrack STRUCT DOTS
 	TempoDivider:		ds.b 1	; timing divisor; 1 = Normal, 2 = Half, 3 = Third...
 	DataPointerLow:		ds.b 1	; Track's position low byte
 	DataPointerHigh:	ds.b 1	; Track's position high byte
-	KeyOffset:		ds.b 1	; Key offset (from coord flag E9)
+	Transpose:		ds.b 1	; Transpose (from coord flag E9)
 	Volume:			ds.b 1	; channel volume (only ap plied at voice changes)
 	AMSFMSPan:		ds.b 1	; Panning / AMS / FMS settings
 	VoiceIndex:		ds.b 1	; Current voice in use OR current PSG tone
@@ -132,8 +132,8 @@ zTrack STRUCT DOTS
 	ModulationSteps:	ds.b 1	; Number of steps in modulation (divided by 2)
 	ModulationValLow:	ds.b 1	; Current modulation value low byte
 	ModulationValHigh:	ds.b 1	; Current modulation value high byte
-	FreqDisplacement:	ds.b 1	; Set by "alter notes" coord flag E1; used to add directly to FM/PSG frequency
-	FeedbackAlgo:		ds.b 1	; zVolTLMaskTbl value set during voice setting (value based on algorithm indexing zGain table)
+	Detune:			ds.b 1	; Set by detune coord flag E1; used to add directly to FM/PSG frequency
+	VolTLMask:		ds.b 1	; zVolTLMaskTbl value set during voice setting (value based on algorithm indexing zGain table)
 	PSGNoise:		ds.b 1	; PSG noise setting
 	VoicePtrLow:		ds.b 1	; low byte of custom voice table (for SFX)
 	VoicePtrHigh:		ds.b 1	; high byte of custom voice table (for SFX)
@@ -299,6 +299,7 @@ zPalModeByte:
 	db	0
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
+    if OptimiseDriver=0	; This is redundant: the Z80 is slow enough to not need to worry about this
 	align	8
 ;zsub_8
 zFMBusyWait:    rsttarget
@@ -308,6 +309,7 @@ zFMBusyWait:    rsttarget
 	jr	c,zFMBusyWait
 	ret
 ; End of function zFMBusyWait
+    endif
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
 	align	8
@@ -323,12 +325,16 @@ zWriteFMIorII:    rsttarget
 ;zsub_18
 zWriteFMI:    rsttarget
 	; Write reg/data pair to part I; 'a' is register, 'c' is data
+    if OptimiseDriver=0
 	push	af
 	rst	zFMBusyWait ; 'rst' is like 'call' but only works for 8-byte aligned addresses <= 38h
 	pop	af
+    endif
 	ld	(zYM2612_A0),a
 	push	af
+    if OptimiseDriver=0
 	rst	zFMBusyWait
+    endif
 	ld	a,c
 	ld	(zYM2612_D0),a
 	pop	af
@@ -340,12 +346,16 @@ zWriteFMI:    rsttarget
 ;zsub_28
 zWriteFMII:    rsttarget
 	; Write reg/data pair to part II; 'a' is register, 'c' is data
+    if OptimiseDriver=0
 	push	af
 	rst	zFMBusyWait
 	pop	af
+    endif
 	ld	(zYM2612_A1),a
 	push	af
+    if OptimiseDriver=0
 	rst	zFMBusyWait
+    endif
 	ld	a,c
 	ld	(zYM2612_D1),a
 	pop	af
@@ -353,7 +363,7 @@ zWriteFMII:    rsttarget
 ; End of function zWriteFMII
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
-	align	8
+	org	38h
 zVInt:    rsttarget
 	; This is called every VBLANK (38h is the interrupt entry point,
 	; and VBLANK is the only one Z80 is hooked up to.)
@@ -386,8 +396,8 @@ zUpdateEverything:
 	
 	; Apparently if this is 80h, it does not play anything new,
 	; otherwise it cues up the next play (flag from 68K for new item)
-	ld	a,	(zAbsVar.QueueToPlay)
-	cp		80h
+	ld	a,(zAbsVar.QueueToPlay)
+	cp	80h
 	call	nz,zPlaySoundByIndex	; If not 80h, we need to play something new!
 	
 	; Spindash update
@@ -461,6 +471,8 @@ zUpdateDAC:
 	ld	a,(zCurDAC)			; Get current DAC sound
 	sub	81h					; Subtract 81h (first DAC index is 81h)
 	ld	(zCurDAC),a			; Store that as current DAC sound
+	; The following two instructions are dangerous: they discard the upper
+	; two bits of zCurDAC, meaning you can only have 40h DAC samples.
 	add	a,a
 	add	a,a					; a *= 4 (each DAC entry is a pointer and length, 2+2)
 	add	a,zDACPtrTbl&0FFh	; Get low byte into table -> 'a'
@@ -601,10 +613,10 @@ zWaitLoop:
 	; that we'll call 'd'. At the start of decompression, d is $80. What happens is that d 
 	; is then added to the data extracted from the table using the nybble. So if the nybble 
 	; were 4, the 8 would be extracted from the table, then added to d, which is $80, 
-	; resulting in $88. This result is then put bank into d, then fed into the YM2612 for 
+	; resulting in $88. This result is then put back into d, then fed into the YM2612 for 
 	; processing. Then the next nybble is read, the data is extracted from the table, then 
 	; is added to d (remember, d is now changed because of the previous operation), then is 
-	; put bank into d, then is fed into the YM2612. This process is repeated until the number 
+	; put back into d, then is fed into the YM2612. This process is repeated until the number 
 	; of bytes as defined in the table above are read and decompressed."
 	
 	; In our case, the so-called 'd' value is shadow register 'a'
@@ -656,8 +668,8 @@ zloc_1A8:
 	ensure1byteoffset 10h
 ;zbyte_1B3
 zDACDecodeTbl:
-	db	   0,	 1,   2,   4,   8,  10h,  20h,  40h
-	db	 80h,	-1,  -2,  -4,  -8, -10h, -20h, -40h
+	db	   0,    1,   2,   4,   8,  10h,  20h,  40h
+	db	 80h,   -1,  -2,  -4,  -8, -10h, -20h, -40h
 	
 	; The following two tables are used for when an SFX terminates
 	; its track to properly restore the music track it temporarily took
@@ -717,9 +729,9 @@ zloc_20E:
 
 ;zloc_211
 zDACAfterDur:
-	ld	(ix+zTrack.DataPointerLow),	l		; Stores "hl" to the DAC track pointer memory
-	ld	(ix+zTrack.DataPointerHigh),	h
-	bit	2,(ix+zTrack.PlaybackControl)		; Is bit 2 (0x04) set on zTracksStart?
+	ld	(ix+zTrack.DataPointerLow),l		; Stores "hl" to the DAC track pointer memory
+	ld	(ix+zTrack.DataPointerHigh),h
+	bit	2,(ix+zTrack.PlaybackControl)		; Is SFX overriding this track?
 	ret	nz				; If so, we're done
 	ld	a,(ix+zTrack.SavedDAC)		; Check next note to play
 	cp	80h				; Is it a rest?
@@ -794,8 +806,22 @@ zFMSetFreq:
 	; 'a' holds a note to get frequency for
 	sub	80h
 	jr	z,zFMDoRest		; If this is a rest, jump to zFMDoRest
-	add	a,(ix+zTrack.KeyOffset)		; Add current channel key offset (coord flag E9)
+	add	a,(ix+zTrack.Transpose)		; Add current channel transpose (coord flag E9)
 	add	a,a				; Offset into Frequency table...
+    if OptimiseDriver
+	ld	d,12*2			; 12 notes per octave
+	ld	c,0			; clear c (will hold octave bits)
+
+-	sub	d			; Subtract 1 octave from the note
+	jr	c,+			; If this is less than zero, we are done
+	inc	c			; One octave up
+	jr	-
++
+	add	a,d			; Add 1 octave back (so note index is positive)
+	sla	c
+	sla	c
+	sla	c			; multiply octave value by 8, to get final octave bits
+    endif
 	add	a,zFrequencies&0FFh
 	ld	(zloc_292+2),a	; store into the instruction after zloc_292 (self-modifying code)
 ;	ld	d,a
@@ -805,7 +831,13 @@ zFMSetFreq:
 zloc_292:
 	ld	de,(zFrequencies)	; Stores frequency into "de"
 	ld	(ix+zTrack.FreqLow),e		; Frequency low byte   -> trackPtr + 0Dh
+    if OptimiseDriver
+	ld	a,d
+	or	c
+	ld	(ix+zTrack.FreqHigh),a		; Frequency high byte  -> trackPtr + 0Eh
+    else
 	ld	(ix+zTrack.FreqHigh),d		; Frequency high byte  -> trackPtr + 0Eh
+    endif
 	ret
 ; ---------------------------------------------------------------------------
 
@@ -839,15 +871,15 @@ zSetDuration:
 ;zloc_2BA
 zFinishTrackUpdate:
 	; Common finish-up routine used by FM or PSG
-	ld	(ix+zTrack.DataPointerLow),	l		; Stores "hl" to the track pointer memory
-	ld	(ix+zTrack.DataPointerHigh),	h
+	ld	(ix+zTrack.DataPointerLow),l		; Stores "hl" to the track pointer memory
+	ld	(ix+zTrack.DataPointerHigh),h
 	ld	a,(ix+zTrack.SavedDuration)		; Last set duration
 	ld	(ix+zTrack.DurationTimeout),a		; ... put into ticker
 	bit	4,(ix+zTrack.PlaybackControl)		; Is bit 4 (10h) "do not attack next note" set on playback?
 	ret	nz				; If so, quit
 	ld	a,(ix+zTrack.NoteFillMaster)		; Master "note fill" value -> a
 	ld	(ix+zTrack.NoteFillTimeout),a		; Reset 0Fh "note fill" value to master
-	ld	(ix+zTrack.VolFlutter),	0		; Reset PSG flutter byte
+	ld	(ix+zTrack.VolFlutter),0		; Reset PSG flutter byte
 	bit	3,(ix+zTrack.PlaybackControl)		; is modulation turned on?
 	ret	z				; if not, quit
 	ld	l,(ix+zTrack.ModulationPtrLow)		; Otherwise, get address of modulation setting
@@ -917,10 +949,10 @@ zDoModulation:
 	; This is a 16-bit sign extension for 'bc'
     if OptimiseDriver
 	ld	a,(ix+zTrack.ModulationDelta)		; Get current modulation change per step -> 'a'
-	ld	c,a							; bc = sign extension of delta
-	rla									; Carry contains sign of delta
-	sbc	a,a							; a = 0 or -1 if carry is 0 or 1
-	ld	b,a							; bc = sign extension of delta
+	ld	c,a
+	rla						; Carry contains sign of delta
+	sbc	a,a					; a = 0 or -1 if carry is 0 or 1
+	ld	b,a					; bc = sign extension of delta
     else
 	ld	b,0
 	ld	c,(ix+zTrack.ModulationDelta)		; Get current modulation change per step -> 'c'
@@ -945,15 +977,12 @@ zDoModulation:
 ; zword_359:
 	ensure1byteoffset 8Ch
 zPSGFrequencies:
-	dw	356h,  326h, 2F9h, 2CEh, 2A5h, 280h, 25Ch, 23Ah
-	dw	21Ah,  1FBh, 1DFh, 1C4h, 1ABh, 193h, 17Dh, 167h
-	dw	153h,  140h, 12Eh, 11Dh, 10Dh, 0FEh, 0EFh, 0E2h
-	dw	0D6h,  0C9h, 0BEh, 0B4h, 0A9h, 0A0h,  97h,  8Fh
-	dw	 87h,   7Fh,  78h,  71h,  6Bh,  65h,  5Fh,  5Ah
-	dw	 55h,   50h,  4Bh,  47h,  43h,  40h,  3Ch,  39h
-	dw	 36h,   33h,  30h,  2Dh,  2Bh,  28h,  26h,  24h
-	dw	 22h,   20h,  1Fh,  1Dh,  1Bh,  1Ah,  18h,  17h
-	dw	 16h,   15h,  13h,  12h,  11h,    0
+	dw	356h, 326h, 2F9h, 2CEh, 2A5h, 280h, 25Ch, 23Ah, 21Ah, 1FBh, 1DFh, 1C4h
+	dw	1ABh, 193h, 17Dh, 167h, 153h, 140h, 12Eh, 11Dh, 10Dh, 0FEh, 0EFh, 0E2h
+	dw	0D6h, 0C9h, 0BEh, 0B4h, 0A9h, 0A0h,  97h,  8Fh,  87h,  7Fh,  78h,  71h
+	dw	 6Bh,  65h,  5Fh,  5Ah,  55h,  50h,  4Bh,  47h,  43h,  40h,  3Ch,  39h
+	dw	 36h,  33h,  30h,  2Dh,  2Bh,  28h,  26h,  24h,  22h,  20h,  1Fh,  1Dh
+	dw	 1Bh,  1Ah,  18h,  17h,  16h,  15h,  13h,  12h,  11h,    0
 ; ---------------------------------------------------------------------------
 
 ;zloc_3E5
@@ -970,13 +999,21 @@ zFMPrepareNote:
 zFMUpdateFreq:
 	bit	2,(ix+zTrack.PlaybackControl)		; Is SFX overriding this track?
 	ret	nz				; If so, quit!
-	ld	h,0				; h = 0
-	ld	l,(ix+zTrack.FreqDisplacement)		; Get frequency adjust value
 	; This is a 16-bit sign extension of (ix+19h)
+    if OptimiseDriver
+	ld	a,(ix+zTrack.Detune)		; Get detune value
+	ld	l,a
+	rla					; Carry contains sign of detune
+	sbc	a,a				; a = 0 or -1 if carry is 0 or 1
+	ld	h,a				; hl = sign extension of detune
+    else
+	ld	h,0				; h = 0
+	ld	l,(ix+zTrack.Detune)		; Get detune value
 	bit	7,l				; Did prior value have 80h set?
 	jr	z,+				; If not, skip next step
 	ld	h,0FFh			; h = FFh
 +
+    endif
 	add	hl,de			; Alter frequency just a tad
 	ld	c,h				; Upper part of frequency as data to FM ('c')
 	ld	a,(ix+zTrack.VoiceControl)		; "voice control" byte -> 'a'
@@ -1043,7 +1080,7 @@ zPSGDoNext:
 zPSGSetFreq:
 	sub	81h				; a = a-$81 (zero-based index from lowest note)
 	jr	c,+				; If carry (only time that happens if 80h because of earlier logic) this is a rest!
-	add	a,(ix+zTrack.KeyOffset)		; Add current channel key offset (coord flag E9)
+	add	a,(ix+zTrack.Transpose)		; Add current channel transpose (coord flag E9)
 	add	a,a				; Multiply note value by 2
 	add	a,zPSGFrequencies&0FFh	; Point to proper place in table
 	ld	(zloc_46D+2),a	; store into the instruction after zloc_46D (self-modifying code)
@@ -1076,12 +1113,20 @@ zPSGUpdateFreq:
 	and	6
 	ret	nz				; If either bit 1 ("track in rest") and 2 ("SFX overriding this track"), quit!
 	; This is a 16-bit sign extension of (ix+19h) -> 'hl'
+    if OptimiseDriver
+	ld	a,(ix+zTrack.Detune)		; Get detune value
+	ld	l,a
+	rla					; Carry contains sign of detune
+	sbc	a,a				; a = 0 or -1 if carry is 0 or 1
+	ld	h,a				; hl = sign extension of detune
+    else
 	ld	h,0
-	ld	l,(ix+zTrack.FreqDisplacement)		; hl = "alter notes" value (coord flag E9)
+	ld	l,(ix+zTrack.Detune)		; hl = detune value (coord flag E9)
 	bit	7,l				; Did prior value have 80h set?
 	jr	z,+				; If not, skip next step
 	ld	h,0FFh			; sign extend negative value
 +
+    endif
 	add	hl,de			; Alter frequency just a tad
 	; This picks out the reg to write to the PSG
 	ld	a,(ix+zTrack.VoiceControl)		; Get "voice control" byte...
@@ -1151,7 +1196,7 @@ zPSGDoVolFX:
 	or	a				; test byte from before
 	jp	p,+				; Is it a positive value?
 	cp	80h				; Check if it's 80h (terminator to the "flutter" list)
-	jr	z,zloc_522		; If it is, then jump to zloc_522 (which just keeps at this flutter value, i.e. no more changes in volume)
+	jr	z,zVolEnvHold		; If it is, then jump to zVolEnvHold (which just keeps at this flutter value, i.e. no more changes in volume)
 +
 	add	a,b				; Apply this "flutter" to channel volume -> 'a'
 	ld	b,a				; a -> 'b'
@@ -1185,13 +1230,12 @@ zloc_515:				; If you get here, then "do not attack next note" was set...
 	jr	nz,zloc_505		; If it's not zero, then just process normally
 	ret
 ; ---------------------------------------------------------------------------
-
-zloc_522:
+; zloc_522:
+zVolEnvHold:
 	; This just decrements the flutter to keep it in place; no more volume changes in this list
     if FixDriverBugs
-	ld	a,(ix+zTrack.VolFlutter)
-	sub	2						; Put index back (before final volume value)
-	ld	(ix+zTrack.VolFlutter),a
+	dec	(ix+zTrack.VolFlutter)
+	dec	(ix+zTrack.VolFlutter)				; Put index back (before final volume value)
 	jr	zPSGDoVolFX				; Loop back and update volume 
     else
 	; DANGER! This effectively halts all future volume updates, breaking fades.
@@ -1217,15 +1261,31 @@ zPSGNoteOff:
 		
 	or	1Fh				; Attenuation Off
 	ld	(zPSG),a
+    if FixDriverBugs
+	; Without zInitMusicPlayback forcefully muting all channels, there's the
+	; risk of music accidentally playing noise because it can't detect if
+	; the PSG4/noise channel needs muting, on track initialisation.
+	; This bug can be heard be playing the End of Level music in CNZ, whose
+	; music uses the noise channel. S&K's driver contains a fix just like this.
+	cp	0DFh		; Are stopping PSG3?
+	ret	nz
+	ld	a,0FFh		; If so, stop noise channel while we're at it
+	ld	(zPSG),a	; Stop noise channel
+    endif
 	ret
 ; End of function zPSGNoteOff
 
 ; ---------------------------------------------------------------------------
 ; lookup table of FM note frequencies for instruments and sound effects
+    if OptimiseDriver
+	ensure1byteoffset 18h
+    else
 	ensure1byteoffset 0C0h
+    endif
 ; zbyte_534:
 zFrequencies:
 	dw 025Eh,0284h,02ABh,02D3h,02FEh,032Dh,035Ch,038Fh,03C5h,03FFh,043Ch,047Ch
+    if OptimiseDriver=0	; We will calculate these, instead, which will save space
 	dw 0A5Eh,0A84h,0AABh,0AD3h,0AFEh,0B2Dh,0B5Ch,0B8Fh,0BC5h,0BFFh,0C3Ch,0C7Ch
 	dw 125Eh,1284h,12ABh,12D3h,12FEh,132Dh,135Ch,138Fh,13C5h,13FFh,143Ch,147Ch
 	dw 1A5Eh,1A84h,1AABh,1AD3h,1AFEh,1B2Dh,1B5Ch,1B8Fh,1BC5h,1BFFh,1C3Ch,1C7Ch
@@ -1233,7 +1293,7 @@ zFrequencies:
 	dw 2A5Eh,2A84h,2AABh,2AD3h,2AFEh,2B2Dh,2B5Ch,2B8Fh,2BC5h,2BFFh,2C3Ch,2C7Ch
 	dw 325Eh,3284h,32ABh,32D3h,32FEh,332Dh,335Ch,338Fh,33C5h,33FFh,343Ch,347Ch
 	dw 3A5Eh,3A84h,3AABh,3AD3h,3AFEh,3B2Dh,3B5Ch,3B8Fh,3BC5h,3BFFh,3C3Ch,3C7Ch ; 96 entries
-
+    endif
 
 ;zloc_5F4
 zPSGSilenceAll:
@@ -1256,11 +1316,11 @@ zPauseMusic:
 	call	zFMSilenceAll
 	jp	zPSGSilenceAll
 +
-	push	ix			; Save ix
     if OptimiseDriver
 	xor	a				; a = 0
 	ld	(zAbsVar.StopMusic),a		; Clear pause/unpause flag
     else
+	push	ix			; Save ix (nothing uses this, beyond this point...)
 	ld	(ix+zVar.StopMusic),0		; Clear pause/unpause flag
 	xor	a				; a = 0
     endif
@@ -1278,8 +1338,10 @@ zPauseMusic:
 	call	zResumeTrack
 	xor	a				; a = 0
 	ld	(zDoSFXFlag),a	; Clear SFX updating flag
-	call	zBankSwitchToMusic	; Back to music
-	pop	ix				; Restore ix
+    if OptimiseDriver=0
+	call	zBankSwitchToMusic	; Back to music (Pointless: music isn't updated until the next frame)
+	pop	ix				; Restore ix (nothing uses this, beyond this point...)
+    endif
 	ret
 ; End of function zPauseMusic
 
@@ -1291,11 +1353,14 @@ zResumeTrack:
 	jr	z,+				; Branch if not
 	bit	2,(ix+zTrack.PlaybackControl)		; Is SFX overriding track?
 	jr	nz,+			; Branch if not
+    if OptimiseDriver=0
+	; cfSetVoiceCont already does this
 	ld	c,(ix+zTrack.AMSFMSPan)		; AMS/FMS/panning flags
 	ld	a,(ix+zTrack.VoiceControl)		; Get voice control bits...
 	and	3				; ... the FM portion of them
 	add	a,0B4h			; Command to select AMS/FMS/panning register
 	rst	zWriteFMIorII
+    endif
 	push	bc			; Save bc
 	ld	c,(ix+zTrack.VoiceIndex)		; Current track FM instrument
 	call	cfSetVoiceCont
@@ -1460,9 +1525,12 @@ zPlaySegaSound:
 ; ---------------------------------------------------------------------------
 ; zloc_73D:
 zPlayMusic:
+    if FixDriverBugs=0
+	; This is a workaround for a bug, where playing a new song will distort any SFX that were already playing
 	push	af
 	call	zStopSoundEffects		; Stop all sounds before starting BGM
 	pop	af
+    endif
 	ld	(zCurSong),a				; Get current BGM
 	cp	MusID_ExtraLife				; If NOT 1-up sound...
 	jr	nz,zloc_784					; ... skip over the following code
@@ -1599,17 +1667,26 @@ zBGMLoad:
 	push	iy				; Save 'iy'
 	ld	iy,zTracksStart		; 'iy' points to start of track memory
 	ld	c,(ix+4)			; Get tempo divider -> 'c'
+    if FixDriverBugs=0
+	; The bugfix in zInitMusicPlayback does this, already
 	ld	de,zFMDACInitBytes	; 'de' points to zFMDACInitBytes
+    endif
 
--	ld	(iy+zTrack.PlaybackControl),82h			; At "playback control" byte of this track, set "track is playing" bit and "SFX is overriding" (?) bit (I think just to keep it from playing until init is done)
+-	ld	(iy+zTrack.PlaybackControl),82h			; Set "track is playing" bit and "track at rest" bit
+    if FixDriverBugs=0
+	; The bugfix in zInitMusicPlayback does this, already
 	ld	a,(de)				; Get current byte from zFMDACInitBytes -> 'a'
 	inc	de					; will get next byte from zFMDACInitBytes next time
 	ld	(iy+zTrack.VoiceControl),a			; Store this byte to "voice control" byte
+    endif
 	ld	(iy+zTrack.TempoDivider),c			; Store timing divisor from header for this track
 	ld	(iy+zTrack.StackPointer),zTrack.GoSubStack	; set "gosub" (coord flag F8h) stack init value (starts at end of this track's memory)
 	ld	(iy+zTrack.AMSFMSPan),0C0h			; default Panning / AMS / FMS settings (only stereo L/R enabled)
 	ld	(iy+zTrack.DurationTimeout),1			; set current duration timeout to 1 (should expire next update, play first note, etc.)
+    if FixDriverBugs=0
+	; The bugfix in zInitMusicPlayback does this, already
 	push	de				; saving zFMDACInitBytes pointer
+    endif
 	push	bc				; saving number of channels and tempo divider ('bc' gets needlessly damaged by 'ldi' instructions coming up)
 	ld	a,iyl				; current track pointer low byte -> 'a'
 	add	a,zTrack.DataPointerLow
@@ -1629,7 +1706,10 @@ zBGMLoad:
 	ld	de,zTrack.len			; size of all tracks -> 'de'
 	add	iy,de				; offset to next track!
 	pop	bc					; restore 'bc' (number of channels and tempo divider)
+    if FixDriverBugs=0
+	; The bugfix in zInitMusicPlayback does this, already
 	pop	de					; restore 'de' (zFMDACInitBytes current pointer)
+    endif
 	djnz	-				; loop for all tracks we're init'ing...
 	; End of FM+DAC track init loop
 
@@ -1638,13 +1718,18 @@ zBGMLoad:
 	cp	7					; Does it equal 7?  (6 FM channels)
 	jr	nz,+				; If not, skip this next part
 	xor	a					; Clear 'a'
+    if OptimiseDriver=0
 	ld	c,a					; c = 0
+    endif
 	jr	zloc_87E			; jump to zloc_87E
 +
 	; Silence FM Channel 6 specifically if it's not in use
+    if OptimiseDriver=0
+	; A later call to zFMNoteOff does this, already
 	ld	a,28h				; Key on/off FM register
 	ld	c,6					; FM channel 6
 	rst	zWriteFMI			; All operators off
+    endif
 	ld	a,42h				; Starting at FM Channel 6 Operator 1 Total Level register
 	ld	c,0FFh				; Silence value
 	ld	b,4					; Write to all four FM Channel 6 operators
@@ -1658,9 +1743,14 @@ zBGMLoad:
 	ld	c,0C0h				; default Panning / AMS / FMS settings (only stereo L/R enabled)
 	rst	zWriteFMII			; Set it!
 	ld	a,80h				; FM Channel 6 is NOT in use (will enable DAC)
+    if OptimiseDriver=0
 	ld	c,a					; Set this as value to be used in FM register write coming up...
+    endif
 
 zloc_87E:
+    if OptimiseDriver
+	ld	c,a
+    endif
 	ld	(zAbsVar.DACEnabled),a	; Note whether FM Channel 6 is in use (enables DAC if not)
 	ld	a,2Bh				; Set DAC Enable appropriately
 	rst	zWriteFMI			; Set it!
@@ -1675,16 +1765,25 @@ zloc_884:
 	push	iy				; Save 'iy'
 	ld	iy,zSongPSG1		; 'iy' points to start of PSG track memory (7 prior tracks were DAC and 6 FM)
 	ld	c,(ix+4)			; Get tempo divider -> 'c'
+    if FixDriverBugs=0
+	; The bugfix in zInitMusicPlayback does this, already
 	ld	de,zPSGInitBytes	; 'de' points to zPSGInitBytes
+    endif
 
--	ld	(iy+zTrack.PlaybackControl),82h			; At "playback control" byte of this track, set "track is playing" bit and "SFX is overriding" (?) bit (I think just to keep it from playing until init is done)
+-	ld	(iy+zTrack.PlaybackControl),82h			; Set "track is playing" bit and "track at rest" bit
+    if FixDriverBugs=0
+	; The bugfix in zInitMusicPlayback does this, already
 	ld	a,(de)				; Get current byte from zPSGInitBytes -> 'a'
 	inc	de					; will get next byte from zPSGInitBytes next time
 	ld	(iy+zTrack.VoiceControl),a			; Store this byte to "voice control" byte
+    endif
 	ld	(iy+zTrack.TempoDivider),c			; Store timing divisor from header for this track
 	ld	(iy+zTrack.StackPointer),zTrack.GoSubStack	; "gosub" stack init value
 	ld	(iy+zTrack.DurationTimeout),1			; set current duration timeout to 1 (should expire next update, play first note, etc.)
+    if FixDriverBugs=0
+	; The bugfix in zInitMusicPlayback does this, already
 	push	de				; saving zPSGInitBytes pointer
+    endif
 	push	bc				; saving number of channels and tempo divider ('bc' gets needlessly damaged by 'ldi' instructions coming up)
 	ld	a,iyl				; current track pointer low byte -> 'a'
 	add	a,zTrack.DataPointerLow
@@ -1708,7 +1807,10 @@ zloc_884:
 	ld	de,zTrack.len			; size of all tracks -> 'de'
 	add	iy,de				; offset to next track!
 	pop	bc					; restore 'bc' (number of channels and tempo divider)
+    if FixDriverBugs=0
+	; The bugfix in zInitMusicPlayback does this, already
 	pop	de					; restore 'de' (zPSGInitBytes current pointer)
+    endif
 	djnz	-				; loop for all tracks we're init'ing...
 
 	pop	iy					; restore 'iy'
@@ -1740,7 +1842,11 @@ zloc_8F1:
 	ld	(zloc_8F6+1),a			; store into the instruction after zloc_8F6 (self-modifying code)
 zloc_8F6:
 	ld	hl,(zMusicTrackOffs)	; This loads address of corresponding MUSIC track (the track that this SFX track would normally play over)
-	res	2,(hl)				; Clear the "SFX override" bit; this SFX track isn't overriding that music track now
+    if FixDriverBugs
+	set	2,(hl)				; Set the "SFX override" bit
+    else
+	res	2,(hl)				; Clear the "SFX override" bit (Why??? According to S1's driver, this should be a 'set')
+    endif
 
 zloc_8FB:
 	add	ix,de				; Next track..
@@ -1750,9 +1856,20 @@ zloc_8FB:
 	ld	ix,zSongFM1	; 'ix' points to first FM music track
 	ld	b,(zSongPSG1-zSongFM1)/zTrack.len							; For all 6 of those...
 
+    if FixDriverBugs
+	; zFMNoteOff isn't enough to silence the entire channel:
+	; For added measure, we set Total Level and Release Rate, too.
+-	push	bc
+	bit	2,(ix+0)		; Is bit 2 (SFX overriding) set?
+	call	z,zFMSilenceChannel	; If not, branch
+	add	ix,de						; Next track
+	pop	bc
+	djnz	-
+    else
 -	call	zFMNoteOff				; Send Key Off
 	add	ix,de						; Next track
 	djnz	-
+    endif
 
 	ld	b,(zTracksEnd-zSongPSG1)/zTrack.len								; For all 3 PSG tracks...
 
@@ -1761,6 +1878,32 @@ zloc_8FB:
 	djnz	-
 
 	ret
+
+    if FixDriverBugs
+zFMSilenceChannel:
+	call	zSetMaxRelRate
+	ld	a,(ix+1)		; Get voice control byte
+	and	3			; Channels only!
+	add	a,40h			; Set total level...
+	ld	c,7Fh			; ... to minimum envelope amplitude...
+	call	zFMOperatorWriteLoop	; ... for all operators of this track's channel
+	jp	zFMNoteOff
+
+zSetMaxRelRate:
+	ld	a,(ix+1)		; Get voice control byte
+	and	3			; Channels only!
+	add	a,80h			; Add register 80, set D1L to minimum and RR to maximum...
+	ld	c,0FFh			; ... for all operators on this track's channel
+
+zFMOperatorWriteLoop:
+	ld	b,4			; Loop 4 times
+
+.loop:
+	rst	zWriteFMIorII		; Write to part I or II, as appropriate
+	add	a,4			; a += 4
+	djnz	.loop			; Loop
+	ret
+    endif
 
 ; ---------------------------------------------------------------------------
 ; FM channel assignment bits
@@ -1806,7 +1949,7 @@ zPlaySound_CheckGloop:
 	ld	(zGloopFlag),a
 	or	a
 	ret	z ; sometimes don't play it
-	jp	zPlaySound ; now play the play the gloop sound
+	jp	zPlaySound ; now play the gloop sound
 ; ---------------------------------------------------------------------------
 ; zloc_953:
 zPlaySound_CheckSpindash:
@@ -1931,7 +2074,7 @@ zloc_9D9:
 	ld	(ix+zTrack.DurationTimeout),1						; current duration timeout to 1 (will expire immediately and thus update)
 	ld	(ix+zTrack.StackPointer),zTrack.GoSubStack				; Reset track "gosub" stack
 	ld	a,e
-	add	a,(zTrack.DataPointerLow-zTrack.VoiceControl)-1
+	add	a,zTrack.DataPointerLow-zTrack.TempoDivider
 	ld	e,a
 	adc	a,d
 	sub	e
@@ -2018,7 +2161,7 @@ zloc_A6C:
 	call	zSetVoiceMusic				; Reset FM voice
 +
 	pop	ix
-	jp	zloc_AB6						; jump down to loo
+	jp	zloc_AB6						; jump down to loop
 ; ---------------------------------------------------------------------------
 
 zloc_A89:
@@ -2234,9 +2377,30 @@ zInitMusicPlayback:
 	ld	(ix+zVar.1upPlaying),c		; 1-up playing flag
 	ld	a,80h
 	ld	(zAbsVar.QueueToPlay),a
-	; Silence hardware!
+
+    if FixDriverBugs
+	; If a music file's header doesn't define each and every channel, they
+	; won't be silenced by zloc_8FB, because their tracks aren't properly
+	; initialised. This can cause hanging notes. So, we'll set them up
+	; properly here.
+	ld	ix,zTracksStart			; Start at the first music track...
+	ld	b,(zTracksEnd-zTracksStart)/zTrack.len	; ...and continue to the last
+	ld	de,zTrack.len
+	ld	hl,zFMDACInitBytes		; This continues into zPSGInitBytes
+
+-	ld	a,(hl)
+	inc	hl
+	ld	(ix+zTrack.VoiceControl),a	; Set channel type while we're at it, so subroutines understand what the track is
+	add	ix,de				; Next track
+	djnz	-				; loop for all channels
+
+	ret
+    else
+	; This silences all channels, even those being used by SFX!
+	; zloc_8FB does the same thing, only better (it doesn't affect SFX channels)
 	call	zFMSilenceAll
 	jp	zPSGSilenceAll
+    endif
 ; End of function zInitMusicPlayback
 
 ; ---------------------------------------------------------------------------
@@ -2365,7 +2529,7 @@ zFMNoteOn:
 ;zsub_C56
 zFMNoteOff:
 	ld	a,(ix+zTrack.PlaybackControl)		; Load this track's playback control byte
-	and	14h				; Are bits 4 (0x10) or 2 (0x4) set?
+	and	14h				; Are bits 4 (no attack) or 2 (SFX overriding) set?
 	ret	nz				; If they are, return
 	ld	a,28h			; Otherwise, send a KEY ON/OFF
 	ld	c,(ix+zTrack.VoiceControl)		; Track's data for this key operation
@@ -2419,7 +2583,7 @@ coordflagLookup:
 	jp	cfPanningAMSFMS		; E0
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfAlterNotes		; E1
+	jp	cfDetune		; E1
 	nop
 ; ---------------------------------------------------------------------------
 	jp	cfSetCommunication	; E2
@@ -2443,7 +2607,7 @@ coordflagLookup:
 	jp	cfNoteFill		; E8
 	nop
 ; ---------------------------------------------------------------------------
-	jp	cfAddKey		; E9
+	jp	cfChangeTransposition	; E9
 	nop
 ; ---------------------------------------------------------------------------
 	jp	cfSetTempo		; EA
@@ -2513,13 +2677,24 @@ cfPanningAMSFMS:
 		
 	bit	7,(ix+zTrack.VoiceControl)		; a PSG track
 	ret	m				; If so, quit!
-	bit	2,(ix+zTrack.PlaybackControl)		; If "do not attack next note" bit set...
+    if FixDriverBugs=0
+	; This check is in the wrong place.
+	; If this flag is triggered by a music track while it's being overridden
+	; by an SFX, it will use the old panning when the SFX ends.
+	; This is because zTrack.AMSFMSPan doesn't get updated.
+	bit	2,(ix+zTrack.PlaybackControl)		; If "SFX overriding" bit set...
 	ret	nz				; return
+    endif
 	ld	c,a				; input val 'a' -> c
 	ld	a,(ix+zTrack.AMSFMSPan)		; old PAF value
 	and	37h				; retains bits 0-2, 3-4?
 	or	c				; OR'd with new settings
 	ld	(ix+zTrack.AMSFMSPan),a		; new PAF value
+    if FixDriverBugs
+	; The check should only stop hardware access, like this.
+	bit	2,(ix+zTrack.PlaybackControl)		; If "SFX overriding" bit set...
+	ret	nz				; return
+    endif
 	ld	c,a				; a -> c (YM2612 data write)
 	ld	a,(ix+zTrack.VoiceControl)		; Get voice control byte
 	and	3				; Channels only!
@@ -2530,9 +2705,9 @@ cfPanningAMSFMS:
 
 ; (via Saxman's doc): Alter note values by xx 
 ; More or less a pitch bend; this is applied to the frequency as a signed value
-;zloc_D1A cfAlterNotesUNK
-cfAlterNotes:
-	ld	(ix+zTrack.FreqDisplacement),a		; set new frequency adjust
+;zloc_D1A cfAlterNotesUNK cfAlterNotes:
+cfDetune:
+	ld	(ix+zTrack.Detune),a		; set new detune value
 	ret
 ; ---------------------------------------------------------------------------
 
@@ -2671,10 +2846,10 @@ cfNoteFill:
 ; ---------------------------------------------------------------------------
 
 ; (via Saxman's doc): add xx to channel key 
-;zloc_DD1
-cfAddKey:
-	add	a,(ix+zTrack.KeyOffset)	; Add to current transpose value
-	ld	(ix+zTrack.KeyOffset),a	; Store updated transpose value
+;zloc_DD1 cfAddKey:
+cfChangeTransposition:
+	add	a,(ix+zTrack.Transpose)	; Add to current transpose value
+	ld	(ix+zTrack.Transpose),a	; Store updated transpose value
 	ret
 ; ---------------------------------------------------------------------------
 
@@ -2867,7 +3042,7 @@ zloc_E65:
 	ld	e,a					; Puts this low byte into 'e'
 	ld	d,(zVolTLMaskTbl&0FF00h)>>8	; Get high byte -> 'd'
 	ld	a,(de)				; Get this zVolTLMaskTbl value by algorithm
-	ld	(ix+zTrack.FeedbackAlgo),a			; Store this zVolTLMaskTbl value into (ix+1Ah)
+	ld	(ix+zTrack.VolTLMask),a			; Store this zVolTLMaskTbl value into (ix+1Ah)
 	ld	e,a					; Store zVolTLMaskTbl value -> 'e'
 	ld	d,(ix+zTrack.Volume)			; Store channel volume -> 'd'
 	pop	af					; Restore 'a'; it's now back at appropriate 40h+ register for Total Level setting!
@@ -2907,7 +3082,7 @@ zSetChanVol:
 	ret	nz				; If so, quit!
 	bit	2,(ix+zTrack.PlaybackControl)		; If playback control byte "SFX is overriding this track" bit set...
 	ret	nz				; ... then quit!
-	ld	e,(ix+zTrack.FeedbackAlgo)		; zVolTLMaskTbl value from last voice setting (marks which specific TL operators need updating)
+	ld	e,(ix+zTrack.VolTLMask)		; zVolTLMaskTbl value from last voice setting (marks which specific TL operators need updating)
 	ld	a,(ix+zTrack.VoiceControl)		; Load current voice control byte
 	and	3				; Keep only bits 0-2
 	add	a,40h			; Add 40h -- appropriate TL register

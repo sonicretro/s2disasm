@@ -1,0 +1,10 @@
+Palette File: ../art/palettes/Menu.bin
+Mapping File: ../mappings/misc/Sonic and Miles animated background.bin
+Art File: ../art/uncompressed/Sonic and Miles animated background.bin
+Mapping Compression: Enigma
+Art Compression: None
+x-Size: 0x28
+y-Size: 0x1C
+Palette Offset: 0x60
+Palette Length: 0x20
+Tile Offset: 0x01
