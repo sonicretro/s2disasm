@@ -16,7 +16,7 @@ namespace S2ObjectDefinitions.Common
 		{
 			List<byte> tmpartfile = new List<byte>();
 			tmpartfile.AddRange(ObjectHelper.OpenArtFile("Common/pathswapper-art.bin", CompressionType.Nemesis));
-			byte[] mapfile = System.IO.File.ReadAllBytes("../mappings/sprite/obj03.asm");
+			string mapfile = "../mappings/sprite/obj03.asm";
 			byte[] artfile1 = tmpartfile.ToArray();
 			img = ObjectHelper.MapASMToBmp(artfile1, mapfile, 0, 0);
 			Point off;
@@ -26,7 +26,7 @@ namespace S2ObjectDefinitions.Common
 			for (int i = 0; i < 32; i++)
 			{
 				byte[] artfile = tmpartfile.GetRange(((i & 0x1C) << 5), 128).ToArray();
-				BitmapBits tempim = ObjectHelper.MapToBmp(artfile, mapfile, (i & 4), 0).Image;
+				BitmapBits tempim = ObjectHelper.MapASMToBmp(artfile, mapfile, (i & 4), 0).Image;
 				if ((i & 4) != 0)
 				{
 					im = new BitmapBits(tempim.Width * (1 << (i & 3)), tempim.Height);
