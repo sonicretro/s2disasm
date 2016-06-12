@@ -15425,7 +15425,7 @@ SwScrl_MCZ:
 	move.w	d1,(a3)+
 	move.w	d1,(a2)
 	move.w	d1,$16(a2)
-	lea	(byte_CE6C).l,a3
+	lea	(SwScrl_MCZ_RowHeights).l,a3
 	lea	(TempArray_LayerDef).w,a2
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_BG_Y_pos).w,d1
@@ -15455,7 +15455,8 @@ SwScrl_MCZ:
 
 	rts
 ; ===========================================================================
-byte_CE6C:
+; byte_CE6C:
+SwScrl_MCZ_RowHeights:
 	dc.b $25
 	dc.b $17	; 1
 	dc.b $12	; 2
@@ -15480,6 +15481,7 @@ byte_CE6C:
 	dc.b $12	; 21
 	dc.b $17	; 22
 	dc.b $25	; 23
+	even
 ; ===========================================================================
 ; loc_CE84:
 SwScrl_MCZ_2P:
@@ -15557,7 +15559,7 @@ SwScrl_MCZ_2P:
 	move.w	d1,(a3)+
 	move.w	d1,(a2)
 	move.w	d1,$16(a2)
-	lea	(byte_CF90).l,a3
+	lea	(SwScrl_MCZ2P_RowHeights).l,a3
 	lea	(TempArray_LayerDef).w,a2
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_BG_Y_pos).w,d1
@@ -15588,7 +15590,8 @@ SwScrl_MCZ_2P:
 
 	bra.s	+
 ; ===========================================================================
-byte_CF90:
+; byte_CF90:
+SwScrl_MCZ2P_RowHeights:
 	dc.b $13
 	dc.b  $B
 	dc.b   9	; 1
@@ -15613,6 +15616,7 @@ byte_CF90:
 	dc.b   9	; 20
 	dc.b  $B	; 21
 	dc.b $13	; 22
+	even
 ; ===========================================================================
 +
 	moveq	#0,d0
@@ -15692,7 +15696,7 @@ byte_CF90:
 	move.w	d1,(a3)+
 	move.w	d1,(a2)
 	move.w	d1,$16(a2)
-	lea_	byte_CF90+1,a3
+	lea_	SwScrl_MCZ2P_RowHeights+1,a3
 	lea	(TempArray_LayerDef).w,a2
 	lea	(Horiz_Scroll_Buf+$1B0).w,a1
 	move.w	(Camera_BG_Y_pos_P2).w,d1
@@ -15736,7 +15740,7 @@ SwScrl_CNZ:
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	move.w	(Camera_X_pos).w,d2
 	bsr.w	sub_D160
-	lea	(byte_D156).l,a3
+	lea	(SwScrl_CNZ_RowHeights).l,a3
 	lea	(TempArray_LayerDef).w,a2
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_BG_Y_pos).w,d1
@@ -15787,7 +15791,8 @@ SwScrl_CNZ:
 	subi.w	#$10,d2
 	bra.s	--
 ; ===========================================================================
-byte_D156:
+; byte_D156:
+SwScrl_CNZ_RowHeights:
 	dc.b  $10
 	dc.b  $10	; 1
 	dc.b  $10	; 2
@@ -15798,6 +15803,7 @@ byte_D156:
 	dc.b  $10	; 7
 	dc.b    0	; 8
 	dc.b -$10	; 9
+	even
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -15844,7 +15850,7 @@ SwScrl_CNZ_2P:
 	moveq	#0,d0
 	move.w	(Camera_X_pos).w,d0
 	move.w	#$6F,d2
-	lea	(byte_D270+2).l,a3
+	lea	(SwScrl_CNZ2P_RowHeights+2).l,a3
 	bsr.s	sub_D216
 	move.w	(Camera_Y_pos_P2).w,d0
 	lsr.w	#6,d0
@@ -15861,7 +15867,7 @@ SwScrl_CNZ_2P:
 	moveq	#0,d0
 	move.w	(Camera_X_pos_P2).w,d0
 	move.w	#bytesToLcnt($1D0),d2
-	lea	(byte_D270+1).l,a3
+	lea	(SwScrl_CNZ2P_RowHeights+1).l,a3
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -15917,7 +15923,8 @@ sub_D216:
 ; End of function sub_D216
 
 ; ===========================================================================
-byte_D270:
+; byte_D270:
+SwScrl_CNZ2P_RowHeights:
 	dc.b   4
 	dc.b   4	; 1
 	dc.b   8	; 2
@@ -15930,6 +15937,7 @@ byte_D270:
 	dc.b   8	; 9
 	dc.b   0	; 10
 	dc.b $78	; 11
+	even
 ; ===========================================================================
 ; loc_D27C:
 SwScrl_CPZ:
@@ -16092,7 +16100,7 @@ SwScrl_DEZ:
 	move.w	d4,(a2)+
 	move.w	d4,(a2)+
 	move.w	d4,(a2)+
-	lea	(byte_D48A).l,a3
+	lea	(SwScrl_DEZ_RowHeights).l,a3
 	lea	(TempArray_LayerDef).w,a2
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_BG_Y_pos).w,d1
@@ -16141,13 +16149,45 @@ SwScrl_DEZ:
 +
 	rts
 ; ===========================================================================
-; unknown data
-byte_D48A:
-	dc.b $80,8,8,8,8,8,8,8 ; 8
-	dc.b 8,8,8,8,8,8,8,8 ; 16
-	dc.b 8,8,8,8,8,8,8,8 ; 24
-	dc.b 8,8,8,8,8,3,5,8 ; 32
-	dc.b $10,$80,$80,$80 ; 36
+; byte_D48A:
+SwScrl_DEZ_RowHeights:
+	dc.b $80
+	dc.b   8	; 1
+	dc.b   8	; 2
+	dc.b   8	; 3
+	dc.b   8	; 4
+	dc.b   8	; 5
+	dc.b   8	; 6
+	dc.b   8	; 7
+	dc.b   8	; 8
+	dc.b   8	; 9
+	dc.b   8	; 10
+	dc.b   8	; 11
+	dc.b   8	; 12
+	dc.b   8	; 13
+	dc.b   8	; 14
+	dc.b   8	; 15
+	dc.b   8	; 16
+	dc.b   8	; 17
+	dc.b   8	; 18
+	dc.b   8	; 19
+	dc.b   8	; 20
+	dc.b   8	; 21
+	dc.b   8	; 22
+	dc.b   8	; 23
+	dc.b   8	; 24
+	dc.b   8	; 25
+	dc.b   8	; 26
+	dc.b   8	; 27
+	dc.b   8	; 28
+	dc.b   3	; 29
+	dc.b   5	; 30
+	dc.b   8	; 31
+	dc.b $10	; 32
+	dc.b $80	; 33
+	dc.b $80	; 34
+	dc.b $80	; 35
+	even
 ; ===========================================================================
 ; loc_D4AE:
 SwScrl_ARZ:
