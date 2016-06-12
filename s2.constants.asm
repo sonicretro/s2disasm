@@ -232,6 +232,20 @@ next_bumper         = 6
 prev_bumper_x       = bumper_x-next_bumper
 
 ; ---------------------------------------------------------------------------
+; status_secondary bitfield variables
+;
+; status_secondary variable bit numbers
+status_sec_hasShield:		EQU	0
+status_sec_isInvincible:	EQU	1
+status_sec_hasSpeedShoes:	EQU	2
+status_sec_isSliding:		EQU	7
+; status_secondary variable masks (1 << x == pow(2, x))
+status_sec_hasShield_mask:	EQU	1<<status_sec_hasShield		; $01
+status_sec_isInvincible_mask:	EQU	1<<status_sec_isInvincible	; $02
+status_sec_hasSpeedShoes_mask:	EQU	1<<status_sec_hasSpeedShoes	; $04
+status_sec_isSliding_mask:	EQU	1<<status_sec_isSliding		; $80
+
+; ---------------------------------------------------------------------------
 ; Constants that can be used instead of hard-coded IDs for various things.
 ; The "id" function allows to remove elements from an array/table without having
 ; to change the IDs everywhere in the code.
