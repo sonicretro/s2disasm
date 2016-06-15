@@ -4133,19 +4133,22 @@ TailsNameCheat_Buttons:
 ; ArtNem_3DF4:
 ArtNem_Player1VS2:	BINCLUDE	"art/nemesis/1Player2VS.bin"
 
+	charset '0','9',0 ; Add charset for numbers
+	charset 'A','Z',$E ; Add charset for letters
+
 ; word_3E82:
 CopyrightText:
 	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + $0B,0,0)	; (C)
 	dc.w  make_art_tile(ArtTile_VRAM_Start,0,0)	;
-	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + $01,0,0)	; 1
-	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + $09,0,0)	; 9
-	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + $09,0,0)	; 9
-	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + $02,0,0)	; 2
+	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + '1',0,0)	; 1
+	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + '9',0,0)	; 9
+	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + '9',0,0)	; 9
+	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + '2',0,0)	; 2
 	dc.w  make_art_tile(ArtTile_VRAM_Start,0,0)	;
-	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + $20,0,0)	; S
-	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + $12,0,0)	; E
-	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + $14,0,0)	; G
-	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + $0E,0,0)	; A
+	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + 'S',0,0)	; S
+	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + 'E',0,0)	; E
+	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + 'G',0,0)	; G
+	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + 'A',0,0)	; A
 CopyrightText_End:
 
     if ~~removeJmpTos
