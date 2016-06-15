@@ -4151,6 +4151,8 @@ CopyrightText:
 	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + 'A',0,0)	; A
 CopyrightText_End:
 
+    charset
+
     if ~~removeJmpTos
 ; sub_3E98:
 JmpTo_SwScrl_Title 
