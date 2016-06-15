@@ -4133,8 +4133,8 @@ TailsNameCheat_Buttons:
 ; ArtNem_3DF4:
 ArtNem_Player1VS2:	BINCLUDE	"art/nemesis/1Player2VS.bin"
 
-	charset '0','9',0 ; Add charset for numbers
-	charset 'A','Z',$E ; Add charset for letters
+	charset '0','9',0 ; Add character set for numbers
+	charset 'A','Z',$E ; Add character set for letters
 
 ; word_3E82:
 CopyrightText:
@@ -4151,7 +4151,7 @@ CopyrightText:
 	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + 'A',0,0)	; A
 CopyrightText_End:
 
-    charset
+    charset ; Revert character set
 
     if ~~removeJmpTos
 ; sub_3E98:
