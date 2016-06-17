@@ -73233,7 +73233,7 @@ loc_38FE8:
 ; ===========================================================================
 
 loc_3900A:
-	move.b	#0,objoff_2A(a2)
+	move.b	#0,obj_control(a2)
 	bset	#1,status(a2)
 	bra.w	JmpTo65_DeleteObject
 ; ===========================================================================
@@ -73379,9 +73379,9 @@ loc_390FA:
 	clr.w	y_vel(a0)
 	clr.b	collision_flags(a0)
 	movea.w	objoff_32(a0),a2 ; a2=object
-	move.b	#0,objoff_2A(a2)
+	move.b	#0,obj_control(a2)
 	bset	#1,status(a2)
-	move.b	#0,anim(a2)
+	move.b	#AniIDSonAni_Walk,anim(a2)
 	clr.w	objoff_32(a0)
 +
 	move.b	#$20,objoff_37(a0)
