@@ -4134,11 +4134,15 @@ TailsNameCheat_Buttons:
 ArtNem_Player1VS2:	BINCLUDE	"art/nemesis/1Player2VS.bin"
 
 	charset '0','9',0 ; Add character set for numbers
+	charset '*',$A ; Add character for star
+	charset '@',$B ; Add character for copyright symbol
+	charset ':',$C ; Add character for colon
+	charset '.',$D ; Add character for period
 	charset 'A','Z',$E ; Add character set for letters
 
 ; word_3E82:
 CopyrightText:
-	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + $0B,0,0)	; (C)
+	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + '@',0,0)	; (C)
 	dc.w  make_art_tile(ArtTile_VRAM_Start,0,0)	;
 	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + '1',0,0)	; 1
 	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + '9',0,0)	; 9
