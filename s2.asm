@@ -50981,9 +50981,9 @@ loc_27BDE:
 	bne.s	loc_27C2E
 	move.b	objoff_3C(a0),d1
 	move.b	status(a0),d0
-	btst	#3,d0
+	btst	#p1_standing_bit,d0
 	bne.s	loc_27C0A
-	btst	#3,d1
+	btst	#p1_standing_bit,d1
 	beq.s	loc_27C0E
 	move.b	#1,objoff_36(a0)
 	move.b	#0,objoff_3C(a0)
@@ -50994,9 +50994,9 @@ loc_27C0A:
 	move.b	d0,objoff_3C(a0)
 
 loc_27C0E:
-	btst	#4,d0
+	btst	#p2_standing_bit,d0
 	bne.s	loc_27C28
-	btst	#4,d1
+	btst	#p2_standing_bit,d1
 	beq.s	loc_27C3E
 	move.b	#1,objoff_36(a0)
 	move.b	#0,objoff_3C(a0)
