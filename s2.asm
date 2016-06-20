@@ -1262,7 +1262,7 @@ ClearScreen:
 	clr.l	(Vscroll_Factor).w
 	clr.l	(unk_F61A).w
 
-	; These '+4's shouldn't be here; clearRAM accidentally clears an additional 4 bytes
+	; Bug: These '+4's shouldn't be here; clearRAM accidentally clears an additional 4 bytes
 	clearRAM Sprite_Table,(Sprite_Table_End-Sprite_Table)+4
 	clearRAM Horiz_Scroll_Buf,(Horiz_Scroll_Buf_End-Horiz_Scroll_Buf)+4
 
@@ -4278,7 +4278,7 @@ Level_ClrRam:
 	clearRAM MiscLevelVariables,(MiscLevelVariables_End-MiscLevelVariables)
 	clearRAM Misc_Variables,(Misc_Variables_End-Misc_Variables)
 	clearRAM Oscillating_Data,(Oscillating_variables_End-Oscillating_variables)
-	; The '+C0' shouldn't be here; CNZ_saucer_data is only $40 bytes large
+	; Bug: The '+C0' shouldn't be here; CNZ_saucer_data is only $40 bytes large
 	clearRAM CNZ_saucer_data,(CNZ_saucer_data_End-CNZ_saucer_data)+$C0
 
 	cmpi.w	#chemical_plant_zone_act_2,(Current_ZoneAndAct).w ; CPZ 2
@@ -5998,7 +5998,7 @@ SpecialStage:
 ; | Now we clear out some regions in main RAM where we want to store some  |
 ; | of our data structures.                                                |
 ; \------------------------------------------------------------------------/
-	; These '+4's shouldn't be here; clearRAM accidentally clears an additional 4 bytes
+	; Bug: These '+4's shouldn't be here; clearRAM accidentally clears an additional 4 bytes
 	clearRAM SS_Sprite_Table,(SS_Sprite_Table_End-SS_Sprite_Table)+4
 	clearRAM SS_Horiz_Scroll_Buf_1,(SS_Horiz_Scroll_Buf_1_End-SS_Horiz_Scroll_Buf_1)+4
 	clearRAM SS_Misc_Variables,(SS_Misc_Variables_End-SS_Misc_Variables)+4
@@ -12383,7 +12383,7 @@ EndingSequence:
 	move.w	d0,(Ending_VInt_Subrout).w
 	move.w	d0,(Credits_Trigger).w
 
-	; The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
+	; Bug: The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
 	clearRAM Horiz_Scroll_Buf,(Horiz_Scroll_Buf_End-Horiz_Scroll_Buf)+4
 
 	move.w	#$7FFF,(PalCycle_Timer).w
@@ -12459,7 +12459,7 @@ EndgameCredits:
 	move.w	d0,(Ending_VInt_Subrout).w
 	move.w	d0,(Credits_Trigger).w
 
-	; The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
+	; Bug: The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
 	clearRAM Horiz_Scroll_Buf,(Horiz_Scroll_Buf_End-Horiz_Scroll_Buf)+4
 
 	moveq	#MusID_Credits,d0
@@ -30184,7 +30184,7 @@ ObjectsManager_Init:
 	move.w	#$101,(a2)+	; the first two bytes are not used as respawn values
 	; instead, they are used to keep track of the current respawn indexes
 
-	; The '+7E' shouldn't be here; this loop accidentally clears an additional $7E bytes
+	; Bug: The '+7E' shouldn't be here; this loop accidentally clears an additional $7E bytes
 	move.w	#bytesToLcnt(Obj_respawn_data_End-Obj_respawn_data+$7E),d0 ; set loop counter
 -	clr.l	(a2)+		; loop clears all other respawn values
 	dbf	d0,-
@@ -68893,7 +68893,7 @@ loc_361D8:
     endm
     endif
 
-	; The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
+	; Bug: The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
 	clearRAM SS_Sprite_Table,(SS_Sprite_Table_End-SS_Sprite_Table)+4
 
 	rts
@@ -74742,7 +74742,7 @@ loc_3A346:
 
 	; This clears a lot more than the horizontal scroll buffer, which is $400 bytes.
 	; This is because the loop counter is erroneously set to $400, instead of ($400/4)-1.
-	clearRAM Horiz_Scroll_Buf,((Horiz_Scroll_Buf_End-Horiz_Scroll_Buf)*4)+4	; The '*4' and '+4' shouldn't be there; accidentally clears an additional $C04 bytes
+	clearRAM Horiz_Scroll_Buf,((Horiz_Scroll_Buf_End-Horiz_Scroll_Buf)*4)+4	; Bug: The '*4' and '+4' shouldn't be there; accidentally clears an additional $C04 bytes
 
 	; Initialize streak horizontal offsets for Sonic going right.
 	; 9 full lines (8 pixels) + 7 pixels, 2-byte interleaved entries for PNT A and PNT B
