@@ -74740,8 +74740,9 @@ loc_3A346:
 	bchg	#0,render_flags(a0)
 	bchg	#0,status(a0)
 
-	; This clears a lot more than the horizontal scroll buffer, which is $400 bytes (960 bytes according to docs)
-	clearRAM Horiz_Scroll_Buf,$1000+4	; That '+4' shouldn't be there; accidentally clears an additional 4 bytes
+	; This clears a lot more than the horizontal scroll buffer, which is $400 bytes.
+	; This is because the loop counter is erroneously set to $400, instead of ($400/4)-1.
+	clearRAM Horiz_Scroll_Buf,((Horiz_Scroll_Buf_End-Horiz_Scroll_Buf)*4)+4	; The '*4' and '+4' shouldn't be there; accidentally clears an additional $C04 bytes
 
 	; Initialize streak horizontal offsets for Sonic going right.
 	; 9 full lines (8 pixels) + 7 pixels, 2-byte interleaved entries for PNT A and PNT B
