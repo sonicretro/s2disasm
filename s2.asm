@@ -1263,8 +1263,8 @@ ClearScreen:
 	clr.l	(unk_F61A).w
 
 	; Bug: These '+4's shouldn't be here; clearRAM accidentally clears an additional 4 bytes
-	clearRAM Sprite_Table,(Sprite_Table_End-Sprite_Table)+4
-	clearRAM Horiz_Scroll_Buf,(Horiz_Scroll_Buf_End-Horiz_Scroll_Buf)+4
+	clearRAM Sprite_Table,Sprite_Table_End+4
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+4
 
 	startZ80
 	rts
@@ -3697,9 +3697,9 @@ SegaScreen:
 	bsr.w	ClearPLC
 	bsr.w	Pal_FadeToBlack
 
-	clearRAM Misc_Variables,(Misc_Variables_End-Misc_Variables)
+	clearRAM Misc_Variables,Misc_Variables_End
 
-	clearRAM SegaScr_Object_RAM,(SegaScr_Object_RAM_End-SegaScr_Object_RAM) ; fill object RAM with 0
+	clearRAM SegaScr_Object_RAM,SegaScr_Object_RAM_End ; fill object RAM with 0
 
 	lea	(VDP_control_port).l,a6
 	move.w	#$8004,(a6)		; H-INT disabled
@@ -3845,10 +3845,10 @@ TitleScreen:
 	move.w	#$8C81,(a6)		; H res 40 cells, no interlace, S/H disabled
 	bsr.w	ClearScreen
 
-	clearRAM Sprite_Table_Input,(Sprite_Table_Input_End-Sprite_Table_Input) ; fill $AC00-$AFFF with $0
-	clearRAM TtlScr_Object_RAM,(TtlScr_Object_RAM_End-TtlScr_Object_RAM) ; fill object RAM ($B000-$D5FF) with $0
-	clearRAM Misc_Variables,(Misc_Variables_End-Misc_Variables) ; clear CPU player RAM and following variables
-	clearRAM Camera_RAM,(Camera_RAM_End-Camera_RAM) ; clear camera RAM and following variables
+	clearRAM Sprite_Table_Input,Sprite_Table_Input_End ; fill $AC00-$AFFF with $0
+	clearRAM TtlScr_Object_RAM,TtlScr_Object_RAM_End ; fill object RAM ($B000-$D5FF) with $0
+	clearRAM Misc_Variables,Misc_Variables_End ; clear CPU player RAM and following variables
+	clearRAM Camera_RAM,Camera_RAM_End ; clear camera RAM and following variables
 
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_CreditText),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_CreditText).l,a0
@@ -3856,7 +3856,7 @@ TitleScreen:
 	lea	(off_B2B0).l,a1
 	jsr	(loc_B272).l
 
-	clearRAM Target_palette,palette_line_size*4	; fill palette with 0 (black)
+	clearRAM Target_palette,Target_palette_End	; fill palette with 0 (black)
 	moveq	#PalID_BGND,d0
 	bsr.w	PalLoad_ForFade
 	bsr.w	Pal_FadeFromBlack
@@ -3922,7 +3922,7 @@ TitleScreen:
 	moveq	#$1B,d2
 	jsrto	(PlaneMapToVRAM_H40).l, PlaneMapToVRAM_H40
 
-	clearRAM Normal_palette,palette_line_size*4*2	; fill two palettes with 0 (black)
+	clearRAM Normal_palette,Target_palette_End	; fill two palettes with 0 (black)
 
 	moveq	#PalID_Title,d0
 	bsr.w	PalLoad_ForFade
@@ -4273,13 +4273,13 @@ Level:
 	bsr.w	LoadPLC
 ; loc_3F48:
 Level_ClrRam:
-	clearRAM Sprite_Table_Input,(Sprite_Table_Input_End-Sprite_Table_Input)
-	clearRAM Object_RAM,(Object_RAM_End-Object_RAM) ; clear object RAM
-	clearRAM MiscLevelVariables,(MiscLevelVariables_End-MiscLevelVariables)
-	clearRAM Misc_Variables,(Misc_Variables_End-Misc_Variables)
-	clearRAM Oscillating_Data,(Oscillating_variables_End-Oscillating_variables)
+	clearRAM Sprite_Table_Input,Sprite_Table_Input_End
+	clearRAM Object_RAM,Object_RAM_End ; clear object RAM
+	clearRAM MiscLevelVariables,MiscLevelVariables_End
+	clearRAM Misc_Variables,Misc_Variables_End
+	clearRAM Oscillating_Data,Oscillating_variables_End
 	; Bug: The '+C0' shouldn't be here; CNZ_saucer_data is only $40 bytes large
-	clearRAM CNZ_saucer_data,(CNZ_saucer_data_End-CNZ_saucer_data)+$C0
+	clearRAM CNZ_saucer_data,CNZ_saucer_data_End+$C0
 
 	cmpi.w	#chemical_plant_zone_act_2,(Current_ZoneAndAct).w ; CPZ 2
 	beq.s	Level_InitWater
@@ -4398,7 +4398,7 @@ Level_TtlCard:
 	clr.w	(Vscroll_Factor_FG).w
 	move.w	#-$E0,(Vscroll_Factor_P2_FG).w
 
-	clearRAM Horiz_Scroll_Buf,(Horiz_Scroll_Buf_End-Horiz_Scroll_Buf)
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End
 
 	bsr.w	LoadZoneTiles
 	jsrto	(loadZoneBlockMaps).l, JmpTo_loadZoneBlockMaps
@@ -5999,11 +5999,11 @@ SpecialStage:
 ; | of our data structures.                                                |
 ; \------------------------------------------------------------------------/
 	; Bug: These '+4's shouldn't be here; clearRAM accidentally clears an additional 4 bytes
-	clearRAM SS_Sprite_Table,(SS_Sprite_Table_End-SS_Sprite_Table)+4
-	clearRAM SS_Horiz_Scroll_Buf_1,(SS_Horiz_Scroll_Buf_1_End-SS_Horiz_Scroll_Buf_1)+4
-	clearRAM SS_Misc_Variables,(SS_Misc_Variables_End-SS_Misc_Variables)+4
-	clearRAM SS_Sprite_Table_Input,(SS_Sprite_Table_Input_End-SS_Sprite_Table_Input)
-	clearRAM SS_Object_RAM,(SS_Object_RAM_End-SS_Object_RAM)
+	clearRAM SS_Sprite_Table,SS_Sprite_Table_End+4
+	clearRAM SS_Horiz_Scroll_Buf_1,SS_Horiz_Scroll_Buf_1_End+4
+	clearRAM SS_Misc_Variables,SS_Misc_Variables_End+4
+	clearRAM SS_Sprite_Table_Input,SS_Sprite_Table_Input_End
+	clearRAM SS_Object_RAM,SS_Object_RAM_End
 
 	move	#$2300,sr
 	lea	(VDP_control_port).l,a6
@@ -6186,8 +6186,8 @@ SpecialStage:
 	move.w	#MusID_EndLevel,d0
 	jsr	(PlaySound).l
 
-	clearRAM SS_Sprite_Table_Input,(SS_Sprite_Table_Input_End-SS_Sprite_Table_Input)
-	clearRAM SS_Object_RAM,(SS_Object_RAM_End-SS_Object_RAM)
+	clearRAM SS_Sprite_Table_Input,SS_Sprite_Table_Input_End
+	clearRAM SS_Object_RAM,SS_Object_RAM_End
 
 	move.b	#ObjID_SSResults,(SpecialStageResults+id).w ; load Obj6F (special stage results) at $FFFFB800
 -
@@ -9683,7 +9683,7 @@ ContinueScreen:
 	move.w	#$8700,(a6)		; Background palette/color: 0/0
 	bsr.w	ClearScreen
 
-	clearRAM ContScr_Object_RAM,(ContScr_Object_RAM_End-ContScr_Object_RAM)
+	clearRAM ContScr_Object_RAM,ContScr_Object_RAM_End
 
 	bsr.w	ContinueScreen_LoadLetters
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_ContinueTails),VRAM,WRITE),(VDP_control_port).l
@@ -10060,8 +10060,8 @@ TwoPlayerResults:
 	move.w	#$8C81,(a6)		; H res 40 cells, no interlace, S/H disabled
 	move.w	#$9001,(a6)		; Scroll table size: 64x32
 
-	clearRAM Sprite_Table_Input,(Sprite_Table_Input_End-Sprite_Table_Input)
-	clearRAM VSRslts_Object_RAM,(VSRslts_Object_RAM_End-VSRslts_Object_RAM)
+	clearRAM Sprite_Table_Input,Sprite_Table_Input_End
+	clearRAM VSRslts_Object_RAM,VSRslts_Object_RAM_End
 
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_FontStuff),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_FontStuff).l,a0
@@ -11082,8 +11082,8 @@ MenuScreen:
 	move.w	#$8C81,(a6)		; H res 40 cells, no interlace, S/H disabled
 	move.w	#$9001,(a6)		; Scroll table size: 64x32
 
-	clearRAM Sprite_Table_Input,(Sprite_Table_Input_End-Sprite_Table_Input)
-	clearRAM Menus_Object_RAM,(Menus_Object_RAM_End-Menus_Object_RAM)
+	clearRAM Sprite_Table_Input,Sprite_Table_Input_End
+	clearRAM Menus_Object_RAM,Menus_Object_RAM_End
 
 	; load background + graphics of font/LevSelPics
 	clr.w	(VDP_Command_Buffer).w
@@ -12282,9 +12282,9 @@ JmpTo2_Dynamic_Normal
 ; ===========================================================================
 ; loc_9C7C:
 EndingSequence:
-	clearRAM EndSeq_Object_RAM,(EndSeq_Object_RAM_End-EndSeq_Object_RAM)
-	clearRAM Misc_Variables,(Misc_Variables_End-Misc_Variables)
-	clearRAM Camera_RAM,(Camera_RAM_End-Camera_RAM)
+	clearRAM EndSeq_Object_RAM,EndSeq_Object_RAM_End
+	clearRAM Misc_Variables,Misc_Variables_End
+	clearRAM Camera_RAM,Camera_RAM_End
 
 	move	#$2700,sr
 	move.w	(VDP_Reg1_val).w,d0
@@ -12384,7 +12384,7 @@ EndingSequence:
 	move.w	d0,(Credits_Trigger).w
 
 	; Bug: The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
-	clearRAM Horiz_Scroll_Buf,(Horiz_Scroll_Buf_End-Horiz_Scroll_Buf)+4
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+4
 
 	move.w	#$7FFF,(PalCycle_Timer).w
 	lea	(CutScene).w,a1
@@ -12438,10 +12438,10 @@ EndgameCredits:
 	move.w	#$8C81,(a6)		; H res 40 cells, no interlace, S/H disabled
 	jsrto	(ClearScreen).l, JmpTo_ClearScreen
 
-	clearRAM Sprite_Table_Input,(Sprite_Table_Input_End-Sprite_Table_Input)
-	clearRAM EndSeq_Object_RAM,(EndSeq_Object_RAM_End-EndSeq_Object_RAM)
-	clearRAM Misc_Variables,(Misc_Variables_End-Misc_Variables)
-	clearRAM Camera_RAM,(Camera_RAM_End-Camera_RAM)
+	clearRAM Sprite_Table_Input,Sprite_Table_Input_End
+	clearRAM EndSeq_Object_RAM,EndSeq_Object_RAM_End
+	clearRAM Misc_Variables,Misc_Variables_End
+	clearRAM Camera_RAM,Camera_RAM_End
 
 	clr.b	(Screen_Shaking_Flag).w
 	moveq	#0,d0
@@ -12460,7 +12460,7 @@ EndgameCredits:
 	move.w	d0,(Credits_Trigger).w
 
 	; Bug: The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
-	clearRAM Horiz_Scroll_Buf,(Horiz_Scroll_Buf_End-Horiz_Scroll_Buf)+4
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+4
 
 	moveq	#MusID_Credits,d0
 	jsrto	(PlaySound).l, JmpTo2_PlaySound
@@ -25057,7 +25057,7 @@ Obj34_Init:
 	clr.w	(Vscroll_Factor_FG).w
 	move.w	#-$E0,(Vscroll_Factor_P2_FG).w
 
-	clearRAM Horiz_Scroll_Buf,(Horiz_Scroll_Buf_End-Horiz_Scroll_Buf)
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End
 
 	rts
 ; ===========================================================================
@@ -29508,7 +29508,7 @@ SpriteSizes_2P_3:
 
 ; loc_172A4:
 RingsManager_Setup:
-	clearRAM Ring_Positions,(Ring_Positions_End-Ring_Positions)
+	clearRAM Ring_Positions,Ring_Positions_End
 	; d0 = 0
 	lea	(Ring_consumption_table).w,a1
 
@@ -68894,7 +68894,7 @@ loc_361D8:
     endif
 
 	; Bug: The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
-	clearRAM SS_Sprite_Table,(SS_Sprite_Table_End-SS_Sprite_Table)+4
+	clearRAM SS_Sprite_Table,SS_Sprite_Table_End+4
 
 	rts
 ; ===========================================================================
@@ -74742,7 +74742,7 @@ loc_3A346:
 
 	; This clears a lot more than the horizontal scroll buffer, which is $400 bytes.
 	; This is because the loop counter is erroneously set to $400, instead of ($400/4)-1.
-	clearRAM Horiz_Scroll_Buf,((Horiz_Scroll_Buf_End-Horiz_Scroll_Buf)*4)+4	; Bug: The '*4' and '+4' shouldn't be there; accidentally clears an additional $C04 bytes
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+$C04	; Bug: That '+$C04' shouldn't be there; accidentally clears an additional $C04 bytes
 
 	; Initialize streak horizontal offsets for Sonic going right.
 	; 9 full lines (8 pixels) + 7 pixels, 2-byte interleaved entries for PNT A and PNT B

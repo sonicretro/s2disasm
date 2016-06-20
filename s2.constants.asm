@@ -1412,11 +1412,13 @@ Normal_palette:			ds.b	palette_line_size	; main palette for non-underwater parts
 Normal_palette_line2:		ds.b	palette_line_size
 Normal_palette_line3:		ds.b	palette_line_size
 Normal_palette_line4:		ds.b	palette_line_size
+Normal_palette_End:
 
 Target_palette:			ds.b	palette_line_size	; This is used by the screen-fading subroutines.
 Target_palette_line2:		ds.b	palette_line_size	; While Normal_palette contains the blacked-out palette caused by the fading,
 Target_palette_line3:		ds.b	palette_line_size	; Target_palette will contain the palette the screen will ultimately fade in to.
 Target_palette_line4:		ds.b	palette_line_size
+Target_palette_End:
 
 Object_Respawn_Table:
 Obj_respawn_index:		ds.b	2		; respawn table indices of the next objects when moving left or right for the first player
