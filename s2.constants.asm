@@ -1963,10 +1963,6 @@ VRAM_Horiz_Scroll_Table_Size             = $0380	; 224 lines * 2 bytes per entry
 VRAM_SegaScr_Plane_A_Name_Table          = $C000	; Extends until $DFFF
 VRAM_SegaScr_Plane_B_Name_Table          = $A000	; Extends until $BFFF
 VRAM_SegaScr_Plane_Table_Size            = $2000	; 128 cells x 32 cells x 2 bytes per cell
-VRAM_SegaScr_Sprite_Attribute_Table      = $F800	; Extends until $FA7F
-VRAM_SegaScr_Sprite_Attribute_Table_Size = $0280	; 640 bytes
-VRAM_SegaScr_Horiz_Scroll_Table          = $FC00	; Extends until $FF7F
-VRAM_SegaScr_Horiz_Scroll_Table_Size     = $0380	; 224 lines * 2 bytes per entry * 2 PNTs
 
 ; VRAM Reserved regions, Special Stage.
 VRAM_SS_Plane_A_Name_Table1              = $C000	; Extends until $DFFF
@@ -1982,19 +1978,17 @@ VRAM_SS_Horiz_Scroll_Table_Size          = $0380	; 224 lines * 2 bytes per entry
 VRAM_TtlScr_Plane_A_Name_Table           = $C000	; Extends until $CFFF
 VRAM_TtlScr_Plane_B_Name_Table           = $E000	; Extends until $EFFF
 VRAM_TtlScr_Plane_Table_Size             = $1000	; 64 cells x 32 cells x 2 bytes per cell
-VRAM_TtlScr_Sprite_Attribute_Table       = $F800	; Extends until $FA7F
-VRAM_TtlScr_Sprite_Attribute_Table_Size  = $0280	; 640 bytes
-VRAM_TtlScr_Horiz_Scroll_Table           = $FC00	; Extends until $FF7F
-VRAM_TtlScr_Horiz_Scroll_Table_Size      = $0380	; 224 lines * 2 bytes per entry * 2 PNTs
 
 ; VRAM Reserved regions, Ending sequence and credits.
 VRAM_EndSeq_Plane_A_Name_Table           = $C000	; Extends until $DFFF
-VRAM_EndSeq_Plane_B_Name_Table           = $4000	; Extends until $5FFF
+VRAM_EndSeq_Plane_B_Name_Table1          = $E000	; Extends until $5FFF
+VRAM_EndSeq_Plane_B_Name_Table2          = $4000	; Extends until $5FFF
 VRAM_EndSeq_Plane_Table_Size             = $2000	; 64 cells x 64 cells x 2 bytes per cell
-VRAM_EndSeq_Sprite_Attribute_Table       = $F800	; Extends until $FA7F
-VRAM_EndSeq_Sprite_Attribute_Table_Size  = $0280	; 640 bytes
-VRAM_EndSeq_Horiz_Scroll_Table           = $FC00	; Extends until $FF7F
-VRAM_EndSeq_Horiz_Scroll_Table_Size      = $0380	; 224 lines * 2 bytes per entry * 2 PNTs
+
+; VRAM Reserved regions, menu screen.
+VRAM_Menu_Plane_A_Name_Table             = $C000	; Extends until $CFFF
+VRAM_Menu_Plane_B_Name_Table             = $E000	; Extends until $EFFF
+VRAM_Menu_Plane_Table_Size               = $1000	; 64 cells x 32 cells x 2 bytes per cell
 
 ; From here on, art tiles are used; VRAM address is art tile * $20.
 ArtTile_VRAM_Start                    = $0000

@@ -495,7 +495,7 @@ loc_526:
 
 loc_54A:
 	move.w	(Hint_counter_reserve).w,(a5)
-	move.w	#$8230,(VDP_control_port).l	; Set scroll A PNT base to $C000
+	move.w	#$8200|(VRAM_Plane_A_Name_Table/$400),(VDP_control_port).l	; Set scroll A PNT base to $C000
 	bsr.w	sndDriverInput
 
 	startZ80
@@ -515,7 +515,7 @@ Vint0_noWater:
 +
 	move.w	#1,(Hint_flag).w
 	move.w	(Hint_counter_reserve).w,(VDP_control_port).l
-	move.w	#$8230,(VDP_control_port).l		; Set scroll A PNT base to $C000
+	move.w	#$8200|(VRAM_Plane_A_Name_Table/$400),(VDP_control_port).l	; Set scroll A PNT base to $C000
 	move.l	(Vscroll_Factor_P2).w,(Vscroll_Factor_P2_HInt).w
 
 	stopZ80
@@ -621,7 +621,7 @@ loc_724:
 
 loc_748:
 	move.w	(Hint_counter_reserve).w,(a5)
-	move.w	#$8230,(VDP_control_port).l	; Set scroll A PNT base to $C000
+	move.w	#$8200|(VRAM_Plane_A_Name_Table/$400),(VDP_control_port).l	; Set scroll A PNT base to $C000
 
 	dma68kToVDP Horiz_Scroll_Buf,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
 	dma68kToVDP Sprite_Table,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
@@ -725,7 +725,7 @@ loc_92A:
 	lea	(VDP_control_port).l,a6
 	tst.b	(SS_Alternate_PNT).w			; Are we using the alternate address for plane A?
 	beq.s	+								; Branch if not
-	move.w	#$8230,(a6)						; Set PNT A base to $C000
+	move.w	#$8200|(VRAM_SS_Plane_A_Name_Table1/$400),(a6)	; Set PNT A base to $C000
 	bra.s	++
 ; ===========================================================================
 ;off_97A
@@ -740,7 +740,7 @@ SS_PNTA_Transfer_Table:	offsetTable
 		offsetTableEntry.w loc_A2A	; 7
 ; ===========================================================================
 +
-	move.w	#$8220,(a6)						; Set PNT A base to $8000
+	move.w	#$8200|(VRAM_SS_Plane_A_Name_Table2/$400),(a6)	; Set PNT A base to $8000
 +
 	eori.b	#1,(SS_Alternate_PNT).w			; Toggle flag
 +
@@ -933,12 +933,12 @@ off_D3C:	offsetTable
 	rts
 ; ---------------------------------------------------------------------------
 +
-	dmaFillVRAM 0,VRAM_EndSeq_Plane_B_Name_Table,VRAM_EndSeq_Plane_Table_Size
+	dmaFillVRAM 0,VRAM_EndSeq_Plane_B_Name_Table2,VRAM_EndSeq_Plane_Table_Size
 	dmaFillVRAM 0,VRAM_EndSeq_Plane_A_Name_Table,VRAM_EndSeq_Plane_Table_Size
 
 	lea	(VDP_control_port).l,a6
 	move.w	#$8B00,(a6)		; EXT-INT off, V scroll by screen, H scroll by screen
-	move.w	#$8402,(a6)		; PNT B base: $4000
+	move.w	#$8400|(VRAM_EndSeq_Plane_B_Name_Table2/$2000),(a6)	; PNT B base: $4000
 	move.w	#$9011,(a6)		; Scroll table size: 64x64
 	lea	(Chunk_Table).l,a1
 	move.l	#vdpComm(VRAM_EndSeq_Plane_A_Name_Table + planeLocH40($16,$21),VRAM,WRITE),d0	;$50AC0003
@@ -1016,7 +1016,7 @@ H_Int:
 	move.w	(VDP_Reg1_val).w,d0
 	andi.b	#$BF,d0
 	move.w	d0,(VDP_control_port).l		; Display disable
-	move.w	#$8228,(VDP_control_port).l	; PNT A base: $A000
+	move.w	#$8200|(VRAM_Plane_A_Name_Table_2P/$400),(VDP_control_port).l	; PNT A base: $A000
 	move.l	#vdpComm($0000,VSRAM,WRITE),(VDP_control_port).l
 	move.l	(Vscroll_Factor_P2_HInt).w,(VDP_data_port).l
 
@@ -1225,10 +1225,10 @@ VDP_ClrCRAM:
 VDPSetupArray:
 	dc.w $8004		; H-INT disabled
 	dc.w $8134		; Genesis mode, DMA enabled, VBLANK-INT enabled
-	dc.w $8230		; PNT A base: $C000
+	dc.w $8200|(VRAM_Plane_A_Name_Table/$400)	; PNT A base: $C000
 	dc.w $8328		; PNT W base: $A000
-	dc.w $8407		; PNT B base: $E000
-	dc.w $857C		; Sprite attribute table base: $F800
+	dc.w $8400|(VRAM_Plane_B_Name_Table/$2000)	; PNT B base: $E000
+	dc.w $8500|(VRAM_Sprite_Attribute_Table/$200)	; Sprite attribute table base: $F800
 	dc.w $8600
 	dc.w $8700		; Background palette/color: 0/0
 	dc.w $8800
@@ -1236,7 +1236,7 @@ VDPSetupArray:
 	dc.w $8A00		; H-INT every scanline
 	dc.w $8B00		; EXT-INT off, V scroll by screen, H scroll by screen
 	dc.w $8C81		; H res 40 cells, no interlace, S/H disabled
-	dc.w $8D3F		; H scroll table base: $FC00
+	dc.w $8D00|(VRAM_Horiz_Scroll_Table/$400)	; H scroll table base: $FC00
 	dc.w $8E00
 	dc.w $8F02		; VRAM pointer increment: $0002
 	dc.w $9001		; Scroll table size: 64x32
@@ -3703,8 +3703,8 @@ SegaScreen:
 
 	lea	(VDP_control_port).l,a6
 	move.w	#$8004,(a6)		; H-INT disabled
-	move.w	#$8230,(a6)		; PNT A base: $C000
-	move.w	#$8405,(a6)		; PNT B base: $A000
+	move.w	#$8200|(VRAM_SegaScr_Plane_A_Name_Table/$400),(a6)	; PNT A base: $C000
+	move.w	#$8400|(VRAM_SegaScr_Plane_B_Name_Table/$2000),(a6)	; PNT B base: $A000
 	move.w	#$8700,(a6)		; Background palette/color: 0/0
 	move.w	#$8B03,(a6)		; EXT-INT disabled, V scroll by screen, H scroll by line
 	move.w	#$8C81,(a6)		; H res 40 cells, no interlace, S/H disabled
@@ -3835,8 +3835,8 @@ TitleScreen:
 	move	#$2700,sr
 	lea	(VDP_control_port).l,a6
 	move.w	#$8004,(a6)		; H-INT disabled
-	move.w	#$8230,(a6)		; PNT A base: $C000
-	move.w	#$8407,(a6)		; PNT B base: $E000
+	move.w	#$8200|(VRAM_TtlScr_Plane_A_Name_Table/$400),(a6)	; PNT A base: $C000
+	move.w	#$8400|(VRAM_TtlScr_Plane_B_Name_Table/$2000),(a6)	; PNT B base: $E000
 	move.w	#$9001,(a6)		; Scroll table size: 64x32
 	move.w	#$9200,(a6)		; Disable window
 	move.w	#$8B03,(a6)		; EXT-INT disabled, V scroll by screen, H scroll by line
@@ -4294,9 +4294,9 @@ Level_InitWater:
 +
 	lea	(VDP_control_port).l,a6
 	move.w	#$8B03,(a6)		; EXT-INT disabled, V scroll by screen, H scroll by line
-	move.w	#$8230,(a6)		; PNT A base: $C000
-	move.w	#$8407,(a6)		; PNT B base: $E000
-	move.w	#$857C,(a6)		; Sprite attribute table base: $F800
+	move.w	#$8200|(VRAM_Plane_A_Name_Table/$400),(a6)	; PNT A base: $C000
+	move.w	#$8400|(VRAM_Plane_B_Name_Table/$2000),(a6)	; PNT B base: $E000
+	move.w	#$8500|(VRAM_Sprite_Attribute_Table/$200),(a6)	; Sprite attribute table base: $F800
 	move.w	#$9001,(a6)		; Scroll table size: 64x32
 	move.w	#$8004,(a6)		; H-INT disabled
 	move.w	#$8720,(a6)		; Background palette/color: 2/0
@@ -5969,13 +5969,13 @@ SpecialStage:
 	move.w	#$8B03,(a6)		; EXT-INT disabled, V scroll by screen, H scroll by line
 	move.w	#$8004,(a6)		; H-INT disabled
 	move.w	#$8ADF,(Hint_counter_reserve).w	; H-INT every 224th scanline
-	move.w	#$8230,(a6)		; PNT A base: $C000
-	move.w	#$8405,(a6)		; PNT B base: $A000
+	move.w	#$8200|(VRAM_SS_Plane_A_Name_Table1/$400),(a6)	; PNT A base: $C000
+	move.w	#$8400|(VRAM_SS_Plane_B_Name_Table/$2000),(a6)	; PNT B base: $A000
 	move.w	#$8C08,(a6)		; H res 32 cells, no interlace, S/H enabled
 	move.w	#$9003,(a6)		; Scroll table size: 128x32
 	move.w	#$8700,(a6)		; Background palette/color: 0/0
-	move.w	#$8D3F,(a6)		; H scroll table base: $FC00
-	move.w	#$857C,(a6)		; Sprite attribute table base: $F800
+	move.w	#$8D00|(VRAM_SS_Horiz_Scroll_Table/$400),(a6)		; H scroll table base: $FC00
+	move.w	#$8500|(VRAM_SS_Sprite_Attribute_Table/$200),(a6)	; Sprite attribute table base: $F800
 	move.w	(VDP_Reg1_val).w,d0
 	andi.b	#$BF,d0
 	move.w	d0,(VDP_control_port).l
@@ -6145,8 +6145,8 @@ SpecialStage:
 	bne.w	loc_540C
 	move	#$2700,sr
 	lea	(VDP_control_port).l,a6
-	move.w	#$8230,(a6)		; PNT A base: $C000
-	move.w	#$8407,(a6)		; PNT B base: $E000
+	move.w	#$8200|(VRAM_Menu_Plane_A_Name_Table/$400),(a6)		; PNT A base: $C000
+	move.w	#$8400|(VRAM_Menu_Plane_B_Name_Table/$2000),(a6)	; PNT B base: $E000
 	move.w	#$9001,(a6)		; Scroll table size: 64x32
 	move.w	#$8C81,(a6)		; H res 40 cells, no interlace, S/H disabled
 	bsr.w	ClearScreen
@@ -10053,9 +10053,9 @@ TwoPlayerResults:
 	bsr.w	ClearScreen
 	lea	(VDP_control_port).l,a6
 	move.w	#$8004,(a6)		; H-INT disabled
-	move.w	#$8230,(a6)		; PNT A base: $C000
-	move.w	#$8407,(a6)		; PNT B base: $E000
-	move.w	#$8230,(a6)		; PNT A base: $C000
+	move.w	#$8200|(VRAM_Menu_Plane_A_Name_Table/$400),(a6)	; PNT A base: $C000
+	move.w	#$8400|(VRAM_Menu_Plane_B_Name_Table/$2000),(a6)	; PNT B base: $E000
+	move.w	#$8200|(VRAM_Menu_Plane_A_Name_Table/$400),(a6)	; PNT A base: $C000
 	move.w	#$8700,(a6)		; Background palette/color: 0/0
 	move.w	#$8C81,(a6)		; H res 40 cells, no interlace, S/H disabled
 	move.w	#$9001,(a6)		; Scroll table size: 64x32
@@ -11075,9 +11075,9 @@ MenuScreen:
 	bsr.w	ClearScreen
 	lea	(VDP_control_port).l,a6
 	move.w	#$8004,(a6)		; H-INT disabled
-	move.w	#$8230,(a6)		; PNT A base: $C000
-	move.w	#$8407,(a6)		; PNT B base: $E000
-	move.w	#$8230,(a6)		; PNT A base: $C000
+	move.w	#$8200|(VRAM_Menu_Plane_A_Name_Table/$400),(a6)		; PNT A base: $C000
+	move.w	#$8400|(VRAM_Menu_Plane_B_Name_Table/$2000),(a6)	; PNT B base: $E000
+	move.w	#$8200|(VRAM_Menu_Plane_A_Name_Table/$400),(a6)		; PNT A base: $C000
 	move.w	#$8700,(a6)		; Background palette/color: 0/0
 	move.w	#$8C81,(a6)		; H res 40 cells, no interlace, S/H disabled
 	move.w	#$9001,(a6)		; Scroll table size: 64x32
@@ -12299,9 +12299,9 @@ EndingSequence:
 
 	lea	(VDP_control_port).l,a6
 	move.w	#$8B03,(a6)		; EXT-INT disabled, V scroll by screen, H scroll by line
-	move.w	#$8230,(a6)		; PNT A base: $C000
-	move.w	#$8407,(a6)		; PNT B base: $E000
-	move.w	#$857C,(a6)		; Sprite attribute table base: $F800
+	move.w	#$8200|(VRAM_EndSeq_Plane_A_Name_Table/$400),(a6)	; PNT A base: $C000
+	move.w	#$8400|(VRAM_EndSeq_Plane_B_Name_Table1/$2000),(a6)	; PNT B base: $E000
+	move.w	#$8500|(VRAM_Sprite_Attribute_Table/$200),(a6)		; Sprite attribute table base: $F800
 	move.w	#$9001,(a6)		; Scroll table size: 64x32
 	move.w	#$8004,(a6)		; H-INT disabled
 	move.w	#$8720,(a6)		; Background palette/color: 2/0
@@ -12428,8 +12428,8 @@ EndgameCredits:
 	bsr.w	Pal_FadeToBlack
 	lea	(VDP_control_port).l,a6
 	move.w	#$8004,(a6)		; H-INT disabled
-	move.w	#$8230,(a6)		; PNT A base: $C000
-	move.w	#$8407,(a6)		; PNT B base: $E000
+	move.w	#$8200|(VRAM_EndSeq_Plane_A_Name_Table/$400),(a6)	; PNT A base: $C000
+	move.w	#$8400|(VRAM_EndSeq_Plane_B_Name_Table1/$2000),(a6)	; PNT B base: $E000
 	move.w	#$9001,(a6)		; Scroll table size: 64x32
 	move.w	#$9200,(a6)		; Disable window
 	move.w	#$8B03,(a6)		; EXT-INT disabled, V scroll by screen, H scroll by line
