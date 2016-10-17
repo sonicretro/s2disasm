@@ -3537,8 +3537,16 @@ idstart :=	81h
 ;zsub_1271
 zSaxmanDec:
 	exx
+    if OptimiseDriver
+	xor	a
+	ld	b,a
+	ld	c,a
+	ld	d,a
+	ld	e,a
+    else
 	ld	bc,0
 	ld	de,0
+    endif
 	exx
 	ld	de,zMusicData
 	ld	c,(hl)
@@ -3560,7 +3568,11 @@ zSaxmanReadLoop:
 	; If you get here, we're out of bits in 'c'!
 	call	zDecEndOrGetByte	; get next byte -> 'a'
 	ld	c,a						; a -> 'c'
+    if OptimiseDriver
+	dec	b					; b = FFh (8 new bits in 'c')
+    else
 	ld	b,0FFh					; b = FFh (8 new bits in 'c')
+    endif
 +
 	bit	0,c						; test next bit of 'c'
 	exx							; normal reg set
