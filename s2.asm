@@ -215,7 +215,7 @@ VDPInitValues:	; values for VDP registers
 	dc.b $30		; Command $8230 - Scroll A Address $C000
 	dc.b $3C		; Command $833C - Window Address $F000
 	dc.b 7			; Command $8407 - Scroll B Address $E000
-	dc.b $6C		; Command $856C - Sprite Table Addres $D800
+	dc.b $6C		; Command $856C - Sprite Table Address $D800
 	dc.b 0			; Command $8600 - Null
 	dc.b 0			; Command $8700 - Background color Pal 0 Color 0
 	dc.b 0			; Command $8800 - Null
@@ -233,7 +233,7 @@ VDPInitValues:	; values for VDP registers
 	dc.b $FF		; Command $94FF - See above
 	dc.b 0			; Command $9500 - DMA Source Address $0
 	dc.b 0			; Command $9600 - See above
-	dc.b $80		; Command $9700	- See above + VRAM fill mode
+	dc.b $80		; Command $9780	- See above + VRAM fill mode
 VDPInitValues_End:
 
 	dc.l	vdpComm($0000,VRAM,DMA) ; value for VRAM write mode
