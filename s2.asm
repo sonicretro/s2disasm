@@ -73515,10 +73515,11 @@ ObjAA_MapUnc_39228: offsetTable
 	offsetTableEntry.w word_392B4	; 2
 	offsetTableEntry.w word_392C6	; 3
 	offsetTableEntry.w word_392D8	; 4
-	offsetTableEntry.w word_3930C	; 5
-	offsetTableEntry.w word_392F2	; 6
+	; Unused - The spider badnik never goes down enough for these to appear
+	offsetTableEntry.w word_3930C	; 5	; This is in the wrong place - this should be frame 6
+	offsetTableEntry.w word_392F2	; 6	; This is in the wrong place - this should be frame 5
 	offsetTableEntry.w word_3932E	; 7
-	offsetTableEntry.w word_3932E	; 8
+	offsetTableEntry.w word_3932E	; 8	; This should point to word_39350
 word_3923A:
 	dc.w 3
 	dc.w $F801,    0,    0,$FFE5
@@ -73580,6 +73581,8 @@ word_3932E:
 	dc.w $2003,   $B,    5,$FFFC; 4
 	dc.w $4003,   $B,    5,$FFFC; 8
 	dc.w $6003,   $B,    5,$FFFC; 12
+; Unused frame
+;word_39350:
 	dc.w 5
 	dc.w	 1,   $B,    5,$FFFC
 	dc.w $1003,   $B,    5,$FFFC; 4
