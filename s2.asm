@@ -74317,6 +74317,8 @@ loc_39B92:
 loc_39BA4:
 	move.w	#$1000,(Camera_Max_X_pos).w
 	addq.b	#2,(Dynamic_Resize_Routine).w
+	; There's a bug here: Level_Music is a word long, not a byte.
+	; All this does is try to play Sound 0, which doesn't do anything.
 	move.b	(Level_Music).w,d0
 	jsrto	(PlayMusic).l, JmpTo5_PlayMusic
 	bra.w	JmpTo65_DeleteObject
