@@ -1628,7 +1628,9 @@ zBGMLoad:
 	push	hl
 	push	de
 	push	bc
+    if OptimiseDriver=0
 	exx
+    endif
 	call	zSaxmanDec
 	exx
 	pop	bc
@@ -3536,7 +3538,6 @@ idstart :=	81h
 
 ;zsub_1271
 zSaxmanDec:
-	exx
     if OptimiseDriver
 	xor	a
 	ld	b,a
@@ -3544,6 +3545,7 @@ zSaxmanDec:
 	ld	d,a
 	ld	e,a
     else
+	exx
 	ld	bc,0
 	ld	de,0
     endif
@@ -3563,13 +3565,17 @@ zSaxmanReadLoop:
 	exx							; shadow reg set
 	srl	c						; c >> 1 (active control byte)
 	srl	b						; b >> 1 (just a mask that lets us know when we need to reload)
+    if OptimiseDriver
+	jr	c,+					; if it's set, we still have bits left in 'c'; jump to '+'
+    else
 	bit	0,b						; test next bit of 'b'
 	jr	nz,+					; if it's set, we still have bits left in 'c'; jump to '+'
+    endif
 	; If you get here, we're out of bits in 'c'!
 	call	zDecEndOrGetByte	; get next byte -> 'a'
 	ld	c,a						; a -> 'c'
     if OptimiseDriver
-	dec	b					; b = FFh (8 new bits in 'c')
+	ld	b,7Fh					; b = 7Fh (7 new bits in 'c')
     else
 	ld	b,0FFh					; b = FFh (8 new bits in 'c')
     endif
