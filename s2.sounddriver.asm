@@ -187,9 +187,9 @@ zPSG =		$7F11
 zROMWindow =	$8000
 ; more equates: addresses specific to this program (besides labelled addresses)
 zMusicData =	$1380 ; don't change this unless you change all the pointers in the BINCLUDE'd music too...
-zComRange =	zMusicData+$800 ; 1B80h ; most communication between Z80 and 68k happens in here, among other things (like stack storage)
+zStack =	zMusicData+$800 ; 1B80h
 
-	phase zComRange
+	phase zStack
 zAbsVar:		zVar
 
 zTracksStart:		; This is the beginning of all BGM track memory
@@ -291,7 +291,7 @@ zmake68kPtr function addr,zROMWindow+(addr&7FFFh)
 ; Z80 'ROM' start:
 ;zEntryPoint:
 	di	; disable interrupts
-	ld	sp,zComRange ; sp = zComRange
+	ld	sp,zStack
 	jp	zloc_167
 ; ---------------------------------------------------------------------------
 ; zbyte_7:
@@ -373,7 +373,7 @@ zVInt:    rsttarget
 	call	zBankSwitchToMusic	; Bank switch to the music (depending on which BGM is playing in my version)
 	xor	a						; Clear 'a'
 	ld	(zDoSFXFlag),a			; Not updating SFX (updating music)
-	ld	ix,zComRange			; ix points to zComRange
+	ld	ix,zAbsVar			; ix points to zComRange
 	ld	a,(zAbsVar.StopMusic)			; Get pause/unpause flag
 	or	a						; test 'a'
 	jr	z,zUpdateEverything		; If zero, go to zUpdateEverything
@@ -546,7 +546,7 @@ TempoWait:
 	; overflows, it will update.  So a tempo of 80h will update every other
 	; frame, or 30 times a second.
 
-	ld	ix,zComRange		; ix points to zComRange
+	ld	ix,zAbsVar		; ix points to zComRange
 	ld	a,(ix+zVar.CurrentTempo)			; tempo value
 	add	a,(ix+zVar.TempoTimeout)			; Adds previous value to
 	ld	(ix+zVar.TempoTimeout),a			; Store this as new
@@ -1556,7 +1556,7 @@ zPlayMusic:
 	; This performs a "massive" backup of all of the current track positions 
 	; for restoration after 1-up BGM completes
 	ld	de,zTracksSaveStart	; Backup memory address
-	ld	hl,zComRange		; Starts from zComRange
+	ld	hl,zAbsVar		; Starts from zComRange
 	ld	bc,zTracksSaveEnd-zTracksSaveStart		; for this many bytes
 	ldir					; Go!
 	ld	a,80h
@@ -2327,10 +2327,10 @@ zClearTrackPlaybackMem:
 	ld	c,0							; All clear
 	rst	zWriteFMI					; Write it!
 	; This performs a full clear across all track/playback memory
-	ld	hl,zComRange
-	ld	de,zComRange+1
+	ld	hl,zAbsVar
+	ld	de,zAbsVar+1
 	ld	(hl),0						; Starting byte is 00h
-	ld	bc,(zTracksSFXEnd-zComRange)-1						; For 695 bytes...
+	ld	bc,(zTracksSFXEnd-zAbsVar)-1						; For 695 bytes...
 	ldir							; 695 bytes of clearing!  (Because it will keep copying the byte prior to the byte after; thus 00h repeatedly)
 	ld	a,80h
 	ld	(zAbsVar.QueueToPlay),a			; Nothing is queued
@@ -2351,7 +2351,7 @@ zInitMusicPlayback:
 	; specific to the music tracks...
 
 	; Save some queues/flags:
-	ld	ix,zComRange
+	ld	ix,zAbsVar
 	ld	b,(ix+zVar.SFXPriorityVal)
 	ld	c,(ix+zVar.1upPlaying)		; 1-up playing flag
 	push	bc
@@ -2362,10 +2362,10 @@ zInitMusicPlayback:
 	ld	c,(ix+zVar.SFXStereoToPlay)		; Stereo SFX queue slot
 	push	bc
 	; The following clears all playback memory and non-SFX tracks
-	ld	hl,zComRange
-	ld	de,zComRange+1
+	ld	hl,zAbsVar
+	ld	de,zAbsVar+1
 	ld	(hl),0
-	ld	bc,(zTracksEnd-zComRange)-1			; this many bytes (from start of zComRange to just short of end of PSG3 music track)
+	ld	bc,(zTracksEnd-zAbsVar)-1			; this many bytes (from start of zComRange to just short of end of PSG3 music track)
 	ldir
 	; Restore those queue/flags:
 	pop	bc
@@ -2745,7 +2745,7 @@ cfFadeInToPrevious:
 	; This performs a "massive" restoration of all of the current 
 	; track positions as they were prior to 1-up BGM
 	ld	hl,zTracksSaveStart	; Backup memory address
-	ld	de,zComRange		; Ends at zComRange
+	ld	de,zAbsVar		; Ends at zComRange
 	ld	bc,zTracksSaveEnd-zTracksSaveStart		; for this many bytes
 	ldir					; Go!
 	
