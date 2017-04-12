@@ -3563,26 +3563,31 @@ zSaxmanDec:
 zSaxmanReadLoop:
 	
 	exx							; shadow reg set
-	srl	c						; c >> 1 (active control byte)
-	srl	b						; b >> 1 (just a mask that lets us know when we need to reload)
     if OptimiseDriver
+	srl	b						; b >> 1 (just a mask that lets us know when we need to reload)
 	jr	c,+					; if it's set, we still have bits left in 'c'; jump to '+'
-    else
-	bit	0,b						; test next bit of 'b'
-	jr	nz,+					; if it's set, we still have bits left in 'c'; jump to '+'
-    endif
 	; If you get here, we're out of bits in 'c'!
 	call	zDecEndOrGetByte	; get next byte -> 'a'
 	ld	c,a						; a -> 'c'
-    if OptimiseDriver
 	ld	b,7Fh					; b = 7Fh (7 new bits in 'c')
++
+	srl	c						; test next bit of 'c'
+	exx							; normal reg set
+	jr	nc,+						; if bit not set, it's a compression bit; jump to '+'
     else
+	srl	c						; c >> 1 (active control byte)
+	srl	b						; b >> 1 (just a mask that lets us know when we need to reload)
+	bit	0,b						; test next bit of 'b'
+	jr	nz,+					; if it's set, we still have bits left in 'c'; jump to '+'
+	; If you get here, we're out of bits in 'c'!
+	call	zDecEndOrGetByte	; get next byte -> 'a'
+	ld	c,a						; a -> 'c'
 	ld	b,0FFh					; b = FFh (8 new bits in 'c')
-    endif
 +
 	bit	0,c						; test next bit of 'c'
 	exx							; normal reg set
 	jr	z,+						; if bit not set, it's a compression bit; jump to '+'
+    endif
 	; If you get here, there's a non-compressed byte
 	call	zDecEndOrGetByte	; get next byte -> 'a'	
 	ld	(de),a					; store it directly to the target memory address
