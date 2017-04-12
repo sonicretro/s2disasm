@@ -1032,7 +1032,7 @@ zFMUpdateFreq:
 zPSGUpdateTrack:
 	dec	(ix+zTrack.DurationTimeout)					; decrement current duration timeout..
 	jr	nz,+						; If not time-out yet, go do updates only
-	res		4,(ix+zTrack.PlaybackControl)				; Reset "do not attack next note" bit
+	res	4,(ix+zTrack.PlaybackControl)				; Reset "do not attack next note" bit
 	call	zPSGDoNext				; Handle coordination flags, get next note and duration
 	call	zPSGDoNoteOn			; Actually key it (if allowed)
 	call	zPSGDoVolFX				; This applies PSG volume as well as its special volume-based effects that I call "flutter"
@@ -1267,7 +1267,7 @@ zPSGNoteOff:
 	; the PSG4/noise channel needs muting, on track initialisation.
 	; This bug can be heard be playing the End of Level music in CNZ, whose
 	; music uses the noise channel. S&K's driver contains a fix just like this.
-	cp	0DFh		; Are stopping PSG3?
+	cp	0DFh		; Are we stopping PSG3?
 	ret	nz
 	ld	a,0FFh		; If so, stop noise channel while we're at it
 	ld	(zPSG),a	; Stop noise channel
@@ -1862,7 +1862,7 @@ zloc_8FB:
 	; zFMNoteOff isn't enough to silence the entire channel:
 	; For added measure, we set Total Level and Release Rate, too.
 -	push	bc
-	bit	2,(ix+0)		; Is bit 2 (SFX overriding) set?
+	bit	2,(ix+zTrack.PlaybackControl)		; Is bit 2 (SFX overriding) set?
 	call	z,zFMSilenceChannel	; If not, branch
 	add	ix,de						; Next track
 	pop	bc
@@ -1884,7 +1884,7 @@ zloc_8FB:
     if FixDriverBugs
 zFMSilenceChannel:
 	call	zSetMaxRelRate
-	ld	a,(ix+1)		; Get voice control byte
+	ld	a,(ix+zTrack.VoiceControl)		; Get voice control byte
 	and	3			; Channels only!
 	add	a,40h			; Set total level...
 	ld	c,7Fh			; ... to minimum envelope amplitude...
@@ -1892,7 +1892,7 @@ zFMSilenceChannel:
 	jp	zFMNoteOff
 
 zSetMaxRelRate:
-	ld	a,(ix+1)		; Get voice control byte
+	ld	a,(ix+zTrack.VoiceControl)		; Get voice control byte
 	and	3			; Channels only!
 	add	a,80h			; Add register 80, set D1L to minimum and RR to maximum...
 	ld	c,0FFh			; ... for all operators on this track's channel
@@ -3243,7 +3243,7 @@ zDACStopTrack:
 ;zloc_F78
 cfSetPSGNoise:
 	ld	(ix+zTrack.VoiceControl),0E0h		; This is a PSG noise track now!
-	ld	(ix+zTrack.PSGNoise),a		; Save PSG noise setting for restoration if SFX override sit
+	ld	(ix+zTrack.PSGNoise),a		; Save PSG noise setting for restoration if SFX overrides it
 	bit	2,(ix+zTrack.PlaybackControl)		; If SFX is currently overriding it, don't actually set it!
 	ret	nz
 	ld	(zPSG),a		; Otherwise, please do
