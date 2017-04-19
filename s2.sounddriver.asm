@@ -2786,8 +2786,11 @@ cfFadeInToPrevious:
 	ld	a,(ix+zTrack.Volume)			; Get channel volume
 	add	a,c					; Apply current fade value
 	ld	(ix+zTrack.Volume),a			; Store it back
+    if OptimiseDriver=0
+	; This bit is always cleared (see zPlayMusic)
 	bit	2,(ix+zTrack.PlaybackControl)			; Is track being overridden by SFX?
 	jr	nz,+				; If so, skip next part
+    endif
 	push	bc
 	ld	a,(ix+zTrack.VoiceIndex)			; Get voice
 	call	zSetVoiceMusic	; Update voice (and set volume)
