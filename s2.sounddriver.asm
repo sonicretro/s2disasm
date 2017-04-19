@@ -2935,7 +2935,7 @@ cfChangePSGVolume:
 ; This broken code is all that's left of it.
 ;zlocret_E00 cfUnused cfUnused1
 cfClearPush:
-    if (OptimiseDriver=0)||(FixDriverBugs=0)
+    if (OptimiseDriver=0)&&(FixDriverBugs=0)
 	; Dangerous!  It doesn't put back the byte read, meaning one gets skipped!
 	ret
     endif
