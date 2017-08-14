@@ -33345,21 +33345,21 @@ Obj01_MdNormal_Checks:
 	move.b	(Ctrl_1_Press_Logical).w,d0
 	andi.b	#button_B_mask|button_C_mask|button_A_mask,d0
 	bne.s	Obj01_MdNormal
-	cmpi.b	#$A,anim(a0)
+	cmpi.b	#AniIDSonAni_Blink,anim(a0)
 	beq.s	return_1A2DE
-	cmpi.b	#$B,anim(a0)
+	cmpi.b	#AniIDSonAni_GetUp,anim(a0)
 	beq.s	return_1A2DE
-	cmpi.b	#5,anim(a0)
+	cmpi.b	#AniIDSonAni_Wait,anim(a0)
 	bne.s	Obj01_MdNormal
 	cmpi.b	#$1E,anim_frame(a0)
 	blo.s	Obj01_MdNormal
 	move.b	(Ctrl_1_Held_Logical).w,d0
 	andi.b	#button_up_mask|button_down_mask|button_left_mask|button_right_mask|button_B_mask|button_C_mask|button_A_mask,d0
 	beq.s	return_1A2DE
-	move.b	#$A,anim(a0)
+	move.b	#AniIDSonAni_Blink,anim(a0)
 	cmpi.b	#$AC,anim_frame(a0)
 	blo.s	return_1A2DE
-	move.b	#$B,anim(a0)
+	move.b	#AniIDSonAni_GetUp,anim(a0)
 	bra.s	return_1A2DE
 ; ---------------------------------------------------------------------------
 ; loc_1A2B8:
@@ -34565,7 +34565,7 @@ return_1ADCA:
 Sonic_RollRepel:
 	move.b	angle(a0),d0
 	addi.b	#$60,d0
-	cmpi.b	#-$40,d0
+	cmpi.b	#$C0,d0
 	bhs.s	return_1AE06
 	move.b	angle(a0),d0
 	jsr	(CalcSine).l
@@ -35051,7 +35051,7 @@ CheckGameOver:
 	cmp.w	y_pos(a0),d0
 	bge.w	return_1B31A
 	move.b	#8,routine(a0)	; => Obj01_Gone
-	move.w	#$3C,restart_countdown(a0)
+	move.w	#60,restart_countdown(a0)
 	addq.b	#1,(Update_HUD_lives).w	; update lives counter
 	subq.b	#1,(Life_count).w	; subtract 1 from number of lives
 	bne.s	Obj01_ResetLevel	; if it's not a game over, branch
@@ -40852,7 +40852,7 @@ CheckRightWallDist_Part2:
 	movea.w	#$10,a3
 	move.w	#0,d6
 	bsr.w	FindWall
-	move.b	#-$40,d2
+	move.b	#$C0,d2
 	bra.w	loc_1ECFE
 ; End of function CheckRightWallDist
 
