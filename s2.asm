@@ -45507,7 +45507,7 @@ Obj20_Init:
 	move.b	#8,y_radius(a0)
 	move.b	#8,x_radius(a0)
 	move.l	#Obj20_MapUnc_23254,mappings(a0)
-	move.w	#make_art_tile(ArtTile_ArtNem_HtzFireball,0,1),art_tile(a0)
+	move.w	#make_art_tile(ArtTile_ArtNem_HtzFireball2,0,1),art_tile(a0)
 	jsrto	(Adjust2PArtPointer).l, JmpTo17_Adjust2PArtPointer
 	ori.b	#4,render_flags(a0)
 	move.b	#3,priority(a0)
@@ -45618,7 +45618,7 @@ loc_23176:
 	move.b	#4,mapping_frame(a0)
 	move.w	#0,y_vel(a0)
 	move.l	#Obj20_MapUnc_23294,mappings(a0)
-	move.w	#make_art_tile(ArtTile_ArtNem_Buzzer_Fireball_1,0,1),art_tile(a0)
+	move.w	#make_art_tile(ArtTile_ArtNem_HtzFireball1,0,1),art_tile(a0)
 	jsrto	(Adjust2PArtPointer).l, JmpTo17_Adjust2PArtPointer
 	move.b	#0,mapping_frame(a0)
 	move.w	#9,objoff_32(a0)
@@ -61652,7 +61652,7 @@ loc_30008:
 	move.b	#4,mapping_frame(a0)
 	move.w	#0,y_vel(a0)
 	move.l	#Obj20_MapUnc_23294,mappings(a0)
-	move.w	#make_art_tile(ArtTile_ArtNem_Buzzer_Fireball_1,0,1),art_tile(a0)
+	move.w	#make_art_tile(ArtTile_ArtNem_HtzFireball1,0,1),art_tile(a0)
 	jsrto	(Adjust2PArtPointer).l, JmpTo62_Adjust2PArtPointer
 	move.b	#0,mapping_frame(a0)
 	move.w	#9,objoff_32(a0)
@@ -85252,7 +85252,7 @@ DbgObjList_HTZ: dbglistheader
 	dbglistobj ObjID_Seesaw, Obj14_MapUnc_21CF0,   0,   0, make_art_tile(ArtTile_ArtNem_HtzSeeSaw,0,0)
 	dbglistobj ObjID_Barrier, Obj2D_MapUnc_11822,   0,   0, make_art_tile(ArtTile_ArtNem_HtzValveBarrier,1,0)
 	dbglistobj ObjID_SmashableGround, Obj2F_MapUnc_236FA,   0,   0, make_art_tile(ArtTile_ArtKos_LevelArt,2,1)
-	dbglistobj ObjID_LavaBubble, Obj20_MapUnc_23254, $44,   2, make_art_tile(ArtTile_ArtNem_HtzFireball,0,1)
+	dbglistobj ObjID_LavaBubble, Obj20_MapUnc_23254, $44,   2, make_art_tile(ArtTile_ArtNem_HtzFireball2,0,1)
 	dbglistobj ObjID_Spring, Obj41_MapUnc_1901C, $81,   0, make_art_tile(ArtTile_ArtNem_VrtclSprng,0,0)
 	dbglistobj ObjID_Spring, Obj41_MapUnc_1901C, $90,   3, make_art_tile(ArtTile_ArtNem_HrzntlSprng,0,0)
 	dbglistobj ObjID_Spring, Obj41_MapUnc_1901C, $A0,   6, make_art_tile(ArtTile_ArtNem_VrtclSprng,0,0)
@@ -85681,7 +85681,7 @@ PlrList_GameOver_End
 PlrList_Ehz1: plrlistheader
 	plreq ArtTile_ArtNem_Waterfall, ArtNem_Waterfall
 	plreq ArtTile_ArtNem_EHZ_Bridge, ArtNem_EHZ_Bridge
-	plreq ArtTile_ArtNem_Buzzer_Fireball_2, ArtNem_Buzzer_Fireball
+	plreq ArtTile_ArtNem_Buzzer_Fireball, ArtNem_HtzFireball1
 	plreq ArtTile_ArtNem_Buzzer, ArtNem_Buzzer
 	plreq ArtTile_ArtNem_Coconuts, ArtNem_Coconuts
 	plreq ArtTile_ArtNem_Masher, ArtNem_Masher
@@ -85796,7 +85796,7 @@ PlrList_Wfz2_End
 ; Hill Top Zone primary
 ;---------------------------------------------------------------------------------------
 PlrList_Htz1: plrlistheader
-	plreq ArtTile_ArtNem_Buzzer_Fireball_1, ArtNem_Buzzer_Fireball
+	plreq ArtTile_ArtNem_HtzFireball1, ArtNem_HtzFireball1
 	plreq ArtTile_ArtNem_HtzRock, ArtNem_HtzRock
 	plreq ArtTile_ArtNem_HtzSeeSaw, ArtNem_HtzSeeSaw
 	plreq ArtTile_ArtNem_Sol, ArtNem_Sol
@@ -85813,7 +85813,7 @@ PlrList_Htz1_End
 ;---------------------------------------------------------------------------------------
 PlrList_Htz2: plrlistheader
 	plreq ArtTile_ArtNem_HtzZipline, ArtNem_HtzZipline
-	plreq ArtTile_ArtNem_HtzFireball, ArtNem_HtzFireball
+	plreq ArtTile_ArtNem_HtzFireball2, ArtNem_HtzFireball2
 	plreq ArtTile_ArtNem_HtzValveBarrier, ArtNem_HtzValveBarrier
 PlrList_Htz2_End
 ;---------------------------------------------------------------------------------------
@@ -88655,8 +88655,8 @@ Mus_Continue:   BINCLUDE	"sound/music/Continue.bin"
 
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (20 blocks)
-; Buzzer's fireball
-ArtNem_Buzzer_Fireball:	BINCLUDE	"art/nemesis/Fireball 1 (Buzzer).bin"
+; HTZ boss lava ball / Sol fireball
+ArtNem_HtzFireball1:	BINCLUDE	"art/nemesis/Fireball 1.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (24 blocks)
 ; Waterfall tiles
@@ -88664,7 +88664,7 @@ ArtNem_Waterfall:	BINCLUDE	"art/nemesis/Waterfall tiles.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (16 blocks)
 ; Another fireball
-ArtNem_HtzFireball:	BINCLUDE	"art/nemesis/Fireball 2.bin"
+ArtNem_HtzFireball2:	BINCLUDE	"art/nemesis/Fireball 2.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (8 blocks)
 ; Bridge in EHZ

@@ -2120,7 +2120,7 @@ ArtTile_ArtNem_Balkrie                = $0565
 ArtTile_ArtUnc_EHZPulseBall           = $039C
 ArtTile_ArtNem_Waterfall              = $039E
 ArtTile_ArtNem_EHZ_Bridge             = $03B6
-ArtTile_ArtNem_Buzzer_Fireball_2      = $03BE
+ArtTile_ArtNem_Buzzer_Fireball        = $03BE	; Actually unused
 ArtTile_ArtNem_Coconuts               = $03EE
 ArtTile_ArtNem_Masher                 = $0414
 ArtTile_ArtUnc_EHZMountains           = $0500
@@ -2169,12 +2169,12 @@ ArtTile_ArtNem_Nebula                 = $036E
 
 ; HTZ
 ArtTile_ArtNem_Rexon                  = $037E
-ArtTile_ArtNem_Buzzer_Fireball_1      = $039E
+ArtTile_ArtNem_HtzFireball1           = $039E
 ArtTile_ArtNem_HtzRock                = $03B2
 ArtTile_ArtNem_HtzSeeSaw              = $03C6
 ArtTile_ArtNem_Sol                    = $03DE
 ArtTile_ArtNem_HtzZipline             = $03E6
-ArtTile_ArtNem_HtzFireball            = $0416
+ArtTile_ArtNem_HtzFireball2           = $0416
 ArtTile_ArtNem_HtzValveBarrier        = $0426
 ArtTile_ArtUnc_HTZMountains           = $0500
 ArtTile_ArtUnc_HTZClouds              = ArtTile_ArtUnc_HTZMountains + $18
