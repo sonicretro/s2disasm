@@ -320,7 +320,7 @@
 #split	0x0DEAF4,0x0DEEAE,art/nemesis/Special stage messages and icons.bin
 #split	0x0DEEAE,0x0E247E,art/nemesis/Sonic and Tails animation frames in special stage.bin
 #split	0x0E247E,0x0E24FE,art/nemesis/Tails text patterns from special stage.bin
-#split	0x0F0160,0x0F02D6,art/nemesis/Fireball 1 (Buzzer).bin
+#split	0x0F0160,0x0F02D6,art/nemesis/Fireball 1.bin
 #split	0x0F02D6,0x0F03DC,art/nemesis/Waterfall tiles.bin
 #split	0x0F03DC,0x0F052A,art/nemesis/Fireball 2.bin
 #split	0x0F052A,0x0F0602,art/nemesis/EHZ bridge.bin
