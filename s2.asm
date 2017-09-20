@@ -72244,10 +72244,10 @@ return_382EE:
 ; ===========================================================================
 ; off_382F0:
 Obj9F_SubObjData:
-	subObjData Obj9F_MapUnc_38314,make_art_tile(ArtTile_ArtNem_Crabmeat,0,0),4,5,$18,$A
+	subObjData Obj9F_MapUnc_38314,make_art_tile(ArtTile_ArtNem_Shellcracker,0,0),4,5,$18,$A
 ; off_382FA:
 ObjA0_SubObjData:
-	subObjData Obj9F_MapUnc_38314,make_art_tile(ArtTile_ArtNem_Crabmeat,0,0),4,4,$C,$9A
+	subObjData Obj9F_MapUnc_38314,make_art_tile(ArtTile_ArtNem_Shellcracker,0,0),4,4,$C,$9A
 ; animation script
 ; off_38304:
 Ani_obj9F:	offsetTable
@@ -85195,7 +85195,7 @@ DbgObjList_MTZ: dbglistheader
 	dbglistobj ObjID_Scenery, Obj1C_MapUnc_11552,   1,   1, make_art_tile(ArtTile_ArtNem_BoltEnd_Rope,2,0)
 	dbglistobj ObjID_Scenery, Obj1C_MapUnc_11552,   3,   2, make_art_tile(ArtTile_ArtNem_BoltEnd_Rope,1,0)
 	dbglistobj ObjID_MTZLongPlatform, Obj65_Obj6A_Obj6B_MapUnc_26EC8, $B0,   0, make_art_tile(ArtTile_ArtKos_LevelArt,3,0)
-	dbglistobj ObjID_Shellcracker, Obj9F_MapUnc_38314, $24,   0, make_art_tile(ArtTile_ArtNem_Crabmeat,0,0)
+	dbglistobj ObjID_Shellcracker, Obj9F_MapUnc_38314, $24,   0, make_art_tile(ArtTile_ArtNem_Shellcracker,0,0)
 	dbglistobj ObjID_Asteron, ObjA4_Obj98_MapUnc_38A96, $2E,   0, make_art_tile(ArtTile_ArtNem_MtzSupernova,0,1)
 	dbglistobj ObjID_Slicer, ObjA1_MapUnc_385E2, $28,   0, make_art_tile(ArtTile_ArtNem_MtzMantis,1,0)
 	dbglistobj ObjID_LavaMarker, Obj31_MapUnc_20E74,   0,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
@@ -85736,7 +85736,7 @@ PlrList_Mtz1: plrlistheader
 	plreq ArtTile_ArtNem_MtzSteam, ArtNem_MtzSteam
 	plreq ArtTile_ArtNem_MtzSpikeBlock, ArtNem_MtzSpikeBlock
 	plreq ArtTile_ArtNem_MtzSpike, ArtNem_MtzSpike
-	plreq ArtTile_ArtNem_Crabmeat, ArtNem_Crabmeat
+	plreq ArtTile_ArtNem_Shellcracker, ArtNem_Shellcracker
 	plreq ArtTile_ArtNem_MtzSupernova, ArtNem_MtzSupernova
 PlrList_Mtz1_End
 ;---------------------------------------------------------------------------------------
@@ -87539,9 +87539,9 @@ ArtNem_Flasher:	BINCLUDE	"art/nemesis/Firefly from MCZ.bin"
 ArtNem_MtzMantis:	BINCLUDE	"art/nemesis/Praying mantis badnik from MTZ.bin"
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (36 blocks)
-; Crab badnik from MCZ			8B058:
+; Crab badnik from MTZ			8B058:
 	even
-ArtNem_Crabmeat:	BINCLUDE	"art/nemesis/Crabmeat badnik from MCZ.bin"
+ArtNem_Shellcracker:	BINCLUDE	"art/nemesis/Shellcracker badnik from MTZ.bin"
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (15 blocks)
 ; Exploding star badnik from MTZ	8B300:

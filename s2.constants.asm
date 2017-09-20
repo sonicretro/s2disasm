@@ -2126,7 +2126,7 @@ ArtTile_ArtNem_Masher                 = $0414
 ArtTile_ArtUnc_EHZMountains           = $0500
 
 ; MTZ
-ArtTile_ArtNem_Crabmeat               = $031C
+ArtTile_ArtNem_Shellcracker           = $031C
 ArtTile_ArtUnc_Lava                   = $0340
 ArtTile_ArtUnc_MTZCylinder            = $034C
 ArtTile_ArtUnc_MTZAnimBack_1          = $035C

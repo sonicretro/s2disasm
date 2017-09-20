@@ -267,7 +267,7 @@
 #split	0x08AB36,0x08AC5E,art/nemesis/Snake badnik from MCZ.bin
 #split	0x08AC5E,0x08AD80,art/nemesis/Firefly from MCZ.bin
 #split	0x08AD80,0x08B058,art/nemesis/Praying mantis badnik from MTZ.bin
-#split	0x08B058,0x08B300,art/nemesis/Crabmeat badnik from MCZ.bin
+#split	0x08B058,0x08B300,art/nemesis/Shellcracker badnik from MTZ.bin
 #split	0x08B300,0x08B430,art/nemesis/Exploding star badnik from MTZ.bin
 #split	0x08B430,0x08B6B4,art/nemesis/Weird crawling badnik from CPZ.bin
 #split	0x08B6B4,0x08B9DC,art/nemesis/Spider badnik from CPZ.bin
