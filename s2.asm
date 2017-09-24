@@ -69426,7 +69426,8 @@ Obj_DeleteBehindScreen:
 	jmp	(DisplaySprite).l
 ; ===========================================================================
 
-loc_367AA:
+; loc_367AA:
+InheritParentXYFlip:
 	move.b	render_flags(a0),d0
     if gameRevision<2
 	andi.b	#$FC,d0
@@ -69435,7 +69436,8 @@ loc_367AA:
 	move.b	render_flags(a1),d1
 	andi.b	#3,d1
     else
-	; now causes a bug where some sprites are displayed backwards (Silver Sonic's sparks and Grabber's legs)
+	; Peculiarly, REV02 changes this to only inherit the Y-flip.
+	; This causes a bug where some sprites are displayed backwards (Silver Sonic's sparks and Grabber's legs).
 	andi.b	#$FD,d0
 	move.b	status(a0),d2
 	andi.b	#$FD,d2
@@ -73242,7 +73244,7 @@ loc_38F88:
 	movea.w	objoff_2C(a0),a1 ; a1=object
 	cmpi.b	#ObjID_Grabber,id(a1)
 	bne.w	JmpTo65_DeleteObject
-	bsr.w	loc_367AA
+	bsr.w	InheritParentXYFlip
 	movea.w	objoff_2C(a0),a1 ; a1=object
 	move.b	mapping_frame(a1),d0
 	addq.b	#3,d0
@@ -74349,7 +74351,7 @@ loc_39BBA:
 
 loc_39BCC:
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	bsr.w	loc_367AA
+	bsr.w	InheritParentXYFlip
 	lea	(off_39E30).l,a1
 	bsr.w	AnimateSprite_Checked
 	jmpto	(DisplaySprite).l, JmpTo45_DisplaySprite
@@ -75190,8 +75192,8 @@ ObjB2_Main_SCZ:
 	andi.b	#p1_standing,d1	; 'on object' bit
     else
 	; 'fixes' the player being able to spin dash off the Tornado
-	andi.b	#1,d0	; 'in air' bit
-	andi.b	#1,d1	; 'in air' bit
+	andi.b	#1,d0	; 'X-flipped' bit???
+	andi.b	#1,d1	; 'X-flipped' bit???
     endif
 	eor.b	d0,d1
 	move.b	d1,objoff_2E(a0)
@@ -76467,7 +76469,7 @@ loc_3B7BC:
 	; I don't know what this change was meant to do, but it causes
 	; Sonic to not fall off ObjBD's ascending platforms when they retract,
 	; making him hover.
-	andi.b	#2,d0
+	andi.b	#2,d0	; 'Y-flipped' bit???
     endif
 	beq.s	return_3B7F6
 	bclr	#p1_standing_bit,status(a0)
