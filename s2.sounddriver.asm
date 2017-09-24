@@ -684,7 +684,6 @@ zloc_1A8:
 
 ; ---------------------------------------------------------------------------
 ; 'jman2050' DAC decode lookup table
-	ensure1byteoffset 10h
 ;zbyte_1B3
 zDACDecodeTbl:
 	db	   0,    1,   2,   4,   8,  10h,  20h,  40h
@@ -1470,7 +1469,6 @@ zPlaySoundByIndex:
 	add	a,a
 	ld	(zloc_6D5+1),a	; store into the instruction after zloc_6D5 (self-modifying code)
 
-	ensure1byteoffset 17h
 zloc_6D5:
 	jr	$
 ; ---------------------------------------------------------------------------
@@ -2596,7 +2594,6 @@ zCoordFlag:
 
 ; This is the lookup for Coordination flag routines
 
-	ensure1byteoffset 67h
 ;zloc_C92
 coordflagLookup:
 	jr	$
