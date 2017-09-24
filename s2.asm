@@ -31901,7 +31901,8 @@ Obj0D_Main_State3:
 	move.w	#(button_right_mask<<8)|0,(Ctrl_1_Logical).w
 
 loc_19434:
-	tst.b	(MainCharacter).w
+	; Thie check here is for S1's Big Ring, which would set Sonic's Object ID to 0
+	tst.b	(MainCharacter+id).w
 	beq.s	loc_1944C
 	move.w	(MainCharacter+x_pos).w,d0
 	move.w	(Camera_Max_X_pos).w,d1
