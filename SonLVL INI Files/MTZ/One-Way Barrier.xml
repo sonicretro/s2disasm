@@ -7,7 +7,7 @@
     </ImageFromMappings>
     <ImageFromMappings id="img2">
       <ArtFile filename="LevelArt" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj2D.bin" frame="1" startpal="1" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj2D.bin" frame="1" startpal="3" />
     </ImageFromMappings>
     <ImageFromMappings id="img3">
       <ArtFile filename="LevelArt" />
