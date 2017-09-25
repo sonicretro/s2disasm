@@ -3075,14 +3075,23 @@ zSetFMTLs:
 -	ld	c,(hl)				; Get next TL byte -> c
 	inc	hl					; Next voice byte...
 	rr	e					; zVolTLMaskTbl value is rotated right; if the bit 0 of this value prior to the rotate was reset (0)...
-	jr	nc,+				; ... then we make the jump here (just write the TL value directly, don't modify it)
+	jr	nc,++				; ... then we make the jump here (just write the TL value directly, don't modify it)
 
 	; Otherwise, apply channel volume to TL here
 	; It's not appropriate to alter ALL TL values, only
 	; the ones which are "slots" (output operators)
 	push	af				; Save 'a'
+    if FixDriverBugs
+	res	7,c
+    endif
 	ld	a,d					; Channel volume -> d
 	add	a,c					; Add it to the TL value
+    if FixDriverBugs
+	; Prevent attenuation overflow (volume underflow)
+	jp	p,+
+	ld	a,7Fh
+    endif
++
 	ld	c,a					; Modified value -> c
 	pop	af					; Restore 'a'
 +
