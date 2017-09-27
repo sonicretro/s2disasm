@@ -31899,9 +31899,8 @@ Obj0D_Main_State3:
 	bne.s	loc_19434
 	move.b	#1,(Control_Locked).w
 	move.w	#(button_right_mask<<8)|0,(Ctrl_1_Logical).w
-
 loc_19434:
-	; Thie check here is for S1's Big Ring, which would set Sonic's Object ID to 0
+	; This check here is for S1's Big Ring, which would set Sonic's Object ID to 0
 	tst.b	(MainCharacter+id).w
 	beq.s	loc_1944C
 	move.w	(MainCharacter+x_pos).w,d0
@@ -38768,7 +38767,7 @@ Obj0A_ReduceAir:
 	move.l	a0,-(sp)
 	movea.l	a2,a0
 	bsr.w	Sonic_ResetOnFloor_Part2
-	move.b	#$17,anim(a0)	; use Sonic's drowning animation
+	move.b	#AniIDSonAni_Drown,anim(a0)	; use Sonic's drowning animation
 	bset	#1,status(a0)
 	bset	#high_priority_bit,art_tile(a0)
 	move.w	#0,y_vel(a0)
@@ -75456,7 +75455,7 @@ loc_3AB18:
 	clr.w	inertia(a1)
 	bclr	#1,status(a1)
 	bclr	#2,status(a1)
-	move.l	#$1000505,mapping_frame(a1)
+	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|AniIDSonAni_Wait,mapping_frame(a1)
 	move.w	#$100,anim_frame_duration(a1)
 	move.b	#$13,y_radius(a1)
 	cmpi.w	#2,(Player_mode).w
@@ -75565,7 +75564,7 @@ ObjB2_Deactivate_level:
 ; loc_3AC56:
 ObjB2_Waiting_animation:
 	lea	(MainCharacter).w,a1 ; a1=character
-	move.l	#$1000505,mapping_frame(a1)
+	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|AniIDSonAni_Wait,mapping_frame(a1)
 	move.w	#$100,anim_frame_duration(a1)
 	rts
 ; ===========================================================================
