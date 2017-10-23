@@ -48820,14 +48820,14 @@ Obj2C:
 Obj2C_Index:	offsetTable
 		offsetTableEntry.w Obj2C_Init	; 0
 		offsetTableEntry.w Obj2C_Main	; 2
-		offsetTableEntry.w loc_26296	; 4
+		offsetTableEntry.w Obj2C_Leaf	; 4
 ; ===========================================================================
 ; byte_26118:
 Obj2C_CollisionFlags:
 	dc.b $D6
 	dc.b $D4	; 1
 	dc.b $D5	; 2
-	dc.b   0	; 3
+	even
 ; ===========================================================================
 ; loc_2611C:
 Obj2C_Init:
@@ -48859,7 +48859,7 @@ Obj2C_Main:
 	lea	(MainCharacter).w,a2 ; a2=character
 	bclr	#0,collision_property(a0)
 	beq.s	Obj2C_RemoveCollision
-	bsr.s	loc_261C8
+	bsr.s	Obj2C_CreateLeaves
 	tst.w	objoff_2E(a0)
 	bne.s	Obj2C_RemoveCollision
 	move.w	(Timer_frames).w,objoff_2E(a0)
@@ -48873,7 +48873,7 @@ loc_26198:
 	lea	(Sidekick).w,a2 ; a2=character
 	bclr	#1,collision_property(a0)
 	beq.s	Obj2C_RemoveCollision
-	bsr.s	loc_261C8
+	bsr.s	Obj2C_CreateLeaves
 	tst.w	objoff_2E(a0)
 	bne.s	Obj2C_RemoveCollision
 	move.w	(Timer_frames).w,objoff_2E(a0)
@@ -48887,8 +48887,8 @@ loc_261C2:
 	clr.w	objoff_2E(a0)
 	rts
 ; ===========================================================================
-
-loc_261C8:
+; loc_261C8:
+Obj2C_CreateLeaves:
 	mvabs.w	x_vel(a2),d0
 	cmpi.w	#$200,d0
 	bhs.s	loc_261E4
@@ -48898,7 +48898,7 @@ loc_261C8:
 
 loc_261E4:
 	lea	(Obj2C_Speeds).l,a3
-	moveq	#3,d6
+	moveq	#4-1,d6
 
 loc_261EC:
 	jsrto	(SingleObjLoad).l, JmpTo6_SingleObjLoad
@@ -48931,7 +48931,10 @@ loc_261EC:
 	move.b	#8,width_pixels(a1)
 	move.b	#1,priority(a1)
 	move.b	#4,objoff_38(a1)
-	move.b	d1,angle(a0)
+	; (Bug) This line makes no sense: d1 is never set to anything,
+	; the object being written to is the parent, not the child,
+	; and angle isn't used by the parent at all.
+	move.b	d1,angle(a0)		; ???
 
 loc_26278:
 	dbf	d6,loc_261EC
@@ -48945,8 +48948,8 @@ Obj2C_Speeds:
 	dc.w -$C0, $40	; 2
 	dc.w  $80, $80	; 3
 ; ===========================================================================
-
-loc_26296:
+; loc_26296:
+Obj2C_Leaf:
 	move.b	objoff_38(a0),d0
 	add.b	d0,angle(a0)
 	add.b	(Vint_runcount+3).w,d0
@@ -82079,7 +82082,7 @@ BranchTo_Touch_Enemy
 
 loc_3FA00:
 	move.w	a0,d1
-	subi.w	#Object_RAM,d1
+	subi.w	#MainCharacter,d1
 	beq.s	+
 	addq.b	#1,collision_property(a1)
 +
