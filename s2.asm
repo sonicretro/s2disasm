@@ -1564,7 +1564,11 @@ ProcessDMAQueue_Done:
 
 ; ---------------------------------------------------------------------------
 ; START OF NEMESIS DECOMPRESSOR
-
+; decompresses art directly to VRAM
+; Inputs:
+; a0 = art address
+; a VDP command to write to the destination VRAM address must be issued
+; before calling this routine.
 ; For format explanation see http://info.sonicretro.org/Nemesis_compression
 ; ---------------------------------------------------------------------------
 
@@ -1578,120 +1582,131 @@ NemDec:
 	lea	(VDP_data_port).l,a4	   ; specifically, to the VDP data port
 	bra.s	NemDecMain
 
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+; ---------------------------------------------------------------------------
+; Nemesis decompression subroutine, decompresses art to RAM
+; Inputs:
+; a0 = art address
+; a4 = destination RAM address
+; ---------------------------------------------------------------------------
 
-; Nemesis decompression to RAM
-; input: a4 = starting address of destination
-; sub_14F0: NemDecB:
+; =============== S U B R O U T I N E =======================================
+
 NemDecToRAM:
 	movem.l	d0-a1/a3-a5,-(sp)
 	lea	(NemDec_WriteAndAdvance).l,a3 ; advance to the next location after each write
 
 
-; sub_14FA:
+; ---------------------------------------------------------------------------
+; Main Nemesis decompression subroutine
+; ---------------------------------------------------------------------------
+
+; =============== S U B R O U T I N E =======================================
+
 NemDecMain:
 	lea	(Decomp_Buffer).w,a1
-	move.w	(a0)+,d2
+	move.w	(a0)+,d2	; get number of patterns
 	lsl.w	#1,d2
-	bcc.s	+
-	adda.w	#NemDec_WriteAndStay_XOR-NemDec_WriteAndStay,a3
-+	lsl.w	#2,d2
-	movea.w	d2,a5
-	moveq	#8,d3
+	bcc.s	+	; branch if the sign bit isn't set
+	adda.w	#NemDec_WriteAndStay_XOR-NemDec_WriteAndStay,a3	; otherwise the file uses XOR mode
++	lsl.w	#2,d2	; get number of 8-pixel rows in the uncompressed data
+	movea.w	d2,a5	; and store it in a5 because there aren't any spare data registers
+	moveq	#8,d3	; 8 pixels in a pattern row
 	moveq	#0,d2
 	moveq	#0,d4
 	bsr.w	NemDecPrepare
-	move.b	(a0)+,d5
-	asl.w	#8,d5
-	move.b	(a0)+,d5
-	move.w	#$10,d6
+	move.b	(a0)+,d5	 ; get first byte of compressed data
+	asl.w	#8,d5	; shift up by a byte
+	move.b	(a0)+,d5	; get second byte of compressed data
+	move.w	#$10,d6	; set initial shift value
 	bsr.s	NemDecRun
 	movem.l	(sp)+,d0-a1/a3-a5
 	rts
 ; End of function NemDec
 
+; ---------------------------------------------------------------------------
+; Part of the Nemesis decompressor, processes the actual compressed data
+; ---------------------------------------------------------------------------
 
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+; =============== S U B R O U T I N E =======================================
 
-; part of the Nemesis decompressor
+; PCD is used throughout this subroutine as an initialism for NemDecRun
 ; sub_1528:
 NemDecRun:
 	move.w	d6,d7
-	subq.w	#8,d7
+	subq.w	#8,d7	; get shift value
 	move.w	d5,d1
-	lsr.w	d7,d1
-	cmpi.b	#-4,d1
-	bhs.s	loc_1574
+	lsr.w	d7,d1	; shift so that high bit of the code is in bit position 7
+	cmpi.b	#-4,d1	; are the high 6 bits set?
+	bhs.s	Nem_PCD_InlineData	; if they are, it signifies inline data
 	andi.w	#$FF,d1
 	add.w	d1,d1
-	move.b	(a1,d1.w),d0
+	move.b	(a1,d1.w),d0	; get the length of the code in bits
 	ext.w	d0
-	sub.w	d0,d6
-	cmpi.w	#9,d6
-	bhs.s	+
+	sub.w	d0,d6	; subtract from shift value so that the next code is read next time around
+	cmpi.w	#9,d6	; does a new byte need to be read?
+	bhs.s	+	; if not, branch
 	addq.w	#8,d6
 	asl.w	#8,d5
-	move.b	(a0)+,d5
+	move.b	(a0)+,d5	; read next byte
 +	move.b	1(a1,d1.w),d1
 	move.w	d1,d0
-	andi.w	#$F,d1
-	andi.w	#$F0,d0
+	andi.w	#$F,d1	; get palette index for pixel
+	andi.w	#$F0,d0	
 
-loc_155E:
-	lsr.w	#4,d0
+Nem_PCD_GetRepeatCount:
+	lsr.w	#4,d0	; get repeat count
 
-loc_1560:
-	lsl.l	#4,d4
-	or.b	d1,d4
-	subq.w	#1,d3
-	bne.s	NemDec_WriteIter_Part2
-	jmp	(a3) ; dynamic jump! to NemDec_WriteAndStay, NemDec_WriteAndAdvance, NemDec_WriteAndStay_XOR, or NemDec_WriteAndAdvance_XOR
+Nem_PCD_WritePixel:
+	lsl.l	#4,d4	; shift up by a nybble
+	or.b	d1,d4	; write pixel
+	subq.w	#1,d3	; has an entire 8-pixel row been written?
+	bne.s	NemDec_WriteIter_Part2	; if not, loop
+	jmp	(a3) ; dynamic jump! to NemDec_WriteAndStay, NemDec_WriteAndAdvance, NemDec_WriteAndStay_XOR, or NemDec_WriteAndAdvance_XOR to write the row to its destination !
 ; ===========================================================================
 ; loc_156A:
 NemDec_WriteIter:
-	moveq	#0,d4
-	moveq	#8,d3
+	moveq	#0,d4	; reset row
+	moveq	#8,d3	; reset nybble counter
 ; loc_156E:
 NemDec_WriteIter_Part2:
-	dbf	d0,loc_1560
+	dbf	d0,Nem_PCD_WritePixel
 	bra.s	NemDecRun
 ; ===========================================================================
 
-loc_1574:
-	subq.w	#6,d6
+Nem_PCD_InlineData:
+	subq.w	#6,d6	; 6 bits needed to signal inline data
 	cmpi.w	#9,d6
 	bhs.s	+
 	addq.w	#8,d6
 	asl.w	#8,d5
 	move.b	(a0)+,d5
 +
-	subq.w	#7,d6
+	subq.w	#7,d6	; and 7 bits needed for the inline data itself
 	move.w	d5,d1
-	lsr.w	d6,d1
+	lsr.w	d6,d1	; shift so that low bit of the code is in bit position 0
 	move.w	d1,d0
-	andi.w	#$F,d1
-	andi.w	#$70,d0
+	andi.w	#$F,d1	; get palette index for pixel
+	andi.w	#$70,d0	; high nybble is repeat count for pixel
 	cmpi.w	#9,d6
-	bhs.s	loc_155E
+	bhs.s	Nem_PCD_GetRepeatCount
 	addq.w	#8,d6
 	asl.w	#8,d5
 	move.b	(a0)+,d5
-	bra.s	loc_155E
-; End of function NemDecRun
+	bra.s	Nem_PCD_GetRepeatCount
 
 ; ===========================================================================
 ; loc_15A0:
 NemDec_WriteAndStay:
-	move.l	d4,(a4)
+	move.l	d4,(a4)	; write 8-pixel row
 	subq.w	#1,a5
-	move.w	a5,d4
-	bne.s	NemDec_WriteIter
-	rts
+	move.w	a5,d4	; have all the 8-pixel rows been written?
+	bne.s	NemDec_WriteIter	; if not, branch
+	rts	; otherwise the decompression is finished
 ; ---------------------------------------------------------------------------
 ; loc_15AA:
 NemDec_WriteAndStay_XOR:
-	eor.l	d4,d2
-	move.l	d2,(a4)
+	eor.l	d4,d2	; XOR the previous row by the current row
+	move.l	d2,(a4)	; and write the result
 	subq.w	#1,a5
 	move.w	a5,d4
 	bne.s	NemDec_WriteIter
@@ -1719,54 +1734,67 @@ NemDec_WriteAndAdvance_XOR:
 	move.w	a5,d4
 	bne.s	NemDec_WriteIter
 	rts
+; End of function NemDecRun
 
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-; Part of the Nemesis decompressor
+; ---------------------------------------------------------------------------
+; Part of the Nemesis decompressor, builds the code table (in RAM)
+; ---------------------------------------------------------------------------
 
+; =============== S U B R O U T I N E =======================================
+
+; BCT is used throughout this subroutine as an initialism for NemDecPrepare
 ; sub_15CC:
 NemDecPrepare:
-	move.b	(a0)+,d0
-
--	cmpi.b	#$FF,d0
-	bne.s	+
-	rts
+	move.b	(a0)+,d0	; read first byte	
+	
+Nem_BCT_ChkEnd:
+	cmpi.b	#$FF,d0	; has the end of the code table description been reached?
+	bne.s	Nem_BCT_NewPalIndex	; if not, branch
+	rts	; otherwise, this subroutine's work is done
 ; ---------------------------------------------------------------------------
-+	move.w	d0,d7
+Nem_BCT_NewPalIndex:
+	move.w	d0,d7
 
-loc_15D8:
-	move.b	(a0)+,d0
-	cmpi.b	#$80,d0
-	bhs.s	-
-
+Nem_BCT_Loop:
+	move.b	(a0)+,d0	; read next byte
+	cmpi.b	#$80,d0	; sign bit being set signifies a new palette index
+	bcc.s	Nem_BCT_ChkEnd	; a bmi could have been used instead of a compare and bcc
 	move.b	d0,d1
-	andi.w	#$F,d7
-	andi.w	#$70,d1
-	or.w	d1,d7
-	andi.w	#$F,d0
+	andi.w	#$F,d7	; get palette index
+	andi.w	#$70,d1	; get repeat count for palette index
+	or.w	d1,d7	; combine the two
+	andi.w	#$F,d0	; get the length of the code in bits
 	move.b	d0,d1
 	lsl.w	#8,d1
-	or.w	d1,d7
+	or.w	d1,d7	; combine with palette index and repeat count to form code table entry
 	moveq	#8,d1
-	sub.w	d0,d1
-	bne.s	loc_1606
-	move.b	(a0)+,d0
-	add.w	d0,d0
-	move.w	d7,(a1,d0.w)
-	bra.s	loc_15D8
+	sub.w	d0,d1	; is the code 8 bits long?
+	bne.s	Nem_BCT_ShortCode	; if not, a bit of extra processing is needed
+	move.b	(a0)+,d0	; get code
+	add.w	d0,d0	; each code gets a word-sized entry in the table
+	move.w	d7,(a1,d0.w)	; store the entry for the code
+	bra.s	Nem_BCT_Loop	; repeat
 ; ---------------------------------------------------------------------------
-loc_1606:
-	move.b	(a0)+,d0
-	lsl.w	d1,d0
-	add.w	d0,d0
+
+; the Nemesis decompressor uses prefix-free codes (no valid code is a prefix of a longer code)
+; e.g. if 10 is a valid 2-bit code, 110 is a valid 3-bit code but 100 isn't
+; also, when the actual compressed data is processed the high bit of each code is in bit position 7
+; so the code needs to be bit-shifted appropriately over here before being used as a code table index
+; additionally, the code needs multiple entries in the table because no masking is done during compressed data processing
+; so if 11000 is a valid code then all indices of the form 11000XXX need to have the same entry
+Nem_BCT_ShortCode:
+	move.b	(a0)+,d0	; get code
+	lsl.w	d1,d0	; shift so that high bit is in bit position 7
+	add.w	d0,d0	; get index into code table
 	moveq	#1,d5
 	lsl.w	d1,d5
-	subq.w	#1,d5
+	subq.w	#1,d5	; d5 = 2^d1 - 1
 
--	move.w	d7,(a1,d0.w)
+Nem_BCT_ShortCode_Loop:
+	move.w	d7,(a1,d0.w)
 	addq.w	#2,d0
-	dbf	d5,-
-
-	bra.s	loc_15D8
+	dbf	d5,Nem_BCT_ShortCode_Loop	; repeat for required number of entries
+	bra.s	Nem_BCT_Loop
 ; End of function NemDecPrepare
 
 ; ---------------------------------------------------------------------------
@@ -23137,7 +23165,6 @@ Obj37_Main:
 	neg.w	y_vel(a0)
 
 loc_121B8:
-
 	tst.b	(Ring_spill_anim_counter).w
 	beq.s	Obj37_Delete
 	move.w	(Camera_Max_Y_pos_now).w,d0
@@ -33700,7 +33727,7 @@ Obj01_SettleLeft:
 Obj01_Traction:
 	move.b	angle(a0),d0
 	jsr	(CalcSine).l
-	muls.w	inertia(a0),d1
+	muls.w	inertia(a0),d1	
 	asr.l	#8,d1
 	move.w	d1,x_vel(a0)
 	muls.w	inertia(a0),d0
@@ -34233,15 +34260,15 @@ Sonic_Jump:
 	clr.b	stick_to_convex(a0)
 	move.w	#SndID_Jump,d0
 	jsr	(PlaySound).l	; play jumping sound
-	move.b	#$13,y_radius(a0)
-	move.b	#9,x_radius(a0)
-	btst	#2,status(a0)
-	bne.s	Sonic_RollJump
-	move.b	#$E,y_radius(a0)
-	move.b	#7,x_radius(a0)
+	move.b	#$13,y_radius(a0)	; set to standing height
+	move.b	#9,x_radius(a0)		; and width (which is doesn't make sense and makes hitbox inaccurate)
+	btst	#2,status(a0)	; is Sonic rolling?
+	bne.s	Sonic_RollJump	; if yes, branch
+	move.b	#$E,y_radius(a0)	; set to rolling height
+	move.b	#7,x_radius(a0)		; and width
 	move.b	#AniIDSonAni_Roll,anim(a0)	; use "jumping" animation
 	bset	#2,status(a0)
-	addq.w	#5,y_pos(a0)
+	addq.w	#5,y_pos(a0)	; move to ground
 
 return_1AAE6:
 	rts
@@ -34318,7 +34345,7 @@ Sonic_CheckGoSuper:
 	move.b	#1,(Super_Sonic_palette).w
 	move.b	#$F,(Palette_timer).w
 	move.b	#1,(Super_Sonic_flag).w
-	move.b	#$81,obj_control(a0)
+	move.b	#$81,obj_control(a0)	; lock Sonic in place
 	move.b	#AniIDSupSonAni_Transform,anim(a0)			; use transformation animation
 	move.b	#ObjID_SuperSonicStars,(SuperSonicStars+id).w ; load Obj7E (super sonic stars object) at $FFFFD040
 	move.w	#$A00,(Sonic_top_speed).w
@@ -34347,11 +34374,11 @@ return_1ABA4:
 Sonic_Super:
 	tst.b	(Super_Sonic_flag).w	; Ignore all this code if not Super Sonic
 	beq.w	return_1AC3C
-	tst.b	(Update_HUD_timer).w
-	beq.s	Sonic_RevertToNormal ; ?
+	tst.b	(Update_HUD_timer).w	; has level ended?
+	beq.s	Sonic_RevertToNormal	; if yes, branch
 	subq.w	#1,(Super_Sonic_frame_count).w
 	bpl.w	return_1AC3C
-	move.w	#60,(Super_Sonic_frame_count).w	; Reset frame counter to 60
+	move.w	#60,(Super_Sonic_frame_count).w	; Reset frame counter to 60 (It counts for 61 frames because the instruction above should be bhi, not bpl)
 	tst.w	(Ring_count).w
 	beq.s	Sonic_RevertToNormal
 	ori.b	#1,(Update_HUD_rings).w
@@ -34440,10 +34467,10 @@ Sonic_UpdateSpindash:
 	moveq	#0,d0
 	move.b	spindash_counter(a0),d0
 	add.w	d0,d0
-	move.w	SpindashSpeeds(pc,d0.w),inertia(a0)
-	tst.b	(Super_Sonic_flag).w
-	beq.s	+
-	move.w	SpindashSpeedsSuper(pc,d0.w),inertia(a0)
+	move.w	SpindashSpeeds(pc,d0.w),inertia(a0)	; set inertia relative to spindash speed
+	tst.b	(Super_Sonic_flag).w	; is Sonic Super ?
+	beq.s	+	; if not, branch
+	move.w	SpindashSpeedsSuper(pc,d0.w),inertia(a0)	; set inertia relative to Super Sonic spindash speed
 +
 	move.w	inertia(a0),d0
 	subi.w	#$800,d0
@@ -34924,8 +34951,8 @@ Sonic_ResetOnFloor_Part2:
 	_cmpi.b	#ObjID_Sonic,id(a0)	; is this object ID Sonic (obj01)?
 	bne.w	Tails_ResetOnFloor_Part2	; if not, branch to the Tails version of this code
 
-	btst	#2,status(a0)
-	beq.s	Sonic_ResetOnFloor_Part3
+	btst	#2,status(a0)	; is Sonic rolling?
+	beq.s	Sonic_ResetOnFloor_Part3	; if not, branch
 	bclr	#2,status(a0)
 	move.b	#$13,y_radius(a0) ; this increases Sonic's collision height to standing
 	move.b	#9,x_radius(a0)
@@ -38402,9 +38429,9 @@ Obj05_Main:
 +
 	moveq	#0,d0
 	move.b	anim(a2),d0
-	btst	#5,status(a2)
-	beq.s	+
-	moveq	#4,d0
+	btst	#5,status(a2)	; is Tails about to push against something?
+	beq.s	+	; if not, branch
+	moveq	#4,d0	; set tails's tail pushing animation
 +
 	; This is here so Obj05Ani_Flick works
 	; It changes anim(a0) itself, so we don't want the below code changing it as well
@@ -38417,7 +38444,7 @@ Obj05_Main:
 	lea	(Obj05AniData).l,a1
 	bsr.w	Tails_Animate_Part2
 	bsr.w	LoadTailsTailsDynPLC
-	jsr	(DisplaySprite).l
+	jsr	(DisplaySprite).l	; Display Tails' tails
 	rts
 ; ===========================================================================
 ; animation master script table for the tails
