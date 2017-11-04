@@ -4920,22 +4920,22 @@ windtunnel_max_y_pos	= 6
 
 ; sub_460A:
 WindTunnel:
-	tst.w	(Debug_placement_mode).w
-	bne.w	WindTunnel_End	; don't interact with wind tunnels while in debug mode
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.w	WindTunnel_End	; if yes, don't interact with wind tunnels
 	lea	(WindTunnelsCoordinates).l,a2
 	moveq	#(WindTunnelsCoordinates_End-WindTunnelsCoordinates)/8-1,d1
 	lea	(MainCharacter).w,a1 ; a1=character
 -	; check for current wind tunnel if the main character is inside it
 	move.w	x_pos(a1),d0
-	cmp.w	windtunnel_min_x_pos(a2),d0
-	blo.w	WindTunnel_Leave	; branch, if main character is too far left
-	cmp.w	windtunnel_max_x_pos(a2),d0
-	bhs.w	WindTunnel_Leave	; branch, if main character is too far right
+	cmp.w	windtunnel_min_x_pos(a2),d0	; is main character is too far left ?
+	blo.w	WindTunnel_Leave	; if yes, branch
+	cmp.w	windtunnel_max_x_pos(a2),d0	; is main character is too far right ?
+	bhs.w	WindTunnel_Leave	; if yes, branch
 	move.w	y_pos(a1),d2
-	cmp.w	windtunnel_min_y_pos(a2),d2
-	blo.w	WindTunnel_Leave	; branch, if main character is too far up
-	cmp.w	windtunnel_max_y_pos(a2),d2
-	bhs.s	WindTunnel_Leave	; branch, if main character is too far down
+	cmp.w	windtunnel_min_y_pos(a2),d2 ; is main character is too far up ?
+	blo.w	WindTunnel_Leave	; if yes, branch
+	cmp.w	windtunnel_max_y_pos(a2),d2	; is main character is too far down ?
+	bhs.s	WindTunnel_Leave	; if yes, branch
 	tst.b	(WindTunnel_holding_flag).w
 	bne.w	WindTunnel_End
 	cmpi.b	#4,routine(a1)		; is the main character hurt, dying, etc. ?
@@ -5549,8 +5549,8 @@ LevelEnd_SetSignpost:
 CheckLoadSignpostArt:
 	tst.w	(Level_Has_Signpost).w
 	beq.s	+	; rts
-	tst.w	(Debug_placement_mode).w
-	bne.s	+	; rts
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.s	+	; if yes, rts
 	move.w	(Camera_X_pos).w,d0
 	move.w	(Camera_Max_X_pos).w,d1
 	subi.w	#$100,d1
@@ -14411,8 +14411,8 @@ DeformBgLayer:
 	clr.w	(Camera_Y_pos_diff_P2).w
 	cmpi.b	#sky_chase_zone,(Current_Zone).w
 	bne.w	+
-	tst.w	(Debug_placement_mode).w
-	beq.w	loc_C4D0	; skip normal scrolling for SCZ
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	beq.w	loc_C4D0	; if yes, skip normal scrolling for SCZ
 +
 	tst.b	(Scroll_lock).w
 	bne.s	DeformBgLayerAfterScrollVert
@@ -16371,8 +16371,8 @@ SwScrl_ARZ_RowHeights:
 ; ===========================================================================
 ; loc_D5DE:
 SwScrl_SCZ:
-	tst.w	(Debug_placement_mode).w
-	bne.w	SwScrl_Minimal
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.w	SwScrl_Minimal	; if yes, branch
 	lea	(Camera_X_pos).w,a1
 	lea	(Scroll_flags).w,a3
 	lea	(Camera_X_pos_diff).w,a4
@@ -20758,8 +20758,8 @@ loc_FF6E:
 	addi.w	#$20,d0
 	cmpi.w	#$40,d0
 	bhs.s	loc_10006
-	tst.w	(Debug_placement_mode).w
-	bne.w	loc_10006
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.w	loc_10006	; if yes, branch
 	move.b	#1,objoff_34(a0)
 +
 	tst.b	objoff_3D(a0)
@@ -23148,36 +23148,36 @@ Obj37_Main:
 	move.b	(Ring_spill_anim_frame).w,mapping_frame(a0)
 	bsr.w	ObjectMove
 	addi.w	#$18,y_vel(a0)
-	bmi.s	loc_121B8
+	bmi.s	Obj37_ChkDel
 	move.b	(Vint_runcount+3).w,d0
 	add.b	d7,d0
 	andi.b	#7,d0
-	bne.s	loc_121B8
+	bne.s	Obj37_ChkDel
 	tst.b	render_flags(a0)
 	bpl.s	loc_121D0
 	jsr	(RingCheckFloorDist).l
 	tst.w	d1
-	bpl.s	loc_121B8
+	bpl.s	Obj37_ChkDel
 	add.w	d1,y_pos(a0)
 	move.w	y_vel(a0),d0
 	asr.w	#2,d0
 	sub.w	d0,y_vel(a0)
 	neg.w	y_vel(a0)
 
-loc_121B8:
+Obj37_ChkDel:
 	tst.b	(Ring_spill_anim_counter).w
 	beq.s	Obj37_Delete
 	move.w	(Camera_Max_Y_pos_now).w,d0
 	addi.w	#$E0,d0
-	cmp.w	y_pos(a0),d0
-	blo.s	Obj37_Delete
+	cmp.w	y_pos(a0),d0	; has object moved below level boundary?
+	blo.s	Obj37_Delete	; if yes, branch
 	bra.w	DisplaySprite
 ; ===========================================================================
 
 loc_121D0:
 	tst.w	(Two_player_mode).w
 	bne.w	Obj37_Delete
-	bra.s	loc_121B8
+	bra.s	Obj37_ChkDel
 ; ===========================================================================
 ; Obj_37_sub_4:
 Obj37_Collect:
@@ -31920,8 +31920,8 @@ Obj0D_RingSparklePositions:
 ; ===========================================================================
 ; loc_19418:
 Obj0D_Main_State3:
-	tst.w	(Debug_placement_mode).w
-	bne.w	return_194D0
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.w	return_194D0	; if yes, branch
 	btst	#1,(MainCharacter+status).w
 	bne.s	loc_19434
 	move.b	#1,(Control_Locked).w
@@ -32466,8 +32466,8 @@ SolidObject_ChkBounds:
 	bmi.w	SolidObject_TestClearPush	; branch, if object collisions are disabled for Sonic
 	cmpi.b	#6,routine(a1)		; is Sonic dead?
 	bhs.w	loc_19AEA		; if yes, branch
-	tst.w	(Debug_placement_mode).w
-	bne.w	loc_19AEA		; branch, if in debug mode
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.w	loc_19AEA		; if yes, branch
 
 	move.w	d0,d5
 	cmp.w	d0,d1
@@ -32643,10 +32643,10 @@ MvSonicOnPtfm:
 loc_19BA2:
 	tst.b	obj_control(a1)
 	bmi.s	return_19BCA
-	cmpi.b	#6,routine(a1)
-	bhs.s	return_19BCA
-	tst.w	(Debug_placement_mode).w
-	bne.s	return_19BCA
+	cmpi.b	#6,routine(a1)	; is Sonic dead ?
+	bhs.s	return_19BCA	; if yes, branch
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.s	return_19BCA	; if yes, branch
 	moveq	#0,d1
 	move.b	y_radius(a1),d1
 	sub.w	d1,d0
@@ -32937,8 +32937,8 @@ PlatformObject_ChkYRange:
 	blo.w	return_19E8E
 	tst.b	obj_control(a1)
 	bmi.w	return_19E8E
-	cmpi.b	#6,routine(a1)
-	bhs.w	return_19E8E
+	cmpi.b	#6,routine(a1)	; is Sonic dead ?
+	bhs.w	return_19E8E	; if yes,	branch
 	add.w	d0,d2
 	addq.w	#3,d2
 	move.w	d2,y_pos(a1)
@@ -38444,7 +38444,7 @@ Obj05_Main:
 	lea	(Obj05AniData).l,a1
 	bsr.w	Tails_Animate_Part2
 	bsr.w	LoadTailsTailsDynPLC
-	jsr	(DisplaySprite).l	; Display Tails' tails
+	jsr	(DisplaySprite).l	; Display Tails's tails
 	rts
 ; ===========================================================================
 ; animation master script table for the tails
@@ -41148,8 +41148,8 @@ loc_1F120:
 
 ; loc_1F12C:
 Obj79_Main:
-	tst.w	(Debug_placement_mode).w
-	bne.w	Obj79_Animate
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.w	Obj79_Animate	; if yes, branch
 	lea	(MainCharacter).w,a3 ; a3=character
 	move.b	(Last_star_pole_hit).w,d1
 	bsr.s	Obj79_CheckActivation
@@ -41539,8 +41539,8 @@ Obj7D_Init:
 	add.w	d2,d1
 	cmp.w	d3,d1
 	bhs.s	Obj7D_NoAdd
-	tst.w	(Debug_placement_mode).w
-	bne.s	Obj7D_NoAdd
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.s	Obj7D_NoAdd	; if yes, branch
 	tst.b	(SpecialStage_flag_2P).w
 	bne.s	Obj7D_NoAdd
 	addq.b	#2,routine(a0)
@@ -42235,8 +42235,8 @@ Obj03_Init_CheckX:
 
 ; loc_1FDA4:
 Obj03_MainX:
-	tst.w	(Debug_placement_mode).w
-	bne.w	return_1FEAC
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.w	return_1FEAC	; if yes, branch
 	move.w	x_pos(a0),d1
 	lea	objoff_34(a0),a2
 	lea	(MainCharacter).w,a1 ; a1=character
@@ -42317,8 +42317,8 @@ return_1FEAC:
 ; ===========================================================================
 
 Obj03_MainY:
-	tst.w	(Debug_placement_mode).w
-	bne.w	return_1FFB6
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.w	return_1FFB6	; if yes, branch
 	move.w	y_pos(a0),d1
 	lea	objoff_34(a0),a2
 	lea	(MainCharacter).w,a1 ; a1=character
@@ -43077,8 +43077,8 @@ Obj31_Init:
 	move.b	subtype(a0),d0
 	move.b	Obj31_CollisionFlagsBySubtype(pc,d0.w),collision_flags(a0)
 	move.l	#Obj31_MapUnc_20E6C,mappings(a0)
-	tst.w	(Debug_placement_mode).w
-	beq.s	+
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	beq.s	+	; if yes, branch
 	move.l	#Obj31_MapUnc_20E74,mappings(a0)
 +
 	move.w	#make_art_tile(ArtTile_ArtNem_Powerups,0,1),art_tile(a0)
@@ -43097,8 +43097,8 @@ Obj31_Main:
 	cmpi.w	#$280,d0
 	bhi.w	JmpTo18_DeleteObject
 +
-	tst.w	(Debug_placement_mode).w
-	beq.s	+	; rts
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	beq.s	+	; if yes, rts
 	jsrto	(DisplaySprite).l, JmpTo10_DisplaySprite
 +
 	rts
@@ -43170,8 +43170,8 @@ Obj74_Main:
     if gameRevision=0
     ; this object was visible with debug mode in REV00
 +
-	tst.w	(Debug_placement_mode).w
-	beq.s	+	; rts
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	beq.s	+	; if not, rts
 	jmp	(DisplaySprite).l
     endif
 +
@@ -43377,8 +43377,8 @@ Obj84_Init_CheckX:
 ; loc_21224:
 Obj84_MainX:
 
-	tst.w	(Debug_placement_mode).w
-	bne.s	return_21284
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.s	return_21284	; if yes, branch
 	move.w	x_pos(a0),d1
 	lea	objoff_34(a0),a2 ; a2=object
 	lea	(MainCharacter).w,a1 ; a1=character
@@ -43454,8 +43454,8 @@ loc_212C4:
 ; loc_212F6:
 Obj84_MainY:
 
-	tst.w	(Debug_placement_mode).w
-	bne.s	return_21350
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.s	return_21350	; if yes, branch
 	move.w	y_pos(a0),d1
 	lea	objoff_34(a0),a2 ; a2=object
 	lea	(MainCharacter).w,a1 ; a1=character
@@ -43563,8 +43563,8 @@ loc_21402:
 	move.b	#1,objoff_35(a0)
 ; loc_21412:
 Obj8B_Main:
-	tst.w	(Debug_placement_mode).w
-	bne.s	return_2146A
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.s	return_2146A	; if yes, branch
 	move.w	x_pos(a0),d1
 	lea	objoff_34(a0),a2 ; a2=object
 	lea	(MainCharacter).w,a1 ; a1=character
@@ -43916,8 +43916,8 @@ Obj06_Cylinder:
 	bhi.s	return_2188A
 	cmpi.w	#-$10,d0
 	blo.s	return_2188A
-	cmpi.b	#6,routine(a1)
-	bhs.s	return_2188A
+	cmpi.b	#6,routine(a1)	; is Sonic dead ?
+	bhs.s	return_2188A	; if yes, branch
 	add.w	d0,d2
 	addq.w	#3,d2
 	move.w	d2,y_pos(a1)
@@ -45135,8 +45135,8 @@ Obj1E_Modes:	offsetTable
 ; ===========================================================================
 
 loc_225FC:
-	tst.w	(Debug_placement_mode).w
-	bne.w	return_22718
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.w	return_22718	; if yes, branch
 	move.w	objoff_2A(a0),d2
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
@@ -46845,8 +46845,8 @@ Obj07_Init:
 ; loc_24054:
 Obj07_Main:
 	; check player 1
-	tst.w	(Debug_placement_mode).w
-	bne.w	Obj07_End
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.w	Obj07_End	; if yes, branch
 	lea	(MainCharacter).w,a1 ; a1=character
 	moveq	#p1_standing,d1
 	move.b	status(a0),d0
@@ -48036,8 +48036,8 @@ Obj48_Modes:	offsetTable
 ; ===========================================================================
 
 loc_252F0:
-	tst.w	(Debug_placement_mode).w
-	bne.w	return_253C4
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.w	return_253C4	; if yes, branch
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	addi.w	#$10,d0
@@ -48053,10 +48053,10 @@ loc_252F0:
 	cmpi.w	#4,(Tails_CPU_routine).w	; TailsCPU_Flying
 	beq.w	return_253C4
 +
-	cmpi.b	#6,routine(a1)
-	bhs.w	return_253C4
-	tst.w	(Debug_placement_mode).w
-	bne.w	return_253C4
+	cmpi.b	#6,routine(a1)	; is Sonic dead ?
+	bhs.w	return_253C4	; if yes, branch
+	tst.w	(Debug_placement_mode).w ; is debug mode being used?
+	bne.w	return_253C4	; if yes, branch
 	btst	#3,status(a1)
 	beq.s	+
 	moveq	#0,d0
@@ -48476,8 +48476,8 @@ Obj23_Modes:	offsetTable
 ; ===========================================================================
 
 loc_2595E:
-	tst.w	(Debug_placement_mode).w
-	bne.s	return_2598C
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.s	return_2598C	; if yes, branch
 	lea	(MainCharacter).w,a1 ; a1=character
 	bsr.s	loc_2596E
 	lea	(Sidekick).w,a1 ; a1=character
@@ -48630,8 +48630,8 @@ off_25B36:	offsetTable
 ; ===========================================================================
 
 loc_25B3C:
-	tst.w	(Debug_placement_mode).w
-	bne.s	return_25B64
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.s	return_25B64	; if yes, branch
 	lea	(MainCharacter).w,a1 ; a1=character
 	bsr.s	loc_25B4C
 	lea	(Sidekick).w,a1 ; a1=character
@@ -50104,8 +50104,8 @@ loc_2702C:
 	bhi.w	JmpTo33_DeleteObject
     if gameRevision=0
        ; this object was visible with debug mode in REV00
-	tst.w	(Debug_placement_mode).w
-	beq.s	+	; rts
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	beq.s	+	; if not, rts
 	jsrto	(DisplaySprite).l, JmpTo47_DisplaySprite
 +
     endif
@@ -50256,8 +50256,8 @@ off_271CA:	offsetTable
 ; ===========================================================================
 
 loc_271D0:
-	tst.w	(Debug_placement_mode).w
-	bne.w	return_2725E
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.w	return_2725E	; if yes, branch
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	addq.w	#3,d0
@@ -53590,8 +53590,8 @@ loc_29890:
 	bmi.s	return_29936
 	cmpi.b	#4,routine(a1)
 	bhs.s	return_29936
-	tst.w	(Debug_placement_mode).w
-	bne.s	return_29936
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.s	return_29936	; if yes, branch
 	clr.w	x_vel(a1)
 	clr.w	y_vel(a1)
 	clr.w	inertia(a1)
@@ -53826,8 +53826,8 @@ loc_29B5E:
 	bmi.s	return_29BF8
 	cmpi.b	#4,routine(a1)
 	bhs.s	return_29BF8
-	tst.w	(Debug_placement_mode).w
-	bne.s	return_29BF8
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.s	return_29BF8	; if yes, branch
 	clr.w	x_vel(a1)
 	clr.w	y_vel(a1)
 	clr.w	inertia(a1)
@@ -55074,8 +55074,8 @@ loc_2AD26:
 	bne.s	loc_2AD7A
 
 loc_2AD2A:
-	tst.w	(Debug_placement_mode).w
-	bne.s	return_2AD78
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.s	return_2AD78	; if yes, branch
 	tst.w	y_vel(a1)
 	bmi.s	return_2AD78
 	jsrto	(SolidObject_Always_SingleCharacter).l, JmpTo5_SolidObject_Always_SingleCharacter
@@ -55231,8 +55231,8 @@ return_2AF04:
 loc_2AF06:
 	move.b	(a2),d0
 	bne.s	loc_2AF7A
-	tst.w	(Debug_placement_mode).w
-	bne.s	return_2AF78
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.s	return_2AF78	; if yes, branch
 	tst.w	y_vel(a1)
 	bmi.s	return_2AF78
 	jsrto	(SolidObject_Always_SingleCharacter).l, JmpTo5_SolidObject_Always_SingleCharacter
@@ -55404,8 +55404,8 @@ Obj86_Init:
 ; ===========================================================================
 ; loc_2B194:
 Obj86_UpwardsType:
-	tst.w	(Debug_placement_mode).w
-	bne.s	return_2B208
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.s	return_2B208	; if yes, branch
 	lea	(byte_2B3C6).l,a2
 	move.b	mapping_frame(a0),d0
 	beq.s	loc_2B1B6
@@ -57491,10 +57491,10 @@ loc_2C9A0:
 	bhs.w	ObjD9_CheckCharacter_End
 	tst.b	obj_control(a1)
 	bmi.s	ObjD9_CheckCharacter_End
-	cmpi.b	#6,routine(a1)
-	bhs.s	ObjD9_CheckCharacter_End
-	tst.w	(Debug_placement_mode).w
-	bne.s	ObjD9_CheckCharacter_End
+	cmpi.b	#6,routine(a1)	; is Sonic dead ?
+	bhs.s	ObjD9_CheckCharacter_End	; if yes, branch
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.s	ObjD9_CheckCharacter_End	; if yes, branch
 	clr.w	x_vel(a1)
 	clr.w	y_vel(a1)
 	clr.w	inertia(a1)
@@ -62738,7 +62738,7 @@ Obj89_Arrow_Platform:
 	move.w	#2,d3
 	move.w	x_pos(a0),d4
 	jsrto	(PlatformObject).l, JmpTo8_PlatformObject
-	btst	#3,status(a0)			; is Sonic standing on the arrow?
+	btst	#3,status(a0)			; is the player standing on the arrow?
 	beq.s	return_30D02			; if not, branch
 	move.w	#$1F,obj89_arrow_timer(a0)	; else, set timer
 
@@ -70577,8 +70577,8 @@ loc_371E8:
 loc_371FA:
 	cmpi.w	#$50,d0
 	bhs.s	loc_3720C
-	tst.w	(Debug_placement_mode).w
-	bne.s	loc_3720C
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.s	loc_3720C	; if yes, branch
 	move.b	#1,anim(a0)
 
 loc_3720C:
@@ -75194,8 +75194,8 @@ ObjB2_Init:
 ; loc_3A7DE:
 ObjB2_Main_SCZ:
 	bsr.w	ObjB2_Animate_Pilot
-	tst.w	(Debug_placement_mode).w
-	bne.w	ObjB2_animate
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.w	ObjB2_animate	; if yes, branch
 	lea	(MainCharacter).w,a1 ; a1=character
 	move.w	art_tile(a1),d0
 	andi.w	#high_priority,d0
@@ -81970,8 +81970,8 @@ Hurt_Sound:
 
 ; loc_3F926: KillSonic:
 KillCharacter:
-	tst.w	(Debug_placement_mode).w
-	bne.s	++
+	tst.w	(Debug_placement_mode).w	; is debug mode being used?
+	bne.s	++	; if yes, branch
 	clr.b	status_secondary(a0)
 	move.b	#6,routine(a0)
 	jsrto	(Sonic_ResetOnFloor_Part2).l, JmpTo_Sonic_ResetOnFloor_Part2
