@@ -9,7 +9,7 @@
 ; Set your editor's tab width to 8 characters wide for viewing this file.
 ;
 ; It is highly suggested that you read the AS User's Manual before diving too
-; far into this disassembly. At least read the section on nameless temporaryf
+; far into this disassembly. At least read the section on nameless temporary
 ; symbols. Your brain may melt if you don't know how those work.
 ;
 ; See s2.notes.txt for more comments about this disassembly and other useful info.
@@ -536,7 +536,7 @@ Vint_SEGA:
 	jsrto	(SegaScr_VInt).l, JmpTo_SegaScr_VInt
 	tst.w	(Demo_Time_left).w	; is there time left on the demo?
 	beq.w	+	; if not, rts
-	subq.w	#1,(Demo_Time_left).w	; substract 1 from time left in demo
+	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left in demo
 +
 	rts
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -552,7 +552,7 @@ Vint_PCM:
 +
 	tst.w	(Demo_Time_left).w	; is there time left on the demo?
 	beq.w	+	; if not, rts
-	subq.w	#1,(Demo_Time_left).w	; substract 1 from time left in demo
+	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left in demo
 +
 	rts
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -562,7 +562,7 @@ Vint_Title:
 	bsr.w	ProcessDPLC
 	tst.w	(Demo_Time_left).w	; is there time left on the demo?
 	beq.w	+	; if not, rts
-	subq.w	#1,(Demo_Time_left).w	; substract 1 from time left in demo
+	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left in demo
 +
 	rts
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -656,7 +656,7 @@ Do_Updates:
 	bsr.w	ProcessDPLC2
 	tst.w	(Demo_Time_left).w	; is there time left on the demo?
 	beq.w	+		; if not, branch
-	subq.w	#1,(Demo_Time_left).w	; substract 1 from time left in demo
+	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left in demo
 +
 	rts
 ; End of function Do_Updates
@@ -752,7 +752,7 @@ SS_PNTA_Transfer_Table:	offsetTable
 	bsr.w	ProcessDPLC2
 	tst.w	(Demo_Time_left).w	; is there time left on the demo?
 	beq.w	+	; if not, rts
-	subq.w	#1,(Demo_Time_left).w	; substract 1 from time left in demo
+	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left in demo
 +
 	rts
 ; ---------------------------------------------------------------------------
@@ -965,7 +965,7 @@ Vint_Menu:
 	bsr.w	ProcessDPLC
 	tst.w	(Demo_Time_left).w	; is there time left on the demo?
 	beq.w	+	; if not, rts
-	subq.w	#1,(Demo_Time_left).w	; substract 1 from time left in demo
+	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left in demo
 +
 	rts
 
@@ -3798,7 +3798,7 @@ Sega_WaitPalette:
 	bsr.w	PlaySound	; play "SEGA" sound
 	move.b	#VintID_SEGA,(Vint_routine).w
 	bsr.w	WaitForVint
-	move.w	#3*60,(Demo_Time_left).w	; set demo time to 4 seconds
+	move.w	#3*60,(Demo_Time_left).w	; set demo time to 3 seconds
 ; loc_3940:
 Sega_WaitEnd:
 	move.b	#VintID_PCM,(Vint_routine).w
