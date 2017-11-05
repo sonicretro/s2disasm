@@ -9,7 +9,7 @@
 ; Set your editor's tab width to 8 characters wide for viewing this file.
 ;
 ; It is highly suggested that you read the AS User's Manual before diving too
-; far into this disassembly. At least read the section on nameless temporary
+; far into this disassembly. At least read the section on nameless temporaryf
 ; symbols. Your brain may melt if you don't know how those work.
 ;
 ; See s2.notes.txt for more comments about this disassembly and other useful info.
@@ -534,9 +534,9 @@ Vint_SEGA:
 
 	dma68kToVDP Horiz_Scroll_Buf,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
 	jsrto	(SegaScr_VInt).l, JmpTo_SegaScr_VInt
-	tst.w	(Demo_Time_left).w
-	beq.w	+	; rts
-	subq.w	#1,(Demo_Time_left).w
+	tst.w	(Demo_Time_left).w	; is there time left on the demo?
+	beq.w	+	; if not, rts
+	subq.w	#1,(Demo_Time_left).w	; substract 1 from time left in demo
 +
 	rts
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -550,9 +550,9 @@ Vint_PCM:
 	bsr.w	ReadJoypads
 	startZ80
 +
-	tst.w	(Demo_Time_left).w
-	beq.w	+	; rts
-	subq.w	#1,(Demo_Time_left).w
+	tst.w	(Demo_Time_left).w	; is there time left on the demo?
+	beq.w	+	; if not, rts
+	subq.w	#1,(Demo_Time_left).w	; substract 1 from time left in demo
 +
 	rts
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -560,9 +560,9 @@ Vint_PCM:
 Vint_Title:
 	bsr.w	Do_ControllerPal
 	bsr.w	ProcessDPLC
-	tst.w	(Demo_Time_left).w
-	beq.w	+	; rts
-	subq.w	#1,(Demo_Time_left).w
+	tst.w	(Demo_Time_left).w	; is there time left on the demo?
+	beq.w	+	; if not, rts
+	subq.w	#1,(Demo_Time_left).w	; substract 1 from time left in demo
 +
 	rts
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -583,8 +583,8 @@ Vint_Level:
 	tst.b	(Teleport_timer).w
 	beq.s	loc_6F8
 	lea	(VDP_control_port).l,a5
-	tst.w	(Game_paused).w
-	bne.w	loc_748
+	tst.w	(Game_paused).w	; is the game paused ?
+	bne.w	loc_748	; if yes, branch
 	subq.b	#1,(Teleport_timer).w
 	bne.s	+
 	move.b	#0,(Teleport_flag).w
@@ -656,7 +656,7 @@ Do_Updates:
 	bsr.w	ProcessDPLC2
 	tst.w	(Demo_Time_left).w	; is there time left on the demo?
 	beq.w	+		; if not, branch
-	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left
+	subq.w	#1,(Demo_Time_left).w	; substract 1 from time left in demo
 +
 	rts
 ; End of function Do_Updates
@@ -750,9 +750,9 @@ SS_PNTA_Transfer_Table:	offsetTable
 	startZ80
 
 	bsr.w	ProcessDPLC2
-	tst.w	(Demo_Time_left).w
-	beq.w	+	; rts
-	subq.w	#1,(Demo_Time_left).w
+	tst.w	(Demo_Time_left).w	; is there time left on the demo?
+	beq.w	+	; if not, rts
+	subq.w	#1,(Demo_Time_left).w	; substract 1 from time left in demo
 +
 	rts
 ; ---------------------------------------------------------------------------
@@ -963,9 +963,9 @@ Vint_Menu:
 	startZ80
 
 	bsr.w	ProcessDPLC
-	tst.w	(Demo_Time_left).w
-	beq.w	+	; rts
-	subq.w	#1,(Demo_Time_left).w
+	tst.w	(Demo_Time_left).w	; is there time left on the demo?
+	beq.w	+	; if not, rts
+	subq.w	#1,(Demo_Time_left).w	; substract 1 from time left in demo
 +
 	rts
 
@@ -3782,7 +3782,7 @@ SegaScreen_Contin:
 	lea	(SegaScreenObject).w,a1
 	move.b	#ObjID_SonicOnSegaScr,id(a1) ; load objB0 (sega screen?) at $FFFFB040
 	move.b	#$4C,subtype(a1) ; <== ObjB0_SubObjData
-	move.w	#4*60,(Demo_Time_left).w	; 4 seconds
+	move.w	#4*60,(Demo_Time_left).w	; set demo time to 4 seconds
 	move.w	(VDP_Reg1_val).w,d0
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
@@ -3798,13 +3798,13 @@ Sega_WaitPalette:
 	bsr.w	PlaySound	; play "SEGA" sound
 	move.b	#VintID_SEGA,(Vint_routine).w
 	bsr.w	WaitForVint
-	move.w	#3*60,(Demo_Time_left).w	; 3 seconds
+	move.w	#3*60,(Demo_Time_left).w	; set demo time to 4 seconds
 ; loc_3940:
 Sega_WaitEnd:
 	move.b	#VintID_PCM,(Vint_routine).w
 	bsr.w	WaitForVint
-	tst.w	(Demo_Time_left).w
-	beq.s	Sega_GotoTitle
+	tst.w	(Demo_Time_left).w	; is there time left on the demo ?
+	beq.s	Sega_GotoTitle	; if not, go to title screen
 	move.b	(Ctrl_1_Press).w,d0	; is Start button pressed?
 	or.b	(Ctrl_2_Press).w,d0	; (either player)
 	andi.b	#button_start_mask,d0
@@ -3956,7 +3956,7 @@ TitleScreen:
 	bsr.w	PalLoad_ForFade
 	move.b	#0,(Debug_mode_flag).w
 	move.w	#0,(Two_player_mode).w
-	move.w	#$280,(Demo_Time_left).w
+	move.w	#$280,(Demo_Time_left).w	; set demo time to 10 seconds 66 
 	clr.w	(Ctrl_1).w
 	move.b	#ObjID_IntroStars,(IntroSonic+id).w ; load Obj0E (flashing intro star)
 	move.b	#2,(IntroSonic+subtype).w				; Sonic
@@ -4010,12 +4010,12 @@ TitleScreen_Loop:
 
 	bsr.w	RunPLC_RAM
 	bsr.w	TailsNameCheat
-	tst.w	(Demo_Time_left).w
-	beq.w	TitleScreen_Demo
+	tst.w	(Demo_Time_left).w	; is there time left on the demo?
+	beq.w	TitleScreen_Demo	; if not, branch
 	tst.b	(IntroSonic+objoff_2F).w
 	beq.w	TitleScreen_Loop
-	move.b	(Ctrl_1_Press).w,d0
-	or.b	(Ctrl_2_Press).w,d0
+	move.b	(Ctrl_1_Press).w,d0	; is Start button pressed?
+	or.b	(Ctrl_2_Press).w,d0	; (either player)
 	andi.b	#button_start_mask,d0
 	beq.w	TitleScreen_Loop ; loop until Start is pressed
 	move.b	#GameModeID_Level,(Game_Mode).w ; => Level (Zone play mode)
@@ -4129,9 +4129,9 @@ TailsNameCheat:
 	lea	(TailsNameCheat_Buttons).l,a0
 	move.w	(Correct_cheat_entries).w,d0
 	adda.w	d0,a0
-	move.b	(Ctrl_1_Press).w,d0
+	move.b	(Ctrl_1_Press).w,d0	; has player 1 pressed Start button?
 	andi.b	#button_up_mask|button_down_mask|button_left_mask|button_right_mask,d0
-	beq.s	++	; rts
+	beq.s	++	; if not, rts
 	cmp.b	(a0),d0
 	bne.s	+
 	addq.w	#1,(Correct_cheat_entries).w
@@ -4290,12 +4290,12 @@ Level:
 	moveq	#PLCID_Miles1up,d0
 	tst.w	(Two_player_mode).w
 	bne.s	+
-	cmpi.w	#2,(Player_mode).w
-	bne.s	Level_ClrRam
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	bne.s	Level_ClrRam	; if not, branch
 	addq.w	#PLCID_MilesLife-PLCID_Miles1up,d0
 +
-	tst.b	(Graphics_Flags).w
-	bpl.s	+
+	tst.b	(Graphics_Flags).w	; are we on a Japanese Mega Drive?
+	bpl.s	+	; if yes, branch
 	addq.w	#PLCID_Tails1up-PLCID_Miles1up,d0
 +
 	bsr.w	LoadPLC
@@ -4517,13 +4517,13 @@ Level_FromCheckpoint:
 	lea	(Demo_EHZ_Tails).l,a1
 	move.b	1(a1),(Demo_press_counter_2P).w
 +
-	move.w	#$668,(Demo_Time_left).w
+	move.w	#$668,(Demo_Time_left).w	; set demo time to 27 seconds 33
 	tst.w	(Demo_mode_flag).w
 	bpl.s	+
-	move.w	#$21C,(Demo_Time_left).w
+	move.w	#$21C,(Demo_Time_left).w	; set demo time to 9 seconds
 	cmpi.w	#4,(Ending_demo_number).w
 	bne.s	+
-	move.w	#$1FE,(Demo_Time_left).w
+	move.w	#$1FE,(Demo_Time_left).w	; set demo time to 8 seconds 5
 +
 	tst.b	(Water_flag).w
 	beq.s	++
@@ -4603,8 +4603,8 @@ Level_MainLoop:
 +
 	tst.w	(Level_Inactive_flag).w
 	bne.s	+
-	tst.w	(Demo_Time_left).w
-	beq.s	+
+	tst.w	(Demo_Time_left).w	; is there time left on the demo?
+	beq.s	+	; if not, go to sega screen
 	cmpi.b	#GameModeID_Demo,(Game_Mode).w
 	beq.w	Level_MainLoop
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
@@ -4630,8 +4630,8 @@ Level_MainLoop:
 	move.w	#2,(PalChangeSpeed).w
 	bsr.w	Pal_FadeToBlack.UpdateAllColours
 +
-	tst.w	(Demo_Time_left).w
-	bne.s	-
+	tst.w	(Demo_Time_left).w	; is there time left on the demo?
+	bne.s	-	; if yes, branch
 	rts
 
 ; ---------------------------------------------------------------------------
@@ -4645,7 +4645,7 @@ Level_MainLoop:
 Level_SetPlayerMode:
 	cmpi.b	#GameModeID_TitleCard|GameModeID_Demo,(Game_Mode).w ; pre-level demo mode?
 	beq.s	+			; if yes, branch
-	tst.w	(Two_player_mode).w	; 2P mode?
+	tst.w	(Two_player_mode).w	; is it two player mode?
 	bne.s	+			; if yes, branch
 	move.w	(Player_option).w,(Player_mode).w ; use the option chosen in the Options screen
 	rts
@@ -4989,8 +4989,8 @@ OilSlides:
 	lea	(Sidekick).w,a1 ; a1=character
 	move.b	(Ctrl_2_Held_Logical).w,d2
 +
-	btst	#1,status(a1)
-	bne.s	+
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	+	; if yes, branch
 	move.w	y_pos(a1),d0
 	add.w	d0,d0
 	andi.w	#$F00,d0
@@ -5171,10 +5171,10 @@ MoveDemo_Record_P2:
 
 ; loc_48AA:
 MoveDemo_On:
-	move.b	(Ctrl_1_Press).w,d0
-	or.b	(Ctrl_2_Press).w,d0
+	move.b	(Ctrl_1_Press).w,d0	; is Start button pressed?
+	or.b	(Ctrl_2_Press).w,d0	; (either player)
 	andi.b	#button_start_mask,d0
-	beq.s	+
+	beq.s	+	; if not, branch
 	tst.w	(Demo_mode_flag).w
 	bmi.s	+
 	move.b	#GameModeID_TitleScreen,(Game_Mode).w ; => TitleScreen
@@ -8925,15 +8925,15 @@ Obj5E:
 	tst.b	(SS_2p_Flag).w
 	beq.s	+
 	addq.w	#6,d1
-	tst.b	(Graphics_Flags).w
-	bpl.s	++
+	tst.b	(Graphics_Flags).w	; are we on a Japanese Mega Drive?
+	bpl.s	++	; if yes, branch
 	addq.w	#1,d1
 	bra.s	++
 ; ---------------------------------------------------------------------------
 +	move.w	(Player_mode).w,d1
 	andi.w	#3,d1
-	tst.b	(Graphics_Flags).w
-	bpl.s	+
+	tst.b	(Graphics_Flags).w	; are we on a Japanese Mega Drive?
+	bpl.s	+	; if yes, branch
 	addq.w	#3,d1 ; set special stage tails name to "TAILS" instead of MILES
 +
 	add.w	d1,d1
@@ -9261,8 +9261,8 @@ loc_7480:
 	lea	sub2_x_pos(a0),a1
 	movea.l	a1,a2
 	addq.w	#5,a2	; a2 = sub2_mapframe(a0)
-	cmpi.w	#2,(Player_mode).w
-	beq.s	loc_74EA
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	beq.s	loc_74EA	; if yes, branch
 	move.b	(MainCharacter+ss_rings_hundreds).w,d0
 	beq.s	+
 	addq.w	#1,d3
@@ -9719,8 +9719,8 @@ ContinueScreen:
 	bsr.w	NemDec
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_MiniContinue),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_MiniSonic).l,a0
-	cmpi.w	#2,(Player_mode).w
-	bne.s	+
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	bne.s	+	; if not, branch
 	lea	(ArtNem_MiniTails).l,a0
 +
 	bsr.w	NemDec
@@ -9731,7 +9731,7 @@ ContinueScreen:
 	move.w	#0,(Target_palette).w
 	move.b	#MusID_Continue,d0
 	bsr.w	PlayMusic
-	move.w	#$293,(Demo_Time_left).w	; 11 seconds minus 1 frame
+	move.w	#$293,(Demo_Time_left).w	; 11 seconds minus 1 frame (10 seconds 98)
 	clr.b	(Level_started_flag).w
 	clr.l	(Camera_X_pos_copy).w
 	move.l	#$1000000,(Camera_Y_pos_copy).w
@@ -9767,8 +9767,8 @@ ContinueScreen:
 	bhs.s	+
 	cmpi.b	#4,(MainCharacter+routine).w
 	bhs.s	-
-	tst.w	(Demo_Time_left).w
-	bne.w	-
+	tst.w	(Demo_Time_left).w	; is there time left on the demo?
+	bne.w	-	; if yes, branch
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
 	rts
 ; ---------------------------------------------------------------------------
@@ -10139,7 +10139,7 @@ TwoPlayerResults:
 	move.w	d0,(Level_Music).w
 	bsr.w	PlayMusic
 +
-	move.w	#$707,(Demo_Time_left).w
+	move.w	#$707,(Demo_Time_left).w	; set demo time to 30 seconds minus 1 frame (29 seconds 98)
 	clr.w	(Two_player_mode).w
 	clr.l	(Camera_X_pos).w
 	clr.l	(Camera_Y_pos).w
@@ -10163,15 +10163,15 @@ TwoPlayerResults:
 	bsr.w	RunPLC_RAM
 	tst.l	(Plc_Buffer).w
 	bne.s	-
-	move.b	(Ctrl_1_Press).w,d0
-	or.b	(Ctrl_2_Press).w,d0
+	move.b	(Ctrl_1_Press).w,d0	; is Start button pressed?
+	or.b	(Ctrl_2_Press).w,d0	; (either player)
 	andi.b	#button_start_mask,d0
 	beq.s	-			; stay on that screen until either player presses start
 
 	move.w	(Results_Screen_2P).w,d0 ; were we at the act results screen? (VsRSID_Act)
 	bne.w	TwoPlayerResultsDone_Zone ; if not, branch
-	tst.b	(Current_Act).w		; did we just finish act 1?
-	bne.s	+			; if not, branch
+	tst.b	(Current_Act).w	; did we just finish act 2?
+	bne.s	+			; if yes, branch
 	addq.b	#1,(Current_Act).w	; go to the next act
 	move.b	#1,(Current_Act_2P).w
 	move.b	#GameModeID_Level,(Game_Mode).w ; => Level (Zone play mode)
@@ -11192,7 +11192,7 @@ MenuScreen:
 
 	move.b	#MusID_Options,d0
 	jsrto	(PlayMusic).l, JmpTo_PlayMusic
-	move.w	#$707,(Demo_Time_left).w
+	move.w	#$707,(Demo_Time_left).w	; set demo time to 30 seconds minus 1 frame (29 seconds 98)
 	clr.w	(Two_player_mode).w
 	clr.l	(Camera_X_pos).w
 	clr.l	(Camera_Y_pos).w
@@ -11214,11 +11214,15 @@ LevelSelect2P_Main:
 	move	#$2300,sr
 	lea	(Anim_SonicMilesBG).l,a2
 	jsrto	(Dynamic_Normal).l, JmpTo2_Dynamic_Normal
-	move.b	(Ctrl_1_Press).w,d0
-	or.b	(Ctrl_2_Press).w,d0
+	move.b	(Ctrl_1_Press).w,d0	; is Start button pressed?
+	or.b	(Ctrl_2_Press).w,d0	; (either player)
 	andi.b	#button_start_mask,d0
-	bne.s	LevelSelect2P_PressStart
-	bra.w	LevelSelect2P_Main
+	bne.s	LevelSelect2P_PressStart	; if yes, branch
+	bra.w	LevelSelect2P_Main	; if not, loop (note that these 2 lines can be
+	;	optimised to beq.s	LevelSelect2P_Main, which either means there was
+	;	code between this and LevelSelect2P_PressStart, or this is the result of
+	;	bad optimisation)
+	
 ; ===========================================================================
 ;loc_8DE2:
 LevelSelect2P_PressStart:
@@ -11267,11 +11271,11 @@ LevelSelect2P_LevelOrder:
 
 ;sub_8E5A:
 LevelSelect2P_Controls:
-	move.b	(Ctrl_1_Press).w,d0
-	or.b	(Ctrl_2_Press).w,d0
+	move.b	(Ctrl_1_Press).w,d0	; is Start button pressed?
+	or.b	(Ctrl_2_Press).w,d0	; (either player)
 	move.b	d0,d1
 	andi.b	#button_up_mask|button_down_mask,d0
-	beq.s	+
+	beq.s	+	; if not, branch
 	bchg	#1,(Current_Zone_2P).w
 
 +
@@ -11479,11 +11483,14 @@ OptionScreen_Main:
 	move	#$2300,sr
 	lea	(Anim_SonicMilesBG).l,a2
 	jsrto	(Dynamic_Normal).l, JmpTo2_Dynamic_Normal
-	move.b	(Ctrl_1_Press).w,d0
-	or.b	(Ctrl_2_Press).w,d0
+	move.b	(Ctrl_1_Press).w,d0	; is Start button pressed?
+	or.b	(Ctrl_2_Press).w,d0	; (either player)
 	andi.b	#button_start_mask,d0
-	bne.s	OptionScreen_Select
-	bra.w	OptionScreen_Main
+	bne.s	OptionScreen_Select	; if yes, branch
+	bra.w	OptionScreen_Main	; if not, loop (note that these 2 lines can be
+	;	optimised to beq.s	OptionScreen_Main, which either means there was
+	;	code between this and OptionScreen_Select, or this is the result of
+	;	bad optimisation)
 ; ===========================================================================
 ; loc_909A:
 OptionScreen_Select:
@@ -11522,10 +11529,10 @@ OptionScreen_Select_Other:
 OptionScreen_Controls:
 	moveq	#0,d2
 	move.b	(Options_menu_box).w,d2
-	move.b	(Ctrl_1_Press).w,d0
-	or.b	(Ctrl_2_Press).w,d0
+	move.b	(Ctrl_1_Press).w,d0	; is Start button pressed?
+	or.b	(Ctrl_2_Press).w,d0	; (either player)
 	btst	#button_up,d0
-	beq.s	+
+	beq.s	+	; if not, branch
 	subq.b	#1,d2
 	bcc.s	+
 	move.b	#2,d2
@@ -11674,8 +11681,8 @@ OptionScreen_DrawUnselected:
 ;loc_9268
 OptionScreen_SelectTextPtr:
 	lea	(off_92D2).l,a4
-	tst.b	(Graphics_Flags).w
-	bpl.s	+
+	tst.b	(Graphics_Flags).w	; are we on a Japanese Mega Drive?
+	bpl.s	+	; if yes, branch
 	lea	(off_92DE).l,a4
 
 +
@@ -11787,7 +11794,7 @@ MenuScreen_LevelSelect:
 	move.b	#MusID_Options,d0
 	jsrto	(PlayMusic).l, JmpTo_PlayMusic
 
-	move.w	#$707,(Demo_Time_left).w
+	move.w	#$707,(Demo_Time_left).w	; set demo time to 30 seconds minus 1 frame (29 seconds 98)
 	clr.w	(Two_player_mode).w
 	clr.l	(Camera_X_pos).w
 	clr.l	(Camera_Y_pos).w
@@ -11823,11 +11830,14 @@ LevelSelect_Main:	; routine running during level select
 	lea	(Anim_SonicMilesBG).l,a2
 	jsrto	(Dynamic_Normal).l, JmpTo2_Dynamic_Normal
 
-	move.b	(Ctrl_1_Press).w,d0
-	or.b	(Ctrl_2_Press).w,d0
-	andi.b	#button_start_mask,d0	; start pressed?
-	bne.s	LevelSelect_PressStart	; yes
-	bra.w	LevelSelect_Main	; no
+	move.b	(Ctrl_1_Press).w,d0	; is Start button pressed?
+	or.b	(Ctrl_2_Press).w,d0	; (either player)
+	andi.b	#button_start_mask,d0
+	bne.s	LevelSelect_PressStart	; if yes, branch
+	bra.w	LevelSelect_Main	; if not, loop (note that these 2 lines can be
+	;	optimised to beq.s	LevelSelect_Main, which either means there was
+	;	code between this and LevelSelect_PressStart, or this is the result of
+	;	bad optimisation)
 ; ===========================================================================
 
 ;loc_93F0:
@@ -12338,16 +12348,16 @@ EndingSequence:
 	clr.b	(Super_Sonic_flag).w
 	cmpi.b	#7,(Emerald_count).w
 	bne.s	+
-	cmpi.w	#2,(Player_mode).w
-	beq.s	+
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	beq.s	+	; if yes, branch
 	st	(Super_Sonic_flag).w
 	move.b	#-1,(Super_Sonic_palette).w
 	move.b	#$F,(Palette_timer).w
 	move.w	#$30,(Palette_frame).w
 +
 	moveq	#0,d0
-	cmpi.w	#2,(Player_mode).w
-	beq.s	+
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	beq.s	+	; if yes, branch
 	tst.b	(Super_Sonic_flag).w
 	bne.s	++
 	bra.w	+++
@@ -12844,8 +12854,8 @@ ObjCC_Index:	offsetTable
 ObjCC_Init:
 	lea	(ObjB2_SubObjData).l,a1
 	jsrto	(LoadSubObject_Part3).l, JmpTo_LoadSubObject_Part3
-	cmpi.w	#2,(Player_mode).w
-	bne.s	+
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	bne.s	+	; if not, branch
 	move.b	#4,mapping_frame(a0)
 	move.b	#1,anim(a0)
 +
@@ -14322,8 +14332,8 @@ InitCam_OOZ:
 InitCam_MCZ:
 	clr.l	(Camera_BG_X_pos).w
 	clr.l	(Camera_BG_X_pos_P2).w
-	tst.b	(Current_Act).w
-	bne.s	+
+	tst.b	(Current_Act).w	; are we at act 2?
+	bne.s	+	; if yes, branch
 	divu.w	#3,d0
 	subi.w	#$140,d0
 	move.w	d0,(Camera_BG_Y_pos).w
@@ -14361,8 +14371,8 @@ InitCam_Null3:
 ; ===========================================================================
 ;loc_C38C:
 InitCam_ARZ:
-	tst.b	(Current_Act).w
-	beq.s	+
+	tst.b	(Current_Act).w	; are we at act 1?
+	beq.s	+	; if yes, branch
 	subi.w	#$E0,d0
 	lsr.w	#1,d0
 	move.w	d0,(Camera_BG_Y_pos).w
@@ -14423,8 +14433,8 @@ DeformBgLayer:
 	lea	(Camera_X_pos_diff).w,a4
 	lea	(Horiz_scroll_delay_val).w,a5
 	lea	(Sonic_Pos_Record_Buf).w,a6
-	cmpi.w	#2,(Player_mode).w
-	bne.s	+
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	bne.s	+	; if not, branch
 	lea	(Horiz_scroll_delay_val_P2).w,a5
 	lea	(Tails_Pos_Record_Buf).w,a6
 +
@@ -14435,8 +14445,8 @@ DeformBgLayer:
 	lea	(Camera_Min_X_pos).w,a2
 	lea	(Camera_Y_pos_diff).w,a4
 	move.w	(Camera_Y_pos_bias).w,d3
-	cmpi.w	#2,(Player_mode).w
-	bne.s	+
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	bne.s	+	; if not, branch
 	move.w	(Camera_Y_pos_bias_P2).w,d3
 +
 	bsr.w	ScrollVerti
@@ -15373,8 +15383,8 @@ SwScrl_MCZ:
 	bne.w	SwScrl_MCZ_2P
 	move.w	(Camera_Y_pos).w,d0
 	move.l	(Camera_BG_Y_pos).w,d3
-	tst.b	(Current_Act).w
-	bne.s	+
+	tst.b	(Current_Act).w	; are we at act 2?
+	bne.s	+	; if yes, branch
 	divu.w	#3,d0
 	subi.w	#$140,d0
 	bra.s	++
@@ -15524,8 +15534,8 @@ SwScrl_MCZ_RowHeights:
 SwScrl_MCZ_2P:
 	moveq	#0,d0
 	move.w	(Camera_Y_pos).w,d0
-	tst.b	(Current_Act).w
-	bne.s	+
+	tst.b	(Current_Act).w	; are we at act 2?
+	bne.s	+	; if yes, branch
 	divu.w	#3,d0
 	subi.w	#$140,d0
 	bra.s	++
@@ -15658,8 +15668,8 @@ SwScrl_MCZ2P_RowHeights:
 +
 	moveq	#0,d0
 	move.w	(Camera_Y_pos_P2).w,d0
-	tst.b	(Current_Act).w
-	bne.s	+
+	tst.b	(Current_Act).w	; are we at act 2?
+	bne.s	+	; if yes, branch
 	divu.w	#3,d0
 	subi.w	#$140,d0
 	bra.s	++
@@ -16236,8 +16246,8 @@ SwScrl_ARZ:
 	move.w	(Camera_Y_pos_diff).w,d5
 	ext.l	d5
 	asl.l	#7,d5
-	tst.b	(Current_Act).w
-	bne.s	+
+	tst.b	(Current_Act).w	; are we at act 2?
+	bne.s	+	; if yes, branch
 	asl.l	#1,d5
 +
 	moveq	#6,d6
@@ -18443,8 +18453,8 @@ DynamicLevelEventIndex: zoneOrderedOffsetTable 2,1
 ; ===========================================================================
 ; loc_E658:
 LevEvents_EHZ:
-	tst.b	(Current_Act).w
-	bne.s	LevEvents_EHZ2
+	tst.b	(Current_Act).w	; are we at act 2?
+	bne.s	LevEvents_EHZ2	; if yes, branch
 	rts
 ; ---------------------------------------------------------------------------
 LevEvents_EHZ2:
@@ -18763,8 +18773,8 @@ LevEvents_WFZ_RoutineNull:
 ; ===========================================================================
 ; loc_E986:
 LevEvents_HTZ:
-	tst.b	(Current_Act).w
-	bne.w	LevEvents_HTZ2
+	tst.b	(Current_Act).w	; are we at act 2?
+	bne.w	LevEvents_HTZ2	; if yes, branch
 	moveq	#0,d0
 	move.b	(Dynamic_Resize_Routine).w,d0
 	move.w	LevEvents_HTZ_Index(pc,d0.w),d0
@@ -19376,8 +19386,8 @@ LevEvents_009:
 ; ===========================================================================
 ; loc_F05E:
 LevEvents_OOZ:
-	tst.b	(Current_Act).w
-	bne.s	LevEvents_OOZ2
+	tst.b	(Current_Act).w	; are we at act 2?
+	bne.s	LevEvents_OOZ2	; if yes, branch
 	rts
 ; ---------------------------------------------------------------------------
 ; loc_F066:
@@ -19459,8 +19469,8 @@ LevEvents_OOZ2_Routine4:
 ; ===========================================================================
 ; loc_F13E:
 LevEvents_MCZ:
-	tst.b	(Current_Act).w
-	bne.s	LevEvents_MCZ2
+	tst.b	(Current_Act).w	; are we at act 2?
+	bne.s	LevEvents_MCZ2	; if yes, branch
 	rts
 ; ---------------------------------------------------------------------------
 ; loc_F146:
@@ -19565,8 +19575,8 @@ LevEvents_MCZ2_Routine4:
 ; loc_F26A:
 LevEvents_CNZ:
 	jsr	(SlotMachine).l
-	tst.b	(Current_Act).w
-	bne.s	LevEvents_CNZ2
+	tst.b	(Current_Act).w	; are we at act 2?
+	bne.s	LevEvents_CNZ2	; if yes, branch
 	rts			; no events for act 1
 ; ===========================================================================
 ; loc_F278:
@@ -19658,8 +19668,8 @@ LevEvents_CNZ2_Routine4:
 ; ===========================================================================
 ; loc_F378:
 LevEvents_CPZ:
-	tst.b	(Current_Act).w
-	bne.s	LevEvents_CPZ2
+	tst.b	(Current_Act).w	; are we at act 2?
+	bne.s	LevEvents_CPZ2	; if yes, branch
 	rts
 ; ===========================================================================
 ; loc_F380:
@@ -19802,8 +19812,8 @@ LevEvents_DEZ_Routine5:
 ; ===========================================================================
 ; loc_F4D0:
 LevEvents_ARZ:
-	tst.b	(Current_Act).w
-	bne.s	LevEvents_ARZ2
+	tst.b	(Current_Act).w	; are we at act 2?
+	bne.s	LevEvents_ARZ2	; if yes, branch
 	rts
 ; ===========================================================================
 ; loc_F4D8:
@@ -19878,8 +19888,8 @@ LevEvents_ARZ2_Routine4:
 ; ===========================================================================
 ; loc_F59E:
 LevEvents_SCZ:
-	tst.b	(Current_Act).w
-	bne.w	LevEvents_SCZ2
+	tst.b	(Current_Act).w	; are we at act 2?
+	bne.w	LevEvents_SCZ2	; if yes, branch
 	moveq	#0,d0
 	move.b	(Dynamic_Resize_Routine).w,d0
 	move.w	LevEvents_SCZ_Index(pc,d0.w),d0
@@ -20210,8 +20220,8 @@ sub_F872:
 +
 	btst	d6,status(a0)
 	beq.s	loc_F8F0
-	btst	#1,status(a1)
-	bne.s	+
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	+	; if yes, branch
 	moveq	#0,d0
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
@@ -23554,7 +23564,7 @@ Obj26_ChkOverEdge:
 	move.w	d1,d2
 	add.w	d2,d2
 	btst	#1,status(a1)	; is the character in the air?
-	bne.s	+		; if yes, branch
+	bne.s	+	; if yes, branch
 	; check, if character is standing on 
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
@@ -23826,7 +23836,7 @@ super_shoes:
 	move.w	#$4B0,speedshoes_time(a1)
 	cmpa.w	#MainCharacter,a1	; did the main character break the monitor?
 	bne.s	super_shoes_Tails	; if not, branch
-	cmpi.w	#2,(Player_mode).w	; is player using Tails?
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
 	beq.s	super_shoes_Tails	; if yes, branch
 	move.w	#$C00,(Sonic_top_speed).w	; set stats
 	move.w	#$18,(Sonic_acceleration).w
@@ -24451,8 +24461,8 @@ off_130E2:	offsetTable
 
 Obj0E_LogoTop_Init:
 	move.b	#$B,mapping_frame(a0)
-	tst.b	(Graphics_Flags).w
-	bmi.s	+
+	tst.b	(Graphics_Flags).w	; are we on a Japanese Mega Drive?
+	bmi.s	+	; if not, branch
 	move.b	#$A,mapping_frame(a0)
 +
 	move.b	#2,priority(a0)
@@ -24825,12 +24835,12 @@ loc_134B6:
 TitleScreen_SetFinalState:
 	tst.b	objoff_2F(a0)
 	bne.w	+	; rts
-	move.b	(Ctrl_1_Press).w,d0
-	or.b	(Ctrl_2_Press).w,d0
+	move.b	(Ctrl_1_Press).w,d0	; is Start button pressed?
+	or.b	(Ctrl_2_Press).w,d0	; (either player)
 	andi.b	#button_up_mask|button_down_mask|button_left_mask|button_right_mask|button_B_mask|button_C_mask|button_A_mask,(Ctrl_1_Press).w
 	andi.b	#button_up_mask|button_down_mask|button_left_mask|button_right_mask|button_B_mask|button_C_mask|button_A_mask,(Ctrl_2_Press).w
 	andi.b	#button_start_mask,d0
-	beq.w	+	; rts
+	beq.w	+	; if not, rts
 	st.b	objoff_2F(a0)
 	move.b	#$10,routine_secondary(a0)
 	move.b	#$12,mapping_frame(a0)
@@ -24944,10 +24954,10 @@ Obj0F_Init:
 Obj0F_Main:
 	moveq	#0,d2
 	move.b	(Title_screen_option).w,d2
-	move.b	(Ctrl_1_Press).w,d0
-	or.b	(Ctrl_2_Press).w,d0
+	move.b	(Ctrl_1_Press).w,d0	; is Start button pressed?
+	or.b	(Ctrl_2_Press).w,d0	; (either player)
 	btst	#button_up,d0
-	beq.s	+
+	beq.s	+	; if not, branch
 	subq.b	#1,d2
 	bcc.s	+
 	move.b	#2,d2
@@ -25448,10 +25458,10 @@ Obj39_SetTimer:
 Obj39_Wait:
 	btst	#0,mapping_frame(a0)
 	bne.w	Obj39_Display
-	move.b	(Ctrl_1_Press).w,d0
-	or.b	(Ctrl_2_Press).w,d0
+	move.b	(Ctrl_1_Press).w,d0	; is Start button pressed?
+	or.b	(Ctrl_2_Press).w,d0	; (either player)
 	andi.b	#button_B_mask|button_C_mask|button_A_mask,d0
-	bne.s	Obj39_Dismiss
+	bne.s	Obj39_Dismiss ; if yes, branch
 	tst.w	anim_frame_duration(a0)
 	beq.s	Obj39_Dismiss
 	subq.w	#1,anim_frame_duration(a0)
@@ -25559,8 +25569,8 @@ loc_140CE:
 
 loc_14102:
 	moveq	#0,d0
-	cmpi.w	#2,(Player_mode).w
-	bne.s	loc_14118
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	bne.s	loc_14118	; if not, branch
 	addq.w	#1,d0
 	btst	#7,(Graphics_Flags).w
 	beq.s	loc_14118
@@ -25947,8 +25957,8 @@ Obj6F_InitResultTitle:
 	beq.w	DeleteObject
 	moveq	#1,d0		; "Sonic got a"
 +
-	cmpi.w	#2,(Player_mode).w
-	bne.s	+
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	bne.s	+	; if not, branch
 	addq.w	#1,d0		; "Miles got a" or "Miles has all the"
 	btst	#7,(Graphics_Flags).w
 	beq.s	+
@@ -26084,8 +26094,8 @@ Obj6F_TallyScore:
 	move.w	#$78,anim_frame_duration(a0)
 	tst.w	(Perfect_rings_flag).w
 	bne.s	+
-	cmpi.w	#2,(Player_mode).w
-	beq.s	++		; rts
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	beq.s	++		; if yes, rts
 	tst.b	(Got_Emerald).w
 	beq.s	++		; rts
 	cmpi.b	#7,(Emerald_count).w
@@ -26136,8 +26146,8 @@ Obj6F_TallyPerfect:
 	jsr	(PlaySound).l
 	addq.b	#4,routine(a0)
 	move.w	#$78,anim_frame_duration(a0)
-	cmpi.w	#2,(Player_mode).w
-	beq.s	+		; rts
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	beq.s	+		; if yes, rts
 	tst.b	(Got_Emerald).w
 	beq.s	+		; rts
 	cmpi.b	#7,(Emerald_count).w
@@ -27054,11 +27064,11 @@ Obj36_UpsidedownEnd:
 
 Touch_ChkHurt2:
 	btst	#status_sec_isInvincible,status_secondary(a1)	; is character invincible?
-	bne.s	+	; rts		; if yes, branch
+	bne.s	+	; if yes, rts
 	tst.w	invulnerable_time(a1)	; is character invulnerable?
-	bne.s	+	; rts		; if yes, branch
-	cmpi.b	#4,routine(a1)		; is the character hurt, dieing, etc. ?
-	bhs.s	+	; rts		; if yes, branch
+	bne.s	+	; if yes, rts
+	cmpi.b	#4,routine(a1)	; is the main character hurt, dying, etc. ?
+	bhs.s	+	; if yes, rts
 	move.l	y_pos(a1),d3
 	move.w	y_vel(a1),d0
 	ext.l	d0
@@ -29657,8 +29667,8 @@ SpecialCNZBumpers_Index: offsetTable
 SpecialCNZBumpers_Init:
 	addq.b	#2,(CNZ_Bumper_routine).w
 	lea	(SpecialCNZBumpers_Act1).l,a1
-	tst.b	(Current_Act).w
-	beq.s	+
+	tst.b	(Current_Act).w	; are we at act 1?
+	beq.s	+	; if yes, branch
 	lea	(SpecialCNZBumpers_Act2).l,a1
 +
 	move.w	(Camera_X_pos).w,d4
@@ -30198,8 +30208,8 @@ ObjectsManager_Init:
 	cmpi.b	#casino_night_zone,(Current_Zone).w	; skip if not Casino Night Zone
 	bne.s	+
 	lea	(Objects_CNZ1_2P).l,a0	; CNZ 1 2-player object layout
-	tst.b	(Current_Act).w		; skip if not past act 1
-	beq.s	+
+	tst.b	(Current_Act).w		; are we at act 1?
+	beq.s	+	; if yes, skip
 	lea	(Objects_CNZ2_2P).l,a0	; CNZ 2 2-player object layout
 +
 	; initialize each object load address with the first object in the layout
@@ -31219,8 +31229,8 @@ loc_18BE8:
 	subi.w	#$18,d2
 	addi.w	#$18,d3
 	lea	(MainCharacter).w,a1 ; a1=character
-	btst	#1,status(a1)
-	bne.s	loc_18C3C
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	loc_18C3C	; if yes, branch
 	move.w	inertia(a1),d4
 	btst	#0,status(a0)
 	beq.s	loc_18C10
@@ -31245,8 +31255,8 @@ loc_18C10:
 
 loc_18C3C:
 	lea	(Sidekick).w,a1 ; a1=character
-	btst	#1,status(a1)
-	bne.s	return_18C7E
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	return_18C7E	; if yes, branch
 	move.w	inertia(a1),d4
 	btst	#0,status(a0)
 	beq.s	loc_18C56
@@ -31757,8 +31767,8 @@ Obj0D_Init:
 loc_19208:
 	cmpi.w	#metropolis_zone_act_2,(Current_ZoneAndAct).w
 	beq.s	loc_1921E
-	tst.b	(Current_Act).w
-	beq.s	loc_1921E
+	tst.b	(Current_Act).w	; are we at act 1?
+	beq.s	loc_1921E	; if yes, branch
 	move.w	#0,x_pos(a0)
 	rts
 ; ---------------------------------------------------------------------------
@@ -31800,8 +31810,8 @@ loc_192A0:
 	tst.b	obj0D_finalanim(a0)
 	bne.w	loc_19350
 	move.b	#3,obj0D_finalanim(a0)
-	cmpi.w	#2,(Player_mode).w
-	bne.s	loc_192BC
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	bne.s	loc_192BC	; if not, branch
 	move.b	#4,obj0D_finalanim(a0)
 
 loc_192BC:
@@ -31948,8 +31958,8 @@ Load_EndOfAct:
 	move.b	#ObjID_Results,id(a1) ; load obj3A (end of level results screen)
 +
 	moveq	#PLCID_Results,d0
-	cmpi.w	#2,(Player_mode).w
-	bne.s	+
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	bne.s	+	; if not, branch
 	moveq	#PLCID_ResultsTails,d0
 +
 	jsr	(LoadPLC2).l
@@ -32121,8 +32131,8 @@ SolidObject:
 	beq.w	SolidObject_OnScreenTest
 	move.w	d1,d2
 	add.w	d2,d2
-	btst	#1,status(a1)
-	bne.s	loc_1975A
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	loc_1975A	; if yes, brnach
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	add.w	d1,d0
@@ -32164,8 +32174,8 @@ SolidObject_Always_SingleCharacter:
 	beq.w	SolidObject_cont
 	move.w	d1,d2
 	add.w	d2,d2
-	btst	#1,status(a1)
-	bne.s	loc_197B2
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	loc_197B2	; if yes, branch
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	add.w	d1,d0
@@ -32218,8 +32228,8 @@ SlopedSolid_SingleCharacter:
 	beq.w	SlopedSolid_cont
 	move.w	d1,d2
 	add.w	d2,d2
-	btst	#1,status(a1)
-	bne.s	loc_1980A
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	loc_1980A	; if yes, branch
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	add.w	d1,d0
@@ -32258,8 +32268,8 @@ loc_1981E:
 	beq.w	DoubleSlopedSolid_cont
 	move.w	d1,d2
 	add.w	d2,d2
-	btst	#1,status(a1)
-	bne.s	loc_19862
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	loc_19862	; if yes, branch
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	add.w	d1,d0
@@ -32294,8 +32304,8 @@ SolidObject45:
 loc_19896:
 	btst	d6,status(a0)
 	beq.w	SolidObject45_cont
-	btst	#1,status(a1)
-	bne.s	loc_198B8
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	loc_198B8	; if yes, branch
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	add.w	d1,d0
@@ -32464,7 +32474,7 @@ SolidObject_cont:
 SolidObject_ChkBounds:
 	tst.b	obj_control(a1)
 	bmi.w	SolidObject_TestClearPush	; branch, if object collisions are disabled for Sonic
-	cmpi.b	#6,routine(a1)		; is Sonic dead?
+	cmpi.b	#6,routine(a1)	; is Sonic dead?
 	bhs.w	loc_19AEA		; if yes, branch
 	tst.w	(Debug_placement_mode).w	; is debug mode being used?
 	bne.w	loc_19AEA		; if yes, branch
@@ -32509,8 +32519,8 @@ loc_19A84:
 
 loc_19A90:
 	sub.w	d0,x_pos(a1)
-	btst	#1,status(a1)
-	bne.s	loc_19AB6
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	loc_19AB6	; if yes, branch
 	move.l	d6,d4
 	addq.b	#pushing_bit_delta,d4	; Character is pushing, not standing
 	bset	d4,status(a0)
@@ -32581,8 +32591,8 @@ loc_19B1C:
 ; ===========================================================================
 
 loc_19B28:
-	btst	#1,status(a1)
-	bne.s	loc_19B1C
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	loc_19B1C	; if yes, branch
 	mvabs.w	d0,d4
 	cmpi.w	#$10,d4
 	blo.w	loc_19A6A
@@ -32732,8 +32742,8 @@ PlatformObject_SingleCharacter:
 	beq.w	PlatformObject_cont
 	move.w	d1,d2
 	add.w	d2,d2
-	btst	#1,status(a1)
-	bne.s	+
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	+	; if yes, branch
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	add.w	d1,d0
@@ -32785,8 +32795,8 @@ SlopedPlatform_SingleCharacter:
 	beq.w	SlopedPlatform_cont
 	move.w	d1,d2
 	add.w	d2,d2
-	btst	#1,status(a1)
-	bne.s	loc_19CC4
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	loc_19CC4	; if yes, branch
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	add.w	d1,d0
@@ -32823,8 +32833,8 @@ loc_19CF8:
 	beq.w	PlatformObject2_cont
 	move.w	d1,d2
 	add.w	d2,d2
-	btst	#1,status(a1)
-	bne.s	loc_19D1C
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	loc_19D1C	; if yes, branch
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	add.w	d1,d0
@@ -32870,8 +32880,8 @@ loc_19D50:
 loc_19D62:
 	move.w	d1,d2
 	add.w	d2,d2
-	btst	#1,status(a1)
-	bne.s	loc_19D7E
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	loc_19D7E	; if yes, branch
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	add.w	d1,d0
@@ -32938,7 +32948,7 @@ PlatformObject_ChkYRange:
 	tst.b	obj_control(a1)
 	bmi.w	return_19E8E
 	cmpi.b	#6,routine(a1)	; is Sonic dead ?
-	bhs.w	return_19E8E	; if yes,	branch
+	bhs.w	return_19E8E	; if yes, branch
 	add.w	d0,d2
 	addq.w	#3,d2
 	move.w	d2,y_pos(a1)
@@ -32970,15 +32980,15 @@ loc_19E30:
 	move.b	#0,angle(a1)
 	move.w	#0,y_vel(a1)
 	move.w	x_vel(a1),inertia(a1)
-	btst	#1,status(a1)
-	beq.s	loc_19E7E
+	btst	#1,status(a1)	; is the character in the air?
+	beq.s	loc_19E7E	; if not, branch
 	move.l	a0,-(sp)
 	movea.l	a1,a0
 	move.w	a0,d1
 	subi.w	#Object_RAM,d1
 	bne.s	loc_19E76
-	cmpi.w	#2,(Player_mode).w
-	beq.s	loc_19E76
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	beq.s	loc_19E76	; if yes, branch
 	jsr	(Sonic_ResetOnFloor_Part2).l
 	bra.s	loc_19E7C
 ; ===========================================================================
@@ -33116,8 +33126,8 @@ Obj01_Init:
 	move.w	#$600,(Sonic_top_speed).w	; set Sonic's top speed
 	move.w	#$C,(Sonic_acceleration).w	; set Sonic's acceleration
 	move.w	#$80,(Sonic_deceleration).w	; set Sonic's deceleration
-	tst.b	(Last_star_pole_hit).w
-	bne.s	Obj01_Init_Continued
+	tst.b	(Last_star_pole_hit).w	; was a star pole hit yet?
+	bne.s	Obj01_Init_Continued	; if yes, branch
 	; only happens when not starting at a checkpoint:
 	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
@@ -34068,7 +34078,6 @@ Sonic_ChgJumpDir:
 +
 	btst	#button_right,(Ctrl_1_Held_Logical).w
 	beq.s	+	; if not holding right, branch
-
 	bclr	#0,status(a0)
 	add.w	d5,d0	; accelerate right in the air
 	cmp.w	d6,d0	; compare new speed with top speed
@@ -34148,7 +34157,7 @@ Sonic_Boundary_CheckBottom:
 	move.w	(Camera_Max_Y_pos_now).w,d0
 	addi.w	#$E0,d0
 	cmp.w	y_pos(a0),d0		; has Sonic touched the bottom boundary?
-	blt.s	Sonic_Boundary_Bottom	; if yes, branch
+	blt.s	Sonic_Boundary_Bottom	; if yes, kill him
 	rts
 ; ---------------------------------------------------------------------------
 Sonic_Boundary_Bottom: ;;
@@ -35684,8 +35693,8 @@ JmpTo_KillCharacter
 ; Sprite_1B8A4: Object_Tails:
 Obj02:
 	; a0=character
-	cmpi.w	#2,(Player_mode).w
-	bne.s	+
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	bne.s	+	; if not, branch
 	move.w	(Camera_Min_X_pos).w,(Tails_Min_X_pos).w
 	move.w	(Camera_Max_X_pos).w,(Tails_Max_X_pos).w
 	move.w	(Camera_Max_Y_pos_now).w,(Tails_Max_Y_pos).w
@@ -35716,10 +35725,10 @@ Obj02_Init:
 	move.w	#$600,(Tails_top_speed).w	; set Tails' top speed
 	move.w	#$C,(Tails_acceleration).w	; set Tails' acceleration
 	move.w	#$80,(Tails_deceleration).w	; set Tails' deceleration
-	cmpi.w	#2,(Player_mode).w
-	bne.s	Obj02_Init_2Pmode
-	tst.b	(Last_star_pole_hit).w
-	bne.s	Obj02_Init_Continued
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	bne.s	Obj02_Init_2Pmode	; if not, branch
+	tst.b	(Last_star_pole_hit).w	; was a star pole hit yet?
+	bne.s	Obj02_Init_Continued	; if yes, branch
 	; only happens when not starting at a checkpoint:
 	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
@@ -38903,7 +38912,7 @@ return_1D81C:
 ; ===========================================================================
 
 ; ---------------------------------------------------------------------------
-; Subroutine to play music after a countdown (when Sonic leaves the water)
+; Subroutine to play music after a countdown (when the character leaves the water)
 ; ---------------------------------------------------------------------------
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -38918,8 +38927,8 @@ ResumeMusic:
 
 	move.w	(Level_Music).w,d0	; prepare to play current level's music
 
-	btst	#status_sec_isInvincible,status_secondary(a1)
-	beq.s	+		; branch if Sonic is not invincible
+	btst	#status_sec_isInvincible,status_secondary(a1)	; is character invincible?
+	beq.s	+		; if not, branch
 	move.w	#MusID_Invincible,d0	; prepare to play invincibility music
 +
 	tst.b	(Super_Sonic_flag).w
@@ -39141,8 +39150,8 @@ loc_1DA80:
 	movea.w	parent(a0),a1 ; a1=character
 	btst	#status_sec_isInvincible,status_secondary(a1)
 	beq.w	DeleteObject
-	cmpi.w	#2,(Player_mode).w
-	beq.s	loc_1DAA4
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	beq.s	loc_1DAA4	; if yes, branch
 	lea	(Sonic_Pos_Record_Index).w,a5
 	lea	(Sonic_Pos_Record_Buf).w,a6
 	tst.b	parent+1(a0)
@@ -39278,8 +39287,8 @@ Obj08_Init:
 	cmpa.w	#Sonic_Dust,a0
 	beq.s	+
 	move.b	#1,objoff_34(a0)
-	cmpi.w	#2,(Player_mode).w
-	beq.s	+
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	beq.s	+	; if yes, branch
 	move.w	#make_art_tile(ArtTile_ArtNem_TailsDust,0,0),art_tile(a0)
 	move.w	#Sidekick,parent(a0)
 	move.w	#tiles_to_bytes(ArtTile_ArtNem_TailsDust),objoff_3C(a0)
@@ -41194,13 +41203,13 @@ Obj79_CheckActivation:
 	move.b	#2,mapping_frame(a1)
 	move.w	#$20,objoff_36(a1)
 	move.w	a0,parent(a1)
-	tst.w	(Two_player_mode).w
-	bne.s	loc_1F206
-	cmpi.b	#7,(Emerald_count).w
-	beq.s	loc_1F206
-	cmpi.w	#50,(Ring_count).w
-	blo.s	loc_1F206
-	bsr.w	Obj79_MakeSpecialStars
+	tst.w	(Two_player_mode).w	; is 2-player mode active ?
+	bne.s	loc_1F206	; if yes, branch
+	cmpi.b	#7,(Emerald_count).w	; have all emeralds been collected ?
+	beq.s	loc_1F206	; if yes, branch
+	cmpi.w	#50,(Ring_count).w	; has the player got 50 rings or more?
+	blo.s	loc_1F206	; if not, branch
+	bsr.w	Obj79_MakeSpecialStars	; make specials stars, enabling entry to the special stages
 
 loc_1F206:
 	move.b	#1,anim(a0)
@@ -41332,8 +41341,8 @@ Obj79_LoadData:
 	move.b	(Saved_Water_routine).w,(Water_routine).w
 	move.b	(Saved_Water_move).w,(Water_fullscreen_flag).w
 +
-	tst.b	(Last_star_pole_hit).w
-	bpl.s	return_1F412
+	tst.b	(Last_star_pole_hit).w	; was a star pole hit yet?
+	bpl.s	return_1F412	; if not, branch
 	move.w	(Saved_x_pos).w,d0
 	subi.w	#$A0,d0
 	move.w	d0,(Camera_Min_X_pos).w
@@ -42260,8 +42269,8 @@ Obj03_MainX:
 	bge.w	return_1FEAC
 	move.b	subtype(a0),d0
 	bpl.s	+
-	btst	#1,status(a1)
-	bne.w	return_1FEAC
+	btst	#1,status(a1)	; is the character in the air?
+	bne.w	return_1FEAC	; if yes, branch
 +
 	btst	#0,render_flags(a0)
 	bne.s	+
@@ -42295,8 +42304,8 @@ Obj03_MainX_Alt:
 	bge.w	return_1FEAC
 	move.b	subtype(a0),d0
 	bpl.s	+
-	btst	#1,status(a1)
-	bne.w	return_1FEAC
+	btst	#1,status(a1)	; is the character in the air?
+	bne.w	return_1FEAC	; if yes, branch
 +
 	btst	#0,render_flags(a0)
 	bne.s	+
@@ -42342,8 +42351,8 @@ Obj03_MainY:
 	bge.w	return_1FFB6
 	move.b	subtype(a0),d0
 	bpl.s	+
-	btst	#1,status(a1)
-	bne.w	return_1FFB6
+	btst	#1,status(a1)	; is the character in the air?
+	bne.w	return_1FFB6	; if yes, branch
 +
 	btst	#0,render_flags(a0)
 	bne.s	+
@@ -42377,8 +42386,8 @@ Obj03_MainY_Alt:
 	bge.w	return_1FFB6
 	move.b	subtype(a0),d0
 	bpl.s	+
-	btst	#1,status(a1)
-	bne.w	return_1FFB6
+	btst	#1,status(a1)	; is the character in the air?
+	bne.w	return_1FFB6	; if yes, branch
 +
 	btst	#0,render_flags(a0)
 	bne.s	+
@@ -43701,8 +43710,8 @@ Obj06_Spiral:
 +
 	btst	d6,status(a0)
 	bne.w	loc_215C0
-	btst	#1,status(a1)
-	bne.w	return_215BE
+	btst	#1,status(a1)	; is the character in the air?
+	bne.w	return_215BE	; if yes, branch
 	btst	#3,status(a1)
 	bne.s	loc_21580
 	move.w	x_pos(a1),d0
@@ -43768,8 +43777,8 @@ loc_215C0:
 	mvabs.w	inertia(a1),d0
 	cmpi.w	#$600,d0
 	blo.s	Obj06_Spiral_CharacterFallsOff
-	btst	#1,status(a1)
-	bne.s	Obj06_Spiral_CharacterFallsOff
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	Obj06_Spiral_CharacterFallsOff	; if yes, branch
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	addi.w	#$D0,d0
@@ -43934,8 +43943,8 @@ return_2188A:
 ; ===========================================================================
 
 loc_2188C:
-	btst	#1,status(a1)
-	bne.s	loc_218C6
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	loc_218C6	; if yes, branch
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	addi.w	#$C0,d0
@@ -44838,8 +44847,8 @@ Obj1B_Main:
 	addi.w	#$10,d3
 
 	lea	(MainCharacter).w,a1 ; a1=character
-	btst	#1,status(a1)
-	bne.s	+
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	+	; if yes, branch
 	move.w	x_pos(a1),d4
 	cmp.w	d0,d4
 	blo.w	+
@@ -44855,8 +44864,8 @@ Obj1B_Main:
 	move.w	(sp)+,d0
 +
 	lea	(Sidekick).w,a1 ; a1=character
-	btst	#1,status(a1)
-	bne.s	+
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	+	; if yes, branch
 	move.w	x_pos(a1),d4
 	cmp.w	d0,d4
 	blo.w	+
@@ -50065,8 +50074,8 @@ Obj66_Main:
 	jsrto	(SolidObject_Always_SingleCharacter).l, JmpTo3_SolidObject_Always_SingleCharacter
 	cmpi.b	#1,d4
 	bne.s	loc_26FF6
-	btst	#1,status(a1)
-	beq.s	loc_26FF6
+	btst	#1,status(a1)	; is the character in the air?
+	beq.s	loc_26FF6	; if not, branch
 	move.b	status(a0),d1
 	move.w	x_pos(a0),d0
 	sub.w	x_pos(a1),d0
@@ -50084,8 +50093,8 @@ loc_26FF6:
 	jsrto	(SolidObject_Always_SingleCharacter).l, JmpTo3_SolidObject_Always_SingleCharacter
 	cmpi.b	#1,d4
 	bne.s	loc_2702C
-	btst	#1,status(a1)
-	beq.s	loc_2702C
+	btst	#1,status(a1)	; is the character in the air?
+	beq.s	loc_2702C	; if not,  branch
 	move.b	status(a0),d1
 	move.w	x_pos(a0),d0
 	sub.w	x_pos(a1),d0
@@ -50119,8 +50128,8 @@ JmpTo33_DeleteObject
 loc_27042:
     if gameRevision>0
 	; REV00 didn't prevent the player from bouncing if they were hurt or dead
-	cmpi.b	#4,routine(a1)
-	blo.s	loc_2704C
+	cmpi.b	#4,routine(a1)	; is the main character hurt, dying, etc. ?
+	blo.s	loc_2704C	; if not, branch
 	rts
     endif
 ; ===========================================================================
@@ -52206,8 +52215,8 @@ Obj72_Action:
 	add.w	d0,d1
 	cmp.w	d0,d1
 	bhs.s	+	; rts
-	btst	#1,status(a1)
-	bne.s	+	; rts
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	+	; if yes, rts
 	move.w	objoff_36(a0),d0
 	add.w	d0,x_pos(a1)
 +
@@ -52707,8 +52716,8 @@ Obj76_CheckPlayers:
 	lea	(Sidekick).w,a1 ; a1=character
 ; loc_28ED8:
 Obj76_CheckPlayer:
-	btst	#1,status(a1)
-	bne.s	++	; rts
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	++	; if yes, rts
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	addi.w	#$C0,d0
@@ -53588,8 +53597,8 @@ loc_29890:
 	bhs.w	return_29936
 	tst.b	obj_control(a1)
 	bmi.s	return_29936
-	cmpi.b	#4,routine(a1)
-	bhs.s	return_29936
+	cmpi.b	#4,routine(a1)	; is the main character hurt, dying, etc. ?
+	bhs.s	return_29936	; if yes, branch
 	tst.w	(Debug_placement_mode).w	; is debug mode being used?
 	bne.s	return_29936	; if yes, branch
 	clr.w	x_vel(a1)
@@ -53761,8 +53770,8 @@ Obj80_Action:
 	beq.w	loc_29B5E
 	tst.b	render_flags(a1)
 	bpl.s	loc_29B42
-	cmpi.b	#4,routine(a1)
-	bhs.s	loc_29B42
+	cmpi.b	#4,routine(a1)	; is the main character hurt, dying, etc. ?
+	bhs.s	loc_29B42	; if yes, branch
 	andi.b	#button_B_mask|button_C_mask|button_A_mask,d0
 	beq.w	loc_29B50
 	clr.b	obj_control(a1)
@@ -53824,8 +53833,8 @@ loc_29B5E:
 	bhs.w	return_29BF8
 	tst.b	obj_control(a1)
 	bmi.s	return_29BF8
-	cmpi.b	#4,routine(a1)
-	bhs.s	return_29BF8
+	cmpi.b	#4,routine(a1)	; is the main character hurt, dying, etc. ?
+	bhs.s	return_29BF8	; if yes, branch
 	tst.w	(Debug_placement_mode).w	; is debug mode being used?
 	bne.s	return_29BF8	; if yes, branch
 	clr.w	x_vel(a1)
@@ -54770,8 +54779,8 @@ BranchTo_JmpTo26_MarkObjGone
 ; ===========================================================================
 
 loc_2A894:
-	cmpi.b	#4,routine(a1)
-	bhs.s	return_2A8FC
+	cmpi.b	#4,routine(a1)	; is the main character hurt, dying, etc. ?
+	bhs.s	return_2A8FC	; if yes, branch
 	tst.b	obj_control(a1)
 	bne.s	return_2A8FC
 	move.w	x_pos(a1),d0
@@ -54866,8 +54875,8 @@ BranchTo2_JmpTo26_MarkObjGone
 ; ===========================================================================
 
 loc_2A990:
-	cmpi.b	#4,routine(a1)
-	bhs.s	return_2AA10
+	cmpi.b	#4,routine(a1)	; is the main character hurt, dying, etc. ?
+	bhs.s	return_2AA10	; if yes, branch
 	tst.b	obj_control(a1)
 	bne.s	return_2AA10
 	move.w	x_pos(a1),d0
@@ -55098,8 +55107,8 @@ return_2AD78:
 
 loc_2AD7A:
     if gameRevision>0
-	cmpi.b	#4,routine(a1)
-	bhs.s	return_2AD78
+	cmpi.b	#4,routine(a1)	; is the main character hurt, dying, etc. ?
+	bhs.s	return_2AD78	; if yes, branch
     endif
 	subq.b	#1,d0
 	bne.w	loc_2AE0C
@@ -55265,8 +55274,8 @@ return_2AF78:
 
 loc_2AF7A:
     if gameRevision>0
-	cmpi.b	#4,routine(a1)
-	bhs.s	return_2AF78
+	cmpi.b	#4,routine(a1)	; is the main character hurt, dying, etc. ?
+	bhs.s	return_2AF78	; if yes, branch
     endif
 	subq.b	#1,d0
 	bne.w	loc_2B018
@@ -58486,11 +58495,11 @@ Obj58_MapUnc_2D50A:	BINCLUDE "mappings/sprite/obj58.bin"
 ;loc_2D57C
 Boss_HandleHits:
 	cmpi.b	#8,boss_routine(a0)	; is boss exploding or retreating?
-	bhs.s	return_2D5C2		; if yes, branch
+	bhs.s	return_2D5C2		; if yes, rts
 	tst.b	boss_hitcount2(a0)	; has boss run out of hits?
 	beq.s	Boss_Defeat		; if yes, branch
 	tst.b	collision_flags(a0)	; are boss' collisions enabled?
-	bne.s	return_2D5C2		; if yes, branch
+	bne.s	return_2D5C2		; if not, rts
 	tst.b	boss_invulnerable_time(a0)	; is boss invulnerable?
 	bne.s	+				; if yes, branch
 	move.b	#$20,boss_invulnerable_time(a0)	; make boss invulnerable
@@ -58506,7 +58515,7 @@ Boss_HandleHits:
 +
 	move.w	d0,(a1)		; set color to white or black
 	subq.b	#1,boss_invulnerable_time(a0)	; decrease boss' invulnerable time
-	bne.s	return_2D5C2			; branch, if it hasn't run out
+	bne.s	return_2D5C2			; rts, if it hasn't run out
 	move.b	#$F,collision_flags(a0)		; else, restore collisions
 
 return_2D5C2:
@@ -62239,7 +62248,7 @@ Obj89_Main_HandleHoveringAndHits:
 	move.w	d0,y_pos(a0)
 	move.w	(Boss_X_pos).w,x_pos(a0)
 	addq.b	#2,boss_sine_count(a0)
-	cmpi.b	#8,boss_routine(a0)		; has boss been defeated?
+	cmpi.b	#8,boss_routine(a0)		; is boss exploding or retreating?
 	bhs.s	return_307F2			; if yes, branch
 	tst.b	boss_hitcount2(a0)		; has boss run out of hits?
 	beq.s	Obj89_Main_KillBoss		; if yes, branch
@@ -62300,7 +62309,7 @@ Obj89_Main_AlignParts:
 Obj89_Main_DropHammer:
 	cmpi.w	#$78,(Boss_Countdown).w
 	bgt.s	return_3088A			; wait until timer is below $78
-	subi_.w	#1,sub3_x_pos(a0)		; make hammer move left
+	subi_.w	#1,sub3_x_pos(a0)		; make hammer fall to the left
 	move.l	obj89_hammer_y_pos(a0),d0
 	move.w	obj89_hammer_y_vel(a0),d1
 	addi.w	#$38,obj89_hammer_y_vel(a0)	; add gravity
@@ -63215,14 +63224,14 @@ Obj57_AddSinusOffset:	; called from routine $A and $C
 	addq.b	#2,boss_sine_count(a0)	; increment frame counter for sinus offset
 ;loc_31470:
 Obj57_HandleHits_Main:
-	cmpi.b	#8,boss_routine(a0)
-	bhs.s	return_314B6		; skip if boss already defeated
-	tst.b	boss_hitcount2(a0)
-	beq.s	Obj57_FinalDefeat
+	cmpi.b	#8,boss_routine(a0)	; is boss exploding or retreating?
+	bhs.s	return_314B6		; if yes, skip handling hits
+	tst.b	boss_hitcount2(a0)	; has boss run out of hits?
+	beq.s	Obj57_FinalDefeat	; if yes, branch
 	tst.b	collision_flags(a0)
-	bne.s	return_314B6
-	tst.b	boss_invulnerable_time(a0)
-	bne.s	+
+	bne.s	return_314B6	; rts
+	tst.b	boss_invulnerable_time(a0)	; is boss invulnerable?
+	bne.s	+	; if yes, branch
 	move.b	#$20,boss_invulnerable_time(a0)	; set invincibility timer
 	move.w	#SndID_BossHit,d0
 	jsr	(PlaySound).l
@@ -64663,12 +64672,12 @@ loc_328C0:
 Obj54_CheckHit:
 	cmpi.b	#$10,angle(a0)
 	bhs.s	return_32924
-	tst.b	boss_hitcount2(a0)
-	beq.s	Obj54_Defeated
+	tst.b	boss_hitcount2(a0)	; has boss run out of hits?
+	beq.s	Obj54_Defeated	; if yes, branch
 	tst.b	collision_flags(a0)
 	bne.s	return_32924
-	tst.b	boss_invulnerable_time(a0)
-	bne.s	+
+	tst.b	boss_invulnerable_time(a0)	; is boss invulnerable?
+	bne.s	+	; if yes, branch
 	move.b	#$40,boss_invulnerable_time(a0)
 	move.w	#SndID_BossHit,d0
 	jsr	(PlaySound).l
@@ -68259,8 +68268,8 @@ Obj5A_Rainbow_Positions:
 	subi.b	#$10,(SS_2P_BCD_Score).w
 	addi_.b	#1,(SS_2P_BCD_Score).w
 	move.w	#$E,d0
-	tst.b	(Graphics_Flags).w
-	bpl.s	+
+	tst.b	(Graphics_Flags).w	; are we on a Japanese Mega Drive?
+	bpl.s	+	; if yes, branch
 	move.w	#$14,d0
 +
 	move.w	#palette_line_1,d6
@@ -75182,8 +75191,8 @@ ObjB2_Init:
 	move.b	subtype(a0),d0
 	subi.b	#$4E,d0
 	move.b	d0,routine(a0)
-	cmpi.w	#2,(Player_mode).w
-	bne.s	+
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	bne.s	+	; if not, branch
 	cmpi.b	#8,d0
 	bhs.s	+
 	move.b	#4,mapping_frame(a0)
@@ -75485,8 +75494,8 @@ loc_3AB18:
 	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|AniIDSonAni_Wait,mapping_frame(a1)
 	move.w	#$100,anim_frame_duration(a1)
 	move.b	#$13,y_radius(a1)
-	cmpi.w	#2,(Player_mode).w
-	bne.s	+
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	bne.s	+	; if not, branch
 	move.b	#$F,y_radius(a1)
 + ; loc_3AB60:
 	bsr.w	ObjB2_Align_plane
@@ -75625,8 +75634,8 @@ loc_3AC84:
 	move.w	x_pos(a0),d0
 	subi.w	#$10,d0
 	move.w	d0,x_pos(a1)
-	cmpi.w	#2,(Player_mode).w
-	bne.s	loc_3ACC8
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	bne.s	loc_3ACC8	; if yes, branch
 	subi.w	#$10,y_pos(a1)
 
 loc_3ACC8:
@@ -75929,8 +75938,8 @@ ObjB2_Animate_Pilot:
 	moveq	#0,d0
 	move.b	objoff_36(a0),d0
 	moveq	#Tails_pilot_frames_end-Tails_pilot_frames,d1
-	cmpi.w	#2,(Player_mode).w
-	bne.s	+
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	bne.s	+	; if not, branch
 	moveq	#Sonic_pilot_frames_end-Sonic_pilot_frames,d1
 + ; loc_3AF78:
 	addq.b	#1,d0
@@ -75939,8 +75948,8 @@ ObjB2_Animate_Pilot:
 	moveq	#0,d0
 + ; loc_3AF80:
 	move.b	d0,objoff_36(a0)
-	cmpi.w	#2,(Player_mode).w
-	bne.s	+
+	cmpi.w	#2,(Player_mode).w	; is it tails-only mode ?
+	bne.s	+	; if not, branch
 	move.b	Sonic_pilot_frames(pc,d0.w),d0
 	jmpto	(LoadSonicDynPLC_Part2).l, JmpTo_LoadSonicDynPLC_Part2
 ; ===========================================================================
@@ -77370,8 +77379,8 @@ loc_3C140:
 	cmp.w	x_pos(a1),d0
 	bhs.s	BranchTo16_JmpTo39_MarkObjGone
 	clr.b	collision_property(a0)
-	cmpi.b	#4,routine(a1)
-	bhs.s	BranchTo16_JmpTo39_MarkObjGone
+	cmpi.b	#4,routine(a1)	; is the main character hurt, dying, etc. ?
+	bhs.s	BranchTo16_JmpTo39_MarkObjGone	; if yes, branch
 	clr.w	x_vel(a1)
 	clr.w	y_vel(a1)
 	move.w	x_pos(a0),d0
@@ -78812,8 +78821,8 @@ loc_3D2D4:
 	beq.s	+++
 	cmpi.b	#AniIDSonAni_Roll,anim(a1)
 	bne.s	loc_3D36C
-	btst	#1,status(a1)
-	bne.s	++
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	++	; if yes, branch
 	bsr.w	Obj_GetOrientationToPlayer
 	btst	#0,render_flags(a0)
 	beq.s	+
@@ -78829,8 +78838,8 @@ loc_3D2D4:
 	beq.s	+++
 	cmpi.b	#AniIDTailsAni_Roll,anim(a1)
 	bne.s	loc_3D36C
-	btst	#1,status(a1)
-	bne.s	++
+	btst	#1,status(a1)	; is the character in the air?
+	bne.s	++	; if yes, branch
 	bsr.w	Obj_GetOrientationToPlayer
 	btst	#0,render_flags(a0)
 	beq.s	+
@@ -78872,8 +78881,8 @@ loc_3D39A:
 
 loc_3D3A4:
 	move.b	#2,mapping_frame(a0)
-	btst	#1,status(a1)
-	beq.s	+
+	btst	#1,status(a1)	; is the character in the air?
+	beq.s	+	; if not, branch
 	move.b	#3,mapping_frame(a0)
 +
 	move.w	x_pos(a0),d1
@@ -80149,6 +80158,7 @@ ObjC7_CheckHit:
 	clr.b	collision_flags(a0)
 	subq.b	#1,collision_property(a0)
 	beq.s	ObjC7_Beaten
+;loc_3E01E
 +
 	move.b	#$3C,objoff_2A(a0)
 	move.w	#SndID_BossHit,d0
@@ -84292,8 +84302,8 @@ loc_40EDC:
 	bsr.w	Hud_TimeRingBonus
 
 loc_40F18:
-	tst.w	(Game_paused).w
-	bne.s	return_40F4E
+	tst.w	(Game_paused).w	; is the game paused ?
+	bne.s	return_40F4E	; if yes, branch
 	lea	(Timer).w,a1
 	cmpi.l	#$93B3B,(a1)+
 	nop
@@ -84315,8 +84325,8 @@ return_40F4E:
 ; ===========================================================================
 
 loc_40F50:
-	tst.w	(Game_paused).w
-	bne.w	return_4101A
+	tst.w	(Game_paused).w	; is the game paused ?
+	bne.w	return_4101A	; if yes, branch
 	tst.b	(Update_HUD_timer).w
 	beq.s	loc_40F90
 	lea	(Timer).w,a1
