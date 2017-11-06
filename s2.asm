@@ -2071,10 +2071,11 @@ EniDec_Loop:
 	andi.w	#$7F,d1		; keep only lower 7 bits
 	move.w	d1,d2
 	cmpi.w	#$40,d1		; is bit 6 set?
-	bhs.s	+		; if it is, branch
+	bhs.s	EniDec_SevenBitEntry		; if it is, branch
 	moveq	#6,d0		; if not, process 6 bits instead of 7
 	lsr.w	#1,d2		; bitfield now becomes TTSSSS instead of TTTSSSS
-+
+
+EniDec_SevenBitEntry:
 	bsr.w	EniDec_ChkGetNextByte
 	andi.w	#$F,d2	; keep only lower nybble
 	lsr.w	#4,d1	; store upper nybble (max value = 7)
@@ -2100,8 +2101,8 @@ EniDec_Sub4:
 EniDec_Sub8:
 	bsr.w	EniDec_GetInlineCopyVal
 
--	move.w	d1,(a1)+
-	dbf	d2,-
+-	move.w	d1,(a1)+	; copy inline value
+	dbf	d2,-	; repeat
 
 	bra.s	EniDec_Loop
 ; ===========================================================================
@@ -2109,9 +2110,9 @@ EniDec_Sub8:
 EniDec_SubA:
 	bsr.w	EniDec_GetInlineCopyVal
 
--	move.w	d1,(a1)+
-	addq.w	#1,d1
-	dbf	d2,-
+-	move.w	d1,(a1)+	; copy inline value
+	addq.w	#1,d1	; increment
+	dbf	d2,-	; repeat
 
 	bra.s	EniDec_Loop
 ; ===========================================================================
@@ -2119,9 +2120,9 @@ EniDec_SubA:
 EniDec_SubC:
 	bsr.w	EniDec_GetInlineCopyVal
 
--	move.w	d1,(a1)+
-	subq.w	#1,d1
-	dbf	d2,-
+-	move.w	d1,(a1)+	; copy inline value
+	subq.w	#1,d1	; decrement
+	dbf	d2,-	; repeat
 
 	bra.s	EniDec_Loop
 ; ===========================================================================
@@ -2130,9 +2131,9 @@ EniDec_SubE:
 	cmpi.w	#$F,d2
 	beq.s	EniDec_End
 
--	bsr.w	EniDec_GetInlineCopyVal
-	move.w	d1,(a1)+
-	dbf	d2,-
+-	bsr.w	EniDec_GetInlineCopyVal	; fetch new inline value
+	move.w	d1,(a1)+	; copy it
+	dbf	d2,-	; and repeat
 
 	bra.s	EniDec_Loop
 ; ===========================================================================
@@ -2149,55 +2150,61 @@ EniDec_JmpTable:
 ; ===========================================================================
 
 EniDec_End:
-	subq.w	#1,a0
+	subq.w	#1,a0	; go back by one byte
 	cmpi.w	#16,d6		; were we going to start on a completely new byte?
-	bne.s	+		; if not, branch
-	subq.w	#1,a0
-+
+	bne.s	EniDec_NotNewByte	; if not, branch
+	subq.w	#1,a0	; and another one if needed
+EniDec_NotNewByte:
 	move.w	a0,d0
-	lsr.w	#1,d0		; are we on an odd byte?
-	bcc.s	+		; if not, branch
-	addq.w	#1,a0		; ensure we're on an even byte
-+
+	lsr.w	#1,d0	; are we on an odd byte?
+	bcc.s	EniDec_EvenByte	; if not, branch
+	addq.w	#1,a0	; ensure we're on an even byte
+
+EniDec_EvenByte:
 	movem.l	(sp)+,d0-d7/a1-a5
 	rts
 
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+; ---------------------------------------------------------------------------
+; Part of the Enigma decompressor
+; Fetches an inline copy value and stores it in d1
+; ---------------------------------------------------------------------------
 
+; =============== S U B R O U T I N E =======================================
 
 EniDec_GetInlineCopyVal:
-	move.w	a3,d3		; store starting art tile
-	move.b	d4,d1
-	add.b	d1,d1
-	bcc.s	+		; if d4 was < $80
-	subq.w	#1,d6		; get next bit number
-	btst	d6,d5		; is the bit set?
-	beq.s	+		; if not, branch
-	ori.w	#high_priority,d3	; set high priority bit
-+
-	add.b	d1,d1
-	bcc.s	+		; if d4 was < $40
+	move.w	a3,d3	; store starting art tile
+	move.b	d4,d1	; copy PCCVH bitfield
+	add.b	d1,d1	; is the priority bit set?
+	bcc.s	EniDec_SkipPriority	; if d4 was < $80, branch
+	subq.w	#1,d6	; get next bit number
+	btst	d6,d5	; is the priority bit set in the inline render flags?
+	beq.s	EniDec_SkipPriority	; if not, branch
+	ori.w	#high_priority,d3	; otherwise set priority bit in art tile
+
+EniDec_SkipPriority:
+	add.b	d1,d1	; is the high palette line bit set?
+	bcc.s	EniDec_SkipHighPal	; if not, branch
 	subq.w	#1,d6		; get next bit number
 	btst	d6,d5
-	beq.s	+
+	beq.s	EniDec_SkipHighPal
 	addi.w	#palette_line_2,d3	; set second palette line bit
-+
-	add.b	d1,d1
-	bcc.s	+		; if d4 was < $20
+EniDec_SkipHighPal:
+	add.b	d1,d1	; is the low palette line bit set?
+	bcc.s	EniDec_SkipLowPal	; if not, branch
 	subq.w	#1,d6		; get next bit number
 	btst	d6,d5
-	beq.s	+
+	beq.s	EniDec_SkipLowPal
 	addi.w	#palette_line_1,d3	; set first palette line bit
-+
-	add.b	d1,d1
-	bcc.s	+		; if d4 was < $10
+EniDec_SkipLowPal:
+	add.b	d1,d1	; is the vertical flip flag set?
+	bcc.s	EniDec_SkipYFlip	; if not, branch
 	subq.w	#1,d6		; get next bit number
 	btst	d6,d5
-	beq.s	+
+	beq.s	EniDec_SkipYFlip
 	ori.w	#flip_y,d3	; set Y-flip bit
-+
-	add.b	d1,d1
-	bcc.s	+		; if d4 was < 8
+EniDec_SkipYFlip:
+	add.b	d1,d1	; is the horizontal flip flag set?
+	bcc.s	+		; if not, branch
 	subq.w	#1,d6
 	btst	d6,d5
 	beq.s	+
@@ -18407,11 +18414,11 @@ RunDynamicLevelEvents:
 	move.b	(Current_Zone).w,d0
 	add.w	d0,d0
 	move.w	DynamicLevelEventIndex(pc,d0.w),d0
-	jsr	DynamicLevelEventIndex(pc,d0.w)
+	jsr	DynamicLevelEventIndex(pc,d0.w)	; run level-specific events
 	moveq	#2,d1
 	move.w	(Camera_Max_Y_pos).w,d0
-	sub.w	(Camera_Max_Y_pos_now).w,d0
-	beq.s	++	; rts
+	sub.w	(Camera_Max_Y_pos_now).w,d0 ; has lower level boundary changed recently?
+	beq.s	++	; if not, rts
 	bcc.s	+++
 	neg.w	d1
 	move.w	(Camera_Y_pos).w,d0
@@ -22355,7 +22362,7 @@ Obj2D_Main:
 	addq.w	#1,d3
 	move.w	x_pos(a0),d4
 	jsrto	(SolidObject).l, JmpTo2_SolidObject
-	bra.w	MarkObjGone							 ; delete object if off screen
+	bra.w	MarkObjGone	; delete object if off screen
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -44518,7 +44525,7 @@ JmpTo5_MarkObjGone
 	jmp	(MarkObjGone).l
 JmpTo4_SingleObjLoad2
 	jmp	(SingleObjLoad2).l
-JmpTo14_Adjust2PArtPoint
+JmpTo14_Adjust2PArtPointer
 	jmp	(Adjust2PArtPointer).l
 JmpTo3_PlatformObject
 	jmp	(PlatformObject).l
@@ -84181,7 +84188,7 @@ HudUpdate:
 	tst.w	(Two_player_mode).w
 	bne.w	loc_40F50
 	tst.w	(Debug_mode_flag).w	; is debug mode on?
-	bne.w	loc_40E9A	; if yes, branch
+	bne.w	HudDebug	; if yes, branch
 	tst.b	(Update_HUD_score).w	; does the score need updating?
 	beq.s	Hud_ChkRings	; if not, branch
 	clr.b	(Update_HUD_score).w
@@ -84192,14 +84199,15 @@ HudUpdate:
 Hud_ChkRings:
 	tst.b	(Update_HUD_rings).w	; does the ring counter need updating?
 	beq.s	Hud_ChkTime	; if not, branch
-	bpl.s	loc_40DC6
-	bsr.w	Hud_InitRings
+	bpl.s	Hud_ChkRings_Notzero
+	bsr.w	Hud_InitRings	; reset rings to 0 if Sonic is hit
 
-loc_40DC6:
+;loc_40DC6:
+Hud_ChkRings_Notzero:
 	clr.b	(Update_HUD_rings).w
-	move.l	#vdpComm(tiles_to_bytes(ArtTile_HUD_Rings),VRAM,WRITE),d0
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_HUD_Rings),VRAM,WRITE),d0	; set VRAM address
 	moveq	#0,d1
-	move.w	(Ring_count).w,d1
+	move.w	(Ring_count).w,d1	; load number of rings
 	bsr.w	Hud_Rings
 ; loc_40DDA:
 Hud_ChkTime:
@@ -84209,27 +84217,28 @@ Hud_ChkTime:
 	bne.s	Hud_ChkLives	; if yes, branch
 	lea	(Timer).w,a1
 	cmpi.l	#$93B3B,(a1)+	; is the time 9.59?
-	beq.w	loc_40E84	; if yes, branch
-	addq.b	#1,-(a1)
-	cmpi.b	#60,(a1)
+	beq.w	TimeOver3	; if yes, branch
+	addq.b	#1,-(a1)	; increment 1/60s counter
+	cmpi.b	#60,(a1)	; check if passed 60
 	blo.s	Hud_ChkLives
 	move.b	#0,(a1)
-	addq.b	#1,-(a1)
-	cmpi.b	#60,(a1)
-	blo.s	+
+	addq.b	#1,-(a1)	; increment second counter
+	cmpi.b	#60,(a1)	; check if passed 60
+	blo.s	Hud_UpdateTime
 	move.b	#0,(a1)
-	addq.b	#1,-(a1)
-	cmpi.b	#9,(a1)
-	blo.s	+
-	move.b	#9,(a1)
-+
+	addq.b	#1,-(a1)	; increment minute counter
+	cmpi.b	#9,(a1)	; check if passed 9
+	blo.s	Hud_UpdateTime
+	move.b	#9,(a1)	; keep as 9
+	
+Hud_UpdateTime:
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_HUD_Minutes),VRAM,WRITE),d0
 	moveq	#0,d1
-	move.b	(Timer_minute).w,d1
+	move.b	(Timer_minute).w,d1	; load minutes
 	bsr.w	Hud_Mins
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_HUD_Seconds),VRAM,WRITE),d0
 	moveq	#0,d1
-	move.b	(Timer_second).w,d1
+	move.b	(Timer_second).w,d1 ; load seconds
 	bsr.w	Hud_Secs
 ; loc_40E38:
 Hud_ChkLives:
@@ -84260,47 +84269,51 @@ Hud_End:
 	rts
 ; ===========================================================================
 
-loc_40E84:
+;loc_40E84:
+TimeOver3:
 	clr.b	(Update_HUD_timer).w
-	lea	(MainCharacter).w,a0 ; a0=character
+	lea	(MainCharacter).w,a0	; a0=character
 	movea.l	a0,a2
 	bsr.w	KillCharacter
 	move.b	#1,(Time_Over_flag).w
 	rts
 ; ===========================================================================
 
-loc_40E9A:
+;loc_40E9A:
+HudDebug:
 	bsr.w	HudDb_XY
-	tst.b	(Update_HUD_rings).w
-	beq.s	loc_40EBE
-	bpl.s	loc_40EAA
-	bsr.w	Hud_InitRings
+	tst.b	(Update_HUD_rings).w	; does the ring	counter	need updating?
+	beq.s	HudDebug_ObjCounter	; if not, branch
+	bpl.s	HudDebug_NotZero
+	bsr.w	Hud_InitRings	; reset rings to 0 if Sonic is hit
 
-loc_40EAA:
+;loc_40EAA:
+HudDebug_NotZero:
 	clr.b	(Update_HUD_rings).w
-	move.l	#vdpComm(tiles_to_bytes(ArtTile_HUD_Rings),VRAM,WRITE),d0
-
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_HUD_Rings),VRAM,WRITE),d0	; set VRAM address
 	moveq	#0,d1
-	move.w	(Ring_count).w,d1
+	move.w	(Ring_count).w,d1	; load number of rings
 	bsr.w	Hud_Rings
 
-loc_40EBE:
-	move.l	#vdpComm(tiles_to_bytes(ArtTile_HUD_Seconds),VRAM,WRITE),d0
+;loc_40EBE:
+HudDebug_ObjCounter:
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_HUD_Seconds),VRAM,WRITE),d0	; set VRAM address
 	moveq	#0,d1
-	move.b	(Sprite_count).w,d1
+	move.b	(Sprite_count).w,d1 ; load "number of objects" counter
 	bsr.w	Hud_Secs
-	tst.b	(Update_HUD_lives).w
-	beq.s	loc_40EDC
+	tst.b	(Update_HUD_lives).w	; does the lives counter need updating?
+	beq.s	HudDebug_ChkBonus	; if not, branch
 	clr.b	(Update_HUD_lives).w
 	bsr.w	Hud_Lives
 
-loc_40EDC:
-	tst.b	(Update_Bonus_score).w
-	beq.s	loc_40F18
+;loc_40EDC:
+HudDebug_ChkBonus:
+	tst.b	(Update_Bonus_score).w	; does the ring/time bonus counter need updating?
+	beq.s	loc_40F18	; if not, branch
 	clr.b	(Update_Bonus_score).w
-	move.l	#vdpComm(tiles_to_bytes(ArtTile_HUD_Bonus_Score),VRAM,WRITE),(VDP_control_port).l
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_HUD_Bonus_Score),VRAM,WRITE),(VDP_control_port).l	; set VRAM address
 	moveq	#0,d1
-	move.w	(Total_Bonus_Countdown).w,d1
+	move.w	(Total_Bonus_Countdown).w,d1	; load time bonus
 	bsr.w	Hud_TimeRingBonus
 	moveq	#0,d1
 	move.w	(Bonus_Countdown_1).w,d1
@@ -84311,7 +84324,7 @@ loc_40EDC:
 	moveq	#0,d1
 	move.w	(Bonus_Countdown_3).w,d1
 	bsr.w	Hud_TimeRingBonus
-
+	
 loc_40F18:
 	tst.w	(Game_paused).w	; is the game paused ?
 	bne.s	return_40F4E	; if yes, branch
@@ -84546,14 +84559,14 @@ Hud_TilesBase_End
 
 ; sub_410E4:
 HudDb_XY:
-	move.l	#vdpComm(tiles_to_bytes(ArtTile_HUD_Score_E),VRAM,WRITE),(VDP_control_port).l
-	move.w	(Camera_X_pos).w,d1
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_HUD_Score_E),VRAM,WRITE),(VDP_control_port).l	; set VRAM address
+	move.w	(Camera_X_pos).w,d1	; load camera x-position
 	swap	d1
-	move.w	(MainCharacter+x_pos).w,d1
+	move.w	(MainCharacter+x_pos).w,d1	; load Sonic's x-position
 	bsr.s	HudDb_XY2
-	move.w	(Camera_Y_pos).w,d1
+	move.w	(Camera_Y_pos).w,d1	; load camera y-position
 	swap	d1
-	move.w	(MainCharacter+y_pos).w,d1
+	move.w	(MainCharacter+y_pos).w,d1	; load Sonic's y-position
 ; loc_41104:
 HudDb_XY2:
 	moveq	#7,d6
