@@ -69,22 +69,70 @@ StartOfRom:
 	fatal "StartOfRom was $\{*} but it should be 0"
     endif
 ;Vectors:
-	dc.l System_Stack, EntryPoint, ErrorTrap, ErrorTrap; 4
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 8
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 12
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 16
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 20
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 24
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 28
-	dc.l H_Int,     ErrorTrap, V_Int,     ErrorTrap; 32
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 36
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 40
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 44
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 48
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 52
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 56
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 60
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 64
+	dc.l System_Stack	; Initial stack pointer value
+	dc.l EntryPoint		; Start of program
+	dc.l ErrorTrap		; Bus error
+	dc.l ErrorTrap		; Address error (4)
+	dc.l ErrorTrap		; Illegal instruction
+	dc.l ErrorTrap		; Division by zero
+	dc.l ErrorTrap		; CHK exception
+	dc.l ErrorTrap		; TRAPV exception (8)
+	dc.l ErrorTrap		; Privilege violation
+	dc.l ErrorTrap		; TRACE exception
+	dc.l ErrorTrap		; Line-A emulator
+	dc.l ErrorTrap		; Line-F emulator (12)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved) (16)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved) (20)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved) (24)
+	dc.l ErrorTrap		; Spurious exception
+	dc.l ErrorTrap		; IRQ level 1
+	dc.l ErrorTrap		; IRQ level 2
+	dc.l ErrorTrap		; IRQ level 3 (28)
+	dc.l H_Int			; IRQ level 4 (horizontal retrace interrupt)
+	dc.l ErrorTrap		; IRQ level 5
+	dc.l V_Int			; IRQ level 6 (vertical retrace interrupt)
+	dc.l ErrorTrap		; IRQ level 7 (32)
+	dc.l ErrorTrap		; TRAP #00 exception
+	dc.l ErrorTrap		; TRAP #01 exception
+	dc.l ErrorTrap		; TRAP #02 exception
+	dc.l ErrorTrap		; TRAP #03 exception (36)
+	dc.l ErrorTrap		; TRAP #04 exception
+	dc.l ErrorTrap		; TRAP #05 exception
+	dc.l ErrorTrap		; TRAP #06 exception
+	dc.l ErrorTrap		; TRAP #07 exception (40)
+	dc.l ErrorTrap		; TRAP #08 exception
+	dc.l ErrorTrap		; TRAP #09 exception
+	dc.l ErrorTrap		; TRAP #10 exception
+	dc.l ErrorTrap		; TRAP #11 exception (44)
+	dc.l ErrorTrap		; TRAP #12 exception
+	dc.l ErrorTrap		; TRAP #13 exception
+	dc.l ErrorTrap		; TRAP #14 exception
+	dc.l ErrorTrap		; TRAP #15 exception (48)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved) (52)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved) (56)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved) (60)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved) (64)
 ; byte_100:
 Header:
 	dc.b "SEGA GENESIS    " ; Console name
@@ -66231,19 +66279,19 @@ Obj09_MdAir:
 ; ===========================================================================
 
 SSObjectMoveAndFall:
-	move.l	ss_x_pos(a0),d2
-	move.l	ss_y_pos(a0),d3
-	move.w	x_vel(a0),d0
+	move.l	ss_x_pos(a0),d2	; load x position
+	move.l	ss_y_pos(a0),d3	; load y position
+	move.w	x_vel(a0),d0	; load x speed
 	ext.l	d0
-	asl.l	#8,d0
-	add.l	d0,d2
-	move.w	y_vel(a0),d0
-	addi.w	#$A8,y_vel(a0)	; Apply gravity
+	asl.l	#8,d0	; shift velocity to line up with the middle 16 bits of the 32-bit position
+	add.l	d0,d2	; add x speed to x position	; note this affects the subpixel position x_sub(a0) = 2+x_pos(a0)
+	move.w	y_vel(a0),d0	; load y speed
+	addi.w	#$A8,y_vel(a0)	; increase vertical speed (apply gravity)
 	ext.l	d0
-	asl.l	#8,d0
-	add.l	d0,d3
-	move.l	d2,ss_x_pos(a0)
-	move.l	d3,ss_y_pos(a0)
+	asl.l	#8,d0	; shift velocity to line up with the middle 16 bits of the 32-bit position
+	add.l	d0,d3	; add old y speed to y position	; note this affects the subpixel position y_sub(a0) = 2+y_pos(a0)
+	move.l	d2,ss_x_pos(a0)	; store new x position
+	move.l	d3,ss_y_pos(a0)	; store new y position
 	rts
 ; ===========================================================================
 
@@ -66405,7 +66453,7 @@ SSPlayer_DoLevelCollision:
 	moveq	#0,d0
 	move.w	d0,x_vel(a0)
 	move.w	d0,y_vel(a0)
-	move.w	d0,inertia(a0)		; This makes player stop on ground
+	move.w	d0,inertia(a0)		; this makes player stop on ground
 	move.b	d0,ss_slide_timer(a0)
 	bset	#6,status(a0)
 	bsr.w	SSObjectMove
@@ -68354,9 +68402,9 @@ Obj5A_RingCheckTrigger:
 ; ===========================================================================
 ;loc_359CE
 Obj5A_Handshake:
-	cmpi.b	#$15,mapping_frame(a0)		; Is this the hand?
+	cmpi.b	#$15,mapping_frame(a0)		; is this the hand?
 	bne.s	++							; if not, branch
-	move.w	objoff_30(a0),d0			; Target y position for handshake
+	move.w	objoff_30(a0),d0			; target y position for handshake
 	tst.b	objoff_2E(a0)
 	bne.s	+
 	subi_.w	#1,y_pos(a0)
