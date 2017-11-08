@@ -38,6 +38,18 @@ addsubOptimize = 0|allOptimizations
 relativeLea = 1|allOptimizations
 ;	| If 1, makes some instructions use pc-relative addressing, instead of absolute long
 ;
+basicOptimisations = 1|allOptimizations
+;	| If 1, does some basic optimisations
+;
+saveSpace = 1|allOptimizations
+;	| If 1, removes many unused/leftover/dead code, improving performance (removes 13kb)
+;
+preventClearRamErrors = 1|allOptimizations
+;	| If 1, corrects excessive RAM cleaning, preventing errors (3.5kb of RAM was erroneously erased)
+;
+bugFixes = 1
+;	| If 1, activates all bug fixes. Detailed in s2.options.asm.
+;
 useFullWaterTables = 0
 ;	| If 1, zone offset tables for water levels cover all level slots instead of only slots 8-$F
 ;	| Set to 1 if you've shifted level IDs around or you want water in levels with a level slot below 8
@@ -58,8 +70,12 @@ gameRevision = 1
 	include "s2.constants.asm"
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-; simplifying macros and functions
+; Simplifying macros and functions
 	include "s2.macros.asm"
+
+; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+; Options for AS that only have a small influence
+	include "s2.options.asm"
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; start of ROM
@@ -616,8 +632,10 @@ Vint_Title:
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;VintSub6
 Vint_Unused6:
+	if saveSpace=0
 	bsr.w	Do_ControllerPal
 	rts
+	endif
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;VintSub10
 Vint_Pause:
@@ -933,10 +951,12 @@ loc_BD6:
 ; ===========================================================================
 ;VintSubE
 Vint_UnusedE:
+	if saveSpace=0
 	bsr.w	Do_ControllerPal
 	addq.b	#1,(VIntSubE_RunCount).w
 	move.b	#VintID_UnusedE,(Vint_routine).w
 	rts
+	endif
 ; ===========================================================================
 ;VintSub12
 Vint_Fade:
@@ -1311,8 +1331,13 @@ ClearScreen:
 	clr.l	(unk_F61A).w
 
 	; Bug: These '+4's shouldn't be here; clearRAM accidentally clears an additional 4 bytes
+	if preventClearRamErrors=0
 	clearRAM Sprite_Table,Sprite_Table_End+4
 	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+4
+	else
+	clearRAM Sprite_Table,Sprite_Table_End
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End
+	endif
 
 	startZ80
 	rts
@@ -1331,6 +1356,7 @@ JmpTo_SoundDriverLoad
 ; ===========================================================================
 ; unused mostly-leftover subroutine to load the sound driver
 ; SoundDriverLoadS1:
+	if saveSpace=0
 	move.w	#$100,(Z80_Bus_Request).l ; stop the Z80
 	move.w	#$100,(Z80_Reset).l ; reset the Z80
 	lea	(Z80_RAM).l,a1
@@ -1347,6 +1373,7 @@ JmpTo_SoundDriverLoad
 	move.w	#$100,(Z80_Reset).l ; reset the Z80
 	move.w	#0,(Z80_Bus_Request).l ; start the Z80
 	rts
+	endif
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 ; If Music_to_play is clear, move d0 into Music_to_play,
@@ -3352,6 +3379,7 @@ Pal_FadeToWhite:
 
 ; ===========================================================================
 ; PalCycle_Sega:
+	if saveSpace=0
 	tst.b	(PalCycle_Timer+1).w
 	bne.s	loc_2680
 	lea	(Normal_palette_line2).w,a1
@@ -3438,19 +3466,25 @@ loc_26C8:
 loc_26D2:
 	moveq	#1,d0
 	rts
+	endif
 
 ; ===========================================================================
 ;----------------------------------------------------------------------------
 ; Unused palette for the Sega logo
 ;----------------------------------------------------------------------------
 ; Pal_26D6:
-Pal_Sega1:	BINCLUDE	"art/palettes/Unused Sega logo.bin"
+Pal_Sega1:	
+	if saveSpace=0
+	BINCLUDE	"art/palettes/Unused Sega logo.bin"
+	endif
 ;----------------------------------------------------------------------------
 ; Unused palette for the Sega logo (fading?)
 ;----------------------------------------------------------------------------
 ; Pal_26E2:
-Pal_Sega2:	BINCLUDE	"art/palettes/Unused Sega logo 2.bin"
-
+Pal_Sega2:
+	if saveSpace=0
+	BINCLUDE	"art/palettes/Unused Sega logo 2.bin"
+	endif
 ; end of dead code/data
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -4373,7 +4407,11 @@ Level_ClrRam:
 	clearRAM Misc_Variables,Misc_Variables_End
 	clearRAM Oscillating_Data,Oscillating_variables_End
 	; Bug: The '+C0' shouldn't be here; CNZ_saucer_data is only $40 bytes large
+	if preventClearRamErrors=0
 	clearRAM CNZ_saucer_data,CNZ_saucer_data_End+$C0
+	else
+	clearRAM CNZ_saucer_data,CNZ_saucer_data_End
+	endif
 
 	cmpi.w	#chemical_plant_zone_act_2,(Current_ZoneAndAct).w ; CPZ 2
 	beq.s	Level_InitWater
@@ -5189,6 +5227,7 @@ MoveSonicInDemo:
 ; ---------------------------------------------------------------------------
 ; MoveDemo_Record: loc_4828:
 	; calculate output location of recorded player 1 demo?
+	if saveSpace=0
 	lea	(DemoScriptPointers).l,a1
 	moveq	#0,d0
 	move.b	(Current_Zone).w,d0
@@ -5231,6 +5270,7 @@ MoveDemo_Record_P2:
 	addq.w	#2,(Demo_button_index_2P).w ; advance to next button press
 	andi.w	#$3FF,(Demo_button_index_2P).w ; wrap at max button press changes 1024
 +	rts
+	endif
 	; end of inactive recording code
 ; ===========================================================================
 	; continue with MoveSonicInDemo:
@@ -6093,9 +6133,15 @@ SpecialStage:
 ; | of our data structures.                                                |
 ; \------------------------------------------------------------------------/
 	; Bug: These '+4's shouldn't be here; clearRAM accidentally clears an additional 4 bytes
+	if preventClearRamErrors=0
 	clearRAM SS_Sprite_Table,SS_Sprite_Table_End+4
 	clearRAM SS_Horiz_Scroll_Buf_1,SS_Horiz_Scroll_Buf_1_End+4
 	clearRAM SS_Misc_Variables,SS_Misc_Variables_End+4
+	else
+	clearRAM SS_Sprite_Table,SS_Sprite_Table_End
+	clearRAM SS_Horiz_Scroll_Buf_1,SS_Horiz_Scroll_Buf_1_End
+	clearRAM SS_Misc_Variables,SS_Misc_Variables_End
+	endif
 	clearRAM SS_Sprite_Table_Input,SS_Sprite_Table_Input_End
 	clearRAM SS_Object_RAM,SS_Object_RAM_End
 
@@ -9618,7 +9664,9 @@ SpecialStage_RingReq_Team:
 	dc.b  40,100,150,160	; 16
 	dc.b  55,110,200,200	; 20
 	dc.b  80,140,220,220	; 24
+	if saveSpace=0
 	dc.b 100,190,210,210	; 28
+	endif
 ; ----------------------------------------------------------------------------
 ; Ring requirement values for Sonic or Tails alone games
 ;
@@ -9634,7 +9682,9 @@ SpecialStage_RingReq_Alone:
 	dc.b  40,110,150,150	; 16
 	dc.b  50, 90,160,160	; 20
 	dc.b  80,140,210,210	; 24
+	if saveSpace=0
 	dc.b 100,150,190,190	; 28
+	endif
 
 ; special stage palette table
 ; word_778E:
@@ -12297,8 +12347,11 @@ CheckCheats:	; This is called from 2 places: the options screen and the level se
 	bne.s	+				; If not 0, branch
 	move.b	#$F,(Continue_count).w		; Give 15 continues
 	; The next line causes the bug where the OOZ music plays until reset.
-	; Remove "&$7F" to fix the bug.
+	if continueBugFix=0
 	move.b	#SndID_ContinueJingle&$7F,d0	; Play the continue jingle
+	else
+	move.b	#SndID_ContinueJingle,d0	; Play the continue jingle
+	endif
 	jsrto	(PlayMusic).l, JmpTo_PlayMusic
 	bra.s	++
 ; ===========================================================================
@@ -12488,7 +12541,11 @@ EndingSequence:
 	move.w	d0,(Credits_Trigger).w
 
 	; Bug: The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
+	if preventClearRamErrors=0
 	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+4
+	else
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End
+	endif
 
 	move.w	#$7FFF,(PalCycle_Timer).w
 	lea	(CutScene).w,a1
@@ -12564,7 +12621,11 @@ EndgameCredits:
 	move.w	d0,(Credits_Trigger).w
 
 	; Bug: The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
+	if preventClearRamErrors=0
 	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+4
+	else
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End
+	endif
 
 	moveq	#MusID_Credits,d0
 	jsrto	(PlaySound).l, JmpTo2_PlaySound
@@ -14106,7 +14167,9 @@ LevelSizeLoad:
 	lea	LevelSize(pc,d0.w),a0
 	move.l	(a0)+,d0
 	move.l	d0,(Camera_Min_X_pos).w
+	if saveSpace=0
 	move.l	d0,(unk_EEC0).w	; unused besides this one write...
+	endif
 	move.l	d0,(Tails_Min_X_pos).w
 	move.l	(a0)+,d0
 	move.l	d0,(Camera_Min_Y_pos).w
@@ -15241,6 +15304,7 @@ SwScrl_HTZ_2P:
 ; unused...
 ; loc_CBA0:
 SwScrl_HPZ:
+	if saveSpace=0
 	move.w	(Camera_X_pos_diff).w,d4
 	ext.l	d4
 	asl.l	#6,d4
@@ -15323,6 +15387,7 @@ SwScrl_HPZ:
 	lsr.w	#3,d0
 	lea	(a2,d0.w),a2
 	bra.w	SwScrl_HPZ_Continued
+	endif
 ; ===========================================================================
 ; loc_CC66:
 SwScrl_OOZ:
@@ -16379,8 +16444,10 @@ SwScrl_ARZ:
 	; a few instructions later, so all three move at the same speed.
 	; This code seems to pre-date the Simon Wai build, which uses the final's
 	; scrolling.
+	if saveSpace=0
 	move.w	d1,(a2)		; Set row 1's speed
 	move.w	d1,4(a2)	; Set row 3's speed
+	endif
 
 	move.w	(Camera_BG_X_pos).w,d0
 	move.w	d0,2(a2)	; Set row 2's speed
@@ -16522,6 +16589,7 @@ SwScrl_Minimal:
 ; unused...
 ; loc_D69E:
 SwScrl_HPZ_Continued:
+	if saveSpace=0
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	#$E,d1
 	move.w	(Camera_X_pos).w,d0
@@ -16541,6 +16609,7 @@ SwScrl_HPZ_Continued:
 	dbf	d1,-
 
 	rts
+	endif
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to set horizontal scroll flags
@@ -17002,6 +17071,7 @@ SetHorizScrollFlagsBG2:	; only used by CPZ
 ; ===========================================================================
 ; some apparently unused code
 ;SetHorizScrollFlagsBG3:
+	if saveSpace=0
 	move.l	(Camera_BG3_X_pos).w,d2
 	move.l	d2,d0
 	add.l	d4,d0
@@ -17035,7 +17105,7 @@ SetHorizScrollFlagsBG2:	; only used by CPZ
 	lea	(Scroll_flags_BG2).w,a2
 	lea	(Camera_BG2_X_pos).w,a3
 	bra.w	Draw_BG2
-
+	endif
 ; ===========================================================================
 
 
@@ -17310,6 +17380,7 @@ Draw_BG2:
 ; but otherwise loads camera Y for selected camera.
 ;byte_DCD6
 SBZ_CameraSections:
+	if saveSpace=0
 	dc.b   0
 	dc.b   0	; 1
 	dc.b   0	; 2
@@ -17399,6 +17470,7 @@ SBZ_CameraSections:
 	lsr.w	#4,d0
 	lea	(a0,d0.w),a0
 	bra.w	loc_DE86
+	endif
 ; end unused routine
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -18174,6 +18246,7 @@ DrawInitialBG:
 	rts
 ; ===========================================================================
 ; dead code
+	if saveSpace=0
 	moveq	#-$10,d4
 
 	moveq	#$F,d6
@@ -18192,6 +18265,7 @@ DrawInitialBG:
 	dbf	d6,-
 
 	rts
+	endif
 ; ===========================================================================
 
 loc_E396:
@@ -19056,6 +19130,7 @@ ScrollBG:
 	; This code is probably meant for testing the background scrolling code
 	; used by HTZ and WFZ. It would allows the BG position to be shifted up
 	; and down by the second controller.
+	if saveSpace=0
 	btst	#button_up,(Ctrl_2_Held).w
 	beq.s	+
 	tst.w	(Camera_BG_Y_offset).w
@@ -19069,6 +19144,7 @@ ScrollBG:
 	addq.w	#1,(Camera_BG_Y_offset).w
 +
 	rts
+	endif
 ; ===========================================================================
 
 ; sub_EBEA:
@@ -21125,6 +21201,7 @@ JmpTo_ObjCheckRightWallDist
 ; ----------------------------------------------------------------------------
 ; Sprite_10310:
 Obj17:
+	if saveSpace=0
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj17_Index(pc,d0.w),d1
@@ -21250,11 +21327,15 @@ Obj17_RotateSpike:
 Obj17_Display:
 	bsr.w	Obj17_RotateSpike
 	bra.w	DisplaySprite
+	endif
 ; ===========================================================================
 ; -----------------------------------------------------------------------------
 ; sprite mappings - helix of spikes on a pole (GHZ) (unused)
 ; -----------------------------------------------------------------------------
-Obj17_MapUnc_10452:	BINCLUDE "mappings/sprite/obj17.bin"
+Obj17_MapUnc_10452:	
+	if saveSpace=0
+	BINCLUDE "mappings/sprite/obj17.bin"
+	endif
 ; ===========================================================================
 
     if gameRevision<2
@@ -21987,19 +22068,26 @@ Obj1F_ARZ_DelayData:
 ; S1 remnant: Height data for GHZ collapsing platform (unused):
 ;byte_10C3C:
 Obj1A_GHZ_SlopeData:
+	if saveSpace=0
 	dc.b $20,$20,$20,$20,$20,$20,$20,$20,$21,$21,$22,$22,$23,$23,$24,$24
 	dc.b $25,$25,$26,$26,$27,$27,$28,$28,$29,$29,$2A,$2A,$2B,$2B,$2C,$2C; 16
 	dc.b $2D,$2D,$2E,$2E,$2F,$2F,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30; 32
 	even
+	endif
 ; -------------------------------------------------------------------------------
 ; unused sprite mappings (GHZ)
 ; -------------------------------------------------------------------------------
-Obj1A_MapUnc_10C6C:	BINCLUDE "mappings/sprite/obj1A_a.bin"
+Obj1A_MapUnc_10C6C:	
+	if saveSpace=0
+	BINCLUDE "mappings/sprite/obj1A_a.bin"
+	endif
 ; ----------------------------------------------------------------------------
 ; unused sprite mappings (MZ, SLZ, SBZ)
 ; ----------------------------------------------------------------------------
-Obj1F_MapUnc_10F0C:	BINCLUDE "mappings/sprite/obj1F_a.bin"
-
+Obj1F_MapUnc_10F0C:	
+	if saveSpace=0
+	BINCLUDE "mappings/sprite/obj1F_a.bin"
+	endif
 ; Slope data for platforms.
 ;byte_10FDC:
 Obj1A_OOZ_SlopeData:
@@ -23275,6 +23363,7 @@ Obj37_Delete:
 ; ===========================================================================
 ; BigRing:
 	; a0=object
+	if saveSpace=0
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	BigRing_States(pc,d0.w),d1
@@ -23409,6 +23498,7 @@ BigRingFlash_Animate:
 ; BranchTo7_DeleteObject
 BigRingFlash_Delete:
 	bra.w	DeleteObject
+	endif
 
 ; end of dead code/data
 
@@ -23427,11 +23517,17 @@ Obj25_MapUnc_12382:	BINCLUDE "mappings/sprite/obj37_a.bin"
 ; -------------------------------------------------------------------------------
 ; Unused sprite mappings
 ; -------------------------------------------------------------------------------
-Obj37_MapUnc_123E6:	BINCLUDE "mappings/sprite/obj37_b.bin"
+Obj37_MapUnc_123E6:	
+	if saveSpace=0
+	BINCLUDE "mappings/sprite/obj37_b.bin"
+	endif
 ; -------------------------------------------------------------------------------
 ; Unused sprite mappings
 ; -------------------------------------------------------------------------------
-Obj37_MapUnc_124E6:	BINCLUDE "mappings/sprite/obj37_c.bin"
+Obj37_MapUnc_124E6:	
+	if saveSpace=0
+	BINCLUDE "mappings/sprite/obj37_c.bin"
+	endif
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -24254,7 +24350,9 @@ Obj0E_Index:	offsetTable
 ; ===========================================================================
 ; loc_12E38:
 Obj0E_Init:
+	if saveSpace=0
 	addq.b	#2,routine(a0)	; useless, because it's overwritten with the subtype below
+	endif
 	move.l	#Obj0E_MapUnc_136A8,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_TitleSprites,0,0),art_tile(a0)
 	move.b	#4,priority(a0)
@@ -27243,6 +27341,7 @@ Obj36_MapUnc_15B68:	BINCLUDE "mappings/sprite/obj36.bin"
 ; ----------------------------------------------------------------------------
 ; Sprite_15CC8:
 Obj3B:
+	if saveSpace=0
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj3B_Index(pc,d0.w),d1
@@ -27275,11 +27374,15 @@ Obj3B_Main:
 	cmpi.w	#$280,d0
 	bhi.w	DeleteObject
 	bra.w	DisplaySprite
+	endif
 ; ===========================================================================
 ; -------------------------------------------------------------------------------
 ; Unused sprite mappings
 ; -------------------------------------------------------------------------------
-Obj3B_MapUnc_15D2E:	BINCLUDE "mappings/sprite/obj3B.bin"
+Obj3B_MapUnc_15D2E:	
+	if saveSpace=0
+	BINCLUDE "mappings/sprite/obj3B.bin"
+	endif
 
     if ~~removeJmpTos
 	align 4
@@ -27290,6 +27393,7 @@ Obj3B_MapUnc_15D2E:	BINCLUDE "mappings/sprite/obj3B.bin"
 ; ----------------------------------------------------------------------------
 ; Sprite_15D44:
 Obj3C:
+	if saveSpace=0
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj3C_Index(pc,d0.w),d1
@@ -27351,6 +27455,7 @@ Obj3C_Fragment:
 	tst.b	render_flags(a0)
 	bpl.w	DeleteObject
 	bra.w	DisplaySprite
+	endif
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -27397,6 +27502,7 @@ loc_15E82:
 ; ===========================================================================
 ; word_15E8C:
 Obj3C_FragmentSpeeds_LeftToRight:
+	if saveSpace=0
 	;    x_vel,y_vel
 	dc.w  $400,-$500	; 0
 	dc.w  $600,-$100	; 2
@@ -27416,10 +27522,14 @@ Obj3C_FragmentSpeeds_RightToLeft:
 	dc.w -$600,-$100	; 10
 	dc.w -$600, $100	; 12
 	dc.w -$400, $500	; 14
+	endif
 ; -------------------------------------------------------------------------------
 ; Unused sprite mappings
 ; -------------------------------------------------------------------------------
-Obj3C_MapUnc_15ECC:	BINCLUDE "mappings/sprite/obj3C.bin"
+Obj3C_MapUnc_15ECC:
+	if saveSpace=0
+	BINCLUDE "mappings/sprite/obj3C.bin"
+	endif
 ; ===========================================================================
 	bra.w	ObjNull
 
@@ -27925,7 +28035,9 @@ MarkObjGone_P2:
 	beq.s	+
 	bclr	#7,2(a2,d0.w)
 +
+	if saveSpace=0
 	bra.w	DeleteObject ; useless branch...
+	endif
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to delete an object
@@ -29169,6 +29281,7 @@ byte_16F06:
 
 ; ===========================================================================
 ; loc_16F16: ; unused/dead code? ; a0=object
+	if saveSpace=0
 	move.w	x_pos(a0),d0
 	sub.w	(Camera_X_pos).w,d0
 	bmi.s	+
@@ -29204,6 +29317,7 @@ byte_16F06:
 	rts
 +	moveq	#1,d0
 	rts
+	endif
 ; ===========================================================================
 
     if gameRevision=1
@@ -29615,7 +29729,11 @@ RingsManager_Setup:
 	; d0 = 0
 	lea	(Ring_consumption_table).w,a1
 
+	if preventClearRamErrors=0
 	move.w	#bytesToLcnt(Ring_consumption_table_End-Ring_consumption_table-$40),d1	; coding error, that '-$40' shouldn't be there
+	else
+	move.w	#bytesToLcnt(Ring_consumption_table_End-Ring_consumption_table),d1
+	endif
 -	move.l	d0,(a1)+	; only half of Ring_consumption_table is cleared
 	dbf	d1,-
 
@@ -30288,7 +30406,11 @@ ObjectsManager_Init:
 	; instead, they are used to keep track of the current respawn indexes
 
 	; Bug: The '+7E' shouldn't be here; this loop accidentally clears an additional $7E bytes
+	if preventClearRamErrors=0
 	move.w	#bytesToLcnt(Obj_respawn_data_End-Obj_respawn_data+$7E),d0 ; set loop counter
+	else
+	move.w	#bytesToLcnt(Obj_respawn_data_End-Obj_respawn_data),d0 ; set loop counter
+	endif
 -	clr.l	(a2)+		; loop clears all other respawn values
 	dbf	d0,-
 
@@ -32322,6 +32444,7 @@ loc_1981E:
 ; SolidObject_Unk: loc_19828:
 ;DoubleSlopedSolid:
 	; a0=object
+	if saveSpace=0
 	lea	(MainCharacter).w,a1 ; a1=character
 	moveq	#p1_standing_bit,d6
 	movem.l	d1-d4,-(sp)
@@ -32355,6 +32478,7 @@ loc_19876:
 	bsr.w	MvSonicOnDoubleSlope
 	moveq	#0,d4
 	rts
+	endif
 
 ; ===========================================================================
 ; loc_19880:
@@ -32466,6 +32590,7 @@ SlopedSolid_cont:
 ; unused/dead code
 ; loc_19988: SolidObject_Unk_cont:
 DoubleSlopedSolid_cont:
+	if saveSpace=0
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	add.w	d1,d0
@@ -32500,6 +32625,7 @@ DoubleSlopedSolid_cont:
 	cmp.w	d4,d3
 	bhs.w	SolidObject_TestClearPush
 	bra.w	SolidObject_ChkBounds
+	endif
 ; ===========================================================================
 ; loc_199E8: SolidObject_cont:
 SolidObject_OnScreenTest:
@@ -32710,11 +32836,13 @@ loc_19B8E:
 MvSonicOnPtfm:
 	move.w	y_pos(a0),d0
 	sub.w	d3,d0
+	if saveSpace=0
 	bra.s	loc_19BA2
 ; ===========================================================================
 	; a couple lines of unused/leftover/dead code from Sonic 1 ; a0=object
 	move.w	y_pos(a0),d0
 	subi.w	#9,d0
+	endif
 
 loc_19BA2:
 	tst.b	obj_control(a1)
@@ -32764,6 +32892,7 @@ return_19C0C:
 ; unused/dead code.
 ; loc_19C0E:
 MvSonicOnDoubleSlope:
+	if saveSpace=0
 	btst	#3,status(a1)
 	beq.s	return_19C0C
 	move.w	x_pos(a1),d0
@@ -32777,6 +32906,7 @@ MvSonicOnDoubleSlope:
 loc_19C2C:
 	andi.w	#$FFFE,d0
 	bra.s	loc_19BEC
+	endif
 ; ===========================================================================
 
 ; ---------------------------------------------------------------------------
@@ -38770,6 +38900,7 @@ Obj0A_WobbleData:
 
 	; Unused S1 leftover
 	; This was used by LZ's water ripple effect in REV01
+	if saveSpace=0
 	dc.b  0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2;144
 	dc.b  2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3;160
 	dc.b  3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2;176
@@ -38778,6 +38909,7 @@ Obj0A_WobbleData:
 	dc.b -3,-3,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4;224
 	dc.b -4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-3;240
 	dc.b -3,-3,-3,-3,-3,-3,-2,-2,-2,-2,-2,-1,-1,-1,-1,-1;256
+	endif
 ; ===========================================================================
 ; the countdown numbers go over the dust and splash effect tiles in VRAM
 ; loc_1D5C0:
@@ -40459,6 +40591,7 @@ loc_1EAE0:
 ConvertCollisionArray:
 	rts
 ; ---------------------------------------------------------------------------
+	if saveSpace=0
 	lea	(ColArray).l,a1	; Source location of 'raw' collision array
 	lea	(ColArray).l,a2	; Destinatation of converted collision array (overwrites the original)
 
@@ -40544,7 +40677,7 @@ ConvertCollisionArray:
 	dbf	d3,.processCollisionArrayLoop
 
 	rts
-
+	endif
 ; End of function ConvertCollisionArray
 
     if gameRevision<2
@@ -40708,8 +40841,10 @@ loc_1ECD4:
 
 	; a bit of unused/dead code here
 ;CheckFloorDist:
+	if saveSpace=0
 	move.w	y_pos(a0),d2 ; a0=character
 	move.w	x_pos(a0),d3
+	endif
 
 ; Checks a 16x16 block to find solid ground. May check an additional
 ; 16x16 block up for ceilings.
@@ -40741,6 +40876,7 @@ loc_1ECFE:
 
 	; Unused collision checking subroutine
 
+	if saveSpace=0
 	move.w	x_pos(a0),d3 ; a0=character
 	move.w	y_pos(a0),d2
 	subq.w	#4,d2
@@ -40761,6 +40897,7 @@ loc_1ECFE:
 	move.b	#0,d3
 +
 	rts
+	endif
 
 ; ===========================================================================
 ; loc_1ED56:
@@ -41025,8 +41162,10 @@ Sonic_CheckCeiling:
 ; ===========================================================================
 	; a bit of unused/dead code here
 ;CheckCeilingDist:
+	if saveSpace=0
 	move.w	y_pos(a0),d2 ; a0=character
 	move.w	x_pos(a0),d3
+	endif
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -41160,6 +41299,9 @@ ObjCheckLeftWallDist:
 	; The cause is this: a missing instruction to flip collision on the found
 	; 16x16 block; this one:
 	;eori.w	#$F,d3
+	if objCheckLeftWallDistFix=1
+	eori.w	#$F,d3
+	endif
 	lea	(Primary_Angle).w,a4
 	move.b	#0,(a4)
 	movea.w	#-$10,a3
@@ -41588,6 +41730,7 @@ JmpTo3_Adjust2PArtPointer
 ; ----------------------------------------------------------------------------
 ; Sprite_1F624:
 Obj7D:
+	if saveSpace=0
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj7D_Index(pc,d0.w),d1
@@ -41667,11 +41810,15 @@ Obj7D_Main:
 
 JmpTo12_DeleteObject
 	jmp	(DeleteObject).l
+	endif
 ; ===========================================================================
 ; -------------------------------------------------------------------------------
 ; Unused sprite mappings
 ; -------------------------------------------------------------------------------
-Obj7D_MapUnc_1F6FE:	BINCLUDE "mappings/sprite/obj7D.bin"
+Obj7D_MapUnc_1F6FE:	
+	if saveSpace=0
+	BINCLUDE "mappings/sprite/obj7D.bin"
+	endif
 ; ===========================================================================
 
     if gameRevision<2
@@ -42616,6 +42763,7 @@ JmpTo8_Adjust2PArtPointer
 ; ----------------------------------------------------------------------------
 ; Sprite_20210:
 Obj0C:
+	if saveSpace=0
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj0C_Index(pc,d0.w),d1
@@ -42700,11 +42848,15 @@ loc_202E6:
 	move.w	x_pos(a0),d4
 	bsr.w	PlatformObject
 	jmpto	(MarkObjGone).l, JmpTo4_MarkObjGone
+	endif
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Unused sprite mappings
 ; ----------------------------------------------------------------------------
-Obj0C_MapUnc_202FA:	BINCLUDE "mappings/sprite/obj0C.bin"
+Obj0C_MapUnc_202FA:	
+	if saveSpace=0
+	BINCLUDE "mappings/sprite/obj0C.bin"
+	endif
 ; ===========================================================================
 
     if gameRevision<2
@@ -42731,6 +42883,7 @@ JmpTo5_CalcSine
 ; ----------------------------------------------------------------------------
 ; Sprite_2031C:
 Obj12:
+	if saveSpace=0
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj12_Index(pc,d0.w),d1
@@ -42763,11 +42916,15 @@ Obj12_Main:
 	cmpi.w	#$280,d0
 	bhi.w	JmpTo16_DeleteObject
 	jmpto	(DisplaySprite).l, JmpTo8_DisplaySprite
+	endif
 ; ===========================================================================
 ; -------------------------------------------------------------------------------
 ; sprite mappings (unused)
 ; -------------------------------------------------------------------------------
-Obj12_MapUnc_20382:	BINCLUDE "mappings/sprite/obj12.bin"
+Obj12_MapUnc_20382:	
+	if saveSpace=0
+	BINCLUDE "mappings/sprite/obj12.bin"
+	endif
 ; ===========================================================================
 
     if gameRevision<2
@@ -42797,6 +42954,7 @@ JmpTo16_DeleteObject
 ; ----------------------------------------------------------------------------
 ; Sprite_203AC:
 Obj13:
+	if saveSpace=0
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj13_Index(pc,d0.w),d1
@@ -42917,11 +43075,15 @@ Obj13_ChkDel:
 	cmpi.w	#$280,d0
 	bhi.w	JmpTo17_DeleteObject
 	jmpto	(DisplaySprite).l, JmpTo9_DisplaySprite
+	endif
 ; ===========================================================================
 ; -------------------------------------------------------------------------------
 ; sprite mappings (unused)
 ; -------------------------------------------------------------------------------
-Obj13_MapUnc_20528:	BINCLUDE "mappings/sprite/obj13.bin"
+Obj13_MapUnc_20528:	
+	if saveSpace=0
+	BINCLUDE "mappings/sprite/obj13.bin"
+	endif
 ; ===========================================================================
 
     if ~~removeJmpTos
@@ -44582,7 +44744,7 @@ JmpTo4_ObjectMove
 	jmp	(ObjectMove).l
 
 	align 4
-    else
+    elseif saveSpace=0
 	dc.b	$01,$02,$1E,$42	; ??? (unused)
     endif
 
@@ -45012,10 +45174,12 @@ Obj1D_Index:	offsetTable
 ; ---------------------------------------------------------------------------
 ; unused table of speed values
 ; word_22420:
+	if saveSpace=0
 	dc.w -$480
 	dc.w -$500
 	dc.w -$600
 	dc.w -$700
+	endif
 ; ===========================================================================
 ; loc_22428:
 Obj1D_Init:
@@ -47373,6 +47537,7 @@ return_244D0:
 ; off_244D2:
 ; Unused animation script
 Ani_obj45:	offsetTable
+		if saveSpace=0
 		offsetTableEntry.w byte_244D6	; 0
 		offsetTableEntry.w byte_244F8	; 1
 byte_244D6:
@@ -47382,17 +47547,22 @@ byte_244D6:
 byte_244F8:
 	dc.b   0, $A, $B, $C, $D, $E, $F,$10,$11,$12,$13,$13,$13,$13,$13,$13
 	dc.b $13,$13,$12,$11,$10, $F, $E, $D, $C, $B, $A, $A, $A, $A, $A, $A; 16
-	dc.b  $A,$FF	; 32
+	dc.b  $A,$FF	; 3
+	endif
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
 Obj45_MapUnc_2451A:	BINCLUDE "mappings/sprite/obj45.bin"
 ; ===========================================================================
+
+
+
 ; ----------------------------------------------------------------------------
 ; Object 46 - Ball from OOZ (unused, beta leftover)
 ; ----------------------------------------------------------------------------
 ; Sprite_24A16:
 Obj46:
+	if saveSpace=0
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj46_Index(pc,d0.w),d1
@@ -47593,11 +47763,15 @@ loc_24C32:
 +
 	move.b	d0,objoff_1F(a0)
 	bra.s	loc_24C2A
+	endif
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Unused sprite mappings
 ; ----------------------------------------------------------------------------
-Obj46_MapUnc_24C52:	BINCLUDE "mappings/sprite/obj46.bin"
+Obj46_MapUnc_24C52:	
+	if saveSpace=0
+	BINCLUDE "mappings/sprite/obj46.bin"
+	endif
 ; ===========================================================================
 
     if gameRevision<2
@@ -48014,7 +48188,7 @@ JmpTo10_ObjectMove
 	jmp	(ObjectMove).l
 
 	align 4
-    else
+    elseif saveSpace=0
 JmpTo3_MarkObjGone3
 	jmp	(MarkObjGone3).l
 JmpTo26_DeleteObject
@@ -48022,6 +48196,11 @@ JmpTo26_DeleteObject
 ; Unused
 ;JmpTo13_MarkObjGone
 	jmp	(MarkObjGone).l
+	else
+JmpTo3_MarkObjGone3
+	jmp	(MarkObjGone3).l
+JmpTo26_DeleteObject
+	jmp	(DeleteObject).l
     endif
 
 
@@ -54251,8 +54430,10 @@ Obj82_Properties:
 	dc.b $20,  8	; 0
 	dc.b $1C,$30	; 2
 	; Unused and broken; these don't have an associated frame, so using them crashes the game
+	if saveSpace=0
 	dc.b $10,$10	; 4
 	dc.b $10,$10	; 6
+	endif
 ; ===========================================================================
 ; loc_2A2AA:
 Obj82_Init:
@@ -56564,19 +56745,31 @@ SlotMachine_Routine2:
 SlotMachine_Routine3:
 	move.b	(Vint_runcount+3).w,d0		; 'Random' seed
 	andi.b	#7,d0						; Only want last 3 bits
+	if basicOptimisations=0
 	subq.b	#4,d0						; Subtract 4...
 	addi.b	#$30,d0						; ... then add $30 (why not just add $2C?)
+	else
+	addi.b 	#$2C,d0
+	endif
 	move.b	d0,slot1_speed(a4)			; This is our starting speed for slot 1
 	move.b	(Vint_runcount+3).w,d0		; 'Random' seed
 	rol.b	#4,d0						; Get top nibble...
 	andi.b	#7,d0						; ... but discard what was the sign bit
+	if basicOptimisations=0
 	subq.b	#4,d0						; Subtract 4...
 	addi.b	#$30,d0						; ... then add $30 (why not just add $2C?)
+	else
+	addi.b 	#$2C,d0
+	endif
 	move.b	d0,slot2_speed(a4)			; This is our starting speed for slot 2
 	move.b	(Vint_runcount+2).w,d0		; 'Random' seed
 	andi.b	#7,d0						; Only want last 3 bits
+	if basicOptimisations=0
 	subq.b	#4,d0						; Subtract 4...
 	addi.b	#$30,d0						; ... then add $30 (why not just add $2C?)
+	else
+	addi.b 	#$2C,d0
+	endif
 	move.b	d0,slot3_speed(a4)			; This is our starting speed for slot 3
 	move.b	#2,slot_timer(a4)			; Roll each slot twice under these conditions
 	clr.b	slot_index(a4)				; => SlotMachine_Subroutine1
@@ -57629,9 +57822,11 @@ Obj4A_Bullet:
 ; ===========================================================================
 ; loc_2CA46:
 Obj4A_Angry:	; Used by removed sub-object
+	if saveSpace=0
 	subq.w	#1,objoff_2C(a0)
 	beq.w	JmpTo47_DeleteObject
 	jmpto	(DisplaySprite).l, JmpTo31_DisplaySprite
+	endif
 
     if removeJmpTos
 JmpTo47_DeleteObject
@@ -57864,13 +58059,17 @@ Obj50_Init:
 	andi.w	#$F0,d1
 	lsl.w	#4,d1
 	move.w	d1,Obj50_shots_remaining(a0)	; looks like the number of shots could be set via subtype at one point
+	if saveSpace=0
 	move.w	d1,Obj50_unkown2(a0)	; unused
+	endif
 	andi.w	#$F,d0
 	lsl.w	#4,d0
 	subq.w	#1,d0
+	if saveSpace=0
 	move.w	d0,Obj50_unkown3(a0)	; unused
 	move.w	d0,Obj50_unkown4(a0)	; unused
 	move.w	y_pos(a0),Obj50_unkown1(a0)	; unused
+	endif
 	move.w	(Water_Level_1).w,Obj50_unkown5(a0)
 	move.b	#3,Obj50_shots_remaining(a0)	; hardcoded to three shots
 
@@ -58550,6 +58749,7 @@ Obj58_MapUnc_2D50A:	BINCLUDE "mappings/sprite/obj58.bin"
 
 	; Unused - a little dead code here (until the next label)
 ;Boss_HoverPos:
+	if saveSpace=0
 	move.b	boss_sine_count(a0),d0 ; a0=object
 	jsr	(CalcSine).l
 	asr.w	#6,d0
@@ -58557,6 +58757,7 @@ Obj58_MapUnc_2D50A:	BINCLUDE "mappings/sprite/obj58.bin"
 	move.w	d0,y_pos(a0)
 	move.w	(Boss_X_pos).w,x_pos(a0)
 	addq.b	#2,boss_sine_count(a0)
+	endif
 
 ;loc_2D57C
 Boss_HandleHits:
@@ -60200,12 +60401,14 @@ Obj5D_Gunk_Droplets_Move:
 ; ===========================================================================
 
 	; a bit of unused/dead code here
+	if saveSpace=0
 	add.w	d1,y_pos(a0) ; a0=object
 	move.w	y_vel(a0),d0
 	lsr.w	#1,d0
 	neg.w	d0
 	move.w	d0,y_vel(a0)
 	jmpto	(DisplaySprite).l, JmpTo34_DisplaySprite
+	endif
 
 ; ===========================================================================
 
@@ -63375,7 +63578,11 @@ Obj57_Main_SubA: ; slowly hovering down, no explosions
 	blo.s	Obj57_Main_SubA_Standard
 	lea	(Boss_AnimationArray).w,a1
 	move.b	#$D,7(a1)	; face grin when hit
+	if randomWriteFix=0
 	_move.b	#2,0(a2)	; There is a bug here. This should be a1 instead of a2. A random part of RAM gets written to instead.
+	else
+	_move.b	#2,0(a1)
+	endif
 	move.b	#0,1(a1)	; hover thingies fire off
 	addq.b	#2,boss_routine(a0)
 	bra.s	Obj57_Main_SubA_Standard
@@ -69048,11 +69255,16 @@ loc_361D8:
     endif
 
 	; Bug: The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
+	if preventClearRamErrors=0
 	clearRAM SS_Sprite_Table,SS_Sprite_Table_End+4
+	else
+	clearRAM SS_Sprite_Table,SS_Sprite_Table_End
+	endif
 
 	rts
 ; ===========================================================================
 	; unused/dead code ; a0=object
+	if saveSpace=0
 	cmpi.b	#$B,(SSTrack_drawing_index).w
 	blo.s	loc_36208
 	subi.l	#$4445,objoff_30(a0)
@@ -69069,6 +69281,7 @@ loc_36210:
 	lea_	byte_35180,a1
 	move.b	(a1,d0.w),anim(a0)
 	rts
+	endif
 	; end of unused code
 
 ; ===========================================================================
@@ -69568,6 +69781,7 @@ LoadChildObject:
 	rts
 ; ===========================================================================
 	; unused/dead code ; a0=object
+	if saveSpace=0
 	bsr.w	Obj_GetOrientationToPlayer
 	bclr	#0,render_flags(a0)
 	bclr	#0,status(a0)
@@ -69575,6 +69789,7 @@ LoadChildObject:
 	beq.s	return_36818
 	bset	#0,render_flags(a0)
 	bset	#0,status(a0)
+	endif
 
 return_36818:
 	rts
@@ -73474,6 +73689,7 @@ ObjAA_Main:
 ; ----------------------------------------------------------------------------
 ; Sprite_390A2:
 ObjAB:
+	if saveSpace=0
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjAB_Index(pc,d0.w),d1
@@ -73491,6 +73707,7 @@ ObjAB_Init:
 ; BranchTo10_JmpTo39_MarkObjGone
 ObjAB_Main:
 	jmpto	(MarkObjGone).l, JmpTo39_MarkObjGone
+	endif
 ; ===========================================================================
 ; END OF OBJECT AB
 
@@ -73672,10 +73889,12 @@ ObjAA_MapUnc_39228: offsetTable
 	offsetTableEntry.w word_392C6	; 3
 	offsetTableEntry.w word_392D8	; 4
 	; Unused - The spider badnik never goes down enough for these to appear
+	if saveSpace=0
 	offsetTableEntry.w word_3930C	; 5	; This is in the wrong place - this should be frame 6
 	offsetTableEntry.w word_392F2	; 6	; This is in the wrong place - this should be frame 5
 	offsetTableEntry.w word_3932E	; 7
 	offsetTableEntry.w word_3932E	; 8	; This should point to word_39350
+	endif
 word_3923A:
 	dc.w 3
 	dc.w $F801,    0,    0,$FFE5
@@ -73721,6 +73940,7 @@ word_392D8:
 	dc.w $1003,   $B,    5,$FFFC; 4
 	dc.w $3003,   $B,    5,$FFFC; 8
 word_392F2:
+	if saveSpace=0
 	dc.w 3
 	dc.w	 3,   $B,    5,$FFFC
 	dc.w $2003,   $B,    5,$FFFC; 4
@@ -73745,6 +73965,7 @@ word_3932E:
 	dc.w $3003,   $B,    5,$FFFC; 8
 	dc.w $5003,   $B,    5,$FFFC; 12
 	dc.w $7003,   $B,    5,$FFFC; 16
+	endif
 
 
 
@@ -74439,7 +74660,11 @@ loc_39BA4:
 	addq.b	#2,(Dynamic_Resize_Routine).w
 	; There's a bug here: Level_Music is a word long, not a byte.
 	; All this does is try to play Sound 0, which doesn't do anything.
+	if moveBToWFix=0
 	move.b	(Level_Music).w,d0
+	else
+	move.w	(Level_Music).w,d0
+	endif
 	jsrto	(PlayMusic).l, JmpTo5_PlayMusic
 	bra.w	JmpTo65_DeleteObject
 ; ===========================================================================
@@ -74903,7 +75128,11 @@ loc_3A346:
 
 	; This clears a lot more than the horizontal scroll buffer, which is $400 bytes.
 	; This is because the loop counter is erroneously set to $400, instead of ($400/4)-1.
+	if preventClearRamErrors=0
 	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+$C04	; Bug: That '+$C04' shouldn't be there; accidentally clears an additional $C04 bytes
+	else
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End
+	endif
 
 	; Initialize streak horizontal offsets for Sonic going right.
 	; 9 full lines (8 pixels) + 7 pixels, 2-byte interleaved entries for PNT A and PNT B
@@ -76594,7 +76823,9 @@ return_3B7F6:
 loc_3B7F8:
 	jsrto	(SingleObjLoad2).l, JmpTo25_SingleObjLoad2
 	bne.s	+
+	if saveSpace=0
 	_move.b	#ObjID_VerticalLaser,id(a1) ; load objB7 (huge unused vertical laser!)
+	endif
 	move.b	#$72,subtype(a1) ; <== ObjB7_SubObjData
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
@@ -76633,6 +76864,7 @@ ObjB6_MapUnc_3B856:	BINCLUDE "mappings/sprite/objB6.bin"
 ; ----------------------------------------------------------------------------
 ; Sprite_3B8A6:
 ObjB7:
+	if saveSpace=0
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjB7_Index(pc,d0.w),d1
@@ -76656,6 +76888,7 @@ ObjB7_Main:
 	bchg	#0,objoff_2B(a0)
 	beq.w	return_37A48
 	jmpto	(MarkObjGone).l, JmpTo39_MarkObjGone
+	endif
 ; ===========================================================================
 ; off_3B8DA:
 ObjB7_SubObjData:
@@ -76863,6 +77096,7 @@ ObjBA_MapUnc_3BB70:	BINCLUDE "mappings/sprite/objBA.bin"
 ; ----------------------------------------------------------------------------
 ; Sprite_3BB7C:
 ObjBB:
+	if saveSpace=0
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjBB_Index(pc,d0.w),d1
@@ -76882,6 +77116,7 @@ ObjBB_Main:
 	jmpto	(MarkObjGone).l, JmpTo39_MarkObjGone
 ; ===========================================================================
 ; off_3BB96:
+	endif
 ObjBB_SubObjData:
 	subObjData ObjBB_MapUnc_3BBA0,make_art_tile(ArtTile_ArtNem_Unknown,1,0),4,4,$C,9
 ; ----------------------------------------------------------------------------
@@ -78450,6 +78685,7 @@ ObjC5_RobotnikPlatform:	; Just displays the platform and move accordingly to the
 	jmpto	(DisplaySprite).l, JmpTo45_DisplaySprite
 ; ===========================================================================
 	; some unused/dead code, At one point it appears a section of the platform was solid
+	if saveSpace=0
 	move.w	x_pos(a0),-(sp)
 	jsrto	(ObjectMove).l, JmpTo26_ObjectMove
 	move.w	#$F,d1
@@ -78457,6 +78693,7 @@ ObjC5_RobotnikPlatform:	; Just displays the platform and move accordingly to the
 	move.w	#8,d3
 	move.w	(sp)+,d4
 	jmpto	(PlatformObject).l, JmpTo9_PlatformObject
+	endif
 ; ===========================================================================
 
 ObjC5_HandleHits:
@@ -78975,7 +79212,9 @@ loc_3D3A4:
 	rts
 ; ===========================================================================
 	; unused
+	if saveSpace=0
 	rts
+	endif
 ; ===========================================================================
 
 loc_3D416:
@@ -81220,6 +81459,7 @@ Scale_2x_RightPixels2:
 ; ===========================================================================
 
 	; this data seems to be unused
+	if saveSpace=0
 	dc.b $12,$34,$56,$78
 	dc.b $12,$34,$56,$78	; 4
 	dc.b $12,$34,$56,$78	; 8
@@ -81228,6 +81468,7 @@ Scale_2x_RightPixels2:
 	dc.b $12,$34,$56,$78	; 20
 	dc.b $12,$34,$56,$78	; 24
 	dc.b $12,$34,$56,$78	; 28
+	endif
 
 ; ===========================================================================
 
@@ -81292,6 +81533,7 @@ JmpTo26_ObjectMove
 ; ----------------------------------------------------------------------------
 ; Sprite_3EAC8:
 Obj8A: ; (screen-space obj)
+	if saveSpace=0
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj8A_Index(pc,d0.w),d1
@@ -81330,11 +81572,15 @@ Obj8A_Init:
 ; JmpTo46_DisplaySprite
 Obj8A_Display:
 	jmp	(DisplaySprite).l
+	endif
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; sprite mappings (unused?)
 ; ----------------------------------------------------------------------------
-Obj8A_MapUnc_3EB4E:	BINCLUDE "mappings/sprite/obj8A.bin"
+Obj8A_MapUnc_3EB4E:	
+	if saveSpace=0
+	BINCLUDE "mappings/sprite/obj8A.bin"
+	endif
 ; ===========================================================================
 
     if gameRevision<2
@@ -83168,6 +83414,7 @@ Animated_Null:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ; sub_40200:
+	if saveSpace=0
 	cmpi.b	#chemical_plant_zone,(Current_Zone).w
 	beq.s	+
 -	rts
@@ -83207,6 +83454,7 @@ Animated_Null:
 	dbf	d1,- 		; now do this again for rows 2-8 in these chunks
 				; 400 + 7 * (-16) = 512 byte range was affected
 	rts
+	endif
 ; ===========================================================================
 
 loc_402D4:
@@ -87337,7 +87585,10 @@ ArtNem_Oilfall2:	BINCLUDE	"art/nemesis/Cascading oil from OOZ.bin"
 ; Nemesis compressed art (20 blocks)
 ; Ball thing (unused?) from OOZ	; ArtNem_805C0:
 	even
-ArtNem_BallThing:	BINCLUDE	"art/nemesis/Ball on spring from OOZ (beta holdovers).bin"
+ArtNem_BallThing:	
+	if saveSpace=0
+	BINCLUDE	"art/nemesis/Ball on spring from OOZ (beta holdovers).bin"
+	endif
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (53 blocks)
 ; Spinball from OOZ	; ArtNem_806E0:
@@ -87502,7 +87753,10 @@ ArtNem_ArrowAndShooter:	BINCLUDE	"art/nemesis/Arrow shooter and arrow from ARZ.b
 ; Nemesis compressed art (8 blocks)
 ; One way barrier from ARZ (unused?)	; ArtNem_830D2:
 	even
-ArtNem_ARZBarrierThing:	BINCLUDE	"art/nemesis/One way barrier from ARZ.bin"
+ArtNem_ARZBarrierThing:	
+	if saveSpace=0
+	BINCLUDE	"art/nemesis/One way barrier from ARZ.bin"
+	endif
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (28 blocks)
 ; Buzz bomber			; ArtNem_8316A:
@@ -87717,7 +87971,10 @@ ArtNem_WfzFloatingPlatform:	BINCLUDE	"art/nemesis/Moving platform from WFZ.bin"
 ; Nemesis compressed art (12 blocks)
 ; Giant unused vertical red laser in WFZ	8DA6E:
 	even
-ArtNem_WfzVrtclLazer:	BINCLUDE	"art/nemesis/Unused vertical laser in WFZ.bin"
+ArtNem_WfzVrtclLazer:
+	if saveSpace=0
+	BINCLUDE	"art/nemesis/Unused vertical laser in WFZ.bin"
+	endif
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (18 blocks)
 ; Clouds			8DAFC:
@@ -87742,7 +87999,10 @@ ArtNem_WfzBeltPlatform:	BINCLUDE	"art/nemesis/Platform on belt in WFZ.bin"
 ; Nemesis compressed art (12 blocks)
 ; Unused badnik in WFZ		8DDF6:
 	even
-ArtNem_WfzUnusedBadnik:	BINCLUDE	"art/nemesis/Unused badnik from WFZ.bin"
+ArtNem_WfzUnusedBadnik:	
+	if saveSpace=0
+	BINCLUDE	"art/nemesis/Unused badnik from WFZ.bin"
+	endif
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (4 blocks)
 ; Vertical spinning blades from WFZ	8DEB8:
@@ -87831,6 +88091,7 @@ MapEng_EndingSonicPlane:	BINCLUDE	"mappings/misc/Closeup of Sonic flying plane i
 ; Enigma compressed sprite mappings
 ; Strange unused mappings (duplicate of MapEng_EndGameLogo)
 ; MapEng_9082A:
+	if saveSpace=0
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 1.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
@@ -87872,6 +88133,7 @@ MapEng_EndingSonicPlane:	BINCLUDE	"mappings/misc/Closeup of Sonic flying plane i
 ; Strange unused mappings (same as above)
 ; MapEng_9096A:
 	BINCLUDE	"mappings/misc/Strange unused mappings 2.bin"
+	endif
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (363 blocks)
 ; Movie sequence at end of game		; ArtNem_90992:
@@ -88366,7 +88628,11 @@ MiscKoz_SpecialObjectLocations:	BINCLUDE	"misc/Special stage object location lis
 ;--------------------------------------------------------------------------------------
 ; Filler (free space) (unnecessary; could be replaced with "even")
 ;--------------------------------------------------------------------------------------
+	if saveSpace=0
 	align $100
+	else
+	even
+	endif
 
 
 
@@ -88451,7 +88717,11 @@ Rings_SCZ_2:	BINCLUDE	"level/rings/SCZ_2.bin"
 ; --------------------------------------------------------------------------------------
 ; Filler (free space) (unnecessary; could be replaced with "even")
 ; --------------------------------------------------------------------------------------
+	if saveSpace=0
 	align $200
+	else
+	even
+	endif
 
 ; --------------------------------------------------------------------------------------
 ; Offset index of object locations
@@ -88523,7 +88793,9 @@ Objects_HPZ_1:	BINCLUDE	"level/objects/HPZ_1.bin"
 Objects_HPZ_2:	BINCLUDE	"level/objects/HPZ_2.bin"
 
 ;Objects_Null2: ; unused
+		if saveSpace=0
 		BINCLUDE	"level/objects/Null_2.bin"
+		endif
 
 Objects_OOZ_1:	BINCLUDE	"level/objects/OOZ_1.bin"
 Objects_OOZ_2:	BINCLUDE	"level/objects/OOZ_2.bin"
@@ -88550,16 +88822,22 @@ Objects_SCZ_2:	BINCLUDE	"level/objects/SCZ_2.bin"
 Objects_Null3:	BINCLUDE	"level/objects/Null_3.bin"
 
 ;Objects_Null4: ; unused
+		if saveSpace=0
 		BINCLUDE	"level/objects/Null_4.bin"
 ;Objects_Null5: ; unused
 		BINCLUDE	"level/objects/Null_5.bin"
 ;Objects_Null6: ; unused
 		BINCLUDE	"level/objects/Null_6.bin"
+		endif
 
 ; --------------------------------------------------------------------------------------
 ; Filler (free space) (unnecessary; could be replaced with "even")
 ; --------------------------------------------------------------------------------------
+	if saveSpace=0
 	align $1000
+	else
+	even
+	endif
 
 
 
@@ -88796,7 +89074,9 @@ ArtNem_HtzSeeSaw:	BINCLUDE	"art/nemesis/See-saw in HTZ.bin"
 ; Nemesis compressed art (24 blocks)
 ; Unused Fireball
 ;ArtNem_F0B06:
+	if saveSpace=0
 	BINCLUDE	"art/nemesis/Fireball 3.bin"
+	endif
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (20 blocks)
 ; Rock from HTZ
@@ -89516,7 +89796,7 @@ MusCreditsE246:	dc.b $80,$0C
 		dc.b $C9,$08
 		dc.b $C8,$04,$80,$18,$80,$0C
 
-    if 1==1
+    if creditsFix=0
 		; this part of the original credits music (CNZ PSG) sounds buggy (dissonant)
 		dc.b $C6,$04,$80,$10
 		dc.b $C6,$04,$80,$0C
@@ -90168,9 +90448,12 @@ Sound28:	dc.w $0000,$0101
 +		dc.b $F5,$04,$CB,$04,$F2
 
 ; bwoop (unused)
-Sound29:	dc.w $0000,$0101
+Sound29:
+		if saveSpace=0
+		dc.w $0000,$0101
 		dc.w $80A0,z80_ptr(+),$0000
 +		dc.b $F0,$01,$01,$E6,$35,$8E,$06,$F2
+		endif
 
 ; splash sound
 Sound2A:	dc.w z80_ptr(ssamp2A),$0102
@@ -90240,11 +90523,14 @@ ssamp30:	dc.b $83,$1F,$1F,$15,$1F,$1F,$1F,$1F,$1F,$00,$00,$00 ; voice
 		dc.b $00,$02,$02,$02,$02,$2F,$FF,$2F,$3F,$0B,$01,$16,$82 ; (fixed length)
 
 ; zap (unused)
-Sound31:	dc.w z80_ptr(ssamp31),$0101
+Sound31:	
+		if saveSpace=0
+		dc.w z80_ptr(ssamp31),$0101
 		dc.w $8005,z80_ptr(+),$FB02
 +		dc.b $EF,$00,$B3,$05,$80,$01,$B3,$09,$F2
 ssamp31:	dc.b $83,$12,$13,$10,$1E,$1F,$1F,$1F,$1F,$00,$00,$00
 		dc.b $00,$02,$02,$02,$02,$2F,$FF,$2F,$3F,$05,$34,$10,$87
+		endif
 
 ; drownage
 Sound32:	dc.w z80_ptr(ssamp32),$0102
@@ -90313,12 +90599,15 @@ ssamp37:	dc.b $FA,$21,$10,$30,$32,$1F,$1F,$1F,$1F,$05,$09,$18
 		dc.b $02,$06,$06,$0F,$02,$1F,$4F,$2F,$2F,$0F,$0E,$1A,$80
 
 ; (unused)
-Sound38:	dc.w $0000,$0101
+Sound38:	
+		if saveSpace=0
+		dc.w $0000,$0101
 		dc.w $80C0,z80_ptr(+),$0000
 +		dc.b $F0,$01,$01,$F0,$08,$F3,$E7,$B4,$08
 -		dc.b $B0,$02,$EC
 		dc.w $01F7,$0003,z80_ptr(-)
 		dc.b $F2
+		endif
 
 ; smash/breaking
 Sound39:	dc.w z80_ptr(smashsamp),$0104
@@ -90339,11 +90628,14 @@ s39s4:		dc.b $F0,$01,$01,$0F,$05,$F3,$E7
 		dc.b $F2
 
 ; nondescript ding (unused)
-Sound3A:	dc.w z80_ptr(ssamp3A),$0101
+Sound3A:	
+		if saveSpace=0
+		dc.w z80_ptr(ssamp3A),$0101
 		dc.w $8005,z80_ptr(+),$0007
 +		dc.b $EF,$00,$AE,$08,$F2
 ssamp3A:	dc.b $1C,$2E,$0F,$02,$02,$1F,$1F,$1F,$1F,$18,$14,$0F
 		dc.b $0E,$00,$00,$00,$00,$FF,$FF,$FF,$FF,$20,$1B,$80,$80
+		endif
 
 ; door slamming shut
 Sound3B:	dc.w z80_ptr(ssamp3B),$0101
@@ -90467,11 +90759,14 @@ Sound46:	dc.w z80_ptr(ringsamp),$0102
 +		dc.b $EF,$00,$80,$02,$C4,$02,$05,$15,$02,$05,$32,$F2
 
 ; chain pull chink-chink (unused)
-Sound47:	dc.w z80_ptr(ssamp47),$0101
+Sound47:	
+		if saveSpace=0
+		dc.w z80_ptr(ssamp47),$0101
 		dc.w $8005,z80_ptr(+),$0000
 +		dc.b $EF,$00,$BE,$05,$80,$04,$BE,$04,$80,$04,$F2
 ssamp47:	dc.b $28,$2F,$37,$5F,$2B,$1F,$1F,$1F,$1F,$15,$15,$15
 		dc.b $13,$13,$0D,$0C,$10,$2F,$3F,$2F,$2F,$00,$1F,$10,$80
+		endif
 
 ; flamethrower
 Sound48:	dc.w $0000,$0101
@@ -90548,16 +90843,21 @@ ssamp50:	dc.b $83,$12,$13,$10,$1E,$1F,$1F,$1F,$1F,$00,$00,$00
 		dc.b $00,$02,$02,$02,$02,$2F,$FF,$2F,$3F,$06,$34,$10,$87
 
 ; (unused)
-Sound51:	dc.w z80_ptr(ssamp51),$0102
+Sound51:
+		if saveSpace=0
+		dc.w z80_ptr(ssamp51),$0102
 		dc.w $80C0,z80_ptr(+),$0001
 		dc.w $8005,z80_ptr(++),$000B
 +		dc.b $F5,$02,$F3,$E4,$B0,$04,$85,$02,$F2
 +		dc.b $EF,$00,$E8,$04,$A5,$06,$F2
 ssamp51:	dc.b $3C,$02,$01,$00,$01,$1F,$1F,$1F,$1F,$00,$19,$0E
 		dc.b $10,$00,$00,$0C,$0F,$0F,$FF,$EF,$FF,$05,$00,$80,$80
+		endif
 
 ; (unused)
-Sound52:	dc.w z80_ptr(ssamp52),$0101
+Sound52:
+		if saveSpace=0	
+		dc.w z80_ptr(ssamp52),$0101
 		dc.w $8005,z80_ptr(+),$0002
 +		dc.b $F0,$01,$01,$2A,$07,$EF,$00
 -		dc.b $A5,$03
@@ -90567,6 +90867,7 @@ Sound52:	dc.w z80_ptr(ssamp52),$0101
 		dc.b $F2
 ssamp52:	dc.b $28,$21,$21,$21,$30,$1F,$1F,$1F,$1F,$00,$00,$00
 		dc.b $00,$00,$00,$00,$00,$FF,$FF,$FF,$FF,$29,$20,$29,$80
+		endif
 
 
 Sound53:	dc.w z80_ptr(ssamp53),$0101
@@ -90777,11 +91078,14 @@ Sound67:	dc.w z80_ptr(ssamp67),$0101
 ssamp67:	; another not-really-used sample (like Sound65)
 
 ; door slamming quickly (unused)
-Sound68:	dc.w z80_ptr(ssamp68),$0101
+Sound68:	
+		if saveSpace=0
+		dc.w z80_ptr(ssamp68),$0101
 		dc.w $8005,z80_ptr(+),$F400
 +		dc.b $EF,$00,$9B,$04,$A5,$06,$F2
 ssamp68:	dc.b $3C,$00,$00,$00,$00,$1F,$1F,$1F,$1F,$00,$0F,$16
 		dc.b $0F,$00,$00,$00,$00,$0F,$FF,$AF,$FF,$00,$0A,$80,$80
+		endif
 
 
 Sound69:	dc.w z80_ptr(ssamp69),$0102
