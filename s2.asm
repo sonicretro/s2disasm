@@ -58,7 +58,7 @@ gameRevision = 1
 	include "s2.constants.asm"
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-; simplifying macros and functions
+; Simplifying macros and functions
 	include "s2.macros.asm"
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -69,82 +69,130 @@ StartOfRom:
 	fatal "StartOfRom was $\{*} but it should be 0"
     endif
 ;Vectors:
-	dc.l System_Stack, EntryPoint, ErrorTrap, ErrorTrap; 4
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 8
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 12
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 16
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 20
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 24
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 28
-	dc.l H_Int,     ErrorTrap, V_Int,     ErrorTrap; 32
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 36
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 40
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 44
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 48
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 52
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 56
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 60
-	dc.l ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap; 64
+	dc.l System_Stack	; Initial stack pointer value
+	dc.l EntryPoint		; Start of program
+	dc.l ErrorTrap		; Bus error
+	dc.l ErrorTrap		; Address error (4)
+	dc.l ErrorTrap		; Illegal instruction
+	dc.l ErrorTrap		; Division by zero
+	dc.l ErrorTrap		; CHK exception
+	dc.l ErrorTrap		; TRAPV exception (8)
+	dc.l ErrorTrap		; Privilege violation
+	dc.l ErrorTrap		; TRACE exception
+	dc.l ErrorTrap		; Line-A emulator
+	dc.l ErrorTrap		; Line-F emulator (12)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved) (16)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved) (20)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved) (24)
+	dc.l ErrorTrap		; Spurious exception
+	dc.l ErrorTrap		; IRQ level 1
+	dc.l ErrorTrap		; IRQ level 2
+	dc.l ErrorTrap		; IRQ level 3 (28)
+	dc.l H_Int			; IRQ level 4 (horizontal retrace interrupt)
+	dc.l ErrorTrap		; IRQ level 5
+	dc.l V_Int			; IRQ level 6 (vertical retrace interrupt)
+	dc.l ErrorTrap		; IRQ level 7 (32)
+	dc.l ErrorTrap		; TRAP #00 exception
+	dc.l ErrorTrap		; TRAP #01 exception
+	dc.l ErrorTrap		; TRAP #02 exception
+	dc.l ErrorTrap		; TRAP #03 exception (36)
+	dc.l ErrorTrap		; TRAP #04 exception
+	dc.l ErrorTrap		; TRAP #05 exception
+	dc.l ErrorTrap		; TRAP #06 exception
+	dc.l ErrorTrap		; TRAP #07 exception (40)
+	dc.l ErrorTrap		; TRAP #08 exception
+	dc.l ErrorTrap		; TRAP #09 exception
+	dc.l ErrorTrap		; TRAP #10 exception
+	dc.l ErrorTrap		; TRAP #11 exception (44)
+	dc.l ErrorTrap		; TRAP #12 exception
+	dc.l ErrorTrap		; TRAP #13 exception
+	dc.l ErrorTrap		; TRAP #14 exception
+	dc.l ErrorTrap		; TRAP #15 exception (48)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved) (52)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved) (56)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved) (60)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved)
+	dc.l ErrorTrap		; Unused (reserved) (64)
 ; byte_100:
 Header:
 	dc.b "SEGA GENESIS    " ; Console name
-	dc.b "(C)SEGA 1992.SEP" ; Copyright/Date
+	dc.b "(C)SEGA 1992.SEP" ; Copyright holder and release date (generally year)
 	dc.b "SONIC THE             HEDGEHOG 2                " ; Domestic name
 	dc.b "SONIC THE             HEDGEHOG 2                " ; International name
     if gameRevision=0
 	dc.b "GM 00001051-00"   ; Version (REV00)
     elseif gameRevision=1
 	dc.b "GM 00001051-01"   ; Version (REV01)
-    else;if gameRevision=2
+    elseif gameRevision=2
 	dc.b "GM 00001051-02"   ; Version (REV02)
     endif
 ; word_18E
 Checksum:
 	dc.w $D951		; Checksum (patched later if incorrect)
 	dc.b "J               " ; I/O Support
-	dc.l StartOfRom		; ROM Start
+	dc.l StartOfRom		; Start address of ROM
 ; dword_1A4
 ROMEndLoc:
-	dc.l EndOfRom-1		; ROM End
-	dc.l RAM_Start&$FFFFFF		; RAM Start
+	dc.l EndOfRom-1		; End address of ROM
+	dc.l RAM_Start&$FFFFFF		; Start address of RAM
 	dc.l (RAM_End-1)&$FFFFFF		; RAM End
 	dc.b "    "		; Backup RAM ID
 	dc.l $20202020		; Backup RAM start address
 	dc.l $20202020		; Backup RAM end address
 	dc.b "            "	; Modem support
-	dc.b "                                        "	; Notes
-	dc.b "JUE             " ; Country
+	dc.b "                                        "	; Notes (unused, anything can be put in this space, but it has to be 52 bytes.)
+	dc.b "JUE             " ; Country codes
 EndOfHeader:
 
 ; ===========================================================================
 ; Crash/Freeze the 68000. Note that the Z80 continues to run, so the music keeps playing.
 ; loc_200:
 ErrorTrap:
-	nop
-	nop
-	bra.s	ErrorTrap
+	nop	; delay
+	nop	; delay
+	bra.s	ErrorTrap	; Loop indefinitely.
 
 ; ===========================================================================
 ; loc_206:
 EntryPoint:
 	tst.l	(HW_Port_1_Control-1).l	; test ports A and B control
-	bne.s	PortA_Ok
+	bne.s	PortA_Ok	; If so, branch.
 	tst.w	(HW_Expansion_Control-1).l	; test port C control
 ; loc_214:
 PortA_Ok:
 	bne.s	PortC_OK ; skip the VDP and Z80 setup code if port A, B or C is ok...?
-	lea	SetupValues(pc),a5
+	lea	SetupValues(pc),a5	; Load setup values array address.
 	movem.w	(a5)+,d5-d7
 	movem.l	(a5)+,a0-a4
 	move.b	HW_Version-Z80_Bus_Request(a1),d0	; get hardware version
-	andi.b	#$F,d0
-	beq.s	SkipSecurity ; branch if hardware is older than Genesis III
+	andi.b	#$F,d0	; compare
+	beq.s	SkipSecurity	; If the console has no TMSS, skip the security stuff.
 	move.l	#'SEGA',Security_Addr-Z80_Bus_Request(a1) ; satisfy the TMSS
 ; loc_234:
 SkipSecurity:
 	move.w	(a4),d0	; check if VDP works
-	moveq	#0,d0
-	movea.l	d0,a6
+	moveq	#0,d0	; clear d0
+	movea.l	d0,a6	; clear a6
 	move.l	a6,usp	; set usp to $0
 	moveq	#VDPInitValues_End-VDPInitValues-1,d1 ; run the following loop $18 times
 ; loc_23E:
@@ -173,32 +221,32 @@ Z80InitLoop:
 	move.w	d7,(a2)	; reset the Z80
 ; loc_262:
 ClrRAMLoop:
-	move.l	d0,-(a6)
-	dbf	d6,ClrRAMLoop	; clear the entire RAM
-	move.l	(a5)+,(a4)	; set VDP display mode and increment
+	move.l	d0,-(a6)	; clear 4 bytes of RAM
+	dbf	d6,ClrRAMLoop	; repeat until the entire RAM is clear
+	move.l	(a5)+,(a4)	; set VDP display mode and increment mode
 	move.l	(a5)+,(a4)	; set VDP to CRAM write
-	moveq	#bytesToLcnt($80),d3
+	moveq	#bytesToLcnt($80),d3	; set repeat times
 ; loc_26E:
 ClrCRAMLoop:
-	move.l	d0,(a3)
-	dbf	d3,ClrCRAMLoop	; clear the CRAM
-	move.l	(a5)+,(a4)
-	moveq	#bytesToLcnt($50),d4
+	move.l	d0,(a3)	; clear 2 palettes
+	dbf	d3,ClrCRAMLoop	; repeat until the entire CRAM is clear
+	move.l	(a5)+,(a4)	; set VDP to VSRAM write
+	moveq	#bytesToLcnt($50),d4	; set repeat times
 ; loc_278: ClrVDPStuff:
 ClrVSRAMLoop:
-	move.l	d0,(a3)
-	dbf	d4,ClrVSRAMLoop
-	moveq	#PSGInitValues_End-PSGInitValues-1,d5
+	move.l	d0,(a3)	; clear 4 bytes of VSRAM.
+	dbf	d4,ClrVSRAMLoop	; repeat until the entire VSRAM is clear
+	moveq	#PSGInitValues_End-PSGInitValues-1,d5	; set repeat times.
 ; loc_280:
 PSGInitLoop:
 	move.b	(a5)+,PSG_input-VDP_data_port(a3) ; reset the PSG
-	dbf	d5,PSGInitLoop
+	dbf	d5,PSGInitLoop	; repeat for other channels
 	move.w	d0,(a2)
 	movem.l	(a6),d0-a6	; clear all registers
 	move	#$2700,sr	; set the sr
  ; loc_292:
 PortC_OK: ;;
-	bra.s	GameProgram
+	bra.s	GameProgram	; Branch to game program.
 ; ===========================================================================
 ; byte_294:
 SetupValues:
@@ -350,9 +398,9 @@ GameClrRAM:
 ; loc_394:
 MainGameLoop:
 	move.b	(Game_Mode).w,d0
-	andi.w	#$3C,d0
-	jsr	GameModesArray(pc,d0.w)
-	bra.s	MainGameLoop
+	andi.w	#$3C,d0	; limit Game Mode value to $3C max (remove to add more game modes)
+	jsr	GameModesArray(pc,d0.w)	; jump to apt location in ROM
+	bra.s	MainGameLoop	; loop indefinitely
 ; ===========================================================================
 ; loc_3A2:
 GameModesArray: ;;
@@ -390,7 +438,7 @@ LevelSelectMenu2P: ;;
 	jmp	(MenuScreen).l
 ; ===========================================================================
 ; loc_3F6:
-JmpTo_EndingSequence 
+JmpTo_EndingSequence
 	jmp	(EndingSequence).l
 ; ===========================================================================
 ; loc_3FC:
@@ -534,9 +582,9 @@ Vint_SEGA:
 
 	dma68kToVDP Horiz_Scroll_Buf,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
 	jsrto	(SegaScr_VInt).l, JmpTo_SegaScr_VInt
-	tst.w	(Demo_Time_left).w
-	beq.w	+	; rts
-	subq.w	#1,(Demo_Time_left).w
+	tst.w	(Demo_Time_left).w	; is there time left on the demo?
+	beq.w	+	; if not, return
+	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left in demo
 +
 	rts
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -550,9 +598,9 @@ Vint_PCM:
 	bsr.w	ReadJoypads
 	startZ80
 +
-	tst.w	(Demo_Time_left).w
-	beq.w	+	; rts
-	subq.w	#1,(Demo_Time_left).w
+	tst.w	(Demo_Time_left).w	; is there time left on the demo?
+	beq.w	+	; if not, return
+	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left in demo
 +
 	rts
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -560,9 +608,9 @@ Vint_PCM:
 Vint_Title:
 	bsr.w	Do_ControllerPal
 	bsr.w	ProcessDPLC
-	tst.w	(Demo_Time_left).w
-	beq.w	+	; rts
-	subq.w	#1,(Demo_Time_left).w
+	tst.w	(Demo_Time_left).w	; is there time left on the demo?
+	beq.w	+	; if not, return
+	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left in demo
 +
 	rts
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -583,8 +631,8 @@ Vint_Level:
 	tst.b	(Teleport_timer).w
 	beq.s	loc_6F8
 	lea	(VDP_control_port).l,a5
-	tst.w	(Game_paused).w
-	bne.w	loc_748
+	tst.w	(Game_paused).w	; is the game paused ?
+	bne.w	loc_748	; if yes, branch
 	subq.b	#1,(Teleport_timer).w
 	bne.s	+
 	move.b	#0,(Teleport_flag).w
@@ -656,7 +704,7 @@ Do_Updates:
 	bsr.w	ProcessDPLC2
 	tst.w	(Demo_Time_left).w	; is there time left on the demo?
 	beq.w	+		; if not, branch
-	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left
+	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left in demo
 +
 	rts
 ; End of function Do_Updates
