@@ -438,7 +438,7 @@ LevelSelectMenu2P: ;;
 	jmp	(MenuScreen).l
 ; ===========================================================================
 ; loc_3F6:
-JmpTo_EndingSequence
+JmpTo_EndingSequence 
 	jmp	(EndingSequence).l
 ; ===========================================================================
 ; loc_3FC:
