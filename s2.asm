@@ -398,7 +398,7 @@ GameClrRAM:
 ; loc_394:
 MainGameLoop:
 	move.b	(Game_Mode).w,d0
-	andi.w	#$3C,d0	; limit Game Mode value to $3C max (remove to add more game modes)
+	andi.w	#$3C,d0	; limit Game Mode value to $3C max (change to a maximum of 7C to add more game modes)
 	jsr	GameModesArray(pc,d0.w)	; jump to apt location in ROM
 	bra.s	MainGameLoop	; loop indefinitely
 ; ===========================================================================
