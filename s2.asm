@@ -137,8 +137,8 @@ StartOfRom:
 Header:
 	dc.b "SEGA GENESIS    " ; Console name
 	dc.b "(C)SEGA 1992.SEP" ; Copyright holder and release date (generally year)
-	dc.b "SONIC THE             HEDGEHOG 2                " ; Domestic name
-	dc.b "SONIC THE             HEDGEHOG 2                " ; International name
+	dc.b "SONIC THE             HEDGEHOG 2                " ; Domestic name (Note: has to be 48 bytes long, pad it out with spaces if you do not have 48 characters in your title.)
+	dc.b "SONIC THE             HEDGEHOG 2                " ; International name (Note: has to be 48 bytes long)
     if gameRevision=0
 	dc.b "GM 00001051-00"   ; Version (REV00)
     elseif gameRevision=1
@@ -149,7 +149,7 @@ Header:
 ; word_18E
 Checksum:
 	dc.w $D951		; Checksum (patched later if incorrect)
-	dc.b "J               " ; I/O Support
+	dc.b "J               " ; I/O Support (Has to be 16 bytes long, so pad it out with spaces.)
 	dc.l StartOfRom		; Start address of ROM
 ; dword_1A4
 ROMEndLoc:
@@ -161,7 +161,7 @@ ROMEndLoc:
 	dc.l $20202020		; Backup RAM end address
 	dc.b "            "	; Modem support
 	dc.b "                                        "	; Notes (unused, anything can be put in this space, but it has to be 52 bytes.)
-	dc.b "JUE             " ; Country codes
+	dc.b "JUE             " ; Region (J=Japan, U=USA, E=Europe)
 EndOfHeader:
 
 ; ===========================================================================
@@ -176,7 +176,7 @@ ErrorTrap:
 ; loc_206:
 EntryPoint:
 	tst.l	(HW_Port_1_Control-1).l	; test ports A and B control
-	bne.s	PortA_Ok	; If so, magically branch.
+	bne.s	PortA_Ok	; If so, branch.
 	tst.w	(HW_Expansion_Control-1).l	; test port C control
 ; loc_214:
 PortA_Ok:
@@ -187,7 +187,7 @@ PortA_Ok:
 	move.b	HW_Version-Z80_Bus_Request(a1),d0	; get hardware version
 	andi.b	#$F,d0	; compare
 	beq.s	SkipSecurity	; If the console has no TMSS, skip the security stuff.
-	move.l	#'SEGA',Security_Addr-Z80_Bus_Request(a1) ; satisfy the TMSS
+	move.l	#'SEGA',Security_Addr-Z80_Bus_Request(a1) ; Make the TMSS happy
 ; loc_234:
 SkipSecurity:
 	move.w	(a4),d0	; check if VDP works
@@ -201,7 +201,6 @@ VDPInitLoop:
 	move.w	d5,(a4)	; move value to VDP register
 	add.w	d7,d5	; next register
 	dbf	d1,VDPInitLoop
-
 	move.l	(a5)+,(a4)	; set VRAM write mode
 	move.w	d0,(a3)	; clear the screen
 	move.w	d7,(a1)	; stop the Z80
@@ -221,8 +220,8 @@ Z80InitLoop:
 	move.w	d7,(a2)	; reset the Z80
 ; loc_262:
 ClrRAMLoop:
-	move.l	d0,-(a6)	; clear 4 bytes of RAM
-	dbf	d6,ClrRAMLoop	; repeat until the entire RAM is clear
+	move.l	d0,-(a6)	; clear a long of RAM
+	dbf	d6,ClrRAMLoop	; continue clearing RAM if there's anything left
 	move.l	(a5)+,(a4)	; set VDP display mode and increment mode
 	move.l	(a5)+,(a4)	; set VDP to CRAM write
 	moveq	#bytesToLcnt($80),d3	; set repeat times
@@ -251,12 +250,8 @@ PortC_OK: ;;
 ; byte_294:
 SetupValues:
 	dc.w	$8000,bytesToLcnt($10000),$100
-
-	dc.l	Z80_RAM
-	dc.l	Z80_Bus_Request
-	dc.l	Z80_Reset
+	dc.l	Z80_RAM, Z80_Bus_Request, Z80_Reset
 	dc.l	VDP_data_port, VDP_control_port
-
 VDPInitValues:	; values for VDP registers
 	dc.b 4			; Command $8004 - HInt off, Enable HV counter read
 	dc.b $14		; Command $8114 - Display off, VInt off, DMA on, PAL off
@@ -584,7 +579,7 @@ Vint_SEGA:
 	jsrto	(SegaScr_VInt).l, JmpTo_SegaScr_VInt
 	tst.w	(Demo_Time_left).w	; is there time left on the demo?
 	beq.w	+	; if not, return
-	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left in demo
+	subq.w	#1,(Demo_Time_left).w
 +
 	rts
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -600,7 +595,7 @@ Vint_PCM:
 +
 	tst.w	(Demo_Time_left).w	; is there time left on the demo?
 	beq.w	+	; if not, return
-	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left in demo
+	subq.w	#1,(Demo_Time_left).w
 +
 	rts
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -610,7 +605,7 @@ Vint_Title:
 	bsr.w	ProcessDPLC
 	tst.w	(Demo_Time_left).w	; is there time left on the demo?
 	beq.w	+	; if not, return
-	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left in demo
+	subq.w	#1,(Demo_Time_left).w
 +
 	rts
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -703,8 +698,8 @@ Do_Updates:
 	jsr	(HudUpdate).l
 	bsr.w	ProcessDPLC2
 	tst.w	(Demo_Time_left).w	; is there time left on the demo?
-	beq.w	+		; if not, branch
-	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left in demo
+	beq.w	+	; if not, return
+	subq.w	#1,(Demo_Time_left).w
 +
 	rts
 ; End of function Do_Updates
@@ -800,7 +795,7 @@ SS_PNTA_Transfer_Table:	offsetTable
 	bsr.w	ProcessDPLC2
 	tst.w	(Demo_Time_left).w	; is there time left on the demo?
 	beq.w	+	; if not, return
-	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left in demo
+	subq.w	#1,(Demo_Time_left).w
 +
 	rts
 ; ---------------------------------------------------------------------------
@@ -1013,7 +1008,7 @@ Vint_Menu:
 	bsr.w	ProcessDPLC
 	tst.w	(Demo_Time_left).w	; is there time left on the demo?
 	beq.w	+	; if not, return
-	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left in demo
+	subq.w	#1,(Demo_Time_left).w
 +
 	rts
 
@@ -1232,8 +1227,8 @@ Joypad_Read:
 
 ; sub_1158:
 VDPSetupGame:
-	lea	(VDP_control_port).l,a0	; load VDP control port into a0
-	lea	(VDP_data_port).l,a1	; load VDP data port into a1
+	lea	(VDP_control_port).l,a0
+	lea	(VDP_data_port).l,a1
 	lea	(VDPSetupArray).l,a2
 	moveq	#bytesToWcnt(VDPSetupArray_End-VDPSetupArray),d7
 ; loc_116C:
@@ -1836,7 +1831,7 @@ Nem_BCT_Loop:
 ; so the code needs to be bit-shifted appropriately over here before being used as a code table index
 ; additionally, the code needs multiple entries in the table because no masking is done during compressed data processing
 ; so if 11000 is a valid code then all indices of the form 11000XXX need to have the same entry
-loc_1606:
+;loc_1606:
 Nem_BCT_ShortCode:
 	move.b	(a0)+,d0	; get code
 	lsl.w	d1,d0	; shift so that high bit is in bit position 7
@@ -2350,7 +2345,7 @@ KosDec:
 Kos_Decomp_Loop:
 	lsr.w	#1,d5	; bit which is shifted out goes into C flag
 	move	sr,d6
-	dbf		d4,Kos_Decomp_ChkBit
+	dbf	d4,Kos_Decomp_ChkBit
 	move.b	(a0)+,1(sp)
 	move.b	(a0)+,(sp)
 	move.w	(sp),d5	; get next description field if needed
@@ -2367,7 +2362,7 @@ Kos_Decomp_Match:
 	moveq	#0,d3
 	lsr.w	#1,d5	; get next bit
 	move	sr,d6
-	dbf		d4,Kos_Decomp_ChkBit2
+	dbf	d4,Kos_Decomp_ChkBit2
 	move.b	(a0)+,1(sp)
 	move.b	(a0)+,(sp)
 	move.w	(sp),d5
@@ -2377,7 +2372,7 @@ Kos_Decomp_ChkBit2:
 	move	d6,ccr	; was the bit set?
 	bcs.s	Kos_Decomp_FullMatch	; if it was, branch
 	lsr.w	#1,d5	; bit which is shifted out goes into X flag
-	dbf		d4,+
+	dbf	d4,+
 	move.b	(a0)+,1(sp)
 	move.b	(a0)+,(sp)
 	move.w	(sp),d5
@@ -2385,7 +2380,7 @@ Kos_Decomp_ChkBit2:
 +
 	roxl.w	#1,d3	; get high repeat count bit (shift X flag in)
 	lsr.w	#1,d5
-	dbf		d4,+
+	dbf	d4,+
 	move.b	(a0)+,1(sp)
 	move.b	(a0)+,(sp)
 	move.w	(sp),d5
@@ -2413,7 +2408,7 @@ Kos_Decomp_FullMatch:
 Kos_Decomp_MatchLoop:
 	move.b	(a1,d2.w),d0
 	move.b	d0,(a1)+	; copy appropriate byte
-	dbf		d3,Kos_Decomp_MatchLoop	; and repeat the copying
+	dbf	d3,Kos_Decomp_MatchLoop	; and repeat the copying
 	bra.s	Kos_Decomp_Loop
 ; ---------------------------------------------------------------------------
 
