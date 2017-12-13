@@ -155,7 +155,7 @@ Checksum:
 ROMEndLoc:
 	dc.l EndOfRom-1		; End address of ROM
 	dc.l RAM_Start&$FFFFFF		; Start address of RAM
-	dc.l (RAM_End-1)&$FFFFFF		; RAM End
+	dc.l (RAM_End-1)&$FFFFFF		; End address of RAM
 	dc.b "    "		; Backup RAM ID
 	dc.l $20202020		; Backup RAM start address
 	dc.l $20202020		; Backup RAM end address
@@ -176,7 +176,7 @@ ErrorTrap:
 ; loc_206:
 EntryPoint:
 	tst.l	(HW_Port_1_Control-1).l	; test ports A and B control
-	bne.s	PortA_Ok	; If so, branch.
+	bne.s	PortA_Ok	; If so, magically branch.
 	tst.w	(HW_Expansion_Control-1).l	; test port C control
 ; loc_214:
 PortA_Ok:
@@ -798,9 +798,9 @@ SS_PNTA_Transfer_Table:	offsetTable
 	startZ80
 
 	bsr.w	ProcessDPLC2
-	tst.w	(Demo_Time_left).w
-	beq.w	+	; rts
-	subq.w	#1,(Demo_Time_left).w
+	tst.w	(Demo_Time_left).w	; is there time left on the demo?
+	beq.w	+	; if not, return
+	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left in demo
 +
 	rts
 ; ---------------------------------------------------------------------------
@@ -1011,9 +1011,9 @@ Vint_Menu:
 	startZ80
 
 	bsr.w	ProcessDPLC
-	tst.w	(Demo_Time_left).w
-	beq.w	+	; rts
-	subq.w	#1,(Demo_Time_left).w
+	tst.w	(Demo_Time_left).w	; is there time left on the demo?
+	beq.w	+	; if not, return
+	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left in demo
 +
 	rts
 
@@ -1208,22 +1208,22 @@ ReadJoypads:
 Joypad_Read:
 	move.b	#0,(a1)
 	nop
-	nop
-	move.b	(a1),d0
-	lsl.b	#2,d0
-	andi.b	#$C0,d0
+	nop	; Wait until data is ready.
+	move.b	(a1),d0	; Read back controller states. (00SA00DU)
+	lsl.b	#2,d0	; Shift start and A into the high 2 bits
+	andi.b	#$C0,d0	; Get only S+A buttons
 	move.b	#$40,(a1)
 	nop
-	nop
-	move.b	(a1),d1
+	nop	; Wait until data is ready.
+	move.b	(a1),d1	; Read back the controller states.
 	andi.b	#$3F,d1
-	or.b	d1,d0
-	not.b	d0
-	move.b	(a0),d1
-	eor.b	d0,d1
-	move.b	d0,(a0)+
-	and.b	d0,d1
-	move.b	d1,(a0)+
+	or.b	d1,d0	; OR together the control states
+	not.b	d0	; Invert the bits
+	move.b	(a0),d1	; Get the current button press bits from RAM
+	eor.b	d0,d1	; OR the pressed buttons with the last frame's pressed buttons
+	move.b	d0,(a0)+	; Write the pressed bits
+	and.b	d0,d1	; AND the bits together.
+	move.b	d1,(a0)+	; Write the held bits
 	rts
 ; End of function Joypad_Read
 
@@ -1232,8 +1232,8 @@ Joypad_Read:
 
 ; sub_1158:
 VDPSetupGame:
-	lea	(VDP_control_port).l,a0
-	lea	(VDP_data_port).l,a1
+	lea	(VDP_control_port).l,a0	; load VDP control port into a0
+	lea	(VDP_data_port).l,a1	; load VDP data port into a1
 	lea	(VDPSetupArray).l,a2
 	moveq	#bytesToWcnt(VDPSetupArray_End-VDPSetupArray),d7
 ; loc_116C:
@@ -1467,7 +1467,7 @@ Pause_SlowMo:
 ;	CD0-CD3 - code
 ;	CD4 - 1 if VRAM copy DMA mode. 0 otherwise.
 ;	CD5 - DMA operation
-;	
+;
 ;	Bits CD3-CD0:
 ;	0000 - VRAM read
 ;	0001 - VRAM write
@@ -1612,7 +1612,11 @@ ProcessDMAQueue_Done:
 
 ; ---------------------------------------------------------------------------
 ; START OF NEMESIS DECOMPRESSOR
-
+; decompresses art directly to VRAM
+; Inputs:
+; a0 = art address
+; a VDP command to write to the destination VRAM address must be issued
+; before calling this routine.
 ; For format explanation see http://info.sonicretro.org/Nemesis_compression
 ; ---------------------------------------------------------------------------
 
@@ -1622,124 +1626,140 @@ ProcessDMAQueue_Done:
 ; sub_14DE: NemDecA:
 NemDec:
 	movem.l	d0-a1/a3-a5,-(sp)
-	lea	(NemDec_WriteAndStay).l,a3 ; write all data to the same location
-	lea	(VDP_data_port).l,a4	   ; specifically, to the VDP data port
+	lea	(NemDec_WriteAndStay).l,a3	; write all data to the same location
+	lea	(VDP_data_port).l,a4		; specifically, to the VDP data port
 	bra.s	NemDecMain
 
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+; ---------------------------------------------------------------------------
+; Nemesis decompression subroutine, decompresses art to RAM
+; Inputs:
+; a0 = art address
+; a4 = destination RAM address
+; ---------------------------------------------------------------------------
 
-; Nemesis decompression to RAM
-; input: a4 = starting address of destination
+; =============== S U B R O U T I N E =======================================
+
 ; sub_14F0: NemDecB:
 NemDecToRAM:
 	movem.l	d0-a1/a3-a5,-(sp)
 	lea	(NemDec_WriteAndAdvance).l,a3 ; advance to the next location after each write
 
 
+; ---------------------------------------------------------------------------
+; Main Nemesis decompression subroutine
+; ---------------------------------------------------------------------------
+
+; =============== S U B R O U T I N E =======================================
+
 ; sub_14FA:
 NemDecMain:
 	lea	(Decomp_Buffer).w,a1
-	move.w	(a0)+,d2
+	move.w	(a0)+,d2	; get number of patterns
 	lsl.w	#1,d2
-	bcc.s	+
-	adda.w	#NemDec_WriteAndStay_XOR-NemDec_WriteAndStay,a3
-+	lsl.w	#2,d2
-	movea.w	d2,a5
-	moveq	#8,d3
+	bcc.s	+	; branch if the sign bit isn't set
+	adda.w	#NemDec_WriteAndStay_XOR-NemDec_WriteAndStay,a3	; otherwise the file uses XOR mode
++	lsl.w	#2,d2	; get number of 8-pixel rows in the uncompressed data
+	movea.w	d2,a5	; and store it in a5 because there aren't any spare data registers
+	moveq	#8,d3	; 8 pixels in a pattern row
 	moveq	#0,d2
 	moveq	#0,d4
 	bsr.w	NemDecPrepare
-	move.b	(a0)+,d5
-	asl.w	#8,d5
-	move.b	(a0)+,d5
-	move.w	#$10,d6
+	move.b	(a0)+,d5	 ; get first byte of compressed data
+	asl.w	#8,d5	; shift up by a byte
+	move.b	(a0)+,d5	; get second byte of compressed data
+	move.w	#$10,d6	; set initial shift value
 	bsr.s	NemDecRun
 	movem.l	(sp)+,d0-a1/a3-a5
 	rts
 ; End of function NemDec
 
+; ---------------------------------------------------------------------------
+; Part of the Nemesis decompressor, processes the actual compressed data
+; ---------------------------------------------------------------------------
 
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+; =============== S U B R O U T I N E =======================================
 
-; part of the Nemesis decompressor
+; PCD is used throughout this subroutine as an initialism for NemDecRun
 ; sub_1528:
 NemDecRun:
 	move.w	d6,d7
-	subq.w	#8,d7
+	subq.w	#8,d7	; get shift value
 	move.w	d5,d1
-	lsr.w	d7,d1
-	cmpi.b	#-4,d1
-	bhs.s	loc_1574
+	lsr.w	d7,d1	; shift so that high bit of the code is in bit position 7
+	cmpi.b	#-4,d1	; are the high 6 bits set?
+	bhs.s	Nem_PCD_InlineData	; if they are, it signifies inline data
 	andi.w	#$FF,d1
 	add.w	d1,d1
-	move.b	(a1,d1.w),d0
+	move.b	(a1,d1.w),d0	; get the length of the code in bits
 	ext.w	d0
-	sub.w	d0,d6
-	cmpi.w	#9,d6
-	bhs.s	+
+	sub.w	d0,d6	; subtract from shift value so that the next code is read next time around
+	cmpi.w	#9,d6	; does a new byte need to be read?
+	bhs.s	+	; if not, branch
 	addq.w	#8,d6
 	asl.w	#8,d5
-	move.b	(a0)+,d5
+	move.b	(a0)+,d5	; read next byte
 +	move.b	1(a1,d1.w),d1
 	move.w	d1,d0
-	andi.w	#$F,d1
+	andi.w	#$F,d1	; get palette index for pixel
 	andi.w	#$F0,d0
 
-loc_155E:
-	lsr.w	#4,d0
+;loc_155E:
+Nem_PCD_GetRepeatCount:
+	lsr.w	#4,d0	; get repeat count
 
-loc_1560:
-	lsl.l	#4,d4
-	or.b	d1,d4
-	subq.w	#1,d3
-	bne.s	NemDec_WriteIter_Part2
+;loc_1560:
+Nem_PCD_WritePixel:
+	lsl.l	#4,d4	; shift up by a nybble
+	or.b	d1,d4	; write pixel
+	subq.w	#1,d3	; has an entire 8-pixel row been written?
+	bne.s	NemDec_WriteIter_Part2	; if not, loop
 	jmp	(a3) ; dynamic jump! to NemDec_WriteAndStay, NemDec_WriteAndAdvance, NemDec_WriteAndStay_XOR, or NemDec_WriteAndAdvance_XOR
 ; ===========================================================================
 ; loc_156A:
 NemDec_WriteIter:
-	moveq	#0,d4
-	moveq	#8,d3
+	moveq	#0,d4	; reset row
+	moveq	#8,d3	; reset nybble counter
 ; loc_156E:
 NemDec_WriteIter_Part2:
-	dbf	d0,loc_1560
+	dbf	d0,Nem_PCD_WritePixel
 	bra.s	NemDecRun
 ; ===========================================================================
 
-loc_1574:
-	subq.w	#6,d6
+;loc_1574:
+Nem_PCD_InlineData:
+	subq.w	#6,d6	; 6 bits needed to signal inline data
 	cmpi.w	#9,d6
 	bhs.s	+
 	addq.w	#8,d6
 	asl.w	#8,d5
 	move.b	(a0)+,d5
 +
-	subq.w	#7,d6
+	subq.w	#7,d6	; and 7 bits needed for the inline data itself
 	move.w	d5,d1
-	lsr.w	d6,d1
+	lsr.w	d6,d1	; shift so that low bit of the code is in bit position 0
 	move.w	d1,d0
-	andi.w	#$F,d1
-	andi.w	#$70,d0
+	andi.w	#$F,d1	; get palette index for pixel
+	andi.w	#$70,d0	; high nybble is repeat count for pixel
 	cmpi.w	#9,d6
-	bhs.s	loc_155E
+	bhs.s	Nem_PCD_GetRepeatCount
 	addq.w	#8,d6
 	asl.w	#8,d5
 	move.b	(a0)+,d5
-	bra.s	loc_155E
-; End of function NemDecRun
+	bra.s	Nem_PCD_GetRepeatCount
 
 ; ===========================================================================
 ; loc_15A0:
 NemDec_WriteAndStay:
-	move.l	d4,(a4)
+	move.l	d4,(a4)	; write 8-pixel row
 	subq.w	#1,a5
-	move.w	a5,d4
-	bne.s	NemDec_WriteIter
-	rts
+	move.w	a5,d4	; have all the 8-pixel rows been written?
+	bne.s	NemDec_WriteIter	; if not, branch
+	rts	; otherwise the decompression is finished
 ; ---------------------------------------------------------------------------
 ; loc_15AA:
 NemDec_WriteAndStay_XOR:
-	eor.l	d4,d2
-	move.l	d2,(a4)
+	eor.l	d4,d2	; XOR the previous row by the current row
+	move.l	d2,(a4)	; and write the result
 	subq.w	#1,a5
 	move.w	a5,d4
 	bne.s	NemDec_WriteIter
@@ -1767,54 +1787,69 @@ NemDec_WriteAndAdvance_XOR:
 	move.w	a5,d4
 	bne.s	NemDec_WriteIter
 	rts
+; End of function NemDecRun
 
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-; Part of the Nemesis decompressor
+; ---------------------------------------------------------------------------
+; Part of the Nemesis decompressor, builds the code table (in RAM)
+; ---------------------------------------------------------------------------
 
+; =============== S U B R O U T I N E =======================================
+
+; BCT is used throughout this subroutine as an initialism for NemDecPrepare
 ; sub_15CC:
 NemDecPrepare:
-	move.b	(a0)+,d0
+	move.b	(a0)+,d0	; read first byte
 
--	cmpi.b	#$FF,d0
-	bne.s	+
-	rts
+Nem_BCT_ChkEnd:
+	cmpi.b	#$FF,d0	; has the end of the code table description been reached?
+	bne.s	Nem_BCT_NewPalIndex	; if not, branch
+	rts	; otherwise, this subroutine's work is done
 ; ---------------------------------------------------------------------------
-+	move.w	d0,d7
+Nem_BCT_NewPalIndex:
+	move.w	d0,d7
 
-loc_15D8:
-	move.b	(a0)+,d0
-	cmpi.b	#$80,d0
-	bhs.s	-
-
+;loc_15D8:
+Nem_BCT_Loop:
+	move.b	(a0)+,d0	; read next byte
+	cmpi.b	#$80,d0	; sign bit being set signifies a new palette index
+	bcc.s	Nem_BCT_ChkEnd	; a bmi could have been used instead of a compare and bcc
 	move.b	d0,d1
-	andi.w	#$F,d7
-	andi.w	#$70,d1
-	or.w	d1,d7
-	andi.w	#$F,d0
+	andi.w	#$F,d7	; get palette index
+	andi.w	#$70,d1	; get repeat count for palette index
+	or.w	d1,d7	; combine the two
+	andi.w	#$F,d0	; get the length of the code in bits
 	move.b	d0,d1
 	lsl.w	#8,d1
-	or.w	d1,d7
+	or.w	d1,d7	; combine with palette index and repeat count to form code table entry
 	moveq	#8,d1
-	sub.w	d0,d1
-	bne.s	loc_1606
-	move.b	(a0)+,d0
-	add.w	d0,d0
-	move.w	d7,(a1,d0.w)
-	bra.s	loc_15D8
+	sub.w	d0,d1	; is the code 8 bits long?
+	bne.s	Nem_BCT_ShortCode	; if not, a bit of extra processing is needed
+	move.b	(a0)+,d0	; get code
+	add.w	d0,d0	; each code gets a word-sized entry in the table
+	move.w	d7,(a1,d0.w)	; store the entry for the code
+	bra.s	Nem_BCT_Loop	; repeat
 ; ---------------------------------------------------------------------------
+
+; the Nemesis decompressor uses prefix-free codes (no valid code is a prefix of a longer code)
+; e.g. if 10 is a valid 2-bit code, 110 is a valid 3-bit code but 100 isn't
+; also, when the actual compressed data is processed the high bit of each code is in bit position 7
+; so the code needs to be bit-shifted appropriately over here before being used as a code table index
+; additionally, the code needs multiple entries in the table because no masking is done during compressed data processing
+; so if 11000 is a valid code then all indices of the form 11000XXX need to have the same entry
 loc_1606:
-	move.b	(a0)+,d0
-	lsl.w	d1,d0
-	add.w	d0,d0
+Nem_BCT_ShortCode:
+	move.b	(a0)+,d0	; get code
+	lsl.w	d1,d0	; shift so that high bit is in bit position 7
+	add.w	d0,d0	; get index into code table
 	moveq	#1,d5
 	lsl.w	d1,d5
-	subq.w	#1,d5
+	subq.w	#1,d5	; d5 = 2^d1 - 1
 
--	move.w	d7,(a1,d0.w)
+Nem_BCT_ShortCode_Loop:
+	move.w	d7,(a1,d0.w)
 	addq.w	#2,d0
-	dbf	d5,-
-
-	bra.s	loc_15D8
+	dbf	d5,Nem_BCT_ShortCode_Loop	; repeat for required number of entries
+	bra.s	Nem_BCT_Loop
 ; End of function NemDecPrepare
 
 ; ---------------------------------------------------------------------------
@@ -1834,7 +1869,7 @@ loc_1606:
 ; NOTICE: This subroutine does not check for buffer overruns. The programmer
 ;	  (or hacker) is responsible for making sure that no more than
 ;	  16 load requests are copied into the buffer.
-;    _________DO NOT PUT MORE THAN 16 LOAD REQUESTS IN A LIST!__________
+;     _________DO NOT PUT MORE THAN 16 LOAD REQUESTS IN A LIST!__________
 ;         (or if you change the size of Plc_Buffer, the limit becomes (Plc_Buffer_Only_End-Plc_Buffer)/6)
 
 ; sub_161E: PLCLoad:
@@ -2091,10 +2126,11 @@ EniDec_Loop:
 	andi.w	#$7F,d1		; keep only lower 7 bits
 	move.w	d1,d2
 	cmpi.w	#$40,d1		; is bit 6 set?
-	bhs.s	+		; if it is, branch
+	bhs.s	EniDec_SevenBitEntry		; if it is, branch
 	moveq	#6,d0		; if not, process 6 bits instead of 7
 	lsr.w	#1,d2		; bitfield now becomes TTSSSS instead of TTTSSSS
-+
+
+EniDec_SevenBitEntry:
 	bsr.w	EniDec_ChkGetNextByte
 	andi.w	#$F,d2	; keep only lower nybble
 	lsr.w	#4,d1	; store upper nybble (max value = 7)
@@ -2120,8 +2156,8 @@ EniDec_Sub4:
 EniDec_Sub8:
 	bsr.w	EniDec_GetInlineCopyVal
 
--	move.w	d1,(a1)+
-	dbf	d2,-
+-	move.w	d1,(a1)+	; copy inline value
+	dbf	d2,-	; repeat
 
 	bra.s	EniDec_Loop
 ; ===========================================================================
@@ -2129,9 +2165,9 @@ EniDec_Sub8:
 EniDec_SubA:
 	bsr.w	EniDec_GetInlineCopyVal
 
--	move.w	d1,(a1)+
-	addq.w	#1,d1
-	dbf	d2,-
+-	move.w	d1,(a1)+	; copy inline value
+	addq.w	#1,d1	; increment
+	dbf	d2,-	; repeat
 
 	bra.s	EniDec_Loop
 ; ===========================================================================
@@ -2139,9 +2175,9 @@ EniDec_SubA:
 EniDec_SubC:
 	bsr.w	EniDec_GetInlineCopyVal
 
--	move.w	d1,(a1)+
-	subq.w	#1,d1
-	dbf	d2,-
+-	move.w	d1,(a1)+	; copy inline value
+	subq.w	#1,d1	; decrement
+	dbf	d2,-	; repeat
 
 	bra.s	EniDec_Loop
 ; ===========================================================================
@@ -2150,9 +2186,9 @@ EniDec_SubE:
 	cmpi.w	#$F,d2
 	beq.s	EniDec_End
 
--	bsr.w	EniDec_GetInlineCopyVal
-	move.w	d1,(a1)+
-	dbf	d2,-
+-	bsr.w	EniDec_GetInlineCopyVal	; fetch new inline value
+	move.w	d1,(a1)+	; copy it
+	dbf	d2,-	; and repeat
 
 	bra.s	EniDec_Loop
 ; ===========================================================================
@@ -2169,75 +2205,81 @@ EniDec_JmpTable:
 ; ===========================================================================
 
 EniDec_End:
-	subq.w	#1,a0
+	subq.w	#1,a0	; go back by one byte
 	cmpi.w	#16,d6		; were we going to start on a completely new byte?
-	bne.s	+		; if not, branch
-	subq.w	#1,a0
-+
+	bne.s	EniDec_NotNewByte	; if not, branch
+	subq.w	#1,a0	; and another one if needed
+EniDec_NotNewByte:
 	move.w	a0,d0
-	lsr.w	#1,d0		; are we on an odd byte?
-	bcc.s	+		; if not, branch
-	addq.w	#1,a0		; ensure we're on an even byte
-+
+	lsr.w	#1,d0	; are we on an odd byte?
+	bcc.s	EniDec_EvenByte	; if not, branch
+	addq.w	#1,a0	; ensure we're on an even byte
+
+EniDec_EvenByte:
 	movem.l	(sp)+,d0-d7/a1-a5
 	rts
 
-;  S U B R O U T I N E 
+; ---------------------------------------------------------------------------
+; Part of the Enigma decompressor
+; Fetches an inline copy value and stores it in d1
+; ---------------------------------------------------------------------------
 
+; =============== S U B R O U T I N E =======================================
 
 EniDec_GetInlineCopyVal:
-	move.w	a3,d3		; store starting art tile
-	move.b	d4,d1
-	add.b	d1,d1
-	bcc.s	+		; if d4 was < $80
-	subq.w	#1,d6		; get next bit number
-	btst	d6,d5		; is the bit set?
-	beq.s	+		; if not, branch
-	ori.w	#high_priority,d3	; set high priority bit
-+
-	add.b	d1,d1
-	bcc.s	+		; if d4 was < $40
+	move.w	a3,d3	; store starting art tile
+	move.b	d4,d1	; copy PCCVH bitfield
+	add.b	d1,d1	; is the priority bit set?
+	bcc.s	EniDec_SkipPriority	; if d4 was < $80, branch
+	subq.w	#1,d6	; get next bit number
+	btst	d6,d5	; is the priority bit set in the inline render flags?
+	beq.s	EniDec_SkipPriority	; if not, branch
+	ori.w	#high_priority,d3	; otherwise set priority bit in art tile
+
+EniDec_SkipPriority:
+	add.b	d1,d1	; is the high palette line bit set?
+	bcc.s	EniDec_SkipHighPal	; if not, branch
 	subq.w	#1,d6		; get next bit number
 	btst	d6,d5
-	beq.s	+
+	beq.s	EniDec_SkipHighPal
 	addi.w	#palette_line_2,d3	; set second palette line bit
-+
-	add.b	d1,d1
-	bcc.s	+		; if d4 was < $20
+EniDec_SkipHighPal:
+	add.b	d1,d1	; is the low palette line bit set?
+	bcc.s	EniDec_SkipLowPal	; if not, branch
 	subq.w	#1,d6		; get next bit number
 	btst	d6,d5
-	beq.s	+
+	beq.s	EniDec_SkipLowPal
 	addi.w	#palette_line_1,d3	; set first palette line bit
-+
-	add.b	d1,d1
-	bcc.s	+		; if d4 was < $10
+EniDec_SkipLowPal:
+	add.b	d1,d1	; is the vertical flip flag set?
+	bcc.s	EniDec_SkipYFlip	; if not, branch
 	subq.w	#1,d6		; get next bit number
 	btst	d6,d5
-	beq.s	+
+	beq.s	EniDec_SkipYFlip
 	ori.w	#flip_y,d3	; set Y-flip bit
-+
-	add.b	d1,d1
-	bcc.s	+		; if d4 was < 8
+EniDec_SkipYFlip:
+	add.b	d1,d1	; is the horizontal flip flag set?
+	bcc.s	EniDec_SkipXFlip	; if not, branch
 	subq.w	#1,d6
 	btst	d6,d5
-	beq.s	+
+	beq.s	EniDec_SkipXFlip
 	ori.w	#flip_x,d3	; set X-flip bit
-+
+EniDec_SkipXFlip:
 	move.w	d5,d1
 	move.w	d6,d7		; get remaining bits
 	sub.w	a5,d7		; subtract minimum bit number
-	bcc.s	+		; if we're beyond that, branch
+	bcc.s	EniDec_EnoughBits	; if we're beyond that, branch
 	move.w	d7,d6
 	addi.w	#16,d6		; 16 bits = 2 bytes
 	neg.w	d7		; calculate bit deficit
-	lsl.w	d7,d1		; make space for this many bits
+	lsl.w	d7,d1		; and make space for this many bits
 	move.b	(a0),d5		; get next byte
 	rol.b	d7,d5		; make the upper X bits the lower X bits
 	add.w	d7,d7
 	and.w	EniDec_AndVals-2(pc,d7.w),d5	; only keep X lower bits
 	add.w	d5,d1		; compensate for the bit deficit
--
-	move.w	a5,d0
+EniDec_MaskValue:
+	move.w	a5,d0	; get length in bits of inline copy value
 	add.w	d0,d0
 	and.w	EniDec_AndVals-2(pc,d0.w),d1	; only keep as many bits as required
 	add.w	d3,d1		; add starting art tile
@@ -2246,8 +2288,8 @@ EniDec_GetInlineCopyVal:
 	move.b	(a0)+,d5	; store next byte in lower register byte
 	rts
 ; ===========================================================================
-+
-	beq.s	+		; if the exact number of bits are leftover, branch
+EniDec_EnoughBits:
+	beq.s	EniDec_JustEnough	; if the exact number of bits are leftover, branch
 	lsr.w	d7,d1		; remove unneeded bits
 	move.w	a5,d0
 	add.w	d0,d0
@@ -2256,9 +2298,9 @@ EniDec_GetInlineCopyVal:
 	move.w	a5,d0		; store number of bits used up by inline copy
 	bra.s	EniDec_ChkGetNextByte	; move onto next byte
 ; ===========================================================================
-+
+EniDec_JustEnough:
 	moveq	#16,d6	; 16 bits = 2 bytes
-	bra.s	-
+	bra.s	EniDec_MaskValue
 ; End of function EniDec_GetInlineCopyVal
 
 ; ===========================================================================
@@ -2271,9 +2313,9 @@ EniDec_AndVals:
 ; ===========================================================================
 
 EniDec_ChkGetNextByte:
-	sub.w	d0,d6
-	cmpi.w	#9,d6
-	bhs.s	+	; rts
+	sub.w	d0,d6	; subtract length of current entry from shift value so that next entry is read next time around
+	cmpi.w	#9,d6	; does a new byte need to be read?
+	bhs.s	+	; if not, return
 	addq.w	#8,d6	; 8 bits = 1 byte
 	asl.w	#8,d5	; shift up by a byte
 	move.b	(a0)+,d5	; store next byte in lower register byte
@@ -2293,88 +2335,99 @@ EniDec_ChkGetNextByte:
 
 ; For format explanation see http://info.sonicretro.org/Kosinski_compression
 ; ---------------------------------------------------------------------------
+
+; =============== S U B R O U T I N E =======================================
+
+
 ; KozDec_193A:
 KosDec:
-	subq.l	#2,sp
+	subq.l	#2,sp	; make space for two bytes on the stack
+	move.b	(a0)+,1(sp)
+	move.b	(a0)+,(sp)
+	move.w	(sp),d5	; copy first description field
+	moveq	#$F,d4	; 16 bits in a byte
+
+Kos_Decomp_Loop:
+	lsr.w	#1,d5	; bit which is shifted out goes into C flag
+	move	sr,d6
+	dbf		d4,Kos_Decomp_ChkBit
+	move.b	(a0)+,1(sp)
+	move.b	(a0)+,(sp)
+	move.w	(sp),d5	; get next description field if needed
+	moveq	#$F,d4	; reset bit counter
+
+Kos_Decomp_ChkBit:
+	move	d6,ccr	; was the bit set?
+	bcc.s	Kos_Decomp_Match	; if not, branch (C flag clear means bit was clear)
+	move.b	(a0)+,(a1)+	; otherwise, copy byte as-is
+	bra.s	Kos_Decomp_Loop
+; ---------------------------------------------------------------------------
+
+Kos_Decomp_Match:
+	moveq	#0,d3
+	lsr.w	#1,d5	; get next bit
+	move	sr,d6
+	dbf		d4,Kos_Decomp_ChkBit2
 	move.b	(a0)+,1(sp)
 	move.b	(a0)+,(sp)
 	move.w	(sp),d5
 	moveq	#$F,d4
 
--
-	lsr.w	#1,d5
-	move	sr,d6
-	dbf	d4,+
+Kos_Decomp_ChkBit2:
+	move	d6,ccr	; was the bit set?
+	bcs.s	Kos_Decomp_FullMatch	; if it was, branch
+	lsr.w	#1,d5	; bit which is shifted out goes into X flag
+	dbf		d4,+
 	move.b	(a0)+,1(sp)
 	move.b	(a0)+,(sp)
 	move.w	(sp),d5
 	moveq	#$F,d4
 +
-	move	d6,ccr
-	bcc.s	+
-	move.b	(a0)+,(a1)+
-	bra.s	-
-; ---------------------------------------------------------------------------
-+
-	moveq	#0,d3
+	roxl.w	#1,d3	; get high repeat count bit (shift X flag in)
 	lsr.w	#1,d5
-	move	sr,d6
-	dbf	d4,+
+	dbf		d4,+
 	move.b	(a0)+,1(sp)
 	move.b	(a0)+,(sp)
 	move.w	(sp),d5
 	moveq	#$F,d4
 +
-	move	d6,ccr
-	bcs.s	+++
-	lsr.w	#1,d5
-	dbf	d4,+
-	move.b	(a0)+,1(sp)
-	move.b	(a0)+,(sp)
-	move.w	(sp),d5
-	moveq	#$F,d4
-+
-	roxl.w	#1,d3
-	lsr.w	#1,d5
-	dbf	d4,+
-	move.b	(a0)+,1(sp)
-	move.b	(a0)+,(sp)
-	move.w	(sp),d5
-	moveq	#$F,d4
-+
-	roxl.w	#1,d3
-	addq.w	#1,d3
+	roxl.w	#1,d3	; get low repeat count bit
+	addq.w	#1,d3	; increment repeat count
 	moveq	#-1,d2
-	move.b	(a0)+,d2
-	bra.s	++
+	move.b	(a0)+,d2	; calculate offset
+	bra.s	Kos_Decomp_MatchLoop
 ; ---------------------------------------------------------------------------
-+
-	move.b	(a0)+,d0
-	move.b	(a0)+,d1
+
+Kos_Decomp_FullMatch:
+	move.b	(a0)+,d0	; get first byte
+	move.b	(a0)+,d1	; get second byte
 	moveq	#-1,d2
 	move.b	d1,d2
 	lsl.w	#5,d2
-	move.b	d0,d2
-	andi.w	#7,d1
-	beq.s	++
-	move.b	d1,d3
-	addq.w	#1,d3
-/
+	move.b	d0,d2	; calculate offset
+	andi.w	#7,d1	; does a third byte need to be read ?
+	beq.s	Kos_Decomp_FullMatch2	; if it does, branch
+	move.b	d1,d3	; copy repeat count
+	addq.w	#1,d3	; and increment it
+
+Kos_Decomp_MatchLoop:
 	move.b	(a1,d2.w),d0
-	move.b	d0,(a1)+
-	dbf	d3,-
-	bra.s	--
+	move.b	d0,(a1)+	; copy appropriate byte
+	dbf		d3,Kos_Decomp_MatchLoop	; and repeat the copying
+	bra.s	Kos_Decomp_Loop
 ; ---------------------------------------------------------------------------
-+
+
+Kos_Decomp_FullMatch2:
 	move.b	(a0)+,d1
-	beq.s	+
+	beq.s	Kos_Decomp_Done	; 0 indicates end of compressed data
 	cmpi.b	#1,d1
-	beq.w	--
-	move.b	d1,d3
-	bra.s	-
+	beq.w	Kos_Decomp_Loop	; 1 indicates a new description needs to be read
+	move.b	d1,d3	; otherwise, copy repeat count
+	bra.s	Kos_Decomp_MatchLoop
 ; ---------------------------------------------------------------------------
-+
-	addq.l	#2,sp
+
+Kos_Decomp_Done:
+	addq.l	#2,sp	; restore stack pointer to original state
 	rts
 ; End of function KosDec
 
@@ -2801,7 +2854,7 @@ CyclingPal_WFZ2:
 ; sub_213E:
 PalCycle_SuperSonic:
 	move.b	(Super_Sonic_palette).w,d0
-	beq.s	++	; rts	; return, if Sonic isn't super
+	beq.s	++	; if Sonic isn't super, return
 	bmi.w	PalCycle_SuperSonic_normal	; branch, if fade-in is done
 	subq.b	#1,d0
 	bne.s	PalCycle_SuperSonic_revert	; branch for values greater than 1
