@@ -17,6 +17,10 @@
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; ASSEMBLY OPTIONS:
 ;
+gameRevision = 1
+;	| If 0, a REV00 ROM is built
+;	| If 1, a REV01 ROM is built, which contains some fixes
+;	| If 2, a (probable) REV02 ROM is built, which contains more fixes, but also more bugs
 padToPowerOfTwo = 1
 ;	| If 1, pads the end of the ROM to the next power of two bytes (for real hardware)
 ;
@@ -29,24 +33,18 @@ skipChecksumCheck = 0|allOptimizations
 zeroOffsetOptimization = 0|allOptimizations
 ;	| If 1, makes a handful of zero-offset instructions smaller
 ;
-removeJmpTos = 0|allOptimizations
+removeJmpTos = 0|gameRevision=2|allOptimizations
 ;	| If 1, many unnecessary JmpTos are removed, improving performance
 ;
-addsubOptimize = 0|allOptimizations
+addsubOptimize = 0|gameRevision=2|allOptimizations
 ;	| If 1, some add/sub instructions are optimized to addq/subq
 ;
-relativeLea = 1|allOptimizations
+relativeLea = 0|gameRevision<>2|allOptimizations
 ;	| If 1, makes some instructions use pc-relative addressing, instead of absolute long
 ;
 useFullWaterTables = 0
 ;	| If 1, zone offset tables for water levels cover all level slots instead of only slots 8-$F
 ;	| Set to 1 if you've shifted level IDs around or you want water in levels with a level slot below 8
-gameRevision = 1
-;	| If 0, a REV00 ROM is built
-;	| If 1, a REV01 ROM is built, which contains some fixes
-;	| If 2, a (probable) REV02 ROM is built, which contains more fixes
-;	| (Bit-perfect REV02 requires removeJmpTos & addsubOptimize be set to 1,
-;	| and also requires relativeLea to be 0)
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; AS-specific macros and assembler settings
