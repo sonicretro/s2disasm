@@ -11595,7 +11595,7 @@ OptionScreen_Controls:
 	jsrto	(PlayMusic).l, JmpTo_PlayMusic
 	lea	(level_select_cheat).l,a0
 	lea	(continues_cheat).l,a2
-	lea	(Level_select_flag).w,a1
+	lea	(Level_select_flag).w,a1	; Also Slow_motion_flag
 	moveq	#0,d2	; flag to tell the routine to enable the continues cheat
 	bsr.w	CheckCheats
 
@@ -12008,7 +12008,7 @@ LevSelControls_CheckLR:
 	jsrto	(PlayMusic).l, JmpTo_PlayMusic
 	lea	(debug_cheat).l,a0
 	lea	(super_sonic_cheat).l,a2
-	lea	(Debug_options_flag).w,a1
+	lea	(Debug_options_flag).w,a1	; Also S1_hidden_credits_flag
 	moveq	#1,d2	; flag to tell the routine to enable the Super Sonic cheat
 	bsr.w	CheckCheats
 
@@ -81265,7 +81265,7 @@ Obj8A_Init:
 	move.w	#make_art_tile($0300,0,0),art_tile(a0)
 	jsrto	(Adjust2PArtPointer).l, JmpTo65_Adjust2PArtPointer
 	move.b	#$A,mapping_frame(a0)
-	tst.b	($FFFFFFD3).w
+	tst.b	(S1_hidden_credits_flag).w
 	beq.s	Obj8A_Display
 	cmpi.b	#button_down_mask|button_B_mask|button_C_mask|button_A_mask,(Ctrl_1_Held).w
 	bne.s	Obj8A_Display

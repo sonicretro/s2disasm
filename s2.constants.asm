@@ -1626,11 +1626,14 @@ Signpost_prev_frame:	ds.b	1
 				ds.b	1	; $FFFFFFCB ; seems unused
 Camera_Min_Y_pos_Debug_Copy:	ds.w	1
 Camera_Max_Y_pos_Debug_Copy:	ds.w	1
+
 Level_select_flag:		ds.b	1
-Slow_motion_flag:		ds.b	1
-Debug_options_flag:		ds.w	1	; if set, allows you to enable debug mode and "night mode"
+Slow_motion_flag:		ds.b	1	; This NEEDs to be after Level_select_flag because of the call to CheckCheats
+Debug_options_flag:		ds.b	1	; if set, allows you to enable debug mode and "night mode"
+S1_hidden_credits_flag:		ds.b	1	; Leftover from Sonic 1. This NEEDs to be after Debug_options_flag because of the call to CheckCheats
 Correct_cheat_entries:		ds.w	1
 Correct_cheat_entries_2:	ds.w	1	; for 14 continues or 7 emeralds codes
+
 Two_player_mode:		ds.w	1	; flag (0 for main game)
 unk_FFDA:			ds.w	1	; Written to once at title screen, never read from
 unk_FFDC:			ds.b	1	; Written to near loc_175EA, never read from
