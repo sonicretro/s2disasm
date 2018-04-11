@@ -101,6 +101,11 @@ namespace S2ObjectDefinitions.EHZ
 			return sprite;
 		}
 
+		public override Rectangle GetBounds(ObjectEntry obj)
+		{
+			return new Rectangle(obj.X + img.X, obj.Y + img.Y, img.Width, img.Height);
+		}
+
 		public override bool Debug { get { return true; } }
 	}
 }
