@@ -781,7 +781,7 @@
 /***********************Misc stuff***************************/
 #split	0x0E24FE,0x0E34EE,misc/Special stage object perspective data (Kosinski compression).bin
 #split	0x0E34EE,0x0E35F2,misc/Special stage level layouts (Nemesis compression).bin
-#split	0x0E35F2,0x0E427D,misc/Special stage object location lists (Kosinski compression).bin
+#split	0x0E35F2,0x0E4282,misc/Special stage object location lists (Kosinski compression).bin
 //#split	0x022980,0x022E88,misc/obj1E_a.bin
 //#split	0x022E88,0x022FEE,misc/obj1E_b.bin
 #split	0x0033CE,0x00364E,misc/sinewave.bin
