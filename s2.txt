@@ -825,8 +825,8 @@
 
 
 /***********************Object location lists***************************/
-#split	0x01781A,0x017958,level/objects/CNZ 1 bumpers.bin
-#split	0x01795E,0x017A9C,level/objects/CNZ 2 bumpers.bin
+#split	0x01781A,0x01795E,level/objects/CNZ 1 bumpers.bin
+#split	0x01795E,0x017AA2,level/objects/CNZ 2 bumpers.bin
 #split	0x01802A,0x01848C,level/objects/CNZ_1_2P.bin
 #split	0x018492,0x018882,level/objects/CNZ_2_2P.bin
 #split	0x0E684A,0x0E6B74,level/objects/EHZ_1.bin
