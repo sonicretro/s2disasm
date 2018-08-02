@@ -110,7 +110,7 @@ zTrack STRUCT DOTS
 	DataPointerLow:		ds.b 1	; Track's position low byte
 	DataPointerHigh:	ds.b 1	; Track's position high byte
 	Transpose:		ds.b 1	; Transpose (from coord flag E9)
-	Volume:			ds.b 1	; channel volume (only ap plied at voice changes)
+	Volume:			ds.b 1	; channel volume (only applied at voice changes)
 	AMSFMSPan:		ds.b 1	; Panning / AMS / FMS settings
 	VoiceIndex:		ds.b 1	; Current voice in use OR current PSG tone
 	VolFlutter:		ds.b 1	; PSG flutter (dynamically effects PSG volume for decay effects)
