@@ -39441,7 +39441,7 @@ Obj08_LoadDustOrSplashArt:
 	addi.w	#$10,d3
 	andi.w	#$FFF,d1
 	lsl.l	#5,d1
-	addi.l	#ArtUnc_Splash,d1
+	addi.l	#ArtUnc_SplashAndDust,d1
 	move.w	d4,d2
 	add.w	d3,d4
 	add.w	d3,d4
@@ -86934,12 +86934,8 @@ ArtNem_Shield:	BINCLUDE	"art/nemesis/Shield.bin"
 ArtNem_Invincible_stars:	BINCLUDE	"art/nemesis/Invincibility stars.bin"
 ;--------------------------------------------------------------------------------------
 ; Uncompressed art
-; Splash in water		; ArtUnc_71FFC:
-ArtUnc_Splash:	BINCLUDE	"art/uncompressed/Splash.bin"
-;--------------------------------------------------------------------------------------
-; Uncompressed art
-; Smoke from Skidding		; ArtUnc_7373C:
-ArtUnc_SkidDust:	BINCLUDE	"art/uncompressed/Skid smoke.bin"
+; Splash in water and dust from skidding	; ArtUnc_71FFC:
+ArtUnc_SplashAndDust:	BINCLUDE	"art/uncompressed/Splash and skid dust.bin"
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (14 blocks)
 ; Supersonic stars		; ArtNem_7393C:		
