@@ -14310,8 +14310,10 @@ InitCam_HPZ:
 	rts    
     endif
 ; ===========================================================================	
+; Leftover Spring Yard Zone code from Sonic 1
+
 ; Unknown_Zone_BG:
-InitCam_CCZ:
+;InitCam_SYZ:
     if gameRevision=0
 	asl.l	#4,d0
 	move.l	d0,d2
@@ -14323,6 +14325,7 @@ InitCam_CCZ:
 	clr.l	(Camera_BG_X_pos).w
 	rts
     endif
+
 ; ===========================================================================
 ;return_C320:
 InitCam_Null2:
