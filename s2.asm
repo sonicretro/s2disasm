@@ -30165,19 +30165,12 @@ loc_177FA:
 	move.w	#SndID_LargeBumper,d0
 	jmp	(PlaySound).l
 ; ===========================================================================
-; Macro for marking the boundaries of a bumper layout file
-BumperLayoutBoundary macro
-	dc.w	$0000, $FFFF, $0000
-    endm
-
-	; [Bug] Sonic Team forgot to put a boundary marker here,
-	; meaning the game could potentially read past the start
+	; [Bug] Sonic Team forgot to start this file with a boundary
+	; marker, meaning the game could potentially read past the start
 	; of the file and load random bumpers.
-	;BumperLayoutBoundary
+	;dc.w	$0000, $0000, $0000
 SpecialCNZBumpers_Act1:	BINCLUDE	"level/objects/CNZ 1 bumpers.bin"	; byte_1781A
-	BumperLayoutBoundary
 SpecialCNZBumpers_Act2:	BINCLUDE	"level/objects/CNZ 2 bumpers.bin"	; byte_1795E
-	BumperLayoutBoundary
 ; ===========================================================================
 
     if gameRevision<2
