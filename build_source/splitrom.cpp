@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 				// make a file
 				int start, end;
 				char outname [pathMax];
-				if(sscanf(line, "#split %X, %X, %[^\r\n]", &start, &end, outname) == 3 && end > start)
+				if(sscanf(line, "#split %X, %X, %[^\r\n]", &start, &end, outname) == 3 && end >= start)
 				{
 					FILE* out = fopen(outname, "wb");
 					if(out)

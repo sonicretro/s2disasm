@@ -825,41 +825,35 @@
 
 
 /***********************Object location lists***************************/
-#split	0x01781A,0x01795E,level/objects/CNZ 1 bumpers.bin
-#split	0x01795E,0x017AA2,level/objects/CNZ 2 bumpers.bin
-#split	0x01802A,0x018492,level/objects/CNZ_1_2P.bin
-#split	0x018492,0x018888,level/objects/CNZ_2_2P.bin
-#split	0x0E6844,0x0E684A,level/objects/Null_1.bin
-#split	0x0E684A,0x0E6B7A,level/objects/EHZ_1.bin
-#split	0x0E6B7A,0x0E6F34,level/objects/EHZ_2.bin
-#split	0x0E6F34,0x0E73C0,level/objects/MTZ_1.bin
-#split	0x0E73C0,0x0E78EE,level/objects/MTZ_2.bin
-#split	0x0E78EE,0x0E7F48,level/objects/MTZ_3.bin
-#split	0x0E7F48,0x0E82FC,level/objects/WFZ_1.bin
-#split	0x0E82FC,0x0E8302,level/objects/WFZ_2.bin
-#split	0x0E8302,0x0E8668,level/objects/HTZ_1.bin
-#split	0x0E8668,0x0E8C80,level/objects/HTZ_2.bin
-#split	0x0E8C80,0x0E8D94,level/objects/HPZ_1.bin
-#split	0x0E8D94,0x0E8D9A,level/objects/HPZ_2.bin
-#split	0x0E8D9A,0x0E8DA0,level/objects/Null_2.bin
-#split	0x0E8DA0,0x0E9214,level/objects/OOZ_1.bin
-#split	0x0E9214,0x0E968E,level/objects/OOZ_2.bin
-#split	0x0E968E,0x0E99A0,level/objects/MCZ_1.bin
-#split	0x0E99A0,0x0E9D1E,level/objects/MCZ_2.bin
-#split	0x0E9D1E,0x0EA3D8,level/objects/CNZ_1.bin
-#split	0x0EA3D8,0x0EA9D2,level/objects/CNZ_2.bin
-#split	0x0EA9D2,0x0EAD6E,level/objects/CPZ_1.bin
-#split	0x0EAD6E,0x0EB230,level/objects/CPZ_2.bin
-#split	0x0EB230,0x0EB254,level/objects/DEZ_1.bin
-#split	0x0EB254,0x0EB25A,level/objects/DEZ_2.bin
-#split	0x0EB25A,0x0EB6A4,level/objects/ARZ_1.bin
-#split	0x0EB6A4,0x0EBBDE,level/objects/ARZ_2.bin
-#split	0x0EBBDE,0x0EBD4C,level/objects/SCZ_1.bin
-#split	0x0EBD4C,0x0EBD52,level/objects/SCZ_2.bin
-#split	0x0EBD52,0x0EBD58,level/objects/Null_3.bin
-#split	0x0EBD58,0x0EBD5E,level/objects/Null_4.bin
-#split	0x0EBD5E,0x0EBD64,level/objects/Null_5.bin
-#split	0x0EBD64,0x0EBD6A,level/objects/Null_6.bin
+#split	0x01781A,0x017958,level/objects/CNZ 1 bumpers.bin
+#split	0x01795E,0x017A9C,level/objects/CNZ 2 bumpers.bin
+#split	0x01802A,0x01848C,level/objects/CNZ_1_2P.bin
+#split	0x018492,0x018882,level/objects/CNZ_2_2P.bin
+#split	0x0E684A,0x0E6B74,level/objects/EHZ_1.bin
+#split	0x0E6B7A,0x0E6F2E,level/objects/EHZ_2.bin
+#split	0x0E6F34,0x0E73BA,level/objects/MTZ_1.bin
+#split	0x0E73C0,0x0E78E8,level/objects/MTZ_2.bin
+#split	0x0E78EE,0x0E7F42,level/objects/MTZ_3.bin
+#split	0x0E7F48,0x0E82F6,level/objects/WFZ_1.bin
+#split	0x0E82FC,0x0E82FC,level/objects/WFZ_2.bin
+#split	0x0E8302,0x0E8662,level/objects/HTZ_1.bin
+#split	0x0E8668,0x0E8C7A,level/objects/HTZ_2.bin
+#split	0x0E8C80,0x0E8D8E,level/objects/HPZ_1.bin
+#split	0x0E8D94,0x0E8D94,level/objects/HPZ_2.bin
+#split	0x0E8DA0,0x0E920E,level/objects/OOZ_1.bin
+#split	0x0E9214,0x0E9688,level/objects/OOZ_2.bin
+#split	0x0E968E,0x0E999A,level/objects/MCZ_1.bin
+#split	0x0E99A0,0x0E9D18,level/objects/MCZ_2.bin
+#split	0x0E9D1E,0x0EA3D2,level/objects/CNZ_1.bin
+#split	0x0EA3D8,0x0EA9CC,level/objects/CNZ_2.bin
+#split	0x0EA9D2,0x0EAD68,level/objects/CPZ_1.bin
+#split	0x0EAD6E,0x0EB22A,level/objects/CPZ_2.bin
+#split	0x0EB230,0x0EB24E,level/objects/DEZ_1.bin
+#split	0x0EB254,0x0EB254,level/objects/DEZ_2.bin
+#split	0x0EB25A,0x0EB69E,level/objects/ARZ_1.bin
+#split	0x0EB6A4,0x0EBBD8,level/objects/ARZ_2.bin
+#split	0x0EBBDE,0x0EBD46,level/objects/SCZ_1.bin
+#split	0x0EBD4C,0x0EBD4C,level/objects/SCZ_2.bin
 
 
 /***********************Sound driver***************************/
