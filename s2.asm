@@ -30162,8 +30162,19 @@ loc_177FA:
 	move.w	#SndID_LargeBumper,d0
 	jmp	(PlaySound).l
 ; ===========================================================================
+; Macro for marking the boundaries of a bumper layout file
+BumperLayoutBoundary macro
+	dc.w	$0000, $FFFF, $0000
+    endm
+
+	; [Bug] Sonic Team forgot to put a boundary marker here,
+	; meaning the game could potentially read past the start
+	; of the file and load random bumpers.
+	;BumperLayoutBoundary
 SpecialCNZBumpers_Act1:	BINCLUDE	"level/objects/CNZ 1 bumpers.bin"	; byte_1781A
+	BumperLayoutBoundary
 SpecialCNZBumpers_Act2:	BINCLUDE	"level/objects/CNZ 2 bumpers.bin"	; byte_1795E
+	BumperLayoutBoundary
 ; ===========================================================================
 
     if gameRevision<2
@@ -30918,8 +30929,19 @@ return_18028:
 ; ===========================================================================
 
 ;---------------------------------------------------------------------------------------
-; CNZ act 1 object layout for 2-player mode (various objects were deleted)
+; CNZ object layouts for 2-player mode (various objects were deleted)
 ;---------------------------------------------------------------------------------------
+
+; Macro for marking the boundaries of an object layout file
+ObjectLayoutBoundary macro
+	dc.w	$FFFF, $0000, $0000
+    endm
+
+	; [Bug] Sonic Team forgot to put a boundary marker here,
+	; meaning the game could potentially read past the start
+	; of the file and load random objects.
+	;ObjectLayoutBoundary
+
 ; byte_1802A;
     if gameRevision=0
 Objects_CNZ1_2P:	BINCLUDE	"level/objects/CNZ_1_2P (REV00).bin"
@@ -30928,9 +30950,9 @@ Objects_CNZ1_2P:	BINCLUDE	"level/objects/CNZ_1_2P (REV00).bin"
     ; 2 flippers were moved closer to a wall
 Objects_CNZ1_2P:	BINCLUDE	"level/objects/CNZ_1_2P.bin"
     endif
-;---------------------------------------------------------------------------------------
-; CNZ act 2 object layout for 2-player mode (various objects were deleted)
-;---------------------------------------------------------------------------------------
+
+	ObjectLayoutBoundary
+
 ; byte_18492:
     if gameRevision=0
 Objects_CNZ2_2P:	BINCLUDE	"level/objects/CNZ_2_2P (REV00).bin"
@@ -30940,7 +30962,7 @@ Objects_CNZ2_2P:	BINCLUDE	"level/objects/CNZ_2_2P (REV00).bin"
 Objects_CNZ2_2P:	BINCLUDE	"level/objects/CNZ_2_2P.bin"
     endif
 
-
+	ObjectLayoutBoundary
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -88395,12 +88417,12 @@ Rings_SCZ_2:	BINCLUDE	"level/rings/SCZ_2.bin"
 Off_Objects: zoneOrderedOffsetTable 2,2
 	zoneOffsetTableEntry.w  Objects_EHZ_1	; 0  $00
 	zoneOffsetTableEntry.w  Objects_EHZ_2	; 1
-	zoneOffsetTableEntry.w  Objects_Null3	; 2  $01
-	zoneOffsetTableEntry.w  Objects_Null3	; 3
-	zoneOffsetTableEntry.w  Objects_Null3	; 4  $02
-	zoneOffsetTableEntry.w  Objects_Null3	; 5
-	zoneOffsetTableEntry.w  Objects_Null3	; 6  $03
-	zoneOffsetTableEntry.w  Objects_Null3	; 7
+	zoneOffsetTableEntry.w  Objects_Null	; 2  $01
+	zoneOffsetTableEntry.w  Objects_Null	; 3
+	zoneOffsetTableEntry.w  Objects_Null	; 4  $02
+	zoneOffsetTableEntry.w  Objects_Null	; 5
+	zoneOffsetTableEntry.w  Objects_Null	; 6  $03
+	zoneOffsetTableEntry.w  Objects_Null	; 7
 	zoneOffsetTableEntry.w  Objects_MTZ_1	; 8  $04
 	zoneOffsetTableEntry.w  Objects_MTZ_2	; 9
 	zoneOffsetTableEntry.w  Objects_MTZ_3	; 10 $05
@@ -88411,8 +88433,8 @@ Off_Objects: zoneOrderedOffsetTable 2,2
 	zoneOffsetTableEntry.w  Objects_HTZ_2	; 15
 	zoneOffsetTableEntry.w  Objects_HPZ_1	; 16 $08
 	zoneOffsetTableEntry.w  Objects_HPZ_2	; 17
-	zoneOffsetTableEntry.w  Objects_Null3	; 18 $09
-	zoneOffsetTableEntry.w  Objects_Null3	; 19
+	zoneOffsetTableEntry.w  Objects_Null	; 18 $09
+	zoneOffsetTableEntry.w  Objects_Null	; 19
 	zoneOffsetTableEntry.w  Objects_OOZ_1	; 20 $0A
 	zoneOffsetTableEntry.w  Objects_OOZ_2	; 21
 	zoneOffsetTableEntry.w  Objects_MCZ_1	; 22 $0B
@@ -88429,68 +88451,91 @@ Off_Objects: zoneOrderedOffsetTable 2,2
 	zoneOffsetTableEntry.w  Objects_SCZ_2	; 33
     zoneTableEnd
 
-;Objects_Null1: ; looks unused, but it's really not. there must be a null entry first or you will get crashes. (try going left from second screen of EHZ1)
-		BINCLUDE	"level/objects/Null_1.bin"
-
+	; These things act as boundaries for the object layout parser, so it doesn't read past the end/beginning of the file
+	ObjectLayoutBoundary
 Objects_EHZ_1:	BINCLUDE	"level/objects/EHZ_1.bin"
+	ObjectLayoutBoundary
 
     if gameRevision=0
+; A collision switcher was improperly placed
 Objects_EHZ_2:	BINCLUDE	"level/objects/EHZ_2 (REV00).bin"
     else
-; a collision switcher was moved
 Objects_EHZ_2:	BINCLUDE	"level/objects/EHZ_2.bin"
     endif
 
+	ObjectLayoutBoundary
 Objects_MTZ_1:	BINCLUDE	"level/objects/MTZ_1.bin"
+	ObjectLayoutBoundary
 Objects_MTZ_2:	BINCLUDE	"level/objects/MTZ_2.bin"
+	ObjectLayoutBoundary
 Objects_MTZ_3:	BINCLUDE	"level/objects/MTZ_3.bin"
+	ObjectLayoutBoundary
 
     if gameRevision=0
+; The lampposts were bugged: their 'remember state' flags weren't set
 Objects_WFZ_1:	BINCLUDE	"level/objects/WFZ_1 (REV00).bin"
     else
-; lampposts' 'remember state' flags were set
 Objects_WFZ_1:	BINCLUDE	"level/objects/WFZ_1.bin"
     endif
 
+	ObjectLayoutBoundary
 Objects_WFZ_2:	BINCLUDE	"level/objects/WFZ_2.bin"
+	ObjectLayoutBoundary
 Objects_HTZ_1:	BINCLUDE	"level/objects/HTZ_1.bin"
+	ObjectLayoutBoundary
 Objects_HTZ_2:	BINCLUDE	"level/objects/HTZ_2.bin"
+	ObjectLayoutBoundary
 Objects_HPZ_1:	BINCLUDE	"level/objects/HPZ_1.bin"
+	ObjectLayoutBoundary
 Objects_HPZ_2:	BINCLUDE	"level/objects/HPZ_2.bin"
-
-;Objects_Null2: ; unused
-		BINCLUDE	"level/objects/Null_2.bin"
-
+	ObjectLayoutBoundary
+	; Oddly, there's a gap for another layout here
+	ObjectLayoutBoundary
 Objects_OOZ_1:	BINCLUDE	"level/objects/OOZ_1.bin"
+	ObjectLayoutBoundary
 Objects_OOZ_2:	BINCLUDE	"level/objects/OOZ_2.bin"
+	ObjectLayoutBoundary
 Objects_MCZ_1:	BINCLUDE	"level/objects/MCZ_1.bin"
+	ObjectLayoutBoundary
 Objects_MCZ_2:	BINCLUDE	"level/objects/MCZ_2.bin"
+	ObjectLayoutBoundary
 
     if gameRevision=0
+; The signposts are too low, causing them to poke out the bottom of the ground
 Objects_CNZ_1:	BINCLUDE	"level/objects/CNZ_1 (REV00).bin"
+	ObjectLayoutBoundary
 Objects_CNZ_2:	BINCLUDE	"level/objects/CNZ_2 (REV00).bin"
     else
-; the signposts were moved up slightly so they weren't poking out the bottom of the ground
 Objects_CNZ_1:	BINCLUDE	"level/objects/CNZ_1.bin"
+	ObjectLayoutBoundary
 Objects_CNZ_2:	BINCLUDE	"level/objects/CNZ_2.bin"
     endif
 
+	ObjectLayoutBoundary
 Objects_CPZ_1:	BINCLUDE	"level/objects/CPZ_1.bin"
+	ObjectLayoutBoundary
 Objects_CPZ_2:	BINCLUDE	"level/objects/CPZ_2.bin"
+	ObjectLayoutBoundary
 Objects_DEZ_1:	BINCLUDE	"level/objects/DEZ_1.bin"
+	ObjectLayoutBoundary
 Objects_DEZ_2:	BINCLUDE	"level/objects/DEZ_2.bin"
+	ObjectLayoutBoundary
 Objects_ARZ_1:	BINCLUDE	"level/objects/ARZ_1.bin"
+	ObjectLayoutBoundary
 Objects_ARZ_2:	BINCLUDE	"level/objects/ARZ_2.bin"
+	ObjectLayoutBoundary
 Objects_SCZ_1:	BINCLUDE	"level/objects/SCZ_1.bin"
+	ObjectLayoutBoundary
 Objects_SCZ_2:	BINCLUDE	"level/objects/SCZ_2.bin"
-Objects_Null3:	BINCLUDE	"level/objects/Null_3.bin"
-
-;Objects_Null4: ; unused
-		BINCLUDE	"level/objects/Null_4.bin"
-;Objects_Null5: ; unused
-		BINCLUDE	"level/objects/Null_5.bin"
-;Objects_Null6: ; unused
-		BINCLUDE	"level/objects/Null_6.bin"
+	ObjectLayoutBoundary
+Objects_Null:
+	ObjectLayoutBoundary
+	; Another strange space for a layout
+	ObjectLayoutBoundary
+	; And another
+	ObjectLayoutBoundary
+	; And another
+	ObjectLayoutBoundary
 
 ; --------------------------------------------------------------------------------------
 ; Filler (free space) (unnecessary; could be replaced with "even")
