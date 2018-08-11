@@ -66,7 +66,7 @@ StartOfRom:
     if * <> 0
 	fatal "StartOfRom was $\{*} but it should be 0"
     endif
-;Vectors:
+Vectors:
 	dc.l System_Stack	; Initial stack pointer value
 	dc.l EntryPoint		; Start of program
 	dc.l ErrorTrap		; Bus error
@@ -153,13 +153,13 @@ Checksum:
 ROMEndLoc:
 	dc.l EndOfRom-1		; End address of ROM
 	dc.l RAM_Start&$FFFFFF		; Start address of RAM
-	dc.l (RAM_End-1)&$FFFFFF		; RAM End
+	dc.l (RAM_End-1)&$FFFFFF		; End address of RAM
 	dc.b "    "		; Backup RAM ID
 	dc.l $20202020		; Backup RAM start address
 	dc.l $20202020		; Backup RAM end address
 	dc.b "            "	; Modem support
 	dc.b "                                        "	; Notes (unused, anything can be put in this space, but it has to be 52 bytes.)
-	dc.b "JUE             " ; Country codes
+	dc.b "JUE             " ; Country code (region)
 EndOfHeader:
 
 ; ===========================================================================
