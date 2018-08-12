@@ -178,14 +178,14 @@ EntryPoint:
 	tst.w	(HW_Expansion_Control-1).l	; test port C control
 ; loc_214:
 PortA_Ok:
-	bne.s	PortC_OK ; skip the VDP and Z80 setup code if port A, B or C is ok...?
+	bne.s	PortC_OK ; Skip the VDP and Z80 setup code if port A, B or C is ok...?
 	lea	SetupValues(pc),a5	; Load setup values array address.
 	movem.w	(a5)+,d5-d7
 	movem.l	(a5)+,a0-a4
-	move.b	HW_Version-Z80_Bus_Request(a1),d0	; get hardware version
-	andi.b	#$F,d0	; compare
+	move.b	HW_Version-Z80_Bus_Request(a1),d0	; Get hardware version
+	andi.b	#$F,d0	; Compare
 	beq.s	SkipSecurity	; If the console has no TMSS, skip the security stuff.
-	move.l	#'SEGA',Security_Addr-Z80_Bus_Request(a1) ; satisfy the TMSS
+	move.l	#'SEGA',Security_Addr-Z80_Bus_Request(a1) ; Satisfy the TMSS
 ; loc_234:
 SkipSecurity:
 	move.w	(a4),d0	; check if VDP works
