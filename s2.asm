@@ -192,6 +192,7 @@ SkipSecurity:
 	moveq	#0,d0	; clear d0
 	movea.l	d0,a6	; clear a6
 	move.l	a6,usp	; set usp to $0
+	
 	moveq	#VDPInitValues_End-VDPInitValues-1,d1 ; run the following loop $18 times
 ; loc_23E:
 VDPInitLoop:
@@ -208,6 +209,7 @@ VDPInitLoop:
 WaitForZ80:
 	btst	d0,(a1)	; has the Z80 stopped?
 	bne.s	WaitForZ80	; if not, branch
+	
 	moveq	#Z80StartupCodeEnd-Z80StartupCodeBegin-1,d2
 ; loc_256:
 Z80InitLoop:
@@ -217,18 +219,21 @@ Z80InitLoop:
 	move.w	d0,(a2)
 	move.w	d0,(a1)	; start the Z80
 	move.w	d7,(a2)	; reset the Z80
+	
 ; loc_262:
 ClrRAMLoop:
 	move.l	d0,-(a6)	; clear 4 bytes of RAM
 	dbf	d6,ClrRAMLoop	; repeat until the entire RAM is clear
 	move.l	(a5)+,(a4)	; set VDP display mode and increment mode
 	move.l	(a5)+,(a4)	; set VDP to CRAM write
+	
 	moveq	#bytesToLcnt($80),d3	; set repeat times
 ; loc_26E:
 ClrCRAMLoop:
 	move.l	d0,(a3)	; clear 2 palettes
 	dbf	d3,ClrCRAMLoop	; repeat until the entire CRAM is clear
 	move.l	(a5)+,(a4)	; set VDP to VSRAM write
+	
 	moveq	#bytesToLcnt($50),d4	; set repeat times
 ; loc_278: ClrVDPStuff:
 ClrVSRAMLoop:
@@ -387,15 +392,15 @@ GameInit:
 ; loc_37C:
 GameClrRAM:
 	move.l	d7,(a6)+
-	dbf	d6,GameClrRAM
+	dbf	d6,GameClrRAM	; clear RAM ($0000-$FDFF)
 
 	bsr.w	VDPSetupGame
 	bsr.w	JmpTo_SoundDriverLoad
 	bsr.w	JoypadInit
-	move.b	#GameModeID_SegaScreen,(Game_Mode).w	; => SegaScreen
+	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; set Game Mode to Sega Screen
 ; loc_394:
 MainGameLoop:
-	move.b	(Game_Mode).w,d0
+	move.b	(Game_Mode).w,d0 ; load Game Mode
 	andi.w	#$3C,d0	; limit Game Mode value to $3C max (change to a maximum of 7C to add more game modes)
 	jsr	GameModesArray(pc,d0.w)	; jump to apt location in ROM
 	bra.s	MainGameLoop	; loop indefinitely
@@ -420,12 +425,12 @@ ChecksumError:
 	move.l	d1,-(sp)
 	bsr.w	VDPSetupGame
 	move.l	(sp)+,d1
-	move.l	#vdpComm($0000,CRAM,WRITE),(VDP_control_port).l
+	move.l	#vdpComm($0000,CRAM,WRITE),(VDP_control_port).l ; set VDP to CRAM write
 	moveq	#$3F,d7
 ; loc_3E2:
 Checksum_Red:
-	move.w	#$E,(VDP_data_port).l
-	dbf	d7,Checksum_Red
+	move.w	#$E,(VDP_data_port).l ; fill palette with red
+	dbf	d7,Checksum_Red	; repeat $3F more times
 ; loc_3EE:
 ChecksumFailed_Loop:
 	bra.s	ChecksumFailed_Loop
@@ -461,9 +466,9 @@ V_Int:
 	beq.s	-
 
 	move.l	#vdpComm($0000,VSRAM,WRITE),(VDP_control_port).l
-	move.l	(Vscroll_Factor).w,(VDP_data_port).l
-	btst	#6,(Graphics_Flags).w
-	beq.s	+
+	move.l	(Vscroll_Factor).w,(VDP_data_port).l ; send screen y-axis pos. to VSRAM
+	btst	#6,(Graphics_Flags).w ; is Megadrive PAL?
+	beq.s	+		; if not, branch
 
 	move.w	#$700,d0
 -	dbf	d0,- ; wait here in a loop doing nothing for a while...
