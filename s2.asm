@@ -1186,7 +1186,7 @@ JoypadInit:
 	moveq	#$40,d0
 	move.b	d0,(HW_Port_1_Control).l	; init port 1 (joypad 1)
 	move.b	d0,(HW_Port_2_Control).l	; init port 2 (joypad 2)
-	move.b	d0,(HW_Expansion_Control).l	; init port 3 (extra)
+	move.b	d0,(HW_Expansion_Control).l	; init port 3 (expansion/extra)
 	startZ80
 	rts
 ; End of function JoypadInit
@@ -1202,10 +1202,6 @@ ReadJoypads:
 	lea	(HW_Port_1_Data).l,a1	; first joypad port
 	bsr.s	Joypad_Read		; do the first joypad
 	addq.w	#2,a1			; do the second joypad
-; End of function ReadJoypads
-
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ; sub_112A:
 Joypad_Read:
@@ -1246,7 +1242,7 @@ VDP_Loop:
 
 	move.w	(VDPSetupArray+2).l,d0
 	move.w	d0,(VDP_Reg1_val).w
-	move.w	#$8ADF,(Hint_counter_reserve).w	; H-INT every 224th scanline
+	move.w	#$8A00+223,(Hint_counter_reserve).w	; H-INT every 224th scanline
 	moveq	#0,d0
 
 	move.l	#vdpComm($0000,VSRAM,WRITE),(VDP_control_port).l
@@ -1259,7 +1255,7 @@ VDP_Loop:
 ; loc_11A0:
 VDP_ClrCRAM:
 	move.w	d0,(a1)
-	dbf	d7,VDP_ClrCRAM
+	dbf	d7,VDP_ClrCRAM	; clear	the CRAM
 
 	clr.l	(Vscroll_Factor).w
 	clr.l	(unk_F61A).w
@@ -1423,7 +1419,7 @@ Pause_Loop:
 	beq.s	Pause_ChkStart		; if not, branch
 	btst	#button_A,(Ctrl_1_Press).w	; is button A pressed?
 	beq.s	Pause_ChkBC		; if not, branch
-	move.b	#GameModeID_TitleScreen,(Game_Mode).w	; => TitleScreen
+	move.b	#GameModeID_TitleScreen,(Game_Mode).w ; set game mode to 4 (title screen)
 	nop
 	bra.s	Pause_Resume
 ; ===========================================================================
@@ -1441,10 +1437,10 @@ Pause_ChkStart:
 	beq.s	Pause_Loop	; if not, branch
 ; loc_13F2:
 Pause_Resume:
-	move.b	#MusID_Unpause,(Music_to_play).w
+	move.b	#MusID_Unpause,(Music_to_play).w	; unpause the music
 ; loc_13F8:
 Unpause:
-	move.w	#0,(Game_paused).w
+	move.w	#0,(Game_paused).w	; unpause the game
 ; return_13FE:
 Pause_DoNothing:
 	rts
