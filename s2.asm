@@ -1855,27 +1855,32 @@ NemBCT_ShortCode_Loop:
 ;    _________DO NOT PUT MORE THAN 16 LOAD REQUESTS IN A LIST!__________
 ;         (or if you change the size of Plc_Buffer, the limit becomes (Plc_Buffer_Only_End-Plc_Buffer)/6)
 
-; sub_161E: PLCLoad:
+; sub_161E: PLCLoad: AddPLC:
 LoadPLC:
 	movem.l	a1-a2,-(sp)
 	lea	(ArtLoadCues).l,a1
 	add.w	d0,d0
 	move.w	(a1,d0.w),d0
-	lea	(a1,d0.w),a1
-	lea	(Plc_Buffer).w,a2
+	lea	(a1,d0.w),a1		; jump to relevant PLC
+	lea	(Plc_Buffer).w,a2	; PLC buffer space
 
--	tst.l	(a2)
-	beq.s	+ ; if it's zero, exit this loop
-	addq.w	#6,a2
+LoadPLCFindSpace:
+	tst.l	(a2)				; is space available in RAM?
+	beq.s	LoadPLCCopyToRAM	; if yes, branch
+	addq.w	#6,a2				; if not, try next space
 	bra.s	-
-+
-	move.w	(a1)+,d0
-	bmi.s	+ ; if it's negative, skip the next loop
+; ===========================================================================
+	
+LoadPLCCopyToRAM:
+	move.w	(a1)+,d0	; get length of PLC
+	bmi.s	LoadPLCSkip ; if it's negative, skip the next loop
 
--	move.l	(a1)+,(a2)+
-	move.w	(a1)+,(a2)+
-	dbf	d0,-
-+
+LoadPLCLoop:
+	move.l	(a1)+,(a2)+
+	move.w	(a1)+,(a2)+	; copy PLC to RAM
+	dbf	d0,LoadPLCLoop	; repeat for length of PLC
+	
+LoadPLCSkip:
 	movem.l	(sp)+,a1-a2 ; a1=object
 	rts
 ; End of function LoadPLC
@@ -1892,22 +1897,25 @@ LoadPLC:
 ;	  16 load requests are copied into the buffer.
 ;	  _________DO NOT PUT MORE THAN 16 LOAD REQUESTS IN A LIST!__________
 ;         (or if you change the size of Plc_Buffer, the limit becomes (Plc_Buffer_Only_End-Plc_Buffer)/6)
-; sub_1650:
+
+; sub_1650: NewPLC:
 LoadPLC2:
 	movem.l	a1-a2,-(sp)
 	lea	(ArtLoadCues).l,a1
 	add.w	d0,d0
 	move.w	(a1,d0.w),d0
-	lea	(a1,d0.w),a1
-	bsr.s	ClearPLC
+	lea	(a1,d0.w),a1		; jump to relevant PLC
+	bsr.s	ClearPLC		; erase any data in PLC buffer space
 	lea	(Plc_Buffer).w,a2
-	move.w	(a1)+,d0
-	bmi.s	+ ; if it's negative, skip the next loop
+	move.w	(a1)+,d0		; get length of PLC
+	bmi.s	LoadPLC2Skip	; if it's negative, skip the next loop
 
--	move.l	(a1)+,(a2)+
-	move.w	(a1)+,(a2)+
-	dbf	d0,-
-+
+LoadPLC2Loop:
+	move.l	(a1)+,(a2)+
+	move.w	(a1)+,(a2)+	; copy PLC to RAM
+	dbf	d0,LoadPLC2Loop	; repeat for length of PLC
+	
+LoadPLC2Skip:
 	movem.l	(sp)+,a1-a2
 	rts
 ; End of function LoadPLC2
@@ -1915,14 +1923,20 @@ LoadPLC2:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+; ---------------------------------------------------------------------------
+; Subroutine to	clear the pattern load cues
+; ---------------------------------------------------------------------------
+
 ; Clear the pattern load queue ($FFF680 - $FFF700)
 
 ClearPLC:
-	lea	(Plc_Buffer).w,a2
+	lea	(Plc_Buffer).w,a2 ; PLC buffer space in RAM
 
 	moveq	#bytesToLcnt(Plc_Buffer_End-Plc_Buffer),d0
--	clr.l	(a2)+
-	dbf	d0,-
+	
+ClearPLCLoop:
+	clr.l	(a2)+
+	dbf	d0,ClearPLCLoop
 
 	rts
 ; End of function ClearPLC
