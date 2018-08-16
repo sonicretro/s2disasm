@@ -1868,7 +1868,7 @@ LoadPLCFindSpace:
 	tst.l	(a2)				; is space available in RAM?
 	beq.s	LoadPLCCopyToRAM	; if yes, branch
 	addq.w	#6,a2				; if not, try next space
-	bra.s	-
+	bra.s	LoadPLCFindSpace
 ; ===========================================================================
 	
 LoadPLCCopyToRAM:
