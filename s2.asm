@@ -38765,7 +38765,7 @@ Obj0A_LoadCountdownArt:
 	beq.s	+
 	move.w	#tiles_to_bytes(ArtTile_ArtNem_TailsDust),d2
 +
-	move.w	#$60,d3
+	move.w	#$C0/2,d3	; DMA transfer length (in words)
 	jsr	(QueueDMATransfer).l
 
 return_1D604:
@@ -56824,7 +56824,7 @@ SlotMachine_Subroutine2:
 	beq.s	+
 	addi.w	#tiles_to_bytes(ArtTile_ArtUnc_CNZSlotPics_1_2p-ArtTile_ArtUnc_CNZSlotPics_1),d2
 +
-	move.w	#$100,d3						; Number of bytes
+	move.w	#$200/2,d3	; DMA transfer length (in words)
 	jsr	(QueueDMATransfer).l
 	rts
 ; ===========================================================================
@@ -82577,7 +82577,7 @@ loc_3FD7C:
 	move.w	(a4)+,d1
 	andi.l	#$FFFFFF,d1
 	move.w	d4,d2
-	moveq	#$40,d3
+	moveq	#$80/2,d3	; DMA transfer length (in words)
 	jsr	(QueueDMATransfer).l
 	addi.w	#$80,d4
 	dbf	d5,loc_3FD7C
@@ -82658,7 +82658,7 @@ loc_3FEB4:
 loc_3FEEC:
 	move.l	#(Chunk_Table+$7C00) & $FFFFFF,d1
 	move.w	#tiles_to_bytes(ArtTile_ArtUnc_HTZClouds),d2
-	move.w	#$80,d3
+	move.w	#$100/2,d3	; DMA transfer length (in words)
 	jsr	(QueueDMATransfer).l
 	movea.l	(sp)+,a2
 	addq.w	#2,a3
@@ -84527,7 +84527,7 @@ loc_410BC:
 	bsr.w	Hud_Lives2
 	move.l	#Art_Hud,d1 ; source addreses
 	move.w	#tiles_to_bytes(ArtTile_Art_HUD_Numbers_2P),d2 ; destination VRAM address
-	move.w	#$160,d3 ; DMA transfer length
+	move.w	#$2C0/2,d3 ; DMA transfer length (in words)
 	jmp	(QueueDMATransfer).l
 ; ===========================================================================
 
