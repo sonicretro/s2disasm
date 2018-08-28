@@ -778,11 +778,11 @@ zFMUpdateTrack:
 	call	zFMPrepareNote			; Prepares to play next note
 	call	zFMNoteOn				; Actually key it (if allowed)
 	call	zDoModulation			; Update modulation (if modulation doesn't change, we do not return here)
-	jp		zFMUpdateFreq			; Applies frequency update from modulation
+	jp	zFMUpdateFreq			; Applies frequency update from modulation
 +
 	call	zNoteFillUpdate			; Applies "note fill" (time until cut-off); NOTE: Will not return here if "note fill" expires
 	call	zDoModulation			; Update modulation (if modulation doesn't change, we do not return here)
-	jp		zFMUpdateFreq			; Applies frequency update from modulation
+	jp	zFMUpdateFreq			; Applies frequency update from modulation
 ; End of function zFMUpdateTrack
 
 
@@ -1475,17 +1475,17 @@ zloc_6D5:
 zCommandIndex:
 
 CmdPtr_StopSFX:		jp	zStopSoundEffects ; sound test index 78
-			nop
+			db	0
 CmdPtr_FadeOut:		jp	zFadeOutMusic ; 79
-			nop
+			db	0
 CmdPtr_SegaSound:	jp	zPlaySegaSound ; 7A
-			nop
+			db	0
 CmdPtr_SpeedUp:		jp	zSpeedUpMusic ; 7B
-			nop
+			db	0
 CmdPtr_SlowDown:	jp	zSlowDownMusic ; 7C
-			nop
+			db	0
 CmdPtr_Stop:		jp	zStopSoundAndMusic ; 7D
-			nop
+			db	0
 CmdPtr__End:
 ; ---------------------------------------------------------------------------
 ; zloc_6EF:
@@ -2586,8 +2586,14 @@ zBankSwitchToMusic:
 ;zloc_C89
 zCoordFlag:
 	sub	0E0h
+    if OptimiseDriver
+	ld	c,a
+	add	a,a
+	add	a,c
+    else
 	add	a,a
 	add	a,a
+    endif
 	ld	(coordflagLookup+1),a ; store into the instruction after coordflagLookup (self-modifying code)
 	ld	a,(hl)
 	inc	hl
@@ -2599,82 +2605,134 @@ coordflagLookup:
 	jr	$
 ; ---------------------------------------------------------------------------
 	jp	cfPanningAMSFMS		; E0
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfDetune		; E1
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfSetCommunication	; E2
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfJumpReturn		; E3
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfFadeInToPrevious	; E4
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfSetTempoDivider	; E5
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfChangeFMVolume	; E6
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfPreventAttack		; E7
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfNoteFill		; E8
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfChangeTransposition	; E9
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfSetTempo		; EA
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfSetTempoMod		; EB
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfChangePSGVolume	; EC
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfClearPush		; ED
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfStopSpecialFM4	; EE
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfSetVoice		; EF
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfModulation		; F0
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfEnableModulation	; F1
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfStopTrack		; F2
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfSetPSGNoise		; F3
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfDisableModulation	; F4
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfSetPSGTone		; F5
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfJumpTo		; F6
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfRepeatAtPos		; F7
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfJumpToGosub		; F8
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 	jp	cfOpF9			; F9
-	nop
+    if OptimiseDriver=0
+	db	0
+    endif
 ; ---------------------------------------------------------------------------
 
 ; (via Saxman's doc): panning, AMS, FMS
