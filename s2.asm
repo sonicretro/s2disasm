@@ -85148,6 +85148,9 @@ Debug_ResetPlayerStats:
 	move.w	d0,x_vel(a1)
 	move.w	d0,y_vel(a1)
 	move.w	d0,inertia(a1)
+	; note: this resets the 'is underwater' flag, causing the bug where
+	; if you enter Debug Mode underwater, and exit it above-water, Sonic
+	; will still move as if he's underwater
 	move.b	#2,status(a1)
 	move.b	#2,routine(a1)
 	move.b	#0,routine_secondary(a1)
