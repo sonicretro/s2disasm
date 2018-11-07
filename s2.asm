@@ -17,7 +17,7 @@
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; ASSEMBLY OPTIONS:
 ;
-gameRevision = 1
+gameRevision = 2
 ;	| If 0, a REV00 ROM is built
 ;	| If 1, a REV01 ROM is built, which contains some fixes
 ;	| If 2, a (probable) REV02 ROM is built, which contains more fixes, but also more bugs
@@ -27,7 +27,7 @@ padToPowerOfTwo = 1
 allOptimizations = 0
 ;	| If 1, enables all optimizations
 ;
-skipChecksumCheck = 0|allOptimizations
+skipChecksumCheck = 1|allOptimizations
 ;	| If 1, disables the unnecessary (and slow) bootup checksum calculation
 ;
 zeroOffsetOptimization = 0|allOptimizations
@@ -173,6 +173,7 @@ ErrorTrap:
 ; ===========================================================================
 ; loc_206:
 EntryPoint:
+	lea	(System_Stack).w,sp	; [Mega Play] For some reason, this version reloads the stack pointer here
 	tst.l	(HW_Port_1_Control-1).l	; test ports A and B control
 	bne.s	PortA_Ok	; If so, branch.
 	tst.w	(HW_Expansion_Control-1).l	; test port C control
@@ -351,52 +352,24 @@ CheckSumCheck:
 	btst	#1,d1
 	bne.s	CheckSumCheck	; wait until DMA is completed
     endif
-	btst	#6,(HW_Expansion_Control).l
-	beq.s	ChecksumTest
-	cmpi.l	#'init',(Checksum_fourcc).w ; has checksum routine already run?
-	beq.w	GameInit
-
-; loc_328:
-ChecksumTest:
-    if skipChecksumCheck=0	; checksum code
-	movea.l	#EndOfHeader,a0	; start checking bytes after the header ($200)
-	movea.l	#ROMEndLoc,a1	; stop at end of ROM
-	move.l	(a1),d0
-	moveq	#0,d1
-; loc_338:
-ChecksumLoop:
-	add.w	(a0)+,d1
-	cmp.l	a0,d0
-	bhs.s	ChecksumLoop
-	movea.l	#Checksum,a1	; read the checksum
-	cmp.w	(a1),d1	; compare correct checksum to the one in ROM
-	bne.w	ChecksumError	; if they don't match, branch
-    endif
-;checksum_good:
-	lea	(System_Stack).w,a6
-	moveq	#0,d7
-
-	move.w	#bytesToLcnt($200),d6
--	move.l	d7,(a6)+
-	dbf	d6,-
-
-	move.b	(HW_Version).l,d0
-	andi.b	#$C0,d0
-	move.b	d0,(Graphics_Flags).w
-	move.l	#'init',(Checksum_fourcc).w ; set flag so checksum won't be run again
-; loc_370:
-GameInit:
+	; [Mega Play] The checksum code is removed
 	lea	(RAM_Start&$FFFFFF).l,a6
 	moveq	#0,d7
-	move.w	#bytesToLcnt(System_Stack&$FFFF),d6
+	move.w	#bytesToLcnt($10000),d6
 ; loc_37C:
 GameClrRAM:
 	move.l	d7,(a6)+
 	dbf	d6,GameClrRAM	; clear RAM ($0000-$FDFF)
 
+	move.b	(HW_Version).l,d0
+	andi.b	#$C0,d0
+	move.b	d0,(Graphics_Flags).w
+
 	bsr.w	VDPSetupGame
 	bsr.w	JmpTo_SoundDriverLoad
 	bsr.w	JoypadInit
+	bsr.w	MegaPlay_Init
+	move.b	#1,($FFFFAC).l
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; set Game Mode to Sega Screen
 ; loc_394:
 MainGameLoop:
@@ -458,6 +431,23 @@ LevelSelectMenu: ;;
 ; VERTICAL INTERRUPT HANDLER:
 V_Int:
 	movem.l	d0-a6,-(sp)
+	movem.w	d0,-(sp)
+	move.w	($C00004).l,d0
+	btst	#4,d0
+	beq.s	loc_3D0
+	move.b	#$40,($FFFFAE).l
+	move.b	#$40,($A10007).l
+	movem.w	(sp)+,d0
+	bra.s	loc_3E2
+; ---------------------------------------------------------------------------
+
+loc_3D0:
+	clr.b	($FFFFAE).l
+	move.b	#0,($A10007).l
+	movem.w	(sp)+,d0
+
+loc_3E2:
+	bsr.w	MegaPlay_VInt
 	tst.b	(Vint_routine).w
 	beq.w	Vint_Lag
 
@@ -634,8 +624,8 @@ Vint_Level:
 	tst.b	(Teleport_timer).w
 	beq.s	loc_6F8
 	lea	(VDP_control_port).l,a5
-	tst.w	(Game_paused).w	; is the game paused ?
-	bne.w	loc_748	; if yes, branch
+;	tst.w	(Game_paused).w	; is the game paused ?
+;	bne.w	loc_748	; if yes, branch
 	subq.b	#1,(Teleport_timer).w
 	bne.s	+
 	move.b	#0,(Teleport_flag).w
@@ -1173,6 +1163,655 @@ JmpTo_SegaScr_VInt
     endif
 
 
+; ---------------------------------------------------------------------------
+; Big blob of MegaPlay-related code
+; ---------------------------------------------------------------------------
+MegaPlay_InitSub:			; CODE XREF: ROM:MegaPlay_Initp
+		move.b	#$47,($A1000D).l ; 'G'
+		move.b	#0,($A1001F).l
+		move.b	#0,($A10007).l
+		move.b	#0,($FFFFAE).l
+		clr.l	($FFFEFA).l
+
+loc_10DA:				; CODE XREF: ROM:00001110j
+		move.w	#$F000,d0
+		bsr.w	MegaPlay_SendCommand
+		move.w	#$3000,d3
+
+loc_10E6:				; CODE XREF: ROM:0000110Cj
+		bsr.w	MegaPlay_InitSub2
+		moveq	#0,d2
+		move.w	#$F001,d1
+		cmp.w	d0,d1
+		beq.s	loc_1112
+		addq.w	#1,d1
+		addq.w	#1,d2
+		cmp.w	d0,d1
+		beq.s	loc_1112
+		addq.w	#1,d1
+		addq.w	#1,d2
+		cmp.w	d0,d1
+		beq.s	loc_1112
+		addq.w	#1,d1
+		addq.w	#1,d2
+		cmp.w	d0,d1
+		beq.s	loc_1112
+		dbf	d3,loc_10E6
+		bra.s	loc_10DA
+; ---------------------------------------------------------------------------
+
+loc_1112:				; CODE XREF: ROM:000010F2j
+					; ROM:000010FAj ...
+		mulu.w	#$800,d2
+		addi.l	#$A02000,d2
+		move.l	d2,($FFFEFA).l
+		move.w	#$FFFC,d0
+		bra.w	MegaPlay_SendCommand
+; ---------------------------------------------------------------------------
+
+MegaPlay_InitSub2:			; CODE XREF: ROM:loc_10E6p
+					; ROM:00001228p ...
+		moveq	#0,d0
+		move.b	($A10007).l,d7
+		andi.w	#$38,d7	; '8'
+		cmpi.b	#$20,d7	; ' '
+		bne.w	MegaPlay_InitSub2_Fail
+		moveq	#7,d5
+		move.w	#$2000,d2	; Timeout
+
+loc_1144:				; CODE XREF: ROM:000011BEj
+		lsl.w	#2,d0
+
+loc_1146:				; CODE XREF: ROM:0000115Aj
+		subq.w	#1,d2
+		beq.w	MegaPlay_InitSub2_Fail
+		move.b	($A10007).l,d7
+		andi.w	#$38,d7	; '8'
+		cmpi.b	#$20,d7	; ' '
+		bne.s	loc_1146
+		move.b	#5,d7
+		or.b	($FFFFAE).l,d7
+		move.b	d7,d4
+		andi.b	#$43,d4	; 'C'
+		move.b	d4,($A10007).l
+		nop
+		nop
+		move.b	d7,($A10007).l
+		move.w	#$2000,d2
+
+loc_1180:				; CODE XREF: ROM:00001194j
+		subq.w	#1,d2
+		beq.w	MegaPlay_InitSub2_Fail
+		move.b	($A10007).l,d7
+		andi.w	#$38,d7	; '8'
+		btst	#5,d7
+		bne.s	loc_1180
+		lsr.w	#3,d7
+		or.b	d7,d0
+		move.b	#6,d6
+		or.b	($FFFFAE).l,d6
+		move.b	d6,d4
+		andi.b	#$43,d4	; 'C'
+		move.b	d4,($A10007).l
+		nop
+		nop
+		move.b	d6,($A10007).l
+		move.w	#$2000,d2
+		dbf	d5,loc_1144
+
+loc_11C2:				; CODE XREF: ROM:000011D6j
+		subq.w	#1,d2
+		beq.w	MegaPlay_InitSub2_Fail
+		move.b	($A10007).l,d7
+		andi.w	#$38,d7	; '8'
+		cmpi.b	#$38,d7	; '8'
+		bne.s	loc_11C2
+		move.b	#0,d6
+		andi.w	#7,d6
+		or.b	($FFFFAE).l,d6
+		move.b	d6,($A10007).l
+		moveq	#0,d7
+		rts
+; ---------------------------------------------------------------------------
+
+MegaPlay_InitSub2_Fail:			; CODE XREF: ROM:0000113Aj
+					; ROM:00001148j ...
+		move.b	#0,d6
+		andi.w	#7,d6
+		or.b	($FFFFAE).l,d6
+		move.b	d6,($A10007).l
+		moveq	#0,d0
+		moveq	#$FF,d7
+		ori	#1,ccr
+		rts
+; ---------------------------------------------------------------------------
+
+loc_120E:
+		move	#$2700,sr
+		bsr.s	MegaPlay_SendCommand
+		move	#$2300,sr
+		rts
+; ---------------------------------------------------------------------------
+
+MegaPlay_SendCommand:			; CODE XREF: ROM:000010DEp
+					; ROM:00001126j ...
+		bsr.s	MegaPlay_InitSub4
+		bcc.s	locret_1232
+		cmpi.w	#$FFFE,d7
+		bne.s	MegaPlay_SendCommand
+		movem.l	d0,-(sp)
+		bsr.w	MegaPlay_InitSub2
+		movem.l	(sp)+,d0
+		bra.s	MegaPlay_SendCommand
+; ---------------------------------------------------------------------------
+
+locret_1232:				; CODE XREF: ROM:0000121Cj
+		rts
+; ---------------------------------------------------------------------------
+
+MegaPlay_InitSub4:			; CODE XREF: ROM:MegaPlay_SendCommandp
+		andi.l	#$FFFF,d0
+		movem.l	d0,-(sp)
+		move.b	($A10007).l,d6
+		andi.w	#$38,d6	; '8'
+		cmpi.b	#$20,d6	; ' '
+		beq.w	MegaPlay_InitSub4_Fail2
+		cmpi.b	#$38,d6	; '8'
+		beq.w	MegaPlay_InitSub4_Fail
+		moveq	#7,d5
+		move.w	#$2000,d2
+
+loc_125E:				; CODE XREF: ROM:0000128Aj
+		subq.w	#1,d2
+		beq.w	MegaPlay_InitSub4_Fail
+		move.b	#4,d7
+		andi.w	#7,d7
+		or.b	($FFFFAE).l,d7
+		move.b	d7,($A10007).l
+		bsr.w	MegaPlay_Wait
+		move.b	($A10007).l,d6
+		andi.w	#$38,d6	; '8'
+		cmpi.b	#$28,d6	; '('
+		bne.s	loc_125E
+		move.w	#$2000,d2
+		bra.s	loc_12D0
+; ---------------------------------------------------------------------------
+
+loc_1292:				; CODE XREF: ROM:0000130Ej
+		move.b	#4,d7
+		or.b	($FFFFAE).l,d7
+		move.b	d7,d4
+		andi.b	#$43,d4	; 'C'
+		move.b	d4,($A10007).l
+		nop
+		nop
+		move.w	#$2000,d2
+
+loc_12B0:				; CODE XREF: ROM:000012CEj
+		subq.w	#1,d2
+		beq.w	MegaPlay_InitSub4_Fail
+		move.b	d7,($A10007).l
+		bsr.w	MegaPlay_Wait
+		move.b	($A10007).l,d6
+		andi.w	#$38,d6	; '8'
+		cmpi.b	#$28,d6	; '('
+		bne.s	loc_12B0
+
+loc_12D0:				; CODE XREF: ROM:00001290j
+		rol.w	#2,d0
+		or.b	($FFFFAE).l,d0
+		move.b	d0,d6
+		andi.b	#$43,d6	; 'C'
+		move.w	d6,d4
+		ori.w	#4,d4
+		move.b	d4,($A10007).l
+		nop
+		nop
+		move.w	#$2000,d2
+
+loc_12F2:				; CODE XREF: ROM:0000130Cj
+		subq.w	#1,d2
+		beq.w	MegaPlay_InitSub4_Fail
+		move.b	d6,($A10007).l
+		move.b	($A10007).l,d7
+		andi.w	#$38,d7	; '8'
+		cmpi.b	#$30,d7	; '0'
+		bne.s	loc_12F2
+		dbf	d5,loc_1292
+		move.b	#7,d7
+		or.b	($FFFFAE).l,d7
+		move.b	d7,d4
+		andi.b	#$43,d4	; 'C'
+		move.b	d4,($A10007).l
+		nop
+		nop
+		move.w	#$2000,d2
+
+loc_1330:				; CODE XREF: ROM:0000134Ej
+		subq.w	#1,d2
+		beq.w	MegaPlay_InitSub4_Fail
+		move.b	d7,($A10007).l
+		bsr.w	MegaPlay_Wait
+		move.b	($A10007).l,d6
+		andi.w	#$38,d6	; '8'
+		cmpi.b	#0,d6
+		bne.s	loc_1330
+		move.b	#0,d7
+		andi.w	#7,d7
+		or.b	($FFFFAE).l,d7
+		move.b	d7,($A10007).l
+		movem.l	(sp)+,d0
+		moveq	#0,d7
+		rts
+; ---------------------------------------------------------------------------
+
+MegaPlay_InitSub4_Fail2:		; CODE XREF: ROM:0000124Cj
+		move.b	#0,d7
+		andi.w	#7,d7
+		or.b	($FFFFAE).l,d7
+		move.b	d7,($A10007).l
+		moveq	#$FE,d7
+		movem.l	(sp)+,d0
+		ori	#1,ccr
+		rts
+; ---------------------------------------------------------------------------
+
+MegaPlay_InitSub4_Fail:			; CODE XREF: ROM:00001254j
+					; ROM:00001260j ...
+		move.b	#0,d7
+		andi.w	#7,d7
+		or.b	($FFFFAE).l,d7
+		move.b	d7,($A10007).l
+		moveq	#$FF,d7
+		movem.l	(sp)+,d0
+		ori	#1,ccr
+		rts
+; ---------------------------------------------------------------------------
+
+MegaPlay_Wait:				; CODE XREF: ROM:00001278p
+					; ROM:000012BCp ...
+		moveq	#20,d3
+
+loc_13AE:				; CODE XREF: ROM:000013B0j
+		nop
+		dbf	d3,loc_13AE
+		rts
+; ---------------------------------------------------------------------------
+
+loc_13B6:				; CODE XREF: ROM:000013BEj
+					; ROM:loc_15CCj
+		bsr.w	MegaPlay_InitSub2
+		cmpi.w	#$FFF9,d0
+		bne.s	loc_13B6
+
+locret_13C0:				; CODE XREF: ROM:000015D0j
+		rts
+; ---------------------------------------------------------------------------
+		move	#$2700,sr
+
+loc_13C6:				; CODE XREF: ROM:000013D6j
+		move.w	($FFF0).l,d0	; Probably a bad pointer
+		bsr.w	MegaPlay_SendCommand
+		moveq	#0,d0
+
+loc_13D2:				; CODE XREF: ROM:000013D4j
+		subq.l	#1,d0
+		bne.s	loc_13D2
+		bra.s	loc_13C6
+; ---------------------------------------------------------------------------
+		movem.w	d0,-(sp)
+		move.w	($C00004).l,d0
+		btst	#4,d0
+		beq.s	loc_13FE
+		move.b	#$40,($FFFFAE).l ; '@'
+		move.b	#$40,($A10007).l ; '@'
+		movem.w	(sp)+,d0
+		rts
+; ---------------------------------------------------------------------------
+
+loc_13FE:				; CODE XREF: ROM:000013E6j
+		clr.b	($FFFFAE).l
+		move.b	#0,($A10007).l
+		movem.w	(sp)+,d0
+		rts
+; ---------------------------------------------------------------------------
+
+loc_1412:				; CODE XREF: ROM:000015D4j
+		moveq	#0,d0
+		bsr.w	MegaPlay_CallBIOS
+		add.w	d6,d6
+		move.w	word_1422(pc,d6.w),d0
+		bra.w	MegaPlay_SendCommand
+; ---------------------------------------------------------------------------
+word_1422:	dc.w $FF81		; 0
+		dc.w $FF83		; 1
+		dc.w $FF82		; 2
+		dc.w $FF84		; 3
+; ---------------------------------------------------------------------------
+
+loc_142A:				; CODE XREF: ROM:000015D8j
+		bsr.w	loc_1440
+		add.w	d6,d6
+		move.w	word_1438(pc,d6.w),d0
+		bra.w	MegaPlay_SendCommand
+; ---------------------------------------------------------------------------
+word_1438:	dc.w $FF89		; 0
+		dc.w $FF8A		; 1
+		dc.w $FF8B		; 2
+		dc.w $FF8C		; 3
+; ---------------------------------------------------------------------------
+
+loc_1440:				; CODE XREF: ROM:loc_142Ap
+		moveq	#0,d6
+		moveq	#0,d7
+		move.w	#$7FFF,d1
+		lea	($FF0000).l,a0
+		bsr.w	loc_1456
+		addq.w	#1,d7
+		addq.l	#1,a0
+
+loc_1456:				; CODE XREF: ROM:0000144Ep
+		movea.l	a0,a1
+		move.w	d1,d2
+
+loc_145A:				; CODE XREF: ROM:00001486j
+		move.b	(a1),d3
+		move.b	#$FF,d0
+		move.b	d0,(a1)
+		cmp.b	(a1),d0
+		bne.s	loc_1480
+		not.w	d0
+		move.b	d0,(a1)
+		cmp.b	(a1),d0
+		bne.s	loc_1480
+		move.b	#$55,d0	; 'U'
+		move.b	d0,(a1)
+		cmp.b	(a1),d0
+		bne.s	loc_1480
+		not.w	d0
+		move.b	d0,(a1)
+		cmp.b	(a1),d0
+		beq.s	loc_1482
+
+loc_1480:				; CODE XREF: ROM:00001464j
+					; ROM:0000146Cj ...
+		bset	d7,d6
+
+loc_1482:				; CODE XREF: ROM:0000147Ej
+		move.b	d3,(a1)
+		addq.w	#2,a1
+		dbf	d2,loc_145A
+		rts
+; ---------------------------------------------------------------------------
+
+MegaPlay_InitSub5:			; CODE XREF: ROM:000014AAj
+					; ROM:MegaPlay_Command_GoToSegaScreen2p
+		moveq	#4,d0
+		bsr.w	MegaPlay_CallBIOS
+
+loc_1492:				; CODE XREF: ROM:0000149Aj
+		bsr.w	MegaPlay_InitSub2
+		cmpi.w	#$FF85,d0
+		bne.s	loc_1492
+		moveq	#8,d0
+		bsr.w	MegaPlay_CallBIOS
+
+loc_14A2:				; CODE XREF: ROM:000014B0j
+		bsr.w	MegaPlay_InitSub2
+		cmpi.w	#$FF85,d0
+		beq.s	MegaPlay_InitSub5
+		cmpi.w	#$FF01,d0
+		bne.s	loc_14A2
+		moveq	#$C,d0
+		bsr.w	MegaPlay_CallBIOS
+		rts
+; ---------------------------------------------------------------------------
+
+MegaPlay_LoadSoundDriver:		; CODE XREF: ROM:000015E0j
+		moveq	#$10,d0
+		bsr.w	MegaPlay_LoadBIOS
+		lea	($FF0000).l,a0
+		andi.w	#$1F,d0
+		move.l	(a0,d0.w),d0
+		adda.l	d0,a0
+		move.w	#$100,($A11100).l
+
+loc_14D8:				; CODE XREF: ROM:000014E0j
+		btst	#7,($A11100).l
+		bne.s	loc_14D8
+		move.w	#$100,($A11200).l
+		lea	($A00000).l,a1
+		move.w	#$1FFF,d0
+		moveq	#0,d1
+
+loc_14F6:				; CODE XREF: ROM:000014F8j
+		move.b	d1,(a1)+
+		dbf	d0,loc_14F6
+		lea	($A00000).l,a1
+		move.w	(a0)+,d0
+
+loc_1504:				; CODE XREF: ROM:00001506j
+		move.b	(a0)+,(a1)+
+		dbf	d0,loc_1504
+		lea	($A01C02).l,a0
+		lea	(MegaPlay_SoundDriverVariables).l,a1
+		moveq	#6,d7
+
+loc_1518:				; CODE XREF: ROM:0000151Aj
+		move.b	(a1)+,(a0)+
+		dbf	d7,loc_1518
+		bsr.s	MegaPlay_ResetZ80
+		move.w	#0,($A11100).l
+		rts
+; ---------------------------------------------------------------------------
+
+MegaPlay_ResetZ80:			; CODE XREF: ROM:0000151Ep
+					; ROM:000015E8j
+		move.w	#0,($A11200).l
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		move.w	#$100,($A11200).l
+		rts
+; ---------------------------------------------------------------------------
+MegaPlay_SoundDriverVariables:dc.b $89		      ;	0 ; DATA XREF: ROM:00001510o
+		dc.b 9			; 1
+		dc.b $B4		; 2
+		dc.b 0			; 3
+		dc.b 0			; 4
+		dc.b 0			; 5
+		dc.b 0			; 6
+		align 2
+
+MegaPlay_Command_PlaySound:		; CODE XREF: ROM:000015E4j
+		move.b	#$81,d0
+		move.w	#$100,($A11100).l
+
+loc_155C:				; CODE XREF: ROM:00001564j
+		btst	#7,($A11100).l
+		bne.s	loc_155C
+		move.b	d0,($A01D8A).l
+		move.w	#0,($A11100).l
+		rts
+; ---------------------------------------------------------------------------
+
+MegaPlay_CallBIOS:			; CODE XREF: ROM:00001414p
+					; ROM:0000148Ep ...
+		bsr.w	MegaPlay_LoadBIOS
+		lea	($FF0000).l,a0
+		andi.w	#$1F,d0
+		move.l	(a0,d0.w),d0
+		jmp	(a0,d0.w)
+; ---------------------------------------------------------------------------
+
+MegaPlay_LoadBIOS:			; CODE XREF: ROM:000014BCp
+					; ROM:MegaPlay_CallBIOSp
+		lea	($308000).l,a0
+		lea	($FF0000).l,a1
+		move.w	#$5FF,d7
+
+loc_159C:				; CODE XREF: ROM:000015A4j
+		movep.l	1(a0),d6
+		move.l	d6,(a1)+
+		addq.w	#8,a0
+		dbf	d7,loc_159C
+		rts
+; ---------------------------------------------------------------------------
+
+MegaPlay_VInt:				; CODE XREF: ROM:loc_3E2p
+		bsr.w	MegaPlay_GetCommand
+		bsr.w	MegaPlay_InitSub2
+		lea	(word_1600).l,a6
+		move.w	(a6)+,d7
+		moveq	#0,d6
+
+loc_15BC:				; CODE XREF: ROM:000015C2j
+		cmp.w	(a6)+,d0
+		beq.s	loc_15C8
+		addq.w	#4,d6
+		dbf	d7,loc_15BC
+		rts
+; ---------------------------------------------------------------------------
+
+loc_15C8:				; CODE XREF: ROM:000015BEj
+		jmp	loc_15CC(pc,d6.w)
+; ---------------------------------------------------------------------------
+
+loc_15CC:
+		bra.w	loc_13B6
+; ---------------------------------------------------------------------------
+		bra.w	locret_13C0
+; ---------------------------------------------------------------------------
+		bra.w	loc_1412
+; ---------------------------------------------------------------------------
+		bra.w	loc_142A
+; ---------------------------------------------------------------------------
+		bra.w	MegaPlay_Command_GoToSegaScreen2
+; ---------------------------------------------------------------------------
+		bra.w	MegaPlay_LoadSoundDriver
+; ---------------------------------------------------------------------------
+		bra.w	MegaPlay_Command_PlaySound
+; ---------------------------------------------------------------------------
+		bra.w	MegaPlay_ResetZ80
+; ---------------------------------------------------------------------------
+		bra.w	MegaPlay_Command_GoToSegaScreen
+; ---------------------------------------------------------------------------
+		bra.w	MegaPlay_Command_GoToTitleScreen
+; ---------------------------------------------------------------------------
+		bra.w	MegaPlay_Command_GoToTitleScreen2
+; ---------------------------------------------------------------------------
+		bra.w	MegaPlay_Command_EnableCheats
+; ---------------------------------------------------------------------------
+		bra.w	MegaPlay_Command_EnableCheats
+; ---------------------------------------------------------------------------
+word_1600:	dc.w $C			; DATA XREF: ROM:000015B2o
+		dc.w $FFF8		; 0
+		dc.w $FFF9		; 1
+		dc.w $FF80		; 2
+		dc.w $FF88		; 3
+		dc.w $FF85		; 4
+		dc.w $FF8D		; 5
+		dc.w $FF8E		; 6
+		dc.w $FF90		; 7
+		dc.w $FF01		; 8
+		dc.w $FF02		; 9
+		dc.w $FF03		; $A
+		dc.w $FF0A		; $B
+		dc.w $FF09		; $C
+; ---------------------------------------------------------------------------
+
+MegaPlay_Command_GoToTitleScreen:	; CODE XREF: ROM:000015F0j
+		move.b	#4,($FFFFF600).w
+		rts
+; ---------------------------------------------------------------------------
+
+MegaPlay_Command_GoToTitleScreen2:	; CODE XREF: ROM:000015F4j
+		move.b	#4,($FFFFF600).w
+		rts
+; ---------------------------------------------------------------------------
+
+MegaPlay_Command_GoToSegaScreen2:	; CODE XREF: ROM:000015DCj
+		bsr.w	MegaPlay_InitSub5
+
+MegaPlay_Command_GoToSegaScreen:	; CODE XREF: ROM:000015ECj
+		move.b	#0,($FFFFF600).w
+		rts
+; ---------------------------------------------------------------------------
+
+MegaPlay_Command_EnableCheats:		; CODE XREF: ROM:000015F8j
+					; ROM:000015FCj
+		move.w	#$FFFF,($FFFFFFD4).w
+		rts
+; ---------------------------------------------------------------------------
+
+MegaPlay_Init:				; CODE XREF: ROM:00000342p
+		bsr.w	MegaPlay_InitSub
+		movem.l	d0-d1/a0,-(sp)
+		move.w	#$100,($A11100).l
+
+loc_1650:				; CODE XREF: ROM:00001658j
+		btst	#7,($A11100).l
+		bne.s	loc_1650
+		moveq	#0,d0
+		moveq	#0,d1
+		movea.l	($FFFEFA).l,a0
+		_move.b	0(a0),d0
+		move.w	d0,d1
+		andi.w	#3,d0
+		move.b	MegaPlay_Init_Data1(pc,d0.w),($FFFEFF).l
+		andi.w	#$C,d1
+		lsr.w	#2,d1
+		move.b	MegaPlay_Init_Data2(pc,d1.w),($FFFF94).l
+		move.w	#0,($A11100).l
+		movem.l	(sp)+,d0-d1/a0
+		rts
+; ---------------------------------------------------------------------------
+MegaPlay_Init_Data1:dc.b 1, 2, 3, 4	    ; 0
+MegaPlay_Init_Data2:dc.b 3, 1, 2, 4	    ; 0
+; ---------------------------------------------------------------------------
+
+loc_169A:
+		tst.w	($FFFFFFD8).w
+		bne.s	loc_16CA
+		move.b	($FFFEFF).l,($FFFFFE12).w
+		move.b	($FFFEFF).l,($FFFFFEC6).w
+		move.b	#0,($FFFFAF).l
+		move.l	#$BB8,($FFFFFFC0).w
+		move.l	#$BB8,($FFFFFFC4).w
+		rts
+; ---------------------------------------------------------------------------
+
+loc_16CA:				; CODE XREF: ROM:0000169Ej
+		move.b	($FFFF94).l,($FFFFFE12).w
+		move.b	($FFFF94).l,($FFFFFEC6).w
+		move.b	#0,($FFFFAF).l
+		move.l	#$BB8,($FFFFFFC0).w
+		move.l	#$BB8,($FFFFFFC4).w
+		rts
+; ---------------------------------------------------------------------------
+
+MegaPlay_GetCommand:			; CODE XREF: ROM:MegaPlay_VIntp
+		movem.l	d0/a0,-(sp)
+		move.w	#$100,($A11100).l
+
+loc_1700:				; CODE XREF: ROM:00001708j
+		btst	#7,($A11100).l
+		bne.s	loc_1700
+		movea.l	($FFFEFA).l,a0
+		move.b	1(a0),d0
+		move.w	#0,($A11100).l
+		move.b	d0,($FFFEFE).l
+		movem.l	(sp)+,d0/a0
+		rts
+; ---------------------------------------------------------------------------
+
+loc_1728:
+		move.l	#0,($FFFFFE22).w
+		move.l	#0,($FFFFFED2).w
+		rts
 
 
 ; ---------------------------------------------------------------------------
@@ -1186,7 +1825,7 @@ JoypadInit:
 	moveq	#$40,d0
 	move.b	d0,(HW_Port_1_Control).l	; init port 1 (joypad 1)
 	move.b	d0,(HW_Port_2_Control).l	; init port 2 (joypad 2)
-	move.b	d0,(HW_Expansion_Control).l	; init port 3 (expansion/extra)
+	;move.b	d0,(HW_Expansion_Control).l	; init port 3 (expansion/extra)
 	startZ80
 	rts
 ; End of function JoypadInit
@@ -1398,57 +2037,57 @@ PlaySoundLocal:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ; sub_1388:
-PauseGame:
-	nop
-	tst.b	(Life_count).w	; do you have any lives left?
-	beq.w	Unpause		; if not, branch
-	tst.w	(Game_paused).w	; is game already paused?
-	bne.s	+		; if yes, branch
-	move.b	(Ctrl_1_Press).w,d0 ; is Start button pressed?
-	or.b	(Ctrl_2_Press).w,d0 ; (either player)
-	andi.b	#button_start_mask,d0
-	beq.s	Pause_DoNothing	; if not, branch
-+
-	move.w	#1,(Game_paused).w	; freeze time
-	move.b	#MusID_Pause,(Music_to_play).w	; pause music
-; loc_13B2:
-Pause_Loop:
-	move.b	#VintID_Pause,(Vint_routine).w
-	bsr.w	WaitForVint
-	tst.b	(Slow_motion_flag).w	; is slow-motion cheat on?
-	beq.s	Pause_ChkStart		; if not, branch
-	btst	#button_A,(Ctrl_1_Press).w	; is button A pressed?
-	beq.s	Pause_ChkBC		; if not, branch
-	move.b	#GameModeID_TitleScreen,(Game_Mode).w ; set game mode to 4 (title screen)
-	nop
-	bra.s	Pause_Resume
-; ===========================================================================
-; loc_13D4:
-Pause_ChkBC:
-	btst	#button_B,(Ctrl_1_Held).w ; is button B pressed?
-	bne.s	Pause_SlowMo		; if yes, branch
-	btst	#button_C,(Ctrl_1_Press).w ; is button C pressed?
-	bne.s	Pause_SlowMo		; if yes, branch
-; loc_13E4:
-Pause_ChkStart:
-	move.b	(Ctrl_1_Press).w,d0	; is Start button pressed?
-	or.b	(Ctrl_2_Press).w,d0	; (either player)
-	andi.b	#button_start_mask,d0
-	beq.s	Pause_Loop	; if not, branch
-; loc_13F2:
-Pause_Resume:
-	move.b	#MusID_Unpause,(Music_to_play).w	; unpause the music
-; loc_13F8:
-Unpause:
-	move.w	#0,(Game_paused).w	; unpause the game
-; return_13FE:
-Pause_DoNothing:
-	rts
-; ===========================================================================
-; loc_1400:
-Pause_SlowMo:
-	move.w	#1,(Game_paused).w
-	move.b	#MusID_Unpause,(Music_to_play).w
+;PauseGame:
+;	nop
+;	tst.b	(Life_count).w	; do you have any lives left?
+;	beq.w	Unpause		; if not, branch
+;	tst.w	(Game_paused).w	; is game already paused?
+;	bne.s	+		; if yes, branch
+;	move.b	(Ctrl_1_Press).w,d0 ; is Start button pressed?
+;	or.b	(Ctrl_2_Press).w,d0 ; (either player)
+;	andi.b	#button_start_mask,d0
+;	beq.s	Pause_DoNothing	; if not, branch
+;+
+;	move.w	#1,(Game_paused).w	; freeze time
+;	move.b	#MusID_Pause,(Music_to_play).w	; pause music
+;; loc_13B2:
+;Pause_Loop:
+;	move.b	#VintID_Pause,(Vint_routine).w
+;	bsr.w	WaitForVint
+;	tst.b	(Slow_motion_flag).w	; is slow-motion cheat on?
+;	beq.s	Pause_ChkStart		; if not, branch
+;	btst	#button_A,(Ctrl_1_Press).w	; is button A pressed?
+;	beq.s	Pause_ChkBC		; if not, branch
+;	move.b	#GameModeID_TitleScreen,(Game_Mode).w ; set game mode to 4 (title screen)
+;	nop
+;	bra.s	Pause_Resume
+;; ===========================================================================
+;; loc_13D4:
+;Pause_ChkBC:
+;	btst	#button_B,(Ctrl_1_Held).w ; is button B pressed?
+;	bne.s	Pause_SlowMo		; if yes, branch
+;	btst	#button_C,(Ctrl_1_Press).w ; is button C pressed?
+;	bne.s	Pause_SlowMo		; if yes, branch
+;; loc_13E4:
+;Pause_ChkStart:
+;	move.b	(Ctrl_1_Press).w,d0	; is Start button pressed?
+;	or.b	(Ctrl_2_Press).w,d0	; (either player)
+;	andi.b	#button_start_mask,d0
+;	beq.s	Pause_Loop	; if not, branch
+;; loc_13F2:
+;Pause_Resume:
+;	move.b	#MusID_Unpause,(Music_to_play).w	; unpause the music
+;; loc_13F8:
+;Unpause:
+;	move.w	#0,(Game_paused).w	; unpause the game
+;; return_13FE:
+;Pause_DoNothing:
+;	rts
+;; ===========================================================================
+;; loc_1400:
+;Pause_SlowMo:
+;	move.w	#1,(Game_paused).w
+;	move.b	#MusID_Unpause,(Music_to_play).w
 	rts
 ; End of function PauseGame
 
@@ -3764,76 +4403,88 @@ SegaScreen:
 	move.w	d0,(VDP_control_port).l
 	bsr.w	ClearScreen
 
-	dmaFillVRAM 0,VRAM_SegaScr_Plane_A_Name_Table,VRAM_SegaScr_Plane_Table_Size ; clear Plane A pattern name table
-
-	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_Sega_Logo),VRAM,WRITE),(VDP_control_port).l
-	lea	(ArtNem_SEGA).l,a0
-	bsr.w	NemDec
-	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_Trails),VRAM,WRITE),(VDP_control_port).l
-	lea	(ArtNem_IntroTrails).l,a0
-	bsr.w	NemDec
-	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtUnc_Giant_Sonic),VRAM,WRITE),(VDP_control_port).l
-	lea	(ArtNem_SilverSonic).l,a0 ; ?? seems unused here
-	bsr.w	NemDec
-	lea	(Chunk_Table).l,a1
-	lea	(MapEng_SEGA).l,a0
-	move.w	#make_art_tile(ArtTile_VRAM_Start,0,0),d0
-	bsr.w	EniDec
-	lea	(Chunk_Table).l,a1
-	move.l	#vdpComm(VRAM_SegaScr_Plane_B_Name_Table,VRAM,WRITE),d0
-	moveq	#$27,d1		; 40 cells wide
-	moveq	#$1B,d2		; 28 cells tall
-	bsr.w	PlaneMapToVRAM_H80_Sega
-	tst.b	(Graphics_Flags).w ; are we on a Japanese Mega Drive?
-	bmi.s	SegaScreen_Contin ; if not, branch
-	; load an extra sprite to hide the TM (trademark) symbol on the SEGA screen
-	lea	(SegaHideTM).w,a1
-	move.b	#ObjID_SegaHideTM,id(a1)	; load objB1 at $FFFFB080
-	move.b	#$4E,subtype(a1) ; <== ObjB1_SubObjData
-; loc_38CE:
-SegaScreen_Contin:
-	moveq	#PalID_SEGA,d0
-	bsr.w	PalLoad_Now
-	move.w	#-$A,(PalCycle_Frame).w
-	move.w	#0,(PalCycle_Timer).w
-	move.w	#0,(SegaScr_VInt_Subrout).w
-	move.w	#0,(SegaScr_PalDone_Flag).w
-	lea	(SegaScreenObject).w,a1
-	move.b	#ObjID_SonicOnSegaScr,id(a1) ; load objB0 (sega screen?) at $FFFFB040
-	move.b	#$4C,subtype(a1) ; <== ObjB0_SubObjData
-	move.w	#4*60,(Demo_Time_left).w	; 4 seconds
 	move.w	(VDP_Reg1_val).w,d0
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
+	move	#$2300,sr
 ; loc_390E:
 Sega_WaitPalette:
 	move.b	#VintID_SEGA,(Vint_routine).w
 	bsr.w	WaitForVint
-	jsrto	(RunObjects).l, JmpTo_RunObjects
-	jsr	(BuildSprites).l
-	tst.b	(SegaScr_PalDone_Flag).w
+	cmpi.b	#GameModeID_SegaScreen,(Game_Mode).w
 	beq.s	Sega_WaitPalette
-	move.b	#SndID_SegaSound,d0
-	bsr.w	PlaySound	; play "SEGA" sound
-	move.b	#VintID_SEGA,(Vint_routine).w
-	bsr.w	WaitForVint
-	move.w	#3*60,(Demo_Time_left).w	; 3 seconds
-; loc_3940:
-Sega_WaitEnd:
-	move.b	#VintID_PCM,(Vint_routine).w
-	bsr.w	WaitForVint
-	tst.w	(Demo_Time_left).w
-	beq.s	Sega_GotoTitle
-	move.b	(Ctrl_1_Press).w,d0	; is Start button pressed?
-	or.b	(Ctrl_2_Press).w,d0	; (either player)
-	andi.b	#button_start_mask,d0
-	beq.s	Sega_WaitEnd		; if not, branch
-; loc_395E:
-Sega_GotoTitle:
-	clr.w	(SegaScr_PalDone_Flag).w
-	clr.w	(SegaScr_VInt_Subrout).w
-	move.b	#GameModeID_TitleScreen,(Game_Mode).w	; => TitleScreen
 	rts
+
+;	dmaFillVRAM 0,VRAM_SegaScr_Plane_A_Name_Table,VRAM_SegaScr_Plane_Table_Size ; clear Plane A pattern name table
+
+;	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_Sega_Logo),VRAM,WRITE),(VDP_control_port).l
+;	lea	(ArtNem_SEGA).l,a0
+;	bsr.w	NemDec
+;	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_Trails),VRAM,WRITE),(VDP_control_port).l
+;	lea	(ArtNem_IntroTrails).l,a0
+;	bsr.w	NemDec
+;	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtUnc_Giant_Sonic),VRAM,WRITE),(VDP_control_port).l
+;	lea	(ArtNem_SilverSonic).l,a0 ; ?? seems unused here
+;	bsr.w	NemDec
+;	lea	(Chunk_Table).l,a1
+;	lea	(MapEng_SEGA).l,a0
+;	move.w	#make_art_tile(ArtTile_VRAM_Start,0,0),d0
+;	bsr.w	EniDec
+;	lea	(Chunk_Table).l,a1
+;	move.l	#vdpComm(VRAM_SegaScr_Plane_B_Name_Table,VRAM,WRITE),d0
+;	moveq	#$27,d1		; 40 cells wide
+;	moveq	#$1B,d2		; 28 cells tall
+;	bsr.w	PlaneMapToVRAM_H80_Sega
+;	tst.b	(Graphics_Flags).w ; are we on a Japanese Mega Drive?
+;	bmi.s	SegaScreen_Contin ; if not, branch
+;	; load an extra sprite to hide the TM (trademark) symbol on the SEGA screen
+;	lea	(SegaHideTM).w,a1
+;	move.b	#ObjID_SegaHideTM,id(a1)	; load objB1 at $FFFFB080
+;	move.b	#$4E,subtype(a1) ; <== ObjB1_SubObjData
+;; loc_38CE:
+;SegaScreen_Contin:
+;	moveq	#PalID_SEGA,d0
+;	bsr.w	PalLoad_Now
+;	move.w	#-$A,(PalCycle_Frame).w
+;	move.w	#0,(PalCycle_Timer).w
+;	move.w	#0,(SegaScr_VInt_Subrout).w
+;	move.w	#0,(SegaScr_PalDone_Flag).w
+;	lea	(SegaScreenObject).w,a1
+;	move.b	#ObjID_SonicOnSegaScr,id(a1) ; load objB0 (sega screen?) at $FFFFB040
+;	move.b	#$4C,subtype(a1) ; <== ObjB0_SubObjData
+;	move.w	#4*60,(Demo_Time_left).w	; 4 seconds
+;	move.w	(VDP_Reg1_val).w,d0
+;	ori.b	#$40,d0
+;	move.w	d0,(VDP_control_port).l
+;; loc_390E:
+;Sega_WaitPalette:
+;	move.b	#VintID_SEGA,(Vint_routine).w
+;	bsr.w	WaitForVint
+;	jsrto	(RunObjects).l, JmpTo_RunObjects
+;	jsr	(BuildSprites).l
+;	tst.b	(SegaScr_PalDone_Flag).w
+;	beq.s	Sega_WaitPalette
+;	move.b	#SndID_SegaSound,d0
+;	bsr.w	PlaySound	; play "SEGA" sound
+;	move.b	#VintID_SEGA,(Vint_routine).w
+;	bsr.w	WaitForVint
+;	move.w	#3*60,(Demo_Time_left).w	; 3 seconds
+;; loc_3940:
+;Sega_WaitEnd:
+;	move.b	#VintID_PCM,(Vint_routine).w
+;	bsr.w	WaitForVint
+;	tst.w	(Demo_Time_left).w
+;	beq.s	Sega_GotoTitle
+;	move.b	(Ctrl_1_Press).w,d0	; is Start button pressed?
+;	or.b	(Ctrl_2_Press).w,d0	; (either player)
+;	andi.b	#button_start_mask,d0
+;	beq.s	Sega_WaitEnd		; if not, branch
+;; loc_395E:
+;Sega_GotoTitle:
+;	clr.w	(SegaScr_PalDone_Flag).w
+;	clr.w	(SegaScr_VInt_Subrout).w
+;	move.b	#GameModeID_TitleScreen,(Game_Mode).w	; => TitleScreen
+;	rts
 
 ; ---------------------------------------------------------------------------
 ; Subroutine that does the exact same thing as PlaneMapToVRAM_H80_SpecialStage
@@ -3843,16 +4494,16 @@ Sega_GotoTitle:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ; sub_396E: ShowVDPGraphics3: PlaneMapToVRAM3:
-PlaneMapToVRAM_H80_Sega:
-	lea	(VDP_data_port).l,a6
-	move.l	#vdpCommDelta(planeLocH80(0,1)),d4	; $1000000
--	move.l	d0,VDP_control_port-VDP_data_port(a6)
-	move.w	d1,d3
--	move.w	(a1)+,(a6)
-	dbf	d3,-
-	add.l	d4,d0
-	dbf	d2,--
-	rts
+;PlaneMapToVRAM_H80_Sega:
+;	lea	(VDP_data_port).l,a6
+;	move.l	#vdpCommDelta(planeLocH80(0,1)),d4	; $1000000
+;-	move.l	d0,VDP_control_port-VDP_data_port(a6)
+;	move.w	d1,d3
+;-	move.w	(a1)+,(a6)
+;	dbf	d3,-
+;	add.l	d4,d0
+;	dbf	d2,--
+;	rts
 ; End of function PlaneMapToVRAM_H80_Sega
 
 ; ===========================================================================
@@ -3897,12 +4548,17 @@ TitleScreen:
 	clearRAM Misc_Variables,Misc_Variables_End ; clear CPU player RAM and following variables
 	clearRAM Camera_RAM,Camera_RAM_End ; clear camera RAM and following variables
 
+	tst.b	($FFFEFE).l
+	bne.s	loc_3EB8
+
+	; Show 'Sonic and Tails in'
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_CreditText),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_CreditText).l,a0
 	bsr.w	NemDec
 	lea	(off_B2B0).l,a1
 	jsr	(loc_B272).l
 
+loc_3EB8:
 	clearRAM Target_palette,Target_palette_End	; fill palette with 0 (black)
 	moveq	#PalID_BGND,d0
 	bsr.w	PalLoad_ForFade
@@ -4005,6 +4661,8 @@ TitleScreen:
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
 	bsr.w	Pal_FadeFromBlack
+	move.w	#$FF1D,d0
+	bsr.w	loc_120E
 
 ; loc_3C14:
 TitleScreen_Loop:
@@ -4028,28 +4686,56 @@ TitleScreen_Loop:
 	dbf	d6,-
 
 	bsr.w	RunPLC_RAM
-	bsr.w	TailsNameCheat
+	;bsr.w	TailsNameCheat
+	tst.b	($FFFEFE).l
+	bne.s	loc_40EE
 	tst.w	(Demo_Time_left).w
-	beq.w	TitleScreen_Demo
-	tst.b	(IntroSonic+objoff_2F).w
-	beq.w	TitleScreen_Loop
+	bne.w	TitleScreen_Loop
+;	tst.b	(IntroSonic+objoff_2F).w
+;	beq.w	TitleScreen_Loop
+	bra.w	TitleScreen_Demo
+
+loc_40EE:
 	move.b	(Ctrl_1_Press).w,d0
+	or.b	(Ctrl_1_Press).w,d0
+	andi.b	#button_start_mask,d0
+	bne.s	loc_410E
+	move.b	(Ctrl_2_Press).w,d0
 	or.b	(Ctrl_2_Press).w,d0
 	andi.b	#button_start_mask,d0
-	beq.w	TitleScreen_Loop ; loop until Start is pressed
+	bne.s	loc_4124
+	bra.w	TitleScreen_Loop
+
+loc_410E:                               ; CODE XREF: ROM:000040FAj
+	move.w	#$FF0A,d0
+	bsr.w	loc_120E
+	move.w	#0,($FFFFFFD4).w
+	move.b	#0,($FFFFFF86).w
+	bra.s	loc_413E
+; ---------------------------------------------------------------------------
+
+loc_4124:                               ; CODE XREF: ROM:00004108j
+	move.w	#$FF09,d0
+	bsr.w	loc_120E
+	move.w	#0,($FFFFFFD4).w
+	move.b	#1,($FFFFFF86).w
+	move.w	#1,($FFFFFFD8).w
+
+loc_413E:
 	move.b	#GameModeID_Level,(Game_Mode).w ; => Level (Zone play mode)
-	move.b	#3,(Life_count).w
-	move.b	#3,(Life_count_2P).w
+	bsr.w	loc_169A
+	bsr.w	loc_1728
 	moveq	#0,d0
 	move.w	d0,(Ring_count).w
-	move.l	d0,(Timer).w
+;	move.l	d0,(Timer).w
 	move.l	d0,(Score).w
 	move.w	d0,(Ring_count_2P).w
-	move.l	d0,(Timer_2P).w
+;	move.l	d0,(Timer_2P).w
 	move.l	d0,(Score_2P).w
 	move.b	d0,(Continue_count).w
-	move.l	#5000,(Next_Extra_life_score).w
-	move.l	#5000,(Next_Extra_life_score_2P).w
+	move.w	d0,($FFFF96).l
+;	move.l	#5000,(Next_Extra_life_score).w
+;	move.l	#5000,(Next_Extra_life_score_2P).w
 	move.b	#MusID_FadeOut,d0 ; prepare to stop music (fade out)
 	bsr.w	PlaySound
 	moveq	#0,d0
@@ -4064,14 +4750,15 @@ TitleScreen_Loop:
     else
 	move.w #emerald_hill_zone_act_1,(Current_ZoneAndAct).w
     endif
-	tst.b	(Level_select_flag).w	; has level select cheat been entered?
-	beq.s	+			; if not, branch
-	btst	#button_A,(Ctrl_1_Held).w ; is A held down?
-	beq.s	+	 		; if not, branch
-	move.b	#GameModeID_LevelSelect,(Game_Mode).w ; => LevelSelectMenu
+;	tst.b	(Level_select_flag).w	; has level select cheat been entered?
+;	beq.s	+			; if not, branch
+;	btst	#button_A,(Ctrl_1_Held).w ; is A held down?
+;	beq.s	+	 		; if not, branch
+;	move.b	#GameModeID_LevelSelect,(Game_Mode).w ; => LevelSelectMenu
 	rts
 ; ---------------------------------------------------------------------------
-+
+;+
+	; Dead code
 	move.w	d0,(Current_Special_StageAndAct).w
 	move.w	d0,(Got_Emerald).w
 	move.l	d0,(Got_Emeralds_array).w
@@ -4116,21 +4803,23 @@ TitleScreen_Demo:
 +
 	move.w	#1,(Demo_mode_flag).w
 	move.b	#GameModeID_Demo,(Game_Mode).w ; => Level (Demo mode)
-	cmpi.w	#emerald_hill_zone_act_1,(Current_ZoneAndAct).w
-	bne.s	+
-	move.w	#1,(Two_player_mode).w
-+
-	move.b	#3,(Life_count).w
-	move.b	#3,(Life_count_2P).w
+;	cmpi.w	#emerald_hill_zone_act_1,(Current_ZoneAndAct).w
+;	bne.s	+
+;	move.w	#1,(Two_player_mode).w
+;+
+;	move.b	#3,(Life_count).w
+;	move.b	#3,(Life_count_2P).w
+	bsr.w	loc_169A
+	bsr.w	loc_1728
 	moveq	#0,d0
 	move.w	d0,(Ring_count).w
-	move.l	d0,(Timer).w
+;	move.l	d0,(Timer).w
 	move.l	d0,(Score).w
 	move.w	d0,(Ring_count_2P).w
-	move.l	d0,(Timer_2P).w
+;	move.l	d0,(Timer_2P).w
 	move.l	d0,(Score_2P).w
-	move.l	#5000,(Next_Extra_life_score).w
-	move.l	#5000,(Next_Extra_life_score_2P).w
+;	move.l	#5000,(Next_Extra_life_score).w
+;	move.l	#5000,(Next_Extra_life_score_2P).w
 	rts
 ; ===========================================================================
 ; word_3DAC:
@@ -4144,34 +4833,35 @@ DemoLevels_End:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ; sub_3DB4:
-TailsNameCheat:
-	lea	(TailsNameCheat_Buttons).l,a0
-	move.w	(Correct_cheat_entries).w,d0
-	adda.w	d0,a0
-	move.b	(Ctrl_1_Press).w,d0
-	andi.b	#button_up_mask|button_down_mask|button_left_mask|button_right_mask,d0
-	beq.s	++	; rts
-	cmp.b	(a0),d0
-	bne.s	+
-	addq.w	#1,(Correct_cheat_entries).w
-	tst.b	1(a0)		; read the next entry
-	bne.s	++		; if it's not zero, return
-	bchg	#7,(Graphics_Flags).w ; turn on the cheat that changes MILES to "TAILS"
-	move.b	#SndID_Ring,d0 ; play the ring sound for a successfully entered cheat
-	bsr.w	PlaySound
-+	move.w	#0,(Correct_cheat_entries).w
-+	rts
+;TailsNameCheat:
+;	lea	(TailsNameCheat_Buttons).l,a0
+;	move.w	(Correct_cheat_entries).w,d0
+;	adda.w	d0,a0
+;	move.b	(Ctrl_1_Press).w,d0
+;	andi.b	#button_up_mask|button_down_mask|button_left_mask|button_right_mask,d0
+;	beq.s	++	; rts
+;	cmp.b	(a0),d0
+;	bne.s	+
+;	addq.w	#1,(Correct_cheat_entries).w
+;	tst.b	1(a0)		; read the next entry
+;	bne.s	++		; if it's not zero, return
+;	bchg	#7,(Graphics_Flags).w ; turn on the cheat that changes MILES to "TAILS"
+;	move.b	#SndID_Ring,d0 ; play the ring sound for a successfully entered cheat
+;	bsr.w	PlaySound
+;+	move.w	#0,(Correct_cheat_entries).w
+;+
+	rts
 ; End of function TailsNameCheat
 
 ; ===========================================================================
 ; byte_3DEE:
-TailsNameCheat_Buttons:
-	dc.b	button_up_mask
-	dc.b	button_down_mask
-	dc.b	button_down_mask
-	dc.b	button_down_mask
-	dc.b	button_up_mask
-	dc.b	0	; end
+;TailsNameCheat_Buttons:
+;	dc.b	button_up_mask
+;	dc.b	button_down_mask
+;	dc.b	button_down_mask
+;	dc.b	button_down_mask
+;	dc.b	button_up_mask
+;	dc.b	0	; end
 ; ---------------------------------------------------------------------------------
 ; Nemesis compressed art
 ; 10 blocks
@@ -4194,7 +4884,7 @@ CopyrightText:
 	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + '1',0,0)	; 1
 	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + '9',0,0)	; 9
 	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + '9',0,0)	; 9
-	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + '2',0,0)	; 2
+	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + '3',0,0)	; 3
 	dc.w  make_art_tile(ArtTile_VRAM_Start,0,0)	;
 	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + 'S',0,0)	; S
 	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + 'E',0,0)	; E
@@ -4482,11 +5172,12 @@ Level_ClrHUD:
 	moveq	#0,d0
 	tst.b	(Last_star_pole_hit).w	; are you starting from a lamppost?
 	bne.s	Level_FromCheckpoint	; if yes, branch
+	bsr.w	loc_1728
 	move.w	d0,(Ring_count).w	; clear rings
-	move.l	d0,(Timer).w		; clear time
+;	move.l	d0,(Timer).w		; clear time
 	move.b	d0,(Extra_life_flags).w	; clear extra lives counter
 	move.w	d0,(Ring_count_2P).w	; ditto for player 2
-	move.l	d0,(Timer_2P).w
+;	move.l	d0,(Timer_2P).w
 	move.b	d0,(Extra_life_flags_2P).w
 ; loc_41E4:
 Level_FromCheckpoint:
@@ -4589,7 +5280,7 @@ Level_FromCheckpoint:
 ; ---------------------------------------------------------------------------
 ; loc_4360:
 Level_MainLoop:
-	bsr.w	PauseGame
+	;bsr.w	PauseGame
 	move.b	#VintID_Level,(Vint_routine).w
 	bsr.w	WaitForVint
 	addq.w	#1,(Timer_frames).w ; add 1 to level timer
@@ -4627,12 +5318,16 @@ Level_MainLoop:
 	cmpi.b	#GameModeID_Demo,(Game_Mode).w
 	beq.w	Level_MainLoop
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
+	move.w	#$FF04,d0
+	bsr.w	loc_120E
 	rts
 ; ---------------------------------------------------------------------------
 +
 	cmpi.b	#GameModeID_Demo,(Game_Mode).w
 	bne.s	+
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
+	move.w	#$FF04,d0
+	bsr.w	loc_120E
 +
 	move.w	#1*60,(Demo_Time_left).w	; 1 second
 	move.w	#$3F,(Palette_fade_range).w
@@ -6113,7 +6808,7 @@ SpecialStage:
 	move.w	d0,(VDP_control_port).l
 	bsr.w	Pal_FadeFromWhite
 
--	bsr.w	PauseGame
+-;	bsr.w	PauseGame
 	move.w	(Ctrl_1).w,(Ctrl_1_Logical).w
 	move.w	(Ctrl_2).w,(Ctrl_2_Logical).w
 	cmpi.b	#GameModeID_SpecialStage,(Game_Mode).w ; special stage mode?
@@ -6134,7 +6829,7 @@ SpecialStage:
 	moveq	#PLCID_SpecStageBombs,d0
 	bsr.w	LoadPLC
 
--	bsr.w	PauseGame
+-;	bsr.w	PauseGame
 	cmpi.b	#GameModeID_SpecialStage,(Game_Mode).w ; special stage mode?
 	bne.w	SpecialStage_Unpause		; if not, branch
 	move.b	#VintID_S2SS,(Vint_routine).w
@@ -9069,12 +9764,13 @@ loc_710A:
 	bgt.w	JmpTo_DeleteObject
 	cmpi.w	#0,y_pos(a0)
 	blt.w	JmpTo_DeleteObject
+	jmpto	(DisplaySprite).l, JmpTo_DisplaySprite
 
     if removeJmpTos
-JmpTo_DisplaySprite 
+JmpTo_DeleteObject 
+	jmp	(DeleteObject).l
     endif
 
-	jmpto	(DisplaySprite).l, JmpTo_DisplaySprite
 ; ===========================================================================
 
 ; loc_714A:
@@ -9101,6 +9797,11 @@ Obj5F_Main:
 	move.w	#$48,y_pos(a0)
 	move.b	#4,routine(a0)
 	move.b	#$F,objoff_2A(a0)
+
+    if removeJmpTos
+JmpTo_DisplaySprite 
+    endif
+
 	jmpto	(DisplaySprite).l, JmpTo_DisplaySprite
 ; ===========================================================================
 
@@ -9163,13 +9864,6 @@ loc_7218:
 ; ===========================================================================
 
 +	rts
-; ===========================================================================
-
-    if removeJmpTos
-JmpTo_DeleteObject 
-	jmp	(DeleteObject).l
-    endif
-
 ; ===========================================================================
 
 return_723E:
@@ -9712,6 +10406,9 @@ JmpTo_Hud_Base
 	align 4
     endif
 
+BranchTo_loc_120E 
+	bra.w	loc_120E
+
 
 
 
@@ -9767,12 +10464,40 @@ ContinueScreen:
 	move.w	(VDP_Reg1_val).w,d0
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
+	tst.b   ($FFFF95).l
+	bne.s	loc_7D70
+	move.w	#$FF10,d0
+	bra.s	loc_7D74
+; ---------------------------------------------------------------------------
+
+loc_7D70:
+	move.w	#$FF12,d0
+
+loc_7D74:
+	bsr.w	loc_120E
 	bsr.w	Pal_FadeFromBlack
 -
 	move.b	#VintID_Menu,(Vint_routine).w
 	bsr.w	WaitForVint
 	cmpi.b	#4,(MainCharacter+routine).w
 	bhs.s	+
+	move.b	($FFFFF605).w,d0
+	andi.b	#$70,d0 ; 'p'
+	beq.s	loc_7DB4
+	move.w	($FFFFF614).w,d1
+	beq.s	loc_7DB4
+	cmpi.w	#$1E0,d1
+	bgt.s	loc_7DB4
+	subi.w	#$3C,d1 ; '<'
+	bcc.s	loc_7DAC
+	moveq	#0,d1
+
+loc_7DAC:
+	move.w	d1,($FFFFF614).w
+	bra.w	+
+; ---------------------------------------------------------------------------
+
+loc_7DB4:
 	move	#$2700,sr
 	move.w	(Demo_Time_left).w,d1
 	divu.w	#60,d1
@@ -9789,24 +10514,34 @@ ContinueScreen:
 	tst.w	(Demo_Time_left).w
 	bne.w	-
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
+	move.w	#$FF1F,d0
+	bsr.w	loc_120E
 	rts
 ; ---------------------------------------------------------------------------
 +
 	move.b	#GameModeID_Level,(Game_Mode).w ; => Level (Zone play mode)
-	move.b	#3,(Life_count).w
-	move.b	#3,(Life_count_2P).w
+	bsr.w	loc_1728
 	moveq	#0,d0
 	move.w	d0,(Ring_count).w
-	move.l	d0,(Timer).w
+;	move.l	d0,(Timer).w
 	move.l	d0,(Score).w
-	move.b	d0,(Last_star_pole_hit).w
+;	move.b	d0,(Last_star_pole_hit).w
 	move.w	d0,(Ring_count_2P).w
-	move.l	d0,(Timer_2P).w
+;	move.l	d0,(Timer_2P).w
 	move.l	d0,(Score_2P).w
-	move.b	d0,(Last_star_pole_hit_2P).w
-	move.l	#5000,(Next_Extra_life_score).w
-	move.l	#5000,(Next_Extra_life_score_2P).w
-	subq.b	#1,(Continue_count).w
+;	move.b	d0,(Last_star_pole_hit_2P).w
+;	move.l	#5000,(Next_Extra_life_score).w
+;	move.l	#5000,(Next_Extra_life_score_2P).w
+;	subq.b	#1,(Continue_count).w
+	addq.w	#1,($FFFF96).l
+	tst.b	($FFFF95).l
+	beq.s	loc_7E42
+	move.w	#1,($FFFFFFD8).w
+	move.b	#0,($FFFF95).l
+	move.b	#$1C,($FFFFF600).w
+
+loc_7E42:
+	bsr.w	loc_169A
 	rts
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -9998,6 +10733,10 @@ ObjDB_Sonic_Init:
 ObjDB_Sonic_Wait:
 	tst.b	(Ctrl_1_Press).w	; is start pressed?
 	bmi.s	ObjDB_Sonic_StartRunning ; if yes, branch
+	move.b	(Ctrl_1_Press).w,d0
+	or.b	(Ctrl_2_Press).w,d0
+	andi.b	#button_start_mask,d0
+	bne.s	ObjDB_Sonic_StartRunning
 	jsr	(Sonic_Animate).l
 	jmp	(LoadSonicDynPLC).l
 ; ---------------------------------------------------------------------------
@@ -10036,13 +10775,26 @@ ObjDB_Tails_Init:
 
 ; loc_7C52:
 ObjDB_Tails_Wait:
-	tst.b	(Ctrl_1_Press).w	; is start pressed?
-	bmi.s	ObjDB_Tails_StartRunning ; if yes, branch
+	move.b	(Ctrl_1_Press).w,d0
+	or.b	(Ctrl_2_Press).w,d0
+	andi.b	#button_start_mask,d0
+	bne.s	ObjDB_Tails_StartRunning
 	lea	(Ani_objDB).l,a1
 	jmp	(AnimateSprite).l
 ; ---------------------------------------------------------------------------
 ; loc_7C64:
 ObjDB_Tails_StartRunning:
+	tst.b	($FFFF95).l
+	bne.s	loc_80D2
+	move.w	#$FF13,d0
+	bra.s	loc_80D6
+; ---------------------------------------------------------------------------
+
+loc_80D2:
+	move.w	#$FF15,d0
+
+loc_80D6:
+	bsr.w	loc_120E
 	addq.b	#2,routine(a0) ; => ObjDB_Tails_Run
 	move.l	#MapUnc_Tails,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
@@ -10158,7 +10910,7 @@ TwoPlayerResults:
 	move.w	d0,(Level_Music).w
 	bsr.w	PlayMusic
 +
-	move.w	#$707,(Demo_Time_left).w
+;	move.w	#$707,(Demo_Time_left).w
 	clr.w	(Two_player_mode).w
 	clr.l	(Camera_X_pos).w
 	clr.l	(Camera_Y_pos).w
@@ -10172,6 +10924,7 @@ TwoPlayerResults:
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
 	bsr.w	Pal_FadeFromBlack
+	move.w	#$258,($FFFFF614).w
 
 -	move.b	#VintID_Menu,(Vint_routine).w
 	bsr.w	WaitForVint
@@ -10182,13 +10935,25 @@ TwoPlayerResults:
 	bsr.w	RunPLC_RAM
 	tst.l	(Plc_Buffer).w
 	bne.s	-
+	tst.w	(Demo_Time_left).w
+	beq.s	+
 	move.b	(Ctrl_1_Press).w,d0
 	or.b	(Ctrl_2_Press).w,d0
-	andi.b	#button_start_mask,d0
+	andi.b	#button_B_mask|button_C_mask|button_A_mask|button_start_mask,d0
 	beq.s	-			; stay on that screen until either player presses start
 
++
+	move.w  #0,($FFFFF614).w
 	move.w	(Results_Screen_2P).w,d0 ; were we at the act results screen? (VsRSID_Act)
 	bne.w	TwoPlayerResultsDone_Zone ; if not, branch
+	tst.b	(Time_Over_flag).w
+	bne.s	loc_83C2
+	tst.b	(Time_Over_flag_2P).w
+	bne.s	loc_83C2
+	tst.b	(Update_HUD_timer).w
+	bne.s	loc_83C2
+	tst.b	(Update_HUD_timer_2P).w
+	bne.s	loc_83C2
 	tst.b	(Current_Act).w		; did we just finish act 1?
 	bne.s	+			; if not, branch
 	addq.b	#1,(Current_Act).w	; go to the next act
@@ -10202,8 +10967,22 @@ TwoPlayerResults:
 	moveq	#0,d0
 	move.l	d0,(Score).w
 	move.l	d0,(Score_2P).w
-	move.l	#5000,(Next_Extra_life_score).w
-	move.l	#5000,(Next_Extra_life_score_2P).w
+;	move.l	#5000,(Next_Extra_life_score).w
+;	move.l	#5000,(Next_Extra_life_score_2P).w
+	rts
+; ===========================================================================
+
+loc_83C2:
+	bsr.w   Chk2PZoneCompletion
+	moveq   #$FF,d0
+	move.w  d0,(a5)+
+	move.w  d0,(a5)+
+	move.w  d0,(a5)
+	move.b  #$1C,($FFFFF600).w
+	tst.b   ($FFFFFE12).w
+	beq.w   loc_84DE
+	tst.b   ($FFFFFEC6).w
+	beq.w   loc_84DE
 	rts
 ; ===========================================================================
 +	; Displays results for the zone
@@ -10258,7 +11037,7 @@ sub_7F9A:
 ; loc_7FB2:
 TwoPlayerResultsDone_Zone:
 	subq.w	#1,d0			; were we at the zone results screen? (VsRSID_Zone)
-	bne.s	TwoPlayerResultsDone_Game ; if not, branch
+	bne.w	TwoPlayerResultsDone_Game ; if not, branch
 
 ; loc_7FB6:
 TwoPlayerResultsDone_ZoneOrSpecialStages:
@@ -10286,16 +11065,39 @@ TwoPlayerResultsDone_ZoneOrSpecialStages:
 +
 	tst.w	(Game_Over_2P).w
 	beq.s	+		; if there's a Game Over, clear the results
+	tst.b	($FFFFFE12).w
+	beq.s	loc_84B8
+	tst.b	($FFFFFEC6).w
+	beq.s	loc_84B8
+	bra.s	loc_84C4
+; ---------------------------------------------------------------------------
+
+loc_84B8:                               ; CODE XREF: ROM:000084AEj
+	bsr.w	Chk2PZoneCompletion
+	moveq	#$FF,d0
+	move.w	d0,(a5)+
+	move.w	d0,(a5)+
+	move.w	d0,(a5)
+
+loc_84C4:                               ; CODE XREF: ROM:000084B6j
+	tst.w	($FFFF96).l
+	bne.s	loc_84DA
 	lea	(Results_Data_2P).w,a1
 
 	moveq	#bytesToWcnt(Results_Data_2P_End-Results_Data_2P),d0
 -	move.w	#-1,(a1)+
 	dbf	d0,-
 
-	move.b	#3,(Life_count).w
-	move.b	#3,(Life_count_2P).w
+loc_84DA:
+	bsr.w	loc_16CA
+;	move.b	#3,(Life_count).w
+;	move.b	#3,(Life_count_2P).w
 +
-	move.b	#GameModeID_2PLevelSelect,(Game_Mode).w ; => LevelSelectMenu2P
+loc_84DE:
+	move.b	#1,($FFFF95).l
+	move.w	#$FF0C,d0
+	bsr.w	loc_120E
+	move.b	#GameModeID_ContinueScreen,(Game_Mode).w ; => LevelSelectMenu2P
 	rts
 ; ===========================================================================
 ; loc_8020:
@@ -10303,6 +11105,10 @@ TwoPlayerResultsDone_Game:
 	subq.w	#1,d0	; were we at the game results screen? (VsRSID_Game)
 	bne.s	TwoPlayerResultsDone_SpecialStage ; if not, branch
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
+	move.w	#$FF0C,d0
+	bsr.w	loc_120E
+	move.w	#$FF1E,d0
+	bsr.w	loc_120E
 	rts
 ; ===========================================================================
 ; loc_802C:
@@ -11154,8 +11960,8 @@ MenuScreen:
 	moveq	#$1B,d2
 	jsrto	(PlaneMapToVRAM_H40).l, JmpTo_PlaneMapToVRAM_H40	; fullscreen background
 
-	cmpi.b	#GameModeID_OptionsMenu,(Game_Mode).w	; options menu?
-	beq.w	MenuScreen_Options	; if yes, branch
+;	cmpi.b	#GameModeID_OptionsMenu,(Game_Mode).w	; options menu?
+;	beq.w	MenuScreen_Options	; if yes, branch
 
 	cmpi.b	#GameModeID_LevelSelect,(Game_Mode).w	; level select menu?
 	beq.w	MenuScreen_LevelSelect	; if yes, branch
@@ -11210,13 +12016,18 @@ MenuScreen:
 	dbf	d1,-
 
 	move.b	#MusID_Options,d0
-	jsrto	(PlayMusic).l, JmpTo_PlayMusic
-	move.w	#$707,(Demo_Time_left).w
+	bsr.w	PlayMusic
+	move.w	#60*10,(Demo_Time_left).w
 	clr.w	(Two_player_mode).w
 	clr.l	(Camera_X_pos).w
 	clr.l	(Camera_Y_pos).w
 	move.b	#VintID_Menu,(Vint_routine).w
 	bsr.w	WaitForVint
+	move	#$2700,sr
+	bsr.w	ClearOld2PLevSelSelection
+	bsr.w	loc_9368
+	bsr.w	Update2PLevSelSelection
+	move	#$2300,sr
 	move.w	(VDP_Reg1_val).w,d0
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
@@ -11235,16 +12046,16 @@ LevelSelect2P_Main:
 	jsrto	(Dynamic_Normal).l, JmpTo2_Dynamic_Normal
 	move.b	(Ctrl_1_Press).w,d0
 	or.b	(Ctrl_2_Press).w,d0
-	andi.b	#button_start_mask,d0
+	andi.b	#button_B_mask|button_C_mask|button_A_mask|button_start_mask,d0
 	bne.s	LevelSelect2P_PressStart
-	bra.w	LevelSelect2P_Main
-; ===========================================================================
+	tst.w 	($FFFFF614).w
+	bne.w	LevelSelect2P_Main
 ;loc_8DE2:
 LevelSelect2P_PressStart:
 	bsr.w	Chk2PZoneCompletion
 	bmi.s	loc_8DF4
 	move.w	#SndID_Error,d0
-	jsrto	(PlaySound).l, JmpTo_PlaySound
+	bsr.w	PlaySound
 	bra.w	LevelSelect2P_Main
 ; ===========================================================================
 
@@ -11262,8 +12073,8 @@ loc_8DF4:
 	moveq	#0,d0
 	move.l	d0,(Score).w
 	move.l	d0,(Score_2P).w
-	move.l	#5000,(Next_Extra_life_score).w
-	move.l	#5000,(Next_Extra_life_score_2P).w
+;	move.l	#5000,(Next_Extra_life_score).w
+;	move.l	#5000,(Next_Extra_life_score_2P).w
 	rts
 ; ===========================================================================
 
@@ -11298,6 +12109,20 @@ LevelSelect2P_Controls:
 	beq.s	+	; rts
 	bchg	#0,(Current_Zone_2P).w
 +
+	bra.w	loc_9368
+	rts
+
+loc_9368:
+	moveq	#3,d2
+
+loc_936A:
+	bsr.w	Chk2PZoneCompletion
+	bmi.s	locret_937E
+	addq.b	#1,($FFFFFF88).w
+	andi.b	#3,($FFFFFF88).w
+	dbf	d2,loc_936A
+
+locret_937E:
 	rts
 ; End of function LevelSelect2P_Controls
 
@@ -11337,7 +12162,7 @@ Update2PLevSelSelection:
 	move.l	(a3)+,d0
 	moveq	#$10,d1
 	moveq	#$B,d2
-	jsrto	(PlaneMapToVRAM_H40).l, JmpTo_PlaneMapToVRAM_H40
+	bsr.w	PlaneMapToVRAM_H40
 	lea	(Pal_LevelIcons).l,a1
 	moveq	#0,d0
 	move.b	(a3),d0
@@ -11410,7 +12235,7 @@ ClearOld2PLevSelSelection:
 	move.l	(a3)+,d0
 	moveq	#$10,d1
 	moveq	#$B,d2
-	jmpto	(PlaneMapToVRAM_H40).l, JmpTo_PlaneMapToVRAM_H40
+	bra.w	PlaneMapToVRAM_H40
 ; End of function ClearOld2PLevSelSelection
 
 ; ===========================================================================
@@ -11451,6 +12276,7 @@ MenuScreenTextToRAM:
 ; End of function MenuScreenTextToRAM
 
 ; ===========================================================================
+	if 0==1
 ; loc_8FCC:
 MenuScreen_Options:
 	lea	(Chunk_Table).l,a1
@@ -11757,6 +12583,7 @@ off_92EA:
 off_92F2:
 	dc.l TextOptScr_0
 ; ===========================================================================
+	endif
 ; loc_92F6:
 MenuScreen_LevelSelect:
 	; Load foreground (sans zone icon)
@@ -11842,9 +12669,10 @@ LevelSelect_Main:	; routine running during level select
 	lea	(Anim_SonicMilesBG).l,a2
 	jsrto	(Dynamic_Normal).l, JmpTo2_Dynamic_Normal
 
-	move.b	(Ctrl_1_Press).w,d0
-	or.b	(Ctrl_2_Press).w,d0
-	andi.b	#button_start_mask,d0	; start pressed?
+;	move.b	(Ctrl_1_Press).w,d0
+;	or.b	(Ctrl_2_Press).w,d0
+;	andi.b	#button_start_mask,d0	; start pressed?
+	btst	#4,($FFFFF604).w
 	bne.s	LevelSelect_PressStart	; yes
 	bra.w	LevelSelect_Main	; no
 ; ===========================================================================
@@ -11861,17 +12689,19 @@ LevelSelect_PressStart:
 ;LevelSelect_SpecialStage:
 	move.b	#GameModeID_SpecialStage,(Game_Mode).w ; => SpecialStage
 	clr.w	(Current_ZoneAndAct).w
-	move.b	#3,(Life_count).w
-	move.b	#3,(Life_count_2P).w
+;	move.b	#3,(Life_count).w
+;	move.b	#3,(Life_count_2P).w
+	jsr	(loc_169A).l
+	jsr	(loc_1728).l
 	moveq	#0,d0
 	move.w	d0,(Ring_count).w
-	move.l	d0,(Timer).w
+;	move.l	d0,(Timer).w
 	move.l	d0,(Score).w
 	move.w	d0,(Ring_count_2P).w
-	move.l	d0,(Timer_2P).w
+;	move.l	d0,(Timer_2P).w
 	move.l	d0,(Score_2P).w
-	move.l	#5000,(Next_Extra_life_score).w
-	move.l	#5000,(Next_Extra_life_score_2P).w
+;	move.l	#5000,(Next_Extra_life_score).w
+;	move.l	#5000,(Next_Extra_life_score_2P).w
 	move.w	(Player_option).w,(Player_mode).w
 	rts
 ; ===========================================================================
@@ -11919,18 +12749,20 @@ LevelSelect_StartZone:
 	andi.w	#$3FFF,d0
 	move.w	d0,(Current_ZoneAndAct).w
 	move.b	#GameModeID_Level,(Game_Mode).w ; => Level (Zone play mode)
-	move.b	#3,(Life_count).w
-	move.b	#3,(Life_count_2P).w
+;	move.b	#3,(Life_count).w
+;	move.b	#3,(Life_count_2P).w
+	jsr	(loc_169A).l
+	jsr	(loc_1728).l
 	moveq	#0,d0
 	move.w	d0,(Ring_count).w
-	move.l	d0,(Timer).w
+;	move.l	d0,(Timer).w
 	move.l	d0,(Score).w
 	move.w	d0,(Ring_count_2P).w
-	move.l	d0,(Timer_2P).w
+;	move.l	d0,(Timer_2P).w
 	move.l	d0,(Score_2P).w
 	move.b	d0,(Continue_count).w
-	move.l	#5000,(Next_Extra_life_score).w
-	move.l	#5000,(Next_Extra_life_score_2P).w
+;	move.l	#5000,(Next_Extra_life_score).w
+;	move.l	#5000,(Next_Extra_life_score_2P).w
 	move.b	#MusID_FadeOut,d0
 	jsrto	(PlaySound).l, JmpTo_PlaySound
 	moveq	#0,d0
@@ -12007,11 +12839,11 @@ LevSelControls_CheckLR:
 	move.w	(Sound_test_sound).w,d0
 	addi.w	#$80,d0
 	jsrto	(PlayMusic).l, JmpTo_PlayMusic
-	lea	(debug_cheat).l,a0
-	lea	(super_sonic_cheat).l,a2
+;	lea	(debug_cheat).l,a0
+;	lea	(super_sonic_cheat).l,a2
 	lea	(Debug_options_flag).w,a1	; Also S1_hidden_credits_flag
 	moveq	#1,d2	; flag to tell the routine to enable the Super Sonic cheat
-	bsr.w	CheckCheats
+;	bsr.w	CheckCheats
 
 +
 	rts
@@ -12212,6 +13044,7 @@ LevSel_MarkTable:	; 4 bytes per level select entry
 	dc.b  $F,$2C,  0,  0	;$14
 	dc.b $12,$2C,$12,$48
 ; ===========================================================================
+	if 0==1
 ; loc_9746:
 CheckCheats:	; This is called from 2 places: the options screen and the level select screen
 	move.w	(Correct_cheat_entries).w,d0	; Get the number of correct sound IDs entered so far
@@ -12264,6 +13097,8 @@ debug_cheat:		dc.b   1,   9,   9,   2,   1,   1,   2,   4,   0	; 24th November 1
 ; byte_97C5
 super_sonic_cheat:	dc.b   4,   1,   2,   6,   0	; Book of Genesis, 41:26
 	rev02even
+
+	endif
 
 	; set the character set for menu text
 	charset '@',"\27\30\31\32\33\34\35\36\37\38\39\40\41\42\43\44\45\46\47\48\49\50\51\52\53\54\55"
@@ -12355,7 +13190,9 @@ EndingSequence:
 	move.w	#$8ADF,(Hint_counter_reserve).w	; H-INT every 224th scanline
 	move.w	(Hint_counter_reserve).w,(a6)
 	clr.b	(Super_Sonic_flag).w
-	cmpi.b	#7,(Emerald_count).w
+;	cmpi.b	#7,(Emerald_count).w
+;	bne.s	+
+	cmpi.w	#0,($FFFF96).l
 	bne.s	+
 	cmpi.w	#2,(Player_mode).w
 	beq.s	+
@@ -12586,6 +13423,10 @@ EndgameCredits:
 +
 	st	(Level_Inactive_flag).w
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
+	move.w	#$FF0C,d0
+	bsr.w	BranchTo_loc_120E
+	move.w	#$FF1E,d0
+	bsr.w	BranchTo_loc_120E
 /
 	rts
 ; End of function sub_9EF4
@@ -13436,6 +14277,13 @@ loc_AA8A:
 	tst.w	y_pos(a0)
 	bmi.w	JmpTo3_DeleteObject
 	jmpto	(DisplaySprite).l, JmpTo5_DisplaySprite
+
+    if removeJmpTos
+JmpTo3_DeleteObject 
+    endif
+
+	jmpto	(DeleteObject).l, JmpTo3_DeleteObject
+
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object CD - Birds from ending sequence
@@ -13537,11 +14385,6 @@ loc_AB8E:
 ; ===========================================================================
 +
 	addq.w	#4,sp
-
-    if removeJmpTos
-JmpTo3_DeleteObject 
-    endif
-
 	jmpto	(DeleteObject).l, JmpTo3_DeleteObject
 ; ===========================================================================
 
@@ -17575,8 +18418,8 @@ DrawBlockCol2:
 	move.l	d1,d0
 	bsr.w	ProcessAndWriteBlock2
 	adda.w	#$10,a0		; move onto the 16x16 vertically below this one
-	addi.w	#$100,d1	; draw on alternate 8x8 lines
-	andi.w	#$FFF,d1
+	addi.w	#64*2*2,d1	; draw on alternate 8x8 lines
+	andi.w	#(64*32*2)-1,d1	; wrap around plane (assumed to be in 64x32 mode)
 	addi.w	#$10,d4		; add 16 to Y offset
 	move.w	d4,d0
 	andi.w	#$70,d0		; have we reached a new 128x128?
@@ -20855,7 +21698,7 @@ Obj15_State4:
 	beq.w	BranchTo_loc_1000C
 	tst.b	(Oscillating_Data+$18).w
 	bne.w	BranchTo_loc_1000C
-	jsrto	(SingleObjLoad2).l, JmpTo2_SingleObjLoad2
+	bsr.w	SingleObjLoad2
 	bne.s	loc_100E4
 	moveq	#0,d0
 
@@ -21060,6 +21903,9 @@ JmpTo_ObjCheckRightWallDist
 
 	align 4
     endif
+
+JmpTo_loc_120E 
+	jmp	(loc_120E).l
 
 
 
@@ -22355,7 +23201,7 @@ Obj2D_Main:
 	move.w	d2,d3
 	addq.w	#1,d3
 	move.w	x_pos(a0),d4
-	jsrto	(SolidObject).l, JmpTo2_SolidObject
+	bsr.w	SolidObject
 	bra.w	MarkObjGone                          ; delete object if off screen
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -23024,18 +23870,18 @@ CollectRing_1P:
 	ori.b	#1,(Update_HUD_rings).w	; set flag to update the ring counter in the HUD
     endif
 
-	cmpi.w	#100,(Ring_count).w	; does the player 1 have less than 100 rings?
-	blo.s	JmpTo_PlaySoundStereo	; if yes, play the ring sound
-	bset	#1,(Extra_life_flags).w	; test and set the flag for the first extra life
-	beq.s	+			; if it was clear before, branch
-	cmpi.w	#200,(Ring_count).w	; does the player 1 have less than 200 rings?
-	blo.s	JmpTo_PlaySoundStereo	; if yes, play the ring sound
-	bset	#2,(Extra_life_flags).w	; test and set the flag for the second extra life
-	bne.s	JmpTo_PlaySoundStereo	; if it was set before, play the ring sound
-+
-	addq.b	#1,(Life_count).w	; add 1 to the life count
-	addq.b	#1,(Update_HUD_lives).w	; add 1 to the displayed life count
-	move.w	#MusID_ExtraLife,d0	; prepare to play the extra life jingle
+;	cmpi.w	#100,(Ring_count).w	; does the player 1 have less than 100 rings?
+;	blo.s	JmpTo_PlaySoundStereo	; if yes, play the ring sound
+;	bset	#1,(Extra_life_flags).w	; test and set the flag for the first extra life
+;	beq.s	+			; if it was clear before, branch
+;	cmpi.w	#200,(Ring_count).w	; does the player 1 have less than 200 rings?
+;	blo.s	JmpTo_PlaySoundStereo	; if yes, play the ring sound
+;	bset	#2,(Extra_life_flags).w	; test and set the flag for the second extra life
+;	bne.s	JmpTo_PlaySoundStereo	; if it was set before, play the ring sound
+;+
+;	addq.b	#1,(Life_count).w	; add 1 to the life count
+;	addq.b	#1,(Update_HUD_lives).w	; add 1 to the displayed life count
+;	move.w	#MusID_ExtraLife,d0	; prepare to play the extra life jingle
 
 JmpTo_PlaySoundStereo 
 	jmp	(PlaySoundStereo).l
@@ -23058,18 +23904,18 @@ CollectRing_Tails:
 ; CollectRing_2P:
 	ori.b	#1,(Update_HUD_rings_2P).w	; set flag to update the ring counter in the second player's HUD
 	move.w	#SndID_Ring,d0			; prepare to play the ring sound
-	cmpi.w	#100,(Ring_count_2P).w		; does the player 2 have less than 100 rings?
-	blo.s	JmpTo2_PlaySoundStereo		; if yes, play the ring sound
-	bset	#1,(Extra_life_flags_2P).w	; test and set the flag for the first extra life
-	beq.s	+				; if it was clear before, branch
-	cmpi.w	#200,(Ring_count_2P).w		; does the player 2 have less than 200 rings?
-	blo.s	JmpTo2_PlaySoundStereo		; if yes, play the ring sound
-	bset	#2,(Extra_life_flags_2P).w	; test and set the flag for the second extra life
-	bne.s	JmpTo2_PlaySoundStereo		; if it was set before, play the ring sound
-+
-	addq.b	#1,(Life_count_2P).w		; add 1 to the life count
-	addq.b	#1,(Update_HUD_lives_2P).w	; add 1 to the displayed life count
-	move.w	#MusID_ExtraLife,d0		; prepare to play the extra life jingle
+;	cmpi.w	#100,(Ring_count_2P).w		; does the player 2 have less than 100 rings?
+;	blo.s	JmpTo2_PlaySoundStereo		; if yes, play the ring sound
+;	bset	#1,(Extra_life_flags_2P).w	; test and set the flag for the first extra life
+;	beq.s	+				; if it was clear before, branch
+;	cmpi.w	#200,(Ring_count_2P).w		; does the player 2 have less than 200 rings?
+;	blo.s	JmpTo2_PlaySoundStereo		; if yes, play the ring sound
+;	bset	#2,(Extra_life_flags_2P).w	; test and set the flag for the second extra life
+;	bne.s	JmpTo2_PlaySoundStereo		; if it was set before, play the ring sound
+;+
+;	addq.b	#1,(Life_count_2P).w		; add 1 to the life count
+;	addq.b	#1,(Update_HUD_lives_2P).w	; add 1 to the displayed life count
+;	move.w	#MusID_ExtraLife,d0		; prepare to play the extra life jingle
 
 JmpTo2_PlaySoundStereo 
 	jmp	(PlaySoundStereo).l
@@ -23735,8 +24581,8 @@ Obj2E_Raise:
 ; ===========================================================================
 Obj2E_Types:	offsetTable
 		offsetTableEntry.w robotnik_monitor	; 0 - Static
-		offsetTableEntry.w sonic_1up		; 1 - Sonic 1-up
-		offsetTableEntry.w tails_1up		; 2 - Tails 1-up
+		offsetTableEntry.w super_ring		; 1 - Sonic 1-up
+		offsetTableEntry.w super_ring		; 2 - Tails 1-up
 		offsetTableEntry.w robotnik_monitor	; 3 - Robotnik
 		offsetTableEntry.w super_ring		; 4 - Super Ring
 		offsetTableEntry.w super_shoes		; 5 - Speed Shoes
@@ -23758,23 +24604,23 @@ robotnik_monitor:
 ; Sonic 1up Monitor
 ; gives Sonic an extra life, or Tails in a 'Tails alone' game
 ; ---------------------------------------------------------------------------
-sonic_1up:
-	addq.w	#1,(Monitors_Broken).w
-	addq.b	#1,(Life_count).w
-	addq.b	#1,(Update_HUD_lives).w
-	move.w	#MusID_ExtraLife,d0
-	jmp	(PlayMusic).l	; Play extra life music
+;sonic_1up:
+;	addq.w	#1,(Monitors_Broken).w
+;	addq.b	#1,(Life_count).w
+;	addq.b	#1,(Update_HUD_lives).w
+;	move.w	#MusID_ExtraLife,d0
+;	jmp	(PlayMusic).l	; Play extra life music
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Tails 1up Monitor
 ; gives Tails an extra life in two player mode
 ; ---------------------------------------------------------------------------
-tails_1up:
-	addq.w	#1,(Monitors_Broken_2P).w
-	addq.b	#1,(Life_count_2P).w
-	addq.b	#1,(Update_HUD_lives_2P).w
-	move.w	#MusID_ExtraLife,d0
-	jmp	(PlayMusic).l	; Play extra life music
+;tails_1up:
+;	addq.w	#1,(Monitors_Broken_2P).w
+;	addq.b	#1,(Life_count_2P).w
+;	addq.b	#1,(Update_HUD_lives_2P).w
+;	move.w	#MusID_ExtraLife,d0
+;	jmp	(PlayMusic).l	; Play extra life music
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Super Ring Monitor
@@ -23820,24 +24666,24 @@ super_ring:
 
 +
 	ori.b	#1,(a3)
-	cmpi.w	#100,(a2)
-	blo.s	+		; branch, if player has less than 100 rings
-	bset	#1,(a4)		; set flag for first 1up
-	beq.s	ChkPlayer_1up	; branch, if not yet set
-	cmpi.w	#200,(a2)
-	blo.s	+		; branch, if player has less than 200 rings
-	bset	#2,(a4)		; set flag for second 1up
-	beq.s	ChkPlayer_1up	; branch, if not yet set
-+
+;	cmpi.w	#100,(a2)
+;	blo.s	+		; branch, if player has less than 100 rings
+;	bset	#1,(a4)		; set flag for first 1up
+;	beq.s	ChkPlayer_1up	; branch, if not yet set
+;	cmpi.w	#200,(a2)
+;	blo.s	+		; branch, if player has less than 200 rings
+;	bset	#2,(a4)		; set flag for second 1up
+;	beq.s	ChkPlayer_1up	; branch, if not yet set
+;+
 	move.w	#SndID_Ring,d0
 	jmp	(PlayMusic).l
 ; ---------------------------------------------------------------------------
 ;loc_129D4:
-ChkPlayer_1up:
+;ChkPlayer_1up:
 	; give 1up to correct player
-	cmpa.w	#MainCharacter,a1
-	beq.w	sonic_1up
-	bra.w	tails_1up
+;	cmpa.w	#MainCharacter,a1
+;	beq.w	sonic_1up
+;	bra.w	tails_1up
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Super Sneakers Monitor
@@ -24116,8 +24962,8 @@ Obj2E_Wait:
 ; off_12CCE:
 Ani_obj26:	offsetTable
 		offsetTableEntry.w Ani_obj26_Static		;  0
-		offsetTableEntry.w Ani_obj26_Sonic		;  1
-		offsetTableEntry.w Ani_obj26_Tails		;  2
+		offsetTableEntry.w Ani_obj26_Ring		;  1
+		offsetTableEntry.w Ani_obj26_Ring		;  2
 		offsetTableEntry.w Ani_obj26_Eggman		;  3
 		offsetTableEntry.w Ani_obj26_Ring		;  4
 		offsetTableEntry.w Ani_obj26_Shoes		;  5
@@ -24167,7 +25013,7 @@ Ani_obj26_Broken:
 ; Sprite Mappings - Sprite table for monitor and monitor contents (26, ??)
 ; ---------------------------------------------------------------------------------
 ; MapUnc_12D36: MapUnc_obj26:
-Obj26_MapUnc_12D36:	BINCLUDE "mappings/sprite/obj26.bin"
+Obj26_MapUnc_12D36:	BINCLUDE "mappings/sprite/obj26edit.bin"
 ; ===========================================================================
 
     if gameRevision<2
@@ -24941,6 +25787,7 @@ TitleScreen_InitSprite:
 ; ----------------------------------------------------------------------------
 ; Sprite_13600:
 Obj0F:
+	if 1==0
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj0F_Index(pc,d0.w),d1
@@ -24989,6 +25836,7 @@ Obj0F_Main:
 	moveq	#SndID_Blip,d0 ; selection blip sound
 	jsrto	(PlaySound).l, JmpTo4_PlaySound
 +
+	endif
 	rts
 ; ===========================================================================
 ; animation script
@@ -25037,7 +25885,12 @@ Obj0E_MapUnc_136A8:	BINCLUDE "mappings/sprite/obj0E.bin"
 ; -----------------------------------------------------------------------------
 ; sprite mappings
 ; -----------------------------------------------------------------------------
-Obj0F_MapUnc_13B70:	BINCLUDE "mappings/sprite/obj0F.bin"
+Obj0F_MapUnc_13B70:;	BINCLUDE "mappings/sprite/obj0F.bin"
+	; All three mapping frames are blanked-out
+	dc.w	Obj0F_BlankFrame-Obj0F_MapUnc_13B70
+	dc.w	Obj0F_BlankFrame-Obj0F_MapUnc_13B70
+	dc.w	Obj0F_BlankFrame-Obj0F_MapUnc_13B70
+Obj0F_BlankFrame:
 
     if ~~removeJmpTos
 JmpTo4_PlaySound 
@@ -25486,10 +26339,12 @@ Obj39_Dismiss:
 	bne.s	Obj39_TimeOver
 	tst.b	(Time_Over_flag_2P).w
 	bne.s	Obj39_TimeOver
+	move.w	#$FF0C,d0
+	jsr	JmpTo_loc_120E
 	move.b	#GameModeID_ContinueScreen,(Game_Mode).w ; => ContinueScreen
-	tst.b	(Continue_count).w
-	bne.s	Obj39_Check2PMode
-	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
+;	tst.b	(Continue_count).w
+;	bne.s	Obj39_Check2PMode
+;	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
 	bra.s	Obj39_Check2PMode
 ; ===========================================================================
 ; loc_14034:
@@ -25688,27 +26543,28 @@ loc_141E6:
 	addq.b	#2,routine(a0)
 	move.w	#$B4,anim_frame_duration(a0)
 	cmpi.w	#1000,(Total_Bonus_Countdown).w
-	blo.s	return_14254
-	move.w	#$12C,anim_frame_duration(a0)
-	lea	next_object(a0),a1 ; a1=object
+	rts
+;	blo.s	return_14254
+;	move.w	#$12C,anim_frame_duration(a0)
+;	lea	next_object(a0),a1 ; a1=object
 
-loc_14214:
-	_tst.b	id(a1)
-	beq.s	loc_14220
-	lea	next_object(a1),a1 ; a1=object
-	bra.s	loc_14214
+;loc_14214:
+;	_tst.b	id(a1)
+;	beq.s	loc_14220
+;	lea	next_object(a1),a1 ; a1=object
+;	bra.s	loc_14214
 ; ===========================================================================
 
-loc_14220:
-	_move.b	#ObjID_Results,id(a1) ; load obj3A (uses screen-space)
-	move.b	#$12,routine(a1)
-	move.w	#$188,x_pixel(a1)
-	move.w	#$118,y_pixel(a1)
-	move.l	#Obj3A_MapUnc_14CBC,mappings(a1)
-	bsr.w	Adjust2PArtPointer2
-	move.b	#0,render_flags(a1)
-	move.w	#$3C,anim_frame_duration(a1)
-	addq.b	#1,(Continue_count).w
+;loc_14220:
+;	_move.b	#ObjID_Results,id(a1) ; load obj3A (uses screen-space)
+;	move.b	#$12,routine(a1)
+;	move.w	#$188,x_pixel(a1)
+;	move.w	#$118,y_pixel(a1)
+;	move.l	#Obj3A_MapUnc_14CBC,mappings(a1)
+;	bsr.w	Adjust2PArtPointer2
+;	move.b	#0,render_flags(a1)
+;	move.w	#$3C,anim_frame_duration(a1)
+;	addq.b	#1,(Continue_count).w
 
 return_14254:
 
@@ -25740,6 +26596,10 @@ loc_1428C:
 	tst.w	d0
 	bpl.s	loc_1429C
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
+	move.w	#$FF0C,d0
+	bsr.w	JmpTo_loc_120E
+	move.w	#$FF1E,d0
+	bsr.w	JmpTo_loc_120E
 	rts
 ; ===========================================================================
 
@@ -26229,7 +27089,7 @@ Obj6F_MoveAndDisplay:
 	bne.w	Obj34_MoveTowardsTargetPosition
 	move.w	#$B4,anim_frame_duration(a0)
 	move.b	#$20,routine(a0)	; => Obj6F_TimedDisplay
-	bra.w	DisplaySprite
+	jmp	(DisplaySprite).l
 ; ===========================================================================
 byte_14752:
 	;      startx  targx   starty  routine   map frame
@@ -32039,6 +32899,10 @@ Obj0D_Main_State4:
 	bne.s	return_19532
 	tst.b	(Update_HUD_timer_2P).w
 	bne.s	return_19532
+	tst.b	($FFFFFE12).w
+	beq.s	return_19532
+	tst.b	($FFFFFEC6).w
+	beq.s	return_19532
 	move.b	#0,(Last_star_pole_hit).w
 	move.b	#0,(Last_star_pole_hit_2P).w
 	move.b	#GameModeID_2PResults,(Game_Mode).w ; => TwoPlayerResults
@@ -33214,7 +34078,7 @@ Obj01_Control:
 	andi.w	#$7FF,y_pos(a0) 		; perform wrapping of Sonic's y position
 +
 	bsr.s	Sonic_Display
-	bsr.w	Sonic_Super
+;	bsr.w	Sonic_Super
 	bsr.w	Sonic_RecordPos
 	bsr.w	Sonic_Water
 	move.b	(Primary_Angle).w,next_tilt(a0)
@@ -34344,7 +35208,7 @@ Sonic_JumpHeight:
 	move.w	d1,y_vel(a0)	; immediately reduce Sonic's upward speed to d1
 +
 	tst.b	y_vel(a0)		; is Sonic exactly at the height of his jump?
-	beq.s	Sonic_CheckGoSuper	; if yes, test for turning into Super Sonic
+;	beq.s	Sonic_CheckGoSuper	; if yes, test for turning into Super Sonic
 	rts
 ; ---------------------------------------------------------------------------
 ; loc_1AB22:
@@ -34365,7 +35229,7 @@ return_1AB36:
 ; ---------------------------------------------------------------------------
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
+	if 0==1
 ; loc_1AB38: test_set_SS:
 Sonic_CheckGoSuper:
 	tst.b	(Super_Sonic_flag).w	; is Sonic already Super?
@@ -34450,7 +35314,7 @@ Sonic_RevertToNormal:
 return_1AC3C:
 	rts
 ; End of subroutine Sonic_Super
-
+	endif
 ; ---------------------------------------------------------------------------
 ; Subroutine to check for starting to charge a spindash
 ; ---------------------------------------------------------------------------
@@ -35070,6 +35934,9 @@ Sonic_HurtStop:
 
 return_1B1C8:
 	rts
+
+JmpTo_KillCharacter 
+	jmp	(KillCharacter).l
 ; ===========================================================================
 ; makes Sonic recover control after being hurt before landing
 ; seems to be unused
@@ -35705,9 +36572,6 @@ return_1B89A:
 	rts
 ; ===========================================================================
 
-JmpTo_KillCharacter 
-	jmp	(KillCharacter).l
-
     if ~~removeJmpTos
 	align 4
     endif
@@ -35918,9 +36782,9 @@ Obj02_ExitChk:
 TailsCPU_Control: ; a0=Tails
 	move.b	(Ctrl_2_Held).w,d0	; did the real player 2 hit something?
 	andi.b	#button_up_mask|button_down_mask|button_left_mask|button_right_mask|button_B_mask|button_C_mask|button_A_mask,d0
-	beq.s	+			; if not, branch
-	move.w	#600,(Tails_control_counter).w ; give player 2 control for 10 seconds (minimum)
-+
+;	beq.s	+			; if not, branch
+;	move.w	#600,(Tails_control_counter).w ; give player 2 control for 10 seconds (minimum)
+;+
 	lea	(MainCharacter).w,a1 ; a1=character ; a1=Sonic
 	move.w	(Tails_CPU_routine).w,d0
 	move.w	TailsCPU_States(pc,d0.w),d0
@@ -37851,6 +38715,9 @@ return_1CC4E:
 	rts
 ; ===========================================================================
 
+JmpTo2_KillCharacter 
+	jmp	(KillCharacter).l
+
 ; ---------------------------------------------------------------------------
 ; Tails when he dies
 ; .
@@ -38554,10 +39421,6 @@ Obj05Ani_Pushing:	dc.b   9,$87,$88,$89,$8A,$FF
 Obj05Ani_Hanging:	dc.b   9,$81,$82,$83,$84,$FF
 	even
 
-; ===========================================================================
-
-JmpTo2_KillCharacter 
-	jmp	(KillCharacter).l
 ; ===========================================================================
 	align 4
 
@@ -41232,13 +42095,13 @@ Obj79_CheckActivation:
 	move.b	#2,mapping_frame(a1)
 	move.w	#$20,objoff_36(a1)
 	move.w	a0,parent(a1)
-	tst.w	(Two_player_mode).w
-	bne.s	loc_1F206
-	cmpi.b	#7,(Emerald_count).w
-	beq.s	loc_1F206
-	cmpi.w	#50,(Ring_count).w
-	blo.s	loc_1F206
-	bsr.w	Obj79_MakeSpecialStars
+;	tst.w	(Two_player_mode).w
+;	bne.s	loc_1F206
+;	cmpi.b	#7,(Emerald_count).w
+;	beq.s	loc_1F206
+;	cmpi.w	#50,(Ring_count).w
+;	blo.s	loc_1F206
+;	bsr.w	Obj79_MakeSpecialStars
 
 loc_1F206:
 	move.b	#1,anim(a0)
@@ -41403,7 +42266,7 @@ Obj79_MapUnc_1F424:	BINCLUDE "mappings/sprite/obj79_a.bin"
 ; -------------------------------------------------------------------------------
 Obj79_MapUnc_1F4A0:	BINCLUDE "mappings/sprite/obj79_b.bin"
 ; ===========================================================================
-
+	if 1==0
 ; loc_1F4C4:
 Obj79_MakeSpecialStars:
 	moveq	#4-1,d1 ; execute the loop 4 times (1 for each star)
@@ -41433,6 +42296,7 @@ Obj79_MakeSpecialStars:
 	dbf	d1,- ; loop
 +
 	rts
+	endif
 ; ===========================================================================
 ; loc_1F536:
 Obj79_Star:
@@ -41881,9 +42745,9 @@ JmpTo14_DeleteObject
 	jmp	(DeleteObject).l
 ; ===========================================================================
 
-    if removeJmpTos
-JmpTo15_DeleteObject 
-    endif
+;    if removeJmpTos
+;JmpTo15_DeleteObject 
+;    endif
 
 BranchTo_JmpTo15_DeleteObject 
 	jmpto	(DeleteObject).l, JmpTo15_DeleteObject
@@ -41982,6 +42846,9 @@ loc_1FACE:
 	cmp.w	y_pos(a0),d0
 	blo.w	JmpTo7_DisplaySprite
 	rts
+
+JmpTo15_DeleteObject 
+	jmp	(DeleteObject).l
 
     if removeJmpTos
 JmpTo7_DisplaySprite 
@@ -42724,8 +43591,12 @@ Obj12_Main:
 	andi.w	#$FF80,d0
 	sub.w	(Camera_X_pos_coarse).w,d0
 	cmpi.w	#$280,d0
-	bhi.w	JmpTo16_DeleteObject
+	bhi.w	JmpToXX_DeleteObject
 	jmpto	(DisplaySprite).l, JmpTo8_DisplaySprite
+
+JmpToXX_DeleteObject 
+;	jmp	(DeleteObject).l
+	; OOPS
 ; ===========================================================================
 ; -------------------------------------------------------------------------------
 ; sprite mappings (unused)
@@ -42740,15 +43611,10 @@ Obj12_MapUnc_20382:	BINCLUDE "mappings/sprite/obj12.bin"
     if ~~removeJmpTos
 JmpTo8_DisplaySprite 
 	jmp	(DisplaySprite).l
-JmpTo16_DeleteObject 
-	jmp	(DeleteObject).l
 JmpTo10_Adjust2PArtPointer 
 	jmp	(Adjust2PArtPointer).l
 
 	align 4
-    else
-JmpTo16_DeleteObject 
-	jmp	(DeleteObject).l
     endif
 
 
@@ -42871,6 +43737,9 @@ loc_204F0:
 	cmpi.w	#$280,d0
 	bhi.w	JmpTo17_DeleteObject
 	rts
+
+JmpTo17_DeleteObject 
+	jmp	(DeleteObject).l
 ; ===========================================================================
 ; loc_20510:
 Obj13_ChkDel:
@@ -42898,9 +43767,6 @@ JmpTo11_Adjust2PArtPointer
 	jmp	(Adjust2PArtPointer).l
 
 	align 4
-    else
-JmpTo17_DeleteObject 
-	jmp	(DeleteObject).l
     endif
 
 
@@ -43140,6 +44006,9 @@ Obj31_Main:
 	jsrto	(DisplaySprite).l, JmpTo10_DisplaySprite
 +
 	rts
+
+JmpTo18_DeleteObject 
+	jmp	(DeleteObject).l
 ; ===========================================================================
 ; -------------------------------------------------------------------------------
 ; sprite non-mappings
@@ -43675,9 +44544,6 @@ JmpTo12_Adjust2PArtPointer
 	jmp	(Adjust2PArtPointer).l
 
 	align 4
-    else
-JmpTo18_DeleteObject 
-	jmp	(DeleteObject).l
     endif
 
 
@@ -44546,7 +45412,7 @@ JmpTo4_ObjectMove
 
 	align 4
     else
-	dc.b	$01,$02,$1E,$42	; ??? (unused)
+;	dc.b	$01,$02,$1E,$42	; ??? (unused)
     endif
 
 
@@ -44632,6 +45498,9 @@ Obj19_Main:
 	cmpi.w	#$280,d0
 	bhi.w	JmpTo20_DeleteObject
 	jmpto	(DisplaySprite).l, JmpTo11_DisplaySprite
+
+JmpTo20_DeleteObject 
+	jmp	(DeleteObject).l
 ; ---------------------------------------------------------------------------
 ; loc_220E8:
 Obj19_Move:
@@ -44807,8 +45676,6 @@ Obj19_MapUnc_2222A:	BINCLUDE "mappings/sprite/obj19.bin"
     if ~~removeJmpTos
 JmpTo11_DisplaySprite 
 	jmp	(DisplaySprite).l
-JmpTo20_DeleteObject 
-	jmp	(DeleteObject).l
 JmpTo15_Adjust2PArtPointer 
 	jmp	(Adjust2PArtPointer).l
 JmpTo4_PlatformObject 
@@ -44818,9 +45685,6 @@ JmpTo5_ObjectMove
 	jmp	(ObjectMove).l
 
 	align 4
-    else
-JmpTo20_DeleteObject 
-	jmp	(DeleteObject).l
     endif
 
 
@@ -45126,7 +45990,7 @@ Obj1E:
 	jsr	Obj1E_Index(pc,d1.w)
 	move.b	objoff_2C(a0),d0
 	add.b	objoff_36(a0),d0
-	beq.w	JmpTo_MarkObjGone3
+	beq.s	JmpTo_MarkObjGone3
 	rts
 
     if removeJmpTos
@@ -46128,6 +46992,9 @@ Obj32_Fragment:
 	tst.b	render_flags(a0)
 	bpl.w	JmpTo22_DeleteObject
 	jmpto	(DisplaySprite).l, JmpTo12_DisplaySprite
+
+JmpTo22_DeleteObject 
+	jmp	(DeleteObject).l
 ; ===========================================================================
 ; velocity array for smashed bits, two words for each fragment
 ; byte_23680:
@@ -46201,8 +47068,6 @@ Obj32_MapUnc_23886:	BINCLUDE "mappings/sprite/obj32_b.bin"
     if ~~removeJmpTos
 JmpTo12_DisplaySprite 
 	jmp	(DisplaySprite).l
-JmpTo22_DeleteObject 
-	jmp	(DeleteObject).l
 JmpTo3_SingleObjLoad 
 	jmp	(SingleObjLoad).l
 JmpTo9_MarkObjGone 
@@ -46218,9 +47083,6 @@ JmpTo8_ObjectMove
 	jmp	(ObjectMove).l
 
 	align 4
-    else
-JmpTo22_DeleteObject 
-	jmp	(DeleteObject).l
     endif
 
 
@@ -46292,8 +47154,11 @@ Obj30_Main:
 	move.w	Obj30_Modes(pc,d0.w),d1
 	jsr	Obj30_Modes(pc,d1.w)
 	tst.b	(Screen_Shaking_Flag_HTZ).w
-	beq.w	JmpTo2_MarkObjGone3
+	beq.s	JmpTo2_MarkObjGone3
 	rts
+
+JmpTo2_MarkObjGone3 
+	jmp	(MarkObjGone3).l
 ; ===========================================================================
 ; off_23968:
 Obj30_Modes:	offsetTable
@@ -46381,8 +47246,6 @@ JmpTo23_DeleteObject
 	jmp	(DeleteObject).l
 JmpTo_Touch_ChkHurt 
 	jmp	(Touch_ChkHurt).l
-JmpTo2_MarkObjGone3 
-	jmp	(MarkObjGone3).l
 JmpTo_DropOnFloor 
 	jmp	(DropOnFloor).l
 JmpTo_SolidObject_Always 
@@ -46391,9 +47254,6 @@ JmpTo_SlopedSolid
 	jmp	(SlopedSolid).l
 
 	align 4
-    else
-JmpTo2_MarkObjGone3 
-	jmp	(MarkObjGone3).l
     endif
 
 
@@ -47817,6 +48677,14 @@ Obj3D_Fragment:
 	tst.b	render_flags(a0)
 	bpl.w	JmpTo26_DeleteObject
 	jmpto	(DisplaySprite).l, JmpTo14_DisplaySprite
+
+JmpTo26_DeleteObject 
+	jmp	(DeleteObject).l
+JmpTo3_MarkObjGone3 
+	jmp	(MarkObjGone3).l
+; Unused
+;JmpTo13_MarkObjGone 
+;	jmp	(MarkObjGone).l
 ; ===========================================================================
 ; loc_24F52:
 Obj3D_InvisibleLauncher:
@@ -47958,8 +48826,6 @@ Obj3D_MapUnc_250BA:	BINCLUDE "mappings/sprite/obj3D.bin"
     if ~~removeJmpTos
 JmpTo14_DisplaySprite 
 	jmp	(DisplaySprite).l
-JmpTo26_DeleteObject 
-	jmp	(DeleteObject).l
 JmpTo13_MarkObjGone 
 	jmp	(MarkObjGone).l
 JmpTo9_SingleObjLoad2 
@@ -47977,14 +48843,6 @@ JmpTo10_ObjectMove
 	jmp	(ObjectMove).l
 
 	align 4
-    else
-JmpTo3_MarkObjGone3 
-	jmp	(MarkObjGone3).l
-JmpTo26_DeleteObject 
-	jmp	(DeleteObject).l
-; Unused
-;JmpTo13_MarkObjGone 
-	jmp	(MarkObjGone).l
     endif
 
 
@@ -48721,6 +49579,9 @@ loc_25BA4:
 	tst.b	render_flags(a0)
 	bpl.w	JmpTo28_DeleteObject
 	jmpto	(DisplaySprite).l, JmpTo16_DisplaySprite
+
+JmpTo28_DeleteObject 
+	jmp	(DeleteObject).l
 ; ===========================================================================
 byte_25BB0:
 	dc.b   0
@@ -48799,8 +49660,6 @@ Obj2B_MapUnc_25C6E:	BINCLUDE "mappings/sprite/obj2B.bin"
     if ~~removeJmpTos
 JmpTo16_DisplaySprite 
 	jmp	(DisplaySprite).l
-JmpTo28_DeleteObject 
-	jmp	(DeleteObject).l
 JmpTo16_MarkObjGone 
 	jmp	(MarkObjGone).l
 JmpTo10_SingleObjLoad2 
@@ -48814,9 +49673,6 @@ JmpTo12_ObjectMove
 	jmp	(ObjectMove).l
 
 	align 4
-    else
-JmpTo28_DeleteObject 
-	jmp	(DeleteObject).l
     endif
 
 
@@ -50260,8 +51116,11 @@ Obj67:
 	add.b	objoff_36(a0),d0
 	beq.w	JmpTo4_MarkObjGone3
 	lea	(Ani_obj67).l,a1
-	jsrto	(AnimateSprite).l, JmpTo7_AnimateSprite
+	jmpto	(AnimateSprite).l, JmpTo7_AnimateSprite
 	jmpto	(DisplaySprite).l, JmpTo19_DisplaySprite
+
+JmpTo4_MarkObjGone3 
+	jmp	(MarkObjGone3).l
 ; ===========================================================================
 ; off_27184:
 Obj67_Index:	offsetTable
@@ -50526,13 +51385,8 @@ JmpTo19_DisplaySprite
 	jmp	(DisplaySprite).l
 JmpTo7_AnimateSprite 
 	jmp	(AnimateSprite).l
-JmpTo4_MarkObjGone3 
-	jmp	(MarkObjGone3).l
 
 	align 4
-    else
-JmpTo4_MarkObjGone3 
-	jmp	(MarkObjGone3).l
     endif
 
 
@@ -57889,6 +58743,9 @@ Obj50_Wing:
 	lea	(Ani_obj50).l,a1
 	jsrto	(AnimateSprite).l, JmpTo14_AnimateSprite
 	jmpto	(DisplaySprite).l, JmpTo32_DisplaySprite
+
+JmpTo48_DeleteObject 
+	jmp	(DeleteObject).l
 ; ===========================================================================
 ; loc_2CDF4:
 Obj50_Bullet:
@@ -58066,8 +58923,6 @@ Obj50_MapUnc_2CF94:	BINCLUDE "mappings/sprite/obj50.bin"
     if ~~removeJmpTos
 JmpTo32_DisplaySprite 
 	jmp	(DisplaySprite).l
-JmpTo48_DeleteObject 
-	jmp	(DeleteObject).l
 JmpTo12_SingleObjLoad 
 	jmp	(SingleObjLoad).l
 JmpTo33_MarkObjGone 
@@ -58085,9 +58940,6 @@ JmpTo20_ObjectMove
 	jmp	(ObjectMove).l
 
 	align 4
-    else
-JmpTo48_DeleteObject 
-	jmp	(DeleteObject).l
     endif
 
 
@@ -58142,6 +58994,9 @@ Obj4B_Flame:
 	lea	(Ani_obj4B).l,a1
 	jsrto	(AnimateSprite).l, JmpTo15_AnimateSprite
 	jmpto	(MarkObjGone_P1).l, JmpTo_MarkObjGone_P1
+
+JmpTo49_DeleteObject 
+	jmp	(DeleteObject).l
 ; ===========================================================================
 ; loc_2D0C8:
 Obj4B_Init:
@@ -58221,6 +59076,10 @@ Obj4B_TurnAround:
 	bchg	#0,status(a0)
 	move.w	#$100,Obj4B_move_timer(a0)
 	rts
+
+; loc_2D38C:
+JmpTo21_ObjectMove 
+	jmp	(ObjectMove).l
 ; ===========================================================================
 ; Start of subroutine Obj4B_ChkPlayers
 ; sub_2D1D6:
@@ -58351,17 +59210,8 @@ JmpTo_MarkObjGone_P1
 	jmp	(MarkObjGone_P1).l
 JmpTo57_Adjust2PArtPointer 
 	jmp	(Adjust2PArtPointer).l
-; loc_2D38C:
-JmpTo21_ObjectMove 
-	jmp	(ObjectMove).l
 
 	align 4
-    else
-JmpTo49_DeleteObject 
-	jmp	(DeleteObject).l
-; loc_2D38C:
-JmpTo21_ObjectMove 
-	jmp	(ObjectMove).l
     endif
 
 
@@ -58998,11 +59848,6 @@ Obj5D_Main_Delete:
 	addq.l	#4,sp
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
 	jsr	(DeleteObject2).l
-
-    if removeJmpTos
-JmpTo51_DeleteObject 
-    endif
-
 	jmp	(DeleteObject).l
 ; ===========================================================================
 
@@ -59458,7 +60303,7 @@ Obj5D_Pipe_Pump_4:
 	movea.l	Obj5D_parent(a0),a1	; parent = pipe segment (control object) ; a1=object
 	move.b	#8,routine(a1)		; => Obj5D_Pipe_Retract
 	move.b	#$B*8,Obj5D_y_offset(a1)
-	bra.w	JmpTo51_DeleteObject
+	jmp	(DeleteObject).l
 ; ===========================================================================
 ; Object to control the pipe's actions after pumping is finished.
 
@@ -59524,7 +60369,7 @@ Obj5D_PipeSegment:
 ; ===========================================================================
 
 BranchTo_JmpTo51_DeleteObject 
-	bra.w	JmpTo51_DeleteObject
+	jmp	(DeleteObject).l
 ; ===========================================================================
 
 Obj5D_PipeSegment_End:
@@ -59784,11 +60629,6 @@ loc_2E35C:
 
 loc_2E3E6:
 	move.l	(sp)+,d7
-
-    if removeJmpTos
-JmpTo34_DisplaySprite 
-    endif
-
 	jmpto	(DisplaySprite).l, JmpTo34_DisplaySprite
 ; ===========================================================================
 word_2E3EC:
@@ -60050,7 +60890,7 @@ Obj5D_Gunk_OffScreen:
 	bset	#2,Obj5D_status2(a1)
 	bset	#4,Obj5D_status2(a1)
 	move.b	#2,routine_secondary(a1)
-	bra.w	JmpTo51_DeleteObject
+	jmp	(DeleteObject).l
 ; ===========================================================================
 
 Obj5D_Gunk_6:
@@ -60162,7 +61002,7 @@ Obj5D_Gunk_Droplets_Move:
 	jmpto	(MarkObjGone).l, JmpTo35_MarkObjGone
 ; ---------------------------------------------------------------------------
 +
-	bra.w	JmpTo51_DeleteObject
+	jmp	(DeleteObject).l
 ; ===========================================================================
 
 	; a bit of unused/dead code here
@@ -60271,6 +61111,12 @@ Obj5D_1A:
 
 BranchTo2_JmpTo34_DisplaySprite 
 	jmpto	(DisplaySprite).l, JmpTo34_DisplaySprite
+
+JmpTo34_DisplaySprite 
+	jmp	(DisplaySprite).l
+
+JmpTo51_DeleteObject 
+	jmp	(DeleteObject).l
 ; ===========================================================================
 ; animation script
 ; off_2EA3C:
@@ -60395,8 +61241,6 @@ Obj5D_MapUnc_2EEA0:	BINCLUDE "mappings/sprite/obj5D_d.bin"
 ; ===========================================================================
 
     if ~~removeJmpTos
-JmpTo34_DisplaySprite 
-	jmp	(DisplaySprite).l
 JmpTo51_DeleteObject 
 	jmp	(DeleteObject).l
 JmpTo35_MarkObjGone 
@@ -60649,13 +61493,13 @@ loc_2F27C:	; Obj56_VehicleMain_Sub0:
 	ble.s	loc_2F29A
 	subi_.w	#1,x_pos(a0)
 	addi_.w	#1,y_pos(a0)	; move diagonally down
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ---------------------------------------------------------------------------
 
 loc_2F29A:
 	move.w	#$29D0,x_pos(a0)
 	addq.b	#2,routine_secondary(a0)	; next routine
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ===========================================================================
 
 loc_2F2A8:	; Obj56_VehicleMain_Sub2:
@@ -60673,14 +61517,14 @@ loc_2F2BA:	; Obj56_VehicleMain_Sub2_0:
 	cmpi.w	#$41E,y_pos(a0)
 	bge.s	loc_2F2CC
 	addi_.w	#1,y_pos(a0)	; move vertically (down)
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ---------------------------------------------------------------------------
 
 loc_2F2CC:
 	addq.b	#2,objoff_2C(a0)	; tertiary routine
 	bset	#0,objoff_2D(a0)	; robotnik on ground (relevant for propeller)
 	move.w	#$3C,objoff_2A(a0)	; timer for standing still
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ---------------------------------------------------------------------------
 
 loc_2F2E0:	; Obj56_VehicleMain_Sub2_2:
@@ -60690,7 +61534,7 @@ loc_2F2E0:	; Obj56_VehicleMain_Sub2_2:
 	addq.b	#2,routine_secondary(a0)
 	move.b	#$F,collision_flags(a0)
 	bset	#1,objoff_2D(a0)	; boss now active and moving
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ===========================================================================
 
 loc_2F304:	; Obj56_VehicleMain_Sub4:
@@ -60707,7 +61551,7 @@ loc_2F304:	; Obj56_VehicleMain_Sub4:
 	asl.l	#8,d0
 	add.l	d0,d2
 	move.l	d2,x_pos(a0)	; set x_pos depening on velocity
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ===========================================================================
 
 loc_2F336:	; Obj56_VehicleMain_Sub6:
@@ -60720,7 +61564,7 @@ loc_2F336:	; Obj56_VehicleMain_Sub6:
 	bpl.w	JmpTo35_DisplaySprite
 	add.w	d1,y_pos(a0)
 	move.w	#0,y_vel(a0)	; set to ground and stand still
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ---------------------------------------------------------------------------
 
 loc_2F35C:
@@ -60728,7 +61572,7 @@ loc_2F35C:
 	addq.b	#2,routine_secondary(a0)
 	move.w	#-$26,objoff_3C(a0)
 	move.w	#$C,objoff_2A(a0)
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ===========================================================================
 
 loc_2F374:	; Obj56_VehicleMain_Sub8:
@@ -60736,7 +61580,7 @@ loc_2F374:	; Obj56_VehicleMain_Sub8:
 	bpl.w	JmpTo35_DisplaySprite
 	addq.b	#2,routine_secondary(a0)
 	move.b	#0,objoff_2C(a0)	; tertiary routine
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ===========================================================================
 
 loc_2F38A:	; Obj56_VehicleMain_SubA:
@@ -60744,7 +61588,7 @@ loc_2F38A:	; Obj56_VehicleMain_SubA:
 	move.b	objoff_2C(a0),d0	; tertiary routine
 	move.w	off_2F39C(pc,d0.w),d1
 	jsr	off_2F39C(pc,d1.w)
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ===========================================================================
 off_2F39C:	offsetTable
 		offsetTableEntry.w loc_2F3A2	; 0 - initialize propellor
@@ -60894,7 +61738,7 @@ loc_2F52A:	; Obj56_PropellerReloaded:	; Propeller after defeat
 	move.b	#4,routine(a0)	; Propeller normal
 	lea	(Ani_obj56_a).l,a1
 	jsrto	(AnimateSprite).l, JmpTo17_AnimateSprite
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ===========================================================================
 
 loc_2F54E:	; Obj56_Propeller:	; Propeller normal
@@ -60936,7 +61780,7 @@ loc_2F5A0:
 	move.b	render_flags(a1),render_flags(a0)
 	lea	(Ani_obj56_a).l,a1
 	jsrto	(AnimateSprite).l, JmpTo17_AnimateSprite
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ---------------------------------------------------------------------------
 
 loc_2F5C6:	; Obj56_Propeller_Sub2
@@ -60946,13 +61790,13 @@ loc_2F5C6:	; Obj56_Propeller_Sub2
 	ble.w	JmpTo52_DeleteObject
 	move.b	#4,priority(a0)
 	addi_.w	#1,y_pos(a0)	; move down
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ---------------------------------------------------------------------------
 
 loc_2F5E8:
 	lea	(Ani_obj56_a).l,a1
 	jsrto	(AnimateSprite).l, JmpTo17_AnimateSprite
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ===========================================================================
 
 loc_2F5F6:	; Obj56_GroundVehicle:
@@ -60964,13 +61808,13 @@ loc_2F5F6:	; Obj56_GroundVehicle:
 	cmpi.w	#$29D0,x_pos(a0)
 	ble.s	loc_2F618
 	subi_.w	#1,x_pos(a0)
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ---------------------------------------------------------------------------
 
 loc_2F618:
 	move.w	#$29D0,x_pos(a0)
 	addq.b	#2,routine_secondary(a0)
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ---------------------------------------------------------------------------
 
 loc_2F626:	; Obj56_GroundVehicle_Sub2:
@@ -60985,7 +61829,7 @@ loc_2F626:	; Obj56_GroundVehicle_Sub2:
 	move.b	status(a1),status(a0)
 	bmi.w	JmpTo35_DisplaySprite
 	move.b	render_flags(a1),render_flags(a0)
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ===========================================================================
 
 loc_2F664:	; Obj56_Wheel:
@@ -61058,7 +61902,7 @@ loc_2F6FA:
 loc_2F706:
 	lea	(Ani_obj56_b).l,a1
 	jsrto	(AnimateSprite).l, JmpTo17_AnimateSprite
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ---------------------------------------------------------------------------
 
 loc_2F714:	; Obj56_Wheel_Sub2:
@@ -61075,7 +61919,7 @@ loc_2F714:	; Obj56_Wheel_Sub2:
 	add.w	d0,objoff_2E(a1)
 
 BranchTo_JmpTo35_DisplaySprite 
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ---------------------------------------------------------------------------
 
 loc_2F746:	; Obj56_Wheel_Sub4:
@@ -61107,7 +61951,7 @@ loc_2F77E:
 loc_2F798:
 	lea	(Ani_obj56_b).l,a1
 	jsrto	(AnimateSprite).l, JmpTo17_AnimateSprite
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ---------------------------------------------------------------------------
 
 loc_2F7A6:	; Obj56_Wheel_Sub6:
@@ -61119,7 +61963,7 @@ loc_2F7A6:	; Obj56_Wheel_Sub6:
 	cmpi.b	#2,priority(a0)
 	beq.w	JmpTo35_DisplaySprite
 	neg.w	x_vel(a0)	; into other direction
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ---------------------------------------------------------------------------
 
 loc_2F7D2:	; Obj56_Wheel_Sub8:
@@ -61145,13 +61989,13 @@ loc_2F7F4:	; Obj56_Spike:
 	cmpi.w	#$299A,x_pos(a0)
 	ble.s	loc_2F816
 	subi_.w	#1,x_pos(a0)
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ---------------------------------------------------------------------------
 
 loc_2F816:
 	move.w	#$299A,x_pos(a0)
 	addq.b	#2,routine_secondary(a0)
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ---------------------------------------------------------------------------
 
 loc_2F824:	; Obj56_Spike_Sub2:
@@ -61178,7 +62022,7 @@ loc_2F878:
 	add.w	d0,x_pos(a0)	; horizontal offset
 	lea	(Ani_obj56_b).l,a1
 	jsrto	(AnimateSprite).l, JmpTo17_AnimateSprite
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ---------------------------------------------------------------------------
 
 loc_2F88A:	; spike separated from vehicle
@@ -61191,7 +62035,7 @@ loc_2F898:
 	add.w	d0,x_pos(a0)
 	lea	(Ani_obj56_b).l,a1
 	jsrto	(AnimateSprite).l, JmpTo17_AnimateSprite
-	bra.w	JmpTo35_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ---------------------------------------------------------------------------
 
 loc_2F8AA:
@@ -61246,6 +62090,11 @@ loc_2F924:
 	lea	(Ani_obj56_c).l,a1	; animation script
 	jsr	(AnimateSprite).l
 	jmp	(DisplaySprite).l
+
+JmpTo35_DisplaySprite 
+	jmp	(DisplaySprite).l
+JmpTo52_DeleteObject 
+	jmp	(DeleteObject).l
 ; ===========================================================================
 ; animation script
 ; off_2F936:
@@ -61327,8 +62176,6 @@ Obj56_MapUnc_2FAF8:	BINCLUDE "mappings/sprite/obj56_c.bin"
 ; ===========================================================================
 
     if ~~removeJmpTos
-JmpTo35_DisplaySprite 
-	jmp	(DisplaySprite).l
 JmpTo52_DeleteObject 
 	jmp	(DeleteObject).l
 JmpTo36_MarkObjGone 
@@ -61359,11 +62206,6 @@ JmpTo4_ObjectMoveAndFall
 	jmp	(ObjectMoveAndFall).l
 
 	align 4
-    else
-JmpTo52_DeleteObject 
-	jmp	(DeleteObject).l
-JmpTo35_DisplaySprite 
-	jmp	(DisplaySprite).l
     endif
 
 
@@ -61463,11 +62305,6 @@ loc_2FD3A:
 loc_2FD50:
 	move.w	(Boss_Y_pos).w,y_pos(a0)
 	bsr.w	loc_300A4
-
-    if removeJmpTos
-JmpTo36_DisplaySprite 
-    endif
-
 	jmpto	(DisplaySprite).l, JmpTo36_DisplaySprite
 ; ===========================================================================
 
@@ -61862,11 +62699,6 @@ BranchTo_JmpTo36_DisplaySprite
 
 loc_301AA:
 	move.w	#$3160,(Camera_Max_X_pos).w
-
-    if removeJmpTos
-JmpTo53_DeleteObject 
-    endif
-
 	jmpto	(DeleteObject).l, JmpTo53_DeleteObject
 ; ===========================================================================
 
@@ -61916,6 +62748,12 @@ loc_3022A:
 	move.w	objoff_2A(a0),x_pos(a0)
 	move.l	d3,y_pos(a0)
 	jmpto	(DisplaySprite).l, JmpTo36_DisplaySprite
+
+JmpTo36_DisplaySprite 
+	jmpto	(DisplaySprite).l, JmpTo36_DisplaySprite
+
+JmpTo53_DeleteObject 
+	jmpto	(DeleteObject).l, JmpTo53_DeleteObject
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; sprite mappings - uses ArtNem_BossSmoke
@@ -63395,12 +64233,11 @@ Obj57_FallingStuff:	; Spikes & Stones
 	jsrto	(ObjectMoveAndFall).l, JmpTo5_ObjectMoveAndFall
 	subi.w	#$28,sub2_y_pos(a0)	; decrease gravity
 	cmpi.w	#$6F0,y_pos(a0)	; if below boundary, delete
-    if ~~removeJmpTos
 	bgt.w	JmpTo57_DeleteObject
-    else
-	bgt.s	JmpTo56_DeleteObject
-    endif
 	jmpto	(DisplaySprite).l, JmpTo38_DisplaySprite
+
+JmpTo57_DeleteObject 
+	jmp	(DeleteObject).l
 ; ===========================================================================
 ; off_3160A: Obj57_AnimIndex:
 Ani_obj57:	offsetTable
@@ -63722,11 +64559,6 @@ loc_31C08:
 	bsr.w	loc_31C92
 	lea	(Ani_obj51).l,a1
 	bsr.w	AnimateBoss
-
-    if removeJmpTos
-JmpTo39_DisplaySprite 
-    endif
-
 	jmpto	(DisplaySprite).l, JmpTo39_DisplaySprite
 ; ===========================================================================
 
@@ -63933,10 +64765,6 @@ loc_31E4A:
 	jmpto	(DisplaySprite).l, JmpTo39_DisplaySprite
 ; ===========================================================================
 
-    if removeJmpTos
-JmpTo59_DeleteObject 
-    endif
-
 JmpTo58_DeleteObject 
 	jmp	(DeleteObject).l
 ; ===========================================================================
@@ -64117,7 +64945,13 @@ loc_32080:
 	jsrto	(AnimateSprite).l, JmpTo20_AnimateSprite
 	cmpi.w	#$705,y_pos(a0)
 	blo.w	JmpTo39_DisplaySprite
-	jmpto	JmpTo59_DeleteObject, JmpTo59_DeleteObject
+	jmpto	DeleteObject, JmpTo59_DeleteObject
+
+JmpTo39_DisplaySprite 
+	jmpto	(DisplaySprite).l, JmpTo39_DisplaySprite
+
+JmpTo59_DeleteObject 
+	jmp	DeleteObject
 ; ===========================================================================
 ; animation script
 ; off_3209C:
@@ -65050,11 +65884,6 @@ Obj53_Burst:
 	jsrto	(PlaySound).l, JmpTo10_PlaySound
 	movea.l	objoff_34(a0),a1 ; a1=object
 	subi_.b	#1,objoff_2C(a1)
-
-    if removeJmpTos
-JmpTo61_DeleteObject 
-    endif
-
 	jmpto	(DeleteObject).l, JmpTo61_DeleteObject
 ; ===========================================================================
 ;loc_32CAE
@@ -65112,12 +65941,13 @@ Obj54_LaserShooter:
 	btst	#0,render_flags(a1)
 	beq.w	JmpTo40_DisplaySprite
 	bset	#0,render_flags(a0)
-
-    if removeJmpTos
-JmpTo40_DisplaySprite 
-    endif
-
 	jmpto	(DisplaySprite).l, JmpTo40_DisplaySprite
+
+JmpTo40_DisplaySprite 
+	jmp	(DisplaySprite).l
+
+JmpTo61_DeleteObject 
+	jmp	(DeleteObject).l
 ; ===========================================================================
 ; animation script
 ; off_32D7A:
@@ -65414,9 +66244,6 @@ Obj55_Defeated_Sink:
 	bsr.s	Obj55_AlignSprites
 	jmpto	(DisplaySprite).l, JmpTo41_DisplaySprite
 ; ===========================================================================
-    if removeJmpTos
-JmpTo62_DeleteObject 
-    endif
 
 BranchTo_JmpTo62_DeleteObject 
 	jmpto	(DeleteObject).l, JmpTo62_DeleteObject
@@ -65791,6 +66618,9 @@ Obj55_Laser_Main:
 	cmpi.w	#$2A10,x_pos(a0)	; has laser moved off screen going right?
 	bhs.w	JmpTo62_DeleteObject	; if yes, branch
 	jmpto	(DisplaySprite).l, JmpTo41_DisplaySprite
+
+JmpTo62_DeleteObject 
+	jmp	(DeleteObject).l
 ; ===========================================================================
 ; checks if laser hit the ground
 ; loc_335FE:
@@ -65890,7 +66720,7 @@ Obj55_Wave_End:
 ; ===========================================================================
 
 BranchTo2_JmpTo62_DeleteObject 
-	bra.w	JmpTo62_DeleteObject
+	jmp	(DeleteObject).l
 ; ===========================================================================
 ; animation script
 ; off_33712:
@@ -67232,7 +68062,7 @@ loc_34F06:
 	tst.b	render_flags(a0)
 	bpl.s	return_34F26
 	bsr.w	loc_34F28
-	bra.w	JmpTo44_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ===========================================================================
 
 return_34F26:
@@ -67267,7 +68097,7 @@ loc_34F6A:
 	bsr.w	loc_351A0
 	lea	(Ani_obj61).l,a1
 	jsrto	(AnimateSprite).l, JmpTo24_AnimateSprite
-	bra.w	JmpTo44_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ===========================================================================
 
 loc_34F90:
@@ -67329,7 +68159,7 @@ loc_35010:
 	bsr.w	loc_351A0
 	lea	(Ani_obj5B_obj60).l,a1
 	jsrto	(AnimateSprite).l, JmpTo24_AnimateSprite
-	bra.w	JmpTo44_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ===========================================================================
 
 loc_35036:
@@ -67480,11 +68310,6 @@ loc_3516C:
 	beq.w	JmpTo63_DeleteObject
 	movea.l	d0,a1 ; a1=object
 	st	objoff_2A(a1)
-
-    if removeJmpTos
-JmpTo63_DeleteObject 
-    endif
-
 	jmpto	(DeleteObject).l, JmpTo63_DeleteObject
 ; ===========================================================================
 byte_35180:
@@ -67710,7 +68535,7 @@ loc_3538A:
 
 loc_35392:
 	move.b	d0,mapping_frame(a0)
-	bra.w	JmpTo44_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ===========================================================================
 
 BranchTo_JmpTo63_DeleteObject 
@@ -67875,7 +68700,7 @@ Obj5B_Main:
 	bgt.w	JmpTo63_DeleteObject
 	lea	(Ani_obj5B_obj60).l,a1
 	jsrto	(AnimateSprite).l, JmpTo24_AnimateSprite
-	bra.w	JmpTo44_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ===========================================================================
 
 loc_3551C:
@@ -67950,7 +68775,7 @@ Obj5A_Init:
 	move.b	#-1,mapping_frame(a1)
 +	dbf	d0,-
 
-	bra.w	JmpTo63_DeleteObject
+	jmp	(DeleteObject).l
 ; ===========================================================================
 +
 	rts
@@ -67964,7 +68789,7 @@ Obj5A_RingsMessageInit:
 	sf.b	(SS_TriggerRingsToGo).w
 	move.w	#0,(SS_NoRingsTogoLifetime).w
 	move.b	#0,objoff_3A(a0)
-	bra.w	JmpTo63_DeleteObject
+	jmp	(DeleteObject).l
 ; ===========================================================================
  ; temporarily remap characters to title card letter format
  ; Characters are encoded as Aa, Bb, Cc, etc. through a macro
@@ -67982,6 +68807,7 @@ specialText macro letters
 
 Obj5A_RingsToGoText:
 	specialText "RING"
+	even
 	specialText "!OGOT"
 	specialText "S"
 	even
@@ -68205,7 +69031,7 @@ Obj5A_CheckpointRainbow:
 	move.b	Obj5A_Rainbow_Positions(pc,d0.w),1+x_pos(a0)
 	move.b	Obj5A_Rainbow_Positions+1(pc,d0.w),1+y_pos(a0)
 	addi.w	#$E,objoff_30(a0)
-	bra.w	JmpTo44_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ===========================================================================
 +
 	tst.b	mapping_frame(a0)
@@ -68311,7 +69137,7 @@ Obj5A_Rainbow_Positions:
 	add.w	d6,art_tile(a1)
 	add.w	d6,2(a2)
 	bsr.w	Obj5A_PrintPhrase
-	bra.w	JmpTo63_DeleteObject
+	jmp	(DeleteObject).l
 ; ===========================================================================
 +
 	subi.b	#$10,(SS_2P_BCD_Score).w
@@ -68343,7 +69169,7 @@ loc_35978:
 	jsr	(PlaySound).l
 	move.w	d1,d0
 	bsr.w	Obj5A_PrintCheckpointMessage
-	bra.w	JmpTo63_DeleteObject
+	jmp	(DeleteObject).l
 ; ===========================================================================
 ;loc_359A6
 Obj5A_MostRingsWin:
@@ -68354,7 +69180,7 @@ Obj5A_MostRingsWin:
 +
 	move.w	#$A,d0			; MOST RINGS WINS
 	bsr.w	Obj5A_PrintPhrase
-	bra.w	JmpTo63_DeleteObject
+	jmp	(DeleteObject).l
 ; ===========================================================================
 ;loc_359BC
 Obj5A_RingCheckTrigger:
@@ -68414,11 +69240,11 @@ Obj5A_Handshake:
 	beq.s	-
 	move.w	#$A,d0
 	bsr.w	Obj5A_PrintPhrase
-	bra.w	JmpTo63_DeleteObject
+	jmp	(DeleteObject).l
 ; ===========================================================================
 +
 	bsr.w	Obj5A_CreateRingReqMessage
-	bra.w	JmpTo63_DeleteObject
+	jmp	(DeleteObject).l
 ; ===========================================================================
 ;loc_35A7A
 Obj5A_VSReset:
@@ -68493,7 +69319,7 @@ Obj5A_TextFlyoutInit:
 	subi.w	#$70,d2
 	jsrto	(CalcAngle).l, JmpTo_CalcAngle
 	move.b	d0,angle(a0)
-	bra.w	JmpTo44_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ===========================================================================
 ; this makes special stage messages like "most rings wins!" fly off the screen 
 ;loc_35B96
@@ -68513,7 +69339,7 @@ Obj5A_TextFlyout:
 	bgt.w	JmpTo63_DeleteObject
 	cmpi.w	#0,y_pos(a0)
 	blt.w	JmpTo63_DeleteObject
-	bra.w	JmpTo44_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ===========================================================================
 ;loc_35BD6
 Obj5A_PrintNumber:
@@ -68833,7 +69659,7 @@ loc_36022:
 	bsr.w	loc_3603C
 	lea	(off_36228).l,a1
 	bsr.w	loc_3539E
-	bra.w	JmpTo44_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ===========================================================================
 
 loc_3603C:
@@ -68980,7 +69806,7 @@ loc_361A4:
 	andi.w	#3,d0
 	add.b	byte_361C8(pc,d0.w),d2
 	move.w	d2,y_pos(a0)
-	bra.w	JmpTo44_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ===========================================================================
 byte_361C8:
 	dc.b $FF
@@ -69037,6 +69863,10 @@ loc_36210:
 	rts
 	; end of unused code
 
+JmpTo44_DisplaySprite 
+	jmp	(DisplaySprite).l
+JmpTo63_DeleteObject 
+	jmp	(DeleteObject).l
 ; ===========================================================================
 ; animation script for object 59
 off_36228:	offsetTable
@@ -69168,13 +69998,7 @@ byte_36502: dc.b   2, $A, $B, $C,$FF
 Obj61_MapUnc_36508:	BINCLUDE "mappings/sprite/obj61.bin"
 ; ===========================================================================
 
-JmpTo44_DisplaySprite 
-	jmp	(DisplaySprite).l
-; ===========================================================================
-
     if ~~removeJmpTos
-JmpTo63_DeleteObject 
-	jmp	(DeleteObject).l
 JmpTo24_AnimateSprite 
 	jmp	(AnimateSprite).l
 JmpTo_SSStartNewAct 
@@ -69497,21 +70321,21 @@ Obj_DeleteBehindScreen:
 ; loc_367AA:
 InheritParentXYFlip:
 	move.b	render_flags(a0),d0
-    if gameRevision<2
+;    if gameRevision<2
 	andi.b	#$FC,d0
 	move.b	status(a0),d2
 	andi.b	#$FC,d2
 	move.b	render_flags(a1),d1
 	andi.b	#3,d1
-    else
-	; Peculiarly, REV02 changes this to only inherit the Y-flip.
-	; This causes a bug where some sprites are displayed backwards (Silver Sonic's sparks and Grabber's legs).
-	andi.b	#$FD,d0
-	move.b	status(a0),d2
-	andi.b	#$FD,d2
-	move.b	render_flags(a1),d1
-	andi.b	#2,d1
-    endif
+;    else
+;	; Peculiarly, REV02 changes this to only inherit the Y-flip.
+;	; This causes a bug where some sprites are displayed backwards (Silver Sonic's sparks and Grabber's legs).
+;	andi.b	#$FD,d0
+;	move.b	status(a0),d2
+;	andi.b	#$FD,d2
+;	move.b	render_flags(a1),d1
+;	andi.b	#2,d1
+;    endif
 	or.b	d1,d0
 	or.b	d1,d2
 	move.b	d0,render_flags(a0)
@@ -72270,7 +73094,7 @@ loc_38266:
 
 loc_3827A:
 	addq.w	#4,sp
-	bra.w	JmpTo65_DeleteObject
+	jmp	(DeleteObject).l
 ; ===========================================================================
 
 loc_38280:
@@ -73357,7 +74181,7 @@ loc_38FE8:
 loc_3900A:
 	move.b	#0,obj_control(a2)
 	bset	#1,status(a2)
-	bra.w	JmpTo65_DeleteObject
+	jmp	(DeleteObject).l
 ; ===========================================================================
 
 loc_3901A:
@@ -73582,7 +74406,7 @@ loc_39182:
 	jsrto	(DeleteObject2).l, JmpTo6_DeleteObject2
 	dbf	d6,-
 
-	bra.w	JmpTo65_DeleteObject
+	jmp	(DeleteObject).l
 ; End of subroutine loc_39182
 
 ; ===========================================================================
@@ -74407,7 +75231,7 @@ loc_39BA4:
 	; All this does is try to play Sound 0, which doesn't do anything.
 	move.b	(Level_Music).w,d0
 	jsrto	(PlayMusic).l, JmpTo5_PlayMusic
-	bra.w	JmpTo65_DeleteObject
+	jmp	(DeleteObject).l
 ; ===========================================================================
 
 loc_39BBA:
@@ -75255,14 +76079,14 @@ ObjB2_Main_SCZ:
 	bsr.w	ObjB2_Move_obbey_player
 	move.b	objoff_2E(a0),d0
 	move.b	status(a0),d1
-    if gameRevision<2
+;    if gameRevision<2
 	andi.b	#p1_standing,d0	; 'on object' bit
 	andi.b	#p1_standing,d1	; 'on object' bit
-    else
+;    else
 	; 'fixes' the player being able to spin dash off the Tornado
-	andi.b	#1,d0	; 'X-flipped' bit???
-	andi.b	#1,d1	; 'X-flipped' bit???
-    endif
+;	andi.b	#1,d0	; 'X-flipped' bit???
+;	andi.b	#1,d1	; 'X-flipped' bit???
+;    endif
 	eor.b	d0,d1
 	move.b	d1,objoff_2E(a0)
 	lea	(MainCharacter).w,a1 ; a1=character
@@ -75311,7 +76135,7 @@ ObjB2_Main_WFZ_Start:
 	jsr	off_3A8BA(pc,d1.w)
 	lea	(Ani_objB2_a).l,a1
 	jsrto	(AnimateSprite).l, JmpTo25_AnimateSprite
-	jmpto	(Obj_DeleteOffScreen).l, Obj_DeleteOffScreen
+	bra.w	Obj_DeleteOffScreen
 ; ===========================================================================
 off_3A8BA:	offsetTable
 		offsetTableEntry.w ObjB2_Main_WFZ_Start_init	; 0
@@ -76531,14 +77355,14 @@ loc_3B7A6:
 
 loc_3B7BC:
 	move.b	status(a0),d0
-    if gameRevision<2
+;    if gameRevision<2
 	andi.b	#standing_mask,d0
-    else
+;    else
 	; I don't know what this change was meant to do, but it causes
 	; Sonic to not fall off ObjBD's ascending platforms when they retract,
 	; making him hover.
-	andi.b	#2,d0	; 'Y-flipped' bit???
-    endif
+;	andi.b	#2,d0	; 'Y-flipped' bit???
+;    endif
 	beq.s	return_3B7F6
 	bclr	#p1_standing_bit,status(a0)
 	beq.s	loc_3B7DE
@@ -76990,7 +77814,7 @@ loc_3BCCC:
 
 loc_3BCD6:
 	bsr.w	loc_3B7BC
-	bra.w	JmpTo65_DeleteObject
+	jmp	(DeleteObject).l
 ; ===========================================================================
 
 loc_3BCDE:
@@ -77938,7 +78762,7 @@ ObjC5_End:	; play music and change camera speed
 	move.w	#$720,d0
 	move.w	d0,(Camera_Max_Y_pos_now).w
 	move.w	d0,(Camera_Max_Y_pos).w
-	bsr.w	JmpTo65_DeleteObject
+	jsr	(DeleteObject).l
 	addq.w	#4,sp
 	rts
 ; ===========================================================================
@@ -78405,7 +79229,7 @@ ObjC5_RobotnikDown:
 ObjC5_RobotnikDelete:		; Deletes robotnik and the platform he's on
 	movea.w	parent(a0),a1 ; a1=object (Robotnik Platform)
 	jsrto	(DeleteObject2).l, JmpTo6_DeleteObject2
-	bra.w	JmpTo65_DeleteObject
+	jmp	(DeleteObject).l
 ; ===========================================================================
 
 ObjC5_RobotnikPlatform:	; Just displays the platform and move accordingly to the robotnik object
@@ -78710,7 +79534,7 @@ ObjC6_State3_State2:
 ObjC6_State3_State3:
 	lea	(MainCharacter).w,a1 ; a1=character
 	bclr	#5,status(a1)
-	bra.w	JmpTo65_DeleteObject
+	jmp	(DeleteObject).l
 ; ===========================================================================
 
 loc_3D086:
@@ -79531,7 +80355,7 @@ loc_3D9D6:
 	moveq	#MusID_FadeOut,d0
 	jsrto	(PlaySound).l, JmpTo12_PlaySound
 	move.b	#GameModeID_EndingSequence,(Game_Mode).w ; => EndingSequence
-	bra.w	JmpTo65_DeleteObject
+	jmp	(DeleteObject).l
 ; ===========================================================================
 
 ObjC7_Shoulder:
@@ -80032,7 +80856,7 @@ loc_3DE3C:
 loc_3DE62:
 	movea.w	objoff_2C(a0),a1 ; a1=object
 	move.w	x_pos(a0),objoff_28(a1)
-	bra.w	JmpTo65_DeleteObject
+	jmp	(DeleteObject).l
 ; ===========================================================================
 ;loc_3DE70
 ObjC7_TargettingLock:
@@ -83851,6 +84675,11 @@ BuildHUD:
 	move.w	#128+16,d3	; set X pos
 	move.w	#128+136,d2	; set Y pos
 	lea	(HUD_MapUnc_40A9A).l,a1
+	tst.b	($FFFFAC).l
+	beq.w	loc_40400
+	lea	(off_407B6).l,a1
+
+loc_40400:
 	movea.w	#make_art_tile(ArtTile_ArtNem_HUD,0,1),a3	; set art tile and flags
 	add.w	d1,d1
 	adda.w	(a1,d1.w),a1
@@ -84119,6 +84948,9 @@ BuildHUD_P2_Continued:
 HUD_MapUnc_40A9A:	BINCLUDE "mappings/sprite/hud_a.bin"
 
 
+off_407B6:	BINCLUDE "mappings/sprite/hud_d.bin"
+
+
 HUD_MapUnc_40BEA:	BINCLUDE "mappings/sprite/hud_b.bin"
 
 
@@ -84144,7 +84976,10 @@ AddPoints:
 	move.l	(a3),d0
 	cmp.l	(Next_Extra_life_score).w,d0
 	blo.s	+	; rts
-	addi.l	#5000,(Next_Extra_life_score).w
+;	addi.l	#5000,(Next_Extra_life_score).w
+	tst.b	($FFFFAF).l
+	bne.s	+
+	move.b	#1,($FFFFAF).l
 	addq.b	#1,(Life_count).w
 	addq.b	#1,(Update_HUD_lives).w
 	move.w	#MusID_ExtraLife,d0
@@ -84175,15 +85010,15 @@ AddPoints2:
 	cmp.l	(a3),d1	; is #999999 higher than the score?
 	bhi.s	+	; if yes, branch
 	move.l	d1,(a3)	; set score to #999999
-+
-	move.l	(a3),d0
-	cmp.l	(Next_Extra_life_score_2P).w,d0
-	blo.s	+	; rts
-	addi.l	#5000,(Next_Extra_life_score_2P).w
-	addq.b	#1,(Life_count_2P).w
-	addq.b	#1,(Update_HUD_lives_2P).w
-	move.w	#MusID_ExtraLife,d0
-	jmp	(PlayMusic).l
+;+
+;	move.l	(a3),d0
+;	cmp.l	(Next_Extra_life_score_2P).w,d0
+;	blo.s	+	; rts
+;	addi.l	#5000,(Next_Extra_life_score_2P).w
+;	addq.b	#1,(Life_count_2P).w
+;	addq.b	#1,(Update_HUD_lives_2P).w
+;	move.w	#MusID_ExtraLife,d0
+;	jmp	(PlayMusic).l
 ; ===========================================================================
 +	rts
 ; End of function AddPoints2
@@ -84225,8 +85060,8 @@ loc_40DC6:
 Hud_ChkTime:
 	tst.b	(Update_HUD_timer).w	; does the time need updating?
 	beq.s	Hud_ChkLives	; if not, branch
-	tst.w	(Game_paused).w	; is the game paused?
-	bne.s	Hud_ChkLives	; if yes, branch
+;	tst.w	(Game_paused).w	; is the game paused?
+;	bne.s	Hud_ChkLives	; if yes, branch
 	lea	(Timer).w,a1
 	cmpi.l	#$93B3B,(a1)+	; is the time 9.59?
 	beq.w	loc_40E84	; if yes, branch
@@ -84281,11 +85116,19 @@ Hud_End:
 ; ===========================================================================
 
 loc_40E84:
+	tst.b	($FFFFFFD8).w
+	bne.w	loc_40B92
+	tst.b	($FFFFAC).l
+	bne.w	locret_40BA6
+
+loc_40B92:
 	clr.b	(Update_HUD_timer).w
 	lea	(MainCharacter).w,a0 ; a0=character
 	movea.l	a0,a2
 	bsr.w	KillCharacter
 	move.b	#1,(Time_Over_flag).w
+
+locret_40BA6:
 	rts
 ; ===========================================================================
 
@@ -84333,11 +85176,11 @@ loc_40EDC:
 	bsr.w	Hud_TimeRingBonus
 
 loc_40F18:
-	tst.w	(Game_paused).w
-	bne.s	return_40F4E
+;	tst.w	(Game_paused).w
+;	bne.s	return_40F4E
 	lea	(Timer).w,a1
 	cmpi.l	#$93B3B,(a1)+
-	nop
+;	nop
 	addq.b	#1,-(a1)
 	cmpi.b	#$3C,(a1)
 	blo.s	return_40F4E
@@ -84356,8 +85199,8 @@ return_40F4E:
 ; ===========================================================================
 
 loc_40F50:
-	tst.w	(Game_paused).w
-	bne.w	return_4101A
+;	tst.w	(Game_paused).w
+;	bne.w	return_4101A
 	tst.b	(Update_HUD_timer).w
 	beq.s	loc_40F90
 	lea	(Timer).w,a1
@@ -86341,6 +87184,7 @@ PlrList_ResultsTails_End
 
 
 
+	if 1==0
 ;---------------------------------------------------------------------------------------
 ; Weird revision-specific duplicates of portions of the PLR lists (unused)
 ;---------------------------------------------------------------------------------------
@@ -86643,7 +87487,11 @@ PlrList_ResultsTails_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
 PlrList_ResultsTails_Dup_End
     endif
+    endif
 
+	rept $42D50-*
+	dc.b	$FF
+	endm
 
 
 ;---------------------------------------------------------------------------------------
