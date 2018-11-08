@@ -3,9 +3,9 @@
 REM // build the ROM
 call build %1
 
-REM  // run fc against a Sonic 2 Rev 02 ROM, extracted from Sonic Compilation
+REM  // run fc against a Sonic 2 Mega Play ROM
 echo -------------------------------------------------------------
-IF EXIST s2built.bin ( fc /b s2built.bin s2rev02.bin
+IF EXIST s2built.bin ( fc /b s2built.bin s2megaplay.bin
 ) ELSE echo s2built.bin does not exist, probably due to an assembly error
 
 REM // clean up after us
