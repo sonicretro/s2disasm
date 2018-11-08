@@ -17,6 +17,9 @@
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; ASSEMBLY OPTIONS:
 ;
+runOnMegaDrive = 0
+;	| If 1, edits the game to work on a regular Mega Drive, instead of the Mega Play
+;
 gameRevision = 2
 ;	| If 0, a REV00 ROM is built
 ;	| If 1, a REV01 ROM is built, which contains some fixes
@@ -477,6 +480,7 @@ LevelSelectMenu: ;;
 V_Int:
 	movem.l	d0-a6,-(sp)
 
+    if ~~runOnMegaDrive
 	; [Mega Play] Identical to MegaPlay_CheckOddEvenFrame
 	movem.w	d0,-(sp)
 	move.w	(VDP_control_port).l,d0
@@ -496,6 +500,7 @@ V_Int:
 loc_3E2:
 	bsr.w	MegaPlay_VInt
 	; end of Mega Play code
+    endif
 
 	tst.b	(Vint_routine).w
 	beq.w	Vint_Lag
@@ -1229,7 +1234,7 @@ loc_10DA:
 	move.w	#$3000,d3
 
 loc_10E6:
-	bsr.w	MegaPlay_Sub2
+	bsr.w	MegaPlay_ReceiveCommand
 	moveq	#0,d2
 	move.w	#$F001,d1
 	cmp.w	d0,d1
@@ -1258,12 +1263,12 @@ loc_1112:
 	bra.w	MegaPlay_SendCommand
 ; ---------------------------------------------------------------------------
 
-MegaPlay_Sub2:
+MegaPlay_ReceiveCommand:
 	moveq	#0,d0
 	move.b	(HW_Expansion_Data).l,d7
 	andi.w	#$38,d7	; '8'
 	cmpi.b	#$20,d7	; ' '
-	bne.w	MegaPlay_Sub2_Fail
+	bne.w	MegaPlay_ReceiveCommand_Fail
 	moveq	#7,d5
 	move.w	#$2000,d2	; Timeout
 
@@ -1272,7 +1277,7 @@ loc_1144:
 
 loc_1146:
 	subq.w	#1,d2
-	beq.w	MegaPlay_Sub2_Fail
+	beq.w	MegaPlay_ReceiveCommand_Fail
 	move.b	(HW_Expansion_Data).l,d7
 	andi.w	#$38,d7	; '8'
 	cmpi.b	#$20,d7	; ' '
@@ -1289,7 +1294,7 @@ loc_1146:
 
 loc_1180:
 	subq.w	#1,d2
-	beq.w	MegaPlay_Sub2_Fail
+	beq.w	MegaPlay_ReceiveCommand_Fail
 	move.b	(HW_Expansion_Data).l,d7
 	andi.w	#$38,d7	; '8'
 	btst	#5,d7
@@ -1309,7 +1314,7 @@ loc_1180:
 
 loc_11C2:
 	subq.w	#1,d2
-	beq.w	MegaPlay_Sub2_Fail
+	beq.w	MegaPlay_ReceiveCommand_Fail
 	move.b	(HW_Expansion_Data).l,d7
 	andi.w	#$38,d7	; '8'
 	cmpi.b	#$38,d7	; '8'
@@ -1322,7 +1327,7 @@ loc_11C2:
 	rts
 ; ---------------------------------------------------------------------------
 
-MegaPlay_Sub2_Fail:
+MegaPlay_ReceiveCommand_Fail:
 	move.b	#0,d6
 	andi.w	#7,d6
 	or.b	(MegaPlay_Var1&$FFFFFF).l,d6
@@ -1334,9 +1339,11 @@ MegaPlay_Sub2_Fail:
 ; ---------------------------------------------------------------------------
 ; loc_120E:
 MegaPlay_SendCommandSafe:
+    if ~~runOnMegaDrive
 	move	#$2700,sr
 	bsr.s	MegaPlay_SendCommand
 	move	#$2300,sr
+    endif
 	rts
 ; ---------------------------------------------------------------------------
 
@@ -1346,7 +1353,7 @@ MegaPlay_SendCommand:
 	cmpi.w	#$FFFE,d7
 	bne.s	MegaPlay_SendCommand
 	movem.l	d0,-(sp)
-	bsr.w	MegaPlay_Sub2
+	bsr.w	MegaPlay_ReceiveCommand
 	movem.l	(sp)+,d0
 	bra.s	MegaPlay_SendCommand
 ; ---------------------------------------------------------------------------
@@ -1484,10 +1491,10 @@ MegaPlay_Wait:
 ; ---------------------------------------------------------------------------
 ; No clue
 
-loc_13B6:
-	bsr.w	MegaPlay_Sub2
+MegaPlay_WaitForCertainCommand:
+	bsr.w	MegaPlay_ReceiveCommand
 	cmpi.w	#$FFF9,d0
-	bne.s	loc_13B6
+	bne.s	MegaPlay_WaitForCertainCommand
 
 locret_13C0:
 	rts
@@ -1611,14 +1618,14 @@ MegaPlay_Sub5:
 	bsr.w	MegaPlay_CallInstROM
 
 loc_1492:
-	bsr.w	MegaPlay_Sub2
+	bsr.w	MegaPlay_ReceiveCommand
 	cmpi.w	#$FF85,d0
 	bne.s	loc_1492
 	moveq	#8,d0
 	bsr.w	MegaPlay_CallInstROM
 
 loc_14A2:
-	bsr.w	MegaPlay_Sub2
+	bsr.w	MegaPlay_ReceiveCommand
 	cmpi.w	#$FF85,d0
 	beq.s	MegaPlay_Sub5
 	cmpi.w	#$FF01,d0
@@ -1741,7 +1748,7 @@ MegaPlay_LoadInstROMToRAM:
 
 MegaPlay_VInt:
 	bsr.w	MegaPlay_GetCreditsInserted
-	bsr.w	MegaPlay_Sub2
+	bsr.w	MegaPlay_ReceiveCommand
 	lea	(MegaPlay_VInt_ValidCommands).l,a6
 	move.w	(a6)+,d7
 	moveq	#0,d6
@@ -1759,7 +1766,7 @@ MegaPlay_VInt:
 ; ---------------------------------------------------------------------------
 ; loc_15CC:
 MegaPlay_VInt_CommandTable:
-	bra.w	loc_13B6
+	bra.w	MegaPlay_WaitForCertainCommand
 ; ---------------------------------------------------------------------------
 	bra.w	locret_13C0
 ; ---------------------------------------------------------------------------
@@ -1829,6 +1836,11 @@ MegaPlay_Command_EnableCheats:
 ; ---------------------------------------------------------------------------
 
 MegaPlay_Init:
+    if runOnMegaDrive
+	st.b	(MegaPlay_Credits_inserted).w
+	move.b	#3,(MegaPlay_Default_lives_1P).w
+	move.b	#3,(MegaPlay_Default_lives_2P).w
+    else
 	bsr.w	MegaPlay_InitSub
 	movem.l	d0-d1/a0,-(sp)
 
@@ -1850,6 +1862,7 @@ MegaPlay_Init:
 	move.w	#0,(Z80_Bus_Request).l
 
 	movem.l	(sp)+,d0-d1/a0
+    endif
 	rts
 ; ---------------------------------------------------------------------------
 MegaPlay_DefaultLives1P:dc.b 1, 2, 3, 4
@@ -4501,6 +4514,11 @@ SegaScreen:
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
 	move	#$2300,sr
+
+    if runOnMegaDrive
+	bsr.w	MegaPlay_Command_GoToTitleScreen
+    endif
+
 ; loc_390E:
 Sega_WaitPalette:
 	move.b	#VintID_SEGA,(Vint_routine).w
