@@ -17575,8 +17575,8 @@ DrawBlockCol2:
 	move.l	d1,d0
 	bsr.w	ProcessAndWriteBlock2
 	adda.w	#$10,a0		; move onto the 16x16 vertically below this one
-	addi.w	#$100,d1	; draw on alternate 8x8 lines
-	andi.w	#$FFF,d1
+	addi.w	#64*2*2,d1	; draw on alternate 8x8 lines
+	andi.w	#(64*32*2)-1,d1	; wrap around plane (assumed to be in 64x32 mode)
 	addi.w	#$10,d4		; add 16 to Y offset
 	move.w	d4,d0
 	andi.w	#$70,d0		; have we reached a new 128x128?
