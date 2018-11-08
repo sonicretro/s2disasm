@@ -84337,7 +84337,7 @@ loc_40F18:
 	bne.s	return_40F4E
 	lea	(Timer).w,a1
 	cmpi.l	#$93B3B,(a1)+
-	nop
+	nop			; You can't get a Time Over in Debug Mode, so this branch is dummied-out
 	addq.b	#1,-(a1)
 	cmpi.b	#$3C,(a1)
 	blo.s	return_40F4E
