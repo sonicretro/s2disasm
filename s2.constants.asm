@@ -1612,13 +1612,15 @@ Total_Bonus_Countdown:		ds.w	1
 Level_Music:			ds.w	1
 Bonus_Countdown_3:		ds.w	1
 MegaPlay_Default_lives_2P:	ds.b	1
-				ds.b	3	; $FFFFFF95-$FFFFFF97 ; seems unused
+MegaPlay_Came_from_2P_results:	ds.b	1
+MegaPlay_Continues_used:	ds.w	1
 Game_Over_2P:			ds.w	1
 
 				ds.b	6	; $FFFFFF9A-$FFFFFF9F ; seems unused
 
 SS2p_RingBuffer:		ds.w	6
-				ds.b	2	; $FFFFFFAC-$FFFFFFAE ; seems unused
+MegaPlay_Timer_disabled:	ds.b	1
+				ds.b	1	; $FFFFFFAD ; seems unused
 MegaPlay_Var1:			ds.b	1
 MegaPlay_point_life_obtained:	ds.b	1
 Got_Emerald:			ds.b	1

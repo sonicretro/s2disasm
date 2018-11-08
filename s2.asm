@@ -353,10 +353,53 @@ CheckSumCheck:
 	btst	#1,d1
 	bne.s	CheckSumCheck	; wait until DMA is completed
     endif
+
 	; [Mega Play] The checksum code is removed
+    if 1==0
+	btst	#6,(HW_Expansion_Control).l
+	beq.s	ChecksumTest
+	cmpi.l	#'init',(Checksum_fourcc).w ; has checksum routine already run?
+	beq.w	GameInit
+
+; loc_328:
+;ChecksumTest:
+    if skipChecksumCheck=0	; checksum code
+	movea.l	#EndOfHeader,a0	; start checking bytes after the header ($200)
+	movea.l	#ROMEndLoc,a1	; stop at end of ROM
+	move.l	(a1),d0
+	moveq	#0,d1
+; loc_338:
+ChecksumLoop:
+	add.w	(a0)+,d1
+	cmp.l	a0,d0
+	bhs.s	ChecksumLoop
+	movea.l	#Checksum,a1	; read the checksum
+	cmp.w	(a1),d1	; compare correct checksum to the one in ROM
+	bne.w	ChecksumError	; if they don't match, branch
+    endif
+checksum_good:
+	lea	(System_Stack).w,a6
+	moveq	#0,d7
+
+	move.w	#bytesToLcnt($200),d6
+-	move.l	d7,(a6)+
+	dbf	d6,-
+
+	move.b	(HW_Version).l,d0
+	andi.b	#$C0,d0
+	move.b	d0,(Graphics_Flags).w
+	move.l	#'init',(Checksum_fourcc).w ; set flag so checksum won't be run again
+; loc_370:
+GameInit:
 	lea	(RAM_Start&$FFFFFF).l,a6
 	moveq	#0,d7
-	move.w	#bytesToLcnt($10000),d6
+	move.w	#bytesToLcnt(System_Stack&$FFFF),d6
+    endif
+
+	; [Mega Play] The useful bits of the above code where edited and moved down here
+	lea	(RAM_Start&$FFFFFF).l,a6
+	moveq	#0,d7
+	move.w	#bytesToLcnt($10000),d6	; Clear all RAM
 ; loc_37C:
 GameClrRAM:
 	move.l	d7,(a6)+
@@ -365,12 +408,13 @@ GameClrRAM:
 	move.b	(HW_Version).l,d0
 	andi.b	#$C0,d0
 	move.b	d0,(Graphics_Flags).w
+	; end of Mega Play code
 
 	bsr.w	VDPSetupGame
 	bsr.w	JmpTo_SoundDriverLoad
 	bsr.w	JoypadInit
-	bsr.w	MegaPlay_Init
-	move.b	#1,($FFFFAC).l
+	bsr.w	MegaPlay_Init				; [Mega Play]
+	move.b	#1,(MegaPlay_Timer_disabled&$FFFFFF).l	; [Mega Play] This is never cleared
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; set Game Mode to Sega Screen
 ; loc_394:
 MainGameLoop:
@@ -451,6 +495,8 @@ V_Int:
 
 loc_3E2:
 	bsr.w	MegaPlay_VInt
+	; end of Mega Play code
+
 	tst.b	(Vint_routine).w
 	beq.w	Vint_Lag
 
@@ -627,6 +673,7 @@ Vint_Level:
 	tst.b	(Teleport_timer).w
 	beq.s	loc_6F8
 	lea	(VDP_control_port).l,a5
+	; [Mega Play] Pausing has been completely disabled
 ;	tst.w	(Game_paused).w	; is the game paused ?
 ;	bne.w	loc_748	; if yes, branch
 	subq.b	#1,(Teleport_timer).w
@@ -1863,7 +1910,8 @@ JoypadInit:
 	moveq	#$40,d0
 	move.b	d0,(HW_Port_1_Control).l	; init port 1 (joypad 1)
 	move.b	d0,(HW_Port_2_Control).l	; init port 2 (joypad 2)
-	;move.b	d0,(HW_Expansion_Control).l	; init port 3 (expansion/extra)
+	; [Mega Play] The expansion port is used by the arcade machine, so don't touch it here
+;	move.b	d0,(HW_Expansion_Control).l	; init port 3 (expansion/extra)
 	startZ80
 	rts
 ; End of function JoypadInit
@@ -2074,58 +2122,61 @@ PlaySoundLocal:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+; [Mega Play] Pausing was completely removed
+    if 1==0
 ; sub_1388:
-;PauseGame:
-;	nop
-;	tst.b	(Life_count).w	; do you have any lives left?
-;	beq.w	Unpause		; if not, branch
-;	tst.w	(Game_paused).w	; is game already paused?
-;	bne.s	+		; if yes, branch
-;	move.b	(Ctrl_1_Press).w,d0 ; is Start button pressed?
-;	or.b	(Ctrl_2_Press).w,d0 ; (either player)
-;	andi.b	#button_start_mask,d0
-;	beq.s	Pause_DoNothing	; if not, branch
-;+
-;	move.w	#1,(Game_paused).w	; freeze time
-;	move.b	#MusID_Pause,(Music_to_play).w	; pause music
-;; loc_13B2:
-;Pause_Loop:
-;	move.b	#VintID_Pause,(Vint_routine).w
-;	bsr.w	WaitForVint
-;	tst.b	(Slow_motion_flag).w	; is slow-motion cheat on?
-;	beq.s	Pause_ChkStart		; if not, branch
-;	btst	#button_A,(Ctrl_1_Press).w	; is button A pressed?
-;	beq.s	Pause_ChkBC		; if not, branch
-;	move.b	#GameModeID_TitleScreen,(Game_Mode).w ; set game mode to 4 (title screen)
-;	nop
-;	bra.s	Pause_Resume
-;; ===========================================================================
-;; loc_13D4:
-;Pause_ChkBC:
-;	btst	#button_B,(Ctrl_1_Held).w ; is button B pressed?
-;	bne.s	Pause_SlowMo		; if yes, branch
-;	btst	#button_C,(Ctrl_1_Press).w ; is button C pressed?
-;	bne.s	Pause_SlowMo		; if yes, branch
-;; loc_13E4:
-;Pause_ChkStart:
-;	move.b	(Ctrl_1_Press).w,d0	; is Start button pressed?
-;	or.b	(Ctrl_2_Press).w,d0	; (either player)
-;	andi.b	#button_start_mask,d0
-;	beq.s	Pause_Loop	; if not, branch
-;; loc_13F2:
-;Pause_Resume:
-;	move.b	#MusID_Unpause,(Music_to_play).w	; unpause the music
-;; loc_13F8:
-;Unpause:
-;	move.w	#0,(Game_paused).w	; unpause the game
-;; return_13FE:
-;Pause_DoNothing:
-;	rts
-;; ===========================================================================
-;; loc_1400:
-;Pause_SlowMo:
-;	move.w	#1,(Game_paused).w
-;	move.b	#MusID_Unpause,(Music_to_play).w
+PauseGame:
+	nop
+	tst.b	(Life_count).w	; do you have any lives left?
+	beq.w	Unpause		; if not, branch
+	tst.w	(Game_paused).w	; is game already paused?
+	bne.s	+		; if yes, branch
+	move.b	(Ctrl_1_Press).w,d0 ; is Start button pressed?
+	or.b	(Ctrl_2_Press).w,d0 ; (either player)
+	andi.b	#button_start_mask,d0
+	beq.s	Pause_DoNothing	; if not, branch
++
+	move.w	#1,(Game_paused).w	; freeze time
+	move.b	#MusID_Pause,(Music_to_play).w	; pause music
+; loc_13B2:
+Pause_Loop:
+	move.b	#VintID_Pause,(Vint_routine).w
+	bsr.w	WaitForVint
+	tst.b	(Slow_motion_flag).w	; is slow-motion cheat on?
+	beq.s	Pause_ChkStart		; if not, branch
+	btst	#button_A,(Ctrl_1_Press).w	; is button A pressed?
+	beq.s	Pause_ChkBC		; if not, branch
+	move.b	#GameModeID_TitleScreen,(Game_Mode).w ; set game mode to 4 (title screen)
+	nop
+	bra.s	Pause_Resume
+; ===========================================================================
+; loc_13D4:
+Pause_ChkBC:
+	btst	#button_B,(Ctrl_1_Held).w ; is button B pressed?
+	bne.s	Pause_SlowMo		; if yes, branch
+	btst	#button_C,(Ctrl_1_Press).w ; is button C pressed?
+	bne.s	Pause_SlowMo		; if yes, branch
+; loc_13E4:
+Pause_ChkStart:
+	move.b	(Ctrl_1_Press).w,d0	; is Start button pressed?
+	or.b	(Ctrl_2_Press).w,d0	; (either player)
+	andi.b	#button_start_mask,d0
+	beq.s	Pause_Loop	; if not, branch
+; loc_13F2:
+Pause_Resume:
+	move.b	#MusID_Unpause,(Music_to_play).w	; unpause the music
+; loc_13F8:
+Unpause:
+	move.w	#0,(Game_paused).w	; unpause the game
+; return_13FE:
+Pause_DoNothing:
+	rts
+; ===========================================================================
+; loc_1400:
+Pause_SlowMo:
+	move.w	#1,(Game_paused).w
+	move.b	#MusID_Unpause,(Music_to_play).w
+    endif
 	rts
 ; End of function PauseGame
 
@@ -4441,6 +4492,11 @@ SegaScreen:
 	move.w	d0,(VDP_control_port).l
 	bsr.w	ClearScreen
 
+	; [Mega Play] The Sega screen was ripped out.
+	; Now all it does is wait for the arcade machine to
+	; switch to the title screen.
+	; (See MegaPlay_Command_GoToTitleScreen)
+
 	move.w	(VDP_Reg1_val).w,d0
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
@@ -4453,76 +4509,77 @@ Sega_WaitPalette:
 	beq.s	Sega_WaitPalette
 	rts
 
-;	dmaFillVRAM 0,VRAM_SegaScr_Plane_A_Name_Table,VRAM_SegaScr_Plane_Table_Size ; clear Plane A pattern name table
+    if 1==0
+	dmaFillVRAM 0,VRAM_SegaScr_Plane_A_Name_Table,VRAM_SegaScr_Plane_Table_Size ; clear Plane A pattern name table
 
-;	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_Sega_Logo),VRAM,WRITE),(VDP_control_port).l
-;	lea	(ArtNem_SEGA).l,a0
-;	bsr.w	NemDec
-;	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_Trails),VRAM,WRITE),(VDP_control_port).l
-;	lea	(ArtNem_IntroTrails).l,a0
-;	bsr.w	NemDec
-;	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtUnc_Giant_Sonic),VRAM,WRITE),(VDP_control_port).l
-;	lea	(ArtNem_SilverSonic).l,a0 ; ?? seems unused here
-;	bsr.w	NemDec
-;	lea	(Chunk_Table).l,a1
-;	lea	(MapEng_SEGA).l,a0
-;	move.w	#make_art_tile(ArtTile_VRAM_Start,0,0),d0
-;	bsr.w	EniDec
-;	lea	(Chunk_Table).l,a1
-;	move.l	#vdpComm(VRAM_SegaScr_Plane_B_Name_Table,VRAM,WRITE),d0
-;	moveq	#$27,d1		; 40 cells wide
-;	moveq	#$1B,d2		; 28 cells tall
-;	bsr.w	PlaneMapToVRAM_H80_Sega
-;	tst.b	(Graphics_Flags).w ; are we on a Japanese Mega Drive?
-;	bmi.s	SegaScreen_Contin ; if not, branch
-;	; load an extra sprite to hide the TM (trademark) symbol on the SEGA screen
-;	lea	(SegaHideTM).w,a1
-;	move.b	#ObjID_SegaHideTM,id(a1)	; load objB1 at $FFFFB080
-;	move.b	#$4E,subtype(a1) ; <== ObjB1_SubObjData
-;; loc_38CE:
-;SegaScreen_Contin:
-;	moveq	#PalID_SEGA,d0
-;	bsr.w	PalLoad_Now
-;	move.w	#-$A,(PalCycle_Frame).w
-;	move.w	#0,(PalCycle_Timer).w
-;	move.w	#0,(SegaScr_VInt_Subrout).w
-;	move.w	#0,(SegaScr_PalDone_Flag).w
-;	lea	(SegaScreenObject).w,a1
-;	move.b	#ObjID_SonicOnSegaScr,id(a1) ; load objB0 (sega screen?) at $FFFFB040
-;	move.b	#$4C,subtype(a1) ; <== ObjB0_SubObjData
-;	move.w	#4*60,(Demo_Time_left).w	; 4 seconds
-;	move.w	(VDP_Reg1_val).w,d0
-;	ori.b	#$40,d0
-;	move.w	d0,(VDP_control_port).l
-;; loc_390E:
-;Sega_WaitPalette:
-;	move.b	#VintID_SEGA,(Vint_routine).w
-;	bsr.w	WaitForVint
-;	jsrto	(RunObjects).l, JmpTo_RunObjects
-;	jsr	(BuildSprites).l
-;	tst.b	(SegaScr_PalDone_Flag).w
-;	beq.s	Sega_WaitPalette
-;	move.b	#SndID_SegaSound,d0
-;	bsr.w	PlaySound	; play "SEGA" sound
-;	move.b	#VintID_SEGA,(Vint_routine).w
-;	bsr.w	WaitForVint
-;	move.w	#3*60,(Demo_Time_left).w	; 3 seconds
-;; loc_3940:
-;Sega_WaitEnd:
-;	move.b	#VintID_PCM,(Vint_routine).w
-;	bsr.w	WaitForVint
-;	tst.w	(Demo_Time_left).w
-;	beq.s	Sega_GotoTitle
-;	move.b	(Ctrl_1_Press).w,d0	; is Start button pressed?
-;	or.b	(Ctrl_2_Press).w,d0	; (either player)
-;	andi.b	#button_start_mask,d0
-;	beq.s	Sega_WaitEnd		; if not, branch
-;; loc_395E:
-;Sega_GotoTitle:
-;	clr.w	(SegaScr_PalDone_Flag).w
-;	clr.w	(SegaScr_VInt_Subrout).w
-;	move.b	#GameModeID_TitleScreen,(Game_Mode).w	; => TitleScreen
-;	rts
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_Sega_Logo),VRAM,WRITE),(VDP_control_port).l
+	lea	(ArtNem_SEGA).l,a0
+	bsr.w	NemDec
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_Trails),VRAM,WRITE),(VDP_control_port).l
+	lea	(ArtNem_IntroTrails).l,a0
+	bsr.w	NemDec
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtUnc_Giant_Sonic),VRAM,WRITE),(VDP_control_port).l
+	lea	(ArtNem_SilverSonic).l,a0 ; ?? seems unused here
+	bsr.w	NemDec
+	lea	(Chunk_Table).l,a1
+	lea	(MapEng_SEGA).l,a0
+	move.w	#make_art_tile(ArtTile_VRAM_Start,0,0),d0
+	bsr.w	EniDec
+	lea	(Chunk_Table).l,a1
+	move.l	#vdpComm(VRAM_SegaScr_Plane_B_Name_Table,VRAM,WRITE),d0
+	moveq	#$27,d1		; 40 cells wide
+	moveq	#$1B,d2		; 28 cells tall
+	bsr.w	PlaneMapToVRAM_H80_Sega
+	tst.b	(Graphics_Flags).w ; are we on a Japanese Mega Drive?
+	bmi.s	SegaScreen_Contin ; if not, branch
+	; load an extra sprite to hide the TM (trademark) symbol on the SEGA screen
+	lea	(SegaHideTM).w,a1
+	move.b	#ObjID_SegaHideTM,id(a1)	; load objB1 at $FFFFB080
+	move.b	#$4E,subtype(a1) ; <== ObjB1_SubObjData
+; loc_38CE:
+SegaScreen_Contin:
+	moveq	#PalID_SEGA,d0
+	bsr.w	PalLoad_Now
+	move.w	#-$A,(PalCycle_Frame).w
+	move.w	#0,(PalCycle_Timer).w
+	move.w	#0,(SegaScr_VInt_Subrout).w
+	move.w	#0,(SegaScr_PalDone_Flag).w
+	lea	(SegaScreenObject).w,a1
+	move.b	#ObjID_SonicOnSegaScr,id(a1) ; load objB0 (sega screen?) at $FFFFB040
+	move.b	#$4C,subtype(a1) ; <== ObjB0_SubObjData
+	move.w	#4*60,(Demo_Time_left).w	; 4 seconds
+	move.w	(VDP_Reg1_val).w,d0
+	ori.b	#$40,d0
+	move.w	d0,(VDP_control_port).l
+; loc_390E:
+Sega_WaitPalette:
+	move.b	#VintID_SEGA,(Vint_routine).w
+	bsr.w	WaitForVint
+	jsrto	(RunObjects).l, JmpTo_RunObjects
+	jsr	(BuildSprites).l
+	tst.b	(SegaScr_PalDone_Flag).w
+	beq.s	Sega_WaitPalette
+	move.b	#SndID_SegaSound,d0
+	bsr.w	PlaySound	; play "SEGA" sound
+	move.b	#VintID_SEGA,(Vint_routine).w
+	bsr.w	WaitForVint
+	move.w	#3*60,(Demo_Time_left).w	; 3 seconds
+; loc_3940:
+Sega_WaitEnd:
+	move.b	#VintID_PCM,(Vint_routine).w
+	bsr.w	WaitForVint
+	tst.w	(Demo_Time_left).w
+	beq.s	Sega_GotoTitle
+	move.b	(Ctrl_1_Press).w,d0	; is Start button pressed?
+	or.b	(Ctrl_2_Press).w,d0	; (either player)
+	andi.b	#button_start_mask,d0
+	beq.s	Sega_WaitEnd		; if not, branch
+; loc_395E:
+Sega_GotoTitle:
+	clr.w	(SegaScr_PalDone_Flag).w
+	clr.w	(SegaScr_VInt_Subrout).w
+	move.b	#GameModeID_TitleScreen,(Game_Mode).w	; => TitleScreen
+	rts
 
 ; ---------------------------------------------------------------------------
 ; Subroutine that does the exact same thing as PlaneMapToVRAM_H80_SpecialStage
@@ -4532,17 +4589,18 @@ Sega_WaitPalette:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ; sub_396E: ShowVDPGraphics3: PlaneMapToVRAM3:
-;PlaneMapToVRAM_H80_Sega:
-;	lea	(VDP_data_port).l,a6
-;	move.l	#vdpCommDelta(planeLocH80(0,1)),d4	; $1000000
-;-	move.l	d0,VDP_control_port-VDP_data_port(a6)
-;	move.w	d1,d3
-;-	move.w	(a1)+,(a6)
-;	dbf	d3,-
-;	add.l	d4,d0
-;	dbf	d2,--
-;	rts
+PlaneMapToVRAM_H80_Sega:
+	lea	(VDP_data_port).l,a6
+	move.l	#vdpCommDelta(planeLocH80(0,1)),d4	; $1000000
+-	move.l	d0,VDP_control_port-VDP_data_port(a6)
+	move.w	d1,d3
+-	move.w	(a1)+,(a6)
+	dbf	d3,-
+	add.l	d4,d0
+	dbf	d2,--
+	rts
 ; End of function PlaneMapToVRAM_H80_Sega
+    endif
 
 ; ===========================================================================
 
@@ -4586,8 +4644,9 @@ TitleScreen:
 	clearRAM Misc_Variables,Misc_Variables_End ; clear CPU player RAM and following variables
 	clearRAM Camera_RAM,Camera_RAM_End ; clear camera RAM and following variables
 
+	; [Mega Play] MegaPlay_Var6 seems to be a 'credit inserted flag' or something
 	tst.b	(MegaPlay_Var6&$FFFFFF).l
-	bne.s	loc_3EB8
+	bne.s	+
 
 	; Show 'Sonic and Tails in'
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_CreditText),VRAM,WRITE),(VDP_control_port).l
@@ -4595,8 +4654,7 @@ TitleScreen:
 	bsr.w	NemDec
 	lea	(off_B2B0).l,a1
 	jsr	(loc_B272).l
-
-loc_3EB8:
++
 	clearRAM Target_palette,Target_palette_End	; fill palette with 0 (black)
 	moveq	#PalID_BGND,d0
 	bsr.w	PalLoad_ForFade
@@ -4699,6 +4757,7 @@ loc_3EB8:
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
 	bsr.w	Pal_FadeFromBlack
+	; [Mega Play] Unknown command
 	move.w	#$FF1D,d0
 	bsr.w	MegaPlay_SendCommandSafe
 
@@ -4723,46 +4782,54 @@ TitleScreen_Loop:
 +	addq.w	#8,a1
 	dbf	d6,-
 
+	; [Mega Play] The main loop was basically overhauled
 	bsr.w	RunPLC_RAM
-	;bsr.w	TailsNameCheat
-	tst.b	(MegaPlay_Var6&$FFFFFF).l
-	bne.s	loc_40EE
-	tst.w	(Demo_Time_left).w
-	bne.w	TitleScreen_Loop
+;	bsr.w	TailsNameCheat	; [Mega Play] Cheats have been removed
+;	tst.w	(Demo_Time_left).w
+;	beq.w	TitleScreen_Demo
 ;	tst.b	(IntroSonic+objoff_2F).w
 ;	beq.w	TitleScreen_Loop
+	tst.b	(MegaPlay_Var6&$FFFFFF).l	; Again, seems to be a 'credits inserted' flag
+	bne.s	.credits_inserted
+	tst.w	(Demo_Time_left).w
+	bne.w	TitleScreen_Loop
 	bra.w	TitleScreen_Demo
-
-loc_40EE:
+; loc_40EE:
+.credits_inserted:
 	move.b	(Ctrl_1_Press).w,d0
-	or.b	(Ctrl_1_Press).w,d0
+	or.b	(Ctrl_1_Press).w,d0	; Yes, this genius code is in the actual ROM
 	andi.b	#button_start_mask,d0
-	bne.s	loc_410E
+	bne.s	.single_player
 	move.b	(Ctrl_2_Press).w,d0
-	or.b	(Ctrl_2_Press).w,d0
+	or.b	(Ctrl_2_Press).w,d0	; Ditto
 	andi.b	#button_start_mask,d0
-	bne.s	loc_4124
+	bne.s	.two_player
 	bra.w	TitleScreen_Loop
-
-loc_410E:                               ; CODE XREF: ROM:000040FAj
+; loc_410E:
+.single_player:
 	move.w	#$FF0A,d0
 	bsr.w	MegaPlay_SendCommandSafe
-	move.w	#0,($FFFFFFD4).w
-	move.b	#0,($FFFFFF86).w
+	move.w	#0,(Correct_cheat_entries).w
+	move.b	#0,(Title_screen_option).w
 	bra.s	loc_413E
 ; ---------------------------------------------------------------------------
-
-loc_4124:                               ; CODE XREF: ROM:00004108j
+; loc_4124:
+.two_player:
 	move.w	#$FF09,d0
 	bsr.w	MegaPlay_SendCommandSafe
-	move.w	#0,($FFFFFFD4).w
-	move.b	#1,($FFFFFF86).w
-	move.w	#1,($FFFFFFD8).w
+	move.w	#0,(Correct_cheat_entries).w
+	move.b	#1,(Title_screen_option).w
+	move.w	#1,(Two_player_mode).w
 
 loc_413E:
+	; end of Mega Play code
+
 	move.b	#GameModeID_Level,(Game_Mode).w ; => Level (Zone play mode)
+	; [Mega Play] Timers, lives, and next-life-score are managed by the arcade machine
 	bsr.w	MegaPlay_ResetLives
 	bsr.w	MegaPlay_ResetTimer
+;	move.b	#3,(Life_count).w
+;	move.b	#3,(Life_count_2P).w
 	moveq	#0,d0
 	move.w	d0,(Ring_count).w
 ;	move.l	d0,(Timer).w
@@ -4771,7 +4838,7 @@ loc_413E:
 ;	move.l	d0,(Timer_2P).w
 	move.l	d0,(Score_2P).w
 	move.b	d0,(Continue_count).w
-	move.w	d0,($FFFF96).l
+	move.w	d0,(MegaPlay_Continues_used&$FFFFFF).l
 ;	move.l	#5000,(Next_Extra_life_score).w
 ;	move.l	#5000,(Next_Extra_life_score_2P).w
 	move.b	#MusID_FadeOut,d0 ; prepare to stop music (fade out)
@@ -4788,15 +4855,19 @@ loc_413E:
     else
 	move.w #emerald_hill_zone_act_1,(Current_ZoneAndAct).w
     endif
-;	tst.b	(Level_select_flag).w	; has level select cheat been entered?
-;	beq.s	+			; if not, branch
-;	btst	#button_A,(Ctrl_1_Held).w ; is A held down?
-;	beq.s	+	 		; if not, branch
-;	move.b	#GameModeID_LevelSelect,(Game_Mode).w ; => LevelSelectMenu
+
+	; [Mega Play] Level select is dummied-out
+    if 1==0
+	tst.b	(Level_select_flag).w	; has level select cheat been entered?
+	beq.s	+			; if not, branch
+	btst	#button_A,(Ctrl_1_Held).w ; is A held down?
+	beq.s	+	 		; if not, branch
+	move.b	#GameModeID_LevelSelect,(Game_Mode).w ; => LevelSelectMenu
+    endif
 	rts
 ; ---------------------------------------------------------------------------
-;+
-	; Dead code
++
+	; [Mega Play] Now dead code
 	move.w	d0,(Current_Special_StageAndAct).w
 	move.w	d0,(Got_Emerald).w
 	move.l	d0,(Got_Emeralds_array).w
@@ -4841,14 +4912,16 @@ TitleScreen_Demo:
 +
 	move.w	#1,(Demo_mode_flag).w
 	move.b	#GameModeID_Demo,(Game_Mode).w ; => Level (Demo mode)
+	; [Mega Play] The EHZ demo is single-player now
 ;	cmpi.w	#emerald_hill_zone_act_1,(Current_ZoneAndAct).w
 ;	bne.s	+
 ;	move.w	#1,(Two_player_mode).w
 ;+
-;	move.b	#3,(Life_count).w
-;	move.b	#3,(Life_count_2P).w
+	; [Mega Play] Timers, lives, and next-life-score are managed by the arcade machine
 	bsr.w	MegaPlay_ResetLives
 	bsr.w	MegaPlay_ResetTimer
+;	move.b	#3,(Life_count).w
+;	move.b	#3,(Life_count_2P).w
 	moveq	#0,d0
 	move.w	d0,(Ring_count).w
 ;	move.l	d0,(Timer).w
@@ -4870,36 +4943,41 @@ DemoLevels_End:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+; [Mega Play] The cheats were removed
+    if 1==0
 ; sub_3DB4:
-;TailsNameCheat:
-;	lea	(TailsNameCheat_Buttons).l,a0
-;	move.w	(Correct_cheat_entries).w,d0
-;	adda.w	d0,a0
-;	move.b	(Ctrl_1_Press).w,d0
-;	andi.b	#button_up_mask|button_down_mask|button_left_mask|button_right_mask,d0
-;	beq.s	++	; rts
-;	cmp.b	(a0),d0
-;	bne.s	+
-;	addq.w	#1,(Correct_cheat_entries).w
-;	tst.b	1(a0)		; read the next entry
-;	bne.s	++		; if it's not zero, return
-;	bchg	#7,(Graphics_Flags).w ; turn on the cheat that changes MILES to "TAILS"
-;	move.b	#SndID_Ring,d0 ; play the ring sound for a successfully entered cheat
-;	bsr.w	PlaySound
-;+	move.w	#0,(Correct_cheat_entries).w
-;+
+TailsNameCheat:
+	lea	(TailsNameCheat_Buttons).l,a0
+	move.w	(Correct_cheat_entries).w,d0
+	adda.w	d0,a0
+	move.b	(Ctrl_1_Press).w,d0
+	andi.b	#button_up_mask|button_down_mask|button_left_mask|button_right_mask,d0
+	beq.s	++	; rts
+	cmp.b	(a0),d0
+	bne.s	+
+	addq.w	#1,(Correct_cheat_entries).w
+	tst.b	1(a0)		; read the next entry
+	bne.s	++		; if it's not zero, return
+	bchg	#7,(Graphics_Flags).w ; turn on the cheat that changes MILES to "TAILS"
+	move.b	#SndID_Ring,d0 ; play the ring sound for a successfully entered cheat
+	bsr.w	PlaySound
++	move.w	#0,(Correct_cheat_entries).w
++
+    endif
 	rts
 ; End of function TailsNameCheat
 
 ; ===========================================================================
+    if 1==0
 ; byte_3DEE:
-;TailsNameCheat_Buttons:
-;	dc.b	button_up_mask
-;	dc.b	button_down_mask
-;	dc.b	button_down_mask
-;	dc.b	button_down_mask
-;	dc.b	button_up_mask
-;	dc.b	0	; end
+TailsNameCheat_Buttons:
+	dc.b	button_up_mask
+	dc.b	button_down_mask
+	dc.b	button_down_mask
+	dc.b	button_down_mask
+	dc.b	button_up_mask
+	dc.b	0	; end
+    endif
 ; ---------------------------------------------------------------------------------
 ; Nemesis compressed art
 ; 10 blocks
@@ -4915,6 +4993,7 @@ ArtNem_Player1VS2:	BINCLUDE	"art/nemesis/1Player2VS.bin"
 	charset '.',$D ; Add character for period
 	charset 'A','Z',$E ; Add character set for letters
 
+; [Mega Play] The copyright year was updated to 1993
 ; word_3E82:
 CopyrightText:
 	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + '@',0,0)	; (C)
@@ -5210,6 +5289,7 @@ Level_ClrHUD:
 	moveq	#0,d0
 	tst.b	(Last_star_pole_hit).w	; are you starting from a lamppost?
 	bne.s	Level_FromCheckpoint	; if yes, branch
+	; [Mega Play] Timers are managed by the arcade machine
 	bsr.w	MegaPlay_ResetTimer
 	move.w	d0,(Ring_count).w	; clear rings
 ;	move.l	d0,(Timer).w		; clear time
@@ -5318,7 +5398,7 @@ Level_FromCheckpoint:
 ; ---------------------------------------------------------------------------
 ; loc_4360:
 Level_MainLoop:
-	;bsr.w	PauseGame
+	;bsr.w	PauseGame	; [Mega Play] Pausing was removed
 	move.b	#VintID_Level,(Vint_routine).w
 	bsr.w	WaitForVint
 	addq.w	#1,(Timer_frames).w ; add 1 to level timer
@@ -5356,7 +5436,7 @@ Level_MainLoop:
 	cmpi.b	#GameModeID_Demo,(Game_Mode).w
 	beq.w	Level_MainLoop
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
-	move.w	#$FF04,d0
+	move.w	#$FF04,d0	; [Mega Play] Unknown command
 	bsr.w	MegaPlay_SendCommandSafe
 	rts
 ; ---------------------------------------------------------------------------
@@ -5364,7 +5444,7 @@ Level_MainLoop:
 	cmpi.b	#GameModeID_Demo,(Game_Mode).w
 	bne.s	+
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
-	move.w	#$FF04,d0
+	move.w	#$FF04,d0	; [Mega Play] Unknown command
 	bsr.w	MegaPlay_SendCommandSafe
 +
 	move.w	#1*60,(Demo_Time_left).w	; 1 second
@@ -6846,7 +6926,7 @@ SpecialStage:
 	move.w	d0,(VDP_control_port).l
 	bsr.w	Pal_FadeFromWhite
 
--;	bsr.w	PauseGame
+-;	bsr.w	PauseGame	; [Mega Play] Pausing was removed
 	move.w	(Ctrl_1).w,(Ctrl_1_Logical).w
 	move.w	(Ctrl_2).w,(Ctrl_2_Logical).w
 	cmpi.b	#GameModeID_SpecialStage,(Game_Mode).w ; special stage mode?
@@ -6867,7 +6947,7 @@ SpecialStage:
 	moveq	#PLCID_SpecStageBombs,d0
 	bsr.w	LoadPLC
 
--;	bsr.w	PauseGame
+-;	bsr.w	PauseGame	; [Mega Play] Pausing was removed
 	cmpi.b	#GameModeID_SpecialStage,(Game_Mode).w ; special stage mode?
 	bne.w	SpecialStage_Unpause		; if not, branch
 	move.b	#VintID_S2SS,(Vint_routine).w
@@ -9804,11 +9884,8 @@ loc_710A:
 	blt.w	JmpTo_DeleteObject
 	jmpto	(DisplaySprite).l, JmpTo_DisplaySprite
 
-    if removeJmpTos
 JmpTo_DeleteObject 
 	jmp	(DeleteObject).l
-    endif
-
 ; ===========================================================================
 
 ; loc_714A:
@@ -9836,11 +9913,8 @@ Obj5F_Main:
 	move.b	#4,routine(a0)
 	move.b	#$F,objoff_2A(a0)
 
-    if removeJmpTos
 JmpTo_DisplaySprite 
-    endif
-
-	jmpto	(DisplaySprite).l, JmpTo_DisplaySprite
+	jmp	(DisplaySprite).l
 ; ===========================================================================
 
 loc_71B4:
@@ -10429,8 +10503,6 @@ JmpTo_DisplaySprite
 	jmp	(DisplaySprite).l
 JmpTo_LoadTitleCardSS 
 	jmp	(LoadTitleCardSS).l
-JmpTo_DeleteObject 
-	jmp	(DeleteObject).l
 JmpTo_Obj5A_CreateRingReqMessage 
 	jmp	(Obj5A_CreateRingReqMessage).l
 JmpTo_Obj5A_PrintPhrase 
@@ -10502,7 +10574,8 @@ ContinueScreen:
 	move.w	(VDP_Reg1_val).w,d0
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
-	tst.b   ($FFFF95).l
+	; [Mega Play] This probably subtracts a credit
+	tst.b   (MegaPlay_Came_from_2P_results&$FFFFFF).l
 	bne.s	loc_7D70
 	move.w	#$FF10,d0
 	bra.s	loc_7D74
@@ -10513,29 +10586,33 @@ loc_7D70:
 
 loc_7D74:
 	bsr.w	MegaPlay_SendCommandSafe
+	; end of Mega Play code
 	bsr.w	Pal_FadeFromBlack
 -
 	move.b	#VintID_Menu,(Vint_routine).w
 	bsr.w	WaitForVint
 	cmpi.b	#4,(MainCharacter+routine).w
 	bhs.s	+
-	move.b	($FFFFF605).w,d0
-	andi.b	#$70,d0 ; 'p'
+	; [Mega Play] Apparently you'd mash buttons to make
+	; the timer count down quicker?
+	move.b	(Ctrl_1_Press).w,d0
+	andi.b	#button_B_mask|button_C_mask|button_A_mask,d0
 	beq.s	loc_7DB4
-	move.w	($FFFFF614).w,d1
+	move.w	(Demo_Time_left).w,d1
 	beq.s	loc_7DB4
-	cmpi.w	#$1E0,d1
+	cmpi.w	#60*8,d1
 	bgt.s	loc_7DB4
-	subi.w	#$3C,d1 ; '<'
+	subi.w	#60,d1
 	bcc.s	loc_7DAC
 	moveq	#0,d1
 
 loc_7DAC:
-	move.w	d1,($FFFFF614).w
+	move.w	d1,(Demo_Time_left).w
 	bra.w	+
 ; ---------------------------------------------------------------------------
 
 loc_7DB4:
+	; end of Mega Play code
 	move	#$2700,sr
 	move.w	(Demo_Time_left).w,d1
 	divu.w	#60,d1
@@ -10552,13 +10629,16 @@ loc_7DB4:
 	tst.w	(Demo_Time_left).w
 	bne.w	-
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
-	move.w	#$FF1F,d0
+	move.w	#$FF1F,d0	; [Mega Play] Unknown command
 	bsr.w	MegaPlay_SendCommandSafe
 	rts
 ; ---------------------------------------------------------------------------
 +
 	move.b	#GameModeID_Level,(Game_Mode).w ; => Level (Zone play mode)
+	; [Mega Play] Timers, lives, and next-life-score are managed by the arcade machine
 	bsr.w	MegaPlay_ResetTimer
+;	move.b	#3,(Life_count).w
+;	move.b	#3,(Life_count_2P).w
 	moveq	#0,d0
 	move.w	d0,(Ring_count).w
 ;	move.l	d0,(Timer).w
@@ -10571,14 +10651,14 @@ loc_7DB4:
 ;	move.l	#5000,(Next_Extra_life_score).w
 ;	move.l	#5000,(Next_Extra_life_score_2P).w
 ;	subq.b	#1,(Continue_count).w
-	addq.w	#1,($FFFF96).l
-	tst.b	($FFFF95).l
-	beq.s	loc_7E42
-	move.w	#1,($FFFFFFD8).w
-	move.b	#0,($FFFF95).l
-	move.b	#$1C,($FFFFF600).w
-
-loc_7E42:
+	addq.w	#1,(MegaPlay_Continues_used&$FFFFFF).l
+	; [Mega Play] Handle returning to the 2P results screen
+	tst.b	(MegaPlay_Came_from_2P_results&$FFFFFF).l
+	beq.s	+
+	move.w	#1,(Two_player_mode).w
+	move.b	#0,(MegaPlay_Came_from_2P_results&$FFFFFF).l
+	move.b	#GameModeID_2PLevelSelect,(Game_Mode).w
++
 	bsr.w	MegaPlay_ResetLives
 	rts
 
@@ -10771,7 +10851,8 @@ ObjDB_Sonic_Init:
 ObjDB_Sonic_Wait:
 	tst.b	(Ctrl_1_Press).w	; is start pressed?
 	bmi.s	ObjDB_Sonic_StartRunning ; if yes, branch
-	move.b	(Ctrl_1_Press).w,d0
+	; [Mega Play] Accept 2P's input too
+	move.b	(Ctrl_1_Press).w,d0	; Yay more stupid code
 	or.b	(Ctrl_2_Press).w,d0
 	andi.b	#button_start_mask,d0
 	bne.s	ObjDB_Sonic_StartRunning
@@ -10813,6 +10894,9 @@ ObjDB_Tails_Init:
 
 ; loc_7C52:
 ObjDB_Tails_Wait:
+	; [Mega Play] Accept 2P's input too
+;	tst.b	(Ctrl_1_Press).w	; is start pressed?
+;	bmi.s	ObjDB_Tails_StartRunning ; if yes, branch
 	move.b	(Ctrl_1_Press).w,d0
 	or.b	(Ctrl_2_Press).w,d0
 	andi.b	#button_start_mask,d0
@@ -10822,16 +10906,14 @@ ObjDB_Tails_Wait:
 ; ---------------------------------------------------------------------------
 ; loc_7C64:
 ObjDB_Tails_StartRunning:
-	tst.b	($FFFF95).l
-	bne.s	loc_80D2
+	; [Mega Play] This possible handles subtracting credits
+	tst.b	(MegaPlay_Came_from_2P_results&$FFFFFF).l
+	bne.s	+
 	move.w	#$FF13,d0
-	bra.s	loc_80D6
-; ---------------------------------------------------------------------------
-
-loc_80D2:
+	bra.s	++
++
 	move.w	#$FF15,d0
-
-loc_80D6:
++
 	bsr.w	MegaPlay_SendCommandSafe
 	addq.b	#2,routine(a0) ; => ObjDB_Tails_Run
 	move.l	#MapUnc_Tails,mappings(a0)
@@ -10948,7 +11030,7 @@ TwoPlayerResults:
 	move.w	d0,(Level_Music).w
 	bsr.w	PlayMusic
 +
-;	move.w	#$707,(Demo_Time_left).w
+;	move.w	#$707,(Demo_Time_left).w	; [Mega Play] This is changed to a different number below
 	clr.w	(Two_player_mode).w
 	clr.l	(Camera_X_pos).w
 	clr.l	(Camera_Y_pos).w
@@ -10962,7 +11044,7 @@ TwoPlayerResults:
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
 	bsr.w	Pal_FadeFromBlack
-	move.w	#$258,($FFFFF614).w
+	move.w	#60*10,(Demo_Time_left).w	; [Mega Play] 10 seconds instead of 30
 
 -	move.b	#VintID_Menu,(Vint_routine).w
 	bsr.w	WaitForVint
@@ -10973,17 +11055,18 @@ TwoPlayerResults:
 	bsr.w	RunPLC_RAM
 	tst.l	(Plc_Buffer).w
 	bne.s	-
-	tst.w	(Demo_Time_left).w
+	tst.w	(Demo_Time_left).w	; [Mega Play] Skip the menu if the timer runs out
 	beq.s	+
 	move.b	(Ctrl_1_Press).w,d0
 	or.b	(Ctrl_2_Press).w,d0
-	andi.b	#button_B_mask|button_C_mask|button_A_mask|button_start_mask,d0
+	andi.b	#button_B_mask|button_C_mask|button_A_mask|button_start_mask,d0	; [Mega Play] Now checks for all buttons, not just start
 	beq.s	-			; stay on that screen until either player presses start
 
 +
-	move.w  #0,($FFFFF614).w
+	move.w  #0,(Demo_Time_left).w	; [Mega Play] Reset this for some reason
 	move.w	(Results_Screen_2P).w,d0 ; were we at the act results screen? (VsRSID_Act)
 	bne.w	TwoPlayerResultsDone_Zone ; if not, branch
+	; [Mega Play] I... don't know what these checks are for
 	tst.b	(Time_Over_flag).w
 	bne.s	loc_83C2
 	tst.b	(Time_Over_flag_2P).w
@@ -10992,6 +11075,7 @@ TwoPlayerResults:
 	bne.s	loc_83C2
 	tst.b	(Update_HUD_timer_2P).w
 	bne.s	loc_83C2
+	; end of Mega Play code
 	tst.b	(Current_Act).w		; did we just finish act 1?
 	bne.s	+			; if not, branch
 	addq.b	#1,(Current_Act).w	; go to the next act
@@ -11005,23 +11089,26 @@ TwoPlayerResults:
 	moveq	#0,d0
 	move.l	d0,(Score).w
 	move.l	d0,(Score_2P).w
+	; [Mega Play] Next-life-score is managed by the arcade machine
 ;	move.l	#5000,(Next_Extra_life_score).w
 ;	move.l	#5000,(Next_Extra_life_score_2P).w
 	rts
 ; ===========================================================================
 
+; [Mega Play] New function... not sure what it's for
 loc_83C2:
 	bsr.w   Chk2PZoneCompletion
 	moveq   #$FF,d0
 	move.w  d0,(a5)+
 	move.w  d0,(a5)+
 	move.w  d0,(a5)
-	move.b  #$1C,($FFFFF600).w
+	move.b  #GameModeID_2PLevelSelect,(Game_Mode).w
 	tst.b   (Life_count).w
-	beq.w   loc_84DE
+	beq.w   loc_84DE	; Go to continue screen
 	tst.b   (Life_count_2P).w
-	beq.w   loc_84DE
+	beq.w   loc_84DE	; Go to continue screen
 	rts
+	; end of Mega Play code
 ; ===========================================================================
 +	; Displays results for the zone
 	move.b	#2,(Current_Act_2P).w
@@ -11103,6 +11190,7 @@ TwoPlayerResultsDone_ZoneOrSpecialStages:
 +
 	tst.w	(Game_Over_2P).w
 	beq.s	+		; if there's a Game Over, clear the results
+	; [Mega Play]
 	tst.b	(Life_count).w
 	beq.s	loc_84B8
 	tst.b	(Life_count_2P).w
@@ -11110,16 +11198,17 @@ TwoPlayerResultsDone_ZoneOrSpecialStages:
 	bra.s	loc_84C4
 ; ---------------------------------------------------------------------------
 
-loc_84B8:                               ; CODE XREF: ROM:000084AEj
+loc_84B8:
 	bsr.w	Chk2PZoneCompletion
 	moveq	#$FF,d0
 	move.w	d0,(a5)+
 	move.w	d0,(a5)+
 	move.w	d0,(a5)
 
-loc_84C4:                               ; CODE XREF: ROM:000084B6j
-	tst.w	($FFFF96).l
+loc_84C4:
+	tst.w	(MegaPlay_Continues_used&$FFFFFF).l
 	bne.s	loc_84DA
+	; end of Mega Play code
 	lea	(Results_Data_2P).w,a1
 
 	moveq	#bytesToWcnt(Results_Data_2P_End-Results_Data_2P),d0
@@ -11127,15 +11216,17 @@ loc_84C4:                               ; CODE XREF: ROM:000084B6j
 	dbf	d0,-
 
 loc_84DA:
+	; [Mega Play]
 	bsr.w	MegaPlay_ResetLives_TwoPlayer
 ;	move.b	#3,(Life_count).w
 ;	move.b	#3,(Life_count_2P).w
 +
 loc_84DE:
-	move.b	#1,($FFFF95).l
+	move.b	#1,(MegaPlay_Came_from_2P_results&$FFFFFF).l
 	move.w	#$FF0C,d0
 	bsr.w	MegaPlay_SendCommandSafe
-	move.b	#GameModeID_ContinueScreen,(Game_Mode).w ; => LevelSelectMenu2P
+	move.b	#GameModeID_ContinueScreen,(Game_Mode).w ; => ContinueScreen
+	; end of Mega Play code
 	rts
 ; ===========================================================================
 ; loc_8020:
@@ -11143,6 +11234,7 @@ TwoPlayerResultsDone_Game:
 	subq.w	#1,d0	; were we at the game results screen? (VsRSID_Game)
 	bne.s	TwoPlayerResultsDone_SpecialStage ; if not, branch
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
+	; [Mega Play] Unknown commands
 	move.w	#$FF0C,d0
 	bsr.w	MegaPlay_SendCommandSafe
 	move.w	#$FF1E,d0
@@ -11998,6 +12090,7 @@ MenuScreen:
 	moveq	#$1B,d2
 	jsrto	(PlaneMapToVRAM_H40).l, JmpTo_PlaneMapToVRAM_H40	; fullscreen background
 
+	; [Mega Play] The options menu was removed
 ;	cmpi.b	#GameModeID_OptionsMenu,(Game_Mode).w	; options menu?
 ;	beq.w	MenuScreen_Options	; if yes, branch
 
@@ -12055,17 +12148,19 @@ MenuScreen:
 
 	move.b	#MusID_Options,d0
 	bsr.w	PlayMusic
-	move.w	#60*10,(Demo_Time_left).w
+	move.w	#60*10,(Demo_Time_left).w	; [Mega Play] The time was changed from 30 seconds to 10
 	clr.w	(Two_player_mode).w
 	clr.l	(Camera_X_pos).w
 	clr.l	(Camera_Y_pos).w
 	move.b	#VintID_Menu,(Vint_routine).w
 	bsr.w	WaitForVint
+	; [Mega Play] These were added for some reason
 	move	#$2700,sr
 	bsr.w	ClearOld2PLevSelSelection
 	bsr.w	loc_9368
 	bsr.w	Update2PLevSelSelection
 	move	#$2300,sr
+	; end of Mega Play code
 	move.w	(VDP_Reg1_val).w,d0
 	ori.b	#$40,d0
 	move.w	d0,(VDP_control_port).l
@@ -12084,9 +12179,9 @@ LevelSelect2P_Main:
 	jsrto	(Dynamic_Normal).l, JmpTo2_Dynamic_Normal
 	move.b	(Ctrl_1_Press).w,d0
 	or.b	(Ctrl_2_Press).w,d0
-	andi.b	#button_B_mask|button_C_mask|button_A_mask|button_start_mask,d0
+	andi.b	#button_B_mask|button_C_mask|button_A_mask|button_start_mask,d0	; [Mega Play] Now it checks for A/B/C
 	bne.s	LevelSelect2P_PressStart
-	tst.w 	($FFFFF614).w
+	tst.w 	(Demo_Time_left).w	; [Mega Play] Now the timer actually does something
 	bne.w	LevelSelect2P_Main
 ;loc_8DE2:
 LevelSelect2P_PressStart:
@@ -12111,6 +12206,7 @@ loc_8DF4:
 	moveq	#0,d0
 	move.l	d0,(Score).w
 	move.l	d0,(Score_2P).w
+	; [Mega Play] The next-life-score is managed by the arcade machine instead
 ;	move.l	#5000,(Next_Extra_life_score).w
 ;	move.l	#5000,(Next_Extra_life_score_2P).w
 	rts
@@ -12147,20 +12243,20 @@ LevelSelect2P_Controls:
 	beq.s	+	; rts
 	bchg	#0,(Current_Zone_2P).w
 +
+	; [Mega Play] New code that I don't understand
 	bra.w	loc_9368
 	rts
 
 loc_9368:
-	moveq	#3,d2
-
-loc_936A:
-	bsr.w	Chk2PZoneCompletion
+	moveq	#4-1,d2
+-	bsr.w	Chk2PZoneCompletion
 	bmi.s	locret_937E
-	addq.b	#1,($FFFFFF88).w
-	andi.b	#3,($FFFFFF88).w
-	dbf	d2,loc_936A
+	addq.b	#1,(Current_Zone_2P).w
+	andi.b	#3,(Current_Zone_2P).w
+	dbf	d2,-
 
 locret_937E:
+	; end of Mega Play code
 	rts
 ; End of function LevelSelect2P_Controls
 
@@ -12314,6 +12410,7 @@ MenuScreenTextToRAM:
 ; End of function MenuScreenTextToRAM
 
 ; ===========================================================================
+; [Mega Play] The options menu was removed
 	if 0==1
 ; loc_8FCC:
 MenuScreen_Options:
@@ -12707,10 +12804,11 @@ LevelSelect_Main:	; routine running during level select
 	lea	(Anim_SonicMilesBG).l,a2
 	jsrto	(Dynamic_Normal).l, JmpTo2_Dynamic_Normal
 
+	; [Mega Play] For some reason, this checks the B button now
 ;	move.b	(Ctrl_1_Press).w,d0
 ;	or.b	(Ctrl_2_Press).w,d0
 ;	andi.b	#button_start_mask,d0	; start pressed?
-	btst	#4,($FFFFF604).w
+	btst	#button_B,(Ctrl_1_Held).w
 	bne.s	LevelSelect_PressStart	; yes
 	bra.w	LevelSelect_Main	; no
 ; ===========================================================================
@@ -12727,10 +12825,11 @@ LevelSelect_PressStart:
 ;LevelSelect_SpecialStage:
 	move.b	#GameModeID_SpecialStage,(Game_Mode).w ; => SpecialStage
 	clr.w	(Current_ZoneAndAct).w
-;	move.b	#3,(Life_count).w
-;	move.b	#3,(Life_count_2P).w
+	; [Mega Play] Timers, lives, and next-life-score are managed by the arcade machine
 	jsr	(MegaPlay_ResetLives).l
 	jsr	(MegaPlay_ResetTimer).l
+;	move.b	#3,(Life_count).w
+;	move.b	#3,(Life_count_2P).w
 	moveq	#0,d0
 	move.w	d0,(Ring_count).w
 ;	move.l	d0,(Timer).w
@@ -12787,10 +12886,11 @@ LevelSelect_StartZone:
 	andi.w	#$3FFF,d0
 	move.w	d0,(Current_ZoneAndAct).w
 	move.b	#GameModeID_Level,(Game_Mode).w ; => Level (Zone play mode)
-;	move.b	#3,(Life_count).w
-;	move.b	#3,(Life_count_2P).w
+	; [Mega Play] Timers, lives, and next-life-score are managed by the arcade machine
 	jsr	(MegaPlay_ResetLives).l
 	jsr	(MegaPlay_ResetTimer).l
+;	move.b	#3,(Life_count).w
+;	move.b	#3,(Life_count_2P).w
 	moveq	#0,d0
 	move.w	d0,(Ring_count).w
 ;	move.l	d0,(Timer).w
@@ -12877,6 +12977,7 @@ LevSelControls_CheckLR:
 	move.w	(Sound_test_sound).w,d0
 	addi.w	#$80,d0
 	jsrto	(PlayMusic).l, JmpTo_PlayMusic
+	; [Mega Play] Cheats were removed... poorly
 ;	lea	(debug_cheat).l,a0
 ;	lea	(super_sonic_cheat).l,a2
 	lea	(Debug_options_flag).w,a1	; Also S1_hidden_credits_flag
@@ -13082,6 +13183,7 @@ LevSel_MarkTable:	; 4 bytes per level select entry
 	dc.b  $F,$2C,  0,  0	;$14
 	dc.b $12,$2C,$12,$48
 ; ===========================================================================
+; [Mega Play] Cheats were removed
 	if 0==1
 ; loc_9746:
 CheckCheats:	; This is called from 2 places: the options screen and the level select screen
@@ -13228,9 +13330,11 @@ EndingSequence:
 	move.w	#$8ADF,(Hint_counter_reserve).w	; H-INT every 224th scanline
 	move.w	(Hint_counter_reserve).w,(a6)
 	clr.b	(Super_Sonic_flag).w
+	; [Mega Play] Apparently you only get the best ending if
+	; you beat the game without using a continue? Cool.
 ;	cmpi.b	#7,(Emerald_count).w
 ;	bne.s	+
-	cmpi.w	#0,($FFFF96).l
+	cmpi.w	#0,(MegaPlay_Continues_used&$FFFFFF).l
 	bne.s	+
 	cmpi.w	#2,(Player_mode).w
 	beq.s	+
@@ -13461,6 +13565,7 @@ EndgameCredits:
 +
 	st	(Level_Inactive_flag).w
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
+	; [Mega Play] Unknown commands
 	move.w	#$FF0C,d0
 	bsr.w	BranchTo_MegaPlay_SendCommandSafe
 	move.w	#$FF1E,d0
@@ -14316,11 +14421,8 @@ loc_AA8A:
 	bmi.w	JmpTo3_DeleteObject
 	jmpto	(DisplaySprite).l, JmpTo5_DisplaySprite
 
-    if removeJmpTos
 JmpTo3_DeleteObject 
-    endif
-
-	jmpto	(DeleteObject).l, JmpTo3_DeleteObject
+	jmp	(DeleteObject).l
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -14853,8 +14955,6 @@ ArtNem_CreditText:	BINCLUDE	"art/nemesis/Credit Text.bin"
     if ~~removeJmpTos
 JmpTo5_DisplaySprite 
 	jmp	(DisplaySprite).l
-JmpTo3_DeleteObject 
-	jmp	(DeleteObject).l
 JmpTo2_PlaySound 
 	jmp	(PlaySound).l
 JmpTo_ObjB2_Animate_Pilot 
@@ -18456,8 +18556,8 @@ DrawBlockCol2:
 	move.l	d1,d0
 	bsr.w	ProcessAndWriteBlock2
 	adda.w	#$10,a0		; move onto the 16x16 vertically below this one
-	addi.w	#64*2*2,d1	; draw on alternate 8x8 lines
-	andi.w	#(64*32*2)-1,d1	; wrap around plane (assumed to be in 64x32 mode)
+	addi.w	#$100,d1	; draw on alternate 8x8 lines
+	andi.w	#$FFF,d1
 	addi.w	#$10,d4		; add 16 to Y offset
 	move.w	d4,d0
 	andi.w	#$70,d0		; have we reached a new 128x128?
@@ -23908,18 +24008,21 @@ CollectRing_1P:
 	ori.b	#1,(Update_HUD_rings).w	; set flag to update the ring counter in the HUD
     endif
 
-;	cmpi.w	#100,(Ring_count).w	; does the player 1 have less than 100 rings?
-;	blo.s	JmpTo_PlaySoundStereo	; if yes, play the ring sound
-;	bset	#1,(Extra_life_flags).w	; test and set the flag for the first extra life
-;	beq.s	+			; if it was clear before, branch
-;	cmpi.w	#200,(Ring_count).w	; does the player 1 have less than 200 rings?
-;	blo.s	JmpTo_PlaySoundStereo	; if yes, play the ring sound
-;	bset	#2,(Extra_life_flags).w	; test and set the flag for the second extra life
-;	bne.s	JmpTo_PlaySoundStereo	; if it was set before, play the ring sound
-;+
-;	addq.b	#1,(Life_count).w	; add 1 to the life count
-;	addq.b	#1,(Update_HUD_lives).w	; add 1 to the displayed life count
-;	move.w	#MusID_ExtraLife,d0	; prepare to play the extra life jingle
+	; [Mega Play] You don't get lives from rings anymore
+    if 1==0
+	cmpi.w	#100,(Ring_count).w	; does the player 1 have less than 100 rings?
+	blo.s	JmpTo_PlaySoundStereo	; if yes, play the ring sound
+	bset	#1,(Extra_life_flags).w	; test and set the flag for the first extra life
+	beq.s	+			; if it was clear before, branch
+	cmpi.w	#200,(Ring_count).w	; does the player 1 have less than 200 rings?
+	blo.s	JmpTo_PlaySoundStereo	; if yes, play the ring sound
+	bset	#2,(Extra_life_flags).w	; test and set the flag for the second extra life
+	bne.s	JmpTo_PlaySoundStereo	; if it was set before, play the ring sound
++
+	addq.b	#1,(Life_count).w	; add 1 to the life count
+	addq.b	#1,(Update_HUD_lives).w	; add 1 to the displayed life count
+	move.w	#MusID_ExtraLife,d0	; prepare to play the extra life jingle
+    endif
 
 JmpTo_PlaySoundStereo 
 	jmp	(PlaySoundStereo).l
@@ -23942,18 +24045,21 @@ CollectRing_Tails:
 ; CollectRing_2P:
 	ori.b	#1,(Update_HUD_rings_2P).w	; set flag to update the ring counter in the second player's HUD
 	move.w	#SndID_Ring,d0			; prepare to play the ring sound
-;	cmpi.w	#100,(Ring_count_2P).w		; does the player 2 have less than 100 rings?
-;	blo.s	JmpTo2_PlaySoundStereo		; if yes, play the ring sound
-;	bset	#1,(Extra_life_flags_2P).w	; test and set the flag for the first extra life
-;	beq.s	+				; if it was clear before, branch
-;	cmpi.w	#200,(Ring_count_2P).w		; does the player 2 have less than 200 rings?
-;	blo.s	JmpTo2_PlaySoundStereo		; if yes, play the ring sound
-;	bset	#2,(Extra_life_flags_2P).w	; test and set the flag for the second extra life
-;	bne.s	JmpTo2_PlaySoundStereo		; if it was set before, play the ring sound
-;+
-;	addq.b	#1,(Life_count_2P).w		; add 1 to the life count
-;	addq.b	#1,(Update_HUD_lives_2P).w	; add 1 to the displayed life count
-;	move.w	#MusID_ExtraLife,d0		; prepare to play the extra life jingle
+	; [Mega Play] You don't get lives from rings anymore
+    if 1==0
+	cmpi.w	#100,(Ring_count_2P).w		; does the player 2 have less than 100 rings?
+	blo.s	JmpTo2_PlaySoundStereo		; if yes, play the ring sound
+	bset	#1,(Extra_life_flags_2P).w	; test and set the flag for the first extra life
+	beq.s	+				; if it was clear before, branch
+	cmpi.w	#200,(Ring_count_2P).w		; does the player 2 have less than 200 rings?
+	blo.s	JmpTo2_PlaySoundStereo		; if yes, play the ring sound
+	bset	#2,(Extra_life_flags_2P).w	; test and set the flag for the second extra life
+	bne.s	JmpTo2_PlaySoundStereo		; if it was set before, play the ring sound
++
+	addq.b	#1,(Life_count_2P).w		; add 1 to the life count
+	addq.b	#1,(Update_HUD_lives_2P).w	; add 1 to the displayed life count
+	move.w	#MusID_ExtraLife,d0		; prepare to play the extra life jingle
+    endif
 
 JmpTo2_PlaySoundStereo 
 	jmp	(PlaySoundStereo).l
@@ -24619,8 +24725,8 @@ Obj2E_Raise:
 ; ===========================================================================
 Obj2E_Types:	offsetTable
 		offsetTableEntry.w robotnik_monitor	; 0 - Static
-		offsetTableEntry.w super_ring		; 1 - Sonic 1-up
-		offsetTableEntry.w super_ring		; 2 - Tails 1-up
+		offsetTableEntry.w super_ring		; 1 - Sonic 1-up	; [Mega Play] 1UP monitors were replaced with ring monitors
+		offsetTableEntry.w super_ring		; 2 - Tails 1-up	; [Mega Play] 1UP monitors were replaced with ring monitors
 		offsetTableEntry.w robotnik_monitor	; 3 - Robotnik
 		offsetTableEntry.w super_ring		; 4 - Super Ring
 		offsetTableEntry.w super_shoes		; 5 - Speed Shoes
@@ -24642,23 +24748,26 @@ robotnik_monitor:
 ; Sonic 1up Monitor
 ; gives Sonic an extra life, or Tails in a 'Tails alone' game
 ; ---------------------------------------------------------------------------
-;sonic_1up:
-;	addq.w	#1,(Monitors_Broken).w
-;	addq.b	#1,(Life_count).w
-;	addq.b	#1,(Update_HUD_lives).w
-;	move.w	#MusID_ExtraLife,d0
-;	jmp	(PlayMusic).l	; Play extra life music
+	; [Mega Play] 1UP monitors were replaced with ring monitors
+    if 1==0
+sonic_1up:
+	addq.w	#1,(Monitors_Broken).w
+	addq.b	#1,(Life_count).w
+	addq.b	#1,(Update_HUD_lives).w
+	move.w	#MusID_ExtraLife,d0
+	jmp	(PlayMusic).l	; Play extra life music
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Tails 1up Monitor
 ; gives Tails an extra life in two player mode
 ; ---------------------------------------------------------------------------
-;tails_1up:
-;	addq.w	#1,(Monitors_Broken_2P).w
-;	addq.b	#1,(Life_count_2P).w
-;	addq.b	#1,(Update_HUD_lives_2P).w
-;	move.w	#MusID_ExtraLife,d0
-;	jmp	(PlayMusic).l	; Play extra life music
+tails_1up:
+	addq.w	#1,(Monitors_Broken_2P).w
+	addq.b	#1,(Life_count_2P).w
+	addq.b	#1,(Update_HUD_lives_2P).w
+	move.w	#MusID_ExtraLife,d0
+	jmp	(PlayMusic).l	; Play extra life music
+    endif
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Super Ring Monitor
@@ -24704,24 +24813,30 @@ super_ring:
 
 +
 	ori.b	#1,(a3)
-;	cmpi.w	#100,(a2)
-;	blo.s	+		; branch, if player has less than 100 rings
-;	bset	#1,(a4)		; set flag for first 1up
-;	beq.s	ChkPlayer_1up	; branch, if not yet set
-;	cmpi.w	#200,(a2)
-;	blo.s	+		; branch, if player has less than 200 rings
-;	bset	#2,(a4)		; set flag for second 1up
-;	beq.s	ChkPlayer_1up	; branch, if not yet set
-;+
+	; [Mega Play] You don't get lives from rings anymore
+    if 1==0
+	cmpi.w	#100,(a2)
+	blo.s	+		; branch, if player has less than 100 rings
+	bset	#1,(a4)		; set flag for first 1up
+	beq.s	ChkPlayer_1up	; branch, if not yet set
+	cmpi.w	#200,(a2)
+	blo.s	+		; branch, if player has less than 200 rings
+	bset	#2,(a4)		; set flag for second 1up
+	beq.s	ChkPlayer_1up	; branch, if not yet set
++
+    endif
 	move.w	#SndID_Ring,d0
 	jmp	(PlayMusic).l
 ; ---------------------------------------------------------------------------
+	; [Mega Play] You don't get lives from rings anymore
+    if 1==0
 ;loc_129D4:
-;ChkPlayer_1up:
+ChkPlayer_1up:
 	; give 1up to correct player
-;	cmpa.w	#MainCharacter,a1
-;	beq.w	sonic_1up
-;	bra.w	tails_1up
+	cmpa.w	#MainCharacter,a1
+	beq.w	sonic_1up
+	bra.w	tails_1up
+    endif
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Super Sneakers Monitor
@@ -25000,8 +25115,8 @@ Obj2E_Wait:
 ; off_12CCE:
 Ani_obj26:	offsetTable
 		offsetTableEntry.w Ani_obj26_Static		;  0
-		offsetTableEntry.w Ani_obj26_Ring		;  1
-		offsetTableEntry.w Ani_obj26_Ring		;  2
+		offsetTableEntry.w Ani_obj26_Ring		;  1	; [Mega Play] 1UP monitors were replaced with ring monitors
+		offsetTableEntry.w Ani_obj26_Ring		;  2	; [Mega Play] 1UP monitors were replaced with ring monitors
 		offsetTableEntry.w Ani_obj26_Eggman		;  3
 		offsetTableEntry.w Ani_obj26_Ring		;  4
 		offsetTableEntry.w Ani_obj26_Shoes		;  5
@@ -25050,6 +25165,7 @@ Ani_obj26_Broken:
 ; ---------------------------------------------------------------------------------
 ; Sprite Mappings - Sprite table for monitor and monitor contents (26, ??)
 ; ---------------------------------------------------------------------------------
+; [Mega Play] 1UP monitor mappings were replaced with ring monitor mappings
 ; MapUnc_12D36: MapUnc_obj26:
 Obj26_MapUnc_12D36:	BINCLUDE "mappings/sprite/obj26edit.bin"
 ; ===========================================================================
@@ -25825,7 +25941,8 @@ TitleScreen_InitSprite:
 ; ----------------------------------------------------------------------------
 ; Sprite_13600:
 Obj0F:
-	if 1==0
+	; [Mega Play] The title screen menu was totally removed
+    if 1==0
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj0F_Index(pc,d0.w),d1
@@ -25874,7 +25991,7 @@ Obj0F_Main:
 	moveq	#SndID_Blip,d0 ; selection blip sound
 	jsrto	(PlaySound).l, JmpTo4_PlaySound
 +
-	endif
+    endif
 	rts
 ; ===========================================================================
 ; animation script
@@ -25923,6 +26040,7 @@ Obj0E_MapUnc_136A8:	BINCLUDE "mappings/sprite/obj0E.bin"
 ; -----------------------------------------------------------------------------
 ; sprite mappings
 ; -----------------------------------------------------------------------------
+; [Mega Play] The title screen menu's mappings were replaced with blank ones. Weird.
 Obj0F_MapUnc_13B70:;	BINCLUDE "mappings/sprite/obj0F.bin"
 	; All three mapping frames are blanked-out
 	dc.w	Obj0F_BlankFrame-Obj0F_MapUnc_13B70
@@ -26377,9 +26495,10 @@ Obj39_Dismiss:
 	bne.s	Obj39_TimeOver
 	tst.b	(Time_Over_flag_2P).w
 	bne.s	Obj39_TimeOver
-	move.w	#$FF0C,d0
+	move.w	#$FF0C,d0	; [Mega Play] Unknown command
 	jsr	JmpTo_MegaPlay_SendCommandSafe
 	move.b	#GameModeID_ContinueScreen,(Game_Mode).w ; => ContinueScreen
+	; [Mega Play] Always go to the continue screen
 ;	tst.b	(Continue_count).w
 ;	bne.s	Obj39_Check2PMode
 ;	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
@@ -26581,28 +26700,31 @@ loc_141E6:
 	addq.b	#2,routine(a0)
 	move.w	#$B4,anim_frame_duration(a0)
 	cmpi.w	#1000,(Total_Bonus_Countdown).w
+	; [Mega Play] Dummy out continues
 	rts
-;	blo.s	return_14254
-;	move.w	#$12C,anim_frame_duration(a0)
-;	lea	next_object(a0),a1 ; a1=object
+    if 1==0
+	blo.s	return_14254
+	move.w	#$12C,anim_frame_duration(a0)
+	lea	next_object(a0),a1 ; a1=object
 
 ;loc_14214:
-;	_tst.b	id(a1)
-;	beq.s	loc_14220
-;	lea	next_object(a1),a1 ; a1=object
-;	bra.s	loc_14214
+	_tst.b	id(a1)
+	beq.s	loc_14220
+	lea	next_object(a1),a1 ; a1=object
+	bra.s	loc_14214
 ; ===========================================================================
 
-;loc_14220:
-;	_move.b	#ObjID_Results,id(a1) ; load obj3A (uses screen-space)
-;	move.b	#$12,routine(a1)
-;	move.w	#$188,x_pixel(a1)
-;	move.w	#$118,y_pixel(a1)
-;	move.l	#Obj3A_MapUnc_14CBC,mappings(a1)
-;	bsr.w	Adjust2PArtPointer2
-;	move.b	#0,render_flags(a1)
-;	move.w	#$3C,anim_frame_duration(a1)
-;	addq.b	#1,(Continue_count).w
+loc_14220:
+	_move.b	#ObjID_Results,id(a1) ; load obj3A (uses screen-space)
+	move.b	#$12,routine(a1)
+	move.w	#$188,x_pixel(a1)
+	move.w	#$118,y_pixel(a1)
+	move.l	#Obj3A_MapUnc_14CBC,mappings(a1)
+	bsr.w	Adjust2PArtPointer2
+	move.b	#0,render_flags(a1)
+	move.w	#$3C,anim_frame_duration(a1)
+	addq.b	#1,(Continue_count).w
+    endif
 
 return_14254:
 
@@ -26634,6 +26756,7 @@ loc_1428C:
 	tst.w	d0
 	bpl.s	loc_1429C
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
+	; [Mega Play] Unknown commands
 	move.w	#$FF0C,d0
 	bsr.w	JmpTo_MegaPlay_SendCommandSafe
 	move.w	#$FF1E,d0
@@ -32937,10 +33060,12 @@ Obj0D_Main_State4:
 	bne.s	return_19532
 	tst.b	(Update_HUD_timer_2P).w
 	bne.s	return_19532
+	; [Mega Play] Not sure what this is for...
 	tst.b	(Life_count).w
 	beq.s	return_19532
 	tst.b	(Life_count_2P).w
 	beq.s	return_19532
+	; end of Mega Play code
 	move.b	#0,(Last_star_pole_hit).w
 	move.b	#0,(Last_star_pole_hit_2P).w
 	move.b	#GameModeID_2PResults,(Game_Mode).w ; => TwoPlayerResults
@@ -34116,7 +34241,7 @@ Obj01_Control:
 	andi.w	#$7FF,y_pos(a0) 		; perform wrapping of Sonic's y position
 +
 	bsr.s	Sonic_Display
-;	bsr.w	Sonic_Super
+;	bsr.w	Sonic_Super	; [Mega Play] Disable Super Sonic
 	bsr.w	Sonic_RecordPos
 	bsr.w	Sonic_Water
 	move.b	(Primary_Angle).w,next_tilt(a0)
@@ -35246,6 +35371,7 @@ Sonic_JumpHeight:
 	move.w	d1,y_vel(a0)	; immediately reduce Sonic's upward speed to d1
 +
 	tst.b	y_vel(a0)		; is Sonic exactly at the height of his jump?
+	; [Mega Play] Disable Super Sonic... poorly
 ;	beq.s	Sonic_CheckGoSuper	; if yes, test for turning into Super Sonic
 	rts
 ; ---------------------------------------------------------------------------
@@ -35267,7 +35393,8 @@ return_1AB36:
 ; ---------------------------------------------------------------------------
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-	if 0==1
+; [Mega Play] Super Sonic was removed
+    if 0==1
 ; loc_1AB38: test_set_SS:
 Sonic_CheckGoSuper:
 	tst.b	(Super_Sonic_flag).w	; is Sonic already Super?
@@ -35352,7 +35479,7 @@ Sonic_RevertToNormal:
 return_1AC3C:
 	rts
 ; End of subroutine Sonic_Super
-	endif
+    endif
 ; ---------------------------------------------------------------------------
 ; Subroutine to check for starting to charge a spindash
 ; ---------------------------------------------------------------------------
@@ -36820,6 +36947,7 @@ Obj02_ExitChk:
 TailsCPU_Control: ; a0=Tails
 	move.b	(Ctrl_2_Held).w,d0	; did the real player 2 hit something?
 	andi.b	#button_up_mask|button_down_mask|button_left_mask|button_right_mask|button_B_mask|button_C_mask|button_A_mask,d0
+	; [Mega Play] Never give the second player control of Tails
 ;	beq.s	+			; if not, branch
 ;	move.w	#600,(Tails_control_counter).w ; give player 2 control for 10 seconds (minimum)
 ;+
@@ -42133,13 +42261,16 @@ Obj79_CheckActivation:
 	move.b	#2,mapping_frame(a1)
 	move.w	#$20,objoff_36(a1)
 	move.w	a0,parent(a1)
-;	tst.w	(Two_player_mode).w
-;	bne.s	loc_1F206
-;	cmpi.b	#7,(Emerald_count).w
-;	beq.s	loc_1F206
-;	cmpi.w	#50,(Ring_count).w
-;	blo.s	loc_1F206
-;	bsr.w	Obj79_MakeSpecialStars
+	; [Mega Play] Disable the special stage stars
+    if 1==0
+	tst.w	(Two_player_mode).w
+	bne.s	loc_1F206
+	cmpi.b	#7,(Emerald_count).w
+	beq.s	loc_1F206
+	cmpi.w	#50,(Ring_count).w
+	blo.s	loc_1F206
+	bsr.w	Obj79_MakeSpecialStars
+    endif
 
 loc_1F206:
 	move.b	#1,anim(a0)
@@ -42304,7 +42435,8 @@ Obj79_MapUnc_1F424:	BINCLUDE "mappings/sprite/obj79_a.bin"
 ; -------------------------------------------------------------------------------
 Obj79_MapUnc_1F4A0:	BINCLUDE "mappings/sprite/obj79_b.bin"
 ; ===========================================================================
-	if 1==0
+; [Mega Play] Disable the special stage stars
+    if 1==0
 ; loc_1F4C4:
 Obj79_MakeSpecialStars:
 	moveq	#4-1,d1 ; execute the loop 4 times (1 for each star)
@@ -42334,7 +42466,7 @@ Obj79_MakeSpecialStars:
 	dbf	d1,- ; loop
 +
 	rts
-	endif
+    endif
 ; ===========================================================================
 ; loc_1F536:
 Obj79_Star:
@@ -42782,10 +42914,6 @@ loc_1F99E:
 JmpTo14_DeleteObject 
 	jmp	(DeleteObject).l
 ; ===========================================================================
-
-;    if removeJmpTos
-;JmpTo15_DeleteObject 
-;    endif
 
 BranchTo_JmpTo15_DeleteObject 
 	jmpto	(DeleteObject).l, JmpTo15_DeleteObject
@@ -43632,6 +43760,8 @@ Obj12_Main:
 	bhi.w	JmpToXX_DeleteObject
 	jmpto	(DisplaySprite).l, JmpTo8_DisplaySprite
 
+	; [Mega Play] A JmpTo is missing here.
+	; This is possibly why I've heard of the HPZ emerald crashing KiS2.
 JmpToXX_DeleteObject 
 ;	jmp	(DeleteObject).l
 	; OOPS
@@ -45450,6 +45580,7 @@ JmpTo4_ObjectMove
 
 	align 4
     else
+	; [Mega Play] Turns out there are from Sonic Compilation/Classics, not REV02
 ;	dc.b	$01,$02,$1E,$42	; ??? (unused)
     endif
 
@@ -48720,9 +48851,6 @@ JmpTo26_DeleteObject
 	jmp	(DeleteObject).l
 JmpTo3_MarkObjGone3 
 	jmp	(MarkObjGone3).l
-; Unused
-;JmpTo13_MarkObjGone 
-;	jmp	(MarkObjGone).l
 ; ===========================================================================
 ; loc_24F52:
 Obj3D_InvisibleLauncher:
@@ -51154,6 +51282,8 @@ Obj67:
 	add.b	objoff_36(a0),d0
 	beq.w	JmpTo4_MarkObjGone3
 	lea	(Ani_obj67).l,a1
+	; [Mega Play] For some reason this was changed from a bsr/jsr to a bra/jmp.
+	; So I guess the object is invisible now?
 	jmpto	(AnimateSprite).l, JmpTo7_AnimateSprite
 	jmpto	(DisplaySprite).l, JmpTo19_DisplaySprite
 
@@ -62788,10 +62918,9 @@ loc_3022A:
 	jmpto	(DisplaySprite).l, JmpTo36_DisplaySprite
 
 JmpTo36_DisplaySprite 
-	jmpto	(DisplaySprite).l, JmpTo36_DisplaySprite
-
+	jmp	(DisplaySprite).l
 JmpTo53_DeleteObject 
-	jmpto	(DeleteObject).l, JmpTo53_DeleteObject
+	jmp	(DeleteObject).l
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; sprite mappings - uses ArtNem_BossSmoke
@@ -64983,11 +65112,10 @@ loc_32080:
 	jsrto	(AnimateSprite).l, JmpTo20_AnimateSprite
 	cmpi.w	#$705,y_pos(a0)
 	blo.w	JmpTo39_DisplaySprite
-	jmpto	DeleteObject, JmpTo59_DeleteObject
+	jmpto	(DeleteObject).l, JmpTo59_DeleteObject
 
 JmpTo39_DisplaySprite 
-	jmpto	(DisplaySprite).l, JmpTo39_DisplaySprite
-
+	jmp	(DisplaySprite).l
 JmpTo59_DeleteObject 
 	jmp	DeleteObject
 ; ===========================================================================
@@ -68847,6 +68975,7 @@ Obj5A_RingsToGoText:
 	specialText "RING"
 	even
 	specialText "!OGOT"
+	even
 	specialText "S"
 	even
 
@@ -70359,6 +70488,11 @@ Obj_DeleteBehindScreen:
 ; loc_367AA:
 InheritParentXYFlip:
 	move.b	render_flags(a0),d0
+	; [Mega Play] These bugs are not from REV02, since they're not in this version
+	; ...or KiS2
+	; ...or Sonic Jam
+	; ...just Sonic Compilation/Classics.
+	; Up yours, TCRF.
 ;    if gameRevision<2
 	andi.b	#$FC,d0
 	move.b	status(a0),d2
@@ -76117,6 +76251,11 @@ ObjB2_Main_SCZ:
 	bsr.w	ObjB2_Move_obbey_player
 	move.b	objoff_2E(a0),d0
 	move.b	status(a0),d1
+	; [Mega Play] These bugs are not from REV02, since they're not in this version
+	; ...or KiS2
+	; ...or Sonic Jam
+	; ...just Sonic Compilation/Classics.
+	; Up yours, TCRF.
 ;    if gameRevision<2
 	andi.b	#p1_standing,d0	; 'on object' bit
 	andi.b	#p1_standing,d1	; 'on object' bit
@@ -77393,6 +77532,11 @@ loc_3B7A6:
 
 loc_3B7BC:
 	move.b	status(a0),d0
+	; [Mega Play] These bugs are not from REV02, since they're not in this version
+	; ...or KiS2
+	; ...or Sonic Jam
+	; ...just Sonic Compilation/Classics.
+	; Up yours, TCRF.
 ;    if gameRevision<2
 	andi.b	#standing_mask,d0
 ;    else
@@ -84712,12 +84856,13 @@ BuildHUD:
 +
 	move.w	#128+16,d3	; set X pos
 	move.w	#128+136,d2	; set Y pos
+	; [Mega Play] Remove the timer from the HUD
 	lea	(HUD_MapUnc_40A9A).l,a1
-	tst.b	($FFFFAC).l
-	beq.w	loc_40400
-	lea	(off_407B6).l,a1
-
-loc_40400:
+	tst.b	(MegaPlay_Timer_disabled&$FFFFFF).l
+	beq.w	+
+	lea	(HUD_MapUnc_NoTimer).l,a1
++
+	; end of Mega Play code
 	movea.w	#make_art_tile(ArtTile_ArtNem_HUD,0,1),a3	; set art tile and flags
 	add.w	d1,d1
 	adda.w	(a1,d1.w),a1
@@ -84985,8 +85130,8 @@ BuildHUD_P2_Continued:
 ; uses the art in VRAM from $D940 - $FC00
 HUD_MapUnc_40A9A:	BINCLUDE "mappings/sprite/hud_a.bin"
 
-
-off_407B6:	BINCLUDE "mappings/sprite/hud_d.bin"
+; [Mega Play] Timer-less version of the standard HUD
+HUD_MapUnc_NoTimer:	BINCLUDE "mappings/sprite/hud_d.bin"
 
 
 HUD_MapUnc_40BEA:	BINCLUDE "mappings/sprite/hud_b.bin"
@@ -85050,17 +85195,21 @@ AddPoints2:
 	cmp.l	(a3),d1	; is #999999 higher than the score?
 	bhi.s	+	; if yes, branch
 	move.l	d1,(a3)	; set score to #999999
-;+
-;	move.l	(a3),d0
-;	cmp.l	(Next_Extra_life_score_2P).w,d0
-;	blo.s	+	; rts
-;	addi.l	#5000,(Next_Extra_life_score_2P).w
-;	addq.b	#1,(Life_count_2P).w
-;	addq.b	#1,(Update_HUD_lives_2P).w
-;	move.w	#MusID_ExtraLife,d0
-;	jmp	(PlayMusic).l
++
+	; [Mega Play] The second player can't get extra lives from points
+    if 1==0
+	move.l	(a3),d0
+	cmp.l	(Next_Extra_life_score_2P).w,d0
+	blo.s	+	; rts
+	addi.l	#5000,(Next_Extra_life_score_2P).w
+	addq.b	#1,(Life_count_2P).w
+	addq.b	#1,(Update_HUD_lives_2P).w
+	move.w	#MusID_ExtraLife,d0
+	jmp	(PlayMusic).l
 ; ===========================================================================
-+	rts
++
+    endif
+	rts
 ; End of function AddPoints2
 
 ; ---------------------------------------------------------------------------
@@ -85100,6 +85249,7 @@ loc_40DC6:
 Hud_ChkTime:
 	tst.b	(Update_HUD_timer).w	; does the time need updating?
 	beq.s	Hud_ChkLives	; if not, branch
+	; [Mega Play] Pausing has been completely disabled
 ;	tst.w	(Game_paused).w	; is the game paused?
 ;	bne.s	Hud_ChkLives	; if yes, branch
 	lea	(Timer).w,a1
@@ -85156,12 +85306,14 @@ Hud_End:
 ; ===========================================================================
 
 loc_40E84:
-	tst.b	($FFFFFFD8).w
+	; [Mega Play] Ignore Time Over if in single player and the timer is disabled
+	tst.b	(Two_player_mode).w
 	bne.w	loc_40B92
-	tst.b	($FFFFAC).l
+	tst.b	(MegaPlay_Timer_disabled&$FFFFFF).l
 	bne.w	locret_40BA6
 
 loc_40B92:
+	; end of Mega Play code
 	clr.b	(Update_HUD_timer).w
 	lea	(MainCharacter).w,a0 ; a0=character
 	movea.l	a0,a2
@@ -85216,11 +85368,12 @@ loc_40EDC:
 	bsr.w	Hud_TimeRingBonus
 
 loc_40F18:
+	; [Mega Play] Pausing has been completely disabled
 ;	tst.w	(Game_paused).w
 ;	bne.s	return_40F4E
 	lea	(Timer).w,a1
 	cmpi.l	#$93B3B,(a1)+
-;	nop
+;	nop			; [Mega Play] For some reason, this dead branch was... made even more dead
 	addq.b	#1,-(a1)
 	cmpi.b	#$3C,(a1)
 	blo.s	return_40F4E
@@ -85239,6 +85392,7 @@ return_40F4E:
 ; ===========================================================================
 
 loc_40F50:
+	; [Mega Play] Pausing has been completely disabled
 ;	tst.w	(Game_paused).w
 ;	bne.w	return_4101A
 	tst.b	(Update_HUD_timer).w
@@ -87224,7 +87378,9 @@ PlrList_ResultsTails_End
 
 
 
-	if 1==0
+; [Mega Play] Somehow, this version lacks the 'ghost' debug lists.
+; Maybe it had something to do with the dev cart they used?
+    if 1==0
 ;---------------------------------------------------------------------------------------
 ; Weird revision-specific duplicates of portions of the PLR lists (unused)
 ;---------------------------------------------------------------------------------------
@@ -87529,9 +87685,10 @@ PlrList_ResultsTails_Dup_End
     endif
     endif
 
-	rept $42D50-*
+    ; [Mega Play] Instead, it's just padded with $FF
+    rept $42D50-*
 	dc.b	$FF
-	endm
+    endm
 
 
 ;---------------------------------------------------------------------------------------
