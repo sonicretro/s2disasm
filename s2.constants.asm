@@ -1552,7 +1552,7 @@ Loser_Time_Left:				; 2 bytes
 				ds.b	1	; frames
 
 MegaPlay_Var2:			ds.l	1
-MegaPlay_Var6:			ds.b	1
+MegaPlay_Credits_inserted:	ds.b	1
 MegaPlay_Default_lives_1P:	ds.b	1
 				ds.b	$10	; $FFFFFF00-$FFFFFF0F ; seems unused
 Results_Screen_2P:		ds.w	1	; 0 = act, 1 = zone, 2 = game, 3 = SS, 4 = SS all

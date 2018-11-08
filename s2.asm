@@ -1740,7 +1740,7 @@ MegaPlay_LoadInstROMToRAM:
 ; ---------------------------------------------------------------------------
 
 MegaPlay_VInt:
-	bsr.w	MegaPlay_GetCommand
+	bsr.w	MegaPlay_GetCreditsInserted
 	bsr.w	MegaPlay_Sub2
 	lea	(MegaPlay_VInt_ValidCommands).l,a6
 	move.w	(a6)+,d7
@@ -1876,7 +1876,7 @@ MegaPlay_ResetLives_TwoPlayer:
 	rts
 ; ---------------------------------------------------------------------------
 
-MegaPlay_GetCommand:
+MegaPlay_GetCreditsInserted:
 	movem.l	d0/a0,-(sp)
 
 	move.w	#$100,(Z80_Bus_Request).l
@@ -1888,7 +1888,7 @@ MegaPlay_GetCommand:
 
 	move.w	#0,(Z80_Bus_Request).l
 
-	move.b	d0,(MegaPlay_Var6&$FFFFFF).l
+	move.b	d0,(MegaPlay_Credits_inserted&$FFFFFF).l
 	movem.l	(sp)+,d0/a0
 	rts
 ; ---------------------------------------------------------------------------
@@ -4644,8 +4644,8 @@ TitleScreen:
 	clearRAM Misc_Variables,Misc_Variables_End ; clear CPU player RAM and following variables
 	clearRAM Camera_RAM,Camera_RAM_End ; clear camera RAM and following variables
 
-	; [Mega Play] MegaPlay_Var6 seems to be a 'credit inserted flag' or something
-	tst.b	(MegaPlay_Var6&$FFFFFF).l
+	; [Mega Play] Skip stuff if there are credits inserted
+	tst.b	(MegaPlay_Credits_inserted&$FFFFFF).l
 	bne.s	+
 
 	; Show 'Sonic and Tails in'
@@ -4789,7 +4789,7 @@ TitleScreen_Loop:
 ;	beq.w	TitleScreen_Demo
 ;	tst.b	(IntroSonic+objoff_2F).w
 ;	beq.w	TitleScreen_Loop
-	tst.b	(MegaPlay_Var6&$FFFFFF).l	; Again, seems to be a 'credits inserted' flag
+	tst.b	(MegaPlay_Credits_inserted&$FFFFFF).l
 	bne.s	.credits_inserted
 	tst.w	(Demo_Time_left).w
 	bne.w	TitleScreen_Loop
