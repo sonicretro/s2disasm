@@ -1482,25 +1482,27 @@ loc_13D2:
 
 loc_1412:
 	moveq	#0,d0
-	bsr.w	MegaPlay_CallBIOS
+	bsr.w	MegaPlay_CallInstROM
 	add.w	d6,d6
-	move.w	word_1422(pc,d6.w),d0
+	move.w	.commands(pc,d6.w),d0
 	bra.w	MegaPlay_SendCommand
 ; ---------------------------------------------------------------------------
-word_1422:
+; word_1422:
+.commands:
 	dc.w $FF81		; 0
 	dc.w $FF83		; 1
 	dc.w $FF82		; 2
 	dc.w $FF84		; 3
 ; ---------------------------------------------------------------------------
-
-loc_142A:
+; loc_142A:
+MegaPlay_Command_ReportRAMIntegrity:
 	bsr.w	MegaPlay_CheckRAMIntegrity
 	add.w	d6,d6
-	move.w	word_1438(pc,d6.w),d0
+	move.w	.commands(pc,d6.w),d0
 	bra.w	MegaPlay_SendCommand
 ; ---------------------------------------------------------------------------
-word_1438:
+; word_1438:
+.commands:
 	dc.w $FF89		; RAM working
 	dc.w $FF8A		; Even bytes failing
 	dc.w $FF8B		; Odd bytes failing
@@ -1559,14 +1561,14 @@ MegaPlay_CheckRAMIntegrity:
 
 MegaPlay_Sub5:
 	moveq	#4,d0
-	bsr.w	MegaPlay_CallBIOS
+	bsr.w	MegaPlay_CallInstROM
 
 loc_1492:
 	bsr.w	MegaPlay_Sub2
 	cmpi.w	#$FF85,d0
 	bne.s	loc_1492
 	moveq	#8,d0
-	bsr.w	MegaPlay_CallBIOS
+	bsr.w	MegaPlay_CallInstROM
 
 loc_14A2:
 	bsr.w	MegaPlay_Sub2
@@ -1575,15 +1577,16 @@ loc_14A2:
 	cmpi.w	#$FF01,d0
 	bne.s	loc_14A2
 	moveq	#$C,d0
-	bsr.w	MegaPlay_CallBIOS
+	bsr.w	MegaPlay_CallInstROM
 	rts
 ; ---------------------------------------------------------------------------
-; This appears to load an SMPS sound driver from the BIOS
+; Sonic 2's Instruction ROM contains an SMPS Z80 Type 1 DAC sound driver,
+; which resembles the one from Shura no Mon.
 
 MegaPlay_LoadSoundDriver:
 	; Get location of sound driver
 	moveq	#$10,d0
-	bsr.w	MegaPlay_LoadBIOSToRAM
+	bsr.w	MegaPlay_LoadInstROMToRAM
 	lea	(RAM_Start&$FFFFFF).l,a0
 	andi.w	#$1F,d0
 	move.l	(a0,d0.w),d0
@@ -1645,8 +1648,8 @@ MegaPlay_SoundDriverVariables_End:
 
 ; ---------------------------------------------------------------------------
 
-MegaPlay_Command_PlaySound81:
-	move.b	#$81,d0	; First sound effect in the driver
+MegaPlay_Command_PlayMusic:
+	move.b	#$81,d0	; First and only song in the driver
 
 	move.w	#$100,(Z80_Bus_Request).l
 -	btst	#7,(Z80_Bus_Request).l
@@ -1657,13 +1660,17 @@ MegaPlay_Command_PlaySound81:
 	move.w	#0,(Z80_Bus_Request).l
 	rts
 ; ---------------------------------------------------------------------------
-; The BIOS has various 'entry points' at its start.
-; They consist of 32-bit offsets from the start of the BIOS.
+; The "Instruction ROM", as it's called by MAME, has various 'entry points' at address $4000.
+; They consist of 32-bit offsets from $4000.
 ; Here are the known ones so far:
-; - $10 - SMPS location
+; - $00 - Unknown. Used by loc_1412 (possible RAM integrity checker)
+; - $04 - Unknown. Used by MegaPlay_Sub5
+; - $08 - Unknown. Used by MegaPlay_Sub5
+; - $0C - Unknown. Used by MegaPlay_Sub5
+; - $10 - SMPS sound driver location
 
-MegaPlay_CallBIOS:
-	bsr.w	MegaPlay_LoadBIOSToRAM
+MegaPlay_CallInstROM:
+	bsr.w	MegaPlay_LoadInstROMToRAM
 	lea	(RAM_Start&$FFFFFF).l,a0
 	andi.w	#$1F,d0
 	move.l	(a0,d0.w),d0
@@ -1672,10 +1679,10 @@ MegaPlay_CallBIOS:
 ; The BIOS is stored in 8-bit memory, so it's almost unusable unless
 ; we load it to RAM, which we can access the normal way.
 
-MegaPlay_LoadBIOSToRAM:
-	lea	($308000).l,a0
+MegaPlay_LoadInstROMToRAM:
+	lea	($308000).l,a0	; Location of BIOS
 	lea	(RAM_Start&$FFFFFF).l,a1
-	move.w	#$600-1,d7
+	move.w	#$600-1,d7	; Size of BIOS
 ; loc_159C:
 .loop:
 	movep.l	1(a0),d6
@@ -1711,13 +1718,13 @@ MegaPlay_VInt_CommandTable:
 ; ---------------------------------------------------------------------------
 	bra.w	loc_1412
 ; ---------------------------------------------------------------------------
-	bra.w	loc_142A
+	bra.w	MegaPlay_Command_ReportRAMIntegrity
 ; ---------------------------------------------------------------------------
 	bra.w	MegaPlay_Command_GoToSegaScreen2
 ; ---------------------------------------------------------------------------
 	bra.w	MegaPlay_LoadSoundDriver
 ; ---------------------------------------------------------------------------
-	bra.w	MegaPlay_Command_PlaySound81
+	bra.w	MegaPlay_Command_PlayMusic
 ; ---------------------------------------------------------------------------
 	bra.w	MegaPlay_ResetZ80
 ; ---------------------------------------------------------------------------
@@ -1779,7 +1786,7 @@ MegaPlay_Init:
 	movem.l	d0-d1/a0,-(sp)
 
 	move.w	#$100,(Z80_Bus_Request).l
--		btst	#7,(Z80_Bus_Request).l
+-	btst	#7,(Z80_Bus_Request).l
 	bne.s	-
 
 	moveq	#0,d0
@@ -1826,7 +1833,7 @@ MegaPlay_GetCommand:
 	movem.l	d0/a0,-(sp)
 
 	move.w	#$100,(Z80_Bus_Request).l
--		btst	#7,(Z80_Bus_Request).l
+-	btst	#7,(Z80_Bus_Request).l
 	bne.s	-
 
 	movea.l	(MegaPlay_Var2&$FFFFFF).l,a0
