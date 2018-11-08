@@ -1551,7 +1551,10 @@ Loser_Time_Left:				; 2 bytes
 				ds.b	1	; seconds
 				ds.b	1	; frames
 
-				ds.b	$16	; $FFFFFEFA-$FFFFFF0F ; seems unused
+MegaPlay_Var2:			ds.l	1
+MegaPlay_Var6:			ds.b	1
+MegaPlay_Default_lives_1P:	ds.b	1
+				ds.b	$10	; $FFFFFF00-$FFFFFF0F ; seems unused
 Results_Screen_2P:		ds.w	1	; 0 = act, 1 = zone, 2 = game, 3 = SS, 4 = SS all
 				ds.b	$E	; $FFFFFF12-$FFFFFF1F ; seems unused
 
@@ -1608,13 +1611,16 @@ Total_Bonus_Countdown:		ds.w	1
 				
 Level_Music:			ds.w	1
 Bonus_Countdown_3:		ds.w	1
-				ds.b	4	; $FFFFFF94-$FFFFFF97 ; seems unused
+MegaPlay_Default_lives_2P:	ds.b	1
+				ds.b	3	; $FFFFFF95-$FFFFFF97 ; seems unused
 Game_Over_2P:			ds.w	1
 
 				ds.b	6	; $FFFFFF9A-$FFFFFF9F ; seems unused
 
 SS2p_RingBuffer:		ds.w	6
-				ds.b	4	; $FFFFFFAC-$FFFFFFAF ; seems unused
+				ds.b	2	; $FFFFFFAC-$FFFFFFAE ; seems unused
+MegaPlay_Var1:			ds.b	1
+MegaPlay_point_life_obtained:	ds.b	1
 Got_Emerald:			ds.b	1
 Emerald_count:			ds.b	1
 Got_Emeralds_array:		ds.b	7	; 7 bytes

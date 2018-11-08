@@ -146,7 +146,8 @@ Header:
     endif
 ; word_18E
 Checksum:
-	dc.w $D951		; Checksum (patched later if incorrect)
+	; [Mega Play] This checksum is wrong, even in real ROMs
+	dc.w $8C3E		; Checksum (patched later if incorrect)
 	dc.b "J               " ; I/O Support
 	dc.l StartOfRom		; Start address of ROM
 ; dword_1A4
@@ -431,19 +432,21 @@ LevelSelectMenu: ;;
 ; VERTICAL INTERRUPT HANDLER:
 V_Int:
 	movem.l	d0-a6,-(sp)
+
+	; [Mega Play] Identical to MegaPlay_CheckOddEvenFrame
 	movem.w	d0,-(sp)
-	move.w	($C00004).l,d0
-	btst	#4,d0
-	beq.s	loc_3D0
-	move.b	#$40,($FFFFAE).l
-	move.b	#$40,($A10007).l
+	move.w	(VDP_control_port).l,d0
+	btst	#4,d0	; Check for odd/even frame
+	beq.s	.even
+	move.b	#$40,(MegaPlay_Var1&$FFFFFF).l
+	move.b	#$40,(HW_Expansion_Data).l
 	movem.w	(sp)+,d0
 	bra.s	loc_3E2
 ; ---------------------------------------------------------------------------
-
-loc_3D0:
-	clr.b	($FFFFAE).l
-	move.b	#0,($A10007).l
+; loc_3D0:
+.even
+	clr.b	(MegaPlay_Var1&$FFFFFF).l
+	move.b	#0,(HW_Expansion_Data).l
 	movem.w	(sp)+,d0
 
 loc_3E2:
@@ -1164,654 +1167,682 @@ JmpTo_SegaScr_VInt
 
 
 ; ---------------------------------------------------------------------------
-; Big blob of MegaPlay-related code
+; [Mega Play] Big blob of MegaPlay-related code
 ; ---------------------------------------------------------------------------
-MegaPlay_InitSub:			; CODE XREF: ROM:MegaPlay_Initp
-		move.b	#$47,($A1000D).l ; 'G'
-		move.b	#0,($A1001F).l
-		move.b	#0,($A10007).l
-		move.b	#0,($FFFFAE).l
-		clr.l	($FFFEFA).l
+MegaPlay_InitSub:
+	move.b	#$47,(HW_Expansion_Control).l ; 'G'
+	move.b	#0,(HW_Expansion_SCtrl).l
+	move.b	#0,(HW_Expansion_Data).l
+	move.b	#0,(MegaPlay_Var1&$FFFFFF).l
+	clr.l	(MegaPlay_Var2&$FFFFFF).l
 
-loc_10DA:				; CODE XREF: ROM:00001110j
-		move.w	#$F000,d0
-		bsr.w	MegaPlay_SendCommand
-		move.w	#$3000,d3
+loc_10DA:
+	move.w	#$F000,d0
+	bsr.w	MegaPlay_SendCommand
+	move.w	#$3000,d3
 
-loc_10E6:				; CODE XREF: ROM:0000110Cj
-		bsr.w	MegaPlay_InitSub2
-		moveq	#0,d2
-		move.w	#$F001,d1
-		cmp.w	d0,d1
-		beq.s	loc_1112
-		addq.w	#1,d1
-		addq.w	#1,d2
-		cmp.w	d0,d1
-		beq.s	loc_1112
-		addq.w	#1,d1
-		addq.w	#1,d2
-		cmp.w	d0,d1
-		beq.s	loc_1112
-		addq.w	#1,d1
-		addq.w	#1,d2
-		cmp.w	d0,d1
-		beq.s	loc_1112
-		dbf	d3,loc_10E6
-		bra.s	loc_10DA
-; ---------------------------------------------------------------------------
-
-loc_1112:				; CODE XREF: ROM:000010F2j
-					; ROM:000010FAj ...
-		mulu.w	#$800,d2
-		addi.l	#$A02000,d2
-		move.l	d2,($FFFEFA).l
-		move.w	#$FFFC,d0
-		bra.w	MegaPlay_SendCommand
+loc_10E6:
+	bsr.w	MegaPlay_Sub2
+	moveq	#0,d2
+	move.w	#$F001,d1
+	cmp.w	d0,d1
+	beq.s	loc_1112
+	addq.w	#1,d1
+	addq.w	#1,d2
+	cmp.w	d0,d1
+	beq.s	loc_1112
+	addq.w	#1,d1
+	addq.w	#1,d2
+	cmp.w	d0,d1
+	beq.s	loc_1112
+	addq.w	#1,d1
+	addq.w	#1,d2
+	cmp.w	d0,d1
+	beq.s	loc_1112
+	dbf	d3,loc_10E6
+	bra.s	loc_10DA
 ; ---------------------------------------------------------------------------
 
-MegaPlay_InitSub2:			; CODE XREF: ROM:loc_10E6p
-					; ROM:00001228p ...
-		moveq	#0,d0
-		move.b	($A10007).l,d7
-		andi.w	#$38,d7	; '8'
-		cmpi.b	#$20,d7	; ' '
-		bne.w	MegaPlay_InitSub2_Fail
-		moveq	#7,d5
-		move.w	#$2000,d2	; Timeout
-
-loc_1144:				; CODE XREF: ROM:000011BEj
-		lsl.w	#2,d0
-
-loc_1146:				; CODE XREF: ROM:0000115Aj
-		subq.w	#1,d2
-		beq.w	MegaPlay_InitSub2_Fail
-		move.b	($A10007).l,d7
-		andi.w	#$38,d7	; '8'
-		cmpi.b	#$20,d7	; ' '
-		bne.s	loc_1146
-		move.b	#5,d7
-		or.b	($FFFFAE).l,d7
-		move.b	d7,d4
-		andi.b	#$43,d4	; 'C'
-		move.b	d4,($A10007).l
-		nop
-		nop
-		move.b	d7,($A10007).l
-		move.w	#$2000,d2
-
-loc_1180:				; CODE XREF: ROM:00001194j
-		subq.w	#1,d2
-		beq.w	MegaPlay_InitSub2_Fail
-		move.b	($A10007).l,d7
-		andi.w	#$38,d7	; '8'
-		btst	#5,d7
-		bne.s	loc_1180
-		lsr.w	#3,d7
-		or.b	d7,d0
-		move.b	#6,d6
-		or.b	($FFFFAE).l,d6
-		move.b	d6,d4
-		andi.b	#$43,d4	; 'C'
-		move.b	d4,($A10007).l
-		nop
-		nop
-		move.b	d6,($A10007).l
-		move.w	#$2000,d2
-		dbf	d5,loc_1144
-
-loc_11C2:				; CODE XREF: ROM:000011D6j
-		subq.w	#1,d2
-		beq.w	MegaPlay_InitSub2_Fail
-		move.b	($A10007).l,d7
-		andi.w	#$38,d7	; '8'
-		cmpi.b	#$38,d7	; '8'
-		bne.s	loc_11C2
-		move.b	#0,d6
-		andi.w	#7,d6
-		or.b	($FFFFAE).l,d6
-		move.b	d6,($A10007).l
-		moveq	#0,d7
-		rts
+loc_1112:
+	mulu.w	#$800,d2
+	addi.l	#$A02000,d2	; Past the end of Z80 RAM... must be arcade I/O
+	move.l	d2,(MegaPlay_Var2&$FFFFFF).l
+	move.w	#$FFFC,d0
+	bra.w	MegaPlay_SendCommand
 ; ---------------------------------------------------------------------------
 
-MegaPlay_InitSub2_Fail:			; CODE XREF: ROM:0000113Aj
-					; ROM:00001148j ...
-		move.b	#0,d6
-		andi.w	#7,d6
-		or.b	($FFFFAE).l,d6
-		move.b	d6,($A10007).l
-		moveq	#0,d0
-		moveq	#$FF,d7
-		ori	#1,ccr
-		rts
+MegaPlay_Sub2:
+	moveq	#0,d0
+	move.b	(HW_Expansion_Data).l,d7
+	andi.w	#$38,d7	; '8'
+	cmpi.b	#$20,d7	; ' '
+	bne.w	MegaPlay_Sub2_Fail
+	moveq	#7,d5
+	move.w	#$2000,d2	; Timeout
+
+loc_1144:
+	lsl.w	#2,d0
+
+loc_1146:
+	subq.w	#1,d2
+	beq.w	MegaPlay_Sub2_Fail
+	move.b	(HW_Expansion_Data).l,d7
+	andi.w	#$38,d7	; '8'
+	cmpi.b	#$20,d7	; ' '
+	bne.s	loc_1146
+	move.b	#5,d7
+	or.b	(MegaPlay_Var1&$FFFFFF).l,d7
+	move.b	d7,d4
+	andi.b	#$43,d4	; 'C'
+	move.b	d4,(HW_Expansion_Data).l
+	nop
+	nop
+	move.b	d7,(HW_Expansion_Data).l
+	move.w	#$2000,d2
+
+loc_1180:
+	subq.w	#1,d2
+	beq.w	MegaPlay_Sub2_Fail
+	move.b	(HW_Expansion_Data).l,d7
+	andi.w	#$38,d7	; '8'
+	btst	#5,d7
+	bne.s	loc_1180
+	lsr.w	#3,d7
+	or.b	d7,d0
+	move.b	#6,d6
+	or.b	(MegaPlay_Var1&$FFFFFF).l,d6
+	move.b	d6,d4
+	andi.b	#$43,d4	; 'C'
+	move.b	d4,(HW_Expansion_Data).l
+	nop
+	nop
+	move.b	d6,(HW_Expansion_Data).l
+	move.w	#$2000,d2
+	dbf	d5,loc_1144
+
+loc_11C2:
+	subq.w	#1,d2
+	beq.w	MegaPlay_Sub2_Fail
+	move.b	(HW_Expansion_Data).l,d7
+	andi.w	#$38,d7	; '8'
+	cmpi.b	#$38,d7	; '8'
+	bne.s	loc_11C2
+	move.b	#0,d6
+	andi.w	#7,d6
+	or.b	(MegaPlay_Var1&$FFFFFF).l,d6
+	move.b	d6,(HW_Expansion_Data).l
+	moveq	#0,d7
+	rts
 ; ---------------------------------------------------------------------------
 
-loc_120E:
-		move	#$2700,sr
-		bsr.s	MegaPlay_SendCommand
-		move	#$2300,sr
-		rts
+MegaPlay_Sub2_Fail:
+	move.b	#0,d6
+	andi.w	#7,d6
+	or.b	(MegaPlay_Var1&$FFFFFF).l,d6
+	move.b	d6,(HW_Expansion_Data).l
+	moveq	#0,d0
+	moveq	#$FF,d7
+	ori	#1,ccr
+	rts
+; ---------------------------------------------------------------------------
+; loc_120E:
+MegaPlay_SendCommandSafe:
+	move	#$2700,sr
+	bsr.s	MegaPlay_SendCommand
+	move	#$2300,sr
+	rts
 ; ---------------------------------------------------------------------------
 
-MegaPlay_SendCommand:			; CODE XREF: ROM:000010DEp
-					; ROM:00001126j ...
-		bsr.s	MegaPlay_InitSub4
-		bcc.s	locret_1232
-		cmpi.w	#$FFFE,d7
-		bne.s	MegaPlay_SendCommand
-		movem.l	d0,-(sp)
-		bsr.w	MegaPlay_InitSub2
-		movem.l	(sp)+,d0
-		bra.s	MegaPlay_SendCommand
+MegaPlay_SendCommand:
+	bsr.s	MegaPlay_Sub4
+	bcc.s	locret_1232
+	cmpi.w	#$FFFE,d7
+	bne.s	MegaPlay_SendCommand
+	movem.l	d0,-(sp)
+	bsr.w	MegaPlay_Sub2
+	movem.l	(sp)+,d0
+	bra.s	MegaPlay_SendCommand
 ; ---------------------------------------------------------------------------
 
-locret_1232:				; CODE XREF: ROM:0000121Cj
-		rts
+locret_1232:
+	rts
 ; ---------------------------------------------------------------------------
 
-MegaPlay_InitSub4:			; CODE XREF: ROM:MegaPlay_SendCommandp
-		andi.l	#$FFFF,d0
-		movem.l	d0,-(sp)
-		move.b	($A10007).l,d6
-		andi.w	#$38,d6	; '8'
-		cmpi.b	#$20,d6	; ' '
-		beq.w	MegaPlay_InitSub4_Fail2
-		cmpi.b	#$38,d6	; '8'
-		beq.w	MegaPlay_InitSub4_Fail
-		moveq	#7,d5
-		move.w	#$2000,d2
+MegaPlay_Sub4:
+	andi.l	#$FFFF,d0
+	movem.l	d0,-(sp)
+	move.b	(HW_Expansion_Data).l,d6
+	andi.w	#$38,d6	; '8'
+	cmpi.b	#$20,d6	; ' '
+	beq.w	MegaPlay_Sub4_Fail2
+	cmpi.b	#$38,d6	; '8'
+	beq.w	MegaPlay_Sub4_Fail
+	moveq	#7,d5
+	move.w	#$2000,d2
 
-loc_125E:				; CODE XREF: ROM:0000128Aj
-		subq.w	#1,d2
-		beq.w	MegaPlay_InitSub4_Fail
-		move.b	#4,d7
-		andi.w	#7,d7
-		or.b	($FFFFAE).l,d7
-		move.b	d7,($A10007).l
-		bsr.w	MegaPlay_Wait
-		move.b	($A10007).l,d6
-		andi.w	#$38,d6	; '8'
-		cmpi.b	#$28,d6	; '('
-		bne.s	loc_125E
-		move.w	#$2000,d2
-		bra.s	loc_12D0
+loc_125E:
+	subq.w	#1,d2
+	beq.w	MegaPlay_Sub4_Fail
+	move.b	#4,d7
+	andi.w	#7,d7
+	or.b	(MegaPlay_Var1&$FFFFFF).l,d7
+	move.b	d7,(HW_Expansion_Data).l
+	bsr.w	MegaPlay_Wait
+	move.b	(HW_Expansion_Data).l,d6
+	andi.w	#$38,d6	; '8'
+	cmpi.b	#$28,d6	; '('
+	bne.s	loc_125E
+	move.w	#$2000,d2
+	bra.s	loc_12D0
 ; ---------------------------------------------------------------------------
 
-loc_1292:				; CODE XREF: ROM:0000130Ej
-		move.b	#4,d7
-		or.b	($FFFFAE).l,d7
-		move.b	d7,d4
-		andi.b	#$43,d4	; 'C'
-		move.b	d4,($A10007).l
-		nop
-		nop
-		move.w	#$2000,d2
+loc_1292:
+	move.b	#4,d7
+	or.b	(MegaPlay_Var1&$FFFFFF).l,d7
+	move.b	d7,d4
+	andi.b	#$43,d4	; 'C'
+	move.b	d4,(HW_Expansion_Data).l
+	nop
+	nop
+	move.w	#$2000,d2
 
-loc_12B0:				; CODE XREF: ROM:000012CEj
-		subq.w	#1,d2
-		beq.w	MegaPlay_InitSub4_Fail
-		move.b	d7,($A10007).l
-		bsr.w	MegaPlay_Wait
-		move.b	($A10007).l,d6
-		andi.w	#$38,d6	; '8'
-		cmpi.b	#$28,d6	; '('
-		bne.s	loc_12B0
+loc_12B0:
+	subq.w	#1,d2
+	beq.w	MegaPlay_Sub4_Fail
+	move.b	d7,(HW_Expansion_Data).l
+	bsr.w	MegaPlay_Wait
+	move.b	(HW_Expansion_Data).l,d6
+	andi.w	#$38,d6	; '8'
+	cmpi.b	#$28,d6	; '('
+	bne.s	loc_12B0
 
-loc_12D0:				; CODE XREF: ROM:00001290j
-		rol.w	#2,d0
-		or.b	($FFFFAE).l,d0
-		move.b	d0,d6
-		andi.b	#$43,d6	; 'C'
-		move.w	d6,d4
-		ori.w	#4,d4
-		move.b	d4,($A10007).l
-		nop
-		nop
-		move.w	#$2000,d2
+loc_12D0:
+	rol.w	#2,d0
+	or.b	(MegaPlay_Var1&$FFFFFF).l,d0
+	move.b	d0,d6
+	andi.b	#$43,d6	; 'C'
+	move.w	d6,d4
+	ori.w	#4,d4
+	move.b	d4,(HW_Expansion_Data).l
+	nop
+	nop
+	move.w	#$2000,d2
 
-loc_12F2:				; CODE XREF: ROM:0000130Cj
-		subq.w	#1,d2
-		beq.w	MegaPlay_InitSub4_Fail
-		move.b	d6,($A10007).l
-		move.b	($A10007).l,d7
-		andi.w	#$38,d7	; '8'
-		cmpi.b	#$30,d7	; '0'
-		bne.s	loc_12F2
-		dbf	d5,loc_1292
-		move.b	#7,d7
-		or.b	($FFFFAE).l,d7
-		move.b	d7,d4
-		andi.b	#$43,d4	; 'C'
-		move.b	d4,($A10007).l
-		nop
-		nop
-		move.w	#$2000,d2
+loc_12F2:
+	subq.w	#1,d2
+	beq.w	MegaPlay_Sub4_Fail
+	move.b	d6,(HW_Expansion_Data).l
+	move.b	(HW_Expansion_Data).l,d7
+	andi.w	#$38,d7	; '8'
+	cmpi.b	#$30,d7	; '0'
+	bne.s	loc_12F2
+	dbf	d5,loc_1292
+	move.b	#7,d7
+	or.b	(MegaPlay_Var1&$FFFFFF).l,d7
+	move.b	d7,d4
+	andi.b	#$43,d4	; 'C'
+	move.b	d4,(HW_Expansion_Data).l
+	nop
+	nop
+	move.w	#$2000,d2
 
-loc_1330:				; CODE XREF: ROM:0000134Ej
-		subq.w	#1,d2
-		beq.w	MegaPlay_InitSub4_Fail
-		move.b	d7,($A10007).l
-		bsr.w	MegaPlay_Wait
-		move.b	($A10007).l,d6
-		andi.w	#$38,d6	; '8'
-		cmpi.b	#0,d6
-		bne.s	loc_1330
-		move.b	#0,d7
-		andi.w	#7,d7
-		or.b	($FFFFAE).l,d7
-		move.b	d7,($A10007).l
-		movem.l	(sp)+,d0
-		moveq	#0,d7
-		rts
+loc_1330:
+	subq.w	#1,d2
+	beq.w	MegaPlay_Sub4_Fail
+	move.b	d7,(HW_Expansion_Data).l
+	bsr.w	MegaPlay_Wait
+	move.b	(HW_Expansion_Data).l,d6
+	andi.w	#$38,d6	; '8'
+	cmpi.b	#0,d6
+	bne.s	loc_1330
+	move.b	#0,d7
+	andi.w	#7,d7
+	or.b	(MegaPlay_Var1&$FFFFFF).l,d7
+	move.b	d7,(HW_Expansion_Data).l
+	movem.l	(sp)+,d0
+	moveq	#0,d7
+	rts
 ; ---------------------------------------------------------------------------
 
-MegaPlay_InitSub4_Fail2:		; CODE XREF: ROM:0000124Cj
-		move.b	#0,d7
-		andi.w	#7,d7
-		or.b	($FFFFAE).l,d7
-		move.b	d7,($A10007).l
-		moveq	#$FE,d7
-		movem.l	(sp)+,d0
-		ori	#1,ccr
-		rts
+MegaPlay_Sub4_Fail2:
+	move.b	#0,d7
+	andi.w	#7,d7
+	or.b	(MegaPlay_Var1&$FFFFFF).l,d7
+	move.b	d7,(HW_Expansion_Data).l
+	moveq	#$FE,d7
+	movem.l	(sp)+,d0
+	ori	#1,ccr
+	rts
 ; ---------------------------------------------------------------------------
 
-MegaPlay_InitSub4_Fail:			; CODE XREF: ROM:00001254j
-					; ROM:00001260j ...
-		move.b	#0,d7
-		andi.w	#7,d7
-		or.b	($FFFFAE).l,d7
-		move.b	d7,($A10007).l
-		moveq	#$FF,d7
-		movem.l	(sp)+,d0
-		ori	#1,ccr
-		rts
+MegaPlay_Sub4_Fail:
+	move.b	#0,d7
+	andi.w	#7,d7
+	or.b	(MegaPlay_Var1&$FFFFFF).l,d7
+	move.b	d7,(HW_Expansion_Data).l
+	moveq	#$FF,d7
+	movem.l	(sp)+,d0
+	ori	#1,ccr
+	rts
+; ---------------------------------------------------------------------------
+; Burns cycles
+
+MegaPlay_Wait:
+	moveq	#20,d3
+
+-	nop
+	dbf	d3,-
+
+	rts
+; ---------------------------------------------------------------------------
+; No clue
+
+loc_13B6:
+	bsr.w	MegaPlay_Sub2
+	cmpi.w	#$FFF9,d0
+	bne.s	loc_13B6
+
+locret_13C0:
+	rts
+; ---------------------------------------------------------------------------
+; I have no clue what this code is for. It reads from an absurd location in ROM,
+; and tries to send it as a command.
+
+	move	#$2700,sr
+
+loc_13C6:
+	move.w	($FFF0).l,d0	; Probably a bad pointer
+	bsr.w	MegaPlay_SendCommand
+	moveq	#0,d0
+
+loc_13D2:
+	subq.l	#1,d0
+	bne.s	loc_13D2
+	bra.s	loc_13C6
+; ---------------------------------------------------------------------------
+; Instead of calling this, for some reason V_Int inlines its own copy
+
+;MegaPlay_CheckOddEvenFrame:
+	movem.w	d0,-(sp)
+	move.w	(VDP_control_port).l,d0
+	btst	#4,d0	; Check for odd/even frames
+	beq.s	.even
+	move.b	#$40,(MegaPlay_Var1&$FFFFFF).l ; '@'
+	move.b	#$40,(HW_Expansion_Data).l ; '@'
+	movem.w	(sp)+,d0
+	rts
+; ---------------------------------------------------------------------------
+; loc_13FE:
+.even:
+	clr.b	(MegaPlay_Var1&$FFFFFF).l
+	move.b	#0,(HW_Expansion_Data).l
+	movem.w	(sp)+,d0
+	rts
 ; ---------------------------------------------------------------------------
 
-MegaPlay_Wait:				; CODE XREF: ROM:00001278p
-					; ROM:000012BCp ...
-		moveq	#20,d3
-
-loc_13AE:				; CODE XREF: ROM:000013B0j
-		nop
-		dbf	d3,loc_13AE
-		rts
+loc_1412:
+	moveq	#0,d0
+	bsr.w	MegaPlay_CallBIOS
+	add.w	d6,d6
+	move.w	word_1422(pc,d6.w),d0
+	bra.w	MegaPlay_SendCommand
+; ---------------------------------------------------------------------------
+word_1422:
+	dc.w $FF81		; 0
+	dc.w $FF83		; 1
+	dc.w $FF82		; 2
+	dc.w $FF84		; 3
 ; ---------------------------------------------------------------------------
 
-loc_13B6:				; CODE XREF: ROM:000013BEj
-					; ROM:loc_15CCj
-		bsr.w	MegaPlay_InitSub2
-		cmpi.w	#$FFF9,d0
-		bne.s	loc_13B6
-
-locret_13C0:				; CODE XREF: ROM:000015D0j
-		rts
+loc_142A:
+	bsr.w	MegaPlay_CheckRAMIntegrity
+	add.w	d6,d6
+	move.w	word_1438(pc,d6.w),d0
+	bra.w	MegaPlay_SendCommand
 ; ---------------------------------------------------------------------------
-		move	#$2700,sr
-
-loc_13C6:				; CODE XREF: ROM:000013D6j
-		move.w	($FFF0).l,d0	; Probably a bad pointer
-		bsr.w	MegaPlay_SendCommand
-		moveq	#0,d0
-
-loc_13D2:				; CODE XREF: ROM:000013D4j
-		subq.l	#1,d0
-		bne.s	loc_13D2
-		bra.s	loc_13C6
+word_1438:
+	dc.w $FF89		; RAM working
+	dc.w $FF8A		; Even bytes failing
+	dc.w $FF8B		; Odd bytes failing
+	dc.w $FF8C		; Even+odd bytes failing
 ; ---------------------------------------------------------------------------
-		movem.w	d0,-(sp)
-		move.w	($C00004).l,d0
-		btst	#4,d0
-		beq.s	loc_13FE
-		move.b	#$40,($FFFFAE).l ; '@'
-		move.b	#$40,($A10007).l ; '@'
-		movem.w	(sp)+,d0
-		rts
-; ---------------------------------------------------------------------------
+; This appears to be a RAM integrity test
+;
+; Returns result in d6:
+; - If any even bytes fail, bit 0 is set
+; - If any odd bytes fail, bit 1 is set
 
-loc_13FE:				; CODE XREF: ROM:000013E6j
-		clr.b	($FFFFAE).l
-		move.b	#0,($A10007).l
-		movem.w	(sp)+,d0
-		rts
-; ---------------------------------------------------------------------------
-
-loc_1412:				; CODE XREF: ROM:000015D4j
-		moveq	#0,d0
-		bsr.w	MegaPlay_CallBIOS
-		add.w	d6,d6
-		move.w	word_1422(pc,d6.w),d0
-		bra.w	MegaPlay_SendCommand
-; ---------------------------------------------------------------------------
-word_1422:	dc.w $FF81		; 0
-		dc.w $FF83		; 1
-		dc.w $FF82		; 2
-		dc.w $FF84		; 3
-; ---------------------------------------------------------------------------
-
-loc_142A:				; CODE XREF: ROM:000015D8j
-		bsr.w	loc_1440
-		add.w	d6,d6
-		move.w	word_1438(pc,d6.w),d0
-		bra.w	MegaPlay_SendCommand
-; ---------------------------------------------------------------------------
-word_1438:	dc.w $FF89		; 0
-		dc.w $FF8A		; 1
-		dc.w $FF8B		; 2
-		dc.w $FF8C		; 3
-; ---------------------------------------------------------------------------
-
-loc_1440:				; CODE XREF: ROM:loc_142Ap
-		moveq	#0,d6
-		moveq	#0,d7
-		move.w	#$7FFF,d1
-		lea	($FF0000).l,a0
-		bsr.w	loc_1456
-		addq.w	#1,d7
-		addq.l	#1,a0
-
-loc_1456:				; CODE XREF: ROM:0000144Ep
-		movea.l	a0,a1
-		move.w	d1,d2
-
-loc_145A:				; CODE XREF: ROM:00001486j
-		move.b	(a1),d3
-		move.b	#$FF,d0
-		move.b	d0,(a1)
-		cmp.b	(a1),d0
-		bne.s	loc_1480
-		not.w	d0
-		move.b	d0,(a1)
-		cmp.b	(a1),d0
-		bne.s	loc_1480
-		move.b	#$55,d0	; 'U'
-		move.b	d0,(a1)
-		cmp.b	(a1),d0
-		bne.s	loc_1480
-		not.w	d0
-		move.b	d0,(a1)
-		cmp.b	(a1),d0
-		beq.s	loc_1482
-
-loc_1480:				; CODE XREF: ROM:00001464j
-					; ROM:0000146Cj ...
-		bset	d7,d6
-
-loc_1482:				; CODE XREF: ROM:0000147Ej
-		move.b	d3,(a1)
-		addq.w	#2,a1
-		dbf	d2,loc_145A
-		rts
+; loc_1440:
+MegaPlay_CheckRAMIntegrity:
+	moveq	#0,d6
+	moveq	#0,d7
+	move.w	#$7FFF,d1	; (Size of RAM / 2) - 1
+	lea	(RAM_Start&$FFFFFF).l,a0
+	bsr.w	.do_test	; Test even bytes
+	addq.w	#1,d7
+	addq.l	#1,a0		; Test odd bytes
+; loc_1456:
+.do_test:
+	movea.l	a0,a1
+	move.w	d1,d2
+; loc_145A:
+.loop:
+	move.b	(a1),d3
+	; Test all bits set/cleared
+	move.b	#%11111111,d0
+	move.b	d0,(a1)
+	cmp.b	(a1),d0
+	bne.s	.failed
+	not.w	d0
+	move.b	d0,(a1)
+	cmp.b	(a1),d0
+	bne.s	.failed
+	; Test alternating bits set/cleared
+	move.b	#%01010101,d0
+	move.b	d0,(a1)
+	cmp.b	(a1),d0
+	bne.s	.failed
+	not.w	d0
+	move.b	d0,(a1)
+	cmp.b	(a1),d0
+	beq.s	.passed
+; loc_1480:
+.failed:
+	bset	d7,d6
+; loc_1482:
+.passed:
+	move.b	d3,(a1)
+	addq.w	#2,a1
+	dbf	d2,.loop
+	rts
 ; ---------------------------------------------------------------------------
 
-MegaPlay_InitSub5:			; CODE XREF: ROM:000014AAj
-					; ROM:MegaPlay_Command_GoToSegaScreen2p
-		moveq	#4,d0
-		bsr.w	MegaPlay_CallBIOS
+MegaPlay_Sub5:
+	moveq	#4,d0
+	bsr.w	MegaPlay_CallBIOS
 
-loc_1492:				; CODE XREF: ROM:0000149Aj
-		bsr.w	MegaPlay_InitSub2
-		cmpi.w	#$FF85,d0
-		bne.s	loc_1492
-		moveq	#8,d0
-		bsr.w	MegaPlay_CallBIOS
+loc_1492:
+	bsr.w	MegaPlay_Sub2
+	cmpi.w	#$FF85,d0
+	bne.s	loc_1492
+	moveq	#8,d0
+	bsr.w	MegaPlay_CallBIOS
 
-loc_14A2:				; CODE XREF: ROM:000014B0j
-		bsr.w	MegaPlay_InitSub2
-		cmpi.w	#$FF85,d0
-		beq.s	MegaPlay_InitSub5
-		cmpi.w	#$FF01,d0
-		bne.s	loc_14A2
-		moveq	#$C,d0
-		bsr.w	MegaPlay_CallBIOS
-		rts
+loc_14A2:
+	bsr.w	MegaPlay_Sub2
+	cmpi.w	#$FF85,d0
+	beq.s	MegaPlay_Sub5
+	cmpi.w	#$FF01,d0
+	bne.s	loc_14A2
+	moveq	#$C,d0
+	bsr.w	MegaPlay_CallBIOS
+	rts
 ; ---------------------------------------------------------------------------
+; This appears to load an SMPS sound driver from the BIOS
 
-MegaPlay_LoadSoundDriver:		; CODE XREF: ROM:000015E0j
-		moveq	#$10,d0
-		bsr.w	MegaPlay_LoadBIOS
-		lea	($FF0000).l,a0
-		andi.w	#$1F,d0
-		move.l	(a0,d0.w),d0
-		adda.l	d0,a0
-		move.w	#$100,($A11100).l
+MegaPlay_LoadSoundDriver:
+	; Get location of sound driver
+	moveq	#$10,d0
+	bsr.w	MegaPlay_LoadBIOSToRAM
+	lea	(RAM_Start&$FFFFFF).l,a0
+	andi.w	#$1F,d0
+	move.l	(a0,d0.w),d0
+	adda.l	d0,a0
 
-loc_14D8:				; CODE XREF: ROM:000014E0j
-		btst	#7,($A11100).l
-		bne.s	loc_14D8
-		move.w	#$100,($A11200).l
-		lea	($A00000).l,a1
-		move.w	#$1FFF,d0
-		moveq	#0,d1
+	; Get Z80 bus
+	move.w	#$100,(Z80_Bus_Request).l
+-	btst	#7,(Z80_Bus_Request).l
+	bne.s	-
+	move.w	#$100,(Z80_Reset).l
 
-loc_14F6:				; CODE XREF: ROM:000014F8j
-		move.b	d1,(a1)+
-		dbf	d0,loc_14F6
-		lea	($A00000).l,a1
-		move.w	(a0)+,d0
+	; Clear Z80 RAM
+	lea	(Z80_RAM).l,a1
+	move.w	#(Z80_RAM_End-Z80_RAM)-1,d0
+	moveq	#0,d1
+-	move.b	d1,(a1)+
+	dbf	d0,-
 
-loc_1504:				; CODE XREF: ROM:00001506j
-		move.b	(a0)+,(a1)+
-		dbf	d0,loc_1504
-		lea	($A01C02).l,a0
-		lea	(MegaPlay_SoundDriverVariables).l,a1
-		moveq	#6,d7
+	; Copy driver into Z80 RAM
+	lea	(Z80_RAM).l,a1
+	move.w	(a0)+,d0
+-	move.b	(a0)+,(a1)+
+	dbf	d0,-
 
-loc_1518:				; CODE XREF: ROM:0000151Aj
-		move.b	(a1)+,(a0)+
-		dbf	d7,loc_1518
-		bsr.s	MegaPlay_ResetZ80
-		move.w	#0,($A11100).l
-		rts
-; ---------------------------------------------------------------------------
+	; Copy driver variables
+	lea	(Z80_RAM+$1C02).l,a0
+	lea	(MegaPlay_SoundDriverVariables).l,a1
+	moveq	#(MegaPlay_SoundDriverVariables_End-MegaPlay_SoundDriverVariables)-1,d7
+-	move.b	(a1)+,(a0)+
+	dbf	d7,-
 
-MegaPlay_ResetZ80:			; CODE XREF: ROM:0000151Ep
-					; ROM:000015E8j
-		move.w	#0,($A11200).l
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		move.w	#$100,($A11200).l
-		rts
-; ---------------------------------------------------------------------------
-MegaPlay_SoundDriverVariables:dc.b $89		      ;	0 ; DATA XREF: ROM:00001510o
-		dc.b 9			; 1
-		dc.b $B4		; 2
-		dc.b 0			; 3
-		dc.b 0			; 4
-		dc.b 0			; 5
-		dc.b 0			; 6
-		align 2
-
-MegaPlay_Command_PlaySound:		; CODE XREF: ROM:000015E4j
-		move.b	#$81,d0
-		move.w	#$100,($A11100).l
-
-loc_155C:				; CODE XREF: ROM:00001564j
-		btst	#7,($A11100).l
-		bne.s	loc_155C
-		move.b	d0,($A01D8A).l
-		move.w	#0,($A11100).l
-		rts
+	; Restore the Z80 bus
+	bsr.s	MegaPlay_ResetZ80
+	move.w	#0,(Z80_Bus_Request).l
+	rts
 ; ---------------------------------------------------------------------------
 
-MegaPlay_CallBIOS:			; CODE XREF: ROM:00001414p
-					; ROM:0000148Ep ...
-		bsr.w	MegaPlay_LoadBIOS
-		lea	($FF0000).l,a0
-		andi.w	#$1F,d0
-		move.l	(a0,d0.w),d0
-		jmp	(a0,d0.w)
+MegaPlay_ResetZ80:
+	move.w	#0,(Z80_Reset).l
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	move.w	#$100,(Z80_Reset).l
+	rts
+; ---------------------------------------------------------------------------
+MegaPlay_SoundDriverVariables:
+	dc.b $89		; 0
+	dc.b 9			; 1
+	dc.b $B4		; 2
+	dc.b 0			; 3
+	dc.b 0			; 4
+	dc.b 0			; 5
+	dc.b 0			; 6
+MegaPlay_SoundDriverVariables_End:
+	even
+
 ; ---------------------------------------------------------------------------
 
-MegaPlay_LoadBIOS:			; CODE XREF: ROM:000014BCp
-					; ROM:MegaPlay_CallBIOSp
-		lea	($308000).l,a0
-		lea	($FF0000).l,a1
-		move.w	#$5FF,d7
+MegaPlay_Command_PlaySound81:
+	move.b	#$81,d0	; First sound effect in the driver
 
-loc_159C:				; CODE XREF: ROM:000015A4j
-		movep.l	1(a0),d6
-		move.l	d6,(a1)+
-		addq.w	#8,a0
-		dbf	d7,loc_159C
-		rts
-; ---------------------------------------------------------------------------
+	move.w	#$100,(Z80_Bus_Request).l
+-	btst	#7,(Z80_Bus_Request).l
+	bne.s	-
 
-MegaPlay_VInt:				; CODE XREF: ROM:loc_3E2p
-		bsr.w	MegaPlay_GetCommand
-		bsr.w	MegaPlay_InitSub2
-		lea	(word_1600).l,a6
-		move.w	(a6)+,d7
-		moveq	#0,d6
+	move.b	d0,(Z80_RAM+$1D8A).l
 
-loc_15BC:				; CODE XREF: ROM:000015C2j
-		cmp.w	(a6)+,d0
-		beq.s	loc_15C8
-		addq.w	#4,d6
-		dbf	d7,loc_15BC
-		rts
+	move.w	#0,(Z80_Bus_Request).l
+	rts
 ; ---------------------------------------------------------------------------
+; The BIOS has various 'entry points' at its start.
+; They consist of 32-bit offsets from the start of the BIOS.
+; Here are the known ones so far:
+; - $10 - SMPS location
 
-loc_15C8:				; CODE XREF: ROM:000015BEj
-		jmp	loc_15CC(pc,d6.w)
+MegaPlay_CallBIOS:
+	bsr.w	MegaPlay_LoadBIOSToRAM
+	lea	(RAM_Start&$FFFFFF).l,a0
+	andi.w	#$1F,d0
+	move.l	(a0,d0.w),d0
+	jmp	(a0,d0.w)
 ; ---------------------------------------------------------------------------
+; The BIOS is stored in 8-bit memory, so it's almost unusable unless
+; we load it to RAM, which we can access the normal way.
 
-loc_15CC:
-		bra.w	loc_13B6
-; ---------------------------------------------------------------------------
-		bra.w	locret_13C0
-; ---------------------------------------------------------------------------
-		bra.w	loc_1412
-; ---------------------------------------------------------------------------
-		bra.w	loc_142A
-; ---------------------------------------------------------------------------
-		bra.w	MegaPlay_Command_GoToSegaScreen2
-; ---------------------------------------------------------------------------
-		bra.w	MegaPlay_LoadSoundDriver
-; ---------------------------------------------------------------------------
-		bra.w	MegaPlay_Command_PlaySound
-; ---------------------------------------------------------------------------
-		bra.w	MegaPlay_ResetZ80
-; ---------------------------------------------------------------------------
-		bra.w	MegaPlay_Command_GoToSegaScreen
-; ---------------------------------------------------------------------------
-		bra.w	MegaPlay_Command_GoToTitleScreen
-; ---------------------------------------------------------------------------
-		bra.w	MegaPlay_Command_GoToTitleScreen2
-; ---------------------------------------------------------------------------
-		bra.w	MegaPlay_Command_EnableCheats
-; ---------------------------------------------------------------------------
-		bra.w	MegaPlay_Command_EnableCheats
-; ---------------------------------------------------------------------------
-word_1600:	dc.w $C			; DATA XREF: ROM:000015B2o
-		dc.w $FFF8		; 0
-		dc.w $FFF9		; 1
-		dc.w $FF80		; 2
-		dc.w $FF88		; 3
-		dc.w $FF85		; 4
-		dc.w $FF8D		; 5
-		dc.w $FF8E		; 6
-		dc.w $FF90		; 7
-		dc.w $FF01		; 8
-		dc.w $FF02		; 9
-		dc.w $FF03		; $A
-		dc.w $FF0A		; $B
-		dc.w $FF09		; $C
+MegaPlay_LoadBIOSToRAM:
+	lea	($308000).l,a0
+	lea	(RAM_Start&$FFFFFF).l,a1
+	move.w	#$600-1,d7
+; loc_159C:
+.loop:
+	movep.l	1(a0),d6
+	move.l	d6,(a1)+
+	addq.w	#8,a0
+	dbf	d7,.loop
+	rts
 ; ---------------------------------------------------------------------------
 
-MegaPlay_Command_GoToTitleScreen:	; CODE XREF: ROM:000015F0j
-		move.b	#4,($FFFFF600).w
-		rts
+MegaPlay_VInt:
+	bsr.w	MegaPlay_GetCommand
+	bsr.w	MegaPlay_Sub2
+	lea	(MegaPlay_VInt_ValidCommands).l,a6
+	move.w	(a6)+,d7
+	moveq	#0,d6
+; loc_15BC:
+.loop:
+	cmp.w	(a6)+,d0
+	beq.s	.do_command
+	addq.w	#4,d6
+	dbf	d7,.loop
+	rts
+; ---------------------------------------------------------------------------
+; loc_15C8:
+.do_command:
+	jmp	MegaPlay_VInt_CommandTable(pc,d6.w)
+; ---------------------------------------------------------------------------
+; loc_15CC:
+MegaPlay_VInt_CommandTable:
+	bra.w	loc_13B6
+; ---------------------------------------------------------------------------
+	bra.w	locret_13C0
+; ---------------------------------------------------------------------------
+	bra.w	loc_1412
+; ---------------------------------------------------------------------------
+	bra.w	loc_142A
+; ---------------------------------------------------------------------------
+	bra.w	MegaPlay_Command_GoToSegaScreen2
+; ---------------------------------------------------------------------------
+	bra.w	MegaPlay_LoadSoundDriver
+; ---------------------------------------------------------------------------
+	bra.w	MegaPlay_Command_PlaySound81
+; ---------------------------------------------------------------------------
+	bra.w	MegaPlay_ResetZ80
+; ---------------------------------------------------------------------------
+	bra.w	MegaPlay_Command_GoToSegaScreen
+; ---------------------------------------------------------------------------
+	bra.w	MegaPlay_Command_GoToTitleScreen
+; ---------------------------------------------------------------------------
+	bra.w	MegaPlay_Command_GoToTitleScreen2
+; ---------------------------------------------------------------------------
+	bra.w	MegaPlay_Command_EnableCheats
+; ---------------------------------------------------------------------------
+	bra.w	MegaPlay_Command_EnableCheats
+; ---------------------------------------------------------------------------
+MegaPlay_VInt_ValidCommands:
+	dc.w ((MegaPlay_VInt_ValidCommands_End-MegaPlay_VInt_ValidCommands_Start)/2)-1
+
+MegaPlay_VInt_ValidCommands_Start:
+	dc.w $FFF8		; 0
+	dc.w $FFF9		; 1
+	dc.w $FF80		; 2
+	dc.w $FF88		; 3
+	dc.w $FF85		; 4
+	dc.w $FF8D		; 5
+	dc.w $FF8E		; 6
+	dc.w $FF90		; 7
+	dc.w $FF01		; 8
+	dc.w $FF02		; 9
+	dc.w $FF03		; $A
+	dc.w $FF0A		; $B
+	dc.w $FF09		; $C
+MegaPlay_VInt_ValidCommands_End:
 ; ---------------------------------------------------------------------------
 
-MegaPlay_Command_GoToTitleScreen2:	; CODE XREF: ROM:000015F4j
-		move.b	#4,($FFFFF600).w
-		rts
+MegaPlay_Command_GoToTitleScreen:
+	move.b	#GameModeID_TitleScreen,(Game_Mode).w
+	rts
 ; ---------------------------------------------------------------------------
 
-MegaPlay_Command_GoToSegaScreen2:	; CODE XREF: ROM:000015DCj
-		bsr.w	MegaPlay_InitSub5
-
-MegaPlay_Command_GoToSegaScreen:	; CODE XREF: ROM:000015ECj
-		move.b	#0,($FFFFF600).w
-		rts
+MegaPlay_Command_GoToTitleScreen2:
+	move.b	#GameModeID_TitleScreen,(Game_Mode).w
+	rts
 ; ---------------------------------------------------------------------------
 
-MegaPlay_Command_EnableCheats:		; CODE XREF: ROM:000015F8j
-					; ROM:000015FCj
-		move.w	#$FFFF,($FFFFFFD4).w
-		rts
+MegaPlay_Command_GoToSegaScreen2:
+	bsr.w	MegaPlay_Sub5
+
+MegaPlay_Command_GoToSegaScreen:
+	move.b	#GameModeID_SegaScreen,(Game_Mode).w
+	rts
 ; ---------------------------------------------------------------------------
 
-MegaPlay_Init:				; CODE XREF: ROM:00000342p
-		bsr.w	MegaPlay_InitSub
-		movem.l	d0-d1/a0,-(sp)
-		move.w	#$100,($A11100).l
-
-loc_1650:				; CODE XREF: ROM:00001658j
-		btst	#7,($A11100).l
-		bne.s	loc_1650
-		moveq	#0,d0
-		moveq	#0,d1
-		movea.l	($FFFEFA).l,a0
-		_move.b	0(a0),d0
-		move.w	d0,d1
-		andi.w	#3,d0
-		move.b	MegaPlay_Init_Data1(pc,d0.w),($FFFEFF).l
-		andi.w	#$C,d1
-		lsr.w	#2,d1
-		move.b	MegaPlay_Init_Data2(pc,d1.w),($FFFF94).l
-		move.w	#0,($A11100).l
-		movem.l	(sp)+,d0-d1/a0
-		rts
-; ---------------------------------------------------------------------------
-MegaPlay_Init_Data1:dc.b 1, 2, 3, 4	    ; 0
-MegaPlay_Init_Data2:dc.b 3, 1, 2, 4	    ; 0
+MegaPlay_Command_EnableCheats:
+	move.w	#$FFFF,(Correct_cheat_entries).w
+	rts
 ; ---------------------------------------------------------------------------
 
-loc_169A:
-		tst.w	($FFFFFFD8).w
-		bne.s	loc_16CA
-		move.b	($FFFEFF).l,($FFFFFE12).w
-		move.b	($FFFEFF).l,($FFFFFEC6).w
-		move.b	#0,($FFFFAF).l
-		move.l	#$BB8,($FFFFFFC0).w
-		move.l	#$BB8,($FFFFFFC4).w
-		rts
+MegaPlay_Init:
+	bsr.w	MegaPlay_InitSub
+	movem.l	d0-d1/a0,-(sp)
+
+	move.w	#$100,(Z80_Bus_Request).l
+-		btst	#7,(Z80_Bus_Request).l
+	bne.s	-
+
+	moveq	#0,d0
+	moveq	#0,d1
+	movea.l	(MegaPlay_Var2&$FFFFFF).l,a0
+	_move.b	0(a0),d0
+	move.w	d0,d1
+	andi.w	#3,d0
+	move.b	MegaPlay_DefaultLives1P(pc,d0.w),(MegaPlay_Default_lives_1P&$FFFFFF).l
+	andi.w	#$C,d1
+	lsr.w	#2,d1
+	move.b	MegaPlay_DefaultLives2P(pc,d1.w),(MegaPlay_Default_lives_2P&$FFFFFF).l
+
+	move.w	#0,(Z80_Bus_Request).l
+
+	movem.l	(sp)+,d0-d1/a0
+	rts
+; ---------------------------------------------------------------------------
+MegaPlay_DefaultLives1P:dc.b 1, 2, 3, 4
+MegaPlay_DefaultLives2P:dc.b 3, 1, 2, 4
+; ---------------------------------------------------------------------------
+; loc_169A:
+MegaPlay_ResetLives:
+	tst.w	(Two_player_mode).w
+	bne.s	MegaPlay_ResetLives_TwoPlayer
+	move.b	(MegaPlay_Default_lives_1P&$FFFFFF).l,(Life_count).w
+	move.b	(MegaPlay_Default_lives_1P&$FFFFFF).l,(Life_count_2P).w
+	move.b	#0,(MegaPlay_point_life_obtained&$FFFFFF).l
+	move.l	#3000,(Next_Extra_life_score).w
+	move.l	#3000,(Next_Extra_life_score_2P).w
+	rts
+; ---------------------------------------------------------------------------
+; loc_16CA:
+MegaPlay_ResetLives_TwoPlayer:
+	move.b	(MegaPlay_Default_lives_2P&$FFFFFF).l,(Life_count).w
+	move.b	(MegaPlay_Default_lives_2P&$FFFFFF).l,(Life_count_2P).w
+	move.b	#0,(MegaPlay_point_life_obtained&$FFFFFF).l
+	move.l	#3000,(Next_Extra_life_score).w
+	move.l	#3000,(Next_Extra_life_score_2P).w
+	rts
 ; ---------------------------------------------------------------------------
 
-loc_16CA:				; CODE XREF: ROM:0000169Ej
-		move.b	($FFFF94).l,($FFFFFE12).w
-		move.b	($FFFF94).l,($FFFFFEC6).w
-		move.b	#0,($FFFFAF).l
-		move.l	#$BB8,($FFFFFFC0).w
-		move.l	#$BB8,($FFFFFFC4).w
-		rts
+MegaPlay_GetCommand:
+	movem.l	d0/a0,-(sp)
+
+	move.w	#$100,(Z80_Bus_Request).l
+-		btst	#7,(Z80_Bus_Request).l
+	bne.s	-
+
+	movea.l	(MegaPlay_Var2&$FFFFFF).l,a0
+	move.b	1(a0),d0
+
+	move.w	#0,(Z80_Bus_Request).l
+
+	move.b	d0,(MegaPlay_Var6&$FFFFFF).l
+	movem.l	(sp)+,d0/a0
+	rts
 ; ---------------------------------------------------------------------------
-
-MegaPlay_GetCommand:			; CODE XREF: ROM:MegaPlay_VIntp
-		movem.l	d0/a0,-(sp)
-		move.w	#$100,($A11100).l
-
-loc_1700:				; CODE XREF: ROM:00001708j
-		btst	#7,($A11100).l
-		bne.s	loc_1700
-		movea.l	($FFFEFA).l,a0
-		move.b	1(a0),d0
-		move.w	#0,($A11100).l
-		move.b	d0,($FFFEFE).l
-		movem.l	(sp)+,d0/a0
-		rts
-; ---------------------------------------------------------------------------
-
-loc_1728:
-		move.l	#0,($FFFFFE22).w
-		move.l	#0,($FFFFFED2).w
-		rts
+; loc_1728:
+MegaPlay_ResetTimer:
+	move.l	#0,(Timer).w
+	move.l	#0,(Timer_2P).w
+	rts
 
 
 ; ---------------------------------------------------------------------------
@@ -4548,7 +4579,7 @@ TitleScreen:
 	clearRAM Misc_Variables,Misc_Variables_End ; clear CPU player RAM and following variables
 	clearRAM Camera_RAM,Camera_RAM_End ; clear camera RAM and following variables
 
-	tst.b	($FFFEFE).l
+	tst.b	(MegaPlay_Var6&$FFFFFF).l
 	bne.s	loc_3EB8
 
 	; Show 'Sonic and Tails in'
@@ -4662,7 +4693,7 @@ loc_3EB8:
 	move.w	d0,(VDP_control_port).l
 	bsr.w	Pal_FadeFromBlack
 	move.w	#$FF1D,d0
-	bsr.w	loc_120E
+	bsr.w	MegaPlay_SendCommandSafe
 
 ; loc_3C14:
 TitleScreen_Loop:
@@ -4687,7 +4718,7 @@ TitleScreen_Loop:
 
 	bsr.w	RunPLC_RAM
 	;bsr.w	TailsNameCheat
-	tst.b	($FFFEFE).l
+	tst.b	(MegaPlay_Var6&$FFFFFF).l
 	bne.s	loc_40EE
 	tst.w	(Demo_Time_left).w
 	bne.w	TitleScreen_Loop
@@ -4708,7 +4739,7 @@ loc_40EE:
 
 loc_410E:                               ; CODE XREF: ROM:000040FAj
 	move.w	#$FF0A,d0
-	bsr.w	loc_120E
+	bsr.w	MegaPlay_SendCommandSafe
 	move.w	#0,($FFFFFFD4).w
 	move.b	#0,($FFFFFF86).w
 	bra.s	loc_413E
@@ -4716,15 +4747,15 @@ loc_410E:                               ; CODE XREF: ROM:000040FAj
 
 loc_4124:                               ; CODE XREF: ROM:00004108j
 	move.w	#$FF09,d0
-	bsr.w	loc_120E
+	bsr.w	MegaPlay_SendCommandSafe
 	move.w	#0,($FFFFFFD4).w
 	move.b	#1,($FFFFFF86).w
 	move.w	#1,($FFFFFFD8).w
 
 loc_413E:
 	move.b	#GameModeID_Level,(Game_Mode).w ; => Level (Zone play mode)
-	bsr.w	loc_169A
-	bsr.w	loc_1728
+	bsr.w	MegaPlay_ResetLives
+	bsr.w	MegaPlay_ResetTimer
 	moveq	#0,d0
 	move.w	d0,(Ring_count).w
 ;	move.l	d0,(Timer).w
@@ -4809,8 +4840,8 @@ TitleScreen_Demo:
 ;+
 ;	move.b	#3,(Life_count).w
 ;	move.b	#3,(Life_count_2P).w
-	bsr.w	loc_169A
-	bsr.w	loc_1728
+	bsr.w	MegaPlay_ResetLives
+	bsr.w	MegaPlay_ResetTimer
 	moveq	#0,d0
 	move.w	d0,(Ring_count).w
 ;	move.l	d0,(Timer).w
@@ -5172,7 +5203,7 @@ Level_ClrHUD:
 	moveq	#0,d0
 	tst.b	(Last_star_pole_hit).w	; are you starting from a lamppost?
 	bne.s	Level_FromCheckpoint	; if yes, branch
-	bsr.w	loc_1728
+	bsr.w	MegaPlay_ResetTimer
 	move.w	d0,(Ring_count).w	; clear rings
 ;	move.l	d0,(Timer).w		; clear time
 	move.b	d0,(Extra_life_flags).w	; clear extra lives counter
@@ -5319,7 +5350,7 @@ Level_MainLoop:
 	beq.w	Level_MainLoop
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
 	move.w	#$FF04,d0
-	bsr.w	loc_120E
+	bsr.w	MegaPlay_SendCommandSafe
 	rts
 ; ---------------------------------------------------------------------------
 +
@@ -5327,7 +5358,7 @@ Level_MainLoop:
 	bne.s	+
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
 	move.w	#$FF04,d0
-	bsr.w	loc_120E
+	bsr.w	MegaPlay_SendCommandSafe
 +
 	move.w	#1*60,(Demo_Time_left).w	; 1 second
 	move.w	#$3F,(Palette_fade_range).w
@@ -10406,8 +10437,8 @@ JmpTo_Hud_Base
 	align 4
     endif
 
-BranchTo_loc_120E 
-	bra.w	loc_120E
+BranchTo_MegaPlay_SendCommandSafe 
+	bra.w	MegaPlay_SendCommandSafe
 
 
 
@@ -10474,7 +10505,7 @@ loc_7D70:
 	move.w	#$FF12,d0
 
 loc_7D74:
-	bsr.w	loc_120E
+	bsr.w	MegaPlay_SendCommandSafe
 	bsr.w	Pal_FadeFromBlack
 -
 	move.b	#VintID_Menu,(Vint_routine).w
@@ -10515,12 +10546,12 @@ loc_7DB4:
 	bne.w	-
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
 	move.w	#$FF1F,d0
-	bsr.w	loc_120E
+	bsr.w	MegaPlay_SendCommandSafe
 	rts
 ; ---------------------------------------------------------------------------
 +
 	move.b	#GameModeID_Level,(Game_Mode).w ; => Level (Zone play mode)
-	bsr.w	loc_1728
+	bsr.w	MegaPlay_ResetTimer
 	moveq	#0,d0
 	move.w	d0,(Ring_count).w
 ;	move.l	d0,(Timer).w
@@ -10541,7 +10572,7 @@ loc_7DB4:
 	move.b	#$1C,($FFFFF600).w
 
 loc_7E42:
-	bsr.w	loc_169A
+	bsr.w	MegaPlay_ResetLives
 	rts
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -10794,7 +10825,7 @@ loc_80D2:
 	move.w	#$FF15,d0
 
 loc_80D6:
-	bsr.w	loc_120E
+	bsr.w	MegaPlay_SendCommandSafe
 	addq.b	#2,routine(a0) ; => ObjDB_Tails_Run
 	move.l	#MapUnc_Tails,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
@@ -10979,9 +11010,9 @@ loc_83C2:
 	move.w  d0,(a5)+
 	move.w  d0,(a5)
 	move.b  #$1C,($FFFFF600).w
-	tst.b   ($FFFFFE12).w
+	tst.b   (Life_count).w
 	beq.w   loc_84DE
-	tst.b   ($FFFFFEC6).w
+	tst.b   (Life_count_2P).w
 	beq.w   loc_84DE
 	rts
 ; ===========================================================================
@@ -11065,9 +11096,9 @@ TwoPlayerResultsDone_ZoneOrSpecialStages:
 +
 	tst.w	(Game_Over_2P).w
 	beq.s	+		; if there's a Game Over, clear the results
-	tst.b	($FFFFFE12).w
+	tst.b	(Life_count).w
 	beq.s	loc_84B8
-	tst.b	($FFFFFEC6).w
+	tst.b	(Life_count_2P).w
 	beq.s	loc_84B8
 	bra.s	loc_84C4
 ; ---------------------------------------------------------------------------
@@ -11089,14 +11120,14 @@ loc_84C4:                               ; CODE XREF: ROM:000084B6j
 	dbf	d0,-
 
 loc_84DA:
-	bsr.w	loc_16CA
+	bsr.w	MegaPlay_ResetLives_TwoPlayer
 ;	move.b	#3,(Life_count).w
 ;	move.b	#3,(Life_count_2P).w
 +
 loc_84DE:
 	move.b	#1,($FFFF95).l
 	move.w	#$FF0C,d0
-	bsr.w	loc_120E
+	bsr.w	MegaPlay_SendCommandSafe
 	move.b	#GameModeID_ContinueScreen,(Game_Mode).w ; => LevelSelectMenu2P
 	rts
 ; ===========================================================================
@@ -11106,9 +11137,9 @@ TwoPlayerResultsDone_Game:
 	bne.s	TwoPlayerResultsDone_SpecialStage ; if not, branch
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
 	move.w	#$FF0C,d0
-	bsr.w	loc_120E
+	bsr.w	MegaPlay_SendCommandSafe
 	move.w	#$FF1E,d0
-	bsr.w	loc_120E
+	bsr.w	MegaPlay_SendCommandSafe
 	rts
 ; ===========================================================================
 ; loc_802C:
@@ -12691,8 +12722,8 @@ LevelSelect_PressStart:
 	clr.w	(Current_ZoneAndAct).w
 ;	move.b	#3,(Life_count).w
 ;	move.b	#3,(Life_count_2P).w
-	jsr	(loc_169A).l
-	jsr	(loc_1728).l
+	jsr	(MegaPlay_ResetLives).l
+	jsr	(MegaPlay_ResetTimer).l
 	moveq	#0,d0
 	move.w	d0,(Ring_count).w
 ;	move.l	d0,(Timer).w
@@ -12751,8 +12782,8 @@ LevelSelect_StartZone:
 	move.b	#GameModeID_Level,(Game_Mode).w ; => Level (Zone play mode)
 ;	move.b	#3,(Life_count).w
 ;	move.b	#3,(Life_count_2P).w
-	jsr	(loc_169A).l
-	jsr	(loc_1728).l
+	jsr	(MegaPlay_ResetLives).l
+	jsr	(MegaPlay_ResetTimer).l
 	moveq	#0,d0
 	move.w	d0,(Ring_count).w
 ;	move.l	d0,(Timer).w
@@ -13424,9 +13455,9 @@ EndgameCredits:
 	st	(Level_Inactive_flag).w
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
 	move.w	#$FF0C,d0
-	bsr.w	BranchTo_loc_120E
+	bsr.w	BranchTo_MegaPlay_SendCommandSafe
 	move.w	#$FF1E,d0
-	bsr.w	BranchTo_loc_120E
+	bsr.w	BranchTo_MegaPlay_SendCommandSafe
 /
 	rts
 ; End of function sub_9EF4
@@ -21904,8 +21935,8 @@ JmpTo_ObjCheckRightWallDist
 	align 4
     endif
 
-JmpTo_loc_120E 
-	jmp	(loc_120E).l
+JmpTo_MegaPlay_SendCommandSafe 
+	jmp	(MegaPlay_SendCommandSafe).l
 
 
 
@@ -26340,7 +26371,7 @@ Obj39_Dismiss:
 	tst.b	(Time_Over_flag_2P).w
 	bne.s	Obj39_TimeOver
 	move.w	#$FF0C,d0
-	jsr	JmpTo_loc_120E
+	jsr	JmpTo_MegaPlay_SendCommandSafe
 	move.b	#GameModeID_ContinueScreen,(Game_Mode).w ; => ContinueScreen
 ;	tst.b	(Continue_count).w
 ;	bne.s	Obj39_Check2PMode
@@ -26597,9 +26628,9 @@ loc_1428C:
 	bpl.s	loc_1429C
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
 	move.w	#$FF0C,d0
-	bsr.w	JmpTo_loc_120E
+	bsr.w	JmpTo_MegaPlay_SendCommandSafe
 	move.w	#$FF1E,d0
-	bsr.w	JmpTo_loc_120E
+	bsr.w	JmpTo_MegaPlay_SendCommandSafe
 	rts
 ; ===========================================================================
 
@@ -32899,9 +32930,9 @@ Obj0D_Main_State4:
 	bne.s	return_19532
 	tst.b	(Update_HUD_timer_2P).w
 	bne.s	return_19532
-	tst.b	($FFFFFE12).w
+	tst.b	(Life_count).w
 	beq.s	return_19532
-	tst.b	($FFFFFEC6).w
+	tst.b	(Life_count_2P).w
 	beq.s	return_19532
 	move.b	#0,(Last_star_pole_hit).w
 	move.b	#0,(Last_star_pole_hit_2P).w
@@ -84976,10 +85007,12 @@ AddPoints:
 	move.l	(a3),d0
 	cmp.l	(Next_Extra_life_score).w,d0
 	blo.s	+	; rts
+	; [Mega Play] You can only get one life in the Mega Play version
 ;	addi.l	#5000,(Next_Extra_life_score).w
-	tst.b	($FFFFAF).l
-	bne.s	+
-	move.b	#1,($FFFFAF).l
+	tst.b	(MegaPlay_point_life_obtained&$FFFFFF).l
+	bne.s	+	; rts
+	move.b	#1,(MegaPlay_point_life_obtained&$FFFFFF).l
+
 	addq.b	#1,(Life_count).w
 	addq.b	#1,(Update_HUD_lives).w
 	move.w	#MusID_ExtraLife,d0
