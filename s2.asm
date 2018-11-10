@@ -17,7 +17,7 @@
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; ASSEMBLY OPTIONS:
 ;
-gameRevision = 1
+gameRevision = 2
 ;	| If 0, a REV00 ROM is built
 ;	| If 1, a REV01 ROM is built, which contains some fixes
 ;	| If 2, a (probable) REV02 ROM is built, which contains more fixes, but also more bugs
@@ -27,7 +27,7 @@ padToPowerOfTwo = 1
 allOptimizations = 0
 ;	| If 1, enables all optimizations
 ;
-skipChecksumCheck = 0|allOptimizations
+skipChecksumCheck = 1|allOptimizations
 ;	| If 1, disables the unnecessary (and slow) bootup checksum calculation
 ;
 zeroOffsetOptimization = 0|allOptimizations
@@ -166,7 +166,8 @@ EndOfHeader:
 ; Crash/Freeze the 68000. Note that the Z80 continues to run, so the music keeps playing.
 ; loc_200:
 ErrorTrap:
-	nop	; delay
+	; [Classics/Compilation] Has a slightly different ErrorTrap
+	bra.s	ErrorTrap	; Loop indefinitely.
 	nop	; delay
 	bra.s	ErrorTrap	; Loop indefinitely.
 
@@ -373,10 +374,12 @@ ChecksumLoop:
 	bne.w	ChecksumError	; if they don't match, branch
     endif
 ;checksum_good:
+	move.l	#'SEGA',(unk_FFE4&$FFFFFF).l	; [Classics/Compilation] used by the menu?
+
 	lea	(System_Stack).w,a6
 	moveq	#0,d7
 
-	move.w	#bytesToLcnt($200),d6
+	move.w	#bytesToLcnt($200-$20),d6	; [Classics/Compilation] this is to avoid clearing the $20 free bytes that the above 'SEGA' is a part of
 -	move.l	d7,(a6)+
 	dbf	d6,-
 
@@ -69500,21 +69503,14 @@ Obj_DeleteBehindScreen:
 ; loc_367AA:
 InheritParentXYFlip:
 	move.b	render_flags(a0),d0
-    if gameRevision<2
-	andi.b	#$FC,d0
-	move.b	status(a0),d2
-	andi.b	#$FC,d2
-	move.b	render_flags(a1),d1
-	andi.b	#3,d1
-    else
-	; Peculiarly, REV02 changes this to only inherit the Y-flip.
+	; [Classics/Compilation] Peculiarly, Classics changes this to only inherit the Y-flip.
 	; This causes a bug where some sprites are displayed backwards (Silver Sonic's sparks and Grabber's legs).
+	; Presumably this (and the other Classics-specific bugs) was caused by bugged constants.
 	andi.b	#$FD,d0
 	move.b	status(a0),d2
 	andi.b	#$FD,d2
 	move.b	render_flags(a1),d1
 	andi.b	#2,d1
-    endif
 	or.b	d1,d0
 	or.b	d1,d2
 	move.b	d0,render_flags(a0)
@@ -75258,14 +75254,9 @@ ObjB2_Main_SCZ:
 	bsr.w	ObjB2_Move_obbey_player
 	move.b	objoff_2E(a0),d0
 	move.b	status(a0),d1
-    if gameRevision<2
-	andi.b	#p1_standing,d0	; 'on object' bit
-	andi.b	#p1_standing,d1	; 'on object' bit
-    else
-	; 'fixes' the player being able to spin dash off the Tornado
+	; [Classics/Compilation] "fixes" the player being able to spin dash off the Tornado
 	andi.b	#1,d0	; 'X-flipped' bit???
 	andi.b	#1,d1	; 'X-flipped' bit???
-    endif
 	eor.b	d0,d1
 	move.b	d1,objoff_2E(a0)
 	lea	(MainCharacter).w,a1 ; a1=character
@@ -76534,14 +76525,9 @@ loc_3B7A6:
 
 loc_3B7BC:
 	move.b	status(a0),d0
-    if gameRevision<2
-	andi.b	#standing_mask,d0
-    else
-	; I don't know what this change was meant to do, but it causes
-	; Sonic to not fall off ObjBD's ascending platforms when they retract,
-	; making him hover.
+	; [Classics/Compilation] This causes Sonic to not fall off ObjBD's
+	; ascending platforms when they retract, making him hover.
 	andi.b	#2,d0	; 'Y-flipped' bit???
-    endif
 	beq.s	return_3B7F6
 	bclr	#p1_standing_bit,status(a0)
 	beq.s	loc_3B7DE
@@ -86357,11 +86343,31 @@ PlrList_ResultsTails_End
 PlrList_ResultsTails_Dup_End
 	dc.l	0
     elseif gameRevision=2
-	; half of the second ARZ PLR list
-	;plreq ArtTile_ArtNem_Grounder, ArtNem_Grounder	; cut in half
-	;dc.l	ArtNem_Grounder
-	dc.w	tiles_to_bytes(ArtTile_ArtNem_Grounder)
+	; half of the DEZ PLR list
+	;plreq ArtTile_ArtNem_RobotnikRunning, ArtNem_RobotnikRunning	; cut in half
+	dc.w	ArtNem_RobotnikRunning&$FFFF		; cut in half
+	dc.w	tiles_to_bytes(ArtTile_ArtNem_RobotnikRunning)
 
+	plreq ArtTile_ArtNem_RobotnikUpper, ArtNem_RobotnikUpper
+	plreq ArtTile_ArtNem_RobotnikLower, ArtNem_RobotnikLower
+;---------------------------------------------------------------------------------------
+; Pattern load queue (duplicate)
+; ARZ Primary
+;---------------------------------------------------------------------------------------
+PlrList_Arz1_Dup: plrlistheader
+	plreq ArtTile_ArtNem_ARZBarrierThing, ArtNem_ARZBarrierThing
+	plreq ArtTile_ArtNem_WaterSurface, ArtNem_WaterSurface2
+	plreq ArtTile_ArtNem_Leaves, ArtNem_Leaves
+	plreq ArtTile_ArtNem_ArrowAndShooter, ArtNem_ArrowAndShooter
+PlrList_Arz1_Dup_End
+;---------------------------------------------------------------------------------------
+; Pattern load queue (duplicate)
+; ARZ Secondary
+;---------------------------------------------------------------------------------------
+PlrList_Arz2_Dup: plrlistheader
+	plreq ArtTile_ArtNem_ChopChop, ArtNem_ChopChop
+	plreq ArtTile_ArtNem_Whisp, ArtNem_Whisp
+	plreq ArtTile_ArtNem_Grounder, ArtNem_Grounder
 	plreq ArtTile_ArtNem_BigBubbles, ArtNem_BigBubbles
 	plreq ArtTile_ArtNem_Spikes, ArtNem_Spikes
 	plreq ArtTile_ArtNem_LeverSpring, ArtNem_LeverSpring
