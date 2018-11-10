@@ -18574,8 +18574,8 @@ DrawBlockCol2:
 	move.l	d1,d0
 	bsr.w	ProcessAndWriteBlock2
 	adda.w	#$10,a0		; move onto the 16x16 vertically below this one
-	addi.w	#$100,d1	; draw on alternate 8x8 lines
-	andi.w	#$FFF,d1
+	addi.w	#64*2*2,d1	; draw on alternate 8x8 lines
+	andi.w	#(64*32*2)-1,d1	; wrap around plane (assumed to be in 64x32 mode)
 	addi.w	#$10,d4		; add 16 to Y offset
 	move.w	d4,d0
 	andi.w	#$70,d0		; have we reached a new 128x128?
@@ -29234,7 +29234,10 @@ BuildSprites_NextLevel:
 ; ===========================================================================
     if gameRevision=0
 BuildSprites_Unknown:
-	; in the Simon Wai beta, this was a simple BranchTo, but later builds have this mystery line
+	; In the Simon Wai beta, this was a simple BranchTo, but later builds have this mystery line.
+	; This may have possibly been a debugging function, for helping the devs detect when an object
+	; tried to display with a blank ID or mappings pointer.
+	; The latter was actually an issue that plagued Sonic 1, but is (almost) completely absent in this game.
 	move.w	(1).w,d0	; causes a crash on hardware because of the word operation at an odd address
 	bra.s	BuildSprites_NextObj
     endif
@@ -70506,26 +70509,11 @@ Obj_DeleteBehindScreen:
 ; loc_367AA:
 InheritParentXYFlip:
 	move.b	render_flags(a0),d0
-	; [Mega Play] These bugs are not from REV02, since they're not in this version
-	; ...or KiS2
-	; ...or Sonic Jam
-	; ...just Sonic Compilation/Classics.
-	; Up yours, TCRF.
-;    if gameRevision<2
 	andi.b	#$FC,d0
 	move.b	status(a0),d2
 	andi.b	#$FC,d2
 	move.b	render_flags(a1),d1
 	andi.b	#3,d1
-;    else
-;	; Peculiarly, REV02 changes this to only inherit the Y-flip.
-;	; This causes a bug where some sprites are displayed backwards (Silver Sonic's sparks and Grabber's legs).
-;	andi.b	#$FD,d0
-;	move.b	status(a0),d2
-;	andi.b	#$FD,d2
-;	move.b	render_flags(a1),d1
-;	andi.b	#2,d1
-;    endif
 	or.b	d1,d0
 	or.b	d1,d2
 	move.b	d0,render_flags(a0)
@@ -76269,19 +76257,8 @@ ObjB2_Main_SCZ:
 	bsr.w	ObjB2_Move_obbey_player
 	move.b	objoff_2E(a0),d0
 	move.b	status(a0),d1
-	; [Mega Play] These bugs are not from REV02, since they're not in this version
-	; ...or KiS2
-	; ...or Sonic Jam
-	; ...just Sonic Compilation/Classics.
-	; Up yours, TCRF.
-;    if gameRevision<2
 	andi.b	#p1_standing,d0	; 'on object' bit
 	andi.b	#p1_standing,d1	; 'on object' bit
-;    else
-	; 'fixes' the player being able to spin dash off the Tornado
-;	andi.b	#1,d0	; 'X-flipped' bit???
-;	andi.b	#1,d1	; 'X-flipped' bit???
-;    endif
 	eor.b	d0,d1
 	move.b	d1,objoff_2E(a0)
 	lea	(MainCharacter).w,a1 ; a1=character
@@ -77550,19 +77527,7 @@ loc_3B7A6:
 
 loc_3B7BC:
 	move.b	status(a0),d0
-	; [Mega Play] These bugs are not from REV02, since they're not in this version
-	; ...or KiS2
-	; ...or Sonic Jam
-	; ...just Sonic Compilation/Classics.
-	; Up yours, TCRF.
-;    if gameRevision<2
 	andi.b	#standing_mask,d0
-;    else
-	; I don't know what this change was meant to do, but it causes
-	; Sonic to not fall off ObjBD's ascending platforms when they retract,
-	; making him hover.
-;	andi.b	#2,d0	; 'Y-flipped' bit???
-;    endif
 	beq.s	return_3B7F6
 	bclr	#p1_standing_bit,status(a0)
 	beq.s	loc_3B7DE
@@ -84454,6 +84419,9 @@ APM_HPZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$6,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$7,0,0,2,0)
 	
     if gameRevision<2
+	; In REV02, for some reason these blank tiles' palette line was changed to lines 3 and 4.
+	; This is consistent with MTZ's blank tiles.
+	; Notably, the new palette lines' first entry always happens to match the current VDP background colour.
 	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$0,0,0,3,0)
 	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$2,0,0,3,0)
     else
