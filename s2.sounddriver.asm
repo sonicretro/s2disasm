@@ -1749,6 +1749,8 @@ zBGMLoad:
 	ld	c,6			; FM channel 6
 	rst	zWriteFMI		; All operators off
     endif
+    if FixDriverBugs=0
+	; The added zFMSilenceChannel does this, already
 	ld	a,42h			; Starting at FM Channel 6 Operator 1 Total Level register
 	ld	c,0FFh			; Silence value
 	ld	b,4			; Write to all four FM Channel 6 operators
@@ -1757,7 +1759,11 @@ zBGMLoad:
 -	rst	zWriteFMII
 	add	a,4			; Next operator
 	djnz	-
+    endif
 
+	; Panning isn't normally set until zSetVoice.
+	; This is a problem for the DAC track since it never uses zSetVoice
+	; (or at least it shouldn't), so we reset the panning here.
 	ld	a,0B6h			; Set Panning / AMS / FMS
 	ld	c,0C0h			; default Panning / AMS / FMS settings (only stereo L/R enabled)
 	rst	zWriteFMII		; Set it!
