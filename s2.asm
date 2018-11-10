@@ -69500,21 +69500,11 @@ Obj_DeleteBehindScreen:
 ; loc_367AA:
 InheritParentXYFlip:
 	move.b	render_flags(a0),d0
-    if gameRevision<2
 	andi.b	#$FC,d0
 	move.b	status(a0),d2
 	andi.b	#$FC,d2
 	move.b	render_flags(a1),d1
 	andi.b	#3,d1
-    else
-	; Peculiarly, REV02 changes this to only inherit the Y-flip.
-	; This causes a bug where some sprites are displayed backwards (Silver Sonic's sparks and Grabber's legs).
-	andi.b	#$FD,d0
-	move.b	status(a0),d2
-	andi.b	#$FD,d2
-	move.b	render_flags(a1),d1
-	andi.b	#2,d1
-    endif
 	or.b	d1,d0
 	or.b	d1,d2
 	move.b	d0,render_flags(a0)
@@ -75258,14 +75248,8 @@ ObjB2_Main_SCZ:
 	bsr.w	ObjB2_Move_obbey_player
 	move.b	objoff_2E(a0),d0
 	move.b	status(a0),d1
-    if gameRevision<2
 	andi.b	#p1_standing,d0	; 'on object' bit
 	andi.b	#p1_standing,d1	; 'on object' bit
-    else
-	; 'fixes' the player being able to spin dash off the Tornado
-	andi.b	#1,d0	; 'X-flipped' bit???
-	andi.b	#1,d1	; 'X-flipped' bit???
-    endif
 	eor.b	d0,d1
 	move.b	d1,objoff_2E(a0)
 	lea	(MainCharacter).w,a1 ; a1=character
@@ -76534,14 +76518,7 @@ loc_3B7A6:
 
 loc_3B7BC:
 	move.b	status(a0),d0
-    if gameRevision<2
 	andi.b	#standing_mask,d0
-    else
-	; I don't know what this change was meant to do, but it causes
-	; Sonic to not fall off ObjBD's ascending platforms when they retract,
-	; making him hover.
-	andi.b	#2,d0	; 'Y-flipped' bit???
-    endif
 	beq.s	return_3B7F6
 	bclr	#p1_standing_bit,status(a0)
 	beq.s	loc_3B7DE
