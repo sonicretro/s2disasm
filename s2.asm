@@ -28195,7 +28195,10 @@ BuildSprites_NextLevel:
 ; ===========================================================================
     if gameRevision=0
 BuildSprites_Unknown:
-	; in the Simon Wai beta, this was a simple BranchTo, but later builds have this mystery line
+	; In the Simon Wai beta, this was a simple BranchTo, but later builds have this mystery line.
+	; This may have possibly been a debugging function, for helping the devs detect when an object
+	; tried to display with a blank ID or mappings pointer.
+	; The latter was actually an issue that plagued Sonic 1, but is (almost) completely absent in this game.
 	move.w	(1).w,d0	; causes a crash on hardware because of the word operation at an odd address
 	bra.s	BuildSprites_NextObj
     endif
