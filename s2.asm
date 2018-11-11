@@ -10517,8 +10517,6 @@ SpecialStage_ResultsLetters:
     endif
 
     if ~~removeJmpTos
-JmpTo_DisplaySprite 
-	jmp	(DisplaySprite).l
 JmpTo_LoadTitleCardSS 
 	jmp	(LoadTitleCardSS).l
 JmpTo_Obj5A_CreateRingReqMessage 
@@ -43237,8 +43235,6 @@ word_1FCB8:
     if ~~removeJmpTos
 JmpTo7_DisplaySprite 
 	jmp	(DisplaySprite).l
-JmpTo15_DeleteObject 
-	jmp	(DeleteObject).l
 JmpTo6_Adjust2PArtPointer 
 	jmp	(Adjust2PArtPointer).l
 ; loc_1FCD6:
@@ -43948,8 +43944,6 @@ Obj13_MapUnc_20528:	BINCLUDE "mappings/sprite/obj13.bin"
     if ~~removeJmpTos
 JmpTo9_DisplaySprite 
 	jmp	(DisplaySprite).l
-JmpTo17_DeleteObject 
-	jmp	(DeleteObject).l
 JmpTo2_Adjust2PArtPointer2 
 	jmp	(Adjust2PArtPointer2).l
 JmpTo11_Adjust2PArtPointer 
@@ -44725,8 +44719,6 @@ loc_2146C:
 ; loc_214AC:
 JmpTo10_DisplaySprite 
 	jmp	(DisplaySprite).l
-JmpTo18_DeleteObject 
-	jmp	(DeleteObject).l
 JmpTo2_SingleObjLoad 
 	jmp	(SingleObjLoad).l
 JmpTo12_Adjust2PArtPointer 
@@ -46183,10 +46175,8 @@ Obj1E:
 	beq.s	JmpTo_MarkObjGone3
 	rts
 
-    if removeJmpTos
 JmpTo_MarkObjGone3 
 	jmp	(MarkObjGone3).l
-    endif
 ; ===========================================================================
 ; JmpTbl_225B8: Obj1E_States:
 Obj1E_Index:	offsetTable
@@ -46587,13 +46577,6 @@ __LABEL__ label *
 
     if gameRevision<2
 	nop
-    endif
-
-    if ~~removeJmpTos
-JmpTo_MarkObjGone3 
-	jmp	(MarkObjGone3).l
-
-	align 4
     endif
 
 
@@ -49017,8 +49000,6 @@ JmpTo13_MarkObjGone
 	jmp	(MarkObjGone).l
 JmpTo9_SingleObjLoad2 
 	jmp	(SingleObjLoad2).l
-JmpTo3_MarkObjGone3 
-	jmp	(MarkObjGone3).l
 JmpTo22_Adjust2PArtPointer 
 	jmp	(Adjust2PArtPointer).l
 JmpTo2_BreakObjectToPieces 
@@ -59386,9 +59367,6 @@ Obj4B_MapUnc_2D2EA:	BINCLUDE "mappings/sprite/obj4B.bin"
 ; ===========================================================================
 
     if ~~removeJmpTos
-; loc_2D368:
-JmpTo49_DeleteObject 
-	jmp	(DeleteObject).l
 JmpTo20_SingleObjLoad2 
 	jmp	(SingleObjLoad2).l
 JmpTo15_AnimateSprite 
@@ -61430,8 +61408,6 @@ Obj5D_MapUnc_2EEA0:	BINCLUDE "mappings/sprite/obj5D_d.bin"
 ; ===========================================================================
 
     if ~~removeJmpTos
-JmpTo51_DeleteObject 
-	jmp	(DeleteObject).l
 JmpTo35_MarkObjGone 
 	jmp	(MarkObjGone).l
 JmpTo5_PlaySound 
@@ -62365,8 +62341,6 @@ Obj56_MapUnc_2FAF8:	BINCLUDE "mappings/sprite/obj56_c.bin"
 ; ===========================================================================
 
     if ~~removeJmpTos
-JmpTo52_DeleteObject 
-	jmp	(DeleteObject).l
 JmpTo36_MarkObjGone 
 	jmp	(MarkObjGone).l
 JmpTo5_DeleteObject2 
@@ -62986,10 +62960,6 @@ Obj52_MapUnc_302BC:	BINCLUDE "mappings/sprite/obj52_b.bin"
 ; ===========================================================================
 
     if ~~removeJmpTos
-JmpTo36_DisplaySprite 
-	jmp	(DisplaySprite).l
-JmpTo53_DeleteObject 
-	jmp	(DeleteObject).l
 JmpTo13_SingleObjLoad 
 	jmp	(SingleObjLoad).l
 JmpTo37_MarkObjGone 
@@ -64487,8 +64457,6 @@ Obj57_MapUnc_316EC:	BINCLUDE "mappings/sprite/obj57.bin"
     if ~~removeJmpTos
 JmpTo38_DisplaySprite 
 	jmp	(DisplaySprite).l
-JmpTo57_DeleteObject 
-	jmp	(DeleteObject).l
 JmpTo15_SingleObjLoad 
 	jmp	(SingleObjLoad).l
 JmpTo4_RandomNumber 
@@ -65180,10 +65148,6 @@ Obj51_MapUnc_320EA:	BINCLUDE "mappings/sprite/obj51.bin"
 ; ===========================================================================
 
     if ~~removeJmpTos
-JmpTo39_DisplaySprite 
-	jmp	(DisplaySprite).l
-JmpTo59_DeleteObject 
-	jmp	(DeleteObject).l
 JmpTo16_SingleObjLoad 
 	jmp	(SingleObjLoad).l
 JmpTo9_PlaySound 
@@ -66132,7 +66096,6 @@ Obj54_LaserShooter:
 
 JmpTo40_DisplaySprite 
 	jmp	(DisplaySprite).l
-
 JmpTo61_DeleteObject 
 	jmp	(DeleteObject).l
 ; ===========================================================================
@@ -66175,10 +66138,6 @@ Obj54_MapUnc_32DC6:	BINCLUDE "mappings/sprite/obj54.bin"
 ; ===========================================================================
 
     if ~~removeJmpTos
-JmpTo40_DisplaySprite 
-	jmp	(DisplaySprite).l
-JmpTo61_DeleteObject 
-	jmp	(DeleteObject).l
 JmpTo17_SingleObjLoad 
 	jmp	(SingleObjLoad).l
 JmpTo10_PlaySound 
@@ -66947,8 +66906,6 @@ Obj55_MapUnc_33756:	BINCLUDE "mappings/sprite/obj55.bin"
     if ~~removeJmpTos
 JmpTo41_DisplaySprite 
 	jmp	(DisplaySprite).l
-JmpTo62_DeleteObject 
-	jmp	(DeleteObject).l
 JmpTo18_SingleObjLoad 
 	jmp	(SingleObjLoad).l
 JmpTo38_MarkObjGone 
