@@ -380,7 +380,7 @@ ChecksumLoop:
 	cmp.w	(a1),d1	; compare correct checksum to the one in ROM
 	bne.w	ChecksumError	; if they don't match, branch
     endif
-checksum_good:
+;checksum_good:
 	lea	(System_Stack).w,a6
 	moveq	#0,d7
 
