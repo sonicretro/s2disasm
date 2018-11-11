@@ -1636,8 +1636,12 @@ loc_14A2:
 ; ---------------------------------------------------------------------------
 ; Sonic 2's Instruction ROM contains an SMPS Z80 Type 1 DAC sound driver,
 ; which resembles the one from Shura no Mon.
+; It appears to be for testing the sound hardware: the driver has only
+; one song, and it's just a tone playing incrementally on each speaker,
+; one channel after another. It also does this for the DAC channel, using
+; the snare sample from Sonic 1.
 
-MegaPlay_LoadSoundDriver:
+MegaPlay_Command_LoadHardwareTestSoundDriver:
 	; Get location of sound driver
 	moveq	#$10,d0
 	bsr.w	MegaPlay_LoadInstROMToRAM
@@ -1690,19 +1694,18 @@ MegaPlay_ResetZ80:
 	rts
 ; ---------------------------------------------------------------------------
 MegaPlay_SoundDriverVariables:
-	dc.b $89		; 0
-	dc.b 9			; 1
-	dc.b $B4		; 2
-	dc.b 0			; 3
-	dc.b 0			; 4
-	dc.b 0			; 5
-	dc.b 0			; 6
+	dc.b $89,9	; $989 - little-endian address of the driver's offset table
+	dc.b $B4
+	dc.b 0
+	dc.b 0
+	dc.b 0
+	dc.b 0
 MegaPlay_SoundDriverVariables_End:
 	even
 
 ; ---------------------------------------------------------------------------
 
-MegaPlay_Command_PlayMusic:
+MegaPlay_Command_PlayHardwareTestMusic:
 	move.b	#$81,d0	; First and only song in the driver
 
 	move.w	#$100,(Z80_Bus_Request).l
@@ -1776,9 +1779,9 @@ MegaPlay_VInt_CommandTable:
 ; ---------------------------------------------------------------------------
 	bra.w	MegaPlay_Command_GoToSegaScreen2
 ; ---------------------------------------------------------------------------
-	bra.w	MegaPlay_LoadSoundDriver
+	bra.w	MegaPlay_Command_LoadHardwareTestSoundDriver
 ; ---------------------------------------------------------------------------
-	bra.w	MegaPlay_Command_PlayMusic
+	bra.w	MegaPlay_Command_PlayHardwareTestMusic
 ; ---------------------------------------------------------------------------
 	bra.w	MegaPlay_ResetZ80
 ; ---------------------------------------------------------------------------
