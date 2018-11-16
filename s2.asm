@@ -10363,7 +10363,7 @@ SSStartNewAct:
 -	addi.w	#$100,d0
 	subi.w	#100,d1
 	cmpi.w	#100,d1
-	bgt.s	-
+	bge.s	-
     else
 	; This code (the original) is limited to 299 rings:
 	subi.w	#100,d1
