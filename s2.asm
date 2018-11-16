@@ -44551,9 +44551,9 @@ JmpTo4_ObjectMove
 	jmp	(ObjectMove).l
 
 	align 4
-    else
-	dc.b	$01,$02,$1E,$42	; ??? (unused)
     endif
+
+	dc.b	$01,$02,$1E,$42	; [Classics/Compilation] ???
 
 
 
