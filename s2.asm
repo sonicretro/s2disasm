@@ -68949,6 +68949,9 @@ specialText macro letters
 	dc.b $FF	; output string terminator
     endm
 
+; [Mega Play] These 'even's were added for some reason, but
+; they shouldn't be here: the padding bytes they introduce
+; break the text.
 Obj5A_RingsToGoText:
 	specialText "RING"
 	even
