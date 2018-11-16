@@ -86333,10 +86333,7 @@ PlrList_ResultsTails_Dup_End
 	dc.l	0
     elseif gameRevision=2
 	; half of the second ARZ PLR list
-	;plreq ArtTile_ArtNem_Grounder, ArtNem_Grounder	; cut in half
-	;dc.l	ArtNem_Grounder
-	dc.w	tiles_to_bytes(ArtTile_ArtNem_Grounder)
-
+	plreq ArtTile_ArtNem_Grounder, ArtNem_Grounder
 	plreq ArtTile_ArtNem_BigBubbles, ArtNem_BigBubbles
 	plreq ArtTile_ArtNem_Spikes, ArtNem_Spikes
 	plreq ArtTile_ArtNem_LeverSpring, ArtNem_LeverSpring
