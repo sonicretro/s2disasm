@@ -45595,9 +45595,6 @@ JmpTo4_ObjectMove
 	jmp	(ObjectMove).l
 
 	align 4
-    else
-	; [Mega Play] Turns out there are from Sonic Compilation/Classics, not REV02
-;	dc.b	$01,$02,$1E,$42	; ??? (unused)
     endif
 
 
