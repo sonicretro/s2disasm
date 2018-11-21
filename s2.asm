@@ -9750,7 +9750,7 @@ ContinueScreen:
 	move.w	#0,(Target_palette).w
 	move.b	#MusID_Continue,d0
 	bsr.w	PlayMusic
-	move.w	#$293,(Demo_Time_left).w	; 11 seconds minus 1 frame
+	move.w	#(11*60)-1,(Demo_Time_left).w	; 11 seconds minus 1 frame
 	clr.b	(Level_started_flag).w
 	clr.l	(Camera_X_pos_copy).w
 	move.l	#$1000000,(Camera_Y_pos_copy).w
@@ -10158,7 +10158,7 @@ TwoPlayerResults:
 	move.w	d0,(Level_Music).w
 	bsr.w	PlayMusic
 +
-	move.w	#$707,(Demo_Time_left).w
+	move.w	#(30*60)-1,(Demo_Time_left).w	; 30 seconds
 	clr.w	(Two_player_mode).w
 	clr.l	(Camera_X_pos).w
 	clr.l	(Camera_Y_pos).w
@@ -11211,7 +11211,7 @@ MenuScreen:
 
 	move.b	#MusID_Options,d0
 	jsrto	(PlayMusic).l, JmpTo_PlayMusic
-	move.w	#$707,(Demo_Time_left).w
+	move.w	#(30*60)-1,(Demo_Time_left).w	; 30 seconds
 	clr.w	(Two_player_mode).w
 	clr.l	(Camera_X_pos).w
 	clr.l	(Camera_Y_pos).w
@@ -11806,7 +11806,7 @@ MenuScreen_LevelSelect:
 	move.b	#MusID_Options,d0
 	jsrto	(PlayMusic).l, JmpTo_PlayMusic
 
-	move.w	#$707,(Demo_Time_left).w
+	move.w	#(30*60)-1,(Demo_Time_left).w	; 30 seconds
 	clr.w	(Two_player_mode).w
 	clr.l	(Camera_X_pos).w
 	clr.l	(Camera_Y_pos).w
