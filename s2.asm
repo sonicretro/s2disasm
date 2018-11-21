@@ -68113,12 +68113,20 @@ Obj5A_RingsNeeded:
 	moveq	#0,d0
 	cmpi.w	#100,d1
 	blt.s	+
-
+  ; The following code does a more complete binary coded decimal conversion:
+    if 1==0
+-	addi.w	#$100,d0
+	subi.w	#100,d1
+	cmpi.w	#100,d1
+	bge.s	-
+    else
+	; This code (the original) breaks when 101+ rings are needed:
 -	addi.w	#$100,d0
 	subi.w	#100,d1
 	bgt.s	-
+    endif
 +
-	divu.w	#$A,d1
+	divu.w	#10,d1
 	lsl.w	#4,d1
 	or.b	d1,d0
 	swap	d1
