@@ -5,7 +5,7 @@ REM // also make a backup to s2built.prev.bin
 IF NOT EXIST s2built.bin goto LABLNOCOPY
 IF EXIST s2built.prev.bin del s2built.prev.bin
 IF EXIST s2built.prev.bin goto LABLNOCOPY
-move /Y s2built.bin s2built.prev.bin
+move /Y s2built.bin s2built.prev.bin > NUL
 IF EXIST s2built.bin goto LABLERROR3
 REM IF EXIST s2built.prev.bin copy /Y s2built.prev.bin s2built.bin
 :LABLNOCOPY
@@ -17,18 +17,20 @@ IF EXIST s2.h del s2.h
 IF EXIST s2.h goto LABLERROR1
 
 REM // clear the output window
-cls
+REM cls
 
 
 REM // run the assembler
 REM // -xx shows the most detailed error output
 REM // -c outputs a shared file (s2.h)
+REM // -q shuts up AS
+REM // -U forces case-sensitivity
 REM // -A gives us a small speedup
 set AS_MSGPATH=win32/as
 set USEANSI=n
 
 REM // allow the user to choose to print error messages out by supplying the -pe parameter
-IF "%1"=="-pe" ( "win32/as/asw" -xx -c -A -L s2.asm ) ELSE "win32/as/asw" -xx -c -E -A -L s2.asm
+IF "%1"=="-pe" ( "win32/as/asw" -xx -c -A -U -L s2.asm ) ELSE "win32/as/asw" -xx -c -E -q -A -U -L s2.asm
 
 REM // if there were errors, there won't be any s2.p output
 IF NOT EXIST s2.p goto LABLERROR5
