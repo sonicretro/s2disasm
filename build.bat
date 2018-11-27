@@ -24,11 +24,11 @@ REM // run the assembler
 REM // -xx shows the most detailed error output
 REM // -c outputs a shared file (s2.h)
 REM // -A gives us a small speedup
-set AS_MSGPATH=win32/msg
+set AS_MSGPATH=win32/as
 set USEANSI=n
 
 REM // allow the user to choose to print error messages out by supplying the -pe parameter
-IF "%1"=="-pe" ( "win32/asw" -xx -c -A -L s2.asm ) ELSE "win32/asw" -xx -c -E -A -L s2.asm
+IF "%1"=="-pe" ( "win32/as/asw" -xx -c -A -L s2.asm ) ELSE "win32/as/asw" -xx -c -E -A -L s2.asm
 
 REM // if there were errors, there won't be any s2.p output
 IF NOT EXIST s2.p goto LABLERROR5
