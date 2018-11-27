@@ -20,7 +20,7 @@
 gameRevision = 1
 ;	| If 0, a REV00 ROM is built
 ;	| If 1, a REV01 ROM is built, which contains some fixes
-;	| If 2, a (probable) REV02 ROM is built, which contains more fixes, but also more bugs
+;	| If 2, a (probable) REV02 ROM is built, which contains even more fixes
 padToPowerOfTwo = 1
 ;	| If 1, pads the end of the ROM to the next power of two bytes (for real hardware)
 ;
