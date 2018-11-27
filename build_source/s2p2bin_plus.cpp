@@ -189,7 +189,7 @@ bool buildRom(FILE* from, FILE* to)
 				return false;
 			}
 			else
-				printf("\nCompressed driver size: 0x%X", compressedLength);
+				printf("\nCompressed sound driver size: 0x%X", compressedLength);
 		}
 
 		lastStart = start;

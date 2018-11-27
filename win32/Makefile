@@ -1,15 +1,15 @@
 CXXFLAGS := -O2 -s -fno-ident -static
 
-all: fixheader fixpointer s2p2bin s2p2bin_plus
+all: fixheader.exe fixpointer.exe s2p2bin.exe s2p2bin_plus.exe
 
-fixheader: ../build_source/fixheader.cpp
+fixheader.exe: ../build_source/fixheader.cpp
 	@$(CXX) $(CXXFLAGS) $^ -o $@
 
-fixpointer: ../build_source/fixpointer.cpp
+fixpointer.exe: ../build_source/fixpointer.cpp
 	@$(CXX) $(CXXFLAGS) $^ -o $@
 
-s2p2bin: ../build_source/s2p2bin.cpp ../build_source/KensSaxComp/S-Compressor.cpp
+s2p2bin.exe: ../build_source/s2p2bin.cpp ../build_source/KensSaxComp/S-Compressor.cpp
 	@$(CXX) $(CXXFLAGS) $^ -o $@
 
-s2p2bin_plus: ../build_source/s2p2bin_plus.cpp ../build_source/FW_KENSC/saxman.cpp
+s2p2bin_plus.exe: ../build_source/s2p2bin_plus.cpp ../build_source/FW_KENSC/saxman.cpp
 	@$(CXX) $(CXXFLAGS) $^ -o $@

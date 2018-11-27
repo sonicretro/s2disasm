@@ -7,7 +7,7 @@ const char* romFileName = NULL;
 const char* shareFileName = NULL;
 int compressedLength = 0;
 
-void printUsage() { printf("usage: s2p2bin.exe inputcodefile.p outputromfile.bin sharefile.h\n"); }
+void printUsage() { printf("usage: s2p2bin inputcodefile.p outputromfile.bin sharefile.h\n"); }
 bool buildRom(FILE* from, FILE* to);
 void editShareFile();
 
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 
 	if(codeFileName && romFileName)
 	{
-		printf("\ns2p2bin.exe: generating %s from %s", romFileName, codeFileName);
+		printf("\ns2p2bin: generating %s from %s", romFileName, codeFileName);
 		
 		FILE* from = fopen(codeFileName, "rb");
 		if(from)
