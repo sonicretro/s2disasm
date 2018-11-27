@@ -1,7 +1,7 @@
 @ECHO OFF
 
 REM // build the ROM
-call build %1
+call build %1 -a
 
 REM  // run fc against a Sonic 2 Rev 02 ROM, extracted from Sonic Compilation
 echo -------------------------------------------------------------

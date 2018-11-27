@@ -8,8 +8,5 @@ fixheader.exe: ../build_source/fixheader.cpp
 fixpointer.exe: ../build_source/fixpointer.cpp
 	@$(CXX) $(CXXFLAGS) $^ -o $@
 
-s2p2bin.exe: ../build_source/s2p2bin.cpp ../build_source/KensSaxComp/S-Compressor.cpp
-	@$(CXX) $(CXXFLAGS) $^ -o $@
-
-s2p2bin_plus.exe: ../build_source/s2p2bin_plus.cpp ../build_source/FW_KENSC/saxman.cpp
+s2p2bin.exe: ../build_source/s2p2bin.cpp ../build_source/KensSaxComp/S-Compressor.cpp ../build_source/FW_KENSC/saxman.cpp
 	@$(CXX) $(CXXFLAGS) $^ -o $@

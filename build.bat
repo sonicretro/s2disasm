@@ -29,14 +29,36 @@ REM // -A gives us a small speedup
 set AS_MSGPATH=win32/as
 set USEANSI=n
 
-REM // allow the user to choose to print error messages out by supplying the -pe parameter
-IF "%1"=="-pe" ( "win32/as/asw" -xx -c -A -U -L s2.asm ) ELSE "win32/as/asw" -xx -c -E -q -A -U -L s2.asm
+set debug_syms=
+set print_err=-E -q
+set s2p2bin_args=
+
+:parseloop
+IF "%1"=="-ds" (
+	set debug_syms=-g MAP
+	echo Will generate debug symbols
+)
+IF "%1"=="-pe" (
+	REM // allow the user to choose to print error messages out by supplying the -pe parameter
+	set print_err=
+	echo Selected detailed assembler output
+)
+IF "%1"=="-a" (
+	set s2p2bin_args=-a
+	echo Will use accurate sound driver compression
+)
+SHIFT
+IF NOT "%1"=="" goto parseloop
+
+echo Assembling...
+
+"win32/as/asw" -xx -c %debug_syms% %print_err% -A -U -L s2.asm
 
 REM // if there were errors, there won't be any s2.p output
 IF NOT EXIST s2.p goto LABLERROR5
 
 REM // combine the assembler output into a rom
-"win32/s2p2bin" s2.p s2built.bin s2.h
+"win32/s2p2bin" %s2p2bin_args% s2.p s2built.bin s2.h
 
 REM // fix some pointers and things that are impossible to fix from the assembler without un-splitting their data
 IF EXIST s2built.bin "win32/fixpointer" s2.h s2built.bin   off_3A294 MapRUnc_Sonic $2D 0 4   word_728C_user Obj5F_MapUnc_7240 2 2 1  
