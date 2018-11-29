@@ -32,7 +32,7 @@ for n in `seq 1 3`; do
 		print_err=""
 		echo "Selected detailed assembler output"
 	elif [[ "$1" == "-a" ]]; then
-		s2p2bin_args=""
+		s2p2bin_args="-a"
 		echo "Will use accurate sound driver compression"
 	fi
 	shift
