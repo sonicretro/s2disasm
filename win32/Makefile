@@ -1,6 +1,6 @@
 CXXFLAGS := -O2 -s -fno-ident -static
 
-all: fixheader.exe fixpointer.exe s2p2bin.exe s2p2bin_plus.exe
+all: fixheader.exe fixpointer.exe s2p2bin.exe
 
 fixheader.exe: ../build_source/fixheader.cpp
 	@$(CXX) $(CXXFLAGS) $^ -o $@
