@@ -31,6 +31,7 @@ set USEANSI=n
 
 set debug_syms=
 set print_err=-E -q
+set revision_override=
 set s2p2bin_args=
 
 :parseloop
@@ -47,12 +48,24 @@ IF "%1"=="-a" (
 	set s2p2bin_args=-a
 	echo Will use accurate sound driver compression
 )
+IF "%1"=="-r0" (
+	set revision_override=-D gameRevision=0
+	echo Building REV00
+)
+IF "%1"=="-r1" (
+	set revision_override=-D gameRevision=1
+	echo Building REV01
+)
+IF "%1"=="-r2" (
+	set revision_override=-D gameRevision=2
+	echo Building REV02
+)
 SHIFT
 IF NOT "%1"=="" goto parseloop
 
 echo Assembling...
 
-"win32/as/asw" -xx -c %debug_syms% %print_err% -A -U -L s2.asm
+"win32/as/asw" -xx -c %debug_syms% %print_err% -A -U -L %revision_override% s2.asm
 
 REM // if there were errors, there won't be any s2.p output
 IF NOT EXIST s2.p goto LABLERROR5

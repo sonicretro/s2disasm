@@ -22,9 +22,10 @@ rm -f s2.p s2.h s2.log
 
 debug_syms=""
 print_err="-E -q"
+revision_override=""
 s2p2bin_args=""
 
-for n in `seq 1 3`; do
+for n in `seq 1 6`; do
 	if [[ "$1" == "-ds" ]]; then
 		debug_syms="-g MAP"
 		echo "Will generate debug symbols"
@@ -34,19 +35,28 @@ for n in `seq 1 3`; do
 	elif [[ "$1" == "-a" ]]; then
 		s2p2bin_args="-a"
 		echo "Will use accurate sound driver compression"
+	elif [[ "$1" == "-r0" ]]; then
+		revision_override="-D gameRevision=0"
+		echo "Building REV00"
+	elif [[ "$1" == "-r1" ]]; then
+		revision_override="-D gameRevision=1"
+		echo "Building REV01"
+	elif [[ "$1" == "-r2" ]]; then
+		revision_override="-D gameRevision=2"
+		echo "Building REV02"
 	fi
 	shift
 done
 
 echo Assembling...
 
-asl -xx -c $debug_syms $print_err -A -U -L s2.asm
+asl -xx -c $debug_syms $print_err -A -U -L $revision_override s2.asm
 
-if [[ -f s2.log ]]; then
+if [[ ! -f s2.p ]]; then
 	echo
 	echo "*****************************************"
 	echo "*                                       *"
-	echo "*   There were build errors/warnings.   *"
+	echo "*       There were build errors.        *"
 	echo "*                                       *"
 	echo "*****************************************"
 	echo
@@ -58,3 +68,13 @@ fi
 [[ -f s2built.bin ]] && bin/fixpointer s2.h s2built.bin   off_3A294 MapRUnc_Sonic \$2D 0 4   word_728C_user Obj5F_MapUnc_7240 2 2 1
 [[ -f s2built.bin ]] && bin/fixheader s2built.bin
 
+if [[ -f s2.log ]]; then
+	echo
+	echo "*****************************************"
+	echo "*                                       *"
+	echo "*      There were build warnings.       *"
+	echo "*                                       *"
+	echo "*****************************************"
+	echo
+	cat s2.log
+fi
