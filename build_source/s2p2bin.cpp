@@ -1,13 +1,21 @@
-#include <string.h>
+#include <sstream>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h> // for unlink
+
+#include "KensSaxComp/S-Compressor.h"
+#include "FW_KENSC/saxman.h"
+
+using std::stringstream;
+using std::ios;
 
 const char* codeFileName = NULL;
 const char* romFileName = NULL;
 const char* shareFileName = NULL;
-int compressedLength = 0;
+size_t compressedLength = 0;
+bool accurate_compression;
 
-void printUsage() { printf("usage: s2p2bin.exe inputcodefile.p outputromfile.bin sharefile.h\n"); }
+void printUsage() { printf("usage: s2p2bin [-a | --accurate] inputcodefile.p outputromfile.bin sharefile.h\n\n  -a, --accurate    use weaker sound driver compression that's accurate to\n                    the original ROM"); }
 bool buildRom(FILE* from, FILE* to);
 void editShareFile();
 
@@ -29,6 +37,8 @@ int main(int argc, char *argv[])
 		
 		if(!strcasecmp(arg, "-h") || !strcasecmp(arg, "--help"))
 			printUsage(), argc = 0;
+		else if (!strcasecmp(arg, "-a") || !strcasecmp(arg, "--accurate"))
+			accurate_compression = true;
 		else if(!codeFileName)
 			codeFileName = arg;
 		else if(!romFileName)
@@ -39,7 +49,7 @@ int main(int argc, char *argv[])
 
 	if(codeFileName && romFileName)
 	{
-		printf("\ns2p2bin.exe: generating %s from %s", romFileName, codeFileName);
+		printf("\ns2p2bin: generating %s from %s", romFileName, codeFileName);
 		
 		FILE* from = fopen(codeFileName, "rb");
 		if(from)
@@ -85,8 +95,6 @@ void editShareFile()
 		}
 	}
 }
-
-long SComp3(FILE *Src, int srcStart, int srcLen, FILE *Dst, int dstStart, bool WithSize);
 
 bool buildRom(FILE* from, FILE* to)
 {
@@ -158,7 +166,25 @@ bool buildRom(FILE* from, FILE* to)
 			// Saxman compressed Z80 segment
 			start = lastStart + lastLength;
 			int srcStart = ftell(from);
-			compressedLength = SComp3(from, srcStart, length, to, start, false);
+
+			if (accurate_compression)
+			{
+				compressedLength = SComp3(from, srcStart, length, to, start, false);
+			}
+			else
+			{
+				char *buf = new char[length];
+				fread(buf, length, 1, from);
+				stringstream outbuff(ios::in | ios::out | ios::binary);
+				saxman::encode(buf, length, outbuff, false, &compressedLength);
+				delete[] buf;
+				buf = new char[compressedLength];
+				outbuff.seekg(0);
+				outbuff.read(buf, compressedLength);
+				fwrite(buf, sizeof(char), compressedLength, to);
+				delete[] buf;
+			}
+
 			fseek(from, srcStart + length, SEEK_SET);
 			lastSegmentCompressed = true;
 			continue;
