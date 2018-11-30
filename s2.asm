@@ -17,10 +17,12 @@
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; ASSEMBLY OPTIONS:
 ;
+    ifndef gameRevision
 gameRevision = 2
+    endif
 ;	| If 0, a REV00 ROM is built
 ;	| If 1, a REV01 ROM is built, which contains some fixes
-;	| If 2, a (probable) REV02 ROM is built, which contains more fixes, but also more bugs
+;	| If 2, a (probable) REV02 ROM is built, which contains even more fixes
 padToPowerOfTwo = 1
 ;	| If 1, pads the end of the ROM to the next power of two bytes (for real hardware)
 ;
@@ -9753,7 +9755,7 @@ ContinueScreen:
 	move.w	#0,(Target_palette).w
 	move.b	#MusID_Continue,d0
 	bsr.w	PlayMusic
-	move.w	#$293,(Demo_Time_left).w	; 11 seconds minus 1 frame
+	move.w	#(11*60)-1,(Demo_Time_left).w	; 11 seconds minus 1 frame
 	clr.b	(Level_started_flag).w
 	clr.l	(Camera_X_pos_copy).w
 	move.l	#$1000000,(Camera_Y_pos_copy).w
@@ -10161,7 +10163,7 @@ TwoPlayerResults:
 	move.w	d0,(Level_Music).w
 	bsr.w	PlayMusic
 +
-	move.w	#$707,(Demo_Time_left).w
+	move.w	#(30*60)-1,(Demo_Time_left).w	; 30 seconds
 	clr.w	(Two_player_mode).w
 	clr.l	(Camera_X_pos).w
 	clr.l	(Camera_Y_pos).w
@@ -11214,7 +11216,7 @@ MenuScreen:
 
 	move.b	#MusID_Options,d0
 	jsrto	(PlayMusic).l, JmpTo_PlayMusic
-	move.w	#$707,(Demo_Time_left).w
+	move.w	#(30*60)-1,(Demo_Time_left).w	; 30 seconds
 	clr.w	(Two_player_mode).w
 	clr.l	(Camera_X_pos).w
 	clr.l	(Camera_Y_pos).w
@@ -11809,7 +11811,7 @@ MenuScreen_LevelSelect:
 	move.b	#MusID_Options,d0
 	jsrto	(PlayMusic).l, JmpTo_PlayMusic
 
-	move.w	#$707,(Demo_Time_left).w
+	move.w	#(30*60)-1,(Demo_Time_left).w	; 30 seconds
 	clr.w	(Two_player_mode).w
 	clr.l	(Camera_X_pos).w
 	clr.l	(Camera_Y_pos).w
@@ -68118,12 +68120,20 @@ Obj5A_RingsNeeded:
 	moveq	#0,d0
 	cmpi.w	#100,d1
 	blt.s	+
-
+  ; The following code does a more complete binary coded decimal conversion:
+    if 1==0
+-	addi.w	#$100,d0
+	subi.w	#100,d1
+	cmpi.w	#100,d1
+	bge.s	-
+    else
+	; This code (the original) breaks when 101+ rings are needed:
 -	addi.w	#$100,d0
 	subi.w	#100,d1
 	bgt.s	-
+    endif
 +
-	divu.w	#$A,d1
+	divu.w	#10,d1
 	lsl.w	#4,d1
 	or.b	d1,d0
 	swap	d1
@@ -74754,15 +74764,15 @@ ObjB0_Init:
 	; Depending on the exact location (and size) of the art being used,
 	; you may encounter an overflow in the original code which garbles
 	; the enlarged Sonic. The following code fixes this:
-	if 1==0
+    if 1==0
 	andi.l	#$FFF,d0
 	lsl.l	#5,d0
 	lea	(a3,d0.l),a4 ; source ROM address of tiles to copy
-	else
+    else
 	andi.w	#$FFF,d0
 	lsl.w	#5,d0
 	lea	(a3,d0.w),a4 ; source ROM address of tiles to copy
-	endif
+    endif
 	andi.w	#$F000,d1 ; abcd000000000000
 	rol.w	#4,d1	  ; (this calculation can be done smaller and faster
 	addq.w	#1,d1	  ; by doing rol.w #7,d1 addq.w #7,d1
@@ -83734,14 +83744,14 @@ APM_ARZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_1+$0,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall1_1+$1,0,0,2,1)
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_1+$2,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall1_1+$3,0,0,2,1)
 	
-	;These are invalid animation entries for waterfalls (bug in original game):
-		if 1==1
-	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$C,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$D,0,0,2,1)
-	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$E,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$F,0,0,2,1)
-		else
+    if 1==0
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$0,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$1,0,0,2,1)
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$2,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$3,0,0,2,1)
-		endif
+    else
+	; These are invalid animation entries for waterfalls (bug in original game):
+	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$C,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$D,0,0,2,1)
+	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$E,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$F,0,0,2,1)
+    endif
 	
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall3+$0  ,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall3+$1  ,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall3+$2  ,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall3+$3  ,0,0,2,0)
@@ -83752,14 +83762,14 @@ APM_ARZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_1+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall1_1+$1,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_1+$2,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall1_1+$3,0,0,2,0)
 	
-	;These are invalid animation entries for waterfalls (bug in original game):
-		if 1==1
-	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$C,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$D,0,0,2,0)
-	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$E,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$F,0,0,2,0)
-		else
+    if 1==0
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$1,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$2,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$3,0,0,2,0)
-		endif
+    else
+	; These are invalid animation entries for waterfalls (bug in original game):
+	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$C,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$D,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$E,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$F,0,0,2,0)
+    endif
 APM_ARZ_End:
 
 

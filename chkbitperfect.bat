@@ -1,19 +1,14 @@
 @ECHO OFF
 
-REM // build the ROM
-call build %1
+echo Assembling...
+echo | call build -a > NUL
+IF EXIST s2built.bin (
+	win32\checkhash s2built.bin 429F6A1FACE094147FA703419A7EA2CEA72272C4E4D2CF10A0926DEEC565110E > NUL && echo ROM is bit-perfect || echo ROM is NOT bit-perfect
+) ELSE (
+	echo Build failed
+)
 
-REM  // run fc against an extracted Sonic Classics/Compilation Sonic 2 ROM
-echo -------------------------------------------------------------
-IF EXIST s2built.bin ( fc /b s2built.bin s2classics.bin
-) ELSE echo s2built.bin does not exist, probably due to an assembly error
-
-REM // clean up after us
-IF EXIST s2.p del s2.p
-IF EXIST s2.h del s2.h
-IF EXIST s2built.bin del s2built.bin
-IF EXIST s2built.prev.bin del s2built.prev.bin
-IF EXIST s2.log ( IF "%1"=="-pe" del s2.log )
+echo.
 
 REM // if someone ran this from Windows Explorer, prevent the window from disappearing immediately
 pause
