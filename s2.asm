@@ -23550,10 +23550,10 @@ BranchTo2_MarkObjGone
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 ; sub_12756:
 SolidObject_Monitor_Sonic:
-	btst	d6,status(a0)		; is Sonic standing on the monitor?
-	bne.s	Obj26_ChkOverEdge	; if yes, branch
+	btst	d6,status(a0)			; is Sonic standing on the monitor?
+	bne.s	Obj26_ChkOverEdge		; if yes, branch
 	cmpi.b	#AniIDSonAni_Roll,anim(a1)		; is Sonic spinning?
-	bne.w	SolidObject_cont	; if not, branch
+	bne.w	SolidObject_cont		; if not, branch
 	rts
 ; End of function SolidObject_Monitor_Sonic
 
@@ -23561,13 +23561,13 @@ SolidObject_Monitor_Sonic:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 ; sub_12768:
 SolidObject_Monitor_Tails:
-	btst	d6,status(a0)		; is Tails standing on the monitor?
-	bne.s	Obj26_ChkOverEdge	; if yes, branch
-	tst.w	(Two_player_mode).w	; is it two player mode?
-	beq.w	SolidObject_cont	; if not, branch
+	btst	d6,status(a0)			; is Tails standing on the monitor?
+	bne.s	Obj26_ChkOverEdge		; if yes, branch
+	tst.w	(Two_player_mode).w		; is it two player mode?
+	beq.w	SolidObject_cont		; if not, branch
 	; in one player mode monitors always behave as solid for Tails
-	cmpi.b	#2,anim(a1)		; is Tails spinning?
-	bne.w	SolidObject_cont	; if not, branch
+	cmpi.b	#AniIDTailsAni_Roll,anim(a1)	; is Tails spinning?
+	bne.w	SolidObject_cont		; if not, branch
 	rts
 ; End of function SolidObject_Monitor_Tails
 
