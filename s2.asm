@@ -4174,6 +4174,7 @@ TailsNameCheat_Buttons:
 	dc.b	button_down_mask
 	dc.b	button_up_mask
 	dc.b	0	; end
+	even
 ; ---------------------------------------------------------------------------------
 ; Nemesis compressed art
 ; 10 blocks
@@ -4181,6 +4182,7 @@ TailsNameCheat_Buttons:
 ; ---------------------------------------------------------------------------------
 ; ArtNem_3DF4:
 ArtNem_Player1VS2:	BINCLUDE	"art/nemesis/1Player2VS.bin"
+	even
 
 	charset '0','9',0 ; Add character set for numbers
 	charset '*',$A ; Add character for star
@@ -13969,6 +13971,7 @@ byte_BD1A:	creditText   0,"SONIC"
 ; -------------------------------------------------------------------------------
 ; ArtNem_BD26:
 ArtNem_CreditText:	BINCLUDE	"art/nemesis/Credit Text.bin"
+	even
 ; ===========================================================================
 
     if ~~removeJmpTos
@@ -86858,6 +86861,7 @@ ArtUnc_EHZPulseBall:	BINCLUDE	"art/uncompressed/Pulsing ball against checkered b
 ; Nemesis compressed art (192 blocks)
 ; Dynamically reloaded cliffs in background from HTZ ; ArtNem_49A14: ArtUnc_HTZCliffs:
 ArtNem_HTZCliffs:	BINCLUDE	"art/nemesis/Dynamically reloaded cliffs in HTZ background.bin"
+	even
 ;---------------------------------------------------------------------------------------
 ; Uncompressed art
 ; Dynamically reloaded clouds in background from HTZ ; ArtUnc_4A33E:
@@ -86938,10 +86942,12 @@ MapRUnc_Sonic:	BINCLUDE	"mappings/spriteDPLC/Sonic.bin"
 ; Nemesis compressed art (32 blocks)
 ; Shield			; ArtNem_71D8E:
 ArtNem_Shield:	BINCLUDE	"art/nemesis/Shield.bin"
+	even
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (34 blocks)
 ; Invincibility stars		; ArtNem_71F14:
 ArtNem_Invincible_stars:	BINCLUDE	"art/nemesis/Invincibility stars.bin"
+	even
 ;--------------------------------------------------------------------------------------
 ; Uncompressed art
 ; Splash in water and dust from skidding	; ArtUnc_71FFC:
@@ -86950,6 +86956,7 @@ ArtUnc_SplashAndDust:	BINCLUDE	"art/uncompressed/Splash and skid dust.bin"
 ; Nemesis compressed art (14 blocks)
 ; Supersonic stars		; ArtNem_7393C:		
 ArtNem_SuperSonic_stars:	BINCLUDE	"art/nemesis/Super Sonic stars.bin"
+	even
 ;--------------------------------------------------------------------------------------
 ; Sprite Mappings
 ; Tails			; MapUnc_739E2:
@@ -86964,10 +86971,12 @@ MapRUnc_Tails:	BINCLUDE	"mappings/spriteDPLC/Tails.bin"
 ; Nemesis compressed art (127 blocks)
 ; "SEGA" Patterns	; ArtNem_74876:
 ArtNem_SEGA:	BINCLUDE	"art/nemesis/SEGA.bin"
+	even
 ;-------------------------------------------------------------------------------------
 ; Nemesis compressed art (9 blocks)
 ; Shaded blocks from intro	; ArtNem_74CF6:
 ArtNem_IntroTrails:	BINCLUDE	"art/nemesis/Shaded blocks from intro.bin"
+	even
 ;---------------------------------------------------------------------------------------
 ; Enigma compressed art mappings
 ; "SEGA" mappings		; MapEng_74D0E:
@@ -88753,107 +88762,133 @@ Mus_Continue:   BINCLUDE	"sound/music/Continue.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (20 blocks)
 ; HTZ boss lava ball / Sol fireball
+	even
 ArtNem_HtzFireball1:	BINCLUDE	"art/nemesis/Fireball 1.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (24 blocks)
 ; Waterfall tiles
+	even
 ArtNem_Waterfall:	BINCLUDE	"art/nemesis/Waterfall tiles.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (16 blocks)
 ; Another fireball
+	even
 ArtNem_HtzFireball2:	BINCLUDE	"art/nemesis/Fireball 2.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (8 blocks)
 ; Bridge in EHZ
+	even
 ArtNem_EHZ_Bridge:	BINCLUDE	"art/nemesis/EHZ bridge.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (48 blocks)
 ; Diagonally moving lift in HTZ
+	even
 ArtNem_HtzZipline:	BINCLUDE	"art/nemesis/HTZ zip-line platform.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (4 blocks)
 ; One way barrier from HTZ
+	even
 ArtNem_HtzValveBarrier:	BINCLUDE	"art/nemesis/One way barrier from HTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (24 blocks)
 ; See-saw in HTZ
+	even
 ArtNem_HtzSeeSaw:	BINCLUDE	"art/nemesis/See-saw in HTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (24 blocks)
 ; Unused Fireball
+	even
 ;ArtNem_F0B06:
 	BINCLUDE	"art/nemesis/Fireball 3.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (20 blocks)
 ; Rock from HTZ
+	even
 ArtNem_HtzRock:	BINCLUDE	"art/nemesis/Rock from HTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (4 blocks)
 ; Orbit badnik from HTZ		; ArtNem_HtzSol:
+	even
 ArtNem_Sol:	BINCLUDE	"art/nemesis/Sol badnik from HTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (120 blocks)
 ; Large spinning wheel from MTZ
+	even
 ArtNem_MtzWheel:	BINCLUDE	"art/nemesis/Large spinning wheel from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (9 blocks)
 ; Indent in large spinning wheel from MTZ
+	even
 ArtNem_MtzWheelIndent:	BINCLUDE	"art/nemesis/Large spinning wheel from MTZ - indent.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (8 blocks)
 ; Spike block from MTZ
+	even
 ArtNem_MtzSpikeBlock:	BINCLUDE	"art/nemesis/MTZ spike block.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (15 blocks)
 ; Steam from MTZ
+	even
 ArtNem_MtzSteam:	BINCLUDE	"art/nemesis/Steam from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (8 blocks)
 ; Spike from MTZ
+	even
 ArtNem_MtzSpike:	BINCLUDE	"art/nemesis/Spike from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (54 blocks)
 ; Similarly shaded blocks from MTZ
+	even
 ArtNem_MtzAsstBlocks:	BINCLUDE	"art/nemesis/Similarly shaded blocks from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (9 blocks)
 ; Lava bubble from MTZ
+	even
 ArtNem_MtzLavaBubble:	BINCLUDE	"art/nemesis/Lava bubble from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (4 blocks)
 ; Lava cup
+	even
 ArtNem_LavaCup:	BINCLUDE	"art/nemesis/Lava cup from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (8 blocks)
 ; End of a bolt and rope from MTZ
+	even
 ArtNem_BoltEnd_Rope:	BINCLUDE	"art/nemesis/Bolt end and rope from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (12 blocks)
 ; Small cog from MTZ
+	even
 ArtNem_MtzCog:	BINCLUDE	"art/nemesis/Small cog from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (4 blocks)
 ; Flash inside spin tube from MTZ
+	even
 ArtNem_MtzSpinTubeFlash:	BINCLUDE	"art/nemesis/Spin tube flash from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (32 blocks)
 ; Large wooden box from MCZ	; ArtNem_F187C:
+	even
 ArtNem_Crate:	BINCLUDE	"art/nemesis/Large wooden box from MCZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (26 blocks)
 ; Collapsing platform from MCZ	; ArtNem_F1ABA:
+	even
 ArtNem_MCZCollapsePlat:	BINCLUDE	"art/nemesis/Collapsing platform from MCZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (16 blocks)
 ; Switch that you pull on from MCZ	; ArtNem_F1C64:
+	even
 ArtNem_VineSwitch:	BINCLUDE	"art/nemesis/Pull switch from MCZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (10 blocks)
 ; Vine that lowers in MCZ	; ArtNem_F1D5C:
+	even
 ArtNem_VinePulley:	BINCLUDE	"art/nemesis/Vine that lowers from MCZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (20 blocks)
 ; Log viewed from the end for folding gates in MCZ (start of MCZ2)	; ArtNem_F1E06:
+	even
 ArtNem_MCZGateLog:	BINCLUDE	"art/nemesis/Drawbridge logs from MCZ.bin"
 
 ; ----------------------------------------------------------------------------------
