@@ -1,1 +1,0 @@
-@"win32/splitrom" s2.bin s2.txt
