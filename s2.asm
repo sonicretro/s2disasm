@@ -136,24 +136,24 @@ Header:
 	dc.b "SEGA GENESIS    " ; Console name
 	dc.b "(C)SEGA 1992.SEP" ; Copyright holder and release date (generally year)
 	dc.b "SONIC THE             HEDGEHOG 2                " ; Domestic name
-	dc.b "SONIC THE             HEDGEHOG 2                " ; International name
+	dc.b "SONIC THE             HEDGEHOG 2                "	; International name
     if gameRevision=0
-	dc.b "GM 00001051-00"   ; Version (REV00)
+	dc.b "GM 00001051-00"	; Version (REV00)
     elseif gameRevision=1
-	dc.b "GM 00001051-01"   ; Version (REV01)
+	dc.b "GM 00001051-01"	; Version (REV01)
     elseif gameRevision=2
-	dc.b "GM 00001051-02"   ; Version (REV02)
+	dc.b "GM 00001051-02"	; Version (REV02)
     endif
 ; word_18E
 Checksum:
 	dc.w $D951		; Checksum (patched later if incorrect)
 	dc.b "J               " ; I/O Support
-	dc.l StartOfRom		; Start address of ROM
+	dc.l StartOfRom	; Start address of ROM
 ; dword_1A4
 ROMEndLoc:
-	dc.l EndOfRom-1		; End address of ROM
-	dc.l RAM_Start&$FFFFFF		; Start address of RAM
-	dc.l (RAM_End-1)&$FFFFFF		; End address of RAM
+	dc.l EndOfRom-1	; End address of ROM
+	dc.l RAM_Start&$FFFFFF	; Start address of RAM
+	dc.l (RAM_End-1)&$FFFFFF	; End address of RAM
 	dc.b "    "		; Backup RAM ID
 	dc.l $20202020		; Backup RAM start address
 	dc.l $20202020		; Backup RAM end address
