@@ -671,10 +671,10 @@ VInt_Level_NoFlash:
 	tst.b	(Water_fullscreen_flag).w
 	bne.s	+
 	dma68kToVDP Normal_palette,$0000,palette_line_size*4,CRAM
-	bra.s	++
+	bra.s	loc_748
 +
 	dma68kToVDP Underwater_palette,$0000,palette_line_size*4,CRAM
-+
+loc_748:
 	move.w	(Hint_counter_reserve).w,(a5)
 	move.w	#$8200|(VRAM_Plane_A_Name_Table/$400),(VDP_control_port).l	; Set scroll A PNT base to $C000
 
@@ -1038,7 +1038,7 @@ Do_ControllerPal:
 	bra.s	++
 +
 	dma68kToVDP Underwater_palette,$0000,palette_line_size*4,CRAM
-++
++
 	dma68kToVDP Sprite_Table,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
 	dma68kToVDP Horiz_Scroll_Buf,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
 
