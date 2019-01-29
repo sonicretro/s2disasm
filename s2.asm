@@ -139,13 +139,15 @@ Header:
 	dc.b "(C)SEGA 1992.SEP" ; Copyright holder and release date (generally year)
 	dc.b "SONIC THE             HEDGEHOG 2                " ; Domestic name
 	dc.b "SONIC THE             HEDGEHOG 2                "	; International name
-    if gameRevision=0
+    
+	if gameRevision=0
 	dc.b "GM 00001051-00"	; Version (REV00)
     elseif gameRevision=1
 	dc.b "GM 00001051-01"	; Version (REV01)
     elseif gameRevision=2
 	dc.b "GM 00001051-02"	; Version (REV02)
     endif
+	
 ; word_18E
 Checksum:
 	dc.w $D951		; Checksum (patched later if incorrect)
@@ -180,13 +182,13 @@ EntryPoint:
 	tst.w	(HW_Expansion_Control-1).l	; test port C control
 ; loc_214:
 PortA_Ok:
-	bne.s	PortC_OK ; Skip the VDP and Z80 setup code if port A, B or C is ok...?
+	bne.s	Init_SkipPowerOn ; Skip the VDP and Z80 setup code if port A, B or C is ok...?
 	lea	SetupValues(pc),a5	; Load setup values array address.
 	movem.w	(a5)+,d5-d7
 	movem.l	(a5)+,a0-a4
 	move.b	HW_Version-Z80_Bus_Request(a1),d0	; Get hardware version
 	andi.b	#$F,d0	; Compare
-	beq.s	SkipSecurity	; If the console has no TMSS, skip the security stuff.
+	beq.s	SkipSecurity	; If the console has no TMSS (older than Genesis III), skip the security stuff.
 	move.l	#'SEGA',Security_Addr-Z80_Bus_Request(a1) ; Satisfy the TMSS
 ; loc_234:
 SkipSecurity:
@@ -197,11 +199,11 @@ SkipSecurity:
 	
 	moveq	#VDPInitValues_End-VDPInitValues-1,d1 ; run the following loop $18 times
 ; loc_23E:
-VDPInitLoop:
+Init_VDPRegs:
 	move.b	(a5)+,d5	; add $8000 to value
 	move.w	d5,(a4)	; move value to VDP register
 	add.w	d7,d5	; next register
-	dbf	d1,VDPInitLoop
+	dbf	d1,Init_VDPRegs	; set all 24 registers
 
 	move.l	(a5)+,(a4)	; set VRAM write mode
 	move.w	d0,(a3)	; clear the screen
@@ -223,25 +225,26 @@ Z80InitLoop:
 	move.w	d7,(a2)	; reset the Z80
 	
 ; loc_262:
-ClrRAMLoop:
+ClearRAMLoop:
 	move.l	d0,-(a6)	; clear 4 bytes of RAM
-	dbf	d6,ClrRAMLoop	; repeat until the entire RAM is clear
+	dbf	d6,ClearRAMLoop	; repeat until the entire RAM is clear
 	move.l	(a5)+,(a4)	; set VDP display mode and increment mode
 	move.l	(a5)+,(a4)	; set VDP to CRAM write
 	
 	moveq	#bytesToLcnt($80),d3	; set repeat times
 ; loc_26E:
-ClrCRAMLoop:
+ClearCRAMLoop:
 	move.l	d0,(a3)	; clear 2 palettes
-	dbf	d3,ClrCRAMLoop	; repeat until the entire CRAM is clear
+	dbf	d3,ClearCRAMLoop	; repeat until the entire CRAM is clear
 	move.l	(a5)+,(a4)	; set VDP to VSRAM write
 	
 	moveq	#bytesToLcnt($50),d4	; set repeat times
 ; loc_278: ClrVDPStuff:
-ClrVSRAMLoop:
+ClearVSRAMLoop:
 	move.l	d0,(a3)	; clear 4 bytes of VSRAM.
-	dbf	d4,ClrVSRAMLoop	; repeat until the entire VSRAM is clear
-	moveq	#PSGInitValues_End-PSGInitValues-1,d5	; set repeat times.
+	dbf	d4,ClearVSRAMLoop	; repeat until the entire VSRAM is clear
+	
+	moveq	#PSGInitValues_End-PSGInitValues-1,d5	; set repeat times
 ; loc_280:
 PSGInitLoop:
 	move.b	(a5)+,PSG_input-VDP_data_port(a3) ; reset the PSG
@@ -249,8 +252,8 @@ PSGInitLoop:
 	move.w	d0,(a2)
 	movem.l	(a6),d0-a6	; clear all registers
 	move	#$2700,sr	; set the sr
- ; loc_292:
-PortC_OK: ;;
+; loc_292:
+Init_SkipPowerOn:
 	bra.s	GameProgram	; Branch to game program.
 ; ===========================================================================
 ; byte_294:
@@ -297,31 +300,31 @@ Z80StartupCodeBegin: ; loc_2CA:
     save
     CPU Z80 ; start assembling Z80 code
     phase 0 ; pretend we're at address 0
-	xor	a	; clear a to 0
-	ld	bc,((Z80_RAM_End-Z80_RAM)-zStartupCodeEndLoc)-1 ; prepare to loop this many times
-	ld	de,zStartupCodeEndLoc+1	; initial destination address
-	ld	hl,zStartupCodeEndLoc	; initial source address
-	ld	sp,hl	; set the address the stack starts at
-	ld	(hl),a	; set first byte of the stack to 0
-	ldir		; loop to fill the stack (entire remaining available Z80 RAM) with 0
-	pop	ix	; clear ix
-	pop	iy	; clear iy
-	ld	i,a	; clear i
-	ld	r,a	; clear r
-	pop	de	; clear de
-	pop	hl	; clear hl
-	pop	af	; clear af
-	ex	af,af'	; swap af with af'
-	exx		; swap bc/de/hl with their shadow registers too
-	pop	bc	; clear bc
-	pop	de	; clear de
-	pop	hl	; clear hl
-	pop	af	; clear af
-	ld	sp,hl	; clear sp
-	di		; clear iff1 (for interrupt handler)
-	im	1	; interrupt handling mode = 1
-	ld	(hl),0E9h ; replace the first instruction with a jump to itself
-	jp	(hl)	  ; jump to the first instruction (to stay there forever)
+		xor	a	; clear a to 0
+		ld	bc,((Z80_RAM_End-Z80_RAM)-zStartupCodeEndLoc)-1 ; prepare to loop this many times
+		ld	de,zStartupCodeEndLoc+1	; initial destination address
+		ld	hl,zStartupCodeEndLoc	; initial source address
+		ld	sp,hl	; set the address the stack starts at
+		ld	(hl),a	; set first byte of the stack to 0
+		ldir		; loop to fill the stack (entire remaining available Z80 RAM) with 0
+		pop	ix	; clear ix
+		pop	iy	; clear iy
+		ld	i,a	; clear i
+		ld	r,a	; clear r
+		pop	de	; clear de
+		pop	hl	; clear hl
+		pop	af	; clear af
+		ex	af,af'	; swap af with af'
+		exx		; swap bc/de/hl with their shadow registers too
+		pop	bc	; clear bc
+		pop	de	; clear de
+		pop	hl	; clear hl
+		pop	af	; clear af
+		ld	sp,hl	; clear sp
+		di		; clear iff1 (for interrupt handler)
+		im	1	; interrupt handling mode = 1
+		ld	(hl),0E9h ; replace the first instruction with a jump to itself
+		jp	(hl)	  ; jump to the first instruction (to stay there forever)
 zStartupCodeEndLoc:
     dephase ; stop pretending
 	restore
