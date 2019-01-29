@@ -468,7 +468,7 @@ V_Int:
 
 -	move.w	(VDP_control_port).l,d0
 	andi.w	#8,d0
-	beq.s	-
+	beq.s	-	; wait until vertical blanking is taking place
 
 	move.l	#vdpComm($0000,VSRAM,WRITE),(VDP_control_port).l
 	move.l	(Vscroll_Factor).w,(VDP_data_port).l ; send screen y-axis pos. to VSRAM
@@ -480,7 +480,7 @@ V_Int:
 +
 	move.b	(Vint_routine).w,d0
 	move.b	#VintID_Lag,(Vint_routine).w
-	move.w	#1,(Hint_flag).w
+	move.w	#1,(Hint_flag).w		; Allow H Interrupt code to run
 	andi.w	#$3E,d0
 	move.w	Vint_SwitchTbl(pc,d0.w),d0
 	jsr	Vint_SwitchTbl(pc,d0.w)
@@ -509,47 +509,48 @@ Vint_CtrlDMA_ptr:	offsetTableEntry.w Vint_CtrlDMA		; $1A
 ;VintSub0
 Vint_Lag:
 	cmpi.b	#GameModeID_TitleCard|GameModeID_Demo,(Game_Mode).w	; pre-level Demo Mode?
-	beq.s	loc_4C4
+	beq.s	VInt_Lag_Level
 	cmpi.b	#GameModeID_TitleCard|GameModeID_Level,(Game_Mode).w	; pre-level Zone play mode?
-	beq.s	loc_4C4
+	beq.s	VInt_Lag_Level
 	cmpi.b	#GameModeID_Demo,(Game_Mode).w	; Demo Mode?
-	beq.s	loc_4C4
+	beq.s	VInt_Lag_Level
 	cmpi.b	#GameModeID_Level,(Game_Mode).w	; Zone play mode?
-	beq.s	loc_4C4
+	beq.s	VInt_Lag_Level
 
 	stopZ80			; stop the Z80
 	bsr.w	sndDriverInput	; give input to the sound driver
 	startZ80		; start the Z80
 
-	bra.s	VintRet
+	bra.s	VintRet	; otherwise, return from V-int
 ; ---------------------------------------------------------------------------
 
-loc_4C4:
+VInt_Lag_Level:
 	tst.b	(Water_flag).w
 	beq.w	Vint0_noWater
 	move.w	(VDP_control_port).l,d0
 	btst	#6,(Graphics_Flags).w
-	beq.s	+
+	beq.s	+	; branch if it isn't a PAL system
 
 	move.w	#$700,d0
--	dbf	d0,- ; do nothing for a while...
+-	dbf	d0,-	; otherwise waste a bit of time here
+
 +
 	move.w	#1,(Hint_flag).w
 
 	stopZ80
 
 	tst.b	(Water_fullscreen_flag).w
-	bne.s	loc_526
+	bne.s	VInt_Level_FullyUnderwater
 
 	dma68kToVDP Normal_palette,$0000,palette_line_size*4,CRAM
 
-	bra.s	loc_54A
+	bra.s	VInt_Level_Water_Cont
 ; ---------------------------------------------------------------------------
 
-loc_526:
+VInt_Level_FullyUnderwater:
 	dma68kToVDP Underwater_palette,$0000,palette_line_size*4,CRAM
 
-loc_54A:
+VInt_Level_Water_Cont:
 	move.w	(Hint_counter_reserve).w,(a5)
 	move.w	#$8200|(VRAM_Plane_A_Name_Table/$400),(VDP_control_port).l	; Set scroll A PNT base to $C000
 	bsr.w	sndDriverInput
@@ -564,10 +565,11 @@ Vint0_noWater:
 	move.l	#vdpComm($0000,VSRAM,WRITE),(VDP_control_port).l
 	move.l	(Vscroll_Factor).w,(VDP_data_port).l
 	btst	#6,(Graphics_Flags).w
-	beq.s	+
+	beq.s	+	; branch if it isn't a PAL system
 
 	move.w	#$700,d0
--	dbf	d0,- ; do nothing for a while...
+-	dbf	d0,-	; otherwise, waste a bit of time here
+
 +
 	move.w	#1,(Hint_flag).w
 	move.w	(Hint_counter_reserve).w,(VDP_control_port).l
@@ -600,7 +602,7 @@ Vint_SEGA:
 Vint_PCM:
 	move.b	(Vint_runcount+3).w,d0
 	andi.w	#$F,d0
-	bne.s	+
+	bne.s	+	; run the following code once every 16 frames
 
 	stopZ80
 	bsr.w	ReadJoypads
@@ -630,14 +632,14 @@ Vint_Unused6:
 ;VintSub10
 Vint_Pause:
 	cmpi.b	#GameModeID_SpecialStage,(Game_Mode).w	; Special Stage?
-	beq.w	Vint_Pause_specialStage
+	beq.w	Vint_Pause_specialStage		; If yes, branch
 ;VintSub8
 Vint_Level:
 	stopZ80
 
 	bsr.w	ReadJoypads
 	tst.b	(Teleport_timer).w
-	beq.s	loc_6F8
+	beq.s	VInt_Level_NoFlash
 	lea	(VDP_control_port).l,a5
 	tst.w	(Game_paused).w	; is the game paused ?
 	bne.w	loc_748	; if yes, branch
@@ -646,7 +648,7 @@ Vint_Level:
 	move.b	#0,(Teleport_flag).w
 +
 	cmpi.b	#$10,(Teleport_timer).w
-	blo.s	loc_6F8
+	blo.s	VInt_Level_NoFlash
 	lea	(VDP_data_port).l,a6
 	move.l	#vdpComm($0000,CRAM,WRITE),(VDP_control_port).l
 	move.w	#$EEE,d0
@@ -664,18 +666,15 @@ Vint_Level:
 	bra.s	loc_748
 ; ---------------------------------------------------------------------------
 
-loc_6F8:
+;loc_6F8:
+VInt_Level_NoFlash:
 	tst.b	(Water_fullscreen_flag).w
-	bne.s	loc_724
+	bne.s	+
 	dma68kToVDP Normal_palette,$0000,palette_line_size*4,CRAM
-	bra.s	loc_748
-; ---------------------------------------------------------------------------
-
-loc_724:
-
+	bra.s	++
++
 	dma68kToVDP Underwater_palette,$0000,palette_line_size*4,CRAM
-
-loc_748:
++
 	move.w	(Hint_counter_reserve).w,(a5)
 	move.w	#$8200|(VRAM_Plane_A_Name_Table/$400),(VDP_control_port).l	; Set scroll A PNT base to $C000
 
@@ -1033,16 +1032,13 @@ Do_ControllerPal:
 
 	bsr.w	ReadJoypads
 	tst.b	(Water_fullscreen_flag).w
-	bne.s	loc_EDA
+	bne.s	+
 
 	dma68kToVDP Normal_palette,$0000,palette_line_size*4,CRAM
-	bra.s	loc_EFE
-; ---------------------------------------------------------------------------
-
-loc_EDA:
+	bra.s	++
++
 	dma68kToVDP Underwater_palette,$0000,palette_line_size*4,CRAM
-
-loc_EFE:
+++
 	dma68kToVDP Sprite_Table,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
 	dma68kToVDP Horiz_Scroll_Buf,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
 
