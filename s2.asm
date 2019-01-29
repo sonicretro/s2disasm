@@ -17,10 +17,12 @@
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; ASSEMBLY OPTIONS:
 ;
+    ifndef gameRevision
 gameRevision = 1
+    endif
 ;	| If 0, a REV00 ROM is built
 ;	| If 1, a REV01 ROM is built, which contains some fixes
-;	| If 2, a (probable) REV02 ROM is built, which contains more fixes, but also more bugs
+;	| If 2, a (probable) REV02 ROM is built, which contains even more fixes
 padToPowerOfTwo = 1
 ;	| If 1, pads the end of the ROM to the next power of two bytes (for real hardware)
 ;
@@ -4191,6 +4193,7 @@ TailsNameCheat_Buttons:
 	dc.b	button_down_mask
 	dc.b	button_up_mask
 	dc.b	0	; end
+	even
 ; ---------------------------------------------------------------------------------
 ; Nemesis compressed art
 ; 10 blocks
@@ -4198,6 +4201,7 @@ TailsNameCheat_Buttons:
 ; ---------------------------------------------------------------------------------
 ; ArtNem_3DF4:
 ArtNem_Player1VS2:	BINCLUDE	"art/nemesis/1Player2VS.bin"
+	even
 
 	charset '0','9',0 ; Add character set for numbers
 	charset '*',$A ; Add character for star
@@ -9555,7 +9559,7 @@ SSStartNewAct:
 -	addi.w	#$100,d0
 	subi.w	#100,d1
 	cmpi.w	#100,d1
-	bgt.s	-
+	bge.s	-
     else
 	; This code (the original) is limited to 299 rings:
 	subi.w	#100,d1
@@ -9769,7 +9773,7 @@ ContinueScreen:
 	move.w	#0,(Target_palette).w
 	move.b	#MusID_Continue,d0
 	bsr.w	PlayMusic
-	move.w	#$293,(Demo_Time_left).w	; 11 seconds minus 1 frame
+	move.w	#(11*60)-1,(Demo_Time_left).w	; 11 seconds minus 1 frame
 	clr.b	(Level_started_flag).w
 	clr.l	(Camera_X_pos_copy).w
 	move.l	#$1000000,(Camera_Y_pos_copy).w
@@ -10177,7 +10181,7 @@ TwoPlayerResults:
 	move.w	d0,(Level_Music).w
 	bsr.w	PlayMusic
 +
-	move.w	#$707,(Demo_Time_left).w
+	move.w	#(30*60)-1,(Demo_Time_left).w	; 30 seconds
 	clr.w	(Two_player_mode).w
 	clr.l	(Camera_X_pos).w
 	clr.l	(Camera_Y_pos).w
@@ -11230,7 +11234,7 @@ MenuScreen:
 
 	move.b	#MusID_Options,d0
 	jsrto	(PlayMusic).l, JmpTo_PlayMusic
-	move.w	#$707,(Demo_Time_left).w
+	move.w	#(30*60)-1,(Demo_Time_left).w	; 30 seconds
 	clr.w	(Two_player_mode).w
 	clr.l	(Camera_X_pos).w
 	clr.l	(Camera_Y_pos).w
@@ -11825,7 +11829,7 @@ MenuScreen_LevelSelect:
 	move.b	#MusID_Options,d0
 	jsrto	(PlayMusic).l, JmpTo_PlayMusic
 
-	move.w	#$707,(Demo_Time_left).w
+	move.w	#(30*60)-1,(Demo_Time_left).w	; 30 seconds
 	clr.w	(Two_player_mode).w
 	clr.l	(Camera_X_pos).w
 	clr.l	(Camera_Y_pos).w
@@ -12314,19 +12318,24 @@ Pal_LevelIcons:	BINCLUDE "art/palettes/Level Select Icons.bin"
 
 ; 2-player level select screen mappings (Enigma compressed)
 ; byte_9A60:
+	even
 MapEng_LevSel2P:	BINCLUDE "mappings/misc/Level Select 2P.bin"
 
 ; options screen mappings (Enigma compressed)
 ; byte_9AB2:
+	even
 MapEng_Options:	BINCLUDE "mappings/misc/Options Screen.bin"
 
 ; level select screen mappings (Enigma compressed)
 ; byte_9ADE:
+	even
 MapEng_LevSel:	BINCLUDE "mappings/misc/Level Select.bin"
 
 ; 1P and 2P level select icon mappings (Enigma compressed)
 ; byte_9C32:
+	even
 MapEng_LevSelIcon:	BINCLUDE "mappings/misc/Level Select Icons.bin"
+	even
 
     if ~~removeJmpTos
 JmpTo_PlaySound 
@@ -13715,6 +13724,7 @@ ObjCF_MapUnc_ADA2:	BINCLUDE "mappings/sprite/objCF.bin"
 ; --------------------------------------------------------------------------------------
 ; Enigma compressed art mappings
 ; "Sonic the Hedgehog 2" mappings		; MapEng_B23A:
+	even
 MapEng_EndGameLogo:	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
 	even
 
@@ -13986,6 +13996,7 @@ byte_BD1A:	creditText   0,"SONIC"
 ; -------------------------------------------------------------------------------
 ; ArtNem_BD26:
 ArtNem_CreditText:	BINCLUDE	"art/nemesis/Credit Text.bin"
+	even
 ; ===========================================================================
 
     if ~~removeJmpTos
@@ -17594,8 +17605,8 @@ DrawBlockCol2:
 	move.l	d1,d0
 	bsr.w	ProcessAndWriteBlock2
 	adda.w	#$10,a0		; move onto the 16x16 vertically below this one
-	addi.w	#$100,d1	; draw on alternate 8x8 lines
-	andi.w	#$FFF,d1
+	addi.w	#64*2*2,d1	; draw on alternate 8x8 lines
+	andi.w	#(64*32*2)-1,d1	; wrap around plane (assumed to be in 64x32 mode)
 	addi.w	#$10,d4		; add 16 to Y offset
 	move.w	d4,d0
 	andi.w	#$70,d0		; have we reached a new 128x128?
@@ -23567,10 +23578,10 @@ BranchTo2_MarkObjGone
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 ; sub_12756:
 SolidObject_Monitor_Sonic:
-	btst	d6,status(a0)		; is Sonic standing on the monitor?
-	bne.s	Obj26_ChkOverEdge	; if yes, branch
+	btst	d6,status(a0)			; is Sonic standing on the monitor?
+	bne.s	Obj26_ChkOverEdge		; if yes, branch
 	cmpi.b	#AniIDSonAni_Roll,anim(a1)		; is Sonic spinning?
-	bne.w	SolidObject_cont	; if not, branch
+	bne.w	SolidObject_cont		; if not, branch
 	rts
 ; End of function SolidObject_Monitor_Sonic
 
@@ -23578,13 +23589,13 @@ SolidObject_Monitor_Sonic:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 ; sub_12768:
 SolidObject_Monitor_Tails:
-	btst	d6,status(a0)		; is Tails standing on the monitor?
-	bne.s	Obj26_ChkOverEdge	; if yes, branch
-	tst.w	(Two_player_mode).w	; is it two player mode?
-	beq.w	SolidObject_cont	; if not, branch
+	btst	d6,status(a0)			; is Tails standing on the monitor?
+	bne.s	Obj26_ChkOverEdge		; if yes, branch
+	tst.w	(Two_player_mode).w		; is it two player mode?
+	beq.w	SolidObject_cont		; if not, branch
 	; in one player mode monitors always behave as solid for Tails
-	cmpi.b	#2,anim(a1)		; is Tails spinning?
-	bne.w	SolidObject_cont	; if not, branch
+	cmpi.b	#AniIDTailsAni_Roll,anim(a1)	; is Tails spinning?
+	bne.w	SolidObject_cont		; if not, branch
 	rts
 ; End of function SolidObject_Monitor_Tails
 
@@ -28214,7 +28225,10 @@ BuildSprites_NextLevel:
 ; ===========================================================================
     if gameRevision=0
 BuildSprites_Unknown:
-	; in the Simon Wai beta, this was a simple BranchTo, but later builds have this mystery line
+	; In the Simon Wai beta, this was a simple BranchTo, but later builds have this mystery line.
+	; This may have possibly been a debugging function, for helping the devs detect when an object
+	; tried to display with a blank ID or mappings pointer.
+	; The latter was actually an issue that plagued Sonic 1, but is (almost) completely absent in this game.
 	move.w	(1).w,d0	; causes a crash on hardware because of the word operation at an odd address
 	bra.s	BuildSprites_NextObj
     endif
@@ -34192,7 +34206,7 @@ Sonic_LevelBound:
 	cmp.w	d1,d0			; has Sonic touched the left boundary?
 	bhi.s	Sonic_Boundary_Sides	; if yes, branch
 	move.w	(Camera_Max_X_pos).w,d0
-	addi.w	#$128,d0
+	addi.w	#320-24,d0		; screen width - Sonic's width_pixels
 	tst.b	(Current_Boss_ID).w
 	bne.s	+
 	addi.w	#$40,d0
@@ -38784,7 +38798,7 @@ Obj0A_LoadCountdownArt:
 	beq.s	+
 	move.w	#tiles_to_bytes(ArtTile_ArtNem_TailsDust),d2
 +
-	move.w	#$60,d3
+	move.w	#tiles_to_bytes(6)/2,d3	; DMA transfer length (in words)
 	jsr	(QueueDMATransfer).l
 
 return_1D604:
@@ -44564,8 +44578,6 @@ JmpTo4_ObjectMove
 	jmp	(ObjectMove).l
 
 	align 4
-    else
-	dc.b	$01,$02,$1E,$42	; ??? (unused)
     endif
 
 
@@ -56843,7 +56855,7 @@ SlotMachine_Subroutine2:
 	beq.s	+
 	addi.w	#tiles_to_bytes(ArtTile_ArtUnc_CNZSlotPics_1_2p-ArtTile_ArtUnc_CNZSlotPics_1),d2
 +
-	move.w	#$100,d3						; Number of bytes
+	move.w	#tiles_to_bytes(16)/2,d3	; DMA transfer length (in words)
 	jsr	(QueueDMATransfer).l
 	rts
 ; ===========================================================================
@@ -68131,12 +68143,20 @@ Obj5A_RingsNeeded:
 	moveq	#0,d0
 	cmpi.w	#100,d1
 	blt.s	+
-
+  ; The following code does a more complete binary coded decimal conversion:
+    if 1==0
+-	addi.w	#$100,d0
+	subi.w	#100,d1
+	cmpi.w	#100,d1
+	bge.s	-
+    else
+	; This code (the original) breaks when 101+ rings are needed:
 -	addi.w	#$100,d0
 	subi.w	#100,d1
 	bgt.s	-
+    endif
 +
-	divu.w	#$A,d1
+	divu.w	#10,d1
 	lsl.w	#4,d1
 	or.b	d1,d0
 	swap	d1
@@ -69516,21 +69536,11 @@ Obj_DeleteBehindScreen:
 ; loc_367AA:
 InheritParentXYFlip:
 	move.b	render_flags(a0),d0
-    if gameRevision<2
 	andi.b	#$FC,d0
 	move.b	status(a0),d2
 	andi.b	#$FC,d2
 	move.b	render_flags(a1),d1
 	andi.b	#3,d1
-    else
-	; Peculiarly, REV02 changes this to only inherit the Y-flip.
-	; This causes a bug where some sprites are displayed backwards (Silver Sonic's sparks and Grabber's legs).
-	andi.b	#$FD,d0
-	move.b	status(a0),d2
-	andi.b	#$FD,d2
-	move.b	render_flags(a1),d1
-	andi.b	#2,d1
-    endif
 	or.b	d1,d0
 	or.b	d1,d2
 	move.b	d0,render_flags(a0)
@@ -74774,15 +74784,15 @@ ObjB0_Init:
 	; Depending on the exact location (and size) of the art being used,
 	; you may encounter an overflow in the original code which garbles
 	; the enlarged Sonic. The following code fixes this:
-	if 1==0
+    if 1==0
 	andi.l	#$FFF,d0
 	lsl.l	#5,d0
 	lea	(a3,d0.l),a4 ; source ROM address of tiles to copy
-	else
+    else
 	andi.w	#$FFF,d0
 	lsl.w	#5,d0
 	lea	(a3,d0.w),a4 ; source ROM address of tiles to copy
-	endif
+    endif
 	andi.w	#$F000,d1 ; abcd000000000000
 	rol.w	#4,d1	  ; (this calculation can be done smaller and faster
 	addq.w	#1,d1	  ; by doing rol.w #7,d1 addq.w #7,d1
@@ -75274,14 +75284,8 @@ ObjB2_Main_SCZ:
 	bsr.w	ObjB2_Move_obbey_player
 	move.b	objoff_2E(a0),d0
 	move.b	status(a0),d1
-    if gameRevision<2
 	andi.b	#p1_standing,d0	; 'on object' bit
 	andi.b	#p1_standing,d1	; 'on object' bit
-    else
-	; 'fixes' the player being able to spin dash off the Tornado
-	andi.b	#1,d0	; 'X-flipped' bit???
-	andi.b	#1,d1	; 'X-flipped' bit???
-    endif
 	eor.b	d0,d1
 	move.b	d1,objoff_2E(a0)
 	lea	(MainCharacter).w,a1 ; a1=character
@@ -76550,14 +76554,7 @@ loc_3B7A6:
 
 loc_3B7BC:
 	move.b	status(a0),d0
-    if gameRevision<2
 	andi.b	#standing_mask,d0
-    else
-	; I don't know what this change was meant to do, but it causes
-	; Sonic to not fall off ObjBD's ascending platforms when they retract,
-	; making him hover.
-	andi.b	#2,d0	; 'Y-flipped' bit???
-    endif
 	beq.s	return_3B7F6
 	bclr	#p1_standing_bit,status(a0)
 	beq.s	loc_3B7DE
@@ -82596,7 +82593,7 @@ loc_3FD7C:
 	move.w	(a4)+,d1
 	andi.l	#$FFFFFF,d1
 	move.w	d4,d2
-	moveq	#$40,d3
+	moveq	#tiles_to_bytes(4)/2,d3	; DMA transfer length (in words)
 	jsr	(QueueDMATransfer).l
 	addi.w	#$80,d4
 	dbf	d5,loc_3FD7C
@@ -82677,7 +82674,7 @@ loc_3FEB4:
 loc_3FEEC:
 	move.l	#(Chunk_Table+$7C00) & $FFFFFF,d1
 	move.w	#tiles_to_bytes(ArtTile_ArtUnc_HTZClouds),d2
-	move.w	#$80,d3
+	move.w	#tiles_to_bytes(8)/2,d3	; DMA transfer length (in words)
 	jsr	(QueueDMATransfer).l
 	movea.l	(sp)+,a2
 	addq.w	#2,a3
@@ -83449,6 +83446,9 @@ APM_HPZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$6,0,0,2,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_3+$7,0,0,2,0)
 	
     if gameRevision<2
+	; In REV02, for some reason these blank tiles' palette line was changed to lines 3 and 4.
+	; This is consistent with MTZ's blank tiles.
+	; Notably, the new palette lines' first entry always happens to match the current VDP background colour.
 	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$0,0,0,3,0)
 	dc.w make_block_tile(ArtTile_ArtKos_LevelArt+$0,0,0,0,0),make_block_tile(ArtTile_ArtUnc_HPZPulseOrb_1+$2,0,0,3,0)
     else
@@ -83761,14 +83761,14 @@ APM_ARZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_1+$0,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall1_1+$1,0,0,2,1)
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_1+$2,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall1_1+$3,0,0,2,1)
 	
-	;These are invalid animation entries for waterfalls (bug in original game):
-		if 1==1
-	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$C,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$D,0,0,2,1)
-	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$E,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$F,0,0,2,1)
-		else
+    if 1==0
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$0,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$1,0,0,2,1)
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$2,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$3,0,0,2,1)
-		endif
+    else
+	; These are invalid animation entries for waterfalls (bug in original game):
+	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$C,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$D,0,0,2,1)
+	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$E,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$F,0,0,2,1)
+    endif
 	
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall3+$0  ,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall3+$1  ,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall3+$2  ,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall3+$3  ,0,0,2,0)
@@ -83779,14 +83779,14 @@ APM_ARZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_1+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall1_1+$1,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_1+$2,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall1_1+$3,0,0,2,0)
 	
-	;These are invalid animation entries for waterfalls (bug in original game):
-		if 1==1
-	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$C,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$D,0,0,2,0)
-	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$E,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$F,0,0,2,0)
-		else
+    if 1==0
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$1,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$2,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$3,0,0,2,0)
-		endif
+    else
+	; These are invalid animation entries for waterfalls (bug in original game):
+	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$C,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$D,0,0,2,0)
+	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$E,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$F,0,0,2,0)
+    endif
 APM_ARZ_End:
 
 
@@ -84356,7 +84356,7 @@ loc_40F18:
 	bne.s	return_40F4E
 	lea	(Timer).w,a1
 	cmpi.l	#$93B3B,(a1)+
-	nop
+	nop			; You can't get a Time Over in Debug Mode, so this branch is dummied-out
 	addq.b	#1,-(a1)
 	cmpi.b	#$3C,(a1)
 	blo.s	return_40F4E
@@ -84546,7 +84546,7 @@ loc_410BC:
 	bsr.w	Hud_Lives2
 	move.l	#Art_Hud,d1 ; source addreses
 	move.w	#tiles_to_bytes(ArtTile_Art_HUD_Numbers_2P),d2 ; destination VRAM address
-	move.w	#$160,d3 ; DMA transfer length
+	move.w	#tiles_to_bytes(22)/2,d3 ; DMA transfer length (in words)
 	jmp	(QueueDMATransfer).l
 ; ===========================================================================
 
@@ -85167,6 +85167,9 @@ Debug_ResetPlayerStats:
 	move.w	d0,x_vel(a1)
 	move.w	d0,y_vel(a1)
 	move.w	d0,inertia(a1)
+	; note: this resets the 'is underwater' flag, causing the bug where
+	; if you enter Debug Mode underwater, and exit it above-water, Sonic
+	; will still move as if he's underwater
 	move.b	#2,status(a1)
 	move.b	#2,routine(a1)
 	move.b	#0,routine_secondary(a1)
@@ -86368,10 +86371,7 @@ PlrList_ResultsTails_Dup_End
 	dc.l	0
     elseif gameRevision=2
 	; half of the second ARZ PLR list
-	;plreq ArtTile_ArtNem_Grounder, ArtNem_Grounder	; cut in half
-	;dc.l	ArtNem_Grounder
-	dc.w	tiles_to_bytes(ArtTile_ArtNem_Grounder)
-
+	plreq ArtTile_ArtNem_Grounder, ArtNem_Grounder
 	plreq ArtTile_ArtNem_BigBubbles, ArtNem_BigBubbles
 	plreq ArtTile_ArtNem_Spikes, ArtNem_Spikes
 	plreq ArtTile_ArtNem_LeverSpring, ArtNem_LeverSpring
@@ -86886,6 +86886,7 @@ ArtUnc_EHZPulseBall:	BINCLUDE	"art/uncompressed/Pulsing ball against checkered b
 ; Nemesis compressed art (192 blocks)
 ; Dynamically reloaded cliffs in background from HTZ ; ArtNem_49A14: ArtUnc_HTZCliffs:
 ArtNem_HTZCliffs:	BINCLUDE	"art/nemesis/Dynamically reloaded cliffs in HTZ background.bin"
+	even
 ;---------------------------------------------------------------------------------------
 ; Uncompressed art
 ; Dynamically reloaded clouds in background from HTZ ; ArtUnc_4A33E:
@@ -86966,10 +86967,12 @@ MapRUnc_Sonic:	BINCLUDE	"mappings/spriteDPLC/Sonic.bin"
 ; Nemesis compressed art (32 blocks)
 ; Shield			; ArtNem_71D8E:
 ArtNem_Shield:	BINCLUDE	"art/nemesis/Shield.bin"
+	even
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (34 blocks)
 ; Invincibility stars		; ArtNem_71F14:
 ArtNem_Invincible_stars:	BINCLUDE	"art/nemesis/Invincibility stars.bin"
+	even
 ;--------------------------------------------------------------------------------------
 ; Uncompressed art
 ; Splash in water and dust from skidding	; ArtUnc_71FFC:
@@ -86978,6 +86981,7 @@ ArtUnc_SplashAndDust:	BINCLUDE	"art/uncompressed/Splash and skid dust.bin"
 ; Nemesis compressed art (14 blocks)
 ; Supersonic stars		; ArtNem_7393C:		
 ArtNem_SuperSonic_stars:	BINCLUDE	"art/nemesis/Super Sonic stars.bin"
+	even
 ;--------------------------------------------------------------------------------------
 ; Sprite Mappings
 ; Tails			; MapUnc_739E2:
@@ -86991,26 +86995,32 @@ MapRUnc_Tails:	BINCLUDE	"mappings/spriteDPLC/Tails.bin"
 ;-------------------------------------------------------------------------------------
 ; Nemesis compressed art (127 blocks)
 ; "SEGA" Patterns	; ArtNem_74876:
+	even
 ArtNem_SEGA:	BINCLUDE	"art/nemesis/SEGA.bin"
 ;-------------------------------------------------------------------------------------
 ; Nemesis compressed art (9 blocks)
 ; Shaded blocks from intro	; ArtNem_74CF6:
+	even
 ArtNem_IntroTrails:	BINCLUDE	"art/nemesis/Shaded blocks from intro.bin"
 ;---------------------------------------------------------------------------------------
 ; Enigma compressed art mappings
 ; "SEGA" mappings		; MapEng_74D0E:
+	even
 MapEng_SEGA:	BINCLUDE	"mappings/misc/SEGA mappings.bin"
 ;---------------------------------------------------------------------------------------
 ; Enigma compressed art mappings
 ; Mappings for title screen background	; ArtNem_74DC6:
+	even
 MapEng_TitleScreen:	BINCLUDE	"mappings/misc/Mappings for title screen background.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed art mappings
 ; Mappings for title screen background (smaller part, water/horizon)	; MapEng_74E3A:
+	even
 MapEng_TitleBack:	BINCLUDE	"mappings/misc/Mappings for title screen background 2.bin"
 ;---------------------------------------------------------------------------------------
 ; Enigma compressed art mappings
 ; "Sonic the Hedgehog 2" title screen logo mappings	; MapEng_74E86:
+	even
 MapEng_TitleLogo:	BINCLUDE	"mappings/misc/Sonic the Hedgehog 2 title screen logo mappings.bin"
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art (336 blocks)
@@ -87171,6 +87181,7 @@ ArtNem_1P2PWins:	BINCLUDE	"art/nemesis/1P and 2P wins text from 2P mode.bin"
 ;---------------------------------------------------------------------------------------
 ; Enigma compressed art mappings
 ; Sonic/Miles animated background mappings	; MapEng_7CB80:
+	even
 MapEng_MenuBack:	BINCLUDE	"mappings/misc/Sonic and Miles animated background.bin"
 ;---------------------------------------------------------------------------------------
 ; Uncompressed art
@@ -87780,70 +87791,85 @@ ArtNem_TornadoThruster:	BINCLUDE	"art/nemesis/Rocket thruster for Tornado.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Frame 1 of end of game sequence	; MapEng_906E0:
+	even
 MapEng_Ending1:	BINCLUDE	"mappings/misc/End of game sequence frame 1.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Frame 2 of end of game sequence	; MapEng_906F8:
+	even
 MapEng_Ending2:	BINCLUDE	"mappings/misc/End of game sequence frame 2.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Frame 3 of end of game sequence	; MapEng_90722:
+	even
 MapEng_Ending3:	BINCLUDE	"mappings/misc/End of game sequence frame 3.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Frame 4 of end of game sequence	; MapEng_9073C:
+	even
 MapEng_Ending4:	BINCLUDE	"mappings/misc/End of game sequence frame 4.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Closeup of Tails flying plane in ending sequence	; MapEng_9076E:
+	even
 MapEng_EndingTailsPlane:	BINCLUDE	"mappings/misc/Closeup of Tails flying plane in ending sequence.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Closeup of Sonic flying plane in ending sequence	; MapEng_907C0:
+	even
 MapEng_EndingSonicPlane:	BINCLUDE	"mappings/misc/Closeup of Sonic flying plane in ending sequence.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Strange unused mappings (duplicate of MapEng_EndGameLogo)
+	even
 ; MapEng_9082A:
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 1.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Strange unused mappings (same as above)
+	even
 ; MapEng_90852:
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 2.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Strange unused mappings (same as above)
+	even
 ; MapEng_9087A:
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 3.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Strange unused mappings (same as above)
+	even
 ; MapEng_908A2:
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 4.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Strange unused mappings (same as above)
+	even
 ; MapEng_908CA:
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 5.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Strange unused mappings (same as above)
+	even
 ; MapEng_908F2:
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 6.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Strange unused mappings (same as above)
+	even
 ; MapEng_9091A:
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 7.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Strange unused mappings (same as above)
+	even
 ; MapEng_90942:
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 8.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Strange unused mappings (same as above)
+	even
 ; MapEng_9096A:
 	BINCLUDE	"mappings/misc/Strange unused mappings 2.bin"
 ;--------------------------------------------------------------------------------------
@@ -88247,10 +88273,12 @@ ArtNem_SpecialBack:	BINCLUDE	"art/nemesis/Background art for special stage.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed tile mappings
 ; Main background mappings for special stage	; MapEng_DD1DE:
+	even
 MapEng_SpecialBack:	BINCLUDE	"mappings/misc/Main background mappings for special stage.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed tile mappings
 ; Lower background mappings for special stage	; MapEng_DD30C:
+	even
 MapEng_SpecialBackBottom:	BINCLUDE	"mappings/misc/Lower background mappings for special stage.bin"
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (62 blocks)
@@ -88781,107 +88809,133 @@ Mus_Continue:   BINCLUDE	"sound/music/Continue.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (20 blocks)
 ; HTZ boss lava ball / Sol fireball
+	even
 ArtNem_HtzFireball1:	BINCLUDE	"art/nemesis/Fireball 1.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (24 blocks)
 ; Waterfall tiles
+	even
 ArtNem_Waterfall:	BINCLUDE	"art/nemesis/Waterfall tiles.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (16 blocks)
 ; Another fireball
+	even
 ArtNem_HtzFireball2:	BINCLUDE	"art/nemesis/Fireball 2.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (8 blocks)
 ; Bridge in EHZ
+	even
 ArtNem_EHZ_Bridge:	BINCLUDE	"art/nemesis/EHZ bridge.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (48 blocks)
 ; Diagonally moving lift in HTZ
+	even
 ArtNem_HtzZipline:	BINCLUDE	"art/nemesis/HTZ zip-line platform.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (4 blocks)
 ; One way barrier from HTZ
+	even
 ArtNem_HtzValveBarrier:	BINCLUDE	"art/nemesis/One way barrier from HTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (24 blocks)
 ; See-saw in HTZ
+	even
 ArtNem_HtzSeeSaw:	BINCLUDE	"art/nemesis/See-saw in HTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (24 blocks)
 ; Unused Fireball
+	even
 ;ArtNem_F0B06:
 	BINCLUDE	"art/nemesis/Fireball 3.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (20 blocks)
 ; Rock from HTZ
+	even
 ArtNem_HtzRock:	BINCLUDE	"art/nemesis/Rock from HTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (4 blocks)
 ; Orbit badnik from HTZ		; ArtNem_HtzSol:
+	even
 ArtNem_Sol:	BINCLUDE	"art/nemesis/Sol badnik from HTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (120 blocks)
 ; Large spinning wheel from MTZ
+	even
 ArtNem_MtzWheel:	BINCLUDE	"art/nemesis/Large spinning wheel from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (9 blocks)
 ; Indent in large spinning wheel from MTZ
+	even
 ArtNem_MtzWheelIndent:	BINCLUDE	"art/nemesis/Large spinning wheel from MTZ - indent.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (8 blocks)
 ; Spike block from MTZ
+	even
 ArtNem_MtzSpikeBlock:	BINCLUDE	"art/nemesis/MTZ spike block.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (15 blocks)
 ; Steam from MTZ
+	even
 ArtNem_MtzSteam:	BINCLUDE	"art/nemesis/Steam from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (8 blocks)
 ; Spike from MTZ
+	even
 ArtNem_MtzSpike:	BINCLUDE	"art/nemesis/Spike from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (54 blocks)
 ; Similarly shaded blocks from MTZ
+	even
 ArtNem_MtzAsstBlocks:	BINCLUDE	"art/nemesis/Similarly shaded blocks from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (9 blocks)
 ; Lava bubble from MTZ
+	even
 ArtNem_MtzLavaBubble:	BINCLUDE	"art/nemesis/Lava bubble from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (4 blocks)
 ; Lava cup
+	even
 ArtNem_LavaCup:	BINCLUDE	"art/nemesis/Lava cup from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (8 blocks)
 ; End of a bolt and rope from MTZ
+	even
 ArtNem_BoltEnd_Rope:	BINCLUDE	"art/nemesis/Bolt end and rope from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (12 blocks)
 ; Small cog from MTZ
+	even
 ArtNem_MtzCog:	BINCLUDE	"art/nemesis/Small cog from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (4 blocks)
 ; Flash inside spin tube from MTZ
+	even
 ArtNem_MtzSpinTubeFlash:	BINCLUDE	"art/nemesis/Spin tube flash from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (32 blocks)
 ; Large wooden box from MCZ	; ArtNem_F187C:
+	even
 ArtNem_Crate:	BINCLUDE	"art/nemesis/Large wooden box from MCZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (26 blocks)
 ; Collapsing platform from MCZ	; ArtNem_F1ABA:
+	even
 ArtNem_MCZCollapsePlat:	BINCLUDE	"art/nemesis/Collapsing platform from MCZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (16 blocks)
 ; Switch that you pull on from MCZ	; ArtNem_F1C64:
+	even
 ArtNem_VineSwitch:	BINCLUDE	"art/nemesis/Pull switch from MCZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (10 blocks)
 ; Vine that lowers in MCZ	; ArtNem_F1D5C:
+	even
 ArtNem_VinePulley:	BINCLUDE	"art/nemesis/Vine that lowers from MCZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (20 blocks)
 ; Log viewed from the end for folding gates in MCZ (start of MCZ2)	; ArtNem_F1E06:
+	even
 ArtNem_MCZGateLog:	BINCLUDE	"art/nemesis/Drawbridge logs from MCZ.bin"
 
 ; ----------------------------------------------------------------------------------
