@@ -2371,80 +2371,88 @@ KosDec:
 	move.w	(sp),d5	; copy first description field
 	moveq	#$F,d4	; 16 bits in a byte
 
--
-	lsr.w	#1,d5
+.loop:
+	lsr.w	#1,d5	; bit which is shifted out goes into C flag
 	move	sr,d6
-	dbf	d4,+
+	dbf	d4,.checkBit
 	move.b	(a0)+,1(sp)
 	move.b	(a0)+,(sp)
-	move.w	(sp),d5
-	moveq	#$F,d4
-+
-	move	d6,ccr
-	bcc.s	+
-	move.b	(a0)+,(a1)+
-	bra.s	-
+	move.w	(sp),d5	; get next description field if needed
+	moveq	#$F,d4	; reset bit counter
+
+.checkBit:
+	move	d6,ccr	; was the bit set?
+	bcc.s	.match	; if not, branch (C flag clear means bit was clear)
+	move.b	(a0)+,(a1)+	; otherwise, copy byte as-is
+	bra.s	.loop
 ; ---------------------------------------------------------------------------
-+
+
+.match:
 	moveq	#0,d3
-	lsr.w	#1,d5
+	lsr.w	#1,d5	; get next bit
 	move	sr,d6
-	dbf	d4,+
+	dbf	d4,.checkBit2
 	move.b	(a0)+,1(sp)
 	move.b	(a0)+,(sp)
 	move.w	(sp),d5
 	moveq	#$F,d4
-+
-	move	d6,ccr
-	bcs.s	+++
+
+.checkBit2:
+	move	d6,ccr	; was the bit set?
+	bcs.s	.fullMatch	; if it was, branch
+	lsr.w	#1,d5	; bit which is shifted out goes into X flag
+	dbf	d4,.skip
+	move.b	(a0)+,1(sp)
+	move.b	(a0)+,(sp)
+	move.w	(sp),d5
+	moveq	#$F,d4
+
+.skip:
+	roxl.w	#1,d3	; get high repeat count bit (shift X flag in)
 	lsr.w	#1,d5
-	dbf	d4,+
+	dbf	d4,.skip2
 	move.b	(a0)+,1(sp)
 	move.b	(a0)+,(sp)
 	move.w	(sp),d5
 	moveq	#$F,d4
-+
-	roxl.w	#1,d3
-	lsr.w	#1,d5
-	dbf	d4,+
-	move.b	(a0)+,1(sp)
-	move.b	(a0)+,(sp)
-	move.w	(sp),d5
-	moveq	#$F,d4
-+
-	roxl.w	#1,d3
-	addq.w	#1,d3
+
+.skip2:
+	roxl.w	#1,d3	; get low repeat count bit
+	addq.w	#1,d3	; increment repeat count
 	moveq	#-1,d2
-	move.b	(a0)+,d2
-	bra.s	++
+	move.b	(a0)+,d2	; calculate offset
+	bra.s	.matchLoop
 ; ---------------------------------------------------------------------------
-+
-	move.b	(a0)+,d0
-	move.b	(a0)+,d1
+.fullMatch:
+	move.b	(a0)+,d0	; get first byte
+	move.b	(a0)+,d1	; get second byte
 	moveq	#-1,d2
 	move.b	d1,d2
 	lsl.w	#5,d2
-	move.b	d0,d2
-	andi.w	#7,d1
-	beq.s	++
-	move.b	d1,d3
-	addq.w	#1,d3
-/
+	move.b	d0,d2	; calculate offset
+	andi.w	#7,d1	; does a third byte need to be read?
+	beq.s	.fullMatch2	; if it does, branch
+	move.b	d1,d3	; copy repeat count
+	addq.w	#1,d3	; and increment it
+
+.matchLoop:
 	move.b	(a1,d2.w),d0
-	move.b	d0,(a1)+
-	dbf	d3,-
-	bra.s	--
+	move.b	d0,(a1)+	; copy appropriate byte
+	dbf	d3,.matchLoop	; and repeat the copying
+	bra.s	.loop
 ; ---------------------------------------------------------------------------
-+
+
+.fullMatch2:
 	move.b	(a0)+,d1
-	beq.s	+
+	beq.s	.return	; 0 indicates end of compressed data
 	cmpi.b	#1,d1
-	beq.w	--
-	move.b	d1,d3
-	bra.s	-
+	beq.w	.loop	; 1 indicates a new description needs to be read
+	move.b	d1,d3	; otherwise, copy repeat count
+	bra.s	.matchLoop
 ; ---------------------------------------------------------------------------
-+
-	addq.l	#2,sp
+
+.return:
+	addq.l	#2,sp	; restore stack pointer to original state
 	rts
 ; End of function KosDec
 
@@ -3675,7 +3683,7 @@ WaitForVint:
 	move	#$2300,sr
 
 -	tst.b	(Vint_routine).w
-	bne.s	-
+	bne.s	-	; wait until V-int's run
 	rts
 ; End of function WaitForVint
 
@@ -3691,12 +3699,13 @@ WaitForVint:
 ; sub_3390:
 RandomNumber:
 	move.l	(RNG_seed).w,d1
-	bne.s	+
+	bne.s	.noReset
 	move.l	#$2A6D365A,d1 ; if the RNG is 0, reset it to this crazy number
 
 	; set the high word of d0 to be the high word of the RNG
 	; and multiply the RNG by 41
-+	move.l	d1,d0
+.noReset:
+	move.l	d1,d0
 	asl.l	#2,d1
 	add.l	d0,d1
 	asl.l	#3,d1
@@ -3728,7 +3737,7 @@ RandomNumber:
 CalcSine:
 	andi.w	#$FF,d0
 	add.w	d0,d0
-	addi.w	#$80,d0
+	addi.w	#$80,d0	; $40 = 90 degrees, sin(x+90) = cos(x)
 	move.w	Sine_Data(pc,d0.w),d1 ; cos
 	subi.w	#$80,d0
 	move.w	Sine_Data(pc,d0.w),d0 ; sin
@@ -3762,8 +3771,9 @@ CalcAngle:
 
 	absw.w	d3	; calculate absolute value of x
 	absw.w	d4	; calculate absolute value of y
+	
 	cmp.w	d3,d4
-	bhs.w	+
+	bhs.w	+	; if |y| >= |x|
 	lsl.l	#8,d4
 	divu.w	d3,d4
 	moveq	#0,d0
@@ -3773,24 +3783,24 @@ CalcAngle:
 	lsl.l	#8,d3
 	divu.w	d4,d3
 	moveq	#$40,d0
-	sub.b	Angle_Data(pc,d3.w),d0
+	sub.b	Angle_Data(pc,d3.w),d0	; arctan(y/x) = 90 - arctan(x/y)
 +
 	tst.w	d1
 	bpl.w	+
 	neg.w	d0
-	addi.w	#$80,d0
+	addi.w	#$80,d0	; place angle in appropriate quadrant
 +
 	tst.w	d2
 	bpl.w	+
 	neg.w	d0
-	addi.w	#$100,d0
+	addi.w	#$100,d0	; place angle in appropriate quadrant
 +
 	movem.l	(sp)+,d3-d4
 	rts
 ; ===========================================================================
 ; loc_36AA:
 CalcAngle_Zero:
-	move.w	#$40,d0
+	move.w	#$40,d0	; angle = 90 degrees
 	movem.l	(sp)+,d3-d4
 	rts
 ; End of function CalcAngle
