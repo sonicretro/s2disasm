@@ -1054,7 +1054,7 @@ Do_ControllerPal:
 ; Start of H-INT code
 H_Int:
 	tst.w	(Hint_flag).w
-	beq.w	.return
+	beq.w	+
 	tst.w	(Two_player_mode).w
 	beq.w	PalToCRAM
 	move.w	#0,(Hint_flag).w
@@ -1077,8 +1077,8 @@ H_Int:
 	startZ80
 
 -	move.w	(VDP_control_port).l,d0
-	andi.w	#4,d0
-	beq.s	-
+	andi.w	#4,d0	; is a horizontal blank occuring?
+	beq.s	-	; if not, wait
 
 	move.w	(VDP_Reg1_val).w,d0
 	ori.b	#$40,d0
@@ -1086,7 +1086,7 @@ H_Int:
 	move.l	(sp)+,d0
 	movea.l	(sp)+,a5
 	
-.return:
++
 	rte
 
 
@@ -1207,24 +1207,24 @@ ReadJoypads:
 
 ; sub_112A:
 Joypad_Read:
-	move.b	#0,(a1)
+	move.b	#0,(a1)			; Poll controller data port
 	nop
 	nop
-	move.b	(a1),d0
+	move.b	(a1),d0			; Get controller port data (start/A)
 	lsl.b	#2,d0
 	andi.b	#$C0,d0
-	move.b	#$40,(a1)
+	move.b	#$40,(a1)		; Poll controller data port again
 	nop
 	nop
-	move.b	(a1),d1
+	move.b	(a1),d1			; Get controller port data (B/C/Dpad)
 	andi.b	#$3F,d1
-	or.b	d1,d0
+	or.b	d1,d0			; Fuse together into one controller bit array
 	not.b	d0
-	move.b	(a0),d1
-	eor.b	d0,d1
-	move.b	d0,(a0)+
+	move.b	(a0),d1			; Get press button data
+	eor.b	d0,d1			; Toggle off buttons that are being held
+	move.b	d0,(a0)+		; Store raw controller input (for held buttons)
 	and.b	d0,d1
-	move.b	d1,(a0)+
+	move.b	d1,(a0)+		; Store pressed controller input
 	rts
 ; End of function Joypad_Read
 
@@ -1242,8 +1242,8 @@ VDP_Loop:
 	move.w	(a2)+,(a0)
 	dbf	d7,VDP_Loop	; set the VDP registers
 
-	move.w	(VDPSetupArray+2).l,d0
-	move.w	d0,(VDP_Reg1_val).w
+	move.w	(VDPSetupArray+2).l,d0	; get command for register #1
+	move.w	d0,(VDP_Reg1_val).w	; and store it in RAM (for easy display blanking/enabling)
 	move.w	#$8A00+223,(Hint_counter_reserve).w	; H-INT every 224th scanline
 	moveq	#0,d0
 
@@ -1279,7 +1279,7 @@ VDPSetupArray:
 	dc.w $8400|(VRAM_Plane_B_Name_Table/$2000)	; PNT B base: $E000
 	dc.w $8500|(VRAM_Sprite_Attribute_Table/$200)	; Sprite attribute table base: $F800
 	dc.w $8600
-	dc.w $8700		; Background palette/color: 0/0
+	dc.w $8700		; Backdrop color is color 0 of the first palette line
 	dc.w $8800
 	dc.w $8900
 	dc.w $8A00		; H-INT every scanline
@@ -1508,12 +1508,14 @@ PlaneMapToVRAM_H40:
 PlaneMapToVRAM_H80_SpecialStage:
 	lea	(VDP_data_port).l,a6
 	move.l	#vdpCommDelta(planeLocH80(0,1)),d4	; $1000000
+	
 -	move.l	d0,VDP_control_port-VDP_data_port(a6)
 	move.w	d1,d3
+	
 -	move.w	(a1)+,(a6)
-	dbf	d3,-
-	add.l	d4,d0
-	dbf	d2,--
+	dbf	d3,-	; copy one row
+	add.l	d4,d0	; move onto next row
+	dbf	d2,--	; and copy it
 	rts
 ; End of function PlaneMapToVRAM_H80_SpecialStage
 
@@ -1531,7 +1533,7 @@ PlaneMapToVRAM_H80_SpecialStage:
 QueueDMATransfer:
 	movea.l	(VDP_Command_Buffer_Slot).w,a1
 	cmpa.w	#VDP_Command_Buffer_Slot,a1
-	beq.s	QueueDMATransfer_Done ; return if there's no more room in the buffer
+	beq.s	.return ; return if there's no more room in the buffer
 
 	; piece together some VDP commands and store them for later...
 	move.w	#$9300,d0 ; command to specify DMA transfer length & $00FF
@@ -1567,11 +1569,11 @@ QueueDMATransfer:
 	move.l	d2,(a1)+ ; store command
 
 	move.l	a1,(VDP_Command_Buffer_Slot).w ; set the next free slot address
-	cmpa.w	#VDP_Command_Buffer_Slot,a1
-	beq.s	QueueDMATransfer_Done ; return if there's no more room in the buffer
+	cmpa.w	#VDP_Command_Buffer_Slot,a1	; has the end of the queue been reached?
+	beq.s	.return ; if it has, return
 	move.w	#0,(a1) ; put a stop token at the end of the used part of the buffer
 ; return_14AA:
-QueueDMATransfer_Done:
+.return:
 	rts
 ; End of function QueueDMATransfer
 
@@ -1589,9 +1591,10 @@ ProcessDMAQueue:
 	lea	(VDP_control_port).l,a5
 	lea	(VDP_Command_Buffer).w,a1
 ; loc_14B6:
-ProcessDMAQueue_Loop:
-	move.w	(a1)+,d0
-	beq.s	ProcessDMAQueue_Done ; branch if we reached a stop token
+.loop:
+	move.w	(a1)+,d0	; has a stop token been encountered?
+	beq.s	.done	; if it has, branch
+	
 	; issue a set of VDP commands...
 	move.w	d0,(a5)		; transfer length
 	move.w	(a1)+,(a5)	; transfer length
@@ -1600,10 +1603,10 @@ ProcessDMAQueue_Loop:
 	move.w	(a1)+,(a5)	; source address
 	move.w	(a1)+,(a5)	; destination
 	move.w	(a1)+,(a5)	; destination
-	cmpa.w	#VDP_Command_Buffer_Slot,a1
-	bne.s	ProcessDMAQueue_Loop ; loop if we haven't reached the end of the buffer
+	cmpa.w	#VDP_Command_Buffer_Slot,a1	; has the end of the queue been reached?
+	bne.s	.loop	; if not, loop
 ; loc_14CE:
-ProcessDMAQueue_Done:
+.done:
 	move.w	#0,(VDP_Command_Buffer).w
 	move.l	#VDP_Command_Buffer,(VDP_Command_Buffer_Slot).w
 	rts
@@ -1616,8 +1619,10 @@ ProcessDMAQueue_Done:
 ; Nemesis decompression	subroutine, decompresses art directly to VRAM
 ; Inputs:
 ; a0 = art address
+; a VDP command to write to the destination VRAM address must be issued
+; before calling this routine
 
-; For format explanation see http://info.sonicretro.org/Nemesis_compression
+; For format description see http://info.sonicretro.org/Nemesis_compression
 ; ---------------------------------------------------------------------------
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -1626,31 +1631,38 @@ ProcessDMAQueue_Done:
 ; sub_14DE: NemDecA:
 NemDec:
 	movem.l	d0-a1/a3-a5,-(sp)
-	lea	(NemPCD_WriteRowToVDP).l,a3 ; write all data to the same location
+	lea	(NemDecMain.writeRowToVDP).l,a3 ; write all data to the same location
 	lea	(VDP_data_port).l,a4	   ; specifically, to the VDP data port
 	bra.s	NemDecMain
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+; ---------------------------------------------------------------------------
 ; Nemesis decompression subroutine, decompresses art to RAM
 ; Inputs:
 ; a0 = art address
 ; a4 = destination RAM address
+; ---------------------------------------------------------------------------
+
 ; sub_14F0: NemDecB:
 NemDecToRAM:
 	movem.l	d0-a1/a3-a5,-(sp)
-	lea	(NemPCD_WriteRowToRAM).l,a3 ; advance to the next location after each write
+	lea	(NemDecMain.writeRowToRAM).l,a3 ; advance to the next location after each write
 
-
+; ---------------------------------------------------------------------------
+; Main Nemesis decompression subroutine
+; ---------------------------------------------------------------------------
+	
 ; sub_14FA:
 NemDecMain:
 	lea	(Decomp_Buffer).w,a1
 	move.w	(a0)+,d2	; get number of patterns
 	lsl.w	#1,d2
-	bcc.s	+	; branch if the sign bit isn't set
-	adda.w	#NemPCD_WriteRowToVDP_XOR-NemPCD_WriteRowToVDP,a3	; otherwise the file uses XOR mode
+	bcc.s	.noXORMode	; branch if the sign bit isn't set
+	adda.w	#.writeRowToVDP_XOR-.writeRowToVDP,a3	; otherwise the file uses XOR mode
 	
-+	lsl.w	#2,d2	; get number of 8-pixel rows in the uncompressed data
+.noXORMode:
+	lsl.w	#2,d2	; get number of 8-pixel rows in the uncompressed data
 	movea.w	d2,a5	; and store it in a5 because there aren't any spare data registers
 	moveq	#8,d3	; 8 pixels in a pattern row
 	moveq	#0,d2
@@ -1660,67 +1672,72 @@ NemDecMain:
 	asl.w	#8,d5	; shift up by a byte
 	move.b	(a0)+,d5	; get second byte of compressed data
 	move.w	#$10,d6	; set initial shift value
-	bsr.s	NemDec_ProcessCompressedData
+	bsr.s	.processCompressedData
 	movem.l	(sp)+,d0-a1/a3-a5
 	rts
 ; End of function NemDec
 
+; ---------------------------------------------------------------------------
+; Part of the Nemesis decompressor, processes the actual compressed data
+; ---------------------------------------------------------------------------
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ; part of the Nemesis decompressor
 ; sub_1528:
-NemDec_ProcessCompressedData:
+.processCompressedData:
 	move.w	d6,d7
 	subq.w	#8,d7	; get shift value
 	move.w	d5,d1
 	lsr.w	d7,d1	; shift so that high bit of the code is in bit position 7
 	cmpi.b	#%11111100,d1	; are the high 6 bits set?
-	bhs.s	NemPCD_InlineData	; if they are, it signifies inline data
+	bhs.s	.inlineData	; if they are, it signifies inline data
 	andi.w	#$FF,d1
 	add.w	d1,d1
 	move.b	(a1,d1.w),d0	; get the length of the code in bits
 	ext.w	d0
 	sub.w	d0,d6	; subtract from shift value so that the next code is read next time around
 	cmpi.w	#9,d6	; does a new byte need to be read?
-	bhs.s	+	; if not, branch
+	bhs.s	.needNewByte	; if not, branch
 	addq.w	#8,d6
 	asl.w	#8,d5
 	move.b	(a0)+,d5	; read next byte
 	
-+	move.b	1(a1,d1.w),d1
+.needNewByte:
+	move.b	1(a1,d1.w),d1
 	move.w	d1,d0
 	andi.w	#$F,d1	; get palette index for pixel
 	andi.w	#$F0,d0
 
-NemPCD_ProcessCompressedData:
+.getRepeatCount:
 	lsr.w	#4,d0
 
-NemPCD_WritePixel:
+.writePixel:
 	lsl.l	#4,d4	; shift up by a nybble
 	or.b	d1,d4	; write pixel
 	subq.w	#1,d3	; has an entire 8-pixel row been written?
-	bne.s	NemPCD_WritePixel_Loop	; if not, loop
-	jmp	(a3)	; otherwise, write the row to its destination, by doing a dynamic jump to NemPCD_WriteRowToVDP, NemDec_WriteAndAdvance, NemPCD_WriteRowToVDP_XOR, or NemDec_WriteAndAdvance_XOR
+	bne.s	.writePixel_Loop	; if not, loop
+	jmp	(a3)	; otherwise, write the row to its destination, by doing a dynamic jump to .writeRowToVDP, NemDec_WriteAndAdvance, .writeRowToVDP_XOR, or NemDec_WriteAndAdvance_XOR
 ; ===========================================================================
 ; loc_156A:
-NemPCD_NewRow:
+.newRow:
 	moveq	#0,d4	; reset row
 	moveq	#8,d3	; reset nybble counter
 ; loc_156E:
-NemPCD_WritePixel_Loop:
-	dbf	d0,NemPCD_WritePixel
-	bra.s	NemDec_ProcessCompressedData
+.writePixel_Loop:
+	dbf	d0,.writePixel
+	bra.s	.processCompressedData
 ; ===========================================================================
 
-NemPCD_InlineData:
+.inlineData:
 	subq.w	#6,d6	; 6 bits needed to signal inline data
 	cmpi.w	#9,d6
-	bhs.s	+
+	bhs.s	.skip
 	addq.w	#8,d6
 	asl.w	#8,d5
 	move.b	(a0)+,d5
-+
+	
+.skip:
 	subq.w	#7,d6	; and 7 bits needed for the inline data itself
 	move.w	d5,d1
 	lsr.w	d6,d1	; shift so that low bit of the code is in bit position 0
@@ -1728,52 +1745,51 @@ NemPCD_InlineData:
 	andi.w	#$F,d1	; get palette index for pixel
 	andi.w	#$70,d0	; high nybble is repeat count for pixel
 	cmpi.w	#9,d6
-	bcc.s	NemPCD_ProcessCompressedData
+	bcc.s	.getRepeatCount
 	addq.w	#8,d6
 	asl.w	#8,d5
 	move.b	(a0)+,d5
-	bra.s	NemPCD_ProcessCompressedData
-; End of function NemDec_ProcessCompressedData
+	bra.s	.getRepeatCount
 
 ; ===========================================================================
 ; loc_15A0:
-NemPCD_WriteRowToVDP:
+.writeRowToVDP:
 	move.l	d4,(a4)	; write 8-pixel row
 	subq.w	#1,a5
 	move.w	a5,d4	; have all the 8-pixel rows been written?
-	bne.s	NemPCD_NewRow	; if not, branch
+	bne.s	.newRow	; if not, branch
 	rts		; otherwise the decompression is finished
 ; ---------------------------------------------------------------------------
 ; loc_15AA:
-NemPCD_WriteRowToVDP_XOR:
+.writeRowToVDP_XOR:
 	eor.l	d4,d2	; XOR the previous row by the current row
 	move.l	d2,(a4)	; and write the result
 	subq.w	#1,a5
 	move.w	a5,d4
-	bne.s	NemPCD_NewRow
+	bne.s	.newRow
 	rts
 ; ===========================================================================
 ; loc_15B6:
-NemPCD_WriteRowToRAM:
+.writeRowToRAM:
 	move.l	d4,(a4)+
 	subq.w	#1,a5
 	move.w	a5,d4
-	bne.s	NemPCD_NewRow
+	bne.s	.newRow
 	rts
 
-    if *-NemPCD_WriteRowToRAM > NemPCD_WriteRowToVDP_XOR-NemPCD_WriteRowToVDP
-	fatal "the code in NemPCD_WriteRowToRAM must not be larger than the code in NemPCD_WriteRowToVDP"
+    if *-.writeRowToRAM > .writeRowToVDP_XOR-.writeRowToVDP
+	fatal "the code in .writeRowToRAM must not be larger than the code in .writeRowToVDP"
     endif
-    org NemPCD_WriteRowToRAM+NemPCD_WriteRowToVDP_XOR-NemPCD_WriteRowToVDP
+    org .writeRowToRAM+.writeRowToVDP_XOR-.writeRowToVDP
 
 ; ---------------------------------------------------------------------------
 ; loc_15C0:
-NemPCD_WriteRowToRAM_XOR:
+.writeRowToRAM_XOR:
 	eor.l	d4,d2
 	move.l	d2,(a4)+
 	subq.w	#1,a5
 	move.w	a5,d4
-	bne.s	NemPCD_NewRow
+	bne.s	.newRow
 	rts
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -1785,18 +1801,18 @@ NemPCD_WriteRowToRAM_XOR:
 NemDec_BuildCodeTable:
 	move.b	(a0)+,d0	; read first byte
 
-NemBCT_ChkEnd:
+.checkEnd:
 	cmpi.b	#$FF,d0	; has the end of the code table description been reached?
-	bne.s	NemBCT_NewPALIndex	; if not, branch
+	bne.s	.newPALIndex	; if not, branch
 	rts	; otherwise, this subroutine's work is done
 ; ---------------------------------------------------------------------------
-NemBCT_NewPALIndex:
+.newPALIndex:
 	move.w	d0,d7
 
-NemBCT_Loop:
+.loop:
 	move.b	(a0)+,d0	; read next byte
 	cmpi.b	#$80,d0	; sign bit being set signifies a new palette index
-	bhs.s	NemBCT_ChkEnd	; a bmi could have been used instead of a compare and bhs
+	bhs.s	.checkEnd	; a bmi could have been used instead of a compare and bhs
 
 	move.b	d0,d1
 	andi.w	#$F,d7	; get palette index
@@ -1808,11 +1824,11 @@ NemBCT_Loop:
 	or.w	d1,d7	; combine with palette index and repeat count to form code table entry
 	moveq	#8,d1
 	sub.w	d0,d1	; is the code 8 bits long?
-	bne.s	NemBCT_ShortCode	; if not, a bit of extra processing is needed
+	bne.s	.shortCode	; if not, a bit of extra processing is needed
 	move.b	(a0)+,d0	; get code
 	add.w	d0,d0	; each code gets a word-sized entry in the table
 	move.w	d7,(a1,d0.w)	; store the entry for the code
-	bra.s	NemBCT_Loop	; repeat
+	bra.s	.loop	; repeat
 ; ---------------------------------------------------------------------------
 
 ; the Nemesis decompressor uses prefix-free codes (no valid code is a prefix of a longer code)
@@ -1821,7 +1837,7 @@ NemBCT_Loop:
 ; so the code needs to be bit-shifted appropriately over here before being used as a code table index
 ; additionally, the code needs multiple entries in the table because no masking is done during compressed data processing
 ; so if 11000 is a valid code then all indices of the form 11000XXX need to have the same entry
-NemBCT_ShortCode:
+.shortCode:
 	move.b	(a0)+,d0	; get code
 	lsl.w	d1,d0	; shift so that high bit is in bit position 7
 	add.w	d0,d0	; get index into code table
@@ -1829,13 +1845,13 @@ NemBCT_ShortCode:
 	lsl.w	d1,d5
 	subq.w	#1,d5	; d5 = 2^d1 - 1
 
-NemBCT_ShortCode_Loop:
+.shortCode_Loop:
 	move.w	d7,(a1,d0.w)	; store entry
 	addq.w	#2,d0	; increment index
-	dbf	d5,NemBCT_ShortCode_Loop	; repeat for required number of entries
+	dbf	d5,.shortCode_Loop	; repeat for required number of entries
 
-	bra.s	NemBCT_Loop
-; End of function NemDec_BuildCodeTable
+	bra.s	.loop
+; End of function .buildCodeTable
 
 ; ---------------------------------------------------------------------------
 ; END OF NEMESIS DECOMPRESSOR
@@ -1866,23 +1882,23 @@ LoadPLC:
 	lea	(a1,d0.w),a1		; jump to relevant PLC
 	lea	(Plc_Buffer).w,a2	; PLC buffer space
 
-LoadPLCFindSpace:
+.findFreeSlot:
 	tst.l	(a2)				; is space available in RAM?
-	beq.s	LoadPLCCopyToRAM	; if yes, branch
+	beq.s	.getPieceCount	; if yes, branch
 	addq.w	#6,a2				; if not, try next space
-	bra.s	LoadPLCFindSpace
+	bra.s	.findFreeSlot
 ; ===========================================================================
 	
-LoadPLCCopyToRAM:
+.getPieceCount:
 	move.w	(a1)+,d0	; get length of PLC
-	bmi.s	LoadPLCSkip ; if it's negative, skip the next loop
+	bmi.s	.return ; if it's negative, skip the next loop
 
-LoadPLCLoop:
+.queuePieces:
 	move.l	(a1)+,(a2)+
 	move.w	(a1)+,(a2)+	; copy PLC to RAM
-	dbf	d0,LoadPLCLoop	; repeat for length of PLC
+	dbf	d0,.queuePieces	; repeat for length of PLC
 	
-LoadPLCSkip:
+.return:
 	movem.l	(sp)+,a1-a2 ; a1=object
 	rts
 ; End of function LoadPLC
@@ -1902,7 +1918,7 @@ LoadPLCSkip:
 
 ; sub_1650: NewPLC:
 LoadPLC2:
-	movem.l	a1-a2,-(sp)
+	movem.l	a1-a2,-(sp)	; This differs from LoadPLC in that it overrides any PLCs already in the queue
 	lea	(ArtLoadCues).l,a1
 	add.w	d0,d0
 	move.w	(a1,d0.w),d0
@@ -1910,14 +1926,14 @@ LoadPLC2:
 	bsr.s	ClearPLC		; erase any data in PLC buffer space
 	lea	(Plc_Buffer).w,a2
 	move.w	(a1)+,d0		; get length of PLC
-	bmi.s	LoadPLC2Skip	; if it's negative, skip the next loop
+	bmi.s	.return	; if it's negative, skip the next loop
 
-LoadPLC2Loop:
+.queuePieces:
 	move.l	(a1)+,(a2)+
 	move.w	(a1)+,(a2)+	; copy PLC to RAM
-	dbf	d0,LoadPLC2Loop	; repeat for length of PLC
+	dbf	d0,.queuePieces	; repeat for length of PLC
 	
-LoadPLC2Skip:
+.return:
 	movem.l	(sp)+,a1-a2
 	rts
 ; End of function LoadPLC2
@@ -1956,12 +1972,12 @@ RunPLC_RAM:
 	tst.w	(Plc_Buffer_Reg18).w
 	bne.s	++	; rts
 	movea.l	(Plc_Buffer).w,a0
-	lea_	NemPCD_WriteRowToVDP,a3
+	lea_	NemDecMain.writeRowToVDP,a3
 	nop
 	lea	(Decomp_Buffer).w,a1
 	move.w	(a0)+,d2
 	bpl.s	+
-	adda.w	#NemPCD_WriteRowToVDP_XOR-NemPCD_WriteRowToVDP,a3
+	adda.w	#NemDecMain.writeRowToVDP_XOR-NemDecMain.writeRowToVDP,a3
 +
 	andi.w	#$7FFF,d2
 	move.w	d2,(Plc_Buffer_Reg18).w
@@ -2027,7 +2043,7 @@ ProcessDPLC_Main:
 	lea	(Decomp_Buffer).w,a1
 
 -	movea.w	#8,a5
-	bsr.w	NemPCD_NewRow
+	bsr.w	NemDecMain.newRow
 	subq.w	#1,(Plc_Buffer_Reg18).w
 	beq.s	ProcessDPLC_Pop
 	subq.w	#1,(Plc_Buffer_Reg1A).w
@@ -26612,11 +26628,11 @@ loc_155C6:
 	moveq	#7,d5
 	move.l	#make_block_tile_pair(ArtTile_ArtNem_TitleCard+$5C,0,0,1,1),d6
 	tst.w	(Two_player_mode).w
-	beq.s	NemPCD_ProcessCompressedDataA
+	beq.s	+
 	moveq	#3,d5
 	move.l	#make_block_tile_pair_2p(ArtTile_ArtNem_TitleCard+$5C,0,0,1,1),d6
 
-NemPCD_ProcessCompressedDataA:
++
 	lea	(TitleCard_Bottom+titlecard_vram_dest).w,a0
 	moveq	#1,d7	; Once for P1, once for P2 (if in 2p mode)
 
@@ -26631,9 +26647,9 @@ loc_155FE:
 	move.l	d0,VDP_control_port-VDP_data_port(a6)
 	move.w	d1,d3
 
-NemPCD_WritePixel4:
+-
 	move.l	d6,(a6)
-	dbf	d3,NemPCD_WritePixel4
+	dbf	d3,-
 	addi.l	#vdpCommDelta($0080),d0
 	dbf	d4,loc_155FE
 
