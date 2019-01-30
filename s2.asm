@@ -1054,20 +1054,20 @@ Do_ControllerPal:
 ; Start of H-INT code
 H_Int:
 	tst.w	(Hint_flag).w
-	beq.w	+
+	beq.w	.return
 	tst.w	(Two_player_mode).w
 	beq.w	PalToCRAM
 	move.w	#0,(Hint_flag).w
 	move.l	a5,-(sp)
 	move.l	d0,-(sp)
 
--	move.w	(VDP_control_port).l,d0	; loop start: Make sure V_BLANK is over
-	andi.w	#4,d0
-	beq.s	-	; loop end
+-	move.w	(VDP_control_port).l,d0	; Make sure V_BLANK is over
+	andi.w	#4,d0	; is horizontal blanking occuring?
+	beq.s	-	; if not, wait until it is
 
 	move.w	(VDP_Reg1_val).w,d0
 	andi.b	#$BF,d0
-	move.w	d0,(VDP_control_port).l		; Display disable
+	move.w	d0,(VDP_control_port).l		; Display disable (blank the display)
 	move.w	#$8200|(VRAM_Plane_A_Name_Table_2P/$400),(VDP_control_port).l	; PNT A base: $A000
 	move.l	#vdpComm($0000,VSRAM,WRITE),(VDP_control_port).l
 	move.l	(Vscroll_Factor_P2_HInt).w,(VDP_data_port).l
@@ -1085,7 +1085,8 @@ H_Int:
 	move.w	d0,(VDP_control_port).l		; Display enable
 	move.l	(sp)+,d0
 	movea.l	(sp)+,a5
-+
+	
+.return:
 	rte
 
 
