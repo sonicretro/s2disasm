@@ -1952,9 +1952,9 @@ ClearPLC:
 
 	moveq	#bytesToLcnt(Plc_Buffer_End-Plc_Buffer),d0
 	
-ClearPLCLoop:
+.loop:
 	clr.l	(a2)+
-	dbf	d0,ClearPLCLoop
+	dbf	d0,.loop
 
 	rts
 ; End of function ClearPLC
@@ -1968,17 +1968,18 @@ ClearPLCLoop:
 ; sub_168A:
 RunPLC_RAM:
 	tst.l	(Plc_Buffer).w
-	beq.s	++	; rts
+	beq.s	.return	; return if the queue is empty
 	tst.w	(Plc_Buffer_Reg18).w
-	bne.s	++	; rts
+	bne.s	.return	; return if processing of a previous piece is still going on
 	movea.l	(Plc_Buffer).w,a0
 	lea_	NemDecMain.writeRowToVDP,a3
 	nop
 	lea	(Decomp_Buffer).w,a1
 	move.w	(a0)+,d2
-	bpl.s	+
+	bpl.s	.skip
 	adda.w	#NemDecMain.writeRowToVDP_XOR-NemDecMain.writeRowToVDP,a3
-+
+
+.skip:
 	andi.w	#$7FFF,d2
 	move.w	d2,(Plc_Buffer_Reg18).w
 	bsr.w	NemDec_BuildCodeTable
@@ -1994,7 +1995,8 @@ RunPLC_RAM:
 	move.l	d0,(Plc_Buffer_RegC).w
 	move.l	d5,(Plc_Buffer_Reg10).w
 	move.l	d6,(Plc_Buffer_Reg14).w
-+
+
+.return:
 	rts
 ; End of function RunPLC_RAM
 
@@ -2006,10 +2008,10 @@ RunPLC_RAM:
 ProcessDPLC:
 	tst.w	(Plc_Buffer_Reg18).w
 	beq.w	+	; rts
-	move.w	#6,(Plc_Buffer_Reg1A).w
+	move.w	#6,(Plc_Buffer_Reg1A).w	; decompress 6 patterns per frame
 	moveq	#0,d0
 	move.w	(Plc_Buffer+4).w,d0
-	addi.w	#$C0,(Plc_Buffer+4).w
+	addi.w	#6*$20,(Plc_Buffer+4).w	; increment by 6 patterns' worth of data
 	bra.s	ProcessDPLC_Main
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -2042,12 +2044,13 @@ ProcessDPLC_Main:
 	move.l	(Plc_Buffer_Reg14).w,d6
 	lea	(Decomp_Buffer).w,a1
 
--	movea.w	#8,a5
+.loop:
+	movea.w	#8,a5
 	bsr.w	NemDecMain.newRow
 	subq.w	#1,(Plc_Buffer_Reg18).w
 	beq.s	ProcessDPLC_Pop
 	subq.w	#1,(Plc_Buffer_Reg1A).w
-	bne.s	-
+	bne.s	.loop
 
 	move.l	a0,(Plc_Buffer).w
 	move.l	a3,(Plc_Buffer_Reg0).w
@@ -2061,6 +2064,10 @@ ProcessDPLC_Main:
 
 ; ===========================================================================
 ; pop one request off the buffer so that the next one can be filled
+; this routine is idiotic because:
+; a) it doesn't copy the VRAM location for the last entry in the queue
+; b) it doesn't actually mark the last slot in the queue as clear
+; so basically don't store an entry in the last slot unless you want the game to screw up to high heaven
 
 ; loc_177A:
 ProcessDPLC_Pop:
@@ -2087,16 +2094,18 @@ RunPLC_ROM:
 	lea	(a1,d0.w),a1
 
 	move.w	(a1)+,d1
--	movea.l	(a1)+,a0
+	
+.decompPieces:
+	movea.l	(a1)+,a0	; get source address
 	moveq	#0,d0
-	move.w	(a1)+,d0
+	move.w	(a1)+,d0	; get destination VRAM address
 	lsl.l	#2,d0
 	lsr.w	#2,d0
 	ori.w	#vdpComm($0000,VRAM,WRITE)>>16,d0
-	swap	d0
+	swap	d0	; d0 = VDP command to write to destination
 	move.l	d0,(VDP_control_port).l
 	bsr.w	NemDec
-	dbf	d1,-
+	dbf	d1,.decompPieces
 
 	rts
 ; End of function RunPLC_ROM
@@ -2120,34 +2129,34 @@ EniDec:
 	movea.w	d0,a3		; store starting art tile
 	move.b	(a0)+,d0
 	ext.w	d0
-	movea.w	d0,a5		; store first byte, extended to word
-	move.b	(a0)+,d4	; store second byte
-	lsl.b	#3,d4		; multiply by 8
-	movea.w	(a0)+,a2	; store third and fourth byte
-	adda.w	a3,a2		; add starting art tile
-	movea.w	(a0)+,a4	; store fifth and sixth byte
-	adda.w	a3,a4		; add starting art tile
-	move.b	(a0)+,d5	; store seventh byte
-	asl.w	#8,d5		; shift up by a byte
-	move.b	(a0)+,d5	; store eighth byte in lower register byte
-	moveq	#16,d6		; 16 bits = 2 bytes
+	movea.w	d0,a5		; store number of bits in inline copy value
+	move.b	(a0)+,d4	
+	lsl.b	#3,d4		; store PCCVH flags bitfield
+	movea.w	(a0)+,a2	
+	adda.w	a3,a2		; store incremental copy word
+	movea.w	(a0)+,a4	
+	adda.w	a3,a4		
+	move.b	(a0)+,d5	
+	asl.w	#8,d5		
+	move.b	(a0)+,d5	; get first word in format list
+	moveq	#16,d6		; initial shift value
 
 EniDec_Loop:
-	moveq	#7,d0		; process 7 bits at a time
+	moveq	#7,d0		; assume a format list entry is 7 bits
 	move.w	d6,d7
 	sub.w	d0,d7
 	move.w	d5,d1
 	lsr.w	d7,d1
-	andi.w	#$7F,d1		; keep only lower 7 bits
-	move.w	d1,d2
-	cmpi.w	#$40,d1		; is bit 6 set?
+	andi.w	#$7F,d1		; get format list entry
+	move.w	d1,d2		; and copy it
+	cmpi.w	#$40,d1		; is the high bit of the entry set?
 	bhs.s	+		; if it is, branch
-	moveq	#6,d0		; if not, process 6 bits instead of 7
+	moveq	#6,d0		; if it isn't, the entry is actually 6 bits
 	lsr.w	#1,d2		; bitfield now becomes TTSSSS instead of TTTSSSS
 +
 	bsr.w	EniDec_ChkGetNextByte
-	andi.w	#$F,d2	; keep only lower nybble
-	lsr.w	#4,d1	; store upper nybble (max value = 7)
+	andi.w	#$F,d2	; get repeat count
+	lsr.w	#4,d1	
 	add.w	d1,d1
 	jmp	EniDec_JmpTable(pc,d1.w)
 ; End of function EniDec
@@ -2155,14 +2164,14 @@ EniDec_Loop:
 ; ===========================================================================
 
 EniDec_Sub0:
-	move.w	a2,(a1)+	; write to destination
-	addq.w	#1,a2		; increment
+	move.w	a2,(a1)+	; copy incremental copy word
+	addq.w	#1,a2		; increment it
 	dbf	d2,EniDec_Sub0	; repeat
 	bra.s	EniDec_Loop
 ; ===========================================================================
 
 EniDec_Sub4:
-	move.w	a4,(a1)+	; write to destination
+	move.w	a4,(a1)+	; copy literal copy word
 	dbf	d2,EniDec_Sub4	; repeat
 	bra.s	EniDec_Loop
 ; ===========================================================================
@@ -2170,8 +2179,9 @@ EniDec_Sub4:
 EniDec_Sub8:
 	bsr.w	EniDec_GetInlineCopyVal
 
--	move.w	d1,(a1)+
-	dbf	d2,-
+.loop:
+	move.w	d1,(a1)+	; copy inline value
+	dbf	d2,.loop	; repeat
 
 	bra.s	EniDec_Loop
 ; ===========================================================================
@@ -2179,9 +2189,10 @@ EniDec_Sub8:
 EniDec_SubA:
 	bsr.w	EniDec_GetInlineCopyVal
 
--	move.w	d1,(a1)+
-	addq.w	#1,d1
-	dbf	d2,-
+.loop:
+	move.w	d1,(a1)+	; copy inline value
+	addq.w	#1,d1	; increment
+	dbf	d2,.loop	; repeat
 
 	bra.s	EniDec_Loop
 ; ===========================================================================
@@ -2189,9 +2200,10 @@ EniDec_SubA:
 EniDec_SubC:
 	bsr.w	EniDec_GetInlineCopyVal
 
--	move.w	d1,(a1)+
-	subq.w	#1,d1
-	dbf	d2,-
+.loop:
+	move.w	d1,(a1)+	; copy inline value
+	subq.w	#1,d1	; decrement
+	dbf	d2,.loop	; repeat
 
 	bra.s	EniDec_Loop
 ; ===========================================================================
@@ -2200,9 +2212,10 @@ EniDec_SubE:
 	cmpi.w	#$F,d2
 	beq.s	EniDec_End
 
--	bsr.w	EniDec_GetInlineCopyVal
-	move.w	d1,(a1)+
-	dbf	d2,-
+.loop:
+	bsr.w	EniDec_GetInlineCopyVal	; fetch new inline value
+	move.w	d1,(a1)+	; copy it
+	dbf	d2,.loop	; and repeat
 
 	bra.s	EniDec_Loop
 ; ===========================================================================
@@ -2219,16 +2232,17 @@ EniDec_JmpTable:
 ; ===========================================================================
 
 EniDec_End:
-	subq.w	#1,a0
+	subq.w	#1,a0	; go back by one byte
 	cmpi.w	#16,d6		; were we going to start on a completely new byte?
 	bne.s	+		; if not, branch
-	subq.w	#1,a0
+	subq.w	#1,a0	; go back by another byte
 +
 	move.w	a0,d0
 	lsr.w	#1,d0		; are we on an odd byte?
-	bcc.s	+		; if not, branch
+	bcc.s	.return		; if not, branch
 	addq.w	#1,a0		; ensure we're on an even byte
-+
+	
+.return:
 	movem.l	(sp)+,d0-d7/a1-a5
 	rts
 
@@ -2236,38 +2250,38 @@ EniDec_End:
 
 
 EniDec_GetInlineCopyVal:
-	move.w	a3,d3		; store starting art tile
-	move.b	d4,d1
-	add.b	d1,d1
-	bcc.s	+		; if d4 was < $80
+	move.w	a3,d3	; store starting art tile
+	move.b	d4,d1	; copy PCCVH bitfield
+	add.b	d1,d1	; is the priority bit set?
+	bcc.s	+	; if not, branch
 	subq.w	#1,d6		; get next bit number
-	btst	d6,d5		; is the bit set?
+	btst	d6,d5		; is the priority bit set in the inline render flags?
 	beq.s	+		; if not, branch
-	ori.w	#high_priority,d3	; set high priority bit
+	ori.w	#high_priority,d3	; otherwise set priority bit in art tile
 +
-	add.b	d1,d1
-	bcc.s	+		; if d4 was < $40
+	add.b	d1,d1	; is the high palette line bit set?
+	bcc.s	+		; if not, branch
 	subq.w	#1,d6		; get next bit number
 	btst	d6,d5
 	beq.s	+
 	addi.w	#palette_line_2,d3	; set second palette line bit
 +
-	add.b	d1,d1
-	bcc.s	+		; if d4 was < $20
+	add.b	d1,d1	; is the low palette line bit set?
+	bcc.s	+	; if not, branch
 	subq.w	#1,d6		; get next bit number
 	btst	d6,d5
 	beq.s	+
 	addi.w	#palette_line_1,d3	; set first palette line bit
 +
-	add.b	d1,d1
-	bcc.s	+		; if d4 was < $10
+	add.b	d1,d1	; is the vertical flip flag set?
+	bcc.s	+	; if not, branch
 	subq.w	#1,d6		; get next bit number
 	btst	d6,d5
 	beq.s	+
 	ori.w	#flip_y,d3	; set Y-flip bit
 +
-	add.b	d1,d1
-	bcc.s	+		; if d4 was < 8
+	add.b	d1,d1	; is the horizontal flip flag set?
+	bcc.s	+	; if not, branch
 	subq.w	#1,d6
 	btst	d6,d5
 	beq.s	+
@@ -2276,18 +2290,19 @@ EniDec_GetInlineCopyVal:
 	move.w	d5,d1
 	move.w	d6,d7		; get remaining bits
 	sub.w	a5,d7		; subtract minimum bit number
-	bcc.s	+		; if we're beyond that, branch
+	bcc.s	.enoughBits		; if we're beyond that, branch
 	move.w	d7,d6
 	addi.w	#16,d6		; 16 bits = 2 bytes
 	neg.w	d7		; calculate bit deficit
 	lsl.w	d7,d1		; make space for this many bits
 	move.b	(a0),d5		; get next byte
-	rol.b	d7,d5		; make the upper X bits the lower X bits
+	rol.b	d7,d5		; and rotate the required bits into the lowest positions
 	add.w	d7,d7
 	and.w	EniDec_AndVals-2(pc,d7.w),d5	; only keep X lower bits
-	add.w	d5,d1		; compensate for the bit deficit
--
-	move.w	a5,d0
+	add.w	d5,d1	; compensate for the bit deficit by combining the upper bits with the lower bits
+	
+.maskValue:
+	move.w	a5,d0	; get length in bits of inline copy value
 	add.w	d0,d0
 	and.w	EniDec_AndVals-2(pc,d0.w),d1	; only keep as many bits as required
 	add.w	d3,d1		; add starting art tile
@@ -2296,9 +2311,9 @@ EniDec_GetInlineCopyVal:
 	move.b	(a0)+,d5	; store next byte in lower register byte
 	rts
 ; ===========================================================================
-+
-	beq.s	+		; if the exact number of bits are leftover, branch
-	lsr.w	d7,d1		; remove unneeded bits
+.enoughBits:
+	beq.s	.justEnough		; if the exact number of bits are leftover, branch
+	lsr.w	d7,d1		; remove unneeded bits to get inline copy value
 	move.w	a5,d0
 	add.w	d0,d0
 	and.w	EniDec_AndVals-2(pc,d0.w),d1	; only keep as many bits as required
@@ -2306,9 +2321,9 @@ EniDec_GetInlineCopyVal:
 	move.w	a5,d0		; store number of bits used up by inline copy
 	bra.s	EniDec_ChkGetNextByte	; move onto next byte
 ; ===========================================================================
-+
-	moveq	#16,d6	; 16 bits = 2 bytes
-	bra.s	-
+.justEnough:
+	moveq	#16,d6	; reset shift value
+	bra.s	.maskValue
 ; End of function EniDec_GetInlineCopyVal
 
 ; ===========================================================================
@@ -2318,16 +2333,21 @@ EniDec_AndVals:
 	dc.w   $1F,  $3F,  $7F,  $FF
 	dc.w  $1FF, $3FF, $7FF, $FFF
 	dc.w $1FFF,$3FFF,$7FFF,$FFFF
+	
+; ---------------------------------------------------------------------------
+; Part of the Enigma decompressor, fetches the next byte if needed
+; ---------------------------------------------------------------------------
 ; ===========================================================================
 
 EniDec_ChkGetNextByte:
-	sub.w	d0,d6
-	cmpi.w	#9,d6
-	bhs.s	+	; rts
+	sub.w	d0,d6	; subtract length of current entry from shift value so that next entry is read next time around
+	cmpi.w	#9,d6	; does a new byte need to be read?
+	bhs.s	.return	; if not, branch
 	addq.w	#8,d6	; 8 bits = 1 byte
 	asl.w	#8,d5	; shift up by a byte
 	move.b	(a0)+,d5	; store next byte in lower register byte
-+
+
+.return:
 	rts
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -2345,11 +2365,11 @@ EniDec_ChkGetNextByte:
 ; ---------------------------------------------------------------------------
 ; KozDec_193A:
 KosDec:
-	subq.l	#2,sp
+	subq.l	#2,sp	; make space for two bytes on the stack
 	move.b	(a0)+,1(sp)
 	move.b	(a0)+,(sp)
-	move.w	(sp),d5
-	moveq	#$F,d4
+	move.w	(sp),d5	; copy first description field
+	moveq	#$F,d4	; 16 bits in a byte
 
 -
 	lsr.w	#1,d5
