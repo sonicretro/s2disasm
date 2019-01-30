@@ -2878,8 +2878,8 @@ CyclingPal_WFZ2:
 
 ; sub_213E:
 PalCycle_SuperSonic:
-	move.b	(Super_Sonic_palette).w,d0
-	beq.s	++	; rts	; return, if Sonic isn't super
+	move.b	(Super_Sonic_palette).w,d0	; 0 = off | 1 = fading | -1 = fading done
+	beq.s	.return	; return, if Sonic isn't super
 	bmi.w	PalCycle_SuperSonic_normal	; branch, if fade-in is done
 	subq.b	#1,d0
 	bne.s	PalCycle_SuperSonic_revert	; branch for values greater than 1
@@ -2887,7 +2887,7 @@ PalCycle_SuperSonic:
 	; fade from Sonic's to Super Sonic's palette
 	; run frame timer
 	subq.b	#1,(Palette_timer).w
-	bpl.s	++	; rts
+	bpl.s	.return
 	move.b	#3,(Palette_timer).w
 
 	; increment palette frame and update Sonic's palette
@@ -2895,22 +2895,25 @@ PalCycle_SuperSonic:
 	move.w	(Palette_frame).w,d0
 	addq.w	#8,(Palette_frame).w	; 1 palette entry = 1 word, Sonic uses 4 shades of blue
 	cmpi.w	#$30,(Palette_frame).w	; has palette cycle reached the 6th frame?
-	blo.s	+			; if not, branch
+	blo.s	.sonicApply			; if not, branch
 	move.b	#-1,(Super_Sonic_palette).w	; mark fade-in as done
 	move.b	#0,(MainCharacter+obj_control).w	; restore Sonic's movement
-+
+	
+.sonicApply:
 	lea	(Normal_palette+4).w,a1
 	move.l	(a0,d0.w),(a1)+
 	move.l	4(a0,d0.w),(a1)
 	; note: the fade in for Sonic's underwater palette is missing.
 	; branch to the code below (*) to fix this
-/	rts
+	
+.return:
+	rts
 ; ===========================================================================
 ; loc_2188:
 PalCycle_SuperSonic_revert:	; runs the fade in transition backwards
 	; run frame timer
 	subq.b	#1,(Palette_timer).w
-	bpl.s	-	; rts
+	bpl.s	PalCycle_SuperSonic.return	; rts
 	move.b	#3,(Palette_timer).w
 
 	; decrement palette frame and update Sonic's palette
@@ -2929,7 +2932,7 @@ PalCycle_SuperSonic_revert:	; runs the fade in transition backwards
 	cmpi.b	#chemical_plant_zone,(Current_Zone).w
 	beq.s	+
 	cmpi.b	#aquatic_ruin_zone,(Current_Zone).w
-	bne.s	-	; rts
+	bne.s	PalCycle_SuperSonic.return
 	lea	(CyclingPal_ARZUWTransformation).l,a0
 +	lea	(Underwater_palette+4).w,a1
 	move.l	(a0,d0.w),(a1)+
@@ -2940,7 +2943,7 @@ PalCycle_SuperSonic_revert:	; runs the fade in transition backwards
 PalCycle_SuperSonic_normal:
 	; run frame timer
 	subq.b	#1,(Palette_timer).w
-	bpl.s	-	; rts
+	bpl.s	PalCycle_SuperSonic.return
 	move.b	#7,(Palette_timer).w
 
 	; increment palette frame and update Sonic's palette
@@ -2959,7 +2962,7 @@ PalCycle_SuperSonic_normal:
 	cmpi.b	#chemical_plant_zone,(Current_Zone).w
 	beq.s	+
 	cmpi.b	#aquatic_ruin_zone,(Current_Zone).w
-	bne.w	-	; rts
+	bne.w	PalCycle_SuperSonic.return	; rts
 	lea	(CyclingPal_ARZUWTransformation).l,a0
 +	lea	(Underwater_palette+4).w,a1
 	move.l	(a0,d0.w),(a1)+
@@ -3297,12 +3300,12 @@ Pal_FadeToWhite:
 	move.w	#$3F,(Palette_fade_range).w
 
 	move.w	#$15,d4
-.nextframe:
+.nextFrame:
 	move.b	#VintID_Fade,(Vint_routine).w
 	bsr.w	WaitForVint
 	bsr.s	.UpdateAllColours
 	bsr.w	RunPLC_RAM
-	dbf	d4,.nextframe
+	dbf	d4,.nextFrame
 
 	rts
 ; End of function Pal_FadeToWhite
@@ -3959,18 +3962,18 @@ TitleScreen:
 	move.b	#MusID_Stop,d0
 	bsr.w	PlayMusic
 	bsr.w	ClearPLC
-	bsr.w	Pal_FadeToBlack
+	bsr.w	Pal_FadeToBlack		; Fade out
 	move	#$2700,sr
 	lea	(VDP_control_port).l,a6
-	move.w	#$8004,(a6)		; H-INT disabled
+	move.w	#$8004,(a6)			; Command $8004 - Disable HInt, HV Counter
 	move.w	#$8200|(VRAM_TtlScr_Plane_A_Name_Table/$400),(a6)	; PNT A base: $C000
 	move.w	#$8400|(VRAM_TtlScr_Plane_B_Name_Table/$2000),(a6)	; PNT B base: $E000
-	move.w	#$9001,(a6)		; Scroll table size: 64x32
+	move.w	#$9001,(a6)			; Command $9001 - 64x32 cell nametable area
 	move.w	#$9200,(a6)		; Disable window
-	move.w	#$8B03,(a6)		; EXT-INT disabled, V scroll by screen, H scroll by line
+	move.w	#$8B03,(a6)		; Command $8B03 - Vscroll full, HScroll line-based
 	move.w	#$8720,(a6)		; Background palette/color: 2/0
 	clr.b	(Water_fullscreen_flag).w
-	move.w	#$8C81,(a6)		; H res 40 cells, no interlace, S/H disabled
+	move.w	#$8C81,(a6)			; Command $8C81 - 40cell screen size, no interlacing, no s/h
 	bsr.w	ClearScreen
 
 	clearRAM Sprite_Table_Input,Sprite_Table_Input_End ; fill $AC00-$AFFF with $0
