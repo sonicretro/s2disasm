@@ -2,19 +2,19 @@
 
 REM // make sure we can write to the file s2built.bin
 REM // also make a backup to s2built.prev.bin
-IF NOT EXIST s2built.bin goto LABLNOCOPY
+IF NOT EXIST s2built.bin goto dontCopyS2BuiltBin
 IF EXIST s2built.prev.bin del s2built.prev.bin
-IF EXIST s2built.prev.bin goto LABLNOCOPY
+IF EXIST s2built.prev.bin goto dontCopyS2BuiltBin
 move /Y s2built.bin s2built.prev.bin > NUL
-IF EXIST s2built.bin goto LABLERROR3
+IF EXIST s2built.bin goto s2builtBinAccessDenied
 REM IF EXIST s2built.prev.bin copy /Y s2built.prev.bin s2built.bin
-:LABLNOCOPY
+:dontCopyS2BuiltBin
 
 REM // delete some intermediate assembler output just in case
 IF EXIST s2.p del s2.p
-IF EXIST s2.p goto LABLERROR2
+IF EXIST s2.p goto s2pAccessDenied
 IF EXIST s2.h del s2.h
-IF EXIST s2.h goto LABLERROR1
+IF EXIST s2.h goto s2hAccessDenied
 
 REM // clear the output window
 REM cls
@@ -68,7 +68,7 @@ echo Assembling...
 "win32/as/asw" -xx -c %debug_syms% %print_err% -A -U -L %revision_override% s2.asm
 
 REM // if there were errors, there won't be any s2.p output
-IF NOT EXIST s2.p goto LABLERROR5
+IF NOT EXIST s2.p goto displayErrorMessage
 
 REM // combine the assembler output into a rom
 "win32/s2p2bin" %s2p2bin_args% s2.p s2built.bin s2.h
@@ -80,7 +80,7 @@ REM REM // fix the rom header (checksum)
 IF EXIST s2built.bin "win32/fixheader" s2built.bin
 
 REM // if there were errors/warnings, a log file is produced
-IF EXIST s2.log goto LABLERROR4
+IF EXIST s2.log goto displayWarningMessage
 
 
 REM // done -- pause if we seem to have failed, then exit
@@ -91,27 +91,27 @@ pause
 
 exit /b
 
-:LABLERROR1
+:s2hAccessDenied
 echo Failed to build because write access to s2.h was denied.
 pause
 
 
 exit /b
 
-:LABLERROR2
+:s2pAccessDenied
 echo Failed to build because write access to s2.p was denied.
 pause
 
 
 exit /b
 
-:LABLERROR3
+:s2builtBinAccessDenied
 echo Failed to build because write access to s2built.bin was denied.
 pause
 
 exit /b
 
-:LABLERROR4
+:displayWarningMessage
 REM // display a noticeable message
 echo.
 echo **********************************************************************
@@ -124,7 +124,7 @@ pause
 
 exit /b
 
-:LABLERROR5
+:displayErrorMessage
 REM // display a noticeable message
 echo.
 echo **********************************************************************
