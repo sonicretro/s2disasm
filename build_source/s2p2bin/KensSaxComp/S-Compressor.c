@@ -28,7 +28,9 @@
 |																				|
 \*-----------------------------------------------------------------------------*/
 
+#include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 //-----------------------------------------------------------------------------------------------
@@ -66,7 +68,7 @@ long SComp3(FILE *Src, int srcStart, int srcLen, FILE *Dst, int dstStart, bool W
 
 	if (Src==NULL) return 0;
 	BSize=srcLen+18;
-	Buffer = new unsigned char[BSize];
+	Buffer = (unsigned char*)malloc(BSize);
 	if (Buffer==NULL) return 0;
 	memset(Buffer, 0, 18);
 	fseek(Src, srcStart, SEEK_SET);
@@ -124,8 +126,8 @@ start:
 
 		Info = ( (IOffset & 0xFF) << 8 ) | ( (IOffset & 0xF00) >> 4 ) | ( (Count - 3) & 0x0F );
 
-		Data[DS]=static_cast<char>(Info >> 8);
-		Data[DS+1]=static_cast<char>(Info & 0xFF);
+		Data[DS]=(unsigned char)(Info >> 8);
+		Data[DS+1]=(unsigned char)(Info & 0xFF);
 		DS+=2;
 
 		if (++IBP==8) { fwrite(&InfoByte,1,1,Dst); fwrite(&Data,DS,1,Dst); dstBytesWritten += 1+DS; InfoByte=IBP=DS=0; }	
@@ -147,6 +149,6 @@ start:
 	}
 	fseek(Dst, dstStart+dstBytesWritten, SEEK_SET);
 	if (dstBytesWritten & 1) { fputc(0x4E, Dst); dstBytesWritten++; } // I don't know what 0x4E is, but it was at the end of the compressed data in the rom.
-	delete[] Buffer;
+	free(Buffer);
 	return dstBytesWritten;
 }

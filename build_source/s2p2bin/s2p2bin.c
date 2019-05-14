@@ -1,13 +1,11 @@
-#include <sstream>
+#include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h> // for unlink
 
+#include "clownlzss/saxman.h"
 #include "KensSaxComp/S-Compressor.h"
-#include "FW_KENSC/saxman.h"
-
-using std::stringstream;
-using std::ios;
 
 const char* codeFileName = NULL;
 const char* romFileName = NULL;
@@ -163,7 +161,7 @@ bool buildRom(FILE* from, FILE* to)
 
 		if(cpuType == 0x51 && start == 0) // 0x51 is the type for Z80 family (0x01 is for 68000)
 		{
-			// Saxman compressed Z80 segment
+			// Saxman-compressed Z80 segment
 			start = lastStart + lastLength;
 			int srcStart = ftell(from);
 
@@ -173,16 +171,12 @@ bool buildRom(FILE* from, FILE* to)
 			}
 			else
 			{
-				char *buf = new char[length];
-				fread(buf, length, 1, from);
-				stringstream outbuff(ios::in | ios::out | ios::binary);
-				saxman::encode(buf, length, outbuff, false, &compressedLength);
-				delete[] buf;
-				buf = new char[compressedLength];
-				outbuff.seekg(0);
-				outbuff.read(buf, compressedLength);
-				fwrite(buf, sizeof(char), compressedLength, to);
-				delete[] buf;
+				unsigned char *uncompressed_buffer = malloc(length);
+				fread(uncompressed_buffer, length, 1, from);
+				unsigned char *compressed_buffer = SaxmanCompress(uncompressed_buffer, length, &compressedLength, false);
+				free(uncompressed_buffer);
+				fwrite(compressed_buffer, compressedLength, 1, to);
+				free(compressed_buffer);
 			}
 
 			fseek(from, srcStart + length, SEEK_SET);
