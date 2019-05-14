@@ -4,17 +4,17 @@
 
 if [[ ! -f bin/s2p2bin ]]; then
 	echo "Compiling s2p2bin..."
-	g++ -O3 -s -o bin/s2p2bin build_source/s2p2bin.cpp build_source/KensSaxComp/S-Compressor.cpp build_source/FW_KENSC/saxman.cpp &> /dev/null
+	gcc -std=c99 -O2 -s -fno-ident -flto -o bin/s2p2bin build_source/s2p2bin/s2p2bin.c build_source/s2p2bin/KensSaxComp/S-Compressor.c build_source/s2p2bin/clownlzss/common.c build_source/s2p2bin/clownlzss/memory_stream.c build_source/s2p2bin/clownlzss/saxman.c &> /dev/null
 fi
 
 if [[ ! -f bin/fixpointer ]]; then
 	echo "Compiling fixpointer..."
-	g++ -O3 -s -o bin/fixpointer build_source/fixpointer.cpp &> /dev/null
+	gcc -std=c99 -O2 -s -fno-ident -flto -o bin/fixpointer build_source/fixpointer.c &> /dev/null
 fi
 
 if [[ ! -f bin/fixheader ]]; then
 	echo "Compiling fixheader..."
-	g++ -O3 -s -o bin/fixheader build_source/fixheader.cpp &> /dev/null
+	gcc -std=c99 -O2 -s -fno-ident -flto -o bin/fixheader build_source/fixheader.c &> /dev/null
 fi
 
 [[ -f s2built.bin ]] && mv -f s2built.bin s2built.prev.bin

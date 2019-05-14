@@ -3633,7 +3633,6 @@ zSaxmanDec:
     if OptimiseDriver
 	xor	a
 	ld	b,a
-	ld	c,a
 	ld	d,a
 	ld	e,a
     else
@@ -3648,7 +3647,9 @@ zSaxmanDec:
 	ld	b,(hl)			; bc = (hl) i.e. "size of song"
 	inc	hl
 	ld	(zGetNextByte+1),hl	; modify inst. @ zGetNextByte -- set to beginning of decompression stream
+    if OptimiseDriver=0
 	inc	bc
+    endif
 	ld	(zDecEndOrGetByte+1),bc	; modify inst. @ zDecEndOrGetByte -- set to length of song, +1
 
 ;zloc_1288
@@ -3750,11 +3751,18 @@ zSaxmanReadLoop:
 ;zsub_12E8
 zDecEndOrGetByte:
 	ld	hl,0			; "self-modified code" -- starts at full length of song +1, waits until it gets to 1...
-	dec	hl			; ... where this will be zero
-	ld	(zDecEndOrGetByte+1),hl	; "self-modifying code" -- update the count in case it's not zero
+    if OptimiseDriver
 	ld	a,h
 	or	l
 	jr	z,+			; If 'h' and 'l' both equal zero, we quit!!
+    endif
+	dec	hl			; ... where this will be zero
+	ld	(zDecEndOrGetByte+1),hl	; "self-modifying code" -- update the count in case it's not zero
+    if OptimiseDriver=0
+	ld	a,h
+	or	l
+	jr	z,+			; If 'h' and 'l' both equal zero, we quit!!
+    endif
 ;zloc_12F3
 zGetNextByte:
 	ld	hl,0			; "self-modified code" -- get address of next compressed byte

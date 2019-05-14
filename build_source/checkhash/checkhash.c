@@ -8,7 +8,11 @@ int main(int argc, char *argv[])
 {
 	if (argc < 3)
 	{
-		printf("Usage: checkhash [filename] [hash]\nCompares file to hash. Returns 0 if they match, and 1 if they don't.\n");
+		printf("Usage: checkhash [filename] [hash]\nCompares file to SHA-256 hash. Returns 0 if they match, and 1 if they don't.\n");
+	}
+	else if (strlen(argv[2]) != 64)
+	{
+		printf("Hash is wrong size (should be 64-digits long)\n");
 	}
 	else
 	{
@@ -20,6 +24,7 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
+			// Read file into buffer
 			fseek(file, 0, SEEK_END);
 			const long file_size = ftell(file);
 			rewind(file);
@@ -28,6 +33,7 @@ int main(int argc, char *argv[])
 			fread(file_buffer, 1, file_size, file);
 			fclose(file);
 
+			// Generate hash
 			SHA256_CTX sha256_ctx;
 			sha256_init(&sha256_ctx);
 			sha256_update(&sha256_ctx, file_buffer, file_size);
@@ -37,8 +43,8 @@ int main(int argc, char *argv[])
 			unsigned char hash[32];
 			sha256_final(&sha256_ctx, hash);
 
-			// Convert hash to string, so we can compare with the parameter
-			const char lookup[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+			// Convert hash to string, so we can compare with the argument
+			const char lookup[0x10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
 			char hash_string[64];
 
@@ -48,14 +54,15 @@ int main(int argc, char *argv[])
 				hash_string[(i * 2) + 1] = lookup[hash[i] & 0xF];
 			}
 
-			if (!memcmp(hash_string, argv[2], 64))
+			// Compare hashes
+			if (memcmp(hash_string, argv[2], 64))
 			{
-				printf("File matches hash\n");
-				return 0;
+				printf("File does not match hash\n");
 			}
 			else
 			{
-				printf("File does not match hash\n");
+				printf("File matches hash\n");
+				return 0;
 			}
 		}
 	}

@@ -4177,6 +4177,7 @@ TailsNameCheat_Buttons:
 	dc.b	button_down_mask
 	dc.b	button_up_mask
 	dc.b	0	; end
+	even
 ; ---------------------------------------------------------------------------------
 ; Nemesis compressed art
 ; 10 blocks
@@ -4184,6 +4185,7 @@ TailsNameCheat_Buttons:
 ; ---------------------------------------------------------------------------------
 ; ArtNem_3DF4:
 ArtNem_Player1VS2:	BINCLUDE	"art/nemesis/1Player2VS.bin"
+	even
 
 	charset '0','9',0 ; Add character set for numbers
 	charset '*',$A ; Add character for star
@@ -12300,19 +12302,24 @@ Pal_LevelIcons:	BINCLUDE "art/palettes/Level Select Icons.bin"
 
 ; 2-player level select screen mappings (Enigma compressed)
 ; byte_9A60:
+	even
 MapEng_LevSel2P:	BINCLUDE "mappings/misc/Level Select 2P.bin"
 
 ; options screen mappings (Enigma compressed)
 ; byte_9AB2:
+	even
 MapEng_Options:	BINCLUDE "mappings/misc/Options Screen.bin"
 
 ; level select screen mappings (Enigma compressed)
 ; byte_9ADE:
+	even
 MapEng_LevSel:	BINCLUDE "mappings/misc/Level Select.bin"
 
 ; 1P and 2P level select icon mappings (Enigma compressed)
 ; byte_9C32:
+	even
 MapEng_LevSelIcon:	BINCLUDE "mappings/misc/Level Select Icons.bin"
+	even
 
     if ~~removeJmpTos
 JmpTo_PlaySound 
@@ -13701,6 +13708,7 @@ ObjCF_MapUnc_ADA2:	BINCLUDE "mappings/sprite/objCF.bin"
 ; --------------------------------------------------------------------------------------
 ; Enigma compressed art mappings
 ; "Sonic the Hedgehog 2" mappings		; MapEng_B23A:
+	even
 MapEng_EndGameLogo:	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
 	even
 
@@ -13972,6 +13980,7 @@ byte_BD1A:	creditText   0,"SONIC"
 ; -------------------------------------------------------------------------------
 ; ArtNem_BD26:
 ArtNem_CreditText:	BINCLUDE	"art/nemesis/Credit Text.bin"
+	even
 ; ===========================================================================
 
     if ~~removeJmpTos
@@ -23553,10 +23562,10 @@ BranchTo2_MarkObjGone
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 ; sub_12756:
 SolidObject_Monitor_Sonic:
-	btst	d6,status(a0)		; is Sonic standing on the monitor?
-	bne.s	Obj26_ChkOverEdge	; if yes, branch
+	btst	d6,status(a0)			; is Sonic standing on the monitor?
+	bne.s	Obj26_ChkOverEdge		; if yes, branch
 	cmpi.b	#AniIDSonAni_Roll,anim(a1)		; is Sonic spinning?
-	bne.w	SolidObject_cont	; if not, branch
+	bne.w	SolidObject_cont		; if not, branch
 	rts
 ; End of function SolidObject_Monitor_Sonic
 
@@ -23564,13 +23573,13 @@ SolidObject_Monitor_Sonic:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 ; sub_12768:
 SolidObject_Monitor_Tails:
-	btst	d6,status(a0)		; is Tails standing on the monitor?
-	bne.s	Obj26_ChkOverEdge	; if yes, branch
-	tst.w	(Two_player_mode).w	; is it two player mode?
-	beq.w	SolidObject_cont	; if not, branch
+	btst	d6,status(a0)			; is Tails standing on the monitor?
+	bne.s	Obj26_ChkOverEdge		; if yes, branch
+	tst.w	(Two_player_mode).w		; is it two player mode?
+	beq.w	SolidObject_cont		; if not, branch
 	; in one player mode monitors always behave as solid for Tails
-	cmpi.b	#2,anim(a1)		; is Tails spinning?
-	bne.w	SolidObject_cont	; if not, branch
+	cmpi.b	#AniIDTailsAni_Roll,anim(a1)	; is Tails spinning?
+	bne.w	SolidObject_cont		; if not, branch
 	rts
 ; End of function SolidObject_Monitor_Tails
 
@@ -86892,6 +86901,7 @@ ArtUnc_EHZPulseBall:	BINCLUDE	"art/uncompressed/Pulsing ball against checkered b
 ; Nemesis compressed art (192 blocks)
 ; Dynamically reloaded cliffs in background from HTZ ; ArtNem_49A14: ArtUnc_HTZCliffs:
 ArtNem_HTZCliffs:	BINCLUDE	"art/nemesis/Dynamically reloaded cliffs in HTZ background.bin"
+	even
 ;---------------------------------------------------------------------------------------
 ; Uncompressed art
 ; Dynamically reloaded clouds in background from HTZ ; ArtUnc_4A33E:
@@ -86972,10 +86982,12 @@ MapRUnc_Sonic:	BINCLUDE	"mappings/spriteDPLC/Sonic.bin"
 ; Nemesis compressed art (32 blocks)
 ; Shield			; ArtNem_71D8E:
 ArtNem_Shield:	BINCLUDE	"art/nemesis/Shield.bin"
+	even
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (34 blocks)
 ; Invincibility stars		; ArtNem_71F14:
 ArtNem_Invincible_stars:	BINCLUDE	"art/nemesis/Invincibility stars.bin"
+	even
 ;--------------------------------------------------------------------------------------
 ; Uncompressed art
 ; Splash in water and dust from skidding	; ArtUnc_71FFC:
@@ -86984,6 +86996,7 @@ ArtUnc_SplashAndDust:	BINCLUDE	"art/uncompressed/Splash and skid dust.bin"
 ; Nemesis compressed art (14 blocks)
 ; Supersonic stars		; ArtNem_7393C:		
 ArtNem_SuperSonic_stars:	BINCLUDE	"art/nemesis/Super Sonic stars.bin"
+	even
 ;--------------------------------------------------------------------------------------
 ; Sprite Mappings
 ; Tails			; MapUnc_739E2:
@@ -86997,26 +87010,32 @@ MapRUnc_Tails:	BINCLUDE	"mappings/spriteDPLC/Tails.bin"
 ;-------------------------------------------------------------------------------------
 ; Nemesis compressed art (127 blocks)
 ; "SEGA" Patterns	; ArtNem_74876:
+	even
 ArtNem_SEGA:	BINCLUDE	"art/nemesis/SEGA.bin"
 ;-------------------------------------------------------------------------------------
 ; Nemesis compressed art (9 blocks)
 ; Shaded blocks from intro	; ArtNem_74CF6:
+	even
 ArtNem_IntroTrails:	BINCLUDE	"art/nemesis/Shaded blocks from intro.bin"
 ;---------------------------------------------------------------------------------------
 ; Enigma compressed art mappings
 ; "SEGA" mappings		; MapEng_74D0E:
+	even
 MapEng_SEGA:	BINCLUDE	"mappings/misc/SEGA mappings.bin"
 ;---------------------------------------------------------------------------------------
 ; Enigma compressed art mappings
 ; Mappings for title screen background	; ArtNem_74DC6:
+	even
 MapEng_TitleScreen:	BINCLUDE	"mappings/misc/Mappings for title screen background.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed art mappings
 ; Mappings for title screen background (smaller part, water/horizon)	; MapEng_74E3A:
+	even
 MapEng_TitleBack:	BINCLUDE	"mappings/misc/Mappings for title screen background 2.bin"
 ;---------------------------------------------------------------------------------------
 ; Enigma compressed art mappings
 ; "Sonic the Hedgehog 2" title screen logo mappings	; MapEng_74E86:
+	even
 MapEng_TitleLogo:	BINCLUDE	"mappings/misc/Sonic the Hedgehog 2 title screen logo mappings.bin"
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art (336 blocks)
@@ -87177,6 +87196,7 @@ ArtNem_1P2PWins:	BINCLUDE	"art/nemesis/1P and 2P wins text from 2P mode.bin"
 ;---------------------------------------------------------------------------------------
 ; Enigma compressed art mappings
 ; Sonic/Miles animated background mappings	; MapEng_7CB80:
+	even
 MapEng_MenuBack:	BINCLUDE	"mappings/misc/Sonic and Miles animated background.bin"
 ;---------------------------------------------------------------------------------------
 ; Uncompressed art
@@ -87786,70 +87806,85 @@ ArtNem_TornadoThruster:	BINCLUDE	"art/nemesis/Rocket thruster for Tornado.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Frame 1 of end of game sequence	; MapEng_906E0:
+	even
 MapEng_Ending1:	BINCLUDE	"mappings/misc/End of game sequence frame 1.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Frame 2 of end of game sequence	; MapEng_906F8:
+	even
 MapEng_Ending2:	BINCLUDE	"mappings/misc/End of game sequence frame 2.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Frame 3 of end of game sequence	; MapEng_90722:
+	even
 MapEng_Ending3:	BINCLUDE	"mappings/misc/End of game sequence frame 3.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Frame 4 of end of game sequence	; MapEng_9073C:
+	even
 MapEng_Ending4:	BINCLUDE	"mappings/misc/End of game sequence frame 4.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Closeup of Tails flying plane in ending sequence	; MapEng_9076E:
+	even
 MapEng_EndingTailsPlane:	BINCLUDE	"mappings/misc/Closeup of Tails flying plane in ending sequence.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Closeup of Sonic flying plane in ending sequence	; MapEng_907C0:
+	even
 MapEng_EndingSonicPlane:	BINCLUDE	"mappings/misc/Closeup of Sonic flying plane in ending sequence.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Strange unused mappings (duplicate of MapEng_EndGameLogo)
+	even
 ; MapEng_9082A:
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 1.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Strange unused mappings (same as above)
+	even
 ; MapEng_90852:
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 2.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Strange unused mappings (same as above)
+	even
 ; MapEng_9087A:
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 3.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Strange unused mappings (same as above)
+	even
 ; MapEng_908A2:
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 4.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Strange unused mappings (same as above)
+	even
 ; MapEng_908CA:
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 5.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Strange unused mappings (same as above)
+	even
 ; MapEng_908F2:
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 6.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Strange unused mappings (same as above)
+	even
 ; MapEng_9091A:
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 7.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Strange unused mappings (same as above)
+	even
 ; MapEng_90942:
 	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 8.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
 ; Strange unused mappings (same as above)
+	even
 ; MapEng_9096A:
 	BINCLUDE	"mappings/misc/Strange unused mappings 2.bin"
 ;--------------------------------------------------------------------------------------
@@ -88253,10 +88288,12 @@ ArtNem_SpecialBack:	BINCLUDE	"art/nemesis/Background art for special stage.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed tile mappings
 ; Main background mappings for special stage	; MapEng_DD1DE:
+	even
 MapEng_SpecialBack:	BINCLUDE	"mappings/misc/Main background mappings for special stage.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed tile mappings
 ; Lower background mappings for special stage	; MapEng_DD30C:
+	even
 MapEng_SpecialBackBottom:	BINCLUDE	"mappings/misc/Lower background mappings for special stage.bin"
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (62 blocks)
@@ -88787,107 +88824,133 @@ Mus_Continue:   BINCLUDE	"sound/music/Continue.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (20 blocks)
 ; HTZ boss lava ball / Sol fireball
+	even
 ArtNem_HtzFireball1:	BINCLUDE	"art/nemesis/Fireball 1.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (24 blocks)
 ; Waterfall tiles
+	even
 ArtNem_Waterfall:	BINCLUDE	"art/nemesis/Waterfall tiles.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (16 blocks)
 ; Another fireball
+	even
 ArtNem_HtzFireball2:	BINCLUDE	"art/nemesis/Fireball 2.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (8 blocks)
 ; Bridge in EHZ
+	even
 ArtNem_EHZ_Bridge:	BINCLUDE	"art/nemesis/EHZ bridge.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (48 blocks)
 ; Diagonally moving lift in HTZ
+	even
 ArtNem_HtzZipline:	BINCLUDE	"art/nemesis/HTZ zip-line platform.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (4 blocks)
 ; One way barrier from HTZ
+	even
 ArtNem_HtzValveBarrier:	BINCLUDE	"art/nemesis/One way barrier from HTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (24 blocks)
 ; See-saw in HTZ
+	even
 ArtNem_HtzSeeSaw:	BINCLUDE	"art/nemesis/See-saw in HTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (24 blocks)
 ; Unused Fireball
+	even
 ;ArtNem_F0B06:
 	BINCLUDE	"art/nemesis/Fireball 3.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (20 blocks)
 ; Rock from HTZ
+	even
 ArtNem_HtzRock:	BINCLUDE	"art/nemesis/Rock from HTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (4 blocks)
 ; Orbit badnik from HTZ		; ArtNem_HtzSol:
+	even
 ArtNem_Sol:	BINCLUDE	"art/nemesis/Sol badnik from HTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (120 blocks)
 ; Large spinning wheel from MTZ
+	even
 ArtNem_MtzWheel:	BINCLUDE	"art/nemesis/Large spinning wheel from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (9 blocks)
 ; Indent in large spinning wheel from MTZ
+	even
 ArtNem_MtzWheelIndent:	BINCLUDE	"art/nemesis/Large spinning wheel from MTZ - indent.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (8 blocks)
 ; Spike block from MTZ
+	even
 ArtNem_MtzSpikeBlock:	BINCLUDE	"art/nemesis/MTZ spike block.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (15 blocks)
 ; Steam from MTZ
+	even
 ArtNem_MtzSteam:	BINCLUDE	"art/nemesis/Steam from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (8 blocks)
 ; Spike from MTZ
+	even
 ArtNem_MtzSpike:	BINCLUDE	"art/nemesis/Spike from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (54 blocks)
 ; Similarly shaded blocks from MTZ
+	even
 ArtNem_MtzAsstBlocks:	BINCLUDE	"art/nemesis/Similarly shaded blocks from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (9 blocks)
 ; Lava bubble from MTZ
+	even
 ArtNem_MtzLavaBubble:	BINCLUDE	"art/nemesis/Lava bubble from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (4 blocks)
 ; Lava cup
+	even
 ArtNem_LavaCup:	BINCLUDE	"art/nemesis/Lava cup from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (8 blocks)
 ; End of a bolt and rope from MTZ
+	even
 ArtNem_BoltEnd_Rope:	BINCLUDE	"art/nemesis/Bolt end and rope from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (12 blocks)
 ; Small cog from MTZ
+	even
 ArtNem_MtzCog:	BINCLUDE	"art/nemesis/Small cog from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (4 blocks)
 ; Flash inside spin tube from MTZ
+	even
 ArtNem_MtzSpinTubeFlash:	BINCLUDE	"art/nemesis/Spin tube flash from MTZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (32 blocks)
 ; Large wooden box from MCZ	; ArtNem_F187C:
+	even
 ArtNem_Crate:	BINCLUDE	"art/nemesis/Large wooden box from MCZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (26 blocks)
 ; Collapsing platform from MCZ	; ArtNem_F1ABA:
+	even
 ArtNem_MCZCollapsePlat:	BINCLUDE	"art/nemesis/Collapsing platform from MCZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (16 blocks)
 ; Switch that you pull on from MCZ	; ArtNem_F1C64:
+	even
 ArtNem_VineSwitch:	BINCLUDE	"art/nemesis/Pull switch from MCZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (10 blocks)
 ; Vine that lowers in MCZ	; ArtNem_F1D5C:
+	even
 ArtNem_VinePulley:	BINCLUDE	"art/nemesis/Vine that lowers from MCZ.bin"
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (20 blocks)
 ; Log viewed from the end for folding gates in MCZ (start of MCZ2)	; ArtNem_F1E06:
+	even
 ArtNem_MCZGateLog:	BINCLUDE	"art/nemesis/Drawbridge logs from MCZ.bin"
 
 ; ----------------------------------------------------------------------------------

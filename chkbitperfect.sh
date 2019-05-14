@@ -4,7 +4,7 @@
 
 if [[ ! -f bin/checkhash ]]; then
 	echo "Compiling checkhash..."
-	gcc -O3 -s -o bin/checkhash build_source/checkhash/checkhash.c build_source/checkhash/sha256.c &> /dev/null
+	gcc -std=c99 -O2 -s -fno-ident -flto -o bin/checkhash build_source/checkhash/checkhash.c build_source/checkhash/sha256.c &> /dev/null
 	echo ""
 fi
 
