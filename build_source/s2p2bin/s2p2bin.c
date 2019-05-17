@@ -88,7 +88,12 @@ void editShareFile()
 		if(share)
 		{
 			fseek(share, 0, SEEK_SET);
-			fprintf(share, "comp_z80_size 0x%X ", compressedLength);
+			#ifdef __MINGW32__
+			#define FPRINTF __mingw32_fprintf
+			#else
+			#define FPRINTF fprintf
+			#endif
+			FPRINTF(share, "comp_z80_size 0x%zX ", compressedLength);
 			fclose(share);
 		}
 	}
@@ -149,13 +154,13 @@ bool buildRom(FILE* from, FILE* to)
 
 		if(start < 0)
 		{
-			printf("\nERROR: negative start address ($%X).", start), start = 0;
+			printf("\nERROR: negative start address ($%lX).", start), start = 0;
 			return false;
 		}
 
 		if(cpuType == 0x51 && start != 0 && lastSegmentCompressed)
 		{
-			printf("\nERROR: The compressed Z80 code (s2.sounddriver.asm) must all be in one segment. That means no ORG/ALIGN/CNOP/EVEN or memory reservation commands in the Z80 code and the size must be < 65535 bytes. The offending new segment starts at address $%X relative to the start of the Z80 code.", start);
+			printf("\nERROR: The compressed Z80 code (s2.sounddriver.asm) must all be in one segment. That means no ORG/ALIGN/CNOP/EVEN or memory reservation commands in the Z80 code and the size must be < 65535 bytes. The offending new segment starts at address $%lX relative to the start of the Z80 code.", start);
 			return false;
 		}
 
@@ -187,13 +192,18 @@ bool buildRom(FILE* from, FILE* to)
 		if(!lastSegmentCompressed)
 		{
 			if(start+3 < ftell(to)) // 3 bytes of leeway for instruction patching
-				printf("\nWarning: overlapping allocation detected! $%X < $%X", start, ftell(to));
+				printf("\nWarning: overlapping allocation detected! $%lX < $%lX", start, ftell(to));
 		}
 		else
 		{
 			if(start < ftell(to))
 			{
-				printf("\nERROR: Compressed sound driver might not fit.\nPlease increase your value of Size_of_Snd_driver_guess to at least $%X and try again.", compressedLength);
+				#ifdef __MINGW32__
+				#define PRINTF __mingw32_printf
+				#else
+				#define PRINTF printf
+				#endif
+				PRINTF("\nERROR: Compressed sound driver might not fit.\nPlease increase your value of Size_of_Snd_driver_guess to at least $%zX and try again.", compressedLength);
 				return false;
 			}
 		}
