@@ -90,7 +90,7 @@ void editShareFile()
 		{
 			fseek(share, 0, SEEK_SET);
 			#ifdef __MINGW32__
-			#define FPRINTF __mingw32_fprintf
+			#define FPRINTF __mingw_fprintf
 			#else
 			#define FPRINTF fprintf
 			#endif
@@ -200,7 +200,7 @@ bool buildRom(FILE* from, FILE* to)
 			if(start < ftell(to))
 			{
 				#ifdef __MINGW32__
-				#define PRINTF __mingw32_printf
+				#define PRINTF __mingw_printf
 				#else
 				#define PRINTF printf
 				#endif
