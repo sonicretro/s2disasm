@@ -1349,8 +1349,110 @@ JmpTo_SoundDriverLoad
 	move.w	#0,(Z80_Bus_Request).l ; start the Z80
 	rts
 
-	include "_incObj/sub PlaySound.asm"
-	include "_inc/PauseGame.asm"
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+; If Music_to_play is clear, move d0 into Music_to_play,
+; else move d0 into Music_to_play_2.
+; sub_135E:
+PlayMusic:
+	tst.b	(Music_to_play).w
+	bne.s	+
+	move.b	d0,(Music_to_play).w
+	rts
++
+	move.b	d0,(Music_to_play_2).w
+	rts
+; End of function PlayMusic
+
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; sub_1370
+PlaySound:
+	move.b	d0,(SFX_to_play).w
+	rts
+; End of function PlaySound
+
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+; play a sound in alternating speakers (as in the ring collection sound)
+; sub_1376:
+PlaySoundStereo:
+	move.b	d0,(SFX_to_play_2).w
+	rts
+; End of function PlaySoundStereo
+
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+; play a sound if the source is onscreen
+; sub_137C:
+PlaySoundLocal:
+	tst.b	render_flags(a0)
+	bpl.s	+	; rts
+	move.b	d0,(SFX_to_play).w
++
+	rts
+; End of function PlaySoundLocal
+
+; ---------------------------------------------------------------------------
+; Subroutine to pause the game
+; ---------------------------------------------------------------------------
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; sub_1388:
+PauseGame:
+	nop
+	tst.b	(Life_count).w	; do you have any lives left?
+	beq.w	Unpause		; if not, branch
+	tst.w	(Game_paused).w	; is game already paused?
+	bne.s	+		; if yes, branch
+	move.b	(Ctrl_1_Press).w,d0 ; is Start button pressed?
+	or.b	(Ctrl_2_Press).w,d0 ; (either player)
+	andi.b	#button_start_mask,d0
+	beq.s	Pause_DoNothing	; if not, branch
++
+	move.w	#1,(Game_paused).w	; freeze time
+	move.b	#MusID_Pause,(Music_to_play).w	; pause music
+; loc_13B2:
+Pause_Loop:
+	move.b	#VintID_Pause,(Vint_routine).w
+	bsr.w	WaitForVint
+	tst.b	(Slow_motion_flag).w	; is slow-motion cheat on?
+	beq.s	Pause_ChkStart		; if not, branch
+	btst	#button_A,(Ctrl_1_Press).w	; is button A pressed?
+	beq.s	Pause_ChkBC		; if not, branch
+	move.b	#GameModeID_TitleScreen,(Game_Mode).w ; set game mode to 4 (title screen)
+	nop
+	bra.s	Pause_Resume
+; ===========================================================================
+; loc_13D4:
+Pause_ChkBC:
+	btst	#button_B,(Ctrl_1_Held).w ; is button B pressed?
+	bne.s	Pause_SlowMo		; if yes, branch
+	btst	#button_C,(Ctrl_1_Press).w ; is button C pressed?
+	bne.s	Pause_SlowMo		; if yes, branch
+; loc_13E4:
+Pause_ChkStart:
+	move.b	(Ctrl_1_Press).w,d0	; is Start button pressed?
+	or.b	(Ctrl_2_Press).w,d0	; (either player)
+	andi.b	#button_start_mask,d0
+	beq.s	Pause_Loop	; if not, branch
+; loc_13F2:
+Pause_Resume:
+	move.b	#MusID_Unpause,(Music_to_play).w	; unpause the music
+; loc_13F8:
+Unpause:
+	move.w	#0,(Game_paused).w	; unpause the game
+; return_13FE:
+Pause_DoNothing:
+	rts
+; ===========================================================================
+; loc_1400:
+Pause_SlowMo:
+	move.w	#1,(Game_paused).w
+	move.b	#MusID_Unpause,(Music_to_play).w
+	rts
+; End of function PauseGame
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to transfer a plane map to VRAM
@@ -1415,8 +1517,312 @@ PlaneMapToVRAM_H80_SpecialStage:
 	rts
 ; End of function PlaneMapToVRAM_H80_SpecialStage
 
-	include "_inc/DMA Queue.asm"
-	include "_inc/Nemesis Decompression.asm"
+
+; ---------------------------------------------------------------------------
+; Subroutine for queueing VDP commands (seems to only queue transfers to VRAM),
+; to be issued the next time ProcessDMAQueue is called.
+; Can be called a maximum of 18 times before the buffer needs to be cleared
+; by issuing the commands (this subroutine DOES check for overflow)
+; ---------------------------------------------------------------------------
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; sub_144E: DMA_68KtoVRAM: QueueCopyToVRAM: QueueVDPCommand: Add_To_DMA_Queue:
+QueueDMATransfer:
+	movea.l	(VDP_Command_Buffer_Slot).w,a1
+	cmpa.w	#VDP_Command_Buffer_Slot,a1
+	beq.s	QueueDMATransfer_Done ; return if there's no more room in the buffer
+
+	; piece together some VDP commands and store them for later...
+	move.w	#$9300,d0 ; command to specify DMA transfer length & $00FF
+	move.b	d3,d0
+	move.w	d0,(a1)+ ; store command
+
+	move.w	#$9400,d0 ; command to specify DMA transfer length & $FF00
+	lsr.w	#8,d3
+	move.b	d3,d0
+	move.w	d0,(a1)+ ; store command
+
+	move.w	#$9500,d0 ; command to specify source address & $0001FE
+	lsr.l	#1,d1
+	move.b	d1,d0
+	move.w	d0,(a1)+ ; store command
+
+	move.w	#$9600,d0 ; command to specify source address & $01FE00
+	lsr.l	#8,d1
+	move.b	d1,d0
+	move.w	d0,(a1)+ ; store command
+
+	move.w	#$9700,d0 ; command to specify source address & $FE0000
+	lsr.l	#8,d1
+	;andi.b	#$7F,d1		; this instruction safely allows source to be in RAM; S3K added this
+	move.b	d1,d0
+	move.w	d0,(a1)+ ; store command
+
+	andi.l	#$FFFF,d2 ; command to specify destination address and begin DMA
+	lsl.l	#2,d2
+	lsr.w	#2,d2
+	swap	d2
+	ori.l	#vdpComm($0000,VRAM,DMA),d2 ; set bits to specify VRAM transfer
+	move.l	d2,(a1)+ ; store command
+
+	move.l	a1,(VDP_Command_Buffer_Slot).w ; set the next free slot address
+	cmpa.w	#VDP_Command_Buffer_Slot,a1
+	beq.s	QueueDMATransfer_Done ; return if there's no more room in the buffer
+	move.w	#0,(a1) ; put a stop token at the end of the used part of the buffer
+; return_14AA:
+QueueDMATransfer_Done:
+	rts
+; End of function QueueDMATransfer
+
+
+; ---------------------------------------------------------------------------
+; Subroutine for issuing all VDP commands that were queued
+; (by earlier calls to QueueDMATransfer)
+; Resets the queue when it's done
+; ---------------------------------------------------------------------------
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; sub_14AC: CopyToVRAM: IssueVDPCommands: Process_DMA: Process_DMA_Queue:
+ProcessDMAQueue:
+	lea	(VDP_control_port).l,a5
+	lea	(VDP_Command_Buffer).w,a1
+; loc_14B6:
+ProcessDMAQueue_Loop:
+	move.w	(a1)+,d0
+	beq.s	ProcessDMAQueue_Done ; branch if we reached a stop token
+	; issue a set of VDP commands...
+	move.w	d0,(a5)		; transfer length
+	move.w	(a1)+,(a5)	; transfer length
+	move.w	(a1)+,(a5)	; source address
+	move.w	(a1)+,(a5)	; source address
+	move.w	(a1)+,(a5)	; source address
+	move.w	(a1)+,(a5)	; destination
+	move.w	(a1)+,(a5)	; destination
+	cmpa.w	#VDP_Command_Buffer_Slot,a1
+	bne.s	ProcessDMAQueue_Loop ; loop if we haven't reached the end of the buffer
+; loc_14CE:
+ProcessDMAQueue_Done:
+	move.w	#0,(VDP_Command_Buffer).w
+	move.l	#VDP_Command_Buffer,(VDP_Command_Buffer_Slot).w
+	rts
+; End of function ProcessDMAQueue
+
+
+
+; ---------------------------------------------------------------------------
+; START OF NEMESIS DECOMPRESSOR
+
+; For format explanation see http://info.sonicretro.org/Nemesis_compression
+; ---------------------------------------------------------------------------
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; Nemesis decompression to VRAM
+; sub_14DE: NemDecA:
+NemDec:
+	movem.l	d0-a1/a3-a5,-(sp)
+	lea	(NemDec_WriteAndStay).l,a3 ; write all data to the same location
+	lea	(VDP_data_port).l,a4	   ; specifically, to the VDP data port
+	bra.s	NemDecMain
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; Nemesis decompression to RAM
+; input: a4 = starting address of destination
+; sub_14F0: NemDecB:
+NemDecToRAM:
+	movem.l	d0-a1/a3-a5,-(sp)
+	lea	(NemDec_WriteAndAdvance).l,a3 ; advance to the next location after each write
+
+
+; sub_14FA:
+NemDecMain:
+	lea	(Decomp_Buffer).w,a1
+	move.w	(a0)+,d2
+	lsl.w	#1,d2
+	bcc.s	+
+	adda.w	#NemDec_WriteAndStay_XOR-NemDec_WriteAndStay,a3
++	lsl.w	#2,d2
+	movea.w	d2,a5
+	moveq	#8,d3
+	moveq	#0,d2
+	moveq	#0,d4
+	bsr.w	NemDecPrepare
+	move.b	(a0)+,d5
+	asl.w	#8,d5
+	move.b	(a0)+,d5
+	move.w	#$10,d6
+	bsr.s	NemDecRun
+	movem.l	(sp)+,d0-a1/a3-a5
+	rts
+; End of function NemDec
+
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; part of the Nemesis decompressor
+; sub_1528:
+NemDecRun:
+	move.w	d6,d7
+	subq.w	#8,d7
+	move.w	d5,d1
+	lsr.w	d7,d1
+	cmpi.b	#-4,d1
+	bhs.s	loc_1574
+	andi.w	#$FF,d1
+	add.w	d1,d1
+	move.b	(a1,d1.w),d0
+	ext.w	d0
+	sub.w	d0,d6
+	cmpi.w	#9,d6
+	bhs.s	+
+	addq.w	#8,d6
+	asl.w	#8,d5
+	move.b	(a0)+,d5
++	move.b	1(a1,d1.w),d1
+	move.w	d1,d0
+	andi.w	#$F,d1
+	andi.w	#$F0,d0
+
+loc_155E:
+	lsr.w	#4,d0
+
+loc_1560:
+	lsl.l	#4,d4
+	or.b	d1,d4
+	subq.w	#1,d3
+	bne.s	NemDec_WriteIter_Part2
+	jmp	(a3) ; dynamic jump! to NemDec_WriteAndStay, NemDec_WriteAndAdvance, NemDec_WriteAndStay_XOR, or NemDec_WriteAndAdvance_XOR
+; ===========================================================================
+; loc_156A:
+NemDec_WriteIter:
+	moveq	#0,d4
+	moveq	#8,d3
+; loc_156E:
+NemDec_WriteIter_Part2:
+	dbf	d0,loc_1560
+	bra.s	NemDecRun
+; ===========================================================================
+
+loc_1574:
+	subq.w	#6,d6
+	cmpi.w	#9,d6
+	bhs.s	+
+	addq.w	#8,d6
+	asl.w	#8,d5
+	move.b	(a0)+,d5
++
+	subq.w	#7,d6
+	move.w	d5,d1
+	lsr.w	d6,d1
+	move.w	d1,d0
+	andi.w	#$F,d1
+	andi.w	#$70,d0
+	cmpi.w	#9,d6
+	bhs.s	loc_155E
+	addq.w	#8,d6
+	asl.w	#8,d5
+	move.b	(a0)+,d5
+	bra.s	loc_155E
+; End of function NemDecRun
+
+; ===========================================================================
+; loc_15A0:
+NemDec_WriteAndStay:
+	move.l	d4,(a4)
+	subq.w	#1,a5
+	move.w	a5,d4
+	bne.s	NemDec_WriteIter
+	rts
+; ---------------------------------------------------------------------------
+; loc_15AA:
+NemDec_WriteAndStay_XOR:
+	eor.l	d4,d2
+	move.l	d2,(a4)
+	subq.w	#1,a5
+	move.w	a5,d4
+	bne.s	NemDec_WriteIter
+	rts
+; ===========================================================================
+; loc_15B6:
+NemDec_WriteAndAdvance:
+	move.l	d4,(a4)+
+	subq.w	#1,a5
+	move.w	a5,d4
+	bne.s	NemDec_WriteIter
+	rts
+
+    if *-NemDec_WriteAndAdvance > NemDec_WriteAndStay_XOR-NemDec_WriteAndStay
+	fatal "the code in NemDec_WriteAndAdvance must not be larger than the code in NemDec_WriteAndStay"
+    endif
+    org NemDec_WriteAndAdvance+NemDec_WriteAndStay_XOR-NemDec_WriteAndStay
+
+; ---------------------------------------------------------------------------
+; loc_15C0:
+NemDec_WriteAndAdvance_XOR:
+	eor.l	d4,d2
+	move.l	d2,(a4)+
+	subq.w	#1,a5
+	move.w	a5,d4
+	bne.s	NemDec_WriteIter
+	rts
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+; Part of the Nemesis decompressor
+
+; sub_15CC:
+NemDecPrepare:
+	move.b	(a0)+,d0
+
+-	cmpi.b	#$FF,d0
+	bne.s	+
+	rts
+; ---------------------------------------------------------------------------
++	move.w	d0,d7
+
+loc_15D8:
+	move.b	(a0)+,d0
+	cmpi.b	#$80,d0
+	bhs.s	-
+
+	move.b	d0,d1
+	andi.w	#$F,d7
+	andi.w	#$70,d1
+	or.w	d1,d7
+	andi.w	#$F,d0
+	move.b	d0,d1
+	lsl.w	#8,d1
+	or.w	d1,d7
+	moveq	#8,d1
+	sub.w	d0,d1
+	bne.s	loc_1606
+	move.b	(a0)+,d0
+	add.w	d0,d0
+	move.w	d7,(a1,d0.w)
+	bra.s	loc_15D8
+; ---------------------------------------------------------------------------
+loc_1606:
+	move.b	(a0)+,d0
+	lsl.w	d1,d0
+	add.w	d0,d0
+	moveq	#1,d5
+	lsl.w	d1,d5
+	subq.w	#1,d5
+
+-	move.w	d7,(a1,d0.w)
+	addq.w	#2,d0
+	dbf	d5,-
+
+	bra.s	loc_15D8
+; End of function NemDecPrepare
+
+; ---------------------------------------------------------------------------
+; END OF NEMESIS DECOMPRESSOR
+; ---------------------------------------------------------------------------
+
+
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 ; ---------------------------------------------------------------------------
@@ -1646,8 +2052,332 @@ RunPLC_ROM:
 	rts
 ; End of function RunPLC_ROM
 
-	include "_inc/Enigma Decompression.asm"
-	include "_inc/Kosinski Decompression.asm"
+; ---------------------------------------------------------------------------
+; Enigma Decompression Algorithm
+
+; ARGUMENTS:
+; d0 = starting art tile (added to each 8x8 before writing to destination)
+; a0 = source address
+; a1 = destination address
+
+; For format explanation see http://info.sonicretro.org/Enigma_compression
+; ---------------------------------------------------------------------------
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; EniDec_17BC:
+EniDec:
+	movem.l	d0-d7/a1-a5,-(sp)
+	movea.w	d0,a3		; store starting art tile
+	move.b	(a0)+,d0
+	ext.w	d0
+	movea.w	d0,a5		; store first byte, extended to word
+	move.b	(a0)+,d4	; store second byte
+	lsl.b	#3,d4		; multiply by 8
+	movea.w	(a0)+,a2	; store third and fourth byte
+	adda.w	a3,a2		; add starting art tile
+	movea.w	(a0)+,a4	; store fifth and sixth byte
+	adda.w	a3,a4		; add starting art tile
+	move.b	(a0)+,d5	; store seventh byte
+	asl.w	#8,d5		; shift up by a byte
+	move.b	(a0)+,d5	; store eighth byte in lower register byte
+	moveq	#16,d6		; 16 bits = 2 bytes
+
+EniDec_Loop:
+	moveq	#7,d0		; process 7 bits at a time
+	move.w	d6,d7
+	sub.w	d0,d7
+	move.w	d5,d1
+	lsr.w	d7,d1
+	andi.w	#$7F,d1		; keep only lower 7 bits
+	move.w	d1,d2
+	cmpi.w	#$40,d1		; is bit 6 set?
+	bhs.s	+		; if it is, branch
+	moveq	#6,d0		; if not, process 6 bits instead of 7
+	lsr.w	#1,d2		; bitfield now becomes TTSSSS instead of TTTSSSS
++
+	bsr.w	EniDec_ChkGetNextByte
+	andi.w	#$F,d2	; keep only lower nybble
+	lsr.w	#4,d1	; store upper nybble (max value = 7)
+	add.w	d1,d1
+	jmp	EniDec_JmpTable(pc,d1.w)
+; End of function EniDec
+
+; ===========================================================================
+
+EniDec_Sub0:
+	move.w	a2,(a1)+	; write to destination
+	addq.w	#1,a2		; increment
+	dbf	d2,EniDec_Sub0	; repeat
+	bra.s	EniDec_Loop
+; ===========================================================================
+
+EniDec_Sub4:
+	move.w	a4,(a1)+	; write to destination
+	dbf	d2,EniDec_Sub4	; repeat
+	bra.s	EniDec_Loop
+; ===========================================================================
+
+EniDec_Sub8:
+	bsr.w	EniDec_GetInlineCopyVal
+
+-	move.w	d1,(a1)+
+	dbf	d2,-
+
+	bra.s	EniDec_Loop
+; ===========================================================================
+
+EniDec_SubA:
+	bsr.w	EniDec_GetInlineCopyVal
+
+-	move.w	d1,(a1)+
+	addq.w	#1,d1
+	dbf	d2,-
+
+	bra.s	EniDec_Loop
+; ===========================================================================
+
+EniDec_SubC:
+	bsr.w	EniDec_GetInlineCopyVal
+
+-	move.w	d1,(a1)+
+	subq.w	#1,d1
+	dbf	d2,-
+
+	bra.s	EniDec_Loop
+; ===========================================================================
+
+EniDec_SubE:
+	cmpi.w	#$F,d2
+	beq.s	EniDec_End
+
+-	bsr.w	EniDec_GetInlineCopyVal
+	move.w	d1,(a1)+
+	dbf	d2,-
+
+	bra.s	EniDec_Loop
+; ===========================================================================
+; Enigma_JmpTable:
+EniDec_JmpTable:
+	bra.s	EniDec_Sub0
+	bra.s	EniDec_Sub0
+	bra.s	EniDec_Sub4
+	bra.s	EniDec_Sub4
+	bra.s	EniDec_Sub8
+	bra.s	EniDec_SubA
+	bra.s	EniDec_SubC
+	bra.s	EniDec_SubE
+; ===========================================================================
+
+EniDec_End:
+	subq.w	#1,a0
+	cmpi.w	#16,d6		; were we going to start on a completely new byte?
+	bne.s	+		; if not, branch
+	subq.w	#1,a0
++
+	move.w	a0,d0
+	lsr.w	#1,d0		; are we on an odd byte?
+	bcc.s	+		; if not, branch
+	addq.w	#1,a0		; ensure we're on an even byte
++
+	movem.l	(sp)+,d0-d7/a1-a5
+	rts
+
+;  S U B R O U T I N E 
+
+
+EniDec_GetInlineCopyVal:
+	move.w	a3,d3		; store starting art tile
+	move.b	d4,d1
+	add.b	d1,d1
+	bcc.s	+		; if d4 was < $80
+	subq.w	#1,d6		; get next bit number
+	btst	d6,d5		; is the bit set?
+	beq.s	+		; if not, branch
+	ori.w	#high_priority,d3	; set high priority bit
++
+	add.b	d1,d1
+	bcc.s	+		; if d4 was < $40
+	subq.w	#1,d6		; get next bit number
+	btst	d6,d5
+	beq.s	+
+	addi.w	#palette_line_2,d3	; set second palette line bit
++
+	add.b	d1,d1
+	bcc.s	+		; if d4 was < $20
+	subq.w	#1,d6		; get next bit number
+	btst	d6,d5
+	beq.s	+
+	addi.w	#palette_line_1,d3	; set first palette line bit
++
+	add.b	d1,d1
+	bcc.s	+		; if d4 was < $10
+	subq.w	#1,d6		; get next bit number
+	btst	d6,d5
+	beq.s	+
+	ori.w	#flip_y,d3	; set Y-flip bit
++
+	add.b	d1,d1
+	bcc.s	+		; if d4 was < 8
+	subq.w	#1,d6
+	btst	d6,d5
+	beq.s	+
+	ori.w	#flip_x,d3	; set X-flip bit
++
+	move.w	d5,d1
+	move.w	d6,d7		; get remaining bits
+	sub.w	a5,d7		; subtract minimum bit number
+	bcc.s	+		; if we're beyond that, branch
+	move.w	d7,d6
+	addi.w	#16,d6		; 16 bits = 2 bytes
+	neg.w	d7		; calculate bit deficit
+	lsl.w	d7,d1		; make space for this many bits
+	move.b	(a0),d5		; get next byte
+	rol.b	d7,d5		; make the upper X bits the lower X bits
+	add.w	d7,d7
+	and.w	EniDec_AndVals-2(pc,d7.w),d5	; only keep X lower bits
+	add.w	d5,d1		; compensate for the bit deficit
+-
+	move.w	a5,d0
+	add.w	d0,d0
+	and.w	EniDec_AndVals-2(pc,d0.w),d1	; only keep as many bits as required
+	add.w	d3,d1		; add starting art tile
+	move.b	(a0)+,d5	; get current byte, move onto next byte
+	lsl.w	#8,d5		; shift up by a byte
+	move.b	(a0)+,d5	; store next byte in lower register byte
+	rts
+; ===========================================================================
++
+	beq.s	+		; if the exact number of bits are leftover, branch
+	lsr.w	d7,d1		; remove unneeded bits
+	move.w	a5,d0
+	add.w	d0,d0
+	and.w	EniDec_AndVals-2(pc,d0.w),d1	; only keep as many bits as required
+	add.w	d3,d1		; add starting art tile
+	move.w	a5,d0		; store number of bits used up by inline copy
+	bra.s	EniDec_ChkGetNextByte	; move onto next byte
+; ===========================================================================
++
+	moveq	#16,d6	; 16 bits = 2 bytes
+	bra.s	-
+; End of function EniDec_GetInlineCopyVal
+
+; ===========================================================================
+; word_190A:
+EniDec_AndVals:
+	dc.w	 1,    3,    7,   $F
+	dc.w   $1F,  $3F,  $7F,  $FF
+	dc.w  $1FF, $3FF, $7FF, $FFF
+	dc.w $1FFF,$3FFF,$7FFF,$FFFF
+; ===========================================================================
+
+EniDec_ChkGetNextByte:
+	sub.w	d0,d6
+	cmpi.w	#9,d6
+	bhs.s	+	; rts
+	addq.w	#8,d6	; 8 bits = 1 byte
+	asl.w	#8,d5	; shift up by a byte
+	move.b	(a0)+,d5	; store next byte in lower register byte
++
+	rts
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+; ---------------------------------------------------------------------------
+; KOSINSKI DECOMPRESSION PROCEDURE
+; (sometimes called KOZINSKI decompression)
+
+; This is the only procedure in the game that stores variables on the stack.
+
+; ARGUMENTS:
+; a0 = source address
+; a1 = destination address
+
+; For format explanation see http://info.sonicretro.org/Kosinski_compression
+; ---------------------------------------------------------------------------
+; KozDec_193A:
+KosDec:
+	subq.l	#2,sp
+	move.b	(a0)+,1(sp)
+	move.b	(a0)+,(sp)
+	move.w	(sp),d5
+	moveq	#$F,d4
+
+-
+	lsr.w	#1,d5
+	move	sr,d6
+	dbf	d4,+
+	move.b	(a0)+,1(sp)
+	move.b	(a0)+,(sp)
+	move.w	(sp),d5
+	moveq	#$F,d4
++
+	move	d6,ccr
+	bcc.s	+
+	move.b	(a0)+,(a1)+
+	bra.s	-
+; ---------------------------------------------------------------------------
++
+	moveq	#0,d3
+	lsr.w	#1,d5
+	move	sr,d6
+	dbf	d4,+
+	move.b	(a0)+,1(sp)
+	move.b	(a0)+,(sp)
+	move.w	(sp),d5
+	moveq	#$F,d4
++
+	move	d6,ccr
+	bcs.s	+++
+	lsr.w	#1,d5
+	dbf	d4,+
+	move.b	(a0)+,1(sp)
+	move.b	(a0)+,(sp)
+	move.w	(sp),d5
+	moveq	#$F,d4
++
+	roxl.w	#1,d3
+	lsr.w	#1,d5
+	dbf	d4,+
+	move.b	(a0)+,1(sp)
+	move.b	(a0)+,(sp)
+	move.w	(sp),d5
+	moveq	#$F,d4
++
+	roxl.w	#1,d3
+	addq.w	#1,d3
+	moveq	#-1,d2
+	move.b	(a0)+,d2
+	bra.s	++
+; ---------------------------------------------------------------------------
++
+	move.b	(a0)+,d0
+	move.b	(a0)+,d1
+	moveq	#-1,d2
+	move.b	d1,d2
+	lsl.w	#5,d2
+	move.b	d0,d2
+	andi.w	#7,d1
+	beq.s	++
+	move.b	d1,d3
+	addq.w	#1,d3
+/
+	move.b	(a1,d2.w),d0
+	move.b	d0,(a1)+
+	dbf	d3,-
+	bra.s	--
+; ---------------------------------------------------------------------------
++
+	move.b	(a0)+,d1
+	beq.s	+
+	cmpi.b	#1,d1
+	beq.w	--
+	move.b	d1,d3
+	bra.s	-
+; ---------------------------------------------------------------------------
++
+	addq.l	#2,sp
+	rts
+; End of function KosDec
 
 ; ===========================================================================
 
@@ -1655,7 +2385,342 @@ RunPLC_ROM:
 	nop
     endif
 
-	include "_inc/PalCycle.asm"
+
+
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; sub_19DC:
+PalCycle_Load:
+	bsr.w	PalCycle_SuperSonic
+	moveq	#0,d2
+	moveq	#0,d0
+	move.b	(Current_Zone).w,d0	; use level number as index into palette cycles
+	add.w	d0,d0			; (multiply by element size = 2 bytes)
+	move.w	PalCycle(pc,d0.w),d0	; load animated palettes offset index into d0
+	jmp	PalCycle(pc,d0.w)	; jump to PalCycle + offset index
+; ---------------------------------------------------------------------------
+	rts
+; End of function PalCycle_Load
+
+; ===========================================================================
+; off_19F4:
+PalCycle: zoneOrderedOffsetTable 2,1
+	zoneOffsetTableEntry.w PalCycle_EHZ	; 0
+	zoneOffsetTableEntry.w PalCycle_Null	; 1
+	zoneOffsetTableEntry.w PalCycle_WZ	; 2
+	zoneOffsetTableEntry.w PalCycle_Null	; 3
+	zoneOffsetTableEntry.w PalCycle_MTZ	; 4
+	zoneOffsetTableEntry.w PalCycle_MTZ	; 5
+	zoneOffsetTableEntry.w PalCycle_WFZ	; 6
+	zoneOffsetTableEntry.w PalCycle_HTZ	; 7
+	zoneOffsetTableEntry.w PalCycle_HPZ	; 8
+	zoneOffsetTableEntry.w PalCycle_Null	; 9
+	zoneOffsetTableEntry.w PalCycle_OOZ	; 10
+	zoneOffsetTableEntry.w PalCycle_MCZ	; 11
+	zoneOffsetTableEntry.w PalCycle_CNZ	; 12
+	zoneOffsetTableEntry.w PalCycle_CPZ	; 13
+	zoneOffsetTableEntry.w PalCycle_CPZ	; 14
+	zoneOffsetTableEntry.w PalCycle_ARZ	; 15
+	zoneOffsetTableEntry.w PalCycle_WFZ	; 16
+    zoneTableEnd
+
+; ===========================================================================
+; return_1A16:
+PalCycle_Null:
+	rts
+; ===========================================================================
+
+PalCycle_EHZ:
+	lea	(CyclingPal_EHZ_ARZ_Water).l,a0
+	subq.w	#1,(PalCycle_Timer).w
+	bpl.s	+	; rts
+	move.w	#7,(PalCycle_Timer).w
+	move.w	(PalCycle_Frame).w,d0
+	addq.w	#1,(PalCycle_Frame).w
+	andi.w	#3,d0
+	lsl.w	#3,d0
+	move.l	(a0,d0.w),(Normal_palette_line2+6).w
+	move.l	4(a0,d0.w),(Normal_palette_line2+$1C).w
++	rts
+; ===========================================================================
+
+; PalCycle_Level2:
+PalCycle_WZ:
+	subq.w	#1,(PalCycle_Timer).w
+	bpl.s	++	; rts
+	move.w	#2,(PalCycle_Timer).w
+	lea	(CyclingPal_WoodConveyor).l,a0
+	move.w	(PalCycle_Frame).w,d0
+	subq.w	#2,(PalCycle_Frame).w
+	bcc.s	+
+	move.w	#6,(PalCycle_Frame).w
++	lea	(Normal_palette_line4+6).w,a1
+	move.l	(a0,d0.w),(a1)+
+	move.l	4(a0,d0.w),(a1)
++	rts
+; ===========================================================================
+
+PalCycle_MTZ:
+	subq.w	#1,(PalCycle_Timer).w
+	bpl.s	++
+	move.w	#$11,(PalCycle_Timer).w
+	lea	(CyclingPal_MTZ1).l,a0
+	move.w	(PalCycle_Frame).w,d0
+	addq.w	#2,(PalCycle_Frame).w
+	cmpi.w	#$C,(PalCycle_Frame).w
+	blo.s	+
+	move.w	#0,(PalCycle_Frame).w
++	lea	(Normal_palette_line3+$A).w,a1
+	move.w	(a0,d0.w),(a1)
++
+	subq.w	#1,(PalCycle_Timer2).w
+	bpl.s	++
+	move.w	#2,(PalCycle_Timer2).w
+	lea	(CyclingPal_MTZ2).l,a0
+	move.w	(PalCycle_Frame2).w,d0
+	addq.w	#2,(PalCycle_Frame2).w
+	cmpi.w	#6,(PalCycle_Frame2).w
+	blo.s	+
+	move.w	#0,(PalCycle_Frame2).w
++	lea	(Normal_palette_line3+2).w,a1
+	move.l	(a0,d0.w),(a1)+
+	move.w	4(a0,d0.w),(a1)
++
+	subq.w	#1,(PalCycle_Timer3).w
+	bpl.s	++	; rts
+	move.w	#9,(PalCycle_Timer3).w
+	lea	(CyclingPal_MTZ3).l,a0
+	move.w	(PalCycle_Frame3).w,d0
+	addq.w	#2,(PalCycle_Frame3).w
+	cmpi.w	#$14,(PalCycle_Frame3).w
+	blo.s	+
+	move.w	#0,(PalCycle_Frame3).w
++	lea	(Normal_palette_line3+$1E).w,a1
+	move.w	(a0,d0.w),(a1)
++	rts
+; ===========================================================================
+
+PalCycle_HTZ:
+	lea	(CyclingPal_Lava).l,a0
+	subq.w	#1,(PalCycle_Timer).w
+	bpl.s	+	; rts
+	move.w	#0,(PalCycle_Timer).w
+	move.w	(PalCycle_Frame).w,d0
+	addq.w	#1,(PalCycle_Frame).w
+	andi.w	#$F,d0
+	move.b	PalCycle_HTZ_LavaDelayData(pc,d0.w),(PalCycle_Timer+1).w
+	lsl.w	#3,d0
+	move.l	(a0,d0.w),(Normal_palette_line2+6).w
+	move.l	4(a0,d0.w),(Normal_palette_line2+$1C).w
++	rts
+; ===========================================================================
+; byte_1B40:
+PalCycle_HTZ_LavaDelayData: ; number of frames between changes of the lava palette
+	dc.b	$B, $B, $B, $A
+	dc.b	 8, $A, $B, $B
+	dc.b	$B, $B, $D, $F
+	dc.b	$D, $B, $B, $B
+; ===========================================================================
+
+PalCycle_HPZ:
+	subq.w	#1,(PalCycle_Timer).w
+	bpl.s	++	; rts
+	move.w	#4,(PalCycle_Timer).w
+	lea	(CyclingPal_HPZWater).l,a0
+	move.w	(PalCycle_Frame).w,d0
+	subq.w	#2,(PalCycle_Frame).w
+	bcc.s	+
+	move.w	#6,(PalCycle_Frame).w
++	lea	(Normal_palette_line4+$12).w,a1
+	move.l	(a0,d0.w),(a1)+
+	move.l	4(a0,d0.w),(a1)
+	lea	(CyclingPal_HPZUnderwater).l,a0
+	lea	(Underwater_palette_line4+$12).w,a1
+	move.l	(a0,d0.w),(a1)+
+	move.l	4(a0,d0.w),(a1)
++	rts
+; ===========================================================================
+
+PalCycle_OOZ:
+	subq.w	#1,(PalCycle_Timer).w
+	bpl.s	+	; rts
+	move.w	#7,(PalCycle_Timer).w
+	lea	(CyclingPal_Oil).l,a0
+	move.w	(PalCycle_Frame).w,d0
+	addq.w	#2,(PalCycle_Frame).w
+	andi.w	#6,(PalCycle_Frame).w
+	lea	(Normal_palette_line3+$14).w,a1
+	move.l	(a0,d0.w),(a1)+
+	move.l	4(a0,d0.w),(a1)
++	rts
+; ===========================================================================
+
+PalCycle_MCZ:
+	tst.b	(Current_Boss_ID).w
+	bne.s	+	; rts
+	subq.w	#1,(PalCycle_Timer).w
+	bpl.s	+	; rts
+	move.w	#1,(PalCycle_Timer).w
+	lea	(CyclingPal_Lantern).l,a0
+	move.w	(PalCycle_Frame).w,d0
+	addq.w	#2,(PalCycle_Frame).w
+	andi.w	#6,(PalCycle_Frame).w
+	move.w	(a0,d0.w),(Normal_palette_line2+$16).w
++	rts
+; ===========================================================================
+
+PalCycle_CNZ:
+	subq.w	#1,(PalCycle_Timer).w
+	bpl.w	CNZ_SkipToBossPalCycle
+	move.w	#7,(PalCycle_Timer).w
+	lea	(CyclingPal_CNZ1).l,a0
+	move.w	(PalCycle_Frame).w,d0
+	addq.w	#2,(PalCycle_Frame).w
+	cmpi.w	#6,(PalCycle_Frame).w
+	blo.s	+
+	move.w	#0,(PalCycle_Frame).w
++
+	lea	(a0,d0.w),a0
+	lea	(Normal_palette).w,a1
+	_move.w	0(a0),$4A(a1)
+	move.w	6(a0),$4C(a1)
+	move.w	$C(a0),$4E(a1)
+	move.w	$12(a0),$56(a1)
+	move.w	$18(a0),$58(a1)
+	move.w	$1E(a0),$5A(a1)
+	lea	(CyclingPal_CNZ3).l,a0
+	lea	(a0,d0.w),a0
+	_move.w	0(a0),$64(a1)
+	move.w	6(a0),$66(a1)
+	move.w	$C(a0),$68(a1)
+	lea	(CyclingPal_CNZ4).l,a0
+	move.w	(PalCycle_Frame_CNZ).w,d0
+	addq.w	#2,(PalCycle_Frame_CNZ).w
+	cmpi.w	#$24,(PalCycle_Frame_CNZ).w
+	blo.s	+
+	move.w	#0,(PalCycle_Frame_CNZ).w
++
+	lea	(Normal_palette_line4+$12).w,a1
+	move.w	4(a0,d0.w),(a1)+
+	move.w	2(a0,d0.w),(a1)+
+	move.w	(a0,d0.w),(a1)+
+	
+CNZ_SkipToBossPalCycle:
+	tst.b	(Current_Boss_ID).w
+	beq.w	+++	; rts
+	subq.w	#1,(PalCycle_Timer2).w
+	bpl.w	+++	; rts
+	move.w	#3,(PalCycle_Timer2).w
+	move.w	(PalCycle_Frame2).w,d0
+	addq.w	#2,(PalCycle_Frame2).w
+	cmpi.w	#6,(PalCycle_Frame2).w
+	blo.s	+
+	move.w	#0,(PalCycle_Frame2).w
++	lea	(CyclingPal_CNZ1_B).l,a0
+	lea	(a0,d0.w),a0
+	lea	(Normal_palette).w,a1
+	_move.w	0(a0),$24(a1)
+	move.w	6(a0),$26(a1)
+	move.w	$C(a0),$28(a1)
+	lea	(CyclingPal_CNZ2_B).l,a0
+	move.w	(PalCycle_Frame3).w,d0
+	addq.w	#2,(PalCycle_Frame3).w
+	cmpi.w	#$14,(PalCycle_Frame3).w
+	blo.s	+
+	move.w	#0,(PalCycle_Frame3).w
++	move.w	(a0,d0.w),$3C(a1)
+	lea	(CyclingPal_CNZ3_B).l,a0
+	move.w	(PalCycle_Frame2_CNZ).w,d0
+	addq.w	#2,(PalCycle_Frame2_CNZ).w
+	andi.w	#$E,(PalCycle_Frame2_CNZ).w
+	move.w	(a0,d0.w),$3E(a1)
++	rts
+; ===========================================================================
+
+PalCycle_CPZ:
+	subq.w	#1,(PalCycle_Timer).w
+	bpl.s	+++	; rts
+	move.w	#7,(PalCycle_Timer).w
+	lea	(CyclingPal_CPZ1).l,a0
+	move.w	(PalCycle_Frame).w,d0
+	addq.w	#6,(PalCycle_Frame).w
+	cmpi.w	#$36,(PalCycle_Frame).w
+	blo.s	+
+	move.w	#0,(PalCycle_Frame).w
++	lea	(Normal_palette_line4+$18).w,a1
+	move.l	(a0,d0.w),(a1)+
+	move.w	4(a0,d0.w),(a1)
+	lea	(CyclingPal_CPZ2).l,a0
+	move.w	(PalCycle_Frame2).w,d0
+	addq.w	#2,(PalCycle_Frame2).w
+	cmpi.w	#$2A,(PalCycle_Frame2).w
+	blo.s	+
+	move.w	#0,(PalCycle_Frame2).w
++	move.w	(a0,d0.w),(Normal_palette_line4+$1E).w
+	lea	(CyclingPal_CPZ3).l,a0
+	move.w	(PalCycle_Frame3).w,d0
+	addq.w	#2,(PalCycle_Frame3).w
+	andi.w	#$1E,(PalCycle_Frame3).w
+	move.w	(a0,d0.w),(Normal_palette_line3+$1E).w
++	rts
+; ===========================================================================
+
+PalCycle_ARZ:
+	lea	(CyclingPal_EHZ_ARZ_Water).l,a0
+	subq.w	#1,(PalCycle_Timer).w
+	bpl.s	+	; rts
+	move.w	#5,(PalCycle_Timer).w
+	move.w	(PalCycle_Frame).w,d0
+	addq.w	#1,(PalCycle_Frame).w
+	andi.w	#3,d0
+	lsl.w	#3,d0
+	lea	(Normal_palette_line3+4).w,a1
+	move.l	(a0,d0.w),(a1)+
+	move.l	4(a0,d0.w),(a1)
++	rts
+; ===========================================================================
+
+PalCycle_WFZ:
+	subq.w	#1,(PalCycle_Timer).w
+	bpl.s	+++
+	move.w	#1,(PalCycle_Timer).w
+	lea	(CyclingPal_WFZFire).l,a0
+	tst.b	(WFZ_SCZ_Fire_Toggle).w
+	beq.s	+
+	move.w	#5,(PalCycle_Timer).w
+	lea	(CyclingPal_WFZBelt).l,a0
++	move.w	(PalCycle_Frame).w,d0
+	addq.w	#8,(PalCycle_Frame).w
+	cmpi.w	#$20,(PalCycle_Frame).w
+	blo.s	+
+	move.w	#0,(PalCycle_Frame).w
++	lea	(Normal_palette_line3+$E).w,a1
+	move.l	(a0,d0.w),(a1)+
+	move.l	4(a0,d0.w),(a1)
++	subq.w	#1,(PalCycle_Timer2).w
+	bpl.s	++	; subq.w
+	move.w	#3,(PalCycle_Timer2).w
+	lea	(CyclingPal_WFZ1).l,a0
+	move.w	(PalCycle_Frame2).w,d0
+	addq.w	#2,(PalCycle_Frame2).w
+	cmpi.w	#$44,(PalCycle_Frame2).w
+	blo.s	+	; move.w
+	move.w	#0,(PalCycle_Frame2).w
++	move.w	(a0,d0.w),(Normal_palette_line3+$1C).w
++
+	subq.w	#1,(PalCycle_Timer3).w
+	bpl.s	++	; rts
+	move.w	#5,(PalCycle_Timer3).w
+	lea	(CyclingPal_WFZ2).l,a0
+	move.w	(PalCycle_Frame3).w,d0
+	addq.w	#2,(PalCycle_Frame3).w
+	cmpi.w	#$18,(PalCycle_Frame3).w
+	blo.s	+
+	move.w	#0,(PalCycle_Frame3).w
++	move.w	(a0,d0.w),(Normal_palette_line3+$1E).w
++	rts
+; ===========================================================================
 
 ; ----------------------------------------------------------------------------
 ; word_1E5A:
@@ -1731,7 +2796,99 @@ CyclingPal_WFZ2:
 	BINCLUDE "art/palettes/WFZ Cycle 2.bin"; Wing Fortress Flashing Light Cycle 2
 ; ----------------------------------------------------------------------------
 
-	include "_inc/PalCycle_SuperSonic.asm"
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; sub_213E:
+PalCycle_SuperSonic:
+	move.b	(Super_Sonic_palette).w,d0
+	beq.s	++	; rts	; return, if Sonic isn't super
+	bmi.w	PalCycle_SuperSonic_normal	; branch, if fade-in is done
+	subq.b	#1,d0
+	bne.s	PalCycle_SuperSonic_revert	; branch for values greater than 1
+
+	; fade from Sonic's to Super Sonic's palette
+	; run frame timer
+	subq.b	#1,(Palette_timer).w
+	bpl.s	++	; rts
+	move.b	#3,(Palette_timer).w
+
+	; increment palette frame and update Sonic's palette
+	lea	(CyclingPal_SSTransformation).l,a0
+	move.w	(Palette_frame).w,d0
+	addq.w	#8,(Palette_frame).w	; 1 palette entry = 1 word, Sonic uses 4 shades of blue
+	cmpi.w	#$30,(Palette_frame).w	; has palette cycle reached the 6th frame?
+	blo.s	+			; if not, branch
+	move.b	#-1,(Super_Sonic_palette).w	; mark fade-in as done
+	move.b	#0,(MainCharacter+obj_control).w	; restore Sonic's movement
++
+	lea	(Normal_palette+4).w,a1
+	move.l	(a0,d0.w),(a1)+
+	move.l	4(a0,d0.w),(a1)
+	; note: the fade in for Sonic's underwater palette is missing.
+	; branch to the code below (*) to fix this
+/	rts
+; ===========================================================================
+; loc_2188:
+PalCycle_SuperSonic_revert:	; runs the fade in transition backwards
+	; run frame timer
+	subq.b	#1,(Palette_timer).w
+	bpl.s	-	; rts
+	move.b	#3,(Palette_timer).w
+
+	; decrement palette frame and update Sonic's palette
+	lea	(CyclingPal_SSTransformation).l,a0
+	move.w	(Palette_frame).w,d0
+	subq.w	#8,(Palette_frame).w	; previous frame
+	bcc.s	+			; branch, if it isn't the first frame
+	move.b	#0,(Palette_frame).w
+	move.b	#0,(Super_Sonic_palette).w	; stop palette cycle
++
+	lea	(Normal_palette+4).w,a1
+	move.l	(a0,d0.w),(a1)+
+	move.l	4(a0,d0.w),(a1)
+	; underwater palettes (*)
+	lea	(CyclingPal_CPZUWTransformation).l,a0
+	cmpi.b	#chemical_plant_zone,(Current_Zone).w
+	beq.s	+
+	cmpi.b	#aquatic_ruin_zone,(Current_Zone).w
+	bne.s	-	; rts
+	lea	(CyclingPal_ARZUWTransformation).l,a0
++	lea	(Underwater_palette+4).w,a1
+	move.l	(a0,d0.w),(a1)+
+	move.l	4(a0,d0.w),(a1)
+	rts
+; ===========================================================================
+; loc_21E6:
+PalCycle_SuperSonic_normal:
+	; run frame timer
+	subq.b	#1,(Palette_timer).w
+	bpl.s	-	; rts
+	move.b	#7,(Palette_timer).w
+
+	; increment palette frame and update Sonic's palette
+	lea	(CyclingPal_SSTransformation).l,a0
+	move.w	(Palette_frame).w,d0
+	addq.w	#8,(Palette_frame).w	; next frame
+	cmpi.w	#$78,(Palette_frame).w	; is it the last frame?
+	blo.s	+			; if not, branch
+	move.w	#$30,(Palette_frame).w	; reset frame counter (Super Sonic's normal palette cycle starts at $30. Everything before that is for the palette fade)
++
+	lea	(Normal_palette+4).w,a1
+	move.l	(a0,d0.w),(a1)+
+	move.l	4(a0,d0.w),(a1)
+	; underwater palettes
+	lea	(CyclingPal_CPZUWTransformation).l,a0
+	cmpi.b	#chemical_plant_zone,(Current_Zone).w
+	beq.s	+
+	cmpi.b	#aquatic_ruin_zone,(Current_Zone).w
+	bne.w	-	; rts
+	lea	(CyclingPal_ARZUWTransformation).l,a0
++	lea	(Underwater_palette+4).w,a1
+	move.l	(a0,d0.w),(a1)+
+	move.l	4(a0,d0.w),(a1)
+	rts
+; End of function PalCycle_SuperSonic
 
 ; ===========================================================================
 ;----------------------------------------------------------------------------
@@ -2325,7 +3482,60 @@ PalLoad_Water_ForFade:
 	rts
 ; End of function PalLoad_Water_ForFade
 
-	include "_inc/Palette Pointers.asm"
+; ===========================================================================
+;----------------------------------------------------------------------------
+; Palette pointers
+; (PALETTE DESCRIPTOR ARRAY)
+; This struct array defines the palette to use for each level.
+;----------------------------------------------------------------------------
+
+palptr	macro	ptr,lineno
+	dc.l ptr	; Pointer to palette
+	dc.w (Normal_palette+lineno*palette_line_size)&$FFFF	; Location in ram to load palette into
+	dc.w bytesToLcnt(ptr_End-ptr)	; Size of palette in (bytes / 4)
+	endm
+
+PalPointers:
+PalPtr_SEGA:	palptr Pal_SEGA,  0
+PalPtr_Title:	palptr Pal_Title, 1
+PalPtr_MenuB:	palptr Pal_MenuB, 0
+PalPtr_BGND:	palptr Pal_BGND,  0
+PalPtr_EHZ:	palptr Pal_EHZ,   1
+PalPtr_EHZ2:	palptr Pal_EHZ,   1
+PalPtr_WZ:	palptr Pal_WZ,    1
+PalPtr_EHZ3:	palptr Pal_EHZ,   1
+PalPtr_MTZ:	palptr Pal_MTZ,   1
+PalPtr_MTZ2:	palptr Pal_MTZ,   1
+PalPtr_WFZ:	palptr Pal_WFZ,   1
+PalPtr_HTZ:	palptr Pal_HTZ,   1
+PalPtr_HPZ:	palptr Pal_HPZ,   1
+PalPtr_EHZ4:	palptr Pal_EHZ,   1
+PalPtr_OOZ:	palptr Pal_OOZ,   1
+PalPtr_MCZ:	palptr Pal_MCZ,   1
+PalPtr_CNZ:	palptr Pal_CNZ,   1
+PalPtr_CPZ:	palptr Pal_CPZ,   1
+PalPtr_DEZ:	palptr Pal_DEZ,   1
+PalPtr_ARZ:	palptr Pal_ARZ,   1
+PalPtr_SCZ:	palptr Pal_SCZ,   1
+PalPtr_HPZ_U:	palptr Pal_HPZ_U, 0
+PalPtr_CPZ_U:	palptr Pal_CPZ_U, 0
+PalPtr_ARZ_U:	palptr Pal_ARZ_U, 0
+PalPtr_SS:	palptr Pal_SS,    0
+PalPtr_MCZ_B:	palptr Pal_MCZ_B, 1
+PalPtr_CNZ_B:	palptr Pal_CNZ_B, 1
+PalPtr_SS1:	palptr Pal_SS1,   3
+PalPtr_SS2:	palptr Pal_SS2,   3
+PalPtr_SS3:	palptr Pal_SS3,   3
+PalPtr_SS4:	palptr Pal_SS4,   3
+PalPtr_SS5:	palptr Pal_SS5,   3
+PalPtr_SS6:	palptr Pal_SS6,   3
+PalPtr_SS7:	palptr Pal_SS7,   3
+PalPtr_SS1_2p:	palptr Pal_SS1_2p,3
+PalPtr_SS2_2p:	palptr Pal_SS2_2p,3
+PalPtr_SS3_2p:	palptr Pal_SS3_2p,3
+PalPtr_OOZ_B:	palptr Pal_OOZ_B, 1
+PalPtr_Menu:	palptr Pal_Menu,  0
+PalPtr_Result:	palptr Pal_Result,0
 
 ; ----------------------------------------------------------------------------
 ; This macro defines Pal_ABC and Pal_ABC_End, so palptr can compute the size of
@@ -2400,9 +3610,125 @@ WaitForVint:
 	rts
 ; End of function WaitForVint
 
-	include "_incObj/sub RandomNumber.asm"
-	include "_incObj/sub CalcSine.asm"
-	include "_incObj/sub CalcAngle.asm"
+
+; ---------------------------------------------------------------------------
+; Subroutine to generate a pseudo-random number in d0
+; d0 = (RNG & $FFFF0000) | ((RNG*41 & $FFFF) + ((RNG*41 & $FFFF0000) >> 16))
+; RNG = ((RNG*41 + ((RNG*41 & $FFFF) << 16)) & $FFFF0000) | (RNG*41 & $FFFF)
+; ---------------------------------------------------------------------------
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; sub_3390:
+RandomNumber:
+	move.l	(RNG_seed).w,d1
+	bne.s	+
+	move.l	#$2A6D365A,d1 ; if the RNG is 0, reset it to this crazy number
+
+	; set the high word of d0 to be the high word of the RNG
+	; and multiply the RNG by 41
++	move.l	d1,d0
+	asl.l	#2,d1
+	add.l	d0,d1
+	asl.l	#3,d1
+	add.l	d0,d1
+
+	; add the low word of the RNG to the high word of the RNG
+	; and set the low word of d0 to be the result
+	move.w	d1,d0
+	swap	d1
+	add.w	d1,d0
+	move.w	d0,d1
+	swap	d1
+
+	move.l	d1,(RNG_seed).w
+	rts
+; End of function RandomNumber
+
+
+; ---------------------------------------------------------------------------
+; Subroutine to calculate sine and cosine of an angle
+; d0 = input byte = angle (360 degrees == 256)
+; d0 = output word = 255 * sine(angle)
+; d1 = output word = 255 * cosine(angle)
+; ---------------------------------------------------------------------------
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; sub_33B6:
+CalcSine:
+	andi.w	#$FF,d0
+	add.w	d0,d0
+	addi.w	#$80,d0
+	move.w	Sine_Data(pc,d0.w),d1 ; cos
+	subi.w	#$80,d0
+	move.w	Sine_Data(pc,d0.w),d0 ; sin
+	rts
+; End of function CalcSine
+
+; ===========================================================================
+; word_33CE:
+Sine_Data:	BINCLUDE	"misc/sinewave.bin"
+
+
+; ---------------------------------------------------------------------------
+; Subroutine to calculate arctangent of y/x
+; d1 = input x
+; d2 = input y
+; d0 = output angle (360 degrees == 256)
+; ---------------------------------------------------------------------------
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; sub_364E:
+CalcAngle:
+	movem.l	d3-d4,-(sp)
+	moveq	#0,d3
+	moveq	#0,d4
+	move.w	d1,d3
+	move.w	d2,d4
+	or.w	d3,d4
+	beq.s	CalcAngle_Zero ; special case return if x and y are both 0
+	move.w	d2,d4
+
+	absw.w	d3	; calculate absolute value of x
+	absw.w	d4	; calculate absolute value of y
+	cmp.w	d3,d4
+	bhs.w	+
+	lsl.l	#8,d4
+	divu.w	d3,d4
+	moveq	#0,d0
+	move.b	Angle_Data(pc,d4.w),d0
+	bra.s	++
++
+	lsl.l	#8,d3
+	divu.w	d4,d3
+	moveq	#$40,d0
+	sub.b	Angle_Data(pc,d3.w),d0
++
+	tst.w	d1
+	bpl.w	+
+	neg.w	d0
+	addi.w	#$80,d0
++
+	tst.w	d2
+	bpl.w	+
+	neg.w	d0
+	addi.w	#$100,d0
++
+	movem.l	(sp)+,d3-d4
+	rts
+; ===========================================================================
+; loc_36AA:
+CalcAngle_Zero:
+	move.w	#$40,d0
+	movem.l	(sp)+,d3-d4
+	rts
+; End of function CalcAngle
+
+; ===========================================================================
+; byte_36B4:
+Angle_Data:	BINCLUDE	"misc/angles.bin"
 
 ; ===========================================================================
 
@@ -3395,8 +4721,593 @@ InitPlayers_TailsAlone:
 	rts
 ; End of function InitPlayers
 
-	include "_inc/WaterEffects.asm"
-	include "_inc/MoveSonicInDemo.asm"
+
+
+
+
+; ---------------------------------------------------------------------------
+; Subroutine to move the water or oil surface sprites to where the screen is at
+; (the closest match I could find to this subroutine in Sonic 1 is Obj1B_Action)
+; ---------------------------------------------------------------------------
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; sub_44E4:
+UpdateWaterSurface:
+	tst.b	(Water_flag).w
+	beq.s	++	; rts
+	move.w	(Camera_X_pos).w,d1
+	btst	#0,(Timer_frames+1).w
+	beq.s	+
+	addi.w	#$20,d1
++		; match obj x-position to screen position
+	move.w	d1,d0
+	addi.w	#$60,d0
+	move.w	d0,(WaterSurface1+x_pos).w
+	addi.w	#$120,d1
+	move.w	d1,(WaterSurface2+x_pos).w
++
+	rts
+; End of function UpdateWaterSurface
+
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; ---------------------------------------------------------------------------
+; Subroutine to do special water effects
+; ---------------------------------------------------------------------------
+; sub_450E: ; LZWaterEffects:
+WaterEffects:
+	tst.b	(Water_flag).w	; does level have water?
+	beq.s	NonWaterEffects	; if not, branch
+	tst.b	(Deform_lock).w
+	bne.s	MoveWater
+	cmpi.b	#6,(MainCharacter+routine).w	; is player dead?
+	bhs.s	MoveWater			; if yes, branch
+	bsr.w	DynamicWater
+; loc_4526: ; LZMoveWater:
+MoveWater:
+	clr.b	(Water_fullscreen_flag).w
+	moveq	#0,d0
+	cmpi.b	#aquatic_ruin_zone,(Current_Zone).w	; is level ARZ?
+	beq.s	+		; if yes, branch
+	move.b	(Oscillating_Data).w,d0
+	lsr.w	#1,d0
++
+	add.w	(Water_Level_2).w,d0
+	move.w	d0,(Water_Level_1).w
+		; calculate distance between water surface and top of screen
+	move.w	(Water_Level_1).w,d0
+	sub.w	(Camera_Y_pos).w,d0
+	bhs.s	+
+	tst.w	d0
+	bpl.s	+
+	move.b	#$DF,(Hint_counter_reserve+1).w	; H-INT every 224th scanline
+	move.b	#1,(Water_fullscreen_flag).w
++
+	cmpi.w	#$DF,d0
+	blo.s	+
+	move.w	#$DF,d0
++
+	move.b	d0,(Hint_counter_reserve+1).w	; H-INT every d0 scanlines
+; loc_456A:
+NonWaterEffects:
+	cmpi.b	#oil_ocean_zone,(Current_Zone).w	; is the level OOZ?
+	bne.s	+			; if not, branch
+	bsr.w	OilSlides		; call oil slide routine
++
+	cmpi.b	#wing_fortress_zone,(Current_Zone).w	; is the level WFZ?
+	bne.s	+			; if not, branch
+	bsr.w	WindTunnel		; call wind and block break routine
++
+	rts
+; End of function WaterEffects
+
+; ===========================================================================
+    if useFullWaterTables
+WaterHeight: zoneOrderedTable 2,2
+	zoneTableEntry.w  $600, $600	; EHZ
+	zoneTableEntry.w  $600, $600	; Zone 1
+	zoneTableEntry.w  $600, $600	; WZ
+	zoneTableEntry.w  $600, $600	; Zone 3
+	zoneTableEntry.w  $600, $600	; MTZ
+	zoneTableEntry.w  $600, $600	; MTZ
+	zoneTableEntry.w  $600, $600	; WFZ
+	zoneTableEntry.w  $600, $600	; HTZ
+	zoneTableEntry.w  $600, $600	; HPZ
+	zoneTableEntry.w  $600, $600	; Zone 9
+	zoneTableEntry.w  $600, $600	; OOZ
+	zoneTableEntry.w  $600, $600	; MCZ
+	zoneTableEntry.w  $600, $600	; CNZ
+	zoneTableEntry.w  $600, $710	; CPZ
+	zoneTableEntry.w  $600, $600	; DEZ
+	zoneTableEntry.w  $410, $510	; ARZ
+	zoneTableEntry.w  $600, $600	; SCZ
+    zoneTableEnd
+    else
+; word_4584:
+WaterHeight:
+	dc.w  $600, $600	; HPZ
+	dc.w  $600, $600	; Zone 9
+	dc.w  $600, $600	; OOZ
+	dc.w  $600, $600	; MCZ
+	dc.w  $600, $600	; CNZ
+	dc.w  $600, $710	; CPZ
+	dc.w  $600, $600	; DEZ
+	dc.w  $410, $510	; ARZ
+    endif
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; sub_45A4: ; LZDynamicWater:
+DynamicWater:
+	moveq	#0,d0
+	move.w	(Current_ZoneAndAct).w,d0
+    if ~~useFullWaterTables
+	subi.w	#hidden_palace_zone_act_1,d0
+    endif
+	ror.b	#1,d0
+	lsr.w	#6,d0
+	andi.w	#$FFFE,d0
+	move.w	Dynamic_water_routine_table(pc,d0.w),d0
+	jsr	Dynamic_water_routine_table(pc,d0.w)
+	moveq	#0,d1
+	move.b	(Water_on).w,d1
+	move.w	(Water_Level_3).w,d0
+	sub.w	(Water_Level_2).w,d0
+	beq.s	++	; rts
+	bcc.s	+
+	neg.w	d1
++
+	add.w	d1,(Water_Level_2).w
++
+	rts
+; End of function DynamicWater
+
+; ===========================================================================
+    if useFullWaterTables
+Dynamic_water_routine_table: zoneOrderedOffsetTable 2,2
+	zoneOffsetTableEntry.w DynamicWaterNull ; EHZ 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; EHZ 2
+	zoneOffsetTableEntry.w DynamicWaterNull ; Zone 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; Zone 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; WZ 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; WZ 2
+	zoneOffsetTableEntry.w DynamicWaterNull ; Zone 3
+	zoneOffsetTableEntry.w DynamicWaterNull ; Zone 3
+	zoneOffsetTableEntry.w DynamicWaterNull ; MTZ 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; MTZ 2
+	zoneOffsetTableEntry.w DynamicWaterNull ; MTZ 3
+	zoneOffsetTableEntry.w DynamicWaterNull ; MTZ 4
+	zoneOffsetTableEntry.w DynamicWaterNull ; WFZ 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; WFZ 2
+	zoneOffsetTableEntry.w DynamicWaterNull ; HTZ 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; HTZ 2
+	zoneOffsetTableEntry.w DynamicWaterNull ; HPZ 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; HPZ 2
+	zoneOffsetTableEntry.w DynamicWaterNull ; Zone 9
+	zoneOffsetTableEntry.w DynamicWaterNull ; Zone 9
+	zoneOffsetTableEntry.w DynamicWaterNull ; OOZ 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; OOZ 2
+	zoneOffsetTableEntry.w DynamicWaterNull ; MCZ 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; MCZ 2
+	zoneOffsetTableEntry.w DynamicWaterNull ; CNZ 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; CNZ 2
+	zoneOffsetTableEntry.w DynamicWaterNull ; CPZ 1
+	zoneOffsetTableEntry.w DynamicWaterCPZ2 ; CPZ 2
+	zoneOffsetTableEntry.w DynamicWaterNull ; DEZ 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; DEZ 2
+	zoneOffsetTableEntry.w DynamicWaterNull ; ARZ 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; ARZ 2
+	zoneOffsetTableEntry.w DynamicWaterNull ; SCZ 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; SCZ 2
+    zoneTableEnd
+    else
+; off_45D8:
+Dynamic_water_routine_table: offsetTable
+	offsetTableEntry.w DynamicWaterNull ; HPZ 1
+	offsetTableEntry.w DynamicWaterNull ; HPZ 2
+	offsetTableEntry.w DynamicWaterNull ; Zone 9
+	offsetTableEntry.w DynamicWaterNull ; Zone 9
+	offsetTableEntry.w DynamicWaterNull ; OOZ 1
+	offsetTableEntry.w DynamicWaterNull ; OOZ 2
+	offsetTableEntry.w DynamicWaterNull ; MCZ 1
+	offsetTableEntry.w DynamicWaterNull ; MCZ 2
+	offsetTableEntry.w DynamicWaterNull ; CNZ 1
+	offsetTableEntry.w DynamicWaterNull ; CNZ 2
+	offsetTableEntry.w DynamicWaterNull ; CPZ 1
+	offsetTableEntry.w DynamicWaterCPZ2 ; CPZ 2
+	offsetTableEntry.w DynamicWaterNull ; DEZ 1
+	offsetTableEntry.w DynamicWaterNull ; DEZ 2
+	offsetTableEntry.w DynamicWaterNull ; ARZ 1
+	offsetTableEntry.w DynamicWaterNull ; ARZ 2
+    endif
+; ===========================================================================
+; return_45F8:
+DynamicWaterNull:
+	rts
+; ===========================================================================
+; loc_45FA:
+DynamicWaterCPZ2:
+	cmpi.w	#$1DE0,(Camera_X_pos).w
+	blo.s	+	; rts
+	move.w	#$510,(Water_Level_3).w
++	rts
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+; Equates:
+windtunnel_min_x_pos	= 0
+windtunnel_max_x_pos	= 4
+windtunnel_min_y_pos	= 2
+windtunnel_max_y_pos	= 6
+
+; sub_460A:
+WindTunnel:
+	tst.w	(Debug_placement_mode).w
+	bne.w	WindTunnel_End	; don't interact with wind tunnels while in debug mode
+	lea	(WindTunnelsCoordinates).l,a2
+	moveq	#(WindTunnelsCoordinates_End-WindTunnelsCoordinates)/8-1,d1
+	lea	(MainCharacter).w,a1 ; a1=character
+-	; check for current wind tunnel if the main character is inside it
+	move.w	x_pos(a1),d0
+	cmp.w	windtunnel_min_x_pos(a2),d0
+	blo.w	WindTunnel_Leave	; branch, if main character is too far left
+	cmp.w	windtunnel_max_x_pos(a2),d0
+	bhs.w	WindTunnel_Leave	; branch, if main character is too far right
+	move.w	y_pos(a1),d2
+	cmp.w	windtunnel_min_y_pos(a2),d2
+	blo.w	WindTunnel_Leave	; branch, if main character is too far up
+	cmp.w	windtunnel_max_y_pos(a2),d2
+	bhs.s	WindTunnel_Leave	; branch, if main character is too far down
+	tst.b	(WindTunnel_holding_flag).w
+	bne.w	WindTunnel_End
+	cmpi.b	#4,routine(a1)		; is the main character hurt, dying, etc. ?
+	bhs.s	WindTunnel_LeaveHurt	; if yes, branch
+	move.b	#1,(WindTunnel_flag).w	; affects character animation and bubble movement
+	subi_.w	#4,x_pos(a1)	; move main character to the left
+	move.w	#-$400,x_vel(a1)
+	move.w	#0,y_vel(a1)
+	move.b	#AniIDSonAni_Float2,anim(a1)
+	bset	#1,status(a1)	; set "in-air" bit
+	btst	#button_up,(Ctrl_1_Held).w	; is Up being pressed?
+	beq.s	+				; if not, branch
+	subq.w	#1,y_pos(a1)	; move up
++
+	btst	#button_down,(Ctrl_1_Held).w	; is Down being pressed?
+	beq.s	+				; if not, branch
+	addq.w	#1,y_pos(a1)	; move down
++
+	rts
+; ===========================================================================
+; loc_4690:
+WindTunnel_Leave:
+	addq.w	#8,a2
+	dbf	d1,-	; check next tunnel
+	; when all wind tunnels have been checked
+	tst.b	(WindTunnel_flag).w
+	beq.s	WindTunnel_End
+	move.b	#AniIDSonAni_Walk,anim(a1)
+; loc_46A2:
+WindTunnel_LeaveHurt:	; the main character is hurt or dying, leave the tunnel and don't check the other
+	clr.b	(WindTunnel_flag).w
+; return_46A6:
+WindTunnel_End:
+	rts
+; End of function WindTunnel
+
+; ===========================================================================
+; word_46A8:
+WindTunnelsCoordinates:
+	dc.w $1510,$400,$1AF0,$580
+	dc.w $20F0,$618,$2500,$680
+WindTunnelsCoordinates_End:
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; sub_46B8:
+OilSlides:
+	lea	(MainCharacter).w,a1 ; a1=character
+	move.b	(Ctrl_1_Held_Logical).w,d2
+	bsr.s	+
+	lea	(Sidekick).w,a1 ; a1=character
+	move.b	(Ctrl_2_Held_Logical).w,d2
++
+	btst	#1,status(a1)
+	bne.s	+
+	move.w	y_pos(a1),d0
+	add.w	d0,d0
+	andi.w	#$F00,d0
+	move.w	x_pos(a1),d1
+	lsr.w	#7,d1
+	andi.w	#$7F,d1
+	add.w	d1,d0
+	lea	(Level_Layout).w,a2
+	move.b	(a2,d0.w),d0
+	lea	OilSlides_Chunks_End(pc),a2
+
+	moveq	#OilSlides_Chunks_End-OilSlides_Chunks-1,d1
+-	cmp.b	-(a2),d0
+	dbeq	d1,-
+
+	beq.s	loc_4712
++
+    if status_sec_isSliding = 7
+	tst.b	status_secondary(a1)
+	bpl.s	+	; rts
+    else
+	btst	#status_sec_isSliding,status_secondary(a1)
+	beq.s	+	; rts
+    endif
+	move.w	#5,move_lock(a1)
+	andi.b	#(~status_sec_isSliding_mask)&$FF,status_secondary(a1)
++	rts
+; ===========================================================================
+
+loc_4712:
+	lea	(OilSlides_Speeds).l,a2
+	move.b	(a2,d1.w),d0
+	beq.s	loc_476E
+	move.b	inertia(a1),d1
+	tst.b	d0
+	bpl.s	+
+	cmp.b	d0,d1
+	ble.s	++
+	subi.w	#$40,inertia(a1)
+	bra.s	++
+; ===========================================================================
++
+	cmp.b	d0,d1
+	bge.s	+
+	addi.w	#$40,inertia(a1)
++
+	bclr	#0,status(a1)
+	tst.b	d1
+	bpl.s	+
+	bset	#0,status(a1)
++
+	move.b	#AniIDSonAni_Slide,anim(a1)
+	ori.b	#status_sec_isSliding_mask,status_secondary(a1)
+	move.b	(Vint_runcount+3).w,d0
+	andi.b	#$1F,d0
+	bne.s	+	; rts
+	move.w	#SndID_OilSlide,d0
+	jsr	(PlaySound).l
++
+	rts
+; ===========================================================================
+
+loc_476E:
+	move.w	#4,d1
+	move.w	inertia(a1),d0
+	btst	#button_left,d2
+	beq.s	+
+	move.b	#AniIDSonAni_Walk,anim(a1)
+	bset	#0,status(a1)
+	sub.w	d1,d0
+	tst.w	d0
+	bpl.s	+
+	sub.w	d1,d0
++
+	btst	#button_right,d2
+	beq.s	+
+	move.b	#AniIDSonAni_Walk,anim(a1)
+	bclr	#0,status(a1)
+	add.w	d1,d0
+	tst.w	d0
+	bmi.s	+
+	add.w	d1,d0
++
+	move.w	#4,d1
+	tst.w	d0
+	beq.s	+++
+	bmi.s	++
+	sub.w	d1,d0
+	bhi.s	+
+	move.w	#0,d0
+	move.b	#AniIDSonAni_Wait,anim(a1)
++	bra.s	++
+; ===========================================================================
++
+	add.w	d1,d0
+	bhi.s	+
+	move.w	#0,d0
+	move.b	#AniIDSonAni_Wait,anim(a1)
++
+	move.w	d0,inertia(a1)
+	ori.b	#status_sec_isSliding_mask,status_secondary(a1)
+	rts
+; End of function OilSlides
+
+; ===========================================================================
+OilSlides_Speeds:
+	dc.b  -8, -8, -8,  8,  8,  0,  0,  0, -8, -8,  0,  8,  8,  8,  0,  8
+	dc.b   8,  8,  0, -8,  0,  0, -8,  8, -8, -8, -8,  8,  8,  8, -8, -8 ; 16
+
+; These are the IDs of the chunks where Sonic and Tails will slide
+OilSlides_Chunks:
+	dc.b $2F,$30,$31,$33,$35,$38,$3A,$3C,$63,$64,$83,$90,$91,$93,$A1,$A3
+	dc.b $BD,$C7,$C8,$CE,$D7,$D8,$E6,$EB,$EC,$ED,$F1,$F2,$F3,$F4,$FA,$FD ; 16
+OilSlides_Chunks_End:
+	even
+
+
+
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; sub_481E:
+MoveSonicInDemo:
+	tst.w	(Demo_mode_flag).w	; is demo mode on?
+	bne.w	MoveDemo_On	; if yes, branch
+	rts
+; ---------------------------------------------------------------------------
+; demo recording routine
+; (unused/dead code, but obviously used during development)
+; ---------------------------------------------------------------------------
+; MoveDemo_Record: loc_4828:
+	; calculate output location of recorded player 1 demo?
+	lea	(DemoScriptPointers).l,a1
+	moveq	#0,d0
+	move.b	(Current_Zone).w,d0
+	lsl.w	#2,d0
+	movea.l	(a1,d0.w),a1
+	move.w	(Demo_button_index).w,d0
+	adda.w	d0,a1
+
+	move.b	(Ctrl_1_Held).w,d0	; load input of player 1
+	cmp.b	(a1),d0			; is same button held?
+	bne.s	+			; if not, branch
+	addq.b	#1,1(a1)		; increment press length counter
+	cmpi.b	#$FF,1(a1)		; is button held too long?
+	beq.s	+			; if yes, branch
+	bra.s	MoveDemo_Record_P2	; go to player 2
+; ===========================================================================
++
+	move.b	d0,2(a1)		; store last button press
+	move.b	#0,3(a1)		; reset hold length counter
+	addq.w	#2,(Demo_button_index).w ; advance to next button press
+	andi.w	#$3FF,(Demo_button_index).w ; wrap at max button press changes 1024
+; loc_486A:
+MoveDemo_Record_P2:
+	cmpi.b	#emerald_hill_zone,(Current_Zone).w
+	bne.s	++	; rts
+	lea	($FEC000).l,a1		; output location of recorded player 2 demo? (unknown)
+	move.w	(Demo_button_index_2P).w,d0
+	adda.w	d0,a1
+	move.b	(Ctrl_2_Held).w,d0	; load input of player 2
+	cmp.b	(a1),d0			; is same button held?
+	bne.s	+			; if not, branch
+	addq.b	#1,1(a1)		; increment press length counter
+	cmpi.b	#$FF,1(a1)		; is button held too long?
+	beq.s	+			; if yes, branch
+	bra.s	++			; if not, return
+; ===========================================================================
++
+	move.b	d0,2(a1)		; store last button press
+	move.b	#0,3(a1)		; reset hold length counter
+	addq.w	#2,(Demo_button_index_2P).w ; advance to next button press
+	andi.w	#$3FF,(Demo_button_index_2P).w ; wrap at max button press changes 1024
++	rts
+	; end of inactive recording code
+; ===========================================================================
+	; continue with MoveSonicInDemo:
+
+; loc_48AA:
+MoveDemo_On:
+	move.b	(Ctrl_1_Press).w,d0
+	or.b	(Ctrl_2_Press).w,d0
+	andi.b	#button_start_mask,d0
+	beq.s	+
+	tst.w	(Demo_mode_flag).w
+	bmi.s	+
+	move.b	#GameModeID_TitleScreen,(Game_Mode).w ; => TitleScreen
++
+	lea	(DemoScriptPointers).l,a1 ; load pointer to input data
+	moveq	#0,d0
+	move.b	(Current_Zone).w,d0
+	cmpi.b	#GameModeID_SpecialStage,(Game_Mode).w ; special stage mode?
+	bne.s	MoveDemo_On_P1		; if yes, branch
+	moveq	#6,d0
+; loc_48DA:
+MoveDemo_On_P1:
+	lsl.w	#2,d0
+	movea.l	(a1,d0.w),a1
+
+	move.w	(Demo_button_index).w,d0
+	adda.w	d0,a1	; a1 now points to the current button press data
+	move.b	(a1),d0	; load button press
+	lea	(Ctrl_1_Held).w,a0
+	move.b	d0,d1
+	moveq	#0,d2 ; this was modified from (a0) to #0 in Rev01 of Sonic 1 to nullify the following line
+	eor.b	d2,d0	; does nothing now (used to let you hold a button to prevent Sonic from jumping in demos)
+	move.b	d1,(a0)+ ; save button press data from demo to Ctrl_1_Held
+	and.b	d1,d0	; does nothing now
+	move.b	d0,(a0)+ ; save the same thing to Ctrl_1_Press
+	subq.b	#1,(Demo_press_counter).w  ; decrement counter until next press
+	bcc.s	MoveDemo_On_P2	   ; if it isn't 0 yet, branch
+	move.b	3(a1),(Demo_press_counter).w ; reset counter to length of next press
+	addq.w	#2,(Demo_button_index).w ; advance to next button press
+; loc_4908:
+MoveDemo_On_P2:
+    if emerald_hill_zone_act_1<$100 ; will it fit within a byte?
+	cmpi.b	#emerald_hill_zone_act_1,(Current_Zone).w
+    else
+	cmpi.w #emerald_hill_zone_act_1,(Current_ZoneAndAct).w ; avoid a range overflow error
+    endif
+	bne.s	MoveDemo_On_SkipP2 ; if it's not the EHZ demo, branch to skip player 2
+	lea	(Demo_EHZ_Tails).l,a1
+
+	; same as the corresponding remainder of MoveDemo_On_P1, but for player 2
+	move.w	(Demo_button_index_2P).w,d0
+	adda.w	d0,a1
+	move.b	(a1),d0
+	lea	(Ctrl_2_Held).w,a0
+	move.b	d0,d1
+	moveq	#0,d2
+	eor.b	d2,d0
+	move.b	d1,(a0)+
+	and.b	d1,d0
+	move.b	d0,(a0)+
+	subq.b	#1,(Demo_press_counter_2P).w
+	bcc.s	+	; rts
+	move.b	3(a1),(Demo_press_counter_2P).w
+	addq.w	#2,(Demo_button_index_2P).w
++
+	rts
+; ===========================================================================
+; loc_4940:
+MoveDemo_On_SkipP2:
+	move.w	#0,(Ctrl_2).w
+	rts
+; End of function MoveSonicInDemo
+
+; ===========================================================================
+; ---------------------------------------------------------------------------
+; DEMO SCRIPT POINTERS
+
+; Contains an array of pointers to the script controlling the players actions
+; to use for each level.
+; ---------------------------------------------------------------------------
+; off_4948:
+DemoScriptPointers: zoneOrderedTable 4,1
+	zoneTableEntry.l Demo_EHZ	; $00
+	zoneTableEntry.l Demo_EHZ	; $01
+	zoneTableEntry.l Demo_EHZ	; $02
+	zoneTableEntry.l Demo_EHZ	; $03
+	zoneTableEntry.l Demo_EHZ	; $04
+	zoneTableEntry.l Demo_EHZ	; $05
+	zoneTableEntry.l Demo_EHZ	; $06
+	zoneTableEntry.l Demo_EHZ	; $07
+	zoneTableEntry.l Demo_EHZ	; $08
+	zoneTableEntry.l Demo_EHZ	; $09
+	zoneTableEntry.l Demo_EHZ	; $0A
+	zoneTableEntry.l Demo_EHZ	; $0B
+	zoneTableEntry.l Demo_CNZ	; $0C
+	zoneTableEntry.l Demo_CPZ	; $0D
+	zoneTableEntry.l Demo_EHZ	; $0E
+	zoneTableEntry.l Demo_ARZ	; $0F
+	zoneTableEntry.l Demo_EHZ	; $10
+    zoneTableEnd
+; ---------------------------------------------------------------------------
+; dword_498C:
+EndingDemoScriptPointers:
+	; these values are invalid addresses, but they were used for the ending
+	; demos, which aren't present in Sonic 2
+	dc.l   $8B0837
+	dc.l   $42085C	; 1
+	dc.l   $6A085F	; 2
+	dc.l   $2F082C	; 3
+	dc.l   $210803	; 4
+	dc.l $28300808	; 5
+	dc.l   $2E0815	; 6
+	dc.l	$F0846	; 7
+	dc.l   $1A08FF	; 8
+	dc.l  $8CA0000	; 9
+	dc.l	     0	; 10
+	dc.l	     0	; 11
+
+
+
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -3470,7 +5381,114 @@ Off_ColS: zoneOrderedTable 4,1
 	zoneTableEntry.l ColS_WFZSCZ	; 16
     zoneTableEnd
 
-	include "_inc/Oscillatory Routines.asm"
+
+; ---------------------------------------------------------------------------
+; Oscillating number subroutine
+; ---------------------------------------------------------------------------
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; sub_4A70:
+OscillateNumInit:
+	lea	(Oscillating_Numbers).w,a1
+	lea	(Osc_Data).l,a2
+	moveq	#bytesToWcnt(Osc_Data_End-Osc_Data),d1
+; loc_4A7C:
+Osc_Loop:
+	move.w	(a2)+,(a1)+
+	dbf	d1,Osc_Loop
+	rts
+; End of function OscillateNumInit
+
+; ===========================================================================
+; word_4A84:
+Osc_Data:
+	dc.w %0000000001111101		; oscillation direction bitfield
+	dc.w   $80,   0	; baseline values
+	dc.w   $80,   0
+	dc.w   $80,   0
+	dc.w   $80,   0
+	dc.w   $80,   0
+	dc.w   $80,   0
+	dc.w   $80,   0
+	dc.w   $80,   0
+	dc.w   $80,   0
+	dc.w $3848, $EE
+	dc.w $2080, $B4
+	dc.w $3080,$10E
+	dc.w $5080,$1C2
+	dc.w $7080,$276
+	dc.w   $80,   0
+	dc.w $4000, $FE
+Osc_Data_End:
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; sub_4AC6:
+OscillateNumDo:
+	tst.w	(Two_player_mode).w
+	bne.s	+
+	cmpi.b	#6,(MainCharacter+routine).w
+	bhs.s	OscillateNumDo_Return
++
+	lea	(Oscillating_Numbers).w,a1
+	lea	(Osc_Data2).l,a2
+	move.w	(a1)+,d3
+	moveq	#bytesToLcnt(Osc_Data2_End-Osc_Data2),d1
+
+-	move.w	(a2)+,d2
+	move.w	(a2)+,d4
+	btst	d1,d3
+	bne.s	+
+	move.w	2(a1),d0
+	add.w	d2,d0
+	move.w	d0,2(a1)
+	_add.w	d0,0(a1)
+	_cmp.b	0(a1),d4
+	bhi.s	++
+	bset	d1,d3
+	bra.s	++
+; ===========================================================================
++
+	move.w	2(a1),d0
+	sub.w	d2,d0
+	move.w	d0,2(a1)
+	_add.w	d0,0(a1)
+	_cmp.b	0(a1),d4
+	bls.s	+
+	bclr	d1,d3
++
+	addq.w	#4,a1
+	dbf	d1,-
+
+	move.w	d3,(Oscillation_Control).w
+; return_4B22:
+OscillateNumDo_Return:
+	rts
+; End of function OscillateNumDo
+
+; ===========================================================================
+; word_4B24:
+Osc_Data2:
+	dc.w	 2, $10
+	dc.w	 2, $18
+	dc.w	 2, $20
+	dc.w	 2, $30
+	dc.w	 4, $20
+	dc.w	 8,   8
+	dc.w	 8, $40
+	dc.w	 4, $40
+	dc.w	 2, $38
+	dc.w	 2, $38
+	dc.w	 2, $20
+	dc.w	 3, $30
+	dc.w	 5, $50
+	dc.w	 7, $70
+	dc.w	 2, $40
+	dc.w	 2, $40
+Osc_Data2_End:
+
+
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to change global object animation variables (like rings)
@@ -3588,7 +5606,308 @@ SignpostUpdateTailsBounds:
 +	rts
 ; End of function CheckLoadSignpostArt
 
-	include "_inc/Demo Scripts.asm"
+
+
+
+; ===========================================================================
+; macro to simplify editing the demo scripts
+demoinput macro buttons,duration
+btns_mask := 0
+idx := 0
+  rept strlen("buttons")
+btn := substr("buttons",idx,1)
+    switch btn
+    case "U"
+btns_mask := btns_mask|button_up_mask
+    case "D"
+btns_mask := btns_mask|button_down_mask
+    case "L"
+btns_mask := btns_mask|button_left_mask
+    case "R"
+btns_mask := btns_mask|button_right_mask
+    case "A"
+btns_mask := btns_mask|button_A_mask
+    case "B"
+btns_mask := btns_mask|button_B_mask
+    case "C"
+btns_mask := btns_mask|button_C_mask
+    case "S"
+btns_mask := btns_mask|button_start_mask
+    endcase
+idx := idx+1
+  endm
+	dc.b	btns_mask,duration-1
+ endm
+; ---------------------------------------------------------------------------
+; EHZ Demo Script (Sonic)
+; ---------------------------------------------------------------------------
+; byte_4CA8: Demo_Def:
+Demo_EHZ:
+	demoinput ,	$4C
+	demoinput R,	$43
+	demoinput RC,	9
+	demoinput R,	$3F
+	demoinput RC,	6
+	demoinput R,	$B0
+	demoinput RC,	$A
+	demoinput R,	$46
+	demoinput ,	$1E
+	demoinput L,	$F
+	demoinput ,	5
+	demoinput L,	5
+	demoinput ,	9
+	demoinput L,	$3F
+	demoinput ,	5
+	demoinput R,	$67
+	demoinput ,	$62
+	demoinput R,	$12
+	demoinput ,	$22
+	demoinput D,	8
+	demoinput DC,	7
+	demoinput D,	$E
+	demoinput ,	$3C
+	demoinput R,	$A
+	demoinput ,	$1E
+	demoinput D,	7
+	demoinput DC,	7
+	demoinput D,	2
+	demoinput ,	$F
+	demoinput R,	$100
+	demoinput R,	$2F
+	demoinput ,	$23
+	demoinput C,	8
+	demoinput RC,	$10
+	demoinput R,	3
+	demoinput ,	$30
+	demoinput RC,	$24
+	demoinput R,	$BE
+	demoinput ,	$C
+	demoinput L,	$14
+	demoinput ,	$17
+	demoinput D,	3
+	demoinput DC,	7
+	demoinput D,	3
+	demoinput ,	$64
+	demoinput S,	1
+	demoinput A,	1
+	demoinput ,	1
+; ---------------------------------------------------------------------------
+; EHZ Demo Script (Tails)
+; ---------------------------------------------------------------------------
+; byte_4D08:
+Demo_EHZ_Tails:
+	demoinput ,	$3C
+	demoinput R,	$10
+	demoinput UR,	$44
+	demoinput URC,	$7
+	demoinput UR,	$7
+	demoinput R,	$CA
+	demoinput ,	$12
+	demoinput R,	$2
+	demoinput RC,	$9
+	demoinput R,	$53
+	demoinput ,	$12
+	demoinput R,	$B
+	demoinput RC,	$F
+	demoinput R,	$24
+	demoinput ,	$B
+	demoinput C,	$5
+	demoinput ,	$E
+	demoinput R,	$56
+	demoinput ,	$1F
+	demoinput R,	$5B
+	demoinput ,	$11
+	demoinput R,	$100
+	demoinput R,	$C1
+	demoinput ,	$21
+	demoinput L,	$E
+	demoinput ,	$E
+	demoinput C,	$5
+	demoinput RC,	$10
+	demoinput C,	$6
+	demoinput ,	$D
+	demoinput L,	$6
+	demoinput ,	$5F
+	demoinput R,	$74
+	demoinput ,	$19
+	demoinput L,	$45
+	demoinput ,	$9
+	demoinput D,	$31
+	demoinput ,	$9
+	demoinput R,	$E
+	demoinput ,	$24
+	demoinput R,	$28
+	demoinput ,	$5
+	demoinput R,	$1
+	demoinput ,	$1
+	demoinput ,	$1
+	demoinput ,	$1
+	demoinput ,	$1
+	demoinput ,	$1
+; ---------------------------------------------------------------------------
+; CNZ Demo Script
+; ---------------------------------------------------------------------------
+Demo_CNZ:
+	demoinput ,	$49
+	demoinput R,	$11
+	demoinput UR,	1
+	demoinput R,	2
+	demoinput UR,	7
+	demoinput R,	$61
+	demoinput RC,	6
+	demoinput C,	2
+	demoinput ,	9
+	demoinput L,	3
+	demoinput DL,	4
+	demoinput L,	2
+	demoinput ,	$1A
+	demoinput R,	$12
+	demoinput RC,	$1A
+	demoinput C,	5
+	demoinput RC,	$24
+	demoinput R,	$1B
+	demoinput ,	8
+	demoinput L,	$11
+	demoinput ,	$F
+	demoinput R,	$78
+	demoinput RC,	$17
+	demoinput C,	1
+	demoinput ,	$10
+	demoinput L,	$12
+	demoinput ,	8
+	demoinput R,	$53
+	demoinput ,	$70
+	demoinput R,	$75
+	demoinput ,	$38
+	demoinput R,	$17
+	demoinput ,	5
+	demoinput L,	$27
+	demoinput ,	$D
+	demoinput L,	$13
+	demoinput ,	$6A
+	demoinput C,	$11
+	demoinput RC,	3
+	demoinput DRC,	6
+	demoinput DR,	$15
+	demoinput R,	6
+	demoinput ,	6
+	demoinput L,	$D
+	demoinput ,	$49
+	demoinput L,	$A
+	demoinput ,	$1F
+	demoinput R,	7
+	demoinput ,	$30
+	demoinput L,	2
+	demoinput ,	$100
+	demoinput ,	$50
+	demoinput R,	1
+	demoinput RC,	$C
+	demoinput R,	$2B
+	demoinput ,	$5F
+; ---------------------------------------------------------------------------
+; CPZ Demo Script
+; ---------------------------------------------------------------------------
+Demo_CPZ:
+	demoinput ,	$47
+	demoinput R,	$1C
+	demoinput RC,	8
+	demoinput R,	$A
+	demoinput ,	$1C
+	demoinput R,	$E
+	demoinput RC,	$29
+	demoinput R,	$100
+	demoinput R,	$E8
+	demoinput DR,	5
+	demoinput D,	2
+	demoinput L,	$34
+	demoinput DL,	$68
+	demoinput L,	1
+	demoinput ,	$16
+	demoinput C,	1
+	demoinput LC,	8
+	demoinput L,	$F
+	demoinput ,	$18
+	demoinput R,	2
+	demoinput DR,	2
+	demoinput R,	$D
+	demoinput ,	$20
+	demoinput RC,	7
+	demoinput R,	$B
+	demoinput ,	$1C
+	demoinput L,	$E
+	demoinput ,	$1D
+	demoinput L,	7
+	demoinput ,	$100
+	demoinput ,	$E0
+	demoinput R,	$F
+	demoinput ,	$1D
+	demoinput L,	3
+	demoinput ,	$26
+	demoinput R,	7
+	demoinput ,	7
+	demoinput C,	5
+	demoinput ,	$29
+	demoinput L,	$12
+	demoinput ,	$18
+	demoinput R,	$1A
+	demoinput ,	$11
+	demoinput L,	$2E
+	demoinput ,	$14
+	demoinput S,	1
+	demoinput A,	1
+	demoinput ,	1
+; ---------------------------------------------------------------------------
+; ARZ Demo Script
+; ---------------------------------------------------------------------------
+Demo_ARZ:
+	demoinput ,	$43
+	demoinput R,	$4B
+	demoinput RC,	9
+	demoinput R,	$50
+	demoinput RC,	$C
+	demoinput R,	6
+	demoinput ,	$1B
+	demoinput R,	$61
+	demoinput RC,	$15
+	demoinput R,	$55
+	demoinput ,	$41
+	demoinput R,	5
+	demoinput UR,	1
+	demoinput R,	$5C
+	demoinput ,	$47
+	demoinput R,	$3C
+	demoinput RC,	9
+	demoinput R,	$28
+	demoinput ,	$B
+	demoinput R,	$93
+	demoinput RC,	$33
+	demoinput R,	$23
+	demoinput ,	$23
+	demoinput R,	$4D
+	demoinput ,	$1F
+	demoinput L,	2
+	demoinput UL,	3
+	demoinput L,	1
+	demoinput ,	$B
+	demoinput L,	$D
+	demoinput ,	$11
+	demoinput R,	6
+	demoinput ,	$62
+	demoinput R,	4
+	demoinput RC,	6
+	demoinput R,	$17
+	demoinput ,	$1C
+	demoinput R,	$57
+	demoinput RC,	$B
+	demoinput R,	$17
+	demoinput ,	$16
+	demoinput R,	$D
+	demoinput ,	$2C
+	demoinput C,	2
+	demoinput RC,	$1B
+	demoinput R,	$83
+	demoinput ,	$C
+	demoinput S,	1
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -4129,8 +6448,2084 @@ return_55DC:
 ; End of function SSObjectsManager
 
 ; ===========================================================================
+SSTrackPNTCommands:
+	dc.l vdpComm(VRAM_SS_Plane_A_Name_Table2 + 0 * (PNT_Buffer_End-PNT_Buffer),VRAM,WRITE)
+	dc.l vdpComm(VRAM_SS_Plane_A_Name_Table2 + 1 * (PNT_Buffer_End-PNT_Buffer),VRAM,WRITE)
+	dc.l vdpComm(VRAM_SS_Plane_A_Name_Table2 + 2 * (PNT_Buffer_End-PNT_Buffer),VRAM,WRITE)
+	dc.l vdpComm(VRAM_SS_Plane_A_Name_Table2 + 3 * (PNT_Buffer_End-PNT_Buffer),VRAM,WRITE)
+	dc.l vdpComm(VRAM_SS_Plane_A_Name_Table1 + 0 * (PNT_Buffer_End-PNT_Buffer),VRAM,WRITE)
+	dc.l vdpComm(VRAM_SS_Plane_A_Name_Table1 + 1 * (PNT_Buffer_End-PNT_Buffer),VRAM,WRITE)
+	dc.l vdpComm(VRAM_SS_Plane_A_Name_Table1 + 2 * (PNT_Buffer_End-PNT_Buffer),VRAM,WRITE)
+	dc.l vdpComm(VRAM_SS_Plane_A_Name_Table1 + 3 * (PNT_Buffer_End-PNT_Buffer),VRAM,WRITE)
+Ani_SSTrack_Len:
+	dc.b SSTrackAni_TurnThenRise_End - SSTrackAni_TurnThenRise	; 0
+	dc.b SSTrackAni_TurnThenDrop_End - SSTrackAni_TurnThenDrop	; 1
+	dc.b SSTrackAni_TurnThenStraight_End - SSTrackAni_TurnThenStraight	; 2
+	dc.b SSTrackAni_Straight_End - SSTrackAni_Straight	; 3
+	dc.b SSTrackAni_StraightThenTurn_End - SSTrackAni_StraightThenTurn	; 4
+	dc.b   0	; 5
 
-	include "_inc/SSTrack_Draw.asm"
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+;sub_5604
+SSTrack_Draw:
+	moveq	#0,d0
+	move.b	(SSTrack_drawing_index).w,d0					; Get drawing position
+	cmpi.b	#4,d0											; Is it time to draw a new frame?
+	bge.w	SSTrackSetOrientation							; Branch if not
+	add.w	d0,d0											; Multiply by 4
+	add.w	d0,d0
+	bne.w	SSTrack_BeginDraw								; Branch if we don't need to start a new segment
+	move.l	(SSTrack_last_mappings).w,(SSTrack_last_mappings_copy).w	; Save last mappings
+	move.b	(SSTrack_mapping_frame).w,(SSTrack_last_mapping_frame).w	; Save last frame
+	moveq	#0,d1
+	moveq	#0,d2
+	moveq	#0,d3
+	moveq	#0,d4
+	move.b	(SpecialStage_CurrentSegment).w,d1				; Get current segment ID
+	move.b	(SSTrack_anim_frame).w,d2						; Get current frame
+	movea.l	(SS_CurrentLevelLayout).w,a1					; Pointer to level layout
+	move.b	(a1,d1.w),d3									; Get segment geometry type
+	andi.b	#$7F,d3											; Strip flip flag
+	move.b	d3,(SSTrack_anim).w								; Set this as new animation
+	move.w	d3,d1											; Copy to d1
+	add.w	d3,d3											; Turn it into an index
+	lea	(Ani_SpecialStageTrack).l,a1						; Animation table
+	adda.w	(a1,d3.w),a1									; Add offset so a1 points to animation data
+	adda.w	d2,a1											; Offset into current animation frame
+	moveq	#0,d4
+	move.b	(a1),d4											; d4 = animation frame to draw
+	move.b	d4,(SSTrack_mapping_frame).w					; Save to RAM
+	lsl.w	#2,d4
+	lea	(Map_SpecialStageTrack).l,a1						; Mappings table
+	movea.l	(a1,d4.w),a0									; a0 = pointer to mappings for current track frame
+	movea.l	a0,a1											; Copy to a1
+	moveq	#0,d2
+	move.b	(a0)+,d2										; Skip the first 2 bytes
+	move.b	(a0)+,d2										; Why not 'addq.l	#2,a0'?
+	move.b	(a0)+,d2										; Get byte
+	lsl.w	#8,d2											; Shift it up to be the high byte of a word
+	move.b	(a0)+,d2										; Read another byte; why not 'move.w	(a0)+,d2'?
+	addq.w	#4,d2											; Add 4
+	adda.w	d2,a1											; Use as offset from start of file
+	movea.l	a1,a2											; Save to a2
+	moveq	#0,d2
+	move.b	(a1)+,d2										; Skip the first 2 bytes
+	move.b	(a1)+,d2										; Why not 'addq.l	#2,a1'?
+	move.b	(a1)+,d2										; Get byte
+	lsl.w	#8,d2											; Shift it up to be the high byte of a word
+	move.b	(a1)+,d2										; Read another byte; why not 'move.w	(a1)+,d2'?
+	addq.w	#4,d2											; Add 4
+	adda.w	d2,a2											; Use as offset from previous offset
+	move.b	(a2)+,d2										; Ignore the first 3 bytes
+	move.b	(a2)+,d2										; Why not 'addq.l	#3,a2'?
+	move.b	(a2)+,d2
+	move.b	(a2)+,d2										; Get byte (unused)
+	move.l	a0,(SSTrack_mappings_bitflags).w				; Save pointer to bit flags mappings
+	move.l	a0,(SSTrack_last_mappings).w					; ... twice
+	move.l	a1,(SSTrack_mappings_uncompressed).w			; Save pointer to uncompressed mappings
+	move.l	a2,(SSTrack_mappings_RLE).w						; Save pointer to RLE mappings
+	lea_	Ani_SSTrack_Len,a4								; Pointer to animation lengths
+	move.b	(a4,d1.w),d2									; Get length of current animation
+	move.b	(SSTrack_anim_frame).w,(SSTrack_last_anim_frame).w	; Save old frame
+	addi_.b	#1,(SSTrack_anim_frame).w						; Increment current frame
+	cmp.b	(SSTrack_anim_frame).w,d2						; Compare with animation length
+	bne.s	SSTrack_BeginDraw								; If not equal, branch
+	move.b	#0,(SSTrack_anim_frame).w						; Reset to start
+	move.b	(SpecialStage_CurrentSegment).w,(SpecialStage_LastSegment).w	; Save old segment
+	addi_.b	#1,(SpecialStage_CurrentSegment).w				; Increment current segment
+
+;loc_56D2
+SSTrack_BeginDraw:
+	tst.b	(SS_Alternate_PNT).w							; Are we using the alternate PNT?
+	beq.s	+												; Branch if not
+	addi.w	#$10,d0											; Change where we will be drawing
++
+	lea_	SSTrackPNTCommands,a3							; Table of VRAM commands
+	movea.l	(a3,d0.w),a3									; Get command to set destination in VRAM for current frame
+	move.l	a3,(VDP_control_port).l							; Send it to VDP
+	lea	(VDP_data_port).l,a6
+	bsr.w	SSTrackSetOrientation							; Set oriantation flags
+	movea.l	(SSTrack_mappings_bitflags).w,a0				; Get pointer to bit flags mappings
+	movea.l	(SSTrack_mappings_uncompressed).w,a1			; Get pointer to uncompressed mappings
+	movea.l	(SSTrack_mappings_RLE).w,a2						; Get pointer to RLE mappings
+	lea	(SSDrawRegBuffer).w,a3								; Pointer to register buffer from last draw
+	movem.w	(a3)+,d2-d7										; Restore registers from previous call (or set them to zero)
+	lea	(SSPNT_UncLUT).l,a3									; Pattern name list for drawing routines
+	lea	(SSPNT_RLELUT).l,a4									; RLE-encoded pattern name list for drawing routines
+	movea.w	#-8,a5											; Initialize loop counter: draws 7 lines
+	moveq	#0,d0
+	tst.b	(SSTrack_Orientation).w							; Is the current segment flipped?
+	bne.w	SSTrackDrawLineFlipLoop							; Branch if yes
+
+;loc_5722
+SSTrackDrawLineLoop:
+	adda_.w	#1,a5											; Increment loop counter
+	cmpa.w	#0,a5											; Have all 7 lines been drawn?
+	beq.w	SSTrackDraw_return								; If yes, return
+
+;loc_572E
+SSTrackDrawLoop_Inner:
+	moveq	#0,d1
+	subq.w	#1,d7											; Subtract 1 from bit counter
+	bpl.s	+												; Branch if we still have bits we can use
+	move.b	(a0)+,d6										; Get a new byte from bit flags
+	moveq	#7,d7											; We now have 8 fresh new bits
++
+	add.b	d6,d6											; Do we have to use RLE compression?
+	bcc.s	SSTrackDrawRLE									; Branch if yes
+	subq.b	#1,d5											; Subtract 1 from bit counter
+	bpl.s	+												; Branch if we still have bits we can use
+	move.b	(a1)+,d4										; Get a new byte from uncompressed mappings pointer
+	moveq	#7,d5											; We now have 8 fresh new bits
++
+	add.b	d4,d4											; Do we need a 10-bit index?
+	bcc.s	+												; Branch if not
+	moveq	#$A,d0											; d0 = 10 bits
+	sub.b	d5,d0											; d0 = 10 - d5
+	subq.b	#3,d0											; d0 =  7 - d5; why not shorten it to 'moveq	#7,d0 \n	sub.b	d5,d0'?
+	add.w	d0,d0											; Convert into table index
+	move.w	SSTrackDrawUnc_Read10LUT(pc,d0.w),d0
+	jmp	SSTrackDrawUnc_Read10LUT(pc,d0.w)
+; ===========================================================================
+;off_5758
+SSTrackDrawUnc_Read10LUT:	offsetTable
+		offsetTableEntry.w SSTrackDrawUnc_Read10_Got7	; 0
+		offsetTableEntry.w SSTrackDrawUnc_Read10_Got6	; 1
+		offsetTableEntry.w SSTrackDrawUnc_Read10_Got5	; 2
+		offsetTableEntry.w SSTrackDrawUnc_Read10_Got4	; 3
+		offsetTableEntry.w SSTrackDrawUnc_Read10_Got3	; 4
+		offsetTableEntry.w SSTrackDrawUnc_Read10_Got2	; 5
+		offsetTableEntry.w SSTrackDrawUnc_Read10_Got1	; 6
+		offsetTableEntry.w SSTrackDrawUnc_Read10_Got0	; 7
+; ===========================================================================
++
+	moveq	#6,d0											; d0 = 6
+	sub.b	d5,d0											; d0 = 6 - d5
+	addq.b	#1,d0											; d0 = 7 - d5; why not shorten it to 'moveq	#7,d0 \n	sub.b	d5,d0'?
+	add.w	d0,d0											; Convert into table index
+	move.w	SSTrackDrawUnc_Read6LUT(pc,d0.w),d0
+	jmp	SSTrackDrawUnc_Read6LUT(pc,d0.w)
+; ===========================================================================
+;off_5778
+SSTrackDrawUnc_Read6LUT:	offsetTable
+		offsetTableEntry.w SSTrackDrawUnc_Read6_Got7	; 0
+		offsetTableEntry.w SSTrackDrawUnc_Read6_Got6	; 1
+		offsetTableEntry.w SSTrackDrawUnc_Read6_Got5	; 2
+		offsetTableEntry.w SSTrackDrawUnc_Read6_Got4	; 3
+		offsetTableEntry.w SSTrackDrawUnc_Read6_Got3	; 4
+		offsetTableEntry.w SSTrackDrawUnc_Read6_Got2	; 5
+		offsetTableEntry.w SSTrackDrawUnc_Read6_Got1	; 6
+		offsetTableEntry.w SSTrackDrawUnc_Read6_Got0	; 7
+; ===========================================================================
+
+SSTrackDrawRLE:
+	subq.b	#1,d3											; Subtract 1 from bit counter
+	bpl.s	++												; Branch if we still have bits we can use
+	move.b	(a2)+,d2										; Get a new byte from RLE mappings pointer
+	cmpi.b	#-1,d2											; Is d2 equal to -1?
+	bne.s	+												; Branch if not
+	moveq	#0,d3											; Set bit counter to zero
+	bra.w	SSTrackDrawLineLoop
+; ===========================================================================
++
+	moveq	#7,d3											; We now have 8 fresh new bits
++
+	add.b	d2,d2											; Do we need a 7-bit index?
+	bcc.s	+												; Branch if not
+	moveq	#7,d0											; d0 = 7
+	sub.b	d3,d0											; d0 = 10 - d3
+	add.b	d0,d0											; Convert into table index
+	move.w	SSTrackDrawRLE_Read7LUT(pc,d0.w),d0
+	jmp	SSTrackDrawRLE_Read7LUT(pc,d0.w)
+; ===========================================================================
+;off_57AE
+SSTrackDrawRLE_Read7LUT:	offsetTable
+		offsetTableEntry.w SSTrackDrawRLE_Read7_Got7	; 0
+		offsetTableEntry.w SSTrackDrawRLE_Read7_Got6	; 1
+		offsetTableEntry.w SSTrackDrawRLE_Read7_Got5	; 2
+		offsetTableEntry.w SSTrackDrawRLE_Read7_Got4	; 3
+		offsetTableEntry.w SSTrackDrawRLE_Read7_Got3	; 4
+		offsetTableEntry.w SSTrackDrawRLE_Read7_Got2	; 5
+		offsetTableEntry.w SSTrackDrawRLE_Read7_Got1	; 6
+		offsetTableEntry.w SSTrackDrawRLE_Read7_Got0	; 7
+; ===========================================================================
++
+	moveq	#6,d0											; d0 = 6
+	sub.b	d3,d0											; d0 = 6 - d3
+	addq.b	#1,d0											; d0 = 7 - d3; why not shorten it to 'moveq	#7,d0 \n	sub.b	d3,d0'?
+	add.b	d0,d0											; Convert into table index
+	move.w	SSTrackDrawRLE_Read6LUT(pc,d0.w),d0
+	jmp	SSTrackDrawRLE_Read6LUT(pc,d0.w)
+; ===========================================================================
+;off_57CE
+SSTrackDrawRLE_Read6LUT:	offsetTable
+		offsetTableEntry.w SSTrackDrawRLE_Read6_Got7	; 0
+		offsetTableEntry.w SSTrackDrawRLE_Read6_Got6	; 1
+		offsetTableEntry.w SSTrackDrawRLE_Read6_Got5	; 2
+		offsetTableEntry.w SSTrackDrawRLE_Read6_Got4	; 3
+		offsetTableEntry.w SSTrackDrawRLE_Read6_Got3	; 4
+		offsetTableEntry.w SSTrackDrawRLE_Read6_Got2	; 5
+		offsetTableEntry.w SSTrackDrawRLE_Read6_Got1	; 6
+		offsetTableEntry.w SSTrackDrawRLE_Read6_Got0	; 7
+; ===========================================================================
+;loc_57DE
+SSTrackDrawUnc_Read10_Got0:
+	; Reads 10 bits from uncompressed mappings, 0 bits in bit buffer
+	moveq	#0,d0
+	move.b	(a1)+,d0
+	lsl.w	#2,d0
+	move.b	(a1)+,d4
+	rol.b	#2,d4
+	move.b	d4,d1
+	andi.b	#3,d1
+	or.b	d1,d0
+	addi.w	#(SSPNT_UncLUT_Part2-SSPNT_UncLUT)/2,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	ori.w	#palette_line_3,d0
+	move.w	d0,(a6)
+	moveq	#6,d5
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5806
+SSTrackDrawUnc_Read10_Got1:
+	; Reads 10 bits from uncompressed mappings, 1 bit in bit buffer
+	move.b	d4,d0
+	lsl.w	#2,d0
+	andi.w	#$200,d0
+	move.b	(a1)+,d1
+	lsl.w	#1,d1
+	or.w	d1,d0
+	move.b	(a1)+,d4
+	rol.b	#1,d4
+	move.b	d4,d1
+	andi.b	#1,d1
+	or.b	d1,d0
+	addi.w	#(SSPNT_UncLUT_Part2-SSPNT_UncLUT)/2,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	ori.w	#palette_line_3,d0
+	move.w	d0,(a6)
+	moveq	#7,d5
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5836
+SSTrackDrawUnc_Read10_Got2:
+	; Reads 10 bits from uncompressed mappings, 2 bits in bit buffer
+	move.b	d4,d0
+	lsl.w	#2,d0
+	andi.w	#$300,d0
+	move.b	(a1)+,d0
+	addi.w	#(SSPNT_UncLUT_Part2-SSPNT_UncLUT)/2,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	ori.w	#palette_line_3,d0
+	move.w	d0,(a6)
+	moveq	#0,d5											; Bit buffer now empty
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5856
+SSTrackDrawUnc_Read10_Got3:
+	; Reads 10 bits from uncompressed mappings, 3 bits in bit buffer
+	move.b	d4,d0
+	lsl.w	#2,d0
+	andi.w	#$380,d0
+	move.b	(a1)+,d4
+	ror.b	#1,d4
+	move.b	d4,d1
+	andi.b	#$7F,d1
+	or.b	d1,d0
+	addi.w	#(SSPNT_UncLUT_Part2-SSPNT_UncLUT)/2,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	ori.w	#palette_line_3,d0
+	move.w	d0,(a6)
+	moveq	#1,d5											; Bit buffer now has 1 bit
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5880
+SSTrackDrawUnc_Read10_Got4:
+	; Reads 10 bits from uncompressed mappings, 4 bits in bit buffer
+	move.b	d4,d0
+	lsl.w	#2,d0
+	andi.w	#$3C0,d0
+	move.b	(a1)+,d4
+	ror.b	#2,d4
+	move.b	d4,d1
+	andi.b	#$3F,d1
+	or.b	d1,d0
+	addi.w	#(SSPNT_UncLUT_Part2-SSPNT_UncLUT)/2,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	ori.w	#palette_line_3,d0
+	move.w	d0,(a6)
+	moveq	#2,d5											; Bit buffer now has 2 bits
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_58AA
+SSTrackDrawUnc_Read10_Got5:
+	; Reads 10 bits from uncompressed mappings, 5 bits in bit buffer
+	move.b	d4,d0
+	lsl.w	#2,d0
+	andi.w	#$3E0,d0
+	move.b	(a1)+,d4
+	ror.b	#3,d4
+	move.b	d4,d1
+	andi.b	#$1F,d1
+	or.b	d1,d0
+	addi.w	#(SSPNT_UncLUT_Part2-SSPNT_UncLUT)/2,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	ori.w	#palette_line_3,d0
+	move.w	d0,(a6)
+	moveq	#3,d5											; Bit buffer now has 3 bits
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_58D4
+SSTrackDrawUnc_Read10_Got6:
+	; Reads 10 bits from uncompressed mappings, 6 bits in bit buffer
+	move.b	d4,d0
+	lsl.w	#2,d0
+	andi.w	#$3F0,d0
+	move.b	(a1)+,d4
+	ror.b	#4,d4
+	move.b	d4,d1
+	andi.b	#$F,d1
+	or.b	d1,d0
+	addi.w	#(SSPNT_UncLUT_Part2-SSPNT_UncLUT)/2,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	ori.w	#palette_line_3,d0
+	move.w	d0,(a6)
+	moveq	#4,d5											; Bit buffer now has 4 bits
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_58FE
+SSTrackDrawUnc_Read10_Got7:
+	; Reads 10 bits from uncompressed mappings, 7 bits in bit buffer
+	move.b	d4,d0
+	lsl.w	#2,d0
+	andi.w	#$3F8,d0
+	move.b	(a1)+,d4
+	rol.b	#3,d4
+	move.b	d4,d1
+	andi.b	#7,d1
+	or.b	d1,d0
+	addi.w	#(SSPNT_UncLUT_Part2-SSPNT_UncLUT)/2,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	ori.w	#palette_line_3,d0
+	move.w	d0,(a6)
+	moveq	#5,d5											; Bit buffer now has 5 bits
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5928
+SSTrackDrawUnc_Read6_Got0:
+	; Reads 6 bits from uncompressed mappings, 0 bits in bit buffer
+	move.b	(a1)+,d4
+	ror.b	#2,d4
+	move.b	d4,d0
+	andi.w	#$3F,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	ori.w	#palette_line_3,d0
+	move.w	d0,(a6)
+	moveq	#2,d5											; Bit buffer now has 2 bits
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5944
+SSTrackDrawUnc_Read6_Got1:
+	; Reads 6 bits from uncompressed mappings, 1 bit in bit buffer
+	move.b	d4,d0
+	lsr.b	#2,d0
+	andi.w	#$20,d0
+	move.b	(a1)+,d4
+	ror.b	#3,d4
+	move.b	d4,d1
+	andi.b	#$1F,d1
+	or.b	d1,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	ori.w	#palette_line_3,d0
+	move.w	d0,(a6)
+	moveq	#3,d5											; Bit buffer now has 3 bits
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_596A
+SSTrackDrawUnc_Read6_Got2:
+	; Reads 6 bits from uncompressed mappings, 2 bits in bit buffer
+	move.b	d4,d0
+	lsr.b	#2,d0
+	andi.w	#$30,d0
+	move.b	(a1)+,d4
+	ror.b	#4,d4
+	move.b	d4,d1
+	andi.b	#$F,d1
+	or.b	d1,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	ori.w	#palette_line_3,d0
+	move.w	d0,(a6)
+	moveq	#4,d5											; Bit buffer now has 4 bits
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5990
+SSTrackDrawUnc_Read6_Got3:
+	; Reads 6 bits from uncompressed mappings, 3 bits in bit buffer
+	move.b	d4,d0
+	lsr.b	#2,d0
+	andi.w	#$38,d0
+	move.b	(a1)+,d4
+	rol.b	#3,d4
+	move.b	d4,d1
+	andi.b	#7,d1
+	or.b	d1,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	ori.w	#palette_line_3,d0
+	move.w	d0,(a6)
+	moveq	#5,d5											; Bit buffer now has 5 bits
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_59B6
+SSTrackDrawUnc_Read6_Got4:
+	; Reads 6 bits from uncompressed mappings, 4 bits in bit buffer
+	move.b	d4,d0
+	lsr.b	#2,d0
+	andi.w	#$3C,d0
+	move.b	(a1)+,d4
+	rol.b	#2,d4
+	move.b	d4,d1
+	andi.b	#3,d1
+	or.b	d1,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	ori.w	#palette_line_3,d0
+	move.w	d0,(a6)
+	moveq	#6,d5											; Bit buffer now has 6 bits
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_59DC
+SSTrackDrawUnc_Read6_Got5:
+	; Reads 6 bits from uncompressed mappings, 5 bits in bit buffer
+	move.b	d4,d0
+	lsr.b	#2,d0
+	andi.w	#$3E,d0
+	move.b	(a1)+,d4
+	rol.b	#1,d4
+	move.b	d4,d1
+	andi.b	#1,d1
+	or.b	d1,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	ori.w	#palette_line_3,d0
+	move.w	d0,(a6)
+	moveq	#7,d5											; Bit buffer now has 7 bits
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5A02
+SSTrackDrawUnc_Read6_Got6:
+	; Reads 6 bits from uncompressed mappings, 6 bits in bit buffer
+	lsr.b	#2,d4
+	andi.w	#$3F,d4
+	add.w	d4,d4
+	move.w	(a3,d4.w),d4
+	ori.w	#palette_line_3,d4
+	move.w	d4,(a6)
+	moveq	#0,d5											; Bit buffer now empty
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5A1A
+SSTrackDrawUnc_Read6_Got7:
+	; Reads 6 bits from uncompressed mappings, 7 bits in bit buffer
+	ror.b	#2,d4
+	move.b	d4,d0
+	andi.w	#$3F,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	ori.w	#palette_line_3,d0
+	move.w	d0,(a6)
+	moveq	#1,d5											; Bit buffer now has 1 bit
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5A34
+SSTrackDrawRLE_Read7_Got0:
+	; Reads 7 bits from RLE-compressed mappings, 0 bits in bit buffer
+	move.b	(a2)+,d2
+	ror.b	#1,d2
+	move.b	d2,d0
+	andi.w	#$7F,d0
+	moveq	#1,d3											; Bit buffer now has 1 bit
+	cmpi.b	#$7F,d0
+	beq.w	SSTrackDrawLineLoop
+	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5A66
+SSTrackDrawRLE_Read7_Got1:
+	; Reads 7 bits from RLE-compressed mappings, 1 bit in bit buffer
+	move.b	d2,d1
+	lsr.b	#1,d1
+	andi.b	#$40,d1
+	move.b	(a2)+,d2
+	ror.b	#2,d2
+	move.b	d2,d0
+	andi.w	#$3F,d0
+	or.b	d1,d0
+	moveq	#2,d3											; Bit buffer now has 2 bits
+	cmpi.b	#$7F,d0
+	beq.w	SSTrackDrawLineLoop
+	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5AA2
+SSTrackDrawRLE_Read7_Got2:
+	; Reads 7 bits from RLE-compressed mappings, 2 bits in bit buffer
+	move.b	d2,d1
+	lsr.b	#1,d1
+	andi.b	#$60,d1
+	move.b	(a2)+,d2
+	ror.b	#3,d2
+	move.b	d2,d0
+	andi.w	#$1F,d0
+	or.b	d1,d0
+	moveq	#3,d3											; Bit buffer now has 3 bits
+	cmpi.b	#$7F,d0
+	beq.w	SSTrackDrawLineLoop
+	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5ADE
+SSTrackDrawRLE_Read7_Got3:
+	; Reads 7 bits from RLE-compressed mappings, 3 bits in bit buffer
+	move.b	d2,d1
+	lsr.b	#1,d1
+	andi.b	#$70,d1
+	move.b	(a2)+,d2
+	ror.b	#4,d2
+	move.b	d2,d0
+	andi.w	#$F,d0
+	or.b	d1,d0
+	moveq	#4,d3											; Bit buffer now has 4 bits
+	cmpi.b	#$7F,d0
+	beq.w	SSTrackDrawLineLoop
+	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5B1A
+SSTrackDrawRLE_Read7_Got4:
+	; Reads 7 bits from RLE-compressed mappings, 4 bits in bit buffer
+	move.b	d2,d1
+	lsr.b	#1,d1
+	andi.b	#$78,d1
+	move.b	(a2)+,d2
+	rol.b	#3,d2
+	move.b	d2,d0
+	andi.w	#7,d0
+	or.b	d1,d0
+	moveq	#5,d3											; Bit buffer now has 5 bits
+	cmpi.b	#$7F,d0
+	beq.w	SSTrackDrawLineLoop
+	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5B56
+SSTrackDrawRLE_Read7_Got5:
+	; Reads 7 bits from RLE-compressed mappings, 5 bits in bit buffer
+	move.b	d2,d1
+	lsr.b	#1,d1
+	andi.b	#$7C,d1
+	move.b	(a2)+,d2
+	rol.b	#2,d2
+	move.b	d2,d0
+	andi.w	#3,d0
+	or.b	d1,d0
+	moveq	#6,d3											; Bit buffer now has 6 bits
+	cmpi.b	#$7F,d0
+	beq.w	SSTrackDrawLineLoop
+	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5B92
+SSTrackDrawRLE_Read7_Got6:
+	; Reads 7 bits from RLE-compressed mappings, 6 bits in bit buffer
+	move.b	d2,d1
+	lsr.b	#1,d1
+	andi.b	#$7E,d1
+	move.b	(a2)+,d2
+	rol.b	#1,d2
+	move.b	d2,d0
+	andi.w	#1,d0
+	or.b	d1,d0
+	moveq	#7,d3											; Bit buffer now has 7 bits
+	cmpi.b	#$7F,d0
+	beq.w	SSTrackDrawLineLoop
+	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5BCE
+SSTrackDrawRLE_Read7_Got7:
+	; Reads 7 bits from RLE-compressed mappings, 7 bits in bit buffer
+	lsr.b	#1,d2
+	andi.w	#$7F,d2
+	moveq	#0,d3											; Bit buffer now empty
+	cmpi.b	#$7F,d2
+	beq.w	SSTrackDrawLineLoop
+	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d2
+	add.w	d2,d2
+	add.w	d2,d2
+	move.w	(a4,d2.w),d1
+	move.w	2(a4,d2.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5BFC
+SSTrackDrawRLE_Read6_Got0:
+	; Reads 6 bits from RLE-compressed mappings, 0 bits in bit buffer
+	move.b	(a2)+,d2
+	ror.b	#2,d2
+	move.b	d2,d0
+	andi.w	#$3F,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	moveq	#2,d3											; Bit buffer now has 2 bits
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5C22
+SSTrackDrawRLE_Read6_Got1:
+	; Reads 6 bits from RLE-compressed mappings, 1 bit in bit buffer
+	move.b	d2,d0
+	lsr.b	#2,d0
+	andi.w	#$20,d0
+	move.b	(a2)+,d2
+	ror.b	#3,d2
+	move.b	d2,d1
+	andi.b	#$1F,d1
+	or.b	d1,d0
+	moveq	#3,d3											; Bit buffer now has 3 bits
+	add.w	d0,d0
+	add.w	d0,d0
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5C52
+SSTrackDrawRLE_Read6_Got2:
+	; Reads 6 bits from RLE-compressed mappings, 2 bits in bit buffer
+	move.b	d2,d0
+	lsr.b	#2,d0
+	andi.w	#$30,d0
+	move.b	(a2)+,d2
+	ror.b	#4,d2
+	move.b	d2,d1
+	andi.b	#$F,d1
+	or.b	d1,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	moveq	#4,d3											; Bit buffer now has 4 bits
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5C82
+SSTrackDrawRLE_Read6_Got3:
+	; Reads 6 bits from RLE-compressed mappings, 3 bits in bit buffer
+	move.b	d2,d0
+	lsr.b	#2,d0
+	andi.w	#$38,d0
+	move.b	(a2)+,d2
+	rol.b	#3,d2
+	move.b	d2,d1
+	andi.b	#7,d1
+	or.b	d1,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	moveq	#5,d3											; Bit buffer now has 5 bits
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5CB2
+SSTrackDrawRLE_Read6_Got4:
+	; Reads 6 bits from RLE-compressed mappings, 4 bits in bit buffer
+	move.b	d2,d0
+	lsr.b	#2,d0
+	andi.w	#$3C,d0
+	move.b	(a2)+,d2
+	rol.b	#2,d2
+	move.b	d2,d1
+	andi.b	#3,d1
+	or.b	d1,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	moveq	#6,d3											; Bit buffer now has 6 bits
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5CE2
+SSTrackDrawRLE_Read6_Got5:
+	; Reads 6 bits from RLE-compressed mappings, 5 bits in bit buffer
+	move.b	d2,d0
+	lsr.b	#2,d0
+	andi.w	#$3E,d0
+	move.b	(a2)+,d2
+	rol.b	#1,d2
+	move.b	d2,d1
+	andi.b	#1,d1
+	or.b	d1,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	moveq	#7,d3											; Bit buffer now has 7 bits
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5D12
+SSTrackDrawRLE_Read6_Got6:
+	; Reads 6 bits from RLE-compressed mappings, 6 bits in bit buffer
+	lsr.b	#2,d2
+	andi.w	#$3F,d2
+	add.w	d2,d2
+	add.w	d2,d2
+	moveq	#0,d3											; Bit buffer now empty
+	move.w	(a4,d2.w),d1
+	move.w	2(a4,d2.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+;loc_5D34
+SSTrackDrawRLE_Read6_Got7:
+	; Reads 6 bits from RLE-compressed mappings, 7 bits in bit buffer
+	ror.b	#2,d2
+	move.b	d2,d0
+	andi.w	#$3F,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	moveq	#1,d3											; Bit buffer now has 1 bit
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawLoop_Inner
+; ===========================================================================
+
+;loc_5D58
+SSTrackDraw_return:
+	cmpi.b	#3,(SSTrack_drawing_index).w					; Have we drawed a full frame?
+	beq.s	+												; Branch if yes
+	move.l	a0,(SSTrack_mappings_bitflags).w				; Save pointer
+	move.l	a1,(SSTrack_mappings_uncompressed).w			; Save pointer
+	move.l	a2,(SSTrack_mappings_RLE).w						; Save pointer
+	lea	(SSDrawRegBuffer_End).w,a3							; Pointer to end of registry buffer
+	movem.w	d2-d7,-(a3)										; Save the bit buffers and bit counters
+	rts
+; ===========================================================================
++
+	lea	(SSDrawRegBuffer).w,a2								; Pointer to registry buffer
+	moveq	#0,d0
+    rept 6
+	move.w	d0,(a2)+										; Clear bit buffers and bit counters
+    endm
+	rts
+; ===========================================================================
+
+;loc_5D8A
+SSTrackDrawLineFlipLoop:
+	adda_.w	#1,a5											; Increment loop counter
+	cmpa.w	#0,a5											; Have all 8 lines been drawn?
+	beq.w	SSTrackDraw_return								; If yes, return
+	lea	(PNT_Buffer).w,a6									; Destination buffer
+	swap	d0												; High word starts at 0
+	addi.w	#$100,d0										; Adding $100 means seek to end of current line/start of next line
+	andi.w	#$F00,d0										; Keep to confines
+	adda.w	d0,a6											; Seek to end of current line
+	swap	d0												; Leaves the low word of d0 free for use
+
+;loc_5DA8
+SSTrackDrawFlipLoop_Inner:
+	moveq	#0,d1
+	subq.w	#1,d7											; Subtract 1 from bit counter
+	bpl.s	+												; Branch if we still have bits we can use
+	move.b	(a0)+,d6										; Get a new byte from bit flags
+	moveq	#7,d7											; We now have 8 fresh new bits
++
+	add.b	d6,d6											; Do we have to use RLE compression?
+	bcc.s	SSTrackDrawFlipRLE								; Branch if yes
+	subq.b	#1,d5											; Subtract 1 from bit counter
+	bpl.s	+												; Branch if we still have bits we can use
+	move.b	(a1)+,d4										; Get a new byte from uncompressed mappings pointer
+	moveq	#7,d5											; We now have 8 fresh new bits
++
+	add.b	d4,d4											; Do we need a 10-bit index?
+	bcc.s	+												; Branch if not
+	move.w	#$A,d0											; d0 = 10 bits
+	sub.b	d5,d0											; d0 = 10 - d5
+	subq.b	#3,d0											; d0 =  7 - d5; why not shorten it to 'moveq	#7,d0 \n	sub.b	d5,d0'?
+	add.w	d0,d0											; Convert into table index
+	move.w	SSTrackDrawFlipUnc_Read10LUT(pc,d0.w),d0
+	jmp	SSTrackDrawFlipUnc_Read10LUT(pc,d0.w)
+; ===========================================================================
+;off_5DD4
+SSTrackDrawFlipUnc_Read10LUT:	offsetTable
+		offsetTableEntry.w SSTrackDrawFlipUnc_Read10_Got7	; 0
+		offsetTableEntry.w SSTrackDrawFlipUnc_Read10_Got6	; 1
+		offsetTableEntry.w SSTrackDrawFlipUnc_Read10_Got5	; 2
+		offsetTableEntry.w SSTrackDrawFlipUnc_Read10_Got4	; 3
+		offsetTableEntry.w SSTrackDrawFlipUnc_Read10_Got3	; 4
+		offsetTableEntry.w SSTrackDrawFlipUnc_Read10_Got2	; 5
+		offsetTableEntry.w SSTrackDrawFlipUnc_Read10_Got1	; 6
+		offsetTableEntry.w SSTrackDrawFlipUnc_Read10_Got0	; 7
+; ===========================================================================
++
+	move.w	#6,d0											; d0 = 6
+	sub.b	d5,d0											; d0 = 6 - d5
+	addq.b	#1,d0											; d0 = 7 - d5; why not shorten it to 'moveq	#7,d0 \n	sub.b	d5,d0'?
+	add.w	d0,d0											; Convert into table index
+	move.w	SSTrackDrawFlipUnc_Read6LUT(pc,d0.w),d0
+	jmp	SSTrackDrawFlipUnc_Read6LUT(pc,d0.w)
+; ===========================================================================
+;off_5DF6
+SSTrackDrawFlipUnc_Read6LUT:	offsetTable
+		offsetTableEntry.w SSTrackDrawFlipUnc_Read6_Got7	; 0
+		offsetTableEntry.w SSTrackDrawFlipUnc_Read6_Got6	; 1
+		offsetTableEntry.w SSTrackDrawFlipUnc_Read6_Got5	; 2
+		offsetTableEntry.w SSTrackDrawFlipUnc_Read6_Got4	; 3
+		offsetTableEntry.w SSTrackDrawFlipUnc_Read6_Got3	; 4
+		offsetTableEntry.w SSTrackDrawFlipUnc_Read6_Got2	; 5
+		offsetTableEntry.w SSTrackDrawFlipUnc_Read6_Got1	; 6
+		offsetTableEntry.w SSTrackDrawFlipUnc_Read6_Got0	; 7
+; ===========================================================================
+;loc_5E06
+SSTrackDrawFlipRLE:
+	subq.b	#1,d3											; Subtract 1 from bit counter
+	bpl.s	++												; Branch if we still have bits we can use
+	move.b	(a2)+,d2										; Get a new byte from RLE mappings pointer
+	cmpi.b	#-1,d2											; Is d2 equal to -1?
+	bne.s	+												; Branch if not
+	moveq	#0,d3											; Set bit counter to zero
+	bra.w	SSTrackDrawLineFlipLoop
+; ===========================================================================
++
+	moveq	#7,d3											; We now have 8 fresh new bits
++
+	add.b	d2,d2											; Do we need a 7-bit index?
+	bcc.s	+												; Branch if not
+	move.w	#7,d0											; d0 = 7
+	sub.b	d3,d0											; d0 = 10 - d3
+	add.b	d0,d0											; Convert into table index
+	move.w	SSTrackDrawFlipRLE_Read7LUT(pc,d0.w),d0
+	jmp	SSTrackDrawFlipRLE_Read7LUT(pc,d0.w)
+; ===========================================================================
+;off_5E2E
+SSTrackDrawFlipRLE_Read7LUT:	offsetTable
+		offsetTableEntry.w SSTrackDrawFlipRLE_Read7_Got7	; 0
+		offsetTableEntry.w SSTrackDrawFlipRLE_Read7_Got6	; 1
+		offsetTableEntry.w SSTrackDrawFlipRLE_Read7_Got5	; 2
+		offsetTableEntry.w SSTrackDrawFlipRLE_Read7_Got4	; 3
+		offsetTableEntry.w SSTrackDrawFlipRLE_Read7_Got3	; 4
+		offsetTableEntry.w SSTrackDrawFlipRLE_Read7_Got2	; 5
+		offsetTableEntry.w SSTrackDrawFlipRLE_Read7_Got1	; 6
+		offsetTableEntry.w SSTrackDrawFlipRLE_Read7_Got0	; 7
+; ===========================================================================
++
+	move.w	#6,d0											; d0 = 6
+	sub.b	d3,d0											; d0 = 6 - d3
+	addq.b	#1,d0											; d0 = 7 - d3; why not shorten it to 'moveq	#7,d0 \n	sub.b	d3,d0'?
+	add.b	d0,d0											; Convert into table index
+	move.w	SSTrackDrawFlipRLE_Read6LUT(pc,d0.w),d0
+	jmp	SSTrackDrawFlipRLE_Read6LUT(pc,d0.w)
+; ===========================================================================
+;off_5E50
+SSTrackDrawFlipRLE_Read6LUT:	offsetTable
+		offsetTableEntry.w SSTrackDrawFlipRLE_Read6_Got7	; 0
+		offsetTableEntry.w SSTrackDrawFlipRLE_Read6_Got6	; 1
+		offsetTableEntry.w SSTrackDrawFlipRLE_Read6_Got5	; 2
+		offsetTableEntry.w SSTrackDrawFlipRLE_Read6_Got4	; 3
+		offsetTableEntry.w SSTrackDrawFlipRLE_Read6_Got3	; 4
+		offsetTableEntry.w SSTrackDrawFlipRLE_Read6_Got2	; 5
+		offsetTableEntry.w SSTrackDrawFlipRLE_Read6_Got1	; 6
+		offsetTableEntry.w SSTrackDrawFlipRLE_Read6_Got0	; 7
+; ===========================================================================
+;loc_5E60
+SSTrackDrawFlipUnc_Read10_Got0:
+	; Reads 10 bits from uncompressed mappings, 0 bits in bit buffer
+	move.w	#0,d0
+	move.b	(a1)+,d0
+	lsl.w	#2,d0
+	move.b	(a1)+,d4
+	rol.b	#2,d4
+	move.b	d4,d1
+	andi.b	#3,d1
+	or.b	d1,d0
+	addi.w	#(SSPNT_UncLUT_Part2-SSPNT_UncLUT)/2,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	eori.w	#flip_x|palette_line_3,d0
+	move.w	d0,-(a6)
+	moveq	#6,d5											; Bit buffer now has 6 bits
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_5E8A
+SSTrackDrawFlipUnc_Read10_Got1:
+	; Reads 10 bits from uncompressed mappings, 1 bit in bit buffer
+	move.b	d4,d0
+	lsl.w	#2,d0
+	andi.w	#$200,d0
+	move.b	(a1)+,d1
+	lsl.w	#1,d1
+	or.w	d1,d0
+	move.b	(a1)+,d4
+	rol.b	#1,d4
+	move.b	d4,d1
+	andi.b	#1,d1
+	or.b	d1,d0
+	addi.w	#(SSPNT_UncLUT_Part2-SSPNT_UncLUT)/2,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	eori.w	#flip_x|palette_line_3,d0
+	move.w	d0,-(a6)
+	moveq	#7,d5											; Bit buffer now has 7 bits
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_5EBA
+SSTrackDrawFlipUnc_Read10_Got2:
+	; Reads 10 bits from uncompressed mappings, 2 bits in bit buffer
+	move.b	d4,d0
+	lsl.w	#2,d0
+	andi.w	#$300,d0
+	move.b	(a1)+,d0
+	addi.w	#(SSPNT_UncLUT_Part2-SSPNT_UncLUT)/2,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	eori.w	#flip_x|palette_line_3,d0
+	move.w	d0,-(a6)
+	moveq	#0,d5											; Bit buffer now empty
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_5EDA
+SSTrackDrawFlipUnc_Read10_Got3:
+	; Reads 10 bits from uncompressed mappings, 3 bits in bit buffer
+	move.b	d4,d0
+	lsl.w	#2,d0
+	andi.w	#$380,d0
+	move.b	(a1)+,d4
+	ror.b	#1,d4
+	move.b	d4,d1
+	andi.b	#$7F,d1
+	or.b	d1,d0
+	addi.w	#(SSPNT_UncLUT_Part2-SSPNT_UncLUT)/2,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	eori.w	#flip_x|palette_line_3,d0
+	move.w	d0,-(a6)
+	moveq	#1,d5											; Bit buffer now has 1 bit
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_5F04
+SSTrackDrawFlipUnc_Read10_Got4:
+	; Reads 10 bits from uncompressed mappings, 4 bits in bit buffer
+	move.b	d4,d0
+	lsl.w	#2,d0
+	andi.w	#$3C0,d0
+	move.b	(a1)+,d4
+	ror.b	#2,d4
+	move.b	d4,d1
+	andi.b	#$3F,d1
+	or.b	d1,d0
+	addi.w	#(SSPNT_UncLUT_Part2-SSPNT_UncLUT)/2,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	eori.w	#flip_x|palette_line_3,d0
+	move.w	d0,-(a6)
+	moveq	#2,d5											; Bit buffer now has 2 bits
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_5F2E
+SSTrackDrawFlipUnc_Read10_Got5:
+	; Reads 10 bits from uncompressed mappings, 5 bits in bit buffer
+	move.b	d4,d0
+	lsl.w	#2,d0
+	andi.w	#$3E0,d0
+	move.b	(a1)+,d4
+	ror.b	#3,d4
+	move.b	d4,d1
+	andi.b	#$1F,d1
+	or.b	d1,d0
+	addi.w	#(SSPNT_UncLUT_Part2-SSPNT_UncLUT)/2,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	eori.w	#flip_x|palette_line_3,d0
+	move.w	d0,-(a6)
+	moveq	#3,d5											; Bit buffer now has 3 bits
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_5F58
+SSTrackDrawFlipUnc_Read10_Got6:
+	; Reads 10 bits from uncompressed mappings, 6 bits in bit buffer
+	move.b	d4,d0
+	lsl.w	#2,d0
+	andi.w	#$3F0,d0
+	move.b	(a1)+,d4
+	ror.b	#4,d4
+	move.b	d4,d1
+	andi.b	#$F,d1
+	or.b	d1,d0
+	addi.w	#(SSPNT_UncLUT_Part2-SSPNT_UncLUT)/2,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	eori.w	#flip_x|palette_line_3,d0
+	move.w	d0,-(a6)
+	moveq	#4,d5											; Bit buffer now has 4 bits
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_5F82
+SSTrackDrawFlipUnc_Read10_Got7:
+	; Reads 10 bits from uncompressed mappings, 7 bits in bit buffer
+	move.b	d4,d0
+	lsl.w	#2,d0
+	andi.w	#$3F8,d0
+	move.b	(a1)+,d4
+	rol.b	#3,d4
+	move.b	d4,d1
+	andi.b	#7,d1
+	or.b	d1,d0
+	addi.w	#(SSPNT_UncLUT_Part2-SSPNT_UncLUT)/2,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	eori.w	#flip_x|palette_line_3,d0
+	move.w	d0,-(a6)
+	moveq	#5,d5											; Bit buffer now has 5 bits
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_5FAC
+SSTrackDrawFlipUnc_Read6_Got0:
+	; Reads 6 bits from uncompressed mappings, 0 bits in bit buffer
+	move.b	(a1)+,d4
+	ror.b	#2,d4
+	move.b	d4,d0
+	andi.w	#$3F,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	eori.w	#flip_x|palette_line_3,d0
+	move.w	d0,-(a6)
+	moveq	#2,d5											; Bit buffer now has 2 bits
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_5FC8
+SSTrackDrawFlipUnc_Read6_Got1:
+	; Reads 6 bits from uncompressed mappings, 1 bit in bit buffer
+	move.b	d4,d0
+	lsr.b	#2,d0
+	andi.w	#$20,d0
+	move.b	(a1)+,d4
+	ror.b	#3,d4
+	move.b	d4,d1
+	andi.b	#$1F,d1
+	or.b	d1,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	eori.w	#flip_x|palette_line_3,d0
+	move.w	d0,-(a6)
+	moveq	#3,d5											; Bit buffer now has 3 bits
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_5FEE
+SSTrackDrawFlipUnc_Read6_Got2:
+	; Reads 6 bits from uncompressed mappings, 2 bits in bit buffer
+	move.b	d4,d0
+	lsr.b	#2,d0
+	andi.w	#$30,d0
+	move.b	(a1)+,d4
+	ror.b	#4,d4
+	move.b	d4,d1
+	andi.b	#$F,d1
+	or.b	d1,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	eori.w	#flip_x|palette_line_3,d0
+	move.w	d0,-(a6)
+	moveq	#4,d5											; Bit buffer now has 4 bits
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_6014
+SSTrackDrawFlipUnc_Read6_Got3:
+	; Reads 6 bits from uncompressed mappings, 3 bits in bit buffer
+	move.b	d4,d0
+	lsr.b	#2,d0
+	andi.w	#$38,d0
+	move.b	(a1)+,d4
+	rol.b	#3,d4
+	move.b	d4,d1
+	andi.b	#7,d1
+	or.b	d1,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	eori.w	#flip_x|palette_line_3,d0
+	move.w	d0,-(a6)
+	moveq	#5,d5											; Bit buffer now has 5 bits
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_603A
+SSTrackDrawFlipUnc_Read6_Got4:
+	; Reads 6 bits from uncompressed mappings, 4 bits in bit buffer
+	move.b	d4,d0
+	lsr.b	#2,d0
+	andi.w	#$3C,d0
+	move.b	(a1)+,d4
+	rol.b	#2,d4
+	move.b	d4,d1
+	andi.b	#3,d1
+	or.b	d1,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	eori.w	#flip_x|palette_line_3,d0
+	move.w	d0,-(a6)
+	moveq	#6,d5											; Bit buffer now has 6 bits
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_6060
+SSTrackDrawFlipUnc_Read6_Got5:
+	; Reads 6 bits from uncompressed mappings, 5 bits in bit buffer
+	move.b	d4,d0
+	lsr.b	#2,d0
+	andi.w	#$3E,d0
+	move.b	(a1)+,d4
+	rol.b	#1,d4
+	move.b	d4,d1
+	andi.b	#1,d1
+	or.b	d1,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	eori.w	#flip_x|palette_line_3,d0
+	move.w	d0,-(a6)
+	moveq	#7,d5											; Bit buffer now has 7 bits
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_6086
+SSTrackDrawFlipUnc_Read6_Got6:
+	; Reads 6 bits from uncompressed mappings, 6 bits in bit buffer
+	lsr.b	#2,d4
+	andi.w	#$3F,d4
+	add.w	d4,d4
+	move.w	(a3,d4.w),d0
+	eori.w	#flip_x|palette_line_3,d0
+	move.w	d0,-(a6)
+	moveq	#0,d5											; Bit buffer now empty
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_609E
+SSTrackDrawFlipUnc_Read6_Got7:
+	; Reads 6 bits from uncompressed mappings, 7 bits in bit buffer
+	ror.b	#2,d4
+	move.b	d4,d0
+	andi.w	#$3F,d0
+	add.w	d0,d0
+	move.w	(a3,d0.w),d0
+	eori.w	#flip_x|palette_line_3,d0
+	move.w	d0,-(a6)
+	moveq	#1,d5											; Bit buffer now has 1 bit
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_60B8
+SSTrackDrawFlipRLE_Read7_Got0:
+	; Reads 7 bits from RLE-compressed mappings, 0 bits in bit buffer
+	move.b	(a2)+,d2
+	ror.b	#1,d2
+	move.b	d2,d0
+	andi.w	#$7F,d0
+	moveq	#1,d3											; Bit buffer now has 1 bit
+	cmpi.b	#$7F,d0
+	beq.w	SSTrackDrawLineFlipLoop
+	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,-(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_60EA
+SSTrackDrawFlipRLE_Read7_Got1:
+	; Reads 7 bits from RLE-compressed mappings, 1 bit in bit buffer
+	move.b	d2,d1
+	lsr.b	#1,d1
+	andi.b	#$40,d1
+	move.b	(a2)+,d2
+	ror.b	#2,d2
+	move.b	d2,d0
+	andi.w	#$3F,d0
+	or.b	d1,d0
+	moveq	#2,d3											; Bit buffer now has 2 bits
+	cmpi.b	#$7F,d0
+	beq.w	SSTrackDrawLineFlipLoop
+	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,-(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_6126
+SSTrackDrawFlipRLE_Read7_Got2:
+	; Reads 7 bits from RLE-compressed mappings, 2 bits in bit buffer
+	move.b	d2,d1
+	lsr.b	#1,d1
+	andi.b	#$60,d1
+	move.b	(a2)+,d2
+	ror.b	#3,d2
+	move.b	d2,d0
+	andi.w	#$1F,d0
+	or.b	d1,d0
+	moveq	#3,d3											; Bit buffer now has 3 bits
+	cmpi.b	#$7F,d0
+	beq.w	SSTrackDrawLineFlipLoop
+	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,-(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_6162
+SSTrackDrawFlipRLE_Read7_Got3:
+	; Reads 7 bits from RLE-compressed mappings, 3 bits in bit buffer
+	move.b	d2,d1
+	lsr.b	#1,d1
+	andi.b	#$70,d1
+	move.b	(a2)+,d2
+	ror.b	#4,d2
+	move.b	d2,d0
+	andi.w	#$F,d0
+	or.b	d1,d0
+	moveq	#4,d3											; Bit buffer now has 4 bits
+	cmpi.b	#$7F,d0
+	beq.w	SSTrackDrawLineFlipLoop
+	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,-(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_619E
+SSTrackDrawFlipRLE_Read7_Got4:
+	; Reads 7 bits from RLE-compressed mappings, 4 bits in bit buffer
+	move.b	d2,d1
+	lsr.b	#1,d1
+	andi.b	#$78,d1
+	move.b	(a2)+,d2
+	rol.b	#3,d2
+	move.b	d2,d0
+	andi.w	#7,d0
+	or.b	d1,d0
+	moveq	#5,d3											; Bit buffer now has 5 bits
+	cmpi.b	#$7F,d0
+	beq.w	SSTrackDrawLineFlipLoop
+	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,-(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_61DA
+SSTrackDrawFlipRLE_Read7_Got5:
+	; Reads 7 bits from RLE-compressed mappings, 5 bits in bit buffer
+	move.b	d2,d1
+	lsr.b	#1,d1
+	andi.b	#$7C,d1
+	move.b	(a2)+,d2
+	rol.b	#2,d2
+	move.b	d2,d0
+	andi.w	#3,d0
+	or.b	d1,d0
+	moveq	#6,d3											; Bit buffer now has 6 bits
+	cmpi.b	#$7F,d0
+	beq.w	SSTrackDrawLineFlipLoop
+	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,-(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_6216
+SSTrackDrawFlipRLE_Read7_Got6:
+	; Reads 7 bits from RLE-compressed mappings, 6 bits in bit buffer
+	move.b	d2,d1
+	lsr.b	#1,d1
+	andi.b	#$7E,d1
+	move.b	(a2)+,d2
+	rol.b	#1,d2
+	move.b	d2,d0
+	andi.w	#1,d0
+	or.b	d1,d0
+	moveq	#7,d3											; Bit buffer now has 7 bits
+	cmpi.b	#$7F,d0
+	beq.w	SSTrackDrawLineFlipLoop
+	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,-(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_6252
+SSTrackDrawFlipRLE_Read7_Got7:
+	; Reads 7 bits from RLE-compressed mappings, 7 bits in bit buffer
+	lsr.b	#1,d2
+	andi.w	#$7F,d2
+	moveq	#0,d3											; Bit buffer now empty
+	cmpi.b	#$7F,d2
+	beq.w	SSTrackDrawLineFlipLoop
+	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d2
+	add.w	d2,d2
+	add.w	d2,d2
+	move.w	(a4,d2.w),d1
+	move.w	2(a4,d2.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,-(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_6280
+SSTrackDrawFlipRLE_Read6_Got0:
+	; Reads 6 bits from RLE-compressed mappings, 0 bits in bit buffer
+	move.b	(a2)+,d2
+	ror.b	#2,d2
+	move.b	d2,d0
+	andi.w	#$3F,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	moveq	#2,d3											; Bit buffer now has 2 bits
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,-(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_62A6
+SSTrackDrawFlipRLE_Read6_Got1:
+	; Reads 6 bits from RLE-compressed mappings, 1 bit in bit buffer
+	move.b	d2,d0
+	lsr.b	#2,d0
+	andi.w	#$20,d0
+	move.b	(a2)+,d2
+	ror.b	#3,d2
+	move.b	d2,d1
+	andi.b	#$1F,d1
+	or.b	d1,d0
+	moveq	#3,d3											; Bit buffer now has 3 bits
+	add.w	d0,d0
+	add.w	d0,d0
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,-(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_62D6
+SSTrackDrawFlipRLE_Read6_Got2:
+	; Reads 6 bits from RLE-compressed mappings, 2 bits in bit buffer
+	move.b	d2,d0
+	lsr.b	#2,d0
+	andi.w	#$30,d0
+	move.b	(a2)+,d2
+	ror.b	#4,d2
+	move.b	d2,d1
+	andi.b	#$F,d1
+	or.b	d1,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	moveq	#4,d3											; Bit buffer now has 4 bits
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,-(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_6306
+SSTrackDrawFlipRLE_Read6_Got3:
+	; Reads 6 bits from RLE-compressed mappings, 3 bits in bit buffer
+	move.b	d2,d0
+	lsr.b	#2,d0
+	andi.w	#$38,d0
+	move.b	(a2)+,d2
+	rol.b	#3,d2
+	move.b	d2,d1
+	andi.b	#7,d1
+	or.b	d1,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	moveq	#5,d3											; Bit buffer now has 5 bits
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,-(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_6336
+SSTrackDrawFlipRLE_Read6_Got4:
+	; Reads 6 bits from RLE-compressed mappings, 4 bits in bit buffer
+	move.b	d2,d0
+	lsr.b	#2,d0
+	andi.w	#$3C,d0
+	move.b	(a2)+,d2
+	rol.b	#2,d2
+	move.b	d2,d1
+	andi.b	#3,d1
+	or.b	d1,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	moveq	#6,d3											; Bit buffer now has 6 bits
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,-(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_6366
+SSTrackDrawFlipRLE_Read6_Got5:
+	; Reads 6 bits from RLE-compressed mappings, 5 bits in bit buffer
+	move.b	d2,d0
+	lsr.b	#2,d0
+	andi.w	#$3E,d0
+	move.b	(a2)+,d2
+	rol.b	#1,d2
+	move.b	d2,d1
+	andi.b	#1,d1
+	or.b	d1,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	moveq	#7,d3											; Bit buffer now has 7 bits
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,-(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_6396
+SSTrackDrawFlipRLE_Read6_Got6:
+	; Reads 6 bits from RLE-compressed mappings, 6 bits in bit buffer
+	lsr.b	#2,d2
+	andi.w	#$3F,d2
+	add.w	d2,d2
+	add.w	d2,d2
+	moveq	#0,d3											; Bit buffer now empty
+	move.w	(a4,d2.w),d1
+	move.w	2(a4,d2.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,-(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawFlipLoop_Inner
+; ===========================================================================
+;loc_63B8
+SSTrackDrawFlipRLE_Read6_Got7:
+	; Reads 6 bits from RLE-compressed mappings, 7 bits in bit buffer
+	ror.b	#2,d2
+	move.b	d2,d0
+	andi.w	#$3F,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	moveq	#1,d3											; Bit buffer now has 1 bit
+	move.w	(a4,d0.w),d1
+	move.w	2(a4,d0.w),d0
+	ori.w	#palette_line_3|high_priority,d1
+
+-	move.w	d1,-(a6)
+	dbf	d0,-
+
+	bra.w	SSTrackDrawFlipLoop_Inner
+
+; ===========================================================================
+; frames of animation of the special stage track
+; this chooses how objects curve along the track as well as which track frame to draw
+; off_63DC:
+Ani_SpecialStageTrack:	offsetTable
+	offsetTableEntry.w SSTrackAni_TurnThenRise	; 0
+	offsetTableEntry.w SSTrackAni_TurnThenDrop	; 1
+	offsetTableEntry.w SSTrackAni_TurnThenStraight	; 2
+	offsetTableEntry.w SSTrackAni_Straight		; 3
+	offsetTableEntry.w SSTrackAni_StraightThenTurn	; 4
+; byte_63E6:
+SSTrackAni_TurnThenRise:
+	dc.b $26,$27,$28,$29,$2A,$2B,$26 ; turning
+	dc.b   0,  1,  2,  3,  4,  5,  6,  7,  8,  9, $A, $B, $C, $D, $E, $F,$10 ; rise
+SSTrackAni_TurnThenRise_End:
+; byte_63FE:
+SSTrackAni_TurnThenDrop:
+	dc.b $26,$27,$28,$29,$2A,$2B,$26 ; turning
+	dc.b $15,$16,$17,$18,$19,$1A,$1B,$1C,$1D,$1E,$1F,$20,$21,$22,$23,$24,$25 ; drop
+SSTrackAni_TurnThenDrop_End:
+; byte_6416:
+SSTrackAni_TurnThenStraight:
+	dc.b $26,$27,$28,$29,$2A,$2B,$26 ; turning
+	dc.b $2C,$2D,$2E,$2F,$30 ; exit turn
+SSTrackAni_TurnThenStraight_End:
+; byte_6422:
+SSTrackAni_Straight:
+	dc.b $11,$12,$13,$14,$11,$12,$13,$14 ; straight
+	dc.b $11,$12,$13,$14,$11,$12,$13,$14 ; straight
+SSTrackAni_Straight_End:
+; byte_6432:
+SSTrackAni_StraightThenTurn:
+	dc.b $11,$12,$13,$14 ; straight
+	dc.b $31,$32,$33,$34,$35,$36,$37 ; enter turn
+SSTrackAni_StraightThenTurn_End:
+
+	even
+
+; ===========================================================================
+; pointers to the mappings for each frame of the special stage track
+; indexed into by the numbers used in the above animations
+;
+; Format of each mappings file:
+;	File is divided in 3 segments, with the same structure:
+;	Segment structure:
+;		4-byte unsigned length of segment (not counting the 4 bytes used for length);
+;		the first 2 bytes of each length is ignored, and only the last 2 bytes are
+;		actually used.
+;		Rest of the segment is mappings data, as follows:
+;	1st segment:
+;		Mappings data is a bitstream indicating whether to draw a single tile at
+;		a time using the uncompressed mappings (see 2nd segment) or a sequence of
+;		tiles using the RLE mappings (see 3rd segment).
+;	2nd segment:
+;		Mappings data is a bitstream: the first bit in each cycle determines how
+;		many bits from the stream are to be used as an index to the uncompressed
+;		pattern name list SSPNT_UncLUT: if the first bit is set, 10 bits form an
+;		index into SSPNT_UncLUT_Part2, otherwise 6 bits are used as an index into
+;		SSPNT_UncLUT.
+;		These tiles are drawn in palette line 3.
+;	3nd segment:
+;		Mappings data is a bitstream: the first bit in each cycle determines how
+;		many bits from the stream are to be used as an index to the RLE-compressed
+;		pattern name list SSPNT_RLELUT: if the first bit is set, 7 bits form an
+;		index into SSPNT_RLELUT_Part2, otherwise 6 bits are used as an index into
+;		SSPNT_RLELUT.
+;		These tiles are drawn in palette line 3, with the high priority bit set.
+; off_643E:
+Map_SpecialStageTrack:
+	dc.l MapSpec_Rise1		;   0
+	dc.l MapSpec_Rise2		;   1
+	dc.l MapSpec_Rise3		;   2
+	dc.l MapSpec_Rise4		;   3
+	dc.l MapSpec_Rise5		;   4
+	dc.l MapSpec_Rise6		;   5
+	dc.l MapSpec_Rise7		;   6
+	dc.l MapSpec_Rise8		;   7
+	dc.l MapSpec_Rise9		;   8
+	dc.l MapSpec_Rise10		;   9
+	dc.l MapSpec_Rise11		;  $A
+	dc.l MapSpec_Rise12		;  $B
+	dc.l MapSpec_Rise13		;  $C
+	dc.l MapSpec_Rise14		;  $D	; This may flip the special stage's horizontal orientation
+	dc.l MapSpec_Rise15		;  $E
+	dc.l MapSpec_Rise16		;  $F
+	dc.l MapSpec_Rise17		; $10
+	dc.l MapSpec_Straight1	; $11
+	dc.l MapSpec_Straight2	; $12	; This may flip the special stage's horizontal orientation
+	dc.l MapSpec_Straight3	; $13
+	dc.l MapSpec_Straight4	; $14
+	dc.l MapSpec_Drop1		; $15
+	dc.l MapSpec_Drop2		; $16
+	dc.l MapSpec_Drop3		; $17
+	dc.l MapSpec_Drop4		; $18
+	dc.l MapSpec_Drop5		; $19
+	dc.l MapSpec_Drop6		; $1A	; This may flip the special stage's horizontal orientation
+	dc.l MapSpec_Drop7		; $1B
+	dc.l MapSpec_Drop8		; $1C
+	dc.l MapSpec_Drop9		; $1D
+	dc.l MapSpec_Drop10		; $1E
+	dc.l MapSpec_Drop11		; $1F
+	dc.l MapSpec_Drop12		; $20
+	dc.l MapSpec_Drop13		; $21
+	dc.l MapSpec_Drop14		; $22
+	dc.l MapSpec_Drop15		; $23
+	dc.l MapSpec_Drop16		; $24
+	dc.l MapSpec_Drop17		; $25
+	dc.l MapSpec_Turning1	; $26
+	dc.l MapSpec_Turning2	; $27
+	dc.l MapSpec_Turning3	; $28
+	dc.l MapSpec_Turning4	; $29
+	dc.l MapSpec_Turning5	; $2A
+	dc.l MapSpec_Turning6	; $2B
+	dc.l MapSpec_Unturn1	; $2C
+	dc.l MapSpec_Unturn2	; $2D
+	dc.l MapSpec_Unturn3	; $2E
+	dc.l MapSpec_Unturn4	; $2F
+	dc.l MapSpec_Unturn5	; $30
+	dc.l MapSpec_Turn1		; $31
+	dc.l MapSpec_Turn2		; $32
+	dc.l MapSpec_Turn3		; $33
+	dc.l MapSpec_Turn4		; $34
+	dc.l MapSpec_Turn5		; $35
+	dc.l MapSpec_Turn6		; $36
+	dc.l MapSpec_Turn7		; $37
+
+; These are pattern names. They get sent to either the pattern name table
+; buffer or one region of one of the plane A name tables in the special stage.
+; They are indexed by the second segment of the mappings in Map_SpecialStageTrack, above.
+;word_651E
+SSPNT_UncLUT:
+	dc.w make_block_tile($0001,0,0,0,1), make_block_tile($0007,0,0,0,1), make_block_tile($002C,0,0,0,1), make_block_tile($000B,0,0,0,1)	; $00
+	dc.w make_block_tile($0024,0,0,0,1), make_block_tile($0024,1,0,0,1), make_block_tile($0039,0,0,0,1), make_block_tile($002B,1,0,0,1)	; $04
+	dc.w make_block_tile($005D,0,0,0,1), make_block_tile($005D,1,0,0,1), make_block_tile($002B,0,0,0,1), make_block_tile($004A,0,0,0,1)	; $08
+	dc.w make_block_tile($0049,0,0,0,1), make_block_tile($0037,0,0,0,1), make_block_tile($0049,1,0,0,1), make_block_tile($0045,0,0,0,1)	; $0C
+	dc.w make_block_tile($0045,1,0,0,1), make_block_tile($003A,1,0,0,1), make_block_tile($0048,0,0,0,1), make_block_tile($0050,1,0,0,1)	; $10
+	dc.w make_block_tile($0036,0,0,0,1), make_block_tile($0037,1,0,0,1), make_block_tile($003A,0,0,0,1), make_block_tile($0050,0,0,0,1)	; $14
+	dc.w make_block_tile($0042,1,0,0,1), make_block_tile($0042,0,0,0,1), make_block_tile($0015,1,0,0,1), make_block_tile($001D,0,0,0,1)	; $18
+	dc.w make_block_tile($004B,0,0,0,1), make_block_tile($0017,1,0,0,1), make_block_tile($0048,1,0,0,1), make_block_tile($0036,1,0,0,1)	; $1C
+	dc.w make_block_tile($0038,0,0,0,1), make_block_tile($004B,1,0,0,1), make_block_tile($0015,0,0,0,1), make_block_tile($0021,0,0,0,1)	; $20
+	dc.w make_block_tile($0017,0,0,0,1), make_block_tile($0033,0,0,0,1), make_block_tile($001A,0,0,0,1), make_block_tile($002A,0,0,0,1)	; $24
+	dc.w make_block_tile($005E,0,0,0,1), make_block_tile($0028,0,0,0,1), make_block_tile($0030,0,0,0,1), make_block_tile($0021,1,0,0,1)	; $28
+	dc.w make_block_tile($0038,1,0,0,1), make_block_tile($001A,1,0,0,1), make_block_tile($0025,0,0,0,1), make_block_tile($005E,1,0,0,1)	; $2C
+	dc.w make_block_tile($0025,1,0,0,1), make_block_tile($0033,1,0,0,1), make_block_tile($0003,0,0,0,1), make_block_tile($0014,1,0,0,1)	; $30
+	dc.w make_block_tile($0014,0,0,0,1), make_block_tile($0004,0,0,0,1), make_block_tile($004E,0,0,0,1), make_block_tile($0003,1,0,0,1)	; $34
+	dc.w make_block_tile($000C,0,0,0,1), make_block_tile($002A,1,0,0,1), make_block_tile($0002,0,0,0,1), make_block_tile($0051,0,0,0,1)	; $38
+	dc.w make_block_tile($0040,0,0,0,1), make_block_tile($003D,0,0,0,1), make_block_tile($0019,0,0,0,1), make_block_tile($0052,0,0,0,1)	; $3C
+;word_659E
+SSPNT_UncLUT_Part2:
+	dc.w make_block_tile($0009,0,0,0,1), make_block_tile($005A,0,0,0,1), make_block_tile($0030,1,0,0,1), make_block_tile($004E,1,0,0,1)	; $40
+	dc.w make_block_tile($0052,1,0,0,1), make_block_tile($0051,1,0,0,1), make_block_tile($0009,1,0,0,1), make_block_tile($0040,1,0,0,1)	; $44
+	dc.w make_block_tile($002F,0,0,0,1), make_block_tile($005A,1,0,0,1), make_block_tile($0018,1,0,0,1), make_block_tile($0034,0,0,0,1)	; $48
+	dc.w make_block_tile($0019,1,0,0,1), make_block_tile($002F,1,0,0,1), make_block_tile($003D,1,0,0,1), make_block_tile($003E,0,0,0,1)	; $4C
+	dc.w make_block_tile($0018,0,0,0,1), make_block_tile($000C,1,0,0,1), make_block_tile($0012,0,0,0,1), make_block_tile($0004,1,0,0,1)	; $50
+	dc.w make_block_tile($0026,0,0,0,1), make_block_tile($0034,1,0,0,1), make_block_tile($0005,1,0,0,1), make_block_tile($003B,0,0,0,1)	; $54
+	dc.w make_block_tile($003E,1,0,0,1), make_block_tile($003B,1,0,0,1), make_block_tile($0000,0,0,0,1), make_block_tile($0002,1,0,0,1)	; $58
+	dc.w make_block_tile($0005,0,0,0,1), make_block_tile($000D,0,0,0,1), make_block_tile($0055,0,0,0,1), make_block_tile($00AF,0,0,0,1)	; $5C
+	dc.w make_block_tile($001C,0,0,0,1), make_block_tile($001B,0,0,0,1), make_block_tile($000D,1,0,0,1), make_block_tile($0016,0,0,0,1)	; $60
+	dc.w make_block_tile($0012,1,0,0,1), make_block_tile($001F,0,0,0,1), make_block_tile($0032,1,0,0,1), make_block_tile($0013,0,0,0,1)	; $64
+	dc.w make_block_tile($0092,0,0,0,1), make_block_tile($0026,1,0,0,1), make_block_tile($0010,0,0,0,1), make_block_tile($004D,0,0,0,1)	; $68
+	dc.w make_block_tile($0047,0,0,0,1), make_block_tile($0092,1,0,0,1), make_block_tile($0000,1,0,0,1), make_block_tile($0062,0,0,0,1)	; $6C
+	dc.w make_block_tile($0066,0,0,0,1), make_block_tile($0090,0,0,0,1), make_block_tile($0008,0,0,0,1), make_block_tile($007C,1,0,0,1)	; $70
+	dc.w make_block_tile($0067,1,0,0,1), make_block_tile($00F7,1,0,0,1), make_block_tile($000E,0,0,0,1), make_block_tile($0060,0,0,0,1)	; $74
+	dc.w make_block_tile($0032,0,0,0,1), make_block_tile($0094,0,0,0,1), make_block_tile($001C,1,0,0,1), make_block_tile($0105,1,0,0,1)	; $78
+	dc.w make_block_tile($00B0,1,0,0,1), make_block_tile($0059,0,0,0,1), make_block_tile($000F,0,0,0,1), make_block_tile($0067,0,0,0,1)	; $7C
+	dc.w make_block_tile($0068,0,0,0,1), make_block_tile($0094,1,0,0,1), make_block_tile($007C,0,0,0,1), make_block_tile($00B0,0,0,0,1)	; $80
+	dc.w make_block_tile($00B1,0,0,0,1), make_block_tile($0006,0,0,0,1), make_block_tile($0041,1,0,0,1), make_block_tile($0087,0,0,0,1)	; $84
+	dc.w make_block_tile($0093,0,0,0,1), make_block_tile($00CC,0,0,0,1), make_block_tile($001F,1,0,0,1), make_block_tile($0068,1,0,0,1)	; $88
+	dc.w make_block_tile($0041,0,0,0,1), make_block_tile($008F,0,0,0,1), make_block_tile($0090,1,0,0,1), make_block_tile($00C2,0,0,0,1)	; $8C
+	dc.w make_block_tile($0013,1,0,0,1), make_block_tile($00C2,1,0,0,1), make_block_tile($005C,0,0,0,1), make_block_tile($0064,0,0,0,1)	; $90
+	dc.w make_block_tile($00D8,0,0,0,1), make_block_tile($001B,1,0,0,1), make_block_tile($00CC,1,0,0,1), make_block_tile($0011,1,0,0,1)	; $94
+	dc.w make_block_tile($0055,1,0,0,1), make_block_tile($00E2,1,0,0,1), make_block_tile($00F3,1,0,0,1), make_block_tile($0044,0,0,0,1)	; $98
+	dc.w make_block_tile($00D8,1,0,0,1), make_block_tile($0085,0,0,0,1), make_block_tile($00A1,0,0,0,1), make_block_tile($00C1,0,0,0,1)	; $9C
+	dc.w make_block_tile($0119,0,0,0,1), make_block_tile($0089,1,0,0,1), make_block_tile($000A,1,0,0,1), make_block_tile($0022,1,0,0,1)	; $A0
+	dc.w make_block_tile($003F,0,0,0,1), make_block_tile($005B,0,0,0,1), make_block_tile($007F,0,0,0,1), make_block_tile($0086,1,0,0,1)	; $A4
+	dc.w make_block_tile($0008,1,0,0,1), make_block_tile($0080,0,0,0,1), make_block_tile($0066,1,0,0,1), make_block_tile($00E0,1,0,0,1)	; $A8
+	dc.w make_block_tile($00C1,1,0,0,1), make_block_tile($0020,0,0,0,1), make_block_tile($0022,0,0,0,1), make_block_tile($0054,0,0,0,1)	; $AC
+	dc.w make_block_tile($00D2,0,0,0,1), make_block_tile($0059,1,0,0,1), make_block_tile($00B1,1,0,0,1), make_block_tile($0060,1,0,0,1)	; $B0
+	dc.w make_block_tile($0119,1,0,0,1), make_block_tile($00A4,1,0,0,1), make_block_tile($008F,1,0,0,1), make_block_tile($000A,0,0,0,1)	; $B4
+	dc.w make_block_tile($0061,0,0,0,1), make_block_tile($0075,0,0,0,1), make_block_tile($0095,0,0,0,1), make_block_tile($00B6,0,0,0,1)	; $B8
+	dc.w make_block_tile($00E0,0,0,0,1), make_block_tile($0010,1,0,0,1), make_block_tile($0098,1,0,0,1), make_block_tile($005B,1,0,0,1)	; $BC
+	dc.w make_block_tile($00D2,1,0,0,1), make_block_tile($0016,1,0,0,1), make_block_tile($0053,0,0,0,1), make_block_tile($0091,0,0,0,1)	; $C0
+	dc.w make_block_tile($0096,0,0,0,1), make_block_tile($00A4,0,0,0,1), make_block_tile($00DD,0,0,0,1), make_block_tile($00E6,0,0,0,1)	; $C4
+	dc.w make_block_tile($007A,1,0,0,1), make_block_tile($004D,1,0,0,1), make_block_tile($00E6,1,0,0,1), make_block_tile($0011,0,0,0,1)	; $C8
+	dc.w make_block_tile($0057,0,0,0,1), make_block_tile($007A,0,0,0,1), make_block_tile($0086,0,0,0,1), make_block_tile($009E,0,0,0,1)	; $CC
+	dc.w make_block_tile($00DA,0,0,0,1), make_block_tile($0058,0,0,0,1), make_block_tile($00DC,0,0,0,1), make_block_tile($00E3,0,0,0,1)	; $D0
+	dc.w make_block_tile($0063,1,0,0,1), make_block_tile($003C,0,0,0,1), make_block_tile($0056,0,0,0,1), make_block_tile($0069,0,0,0,1)	; $D4
+	dc.w make_block_tile($007E,0,0,0,1), make_block_tile($00AE,0,0,0,1), make_block_tile($00B5,0,0,0,1), make_block_tile($00B8,0,0,0,1)	; $D8
+	dc.w make_block_tile($00CD,0,0,0,1), make_block_tile($00FB,0,0,0,1), make_block_tile($00FF,0,0,0,1), make_block_tile($005C,1,0,0,1)	; $DC
+	dc.w make_block_tile($00CD,1,0,0,1), make_block_tile($0074,1,0,0,1), make_block_tile($00EA,1,0,0,1), make_block_tile($00FF,1,0,0,1)	; $E0
+	dc.w make_block_tile($00B5,1,0,0,1), make_block_tile($0043,0,0,0,1), make_block_tile($006C,0,0,0,1), make_block_tile($0074,0,0,0,1)	; $E4
+	dc.w make_block_tile($0077,0,0,0,1), make_block_tile($0089,0,0,0,1), make_block_tile($0097,0,0,0,1), make_block_tile($009F,0,0,0,1)	; $E8
+	dc.w make_block_tile($00A0,0,0,0,1), make_block_tile($0113,0,0,0,1), make_block_tile($011B,0,0,0,1), make_block_tile($0078,1,0,0,1)	; $EC
+	dc.w make_block_tile($000F,1,0,0,1), make_block_tile($00E1,1,0,0,1), make_block_tile($00FB,1,0,0,1), make_block_tile($0128,1,0,0,1)	; $F0
+	dc.w make_block_tile($0063,0,0,0,1), make_block_tile($0084,0,0,0,1), make_block_tile($008D,0,0,0,1), make_block_tile($00CB,0,0,0,1)	; $F4
+	dc.w make_block_tile($00D7,0,0,0,1), make_block_tile($00E9,0,0,0,1), make_block_tile($0128,0,0,0,1), make_block_tile($0138,0,0,0,1)	; $F8
+	dc.w make_block_tile($00AE,1,0,0,1), make_block_tile($00EC,1,0,0,1), make_block_tile($0031,0,0,0,1), make_block_tile($004C,0,0,0,1)	; $FC
+	dc.w make_block_tile($00E2,0,0,0,1), make_block_tile($00EA,0,0,0,1), make_block_tile($0064,1,0,0,1), make_block_tile($0029,0,0,0,1)	; $100
+	dc.w make_block_tile($002D,0,0,0,1), make_block_tile($006D,0,0,0,1), make_block_tile($0078,0,0,0,1), make_block_tile($0088,0,0,0,1)	; $104
+	dc.w make_block_tile($00B4,0,0,0,1), make_block_tile($00BE,0,0,0,1), make_block_tile($00CF,0,0,0,1), make_block_tile($00E1,0,0,0,1)	; $108
+	dc.w make_block_tile($00E4,0,0,0,1), make_block_tile($0054,1,0,0,1), make_block_tile($00D6,1,0,0,1), make_block_tile($00D7,1,0,0,1)	; $10C
+	dc.w make_block_tile($0061,1,0,0,1), make_block_tile($012B,1,0,0,1), make_block_tile($0047,1,0,0,1), make_block_tile($0035,0,0,0,1)	; $110
+	dc.w make_block_tile($006A,0,0,0,1), make_block_tile($0072,0,0,0,1), make_block_tile($0073,0,0,0,1), make_block_tile($0098,0,0,0,1)	; $114
+	dc.w make_block_tile($00D5,0,0,0,1), make_block_tile($00D6,0,0,0,1), make_block_tile($0116,0,0,0,1), make_block_tile($011E,0,0,0,1)	; $118
+	dc.w make_block_tile($0126,0,0,0,1), make_block_tile($0127,0,0,0,1), make_block_tile($012F,0,0,0,1), make_block_tile($015D,0,0,0,1)	; $11C
+	dc.w make_block_tile($0069,1,0,0,1), make_block_tile($0088,1,0,0,1), make_block_tile($0075,1,0,0,1), make_block_tile($0097,1,0,0,1)	; $120
+	dc.w make_block_tile($00B4,1,0,0,1), make_block_tile($00D1,1,0,0,1), make_block_tile($00D4,1,0,0,1), make_block_tile($00D5,1,0,0,1)	; $124
+	dc.w make_block_tile($00CB,1,0,0,1), make_block_tile($00E4,1,0,0,1), make_block_tile($0091,1,0,0,1), make_block_tile($0062,1,0,0,1)	; $128
+	dc.w make_block_tile($0006,1,0,0,1), make_block_tile($00B8,1,0,0,1), make_block_tile($0065,0,0,0,1), make_block_tile($006E,0,0,0,1)	; $12C
+	dc.w make_block_tile($0071,0,0,0,1), make_block_tile($007D,0,0,0,1), make_block_tile($00D1,0,0,0,1), make_block_tile($00E7,0,0,0,1)	; $130
+	dc.w make_block_tile($00F9,0,0,0,1), make_block_tile($0108,0,0,0,1), make_block_tile($012E,0,0,0,1), make_block_tile($014B,0,0,0,1)	; $134
+	dc.w make_block_tile($0081,1,0,0,1), make_block_tile($0085,1,0,0,1), make_block_tile($0077,1,0,0,1), make_block_tile($007E,1,0,0,1)	; $138
+	dc.w make_block_tile($0095,1,0,0,1), make_block_tile($00DF,1,0,0,1), make_block_tile($0087,1,0,0,1), make_block_tile($006C,1,0,0,1)	; $13C
+	dc.w make_block_tile($00F5,1,0,0,1), make_block_tile($0108,1,0,0,1), make_block_tile($0079,1,0,0,1), make_block_tile($006D,1,0,0,1)	; $140
+	dc.w make_block_tile($012A,1,0,0,1), make_block_tile($00AA,1,0,0,1), make_block_tile($001E,0,0,0,1), make_block_tile($0027,0,0,0,1)	; $144
+	dc.w make_block_tile($0046,0,0,0,1), make_block_tile($005F,0,0,0,1), make_block_tile($0070,0,0,0,1), make_block_tile($0079,0,0,0,1)	; $148
+	dc.w make_block_tile($009A,0,0,0,1), make_block_tile($00AA,0,0,0,1), make_block_tile($00C3,0,0,0,1), make_block_tile($00D3,0,0,0,1)	; $14C
+	dc.w make_block_tile($00D4,0,0,0,1), make_block_tile($00DE,0,0,0,1), make_block_tile($00DF,0,0,0,1), make_block_tile($00F8,0,0,0,1)	; $150
+	dc.w make_block_tile($0100,0,0,0,1), make_block_tile($0101,0,0,0,1), make_block_tile($012B,0,0,0,1), make_block_tile($0133,0,0,0,1)	; $154
+	dc.w make_block_tile($0136,0,0,0,1), make_block_tile($0143,0,0,0,1), make_block_tile($0151,0,0,0,1), make_block_tile($002E,1,0,0,1)	; $158
+	dc.w make_block_tile($009E,1,0,0,1), make_block_tile($0099,1,0,0,1), make_block_tile($00D3,1,0,0,1), make_block_tile($00DD,1,0,0,1)	; $15C
+	dc.w make_block_tile($00DE,1,0,0,1), make_block_tile($00E9,1,0,0,1), make_block_tile($00EF,1,0,0,1), make_block_tile($00F0,1,0,0,1)	; $160
+	dc.w make_block_tile($00F8,1,0,0,1), make_block_tile($0127,1,0,0,1), make_block_tile($00BE,1,0,0,1), make_block_tile($0096,1,0,0,1)	; $164
+	dc.w make_block_tile($004F,0,0,0,1), make_block_tile($006F,0,0,0,1), make_block_tile($0081,0,0,0,1), make_block_tile($008B,0,0,0,1)	; $168
+	dc.w make_block_tile($008E,0,0,0,1), make_block_tile($009C,0,0,0,1), make_block_tile($00A3,0,0,0,1), make_block_tile($00B3,0,0,0,1)	; $16C
+	dc.w make_block_tile($00C0,0,0,0,1), make_block_tile($00CE,0,0,0,1), make_block_tile($00F0,0,0,0,1), make_block_tile($00F1,0,0,0,1)	; $170
+	dc.w make_block_tile($00F5,0,0,0,1), make_block_tile($00F7,0,0,0,1), make_block_tile($0102,0,0,0,1), make_block_tile($0104,0,0,0,1)	; $174
+	dc.w make_block_tile($0105,0,0,0,1), make_block_tile($0109,0,0,0,1), make_block_tile($010C,0,0,0,1), make_block_tile($0114,0,0,0,1)	; $178
+	dc.w make_block_tile($0118,0,0,0,1), make_block_tile($0120,0,0,0,1), make_block_tile($0124,0,0,0,1), make_block_tile($0125,0,0,0,1)	; $17C
+	dc.w make_block_tile($012A,0,0,0,1), make_block_tile($0130,0,0,0,1), make_block_tile($0132,0,0,0,1), make_block_tile($0137,0,0,0,1)	; $180
+	dc.w make_block_tile($0159,0,0,0,1), make_block_tile($0165,0,0,0,1), make_block_tile($003F,1,0,0,1), make_block_tile($006B,1,0,0,1)	; $184
+	dc.w make_block_tile($0080,1,0,0,1), make_block_tile($0053,1,0,0,1), make_block_tile($00C6,1,0,0,1), make_block_tile($00CF,1,0,0,1)	; $188
+	dc.w make_block_tile($00D9,1,0,0,1), make_block_tile($00DC,1,0,0,1), make_block_tile($0056,1,0,0,1), make_block_tile($00B6,1,0,0,1)	; $18C
+	dc.w make_block_tile($00F9,1,0,0,1), make_block_tile($0102,1,0,0,1), make_block_tile($0104,1,0,0,1), make_block_tile($0115,1,0,0,1)	; $190
+	dc.w make_block_tile($006A,1,0,0,1), make_block_tile($0113,1,0,0,1), make_block_tile($0072,1,0,0,1), make_block_tile($0035,1,0,0,1)	; $194
+	dc.w make_block_tile($0138,1,0,0,1), make_block_tile($015D,1,0,0,1), make_block_tile($0143,1,0,0,1), make_block_tile($0023,0,0,0,1)	; $198
+	dc.w make_block_tile($0076,0,0,0,1), make_block_tile($007B,0,0,0,1), make_block_tile($008A,0,0,0,1), make_block_tile($009D,0,0,0,1)	; $19C
+	dc.w make_block_tile($00A6,0,0,0,1), make_block_tile($00A8,0,0,0,1), make_block_tile($00AC,0,0,0,1), make_block_tile($00B2,0,0,0,1)	; $1A0
+	dc.w make_block_tile($00B7,0,0,0,1), make_block_tile($00BB,0,0,0,1), make_block_tile($00BC,0,0,0,1), make_block_tile($00BD,0,0,0,1)	; $1A4
+	dc.w make_block_tile($00C6,0,0,0,1), make_block_tile($00E5,0,0,0,1), make_block_tile($00E8,0,0,0,1), make_block_tile($00EE,0,0,0,1)	; $1A8
+	dc.w make_block_tile($00F4,0,0,0,1), make_block_tile($010A,0,0,0,1), make_block_tile($010D,0,0,0,1), make_block_tile($0111,0,0,0,1)	; $1AC
+	dc.w make_block_tile($0115,0,0,0,1), make_block_tile($011A,0,0,0,1), make_block_tile($011F,0,0,0,1), make_block_tile($0122,0,0,0,1)	; $1B0
+	dc.w make_block_tile($0123,0,0,0,1), make_block_tile($0139,0,0,0,1), make_block_tile($013A,0,0,0,1), make_block_tile($013C,0,0,0,1)	; $1B4
+	dc.w make_block_tile($0142,0,0,0,1), make_block_tile($0144,0,0,0,1), make_block_tile($0147,0,0,0,1), make_block_tile($0148,0,0,0,1)	; $1B8
+	dc.w make_block_tile($015E,0,0,0,1), make_block_tile($015F,0,0,0,1), make_block_tile($0163,0,0,0,1), make_block_tile($0168,0,0,0,1)	; $1BC
+	dc.w make_block_tile($016A,0,0,0,1), make_block_tile($016C,0,0,0,1), make_block_tile($0170,0,0,0,1), make_block_tile($00E5,1,0,0,1)	; $1C0
+	dc.w make_block_tile($00CE,1,0,0,1), make_block_tile($00EE,1,0,0,1), make_block_tile($00F1,1,0,0,1), make_block_tile($0084,1,0,0,1)	; $1C4
+	dc.w make_block_tile($00FD,1,0,0,1), make_block_tile($0100,1,0,0,1), make_block_tile($00B9,1,0,0,1), make_block_tile($0117,1,0,0,1)	; $1C8
+	dc.w make_block_tile($0071,1,0,0,1), make_block_tile($0109,1,0,0,1), make_block_tile($010D,1,0,0,1), make_block_tile($0065,1,0,0,1)	; $1CC
+	dc.w make_block_tile($0125,1,0,0,1), make_block_tile($0122,1,0,0,1), make_block_tile($0031,1,0,0,1), make_block_tile($003C,1,0,0,1)	; $1D0
+	dc.w make_block_tile($010F,1,0,0,1), make_block_tile($00C5,1,0,0,1), make_block_tile($0133,1,0,0,1), make_block_tile($0137,1,0,0,1)	; $1D4
+	dc.w make_block_tile($011F,1,0,0,1), make_block_tile($002E,0,0,0,1), make_block_tile($006B,0,0,0,1), make_block_tile($0082,0,0,0,1)	; $1D8
+	dc.w make_block_tile($0083,0,0,0,1), make_block_tile($008C,0,0,0,1), make_block_tile($0099,0,0,0,1), make_block_tile($009B,0,0,0,1)	; $1DC
+	dc.w make_block_tile($00A2,0,0,0,1), make_block_tile($00A5,0,0,0,1), make_block_tile($00A7,0,0,0,1), make_block_tile($00A9,0,0,0,1)	; $1E0
+	dc.w make_block_tile($00AB,0,0,0,1), make_block_tile($00AD,0,0,0,1), make_block_tile($00B9,0,0,0,1), make_block_tile($00BA,0,0,0,1)	; $1E4
+	dc.w make_block_tile($00BF,0,0,0,1), make_block_tile($00C4,0,0,0,1), make_block_tile($00C5,0,0,0,1), make_block_tile($00C7,0,0,0,1)	; $1E8
+	dc.w make_block_tile($00C8,0,0,0,1), make_block_tile($00C9,0,0,0,1), make_block_tile($00CA,0,0,0,1), make_block_tile($00D0,0,0,0,1)	; $1EC
+	dc.w make_block_tile($00D9,0,0,0,1), make_block_tile($00DB,0,0,0,1), make_block_tile($00EB,0,0,0,1), make_block_tile($00EC,0,0,0,1)	; $1F0
+	dc.w make_block_tile($00ED,0,0,0,1), make_block_tile($00EF,0,0,0,1), make_block_tile($00F2,0,0,0,1), make_block_tile($00F3,0,0,0,1)	; $1F4
+	dc.w make_block_tile($00F6,0,0,0,1), make_block_tile($00FA,0,0,0,1), make_block_tile($00FC,0,0,0,1), make_block_tile($00FD,0,0,0,1)	; $1F8
+	dc.w make_block_tile($00FE,0,0,0,1), make_block_tile($0103,0,0,0,1), make_block_tile($0106,0,0,0,1), make_block_tile($0107,0,0,0,1)	; $2FC
+	dc.w make_block_tile($010B,0,0,0,1), make_block_tile($010E,0,0,0,1), make_block_tile($010F,0,0,0,1), make_block_tile($0110,0,0,0,1)	; $200
+	dc.w make_block_tile($0112,0,0,0,1), make_block_tile($0117,0,0,0,1), make_block_tile($011C,0,0,0,1), make_block_tile($011D,0,0,0,1)	; $204
+	dc.w make_block_tile($0121,0,0,0,1), make_block_tile($0129,0,0,0,1), make_block_tile($012C,0,0,0,1), make_block_tile($012D,0,0,0,1)	; $208
+	dc.w make_block_tile($0131,0,0,0,1), make_block_tile($0134,0,0,0,1), make_block_tile($0135,0,0,0,1), make_block_tile($013B,0,0,0,1)	; $20C
+	dc.w make_block_tile($013D,0,0,0,1), make_block_tile($013E,0,0,0,1), make_block_tile($013F,0,0,0,1), make_block_tile($0140,0,0,0,1)	; $210
+	dc.w make_block_tile($0141,0,0,0,1), make_block_tile($0145,0,0,0,1), make_block_tile($0146,0,0,0,1), make_block_tile($0149,0,0,0,1)	; $214
+	dc.w make_block_tile($014A,0,0,0,1), make_block_tile($014C,0,0,0,1), make_block_tile($014D,0,0,0,1), make_block_tile($014E,0,0,0,1)	; $218
+	dc.w make_block_tile($014F,0,0,0,1), make_block_tile($0150,0,0,0,1), make_block_tile($0152,0,0,0,1), make_block_tile($0153,0,0,0,1)	; $21C
+	dc.w make_block_tile($0154,0,0,0,1), make_block_tile($0155,0,0,0,1), make_block_tile($0156,0,0,0,1), make_block_tile($0157,0,0,0,1)	; $220
+	dc.w make_block_tile($0158,0,0,0,1), make_block_tile($015A,0,0,0,1), make_block_tile($015B,0,0,0,1), make_block_tile($015C,0,0,0,1)	; $224
+	dc.w make_block_tile($0160,0,0,0,1), make_block_tile($0161,0,0,0,1), make_block_tile($0162,0,0,0,1), make_block_tile($0164,0,0,0,1)	; $228
+	dc.w make_block_tile($0166,0,0,0,1), make_block_tile($0167,0,0,0,1), make_block_tile($0169,0,0,0,1), make_block_tile($016B,0,0,0,1)	; $22C
+	dc.w make_block_tile($016D,0,0,0,1), make_block_tile($016E,0,0,0,1), make_block_tile($016F,0,0,0,1), make_block_tile($0171,0,0,0,1)	; $230
+	dc.w make_block_tile($0172,0,0,0,1), make_block_tile($0173,0,0,0,1), make_block_tile($006E,1,0,0,1), make_block_tile($007D,1,0,0,1)	; $234
+	dc.w make_block_tile($00C3,1,0,0,1), make_block_tile($00DB,1,0,0,1), make_block_tile($00E7,1,0,0,1), make_block_tile($00E8,1,0,0,1)	; $238
+	dc.w make_block_tile($00EB,1,0,0,1), make_block_tile($00ED,1,0,0,1), make_block_tile($00F2,1,0,0,1), make_block_tile($00F6,1,0,0,1)	; $23C
+	dc.w make_block_tile($00FA,1,0,0,1), make_block_tile($00FC,1,0,0,1), make_block_tile($00FE,1,0,0,1), make_block_tile($002D,1,0,0,1)	; $240
+	dc.w make_block_tile($0103,1,0,0,1), make_block_tile($0106,1,0,0,1), make_block_tile($0107,1,0,0,1), make_block_tile($010B,1,0,0,1)	; $244
+	dc.w make_block_tile($0073,1,0,0,1), make_block_tile($009A,1,0,0,1), make_block_tile($0129,1,0,0,1), make_block_tile($012C,1,0,0,1)	; $248
+	dc.w make_block_tile($012D,1,0,0,1), make_block_tile($0111,1,0,0,1), make_block_tile($013C,1,0,0,1), make_block_tile($0120,1,0,0,1)	; $24C
+	dc.w make_block_tile($0146,1,0,0,1), make_block_tile($00A9,1,0,0,1), make_block_tile($009C,1,0,0,1), make_block_tile($0116,1,0,0,1)	; $250
+	dc.w make_block_tile($014F,1,0,0,1), make_block_tile($014C,1,0,0,1), make_block_tile($006F,1,0,0,1), make_block_tile($0158,1,0,0,1)	; $254
+	dc.w make_block_tile($0156,1,0,0,1), make_block_tile($0159,1,0,0,1), make_block_tile($015A,1,0,0,1), make_block_tile($0161,1,0,0,1)	; $258
+	dc.w make_block_tile($007B,1,0,0,1), make_block_tile($0166,1,0,0,1), make_block_tile($011C,1,0,0,1), make_block_tile($0118,1,0,0,1)	; $25C
+	dc.w make_block_tile($00A0,1,0,0,1), make_block_tile($00A3,1,0,0,1), make_block_tile($0167,1,0,0,1), make_block_tile($00A1,1,0,0,1)	; $260
+
+; These are run-length encoded pattern names. They get sent to either the
+; pattern name table buffer or one region of one of the plane A name tables
+; in the special stage.
+; They are indexed by the third segment of the mappings in Map_SpecialStageTrack, above.
+; Format: PNT,count
+;word_69E6
+SSPNT_RLELUT:
+	dc.w	make_block_tile($0007,0,0,0,0),$0001,	make_block_tile($0001,0,0,0,0),$0001	; $00
+	dc.w	make_block_tile($004A,0,0,0,0),$0001,	make_block_tile($0039,0,0,0,0),$0003	; $02
+	dc.w	make_block_tile($0001,0,0,0,0),$0005,	make_block_tile($0028,0,0,0,0),$0007	; $04
+	dc.w	make_block_tile($002C,0,0,0,0),$0001,	make_block_tile($0001,0,0,0,0),$0002	; $06
+	dc.w	make_block_tile($0028,0,0,0,0),$0005,	make_block_tile($0039,0,0,0,0),$0001	; $08
+	dc.w	make_block_tile($0028,0,0,0,0),$0009,	make_block_tile($0001,0,0,0,0),$0004	; $0A
+	dc.w	make_block_tile($0028,0,0,0,0),$0006,	make_block_tile($0028,0,0,0,0),$0003	; $0C
+	dc.w	make_block_tile($004A,0,0,0,0),$0002,	make_block_tile($0001,0,0,0,0),$0003	; $0E
+	dc.w	make_block_tile($0028,0,0,0,0),$0004,	make_block_tile($0039,0,0,0,0),$0002	; $10
+	dc.w	make_block_tile($0039,0,0,0,0),$0004,	make_block_tile($0001,0,0,0,0),$0006	; $12
+	dc.w	make_block_tile($0007,0,0,0,0),$0002,	make_block_tile($002C,0,0,0,0),$0002	; $14
+	dc.w	make_block_tile($0028,0,0,0,0),$0001,	make_block_tile($001D,0,0,0,0),$0001	; $16
+	dc.w	make_block_tile($0028,0,0,0,0),$0008,	make_block_tile($0028,0,0,0,0),$0002	; $18
+	dc.w	make_block_tile($0007,0,0,0,0),$0003,	make_block_tile($0001,0,0,0,0),$0007	; $1A
+	dc.w	make_block_tile($0028,0,0,0,0),$000B,	make_block_tile($0039,0,0,0,0),$0005	; $1C
+	dc.w	make_block_tile($001D,0,0,0,0),$0003,	make_block_tile($001D,0,0,0,0),$0004	; $1E
+	dc.w	make_block_tile($001D,0,0,0,0),$0002,	make_block_tile($001D,0,0,0,0),$0005	; $20
+	dc.w	make_block_tile($0028,0,0,0,0),$000D,	make_block_tile($000B,0,0,0,0),$0001	; $22
+	dc.w	make_block_tile($0028,0,0,0,0),$000A,	make_block_tile($0039,0,0,0,0),$0006	; $24
+	dc.w	make_block_tile($0039,0,0,0,0),$0007,	make_block_tile($002C,0,0,0,0),$0003	; $26
+	dc.w	make_block_tile($001D,0,0,0,0),$0009,	make_block_tile($004A,0,0,0,0),$0003	; $28
+	dc.w	make_block_tile($001D,0,0,0,0),$0007,	make_block_tile($0028,0,0,0,0),$000F	; $2A
+	dc.w	make_block_tile($001D,0,0,0,0),$000B,	make_block_tile($001D,0,0,0,0),$0011	; $2C
+	dc.w	make_block_tile($001D,0,0,0,0),$000D,	make_block_tile($001D,0,0,0,0),$0008	; $2E
+	dc.w	make_block_tile($0028,0,0,0,0),$0011,	make_block_tile($001D,0,0,0,0),$0006	; $30
+	dc.w	make_block_tile($000B,0,0,0,0),$0002,	make_block_tile($001D,0,0,0,0),$0015	; $32
+	dc.w	make_block_tile($0028,0,0,0,0),$000C,	make_block_tile($001D,0,0,0,0),$000A	; $34
+	dc.w	make_block_tile($0028,0,0,0,0),$000E,	make_block_tile($0001,0,0,0,0),$0008	; $36
+	dc.w	make_block_tile($001D,0,0,0,0),$000F,	make_block_tile($0028,0,0,0,0),$0010	; $38
+	dc.w	make_block_tile($0007,0,0,0,0),$0006,	make_block_tile($001D,0,0,0,0),$0013	; $3A
+	dc.w	make_block_tile($004A,0,0,0,0),$0004,	make_block_tile($001D,0,0,0,0),$0017	; $3C
+	dc.w	make_block_tile($0007,0,0,0,0),$0004,	make_block_tile($000B,0,0,0,0),$0003	; $3E
+;word_6AE6
+SSPNT_RLELUT_Part2:
+	dc.w	make_block_tile($001D,0,0,0,0),$001B,	make_block_tile($004A,0,0,0,0),$0006	; $40
+	dc.w	make_block_tile($001D,0,0,0,0),$001D,	make_block_tile($004A,0,0,0,0),$0005	; $42
+	dc.w	make_block_tile($0001,0,0,0,0),$0009,	make_block_tile($0007,0,0,0,0),$0005	; $44
+	dc.w	make_block_tile($001D,0,0,0,0),$001E,	make_block_tile($001D,0,0,0,0),$0019	; $46
+	dc.w	make_block_tile($0001,0,0,0,0),$0011,	make_block_tile($001D,0,0,0,0),$000C	; $48
+	dc.w	make_block_tile($001D,0,0,0,0),$007F,	make_block_tile($002C,0,0,0,0),$0004	; $4A
+	dc.w	make_block_tile($001D,0,0,0,0),$000E,	make_block_tile($001D,0,0,0,0),$001C	; $4C
+	dc.w	make_block_tile($004A,0,0,0,0),$000A,	make_block_tile($001D,0,0,0,0),$001A	; $4E
+	dc.w	make_block_tile($004A,0,0,0,0),$0007,	make_block_tile($001D,0,0,0,0),$0018	; $50
+	dc.w	make_block_tile($000B,0,0,0,0),$0004,	make_block_tile($001D,0,0,0,0),$0012	; $52
+	dc.w	make_block_tile($001D,0,0,0,0),$0010,	make_block_tile($0001,0,0,0,0),$000F	; $54
+	dc.w	make_block_tile($000B,0,0,0,0),$0005,	make_block_tile($0001,0,0,0,0),$000D	; $56
+	dc.w	make_block_tile($0001,0,0,0,0),$0013,	make_block_tile($004A,0,0,0,0),$0009	; $58
+	dc.w	make_block_tile($004A,0,0,0,0),$000B,	make_block_tile($004A,0,0,0,0),$000C	; $5A
+	dc.w	make_block_tile($002C,0,0,0,0),$0005,	make_block_tile($001D,0,0,0,0),$0014	; $5C
+	dc.w	make_block_tile($000B,0,0,0,0),$0007,	make_block_tile($001D,0,0,0,0),$0016	; $5E
+	dc.w	make_block_tile($0001,0,0,0,0),$000C,	make_block_tile($0001,0,0,0,0),$000E	; $60
+	dc.w	make_block_tile($004A,0,0,0,0),$0008,	make_block_tile($001D,0,0,0,0),$005F	; $62
+	dc.w	make_block_tile($0001,0,0,0,0),$000A,	make_block_tile($000B,0,0,0,0),$0006	; $64
+	dc.w	make_block_tile($000B,0,0,0,0),$0008,	make_block_tile($000B,0,0,0,0),$000A	; $66
+	dc.w	make_block_tile($0039,0,0,0,0),$0008,	make_block_tile($000B,0,0,0,0),$0009	; $68
+	dc.w	make_block_tile($002C,0,0,0,0),$0006,	make_block_tile($0001,0,0,0,0),$0010	; $6A
+	dc.w	make_block_tile($000B,0,0,0,0),$000C,	make_block_tile($0001,0,0,0,0),$000B	; $6C
+	dc.w	make_block_tile($0001,0,0,0,0),$0012,	make_block_tile($0007,0,0,0,0),$0007	; $6E
+	dc.w	make_block_tile($001D,0,0,0,0),$001F,	make_block_tile($0028,0,0,0,0),$0012	; $70
+	dc.w	make_block_tile($000B,0,0,0,0),$000B,	make_block_tile($002C,0,0,0,0),$0007	; $72
+	dc.w	make_block_tile($002C,0,0,0,0),$000B,	make_block_tile($001D,0,0,0,0),$0023	; $74
+	dc.w	make_block_tile($0001,0,0,0,0),$0015,	make_block_tile($002C,0,0,0,0),$0008	; $76
+	dc.w	make_block_tile($001D,0,0,0,0),$002E,	make_block_tile($001D,0,0,0,0),$003F	; $78
+	dc.w	make_block_tile($0001,0,0,0,0),$0014,	make_block_tile($000B,0,0,0,0),$000D	; $7A
+	dc.w	make_block_tile($002C,0,0,0,0),$0009,	make_block_tile($002C,0,0,0,0),$000A	; $7C
+	dc.w	make_block_tile($001D,0,0,0,0),$0025,	make_block_tile($001D,0,0,0,0),$0055	; $7E
+	dc.w	make_block_tile($001D,0,0,0,0),$0071,	make_block_tile($001D,0,0,0,0),$007C	; $80
+	dc.w	make_block_tile($004A,0,0,0,0),$000D,	make_block_tile($002C,0,0,0,0),$000C	; $82
+	dc.w	make_block_tile($002C,0,0,0,0),$000F,	make_block_tile($002C,0,0,0,0),$0010	; $84
+
+;unknown
+;byte_6BFE:
+	dc.b $FF,$FB,$FF,$FB,$FF,$FA,$FF,$FA; 528
+	dc.b $FF,$FA,$FF,$FA	; 544
+; ===========================================================================
+; (!)
+;loc_6C0A
+SSTrackSetOrientation:
+	move.b	(SS_Alternate_HorizScroll_Buf).w,(SS_Last_Alternate_HorizScroll_Buf).w
+	moveq	#0,d1
+	movea.l	(SSTrack_mappings_bitflags).w,a0				; Get frame mappings pointer
+	cmpa.l	#MapSpec_Straight2,a0							; Is the track rising or one of the first straight frame?
+	blt.s	+												; Branch if yes
+	cmpa.l	#MapSpec_Straight3,a0							; Is it straight path frame 3 or higher?
+	bge.s	+												; Branch if yes
+	; We only get here for straight frame 2
+	movea.l	(SS_CurrentLevelLayout).w,a5					; Get current level layout
+	move.b	(SpecialStage_CurrentSegment).w,d1				; Get current segment
+	move.b	(a5,d1.w),d1									; Get segment geometry
+	bpl.s	+++												; Branch if not flipped
+-
+	st.b	(SSTrack_Orientation).w							; Mark as being flipped
+	move.b	(SSTrack_drawing_index).w,d0					; Get drawing position
+	cmp.b	(SS_player_anim_frame_timer).w,d0				; Is it lower than the player's frame?
+	blt.w	return_6C9A										; Return if yes
+	st.b	(SS_Alternate_HorizScroll_Buf).w				; Use the alternate horizontal scroll buffer
+	rts
+; ===========================================================================
++
+	cmpa.l	#MapSpec_Rise14,a0								; Is the track one of the first 13 rising frames?
+	blt.s	+												; Branch if yes
+	cmpa.l	#MapSpec_Rise15,a0								; Is it rising frame 15 or higher?
+	bge.s	+												; Branch if yes
+	; We only get here for straight frame 14
+	movea.l	(SS_CurrentLevelLayout).w,a5					; Get current level layout
+	move.b	(SpecialStage_CurrentSegment).w,d1				; Get current segment
+	move.b	(a5,d1.w),d1									; Get segment geometry
+	bpl.s	++												; Branch if not flipped
+	bra.s	-
+; ===========================================================================
++
+	cmpa.l	#MapSpec_Drop6,a0								; Is the track before drop frame 6?
+	blt.s	return_6C9A										; Return is yes
+	cmpa.l	#MapSpec_Drop7,a0								; Is it drop frame 7 or higher?
+	bge.s	return_6C9A										; Return if yes
+	; We only get here for straight frame 6
+	movea.l	(SS_CurrentLevelLayout).w,a5					; Get current level layout
+	move.b	(SpecialStage_CurrentSegment).w,d1				; Get current segment
+	move.b	(a5,d1.w),d1									; Get segment geometry
+	bmi.s	-												; Branch if flipped
++
+	sf.b	(SSTrack_Orientation).w							; Mark as being unflipped
+	move.b	(SSTrack_drawing_index).w,d0					; Get drawing position
+	cmp.b	(SS_player_anim_frame_timer).w,d0				; Is it lower than the player's frame?
+	blt.s	return_6C9A										; Return if yes
+	sf.b	(SS_Alternate_HorizScroll_Buf).w				; Don't use the alternate horizontal scroll buffer
+
+return_6C9A:
+	rts
+; End of function SSTrack_Draw
+
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 ; Initialize the PNT and H scroll table buffers.
@@ -4496,16 +8891,282 @@ SSTrack_ApplyVscroll:
 	rts
 ; End of function SSTrack_SetVscroll
 
-	include "_incObj/sub SSSingleObjLoad.asm"
-	include "_incObj/5E HUD from Special Stage.asm"
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+
+; sub_6F8E:
+SSSingleObjLoad:
+	lea	(SS_Dynamic_Object_RAM).w,a1
+	move.w	#(SS_Dynamic_Object_RAM_End-SS_Dynamic_Object_RAM)/object_size-1,d5
+
+-	tst.b	id(a1)
+	beq.s	+	; rts
+	lea	next_object(a1),a1 ; a1=object
+	dbf	d5,-
++
+	rts
+; End of function sub_6F8E
+
+; ===========================================================================
+
+;loc_6FA4:
+SSSingleObjLoad2:
+	movea.l	a0,a1
+	move.w	#SS_Dynamic_Object_RAM_End,d5
+	sub.w	a0,d5
+    if object_size=$40
+	lsr.w	#6,d5
+    else
+	divu.w	#object_size,d5
+    endif
+	subq.w	#1,d5
+	bcs.s	+	; rts
+
+-	tst.b	id(a1)
+	beq.s	+	; rts
+	lea	next_object(a1),a1
+	dbf	d5,-
+
++	rts
+
+
+; ===========================================================================
+; ----------------------------------------------------------------------------
+; Object 5E - HUD from Special Stage
+; ----------------------------------------------------------------------------
+; Sprite_6FC0:
+Obj5E:
+	move.b	routine(a0),d0
+	bne.w	JmpTo_DisplaySprite
+	move.l	#Obj5E_MapUnc_7070,mappings(a0)
+	move.w	#make_art_tile(ArtTile_ArtNem_SpecialHUD,0,0),art_tile(a0)
+	move.b	#4,render_flags(a0)
+	move.b	#0,priority(a0)
+	move.b	#1,routine(a0)
+	bset	#6,render_flags(a0)
+	moveq	#0,d1
+	tst.b	(SS_2p_Flag).w
+	beq.s	+
+	addq.w	#6,d1
+	tst.b	(Graphics_Flags).w
+	bpl.s	++
+	addq.w	#1,d1
+	bra.s	++
+; ---------------------------------------------------------------------------
++	move.w	(Player_mode).w,d1
+	andi.w	#3,d1
+	tst.b	(Graphics_Flags).w
+	bpl.s	+
+	addq.w	#3,d1 ; set special stage tails name to "TAILS" instead of MILES
++
+	add.w	d1,d1
+	moveq	#0,d2
+	moveq	#0,d3
+	lea	(SSHUDLayout).l,a1
+	lea	sub2_x_pos(a0),a2
+	adda.w	(a1,d1.w),a1
+	move.b	(a1)+,d3
+	move.b	d3,mainspr_childsprites(a0)
+	subq.w	#1,d3
+	moveq	#0,d0
+	move.b	(a1)+,d0
+
+-	move.w	d0,(a2,d2.w)
+	move.b	(a1)+,sub2_mapframe-sub2_x_pos(a2,d2.w)	; sub2_mapframe
+	addq.w	#next_subspr,d2
+	dbf	d3,-
+
+	rts
+; ===========================================================================
+; off_7042:
+SSHUDLayout:	offsetTable
+		offsetTableEntry.w SSHUD_SonicMilesTotal	; 0
+		offsetTableEntry.w SSHUD_Sonic			; 1
+		offsetTableEntry.w SSHUD_Miles			; 2
+		offsetTableEntry.w SSHUD_SonicTailsTotal	; 3
+		offsetTableEntry.w SSHUD_Sonic_2		; 4
+		offsetTableEntry.w SSHUD_Tails			; 5
+		offsetTableEntry.w SSHUD_SonicMiles		; 6
+		offsetTableEntry.w SSHUD_SonicTails		; 7
+
+; byte_7052:
+SSHUD_SonicMilesTotal:
+	dc.b   3		; Sprite count
+	dc.b   $80		; X-pos
+	dc.b   0,  1,  3	; Sprite 1 frame, Sprite 2 frame, etc
+; byte_7057:
+SSHUD_Sonic:
+	dc.b   1
+	dc.b   $D4
+	dc.b   0
+; byte_705A:
+SSHUD_Miles:
+	dc.b   1
+	dc.b   $38
+	dc.b   1
+
+; byte_705D:
+SSHUD_SonicTailsTotal:
+	dc.b   3
+	dc.b   $80
+	dc.b   0,  2,  3
+; byte_7062:
+SSHUD_Sonic_2:
+	dc.b   1
+	dc.b   $D4
+	dc.b   0
+; byte_7065:
+SSHUD_Tails:
+	dc.b   1
+	dc.b   $38
+	dc.b   2
+
+; 2 player
+; byte_7068:
+SSHUD_SonicMiles:
+	dc.b   2
+	dc.b   $80
+	dc.b   0,  1
+; byte_706C:
+SSHUD_SonicTails:
+	dc.b   2
+	dc.b   $80
+	dc.b   0,  2
 ; -----------------------------------------------------------------------------------
 ; sprite mappings
 ; -----------------------------------------------------------------------------------
 Obj5E_MapUnc_7070:	BINCLUDE "mappings/sprite/obj5E.bin"
+; ===========================================================================
+; ----------------------------------------------------------------------------
+; Object 5F - Start banner/"Ending controller" from Special Stage
+; ----------------------------------------------------------------------------
+; Sprite_70F0:
+Obj5F:
+	moveq	#0,d0
+	move.b	routine(a0),d0
+	move.w	Obj5F_Index(pc,d0.w),d1
+	jmp	Obj5F_Index(pc,d1.w)
+; ===========================================================================
+; off_70FE:
+Obj5F_Index:	offsetTable
+		offsetTableEntry.w Obj5F_Init	;  0
+		offsetTableEntry.w Obj5F_Main	;  2
+		offsetTableEntry.w loc_71B4	;  4
+		offsetTableEntry.w loc_710A	;  6
+		offsetTableEntry.w return_723E	;  8
+		offsetTableEntry.w loc_7218	; $A
+; ===========================================================================
 
-	include "_incObj/5F Start Banner & Ending Controller from Special Stage.asm"
+loc_710A:
+	moveq	#0,d0
+	move.b	angle(a0),d0
+	bsr.w	CalcSine
+	muls.w	objoff_14(a0),d0
+	muls.w	objoff_14(a0),d1
+	asr.w	#8,d0
+	asr.w	#8,d1
+	add.w	d1,x_pos(a0)
+	add.w	d0,y_pos(a0)
+	cmpi.w	#0,x_pos(a0)
+	blt.w	JmpTo_DeleteObject
+	cmpi.w	#$100,x_pos(a0)
+	bgt.w	JmpTo_DeleteObject
+	cmpi.w	#0,y_pos(a0)
+	blt.w	JmpTo_DeleteObject
 
+    if removeJmpTos
+JmpTo_DisplaySprite 
+    endif
+
+	jmpto	(DisplaySprite).l, JmpTo_DisplaySprite
+; ===========================================================================
+
+; loc_714A:
+Obj5F_Init:
+	tst.b	(SS_2p_Flag).w
+	beq.s	+
+	move.w	#8,d0
+	jsrto	(Obj5A_PrintPhrase).l, JmpTo_Obj5A_PrintPhrase
++	move.w	#$80,x_pos(a0)
+	move.w	#-$40,y_pos(a0)
+	move.w	#$100,y_vel(a0)
+	move.l	#Obj5F_MapUnc_7240,mappings(a0)
+	move.w	#make_art_tile(ArtTile_ArtNem_SpecialStart,0,0),art_tile(a0)
+	move.b	#4,render_flags(a0)
+	move.b	#1,priority(a0)
+	move.b	#2,routine(a0)
+
+; loc_718A:
+Obj5F_Main:
+	jsrto	(ObjectMove).l, JmpTo_ObjectMove
+	cmpi.w	#$48,y_pos(a0)
+	blt.w	JmpTo_DisplaySprite
+	move.w	#0,y_vel(a0)
+	move.w	#$48,y_pos(a0)
+	move.b	#4,routine(a0)
+	move.b	#$F,objoff_2A(a0)
+	jmpto	(DisplaySprite).l, JmpTo_DisplaySprite
+; ===========================================================================
+
+loc_71B4:
+	subi_.b	#1,objoff_2A(a0)
+    if ~~removeJmpTos
+	bne.w	JmpTo_DisplaySprite
+    else
+	bne.s	JmpTo_DisplaySprite
+    endif
+	moveq	#6,d6
+
+; WARNING: the build script needs editing if you rename this label
+word_728C_user: lea	(Obj5F_MapUnc_7240+$4C).l,a2 ; word_728C
+
+	moveq	#2,d3
+	move.w	#8,objoff_14(a0)
+	move.b	#6,routine(a0)
+
+-	bsr.w	SSSingleObjLoad
+	bne.s	+
+	moveq	#0,d0
+
+	move.w	#bytesToLcnt(object_size),d1
+
+-	move.l	(a0,d0.w),(a1,d0.w)
+	addq.w	#4,d0
+	dbf	d1,-
+    if object_size&3
+	move.w	(a0,d0.w),(a1,d0.w)
+    endif
+
+	move.b	d3,mapping_frame(a1)
+	addq.w	#1,d3
+	move.w	#-$28,d2
+	move.w	8(a2),d1
+	bsr.w	CalcAngle
+	move.b	d0,angle(a1)
+	lea	$A(a2),a2
++	dbf	d6,--
+
+	move.b	#$A,routine(a0)
+	move.w	#$1E,objoff_2A(a0)
+	rts
+; ===========================================================================
+
+loc_7218:
+	subi_.w	#1,objoff_2A(a0)
+	bpl.s	+++	; rts
+	tst.b	(SS_2p_Flag).w
+	beq.s	+
+	move.w	#$A,d0
+	jsrto	(Obj5A_PrintPhrase).l, JmpTo_Obj5A_PrintPhrase
+	bra.s	++
+; ===========================================================================
++	jsrto	(Obj5A_CreateRingReqMessage).l, JmpTo_Obj5A_CreateRingReqMessage
+
++	st.b	(SpecialStage_Started).w
+	jmpto	(DeleteObject).l, JmpTo_DeleteObject
+; ===========================================================================
+
++	rts
 ; ===========================================================================
 
     if removeJmpTos
@@ -4528,8 +9189,270 @@ Obj5F_MapUnc_7240:	BINCLUDE "mappings/sprite/obj5F_a.bin"
 ; sprite mappings
 ; -----------------------------------------------------------------------------------
 Obj5F_MapUnc_72D2:	BINCLUDE "mappings/sprite/obj5F_b.bin"
+; ===========================================================================
+; ----------------------------------------------------------------------------
+; Object 87 - Number of rings in Special Stage
+; ----------------------------------------------------------------------------
+; Sprite_7356:
+Obj87:
+	moveq	#0,d0
+	move.b	objoff_A(a0),d0
+	move.w	Obj87_Index(pc,d0.w),d1
+	jmp	Obj87_Index(pc,d1.w)
+; ===========================================================================
+; off_7364:
+Obj87_Index:	offsetTable
+		offsetTableEntry.w Obj87_Init	; 0
+		offsetTableEntry.w loc_7480	; 2
+		offsetTableEntry.w loc_753E	; 4
+		offsetTableEntry.w loc_75DE	; 6
+; ===========================================================================
 
-	include "_incObj/87 Number of Rings in Special Stage.asm"
+; loc_736C:
+Obj87_Init:
+	move.b	#2,objoff_A(a0)		; => loc_7480
+	move.l	#Obj5F_MapUnc_72D2,mappings(a0)
+	move.w	#make_art_tile(ArtTile_ArtNem_SpecialHUD,2,0),art_tile(a0)
+	move.b	#4,render_flags(a0)
+	bset	#6,render_flags(a0)
+	move.b	#2,mainspr_childsprites(a0)
+	move.w	#$20,d0
+	moveq	#0,d1
+	lea	sub2_x_pos(a0),a1
+	move.w	#$48,(a1)			; sub2_x_pos
+	move.w	d0,sub2_y_pos-sub2_x_pos(a1)	; sub2_y_pos
+	move.w	d1,mainspr_height-sub2_x_pos(a1) ; mainspr_height and sub2_mapframe
+	move.w	#$E0,sub3_x_pos-sub2_x_pos(a1)	; sub3_x_pos
+	move.w	d0,sub3_y_pos-sub2_x_pos(a1)	; sub3_y_pos
+	move.w	d1,mapping_frame-sub2_x_pos(a1)	; mapping_frame	and sub3_mapframe
+	move.w	d0,sub4_y_pos-sub2_x_pos(a1)	; sub4_y_pos
+	move.w	d0,sub5_y_pos-sub2_x_pos(a1)	; sub5_y_pos
+	move.w	d0,sub6_y_pos-sub2_x_pos(a1)	; sub6_y_pos
+	move.w	d0,sub7_y_pos-sub2_x_pos(a1)	; sub7_y_pos
+	tst.b	(SS_2p_Flag).w
+	bne.s	+++
+	cmpi.w	#0,(Player_mode).w
+	beq.s	+
+	subi_.b	#1,mainspr_childsprites(a0)
+	move.w	#$94,(a1)			; sub2_x_pos
+	rts
+; ===========================================================================
++
+	bsr.w	SSSingleObjLoad
+	bne.s	+	; rts
+	move.b	#ObjID_SSNumberOfRings,id(a1) ; load obj87
+	move.b	#4,objoff_A(a1)		; => loc_753E
+	move.l	#Obj5F_MapUnc_72D2,mappings(a1)
+	move.w	#make_art_tile(ArtTile_ArtNem_SpecialHUD,2,0),art_tile(a1)
+	move.b	#4,render_flags(a1)
+	bset	#6,render_flags(a1)
+	move.b	#1,mainspr_childsprites(a1)
+	lea	sub2_x_pos(a1),a2
+	move.w	#$80,(a2)			; sub2_x_pos
+	move.w	d0,sub2_y_pos-sub2_x_pos(a2)	; sub2_y_pos
+	move.w	d1,mainspr_height-sub2_x_pos(a2) ; mainspr_height and sub2_mapframe
+	move.w	d0,sub3_y_pos-sub2_x_pos(a2)	; sub3_y_pos
+	move.w	d0,sub4_y_pos-sub2_x_pos(a2)	; sub4_y_pos
+/	rts
+; ===========================================================================
++
+	bsr.w	SSSingleObjLoad
+	bne.s	-	; rts
+	move.b	#ObjID_SSNumberOfRings,id(a1) ; load obj87
+	move.b	#6,objoff_A(a1)		; => loc_75DE
+	move.l	#Obj5F_MapUnc_72D2,mappings(a1)
+	move.w	#make_art_tile(ArtTile_ArtNem_SpecialHUD,2,0),art_tile(a1)
+	move.b	#4,render_flags(a1)
+	bset	#6,render_flags(a1)
+	move.b	#0,mainspr_childsprites(a1)
+	lea	sub2_x_pos(a1),a2
+	move.w	#$2C,d0
+	move.w	#$A,d1
+	move.w	d0,sub2_y_pos-sub2_x_pos(a2)	; sub2_y_pos
+	move.w	d1,mainspr_height-sub2_x_pos(a2) ; mainspr_height and sub2_mapframe
+	move.w	d0,sub3_y_pos-sub2_x_pos(a2)	; sub3_y_pos
+	move.w	d1,mapping_frame-sub2_x_pos(a2)	; mapping_frame	and sub3_mapframe
+	move.w	d0,sub4_y_pos-sub2_x_pos(a2)	; sub4_y_pos
+	move.w	d1,sub4_mapframe-1-sub2_x_pos(a2) ; something and sub4_mapframe
+	rts
+; ===========================================================================
+
+loc_7480:
+	moveq	#0,d0
+	moveq	#0,d3
+	moveq	#0,d5
+	lea	sub2_x_pos(a0),a1
+	movea.l	a1,a2
+	addq.w	#5,a2	; a2 = sub2_mapframe(a0)
+	cmpi.w	#2,(Player_mode).w
+	beq.s	loc_74EA
+	move.b	(MainCharacter+ss_rings_hundreds).w,d0
+	beq.s	+
+	addq.w	#1,d3
+	move.b	d0,(a2)
+	lea	next_subspr(a2),a2
++	move.b	(MainCharacter+ss_rings_tens).w,d0
+	tst.b	d3
+	bne.s	+
+	tst.b	d0
+	beq.s	++
++	addq.w	#1,d3
+	move.b	d0,(a2)
+	lea	next_subspr(a2),a2
++	addq.w	#1,d3
+	move.b	(MainCharacter+ss_rings_units).w,(a2)
+	lea	next_subspr(a2),a2
+	move.w	d3,d4
+	subq.w	#1,d4
+	move.w	#$48,d1
+	tst.w	(Player_mode).w
+	beq.s	+
+	addi.w	#$54,d1
+/	move.w	d1,(a1,d5.w)
+	addi_.w	#8,d1
+	addq.w	#next_subspr,d5
+	dbf	d4,-
+	cmpi.w	#1,(Player_mode).w
+	beq.s	loc_7536
+
+loc_74EA:
+	moveq	#0,d0
+	moveq	#0,d4
+	move.b	(Sidekick+ss_rings_hundreds).w,d0
+	beq.s	+
+	addq.w	#1,d4
+	move.b	d0,(a2)
+	lea	next_subspr(a2),a2
++	move.b	(Sidekick+ss_rings_tens).w,d0
+	tst.b	d4
+	bne.s	+
+	tst.b	d0
+	beq.s	++
++
+	addq.w	#1,d4
+	move.b	d0,(a2)
+	lea	next_subspr(a2),a2
++	move.b	(Sidekick+ss_rings_units).w,(a2)
+	addq.w	#1,d4
+	add.w	d4,d3
+	subq.w	#1,d4
+	move.w	#$E0,d1
+	tst.w	(Player_mode).w
+	beq.s	+
+	subi.w	#$44,d1
+/	move.w	d1,(a1,d5.w)
+	addi_.w	#8,d1
+	addq.w	#6,d5
+	dbf	d4,-
+
+loc_7536:
+	move.b	d3,mainspr_childsprites(a0)
+	jmpto	(DisplaySprite).l, JmpTo_DisplaySprite
+; ===========================================================================
+
+loc_753E:
+	moveq	#0,d0
+	moveq	#0,d1
+	moveq	#0,d2
+	moveq	#1,d3
+	move.b	(MainCharacter+ss_rings_units).w,d0
+	add.b	(Sidekick+ss_rings_units).w,d0
+	move.b	(MainCharacter+ss_rings_tens).w,d1
+	add.b	(Sidekick+ss_rings_tens).w,d1
+	move.b	(MainCharacter+ss_rings_hundreds).w,d2
+	add.b	(Sidekick+ss_rings_hundreds).w,d2
+	cmpi.b	#10,d0
+	blo.s	+
+	addq.w	#1,d1
+	subi.b	#10,d0
++
+	tst.b	d1
+	beq.s	++
+	cmpi.b	#10,d1
+	blo.s	+
+	addi_.b	#1,d2
+	subi.b	#10,d1
++
+	addq.w	#1,d3
+	tst.b	d2
+	beq.s	++
+	addq.w	#1,d3
+	bra.s	++
+; ===========================================================================
++
+	tst.b	d2
+	beq.s	+
+	addq.w	#2,d3
++
+	lea	sub2_x_pos(a0),a1
+	move.b	d3,mainspr_childsprites(a0)
+	cmpi.b	#2,d3
+	blt.s	+
+	beq.s	++
+	move.w	#$78,(a1)			; sub2_x_pos
+	move.b	d2,sub2_mapframe-sub2_x_pos(a1)	; sub2_mapframe
+	move.w	#$80,sub3_x_pos-sub2_x_pos(a1)	; sub3_x_pos
+	move.b	d1,sub3_mapframe-sub2_x_pos(a1)	; sub3_mapframe
+	move.w	#$88,sub4_x_pos-sub2_x_pos(a1)	; sub4_x_pos
+	move.b	d0,sub4_mapframe-sub2_x_pos(a1)	; sub4_mapframe
+	jmpto	(DisplaySprite).l, JmpTo_DisplaySprite
+; ===========================================================================
++
+	move.w	#$80,(a1)			; sub2_x_pos
+	move.b	d0,sub2_mapframe-sub2_x_pos(a1)	; sub2_mapframe
+	jmpto	(DisplaySprite).l, JmpTo_DisplaySprite
+; ===========================================================================
++
+	move.w	#$7C,(a1)			; sub2_x_pos
+	move.b	d1,sub2_mapframe-sub2_x_pos(a1)	; sub2_mapframe
+	move.w	#$84,sub3_x_pos-sub2_x_pos(a1)	; sub3_x_pos
+	move.b	d0,sub3_mapframe-sub2_x_pos(a1)	; sub3_mapframe
+	jmpto	(DisplaySprite).l, JmpTo_DisplaySprite
+; ===========================================================================
+
+loc_75DE:
+	move.b	(SS_2P_BCD_Score).w,d0
+	bne.s	+
+	rts
+; ===========================================================================
++
+	lea	sub2_x_pos(a0),a1
+	moveq	#0,d2
+	move.b	d0,d1
+	andi.b	#$F0,d0
+	beq.s	+
+	addq.w	#1,d2
+	move.w	#$20,(a1)	; sub2_x_pos
+	lea	next_subspr(a1),a1
+	subi.b	#$10,d0
+	beq.s	+
+	addq.w	#1,d2
+	move.w	#$30,(a1)	; sub3_x_pos
+	lea	next_subspr(a1),a1
+	subi.b	#$10,d0
+	beq.s	+
+	addq.w	#1,d2
+	move.w	#$40,(a1)	; sub4_x_pos
+	bra.s	++
+; ===========================================================================
++
+	andi.b	#$F,d1
+	beq.s	+
+	addq.w	#1,d2
+	move.w	#$B8,(a1)	; sub?_x_pos
+	lea	next_subspr(a1),a1
+	subi_.b	#1,d1
+	beq.s	+
+	addq.w	#1,d2
+	move.w	#$C8,(a1)	; sub?_x_pos
+	lea	next_subspr(a1),a1
+	subi_.b	#1,d1
+	beq.s	+
+	addq.w	#1,d2
+	move.w	#$D8,(a1)	; sub?_x_pos
++
+	move.b	d2,mainspr_childsprites(a0)
+	jmpto	(DisplaySprite).l, JmpTo_DisplaySprite
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -4942,8 +9865,99 @@ ContinueScreen_AdditionalLetters:
 	titleLetters "CONTINUE"
 
  charset ; revert character set
+; ===========================================================================
+; ----------------------------------------------------------------------------
+; Object DA - Continue text
+; ----------------------------------------------------------------------------
+; loc_7A68:
+ObjDA: ; (screen-space obj)
+	moveq	#0,d0
+	move.b	routine(a0),d0
+	move.w	ObjDA_Index(pc,d0.w),d1
+	jmp	ObjDA_Index(pc,d1.w)
+; ===========================================================================
+; Obj_DA_subtbl:
+ObjDA_Index:	offsetTable
+		offsetTableEntry.w ObjDA_Init		; 0
+		offsetTableEntry.w JmpTo2_DisplaySprite	; 2
+		offsetTableEntry.w loc_7AD0		; 4
+		offsetTableEntry.w loc_7B46		; 6
+; ===========================================================================
+; loc_7A7E:
+ObjDA_Init:
+	addq.b	#2,routine(a0)
+	move.l	#ObjDA_MapUnc_7CB6,mappings(a0)
+	move.w	#make_art_tile(ArtTile_ArtNem_ContinueText,0,1),art_tile(a0)
+	jsrto	(Adjust2PArtPointer).l, JmpTo_Adjust2PArtPointer
+	move.b	#0,render_flags(a0)
+	move.b	#$3C,width_pixels(a0)
+	move.w	#$120,x_pixel(a0)
+	move.w	#$C0,y_pixel(a0)
 
-	include "_incObj/DA Continue Screen Text.asm"
+JmpTo2_DisplaySprite 
+	jmp	(DisplaySprite).l
+; ===========================================================================
+; word_7AB2:
+ObjDA_XPositions:
+	dc.w  $116, $12A, $102,	$13E,  $EE, $152,  $DA,	$166
+	dc.w   $C6, $17A,  $B2,	$18E,  $9E, $1A2,  $8A;	8
+; ===========================================================================
+
+loc_7AD0:
+	movea.l	a0,a1
+	lea_	ObjDA_XPositions,a2
+	moveq	#0,d1
+	move.b	(Continue_count).w,d1
+	subq.b	#2,d1
+	bcc.s	+
+	jmp	(DeleteObject).l
+; ===========================================================================
++
+	moveq	#1,d3
+	cmpi.b	#$E,d1
+	blo.s	+
+	moveq	#0,d3
+	moveq	#$E,d1
++
+	move.b	d1,d2
+	andi.b	#1,d2
+
+-	_move.b	#ObjID_ContinueIcons,id(a1) ; load objDA
+	move.w	(a2)+,x_pixel(a1)
+	tst.b	d2
+	beq.s	+
+	subi.w	#$A,x_pixel(a1)
++
+	move.w	#$D0,y_pixel(a1)
+	move.b	#4,mapping_frame(a1)
+	move.b	#6,routine(a1)
+	move.l	#ObjDA_MapUnc_7CB6,mappings(a1)
+	move.w	#make_art_tile(ArtTile_ArtNem_ContinueText_2,0,1),art_tile(a1)
+	jsrto	(Adjust2PArtPointer2).l, JmpTo_Adjust2PArtPointer2
+	move.b	#0,render_flags(a1)
+	lea	next_object(a1),a1 ; load obj addr
+	dbf	d1,-
+
+	lea	-next_object(a1),a1 ; load obj addr
+	move.b	d3,subtype(a1)
+
+loc_7B46:
+	tst.b	subtype(a0)
+	beq.s	+
+	cmpi.b	#4,(MainCharacter+routine).w
+	blo.s	+
+	move.b	(Vint_runcount+3).w,d0
+	andi.b	#1,d0
+	bne.s	+
+	tst.w	(MainCharacter+x_vel).w
+	bne.s	JmpTo2_DeleteObject
+	rts
+; ===========================================================================
++
+	move.b	(Vint_runcount+3).w,d0
+	andi.b	#$F,d0
+	bne.s	JmpTo3_DisplaySprite
+	bchg	#0,mapping_frame(a0)
 
 JmpTo3_DisplaySprite 
 	jmp	(DisplaySprite).l
@@ -4951,9 +9965,109 @@ JmpTo3_DisplaySprite
 
 JmpTo2_DeleteObject 
 	jmp	(DeleteObject).l
+; ===========================================================================
+; ----------------------------------------------------------------------------
+; Object DB - Sonic lying down or Tails nagging (on the continue screen)
+; ----------------------------------------------------------------------------
+; Sprite_7B82:
+ObjDB:
+	; a0=character
+	moveq	#0,d0
+	move.b	routine(a0),d0
+	move.w	ObjDB_Index(pc,d0.w),d1
+	jsr	ObjDB_Index(pc,d1.w)
+	jmp	(DisplaySprite).l
+; ===========================================================================
+; off_7B96: ObjDB_States:
+ObjDB_Index:	offsetTable
+		offsetTableEntry.w ObjDB_Sonic_Init	;  0
+		offsetTableEntry.w ObjDB_Sonic_Wait	;  2
+		offsetTableEntry.w ObjDB_Sonic_Run	;  4
+		offsetTableEntry.w ObjDB_Tails_Init	;  6
+		offsetTableEntry.w ObjDB_Tails_Wait	;  8
+		offsetTableEntry.w ObjDB_Tails_Run	; $A
+; ===========================================================================
+; loc_7BA2:
+ObjDB_Sonic_Init:
+	addq.b	#2,routine(a0) ; => ObjDB_Sonic_Wait
+	move.w	#$9C,x_pos(a0)
+	move.w	#$19C,y_pos(a0)
+	move.l	#Mapunc_Sonic,mappings(a0)
+	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a0)
+	move.b	#4,render_flags(a0)
+	move.b	#2,priority(a0)
+	move.b	#$20,anim(a0)
 
-	include "_incObj/DB Continue Screen Sonic & Tails.asm"
+; loc_7BD2:
+ObjDB_Sonic_Wait:
+	tst.b	(Ctrl_1_Press).w	; is start pressed?
+	bmi.s	ObjDB_Sonic_StartRunning ; if yes, branch
+	jsr	(Sonic_Animate).l
+	jmp	(LoadSonicDynPLC).l
+; ---------------------------------------------------------------------------
+; loc_7BE4:
+ObjDB_Sonic_StartRunning:
+	addq.b	#2,routine(a0) ; => ObjDB_Sonic_Run
+	move.b	#$21,anim(a0)
+	clr.w	inertia(a0)
+	move.b	#SndID_SpindashRev,d0 ; super peel-out sound
+	bsr.w	PlaySound
 
+; loc_7BFA:
+ObjDB_Sonic_Run:
+	cmpi.w	#$800,inertia(a0)
+	bne.s	+
+	move.w	#$1000,x_vel(a0)
+	bra.s	++
+; ---------------------------------------------------------------------------
++
+	addi.w	#$20,inertia(a0)
++
+	jsr	(ObjectMove).l
+	jsr	(Sonic_Animate).l
+	jmp	(LoadSonicDynPLC).l
+; ===========================================================================
+; loc_7C22:
+ObjDB_Tails_Init:
+	addq.b	#2,routine(a0) ; => ObjDB_Tails_Wait
+	move.w	#$B8,x_pos(a0)
+	move.w	#$1A0,y_pos(a0)
+	move.l	#ObjDA_MapUnc_7CB6,mappings(a0)
+	move.w	#make_art_tile(ArtTile_ArtNem_ContinueTails,0,0),art_tile(a0)
+	move.b	#4,render_flags(a0)
+	move.b	#2,priority(a0)
+	move.b	#0,anim(a0)
+
+; loc_7C52:
+ObjDB_Tails_Wait:
+	tst.b	(Ctrl_1_Press).w	; is start pressed?
+	bmi.s	ObjDB_Tails_StartRunning ; if yes, branch
+	lea	(Ani_objDB).l,a1
+	jmp	(AnimateSprite).l
+; ---------------------------------------------------------------------------
+; loc_7C64:
+ObjDB_Tails_StartRunning:
+	addq.b	#2,routine(a0) ; => ObjDB_Tails_Run
+	move.l	#MapUnc_Tails,mappings(a0)
+	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
+	move.b	#0,anim(a0)
+	clr.w	inertia(a0)
+	move.b	#SndID_SpindashRev,d0 ; super peel-out sound
+	bsr.w	PlaySound
+
+; loc_7C88:
+ObjDB_Tails_Run:
+	cmpi.w	#$720,inertia(a0)
+	bne.s	+
+	move.w	#$1000,x_vel(a0)
+	bra.s	++
+; ---------------------------------------------------------------------------
++
+	addi.w	#$18,inertia(a0)
++
+	jsr	(ObjectMove).l
+	jsr	(Tails_Animate).l
+	jmp	(LoadTailsDynPLC).l
 ; ===========================================================================
 ; animation script for continue screen Tails nagging
 ; off_7CB0
@@ -5259,7 +10373,62 @@ TwoPlayerResultsDone_SpecialStages:
 	; we were at the special stages results screen (VsRSID_SSZone)
 	bra.w	TwoPlayerResultsDone_ZoneOrSpecialStages
 
-	include "_incObj/21 Stats Display in 2P Results.asm"
+; ===========================================================================
+; ----------------------------------------------------------------------------
+; Object 21 - Score/Rings/Time display (in 2P results)
+; ----------------------------------------------------------------------------
+; Sprite_80BE:
+Obj21: ; (screen-space obj)
+	moveq	#0,d0
+	move.b	routine(a0),d0
+	move.w	Obj21_Index(pc,d0.w),d1
+	jmp	Obj21_Index(pc,d1.w)
+; ===========================================================================
+; JmpTbl_80CC: Obj21_States:
+Obj21_Index:	offsetTable
+		offsetTableEntry.w Obj21_Init	; 0
+		offsetTableEntry.w Obj21_Main	; 2
+; ---------------------------------------------------------------------------
+; word_80D0:
+Obj21_PositionTable:
+	;      x,    y
+	dc.w $F0, $148
+	dc.w $F0, $130
+	dc.w $E0, $148
+	dc.w $F0, $148
+	dc.w $F0, $148
+; ===========================================================================
+; loc_80E4:
+Obj21_Init:
+	addq.b	#2,routine(a0) ; => Obj21_Main
+	move.w	(Results_Screen_2P).w,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	move.l	Obj21_PositionTable(pc,d0.w),x_pixel(a0) ; and y_pixel(a0)
+	move.l	#Obj21_MapUnc_8146,mappings(a0)
+ 	move.w	#make_art_tile(ArtTile_ArtNem_1P2PWins,0,0),art_tile(a0)
+	jsrto	(Adjust2PArtPointer).l, JmpTo2_Adjust2PArtPointer
+	move.b	#0,render_flags(a0)
+	move.b	#0,priority(a0)
+	moveq	#2,d1
+	move.b	(SS_Total_Won).w,d0	; d0 = SS_Total_Won_1P
+	sub.b	(SS_Total_Won+1).w,d0	;    - SS_Total_Won_2P
+	beq.s	++
+	bcs.s	+
+	moveq	#0,d1
+	bra.s	++
+; ---------------------------------------------------------------------------
++
+	moveq	#1,d1
++
+	move.b	d1,mapping_frame(a0)
+
+; loc_812C:
+Obj21_Main:
+	andi.w	#tile_mask,art_tile(a0)
+	btst	#3,(Vint_runcount+3).w
+	beq.s	JmpTo4_DisplaySprite
+	ori.w	#palette_line_1,art_tile(a0)
 
 JmpTo4_DisplaySprite 
 	jmp	(DisplaySprite).l
