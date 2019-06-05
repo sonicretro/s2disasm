@@ -213,3 +213,19 @@ sub_E59C:
 	adda.w	#$80,a2
 	rts
 ; End of function sub_E59C
+
+    if gameRevision=0
+	nop
+    endif
+
+    if ~~removeJmpTos
+; JmpTo_PalLoad2 
+JmpTo_PalLoad_Now 
+	jmp	(PalLoad_Now).l
+JmpTo_LoadPLC 
+	jmp	(LoadPLC).l
+JmpTo_KosDec 
+	jmp	(KosDec).l
+
+	align 4
+    endif

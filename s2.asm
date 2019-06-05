@@ -1497,23 +1497,6 @@ WaitForVint:
 	include "source/level/Scroll managers.asm"
 	include "source/level/Drawing subroutines.asm"
 	include "source/level/Initialization.asm"
-
-    if gameRevision=0
-	nop
-    endif
-
-    if ~~removeJmpTos
-; JmpTo_PalLoad2 
-JmpTo_PalLoad_Now 
-	jmp	(PalLoad_Now).l
-JmpTo_LoadPLC 
-	jmp	(LoadPLC).l
-JmpTo_KosDec 
-	jmp	(KosDec).l
-
-	align 4
-    endif
-
 	include "source/level/Dynamic level events.asm"
 
 ; ===========================================================================
