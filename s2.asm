@@ -1451,17 +1451,17 @@ Pause_SlowMo:
 	rts
 ; End of function PauseGame
 
-	include "source/art/plane_to_vram.asm"
-	include "source/art/dma_queue.asm"
-	include "source/art/dec_nemesis.asm"
-	include "source/art/dec_enigma.asm"
-	include "source/art/dec_kosinski.asm"
+	include "source/art/Plane to VRAM subroutines.asm"
+	include "source/art/DMA queue.asm"
+	include "source/art/Nemesis decompression and PLC subroutines.asm"
+	include "source/art/Enigma decompression.asm"
+	include "source/art/Kosinski decompression.asm"
 
     if gameRevision<2
 	nop
     endif
 
-	include "source/art/palette.asm"
+	include "source/art/Palette data and subroutines.asm"
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to perform vertical synchronization
@@ -1478,47 +1478,67 @@ WaitForVint:
 	rts
 ; End of function WaitForVint
 
-	include "source/math.asm"
+	include "source/Math subroutines.asm"
 
 ; ===========================================================================
 
-	include "source/gamemode/sega.asm"
-	include "source/gamemode/title.asm"
-	include "source/gamemode/level.asm"
-	include "source/gamemode/special.asm"
-	include "source/gamemode/continue.asm"
-	include "source/gamemode/2presults.asm"
-	include "source/gamemode/menu.asm"
-	include "source/gamemode/ending.asm"
+	include "source/gamemode/Sega screen.asm"
+	include "source/gamemode/Title screen.asm"
+	include "source/gamemode/Level.asm"
+	include "source/gamemode/Special Stage.asm"
+	include "source/gamemode/Continue screen.asm"
+	include "source/gamemode/Two player results.asm"
+	include "source/gamemode/Various menus.asm"
+	include "source/gamemode/Ending sequence.asm"
 
 ; ===========================================================================
 
-	include "source/level/stuff.asm"
-	include "source/level/dynamic.asm"
+	include "source/level/Level sizes and start positions.asm"
+	include "source/level/Scroll managers.asm"
+	include "source/level/Drawing subroutines.asm"
+	include "source/level/Initialization.asm"
+
+    if gameRevision=0
+	nop
+    endif
+
+    if ~~removeJmpTos
+; JmpTo_PalLoad2 
+JmpTo_PalLoad_Now 
+	jmp	(PalLoad_Now).l
+JmpTo_LoadPLC 
+	jmp	(LoadPLC).l
+JmpTo_KosDec 
+	jmp	(KosDec).l
+
+	align 4
+    endif
+
+	include "source/level/Dynamic level events.asm"
 
 ; ===========================================================================
 
-	include "source/obj/bridge.asm"
-	include "source/obj/platform_swinging.asm"
-	include "source/obj/s1_ghz_log_spikes.asm"
-	include "source/obj/platform.asm"
-	include "source/obj/platform_collapsing.asm"
-	include "source/obj/static_decorations.asm"
-	include "source/obj/2a_2d.asm"
-	include "source/obj/badnik_defeat.asm"
-	include "source/obj/rings.asm"
-	include "source/obj/monitor.asm"
-	include "source/obj/gamemode_title.asm"
-	include "source/obj/cards.asm"
-	include "source/obj/spikes.asm"
-	include "source/obj/s1_ghz_leftovers.asm"
+	include "source/obj/Segmented bridge.asm"
+	include "source/obj/Swinging platform.asm"
+	include "source/obj/S1 GHZ rotating log spikes.asm"
+	include "source/obj/Floating platform.asm"
+	include "source/obj/Collapsing platform.asm"
+	include "source/obj/Static decorations.asm"
+	include "source/obj/Stomper and one-way barrier.asm"
+	include "source/obj/Bandik defeat.asm"
+	include "source/obj/Rings.asm"
+	include "source/obj/Monitor.asm"
+	include "source/obj/Title screen objects.asm"
+	include "source/obj/Title cards.asm"
+	include "source/obj/Spikes.asm"
+	include "source/obj/S1 GHZ leftovers.asm"
 
 ; ===========================================================================
 
-	include "source/object.asm"
-	include "source/rings_manager.asm"
-	include "source/special_cnz_bumpers.asm"
-	include "source/objects_manager.asm"
+	include "source/Object subroutines.asm"
+	include "source/Rings manager.asm"
+	include "source/Special CNZ Bumpers.asm"
+	include "source/Objects manager.asm"
 
 ; ===========================================================================
 
@@ -1560,14 +1580,11 @@ Objects_CNZ2_2P:	BINCLUDE	"level/objects/CNZ_2_2P.bin"
 
 ; ===========================================================================
 
-	include "source/obj/spring.asm"
-	include "source/obj/signpost.asm"
-	include "source/object_solid.asm"
-
-; ===========================================================================
-
-	include "source/obj/sonic.asm"
-	include "source/obj/tails.asm"
+	include "source/obj/Spring.asm"
+	include "source/obj/End of level signpost.asm"
+	include "source/Solid and platform subroutines.asm"
+	include "source/obj/Sonic.asm"
+	include "source/obj/Tails.asm"
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
