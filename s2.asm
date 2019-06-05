@@ -1456,11 +1456,12 @@ Pause_SlowMo:
 	include "source/art/dec_nemesis.asm"
 	include "source/art/dec_enigma.asm"
 	include "source/art/dec_kosinski.asm"
-	include "source/art/palette.asm"
 
     if gameRevision<2
 	nop
     endif
+
+	include "source/art/palette.asm"
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to perform vertical synchronization
