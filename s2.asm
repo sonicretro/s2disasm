@@ -1451,8 +1451,16 @@ Pause_SlowMo:
 	rts
 ; End of function PauseGame
 
-	include "source/art.asm"
-	include "source/palette.asm"
+	include "source/art/plane_to_vram.asm"
+	include "source/art/dma_queue.asm"
+	include "source/art/dec_nemesis.asm"
+	include "source/art/dec_enigma.asm"
+	include "source/art/dec_kosinski.asm"
+	include "source/art/palette.asm"
+
+    if gameRevision<2
+	nop
+    endif
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to perform vertical synchronization
