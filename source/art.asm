@@ -1,5 +1,7 @@
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; Various subroutines relating to art (I guess?)
+; Sending plane maps to VRAM, DMA queue, Nemesis/Enigma/Kosinski decompressors, PLC handling
+
 ; ---------------------------------------------------------------------------
 ; Subroutine to transfer a plane map to VRAM
 ; ---------------------------------------------------------------------------
