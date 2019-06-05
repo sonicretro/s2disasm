@@ -1,4 +1,10 @@
+s2disasm
+========
+
 A disassembly of Sonic the Hedgehog 2 for the Sega Mega Drive/Genesis.
+
+How to build
+============
 
 To build this, use build.bat if you're a Windows user, or build.sh otherwise. The built ROM will be called 's2built.bin'.
 
@@ -6,7 +12,9 @@ If you're a non-Windows user, you'll have to install the AS Macro Assembler ('ht
 
 Non-Windows users will also need to install GCC's C compiler, as the rest of the build tools are compiled from source when build.sh is first ran.
 
-DISCLAIMER:
+DISCLAIMER
+==========
+
 Any and all content presented in this repository is presented for informational and educational purposes only.
 Commercial usage is expressly prohibited. Sonic Retro claims no ownership of any code in these repositories.
 You assume any and all responsibility for using this content responsibly. Sonic Retro claims no responsibiliy or warranty.
