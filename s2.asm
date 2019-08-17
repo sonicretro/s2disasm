@@ -43857,6 +43857,8 @@ Obj06_Spiral_MoveCharacter:
 	rts
 
 ; ===========================================================================
+; Fun fact - Sega had a patent which included the original source code
+; for these tables: https://patents.google.com/patent/US5411272
 ; byte_21634:
 ; sloopdirtbl:
 Obj06_FlipAngleTable:
