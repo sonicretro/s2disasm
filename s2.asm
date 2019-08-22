@@ -88342,6 +88342,7 @@ MiscKoz_SpecialPerspective:	BINCLUDE	"misc/Special stage object perspective data
 ;--------------------------------------------------------------------------------------
 ; Special stage level layout (Nemesis compression)	; MiscNem_E34EE:
 ;--------------------------------------------------------------------------------------
+	even
 MiscKoz_SpecialLevelLayout:	BINCLUDE	"misc/Special stage level layouts (Nemesis compression).bin"
 ;--------------------------------------------------------------------------------------
 ; Special stage object location list (Kosinski compression)	; MiscKoz_E35F2:
