@@ -2,8 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
-#include <unistd.h> // for unlink
 
 #include "clownlzss/saxman.h"
 #include "KensSaxComp/S-Compressor.h"
@@ -34,9 +32,9 @@ int main(int argc, char *argv[])
 		char* arg = argv[0];
 		argc--, argv++; // pop arg
 		
-		if(!strcasecmp(arg, "-h") || !strcasecmp(arg, "--help"))
+		if(!strcmp(arg, "-h") || !strcmp(arg, "--help"))
 			printUsage(), argc = 0;
-		else if (!strcasecmp(arg, "-a") || !strcasecmp(arg, "--accurate"))
+		else if (!strcmp(arg, "-a") || !strcmp(arg, "--accurate"))
 			accurate_compression = true;
 		else if(!codeFileName)
 			codeFileName = arg;
@@ -66,7 +64,7 @@ int main(int argc, char *argv[])
 				}
 				else
 				{
-					unlink(romFileName); // error; delete the rom because it's probably hosed
+					remove(romFileName); // error; delete the rom because it's probably hosed
 				}
 			}
 			else
