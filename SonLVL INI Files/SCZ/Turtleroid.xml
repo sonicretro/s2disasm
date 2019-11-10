@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="Turtleroid" DefaultSubtype="16">
+  <Images>
+    <ImageFromMappings id="img1">
+      <ArtFile filename="../art/nemesis/Turtle badnik from SCZ.bin" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj9C.bin" frame="0" startpal="0" />
+    </ImageFromMappings>
+    <ImageFromMappings id="img2">
+      <ArtFile filename="../art/nemesis/Turtle badnik from SCZ.bin" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj9C.bin" frame="2" startpal="0" />
+    </ImageFromMappings>
+  </Images>
+  <ImageSets>
+    <ImageSet id="img">
+	  <ImageRef image="img1" />
+	  <ImageRef image="img2">
+	    <Offset X="4" Y="-24" />
+	  </ImageRef>
+	</ImageSet>
+  </ImageSets>
+  <DefaultImage>
+    <ImageSetRef set="img" />
+  </DefaultImage>
+  <Subtypes>
+    <Subtype id="16" name="Default">
+	  <ImageSetRef set="img" />
+	</Subtype>
+  </Subtypes>
+</ObjDef>
