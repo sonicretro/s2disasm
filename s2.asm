@@ -80533,27 +80533,13 @@ ObjC7_PositionChildren:
 ;byte_3E2E0
 ObjC7_ChildDeltas:
 	dc.b   6
-	dc.b $2E	; 1
-	dc.b $FC	; 2
-	dc.b $3C	; 3
-	dc.b $30	; 4
-	dc.b $F4	; 5
-	dc.b   8	; 6
-	dc.b $32	; 7
-	dc.b  $C	; 8
-	dc.b $F8	; 9
-	dc.b $34	; 10
-	dc.b   4	; 11
-	dc.b $24	; 12
-	dc.b $3A	; 13
-	dc.b $FC	; 14
-	dc.b $3C	; 15
-	dc.b $3C	; 16
-	dc.b $F4	; 17
-	dc.b   8	; 18
-	dc.b $3E	; 19
-	dc.b   4	; 20
-	dc.b $24	; 21
+	dc.b objoff_2E, $FC, $3C	; 1
+	dc.b objoff_30, $F4,   8	; 2
+	dc.b objoff_32,  $C, $F8	; 3
+	dc.b objoff_34,   4, $24	; 4
+	dc.b objoff_3A, $FC, $3C	; 5
+	dc.b objoff_3C, $F4,   8	; 6
+	dc.b objoff_3E,   4, $24	; 7
 off_3E2F6:
 	dc.l ObjC7_GroupAni_3E318
 	dc.b 0, 1, 2, 3, $FF, 0
