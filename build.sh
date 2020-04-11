@@ -4,7 +4,7 @@
 
 if [[ ! -f bin/s2p2bin ]]; then
 	echo "Compiling s2p2bin..."
-	gcc -std=c99 -O2 -s -fno-ident -flto -o bin/s2p2bin build_source/s2p2bin/s2p2bin.c build_source/s2p2bin/KensSaxComp/S-Compressor.c build_source/s2p2bin/clownlzss/common.c build_source/s2p2bin/clownlzss/memory_stream.c build_source/s2p2bin/clownlzss/saxman.c &> /dev/null
+	gcc -std=c99 -O2 -s -fno-ident -flto -o bin/s2p2bin build_source/s2p2bin/s2p2bin.c build_source/s2p2bin/lz_comp2/LZSS.c build_source/s2p2bin/clownlzss/common.c build_source/s2p2bin/clownlzss/memory_stream.c build_source/s2p2bin/clownlzss/saxman.c &> /dev/null
 fi
 
 if [[ ! -f bin/fixpointer ]]; then
