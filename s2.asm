@@ -62949,10 +62949,10 @@ JmpTo26_SolidObject
 ; Object 57 - MCZ boss
 ; ----------------------------------------------------------------------------
 ; OST: first $10 bytes for main sprite, 6 bytes for childsprites (5th byte unused)
-obj57_sub5_y_vel	= $2E	; word - y_vel of second digger when falling down
-obj57_sub2_y_vel	= $30	; word - y_vel of first digger when falling down
-obj57_sub2_y_pos2	= $34	; longword - y_pos of first digger when falling down
-obj57_sub5_y_pos2	= $3A	; longword - y_pos of second digger when falling down
+obj57_sub5_y_vel	= objoff_2E	; word - y_vel of second digger when falling down
+obj57_sub2_y_vel	= objoff_30	; word - y_vel of first digger when falling down
+obj57_sub2_y_pos2	= objoff_34	; longword - y_pos of first digger when falling down
+obj57_sub5_y_pos2	= objoff_3A	; longword - y_pos of second digger when falling down
 ; ----------------------------------------------------------------------------
 ; Sprite_30FA4:
 Obj57:
