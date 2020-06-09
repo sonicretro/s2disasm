@@ -67660,7 +67660,7 @@ loc_3529C:
 	jsrto	(SSSingleObjLoad2).l, JmpTo_SSSingleObjLoad2
 	bne.w	return_3532C
 	move.l	a0,objoff_34(a1)
-	move.b	(a0),(a1)
+	move.b	id(a0),id(a1)
 	move.b	#4,routine(a1)
 	move.l	#Obj63_MapUnc_34492,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_SpecialFlatShadow,3,0),art_tile(a1)
@@ -71569,7 +71569,7 @@ Obj9C_Init:
 Obj9C_Main:
 	movea.w	objoff_2C(a0),a1 ; a1=object
 	move.b	objoff_32(a0),d0
-	cmp.b	(a1),d0
+	cmp.b	id(a1),d0
 	bne.w	JmpTo65_DeleteObject
 	move.l	x_pos(a1),x_pos(a0)
 	move.l	y_pos(a1),y_pos(a0)
@@ -71588,7 +71588,7 @@ loc_37ABE:
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
 	move.l	objoff_2E(a0),objoff_2E(a1)
-	move.b	(a0),objoff_32(a1)
+	move.b	id(a0),objoff_32(a1)
 +
 	rts
 
@@ -79580,7 +79580,7 @@ ObjC7_Shoulder:
 	jsr	off_3DA34(pc,d1.w)
 	lea	byte_3DA38(pc),a1
 	bsr.w	loc_3E282
-	tst.b	(a0)
+	tst.b	id(a0)
 	beq.w	return_37A48
 	jmpto	(DisplaySprite).l, JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -79610,7 +79610,7 @@ ObjC7_FrontLowerLeg:
 	move.b	routine_secondary(a0),d0
 	move.w	off_3DA62(pc,d0.w),d1
 	jsr	off_3DA62(pc,d1.w)
-	tst.b	(a0)
+	tst.b	id(a0)
 	beq.w	return_37A48
 	jmpto	(DisplaySprite).l, JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -79634,7 +79634,7 @@ ObjC7_FrontForearm:
 	move.b	routine_secondary(a0),d0
 	move.w	off_3DA96(pc,d0.w),d1
 	jsr	off_3DA96(pc,d1.w)
-	tst.b	(a0)
+	tst.b	id(a0)
 	beq.w	return_37A48
 	btst	#6,status(a0)
 	bne.w	return_37A48
@@ -79740,7 +79740,7 @@ ObjC7_Arm:
 	move.b	routine_secondary(a0),d0
 	move.w	off_3DB8C(pc,d0.w),d1
 	jsr	off_3DB8C(pc,d1.w)
-	tst.b	(a0)
+	tst.b	id(a0)
 	beq.w	return_37A48
 	jmpto	(DisplaySprite).l, JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -79764,7 +79764,7 @@ ObjC7_FrontThigh:
 	move.b	routine_secondary(a0),d0
 	move.w	off_3DBB6(pc,d0.w),d1
 	jsr	off_3DBB6(pc,d1.w)
-	tst.b	(a0)
+	tst.b	id(a0)
 	beq.w	return_37A48
 	jmpto	(DisplaySprite).l, JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -79790,7 +79790,7 @@ ObjC7_Head:
 	jsr	off_3DBE8(pc,d1.w)
 	lea	byte_3DBF2(pc),a1
 	bsr.w	loc_3E282
-	tst.b	(a0)
+	tst.b	id(a0)
 	beq.w	return_37A48
 	jmpto	(DisplaySprite).l, JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -79896,7 +79896,7 @@ ObjC7_BackLowerLeg:
 	move.b	routine_secondary(a0),d0
 	move.w	off_3DCB4(pc,d0.w),d1
 	jsr	off_3DCB4(pc,d1.w)
-	tst.b	(a0)
+	tst.b	id(a0)
 	beq.w	return_37A48
 	jmpto	(DisplaySprite).l, JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -79921,7 +79921,7 @@ ObjC7_BackForearm:
 	move.b	routine_secondary(a0),d0
 	move.w	off_3DCE4(pc,d0.w),d1
 	jsr	off_3DCE4(pc,d1.w)
-	tst.b	(a0)
+	tst.b	id(a0)
 	beq.w	return_37A48
 	jmpto	(DisplaySprite).l, JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -79958,7 +79958,7 @@ ObjC7_BackThigh:
 	move.b	routine_secondary(a0),d0
 	move.w	off_3DD38(pc,d0.w),d1
 	jsr	off_3DD38(pc,d1.w)
-	tst.b	(a0)
+	tst.b	id(a0)
 	beq.w	return_37A48
 	jmpto	(DisplaySprite).l, JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -80405,18 +80405,10 @@ loc_3E168:
 	bra.s	-
 ; ===========================================================================
 byte_3E19E:
-	dc.b $2C
-	dc.b $2E	; 1
-	dc.b $30	; 2
-	dc.b $32	; 3
-	dc.b $34	; 4
-	dc.b $36	; 5
-	dc.b $38	; 6
-	dc.b $3A	; 7
-	dc.b $3C	; 8
-	dc.b $3E	; 9
-	dc.b   0	; 10
-	dc.b   0	; 11
+	dc.b objoff_2C, objoff_2E, objoff_30, objoff_32	; 3
+	dc.b objoff_34, objoff_36, objoff_38, objoff_3A	; 7
+	dc.b objoff_3C, objoff_3E, 0
+	even
 ; ===========================================================================
 
 loc_3E1AA:
