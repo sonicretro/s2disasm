@@ -20253,13 +20253,13 @@ loc_F852:
 sub_F872:
 	lea	(Sidekick).w,a1 ; a1=character
 	moveq	#p2_standing_bit,d6
-	moveq	#$3B,d5
+	moveq	#objoff_3B,d5
 	movem.l	d1-d4,-(sp)
 	bsr.s	+
 	movem.l	(sp)+,d1-d4
 	lea	(MainCharacter).w,a1 ; a1=character
 	subq.b	#1,d6
-	moveq	#$3F,d5
+	moveq	#objoff_3F,d5
 +
 	btst	d6,status(a0)
 	beq.s	loc_F8F0
