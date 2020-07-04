@@ -13303,7 +13303,7 @@ loc_A90E:
 	sub.w	(Vscroll_Factor_FG).w,d0
 	move.w	d0,y_pos(a0)
 
-BranchTo_JmpTo5_DisplaySprite
+BranchTo_JmpTo5_DisplaySprite ; BranchTo
 	jmpto	(DisplaySprite).l, JmpTo5_DisplaySprite
 ; ===========================================================================
 +
@@ -20940,7 +20940,7 @@ loc_100E4:
 	addq.b	#2,routine(a0)
 	andi.b	#$E7,status(a0)
 
-BranchTo_loc_1000C
+BranchTo_loc_1000C ; BranchTo
 	bra.w	loc_1000C
 ; ===========================================================================
 ; loc_100F8:
@@ -22113,7 +22113,7 @@ Obj1C_Init:
 	move.b	d1,y_radius(a0)
 	bset	#4,render_flags(a0)
 
-BranchTo_MarkObjGone
+BranchTo_MarkObjGone ; BranchTo
 	bra.w	MarkObjGone
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -25638,7 +25638,7 @@ loc_1413A:
 	tst.w	(Perfect_rings_left).w
 	bne.w	DeleteObject
 
-BranchTo_Obj34_MoveTowardsTargetPosition
+BranchTo_Obj34_MoveTowardsTargetPosition ; BranchTo
 	bra.w	Obj34_MoveTowardsTargetPosition
 ; ===========================================================================
 
@@ -34762,7 +34762,7 @@ Sonic_JumpAngle:
 	bcc.s	BranchTo_Sonic_JumpAngleSet
 	moveq	#0,d0
 
-BranchTo_Sonic_JumpAngleSet
+BranchTo_Sonic_JumpAngleSet ; BranchTo
 	bra.s	Sonic_JumpAngleSet
 ; ===========================================================================
 
@@ -34799,7 +34799,7 @@ Sonic_JumpRightFlip:
 	move.b	#0,flips_remaining(a0)
 	moveq	#0,d0
 
-BranchTo_Sonic_JumpFlipSet
+BranchTo_Sonic_JumpFlipSet ; BranchTo
 	bra.s	Sonic_JumpFlipSet
 ; ===========================================================================
 ; loc_1AE88:
@@ -36332,7 +36332,7 @@ TailsCPU_TickRespawnTimer:
 	cmpi.w	#$12C,(Tails_respawn_counter).w
 	blo.s	TailsCPU_UpdateObjInteract
 
-BranchTo_TailsCPU_Despawn
+BranchTo_TailsCPU_Despawn ; BranchTo
 	bra.w	TailsCPU_Despawn
 ; ===========================================================================
 ; loc_1BE9C:
@@ -37557,7 +37557,7 @@ Tails_JumpAngle:
 	bcc.s	BranchTo_Tails_JumpAngleSet
 	moveq	#0,d0
 
-BranchTo_Tails_JumpAngleSet
+BranchTo_Tails_JumpAngleSet ; BranchTo
 	bra.s	Tails_JumpAngleSet
 ; ===========================================================================
 
@@ -37594,7 +37594,7 @@ Tails_JumpRightFlip:
 	move.b	#0,flips_remaining(a0)
 	moveq	#0,d0
 
-BranchTo_Tails_JumpFlipSet
+BranchTo_Tails_JumpFlipSet ; BranchTo
 	bra.s	Tails_JumpFlipSet
 ; ===========================================================================
 ; loc_1C938:
@@ -38914,7 +38914,7 @@ loc_1D708:
 	bra.s	loc_1D72C
 ; ===========================================================================
 
-BranchTo_Obj0A_MakeItem
+BranchTo_Obj0A_MakeItem ; BranchTo
 	bra.s	Obj0A_MakeItem
 ; ===========================================================================
 
@@ -41939,7 +41939,7 @@ JmpTo14_DeleteObject ; JmpTo
 JmpTo15_DeleteObject ; JmpTo
     endif
 
-BranchTo_JmpTo15_DeleteObject
+BranchTo_JmpTo15_DeleteObject ; BranchTo
 	jmpto	(DeleteObject).l, JmpTo15_DeleteObject
 ; ===========================================================================
 
@@ -41972,7 +41972,7 @@ loc_1F9E8:
 	move.b	objoff_33(a0),objoff_32(a0)
 	bset	#7,objoff_36(a0)
 
-BranchTo_loc_1FA2A
+BranchTo_loc_1FA2A ; BranchTo
 	bra.s	loc_1FA2A
 ; ===========================================================================
 
@@ -42595,7 +42595,7 @@ loc_2013C:
 	bclr	#3,(Sidekick+status).w
 	bset	#1,(Sidekick+status).w
 
-BranchTo_JmpTo3_MarkObjGone
+BranchTo_JmpTo3_MarkObjGone ; BranchTo
 	jmpto	(MarkObjGone).l, JmpTo3_MarkObjGone
 ; ===========================================================================
 ; animation script
@@ -43054,7 +43054,7 @@ loc_209F4:
 	addq.b	#1,mapping_frame(a0)
 	andi.b	#1,mapping_frame(a0)
 
-BranchTo_JmpTo10_DisplaySprite
+BranchTo_JmpTo10_DisplaySprite ; BranchTo
 	jmpto	(DisplaySprite).l, JmpTo10_DisplaySprite
 ; ===========================================================================
 ; -------------------------------------------------------------------------------
@@ -45094,7 +45094,7 @@ Obj1D_Wait:
 	move.w	#SndID_Gloop,d0
 	jsr	(PlaySoundLocal).l
 
-BranchTo_JmpTo7_MarkObjGone
+BranchTo_JmpTo7_MarkObjGone ; BranchTo
 	jmpto	(MarkObjGone).l, JmpTo7_MarkObjGone
 ; ===========================================================================
 ; loc_224F4:
@@ -45743,7 +45743,7 @@ loc_23176:
 	move.w	#9,objoff_32(a0)
 	move.b	#3,objoff_36(a0)
 
-BranchTo_JmpTo8_MarkObjGone
+BranchTo_JmpTo8_MarkObjGone ; BranchTo
 	jmpto	(MarkObjGone).l, JmpTo8_MarkObjGone
 ; ===========================================================================
 
@@ -45787,7 +45787,7 @@ loc_23224:
 	jmpto	(MarkObjGone).l, JmpTo8_MarkObjGone
 ; ===========================================================================
 
-BranchTo_JmpTo21_DeleteObject
+BranchTo_JmpTo21_DeleteObject ; BranchTo
 	jmpto	(DeleteObject).l, JmpTo21_DeleteObject
 ; ===========================================================================
 ; animation script
@@ -45896,7 +45896,7 @@ Obj2F_Main:
 	andi.b	#standing_mask,d0
 	bne.s	+
 
-BranchTo_JmpTo9_MarkObjGone
+BranchTo_JmpTo9_MarkObjGone ; BranchTo
 	jmpto	(MarkObjGone).l, JmpTo9_MarkObjGone
 ; ===========================================================================
 +
@@ -47550,7 +47550,7 @@ loc_24BC4:
 JmpTo25_DeleteObject ; JmpTo
     endif
 
-BranchTo_JmpTo25_DeleteObject
+BranchTo_JmpTo25_DeleteObject ; BranchTo
 	jmpto	(DeleteObject).l, JmpTo25_DeleteObject
 ; ===========================================================================
 ; loc_24BDC:
@@ -47707,7 +47707,7 @@ Obj47_Main:
 	bset	d3,(a3)
 	move.b	#1,mapping_frame(a0)
 
-BranchTo_JmpTo12_MarkObjGone
+BranchTo_JmpTo12_MarkObjGone ; BranchTo
 	jmpto	(MarkObjGone).l, JmpTo12_MarkObjGone
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -47782,7 +47782,7 @@ Obj3D_Main:
 	andi.b	#standing_mask,d0
 	bne.s	loc_24E60
 
-BranchTo_JmpTo13_MarkObjGone
+BranchTo_JmpTo13_MarkObjGone ; BranchTo
 	jmpto	(MarkObjGone).l, JmpTo13_MarkObjGone
 ; ===========================================================================
 
@@ -48445,7 +48445,7 @@ Obj22_Arrow:
 	jmpto	(MarkObjGone).l, JmpTo15_MarkObjGone
 ; ===========================================================================
 
-BranchTo_JmpTo27_DeleteObject
+BranchTo_JmpTo27_DeleteObject ; BranchTo
 	jmpto	(DeleteObject).l, JmpTo27_DeleteObject
 ; ===========================================================================
 
@@ -49420,7 +49420,7 @@ loc_2673C:
 	add.w	objoff_34(a0),d0
 	move.w	d0,y_pos(a0)
 
-BranchTo_JmpTo18_MarkObjGone
+BranchTo_JmpTo18_MarkObjGone ; BranchTo
 	jmpto	(MarkObjGone).l, JmpTo18_MarkObjGone
 ; ===========================================================================
 
@@ -49850,7 +49850,7 @@ loc_26C90:
 	bne.s	loc_26CD0
 	move.b	#1,objoff_38(a0)
 
-BranchTo_loc_26CC2
+BranchTo_loc_26CC2 ; BranchTo
 	bra.s	loc_26CC2
 ; ===========================================================================
 
@@ -54860,7 +54860,7 @@ loc_2A888:
 	add.b	anim_frame(a0),d0
 	move.b	d0,mapping_frame(a0)
 
-BranchTo_JmpTo26_MarkObjGone
+BranchTo_JmpTo26_MarkObjGone ; BranchTo
 	jmpto	(MarkObjGone).l, JmpTo26_MarkObjGone
 ; ===========================================================================
 
@@ -55055,7 +55055,7 @@ Obj85:
 	beq.s	BranchTo_JmpTo43_DeleteObject
 	bclr	#7,2(a2,d0.w)
 
-BranchTo_JmpTo43_DeleteObject
+BranchTo_JmpTo43_DeleteObject ; BranchTo
 	jmpto	(DeleteObject).l, JmpTo43_DeleteObject
 ; ===========================================================================
 ; off_2ABCE:
@@ -55944,7 +55944,7 @@ ObjD3:
 	subq.w	#1,(Ring_count).w
 	ori.b	#$81,(Update_HUD_rings).w
 
-BranchTo_JmpTo44_DeleteObject
+BranchTo_JmpTo44_DeleteObject ; BranchTo
 	jmpto	(DeleteObject).l, JmpTo44_DeleteObject
 
     if removeJmpTos
@@ -56824,7 +56824,7 @@ SlotMachine_DrawSlot:
 	jmp	BranchTo_SlotMachine_Subroutine(pc,d0.w)
 ; ===========================================================================
 
-BranchTo_SlotMachine_Subroutine
+BranchTo_SlotMachine_Subroutine ; BranchTo
 	bra.w	SlotMachine_Subroutine1		; $00
 	bra.w	SlotMachine_Subroutine2		; $04
 ;	bra.w	SlotMachine_Subroutine3		; $08
@@ -57367,7 +57367,7 @@ loc_2C75C:
 	bpl.s	BranchTo_loc_2C806
 	neg.w	y_vel(a1)
 
-BranchTo_loc_2C806
+BranchTo_loc_2C806 ; BranchTo
 	bra.w	loc_2C806
 ; ===========================================================================
 
@@ -58069,7 +58069,7 @@ Obj50_GoAway:
 	rts
 ; ===========================================================================
 
-BranchTo_JmpTo20_ObjectMove
+BranchTo_JmpTo20_ObjectMove ; BranchTo
 	jmpto	(ObjectMove).l, JmpTo20_ObjectMove
 ; ===========================================================================
 ; loc_2CF32:
@@ -59453,7 +59453,7 @@ Obj5D_Pipe_Pump_0:
 	move.b	#$A,routine(a1)	; => Obj5D_Dripper
 	move.l	Obj5D_parent(a0),Obj5D_parent(a1)
 
-BranchTo_Obj5D_PipeSegment
+BranchTo_Obj5D_PipeSegment ; BranchTo
 	bra.w	Obj5D_PipeSegment
 ; ===========================================================================
 ; do pumping animation
@@ -59577,7 +59577,7 @@ Obj5D_PipeSegment:
 	jmp	(DisplaySprite).l
 ; ===========================================================================
 
-BranchTo_JmpTo51_DeleteObject
+BranchTo_JmpTo51_DeleteObject ; BranchTo
 	bra.w	JmpTo51_DeleteObject
 ; ===========================================================================
 
@@ -60204,7 +60204,7 @@ Obj5D_Gunk_Droplets_Loop:
 	sub.w	d0,y_vel(a1)
 	dbf	d3,Obj5D_Gunk_Droplets_Loop
 
-BranchTo_JmpTo34_DisplaySprite
+BranchTo_JmpTo34_DisplaySprite ; BranchTo
 	jmpto	(DisplaySprite).l, JmpTo34_DisplaySprite
 ; ===========================================================================
 
@@ -61128,7 +61128,7 @@ loc_2F714:	; Obj56_Wheel_Sub2:
 	movea.l	objoff_34(a0),a1 ; parent address (vehicle)
 	add.w	d0,objoff_2E(a1)
 
-BranchTo_JmpTo35_DisplaySprite
+BranchTo_JmpTo35_DisplaySprite ; BranchTo
 	bra.w	JmpTo35_DisplaySprite
 ; ---------------------------------------------------------------------------
 
@@ -61186,7 +61186,7 @@ loc_2F7D2:	; Obj56_Wheel_Sub8:
 	move.w	#-$200,y_vel(a0)	; negative velocity to have bouncing effect
 	add.w	d1,y_pos(a0)	; reset on floor
 
-BranchTo_JmpTo36_MarkObjGone
+BranchTo_JmpTo36_MarkObjGone ; BranchTo
 	jmpto	(MarkObjGone).l, JmpTo36_MarkObjGone
 ; ===========================================================================
 
@@ -61910,7 +61910,7 @@ loc_3019C:
 	cmpi.w	#$588,y_pos(a0)
 	bgt.w	loc_301AA
 
-BranchTo_JmpTo36_DisplaySprite
+BranchTo_JmpTo36_DisplaySprite ; BranchTo
 	jmpto	(DisplaySprite).l, JmpTo36_DisplaySprite
 ; ===========================================================================
 
@@ -62553,7 +62553,7 @@ Obj89_Pillar_Sub0:
 	addq.b	#2,routine_secondary(a0)	; => Obj89_Pillar_Sub2
 	move.b	#0,(Screen_Shaking_Flag).w	; stop screen shaking
 
-BranchTo_JmpTo37_DisplaySprite
+BranchTo_JmpTo37_DisplaySprite ; BranchTo
 	jmpto	(DisplaySprite).l, JmpTo37_DisplaySprite
 ; ===========================================================================
 ; loc_30A04:
@@ -62821,7 +62821,7 @@ Obj89_Arrow_Sub6:
 JmpTo55_DeleteObject ; JmpTo
     endif
 
-BranchTo_JmpTo55_DeleteObject
+BranchTo_JmpTo55_DeleteObject ; BranchTo
 	jmpto	(DeleteObject).l, JmpTo55_DeleteObject
 ; ===========================================================================
 ; loc_30CCC:
@@ -63656,7 +63656,7 @@ loc_31A48:
 	bset	#0,render_flags(a0)
 	move.b	#0,objoff_2D(a0)
 
-BranchTo_loc_31AA4
+BranchTo_loc_31AA4 ; BranchTo
 	bra.w	loc_31AA4
 ; ===========================================================================
 
@@ -63811,7 +63811,7 @@ loc_31C60:
 	move.w	#$180,(Boss_X_vel).w
 	move.b	#$C,mainspr_mapframe(a0)
 
-BranchTo_loc_31C08
+BranchTo_loc_31C08 ; BranchTo
 	bra.w	loc_31C08
 ; ===========================================================================
 
@@ -64431,7 +64431,7 @@ Obj54_MainSub4:
 	bne.s	BranchTo_Obj54_MoveAndShow
 	addq.b	#2,angle(a0)		; => Obj54_MainSub6
 
-BranchTo_Obj54_MoveAndShow
+BranchTo_Obj54_MoveAndShow ; BranchTo
 	bra.s	Obj54_MoveAndShow
 ; ===========================================================================
 ;loc_32524
@@ -65472,7 +65472,7 @@ Obj55_Defeated_Sink:
 JmpTo62_DeleteObject ; JmpTo
     endif
 
-BranchTo_JmpTo62_DeleteObject
+BranchTo_JmpTo62_DeleteObject ; BranchTo
 	jmpto	(DeleteObject).l, JmpTo62_DeleteObject
 ; ===========================================================================
 ; loc_3320A:
@@ -67767,7 +67767,7 @@ loc_35392:
 	bra.w	JmpTo44_DisplaySprite
 ; ===========================================================================
 
-BranchTo_JmpTo63_DeleteObject
+BranchTo_JmpTo63_DeleteObject ; BranchTo
 	jmpto	(DeleteObject).l, JmpTo63_DeleteObject
 ; ===========================================================================
 
@@ -73333,7 +73333,7 @@ loc_38F58:
 	rts
 ; ===========================================================================
 
-BranchTo_ObjA7_CheckExplode
+BranchTo_ObjA7_CheckExplode ; BranchTo
 	bra.w	ObjA7_CheckExplode
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -74347,7 +74347,7 @@ loc_39A96:
 	rts
 ; ===========================================================================
 
-BranchTo_loc_399D6
+BranchTo_loc_399D6 ; BranchTo
 	bra.w	loc_399D6
 ; ===========================================================================
 
@@ -82080,7 +82080,7 @@ Touch_Special:
 	rts
 ; ===========================================================================
 
-BranchTo_loc_3F85C
+BranchTo_loc_3F85C ; BranchTo
 	bra.w	loc_3F85C
 ; ===========================================================================
 
@@ -82106,11 +82106,11 @@ loc_3F9F4:
 	cmp.w	d4,d0
 	bhi.s	BranchTo_Touch_Enemy
 
-BranchTo_Touch_ChkHurt
+BranchTo_Touch_ChkHurt ; BranchTo
 	bra.w	Touch_ChkHurt
 ; ===========================================================================
 
-BranchTo_Touch_Enemy
+BranchTo_Touch_Enemy ; BranchTo
 	bra.w	Touch_Enemy
 ; ===========================================================================
 
@@ -82599,7 +82599,7 @@ loc_3FD7C:
 	addi.w	#$80,d4
 	dbf	d5,loc_3FD7C
 
-BranchTo_loc_3FE5C
+BranchTo_loc_3FE5C ; BranchTo
 	bra.w	loc_3FE5C
 ; ===========================================================================
 ; HTZ mountain art main RAM addresses?
@@ -85102,7 +85102,7 @@ Debug_CycleObjects:
 	bhi.s	BranchTo_LoadDebugObjectSprite
 	move.b	#0,(Debug_object).w
 
-BranchTo_LoadDebugObjectSprite
+BranchTo_LoadDebugObjectSprite ; BranchTo
 	bra.w	LoadDebugObjectSprite
 ; ===========================================================================
 ; loc_41C12:
