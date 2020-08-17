@@ -85161,8 +85161,8 @@ return_41CB6:
 ; sub_41CB8:
 Debug_ResetPlayerStats:
 	move.b	d0,anim(a1)
-	move.w	d0,2+x_pos(a1) ; subpixel x
-	move.w	d0,2+y_pos(a1) ; subpixel y
+	move.w	d0,x_sub(a1) ; subpixel x
+	move.w	d0,y_sub(a1) ; subpixel y
 	move.b	d0,obj_control(a1)
 	move.b	d0,spindash_flag(a1)
 	move.w	d0,x_vel(a1)
