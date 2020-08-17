@@ -43357,7 +43357,7 @@ Obj27_InitWithAnimal:
 	_move.b	#ObjID_Animal,id(a1) ; load obj28 (Animal and 100 points)
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
-	move.w	parent(a0),parent(a1)
+	move.w	objoff_3E(a0),objoff_3E(a1)	; Set by Touch_KillEnemy
 
 ; loc_210BE: Obj27_Init2:
 Obj27_Init:
