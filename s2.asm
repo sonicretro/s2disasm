@@ -69766,6 +69766,10 @@ JmpTo64_DeleteObject ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Object 8C - Whisp (blowfly badnik) from ARZ
 ; ----------------------------------------------------------------------------
+
+obj8C_timer = objoff_2A
+obj8C_attacks_remaining = objoff_2B
+
 ; Sprite_36924:
 Obj8C:
 	moveq	#0,d0
@@ -69775,28 +69779,28 @@ Obj8C:
 ; ===========================================================================
 ; off_36932: Obj8C_States:
 Obj8C_Index:	offsetTable
-		offsetTableEntry.w Obj8C_Init	; 0
-		offsetTableEntry.w loc_3694E	; 1
-		offsetTableEntry.w loc_369A8	; 2
-		offsetTableEntry.w loc_36958	; 3
-		offsetTableEntry.w loc_36A26	; 4
+		offsetTableEntry.w Obj8C_Init                  ; 0
+		offsetTableEntry.w Obj8C_WaitUntilOnscreen     ; 1
+		offsetTableEntry.w Obj8C_ChasePlayer           ; 2
+		offsetTableEntry.w Obj8C_WaitUntilTimerExpires ; 3
+		offsetTableEntry.w Obj8C_FlyAway               ; 4
 ; ===========================================================================
 ; loc_3693C:
 Obj8C_Init:
 	bsr.w	LoadSubObject
-	move.b	#$10,objoff_2A(a0)
-	move.b	#4,objoff_2B(a0)
+	move.b	#$10,obj8C_timer(a0)
+	move.b	#4,obj8C_attacks_remaining(a0)
 	rts
 ; ===========================================================================
-
-loc_3694E:
+; loc_3694E:
+Obj8C_WaitUntilOnscreen:
 	tst.b	render_flags(a0)
 	bmi.s	loc_36970
 	bra.w	Obj8C_Animate
 ; ===========================================================================
-
-loc_36958:
-	subq.b	#1,objoff_2A(a0)
+; loc_36958:
+Obj8C_WaitUntilTimerExpires:
+	subq.b	#1,obj8C_timer(a0)
 	bmi.s	loc_36970
 ; loc_3695E:
 Obj8C_Animate:
@@ -69806,23 +69810,23 @@ Obj8C_Animate:
 ; ===========================================================================
 
 loc_36970:
-	subq.b	#1,objoff_2B(a0)
+	subq.b	#1,obj8C_attacks_remaining(a0)
 	bpl.s	loc_36996
 	move.b	#8,routine(a0)
 	bclr	#0,status(a0)
 	clr.w	y_vel(a0)
 	move.w	#-$200,x_vel(a0)
 	move.w	#-$200,y_vel(a0)
-	bra.w	loc_36A26
+	bra.w	Obj8C_FlyAway
 ; ===========================================================================
 
 loc_36996:
 	move.b	#4,routine(a0)
 	move.w	#-$100,y_vel(a0)
-	move.b	#$60,objoff_2A(a0)
-
-loc_369A8:
-	subq.b	#1,objoff_2A(a0)
+	move.b	#96,obj8C_timer(a0)
+; loc_369A8:
+Obj8C_ChasePlayer:
+	subq.b	#1,obj8C_timer(a0)
 	bmi.s	loc_369F8
 	bsr.w	Obj_GetOrientationToPlayer
 	bclr	#0,status(a0)
@@ -69831,9 +69835,9 @@ loc_369A8:
 	bset	#0,status(a0)
 
 loc_369C2:
-	move.w	word_369F4(pc,d0.w),d2
+	move.w	Obj8C_MovementDeltas(pc,d0.w),d2
 	add.w	d2,x_vel(a0)
-	move.w	word_369F4(pc,d1.w),d2
+	move.w	Obj8C_MovementDeltas(pc,d1.w),d2
 	add.w	d2,y_vel(a0)
 	move.w	#$200,d0
 	move.w	d0,d1
@@ -69843,7 +69847,8 @@ loc_369C2:
 	jsr	(AnimateSprite).l
 	jmp	(MarkObjGone).l
 ; ===========================================================================
-word_369F4:
+; word_369F4:
+Obj8C_MovementDeltas:
 	dc.w -$10
 	dc.w  $10
 ; ===========================================================================
@@ -69853,14 +69858,14 @@ loc_369F8:
 	jsr	(RandomNumber).l
 	move.l	(RNG_seed).w,d0
 	andi.b	#$1F,d0
-	move.b	d0,objoff_2A(a0)
+	move.b	d0,obj8C_timer(a0)
 	bsr.w	Obj_MoveStop
 	lea	(Ani_obj8C).l,a1
 	jsr	(AnimateSprite).l
 	jmp	(MarkObjGone).l
 ; ===========================================================================
-
-loc_36A26:
+; loc_36A26:
+Obj8C_FlyAway:
 	jsr	(ObjectMove).l
 	lea	(Ani_obj8C).l,a1
 	jsr	(AnimateSprite).l
