@@ -39343,6 +39343,12 @@ Obj35_MapUnc_1DCBC:	BINCLUDE "mappings/sprite/obj35.bin"
 ; ----------------------------------------------------------------------------
 ; Object 08 - Water splash in Aquatic Ruin Zone, Spindash dust
 ; ----------------------------------------------------------------------------
+
+obj08_previous_frame = objoff_30
+obj08_dust_timer = objoff_32
+obj08_belongs_to_tails = objoff_34
+obj08_vram_address = objoff_3C
+
 ; Sprite_1DD20:
 Obj08:
 	moveq	#0,d0
@@ -39366,15 +39372,15 @@ Obj08_Init:
 	move.b	#$10,width_pixels(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_SonicDust,0,0),art_tile(a0)
 	move.w	#MainCharacter,parent(a0)
-	move.w	#tiles_to_bytes(ArtTile_ArtNem_SonicDust),objoff_3C(a0)
+	move.w	#tiles_to_bytes(ArtTile_ArtNem_SonicDust),obj08_vram_address(a0)
 	cmpa.w	#Sonic_Dust,a0
 	beq.s	+
-	move.b	#1,objoff_34(a0)
+	move.b	#1,obj08_belongs_to_tails(a0)
 	cmpi.w	#2,(Player_mode).w
 	beq.s	+
 	move.w	#make_art_tile(ArtTile_ArtNem_TailsDust,0,0),art_tile(a0)
 	move.w	#Sidekick,parent(a0)
-	move.w	#tiles_to_bytes(ArtTile_ArtNem_TailsDust),objoff_3C(a0)
+	move.w	#tiles_to_bytes(ArtTile_ArtNem_TailsDust),obj08_vram_address(a0)
 +
 	bsr.w	Adjust2PArtPointer
 
@@ -39416,9 +39422,9 @@ Obj08_MdSpindashDust:
 	move.w	y_pos(a2),y_pos(a0)
 	move.b	status(a2),status(a0)
 	andi.b	#1,status(a0)
-	tst.b	objoff_34(a0)
+	tst.b	obj08_belongs_to_tails(a0)
 	beq.s	+
-	subi_.w	#4,y_pos(a0)
+	subi_.w	#4,y_pos(a0);	; Tails is shorter than Sonic
 +
 	tst.b	next_anim(a0)
 	bne.s	Obj08_Display
@@ -39455,23 +39461,23 @@ Obj08_CheckSkid:
 	cmpi.b	#AniIDSonAni_Stop,anim(a2)	; SonAni_Stop
 	beq.s	Obj08_SkidDust
 	move.b	#2,routine(a0)
-	move.b	#0,objoff_32(a0)
+	move.b	#0,obj08_dust_timer(a0)
 	rts
 ; ===========================================================================
 ; loc_1DE64:
 Obj08_SkidDust:
-	subq.b	#1,objoff_32(a0)
+	subq.b	#1,obj08_dust_timer(a0)
 	bpl.s	loc_1DEE0
-	move.b	#3,objoff_32(a0)
+	move.b	#3,obj08_dust_timer(a0)
 	bsr.w	SingleObjLoad
 	bne.s	loc_1DEE0
 	_move.b	id(a0),id(a1) ; load obj08
 	move.w	x_pos(a2),x_pos(a1)
 	move.w	y_pos(a2),y_pos(a1)
 	addi.w	#$10,y_pos(a1)
-	tst.b	objoff_34(a0)
+	tst.b	obj08_belongs_to_tails(a0)
 	beq.s	+
-	subi_.w	#4,y_pos(a1)
+	subi_.w	#4,y_pos(a1)	; Tails is shorter than Sonic
 +
 	move.b	#0,status(a1)
 	move.b	#3,anim(a1)
@@ -39495,16 +39501,16 @@ loc_1DEE0:
 Obj08_LoadDustOrSplashArt:
 	moveq	#0,d0
 	move.b	mapping_frame(a0),d0
-	cmp.b	objoff_30(a0),d0
+	cmp.b	obj08_previous_frame(a0),d0
 	beq.s	return_1DF36
-	move.b	d0,objoff_30(a0)
+	move.b	d0,obj08_previous_frame(a0)
 	lea	(Obj08_MapRUnc_1E074).l,a2
 	add.w	d0,d0
 	adda.w	(a2,d0.w),a2
 	move.w	(a2)+,d5
 	subq.w	#1,d5
 	bmi.s	return_1DF36
-	move.w	objoff_3C(a0),d4
+	move.w	obj08_vram_address(a0),d4
 
 -	moveq	#0,d1
 	move.w	(a2)+,d1
