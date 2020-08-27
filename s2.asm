@@ -21750,7 +21750,7 @@ sub_109DC:
 	beq.s	+
 	bclr	#3,status(a1)
 	bclr	#5,status(a1)
-	move.b	#AniIDSonAni_Run,next_anim(a1)
+	move.b	#AniIDSonAni_Run,prev_anim(a1)	; Force player's animation to restart
 +
 	rts
 ; End of function sub_109DC
@@ -21865,7 +21865,7 @@ sub_10B36:
 	beq.s	+	; rts
 	bclr	#3,status(a1)
 	bclr	#5,status(a1)
-	move.b	#AniIDSonAni_Run,next_anim(a1)
+	move.b	#AniIDSonAni_Run,prev_anim(a1)	; Force player's animation to restart
 +
 	rts
 ; End of function sub_10B36
@@ -23980,8 +23980,8 @@ process_swap_table:
 
 	dbf	d2,process_swap_table	; process remaining entries in the list
 
-	move.b	#1,(MainCharacter+next_anim).w
-	move.b	#1,(Sidekick+next_anim).w
+	move.b	#AniIDSonAni_Run,(MainCharacter+prev_anim).w	; force Sonic's animation to restart
+	move.b	#AniIDTailsAni_Run,(Sidekick+prev_anim).w	; force Tails' animation to restart
     if gameRevision>0
 	move.b	#0,(MainCharacter+mapping_frame).w
 	move.b	#0,(Sidekick+mapping_frame).w
@@ -28007,9 +28007,9 @@ return_16542:
 AnimateSprite:
 	moveq	#0,d0
 	move.b	anim(a0),d0		; move animation number to d0
-	cmp.b	next_anim(a0),d0	; is animation set to change?
+	cmp.b	prev_anim(a0),d0	; is animation set to change?
 	beq.s	Anim_Run		; if not, branch
-	move.b	d0,next_anim(a0)	; set next anim to current current
+	move.b	d0,prev_anim(a0)	; set prev anim to current current
 	move.b	#0,anim_frame(a0)	; reset animation
 	move.b	#0,anim_frame_duration(a0)	; reset frame duration
 ; loc_16560:
@@ -33277,7 +33277,7 @@ Obj01_Control:
 	beq.s	+
 	tst.b	anim(a0)
 	bne.s	+
-	move.b	next_anim(a0),anim(a0)
+	move.b	prev_anim(a0),anim(a0)
 +
 	bsr.w	Sonic_Animate
 	tst.b	obj_control(a0)
@@ -33887,7 +33887,7 @@ Sonic_MoveLeft:
 	bset	#0,status(a0)
 	bne.s	+
 	bclr	#5,status(a0)
-	move.b	#AniIDSonAni_Run,next_anim(a0)
+	move.b	#AniIDSonAni_Run,prev_anim(a0)	; force walking animation to restart if it's already in-progress
 +
 	sub.w	d5,d0	; add acceleration to the left
 	move.w	d6,d1
@@ -33939,7 +33939,7 @@ Sonic_MoveRight:
 	bclr	#0,status(a0)
 	beq.s	+
 	bclr	#5,status(a0)
-	move.b	#AniIDSonAni_Run,next_anim(a0)
+	move.b	#AniIDSonAni_Run,prev_anim(a0)	; force walking animation to restart if it's already in-progress
 +
 	add.w	d5,d0	; add acceleration to the right
 	cmp.w	d6,d0	; compare new speed with top speed
@@ -34490,7 +34490,7 @@ Sonic_RevertToNormal:
 	move.b	#2,(Super_Sonic_palette).w	; Remove rotating palette
 	move.w	#$28,(Palette_frame).w
 	move.b	#0,(Super_Sonic_flag).w
-	move.b	#1,next_anim(a0)	; Change animation back to normal ?
+	move.b	#AniIDSonAni_Run,prev_anim(a0)	; Force Sonic's animation to restart
 	move.w	#1,invincibility_time(a0)	; Remove invincibility
 	move.w	#$600,(Sonic_top_speed).w
 	move.w	#$C,(Sonic_acceleration).w
@@ -35275,9 +35275,9 @@ Sonic_Animate:
 +
 	moveq	#0,d0
 	move.b	anim(a0),d0
-	cmp.b	next_anim(a0),d0	; has animation changed?
+	cmp.b	prev_anim(a0),d0	; has animation changed?
 	beq.s	SAnim_Do		; if not, branch
-	move.b	d0,next_anim(a0)	; set to next animation
+	move.b	d0,prev_anim(a0)	; set previous animation
 	move.b	#0,anim_frame(a0)	; reset animation frame
 	move.b	#0,anim_frame_duration(a0)	; reset frame duration
 	bclr	#5,status(a0)
@@ -35892,7 +35892,7 @@ Obj02_Control_Part2:
 	beq.s	+
 	tst.b	anim(a0)
 	bne.s	+
-	move.b	next_anim(a0),anim(a0)
+	move.b	prev_anim(a0),anim(a0)
 +
 	bsr.w	Tails_Animate
 	tst.b	obj_control(a0)
@@ -36799,7 +36799,7 @@ Tails_MoveLeft:
 	bset	#0,status(a0)
 	bne.s	+
 	bclr	#5,status(a0)
-	move.b	#AniIDTailsAni_Run,next_anim(a0)
+	move.b	#AniIDTailsAni_Run,prev_anim(a0)	; force walking animation to restart if it's already in-progress
 +
 	sub.w	d5,d0	; add acceleration to the left
 	move.w	d6,d1
@@ -36851,7 +36851,7 @@ Tails_MoveRight:
 	bclr	#0,status(a0)
 	beq.s	+
 	bclr	#5,status(a0)
-	move.b	#AniIDTailsAni_Run,next_anim(a0)
+	move.b	#AniIDTailsAni_Run,prev_anim(a0)	; force walking animation to restart if it's already in-progress
 +
 	add.w	d5,d0	; add acceleration to the right
 	cmp.w	d6,d0	; compare new speed with top speed
@@ -38054,9 +38054,9 @@ Tails_Animate:
 Tails_Animate_Part2:
 	moveq	#0,d0
 	move.b	anim(a0),d0
-	cmp.b	next_anim(a0),d0	; has animation changed?
+	cmp.b	prev_anim(a0),d0	; has animation changed?
 	beq.s	TAnim_Do		; if not, branch
-	move.b	d0,next_anim(a0)	; set to next animation
+	move.b	d0,prev_anim(a0)	; set previous animation
 	move.b	#0,anim_frame(a0)	; reset animation frame
 	move.b	#0,anim_frame_duration(a0)	; reset frame duration
 	bclr	#5,status(a0)
@@ -39403,7 +39403,7 @@ Obj08_DisplayModes: offsetTable
 ; loc_1DDAC:
 Obj08_MdSplash:
 	move.w	(Water_Level_1).w,y_pos(a0)
-	tst.b	next_anim(a0)
+	tst.b	prev_anim(a0)
 	bne.s	Obj08_Display
 	move.w	x_pos(a2),x_pos(a0)
 	move.b	#0,status(a0)
@@ -39426,7 +39426,7 @@ Obj08_MdSpindashDust:
 	beq.s	+
 	subi_.w	#4,y_pos(a0);	; Tails is shorter than Sonic
 +
-	tst.b	next_anim(a0)
+	tst.b	prev_anim(a0)
 	bne.s	Obj08_Display
 	andi.w	#drawing_mask,art_tile(a0)
 	tst.w	art_tile(a2)
@@ -39755,7 +39755,7 @@ loc_1E33C:
 	bne.s	loc_1E336
 	bset	#1,status(a0)
 	bclr	#5,status(a0)
-	move.b	#AniIDSonAni_Run,next_anim(a0)
+	move.b	#AniIDSonAni_Run,prev_anim(a0)	; Force character's animation to restart
 	rts
 ; ===========================================================================
 
@@ -39863,7 +39863,7 @@ loc_1E420:
 	bne.s	loc_1E41A
 	bset	#1,status(a0)
 	bclr	#5,status(a0)
-	move.b	#AniIDSonAni_Run,next_anim(a0)
+	move.b	#AniIDSonAni_Run,prev_anim(a0)	; Force character's animation to restart
 	rts
 ; ===========================================================================
 ;loc_1E43A
@@ -39930,7 +39930,7 @@ loc_1E4CE:
 	bne.s	loc_1E4C8
 	bset	#1,status(a0)
 	bclr	#5,status(a0)
-	move.b	#AniIDSonAni_Run,next_anim(a0)
+	move.b	#AniIDSonAni_Run,prev_anim(a0)	; Force character's animation to restart
 	rts
 ; ===========================================================================
 ;loc_1E4E8
@@ -39997,7 +39997,7 @@ loc_1E57C:
 	bne.s	loc_1E576
 	bset	#1,status(a0)
 	bclr	#5,status(a0)
-	move.b	#AniIDSonAni_Run,next_anim(a0)
+	move.b	#AniIDSonAni_Run,prev_anim(a0)	; Force character's animation to restart
 	rts
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -47385,7 +47385,7 @@ loc_244A8:
 
 loc_244BA:
 	bclr	#5,status(a1)
-	move.b	#AniIDSonAni_Run,next_anim(a1)
+	move.b	#AniIDSonAni_Run,prev_anim(a1)	; Force character's animation to restart
 	move.w	#SndID_Spring,d0 ; play spring bounce sound
 	jmp	(PlaySound).l
 ; ===========================================================================
@@ -53495,7 +53495,7 @@ loc_29648:
 	blo.s	loc_29686
 	cmp.w	d3,d0
 	bhs.s	loc_29686
-	cmpi.b	#2,next_anim(a0)
+	cmpi.b	#2,prev_anim(a0)
 	beq.s	loc_29686
 	move.b	#2,anim(a0)
 
@@ -53512,7 +53512,7 @@ loc_29686:
 	bhs.s	loc_296B6
 	cmpi.w	#4,(Tails_CPU_routine).w	; TailsCPU_Flying
 	beq.w	loc_296B6
-	cmpi.b	#3,next_anim(a0)
+	cmpi.b	#3,prev_anim(a0)
 	beq.s	loc_296B6
 	move.b	#3,anim(a0)
 
@@ -66610,10 +66610,10 @@ return_33EFE:
 SSPlayer_Animate:
 	moveq	#0,d0
 	move.b	anim(a0),d0
-	cmp.b	next_anim(a0),d0
+	cmp.b	prev_anim(a0),d0
 	beq.s	SSAnim_Do
 	move.b	#0,anim_frame(a0)
-	move.b	d0,next_anim(a0)
+	move.b	d0,prev_anim(a0)
 	move.b	#0,anim_frame_duration(a0)
 
 SSAnim_Do:
@@ -69670,9 +69670,9 @@ return_3686E:
 AnimateSprite_Checked:
 	moveq	#0,d0
 	move.b	anim(a0),d0		; move animation number to d0
-	cmp.b	next_anim(a0),d0	; is animation set to change?
+	cmp.b	prev_anim(a0),d0	; is animation set to change?
 	beq.s	AnimChk_Run		; if not, branch
-	move.b	d0,next_anim(a0)	; set next anim to current current
+	move.b	d0,prev_anim(a0)	; set previous animation to current animation
 	move.b	#0,anim_frame(a0)	; reset animation
 	move.b	#0,anim_frame_duration(a0)	; reset frame duration
 
@@ -79179,7 +79179,7 @@ loc_3D640:
 	andi.w	#3,d0
 	move.b	byte_3D680(pc,d0.w),d0
 	move.b	d0,anim(a0)
-	clr.b	next_anim(a0)
+	clr.b	prev_anim(a0)
 	cmpi.b	#2,d0
 	bne.s	+	; rts
 	movea.w	objoff_38(a0),a1 ; a1=object
@@ -79218,7 +79218,7 @@ off_3D696:	offsetTable
 
 loc_3D6AA:
 	moveq	#0,d0
-	move.b	next_anim(a0),d0
+	move.b	prev_anim(a0),d0
 	move.w	off_3D6B8(pc,d0.w),d1
 	jmp	off_3D6B8(pc,d1.w)
 ; ===========================================================================
@@ -79235,7 +79235,7 @@ loc_3D6C0:
 	rts
 ; ---------------------------------------------------------------------------
 +
-	addq.b	#2,next_anim(a0)
+	addq.b	#2,prev_anim(a0)
 	rts
 ; ===========================================================================
 
@@ -79246,7 +79246,7 @@ loc_3D6CE:
 	rts
 ; ---------------------------------------------------------------------------
 +
-	addq.b	#2,next_anim(a0)
+	addq.b	#2,prev_anim(a0)
 	move.b	#$40,anim_frame_duration(a0)
 	rts
 ; ===========================================================================
@@ -79265,7 +79265,7 @@ loc_3D6E8:
 
 loc_3D702:
 	moveq	#0,d0
-	move.b	next_anim(a0),d0
+	move.b	prev_anim(a0),d0
 	move.w	off_3D710(pc,d0.w),d1
 	jmp	off_3D710(pc,d1.w)
 ; ===========================================================================
@@ -79287,7 +79287,7 @@ loc_3D720:
 	rts
 ; ---------------------------------------------------------------------------
 +
-	addq.b	#2,next_anim(a0)
+	addq.b	#2,prev_anim(a0)
 	move.b	#$80,anim_frame_duration(a0)
 	clr.w	x_vel(a0)
 	move.w	#-$200,y_vel(a0)
@@ -79308,7 +79308,7 @@ loc_3D744:
 	bra.w	ObjC7_PositionChildren
 ; ---------------------------------------------------------------------------
 +
-	addq.b	#2,next_anim(a0)
+	addq.b	#2,prev_anim(a0)
 	clr.w	y_vel(a0)
 	lea	(ChildObjC7_TargettingSensor).l,a2
 	bsr.w	LoadChildObject
@@ -79323,7 +79323,7 @@ loc_3D784:
 	rts
 ; ---------------------------------------------------------------------------
 +
-	addq.b	#2,next_anim(a0)
+	addq.b	#2,prev_anim(a0)
 	move.w	d0,x_pos(a0)
 	bclr	#0,render_flags(a0)
 	cmpi.w	#$780,d0
@@ -79344,7 +79344,7 @@ loc_3D7B8:
 	bra.w	ObjC7_PositionChildren
 ; ---------------------------------------------------------------------------
 +
-	addq.b	#2,next_anim(a0)
+	addq.b	#2,prev_anim(a0)
 	clr.w	y_vel(a0)
 	move.b	#1,(Screen_Shaking_Flag).w
 	move.w	#$40,(DEZ_Shake_Timer).w
@@ -79374,7 +79374,7 @@ loc_3D7F0:
 	rts
 ; ---------------------------------------------------------------------------
 +
-	addq.b	#2,next_anim(a0)
+	addq.b	#2,prev_anim(a0)
 	move.b	#$60,anim_frame_duration(a0)
 	bra.w	CreateEggmanBombs
 ; ===========================================================================
@@ -79391,7 +79391,7 @@ loc_3D82E:
 
 loc_3D83C:
 	moveq	#0,d0
-	move.b	next_anim(a0),d0
+	move.b	prev_anim(a0),d0
 	move.w	off_3D84A(pc,d0.w),d1
 	jmp	off_3D84A(pc,d1.w)
 ; ===========================================================================
@@ -79419,13 +79419,13 @@ loc_3D856:
 +
 	tst.w	d0
 	bne.s	+
-	addq.b	#2,next_anim(a0)
+	addq.b	#2,prev_anim(a0)
 	move.b	#$40,anim_frame_duration(a0)
 	bset	#4,status(a0)
 	rts
 ; ---------------------------------------------------------------------------
 +
-	move.b	#8,next_anim(a0)
+	move.b	#8,prev_anim(a0)
 	move.b	#$20,anim_frame_duration(a0)
 	bra.w	CreateEggmanBombs
 ; ===========================================================================
@@ -79436,7 +79436,7 @@ loc_3D89E:
 	rts
 ; ---------------------------------------------------------------------------
 +
-	addq.b	#2,next_anim(a0)
+	addq.b	#2,prev_anim(a0)
 	bset	#5,status(a0)
 	move.b	#$40,anim_frame_duration(a0)
 	rts
