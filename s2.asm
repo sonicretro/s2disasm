@@ -16882,21 +16882,26 @@ SetVertiScrollFlagsBG:		;	used by WFZ, HTZ, HPZ, ARZ
 ;loc_D940: ;Vertical_Bg_Deformation2:
 SetVertiScrollFlagsBG2:
 	move.l	d0,(Camera_BG_Y_pos).w
+	; What this does is set a specific bit in `Scroll_flags_BG`
+	; every time the background crosses a vertical 16-pixel boundary
 	move.l	d0,d1
 	swap	d1
 	andi.w	#$10,d1
 	move.b	(Verti_block_crossed_flag_BG).w,d2
 	eor.b	d2,d1
 	bne.s	++	; rts
+
 	eori.b	#$10,(Verti_block_crossed_flag_BG).w
 	sub.l	d3,d0
 	bpl.s	+
-	bset	d6,(Scroll_flags_BG).w	; everytime Verti_block_crossed_flag_BG changes from $10 to $00
+	; Background has moved up
+	bset	d6,(Scroll_flags_BG).w
 	rts
 ; ===========================================================================
 +
+	; Background has moved down
 	addq.b	#1,d6
-	bset	d6,(Scroll_flags_BG).w	; everytime Verti_block_crossed_flag_BG changes from $00 to $10
+	bset	d6,(Scroll_flags_BG).w
 +
 	rts
 ; End of function SetVertiScrollFlagsBG
