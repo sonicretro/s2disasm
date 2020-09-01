@@ -4453,7 +4453,7 @@ Level_TtlCard:
 
 	bsr.w	LoadZoneTiles
 	jsrto	(loadZoneBlockMaps).l, JmpTo_loadZoneBlockMaps
-	jsr	(loc_402D4).l
+	jsr	(LoadAnimatedBlocks).l
 	jsrto	(DrawInitialBG).l, JmpTo_DrawInitialBG
 	jsr	(ConvertCollisionArray).l
 	bsr.w	LoadCollisionIndexes
@@ -83208,8 +83208,8 @@ Animated_Null:
 				; 400 + 7 * (-16) = 512 byte range was affected
 	rts
 ; ===========================================================================
-
-loc_402D4:
+; loc_402D4:
+LoadAnimatedBlocks:
 	cmpi.b	#hill_top_zone,(Current_Zone).w
 	bne.s	+
 	bsr.w	PatchHTZTiles
