@@ -16385,7 +16385,7 @@ SwScrl_ARZ:
 	neg.w	d1	; d1 now contains how many pixels of the row is currently on-screen
 	subq.w	#2,a2	; Get correct row speed
 
-	move.w	#bytesToLcnt($380),d2	; Actual size of Horiz_Scroll_Buf
+	move.w	#224-1,d2 ; Height of screen
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0		; Store FG X-pos in upper 16-bits...
@@ -16894,12 +16894,12 @@ SetVertiScrollFlagsBG2:
 	eori.b	#$10,(Verti_block_crossed_flag_BG).w
 	sub.l	d3,d0
 	bpl.s	+
-	; Background has moved up
+	; Background has moved down
 	bset	d6,(Scroll_flags_BG).w
 	rts
 ; ===========================================================================
 +
-	; Background has moved down
+	; Background has moved up
 	addq.b	#1,d6
 	bset	d6,(Scroll_flags_BG).w
 +
@@ -16918,20 +16918,22 @@ SetHorizScrollFlagsBG_ARZ:	; only used by ARZ
 	move.w	(a1),d2
 	move.w	(Camera_ARZ_BG_X_pos).w,d0
 	sub.w	d2,d0
-	bcs.s	+
-	bhi.s	++
+	blo.s	+	; Background has moved to the right
+	bhi.s	++	; Background has moved to the left
 	rts
 ; ===========================================================================
 +
-	cmpi.w	#-$10,d0
+	; Limit the background's scrolling speed (my guess is that
+	; the game can't load more than one column of blocks per frame)
+	cmpi.w	#-16,d0
 	bgt.s	++
-	move.w	#-$10,d0
+	move.w	#-16,d0
 	bra.s	++
 ; ===========================================================================
 +
-	cmpi.w	#$10,d0
+	cmpi.w	#16,d0
 	blo.s	+
-	move.w	#$10,d0
+	move.w	#16,d0
 +
 	add.w	(a1),d0
 	move.w	d0,(a1)
