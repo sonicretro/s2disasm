@@ -9,10 +9,10 @@
 		NIFTY-Serve	PAF01022
 		CompuServe	74050,1022
 ***************************************************************
-	Modified by Clownacy on 2020/04/11 to support the
-	'zero-fill' mode unique to Sonic the Hedgehog 2's
-	'Saxman' format. Also modified to integrate with
-	s2disasm's 's2p2bin' tool. 
+	Modified by Clownacy on 2020/10/07 to support the
+	slightly-customised "Saxman" LZSS variant used by
+	'Sonic the Hedgehog 2'. Also modified to integrate
+	with the 's2p2bin' tool.
 **************************************************************/
 #include "LZSS.h"
 
@@ -55,7 +55,7 @@ static void InitTree(void)  /* initialize trees */
 	for (i = 0; i < N; i++) dad[i] = NIL;
 }
 
-static void InsertNode(int r, size_t source_position)
+static void InsertNode(int r)
 	/* Inserts string of length F, text_buf[r..r+F-1], into one of the
 	   trees (text_buf[r]'th tree) and returns the longest-match position
 	   and length via the global variables match_position and match_length.
@@ -75,15 +75,6 @@ static void InsertNode(int r, size_t source_position)
 		} else {
 			if (lson[p] != NIL) p = lson[p];
 			else {  lson[p] = r;  dad[r] = p;  return;  }
-		}
-		/* Search for runs of 00 bytes - this is a feature unique to Saxman */
-		if (source_position < 0xFFF - THRESHOLD) {
-			for (i = 0; i < F; i++)
-				if ((cmp = key[i] - 0) != 0)  break;
-			if (i > match_length) {
-				match_position = 0xFFF - F - THRESHOLD;
-				if ((match_length = i) >= F)  break;
-			}
 		}
 		for (i = 1; i < F; i++)
 			if ((cmp = key[i] - text_buf[p + i]) != 0)  break;
@@ -142,17 +133,17 @@ void Encode(FILE *infile, FILE *outfile, size_t input_length)
 		(2 bytes).  Thus, eight units require at most 16 bytes of code. */
 	code_buf_ptr = mask = 1;
 	s = 0;  r = N - F;
-	for (i = s; i < r; i++) text_buf[i] = ' ';  /* Clear the buffer with
+	for (i = s; i < r; i++) text_buf[i] = 0;  /* Clear the buffer with
 		any character that will appear often. */
 	for (len = 0; len < F && (c = ReadByte(infile, &input_length)) != EOF; len++)
 		text_buf[r + len] = c;  /* Read F bytes into the last F bytes of
 			the buffer */
 	if ((textsize = len) == 0) return;  /* text of size zero */
-	for (i = 1; i <= F; i++) InsertNode(r - i, ftell(infile));  /* Insert the F strings,
+	for (i = 1; i <= F; i++) InsertNode(r - i);  /* Insert the F strings,
 		each of which begins with one or more 'space' characters.  Note
 		the order in which these strings are inserted.  This way,
 		degenerate trees will be less likely to occur. */
-	InsertNode(r, ftell(infile));  /* Finally, insert the whole string just read.  The
+	InsertNode(r);  /* Finally, insert the whole string just read.  The
 		global variables match_length and match_position are set. */
 	do {
 		if (match_length > len) match_length = len;  /* match_length
@@ -185,7 +176,7 @@ void Encode(FILE *infile, FILE *outfile, size_t input_length)
 			s = (s + 1) & (N - 1);  r = (r + 1) & (N - 1);
 				/* Since this is a ring buffer, increment the position
 				   modulo N. */
-			InsertNode(r, ftell(infile));	/* Register the string in text_buf[r..r+F-1] */
+			InsertNode(r);	/* Register the string in text_buf[r..r+F-1] */
 		}
 		if ((textsize += i) > printcount) {
 			/*printf("%12ld\r", textsize);  printcount += 1024;*/
@@ -195,7 +186,7 @@ void Encode(FILE *infile, FILE *outfile, size_t input_length)
 		while (i++ < last_match_length) {	/* After the end of text, */
 			DeleteNode(s);					/* no need to read, but */
 			s = (s + 1) & (N - 1);  r = (r + 1) & (N - 1);
-			if (--len) InsertNode(r, ftell(infile));		/* buffer may not be empty. */
+			if (--len) InsertNode(r);		/* buffer may not be empty. */
 		}
 	} while (len > 0);	/* until length of string to be processed is zero */
 	if (code_buf_ptr > 1) {		/* Send remaining code. */
@@ -212,7 +203,7 @@ void Decode(FILE *infile, FILE *outfile, size_t input_length)	/* Just the revers
 	int  i, j, k, r, c;
 	unsigned int  flags;
 	
-	for (i = 0; i < N - F; i++) text_buf[i] = ' ';
+	for (i = 0; i < N - F; i++) text_buf[i] = 0;
 	r = N - F;  flags = 0;
 	for ( ; ; ) {
 		if (((flags >>= 1) & 256) == 0) {
