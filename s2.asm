@@ -6055,6 +6055,17 @@ SpecialStage:
 	clearRAM SS_Misc_Variables,SS_Misc_Variables_End+4
 	clearRAM SS_Sprite_Table_Input,SS_Sprite_Table_Input_End
 	clearRAM SS_Object_RAM,SS_Object_RAM_End
+	; However, the '+4' after SS_Misc_Variables_End is very useful. It clears the
+	; VDP_Command_Buffer entries, avoiding graphical glitches in the Special Stage.
+	; In fact, without clearing the VDP_Command_Buffer, Tails sprite DPLCs and other
+	; level DPLCs that are still in the buffer erase the Special Stage graphics the next
+	; time ProcessDMAQueue is called.
+	; This '+4' doesn't seem to be intentional, because of the other useless '+4' above,
+	; and because a '+2' is enough to clear the VDP_Command_Buffer and fix this bug.
+	; This is a fortunate accident!
+	; If you change the SS_Misc_Variables_End address, you can uncomment the line below
+	; to clear the VDP_Command_Buffer intentionally.
+	;clr.w	(VDP_Command_Buffer).w
 
 	move	#$2300,sr
 	lea	(VDP_control_port).l,a6
