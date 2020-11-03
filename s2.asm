@@ -6055,17 +6055,22 @@ SpecialStage:
 	clearRAM SS_Misc_Variables,SS_Misc_Variables_End+4
 	clearRAM SS_Sprite_Table_Input,SS_Sprite_Table_Input_End
 	clearRAM SS_Object_RAM,SS_Object_RAM_End
-	; However, the '+4' after SS_Misc_Variables_End is very useful. It clears the
-	; VDP_Command_Buffer entries, avoiding graphical glitches in the Special Stage.
-	; In fact, without clearing the VDP_Command_Buffer, Tails sprite DPLCs and other
-	; level DPLCs that are still in the buffer erase the Special Stage graphics the next
+
+	; However, the '+4' after SS_Misc_Variables_End is very useful. It resets the
+	; VDP_Command_Buffer queue, avoiding graphical glitches in the Special Stage.
+	; In fact, without reset of the VDP_Command_Buffer queue, Tails sprite DPLCs and other
+	; level DPLCs that are still in the queue erase the Special Stage graphics the next
 	; time ProcessDMAQueue is called.
 	; This '+4' doesn't seem to be intentional, because of the other useless '+4' above,
-	; and because a '+2' is enough to clear the VDP_Command_Buffer and fix this bug.
+	; and because a '+2' is enough to reset the VDP_Command_Buffer queue and fix this bug.
 	; This is a fortunate accident!
-	; If you change the SS_Misc_Variables_End address, you can uncomment the line below
-	; to clear the VDP_Command_Buffer intentionally.
+	; Note that this is not a clean way to reset the VDP_Command_Buffer queue because the
+	; VDP_Command_Buffer_Slot address shall be updated as well. They tried to do that in a
+	; clean way after branching to ClearScreen (see below). But they messed up by doing it
+	; after several WaitForVint calls.
+	; You can uncomment the two lines below to clear the VDP_Command_Buffer queue intentionally.
 	;clr.w	(VDP_Command_Buffer).w
+	;move.l	#VDP_Command_Buffer,(VDP_Command_Buffer_Slot).w
 
 	move	#$2300,sr
 	lea	(VDP_control_port).l,a6
