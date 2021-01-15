@@ -1193,7 +1193,8 @@ Underwater_palette_line4:	ds.b palette_line_size
 
 				ds.b	$500	; $FFFFF100-$FFFFF5FF ; unused, leftover from the Sonic 1 sound driver (and used by it when you port it to Sonic 2)
 
-Game_Mode:			ds.w	1	; 1 byte ; see GameModesArray (master level trigger, Mstr_Lvl_Trigger)
+Game_Mode:			ds.b	1	; see GameModesArray (master level trigger, Mstr_Lvl_Trigger)
+				ds.b	1	; unused
 Ctrl_1_Logical:					; 2 bytes
 Ctrl_1_Held_Logical:		ds.b	1	; 1 byte
 Ctrl_1_Press_Logical:		ds.b	1	; 1 byte
