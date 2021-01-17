@@ -1669,7 +1669,7 @@ NemDecRun:
 	subq.w	#8,d7
 	move.w	d5,d1
 	lsr.w	d7,d1
-	cmpi.b	#-4,d1
+	cmpi.b	#$FC,d1
 	bhs.s	loc_1574
 	andi.w	#$FF,d1
 	add.w	d1,d1
