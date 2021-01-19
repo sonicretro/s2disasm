@@ -49235,6 +49235,9 @@ loc_2645E:
 	btst	#0,status(a0)
 	beq.s	loc_2647A
 	not.w	d0
+	; BUG: this should be 2*$1C instead of $27. As is, this makes it
+	; impossible to get as high of a launch from flipped pressure springs
+	; as you can for unflipped ones.
 	addi.w	#$27,d0
 
 loc_2647A:
