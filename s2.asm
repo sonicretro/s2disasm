@@ -58868,7 +58868,7 @@ Obj5D_Index:	offsetTable
 		offsetTableEntry.w Obj5D_FallingParts	; $14
 		offsetTableEntry.w Obj5D_Robotnik	; $16
 		offsetTableEntry.w Obj5D_Flame		; $18
-		offsetTableEntry.w Obj5D_1A		; $1A
+		offsetTableEntry.w Obj5D_Smoke_Puff	; $1A
 ; ===========================================================================
 ; loc_2D75E:
 Obj5D_Init:
@@ -59572,6 +59572,8 @@ loc_2DFD8:
 ; ===========================================================================
 
 Obj5D_Pipe_Retract_ChkID:
+	; BUG: d7 should not be used here. This causes RunObjects routine to either
+	; run too few objects or too many objects, causing all sorts of errors.
 	moveq	#0,d7
 	move.b	#ObjID_CPZBoss,d7
 	cmp.b	id(a1),d7	; is object a subtype of the CPZ Boss?
@@ -60325,8 +60327,10 @@ loc_2E9A8:
 	rts
 ; ===========================================================================
 +
+	; BUG: this should be 'routine' instead of 'routine_secondary'.
 	addq.b	#2,routine_secondary(a0)
 	move.l	#Obj5D_MapUnc_2EEA0,mappings(a0)
+	; BUG: this should be make_art_tile(ArtTile_ArtNem_BossSmoke_1,1,0) instead.
 	move.w	#make_art_tile(ArtTile_ArtNem_EggpodJets_1,0,0),art_tile(a0)
 	jsrto	(Adjust2PArtPointer).l, JmpTo60_Adjust2PArtPointer
 	move.b	#0,mapping_frame(a0)
@@ -60338,8 +60342,8 @@ loc_2E9A8:
 	subi.w	#$28,x_pos(a0)
 	rts
 ; ===========================================================================
-
-Obj5D_1A:
+; Obj5D_1A:
+Obj5D_Smoke_Puff:
 	subq.b	#1,anim_frame_duration(a0)
 	bpl.s	BranchTo2_JmpTo34_DisplaySprite
 	move.b	#5,anim_frame_duration(a0)
