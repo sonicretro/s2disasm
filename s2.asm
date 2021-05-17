@@ -89626,9 +89626,6 @@ MusCreditsE246:	dc.b $80,$0C
 		dc.b $C8,$0C
 		dc.b $C9,$08
 		dc.b $C8,$04,$80,$18,$80,$0C
-
-    if 1==1
-		; this part of the original credits music (CNZ PSG) sounds buggy (dissonant)
 		dc.b $C6,$04,$80,$10
 		dc.b $C6,$04,$80,$0C
 		dc.b $C6,$0C
@@ -89638,27 +89635,6 @@ MusCreditsE246:	dc.b $80,$0C
 		dc.b $C5,$04,$80,$0C
 		dc.b $C5,$0C
 		dc.b $C7,$08
-    else
-		; replace the above block of notes with this to fix it.
-		; (I'm not sure why, but the notes $C6 and $C7 are broken here,
-		;  so I've replaced them with pitch-shifted $C8s)
-		dc.b	$E1,-64
-		dc.b $C8,$04,$80,$10 ; $C6
-		dc.b $C8,$04,$80,$0C ; $C6
-		dc.b $C8,$0C ; $C6
-		dc.b	$E1,0
-		dc.b $C8,$08
-		dc.b	$E1,-64
-		dc.b $C8,$04,$80,$24 ; $C6
-		dc.b	$E1,0
-		dc.b $C5,$04,$80,$10
-		dc.b $C5,$04,$80,$0C
-		dc.b $C5,$0C
-		dc.b	$E1,-32
-		dc.b $C8,$08 ; $C7
-		dc.b	$E1,0
-    endif
-
 		dc.b $C5,$04,$80,$18
 		dc.b $E3
 MusCreditsE28F:	dc.b $EF,$25,$80,$0C,$D0,$D4,$D7,$DB,$0C,$80,$06,$DB
@@ -89850,14 +89826,30 @@ MusCred_PSG2:	dc.b $80,$30
 -		dc.b $80,$30
 		dc.b $F7,$00,$0A
 		dc.w z80_ptr(-)
-		dc.b $80,$60,$F5,$00,$E9,$F4,$EC,$FF,$E9,$E8,$80,$60
+		dc.b $80,$60,$F5,$00
+    if 1==1
+		; This is wrong: it should convert from EHZ 2P's PSG2 transpose ($D0)
+		; to CNZ's PSG2 transpose ($DC), but instead of adding $C, it subtracts
+		; $C, causing the note to be too low and underflow the sound driver's
+		; frequency table, producing invalid notes.
+		dc.b $E9,$F4
+    else
+		dc.b $E9,$0C
+    endif
+		dc.b $EC,$FF,$E9,$E8,$80,$60
 		dc.b $F8
 		dc.w z80_ptr(MusCreditsE246)
 		dc.b $E9,$18,$EC,$02,$B1,$30,$B0,$18,$B1,$0C,$B0,$AE
 		dc.b $30,$B1,$EC,$FE,$80,$0C,$B5,$80,$B5,$80,$B6,$80
 		dc.b $B6,$EC,$03,$80,$B1,$80,$B1,$80,$B1,$80,$B1,$EC
 		dc.b $FC,$80,$B1,$80,$B1,$80,$B1,$18,$08,$B1,$04,$EC
-		dc.b $01,$E9,$18,$F5,$05,$E1,$01,$80,$60,$80,$80,$80
+		dc.b $01
+    if 1==1
+		; If the above bug is fixed, then this line needs removing (the track
+		; will already be $18 keys higher).
+		dc.b $E9,$18
+    endif
+		dc.b $F5,$05,$E1,$01,$80,$60,$80,$80,$80
 		dc.b $80,$80,$80,$0C,$CD,$06,$80,$D4,$CD,$80,$0C,$CD
 		dc.b $06,$80,$D4,$CD,$80,$18,$80,$54,$E9,$24,$EC,$FD
 MusCreditsE770:	dc.b $F5,$03,$80,$06
