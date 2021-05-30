@@ -266,3 +266,8 @@ jmpto macro directaddr, indirectaddr
 		!bra.w indirectaddr	; otherwise, branch to an indirect JmpTo
 	endif
     endm
+
+bit function nBits,1<<(nBits-1)
+signmask function val,nBits,-((-(val&bit(nBits)))&bit(nBits))
+signextend function val,nBits,(val+signmask(val,nBits))!signmask(val,nBits)
+signextendB function val,signextend(val,8)
