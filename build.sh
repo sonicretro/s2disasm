@@ -50,7 +50,7 @@ done
 
 echo Assembling...
 
-asl -xx -c $debug_syms $print_err -A -U -L $revision_override s2.asm
+asl -xx -c $debug_syms $print_err -A -U -L $revision_override -i . s2.asm
 
 if [[ ! -f s2.p ]]; then
 	echo
