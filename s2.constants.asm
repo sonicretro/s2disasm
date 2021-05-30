@@ -1664,7 +1664,7 @@ RAM_End
     if * > 0	; Don't declare more space than the RAM can contain!
 	fatal "The RAM variable declarations are too large by $\{*} bytes."
     endif
-
+	dephase
 
 ; RAM variables - SEGA screen
 	phase	Object_RAM	; Move back to the object RAM
@@ -1678,7 +1678,7 @@ SegaHideTM:				; Object that hides TM symbol on JP region
 
 				ds.b	($80-3)*object_size
 SegaScr_Object_RAM_End:
-
+	dephase
 
 ; RAM variables - Title screen
 	phase	Object_RAM	; Move back to the object RAM
@@ -1714,7 +1714,7 @@ IntroSmallStar2:
 
 				ds.b	($70-2)*object_size
 TtlScr_Object_RAM_End:
-
+	dephase
 
 ; RAM variables - Special stage
 	phase	RAM_Start	; Move back to start of RAM
@@ -1727,10 +1727,12 @@ SSRAM_MiscNem_SpecialLevelLayout:
 				ds.b	$9C	; padding
 SSRAM_MiscKoz_SpecialObjectLocations:
 				ds.b	$1AE0
+	dephase
 
 	phase	Sprite_Table_Input
 SS_Sprite_Table_Input:		ds.b	$400	; in custom format before being converted and stored in Sprite_Table
 SS_Sprite_Table_Input_End:
+	dephase
 
 	phase	Object_RAM	; Move back to the object RAM
 SS_Object_RAM:
@@ -1831,21 +1833,24 @@ SS_HideRingsToGo:	ds.b	1
 SS_TriggerRingsToGo:	ds.b	1
 			ds.b	$58	; unused
 SS_Misc_Variables_End:
+	dephase
 
 	phase	ramaddr(Horiz_Scroll_Buf)	; Still in SS RAM
 SS_Horiz_Scroll_Buf_1:		ds.b	$400
 SS_Horiz_Scroll_Buf_1_End:
+	dephase
 
 	phase	ramaddr($FFFFF73E)	; Still in SS RAM
 SS_Offset_X:			ds.w	1
 SS_Offset_Y:			ds.w	1
 SS_Swap_Positions_Flag:	ds.b	1
+	dephase
 
 	phase	ramaddr(Sprite_Table)	; Still in SS RAM
 SS_Sprite_Table:			ds.b	$280	; Sprite attribute table buffer
 SS_Sprite_Table_End:
 				ds.b	$80	; unused, but SAT buffer can spill over into this area when there are too many sprites on-screen
-
+	dephase
 
 ; RAM variables - Continue screen
 	phase	Object_RAM	; Move back to the object RAM
@@ -1860,7 +1865,7 @@ ContinueIcons:			; The icons in the Continue screen
 				; Free slots
 				ds.b	$70*object_size
 ContScr_Object_RAM_End:
-
+	dephase
 
 ; RAM variables - 2P VS results screen
 	phase	Object_RAM	; Move back to the object RAM
@@ -1871,14 +1876,14 @@ VSResults_HUD:			; Blinking text at the bottom of the screen
 				; Free slots
 				ds.b	$7F*object_size
 VSRslts_Object_RAM_End:
-
+	dephase
 
 ; RAM variables - Menu screens
 	phase	Object_RAM	; Move back to the object RAM
 Menus_Object_RAM:		; No objects are loaded in the menu screens
 				ds.b	$80*object_size
 Menus_Object_RAM_End:
-
+	dephase
 
 ; RAM variables - Ending sequence
 	phase	Object_RAM
