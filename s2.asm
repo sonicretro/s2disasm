@@ -4193,17 +4193,13 @@ ArtNem_Player1VS2:	BINCLUDE	"art/nemesis/1Player2VS.bin"
 
 ; word_3E82:
 CopyrightText:
-	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + '@',0,0)	; (C)
-	dc.w  make_art_tile(ArtTile_VRAM_Start,0,0)	;
-	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + '1',0,0)	; 1
-	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + '9',0,0)	; 9
-	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + '9',0,0)	; 9
-	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + '2',0,0)	; 2
-	dc.w  make_art_tile(ArtTile_VRAM_Start,0,0)	;
-	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + 'S',0,0)	; S
-	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + 'E',0,0)	; E
-	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + 'G',0,0)	; G
-	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + 'A',0,0)	; A
+  irpc chr,"@ 1992 SEGA"
+    if "chr"<>" "
+	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + 'chr',0,0)
+    else
+	dc.w  make_art_tile(ArtTile_VRAM_Start,0,0)
+    endif
+  endm
 CopyrightText_End:
 
     charset ; Revert character set
@@ -5613,10 +5609,8 @@ SignpostUpdateTailsBounds:
 ; macro to simplify editing the demo scripts
 demoinput macro buttons,duration
 btns_mask := 0
-idx := 0
-  rept strlen("buttons")
-btn := substr("buttons",idx,1)
-    switch btn
+  irpc btn,"buttons"
+    switch "btn"
     case "U"
 btns_mask := btns_mask|button_up_mask
     case "D"
@@ -5633,8 +5627,8 @@ btns_mask := btns_mask|button_B_mask
 btns_mask := btns_mask|button_C_mask
     case "S"
 btns_mask := btns_mask|button_start_mask
+    elsecase
     endcase
-idx := idx+1
   endm
 	dc.b	btns_mask,duration-1
  endm
@@ -8882,7 +8876,7 @@ loc_6F4C:
 ; ===========================================================================
 ; Special stage vertical scroll index for 'straight' animation -- bobbing up and down
 +
-   rept 4
+    rept 4
 	dc.b   6
 	dc.b   6
 	dc.b $14
@@ -9703,19 +9697,16 @@ llookup	:= "ABCDEFGHIJKLMNOPQRSTUVWXYZ ."
 titleLetters macro letters
      ;  ". ZYXWVUTSRQPONMLKJIHGFEDCBA"
 used := %0110000000000110000000010000	; set to initial state
-c := 0
-    rept strlen(letters)
-t := substr(letters,c,1)
-	if ~~(used&1<<strstr(llookup,t))	; has the letter been used already?
-used := used|1<<strstr(llookup,t)	; if not, mark it as used
-	dc.b t			; output letter code
-	if t=="."
+    irpc char,letters
+	if ~~(used&1<<strstr(llookup,"char"))	; has the letter been used already?
+used := used|1<<strstr(llookup,"char")	; if not, mark it as used
+	dc.b "char"			; output letter code
+	if "char"=="."
 	dc.b 2			; output character size
 	else
-	dc.b lowstring(t)	; output letter size
+	dc.b lowstring("char")	; output letter size
 	endif
 	endif
-c := c+1
     endm
 	dc.w $FFFF	; output string terminator
     endm
@@ -13875,23 +13866,23 @@ creditText macro pal,ss
 	if ((vram_src & $FF) <> $0) && ((vram_src & $FF) <> $1)
 		fatal "The low byte of vram_src was $\{vram_src & $FF}, but it must be $00 or $01."
 	endif
-c := 0
 	dc.b (make_art_tile(vram_src,pal,0) & $FF00) >> 8
-	rept strlen(ss)
-t := substr(ss,c,1)
-	dc.b t
-l := lowstring(t)
-	if t="I"
-	elseif l<>t
-		dc.b l
-	elseif t="1"
+	irpc char,ss
+	dc.b "char"
+	switch "char"
+	case "I"
+	case "1"
 		dc.b "!"
-	elseif t="2"
+	case "2"
 		dc.b "$"
-	elseif t="9"
+	case "9"
 		dc.b "#"
-	endif
-c := c+1
+	elsecase
+l := lowstring("char")
+		if l<>"char"
+			dc.b l
+		endif
+	endcase
 	endm
 	dc.b -1
 	rev02even
