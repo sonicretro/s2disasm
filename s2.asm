@@ -4195,7 +4195,7 @@ ArtNem_Player1VS2:	BINCLUDE	"art/nemesis/1Player2VS.bin"
 CopyrightText:
   irpc chr,"@ 1992 SEGA"
     if "chr"<>" "
-	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + 'chr',0,0)
+	dc.w  make_art_tile(ArtTile_ArtNem_FontStuff_TtlScr + 'chr'|0,0,0)
     else
 	dc.w  make_art_tile(ArtTile_VRAM_Start,0,0)
     endif
