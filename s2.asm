@@ -40482,7 +40482,7 @@ loc_1EAE0:
 
 ; ---------------------------------------------------------------------------
 ; The subroutine converts a raw bitmap-like collision block data and
-; converts them into width/height arrays. Pointers to said raw data
+; converts them into the proper collision arrays. Pointers to said raw data
 ; are dummied out.
 ; This subroutine exists in Sonic 1 as well, but was oddly changed in
 ; the S2 Nick Arcade prototype to just handle loading GHZ's collision
