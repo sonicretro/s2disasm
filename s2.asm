@@ -40481,14 +40481,16 @@ loc_1EAE0:
 ; End of function FindWall2
 
 ; ---------------------------------------------------------------------------
-; The subroutine appears to convert the collision array from an unknown
-; 'raw' format to its current format, and write it to ROM, overwritting
-; the original. This doesn't work on standard read-only cartridges, and
-; would instead require a special dev cartridge.
+; The subroutine converts a raw bitmap-like collision block data and
+; converts them into width/height arrays. Pointers to said raw data
+; are dummied out.
 ; This subroutine exists in Sonic 1 as well, but was oddly changed in
 ; the S2 Nick Arcade prototype to just handle loading GHZ's collision
 ; instead (though it too is dummied out, hence collision being broken).
 ; ---------------------------------------------------------------------------
+
+RawColBlocks		= ColArray
+ConvRowColBlocks	= ColArray
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -40496,10 +40498,12 @@ loc_1EAE0:
 ConvertCollisionArray:
 	rts
 ; ---------------------------------------------------------------------------
-	lea	(ColArray).l,a1	; Source location of 'raw' collision array
-	lea	(ColArray).l,a2	; Destinatation of converted collision array (overwrites the original)
+	; The raw format is stores the collision data column by column, for the normal collision array.
+	; This makes a copy of the data, but stored row by row, for the rotated collision array.
+	lea	(RawColBlocks).l,a1	; Source location of raw collision block data
+	lea	(ConvRowColBlocks).l,a2	; Destinatation location for row-converted collision block data
 
-	move.w	#$100-1,d3	; Number of blocks in collision array
+	move.w	#$100-1,d3	; Number of blocks in collision data
 .blockLoop:
 	moveq	#16,d5		; Start on the 16th bit (the leftmost pixel)
 
@@ -40507,9 +40511,6 @@ ConvertCollisionArray:
 .columnLoop:
 	moveq	#0,d4
 
-	; It seems the 'raw' format stored the collision of each pixel in rows.
-	; This block of code changes it from rows to columns, so each word contains
-	; a bit for each pixel in a column.
 	move.w	#16-1,d1	; Height of a block in pixels
 .rowLoop:
 	move.w	(a1)+,d0	; Get row of collision bits
@@ -40523,13 +40524,14 @@ ConvertCollisionArray:
 	dbf	d2,.columnLoop	; Loop for each column of pixels in a block
 
 	adda.w	#2*16,a1	; Next block
-	dbf	d3,.blockLoop	; Loop for each block in the collision array
+	dbf	d3,.blockLoop	; Loop for each block in the raw collision block data
 
-	lea	(ColArray).l,a1
-	lea	(ColArray2).l,a2	; Write converted collision array to location of rotated collison array
+	; This then converts the collision data into the final collision arrays
+	lea	(ConvRowColBlocks).l,a1
+	lea	(ColArray2).l,a2	; Convert the row-converted collision block data into final rotated collision array
 	bsr.s	.convertArrayToStandardFormat
-	lea	(ColArray).l,a1
-	lea	(ColArray).l,a2		; Write converted collision array to location of normal collison array
+	lea	(RawColBlocks).l,a1
+	lea	(ColArray).l,a2		; Convert the raw collision block data into final normal collision array
 
 ; loc_1EB46: FloorLog_Unk2:
 .convertArrayToStandardFormat:
@@ -40577,7 +40579,7 @@ ConvertCollisionArray:
 
 ; loc_1EB7A:
 .columnProcessed:
-	move.b	d2,(a2)+	; Store column collision height to ROM
+	move.b	d2,(a2)+	; Store column collision height
 	dbf	d3,.processCollisionArrayLoop
 
 	rts
