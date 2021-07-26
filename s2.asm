@@ -40481,9 +40481,12 @@ loc_1EAE0:
 ; End of function FindWall2
 
 ; ---------------------------------------------------------------------------
-; The subroutine converts a raw bitmap-like collision block data and
-; converts them into the proper collision arrays. Pointers to said raw data
-; are dummied out.
+; This subroutine takes 'raw' bitmap-like collision block data as input and
+; converts it into the proper collision arrays (ColArray and ColArray2).
+; Pointers to said raw data are dummied out.
+; Curiously, an example of the original 'raw' data that this was intended
+; to process can be found in the J2ME version of Sonic 1, in a file called
+; 'blkcol.bct'.
 ; This subroutine exists in Sonic 1 as well, but was oddly changed in
 ; the S2 Nick Arcade prototype to just handle loading GHZ's collision
 ; instead (though it too is dummied out, hence collision being broken).
@@ -40498,7 +40501,7 @@ ConvRowColBlocks	= ColArray
 ConvertCollisionArray:
 	rts
 ; ---------------------------------------------------------------------------
-	; The raw format is stores the collision data column by column, for the normal collision array.
+	; The raw format stores the collision data column by column for the normal collision array.
 	; This makes a copy of the data, but stored row by row, for the rotated collision array.
 	lea	(RawColBlocks).l,a1	; Source location of raw collision block data
 	lea	(ConvRowColBlocks).l,a2	; Destinatation location for row-converted collision block data
