@@ -180,7 +180,7 @@ bool buildRom(FILE* from, FILE* to)
 			{
 				unsigned char *uncompressed_buffer = malloc(length);
 				fread(uncompressed_buffer, length, 1, from);
-				unsigned char *compressed_buffer = SaxmanCompress(uncompressed_buffer, length, &compressedLength, false);
+				unsigned char *compressed_buffer = ClownLZSS_SaxmanCompress(uncompressed_buffer, length, &compressedLength, false);
 				free(uncompressed_buffer);
 				fwrite(compressed_buffer, compressedLength, 1, to);
 				free(compressed_buffer);
