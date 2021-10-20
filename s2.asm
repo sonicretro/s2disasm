@@ -1062,7 +1062,7 @@ H_Int:
 	move.l	a5,-(sp)
 	move.l	d0,-(sp)
 
--	move.w	(VDP_control_port).l,d0	; loop start: Make sure V_BLANK is over
+-	move.w	(VDP_control_port).l,d0	; loop start: Wait until we're in the H-blank region
 	andi.w	#4,d0
 	beq.s	-	; loop end
 
