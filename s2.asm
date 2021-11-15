@@ -636,7 +636,7 @@ Vint_Level:
 	tst.b	(Teleport_timer).w
 	beq.s	loc_6F8
 	lea	(VDP_control_port).l,a5
-	tst.w	(Game_paused).w	; is the game paused ?
+	tst.w	(Game_paused).w	; is the game paused?
 	bne.w	loc_748	; if yes, branch
 	subq.b	#1,(Teleport_timer).w
 	bne.s	+
@@ -1387,9 +1387,10 @@ PlaySoundStereo:
 ; sub_137C:
 PlaySoundLocal:
 	tst.b	render_flags(a0)
-	bpl.s	+	; rts
+	bpl.s	.return
 	move.b	d0,(SFX_to_play).w
-+
+
+.return:
 	rts
 ; End of function PlaySoundLocal
 
@@ -1919,9 +1920,9 @@ ClearPLC:
 ; sub_168A:
 RunPLC_RAM:
 	tst.l	(Plc_Buffer).w
-	beq.s	++	; rts
+	beq.s	.return
 	tst.w	(Plc_Buffer_Reg18).w
-	bne.s	++	; rts
+	bne.s	.return
 	movea.l	(Plc_Buffer).w,a0
 	lea_	NemDec_WriteAndStay,a3
 	nop
@@ -1945,7 +1946,8 @@ RunPLC_RAM:
 	move.l	d0,(Plc_Buffer_RegC).w
 	move.l	d5,(Plc_Buffer_Reg10).w
 	move.l	d6,(Plc_Buffer_Reg14).w
-+
+
+.return:
 	rts
 ; End of function RunPLC_RAM
 
@@ -2092,10 +2094,11 @@ EniDec_Loop:
 	andi.w	#$7F,d1		; keep only lower 7 bits
 	move.w	d1,d2
 	cmpi.w	#$40,d1		; is bit 6 set?
-	bhs.s	+		; if it is, branch
+	bhs.s	.sevenbitentry	; if it is, branch
 	moveq	#6,d0		; if not, process 6 bits instead of 7
 	lsr.w	#1,d2		; bitfield now becomes TTSSSS instead of TTTSSSS
-+
+
+.sevenbitentry:
 	bsr.w	EniDec_ChkGetNextByte
 	andi.w	#$F,d2	; keep only lower nybble
 	lsr.w	#4,d1	; store upper nybble (max value = 7)
@@ -2121,8 +2124,9 @@ EniDec_Sub4:
 EniDec_Sub8:
 	bsr.w	EniDec_GetInlineCopyVal
 
--	move.w	d1,(a1)+
-	dbf	d2,-
+.loop:
+	move.w	d1,(a1)+
+	dbf	d2,.loop
 
 	bra.s	EniDec_Loop
 ; ===========================================================================
@@ -2130,9 +2134,10 @@ EniDec_Sub8:
 EniDec_SubA:
 	bsr.w	EniDec_GetInlineCopyVal
 
--	move.w	d1,(a1)+
+.loop:
+	move.w	d1,(a1)+
 	addq.w	#1,d1
-	dbf	d2,-
+	dbf	d2,.loop
 
 	bra.s	EniDec_Loop
 ; ===========================================================================
@@ -2140,9 +2145,10 @@ EniDec_SubA:
 EniDec_SubC:
 	bsr.w	EniDec_GetInlineCopyVal
 
--	move.w	d1,(a1)+
+.loop:
+	move.w	d1,(a1)+
 	subq.w	#1,d1
-	dbf	d2,-
+	dbf	d2,.loop
 
 	bra.s	EniDec_Loop
 ; ===========================================================================
@@ -2151,9 +2157,10 @@ EniDec_SubE:
 	cmpi.w	#$F,d2
 	beq.s	EniDec_End
 
--	bsr.w	EniDec_GetInlineCopyVal
+.loop:
+	bsr.w	EniDec_GetInlineCopyVal
 	move.w	d1,(a1)+
-	dbf	d2,-
+	dbf	d2,.loop
 
 	bra.s	EniDec_Loop
 ; ===========================================================================
@@ -2172,14 +2179,16 @@ EniDec_JmpTable:
 EniDec_End:
 	subq.w	#1,a0
 	cmpi.w	#16,d6		; were we going to start on a completely new byte?
-	bne.s	+		; if not, branch
+	bne.s	.notnewbyte	; if not, branch
 	subq.w	#1,a0
-+
+
+.notnewbyte:
 	move.w	a0,d0
 	lsr.w	#1,d0		; are we on an odd byte?
-	bcc.s	+		; if not, branch
+	bcc.s	.evenbyte	; if not, branch
 	addq.w	#1,a0		; ensure we're on an even byte
-+
+
+.evenbyte:
 	movem.l	(sp)+,d0-d7/a1-a5
 	rts
 
@@ -2188,46 +2197,51 @@ EniDec_End:
 
 EniDec_GetInlineCopyVal:
 	move.w	a3,d3		; store starting art tile
-	move.b	d4,d1
+	move.b	d4,d1		; store PCCVH bitfield
 	add.b	d1,d1
-	bcc.s	+		; if d4 was < $80
+	bcc.s	.skippriority	; if d4 was < $80
 	subq.w	#1,d6		; get next bit number
 	btst	d6,d5		; is the bit set?
-	beq.s	+		; if not, branch
+	beq.s	.skippriority	; if not, branch
 	ori.w	#high_priority,d3	; set high priority bit
-+
+
+.skippriority:
 	add.b	d1,d1
-	bcc.s	+		; if d4 was < $40
+	bcc.s	.skiphighpal	; if d4 was < $40
 	subq.w	#1,d6		; get next bit number
 	btst	d6,d5
-	beq.s	+
+	beq.s	.skiphighpal
 	addi.w	#palette_line_2,d3	; set second palette line bit
-+
+
+.skiphighpal:
 	add.b	d1,d1
-	bcc.s	+		; if d4 was < $20
+	bcc.s	.skiplowpal	; if d4 was < $20
 	subq.w	#1,d6		; get next bit number
 	btst	d6,d5
-	beq.s	+
+	beq.s	.skiplowpal
 	addi.w	#palette_line_1,d3	; set first palette line bit
-+
+
+.skiplowpal:
 	add.b	d1,d1
-	bcc.s	+		; if d4 was < $10
+	bcc.s	.skipyflip	; if d4 was < $10
 	subq.w	#1,d6		; get next bit number
 	btst	d6,d5
-	beq.s	+
+	beq.s	.skipyflip
 	ori.w	#flip_y,d3	; set Y-flip bit
-+
+
+.skipyflip:
 	add.b	d1,d1
-	bcc.s	+		; if d4 was < 8
+	bcc.s	.skipxflip	; if d4 was < 8
 	subq.w	#1,d6
 	btst	d6,d5
-	beq.s	+
+	beq.s	.skipxflip
 	ori.w	#flip_x,d3	; set X-flip bit
-+
+
+.skipxflip:
 	move.w	d5,d1
 	move.w	d6,d7		; get remaining bits
 	sub.w	a5,d7		; subtract minimum bit number
-	bcc.s	+		; if we're beyond that, branch
+	bcc.s	.enoughbits	; if we're beyond that, branch
 	move.w	d7,d6
 	addi.w	#16,d6		; 16 bits = 2 bytes
 	neg.w	d7		; calculate bit deficit
@@ -2237,7 +2251,8 @@ EniDec_GetInlineCopyVal:
 	add.w	d7,d7
 	and.w	EniDec_AndVals-2(pc,d7.w),d5	; only keep X lower bits
 	add.w	d5,d1		; compensate for the bit deficit
--
+
+.maskvalue:
 	move.w	a5,d0
 	add.w	d0,d0
 	and.w	EniDec_AndVals-2(pc,d0.w),d1	; only keep as many bits as required
@@ -2247,8 +2262,8 @@ EniDec_GetInlineCopyVal:
 	move.b	(a0)+,d5	; store next byte in lower register byte
 	rts
 ; ===========================================================================
-+
-	beq.s	+		; if the exact number of bits are leftover, branch
+.enoughbits:
+	beq.s	.justenough	; if the exact number of bits are leftover, branch
 	lsr.w	d7,d1		; remove unneeded bits
 	move.w	a5,d0
 	add.w	d0,d0
@@ -2257,9 +2272,9 @@ EniDec_GetInlineCopyVal:
 	move.w	a5,d0		; store number of bits used up by inline copy
 	bra.s	EniDec_ChkGetNextByte	; move onto next byte
 ; ===========================================================================
-+
+.justenough:
 	moveq	#16,d6	; 16 bits = 2 bytes
-	bra.s	-
+	bra.s	.maskvalue
 ; End of function EniDec_GetInlineCopyVal
 
 ; ===========================================================================
@@ -2274,11 +2289,12 @@ EniDec_AndVals:
 EniDec_ChkGetNextByte:
 	sub.w	d0,d6
 	cmpi.w	#9,d6
-	bhs.s	+	; rts
+	bhs.s	.return
 	addq.w	#8,d6	; 8 bits = 1 byte
 	asl.w	#8,d5	; shift up by a byte
 	move.b	(a0)+,d5	; store next byte in lower register byte
-+
+
+.return:
 	rts
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -2292,7 +2308,7 @@ EniDec_ChkGetNextByte:
 ; a0 = source address
 ; a1 = destination address
 
-; For format explanation see http://info.sonicretro.org/Kosinski_compression
+; For format explanation, see http://info.sonicretro.org/Kosinski_compression
 ; ---------------------------------------------------------------------------
 ; KozDec_193A:
 KosDec:
@@ -2302,54 +2318,58 @@ KosDec:
 	move.w	(sp),d5
 	moveq	#$F,d4
 
--
+Kos_Loop:
 	lsr.w	#1,d5
 	move	sr,d6
-	dbf	d4,+
+	dbf	d4,.chkbit
 	move.b	(a0)+,1(sp)
 	move.b	(a0)+,(sp)
 	move.w	(sp),d5
 	moveq	#$F,d4
-+
+
+.chkbit:
 	move	d6,ccr
-	bcc.s	+
+	bcc.s	Kos_RLE
 	move.b	(a0)+,(a1)+
-	bra.s	-
+	bra.s	Kos_Loop
 ; ---------------------------------------------------------------------------
-+
+Kos_RLE:
 	moveq	#0,d3
 	lsr.w	#1,d5
 	move	sr,d6
-	dbf	d4,+
+	dbf	d4,.chkbit
 	move.b	(a0)+,1(sp)
 	move.b	(a0)+,(sp)
 	move.w	(sp),d5
 	moveq	#$F,d4
-+
+
+.chkbit:
 	move	d6,ccr
-	bcs.s	+++
+	bcs.s	Kos_SeparateRLE
 	lsr.w	#1,d5
-	dbf	d4,+
+	dbf	d4,.loop1
 	move.b	(a0)+,1(sp)
 	move.b	(a0)+,(sp)
 	move.w	(sp),d5
 	moveq	#$F,d4
-+
+
+.loop1:
 	roxl.w	#1,d3
 	lsr.w	#1,d5
-	dbf	d4,+
+	dbf	d4,.loop2
 	move.b	(a0)+,1(sp)
 	move.b	(a0)+,(sp)
 	move.w	(sp),d5
 	moveq	#$F,d4
-+
+
+.loop2:
 	roxl.w	#1,d3
 	addq.w	#1,d3
 	moveq	#-1,d2
 	move.b	(a0)+,d2
-	bra.s	++
+	bra.s	Kos_RLELoop
 ; ---------------------------------------------------------------------------
-+
+Kos_SeparateRLE:
 	move.b	(a0)+,d0
 	move.b	(a0)+,d1
 	moveq	#-1,d2
@@ -2357,24 +2377,25 @@ KosDec:
 	lsl.w	#5,d2
 	move.b	d0,d2
 	andi.w	#7,d1
-	beq.s	++
+	beq.s	Kos_SeparateRLE2
 	move.b	d1,d3
 	addq.w	#1,d3
-/
+
+Kos_RLELoop:
 	move.b	(a1,d2.w),d0
 	move.b	d0,(a1)+
-	dbf	d3,-
-	bra.s	--
+	dbf	d3,Kos_RLELoop
+	bra.s	Kos_Loop
 ; ---------------------------------------------------------------------------
-+
+Kos_SeparateRLE2:
 	move.b	(a0)+,d1
-	beq.s	+
+	beq.s	Kos_Done
 	cmpi.b	#1,d1
-	beq.w	--
+	beq.w	Kos_Loop
 	move.b	d1,d3
-	bra.s	-
+	bra.s	Kos_RLELoop
 ; ---------------------------------------------------------------------------
-+
+Kos_Done:
 	addq.l	#2,sp
 	rts
 ; End of function KosDec
@@ -2434,7 +2455,7 @@ PalCycle_Null:
 PalCycle_EHZ:
 	lea	(CyclingPal_EHZ_ARZ_Water).l,a0
 	subq.w	#1,(PalCycle_Timer).w
-	bpl.s	+	; rts
+	bpl.s	.return
 	move.w	#7,(PalCycle_Timer).w
 	move.w	(PalCycle_Frame).w,d0
 	addq.w	#1,(PalCycle_Frame).w
@@ -2442,13 +2463,15 @@ PalCycle_EHZ:
 	lsl.w	#3,d0
 	move.l	(a0,d0.w),(Normal_palette_line2+6).w
 	move.l	4(a0,d0.w),(Normal_palette_line2+$1C).w
-+	rts
+
+.return:
+	rts
 ; ===========================================================================
 
 ; PalCycle_Level2:
 PalCycle_WZ:
 	subq.w	#1,(PalCycle_Timer).w
-	bpl.s	++	; rts
+	bpl.s	.return
 	move.w	#2,(PalCycle_Timer).w
 	lea	(CyclingPal_WoodConveyor).l,a0
 	move.w	(PalCycle_Frame).w,d0
@@ -2458,7 +2481,9 @@ PalCycle_WZ:
 +	lea	(Normal_palette_line4+6).w,a1
 	move.l	(a0,d0.w),(a1)+
 	move.l	4(a0,d0.w),(a1)
-+	rts
+
+.return:
+	rts
 ; ===========================================================================
 
 PalCycle_MTZ:
@@ -2488,7 +2513,7 @@ PalCycle_MTZ:
 	move.w	4(a0,d0.w),(a1)
 +
 	subq.w	#1,(PalCycle_Timer3).w
-	bpl.s	++	; rts
+	bpl.s	.return
 	move.w	#9,(PalCycle_Timer3).w
 	lea	(CyclingPal_MTZ3).l,a0
 	move.w	(PalCycle_Frame3).w,d0
@@ -2498,13 +2523,15 @@ PalCycle_MTZ:
 	move.w	#0,(PalCycle_Frame3).w
 +	lea	(Normal_palette_line3+$1E).w,a1
 	move.w	(a0,d0.w),(a1)
-+	rts
+
+.return:
+	rts
 ; ===========================================================================
 
 PalCycle_HTZ:
 	lea	(CyclingPal_Lava).l,a0
 	subq.w	#1,(PalCycle_Timer).w
-	bpl.s	+	; rts
+	bpl.s	.return
 	move.w	#0,(PalCycle_Timer).w
 	move.w	(PalCycle_Frame).w,d0
 	addq.w	#1,(PalCycle_Frame).w
@@ -2513,7 +2540,9 @@ PalCycle_HTZ:
 	lsl.w	#3,d0
 	move.l	(a0,d0.w),(Normal_palette_line2+6).w
 	move.l	4(a0,d0.w),(Normal_palette_line2+$1C).w
-+	rts
+
+.return:
+	rts
 ; ===========================================================================
 ; byte_1B40:
 PalCycle_HTZ_LavaDelayData: ; number of frames between changes of the lava palette
@@ -2525,7 +2554,7 @@ PalCycle_HTZ_LavaDelayData: ; number of frames between changes of the lava palet
 
 PalCycle_HPZ:
 	subq.w	#1,(PalCycle_Timer).w
-	bpl.s	++	; rts
+	bpl.s	.return
 	move.w	#4,(PalCycle_Timer).w
 	lea	(CyclingPal_HPZWater).l,a0
 	move.w	(PalCycle_Frame).w,d0
@@ -2539,12 +2568,14 @@ PalCycle_HPZ:
 	lea	(Underwater_palette_line4+$12).w,a1
 	move.l	(a0,d0.w),(a1)+
 	move.l	4(a0,d0.w),(a1)
-+	rts
+
+.return:
+	rts
 ; ===========================================================================
 
 PalCycle_OOZ:
 	subq.w	#1,(PalCycle_Timer).w
-	bpl.s	+	; rts
+	bpl.s	.return
 	move.w	#7,(PalCycle_Timer).w
 	lea	(CyclingPal_Oil).l,a0
 	move.w	(PalCycle_Frame).w,d0
@@ -2553,21 +2584,25 @@ PalCycle_OOZ:
 	lea	(Normal_palette_line3+$14).w,a1
 	move.l	(a0,d0.w),(a1)+
 	move.l	4(a0,d0.w),(a1)
-+	rts
+
+.return:
+	rts
 ; ===========================================================================
 
 PalCycle_MCZ:
 	tst.b	(Current_Boss_ID).w
-	bne.s	+	; rts
+	bne.s	.return
 	subq.w	#1,(PalCycle_Timer).w
-	bpl.s	+	; rts
+	bpl.s	.return
 	move.w	#1,(PalCycle_Timer).w
 	lea	(CyclingPal_Lantern).l,a0
 	move.w	(PalCycle_Frame).w,d0
 	addq.w	#2,(PalCycle_Frame).w
 	andi.w	#6,(PalCycle_Frame).w
 	move.w	(a0,d0.w),(Normal_palette_line2+$16).w
-+	rts
+
+.return:
+	rts
 ; ===========================================================================
 
 PalCycle_CNZ:
@@ -2640,7 +2675,7 @@ CNZ_SkipToBossPalCycle:
 
 PalCycle_CPZ:
 	subq.w	#1,(PalCycle_Timer).w
-	bpl.s	+++	; rts
+	bpl.s	.return
 	move.w	#7,(PalCycle_Timer).w
 	lea	(CyclingPal_CPZ1).l,a0
 	move.w	(PalCycle_Frame).w,d0
@@ -2663,13 +2698,15 @@ PalCycle_CPZ:
 	addq.w	#2,(PalCycle_Frame3).w
 	andi.w	#$1E,(PalCycle_Frame3).w
 	move.w	(a0,d0.w),(Normal_palette_line3+$1E).w
-+	rts
+
+.return:
+	rts
 ; ===========================================================================
 
 PalCycle_ARZ:
 	lea	(CyclingPal_EHZ_ARZ_Water).l,a0
 	subq.w	#1,(PalCycle_Timer).w
-	bpl.s	+	; rts
+	bpl.s	.return
 	move.w	#5,(PalCycle_Timer).w
 	move.w	(PalCycle_Frame).w,d0
 	addq.w	#1,(PalCycle_Frame).w
@@ -2678,7 +2715,9 @@ PalCycle_ARZ:
 	lea	(Normal_palette_line3+4).w,a1
 	move.l	(a0,d0.w),(a1)+
 	move.l	4(a0,d0.w),(a1)
-+	rts
+
+.return:
+	rts
 ; ===========================================================================
 
 PalCycle_WFZ:
@@ -2710,7 +2749,7 @@ PalCycle_WFZ:
 +	move.w	(a0,d0.w),(Normal_palette_line3+$1C).w
 +
 	subq.w	#1,(PalCycle_Timer3).w
-	bpl.s	++	; rts
+	bpl.s	.return
 	move.w	#5,(PalCycle_Timer3).w
 	lea	(CyclingPal_WFZ2).l,a0
 	move.w	(PalCycle_Frame3).w,d0
@@ -2719,7 +2758,9 @@ PalCycle_WFZ:
 	blo.s	+
 	move.w	#0,(PalCycle_Frame3).w
 +	move.w	(a0,d0.w),(Normal_palette_line3+$1E).w
-+	rts
+
+.return:
+	rts
 ; ===========================================================================
 
 ; ----------------------------------------------------------------------------
@@ -2931,6 +2972,7 @@ Pal_FadeFromBlack:
 	dbf	d0,.palettewrite	; fill palette with $000 (black)
 
 	move.w	#$15,d4
+
 .nextframe:
 	move.b	#VintID_Fade,(Vint_routine).w
 	bsr.w	WaitForVint
@@ -2955,6 +2997,7 @@ Pal_FadeFromBlack:
 	adda.w	d0,a1
 
 	move.b	(Palette_fade_length).w,d0
+
 .nextcolour:
 	bsr.s	.UpdateColour
 	dbf	d0,.nextcolour
@@ -2970,6 +3013,7 @@ Pal_FadeFromBlack:
 	adda.w	d0,a1
 
 	move.b	(Palette_fade_length).w,d0
+
 .nextcolour2:
 	bsr.s	.UpdateColour
 	dbf	d0,.nextcolour2
@@ -2986,6 +3030,7 @@ Pal_FadeFromBlack:
 	move.w	(a0),d3
 	cmp.w	d2,d3
 	beq.s	.updatenone
+
 ;.updateblue:
 	move.w	d3,d1
 	addi.w	#$200,d1	; increase blue value
@@ -3025,6 +3070,7 @@ Pal_FadeToBlack:
 	move.w	#$3F,(Palette_fade_range).w
 
 	move.w	#$15,d4
+
 .nextframe:
 	move.b	#VintID_Fade,(Vint_routine).w
 	bsr.w	WaitForVint
@@ -3119,11 +3165,13 @@ Pal_FadeFromWhite:
 	move.w	#$EEE,d1
 
 	move.b	(Palette_fade_length).w,d0
+
 .palettewrite:
 	move.w	d1,(a0)+
 	dbf	d0,.palettewrite
 
 	move.w	#$15,d4
+
 .nextframe:
 	move.b	#VintID_Fade,(Vint_routine).w
 	bsr.w	WaitForVint
@@ -3148,6 +3196,7 @@ Pal_FadeFromWhite:
 	adda.w	d0,a1
 
 	move.b	(Palette_fade_length).w,d0
+
 .nextcolour:
 	bsr.s	.UpdateColour
 	dbf	d0,.nextcolour
@@ -3163,6 +3212,7 @@ Pal_FadeFromWhite:
 	adda.w	d0,a1
 
 	move.b	(Palette_fade_length).w,d0
+
 .nextcolour2:
 	bsr.s	.UpdateColour
 	dbf	d0,.nextcolour2
@@ -3220,6 +3270,7 @@ Pal_FadeToWhite:
 	move.w	#$3F,(Palette_fade_range).w
 
 	move.w	#$15,d4
+
 .nextframe:
 	move.b	#VintID_Fade,(Vint_routine).w
 	bsr.w	WaitForVint
@@ -3242,6 +3293,7 @@ Pal_FadeToWhite:
 	adda.w	d0,a0
 
 	move.b	(Palette_fade_length).w,d0
+
 .nextcolour:
 	bsr.s	.UpdateColour
 	dbf	d0,.nextcolour
@@ -3256,6 +3308,7 @@ Pal_FadeToWhite:
 	adda.w	d0,a0
 
 	move.b	(Palette_fade_length).w,d0
+
 .nextcolour2:
 	bsr.s	.UpdateColour
 	dbf	d0,.nextcolour2
@@ -6052,15 +6105,15 @@ SpecialStage:
 
 	; However, the '+4' after SS_Misc_Variables_End is very useful. It resets the
 	; VDP_Command_Buffer queue, avoiding graphical glitches in the Special Stage.
-	; In fact, without reset of the VDP_Command_Buffer queue, Tails sprite DPLCs and other
+	; In fact, without resetting the VDP_Command_Buffer queue, Tails sprite DPLCs and other
 	; level DPLCs that are still in the queue erase the Special Stage graphics the next
 	; time ProcessDMAQueue is called.
 	; This '+4' doesn't seem to be intentional, because of the other useless '+4' above,
 	; and because a '+2' is enough to reset the VDP_Command_Buffer queue and fix this bug.
 	; This is a fortunate accident!
 	; Note that this is not a clean way to reset the VDP_Command_Buffer queue because the
-	; VDP_Command_Buffer_Slot address shall be updated as well. They tried to do that in a
-	; clean way after branching to ClearScreen (see below). But they messed up by doing it
+	; VDP_Command_Buffer_Slot address should be updated as well. They tried to do that in a
+	; cleaner way after branching to ClearScreen (see below). But they messed up by doing it
 	; after several WaitForVint calls.
 	; You can uncomment the two lines below to clear the VDP_Command_Buffer queue intentionally.
 	;clr.w	(VDP_Command_Buffer).w
@@ -6334,7 +6387,7 @@ PalCycle_SS:
 +
 	rts
 ; ===========================================================================
-; special stage rainbow blinking sprite palettes... (chaos emerald colors?)
+; special stage rainbow blinking sprite palettes... (Chaos Emerald colors?)
 ;word_54BC:
 		dc.w   $0EE, $0C0, $0EE, $0C0
 word_54C4:	dc.w   $0EE
@@ -6468,10 +6521,10 @@ SSTrackPNTCommands:
 	dc.l vdpComm(VRAM_SS_Plane_A_Name_Table1 + 2 * (PNT_Buffer_End-PNT_Buffer),VRAM,WRITE)
 	dc.l vdpComm(VRAM_SS_Plane_A_Name_Table1 + 3 * (PNT_Buffer_End-PNT_Buffer),VRAM,WRITE)
 Ani_SSTrack_Len:
-	dc.b SSTrackAni_TurnThenRise_End - SSTrackAni_TurnThenRise	; 0
-	dc.b SSTrackAni_TurnThenDrop_End - SSTrackAni_TurnThenDrop	; 1
+	dc.b SSTrackAni_TurnThenRise_End - SSTrackAni_TurnThenRise		; 0
+	dc.b SSTrackAni_TurnThenDrop_End - SSTrackAni_TurnThenDrop		; 1
 	dc.b SSTrackAni_TurnThenStraight_End - SSTrackAni_TurnThenStraight	; 2
-	dc.b SSTrackAni_Straight_End - SSTrackAni_Straight	; 3
+	dc.b SSTrackAni_Straight_End - SSTrackAni_Straight			; 3
 	dc.b SSTrackAni_StraightThenTurn_End - SSTrackAni_StraightThenTurn	; 4
 	dc.b   0	; 5
 
@@ -6481,11 +6534,11 @@ Ani_SSTrack_Len:
 SSTrack_Draw:
 	moveq	#0,d0
 	move.b	(SSTrack_drawing_index).w,d0					; Get drawing position
-	cmpi.b	#4,d0											; Is it time to draw a new frame?
-	bge.w	SSTrackSetOrientation							; Branch if not
-	add.w	d0,d0											; Multiply by 4
+	cmpi.b	#4,d0								; Is it time to draw a new frame?
+	bge.w	SSTrackSetOrientation						; Branch if not
+	add.w	d0,d0								; Multiply by 4
 	add.w	d0,d0
-	bne.w	SSTrack_BeginDraw								; Branch if we don't need to start a new segment
+	bne.w	SSTrack_BeginDraw						; Branch if we don't need to start a new segment
 	move.l	(SSTrack_last_mappings).w,(SSTrack_last_mappings_copy).w	; Save last mappings
 	move.b	(SSTrack_mapping_frame).w,(SSTrack_last_mapping_frame).w	; Save last frame
 	moveq	#0,d1
@@ -6493,108 +6546,108 @@ SSTrack_Draw:
 	moveq	#0,d3
 	moveq	#0,d4
 	move.b	(SpecialStage_CurrentSegment).w,d1				; Get current segment ID
-	move.b	(SSTrack_anim_frame).w,d2						; Get current frame
+	move.b	(SSTrack_anim_frame).w,d2					; Get current frame
 	movea.l	(SS_CurrentLevelLayout).w,a1					; Pointer to level layout
-	move.b	(a1,d1.w),d3									; Get segment geometry type
-	andi.b	#$7F,d3											; Strip flip flag
-	move.b	d3,(SSTrack_anim).w								; Set this as new animation
-	move.w	d3,d1											; Copy to d1
-	add.w	d3,d3											; Turn it into an index
-	lea	(Ani_SpecialStageTrack).l,a1						; Animation table
-	adda.w	(a1,d3.w),a1									; Add offset so a1 points to animation data
-	adda.w	d2,a1											; Offset into current animation frame
+	move.b	(a1,d1.w),d3							; Get segment geometry type
+	andi.b	#$7F,d3								; Strip flip flag
+	move.b	d3,(SSTrack_anim).w						; Set this as new animation
+	move.w	d3,d1								; Copy to d1
+	add.w	d3,d3								; Turn it into an index
+	lea	(Ani_SpecialStageTrack).l,a1					; Animation table
+	adda.w	(a1,d3.w),a1							; Add offset so a1 points to animation data
+	adda.w	d2,a1								; Offset into current animation frame
 	moveq	#0,d4
-	move.b	(a1),d4											; d4 = animation frame to draw
+	move.b	(a1),d4								; d4 = animation frame to draw
 	move.b	d4,(SSTrack_mapping_frame).w					; Save to RAM
 	lsl.w	#2,d4
-	lea	(Map_SpecialStageTrack).l,a1						; Mappings table
-	movea.l	(a1,d4.w),a0									; a0 = pointer to mappings for current track frame
-	movea.l	a0,a1											; Copy to a1
+	lea	(Map_SpecialStageTrack).l,a1					; Mappings table
+	movea.l	(a1,d4.w),a0							; a0 = pointer to mappings for current track frame
+	movea.l	a0,a1								; Copy to a1
 	moveq	#0,d2
-	move.b	(a0)+,d2										; Skip the first 2 bytes
-	move.b	(a0)+,d2										; Why not 'addq.l	#2,a0'?
-	move.b	(a0)+,d2										; Get byte
-	lsl.w	#8,d2											; Shift it up to be the high byte of a word
-	move.b	(a0)+,d2										; Read another byte; why not 'move.w	(a0)+,d2'?
-	addq.w	#4,d2											; Add 4
-	adda.w	d2,a1											; Use as offset from start of file
-	movea.l	a1,a2											; Save to a2
+	move.b	(a0)+,d2							; Skip the first 2 bytes
+	move.b	(a0)+,d2							; Why not 'addq.l	#2,a0'?
+	move.b	(a0)+,d2							; Get byte
+	lsl.w	#8,d2								; Shift it up to be the high byte of a word
+	move.b	(a0)+,d2							; Read another byte; why not 'move.w	(a0)+,d2'?
+	addq.w	#4,d2								; Add 4
+	adda.w	d2,a1								; Use as offset from start of file
+	movea.l	a1,a2								; Save to a2
 	moveq	#0,d2
-	move.b	(a1)+,d2										; Skip the first 2 bytes
-	move.b	(a1)+,d2										; Why not 'addq.l	#2,a1'?
-	move.b	(a1)+,d2										; Get byte
-	lsl.w	#8,d2											; Shift it up to be the high byte of a word
-	move.b	(a1)+,d2										; Read another byte; why not 'move.w	(a1)+,d2'?
-	addq.w	#4,d2											; Add 4
-	adda.w	d2,a2											; Use as offset from previous offset
-	move.b	(a2)+,d2										; Ignore the first 3 bytes
-	move.b	(a2)+,d2										; Why not 'addq.l	#3,a2'?
+	move.b	(a1)+,d2							; Skip the first 2 bytes
+	move.b	(a1)+,d2							; Why not 'addq.l	#2,a1'?
+	move.b	(a1)+,d2							; Get byte
+	lsl.w	#8,d2								; Shift it up to be the high byte of a word
+	move.b	(a1)+,d2							; Read another byte; why not 'move.w	(a1)+,d2'?
+	addq.w	#4,d2								; Add 4
+	adda.w	d2,a2								; Use as offset from previous offset
+	move.b	(a2)+,d2							; Ignore the first 3 bytes
+	move.b	(a2)+,d2							; Why not 'addq.l	#3,a2'?
 	move.b	(a2)+,d2
-	move.b	(a2)+,d2										; Get byte (unused)
+	move.b	(a2)+,d2							; Get byte (unused)
 	move.l	a0,(SSTrack_mappings_bitflags).w				; Save pointer to bit flags mappings
-	move.l	a0,(SSTrack_last_mappings).w					; ... twice
-	move.l	a1,(SSTrack_mappings_uncompressed).w			; Save pointer to uncompressed mappings
-	move.l	a2,(SSTrack_mappings_RLE).w						; Save pointer to RLE mappings
-	lea_	Ani_SSTrack_Len,a4								; Pointer to animation lengths
-	move.b	(a4,d1.w),d2									; Get length of current animation
-	move.b	(SSTrack_anim_frame).w,(SSTrack_last_anim_frame).w	; Save old frame
-	addi_.b	#1,(SSTrack_anim_frame).w						; Increment current frame
-	cmp.b	(SSTrack_anim_frame).w,d2						; Compare with animation length
-	bne.s	SSTrack_BeginDraw								; If not equal, branch
-	move.b	#0,(SSTrack_anim_frame).w						; Reset to start
+	move.l	a0,(SSTrack_last_mappings).w					; ...twice
+	move.l	a1,(SSTrack_mappings_uncompressed).w				; Save pointer to uncompressed mappings
+	move.l	a2,(SSTrack_mappings_RLE).w					; Save pointer to RLE mappings
+	lea_	Ani_SSTrack_Len,a4						; Pointer to animation lengths
+	move.b	(a4,d1.w),d2							; Get length of current animation
+	move.b	(SSTrack_anim_frame).w,(SSTrack_last_anim_frame).w		; Save old frame
+	addi_.b	#1,(SSTrack_anim_frame).w					; Increment current frame
+	cmp.b	(SSTrack_anim_frame).w,d2					; Compare with animation length
+	bne.s	SSTrack_BeginDraw						; If not equal, branch
+	move.b	#0,(SSTrack_anim_frame).w					; Reset to start
 	move.b	(SpecialStage_CurrentSegment).w,(SpecialStage_LastSegment).w	; Save old segment
 	addi_.b	#1,(SpecialStage_CurrentSegment).w				; Increment current segment
 
 ;loc_56D2
 SSTrack_BeginDraw:
-	tst.b	(SS_Alternate_PNT).w							; Are we using the alternate PNT?
-	beq.s	+												; Branch if not
-	addi.w	#$10,d0											; Change where we will be drawing
+	tst.b	(SS_Alternate_PNT).w						; Are we using the alternate PNT?
+	beq.s	+								; Branch if not
+	addi.w	#$10,d0								; Change where we will be drawing
 +
-	lea_	SSTrackPNTCommands,a3							; Table of VRAM commands
-	movea.l	(a3,d0.w),a3									; Get command to set destination in VRAM for current frame
-	move.l	a3,(VDP_control_port).l							; Send it to VDP
+	lea_	SSTrackPNTCommands,a3						; Table of VRAM commands
+	movea.l	(a3,d0.w),a3							; Get command to set destination in VRAM for current frame
+	move.l	a3,(VDP_control_port).l						; Send it to VDP
 	lea	(VDP_data_port).l,a6
-	bsr.w	SSTrackSetOrientation							; Set oriantation flags
+	bsr.w	SSTrackSetOrientation						; Set oriantation flags
 	movea.l	(SSTrack_mappings_bitflags).w,a0				; Get pointer to bit flags mappings
-	movea.l	(SSTrack_mappings_uncompressed).w,a1			; Get pointer to uncompressed mappings
-	movea.l	(SSTrack_mappings_RLE).w,a2						; Get pointer to RLE mappings
-	lea	(SSDrawRegBuffer).w,a3								; Pointer to register buffer from last draw
-	movem.w	(a3)+,d2-d7										; Restore registers from previous call (or set them to zero)
-	lea	(SSPNT_UncLUT).l,a3									; Pattern name list for drawing routines
-	lea	(SSPNT_RLELUT).l,a4									; RLE-encoded pattern name list for drawing routines
-	movea.w	#-8,a5											; Initialize loop counter: draws 7 lines
+	movea.l	(SSTrack_mappings_uncompressed).w,a1				; Get pointer to uncompressed mappings
+	movea.l	(SSTrack_mappings_RLE).w,a2					; Get pointer to RLE mappings
+	lea	(SSDrawRegBuffer).w,a3						; Pointer to register buffer from last draw
+	movem.w	(a3)+,d2-d7							; Restore registers from previous call (or set them to zero)
+	lea	(SSPNT_UncLUT).l,a3						; Pattern name list for drawing routines
+	lea	(SSPNT_RLELUT).l,a4						; RLE-encoded pattern name list for drawing routines
+	movea.w	#-8,a5								; Initialize loop counter: draws 7 lines
 	moveq	#0,d0
-	tst.b	(SSTrack_Orientation).w							; Is the current segment flipped?
-	bne.w	SSTrackDrawLineFlipLoop							; Branch if yes
+	tst.b	(SSTrack_Orientation).w						; Is the current segment flipped?
+	bne.w	SSTrackDrawLineFlipLoop						; Branch if yes
 
 ;loc_5722
 SSTrackDrawLineLoop:
-	adda_.w	#1,a5											; Increment loop counter
-	cmpa.w	#0,a5											; Have all 7 lines been drawn?
-	beq.w	SSTrackDraw_return								; If yes, return
+	adda_.w	#1,a5								; Increment loop counter
+	cmpa.w	#0,a5								; Have all 7 lines been drawn?
+	beq.w	SSTrackDraw_return						; If yes, return
 
 ;loc_572E
 SSTrackDrawLoop_Inner:
 	moveq	#0,d1
-	subq.w	#1,d7											; Subtract 1 from bit counter
-	bpl.s	+												; Branch if we still have bits we can use
-	move.b	(a0)+,d6										; Get a new byte from bit flags
-	moveq	#7,d7											; We now have 8 fresh new bits
+	subq.w	#1,d7								; Subtract 1 from bit counter
+	bpl.s	+								; Branch if we still have bits we can use
+	move.b	(a0)+,d6							; Get a new byte from bit flags
+	moveq	#7,d7								; We now have 8 fresh new bits
 +
-	add.b	d6,d6											; Do we have to use RLE compression?
-	bcc.s	SSTrackDrawRLE									; Branch if yes
-	subq.b	#1,d5											; Subtract 1 from bit counter
-	bpl.s	+												; Branch if we still have bits we can use
-	move.b	(a1)+,d4										; Get a new byte from uncompressed mappings pointer
-	moveq	#7,d5											; We now have 8 fresh new bits
+	add.b	d6,d6								; Do we have to use RLE compression?
+	bcc.s	SSTrackDrawRLE							; Branch if yes
+	subq.b	#1,d5								; Subtract 1 from bit counter
+	bpl.s	+								; Branch if we still have bits we can use
+	move.b	(a1)+,d4							; Get a new byte from uncompressed mappings pointer
+	moveq	#7,d5								; We now have 8 fresh new bits
 +
-	add.b	d4,d4											; Do we need a 10-bit index?
-	bcc.s	+												; Branch if not
-	moveq	#$A,d0											; d0 = 10 bits
-	sub.b	d5,d0											; d0 = 10 - d5
-	subq.b	#3,d0											; d0 =  7 - d5; why not shorten it to 'moveq	#7,d0 \n	sub.b	d5,d0'?
-	add.w	d0,d0											; Convert into table index
+	add.b	d4,d4								; Do we need a 10-bit index?
+	bcc.s	+								; Branch if not
+	moveq	#$A,d0								; d0 = 10 bits
+	sub.b	d5,d0								; d0 = 10 - d5
+	subq.b	#3,d0								; d0 =  7 - d5; why not shorten it to 'moveq	#7,d0 \n	sub.b	d5,d0'?
+	add.w	d0,d0								; Convert into table index
 	move.w	SSTrackDrawUnc_Read10LUT(pc,d0.w),d0
 	jmp	SSTrackDrawUnc_Read10LUT(pc,d0.w)
 ; ===========================================================================
@@ -6610,10 +6663,10 @@ SSTrackDrawUnc_Read10LUT:	offsetTable
 		offsetTableEntry.w SSTrackDrawUnc_Read10_Got0	; 7
 ; ===========================================================================
 +
-	moveq	#6,d0											; d0 = 6
-	sub.b	d5,d0											; d0 = 6 - d5
-	addq.b	#1,d0											; d0 = 7 - d5; why not shorten it to 'moveq	#7,d0 \n	sub.b	d5,d0'?
-	add.w	d0,d0											; Convert into table index
+	moveq	#6,d0								; d0 = 6
+	sub.b	d5,d0								; d0 = 6 - d5
+	addq.b	#1,d0								; d0 = 7 - d5; why not shorten it to 'moveq	#7,d0 \n	sub.b	d5,d0'?
+	add.w	d0,d0								; Convert into table index
 	move.w	SSTrackDrawUnc_Read6LUT(pc,d0.w),d0
 	jmp	SSTrackDrawUnc_Read6LUT(pc,d0.w)
 ; ===========================================================================
@@ -6630,22 +6683,22 @@ SSTrackDrawUnc_Read6LUT:	offsetTable
 ; ===========================================================================
 
 SSTrackDrawRLE:
-	subq.b	#1,d3											; Subtract 1 from bit counter
-	bpl.s	++												; Branch if we still have bits we can use
-	move.b	(a2)+,d2										; Get a new byte from RLE mappings pointer
-	cmpi.b	#-1,d2											; Is d2 equal to -1?
-	bne.s	+												; Branch if not
-	moveq	#0,d3											; Set bit counter to zero
+	subq.b	#1,d3								; Subtract 1 from bit counter
+	bpl.s	++								; Branch if we still have bits we can use
+	move.b	(a2)+,d2							; Get a new byte from RLE mappings pointer
+	cmpi.b	#-1,d2								; Is d2 equal to -1?
+	bne.s	+								; Branch if not
+	moveq	#0,d3								; Set bit counter to zero
 	bra.w	SSTrackDrawLineLoop
 ; ===========================================================================
 +
-	moveq	#7,d3											; We now have 8 fresh new bits
+	moveq	#7,d3								; We now have 8 fresh new bits
 +
-	add.b	d2,d2											; Do we need a 7-bit index?
-	bcc.s	+												; Branch if not
-	moveq	#7,d0											; d0 = 7
-	sub.b	d3,d0											; d0 = 10 - d3
-	add.b	d0,d0											; Convert into table index
+	add.b	d2,d2								; Do we need a 7-bit index?
+	bcc.s	+								; Branch if not
+	moveq	#7,d0								; d0 = 7
+	sub.b	d3,d0								; d0 = 10 - d3
+	add.b	d0,d0								; Convert into table index
 	move.w	SSTrackDrawRLE_Read7LUT(pc,d0.w),d0
 	jmp	SSTrackDrawRLE_Read7LUT(pc,d0.w)
 ; ===========================================================================
@@ -6661,10 +6714,10 @@ SSTrackDrawRLE_Read7LUT:	offsetTable
 		offsetTableEntry.w SSTrackDrawRLE_Read7_Got0	; 7
 ; ===========================================================================
 +
-	moveq	#6,d0											; d0 = 6
-	sub.b	d3,d0											; d0 = 6 - d3
-	addq.b	#1,d0											; d0 = 7 - d3; why not shorten it to 'moveq	#7,d0 \n	sub.b	d3,d0'?
-	add.b	d0,d0											; Convert into table index
+	moveq	#6,d0								; d0 = 6
+	sub.b	d3,d0								; d0 = 6 - d3
+	addq.b	#1,d0								; d0 = 7 - d3; why not shorten it to 'moveq	#7,d0 \n	sub.b	d3,d0'?
+	add.b	d0,d0								; Convert into table index
 	move.w	SSTrackDrawRLE_Read6LUT(pc,d0.w),d0
 	jmp	SSTrackDrawRLE_Read6LUT(pc,d0.w)
 ; ===========================================================================
@@ -6732,7 +6785,7 @@ SSTrackDrawUnc_Read10_Got2:
 	move.w	(a3,d0.w),d0
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
-	moveq	#0,d5											; Bit buffer now empty
+	moveq	#0,d5								; Bit buffer now empty
 	bra.w	SSTrackDrawLoop_Inner
 ; ===========================================================================
 ;loc_5856
@@ -6751,7 +6804,7 @@ SSTrackDrawUnc_Read10_Got3:
 	move.w	(a3,d0.w),d0
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
-	moveq	#1,d5											; Bit buffer now has 1 bit
+	moveq	#1,d5								; Bit buffer now has 1 bit
 	bra.w	SSTrackDrawLoop_Inner
 ; ===========================================================================
 ;loc_5880
@@ -6770,7 +6823,7 @@ SSTrackDrawUnc_Read10_Got4:
 	move.w	(a3,d0.w),d0
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
-	moveq	#2,d5											; Bit buffer now has 2 bits
+	moveq	#2,d5								; Bit buffer now has 2 bits
 	bra.w	SSTrackDrawLoop_Inner
 ; ===========================================================================
 ;loc_58AA
@@ -6789,7 +6842,7 @@ SSTrackDrawUnc_Read10_Got5:
 	move.w	(a3,d0.w),d0
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
-	moveq	#3,d5											; Bit buffer now has 3 bits
+	moveq	#3,d5								; Bit buffer now has 3 bits
 	bra.w	SSTrackDrawLoop_Inner
 ; ===========================================================================
 ;loc_58D4
@@ -6808,7 +6861,7 @@ SSTrackDrawUnc_Read10_Got6:
 	move.w	(a3,d0.w),d0
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
-	moveq	#4,d5											; Bit buffer now has 4 bits
+	moveq	#4,d5								; Bit buffer now has 4 bits
 	bra.w	SSTrackDrawLoop_Inner
 ; ===========================================================================
 ;loc_58FE
@@ -6827,7 +6880,7 @@ SSTrackDrawUnc_Read10_Got7:
 	move.w	(a3,d0.w),d0
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
-	moveq	#5,d5											; Bit buffer now has 5 bits
+	moveq	#5,d5								; Bit buffer now has 5 bits
 	bra.w	SSTrackDrawLoop_Inner
 ; ===========================================================================
 ;loc_5928
@@ -6841,7 +6894,7 @@ SSTrackDrawUnc_Read6_Got0:
 	move.w	(a3,d0.w),d0
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
-	moveq	#2,d5											; Bit buffer now has 2 bits
+	moveq	#2,d5								; Bit buffer now has 2 bits
 	bra.w	SSTrackDrawLoop_Inner
 ; ===========================================================================
 ;loc_5944
@@ -6859,7 +6912,7 @@ SSTrackDrawUnc_Read6_Got1:
 	move.w	(a3,d0.w),d0
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
-	moveq	#3,d5											; Bit buffer now has 3 bits
+	moveq	#3,d5								; Bit buffer now has 3 bits
 	bra.w	SSTrackDrawLoop_Inner
 ; ===========================================================================
 ;loc_596A
@@ -6877,7 +6930,7 @@ SSTrackDrawUnc_Read6_Got2:
 	move.w	(a3,d0.w),d0
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
-	moveq	#4,d5											; Bit buffer now has 4 bits
+	moveq	#4,d5								; Bit buffer now has 4 bits
 	bra.w	SSTrackDrawLoop_Inner
 ; ===========================================================================
 ;loc_5990
@@ -6895,7 +6948,7 @@ SSTrackDrawUnc_Read6_Got3:
 	move.w	(a3,d0.w),d0
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
-	moveq	#5,d5											; Bit buffer now has 5 bits
+	moveq	#5,d5								; Bit buffer now has 5 bits
 	bra.w	SSTrackDrawLoop_Inner
 ; ===========================================================================
 ;loc_59B6
@@ -6913,7 +6966,7 @@ SSTrackDrawUnc_Read6_Got4:
 	move.w	(a3,d0.w),d0
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
-	moveq	#6,d5											; Bit buffer now has 6 bits
+	moveq	#6,d5								; Bit buffer now has 6 bits
 	bra.w	SSTrackDrawLoop_Inner
 ; ===========================================================================
 ;loc_59DC
@@ -6931,7 +6984,7 @@ SSTrackDrawUnc_Read6_Got5:
 	move.w	(a3,d0.w),d0
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
-	moveq	#7,d5											; Bit buffer now has 7 bits
+	moveq	#7,d5								; Bit buffer now has 7 bits
 	bra.w	SSTrackDrawLoop_Inner
 ; ===========================================================================
 ;loc_5A02
@@ -6943,7 +6996,7 @@ SSTrackDrawUnc_Read6_Got6:
 	move.w	(a3,d4.w),d4
 	ori.w	#palette_line_3,d4
 	move.w	d4,(a6)
-	moveq	#0,d5											; Bit buffer now empty
+	moveq	#0,d5								; Bit buffer now empty
 	bra.w	SSTrackDrawLoop_Inner
 ; ===========================================================================
 ;loc_5A1A
@@ -6956,7 +7009,7 @@ SSTrackDrawUnc_Read6_Got7:
 	move.w	(a3,d0.w),d0
 	ori.w	#palette_line_3,d0
 	move.w	d0,(a6)
-	moveq	#1,d5											; Bit buffer now has 1 bit
+	moveq	#1,d5								; Bit buffer now has 1 bit
 	bra.w	SSTrackDrawLoop_Inner
 ; ===========================================================================
 ;loc_5A34
@@ -6966,7 +7019,7 @@ SSTrackDrawRLE_Read7_Got0:
 	ror.b	#1,d2
 	move.b	d2,d0
 	andi.w	#$7F,d0
-	moveq	#1,d3											; Bit buffer now has 1 bit
+	moveq	#1,d3								; Bit buffer now has 1 bit
 	cmpi.b	#$7F,d0
 	beq.w	SSTrackDrawLineLoop
 	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
@@ -6992,7 +7045,7 @@ SSTrackDrawRLE_Read7_Got1:
 	move.b	d2,d0
 	andi.w	#$3F,d0
 	or.b	d1,d0
-	moveq	#2,d3											; Bit buffer now has 2 bits
+	moveq	#2,d3								; Bit buffer now has 2 bits
 	cmpi.b	#$7F,d0
 	beq.w	SSTrackDrawLineLoop
 	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
@@ -7018,7 +7071,7 @@ SSTrackDrawRLE_Read7_Got2:
 	move.b	d2,d0
 	andi.w	#$1F,d0
 	or.b	d1,d0
-	moveq	#3,d3											; Bit buffer now has 3 bits
+	moveq	#3,d3								; Bit buffer now has 3 bits
 	cmpi.b	#$7F,d0
 	beq.w	SSTrackDrawLineLoop
 	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
@@ -7044,7 +7097,7 @@ SSTrackDrawRLE_Read7_Got3:
 	move.b	d2,d0
 	andi.w	#$F,d0
 	or.b	d1,d0
-	moveq	#4,d3											; Bit buffer now has 4 bits
+	moveq	#4,d3								; Bit buffer now has 4 bits
 	cmpi.b	#$7F,d0
 	beq.w	SSTrackDrawLineLoop
 	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
@@ -7070,7 +7123,7 @@ SSTrackDrawRLE_Read7_Got4:
 	move.b	d2,d0
 	andi.w	#7,d0
 	or.b	d1,d0
-	moveq	#5,d3											; Bit buffer now has 5 bits
+	moveq	#5,d3								; Bit buffer now has 5 bits
 	cmpi.b	#$7F,d0
 	beq.w	SSTrackDrawLineLoop
 	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
@@ -7096,7 +7149,7 @@ SSTrackDrawRLE_Read7_Got5:
 	move.b	d2,d0
 	andi.w	#3,d0
 	or.b	d1,d0
-	moveq	#6,d3											; Bit buffer now has 6 bits
+	moveq	#6,d3								; Bit buffer now has 6 bits
 	cmpi.b	#$7F,d0
 	beq.w	SSTrackDrawLineLoop
 	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
@@ -7122,7 +7175,7 @@ SSTrackDrawRLE_Read7_Got6:
 	move.b	d2,d0
 	andi.w	#1,d0
 	or.b	d1,d0
-	moveq	#7,d3											; Bit buffer now has 7 bits
+	moveq	#7,d3								; Bit buffer now has 7 bits
 	cmpi.b	#$7F,d0
 	beq.w	SSTrackDrawLineLoop
 	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
@@ -7142,7 +7195,7 @@ SSTrackDrawRLE_Read7_Got7:
 	; Reads 7 bits from RLE-compressed mappings, 7 bits in bit buffer
 	lsr.b	#1,d2
 	andi.w	#$7F,d2
-	moveq	#0,d3											; Bit buffer now empty
+	moveq	#0,d3								; Bit buffer now empty
 	cmpi.b	#$7F,d2
 	beq.w	SSTrackDrawLineLoop
 	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d2
@@ -7166,7 +7219,7 @@ SSTrackDrawRLE_Read6_Got0:
 	andi.w	#$3F,d0
 	add.w	d0,d0
 	add.w	d0,d0
-	moveq	#2,d3											; Bit buffer now has 2 bits
+	moveq	#2,d3								; Bit buffer now has 2 bits
 	move.w	(a4,d0.w),d1
 	move.w	2(a4,d0.w),d0
 	ori.w	#palette_line_3|high_priority,d1
@@ -7187,7 +7240,7 @@ SSTrackDrawRLE_Read6_Got1:
 	move.b	d2,d1
 	andi.b	#$1F,d1
 	or.b	d1,d0
-	moveq	#3,d3											; Bit buffer now has 3 bits
+	moveq	#3,d3								; Bit buffer now has 3 bits
 	add.w	d0,d0
 	add.w	d0,d0
 	move.w	(a4,d0.w),d1
@@ -7212,7 +7265,7 @@ SSTrackDrawRLE_Read6_Got2:
 	or.b	d1,d0
 	add.w	d0,d0
 	add.w	d0,d0
-	moveq	#4,d3											; Bit buffer now has 4 bits
+	moveq	#4,d3								; Bit buffer now has 4 bits
 	move.w	(a4,d0.w),d1
 	move.w	2(a4,d0.w),d0
 	ori.w	#palette_line_3|high_priority,d1
@@ -7235,7 +7288,7 @@ SSTrackDrawRLE_Read6_Got3:
 	or.b	d1,d0
 	add.w	d0,d0
 	add.w	d0,d0
-	moveq	#5,d3											; Bit buffer now has 5 bits
+	moveq	#5,d3								; Bit buffer now has 5 bits
 	move.w	(a4,d0.w),d1
 	move.w	2(a4,d0.w),d0
 	ori.w	#palette_line_3|high_priority,d1
@@ -7258,7 +7311,7 @@ SSTrackDrawRLE_Read6_Got4:
 	or.b	d1,d0
 	add.w	d0,d0
 	add.w	d0,d0
-	moveq	#6,d3											; Bit buffer now has 6 bits
+	moveq	#6,d3								; Bit buffer now has 6 bits
 	move.w	(a4,d0.w),d1
 	move.w	2(a4,d0.w),d0
 	ori.w	#palette_line_3|high_priority,d1
@@ -7281,7 +7334,7 @@ SSTrackDrawRLE_Read6_Got5:
 	or.b	d1,d0
 	add.w	d0,d0
 	add.w	d0,d0
-	moveq	#7,d3											; Bit buffer now has 7 bits
+	moveq	#7,d3								; Bit buffer now has 7 bits
 	move.w	(a4,d0.w),d1
 	move.w	2(a4,d0.w),d0
 	ori.w	#palette_line_3|high_priority,d1
@@ -7298,7 +7351,7 @@ SSTrackDrawRLE_Read6_Got6:
 	andi.w	#$3F,d2
 	add.w	d2,d2
 	add.w	d2,d2
-	moveq	#0,d3											; Bit buffer now empty
+	moveq	#0,d3								; Bit buffer now empty
 	move.w	(a4,d2.w),d1
 	move.w	2(a4,d2.w),d0
 	ori.w	#palette_line_3|high_priority,d1
@@ -7316,7 +7369,7 @@ SSTrackDrawRLE_Read6_Got7:
 	andi.w	#$3F,d0
 	add.w	d0,d0
 	add.w	d0,d0
-	moveq	#1,d3											; Bit buffer now has 1 bit
+	moveq	#1,d3								; Bit buffer now has 1 bit
 	move.w	(a4,d0.w),d1
 	move.w	2(a4,d0.w),d0
 	ori.w	#palette_line_3|high_priority,d1
@@ -7329,57 +7382,57 @@ SSTrackDrawRLE_Read6_Got7:
 
 ;loc_5D58
 SSTrackDraw_return:
-	cmpi.b	#3,(SSTrack_drawing_index).w					; Have we drawed a full frame?
-	beq.s	+												; Branch if yes
+	cmpi.b	#3,(SSTrack_drawing_index).w					; Have we drawn a full frame?
+	beq.s	+								; Branch if yes
 	move.l	a0,(SSTrack_mappings_bitflags).w				; Save pointer
-	move.l	a1,(SSTrack_mappings_uncompressed).w			; Save pointer
-	move.l	a2,(SSTrack_mappings_RLE).w						; Save pointer
-	lea	(SSDrawRegBuffer_End).w,a3							; Pointer to end of registry buffer
-	movem.w	d2-d7,-(a3)										; Save the bit buffers and bit counters
+	move.l	a1,(SSTrack_mappings_uncompressed).w				; Save pointer
+	move.l	a2,(SSTrack_mappings_RLE).w					; Save pointer
+	lea	(SSDrawRegBuffer_End).w,a3					; Pointer to end of registry buffer
+	movem.w	d2-d7,-(a3)							; Save the bit buffers and bit counters
 	rts
 ; ===========================================================================
 +
-	lea	(SSDrawRegBuffer).w,a2								; Pointer to registry buffer
+	lea	(SSDrawRegBuffer).w,a2						; Pointer to registry buffer
 	moveq	#0,d0
     rept 6
-	move.w	d0,(a2)+										; Clear bit buffers and bit counters
+	move.w	d0,(a2)+							; Clear bit buffers and bit counters
     endm
 	rts
 ; ===========================================================================
 
 ;loc_5D8A
 SSTrackDrawLineFlipLoop:
-	adda_.w	#1,a5											; Increment loop counter
-	cmpa.w	#0,a5											; Have all 8 lines been drawn?
-	beq.w	SSTrackDraw_return								; If yes, return
-	lea	(PNT_Buffer).w,a6									; Destination buffer
-	swap	d0												; High word starts at 0
-	addi.w	#$100,d0										; Adding $100 means seek to end of current line/start of next line
-	andi.w	#$F00,d0										; Keep to confines
-	adda.w	d0,a6											; Seek to end of current line
-	swap	d0												; Leaves the low word of d0 free for use
+	adda_.w	#1,a5								; Increment loop counter
+	cmpa.w	#0,a5								; Have all 8 lines been drawn?
+	beq.w	SSTrackDraw_return						; If yes, return
+	lea	(PNT_Buffer).w,a6						; Destination buffer
+	swap	d0								; High word starts at 0
+	addi.w	#$100,d0							; Adding $100 means seek to end of current line/start of next line
+	andi.w	#$F00,d0							; Keep to confines
+	adda.w	d0,a6								; Seek to end of current line
+	swap	d0								; Leaves the low word of d0 free for use
 
 ;loc_5DA8
 SSTrackDrawFlipLoop_Inner:
 	moveq	#0,d1
-	subq.w	#1,d7											; Subtract 1 from bit counter
-	bpl.s	+												; Branch if we still have bits we can use
-	move.b	(a0)+,d6										; Get a new byte from bit flags
-	moveq	#7,d7											; We now have 8 fresh new bits
+	subq.w	#1,d7								; Subtract 1 from bit counter
+	bpl.s	+								; Branch if we still have bits we can use
+	move.b	(a0)+,d6							; Get a new byte from bit flags
+	moveq	#7,d7								; We now have 8 fresh new bits
 +
-	add.b	d6,d6											; Do we have to use RLE compression?
-	bcc.s	SSTrackDrawFlipRLE								; Branch if yes
-	subq.b	#1,d5											; Subtract 1 from bit counter
-	bpl.s	+												; Branch if we still have bits we can use
-	move.b	(a1)+,d4										; Get a new byte from uncompressed mappings pointer
-	moveq	#7,d5											; We now have 8 fresh new bits
+	add.b	d6,d6								; Do we have to use RLE compression?
+	bcc.s	SSTrackDrawFlipRLE						; Branch if yes
+	subq.b	#1,d5								; Subtract 1 from bit counter
+	bpl.s	+								; Branch if we still have bits we can use
+	move.b	(a1)+,d4							; Get a new byte from uncompressed mappings pointer
+	moveq	#7,d5								; We now have 8 fresh new bits
 +
-	add.b	d4,d4											; Do we need a 10-bit index?
-	bcc.s	+												; Branch if not
-	move.w	#$A,d0											; d0 = 10 bits
-	sub.b	d5,d0											; d0 = 10 - d5
-	subq.b	#3,d0											; d0 =  7 - d5; why not shorten it to 'moveq	#7,d0 \n	sub.b	d5,d0'?
-	add.w	d0,d0											; Convert into table index
+	add.b	d4,d4								; Do we need a 10-bit index?
+	bcc.s	+								; Branch if not
+	move.w	#$A,d0								; d0 = 10 bits
+	sub.b	d5,d0								; d0 = 10 - d5
+	subq.b	#3,d0								; d0 =  7 - d5; why not shorten it to 'moveq	#7,d0 \n	sub.b	d5,d0'?
+	add.w	d0,d0								; Convert into table index
 	move.w	SSTrackDrawFlipUnc_Read10LUT(pc,d0.w),d0
 	jmp	SSTrackDrawFlipUnc_Read10LUT(pc,d0.w)
 ; ===========================================================================
@@ -7395,10 +7448,10 @@ SSTrackDrawFlipUnc_Read10LUT:	offsetTable
 		offsetTableEntry.w SSTrackDrawFlipUnc_Read10_Got0	; 7
 ; ===========================================================================
 +
-	move.w	#6,d0											; d0 = 6
-	sub.b	d5,d0											; d0 = 6 - d5
-	addq.b	#1,d0											; d0 = 7 - d5; why not shorten it to 'moveq	#7,d0 \n	sub.b	d5,d0'?
-	add.w	d0,d0											; Convert into table index
+	move.w	#6,d0								; d0 = 6
+	sub.b	d5,d0								; d0 = 6 - d5
+	addq.b	#1,d0								; d0 = 7 - d5; why not shorten it to 'moveq	#7,d0 \n	sub.b	d5,d0'?
+	add.w	d0,d0								; Convert into table index
 	move.w	SSTrackDrawFlipUnc_Read6LUT(pc,d0.w),d0
 	jmp	SSTrackDrawFlipUnc_Read6LUT(pc,d0.w)
 ; ===========================================================================
@@ -7415,22 +7468,22 @@ SSTrackDrawFlipUnc_Read6LUT:	offsetTable
 ; ===========================================================================
 ;loc_5E06
 SSTrackDrawFlipRLE:
-	subq.b	#1,d3											; Subtract 1 from bit counter
-	bpl.s	++												; Branch if we still have bits we can use
-	move.b	(a2)+,d2										; Get a new byte from RLE mappings pointer
-	cmpi.b	#-1,d2											; Is d2 equal to -1?
-	bne.s	+												; Branch if not
-	moveq	#0,d3											; Set bit counter to zero
+	subq.b	#1,d3								; Subtract 1 from bit counter
+	bpl.s	++								; Branch if we still have bits we can use
+	move.b	(a2)+,d2							; Get a new byte from RLE mappings pointer
+	cmpi.b	#-1,d2								; Is d2 equal to -1?
+	bne.s	+								; Branch if not
+	moveq	#0,d3								; Set bit counter to zero
 	bra.w	SSTrackDrawLineFlipLoop
 ; ===========================================================================
 +
-	moveq	#7,d3											; We now have 8 fresh new bits
+	moveq	#7,d3								; We now have 8 fresh new bits
 +
-	add.b	d2,d2											; Do we need a 7-bit index?
-	bcc.s	+												; Branch if not
-	move.w	#7,d0											; d0 = 7
-	sub.b	d3,d0											; d0 = 10 - d3
-	add.b	d0,d0											; Convert into table index
+	add.b	d2,d2								; Do we need a 7-bit index?
+	bcc.s	+								; Branch if not
+	move.w	#7,d0								; d0 = 7
+	sub.b	d3,d0								; d0 = 10 - d3
+	add.b	d0,d0								; Convert into table index
 	move.w	SSTrackDrawFlipRLE_Read7LUT(pc,d0.w),d0
 	jmp	SSTrackDrawFlipRLE_Read7LUT(pc,d0.w)
 ; ===========================================================================
@@ -7446,10 +7499,10 @@ SSTrackDrawFlipRLE_Read7LUT:	offsetTable
 		offsetTableEntry.w SSTrackDrawFlipRLE_Read7_Got0	; 7
 ; ===========================================================================
 +
-	move.w	#6,d0											; d0 = 6
-	sub.b	d3,d0											; d0 = 6 - d3
-	addq.b	#1,d0											; d0 = 7 - d3; why not shorten it to 'moveq	#7,d0 \n	sub.b	d3,d0'?
-	add.b	d0,d0											; Convert into table index
+	move.w	#6,d0								; d0 = 6
+	sub.b	d3,d0								; d0 = 6 - d3
+	addq.b	#1,d0								; d0 = 7 - d3; why not shorten it to 'moveq	#7,d0 \n	sub.b	d3,d0'?
+	add.b	d0,d0								; Convert into table index
 	move.w	SSTrackDrawFlipRLE_Read6LUT(pc,d0.w),d0
 	jmp	SSTrackDrawFlipRLE_Read6LUT(pc,d0.w)
 ; ===========================================================================
@@ -7480,7 +7533,7 @@ SSTrackDrawFlipUnc_Read10_Got0:
 	move.w	(a3,d0.w),d0
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
-	moveq	#6,d5											; Bit buffer now has 6 bits
+	moveq	#6,d5								; Bit buffer now has 6 bits
 	bra.w	SSTrackDrawFlipLoop_Inner
 ; ===========================================================================
 ;loc_5E8A
@@ -7502,7 +7555,7 @@ SSTrackDrawFlipUnc_Read10_Got1:
 	move.w	(a3,d0.w),d0
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
-	moveq	#7,d5											; Bit buffer now has 7 bits
+	moveq	#7,d5								; Bit buffer now has 7 bits
 	bra.w	SSTrackDrawFlipLoop_Inner
 ; ===========================================================================
 ;loc_5EBA
@@ -7517,7 +7570,7 @@ SSTrackDrawFlipUnc_Read10_Got2:
 	move.w	(a3,d0.w),d0
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
-	moveq	#0,d5											; Bit buffer now empty
+	moveq	#0,d5								; Bit buffer now empty
 	bra.w	SSTrackDrawFlipLoop_Inner
 ; ===========================================================================
 ;loc_5EDA
@@ -7536,7 +7589,7 @@ SSTrackDrawFlipUnc_Read10_Got3:
 	move.w	(a3,d0.w),d0
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
-	moveq	#1,d5											; Bit buffer now has 1 bit
+	moveq	#1,d5								; Bit buffer now has 1 bit
 	bra.w	SSTrackDrawFlipLoop_Inner
 ; ===========================================================================
 ;loc_5F04
@@ -7555,7 +7608,7 @@ SSTrackDrawFlipUnc_Read10_Got4:
 	move.w	(a3,d0.w),d0
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
-	moveq	#2,d5											; Bit buffer now has 2 bits
+	moveq	#2,d5								; Bit buffer now has 2 bits
 	bra.w	SSTrackDrawFlipLoop_Inner
 ; ===========================================================================
 ;loc_5F2E
@@ -7574,7 +7627,7 @@ SSTrackDrawFlipUnc_Read10_Got5:
 	move.w	(a3,d0.w),d0
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
-	moveq	#3,d5											; Bit buffer now has 3 bits
+	moveq	#3,d5								; Bit buffer now has 3 bits
 	bra.w	SSTrackDrawFlipLoop_Inner
 ; ===========================================================================
 ;loc_5F58
@@ -7593,7 +7646,7 @@ SSTrackDrawFlipUnc_Read10_Got6:
 	move.w	(a3,d0.w),d0
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
-	moveq	#4,d5											; Bit buffer now has 4 bits
+	moveq	#4,d5								; Bit buffer now has 4 bits
 	bra.w	SSTrackDrawFlipLoop_Inner
 ; ===========================================================================
 ;loc_5F82
@@ -7612,7 +7665,7 @@ SSTrackDrawFlipUnc_Read10_Got7:
 	move.w	(a3,d0.w),d0
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
-	moveq	#5,d5											; Bit buffer now has 5 bits
+	moveq	#5,d5								; Bit buffer now has 5 bits
 	bra.w	SSTrackDrawFlipLoop_Inner
 ; ===========================================================================
 ;loc_5FAC
@@ -7626,7 +7679,7 @@ SSTrackDrawFlipUnc_Read6_Got0:
 	move.w	(a3,d0.w),d0
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
-	moveq	#2,d5											; Bit buffer now has 2 bits
+	moveq	#2,d5								; Bit buffer now has 2 bits
 	bra.w	SSTrackDrawFlipLoop_Inner
 ; ===========================================================================
 ;loc_5FC8
@@ -7644,7 +7697,7 @@ SSTrackDrawFlipUnc_Read6_Got1:
 	move.w	(a3,d0.w),d0
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
-	moveq	#3,d5											; Bit buffer now has 3 bits
+	moveq	#3,d5								; Bit buffer now has 3 bits
 	bra.w	SSTrackDrawFlipLoop_Inner
 ; ===========================================================================
 ;loc_5FEE
@@ -7662,7 +7715,7 @@ SSTrackDrawFlipUnc_Read6_Got2:
 	move.w	(a3,d0.w),d0
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
-	moveq	#4,d5											; Bit buffer now has 4 bits
+	moveq	#4,d5								; Bit buffer now has 4 bits
 	bra.w	SSTrackDrawFlipLoop_Inner
 ; ===========================================================================
 ;loc_6014
@@ -7680,7 +7733,7 @@ SSTrackDrawFlipUnc_Read6_Got3:
 	move.w	(a3,d0.w),d0
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
-	moveq	#5,d5											; Bit buffer now has 5 bits
+	moveq	#5,d5								; Bit buffer now has 5 bits
 	bra.w	SSTrackDrawFlipLoop_Inner
 ; ===========================================================================
 ;loc_603A
@@ -7698,7 +7751,7 @@ SSTrackDrawFlipUnc_Read6_Got4:
 	move.w	(a3,d0.w),d0
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
-	moveq	#6,d5											; Bit buffer now has 6 bits
+	moveq	#6,d5								; Bit buffer now has 6 bits
 	bra.w	SSTrackDrawFlipLoop_Inner
 ; ===========================================================================
 ;loc_6060
@@ -7716,7 +7769,7 @@ SSTrackDrawFlipUnc_Read6_Got5:
 	move.w	(a3,d0.w),d0
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
-	moveq	#7,d5											; Bit buffer now has 7 bits
+	moveq	#7,d5								; Bit buffer now has 7 bits
 	bra.w	SSTrackDrawFlipLoop_Inner
 ; ===========================================================================
 ;loc_6086
@@ -7728,7 +7781,7 @@ SSTrackDrawFlipUnc_Read6_Got6:
 	move.w	(a3,d4.w),d0
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
-	moveq	#0,d5											; Bit buffer now empty
+	moveq	#0,d5								; Bit buffer now empty
 	bra.w	SSTrackDrawFlipLoop_Inner
 ; ===========================================================================
 ;loc_609E
@@ -7741,7 +7794,7 @@ SSTrackDrawFlipUnc_Read6_Got7:
 	move.w	(a3,d0.w),d0
 	eori.w	#flip_x|palette_line_3,d0
 	move.w	d0,-(a6)
-	moveq	#1,d5											; Bit buffer now has 1 bit
+	moveq	#1,d5								; Bit buffer now has 1 bit
 	bra.w	SSTrackDrawFlipLoop_Inner
 ; ===========================================================================
 ;loc_60B8
@@ -7751,7 +7804,7 @@ SSTrackDrawFlipRLE_Read7_Got0:
 	ror.b	#1,d2
 	move.b	d2,d0
 	andi.w	#$7F,d0
-	moveq	#1,d3											; Bit buffer now has 1 bit
+	moveq	#1,d3								; Bit buffer now has 1 bit
 	cmpi.b	#$7F,d0
 	beq.w	SSTrackDrawLineFlipLoop
 	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
@@ -7777,7 +7830,7 @@ SSTrackDrawFlipRLE_Read7_Got1:
 	move.b	d2,d0
 	andi.w	#$3F,d0
 	or.b	d1,d0
-	moveq	#2,d3											; Bit buffer now has 2 bits
+	moveq	#2,d3								; Bit buffer now has 2 bits
 	cmpi.b	#$7F,d0
 	beq.w	SSTrackDrawLineFlipLoop
 	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
@@ -7803,7 +7856,7 @@ SSTrackDrawFlipRLE_Read7_Got2:
 	move.b	d2,d0
 	andi.w	#$1F,d0
 	or.b	d1,d0
-	moveq	#3,d3											; Bit buffer now has 3 bits
+	moveq	#3,d3								; Bit buffer now has 3 bits
 	cmpi.b	#$7F,d0
 	beq.w	SSTrackDrawLineFlipLoop
 	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
@@ -7829,7 +7882,7 @@ SSTrackDrawFlipRLE_Read7_Got3:
 	move.b	d2,d0
 	andi.w	#$F,d0
 	or.b	d1,d0
-	moveq	#4,d3											; Bit buffer now has 4 bits
+	moveq	#4,d3								; Bit buffer now has 4 bits
 	cmpi.b	#$7F,d0
 	beq.w	SSTrackDrawLineFlipLoop
 	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
@@ -7855,7 +7908,7 @@ SSTrackDrawFlipRLE_Read7_Got4:
 	move.b	d2,d0
 	andi.w	#7,d0
 	or.b	d1,d0
-	moveq	#5,d3											; Bit buffer now has 5 bits
+	moveq	#5,d3								; Bit buffer now has 5 bits
 	cmpi.b	#$7F,d0
 	beq.w	SSTrackDrawLineFlipLoop
 	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
@@ -7881,7 +7934,7 @@ SSTrackDrawFlipRLE_Read7_Got5:
 	move.b	d2,d0
 	andi.w	#3,d0
 	or.b	d1,d0
-	moveq	#6,d3											; Bit buffer now has 6 bits
+	moveq	#6,d3								; Bit buffer now has 6 bits
 	cmpi.b	#$7F,d0
 	beq.w	SSTrackDrawLineFlipLoop
 	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
@@ -7907,7 +7960,7 @@ SSTrackDrawFlipRLE_Read7_Got6:
 	move.b	d2,d0
 	andi.w	#1,d0
 	or.b	d1,d0
-	moveq	#7,d3											; Bit buffer now has 7 bits
+	moveq	#7,d3								; Bit buffer now has 7 bits
 	cmpi.b	#$7F,d0
 	beq.w	SSTrackDrawLineFlipLoop
 	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d0
@@ -7927,7 +7980,7 @@ SSTrackDrawFlipRLE_Read7_Got7:
 	; Reads 7 bits from RLE-compressed mappings, 7 bits in bit buffer
 	lsr.b	#1,d2
 	andi.w	#$7F,d2
-	moveq	#0,d3											; Bit buffer now empty
+	moveq	#0,d3								; Bit buffer now empty
 	cmpi.b	#$7F,d2
 	beq.w	SSTrackDrawLineFlipLoop
 	addi.w	#(SSPNT_RLELUT_Part2-SSPNT_RLELUT)/4,d2
@@ -7951,7 +8004,7 @@ SSTrackDrawFlipRLE_Read6_Got0:
 	andi.w	#$3F,d0
 	add.w	d0,d0
 	add.w	d0,d0
-	moveq	#2,d3											; Bit buffer now has 2 bits
+	moveq	#2,d3								; Bit buffer now has 2 bits
 	move.w	(a4,d0.w),d1
 	move.w	2(a4,d0.w),d0
 	ori.w	#palette_line_3|high_priority,d1
@@ -7972,7 +8025,7 @@ SSTrackDrawFlipRLE_Read6_Got1:
 	move.b	d2,d1
 	andi.b	#$1F,d1
 	or.b	d1,d0
-	moveq	#3,d3											; Bit buffer now has 3 bits
+	moveq	#3,d3								; Bit buffer now has 3 bits
 	add.w	d0,d0
 	add.w	d0,d0
 	move.w	(a4,d0.w),d1
@@ -7997,7 +8050,7 @@ SSTrackDrawFlipRLE_Read6_Got2:
 	or.b	d1,d0
 	add.w	d0,d0
 	add.w	d0,d0
-	moveq	#4,d3											; Bit buffer now has 4 bits
+	moveq	#4,d3								; Bit buffer now has 4 bits
 	move.w	(a4,d0.w),d1
 	move.w	2(a4,d0.w),d0
 	ori.w	#palette_line_3|high_priority,d1
@@ -8020,7 +8073,7 @@ SSTrackDrawFlipRLE_Read6_Got3:
 	or.b	d1,d0
 	add.w	d0,d0
 	add.w	d0,d0
-	moveq	#5,d3											; Bit buffer now has 5 bits
+	moveq	#5,d3								; Bit buffer now has 5 bits
 	move.w	(a4,d0.w),d1
 	move.w	2(a4,d0.w),d0
 	ori.w	#palette_line_3|high_priority,d1
@@ -8043,7 +8096,7 @@ SSTrackDrawFlipRLE_Read6_Got4:
 	or.b	d1,d0
 	add.w	d0,d0
 	add.w	d0,d0
-	moveq	#6,d3											; Bit buffer now has 6 bits
+	moveq	#6,d3								; Bit buffer now has 6 bits
 	move.w	(a4,d0.w),d1
 	move.w	2(a4,d0.w),d0
 	ori.w	#palette_line_3|high_priority,d1
@@ -8066,7 +8119,7 @@ SSTrackDrawFlipRLE_Read6_Got5:
 	or.b	d1,d0
 	add.w	d0,d0
 	add.w	d0,d0
-	moveq	#7,d3											; Bit buffer now has 7 bits
+	moveq	#7,d3								; Bit buffer now has 7 bits
 	move.w	(a4,d0.w),d1
 	move.w	2(a4,d0.w),d0
 	ori.w	#palette_line_3|high_priority,d1
@@ -8083,7 +8136,7 @@ SSTrackDrawFlipRLE_Read6_Got6:
 	andi.w	#$3F,d2
 	add.w	d2,d2
 	add.w	d2,d2
-	moveq	#0,d3											; Bit buffer now empty
+	moveq	#0,d3								; Bit buffer now empty
 	move.w	(a4,d2.w),d1
 	move.w	2(a4,d2.w),d0
 	ori.w	#palette_line_3|high_priority,d1
@@ -8101,7 +8154,7 @@ SSTrackDrawFlipRLE_Read6_Got7:
 	andi.w	#$3F,d0
 	add.w	d0,d0
 	add.w	d0,d0
-	moveq	#1,d3											; Bit buffer now has 1 bit
+	moveq	#1,d3								; Bit buffer now has 1 bit
 	move.w	(a4,d0.w),d1
 	move.w	2(a4,d0.w),d0
 	ori.w	#palette_line_3|high_priority,d1
@@ -8197,10 +8250,10 @@ Map_SpecialStageTrack:
 	dc.l MapSpec_Rise15		;  $E
 	dc.l MapSpec_Rise16		;  $F
 	dc.l MapSpec_Rise17		; $10
-	dc.l MapSpec_Straight1	; $11
-	dc.l MapSpec_Straight2	; $12	; This may flip the special stage's horizontal orientation
-	dc.l MapSpec_Straight3	; $13
-	dc.l MapSpec_Straight4	; $14
+	dc.l MapSpec_Straight1		; $11
+	dc.l MapSpec_Straight2		; $12	; This may flip the special stage's horizontal orientation
+	dc.l MapSpec_Straight3		; $13
+	dc.l MapSpec_Straight4		; $14
 	dc.l MapSpec_Drop1		; $15
 	dc.l MapSpec_Drop2		; $16
 	dc.l MapSpec_Drop3		; $17
@@ -8218,17 +8271,17 @@ Map_SpecialStageTrack:
 	dc.l MapSpec_Drop15		; $23
 	dc.l MapSpec_Drop16		; $24
 	dc.l MapSpec_Drop17		; $25
-	dc.l MapSpec_Turning1	; $26
-	dc.l MapSpec_Turning2	; $27
-	dc.l MapSpec_Turning3	; $28
-	dc.l MapSpec_Turning4	; $29
-	dc.l MapSpec_Turning5	; $2A
-	dc.l MapSpec_Turning6	; $2B
-	dc.l MapSpec_Unturn1	; $2C
-	dc.l MapSpec_Unturn2	; $2D
-	dc.l MapSpec_Unturn3	; $2E
-	dc.l MapSpec_Unturn4	; $2F
-	dc.l MapSpec_Unturn5	; $30
+	dc.l MapSpec_Turning1		; $26
+	dc.l MapSpec_Turning2		; $27
+	dc.l MapSpec_Turning3		; $28
+	dc.l MapSpec_Turning4		; $29
+	dc.l MapSpec_Turning5		; $2A
+	dc.l MapSpec_Turning6		; $2B
+	dc.l MapSpec_Unturn1		; $2C
+	dc.l MapSpec_Unturn2		; $2D
+	dc.l MapSpec_Unturn3		; $2E
+	dc.l MapSpec_Unturn4		; $2F
+	dc.l MapSpec_Unturn5		; $30
 	dc.l MapSpec_Turn1		; $31
 	dc.l MapSpec_Turn2		; $32
 	dc.l MapSpec_Turn3		; $33
@@ -8486,50 +8539,50 @@ SSTrackSetOrientation:
 	move.b	(SS_Alternate_HorizScroll_Buf).w,(SS_Last_Alternate_HorizScroll_Buf).w
 	moveq	#0,d1
 	movea.l	(SSTrack_mappings_bitflags).w,a0				; Get frame mappings pointer
-	cmpa.l	#MapSpec_Straight2,a0							; Is the track rising or one of the first straight frame?
-	blt.s	+												; Branch if yes
-	cmpa.l	#MapSpec_Straight3,a0							; Is it straight path frame 3 or higher?
-	bge.s	+												; Branch if yes
+	cmpa.l	#MapSpec_Straight2,a0						; Is the track rising or one of the first straight frame?
+	blt.s	+								; Branch if yes
+	cmpa.l	#MapSpec_Straight3,a0						; Is it straight path frame 3 or higher?
+	bge.s	+								; Branch if yes
 	; We only get here for straight frame 2
 	movea.l	(SS_CurrentLevelLayout).w,a5					; Get current level layout
 	move.b	(SpecialStage_CurrentSegment).w,d1				; Get current segment
-	move.b	(a5,d1.w),d1									; Get segment geometry
-	bpl.s	+++												; Branch if not flipped
+	move.b	(a5,d1.w),d1							; Get segment geometry
+	bpl.s	+++								; Branch if not flipped
 -
-	st.b	(SSTrack_Orientation).w							; Mark as being flipped
+	st.b	(SSTrack_Orientation).w						; Mark as being flipped
 	move.b	(SSTrack_drawing_index).w,d0					; Get drawing position
 	cmp.b	(SS_player_anim_frame_timer).w,d0				; Is it lower than the player's frame?
-	blt.w	return_6C9A										; Return if yes
+	blt.w	return_6C9A							; Return if yes
 	st.b	(SS_Alternate_HorizScroll_Buf).w				; Use the alternate horizontal scroll buffer
 	rts
 ; ===========================================================================
 +
-	cmpa.l	#MapSpec_Rise14,a0								; Is the track one of the first 13 rising frames?
-	blt.s	+												; Branch if yes
-	cmpa.l	#MapSpec_Rise15,a0								; Is it rising frame 15 or higher?
-	bge.s	+												; Branch if yes
+	cmpa.l	#MapSpec_Rise14,a0						; Is the track one of the first 13 rising frames?
+	blt.s	+								; Branch if yes
+	cmpa.l	#MapSpec_Rise15,a0						; Is it rising frame 15 or higher?
+	bge.s	+								; Branch if yes
 	; We only get here for straight frame 14
 	movea.l	(SS_CurrentLevelLayout).w,a5					; Get current level layout
 	move.b	(SpecialStage_CurrentSegment).w,d1				; Get current segment
-	move.b	(a5,d1.w),d1									; Get segment geometry
-	bpl.s	++												; Branch if not flipped
+	move.b	(a5,d1.w),d1							; Get segment geometry
+	bpl.s	++								; Branch if not flipped
 	bra.s	-
 ; ===========================================================================
 +
-	cmpa.l	#MapSpec_Drop6,a0								; Is the track before drop frame 6?
-	blt.s	return_6C9A										; Return is yes
-	cmpa.l	#MapSpec_Drop7,a0								; Is it drop frame 7 or higher?
-	bge.s	return_6C9A										; Return if yes
+	cmpa.l	#MapSpec_Drop6,a0						; Is the track before drop frame 6?
+	blt.s	return_6C9A							; Return is yes
+	cmpa.l	#MapSpec_Drop7,a0						; Is it drop frame 7 or higher?
+	bge.s	return_6C9A							; Return if yes
 	; We only get here for straight frame 6
 	movea.l	(SS_CurrentLevelLayout).w,a5					; Get current level layout
 	move.b	(SpecialStage_CurrentSegment).w,d1				; Get current segment
-	move.b	(a5,d1.w),d1									; Get segment geometry
-	bmi.s	-												; Branch if flipped
+	move.b	(a5,d1.w),d1							; Get segment geometry
+	bmi.s	-								; Branch if flipped
 +
-	sf.b	(SSTrack_Orientation).w							; Mark as being unflipped
+	sf.b	(SSTrack_Orientation).w						; Mark as being unflipped
 	move.b	(SSTrack_drawing_index).w,d0					; Get drawing position
 	cmp.b	(SS_player_anim_frame_timer).w,d0				; Is it lower than the player's frame?
-	blt.s	return_6C9A										; Return if yes
+	blt.s	return_6C9A							; Return if yes
 	sf.b	(SS_Alternate_HorizScroll_Buf).w				; Don't use the alternate horizontal scroll buffer
 
 return_6C9A:
@@ -8543,13 +8596,13 @@ return_6C9A:
 ssInitTableBuffers:
 	lea	(SS_Horiz_Scroll_Buf_1).w,a1
 	lea	(SS_Horiz_Scroll_Buf_2).w,a2
-	moveq	#0,d0											; Scroll of 0 for PNTA and PNTB on lines 0 and 1 (normal) or lines 6 and 7 (flipped)
-	moveq	#0,d1											; Scroll of 0 for PNTB on lines 2 and 3 (normal) or lines 4 and 5 (flipped)
-	moveq	#0,d2											; Scroll of 0 for PNTB on lines 4 and 5 (normal) or lines 2 and 3 (flipped)
-	moveq	#0,d3											; Scroll of 0 for PNTB on lines 6 and 7 (normal) or lines 0 and 1 (flipped)
-	move.w	#-$100,d1										; Scroll of 3 screens for PNTA on lines 2 and 3 (normal) or lines 4 and 5 (flipped)
-	move.w	#-$200,d2										; Scroll of 2 screens for PNTA on lines 4 and 5 (normal) or lines 2 and 3 (flipped)
-	move.w	#-$300,d3										; Scroll of 1 screen for PNTA on lines 6 and 7 (normal) or lines 0 and 1 (flipped)
+	moveq	#0,d0								; Scroll of 0 for PNTA and PNTB on lines 0 and 1 (normal) or lines 6 and 7 (flipped)
+	moveq	#0,d1								; Scroll of 0 for PNTB on lines 2 and 3 (normal) or lines 4 and 5 (flipped)
+	moveq	#0,d2								; Scroll of 0 for PNTB on lines 4 and 5 (normal) or lines 2 and 3 (flipped)
+	moveq	#0,d3								; Scroll of 0 for PNTB on lines 6 and 7 (normal) or lines 0 and 1 (flipped)
+	move.w	#-$100,d1							; Scroll of 3 screens for PNTA on lines 2 and 3 (normal) or lines 4 and 5 (flipped)
+	move.w	#-$200,d2							; Scroll of 2 screens for PNTA on lines 4 and 5 (normal) or lines 2 and 3 (flipped)
+	move.w	#-$300,d3							; Scroll of 1 screen for PNTA on lines 6 and 7 (normal) or lines 0 and 1 (flipped)
 	swap	d1
 	swap	d2
 	swap	d3
@@ -8703,72 +8756,72 @@ SSPlaneB_SetHorizOffset:
 	moveq	#0,d7
 	moveq	#0,d6
 	moveq	#0,d0
-	move.b	(SSTrack_last_anim_frame).w,d2					; Get last track animation frame
-	move.b	(SSTrack_anim).w,d0								; Get current track animation
-	add.w	d0,d0											; Convert it to an index
+	move.b	(SSTrack_last_anim_frame).w,d2				; Get last track animation frame
+	move.b	(SSTrack_anim).w,d0					; Get current track animation
+	add.w	d0,d0							; Convert it to an index
 	move.w	off_6E54(pc,d0.w),d0
 	jmp	off_6E54(pc,d0.w)
 ; ===========================================================================
 off_6E54:	offsetTable
-		offsetTableEntry.w +	; 0			; Turn, then rise
-		offsetTableEntry.w +	; 1			; Turn, then drop
-		offsetTableEntry.w +	; 2			; Turn, then straight
+		offsetTableEntry.w +	; 0		; Turn, then rise
+		offsetTableEntry.w +	; 1		; Turn, then drop
+		offsetTableEntry.w +	; 2		; Turn, then straight
 		offsetTableEntry.w ++	; 3 ; rts	; Straight
 		offsetTableEntry.w ++	; 4 ; rts	; Straight, then turn
 ; ===========================================================================
 +
 	moveq	#0,d1
-	cmpi.b	#1,d2											; Was the last frame the first in this segment?
-	blt.s	++												; Branch if yes
+	cmpi.b	#1,d2							; Was the last frame the first in this segment?
+	blt.s	++							; Branch if yes
 	moveq	#2,d1
-	cmpi.b	#2,d2											; Was the last frame frame 1?
-	blt.s	++												; Branch if yes
+	cmpi.b	#2,d2							; Was the last frame frame 1?
+	blt.s	++							; Branch if yes
 	moveq	#4,d1
-	cmpi.b	#$A,d2											; Was the last frame less than $A?
-	blt.s	++												; Branch if yes
+	cmpi.b	#$A,d2							; Was the last frame less than $A?
+	blt.s	++							; Branch if yes
 	moveq	#2,d1
-	cmpi.b	#$B,d2											; Was the last frame $A?
-	blt.s	++												; Branch if yes
+	cmpi.b	#$B,d2							; Was the last frame $A?
+	blt.s	++							; Branch if yes
 	moveq	#0,d1
-	cmpi.b	#$C,d2											; Was the last frame $B?
-	blt.s	++												; Branch if yes
+	cmpi.b	#$C,d2							; Was the last frame $B?
+	blt.s	++							; Branch if yes
 +
 	rts
 ; ===========================================================================
 +
 	moveq	#0,d0
 	moveq	#0,d2
-	move.b	(SSTrack_drawing_index).w,d0					; Get drawing position
-	lea_	off_6DEE,a0										; a0 = pointer to background scroll data
-	adda.w	(a0,d1.w),a0									; a0 = pointer to background scroll data for current animation frame
-	move.b	(a0,d0.w),d2									; Get background offset for current frame duration
+	move.b	(SSTrack_drawing_index).w,d0				; Get drawing position
+	lea_	off_6DEE,a0						; a0 = pointer to background scroll data
+	adda.w	(a0,d1.w),a0						; a0 = pointer to background scroll data for current animation frame
+	move.b	(a0,d0.w),d2						; Get background offset for current frame duration
 	tst.b	(SS_Last_Alternate_HorizScroll_Buf).w			; Was the alternate horizontal scroll buffer used last time?
-	bne.s	+												; Branch if yes
-	tst.b	(SS_Alternate_HorizScroll_Buf).w				; Is the alternate horizontal scroll buffer being used now?
-	beq.s	+++												; Branch if not
+	bne.s	+							; Branch if yes
+	tst.b	(SS_Alternate_HorizScroll_Buf).w			; Is the alternate horizontal scroll buffer being used now?
+	beq.s	+++							; Branch if not
 	bra.s	++
 ; ===========================================================================
 +
-	tst.b	(SS_Alternate_HorizScroll_Buf).w				; Is the alternate horizontal scroll buffer still being used?
-	bne.s	++												; Branch if yes
-	lea	(SS_Horiz_Scroll_Buf_1 + 2).w,a1					; Load horizontal scroll buffer for PNT B
+	tst.b	(SS_Alternate_HorizScroll_Buf).w			; Is the alternate horizontal scroll buffer still being used?
+	bne.s	++							; Branch if yes
+	lea	(SS_Horiz_Scroll_Buf_1 + 2).w,a1			; Load horizontal scroll buffer for PNT B
 	bra.s	+++
 ; ===========================================================================
 +
-	lea	(SS_Horiz_Scroll_Buf_2 + 2).w,a1					; Load alternate horizontal scroll buffer for PNT B
-	neg.w	d2												; Change the sign of the background offset
+	lea	(SS_Horiz_Scroll_Buf_2 + 2).w,a1			; Load alternate horizontal scroll buffer for PNT B
+	neg.w	d2							; Change the sign of the background offset
 	bra.s	++
 ; ===========================================================================
 +
-	lea	(SS_Horiz_Scroll_Buf_1 + 2).w,a1					; Load horizontal scroll buffer for PNT B
-	tst.b	(SS_Alternate_HorizScroll_Buf).w				; Is the alternate horizontal scroll buffer being used now?
-	beq.s	+												; Branch if not
-	lea	(SS_Horiz_Scroll_Buf_2 + 2).w,a1					; Load alternate horizontal scroll buffer for PNT B
-	neg.w	d2												; Change the sign of the background offset
+	lea	(SS_Horiz_Scroll_Buf_1 + 2).w,a1			; Load horizontal scroll buffer for PNT B
+	tst.b	(SS_Alternate_HorizScroll_Buf).w			; Is the alternate horizontal scroll buffer being used now?
+	beq.s	+							; Branch if not
+	lea	(SS_Horiz_Scroll_Buf_2 + 2).w,a1			; Load alternate horizontal scroll buffer for PNT B
+	neg.w	d2							; Change the sign of the background offset
 +
-	move.w	#$FF,d0											; 256 lines
--	sub.w	d2,(a1)+										; Change current line's offset
-	adda_.l	#2,a1											; Skip PNTA entry
+	move.w	#$FF,d0							; 256 lines
+-	sub.w	d2,(a1)+						; Change current line's offset
+	adda_.l	#2,a1							; Skip PNTA entry
 	dbf	d0,-
 
 	rts
@@ -8778,21 +8831,21 @@ off_6E54:	offsetTable
 
 ;sub_6EE0
 SSTrack_SetVscroll:
-	move.w	(Vscroll_Factor_BG).w,(SSTrack_LastVScroll).w	; Save last vertical scroll value
-	moveq	#0,d7											; Set flag to decrease vertical scroll
+	move.w	(Vscroll_Factor_BG).w,(SSTrack_LastVScroll).w		; Save last vertical scroll value
+	moveq	#0,d7							; Set flag to decrease vertical scroll
 	moveq	#0,d0
 	moveq	#0,d2
-	move.b	(SSTrack_last_anim_frame).w,d2					; Get last track animation frame
-	move.b	(SSTrack_anim).w,d0								; Get current track animation
-	add.w	d0,d0											; Convert it to index
+	move.b	(SSTrack_last_anim_frame).w,d2				; Get last track animation frame
+	move.b	(SSTrack_anim).w,d0					; Get current track animation
+	add.w	d0,d0							; Convert it to index
 	move.w	off_6EFE(pc,d0.w),d0
 	jmp	off_6EFE(pc,d0.w)
 ; ===========================================================================
 off_6EFE:	offsetTable
-		offsetTableEntry.w loc_6F0A	; 0			; Turn, then rise
-		offsetTableEntry.w loc_6F2A	; 1			; Turn, then drop
+		offsetTableEntry.w loc_6F0A	; 0		; Turn, then rise
+		offsetTableEntry.w loc_6F2A	; 1		; Turn, then drop
 		offsetTableEntry.w +		; 2 ; rts	; Turn, then straight
-		offsetTableEntry.w loc_6F4C	; 3			; Straight
+		offsetTableEntry.w loc_6F4C	; 3		; Straight
 		offsetTableEntry.w +		; 4 ; rts	; Straight, then turn
 ; ===========================================================================
 +
@@ -8800,8 +8853,8 @@ off_6EFE:	offsetTable
 ; ===========================================================================
 
 loc_6F0A:
-	move.b	+(pc,d2.w),d1									; Get current frame's vertical scroll offset
-	bpl.s	SSTrack_ApplyVscroll							; Branch if positive
+	move.b	+(pc,d2.w),d1							; Get current frame's vertical scroll offset
+	bpl.s	SSTrack_ApplyVscroll						; Branch if positive
 	rts
 ; ===========================================================================
 ; Special stage vertical scroll index for 'turn, then rise' animation
@@ -8833,9 +8886,9 @@ loc_6F0A:
 ; ===========================================================================
 
 loc_6F2A:
-	st	d7													; Set flag to increase vertical scroll
-	move.b	+(pc,d2.w),d1									; Get current frame's vertical scroll offset
-	bpl.s	SSTrack_ApplyVscroll							; Branch if positive
+	st	d7								; Set flag to increase vertical scroll
+	move.b	+(pc,d2.w),d1							; Get current frame's vertical scroll offset
+	bpl.s	SSTrack_ApplyVscroll						; Branch if positive
 	rts
 ; ===========================================================================
 ; Special stage vertical scroll index for 'turn, then drop' animation
@@ -8867,10 +8920,10 @@ loc_6F2A:
 ; ===========================================================================
 
 loc_6F4C:
-	tst.b	(SS_Pause_Only_flag).w							; Is the game paused?
-	bne.s	+	; rts										; Return if yes
-	move.b	++(pc,d2.w),d1									; Get current frame's vertical scroll offset
-	bpl.s	SSTrack_ApplyVscroll							; Branch if positive
+	tst.b	(SS_Pause_Only_flag).w						; Is the game paused?
+	bne.s	+	; rts							; Return if yes
+	move.b	++(pc,d2.w),d1							; Get current frame's vertical scroll offset
+	bpl.s	SSTrack_ApplyVscroll						; Branch if positive
 +
 	rts
 ; ===========================================================================
@@ -8888,16 +8941,16 @@ SSTrack_ApplyVscroll:
 	moveq	#0,d0
 	moveq	#0,d2
 	move.b	(SSTrack_drawing_index).w,d0					; Get drawing position
-	lea_	off_6DEE,a0										; a0 = pointer to background scroll data
-	adda.w	(a0,d1.w),a0									; a0 = pointer to background scroll data for current animation frame
-	move.b	(a0,d0.w),d2									; Get background offset for current frame duration
-	tst.b	d7												; Are we supposed to increase the vertical scroll?
-	bpl.s	+												; Branch if not
-	add.w	d2,(Vscroll_Factor_BG).w						; Increase vertical scroll
+	lea_	off_6DEE,a0							; a0 = pointer to background scroll data
+	adda.w	(a0,d1.w),a0							; a0 = pointer to background scroll data for current animation frame
+	move.b	(a0,d0.w),d2							; Get background offset for current frame duration
+	tst.b	d7								; Are we supposed to increase the vertical scroll?
+	bpl.s	+								; Branch if not
+	add.w	d2,(Vscroll_Factor_BG).w					; Increase vertical scroll
 	rts
 ; ===========================================================================
 +
-	sub.w	d2,(Vscroll_Factor_BG).w						; Decrease vertical scroll
+	sub.w	d2,(Vscroll_Factor_BG).w					; Decrease vertical scroll
 	rts
 ; End of function SSTrack_SetVscroll
 
@@ -8987,7 +9040,7 @@ Obj5E:
 	andi.w	#3,d1
 	tst.b	(Graphics_Flags).w
 	bpl.s	+
-	addq.w	#3,d1 ; set special stage tails name to "TAILS" instead of MILES
+	addq.w	#3,d1 ; set special stage Tails name to "TAILS" instead of MILES
 +
 	add.w	d1,d1
 	moveq	#0,d2
@@ -9514,7 +9567,7 @@ SSSetGeometryOffsets:
 ; End of function SSSetGeometryOffsets
 
 ; ===========================================================================
-; Position offsets to sort-of rotate the plane sonic/tails are in
+; Position offsets to sort-of rotate the plane Sonic/Tails are in
 ; when the special stage track is curving, so they follow it better.
 ; Each word seems to be (x_offset, y_offset)
 ; See also Ani_SpecialStageTrack.
@@ -9594,7 +9647,7 @@ SSStartNewAct:
 ; Ring requirement values for Sonic and Tails games
 ;
 ; This array stores the number of rings you need to get to complete each round
-; of each special stage, while playing with both sonic and tails. 4 bytes per
+; of each special stage, while playing with both Sonic and Tails. 4 bytes per
 ; stage, corresponding to the four possible parts of the level. Last part is unused.
 ; ----------------------------------------------------------------------------
 ; Misc_7756:
@@ -9610,7 +9663,7 @@ SpecialStage_RingReq_Team:
 ; Ring requirement values for Sonic or Tails alone games
 ;
 ; This array stores the number of rings you need to get to complete each round
-; of each special stage, while playing with either sonic or tails. 4 bytes per
+; of each special stage, while playing with either Sonic or Tails. 4 bytes per
 ; stage, corresponding to the four possible parts of the level. Last part is unused.
 ; ----------------------------------------------------------------------------
 ; Misc_7772:
@@ -9785,8 +9838,8 @@ ContinueScreen:
 	clr.b	(Level_started_flag).w
 	clr.l	(Camera_X_pos_copy).w
 	move.l	#$1000000,(Camera_Y_pos_copy).w
-	move.b	#ObjID_ContinueChars,(MainCharacter+id).w ; load ObjDB (sonic on continue screen)
-	move.b	#ObjID_ContinueChars,(Sidekick+id).w ; load ObjDB (tails on continue screen)
+	move.b	#ObjID_ContinueChars,(MainCharacter+id).w ; load ObjDB (Sonic on continue screen)
+	move.b	#ObjID_ContinueChars,(Sidekick+id).w ; load ObjDB (Tails on continue screen)
 	move.b	#6,(Sidekick+routine).w ; => ObjDB_Tails_Init
 	move.b	#ObjID_ContinueText,(ContinueText+id).w ; load ObjDA (continue screen text)
 	move.b	#ObjID_ContinueIcons,(ContinueIcons+id).w ; load ObjDA (continue icons)
@@ -14937,14 +14990,14 @@ SwScrl_WFZ:
 	sub.w	d0,d1					; Does this segment have any visible lines?
 	bcc.s	.seg_loop				; Branch if not
 
-	neg.w	d1						; d1 = number of lines to draw in this segment
-	move.w	#bytesToLcnt($380),d2	; Number of rows in hscroll buffer
+	neg.w	d1					; d1 = number of lines to draw in this segment
+	move.w	#bytesToLcnt($380),d2			; Number of rows in hscroll buffer
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
 	move.b	-1(a3),d3				; Fetch TempArray_LayerDef index
-	move.w	(a2,d3.w),d0			; Fetch scroll value for this row...
-	neg.w	d0						; ... and flip sign for VDP
+	move.w	(a2,d3.w),d0				; Fetch scroll value for this row...
+	neg.w	d0					; ...and flip sign for VDP
 
 .row_loop:
 	move.l	d0,(a1)+
@@ -14952,8 +15005,8 @@ SwScrl_WFZ:
 	bne.s	.next_row				; Branch if not
 	move.b	(a3)+,d1				; Fetch a new line count
 	move.b	(a3)+,d3				; Fetch TempArray_LayerDef index
-	move.w	(a2,d3.w),d0			; Fetch scroll value for this row...
-	neg.w	d0						; ... and flip sign for VDP
+	move.w	(a2,d3.w),d0				; Fetch scroll value for this row...
+	neg.w	d0					; ...and flip sign for VDP
 
 .next_row:
 	dbf	d2,.row_loop
@@ -19824,7 +19877,7 @@ LevEvents_DEZ_Routine1:
 	addq.b	#2,(Dynamic_Resize_Routine).w
 	jsrto	(SingleObjLoad).l, JmpTo_SingleObjLoad
 	bne.s	+	; rts
-	move.b	#ObjID_MechaSonic,id(a1) ; load objAF (silver sonic)
+	move.b	#ObjID_MechaSonic,id(a1) ; load objAF (Silver Sonic)
 	move.b	#$48,subtype(a1)
 	move.w	#$348,x_pos(a1)
 	move.w	#$A0,y_pos(a1)
@@ -27125,7 +27178,7 @@ Touch_ChkHurt2:
 	bne.s	+	; rts		; if yes, branch
 	tst.w	invulnerable_time(a1)	; is character invulnerable?
 	bne.s	+	; rts		; if yes, branch
-	cmpi.b	#4,routine(a1)		; is the character hurt, dieing, etc. ?
+	cmpi.b	#4,routine(a1)		; is the character hurt, dying, etc. ?
 	bhs.s	+	; rts		; if yes, branch
 	move.l	y_pos(a1),d3
 	move.w	y_vel(a1),d0
@@ -27711,7 +27764,7 @@ ObjPtr_SmallMetalPform:	dc.l ObjBD	; Ascending/descending metal platforms from W
 ObjPtr_LateralCannon:	dc.l ObjBE	; Lateral cannon (temporary platform that pops in/out) from WFZ
 ObjPtr_WFZStick:	dc.l ObjBF	; Rotaty-stick badnik from WFZ
 ObjPtr_SpeedLauncher:	dc.l ObjC0	; Speed launcher from WFZ
-ObjPtr_BreakablePlating:dc.l ObjC1	; Breakable plating from WFZ / what sonic hangs onto on the back of Robotnic's getaway ship
+ObjPtr_BreakablePlating:dc.l ObjC1	; Breakable plating from WFZ / what Sonic hangs onto on the back of Robotnik's getaway ship
 ObjPtr_Rivet:		dc.l ObjC2	; Rivet thing you bust to get into ship at the end of WFZ
 ObjPtr_TornadoSmoke:	dc.l ObjC3	; Plane's smoke from WFZ
 ObjPtr_TornadoSmoke2:	dc.l ObjC3 	; ObjC4 = ObjC3
@@ -28052,7 +28105,7 @@ Anim_Wait:
 ; ===========================================================================
 ; loc_1659C:
 Anim_End_FF:
-	addq.b	#1,d0		; is the end flag = $FF ?
+	addq.b	#1,d0		; is the end flag = $FF?
 	bne.s	Anim_End_FE	; if not, branch
 	move.b	#0,anim_frame(a0)	; restart the animation
 	move.b	1(a1),d0	; read sprite number
@@ -28060,7 +28113,7 @@ Anim_End_FF:
 ; ===========================================================================
 ; loc_165AC:
 Anim_End_FE:
-	addq.b	#1,d0	; is the end flag = $FE ?
+	addq.b	#1,d0	; is the end flag = $FE?
 	bne.s	Anim_End_FD	; if not, branch
 	move.b	2(a1,d1.w),d0	; read the next byte in the script
 	sub.b	d0,anim_frame(a0)	; jump back d0 bytes in the script
@@ -28070,14 +28123,14 @@ Anim_End_FE:
 ; ===========================================================================
 ; loc_165C0:
 Anim_End_FD:
-	addq.b	#1,d0		; is the end flag = $FD ?
+	addq.b	#1,d0		; is the end flag = $FD?
 	bne.s	Anim_End_FC	; if not, branch
 	move.b	2(a1,d1.w),anim(a0)	; read next byte, run that animation
 	rts
 ; ===========================================================================
 ; loc_165CC:
 Anim_End_FC:
-	addq.b	#1,d0	; is the end flag = $FC ?
+	addq.b	#1,d0	; is the end flag = $FC?
 	bne.s	Anim_End_FB	; if not, branch
 	addq.b	#2,routine(a0)	; jump to next routine
 	move.b	#0,anim_frame_duration(a0)
@@ -28086,7 +28139,7 @@ Anim_End_FC:
 ; ===========================================================================
 ; loc_165E0:
 Anim_End_FB:
-	addq.b	#1,d0	; is the end flag = $FB ?
+	addq.b	#1,d0	; is the end flag = $FB?
 	bne.s	Anim_End_FA	; if not, branch
 	move.b	#0,anim_frame(a0)	; reset animation
 	clr.b	routine_secondary(a0)	; reset 2nd routine counter
@@ -28094,14 +28147,14 @@ Anim_End_FB:
 ; ===========================================================================
 ; loc_165F0:
 Anim_End_FA:
-	addq.b	#1,d0	; is the end flag = $FA ?
+	addq.b	#1,d0	; is the end flag = $FA?
 	bne.s	Anim_End_F9	; if not, branch
 	addq.b	#2,routine_secondary(a0)	; jump to next routine
 	rts
 ; ===========================================================================
 ; loc_165FA:
 Anim_End_F9:
-	addq.b	#1,d0	; is the end flag = $F9 ?
+	addq.b	#1,d0	; is the end flag = $F9?
 	bne.s	Anim_End	; if not, branch
 	addq.b	#2,objoff_2A(a0)	; Actually obj89_arrow_routine
 ; return_16602:
@@ -28240,7 +28293,7 @@ BuildSprites_NextLevel:
 ; ===========================================================================
     if gameRevision=0
 BuildSprites_Unknown:
-	; In the Simon Wai beta, this was a simple BranchTo, but later builds have this mystery line.
+	; In the Simon Wai prototype, this was a simple BranchTo, but later builds have this mystery line.
 	; This may have possibly been a debugging function, for helping the devs detect when an object
 	; tried to display with a blank ID or mappings pointer.
 	; The latter was actually an issue that plagued Sonic 1, but is (almost) completely absent in this game.
@@ -28938,13 +28991,14 @@ BuildSprites_P2_MultiDraw_NextObj:
 ; sub_16D6E:
 Adjust2PArtPointer:
 	tst.w	(Two_player_mode).w
-	beq.s	+ ; rts
+	beq.s	.return
 	move.w	art_tile(a0),d0
 	andi.w	#tile_mask,d0
 	lsr.w	#1,d0
 	andi.w	#nontile_mask,art_tile(a0)
 	add.w	d0,art_tile(a0)
-+
+
+.return:
 	rts
 ; End of function Adjust2PArtPointer
 
@@ -28955,13 +29009,14 @@ Adjust2PArtPointer:
 ; sub_16D8A:
 Adjust2PArtPointer2:
 	tst.w	(Two_player_mode).w
-	beq.s	+ ; rts
+	beq.s	.return
 	move.w	art_tile(a1),d0
 	andi.w	#tile_mask,d0
 	lsr.w	#1,d0
 	andi.w	#nontile_mask,art_tile(a1)
 	add.w	d0,art_tile(a1)
-+
+
+.return:
 	rts
 ; End of function Adjust2PArtPointer2
 
@@ -29163,41 +29218,52 @@ byte_16F06:
 	dc.b $20,$20,$20,$20	; 16
 
 ; ===========================================================================
-; loc_16F16: ; unused/dead code? ; a0=object
-	move.w	x_pos(a0),d0
+; Unused leftover code from Sonic 1: checks whether an object is off-screen
+
+; loc_16F16:
+ChkObjectVisible:
+	move.w	x_pos(a0),d0	; a0=object
 	sub.w	(Camera_X_pos).w,d0
-	bmi.s	+
+	bmi.s	.offscreen
 	cmpi.w	#320,d0
-	bge.s	+
+	bge.s	.offscreen
 	move.w	y_pos(a0),d1
 	sub.w	(Camera_Y_pos).w,d1
-	bmi.s	+
-	cmpi.w	#$E0,d1
-	bge.s	+
+	bmi.s	.offscreen
+	cmpi.w	#224,d1
+	bge.s	.offscreen
 	moveq	#0,d0
 	rts
-+	moveq	#1,d0
+
+.offscreen:
+	moveq	#1,d0
 	rts
 ; ===========================================================================
-; loc_16F3E: ; unused/dead code? ; a0=object
+; Unused leftover code from Sonic 1: checks whether an object is off-screen
+; with more precision than the above code, taking the object's width into account
+
+; loc_16F3E:
+ChkPartiallyVisible:
 	moveq	#0,d1
-	move.b	width_pixels(a0),d1
+	move.b	width_pixels(a0),d1	; a0=object
 	move.w	x_pos(a0),d0
 	sub.w	(Camera_X_pos).w,d0
 	add.w	d1,d0
-	bmi.s	+
+	bmi.s	.offscreen
 	add.w	d1,d1
 	sub.w	d1,d0
 	cmpi.w	#320,d0
-	bge.s	+
+	bge.s	.offscreen
 	move.w	y_pos(a0),d1
 	sub.w	(Camera_Y_pos).w,d1
-	bmi.s	+
-	cmpi.w	#$E0,d1
-	bge.s	+
+	bmi.s	.offscreen
+	cmpi.w	#224,d1
+	bge.s	.offscreen
 	moveq	#0,d0
 	rts
-+	moveq	#1,d0
+
+.offscreen:
+	moveq	#1,d0
 	rts
 ; ===========================================================================
 
@@ -32206,7 +32272,7 @@ Obj0D_MapRUnc_196EE:	BINCLUDE "mappings/spriteDPLC/obj0D.bin"
 ;
 ; address registers:
 ; a0 = the object to check collision with
-; a1 = sonic or tails (set inside these subroutines)
+; a1 = Sonic or Tails (set inside these subroutines)
 ; ---------------------------------------------------------------------------
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -32305,7 +32371,7 @@ loc_197C6:
 ;
 ; address registers:
 ; a0 = the object to check collision with
-; a1 = sonic or tails (set inside these subroutines)
+; a1 = Sonic or Tails (set inside these subroutines)
 ; a2 = height data for slope
 ; loc_197D0: SolidObject86_30:
 SlopedSolid:
@@ -32540,13 +32606,13 @@ SolidObject_cont:
 	; We now perform the x portion of a bounding box check.  To do this, we assume a
 	; coordinate system where the x origin is at the object's left edge.
 	move.w	x_pos(a1),d0		; load Sonic's x position...
-	sub.w	x_pos(a0),d0		; ... and calculate his x position relative to the object
+	sub.w	x_pos(a0),d0		; ...and calculate his x position relative to the object
 	add.w	d1,d0			; assume object's left edge is at (0,0).  This is also Sonic's distance to the object's left edge.
-	bmi.w	SolidObject_TestClearPush	; branch, if Sonic is outside the object's left edge
+	bmi.w	SolidObject_TestClearPush	; branch if Sonic is outside the object's left edge
 	move.w	d1,d3
 	add.w	d3,d3			; calculate object's width
 	cmp.w	d3,d0
-	bhi.w	SolidObject_TestClearPush	; branch, if Sonic is outside the object's right edge
+	bhi.w	SolidObject_TestClearPush	; branch if Sonic is outside the object's right edge
 	; We now perform the y portion of a bounding box check.  To do this, we assume a
 	; coordinate system where the y origin is at the highest y position relative to the object
 	; at which Sonic would still collide with it.  This point is
@@ -32557,31 +32623,31 @@ SolidObject_cont:
 	ext.w	d3
 	add.w	d3,d2			; calculate maximum distance for a top collision
 	move.w	y_pos(a1),d3		; load Sonic's y position...
-	sub.w	y_pos(a0),d3		; ... and calculate his y position relative to the object
+	sub.w	y_pos(a0),d3		; ...and calculate his y position relative to the object
 	addq.w	#4,d3			; assume a slightly lower position for Sonic
 	add.w	d2,d3			; assume the highest position where Sonic would still be colliding with the object to be (0,0)
-	bmi.w	SolidObject_TestClearPush	; branch, if Sonic is above this point
+	bmi.w	SolidObject_TestClearPush	; branch if Sonic is above this point
 	andi.w	#$7FF,d3
 	move.w	d2,d4
 	add.w	d4,d4			; calculate minimum distance for a bottom collision
 	cmp.w	d4,d3
-	bhs.w	SolidObject_TestClearPush	; branch, if Sonic is below this point
+	bhs.w	SolidObject_TestClearPush	; branch if Sonic is below this point
 ;loc_19A2E:
 SolidObject_ChkBounds:
 	tst.b	obj_control(a1)
-	bmi.w	SolidObject_TestClearPush	; branch, if object collisions are disabled for Sonic
+	bmi.w	SolidObject_TestClearPush	; branch if object collisions are disabled for Sonic
 	cmpi.b	#6,routine(a1)		; is Sonic dead?
 	bhs.w	loc_19AEA		; if yes, branch
 	tst.w	(Debug_placement_mode).w
-	bne.w	loc_19AEA		; branch, if in debug mode
+	bne.w	loc_19AEA		; branch if in debug mode
 
 	move.w	d0,d5
 	cmp.w	d0,d1
-	bhs.s	+			; branch, if Sonic is to the object's left
+	bhs.s	+			; branch if Sonic is to the object's left
 	add.w	d1,d1
 	sub.w	d1,d0
 	move.w	d0,d5			; calculate Sonic's distance to the object's right edge...
-	neg.w	d5			; ... and calculate the absolute value
+	neg.w	d5			; ...and calculate the absolute value
 +
 	move.w	d3,d1
 	cmp.w	d3,d2
@@ -32822,7 +32888,7 @@ loc_19C2C:
 ;
 ; address registers:
 ; a0 = the object to check collision with
-; a1 = sonic or tails (set inside these subroutines)
+; a1 = Sonic or Tails (set inside these subroutines)
 ; loc_19C32:
 PlatformObject:
 	lea	(MainCharacter).w,a1 ; a1=character
@@ -32874,7 +32940,7 @@ loc_19C80:
 ;
 ; address registers:
 ; a0 = the object to check collision with
-; a1 = sonic or tails (set inside these subroutines)
+; a1 = Sonic or Tails (set inside these subroutines)
 ; a2 = height data for slope
 ; loc_19C8A: SlopeObject:
 SlopedPlatform:
@@ -33415,7 +33481,7 @@ Obj01_InWater:
 
 	movea.l	a0,a1
 	bsr.w	ResumeMusic
-	move.b	#ObjID_SmallBubbles,(Sonic_BreathingBubbles+id).w ; load Obj0A (sonic's breathing bubbles) at $FFFFD080
+	move.b	#ObjID_SmallBubbles,(Sonic_BreathingBubbles+id).w ; load Obj0A (Sonic's breathing bubbles) at $FFFFD080
 	move.b	#$81,(Sonic_BreathingBubbles+subtype).w
 	move.l	a0,(Sonic_BreathingBubbles+objoff_3C).w
 	move.w	#$300,(Sonic_top_speed).w
@@ -34453,7 +34519,7 @@ Sonic_CheckGoSuper:
 	move.b	#1,(Super_Sonic_flag).w
 	move.b	#$81,obj_control(a0)
 	move.b	#AniIDSupSonAni_Transform,anim(a0)			; use transformation animation
-	move.b	#ObjID_SuperSonicStars,(SuperSonicStars+id).w ; load Obj7E (super sonic stars object) at $FFFFD040
+	move.b	#ObjID_SuperSonicStars,(SuperSonicStars+id).w ; load Obj7E (Super Sonic stars object) at $FFFFD040
 	move.w	#$A00,(Sonic_top_speed).w
 	move.w	#$30,(Sonic_acceleration).w
 	move.w	#$100,(Sonic_deceleration).w
@@ -35325,7 +35391,7 @@ SAnim_Delay:
 ; ===========================================================================
 ; loc_1B3C4:
 SAnim_End_FF:
-	addq.b	#1,d0		; is the end flag = $FF ?
+	addq.b	#1,d0		; is the end flag = $FF?
 	bne.s	SAnim_End_FE	; if not, branch
 	move.b	#0,anim_frame(a0)	; restart the animation
 	move.b	1(a1),d0	; read sprite number
@@ -35333,7 +35399,7 @@ SAnim_End_FF:
 ; ===========================================================================
 ; loc_1B3D4:
 SAnim_End_FE:
-	addq.b	#1,d0		; is the end flag = $FE ?
+	addq.b	#1,d0		; is the end flag = $FE?
 	bne.s	SAnim_End_FD	; if not, branch
 	move.b	2(a1,d1.w),d0	; read the next byte in the script
 	sub.b	d0,anim_frame(a0)	; jump back d0 bytes in the script
@@ -35343,7 +35409,7 @@ SAnim_End_FE:
 ; ===========================================================================
 ; loc_1B3E8:
 SAnim_End_FD:
-	addq.b	#1,d0			; is the end flag = $FD ?
+	addq.b	#1,d0			; is the end flag = $FD?
 	bne.s	SAnim_End		; if not, branch
 	move.b	2(a1,d1.w),anim(a0)	; read next byte, run that animation
 ; return_1B3F2:
@@ -35352,7 +35418,7 @@ SAnim_End:
 ; ===========================================================================
 ; loc_1B3F4:
 SAnim_WalkRun:
-	addq.b	#1,d0		; is the start flag = $FF ?
+	addq.b	#1,d0		; is the start flag = $FF?
 	bne.w	SAnim_Roll	; if not, branch
 	moveq	#0,d0		; is animation walking/running?
 	move.b	flip_angle(a0),d0	; if not, branch
@@ -35512,7 +35578,7 @@ loc_1B572:
 SAnim_Roll:
 	subq.b	#1,anim_frame_duration(a0)	; subtract 1 from frame duration
 	bpl.w	SAnim_Delay			; if time remains, branch
-	addq.b	#1,d0		; is the start flag = $FE ?
+	addq.b	#1,d0		; is the start flag = $FE?
 	bne.s	SAnim_Push	; if not, branch
 	mvabs.w	inertia(a0),d2
 	lea	(SonAni_Roll2).l,a1
@@ -35894,8 +35960,8 @@ Obj02_Control_Part2:
 	jsr	Obj02_Modes(pc,d1.w)	; run Tails' movement control code
 +
 	cmpi.w	#-$100,(Camera_Min_Y_pos).w	; is vertical wrapping enabled?
-	bne.s	+                               ; if not, branch
-	andi.w	#$7FF,y_pos(a0)                 ; perform wrapping of Sonic's y position
+	bne.s	+				; if not, branch
+	andi.w	#$7FF,y_pos(a0)			; perform wrapping of Sonic's y position
 +
 	bsr.s	Tails_Display
 	bsr.w	Tails_RecordPos
@@ -38104,7 +38170,7 @@ TAnim_Delay:
 ; ===========================================================================
 ; loc_1CE2C:
 TAnim_End_FF:
-	addq.b	#1,d0		; is the end flag = $FF ?
+	addq.b	#1,d0		; is the end flag = $FF?
 	bne.s	TAnim_End_FE	; if not, branch
 	move.b	#0,anim_frame(a0)	; restart the animation
 	move.b	1(a1),d0	; read sprite number
@@ -38112,7 +38178,7 @@ TAnim_End_FF:
 ; ===========================================================================
 ; loc_1CE3C:
 TAnim_End_FE:
-	addq.b	#1,d0		; is the end flag = $FE ?
+	addq.b	#1,d0		; is the end flag = $FE?
 	bne.s	TAnim_End_FD	; if not, branch
 	move.b	2(a1,d1.w),d0	; read the next byte in the script
 	sub.b	d0,anim_frame(a0)	; jump back d0 bytes in the script
@@ -38122,7 +38188,7 @@ TAnim_End_FE:
 ; ===========================================================================
 ; loc_1CE50:
 TAnim_End_FD:
-	addq.b	#1,d0			; is the end flag = $FD ?
+	addq.b	#1,d0			; is the end flag = $FD?
 	bne.s	TAnim_End		; if not, branch
 	move.b	2(a1,d1.w),anim(a0)	; read next byte, run that animation
 ; return_1CE5A:
@@ -38135,7 +38201,7 @@ TAnim_WalkRunZoom: ; a0=character
 	subq.b	#1,anim_frame_duration(a0)	; subtract 1 from Tails' frame duration
 	bpl.s	TAnim_Delay			; if time remains, branch
 
-	addq.b	#1,d0		; is the end flag = $FF ?
+	addq.b	#1,d0		; is the end flag = $FF?
 	bne.w	TAnim_Roll	; if not, branch
 	moveq	#0,d0		; is animation walking/running?
 	move.b	flip_angle(a0),d0	; if not, branch
@@ -38241,7 +38307,7 @@ TAnim_Tumble_Left:
 ; ===========================================================================
 ; loc_1CF6E:
 TAnim_Roll:
-	addq.b	#1,d0		; is the end flag = $FE ?
+	addq.b	#1,d0		; is the end flag = $FE?
 	bne.s	TAnim_GetTailFrame	; if not, branch
 	mvabs.w	inertia(a0),d2
 	lea	(TailsAni_Roll2).l,a1
@@ -39030,7 +39096,7 @@ ResumeMusic:
 +
 	tst.b	(Super_Sonic_flag).w
 	beq.w	+		; branch if it isn't Super Sonic
-	move.w	#MusID_SuperSonic,d0	; prepare to play super sonic music
+	move.w	#MusID_SuperSonic,d0	; prepare to play Super Sonic music
 +
 	tst.b	(Current_Boss_ID).w
 	beq.s	+		; branch if not in a boss fight
@@ -56568,109 +56634,109 @@ SlotMachine_JmpTable: ;;
 	bra.w	SlotMachine_Routine4		; $0C
 	bra.w	SlotMachine_Routine5		; $10
 	bra.w	SlotMachine_Routine6		; $14
-	rts									; $18
+	rts					; $18
 ; ===========================================================================
 ; loc_2BF4C:
 SlotMachine_Routine1:
-	movea.l	a4,a1						; Copy destination
+	movea.l	a4,a1				; Copy destination
 
-	moveq	#8,d0						; 18 bytes, in words
+	moveq	#8,d0				; 18 bytes, in words
 -	clr.w	(a1)+
 	dbf	d0,-
 
 	move.b	(Vint_runcount+3).w,d0		; 'Random' seed
-	move.b	d0,slot1_index(a4)			; Only last 3 bits matter
-	ror.b	#3,d0						; Remove last 3 bits
-	move.b	d0,slot2_index(a4)			; Again, only last 3 bits matter
-	ror.b	#3,d0						; Remove 3 more bits (only have 2 bits now!)
-	move.b	d0,slot3_index(a4)			; Only 3 bits matter, but we only have 2 anyway
-	move.b	#8,slot1_offset(a4)			; This will set a draw from start of tile
-	move.b	#8,slot2_offset(a4)			; This will set a draw from start of tile
-	move.b	#8,slot3_offset(a4)			; This will set a draw from start of tile
-	move.b	#8,slot1_speed(a4)			; Initial rolling speed
-	move.b	#8,slot2_speed(a4)			; Initial rolling speed
-	move.b	#8,slot3_speed(a4)			; Initial rolling speed
-	move.b	#1,slot_timer(a4)			; Roll each slot once
-	_addq.b	#4,slot_rout(a4)			; => SlotMachine_Routine2
+	move.b	d0,slot1_index(a4)		; Only last 3 bits matter
+	ror.b	#3,d0				; Remove last 3 bits
+	move.b	d0,slot2_index(a4)		; Again, only last 3 bits matter
+	ror.b	#3,d0				; Remove 3 more bits (only have 2 bits now!)
+	move.b	d0,slot3_index(a4)		; Only 3 bits matter, but we only have 2 anyway
+	move.b	#8,slot1_offset(a4)		; This will set a draw from start of tile
+	move.b	#8,slot2_offset(a4)		; This will set a draw from start of tile
+	move.b	#8,slot3_offset(a4)		; This will set a draw from start of tile
+	move.b	#8,slot1_speed(a4)		; Initial rolling speed
+	move.b	#8,slot2_speed(a4)		; Initial rolling speed
+	move.b	#8,slot3_speed(a4)		; Initial rolling speed
+	move.b	#1,slot_timer(a4)		; Roll each slot once
+	_addq.b	#4,slot_rout(a4)		; => SlotMachine_Routine2
 	rts
 ; ===========================================================================
 ; loc_2BF9A:
 SlotMachine_Routine2:
 	bsr.w	SlotMachine_DrawSlot		; Draw the slots
-	tst.b	slot_timer(a4)				; Are we still rolling?
-	beq.s	+							; Branch if not
+	tst.b	slot_timer(a4)			; Are we still rolling?
+	beq.s	+				; Branch if not
 	rts
 ; ===========================================================================
 +
-	_move.b	#$18,slot_rout(a4)			; => null routine (rts)
-	clr.w	slot1_speed(a4)				; Stop slot 1
-	clr.w	slot2_speed(a4)				; Stop slot 2
-	clr.w	slot3_speed(a4)				; Stop slot 3
+	_move.b	#$18,slot_rout(a4)		; => null routine (rts)
+	clr.w	slot1_speed(a4)			; Stop slot 1
+	clr.w	slot2_speed(a4)			; Stop slot 2
+	clr.w	slot3_speed(a4)			; Stop slot 3
 	rts
 ; ===========================================================================
 ; loc_2BFBA:
 SlotMachine_Routine3:
 	move.b	(Vint_runcount+3).w,d0		; 'Random' seed
-	andi.b	#7,d0						; Only want last 3 bits
-	subq.b	#4,d0						; Subtract 4...
-	addi.b	#$30,d0						; ... then add $30 (why not just add $2C?)
-	move.b	d0,slot1_speed(a4)			; This is our starting speed for slot 1
+	andi.b	#7,d0				; Only want last 3 bits
+	subq.b	#4,d0				; Subtract 4...
+	addi.b	#$30,d0				; ...then add $30 (why not just add $2C?)
+	move.b	d0,slot1_speed(a4)		; This is our starting speed for slot 1
 	move.b	(Vint_runcount+3).w,d0		; 'Random' seed
-	rol.b	#4,d0						; Get top nibble...
-	andi.b	#7,d0						; ... but discard what was the sign bit
-	subq.b	#4,d0						; Subtract 4...
-	addi.b	#$30,d0						; ... then add $30 (why not just add $2C?)
-	move.b	d0,slot2_speed(a4)			; This is our starting speed for slot 2
+	rol.b	#4,d0				; Get top nibble...
+	andi.b	#7,d0				; ...but discard what was the sign bit
+	subq.b	#4,d0				; Subtract 4...
+	addi.b	#$30,d0				; ...then add $30 (why not just add $2C?)
+	move.b	d0,slot2_speed(a4)		; This is our starting speed for slot 2
 	move.b	(Vint_runcount+2).w,d0		; 'Random' seed
-	andi.b	#7,d0						; Only want last 3 bits
-	subq.b	#4,d0						; Subtract 4...
-	addi.b	#$30,d0						; ... then add $30 (why not just add $2C?)
-	move.b	d0,slot3_speed(a4)			; This is our starting speed for slot 3
-	move.b	#2,slot_timer(a4)			; Roll each slot twice under these conditions
-	clr.b	slot_index(a4)				; => SlotMachine_Subroutine1
-	clr.b	slot1_rout(a4)				; => SlotMachine_Routine5_1
-	clr.b	slot2_rout(a4)				; => SlotMachine_Routine5_1
-	clr.b	slot3_rout(a4)				; => SlotMachine_Routine5_1
-	_addq.b	#4,slot_rout(a4)			; => SlotMachine_Routine4
+	andi.b	#7,d0				; Only want last 3 bits
+	subq.b	#4,d0				; Subtract 4...
+	addi.b	#$30,d0				; ...then add $30 (why not just add $2C?)
+	move.b	d0,slot3_speed(a4)		; This is our starting speed for slot 3
+	move.b	#2,slot_timer(a4)		; Roll each slot twice under these conditions
+	clr.b	slot_index(a4)			; => SlotMachine_Subroutine1
+	clr.b	slot1_rout(a4)			; => SlotMachine_Routine5_1
+	clr.b	slot2_rout(a4)			; => SlotMachine_Routine5_1
+	clr.b	slot3_rout(a4)			; => SlotMachine_Routine5_1
+	_addq.b	#4,slot_rout(a4)		; => SlotMachine_Routine4
 	move.b	(Vint_runcount+3).w,d0		; 'Random' seed
-	ror.b	#3,d0						; Mess it around
+	ror.b	#3,d0				; Mess it around
 	lea	(SlotTargetValues).l,a2
 
--	sub.b	(a2),d0						; Subtract from random seed
-	bcs.s	+							; Branch if result is less than zero
-	addq.w	#3,a2						; Advance 3 bytes
-	bra.s	-							; Keep looping
+-	sub.b	(a2),d0				; Subtract from random seed
+	bcs.s	+				; Branch if result is less than zero
+	addq.w	#3,a2				; Advance 3 bytes
+	bra.s	-				; Keep looping
 ; ===========================================================================
 +
-	cmpi.b	#-1,(a2)					; Is the previous value -1?
-	beq.s	+							; Branch if yes (end of array)
+	cmpi.b	#-1,(a2)			; Is the previous value -1?
+	beq.s	+				; Branch if yes (end of array)
 	move.b	1(a2),slot1_targ(a4)		; Target value for slot 1
 	move.b	2(a2),slot23_targ(a4)		; Target values for slots 2 and 3
 	rts
 ; ===========================================================================
 +
-	move.b	d0,d1						; Copy our 'random' value
-	andi.w	#7,d1						; Want only last 3 bits
-	lea	(SlotSequence1).l,a1			; Slot sequence array for slot 1
+	move.b	d0,d1				; Copy our 'random' value
+	andi.w	#7,d1				; Want only last 3 bits
+	lea	(SlotSequence1).l,a1		; Slot sequence array for slot 1
 	move.b	(a1,d0.w),slot1_targ(a4)	; Uhhh... use d0 as array index? This should have been d1! Anyway, set slot 1 target
-	ror.b	#3,d0						; Rotate it
-	move.b	d0,d1						; Copy it
-	andi.w	#7,d1						; Want only last 3 bits
-	lea	(SlotSequence2).l,a1			; Slot sequence array for slot 2
-	move.b	(a1,d1.w),d2				; Use as array index
-	lsl.b	#4,d2						; Move to high nibble
-	ror.b	#3,d0						; Rotate it again
-	andi.w	#7,d0						; Want only last 3 bits
-	lea	(SlotSequence3).l,a1			; Slot sequence array for slot 3
-	or.b	(a1,d0.w),d2				; Combine with earlier value
-	move.b	d2,slot23_targ(a4)			; Target values for slots 2 and 3
+	ror.b	#3,d0				; Rotate it
+	move.b	d0,d1				; Copy it
+	andi.w	#7,d1				; Want only last 3 bits
+	lea	(SlotSequence2).l,a1		; Slot sequence array for slot 2
+	move.b	(a1,d1.w),d2			; Use as array index
+	lsl.b	#4,d2				; Move to high nibble
+	ror.b	#3,d0				; Rotate it again
+	andi.w	#7,d0				; Want only last 3 bits
+	lea	(SlotSequence3).l,a1		; Slot sequence array for slot 3
+	or.b	(a1,d0.w),d2			; Combine with earlier value
+	move.b	d2,slot23_targ(a4)		; Target values for slots 2 and 3
 	rts
 ; ===========================================================================
 ; loc_2C070:
 SlotMachine_Routine4:
 	bsr.w	SlotMachine_DrawSlot
-	tst.b	slot_timer(a4)				; Are slots still going?
-	beq.s	+							; Branch if not
+	tst.b	slot_timer(a4)			; Are slots still going?
+	beq.s	+				; Branch if not
 	rts
 ; ===========================================================================
 +
@@ -56678,31 +56744,31 @@ SlotMachine_Routine4:
 	addi.b	#$30,slot2_speed(a4)		; Increase slot 2 speed
 	addi.b	#$30,slot3_speed(a4)		; Increase slot 3 speed
 	move.b	(Vint_runcount+3).w,d0		; 'Random' seed
-	andi.b	#$F,d0						; Want only low nibble
-	addi.b	#$C,d0						; Increase by $C
-	move.b	d0,slot_timer(a4)			; New value for slot timer
-	clr.b	2(a4)						; Clear otherwise unused variable
-	_addq.b	#4,slot_rout(a4)			; => SlotMachine_Routine5
+	andi.b	#$F,d0				; Want only low nibble
+	addi.b	#$C,d0				; Increase by $C
+	move.b	d0,slot_timer(a4)		; New value for slot timer
+	clr.b	2(a4)				; Clear otherwise unused variable
+	_addq.b	#4,slot_rout(a4)		; => SlotMachine_Routine5
 	rts
 ; ===========================================================================
 ; loc_2C0A8:
 SlotMachine_Routine5:
 	bsr.w	SlotMachine_DrawSlot
-	cmpi.b	#$C,slot1_rout(a4)			; Is slot done?
-	bne.s	+							; Branch if not
-	cmpi.b	#$C,slot2_rout(a4)			; Is slot done?
-	bne.s	+							; Branch if not
-	cmpi.b	#$C,slot3_rout(a4)			; Is slot done?
+	cmpi.b	#$C,slot1_rout(a4)		; Is slot done?
+	bne.s	+				; Branch if not
+	cmpi.b	#$C,slot2_rout(a4)		; Is slot done?
+	bne.s	+				; Branch if not
+	cmpi.b	#$C,slot3_rout(a4)		; Is slot done?
 	beq.w	SlotMachine_Routine6		; Branch if yes
 +
-	moveq	#0,d0						; Clear d0
-	move.b	slot_index(a4),d0			; Get current slot index
-	lea	slots_data(a4),a1				; a1 = pointer to slots data
-	adda.w	d0,a1						; a1 = pointer to current slot data
-	lea	(SlotSequence1).l,a3			; Get pointer to slot sequences
-	add.w	d0,d0						; Turn into index
-	adda.w	d0,a3						; Get sequence for this slot
-	moveq	#0,d0						; Clear d0 again
+	moveq	#0,d0				; Clear d0
+	move.b	slot_index(a4),d0		; Get current slot index
+	lea	slots_data(a4),a1		; a1 = pointer to slots data
+	adda.w	d0,a1				; a1 = pointer to current slot data
+	lea	(SlotSequence1).l,a3		; Get pointer to slot sequences
+	add.w	d0,d0				; Turn into index
+	adda.w	d0,a3				; Get sequence for this slot
+	moveq	#0,d0				; Clear d0 again
 	move.b	slot1_rout-slot1_index(a1),d0	; Slot routine
 	jmp	SlotMachine_Routine5_JmpTable(pc,d0.w)
 ; ===========================================================================
@@ -56715,84 +56781,84 @@ SlotMachine_Routine5_JmpTable: ;;
 ; ===========================================================================
 ;loc_2C0F6
 SlotMachine_GetTargetForSlot:
-	move.w	slots_targ(a4),d1			; Get target slot faces
-	move.b	slot_index(a4),d0			; Get current slot index
-	beq.s	+							; Branch if zero
-	lsr.w	d0,d1						; Shift slot face into position
+	move.w	slots_targ(a4),d1		; Get target slot faces
+	move.b	slot_index(a4),d0		; Get current slot index
+	beq.s	+				; Branch if zero
+	lsr.w	d0,d1				; Shift slot face into position
 +
-	andi.w	#7,d1						; Only 8 slot faces
-	cmpi.b	#5,d1						; Is this above bar?
-	bgt.s	+							; Branch if yes
+	andi.w	#7,d1				; Only 8 slot faces
+	cmpi.b	#5,d1				; Is this above bar?
+	bgt.s	+				; Branch if yes
 	rts
 ; ===========================================================================
 +
-	subq.b	#2,d1						; Wrap back to ring/bar
+	subq.b	#2,d1				; Wrap back to ring/bar
 	rts
 ; ===========================================================================
 ;loc_2C112
 SlotMachine_ChangeTarget:
-	move.w	#$FFF0,d2					; Kept faces mask
-	andi.w	#$F,d1						; New slot target
-	move.b	slot_index(a4),d0			; Get current slot
-	beq.s	+							; Branch if it is slot 0
-	lsl.w	d0,d1						; Shift new slot target into position
-	rol.w	d0,d2						; Shift kept faces mask into position
+	move.w	#$FFF0,d2			; Kept faces mask
+	andi.w	#$F,d1				; New slot target
+	move.b	slot_index(a4),d0		; Get current slot
+	beq.s	+				; Branch if it is slot 0
+	lsl.w	d0,d1				; Shift new slot target into position
+	rol.w	d0,d2				; Shift kept faces mask into position
 +
-	and.w	d2,slots_targ(a4)			; Mask off current slot
-	or.w	d1,slots_targ(a4)			; Put in new value for it
+	and.w	d2,slots_targ(a4)		; Mask off current slot
+	or.w	d1,slots_targ(a4)		; Put in new value for it
 	andi.w	#$777,slots_targ(a4)		; Slots are only 0-7
 	rts
 ; ===========================================================================
 ; loc_2C134:
 SlotMachine_Routine5_1:
-	tst.b	slot_index(a4)				; Is this slot 1?
-	bne.s	+							; Branch if not
-	tst.b	slot_timer(a4)				; Is timer positive or zero?
-	bmi.s	++							; Branch if not
+	tst.b	slot_index(a4)			; Is this slot 1?
+	bne.s	+				; Branch if not
+	tst.b	slot_timer(a4)			; Is timer positive or zero?
+	bmi.s	++				; Branch if not
 	rts
 ; ===========================================================================
 +
 	cmpi.b	#8,slot1_rout-slot2_index(a1)	; Is previous slot in state SlotMachine_Routine5_3 or SlotMachine_Routine5_4?
-	bge.s	+							; Branch if yes
+	bge.s	+				; Branch if yes
 	rts
 ; ===========================================================================
 +
 	bsr.s	SlotMachine_GetTargetForSlot
-	move.w	(a1),d0						; Get current slot index/offset
-	subi.w	#$A0,d0						; Subtract 20 lines (2.5 tiles) from it
-	lsr.w	#8,d0						; Get effective slot index
-	andi.w	#7,d0						; Only want 3 bits
+	move.w	(a1),d0					; Get current slot index/offset
+	subi.w	#$A0,d0					; Subtract 20 lines (2.5 tiles) from it
+	lsr.w	#8,d0					; Get effective slot index
+	andi.w	#7,d0					; Only want 3 bits
 	move.b	(a3,d0.w),d0				; Get face from sequence
-	cmp.b	d1,d0						; Are we close to target?
-	beq.s	+							; Branch if yes
+	cmp.b	d1,d0					; Are we close to target?
+	beq.s	+					; Branch if yes
 	rts
 ; ===========================================================================
 +
-	addq.b	#4,slot1_rout-slot1_index(a1)	; => SlotMachine_Routine5_2
+	addq.b	#4,slot1_rout-slot1_index(a1)		; => SlotMachine_Routine5_2
 	move.b	#$60,slot1_speed-slot1_index(a1)	; Decrease slot speed
 	rts
 ; ===========================================================================
 ; loc_2C170:
 SlotMachine_Routine5_2:
 	bsr.s	SlotMachine_GetTargetForSlot
-	move.w	(a1),d0						; Get current slot index/offset
-	addi.w	#$F0,d0						; Add 30 lines (3.75 tiles) to it
-	andi.w	#$700,d0					; Limit to 8 faces
-	lsr.w	#8,d0						; Get effective slot index
+	move.w	(a1),d0					; Get current slot index/offset
+	addi.w	#$F0,d0					; Add 30 lines (3.75 tiles) to it
+	andi.w	#$700,d0				; Limit to 8 faces
+	lsr.w	#8,d0					; Get effective slot index
 	move.b	(a3,d0.w),d0				; Get face from sequence
-	cmp.b	d0,d1						; Are we this close to target?
-	beq.s	loc_2C1AE					; Branch if yes
+	cmp.b	d0,d1					; Are we this close to target?
+	beq.s	loc_2C1AE				; Branch if yes
 	cmpi.b	#$20,slot1_speed-slot1_index(a1)	; Is slot speed more than $20?
-	bls.s	+							; Branch if not
+	bls.s	+					; Branch if not
 	subi.b	#$C,slot1_speed-slot1_index(a1)		; Reduce slot speed
 +
 	cmpi.b	#$18,slot1_speed-slot1_index(a1)	; Is slot speed $18 or less?
-	bgt.s	+							; Branch if not
+	bgt.s	+					; Branch if not
 	rts
 ; ===========================================================================
 +
 	cmpi.b	#$80,slot1_offset-slot1_index(a1)	; Is offset $80 or less?
-	bls.s	+							; Branch if yes
+	bls.s	+					; Branch if yes
 	rts
 ; ===========================================================================
 +
@@ -56801,15 +56867,15 @@ SlotMachine_Routine5_2:
 ; ===========================================================================
 
 loc_2C1AE:
-	move.w	(a1),d0						; Get current slot index/offset
-	addi.w	#$80,d0						; Subtract 16 lines (2 tiles) to it
-	move.w	d0,d1						; Copy to d1
-	andi.w	#$700,d1					; Limit to 8 faces
-	subi.w	#$10,d1						; Subtract 2 lines (1/4 tile) from it
-	move.w	d1,(a1)						; Store new value for index/offset
-	lsr.w	#8,d0						; Convert to index
-	andi.w	#7,d0						; Limit to 8 faces
-	move.b	(a3,d0.w),d1				; Get face from sequence
+	move.w	(a1),d0				; Get current slot index/offset
+	addi.w	#$80,d0				; Subtract 16 lines (2 tiles) to it
+	move.w	d0,d1				; Copy to d1
+	andi.w	#$700,d1			; Limit to 8 faces
+	subi.w	#$10,d1				; Subtract 2 lines (1/4 tile) from it
+	move.w	d1,(a1)				; Store new value for index/offset
+	lsr.w	#8,d0				; Convert to index
+	andi.w	#7,d0				; Limit to 8 faces
+	move.b	(a3,d0.w),d1			; Get face from sequence
 	bsr.w	SlotMachine_ChangeTarget	; Set slot index to face number, indtead of sequence index
 	move.b	#-8,slot1_speed-slot1_index(a1)	; Rotate slowly on the other direction
 	addq.b	#4,slot1_rout-slot1_index(a1)	; => SlotMachine_Routine5_3
@@ -56818,7 +56884,7 @@ loc_2C1AE:
 ; loc_2C1DA:
 SlotMachine_Routine5_3:
 	tst.b	slot1_offset-slot1_index(a1)	; Is offset zero?
-	beq.s	+							; Branch if yes
+	beq.s	+				; Branch if yes
 	rts
 ; ===========================================================================
 +
@@ -56842,13 +56908,13 @@ SlotMachine_Routine6:
 ; ===========================================================================
 ; loc_2C20A
 SlotMachine_DrawSlot:
-	moveq	#0,d0					; Clear d0
+	moveq	#0,d0				; Clear d0
 	move.b	slot_index(a4),d0		; d0 = index of slot to draw
-	lea	slots_data(a4),a1			; a1 = pointer to slots data
-	adda.w	d0,a1					; a1 = pointer to current slot data
+	lea	slots_data(a4),a1		; a1 = pointer to slots data
+	adda.w	d0,a1				; a1 = pointer to current slot data
 	lea	(SlotSequence1).l,a3		; Get slot sequence
-	adda.w	d0,a3					; Add offset...
-	adda.w	d0,a3					; ... twice
+	adda.w	d0,a3				; Add offset...
+	adda.w	d0,a3				; ...twice
 	jmp	BranchTo_SlotMachine_Subroutine(pc,d0.w)
 ; ===========================================================================
 
@@ -56875,31 +56941,31 @@ SlotMachine_Subroutine2:
 +
 	move.w	(a1),d0					; Get last pixel offset
 	move.b	2(a1),d1				; Get slot rotation speed
-	ext.w	d1						; Extend to word
+	ext.w	d1					; Extend to word
 	sub.w	d1,(a1)					; Modify pixel offset
 	move.w	(a1),d3					; Get current pixel offset
 	andi.w	#$7F8,d0				; Get only desired bits of last pixel offset
 	andi.w	#$7F8,d3				; Get only desired bits of current pixel offset
 	cmp.w	d0,d3					; Are those equal?
-	bne.s	+						; Branch if not (need new picture)
+	bne.s	+					; Branch if not (need new picture)
 	rts
 ; ---------------------------------------------------------------------------
 +
 	bsr.w	SlotMachine_GetPixelRow	; Get pointer to pixel row
 	lea	(Block_Table+$1000).w,a1	; Destination for pixel rows
 
-	move.w	#4*8-1,d1				; Slot picture is 4 tiles
+	move.w	#4*8-1,d1			; Slot picture is 4 tiles
 -	move.l	$80(a2),$80(a1)			; Copy pixel row for second column
 	move.l	$100(a2),$100(a1)		; Copy pixel row for third column
 	move.l	$180(a2),$180(a1)		; Copy pixel row for fourth column
-	move.l	(a2)+,(a1)+				; Copy pixel row for first column, advance destination to next line
-	addq.b	#8,d3					; Increase offset by 8 (byte operation)
-	bne.s	+						; If the result is not zero, branch
-	addi.w	#$100,d3				; Advance to next slot picture
-	andi.w	#$700,d3				; Limit the sequence to 8 pictures
-	bsr.w	SlotMachine_GetPixelRow	; Need pointer to next pixel row
+	move.l	(a2)+,(a1)+			; Copy pixel row for first column, advance destination to next line
+	addq.b	#8,d3				; Increase offset by 8 (byte operation)
+	bne.s	+				; If the result is not zero, branch
+	addi.w	#$100,d3			; Advance to next slot picture
+	andi.w	#$700,d3			; Limit the sequence to 8 pictures
+	bsr.w	SlotMachine_GetPixelRow		; Need pointer to next pixel row
 +
-	dbf	d1,-						; Loop for aoo pixel rows
+	dbf	d1,-				; Loop for aoo pixel rows
 
 	move.l	#(Block_Table+$1000)&$FFFFFF,d1	; Source
 	tst.w	(Two_player_mode).w
@@ -56912,64 +56978,64 @@ SlotMachine_Subroutine2:
 ; ===========================================================================
 ; loc_2C2B8
 SlotMachine_GetPixelRow:
-	move.w	d3,d0					; d0 = pixel offset into slot picture
-	lsr.w	#8,d0					; Convert offset into index
-	andi.w	#7,d0					; Limit each sequence to 8 pictures
+	move.w	d3,d0				; d0 = pixel offset into slot picture
+	lsr.w	#8,d0				; Convert offset into index
+	andi.w	#7,d0				; Limit each sequence to 8 pictures
 	move.b	(a3,d0.w),d0			; Get slot pic id
-	andi.w	#7,d0					; Get only lower 3 bits; leaves space for 2 more images
-	ror.w	#7,d0					; Equal to shifting left 9 places, or multiplying by 4*4 tiles, in bytes
+	andi.w	#7,d0				; Get only lower 3 bits; leaves space for 2 more images
+	ror.w	#7,d0				; Equal to shifting left 9 places, or multiplying by 4*4 tiles, in bytes
 	lea	(ArtUnc_CNZSlotPics).l,a2	; Load slot pictures
-	adda.w	d0,a2					; a2 = pointer to first tile of slot picture
-	move.w	d3,d0					; d0 = d3
-	andi.w	#$F8,d0					; Strip high word (picture index)
-	lsr.w	#1,d0					; Convert into bytes
-	adda.w	d0,a2					; a2 = pointer to desired pixel row
+	adda.w	d0,a2				; a2 = pointer to first tile of slot picture
+	move.w	d3,d0				; d0 = d3
+	andi.w	#$F8,d0				; Strip high word (picture index)
+	lsr.w	#1,d0				; Convert into bytes
+	adda.w	d0,a2				; a2 = pointer to desired pixel row
 	rts
 ; ==========================================================================
 ; loc_2C2DE:
 SlotMachine_ChooseReward:
 	move.b	slot23_targ(a4),d2		; Get slots 2 and 3
-	move.b	d2,d3					; Copy to d3
-	andi.w	#$F0,d2					; Strip off slot 3 nibble
-	lsr.w	#4,d2					; Shift slot 2 to position
-	andi.w	#$F,d3					; Strip off slot 2 nibble
-	moveq	#0,d0					; Clear d0
+	move.b	d2,d3				; Copy to d3
+	andi.w	#$F0,d2				; Strip off slot 3 nibble
+	lsr.w	#4,d2				; Shift slot 2 to position
+	andi.w	#$F,d3				; Strip off slot 2 nibble
+	moveq	#0,d0				; Clear d0
 	cmp.b	slot1_targ(a4),d2		; Are slots 1 and 2 equal?
-	bne.s	+						; Branch if not
+	bne.s	+				; Branch if not
 	addq.w	#4,d0
 +
 	cmp.b	slot1_targ(a4),d3		; Are slots 1 and 3 equal?
-	bne.s	+						; Branch if not
+	bne.s	+				; Branch if not
 	addq.w	#8,d0
 +
 	jmp	SlotMachine_ChooseReward_JmpTable(pc,d0.w)
 ; ==========================================================================
 ; loc_2C304:
 SlotMachine_ChooseReward_JmpTable: ;;
-	bra.w	SlotMachine_Unmatched1	; $00
+	bra.w	SlotMachine_Unmatched1		; $00
 	bra.w	SlotMachine_Match12		; $04
 	bra.w	SlotMachine_Match13		; $08
 ; ==========================================================================
 ; SlotMachine_TripleMatch:
-	move.w	d2,d0					; d0 = reward index
+	move.w	d2,d0				; d0 = reward index
 	bsr.w	SlotMachine_GetReward
 	move.w	d0,slots_targ(a4)		; Store reward
 	rts
 ; ===========================================================================
 ;loc_2C31C
 SlotMachine_Match13:
-	cmpi.b	#3,d3					; is slot 3 a jackpot?
-	bne.s	+						; Branch if not
-	move.w	d2,d0					; Slot 2 is reward index
+	cmpi.b	#3,d3				; is slot 3 a jackpot?
+	bne.s	+				; Branch if not
+	move.w	d2,d0				; Slot 2 is reward index
 	bsr.w	SlotMachine_GetReward
 	bsr.w	SlotMachine_QuadrupleUp
 	move.w	d0,slots_targ(a4)		; Store reward
 	rts
 ; ===========================================================================
 +
-	cmpi.b	#3,d2					; Is slot 2 a jackpot?
-	bne.w	SlotMachine_Unmatched1	; Branch if not
-	move.w	d3,d0					; Slot 3 is reward index
+	cmpi.b	#3,d2				; Is slot 2 a jackpot?
+	bne.w	SlotMachine_Unmatched1		; Branch if not
+	move.w	d3,d0				; Slot 3 is reward index
 	bsr.w	SlotMachine_GetReward
 	bsr.w	SlotMachine_DoubleUp
 	move.w	d0,slots_targ(a4)		; Store reward
@@ -56977,18 +57043,18 @@ SlotMachine_Match13:
 ; ===========================================================================
 ;loc_2C34A
 SlotMachine_Match12:
-	cmpi.b	#3,d2					; Is slot 2 a jackpot?
-	bne.s	+						; Branch if not
-	move.w	d3,d0					; Slot 3 is reward index
+	cmpi.b	#3,d2				; Is slot 2 a jackpot?
+	bne.s	+				; Branch if not
+	move.w	d3,d0				; Slot 3 is reward index
 	bsr.s	SlotMachine_GetReward
 	bsr.w	SlotMachine_QuadrupleUp
 	move.w	d0,slots_targ(a4)		; Store reward
 	rts
 ; ===========================================================================
 +
-	cmpi.b	#3,d3					; Is slot 3 a jackpot?
-	bne.w	SlotMachine_Unmatched1	; Branch if not
-	move.w	d2,d0					; Slot 2 is reward index
+	cmpi.b	#3,d3				; Is slot 3 a jackpot?
+	bne.w	SlotMachine_Unmatched1		; Branch if not
+	move.w	d2,d0				; Slot 2 is reward index
 	bsr.s	SlotMachine_GetReward
 	bsr.w	SlotMachine_DoubleUp
 	move.w	d0,slots_targ(a4)		; Store reward
@@ -56996,21 +57062,21 @@ SlotMachine_Match12:
 ; ===========================================================================
 ;loc_2C374
 SlotMachine_Unmatched1:
-	cmp.b	d2,d3					; Are slots 2 and 3 equal?
-	bne.s	SlotMachine_CheckBars	; Branch if not
+	cmp.b	d2,d3				; Are slots 2 and 3 equal?
+	bne.s	SlotMachine_CheckBars		; Branch if not
 	cmpi.b	#3,slot1_targ(a4)		; Is slot 1 a jackpot?
-	bne.s	+						; Branch if not
-	move.w	d2,d0					; Use slot 2 as reward index
+	bne.s	+				; Branch if not
+	move.w	d2,d0				; Use slot 2 as reward index
 	bsr.s	SlotMachine_GetReward
 	bsr.w	SlotMachine_DoubleUp
 	move.w	d0,slots_targ(a4)		; Store reward
 	rts
 ; ===========================================================================
 +
-	cmpi.b	#3,d2					; Is slot 2 a jackpot?
-	bne.s	SlotMachine_CheckBars	; Branch if not
+	cmpi.b	#3,d2				; Is slot 2 a jackpot?
+	bne.s	SlotMachine_CheckBars		; Branch if not
 	move.b	slot1_targ(a4),d0		; Get slot 1 face
-	andi.w	#$F,d0					; Strip high nibble
+	andi.w	#$F,d0				; Strip high nibble
 	bsr.s	SlotMachine_GetReward
 	bsr.w	SlotMachine_QuadrupleUp
 	move.w	d0,slots_targ(a4)		; Store reward
@@ -57018,38 +57084,38 @@ SlotMachine_Unmatched1:
 ; ===========================================================================
 ;loc_2C3A8
 SlotMachine_CheckBars:
-	moveq	#2,d1					; Number of rings per bar
-	moveq	#0,d0					; Start with zero
+	moveq	#2,d1				; Number of rings per bar
+	moveq	#0,d0				; Start with zero
 	cmpi.b	#5,slot1_targ(a4)		; Is slot 1 a bar?
-	bne.s	+						; Branch if not
-	add.w	d1,d0					; Gain 2 rings
+	bne.s	+				; Branch if not
+	add.w	d1,d0				; Gain 2 rings
 +
-	cmpi.b	#5,d2					; Is slot 2 a bar?
-	bne.s	+						; Branch if not
-	add.w	d1,d0					; Gain 2 rings
+	cmpi.b	#5,d2				; Is slot 2 a bar?
+	bne.s	+				; Branch if not
+	add.w	d1,d0				; Gain 2 rings
 +
-	cmpi.b	#5,d3					; Is slot 3 a bar?
-	bne.s	+						; Branch if not
-	add.w	d1,d0					; Gain 2 rings
+	cmpi.b	#5,d3				; Is slot 3 a bar?
+	bne.s	+				; Branch if not
+	add.w	d1,d0				; Gain 2 rings
 +
 	move.w	d0,slots_targ(a4)		; Store reward
 	; For bars, the code past this line is useless. There should be an rts here.
 
 ;loc_2C3CA
 SlotMachine_GetReward:
-	add.w	d0,d0					; Convert to index
+	add.w	d0,d0				; Convert to index
 	lea	(SlotRingRewards).l,a2		; Ring reward array
 	move.w	(a2,d0.w),d0			; Get ring reward
 	rts
 ; ===========================================================================
 ;loc_2C3D8
 SlotMachine_QuadrupleUp:
-	asl.w	#2,d0					; Quadruple reward
+	asl.w	#2,d0				; Quadruple reward
 	rts
 ; ===========================================================================
 ;loc_2C3DC
 SlotMachine_DoubleUp:
-	add.w	d0,d0					; Double reward
+	add.w	d0,d0				; Double reward
 	rts
 
 ; ===========================================================================
@@ -57059,7 +57125,7 @@ SlotRingRewards:	dc.w   30,  25,  -1, 150,  10,  20
 	rev02even
 ;byte_2C3EC
 SlotTargetValues:	dc.b   8, 3,$33,  $12, 0,$00,  $12, 1,$11  ,$24, 2,$22
-					dc.b $1E, 4,$44,  $1E, 5,$55,  $FF,$F,$FF
+			dc.b $1E, 4,$44,  $1E, 5,$55,  $FF,$F,$FF
 	rev02even
 ;byte_2C401
 SlotSequence1:	dc.b   3,  0,  1,  4,  2,  5,  4,  1
@@ -58031,7 +58097,7 @@ Obj50_ChkIfShoot:
 	btst	#0,status(a0)	; is object facing right?
 	beq.s	+		; if yes, branch
 	neg.w	d1	; else, align bullet with other side of object...
-	neg.w	d2	; ... and move in the opposite direction
+	neg.w	d2	; ...and move in the opposite direction
 +
 	sub.w	d0,y_pos(a1)
 	sub.w	d1,x_pos(a1)
@@ -58058,7 +58124,7 @@ Obj50_FollowPlayer:
 	move.w	Obj50_Speeds(pc,d1.w),d2
 	add.w	d2,y_vel(a0)
 	move.w	#$100,d0	; $100 is object's max x...
-	move.w	d0,d1		; ... and y velocity
+	move.w	d0,d1		; ...and y velocity
 	jsrto	(Obj_CapSpeed).l, JmpTo_Obj_CapSpeed
 	jmpto	(ObjectMove).l, JmpTo20_ObjectMove
 ; ===========================================================================
@@ -58884,7 +58950,7 @@ Obj5D_Init:
 	bclr	#3,Obj5D_status(a0)
 	jsrto	(Adjust2PArtPointer).l, JmpTo60_Adjust2PArtPointer
 
-	; robotnik sitting in his eggmobile
+	; Robotnik sitting in his eggmobile
 	jsr	(SingleObjLoad2).l
 	bne.w	loc_2D8AC
 	_move.b	#ObjID_CPZBoss,id(a1) ; load obj5D
@@ -60541,9 +60607,9 @@ Obj56_Index:	offsetTable
 ; 	when after a hit collision_property(ax) = hitcount has reached zero
 ; objoff_2A(ax) used as timer (countdown)
 ; objoff_2C(ax) tertiary rountine counter
-; #0,objoff_2D(ax) set when robotnik is on ground
-; #1,objoff_2D(ax) set when robotnik is active (moving back & forth)
-; #2,objoff_2D(ax) set when robotnik is flying off after being defeated
+; #0,objoff_2D(ax) set when Robotnik is on ground
+; #1,objoff_2D(ax) set when Robotnik is active (moving back & forth)
+; #2,objoff_2D(ax) set when Robotnik is flying off after being defeated
 ;	#3,objoff_2D(ax) flag to separate spike from vehicle
 ; objoff_2E(ax)	y_position of wheels
 ;	objoff_34(ax) parent object
@@ -60764,7 +60830,7 @@ loc_2F2BA:	; Obj56_VehicleMain_Sub2_0:
 
 loc_2F2CC:
 	addq.b	#2,objoff_2C(a0)	; tertiary routine
-	bset	#0,objoff_2D(a0)	; robotnik on ground (relevant for propeller)
+	bset	#0,objoff_2D(a0)	; Robotnik on ground (relevant for propeller)
 	move.w	#$3C,objoff_2A(a0)	; timer for standing still
 	bra.w	JmpTo35_DisplaySprite
 ; ---------------------------------------------------------------------------
@@ -60839,7 +60905,7 @@ off_2F39C:	offsetTable
 ; ===========================================================================
 
 loc_2F3A2:	; Obj56_VehicleMain_SubA_0:
-	bclr	#0,objoff_2D(a0)	; robotnik off ground
+	bclr	#0,objoff_2D(a0)	; Robotnik off ground
 	jsrto	(SingleObjLoad2).l, JmpTo21_SingleObjLoad2	; reload propeller after defeat
 	bne.w	+	; rts
 
@@ -60870,7 +60936,7 @@ loc_2F3A2:	; Obj56_VehicleMain_SubA_0:
 loc_2F424:	; Obj56_VehicleMain_SubA_2:
 	subi_.w	#1,objoff_2A(a0)	; timer
 	bpl.s	+	; rts
-	bset	#2,objoff_2D(a0)	; robotnik flying off
+	bset	#2,objoff_2D(a0)	; Robotnik flying off
 	move.w	#$60,objoff_2A(a0)	; timer
 	addq.b	#2,objoff_2C(a0)	; tertiary routine
 	jsrto	(LoadPLC_AnimalExplosion).l, JmpTo2_LoadPLC_AnimalExplosion ; PLC_Explosion
@@ -60930,7 +60996,7 @@ loc_2F4A6:	; routine to handle hits
 	cmpi.b	#6,routine_secondary(a0)	; is only called when value is 4?
 	bhs.s	return_2F4EC	; thus unnecessary? (return if greater or equal than 6)
 	tst.b	status(a0)
-	bmi.s	loc_2F4EE	; sonic has just defeated the boss (i.e. bit 7 set)
+	bmi.s	loc_2F4EE	; Sonic has just defeated the boss (i.e. bit 7 set)
 	tst.b	collision_flags(a0)	; set to 0 when boss was hit by Touch_Enemy_Part2
 	bne.s	return_2F4EC	; not 0, i.e. boss not hit
 	tst.b	objoff_3E(a0)
@@ -60990,15 +61056,15 @@ loc_2F54E:	; Obj56_Propeller:	; Propeller normal
 	jmp	off_2F55C(pc,d1.w)
 ; ---------------------------------------------------------------------------
 off_2F55C:	offsetTable
-		offsetTableEntry.w loc_2F560	; 0 - robotnik in air
-		offsetTableEntry.w loc_2F5C6	; 2 - robotnik on ground
+		offsetTableEntry.w loc_2F560	; 0 - Robotnik in air
+		offsetTableEntry.w loc_2F5C6	; 2 - Robotnik on ground
 ; ---------------------------------------------------------------------------
 
 loc_2F560:	; Obj56_Propeller_Sub0
 	movea.l	objoff_34(a0),a1 ; parent address (vehicle)
 	cmpi.b	#ObjID_EHZBoss,id(a1)
 	bne.w	JmpTo52_DeleteObject	; if boss non-existant
-	btst	#0,objoff_2D(a1)	; is robotnik on ground?
+	btst	#0,objoff_2D(a1)	; is Robotnik on ground?
 	beq.s	loc_2F58E	; if not, branch
 	move.b	#1,anim(a0)
 	move.w	#$18,objoff_2A(a0)	; timer until deletion
@@ -61063,7 +61129,7 @@ loc_2F626:	; Obj56_GroundVehicle_Sub2:
 	movea.l	objoff_34(a0),a1 ; parent address (vehicle)
 	btst	#1,objoff_2D(a1)
 	beq.w	JmpTo35_DisplaySprite	; boss not moving yet (inactive)
-	btst	#2,objoff_2D(a1)	; robotnik flying off flag
+	btst	#2,objoff_2D(a1)	; Robotnik flying off flag
 	bne.w	JmpTo35_DisplaySprite
 	move.w	x_pos(a1),x_pos(a0)
 	move.w	y_pos(a1),y_pos(a0)
@@ -61171,7 +61237,7 @@ loc_2F746:	; Obj56_Wheel_Sub4:
 	move.b	status(a1),status(a0)
 	move.b	render_flags(a1),render_flags(a0)
 	tst.b	status(a0)
-	bpl.s	loc_2F768	; has sonic just defeated the boss (i.e. bit7 set)?
+	bpl.s	loc_2F768	; has Sonic just defeated the boss (i.e. bit 7 set)?
 	addq.b	#2,routine_secondary(a0)	; if yes, Sub6
 
 loc_2F768:
@@ -61290,13 +61356,13 @@ loc_2F8B4:
 	move.w	x_pos(a0),d0
 	sub.w	(MainCharacter+x_pos).w,d0
 	bpl.s	loc_2F8C8
-	btst	#0,status(a1)	; sonic right from spike
+	btst	#0,status(a1)	; Sonic right from spike
 	bne.s	loc_2F8D2	; spike facing right
 	rts
 ; ---------------------------------------------------------------------------
 
 loc_2F8C8:
-	btst	#0,status(a1)	; sonic left from spike
+	btst	#0,status(a1)	; Sonic left from spike
 	beq.s	loc_2F8D2	; spike facing left
 	rts
 ; ---------------------------------------------------------------------------
@@ -61315,7 +61381,7 @@ loc_2F8DA:	; Obj56_VehicleTop:
 	move.b	objoff_3E(a1),d0	; boss invincibility timer
 	cmpi.b	#$1F,d0	; boss just got hit?
 	bne.s	loc_2F906
-	move.b	#2,anim(a0)	; robotnik animation when hit
+	move.b	#2,anim(a0)	; Robotnik animation when hit
 
 loc_2F906:
 	cmpi.b	#4,(MainCharacter+routine).w	; Sonic = ball
@@ -61324,9 +61390,9 @@ loc_2F906:
 	bne.s	loc_2F924
 
 loc_2F916:
-	cmpi.b	#2,anim(a0)	; check eggman animation (when hit)
+	cmpi.b	#2,anim(a0)	; check Eggman animation (when hit)
 	beq.s	loc_2F924
-	move.b	#3,anim(a0)	; eggman animation when hurting sonic
+	move.b	#3,anim(a0)	; Eggman animation when hurting Sonic
 
 loc_2F924:
 	lea	(Ani_obj56_c).l,a1	; animation script
@@ -61395,7 +61461,7 @@ byte_2FAD5:	dc.b   7,  1,  2,$FF	; top, normal
 	rev02even
 byte_2FAD9:	dc.b   7,  5,  5,  5,  5,  5,  5,$FD,  1	;	top, when hit
 	rev02even
-byte_2FAE2:	dc.b   7,  3,  4,  3,  4,  3,  4,$FD,  1	; top, laughter (when hurting sonic)
+byte_2FAE2:	dc.b   7,  3,  4,  3,  4,  3,  4,$FD,  1	; top, laughter (when hurting Sonic)
 	rev02even
 byte_2FAEB:	dc.b  $F,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,$FD,  1	; top, when flying off
 	even	; for top part, after end of special animations always return to normal one ($FD->1)
@@ -62799,7 +62865,7 @@ Obj89_Arrow_Sub2:
 	move.b	#8,obj89_arrow_routine(a0)	; => BranchTo_JmpTo55_DeleteObject
 +
 	move.w	x_pos(a0),d0			; load x position...
-	add.w	x_vel(a0),d0			; ... and add x velocity
+	add.w	x_vel(a0),d0			; ...and add x velocity
 	tst.w	x_vel(a0)			; is arrow moving right?
 	bpl.s	Obj89_Arrow_Sub2_GoingRight	; if yes, branch
 	cmpi.w	#$2A77,d0
@@ -62842,7 +62908,7 @@ Obj89_Arrow_Sub4:
 Obj89_Arrow_Sub6:
 	bsr.w	Obj89_Arrow_ChkDropPlayers
 	move.w	y_pos(a0),d0			; load y position...
-	add.w	y_vel(a0),d0			; ... and add y velocity
+	add.w	y_vel(a0),d0			; ...and add y velocity
 	cmpi.w	#$4F0,d0			; has arrow dropped to the ground?
 	bgt.w	JmpTo55_DeleteObject		; if yes, branch
 	move.w	d0,y_pos(a0)			; update y position
@@ -63049,7 +63115,7 @@ Obj57_InitAnimationData:
 	move.b	#0,(a2)+
 	move.b	#$10,(a2)+	; main vehicle
 	move.b	#0,(a2)+
-	move.b	#$D,(a2)+	; main vehicle center (including robotnik's face)
+	move.b	#$D,(a2)+	; main vehicle center (including Robotnik's face)
 	move.b	#0,(a2)+
 	move.b	#3,(a2)+	; digger 2 (vertical)
 	move.b	#0,(a2)+
@@ -63148,7 +63214,7 @@ Obj57_Main_Sub4: ; moving down, stop stuff falling down
 	andi.b	#$F0,8(a1)
 	ori.b	#6,8(a1)	; (6) prepare for digger rotation to diag/hztl
 	andi.b	#$F0,6(a1)
-	ori.b	#$D,6(a1)	; (D) robotnik face normal
+	ori.b	#$D,6(a1)	; (D) Robotnik face normal
 	move.b	#$20,5(a1)	; main vehicle light on
 	move.w	#$64,(Boss_Countdown).w
 	move.b	#$30,1(a1)	; hover thingies fire off
@@ -63181,7 +63247,7 @@ Obj57_Main_Sub6: ; digger transition (rotation), moving back and forth
 	move.b	#1,(Boss_CollisionRoutine).w
 	tst.w	(Boss_Countdown).w
 	bpl.w	Obj57_Main_Sub6_Standard
-	tst.b	boss_hurt_sonic(a0)	; has sonic just been hurt?
+	tst.b	boss_hurt_sonic(a0)	; has Sonic just been hurt?
 	beq.s	+
 	sf	boss_hurt_sonic(a0)	; if yes, clear this flag
 	bra.s	Obj57_Main_Sub6_ReAscend1
@@ -63202,7 +63268,7 @@ Obj57_Main_Sub6: ; digger transition (rotation), moving back and forth
 ;loc_31298:
 Obj57_Main_Sub6_ReAscend1:	; that's a dumb name for a label
 	lea	(Boss_AnimationArray).w,a1
-	move.b	#$30,7(a1)	; face grin after hurting sonic
+	move.b	#$30,7(a1)	; face grin after hurting Sonic
 ;loc_312A2:
 Obj57_Main_Sub6_ReAscend2:	; set to routine 0 and make boss move up again
 	move.w	#0,(Boss_X_vel).w
@@ -63214,7 +63280,7 @@ Obj57_Main_Sub6_ReAscend2:	; set to routine 0 and make boss move up again
 	ori.b	#$B,8(a1)	; (B) prepare for digger rotation to diag/vert
 	move.b	#0,1(a1)	; hover thingies fire on
 	andi.b	#$F0,6(a1)
-	ori.b	#$D,6(a1)	; (D) robotnik face normal
+	ori.b	#$D,6(a1)	; (D) Robotnik face normal
 	move.w	#$64,(Boss_Countdown).w
 	move.w	#-$C0,(Boss_Y_vel).w	; move up
 
@@ -63503,8 +63569,8 @@ Ani_obj57:	offsetTable
 		offsetTableEntry.w byte_316A6 ; A - digger horizontal animated 3 (loop)
 		offsetTableEntry.w byte_316AD ; B - digger horizontal animated 4 -> (C)
 		offsetTableEntry.w byte_316BF ; C - digger horizontal + diagonal transition -> (3)
-		offsetTableEntry.w byte_316D1 ; D - center vehicle, robotnik's face normal
-		offsetTableEntry.w byte_316E8 ; E - center vehicle, robotnik's face when hit
+		offsetTableEntry.w byte_316D1 ; D - center vehicle, Robotnik's face normal
+		offsetTableEntry.w byte_316E8 ; E - center vehicle, Robotnik's face when hit
 byte_31628:	dc.b  $F,  1,$FF	; light off
 		dc.b	   0,$FC,  2	; light on; (3) subanimation
 	rev02even
@@ -63534,7 +63600,7 @@ byte_316AD:	dc.b   1,  9, $A, $B, $B,  9,  9, $A, $A, $A, $B, $B, $B,  9,  9,  9
 byte_316BF:	dc.b   1,  9, $A, $A, $A, $A, $B, $B, $B, $B, $B,  9,  8,  8,  8,  8,$FD,  3
 	rev02even
 byte_316D1:	dc.b   7, $E, $F,$FF
-		dc.b	 $10,$11,$10,$11,$10,$11,$10,$11,$FF		; (4) subanimation (grin after hurting sonic)
+		dc.b	 $10,$11,$10,$11,$10,$11,$10,$11,$FF		; (4) subanimation (grin after hurting Sonic)
 		dc.b	 $12,$12,$12,$12,$12,$12,$12,$12,$12,$FF	; (D) subanimation (grin when hit)
 	rev02even
 byte_316E8:	dc.b   7,$12,$FF
@@ -67463,8 +67529,8 @@ loc_350A0:
 	bne.s	loc_350DC
 	tst.b	collision_flags(a0)
 	beq.s	loc_350DC
-	lea	(MainCharacter).w,a2 ; a2=object (special stage sonic)
-	lea	(Sidekick).w,a3 ; a3=object (special stage tails)
+	lea	(MainCharacter).w,a2 ; a2=object (special stage Sonic)
+	lea	(Sidekick).w,a3 ; a3=object (special stage Tails)
 	move.w	objoff_34(a2),d0
 	cmp.w	objoff_34(a3),d0
 	blo.s	loc_350CE
@@ -69723,7 +69789,7 @@ AnimChk_Wait:
 ; ---------------------------------------------------------------------------
 ;loc_368B4
 AnimChk_End_FF:
-	addq.b	#1,d0		; is the end flag = $FF ?
+	addq.b	#1,d0		; is the end flag = $FF?
 	bne.s	AnimChk_End_FE	; if not, branch
 	move.b	#0,anim_frame(a0)	; restart the animation
 	move.b	1(a1),d0	; read sprite number
@@ -69733,7 +69799,7 @@ AnimChk_End_FF:
 ; ---------------------------------------------------------------------------
 ;loc_368C8
 AnimChk_End_FE:
-	addq.b	#1,d0		; is the end flag = $FE ?
+	addq.b	#1,d0		; is the end flag = $FE?
 	bne.s	AnimChk_End_FD	; if not, branch
 	addq.b	#2,routine(a0)	; jump to next routine
 	move.b	#0,anim_frame_duration(a0)
@@ -69743,7 +69809,7 @@ AnimChk_End_FE:
 ; ---------------------------------------------------------------------------
 ;loc_368DE
 AnimChk_End_FD:
-	addq.b	#1,d0		; is the end flag = $FD ?
+	addq.b	#1,d0		; is the end flag = $FD?
 	bne.s	AnimChk_End_FC	; if not, branch
 	addq.b	#2,routine_secondary(a0)	; jump to next routine
 	moveq	#1,d0	; Return 1
@@ -69751,7 +69817,7 @@ AnimChk_End_FD:
 ; ---------------------------------------------------------------------------
 ;loc_368EA
 AnimChk_End_FC:
-	addq.b	#1,d0		; is the end flag = $FC ?
+	addq.b	#1,d0		; is the end flag = $FC?
 	bne.s	AnimChk_End	; if not, branch
 	move.b	#1,anim_frame_duration(a0)	; Force frame duration to 1
 	moveq	#1,d0	; Return 1
@@ -70308,9 +70374,9 @@ Obj91_Main:
 	subq.w	#1,Obj91_move_timer(a0)
 	bpl.s	+			; branch, if timer isn't done counting down
 	move.w	#$200,Obj91_move_timer(a0)	; else, reset timer...
-	bchg	#0,status(a0)		; ... change direction...
+	bchg	#0,status(a0)		; ...change direction...
 	bchg	#0,render_flags(a0)
-	neg.w	x_vel(a0)		; ... and reverse movement
+	neg.w	x_vel(a0)		; ...and reverse movement
 +
 	jsrto	(ObjectMove).l, JmpTo26_ObjectMove
 	bsr.w	Obj_GetOrientationToPlayer
@@ -70353,7 +70419,7 @@ Obj91_HorizontalSpeeds:
 	dc.b   2	; 1 - player is right from object -> move right
 ; byte_36E64:
 Obj91_VerticalSpeeds:
-	dc.b $80	; 0 - player is above object -> ... move down?
+	dc.b $80	; 0 - player is above object -> ...move down?
 	dc.b $80	; 1 - player is below object -> move down
 ; ===========================================================================
 ; loc_36E66:
@@ -75218,7 +75284,7 @@ loc_3A710:
 loc_3A742:
 	moveq	#$28,d5		; Fill next $29 entries...
 -
-	move.w	d4,(a6)		; ... using the PNT entry that had bit $A set
+	move.w	d4,(a6)		; ...using the PNT entry that had bit $A set
 	dbf	d5,-
 	rts
 ; ===========================================================================
@@ -75594,7 +75660,7 @@ ObjB2_Landed_on_plane:
 	cmpi.w	#$100,objoff_2A(a0)
 	blo.s	loc_3AB18
 	addq.b	#2,routine_secondary(a0)
-	movea.w	objoff_3A(a0),a1 ; a1=object ??
+	movea.w	objoff_3A(a0),a1 ; a1=object??
 	move.b	#2,routine_secondary(a1)
 
 loc_3AB18:
@@ -77416,7 +77482,7 @@ ObjC0_MapUnc_3C098:	BINCLUDE "mappings/sprite/objC0.bin"
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object C1 - Breakable plating from WFZ
-; (and what sonic hangs onto on the back of Robotnic's getaway ship)
+; (and what Sonic hangs onto on the back of Robotnik's getaway ship)
 ; ----------------------------------------------------------------------------
 ; Sprite_3C0AC:
 ObjC1:
@@ -77720,7 +77786,7 @@ ObjC5_Index:	offsetTable
 		offsetTableEntry.w ObjC5_LaserWall		;   4 - Laser wall
 		offsetTableEntry.w ObjC5_PlatformReleaser	;   6 - Platform releaser
 		offsetTableEntry.w ObjC5_Platform		;   8 - Platform
-		offsetTableEntry.w ObjC5_PlatformHurt		;  $A - Invisible object that gets the platform's spikes to hurt sonic
+		offsetTableEntry.w ObjC5_PlatformHurt		;  $A - Invisible object that gets the platform's spikes to hurt Sonic
 		offsetTableEntry.w ObjC5_LaserShooter		;  $C - Laser shooter
 		offsetTableEntry.w ObjC5_Laser			;  $E - Laser
 		offsetTableEntry.w ObjC5_Robotnik		; $10 - Robotnik
@@ -77744,7 +77810,7 @@ ObjC5_LaserCase:	; also the "mother" object
 ; ===========================================================================
 ObjC5_CaseIndex:offsetTable
 		offsetTableEntry.w ObjC5_CaseBoundary		;   0 - Sets up boundaries for movement and basic things
-		offsetTableEntry.w ObjC5_CaseWaitStart		;   2 - Waits for sonic to start
+		offsetTableEntry.w ObjC5_CaseWaitStart		;   2 - Waits for Sonic to start
 		offsetTableEntry.w ObjC5_CaseWaitDown		;   4 - Waits to make the laser go down
 		offsetTableEntry.w ObjC5_CaseDown		;   6 - Moves the case down
 		offsetTableEntry.w ObjC5_CaseXSpeed		;   8 - Sets an X speed for the case
@@ -77779,7 +77845,7 @@ ObjC5_CaseBoundary:
 ObjC5_CaseWaitStart:
 	bsr.w	Obj_GetOrientationToPlayer
 	addi.w	#$20,d2
-	cmpi.w	#$40,d2			; How far away sonic is to start the boss
+	cmpi.w	#$40,d2			; How far away Sonic is to start the boss
 	blo.s	ObjC5_CaseStart
 	jmpto	(DisplaySprite).l, JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -77932,7 +77998,7 @@ ObjC5_CaseWaitMove:
 ObjC5_CaseLaserSpeed:
 	addq.b	#2,routine_secondary(a0)
 	move.w	#$80,objoff_2A(a0)	; how long to move the laser
-	bsr.w	Obj_GetOrientationToPlayer	; tests if sonic is to the right or left
+	bsr.w	Obj_GetOrientationToPlayer	; tests if Sonic is to the right or left
 	move.w	#$80,d1		; Speed when moving with laser
 	tst.w	d0
 	bne.s	ObjC5_CaseLaserSpeedSet
@@ -78184,7 +78250,7 @@ ObjC5_Platform:
 	jmpto	(DisplaySprite).l, JmpTo45_DisplaySprite
 ; ===========================================================================
 ObjC5_PlatformIndex: offsetTable
-	offsetTableEntry.w ObjC5_PlatformInit			; 0 - Selects mappings, anim ation, y speed and loads the object that hurts sonic (by spiky area)
+	offsetTableEntry.w ObjC5_PlatformInit			; 0 - Selects mappings, anim ation, y speed and loads the object that hurts Sonic (by spiky area)
 	offsetTableEntry.w ObjC5_PlatformDownWait		; 2 - Wait till the platform goes down some
 	offsetTableEntry.w ObjC5_PlatformTestChangeDirection	; 4 - checks if time limit is over and if so to change direction
 ; ===========================================================================
@@ -78195,7 +78261,7 @@ ObjC5_PlatformInit:
 	move.b	#7,mapping_frame(a0)
 	move.w	#$100,y_vel(a0)			; Y speed
 	move.w	#$60,objoff_2A(a0)
-	lea	(ObjC5_PlatformHurtData).l,a2	; loads the invisible object that hurts sonic
+	lea	(ObjC5_PlatformHurtData).l,a2	; loads the invisible object that hurts Sonic
 	bra.w	LoadChildObject
 ; ===========================================================================
 
@@ -78266,7 +78332,7 @@ ObjC5_PlatformHurt:
 	jmp	ObjC5_PlatformHurtIndex(pc,d1.w)
 ; ===========================================================================
 ObjC5_PlatformHurtIndex: offsetTable
-	offsetTableEntry.w ObjC5_PlatformHurtCollision		; 0 - Gives collision that hurts sonic
+	offsetTableEntry.w ObjC5_PlatformHurtCollision		; 0 - Gives collision that hurts Sonic
 	offsetTableEntry.w ObjC5_PlatformHurtFollowPlatform	; 2 - Follows around the platform and waits to be deleted
 ; ===========================================================================
 
@@ -78478,14 +78544,14 @@ ObjC5_RobotnikDown:
 	jmpto	(DisplaySprite).l, JmpTo45_DisplaySprite
 ; ===========================================================================
 
-ObjC5_RobotnikDelete:		; Deletes robotnik and the platform he's on
+ObjC5_RobotnikDelete:		; Deletes Robotnik and the platform he's on
 	movea.w	parent(a0),a1 ; a1=object (Robotnik Platform)
 	jsrto	(DeleteObject2).l, JmpTo6_DeleteObject2
 	bra.w	JmpTo65_DeleteObject
 ; ===========================================================================
 
-ObjC5_RobotnikPlatform:	; Just displays the platform and move accordingly to the robotnik object
-	movea.w	objoff_2C(a0),a1 ; a1=object (robotnik)
+ObjC5_RobotnikPlatform:	; Just displays the platform and move accordingly to the Robotnik object
+	movea.w	objoff_2C(a0),a1 ; a1=object (Robotnik)
 	move.w	y_pos(a1),d0
 	addi.w	#$26,d0
 	move.w	d0,y_pos(a0)
@@ -78639,7 +78705,7 @@ ObjC6_Init:
 	bsr.w	LoadSubObject
 	move.b	subtype(a0),d0
 	subi.b	#$A4,d0
-	move.b	d0,routine(a0) ; => ObjC6_State2, ObjC6_State3, or ObjC6_State4 ??
+	move.b	d0,routine(a0) ; => ObjC6_State2, ObjC6_State3, or ObjC6_State4??
 	rts
 ; ===========================================================================
 ; loc_3CEF8:
@@ -81031,9 +81097,9 @@ Scale_2x:
 	addq.w	#1,d3					; Make it into 2 for Wx3 or Wx4 pieces, 1 otherwise
 	lsl.w	#6,d3					; This is now $80 (4 tiles) for Wx3 or Wx4 pieces, $40 (2 tiles) otherwise
 	swap	d3						; Save it to high word
-	bsr.w	.upscale_part1			; Scale the first line???; sets a3 = ???, a5 = ???
+	bsr.w	.upscale_part1				; Scale the first line???; sets a3 = ???, a5 = ???
 	btst	#1,d0					; Is this a 1xH or a 2xH piece?
-	beq.w	return_37A48			; Return if yes
+	beq.w	return_37A48				; Return if yes
 	btst	#1,d1					; Is this a Wx3 or a Wx4 piece?
 	bne.s	.set_dest				; Branch if yes
 	movea.l	a3,a5					; Advance to next column instead
@@ -81043,17 +81109,17 @@ Scale_2x:
 
 .upscale_part1:
 	movea.l	a2,a4					; Copy destination to a4
-	swap	d2						; Get height offset
+	swap	d2					; Get height offset
 	lea	(a2,d2.w),a3				; Output location for next tile
-	swap	d2						; Save height offset again
+	swap	d2					; Save height offset again
 	move.w	d1,d5					; Copy height-1
 	andi.w	#1,d5					; How many tiles we want to do-1 -- this is 1 for Wx2 or Wx4 pieces, 0 otherwise
 	bsr.w	Scale2x_SingleTile
 	btst	#1,d1					; Are we upscaling a Wx3 or Wx4 piece?
 	beq.s	.done_cols				; Branch if not
-	swap	d2						; Get height offset
+	swap	d2					; Get height offset
 	move.w	d2,d4					; Copy it to d4
-	swap	d2						; Save height offset again
+	swap	d2					; Save height offset again
 	add.w	d4,d4					; This is now $100 (8 tiles) for Wx4 pieces, $80 (4 tiles) for Wx3 pieces
 	move.w	d0,d3					; Copy piece width-1
 	andi.w	#1,d3					; Want only low bit -- this is 1 for 2xH or 4xH pieces, 0 otherwise
@@ -81061,22 +81127,22 @@ Scale_2x:
 	adda.w	d4,a4					; Advance to this location
 	move.w	d1,d5					; Copy height-1
 	lsr.w	#1,d5					; How many tiles we want to do-1 -- this is 1 for Wx4 pieces, 0 for Wx3 pieces
-	swap	d3						; Get height offset
+	swap	d3					; Get height offset
 	lea	(a4,d3.w),a5				; Output location for next tile
-	swap	d3						; Save height offset again
+	swap	d3					; Save height offset again
 	bsr.w	Scale2x_SingleTile2
 
 .done_cols:
 	btst	#0,d0					; Is this a 1xH or 3xH piece?
-	bne.s	.keep_upscaling			; Branch if not
+	bne.s	.keep_upscaling				; Branch if not
 	btst	#1,d0					; Was this a single column piece?
 	beq.s	.done					; Return if so
 
 .keep_upscaling:
-	swap	d2						; Get height offset
+	swap	d2					; Get height offset
 	lea	(a2,d2.w),a2				; Output location for next tile
 	lea	(a2,d2.w),a3				; Output location for next tile
-	swap	d2						; Save height offset again
+	swap	d2					; Save height offset again
 	move.w	d1,d5					; Copy height-1
 	andi.w	#1,d5					; How many tiles we want to do -- this is 1 for Wx2 or Wx4 pieces, 0 otherwise
 	bsr.w	Scale2x_SingleTile
@@ -81084,10 +81150,10 @@ Scale_2x:
 	beq.s	.done					; Branch if not
 	move.w	d1,d5					; Copy height-1
 	lsr.w	#1,d5					; How many tiles we want to do-1 -- this is 1 for Wx4 or Wx3 pieces, 0 otherwise
-	swap	d3						; Get height offset
+	swap	d3					; Get height offset
 	lea	(a4,d3.w),a4				; Output location for next tile
 	lea	(a4,d3.w),a5				; Output location for next tile
-	swap	d3						; Save height offset again
+	swap	d3					; Save height offset again
 	bsr.w	Scale2x_SingleTile2
 
 .done:
@@ -81109,9 +81175,9 @@ Scale2x_SingleTile:
 	moveq	#7,d6					; 8 rows per tile
 
 .loop:
-	bsr.w	Scale_2x_LeftPixels		; Upscale pixels 0-3 of current row
+	bsr.w	Scale_2x_LeftPixels			; Upscale pixels 0-3 of current row
 	addq.w	#4,a2					; Advance write destination by one row (8 pixels)
-	bsr.w	Scale_2x_RightPixels	; Upscale pixels 4-7 of current row
+	bsr.w	Scale_2x_RightPixels			; Upscale pixels 4-7 of current row
 	addq.w	#4,a3					; Advance write destination by one row (8 pixels)
 	dbf	d6,.loop
 
@@ -81135,9 +81201,9 @@ Scale2x_SingleTile2:
 	moveq	#7,d6					; 8 rows per tile
 
 .loop:
-	bsr.w	Scale_2x_LeftPixels2	; Upscale pixels 0-3 of current row
+	bsr.w	Scale_2x_LeftPixels2			; Upscale pixels 0-3 of current row
 	addq.w	#4,a4					; Advance write destination by one row (8 pixels)
-	bsr.w	Scale_2x_RightPixels2	; Upscale pixels 4-7 of current row
+	bsr.w	Scale_2x_RightPixels2			; Upscale pixels 4-7 of current row
 	addq.w	#4,a5					; Advance write destination by one row (8 pixels)
 	dbf	d6,.loop
 
@@ -81156,16 +81222,16 @@ Scale_2x_LeftPixels:
 	move.b	d2,d3					; Save them
 	andi.b	#$F0,d2					; Get left pixel
 	move.b	d2,d4					; Copy it...
-	lsr.b	#4,d4					; ... shift it down into place...
-	or.b	d2,d4					; ... and make it into two pixels of the same color
+	lsr.b	#4,d4					; ...shift it down into place...
+	or.b	d2,d4					; ...and make it into two pixels of the same color
 	move.b	d4,(a2)+				; Save to top tile, both on one row...
-	move.b	d4,3(a2)				; ... and on the row below
+	move.b	d4,3(a2)				; ...and on the row below
 	andi.b	#$F,d3					; Get saved right pixel
 	move.b	d3,d4					; Copy it...
-	lsl.b	#4,d4					; ... shift it up into place...
-	or.b	d3,d4					; ... and make it into two pixels of the same color
+	lsl.b	#4,d4					; ...shift it up into place...
+	or.b	d3,d4					; ...and make it into two pixels of the same color
 	move.b	d4,(a2)+				; Save to top tile, both on one row...
-	move.b	d4,3(a2)				; ... and on the row below
+	move.b	d4,3(a2)				; ...and on the row below
 	rts
 ; ===========================================================================
 ; Upscales the rightmost 4 pixels on the current row into the corresponding two
@@ -81179,16 +81245,16 @@ Scale_2x_RightPixels:
 	move.b	d2,d3					; Save them
 	andi.b	#$F0,d2					; Get left pixel
 	move.b	d2,d4					; Copy it...
-	lsr.b	#4,d4					; ... shift it down into place...
-	or.b	d2,d4					; ... and make it into two pixels of the same color
+	lsr.b	#4,d4					; ...shift it down into place...
+	or.b	d2,d4					; ...and make it into two pixels of the same color
 	move.b	d4,(a3)+				; Save to bottom tile, both on one row...
-	move.b	d4,3(a3)				; ... and on the row below
+	move.b	d4,3(a3)				; ...and on the row below
 	andi.b	#$F,d3					; Get saved right pixel
 	move.b	d3,d4					; Copy it...
-	lsl.b	#4,d4					; ... shift it up into place...
-	or.b	d3,d4					; ... and make it into two pixels of the same color
+	lsl.b	#4,d4					; ...shift it up into place...
+	or.b	d3,d4					; ...and make it into two pixels of the same color
 	move.b	d4,(a3)+				; Save to bottom tile, both on one row...
-	move.b	d4,3(a3)				; ... and on the row below
+	move.b	d4,3(a3)				; ...and on the row below
 	rts
 ; ===========================================================================
 ; Upscales the leftmost 4 pixels on the current row into the corresponding two
@@ -81202,16 +81268,16 @@ Scale_2x_LeftPixels2:
 	move.b	d2,d3					; Save them
 	andi.b	#$F0,d2					; Get left pixel
 	move.b	d2,d4					; Copy it...
-	lsr.b	#4,d4					; ... shift it down into place...
-	or.b	d2,d4					; ... and make it into two pixels of the same color
+	lsr.b	#4,d4					; ...shift it down into place...
+	or.b	d2,d4					; ...and make it into two pixels of the same color
 	move.b	d4,(a4)+				; Save to top tile, both on one row...
-	move.b	d4,3(a4)				; ... and on the row below
+	move.b	d4,3(a4)				; ...and on the row below
 	andi.b	#$F,d3					; Get saved right pixel
 	move.b	d3,d4					; Copy it...
-	lsl.b	#4,d4					; ... shift it up into place...
-	or.b	d3,d4					; ... and make it into two pixels of the same color
+	lsl.b	#4,d4					; ...shift it up into place...
+	or.b	d3,d4					; ...and make it into two pixels of the same color
 	move.b	d4,(a4)+				; Save to top tile, both on one row...
-	move.b	d4,3(a4)				; ... and on the row below
+	move.b	d4,3(a4)				; ...and on the row below
 	rts
 ; ===========================================================================
 ; Upscales the rightmost 4 pixels on the current row into the corresponding two
@@ -81225,16 +81291,16 @@ Scale_2x_RightPixels2:
 	move.b	d2,d3					; Save them
 	andi.b	#$F0,d2					; Get left pixel
 	move.b	d2,d4					; Copy it...
-	lsr.b	#4,d4					; ... shift it down into place...
-	or.b	d2,d4					; ... and make it into two pixels of the same color
+	lsr.b	#4,d4					; ...shift it down into place...
+	or.b	d2,d4					; ...and make it into two pixels of the same color
 	move.b	d4,(a5)+				; Save to bottom tile, both on one row...
-	move.b	d4,3(a5)				; ... and on the row below
+	move.b	d4,3(a5)				; ...and on the row below
 	andi.b	#$F,d3					; Get saved right pixel
 	move.b	d3,d4					; Copy it...
-	lsl.b	#4,d4					; ... shift it up into place...
-	or.b	d3,d4					; ... and make it into two pixels of the same color
+	lsl.b	#4,d4					; ...shift it up into place...
+	or.b	d3,d4					; ...and make it into two pixels of the same color
 	move.b	d4,(a5)+				; Save to bottom tile, both on one row...
-	move.b	d4,3(a5)				; ... and on the row below
+	move.b	d4,3(a5)				; ...and on the row below
 	rts
 ; ===========================================================================
 
@@ -81831,12 +81897,12 @@ Touch_ChkValue:
 	beq.w	Touch_Enemy		; if not, branch
 	cmpi.b	#$C0,d1			; is touch response $C0 or higher?
 	beq.w	Touch_Special		; if yes, branch
-	tst.b	d1			; is touch response $80-$BF ?
+	tst.b	d1			; is touch response $80-$BF?
 	bmi.w	Touch_ChkHurt		; if yes, branch
 	; touch response is $40-$7F
 	move.b	collision_flags(a1),d0
 	andi.b	#$3F,d0
-	cmpi.b	#6,d0			; is touch response $46 ?
+	cmpi.b	#6,d0			; is touch response $46?
 	beq.s	Touch_Monitor		; if yes, branch
 	move.w	(MainCharacter+invulnerable_time).w,d0
 	tst.w	(Two_player_mode).w
@@ -81966,7 +82032,7 @@ loc_3F85C:
 
 ; ---------------------------------------------------------------------------
 ; Subroutine for checking if Sonic/Tails should be hurt and hurting them if so
-; note: sonic or tails must be at a0
+; note: Sonic or Tails must be at a0
 ; ---------------------------------------------------------------------------
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -82305,7 +82371,7 @@ BossCollision_MCZ:
 	move.b	collision_flags(a1),d0
 	cmpi.w	#$78,invulnerable_time(a0)
 	bne.s	+	; rts
-	st	boss_hurt_sonic(a1)	; sonic has just been hurt flag
+	st	boss_hurt_sonic(a1)	; Sonic has just been hurt flag
 +
 	rts
 ; ===========================================================================
@@ -82330,7 +82396,7 @@ BossCollision_MCZ2:
 	move.b	collision_flags(a1),d0
 	cmpi.w	#$78,invulnerable_time(a0)
 	bne.s	+	; rts
-	st	boss_hurt_sonic(a1)	; sonic has just been hurt flag
+	st	boss_hurt_sonic(a1)	; Sonic has just been hurt flag
 +
 	rts
 ; ===========================================================================
@@ -82417,8 +82483,8 @@ loc_3FC46:
 	rts
 ; ===========================================================================
 ;loc_3FC4C:
-	; d7 = y_boss, d3 = y_sonic, d1 (high word) = heigth
-	; d0 = x_boss, d2 = x_sonic, d1 (low word)  = width
+	; d7 = y_boss, d3 = y_Sonic, d1 (high word) = height
+	; d0 = x_boss, d2 = x_Sonic, d1 (low word)  = width
 Boss_DoCollision:
 	sub.w	d1,d0
 	sub.w	d2,d0
@@ -87017,7 +87083,7 @@ ArtNem_Invincible_stars:	BINCLUDE	"art/nemesis/Invincibility stars.bin"
 ArtUnc_SplashAndDust:	BINCLUDE	"art/uncompressed/Splash and skid dust.bin"
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (14 blocks)
-; Supersonic stars		; ArtNem_7393C:
+; Super Sonic stars		; ArtNem_7393C:
 ArtNem_SuperSonic_stars:	BINCLUDE	"art/nemesis/Super Sonic stars.bin"
 	even
 ;--------------------------------------------------------------------------------------
@@ -87067,7 +87133,7 @@ MapEng_TitleLogo:	BINCLUDE	"mappings/misc/Sonic the Hedgehog 2 title screen logo
 ArtNem_Title:	BINCLUDE	"art/nemesis/Main patterns from title screen.bin"
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art (674 blocks)
-; Sonic and tails from title screen	; ArtNem_7667A:
+; Sonic and Tails from title screen	; ArtNem_7667A:
 	even
 ArtNem_TitleSprites:	BINCLUDE	"art/nemesis/Sonic and Tails from title screen.bin"
 ;---------------------------------------------------------------------------------------
@@ -87753,7 +87819,7 @@ ArtNem_Clouds:	BINCLUDE	"art/nemesis/Clouds.bin"
 ArtNem_WfzHrzntlLazer:	BINCLUDE	"art/nemesis/Red horizontal laser from WFZ.bin"
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (5 blocks)
-; Catapult that shoots sonic across quickly in WFZ	8DCA2:
+; Catapult that shoots Sonic across quickly in WFZ	8DCA2:
 	even
 ArtNem_WfzLaunchCatapult:	BINCLUDE	"art/nemesis/Catapult that shoots Sonic to the side from WFZ.bin"
 ;--------------------------------------------------------------------------------------
@@ -87932,7 +87998,7 @@ ArtNem_EndingMiniTornado:	BINCLUDE	"art/nemesis/Small pictures of Tornado in fin
 ArtNem_EndingSonic:	BINCLUDE	"art/nemesis/Small pictures of Sonic and final image of Sonic.bin"
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (117 blocks)
-; Mini pictures of Sonic and final image of Sonic in supersonic mode	; ArtNem_93848:
+; Mini pictures of Sonic and final image of Sonic in Super Sonic mode	; ArtNem_93848:
 	even
 ArtNem_EndingSuperSonic:	BINCLUDE	"art/nemesis/Small pictures of Sonic and final image of Sonic in Super Sonic mode.bin"
 ;--------------------------------------------------------------------------------------
@@ -90176,7 +90242,7 @@ SndPtr_Scatter:
 SndPtr_LaserFloor:	rom_ptr_z80	Sound6B	; scatter
 SndPtr_Teleport:	rom_ptr_z80	Sound6C
 SndPtr_Error:		rom_ptr_z80	Sound6D	; error sound
-SndPtr_MechaSonicBuzz:	rom_ptr_z80	Sound6E	; silver sonic buzz saw
+SndPtr_MechaSonicBuzz:	rom_ptr_z80	Sound6E	; Silver Sonic buzz saw
 SndPtr_LargeLaser:	rom_ptr_z80	Sound6F
 SndPtr_OilSlide:	rom_ptr_z80	Sound70
 SndPtr__End:
@@ -90190,12 +90256,12 @@ SndPtr__End:
 	;  0x00-0x7F sets the note duration (of the previous note and following notes)
 	;  0x81-0xDF plays a note (the valid range may be smaller for PSG or DAC)
 	;  0x80 plays silence
-	;  0xE0-0xFF does special things. I won't list them here... search for "Coordination flags" sonic 2.
+	;  0xE0-0xFF does special things. I won't list them here... search for "Coordination flags" Sonic 2.
 
 	; the FM voices (poorly named "ssamp" or "samples" below)
 	; are 25 bytes each and go directly to YM2612 registers.
 	; they can be hard to edit (there's an art to it)
-	; but search for sonic "Voice editing" for more info if you want to try.
+	; but search for Sonic "Voice editing" for more info if you want to try.
 
 ; jumping sound
 Sound20:	dc.w $0000,$0101
@@ -90928,7 +90994,7 @@ Sound6D:	dc.w z80_ptr(ssamp6D),$0101
 ssamp6D:	dc.b $38,$00,$00,$00,$00,$1F,$1F,$1F,$1F,$00,$00,$00
 		dc.b $00,$00,$00,$00,$00,$0F,$0F,$0F,$0F,$1F,$0C,$17,$00
 
-; silver sonic buzz saw
+; Silver Sonic buzz saw
 Sound6E:	dc.w z80_ptr(ssamp6E),$0102
 		dc.w $8005,z80_ptr(+),$0000
 		dc.w $80C0,z80_ptr(++),$0000

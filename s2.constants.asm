@@ -33,18 +33,18 @@ anim_frame =		$1B
 anim =			$1C
 prev_anim =		$1D
 anim_frame_duration =	$1E
-status =		$22 ; note: exact meaning depends on the object... for sonic/tails: bit 0: leftfacing. bit 1: inair. bit 2: spinning. bit 3: onobject. bit 4: rolljumping. bit 5: pushing. bit 6: underwater.
+status =		$22 ; note: exact meaning depends on the object... for Sonic/Tails: bit 0: left-facing. bit 1: in-air. bit 2: spinning. bit 3: on-object. bit 4: roll-jumping. bit 5: pushing. bit 6: underwater.
 routine =		$24
 routine_secondary =	$25
 angle =			$26 ; angle about the z axis (360 degrees = 256)
 ; ---------------------------------------------------------------------------
-; conventions followed by many objects but NOT sonic/tails:
+; conventions followed by many objects but NOT Sonic/Tails:
 collision_flags =	$20
 collision_property =	$21
 respawn_index =		$23
 subtype =		$28
 ; ---------------------------------------------------------------------------
-; conventions specific to sonic/tails (Obj01, Obj02, and ObjDB):
+; conventions specific to Sonic/Tails (Obj01, Obj02, and ObjDB):
 ; note: $1F, $20, and $21 are unused and available
 inertia =		$14 ; and $15 ; directionless representation of speed... not updated in the air
 flip_angle =		$27 ; angle about the x axis (360 degrees = 256) (twist/tumble)
@@ -70,7 +70,7 @@ interact =		$3D ; RAM address of the last object Sonic stood on, minus $FFFFB000
 top_solid_bit =   $3E ; the bit to check for top solidity (either $C or $E)
 lrb_solid_bit =		$3F ; the bit to check for left/right/bottom solidity (either $D or $F)
 ; ---------------------------------------------------------------------------
-; conventions followed by several objects but NOT sonic/tails:
+; conventions followed by several objects but NOT Sonic/Tails:
 y_pixel =		2+x_pos ; and 3+x_pos ; y coordinate for objects using screen-space coordinate system
 x_pixel =		x_pos ; and 1+x_pos ; x coordinate for objects using screen-space coordinate system
 parent =		$3E ; and $3F ; address of object that owns or spawned this one, if applicable
@@ -83,7 +83,7 @@ boss_sine_count		= $1A	;mapping_frame
 boss_routine		= $26	;angle
 boss_defeated		= $2C
 boss_hitcount2		= $32
-boss_hurt_sonic		= $38	; flag set by collision response routine when sonic has just been hurt (by boss?)
+boss_hurt_sonic		= $38	; flag set by collision response routine when Sonic has just been hurt (by boss?)
 ; ---------------------------------------------------------------------------
 ; when childsprites are activated (i.e. bit #6 of render_flags set)
 mainspr_mapframe	= $B
@@ -116,7 +116,7 @@ sub9_y_pos		= $3C
 sub9_mapframe		= $3F
 next_subspr		= $6
 ; ---------------------------------------------------------------------------
-; unknown or inconsistently used offsets that are not applicable to sonic/tails:
+; unknown or inconsistently used offsets that are not applicable to Sonic/Tails:
 ; (provided because rearrangement of the above values sometimes requires making space in here too)
 objoff_A =		2+x_pos ; note: x_pos can be 4 bytes, but sometimes the last 2 bytes of x_pos are used for other unrelated things
 objoff_B =		3+x_pos ; unused
@@ -1329,7 +1329,7 @@ Water_flag:			ds.b	1	; if the level has water or oil
 				ds.b	1	; $FFFFF731 ; seems unused
 Demo_button_index_2P:		ds.w	1	; index into button press demo data, for player 2
 Demo_press_counter_2P:		ds.w	1	; frames remaining until next button press, for player 2
-Tornado_Velocity_X:		ds.w	1	; speed of tails' plane in scz ($FFFFF736)
+Tornado_Velocity_X:		ds.w	1	; speed of Tails' plane in SCZ ($FFFFF736)
 Tornado_Velocity_Y:		ds.w	1
 ScreenShift:			ds.b	1
 				ds.b	4	; $FFFFF73B-$FFFFF73E
@@ -1393,8 +1393,8 @@ SpecialStage_flag_2P:			ds.b	1
 				ds.b	1	; $FFFFF7CE ; seems unused
 Control_Locked_P2:		ds.b	1
 Chain_Bonus_counter:		ds.w	1	; counts up when you destroy things that give points, resets when you touch the ground
-Bonus_Countdown_1:		ds.w	1	; level results time bonus or special stage sonic ring bonus
-Bonus_Countdown_2:		ds.w	1	; level results ring bonus or special stage tails ring bonus
+Bonus_Countdown_1:		ds.w	1	; level results time bonus or special stage Sonic ring bonus
+Bonus_Countdown_2:		ds.w	1	; level results ring bonus or special stage Tails ring bonus
 Update_Bonus_score:		ds.b	1
 				ds.b	3	; $FFFFF7D7-$FFFFF7D9 ; seems unused
 Camera_X_pos_coarse:		ds.w	1	; (Camera_X_pos - 128) / 256
