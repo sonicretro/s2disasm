@@ -3607,7 +3607,7 @@ zPSG_EnvTbl:
 	; 0 is thus loudest, and increasing values decay, until level $F (silent)
 
 	dw	PSG_EV1, PSG_EV2, PSG_EV3, PSG_EV4
-	dw	PSG_EV6, PSG_EV5, PSG_EV7, PSG_EV8
+	dw	PSG_EV5, PSG_EV6, PSG_EV7, PSG_EV8
 	dw	PSG_EV9, PSG_EV10, PSG_EV11, PSG_EV12
 	dw	PSG_EV13
 
@@ -3628,12 +3628,14 @@ PSG_EV3:
 PSG_EV4:
 	db	0,0,2,3,4,4,5,5,5,6,80h
 
+; The next two envelopes appear in a different order than in the list above.
+
 ; byte_107D
-PSG_EV5:
+PSG_EV6:
 	db	3,3,3,2,2,2,2,1,1,1,0,0,0,0,80h
 
 ; byte_108C
-PSG_EV6:
+PSG_EV5:
 	db	0,0,0,0,0,0,0,0,0,0,1,1
 	db	1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2
 	db	2,2,2,2,3,3,3,3,3,3,3,3,4,80h
