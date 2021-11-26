@@ -18610,7 +18610,7 @@ LevEvents_EHZ2_Routine2:
 	addq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_EHZ2_Routine3
 	move.w	#MusID_FadeOut,d0
 	jsrto	(PlayMusic).l, JmpTo3_PlayMusic
-	clr.b	(ScreenShift).w
+	clr.b	(Boss_spawn_delay).w
 	move.b	#2,(Current_Boss_ID).w
 	moveq	#PLCID_EhzBoss,d0
 	jsrto	(LoadPLC).l, JmpTo2_LoadPLC
@@ -18624,8 +18624,8 @@ LevEvents_EHZ2_Routine3:
 	move.w	#$388,(Camera_Min_Y_pos).w
 	move.w	#$388,(Tails_Min_Y_pos).w
 +
-	addq.b	#1,(ScreenShift).w
-	cmpi.b	#$5A,(ScreenShift).w
+	addq.b	#1,(Boss_spawn_delay).w
+	cmpi.b	#$5A,(Boss_spawn_delay).w
 	blo.s	++
 	jsrto	(SingleObjLoad).l, JmpTo_SingleObjLoad
 	bne.s	+
@@ -18718,7 +18718,7 @@ LevEvents_MTZ3_Routine3:
 	addq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_MTZ3_Routine4
 	move.w	#MusID_FadeOut,d0
 	jsrto	(PlayMusic).l, JmpTo3_PlayMusic
-	clr.b	(ScreenShift).w
+	clr.b	(Boss_spawn_delay).w
 	move.b	#7,(Current_Boss_ID).w
 	moveq	#PLCID_MtzBoss,d0
 	jsrto	(LoadPLC).l, JmpTo2_LoadPLC
@@ -18732,8 +18732,8 @@ LevEvents_MTZ3_Routine4:
 	move.w	#$400,(Camera_Min_Y_pos).w
 	move.w	#$400,(Tails_Min_Y_pos).w
 +
-	addq.b	#1,(ScreenShift).w
-	cmpi.b	#$5A,(ScreenShift).w
+	addq.b	#1,(Boss_spawn_delay).w
+	cmpi.b	#$5A,(Boss_spawn_delay).w
 	blo.s	++
 	jsrto	(SingleObjLoad).l, JmpTo_SingleObjLoad
 	bne.s	+
@@ -19436,7 +19436,7 @@ LevEvents_HTZ2_Routine7:
 	addq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ2_Routine8
 	move.w	#MusID_FadeOut,d0
 	jsrto	(PlayMusic).l, JmpTo3_PlayMusic
-	clr.b	(ScreenShift).w
+	clr.b	(Boss_spawn_delay).w
 	move.b	#3,(Current_Boss_ID).w
 	moveq	#PLCID_HtzBoss,d0
 	jmpto	(LoadPLC).l, JmpTo2_LoadPLC
@@ -19451,8 +19451,8 @@ LevEvents_HTZ2_Routine8:
 	move.w	#$478,(Camera_Min_Y_pos).w
 	move.w	#$478,(Tails_Min_Y_pos).w
 +
-	addq.b	#1,(ScreenShift).w
-	cmpi.b	#$5A,(ScreenShift).w
+	addq.b	#1,(Boss_spawn_delay).w
+	cmpi.b	#$5A,(Boss_spawn_delay).w
 	blo.s	++	; rts
 	jsrto	(SingleObjLoad).l, JmpTo_SingleObjLoad
 	bne.s	+
@@ -19538,7 +19538,7 @@ LevEvents_OOZ2_Routine2:
 	addq.b	#2,(Dynamic_Resize_Routine).w
 	move.w	#MusID_FadeOut,d0
 	jsrto	(PlayMusic).l, JmpTo3_PlayMusic
-	clr.b	(ScreenShift).w
+	clr.b	(Boss_spawn_delay).w
 	move.b	#8,(Current_Boss_ID).w
 	moveq	#PLCID_OozBoss,d0
 	jsrto	(LoadPLC).l, JmpTo2_LoadPLC
@@ -19554,8 +19554,8 @@ LevEvents_OOZ2_Routine3:
 	move.w	#$1D8,(Camera_Min_Y_pos).w
 	move.w	#$1D8,(Tails_Min_Y_pos).w
 +
-	addq.b	#1,(ScreenShift).w
-	cmpi.b	#$5A,(ScreenShift).w
+	addq.b	#1,(Boss_spawn_delay).w
+	cmpi.b	#$5A,(Boss_spawn_delay).w
 	blo.s	++	; rts
 	jsrto	(SingleObjLoad).l, JmpTo_SingleObjLoad
 	bne.s	+
@@ -19627,7 +19627,7 @@ LevEvents_MCZ2_Routine2:
 	addq.b	#2,(Dynamic_Resize_Routine).w
 	move.w	#MusID_FadeOut,d0
 	jsrto	(PlayMusic).l, JmpTo3_PlayMusic
-	clr.b	(ScreenShift).w
+	clr.b	(Boss_spawn_delay).w
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtUnc_FallingRocks),VRAM,WRITE),(VDP_control_port).l
 	lea	(VDP_data_port).l,a6
 	lea	(ArtUnc_FallingRocks).l,a2
@@ -19653,8 +19653,8 @@ LevEvents_MCZ2_Routine3:
 	move.w	#$5C8,(Camera_Min_Y_pos).w
 	move.w	#$5C8,(Tails_Min_Y_pos).w
 +
-	addq.b	#1,(ScreenShift).w
-	cmpi.b	#$5A,(ScreenShift).w
+	addq.b	#1,(Boss_spawn_delay).w
+	cmpi.b	#$5A,(Boss_spawn_delay).w
 	blo.s	++	; rts
 	jsrto	(SingleObjLoad).l, JmpTo_SingleObjLoad
 	bne.s	+
@@ -19735,7 +19735,7 @@ LevEvents_CNZ2_Routine2:
 	addq.b	#2,(Dynamic_Resize_Routine).w
 	move.w	#MusID_FadeOut,d0
 	jsrto	(PlayMusic).l, JmpTo3_PlayMusic
-	clr.b	(ScreenShift).w
+	clr.b	(Boss_spawn_delay).w
 	move.b	#6,(Current_Boss_ID).w
 	moveq	#PLCID_CnzBoss,d0
 	jsrto	(LoadPLC).l, JmpTo2_LoadPLC
@@ -19751,8 +19751,8 @@ LevEvents_CNZ2_Routine3:
 	move.w	#$4E0,(Camera_Min_Y_pos).w
 	move.w	#$4E0,(Tails_Min_Y_pos).w
 +
-	addq.b	#1,(ScreenShift).w
-	cmpi.b	#$5A,(ScreenShift).w
+	addq.b	#1,(Boss_spawn_delay).w
+	cmpi.b	#$5A,(Boss_spawn_delay).w
 	blo.s	++	; rts
 	jsrto	(SingleObjLoad).l, JmpTo_SingleObjLoad
 	bne.s	+
@@ -19819,7 +19819,7 @@ LevEvents_CPZ2_Routine2:
 	addq.b	#2,(Dynamic_Resize_Routine).w
 	move.w	#MusID_FadeOut,d0
 	jsrto	(PlayMusic).l, JmpTo3_PlayMusic
-	clr.b	(ScreenShift).w
+	clr.b	(Boss_spawn_delay).w
 	move.b	#1,(Current_Boss_ID).w
 	moveq	#PLCID_CpzBoss,d0
 	jmpto	(LoadPLC).l, JmpTo2_LoadPLC
@@ -19834,8 +19834,8 @@ LevEvents_CPZ2_Routine3:
 	move.w	#$448,(Camera_Min_Y_pos).w
 	move.w	#$448,(Tails_Min_Y_pos).w
 +
-	addq.b	#1,(ScreenShift).w
-	cmpi.b	#$5A,(ScreenShift).w
+	addq.b	#1,(Boss_spawn_delay).w
+	cmpi.b	#$5A,(Boss_spawn_delay).w
 	blo.s	++
 	jsrto	(SingleObjLoad).l, JmpTo_SingleObjLoad
 	bne.s	+
@@ -19966,7 +19966,7 @@ LevEvents_ARZ2_Routine2:
 	addq.b	#2,(Dynamic_Resize_Routine).w
 	move.w	#MusID_FadeOut,d0
 	jsrto	(PlayMusic).l, JmpTo3_PlayMusic
-	clr.b	(ScreenShift).w
+	clr.b	(Boss_spawn_delay).w
 	jsrto	(SingleObjLoad).l, JmpTo_SingleObjLoad
 	bne.s	+	; rts
 	move.b	#ObjID_ARZBoss,id(a1) ; load obj89
@@ -19980,8 +19980,8 @@ LevEvents_ARZ2_Routine3:
 	move.w	#$3F8,(Camera_Min_Y_pos).w
 	move.w	#$3F8,(Tails_Min_Y_pos).w
 +
-	addq.b	#1,(ScreenShift).w
-	cmpi.b	#$5A,(ScreenShift).w
+	addq.b	#1,(Boss_spawn_delay).w
+	cmpi.b	#$5A,(Boss_spawn_delay).w
 	blo.s	+	; rts
 	addq.b	#2,(Dynamic_Resize_Routine).w
 	move.w	#MusID_Boss,d0
