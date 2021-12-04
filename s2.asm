@@ -58028,9 +58028,10 @@ Obj50_Main_Index: offsetTable
 ; loc_2CDCA:
 Obj50_Wing:
 	movea.l	Obj50_parent(a0),a1 ; a1=object
+	; This check is made redundant by the following check
 	tst.b	id(a1)		; is parent object's slot empty?
 	beq.w	JmpTo48_DeleteObject	; if yes, branch
-	cmpi.b	#ObjID_Aquis,(a1)	; is parent object ObjID_Aquis?
+	cmpi.b	#ObjID_Aquis,id(a1)	; is parent object ObjID_Aquis?
 	bne.w	JmpTo48_DeleteObject	; if not, branch
 	btst	#7,status(a1)		; is parent object marked as destroyed?
 	bne.w	JmpTo48_DeleteObject	; if yes, branch
