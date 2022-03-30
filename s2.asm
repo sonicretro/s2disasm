@@ -57122,7 +57122,6 @@ SlotMachine_DoubleUp:
 ; data for the slot machines
 ;byte_2C3E0
 SlotRingRewards:	dc.w   30,  25,  -1, 150,  10,  20
-	rev02even
 ;byte_2C3EC
 SlotTargetValues:	dc.b   8, 3,$33,  $12, 0,$00,  $12, 1,$11  ,$24, 2,$22
 			dc.b $1E, 4,$44,  $1E, 5,$55,  $FF,$F,$FF
