@@ -24056,8 +24056,8 @@ process_swap_table:
 	move.b	#-1,(Sonic_LastLoadedDPLC).w
 	move.b	#-1,(Tails_LastLoadedDPLC).w
 	move.b	#-1,(TailsTails_LastLoadedDPLC).w
-	lea	(unk_F786).w,a1
-	lea	(unk_F789).w,a2
+	lea	(Player_1_loaded_object_blocks).w,a1
+	lea	(Player_2_loaded_object_blocks).w,a2
 
 	moveq	#2,d1
 -	move.b	(a1),d0
@@ -30423,89 +30423,100 @@ ObjectsManager_Main:
 	cmp.w	(Camera_X_pos_last).w,d6	; is the X range the same as last time?
 	beq.w	ObjectsManager_SameXRange	; if yes, branch (rts)
 	bge.s	ObjectsManager_GoingForward	; if new pos is greater than old pos, branch
+
 	; if the player is moving back
+;ObjectsManager_GoingBackward:
 	move.w	d6,(Camera_X_pos_last).w	; remember current position for next time
+
 	movea.l	(Obj_load_addr_left).w,a0	; get current object from the left
 	subi.w	#$80,d6		; look one chunk to the left
-	bcs.s	loc_17BE6	; branch, if camera position would be behind level's left boundary
+	bcs.s	.done1		; branch, if camera position would be behind level's left boundary
 
--	; load all objects left of the screen that are now in range
+.nextObject1:
+	; load all objects left of the screen that are now in range
 	cmp.w	-6(a0),d6	; is the previous object's X pos less than d6?
-	bge.s	loc_17BE6	; if it is, branch
+	bge.s	.done1		; if it is, branch
 	subq.w	#6,a0		; get object's address
-	tst.b	2(a0)	; does the object get a respawn table entry?
-	bpl.s	+	; if not, branch
+	tst.b	2(a0)		; does the object get a respawn table entry?
+	bpl.s	.noRespawn1	; if not, branch
 	subq.b	#1,1(a2)	; respawn index of this object
 	move.b	1(a2),d2
-+
+.noRespawn1:
 	bsr.w	ChkLoadObj	; load object
-	bne.s	+		; branch, if SST is full
+	bne.s	.fullSST	; branch, if SST is full
 	subq.w	#6,a0
-	bra.s	-	; continue with previous object
+	bra.s	.nextObject1	; continue with previous object
 ; ---------------------------------------------------------------------------
 
-+	; undo a few things, if the object couldn't load
-	tst.b	2(a0)	; does the object get a respawn table entry?
-	bpl.s	+	; if not, branch
+.fullSST:
+	; undo a few things, if the object couldn't load
+	tst.b	2(a0)		; does the object get a respawn table entry?
+	bpl.s	.noRespawn3	; if not, branch
 	addq.b	#1,1(a2)	; since we didn't load the object, undo last change
-+
-	addq.w	#6,a0	; go back to last object
-
-loc_17BE6:
+.noRespawn3:
+	addq.w	#6,a0		; go back to last object
+; loc_17BE6:
+.done1:
 	move.l	a0,(Obj_load_addr_left).w	; remember current object from the left
+
 	movea.l	(Obj_load_addr_right).w,a0	; get next object from the right
-	addi.w	#$300,d6	; look two chunks beyond the right edge of the screen
+	addi.w	#$300,d6			; look two chunks beyond the right edge of the screen
 
--	; subtract number of objects that have been moved out of range (from the right side)
+.nextObject2:
+	; subtract number of objects that have been moved out of range (from the right side)
 	cmp.w	-6(a0),d6	; is the previous object's X pos less than d6?
-	bgt.s	loc_17C04	; if it is, branch
-	tst.b	-4(a0)	; does the previous object get a respawn table entry?
-	bpl.s	+	; if not, branch
+	bgt.s	.done2		; if it is, branch
+	tst.b	-4(a0)		; does the previous object get a respawn table entry?
+	bpl.s	.noRespawn2	; if not, branch
 	subq.b	#1,(a2)		; respawn index of next object to the right
-+
+.noRespawn2:
 	subq.w	#6,a0
-	bra.s	-	; continue with previous object
+	bra.s	.nextObject2	; continue with previous object
 ; ---------------------------------------------------------------------------
-
-loc_17C04:
+; loc_17C04:
+.done2:
 	move.l	a0,(Obj_load_addr_right).w	; remember next object from the right
 	rts
 ; ---------------------------------------------------------------------------
 
 ObjectsManager_GoingForward:
 	move.w	d6,(Camera_X_pos_last).w
-	movea.l	(Obj_load_addr_right).w,a0	; get next object from the right
-	addi.w	#$280,d6	; look two chunks forward
 
--	; load all objects right of the screen that are now in range
+	movea.l	(Obj_load_addr_right).w,a0	; get next object from the right
+	addi.w	#$280,d6			; look two chunks forward
+
+.nextObject1:
+	; load all objects right of the screen that are now in range
 	cmp.w	(a0),d6		; is object's x position >= d6?
-	bls.s	loc_17C2A	; if yes, branch
-	tst.b	2(a0)	; does the object get a respawn table entry?
-	bpl.s	+	; if not, branch
+	bls.s	.done1		; if yes, branch
+	tst.b	2(a0)		; does the object get a respawn table entry?
+	bpl.s	.noRespawn1	; if not, branch
 	move.b	(a2),d2		; respawn index of this object
 	addq.b	#1,(a2)		; respawn index of next object to the right
-+
+.noRespawn1:
 	bsr.w	ChkLoadObj	; load object (and get address of next object)
-	beq.s	-	; continue loading objects, if the SST isn't full
-
-loc_17C2A:
+	beq.s	.nextObject1	; continue loading objects, if the SST isn't full
+; loc_17C2A:
+.done1:
 	move.l	a0,(Obj_load_addr_right).w	; remember next object from the right
+
 	movea.l	(Obj_load_addr_left).w,a0	; get current object from the left
-	subi.w	#$300,d6	; look one chunk behind the left edge of the screen
-	bcs.s	loc_17C4A	; branch, if camera position would be behind level's left boundary
+	subi.w	#$300,d6			; look one chunk behind the left edge of the screen
+	bcs.s	.done2				; branch, if camera position would be behind level's left boundary
 
--	; subtract number of objects that have been moved out of range (from the left)
+.nextObject2:
+	; subtract number of objects that have been moved out of range (from the left)
 	cmp.w	(a0),d6		; is object's x position >= d6?
-	bls.s	loc_17C4A	; if yes, branch
-	tst.b	2(a0)	; does the object get a respawn table entry?
-	bpl.s	+	; if not, branch
+	bls.s	.done2		; if yes, branch
+	tst.b	2(a0)		; does the object get a respawn table entry?
+	bpl.s	.noRespawn2	; if not, branch
 	addq.b	#1,1(a2)	; respawn index of next object to the left
-+
+.noRespawn2:
 	addq.w	#6,a0
-	bra.s	-	; continue with previous object
+	bra.s	.nextObject2	; continue with previous object
 ; ---------------------------------------------------------------------------
-
-loc_17C4A:
+; loc_17C4A:
+.done2:
 	move.l	a0,(Obj_load_addr_left).w	; remember current object from the left
 
 ObjectsManager_SameXRange:
@@ -30513,11 +30524,13 @@ ObjectsManager_SameXRange:
 ; ---------------------------------------------------------------------------
 ; loc_17C50
 ObjectsManager_2P_Init:
+	; Reset all of the 2P object manager variables to $FF.
 	moveq	#-1,d0
-	move.l	d0,(unk_F780).w
-	move.l	d0,(unk_F780+4).w
-	move.l	d0,(unk_F780+8).w
-	move.l	d0,(Camera_X_pos_last_P2).w	; both words that this sets to -1 are overwritten directly underneath, so this line is rather pointless...
+	move.l	d0,(Object_manager_2P_RAM+0).w
+	move.l	d0,(Object_manager_2P_RAM+4).w
+	move.l	d0,(Object_manager_2P_RAM+8).w
+	move.l	d0,(Object_manager_2P_RAM+12).w	; both words that this sets to -1 are overwritten directly underneath, so this line is rather pointless...
+
 	move.w	#0,(Camera_X_pos_last).w
 	move.w	#0,(Camera_X_pos_last_P2).w
 	lea	(Obj_respawn_index).w,a2
@@ -30526,27 +30539,27 @@ ObjectsManager_2P_Init:
 	; run initialization for player 1
 	lea	(Obj_respawn_index).w,a5
 	lea	(Obj_load_addr_right).w,a4
-	lea	(unk_F786).w,a1	; = -1, -1, -1
-	lea	(unk_F789).w,a6	; = -1, -1, -1
+	lea	(Player_1_loaded_object_blocks).w,a1	; = -1, -1, -1
+	lea	(Player_2_loaded_object_blocks).w,a6	; = -1, -1, -1
 	moveq	#-2,d6
 	bsr.w	ObjMan2P_GoingForward
-	lea	(unk_F786).w,a1
+	lea	(Player_1_loaded_object_blocks).w,a1
 	moveq	#-1,d6
 	bsr.w	ObjMan2P_GoingForward
-	lea	(unk_F786).w,a1
+	lea	(Player_1_loaded_object_blocks).w,a1
 	moveq	#0,d6
 	bsr.w	ObjMan2P_GoingForward
 	; run initialization for player 2
 	lea	(Obj_respawn_index_P2).w,a5
 	lea	(Obj_load_addr_2).w,a4
-	lea	(unk_F789).w,a1
-	lea	(unk_F786).w,a6
+	lea	(Player_2_loaded_object_blocks).w,a1
+	lea	(Player_1_loaded_object_blocks).w,a6
 	moveq	#-2,d6
 	bsr.w	ObjMan2P_GoingForward
-	lea	(unk_F789).w,a1
+	lea	(Player_2_loaded_object_blocks).w,a1
 	moveq	#-1,d6
 	bsr.w	ObjMan2P_GoingForward
-	lea	(unk_F789).w,a1
+	lea	(Player_2_loaded_object_blocks).w,a1
 	moveq	#0,d6
 	bsr.w	ObjMan2P_GoingForward
 
@@ -30568,8 +30581,8 @@ ObjectsManager_2P_Main:
 	move.w	d6,(Camera_X_pos_last).w	; remember current position for next time
 	lea	(Obj_respawn_index).w,a5
 	lea	(Obj_load_addr_right).w,a4
-	lea	(unk_F786).w,a1
-	lea	(unk_F789).w,a6
+	lea	(Player_1_loaded_object_blocks).w,a1
+	lea	(Player_2_loaded_object_blocks).w,a6
 	bsr.s	ObjectsManager_2P_Run
 +
 	move.b	(Camera_X_pos_P2).w,d6	; get upper byte of camera positon
@@ -30580,8 +30593,8 @@ ObjectsManager_2P_Main:
 	move.w	d6,(Camera_X_pos_last_P2).w
 	lea	(Obj_respawn_index_P2).w,a5
 	lea	(Obj_load_addr_2).w,a4
-	lea	(unk_F789).w,a1
-	lea	(unk_F786).w,a6
+	lea	(Player_2_loaded_object_blocks).w,a1
+	lea	(Player_1_loaded_object_blocks).w,a6
 	bsr.s	ObjectsManager_2P_Run
 
 return_17D34:
@@ -30595,284 +30608,345 @@ ObjectsManager_2P_Run:
 	beq.w	ObjectsManager_SameXRange	; if yes, branch (rts)
 	bge.w	ObjMan2P_GoingForward	; if new pos is greater than old pos, branch
 	; if the player is moving back
+
+;ObjMan2P_GoingBackward:
+	; Slide the object block indices to the right, and insert the new object block at the left.
 	move.b	2(a1),d2
 	move.b	1(a1),2(a1)
 	move.b	(a1),1(a1)
 	move.b	d6,(a1)
+	; d2 now hold the index of the object block to be unloaded, which was pushed out of the right side.
+
+	; Check if the other player has the to-be-unloaded object block loaded.
 	cmp.b	(a6),d2
-	beq.s	+
+	beq.s	.blockNeededByOtherPlayer
 	cmp.b	1(a6),d2
-	beq.s	+
+	beq.s	.blockNeededByOtherPlayer
 	cmp.b	2(a6),d2
-	beq.s	+
-	bsr.w	ObjectsManager_2P_UnkSub3
-	bra.s	loc_17D70
+	beq.s	.blockNeededByOtherPlayer
+	; If the other player does not have this object block loaded, then we're free to unload it.
+	bsr.w	ObjectsManager_2P_UnloadObjectBlock
+	bra.s	.haveEmptyObjectBlock
 ; ---------------------------------------------------------------------------
 
-+
-	bsr.w	ObjMan_2P_UnkSub2
+.blockNeededByOtherPlayer:
+	bsr.w	ObjectsManager_2P_FindEmptyObjectBlock
+; loc_17D70:
+.haveEmptyObjectBlock:
+	bsr.w	ObjectsManager_2P_IsObjectBlockAlreadyLoaded
+	bne.s	.blockNotAlreadyLoaded
 
-loc_17D70:
-	bsr.w	ObjMan_2P_UnkSub1
-	bne.s	loc_17D94	; if whatever checks were just performed were all not equal, branch
+	; Block is already loaded: just update the pointer and respawn index without actually loading anything.
 	movea.l	4(a4),a0
 
--
-	cmp.b	-6(a0),d6
-	bne.s	loc_17D8E
-	tst.b	-4(a0)
-	bpl.s	+
-	subq.b	#1,1(a5)
-+
+.nextObject1:
+	cmp.b	-6(a0),d6	; is the previous object's X pos less than d6?
+	bne.s	.done1		; if it is, branch
+	tst.b	-4(a0)		; does the previous object get a respawn table entry?
+	bpl.s	.noRespawn1	; if not, branch
+	subq.b	#1,1(a5)	; respawn index of next object to the left
+.noRespawn1:
 	subq.w	#6,a0
-	bra.s	-
+	bra.s	.nextObject1	; continue with previous object
 ; ---------------------------------------------------------------------------
+; loc_17D8E:
+.done1:
+	move.l	a0,4(a4)	; remember next object from the right
 
-loc_17D8E:
-	move.l	a0,4(a4)
-	bra.s	loc_17DCA
+	bra.s	.unloadObjects
 ; ---------------------------------------------------------------------------
-
-loc_17D94:
+; loc_17D94:
+.blockNotAlreadyLoaded:
+	; Block is not already loaded: load all of the objects in the block.
 	movea.l	4(a4),a0
+
+	; Mark object block as occupied.
 	move.b	d6,(a1)
 
--
-	cmp.b	-6(a0),d6
-	bne.s	loc_17DC6
-	subq.w	#6,a0
-	tst.b	2(a0)
-	bpl.s	+
-	subq.b	#1,1(a5)
+.nextObject2:
+	; load all objects left of the screen that are now in range
+	cmp.b	-6(a0),d6	; is the previous object's X pos less than d6?
+	bne.s	.done2		; if it is, branch
+	subq.w	#6,a0		; get object's address
+	tst.b	2(a0)		; does the object get a respawn table entry?
+	bpl.s	.noRespawn2	; if not, branch
+	subq.b	#1,1(a5)	; respawn index of this object
 	move.b	1(a5),d2
-+
-	bsr.w	ChkLoadObj_2P
-	bne.s	loc_17DBA
+.noRespawn2:
+	bsr.w	ChkLoadObj_2P	; load object
+	bne.s	.fullSST	; branch, if SST is full
 	subq.w	#6,a0
-	bra.s	-
+	bra.s	.nextObject2	; continue with previous object
 ; ---------------------------------------------------------------------------
+; loc_17DBA:
+.fullSST:
+	; undo a few things, if the object couldn't load
+	tst.b	2(a0)		; does the object get a respawn table entry?
+	bpl.s	.noRespawn4	; if not, branch
+	addq.b	#1,1(a5)	; since we didn't load the object, undo last change
+.noRespawn4:
+	addq.w	#6,a0		; go back to last object
+; loc_17DC6:
+.done2:
+	move.l	a0,4(a4)	; remember current object from the left
+; loc_17DCA:
+.unloadObjects:
+	movea.l	(a4),a0		; get next object from the right
+	addq.w	#3,d6		; look two chunks beyond the right edge of the screen
 
-loc_17DBA:
-	tst.b	2(a0)
-	bpl.s	+
-	addq.b	#1,1(a5)
-+
-	addq.w	#6,a0
-
-loc_17DC6:
-	move.l	a0,4(a4)
-
-loc_17DCA:
-	movea.l	(a4),a0
-	addq.w	#3,d6
-
--
-	cmp.b	-6(a0),d6
-	bne.s	loc_17DE0
-	tst.b	-4(a0)
-	bpl.s	+
-	subq.b	#1,(a5)
-+
+.nextObject3:
+	; subtract number of objects that have been moved out of range (from the right side)
+	cmp.b	-6(a0),d6	; is the previous object's X pos less than d6?
+	bne.s	.done3		; if it is, branch
+	tst.b	-4(a0)		; does the previous object get a respawn table entry?
+	bpl.s	.noRespawn3	; if not, branch
+	subq.b	#1,(a5)		; respawn index of next object to the left
+.noRespawn3:
 	subq.w	#6,a0
-	bra.s	-
+	bra.s	.nextObject3	; continue with previous object
 ; ---------------------------------------------------------------------------
-
-loc_17DE0:
-	move.l	a0,(a4)
+; loc_17DE0:
+.done3:
+	move.l	a0,(a4)		; remember next object from the right
 	rts
 ; ===========================================================================
 ;loc_17DE4:
 ObjMan2P_GoingForward:
 	addq.w	#2,d6		; look forward two chunks
 
-	move.b	(a1),d2		; shift positions in array left once
-	move.b	1(a1),(a1)	; nearest chunk to the right
-	move.b	2(a1),1(a1)	; middle chunk to the right
-	move.b	d6,2(a1)	; farthest chunk to the right
+	; Slide the object block indices to the left, and insert the new object block at the right.
+	move.b	(a1),d2
+	move.b	1(a1),(a1)
+	move.b	2(a1),1(a1)
+	move.b	d6,2(a1)
+	; d2 now hold the index of the object block to be unloaded, which was pushed out of the right side.
 
-	cmp.b	(a6),d2		; compare farthset distance
-	beq.s	+
+	; Check if the other player has the to-be-unloaded object block loaded.
+	cmp.b	(a6),d2
+	beq.s	.blockNeededByOtherPlayer
 	cmp.b	1(a6),d2
-	beq.s	+
+	beq.s	.blockNeededByOtherPlayer
 	cmp.b	2(a6),d2
-	beq.s	+
-
-	bsr.w	ObjectsManager_2P_UnkSub3	; if not, run this sub-routine
-	bra.s	loc_17E10
+	beq.s	.blockNeededByOtherPlayer
+	; If the other player does not have this object block loaded, then we're free to unload it.
+	bsr.w	ObjectsManager_2P_UnloadObjectBlock
+	bra.s	.haveEmptyObjectBlock
 ; ---------------------------------------------------------------------------
 
-+
-	bsr.w	ObjMan_2P_UnkSub2
+.blockNeededByOtherPlayer:
+	bsr.w	ObjectsManager_2P_FindEmptyObjectBlock
+; loc_17E10:
+.haveEmptyObjectBlock:
+	bsr.w	ObjectsManager_2P_IsObjectBlockAlreadyLoaded
+	bne.s	.blockNotAlreadyLoaded
 
-loc_17E10:
-	bsr.w	ObjMan_2P_UnkSub1
-	bne.s	loc_17E2C	; if whatever checks were just performed were all not equal, branch
+	; Block is already loaded: just update the pointer and respawn index without actually loading anything.
 	movea.l	(a4),a0
 
--
-	cmp.b	(a0),d6
-	bne.s	loc_17E28
-	tst.b	2(a0)	; does the object get a respawn table entry?
-	bpl.s	+	; if not, branch
-	addq.b	#1,(a5)
-+
+.nextObject1:
+	cmp.b	(a0),d6		; is the object's X pos greater than d6?
+	bne.s	.done1		; if it is, branch
+	tst.b	2(a0)		; does the object get a respawn table entry?
+	bpl.s	.noRespawn1	; if not, branch
+	addq.b	#1,(a5)		; respawn index of next object to the right
+.noRespawn1:
 	addq.w	#6,a0
-	bra.s	-
+	bra.s	.nextObject1	; continue with next object
 ; ===========================================================================
+; loc_17E28:
+.done1:
+	move.l	a0,(a4)		; remember next object from the right
 
-loc_17E28:
-	move.l	a0,(a4)
-	bra.s	loc_17E46
+	bra.s	.unloadObjects
 ; ===========================================================================
-
-loc_17E2C:
+; loc_17E2C:
+.blockNotAlreadyLoaded:
 	movea.l	(a4),a0
 	move.b	d6,(a1)
 
--
-	cmp.b	(a0),d6
-	bne.s	loc_17E44
-	tst.b	2(a0)	; does the object get a respawn table entry?
-	bpl.s	+	; if not, branch
-	move.b	(a5),d2
-	addq.b	#1,(a5)
-+
-	bsr.w	ChkLoadObj_2P
-	beq.s	-
-
-loc_17E44:
-	move.l	a0,(a4)
-
-loc_17E46:
-	movea.l	4(a4),a0
-	subq.w	#3,d6
-	bcs.s	loc_17E60
-
-loc_17E4E:
-	cmp.b	(a0),d6
-	bne.s	loc_17E60
-	tst.b	2(a0)
-	bpl.s	loc_17E5C
-	addq.b	#1,1(a5)
-
-loc_17E5C:
+.nextObject2:
+	; load all objects right of the screen that are now in range
+	cmp.b	(a0),d6		; is object's x position >= d6?
+	bne.s	.done2		; if yes, branch
+	tst.b	2(a0)		; does the object get a respawn table entry?
+	bpl.s	.noRespawn2	; if not, branch
+	move.b	(a5),d2		; respawn index of this object
+	addq.b	#1,(a5)		; respawn index of next object to the left
+.noRespawn2:
+	bsr.w	ChkLoadObj_2P	; load object (and get address of next object)
+	beq.s	.nextObject2	; continue loading objects, if the SST isn't full
+; loc_17E44:
+.done2:
+	move.l	a0,(a4)		; remember current object from the right
+; loc_17E46:
+.unloadObjects:
+	movea.l	4(a4),a0	; get next object from the left
+	subq.w	#3,d6		; look one chunk behind the left edge of the screen
+	bcs.s	.done3		; branch, if camera position would be behind level's left boundary
+; loc_17E4E:
+.nextObject3:
+	; subtract number of objects that have been moved out of range (from the left)
+	cmp.b	(a0),d6		; is object's x position >= d6?
+	bne.s	.done3		; if yes, branch
+	tst.b	2(a0)		; does the object get a respawn table entry?
+	bpl.s	.noRespawn3	; if not, branch
+	addq.b	#1,1(a5)	; respawn index of next object to the right
+; loc_17E5C:
+.noRespawn3:
 	addq.w	#6,a0
-	bra.s	loc_17E4E
-; ===========================================================================
-
-loc_17E60:
-	move.l	a0,4(a4)
+	bra.s	.nextObject3	; continue with previous object
+; ---------------------------------------------------------------------------
+; loc_17E60:
+.done3:
+	move.l	a0,4(a4)	; remember current object from the left
 	rts
+
 ; ===========================================================================
-;loc_17E66:
-ObjMan_2P_UnkSub1:
+;loc_17E66: ObjMan_2P_UnkSub1:
+ObjectsManager_2P_IsObjectBlockAlreadyLoaded:
+	; Preserve 'a1'.
 	move.l	a1,-(sp)
-	lea	(unk_F780).w,a1
+
+	; 'Object_RAM_block_indices' is a list of blocks which are already loaded.
+	lea	(Object_RAM_block_indices).w,a1
+	; Check index 1.
 	cmp.b	(a1)+,d6
-	beq.s	+
+	beq.s	.blockAlreadyLoaded
+	; Check index 2.
 	cmp.b	(a1)+,d6
-	beq.s	+
+	beq.s	.blockAlreadyLoaded
+	; Check index 3.
 	cmp.b	(a1)+,d6
-	beq.s	+
+	beq.s	.blockAlreadyLoaded
+	; Check index 4.
 	cmp.b	(a1)+,d6
-	beq.s	+
+	beq.s	.blockAlreadyLoaded
+	; Check index 5.
 	cmp.b	(a1)+,d6
-	beq.s	+
+	beq.s	.blockAlreadyLoaded
+	; Check index 6.
 	cmp.b	(a1)+,d6
-	beq.s	+
+	beq.s	.blockAlreadyLoaded
+	; Make it so that a 'bne' instruction after the call to this function will branch.
 	moveq	#1,d0
-+
+
+.blockAlreadyLoaded:
+	; Restore 'a1'.
 	movea.l	(sp)+,a1
 	rts
 ; ===========================================================================
-;loc_17E8A:
-ObjMan_2P_UnkSub2:
-	lea	(unk_F780).w,a1
-	lea	(Dynamic_Object_RAM_2P_End).w,a3
+;loc_17E8A: ObjMan_2P_UnkSub2:
+ObjectsManager_2P_FindEmptyObjectBlock:
+	lea	(Object_RAM_block_indices).w,a1
+	; Check block 1.
+	lea	(Dynamic_Object_RAM_2P_End+(12*0)*object_size).w,a3
 	tst.b	(a1)+
-	bmi.s	+
-	lea	(Dynamic_Object_RAM_2P_End+$C*object_size).w,a3
+	bmi.s	.foundBlock
+	; Check block 2.
+	lea	(Dynamic_Object_RAM_2P_End+(12*1)*object_size).w,a3
 	tst.b	(a1)+
-	bmi.s	+
-	lea	(Dynamic_Object_RAM_2P_End+$18*object_size).w,a3
+	bmi.s	.foundBlock
+	; Check block 3.
+	lea	(Dynamic_Object_RAM_2P_End+(12*2)*object_size).w,a3
 	tst.b	(a1)+
-	bmi.s	+
-	lea	(Dynamic_Object_RAM_2P_End+$24*object_size).w,a3
+	bmi.s	.foundBlock
+	; Check block 4.
+	lea	(Dynamic_Object_RAM_2P_End+(12*3)*object_size).w,a3
 	tst.b	(a1)+
-	bmi.s	+
-	lea	(Dynamic_Object_RAM_2P_End+$30*object_size).w,a3
+	bmi.s	.foundBlock
+	; Check block 5.
+	lea	(Dynamic_Object_RAM_2P_End+(12*4)*object_size).w,a3
 	tst.b	(a1)+
-	bmi.s	+
-	lea	(Dynamic_Object_RAM_2P_End+$3C*object_size).w,a3
+	bmi.s	.foundBlock
+	; Check block 6.
+	lea	(Dynamic_Object_RAM_2P_End+(12*5)*object_size).w,a3
 	tst.b	(a1)+
-	bmi.s	+
+	bmi.s	.foundBlock
+	; This code should never be reached.
 	nop
 	nop
-+
+
+.foundBlock:
+	; Rewind a little so that 'a1' points to the object block index that we found.
 	subq.w	#1,a1
 	rts
 ; ===========================================================================
-; this sub-routine appears to determine which 12 byte block of object RAM
+; this sub-routine appears to determine which 12-slot block of object RAM
 ; corresponds to the current out-of-range camera positon (in d2) and deletes
 ; the objects in this block. This most likely takes over the functionality
 ; of markObjGone, as that routine isn't called in two player mode.
-;loc_17EC6:
-ObjectsManager_2P_UnkSub3:
-	lea	(unk_F780).w,a1
-	lea	(Dynamic_Object_RAM_2P_End).w,a3
+;loc_17EC6: ObjectsManager_2P_UnkSub3:
+ObjectsManager_2P_UnloadObjectBlock:
+	; Find which object block holds this object block index.
+	lea	(Object_RAM_block_indices).w,a1
+	; Check block 1.
+	lea	(Dynamic_Object_RAM_2P_End+(12*0)*object_size).w,a3
 	cmp.b	(a1)+,d2
-	beq.s	+
-	lea	(Dynamic_Object_RAM_2P_End+$C*object_size).w,a3
+	beq.s	.foundBlock
+	; Check block 2.
+	lea	(Dynamic_Object_RAM_2P_End+(12*1)*object_size).w,a3
 	cmp.b	(a1)+,d2
-	beq.s	+
-	lea	(Dynamic_Object_RAM_2P_End+$18*object_size).w,a3
+	beq.s	.foundBlock
+	; Check block 3.
+	lea	(Dynamic_Object_RAM_2P_End+(12*2)*object_size).w,a3
 	cmp.b	(a1)+,d2
-	beq.s	+
-	lea	(Dynamic_Object_RAM_2P_End+$24*object_size).w,a3
+	beq.s	.foundBlock
+	; Check block 4.
+	lea	(Dynamic_Object_RAM_2P_End+(12*3)*object_size).w,a3
 	cmp.b	(a1)+,d2
-	beq.s	+
-	lea	(Dynamic_Object_RAM_2P_End+$30*object_size).w,a3
+	beq.s	.foundBlock
+	; Check block 5.
+	lea	(Dynamic_Object_RAM_2P_End+(12*4)*object_size).w,a3
 	cmp.b	(a1)+,d2
-	beq.s	+
-	lea	(Dynamic_Object_RAM_2P_End+$3C*object_size).w,a3
+	beq.s	.foundBlock
+	; Check block 6.
+	lea	(Dynamic_Object_RAM_2P_End+(12*5)*object_size).w,a3
 	cmp.b	(a1)+,d2
-	beq.s	+
+	beq.s	.foundBlock
+	; This code should never be reached.
 	nop
 	nop
-+
+
+.foundBlock:
+	; Mark this object block as empty.
 	move.b	#-1,-(a1)
+
+	; Delete all objects in this block.
 	movem.l	a1/a3,-(sp)
 	moveq	#0,d1		; used later to delete objects
-	moveq	#$C-1,d2
+	moveq	#12-1,d2	; The number of objects per block
 
-;loc_17F0A:
-ObjMan2P_UnkSub3_DeleteBlockLoop:
+;loc_17F0A: ObjMan2P_UnkSub3_DeleteBlockLoop:
+.deleteBlockLoop:
 	tst.b	(a3)
-	beq.s	ObjMan2P_UnkSub3_DeleteBlock_SkipObj	; branch if slot is empty
+	beq.s	.skipObject	; branch if slot is empty
 	movea.l	a3,a1
 	moveq	#0,d0
 	move.b	respawn_index(a1),d0	; does object remember its state?
-	beq.s	+			; if not, branch
+	beq.s	.doesNotRememberState	; if not, branch
 	bclr	#7,2(a2,d0.w)	; else, clear entry in respawn table
 
+.doesNotRememberState:
 	; inlined DeleteObject2:
-+
 	moveq	#bytesToLcnt(next_object),d0 ; we want to clear up to the next object
 	; note: d1 is already 0
 
 	; delete the object by setting all of its bytes to 0
--	move.l	d1,(a1)+
-	dbf	d0,-
+.clearObjectLoop:
+	move.l	d1,(a1)+
+	dbf	d0,.clearObjectLoop
     if object_size&3
 	move.w	d1,(a1)+
     endif
 
-;loc_17F26:
-ObjMan2P_UnkSub3_DeleteBlock_SkipObj:
-	lea	next_object(a3),a3 ; a3=object
-	dbf	d2,ObjMan2P_UnkSub3_DeleteBlockLoop
+;loc_17F26: ObjMan2P_UnkSub3_DeleteBlock_SkipObj:
+.skipObject:
+	lea	next_object(a3),a3
+	dbf	d2,.deleteBlockLoop
+
 	moveq	#0,d2
 	movem.l	(sp)+,a1/a3
+
 	rts
 ; ===========================================================================
 ; ---------------------------------------------------------------------------

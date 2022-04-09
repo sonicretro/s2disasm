@@ -1027,10 +1027,10 @@ WaterSurface2:			; Second water surface
 Reserved_Object_RAM_End:
 
 Dynamic_Object_RAM:		; Dynamic object RAM
-				ds.b	$28*object_size
-Dynamic_Object_RAM_2P_End:	; SingleObjLoad stops searching here in 2P mode
-				ds.b	$48*object_size
+				ds.b	$70*object_size
 Dynamic_Object_RAM_End:
+; 2P mode reserves 6 'blocks' of 12 RAM slots at the end.
+Dynamic_Object_RAM_2P_End = Dynamic_Object_RAM_End - ($C * 6) * object_size
 
 LevelOnly_Object_RAM:
 Tails_Tails:			; address of the Tail's Tails object
@@ -1362,9 +1362,11 @@ Obj_load_addr_right:		ds.l	1	; contains the address of the next object to load w
 Obj_load_addr_left:		ds.l	1	; contains the address of the last object loaded when moving left
 Obj_load_addr_2:		ds.l	1
 Obj_load_addr_3:		ds.l	1
-unk_F780:			ds.b	6	; seems to be an array of horizontal chunk positions, used for object position range checks
-unk_F786:			ds.b	3
-unk_F789:			ds.b	3
+
+Object_manager_2P_RAM:	; The next 16 bytes belong to this.
+Object_RAM_block_indices:	ds.b	6	; seems to be an array of horizontal chunk positions, used for object position range checks
+Player_1_loaded_object_blocks:	ds.b	3
+Player_2_loaded_object_blocks:	ds.b	3
 Camera_X_pos_last_P2:		ds.w	1
 Obj_respawn_index_P2:		ds.b	2	; respawn table indices of the next objects when moving left or right for the second player
 
