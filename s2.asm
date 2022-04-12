@@ -6099,11 +6099,11 @@ SpecialStage:
 	; Bug: These '+4's shouldn't be here; clearRAM accidentally clears an additional 4 bytes
 	clearRAM Sprite_Table,Sprite_Table_End+4
 	clearRAM SS_Horiz_Scroll_Buf_1,SS_Horiz_Scroll_Buf_1_End+4
-	clearRAM SS_Misc_Variables,SS_Misc_Variables_End+4
+	clearRAM SS_Shared_RAM,SS_Shared_RAM_End+4
 	clearRAM Sprite_Table_Input,Sprite_Table_Input_End
 	clearRAM Object_RAM,Object_RAM_End
 
-	; However, the '+4' after SS_Misc_Variables_End is very useful. It resets the
+	; However, the '+4' after SS_Shared_RAM_End is very useful. It resets the
 	; VDP_Command_Buffer queue, avoiding graphical glitches in the Special Stage.
 	; In fact, without resetting the VDP_Command_Buffer queue, Tails sprite DPLCs and other
 	; level DPLCs that are still in the queue erase the Special Stage graphics the next
