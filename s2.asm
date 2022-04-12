@@ -27540,9 +27540,11 @@ RunObjectsWhenPlayerIsDead:
 ; sub_15FF2:
 RunObjectDisplayOnly:
 	moveq	#0,d0
+	; This check prevent objects that don't exist from being displayed.
 	move.b	id(a0),d0	; get the object's ID
 	beq.s	+	; if it's obj00, skip it
-	tst.b	render_flags(a0)	; should we render it?
+	; This check prevents objects that do exist, but haven't been initialised yet, from being displayed.
+	tst.b	render_flags(a0)	; was the object displayed on the previous frame?
 	bpl.s	+			; if not, skip it
 	bsr.w	DisplaySprite
 +
@@ -85292,6 +85294,9 @@ Debug_SpawnObject:
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
 	_move.b	mappings(a0),id(a1) ; load obj
+	; [Bug] The high bit of 'render_flags' is not cleared here. This causes RunObjectDisplayOnly
+	; to display the object even when it isn't fully initialised. This causes the
+	; crash that occurs when you attempt to spawn an object in Debug Mode while dead.
 	move.b	render_flags(a0),render_flags(a1)
 	move.b	render_flags(a0),status(a1)
 	andi.b	#$7F,status(a1)
