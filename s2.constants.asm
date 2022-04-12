@@ -1686,7 +1686,7 @@ SegaScreenObject:		; Sega screen
 SegaHideTM:				; Object that hides TM symbol on JP region
 				ds.b	object_size
     if * > Object_RAM_End
-	fatal "Sega screen objects go past end of object RAM buffer."
+	fatal "Sega screen objects exceed size of object RAM buffer."
     endif
 	dephase
 
@@ -1721,7 +1721,7 @@ TitleScreenMenu:
 IntroSmallStar2:
 				ds.b	object_size
     if * > Object_RAM_End
-	fatal "Title screen objects go past end of object RAM buffer."
+	fatal "Title screen objects exceed size of object RAM buffer."
     endif
 	dephase
 
@@ -1839,7 +1839,7 @@ SS_TriggerRingsToGo:	ds.b	1
 			ds.b	$58	; unused
 
     if * > SS_Shared_RAM_End
-	fatal "Special stage variables exceed size of shared RAM"
+	fatal "Special stage variables exceed size of shared RAM."
     endif
 	dephase
 
@@ -1855,12 +1855,13 @@ SS_Offset_Y:			ds.w	1
 SS_Swap_Positions_Flag:	ds.b	1
 
     if * > Boss_variables_end
-	fatal "Special stage variables exceed size of boss variables"
+	fatal "Special stage variables exceed size of boss variables."
     endif
 	dephase
 
 ; RAM variables - Continue screen
 	phase	Object_RAM	; Move back to the object RAM
+				; These two object slots are presumably used by Sonic and Tails
 				ds.b	object_size
 				ds.b	object_size
 ContinueText:			; "CONTINUE" on the Continue screen
@@ -1868,7 +1869,7 @@ ContinueText:			; "CONTINUE" on the Continue screen
 ContinueIcons:			; The icons in the Continue screen
 				ds.b	$D*object_size
     if * > Object_RAM_End
-	fatal "Continue screen objects go past end of object RAM buffer."
+	fatal "Continue screen objects exceed size of object RAM buffer."
     endif
 	dephase
 
@@ -1877,7 +1878,7 @@ ContinueIcons:			; The icons in the Continue screen
 VSResults_HUD:			; Blinking text at the bottom of the screen
 				ds.b	object_size
     if * > Object_RAM_End
-	fatal "2P VS results screen objects go past end of object RAM buffer."
+	fatal "2P VS results screen objects exceed size of object RAM buffer."
     endif
 	dephase
 
@@ -1885,12 +1886,13 @@ VSResults_HUD:			; Blinking text at the bottom of the screen
 	phase	Object_RAM	; Move back to the object RAM
 				; No objects are loaded in the menu screens
     if * > Object_RAM_End
-	fatal "Menu screen objects go past end of object RAM buffer."
+	fatal "Menu screen objects exceed size of object RAM buffer."
     endif
 	dephase
 
 ; RAM variables - Ending sequence
 	phase	Object_RAM
+				; These two object slots are presumably used by Sonic and Tails
 				ds.b	object_size
 				ds.b	object_size
 Tails_Tails_Cutscene:		; Tails' tails on the cut scene
@@ -1901,7 +1903,7 @@ CutScene:
 				ds.b	object_size
 
     if * > Object_RAM_End
-	fatal "Ending sequence objects go past end of object RAM buffer."
+	fatal "Ending sequence objects exceed size of object RAM buffer."
     endif
 	dephase		; Stop pretending
 
