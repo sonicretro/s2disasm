@@ -83976,29 +83976,33 @@ APM_Null:	dc.w   0
 ; ===========================================================================
 ; loc_407C0:
 PatchHTZTiles:
+	; When decompressed, 'ArtNem_HTZCliffs' will be $1800 bytes large.
 	lea	(ArtNem_HTZCliffs).l,a0
-	lea	(Object_RAM+$800).w,a4
+	lea	(Dynamic_Object_RAM_End-$1800).w,a4
 	jsrto	(NemDecToRAM).l, JmpTo2_NemDecToRAM
-	lea	(Object_RAM+$800).w,a1
+	lea	(Dynamic_Object_RAM_End-$1800).w,a1
 	lea_	word_3FD9C,a4
 	moveq	#0,d2
-	moveq	#7,d4
+	moveq	#8-1,d4
 
 loc_407DA:
-	moveq	#5,d3
+	moveq	#6-1,d3
 
 loc_407DC:
 	moveq	#-1,d0
 	move.w	(a4)+,d0
 	movea.l	d0,a2
-	moveq	#$1F,d1
+	moveq	#32-1,d1
 
 loc_407E4:
+	; Copy four pixels.
 	move.l	(a1),(a2)+
+	; Clear the bytes in 'Object_RAM'.
 	move.l	d2,(a1)+
+
 	dbf	d1,loc_407E4
 	dbf	d3,loc_407DC
-	adda.w	#$C,a4
+	adda.w	#6*2,a4
 	dbf	d4,loc_407DA
 	rts
 ; ===========================================================================
