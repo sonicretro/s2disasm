@@ -742,7 +742,7 @@ Vint_S2SS:
 	bsr.w	SSSet_VScroll
 
 	dma68kToVDP Normal_palette,$0000,palette_line_size*4,CRAM
-	dma68kToVDP SS_Sprite_Table,VRAM_SS_Sprite_Attribute_Table,VRAM_SS_Sprite_Attribute_Table_Size,VRAM
+	dma68kToVDP Sprite_Table,VRAM_SS_Sprite_Attribute_Table,VRAM_SS_Sprite_Attribute_Table_Size,VRAM
 
 	tst.b	(SS_Alternate_HorizScroll_Buf).w
 	beq.s	loc_906
@@ -3801,7 +3801,7 @@ SegaScreen:
 
 	clearRAM Misc_Variables,Misc_Variables_End
 
-	clearRAM SegaScr_Object_RAM,SegaScr_Object_RAM_End ; fill object RAM with 0
+	clearRAM Object_RAM,Object_RAM_End ; fill object RAM with 0
 
 	lea	(VDP_control_port).l,a6
 	move.w	#$8004,(a6)		; H-INT disabled
@@ -3948,7 +3948,7 @@ TitleScreen:
 	bsr.w	ClearScreen
 
 	clearRAM Sprite_Table_Input,Sprite_Table_Input_End ; fill $AC00-$AFFF with $0
-	clearRAM TtlScr_Object_RAM,TtlScr_Object_RAM_End ; fill object RAM ($B000-$D5FF) with $0
+	clearRAM Object_RAM,Object_RAM_End ; fill object RAM ($B000-$D5FF) with $0
 	clearRAM Misc_Variables,Misc_Variables_End ; clear CPU player RAM and following variables
 	clearRAM Camera_RAM,Camera_RAM_End ; clear camera RAM and following variables
 
@@ -4374,7 +4374,7 @@ Level:
 ; loc_3F48:
 Level_ClrRam:
 	clearRAM Sprite_Table_Input,Sprite_Table_Input_End
-	clearRAM Object_RAM,Object_RAM_End ; clear object RAM
+	clearRAM Object_RAM,LevelOnly_Object_RAM_End ; clear object RAM and level-only object RAM
 	clearRAM MiscLevelVariables,MiscLevelVariables_End
 	clearRAM Misc_Variables,Misc_Variables_End
 	clearRAM Oscillating_Data,Oscillating_variables_End
@@ -6097,11 +6097,11 @@ SpecialStage:
 ; | of our data structures.                                                |
 ; \------------------------------------------------------------------------/
 	; Bug: These '+4's shouldn't be here; clearRAM accidentally clears an additional 4 bytes
-	clearRAM SS_Sprite_Table,SS_Sprite_Table_End+4
+	clearRAM Sprite_Table,Sprite_Table_End+4
 	clearRAM SS_Horiz_Scroll_Buf_1,SS_Horiz_Scroll_Buf_1_End+4
 	clearRAM SS_Misc_Variables,SS_Misc_Variables_End+4
-	clearRAM SS_Sprite_Table_Input,SS_Sprite_Table_Input_End
-	clearRAM SS_Object_RAM,SS_Object_RAM_End
+	clearRAM Sprite_Table_Input,Sprite_Table_Input_End
+	clearRAM Object_RAM,Object_RAM_End
 
 	; However, the '+4' after SS_Misc_Variables_End is very useful. It resets the
 	; VDP_Command_Buffer queue, avoiding graphical glitches in the Special Stage.
@@ -6300,8 +6300,8 @@ SpecialStage:
 	move.w	#MusID_EndLevel,d0
 	jsr	(PlaySound).l
 
-	clearRAM SS_Sprite_Table_Input,SS_Sprite_Table_Input_End
-	clearRAM SS_Object_RAM,SS_Object_RAM_End
+	clearRAM Sprite_Table_Input,Sprite_Table_Input_End
+	clearRAM Object_RAM,Object_RAM_End
 
 	move.b	#ObjID_SSResults,(SpecialStageResults+id).w ; load Obj6F (special stage results) at $FFFFB800
 -
@@ -9001,7 +9001,7 @@ SSSingleObjLoad2:
 .a :=	1		; .a is the object slot we are currently processing
 .b :=	1		; .b is used to calculate when there will be a conversion error due to object_size being > $40
 
-	rept (SS_Dynamic_Object_RAM_End-SS_Object_RAM)/object_size-1
+	rept (SS_Dynamic_Object_RAM_End-Object_RAM)/object_size-1
 		if (object_size * (.a-1)) / $40 > .b+1	; this line checks, if there would be a conversion error
 			dc.b .a-1, .a-1			; and if is, it generates 2 entries to correct for the error
 		else
@@ -9814,7 +9814,7 @@ ContinueScreen:
 	move.w	#$8700,(a6)		; Background palette/color: 0/0
 	bsr.w	ClearScreen
 
-	clearRAM ContScr_Object_RAM,ContScr_Object_RAM_End
+	clearRAM Object_RAM,Object_RAM_End
 
 	bsr.w	ContinueScreen_LoadLetters
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_ContinueTails),VRAM,WRITE),(VDP_control_port).l
@@ -10192,7 +10192,7 @@ TwoPlayerResults:
 	move.w	#$9001,(a6)		; Scroll table size: 64x32
 
 	clearRAM Sprite_Table_Input,Sprite_Table_Input_End
-	clearRAM VSRslts_Object_RAM,VSRslts_Object_RAM_End
+	clearRAM Object_RAM,Object_RAM_End
 
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_FontStuff),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_FontStuff).l,a0
@@ -11214,7 +11214,7 @@ MenuScreen:
 	move.w	#$9001,(a6)		; Scroll table size: 64x32
 
 	clearRAM Sprite_Table_Input,Sprite_Table_Input_End
-	clearRAM Menus_Object_RAM,Menus_Object_RAM_End
+	clearRAM Object_RAM,Object_RAM_End
 
 	; load background + graphics of font/LevSelPics
 	clr.w	(VDP_Command_Buffer).w
@@ -12418,7 +12418,7 @@ JmpTo2_Dynamic_Normal ; JmpTo
 ; ===========================================================================
 ; loc_9C7C:
 EndingSequence:
-	clearRAM EndSeq_Object_RAM,EndSeq_Object_RAM_End
+	clearRAM Object_RAM,Object_RAM_End
 	clearRAM Misc_Variables,Misc_Variables_End
 	clearRAM Camera_RAM,Camera_RAM_End
 
@@ -12575,7 +12575,7 @@ EndgameCredits:
 	jsrto	(ClearScreen).l, JmpTo_ClearScreen
 
 	clearRAM Sprite_Table_Input,Sprite_Table_Input_End
-	clearRAM EndSeq_Object_RAM,EndSeq_Object_RAM_End
+	clearRAM Object_RAM,Object_RAM_End
 	clearRAM Misc_Variables,Misc_Variables_End
 	clearRAM Camera_RAM,Camera_RAM_End
 
@@ -27483,14 +27483,14 @@ RunObjects:
 	bne.s	RunObjects_End	; rts
 	lea	(Object_RAM).w,a0 ; a0=object
 
-	moveq	#(Dynamic_Object_RAM_End-Object_RAM)/object_size-1,d7 ; run the first $80 objects out of levels
+	moveq	#(Object_RAM_End-Object_RAM)/object_size-1,d7 ; run the first $80 objects out of levels
 	moveq	#0,d0
 	cmpi.b	#GameModeID_Demo,(Game_Mode).w	; demo mode?
 	beq.s	+	; if in a level in a demo, branch
 	cmpi.b	#GameModeID_Level,(Game_Mode).w	; regular level mode?
 	bne.s	RunObject ; if not in a level, branch to RunObject
 +
-	move.w	#(Object_RAM_End-Object_RAM)/object_size-1,d7	; run the first $90 objects in levels
+	move.w	#(LevelOnly_Object_RAM_End-Object_RAM)/object_size-1,d7	; run the first $90 objects in levels
 	tst.w	(Two_player_mode).w
 	bne.s	RunObject ; if in 2 player competition mode, branch to RunObject
 
@@ -31100,7 +31100,7 @@ return_18014:
 .a :=	1		; .a is the object slot we are currently processing
 .b :=	1		; .b is used to calculate when there will be a conversion error due to object_size being > $40
 
-	rept (LevelOnly_Object_RAM-Reserved_Object_RAM_End)/object_size-1
+	rept (Dynamic_Object_RAM_End-Dynamic_Object_RAM)/object_size-1
 		if (object_size * (.a-1)) / $40 > .b+1	; this line checks, if there would be a conversion error
 			dc.b .a-1, .a-1			; and if is, it generates 2 entries to correct for the error
 		else
@@ -59693,7 +59693,7 @@ Obj5D_Pipe_Retract:
 	moveq	#0,d0
 	move.b	Obj5D_y_offset(a0),d0
 	add.w	y_pos(a0),d0	; get y pos of current pipe segment
-	lea	(MainCharacter).w,a1 ; a1=object
+	lea	(Object_RAM).w,a1 ; a1=object
 	moveq	#(Dynamic_Object_RAM_End-Object_RAM)/object_size-1,d1
 
 Obj5D_Pipe_Retract_Loop:
@@ -69226,9 +69226,9 @@ byte_361C8:
 ; ===========================================================================
 ;loc_361CC
 SSClearObjs:
-	movea.l	#(SS_Object_RAM&$FFFFFF),a1
+	movea.l	#(Object_RAM&$FFFFFF),a1
 
-	move.w	#(SS_Object_RAM_End-SS_Object_RAM)/$10-1,d0
+	move.w	#(Object_RAM_End-Object_RAM)/$10-1,d0
 	moveq	#0,d1
 
 loc_361D8:
@@ -69236,13 +69236,13 @@ loc_361D8:
 	move.l	d1,(a1)+
     endm
 	dbf	d0,loc_361D8
-.c := ((SS_Object_RAM_End-SS_Object_RAM)#$10)/4
+.c := ((Object_RAM_End-Object_RAM)#$10)/4
     if .c
     rept .c
 	move.l	d1,(a1)+
     endm
     endif
-.c := ((SS_Object_RAM_End-SS_Object_RAM)#$10)&2
+.c := ((Object_RAM_End-Object_RAM)#$10)&2
     if .c
     rept .c
 	move.w	d1,(a1)+
@@ -69250,7 +69250,7 @@ loc_361D8:
     endif
 
 	; Bug: The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
-	clearRAM SS_Sprite_Table,SS_Sprite_Table_End+4
+	clearRAM Sprite_Table,Sprite_Table_End+4
 
 	rts
 ; ===========================================================================
