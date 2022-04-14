@@ -48017,12 +48017,16 @@ loc_24F04:
 	jsrto	(SingleObjLoad2).l, JmpTo9_SingleObjLoad2
 	bne.s	loc_24F28
 	moveq	#0,d0
-	move.w	#$A,d1
+	move.w	#bytesToLcnt(objoff_2C),d1 ; Copy everything up until 'objoff_2C', which is where the sub-object's own scratch RAM begins.
 
 loc_24F16:
 	move.l	(a0,d0.w),(a1,d0.w)
 	addq.w	#4,d0
 	dbf	d1,loc_24F16
+    if objoff_2C&3
+	move.w	(a0,d0.w),(a1,d0.w)
+    endif
+
 	move.b	#6,routine(a1)
 
 loc_24F28:
