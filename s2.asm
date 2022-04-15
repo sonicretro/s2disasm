@@ -59703,7 +59703,7 @@ Obj5D_Pipe_Retract:
 	move.b	Obj5D_y_offset(a0),d0
 	add.w	y_pos(a0),d0	; get y pos of current pipe segment
 	lea	(Object_RAM).w,a1 ; a1=object
-	moveq	#(Dynamic_Object_RAM_End-Object_RAM)/object_size-1,d1
+	moveq	#(Object_RAM_End-Object_RAM)/object_size-1,d1
 
 Obj5D_Pipe_Retract_Loop:
 	cmp.w	y_pos(a1),d0			; compare object's y position with current y offset
