@@ -59543,6 +59543,11 @@ Obj5D_Pipe_0:
 ; pipe extends gradually
 
 Obj5D_Pipe_2_Load:
+	; [Bug] This code allocates one more object than necessary, leaving a
+	; partially initialised object in memory. To fix this, the two lines
+	; after 'Obj5D_Pipe_2_Load_Part2' should be moved to here.
+	; 'Obj5D_Pipe_0' will also need modifying to set 'Obj5D_pipe_segments'
+	; to $B instead of $C.
 	jsr	(SingleObjLoad2).l
 	beq.s	+
 	rts
