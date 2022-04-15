@@ -77212,6 +77212,11 @@ loc_3BCCC:
 
 loc_3BCD6:
 	bsr.w	loc_3B7BC
+	; [Bug] 'DeleteObject' is called here, but then 'loc_3BC50' calls 'MarkObjGone' afterwards.
+	; This can result in either the object being queued for display with 'DisplaySprite',
+	; or the object being deleted again with yet another call to 'DeleteObject'.
+	; To prevent this, just meddle with the stack to prevent returning to 'loc_3BC50', like this:
+	;addq.w	#4,sp
 	bra.w	JmpTo65_DeleteObject
 ; ===========================================================================
 
