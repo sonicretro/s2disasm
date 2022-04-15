@@ -81796,8 +81796,12 @@ Touch_NoDuck:
 	move.w	#(Dynamic_Object_RAM_End-Dynamic_Object_RAM)/object_size-1,d6
 ; loc_3F5A0:
 Touch_Loop:
+	; Note that this uses a branch instead of a 'bsr'.
+	; This is because only one object can be collided with in a single frame.
+	; If 'Touch_CheckCollision' determines that the character isn't colliding with the
+	; object, then it manually branches back to 'Touch_NextObj' to try the next one.
 	move.b	collision_flags(a1),d0
-	bne.w	Touch_Width
+	bne.w	Touch_CheckCollision
 ; loc_3F5A8:
 Touch_NextObj:
 	lea	next_object(a1),a1 ; load obj address ; goto next object
@@ -81806,11 +81810,16 @@ Touch_NextObj:
 	moveq	#0,d0
 	rts
 ; ===========================================================================
-; loc_3F5B4: Touch_Height:
-Touch_Width:
+; loc_3F5B4: Touch_Height: Touch_Width:
+Touch_CheckCollision:
 	andi.w	#$3F,d0
 	add.w	d0,d0
 	lea	Touch_Sizes(pc,d0.w),a2
+
+	; From here to the branch to 'Touch_ChkValue', this code is the same as
+	; 'Touch_Boss_CheckWidth', only it returns to 'Touch_NextObj' instead of 'Touch_NextObj'.
+	; This could have been avoided with some clever stack usage.
+;Touch_CheckWidth:
 	moveq	#0,d1
 	move.b	(a2)+,d1
 	move.w	x_pos(a1),d0
@@ -81819,15 +81828,15 @@ Touch_Width:
 	bcc.s	loc_3F5D6
 	add.w	d1,d1
 	add.w	d1,d0
-	bcs.s	Touch_Height
+	bcs.s	Touch_CheckHeight
 	bra.w	Touch_NextObj
 ; ===========================================================================
 
 loc_3F5D6:
 	cmp.w	d4,d0
 	bhi.w	Touch_NextObj
-; loc_3F5DC: Touch_Width:
-Touch_Height:
+; loc_3F5DC: Touch_Width: Touch_Height:
+Touch_CheckHeight:
 	moveq	#0,d1
 	move.b	(a2)+,d1
 	move.w	y_pos(a1),d0
@@ -81843,6 +81852,7 @@ Touch_Height:
 loc_3F5F6:
 	cmp.w	d5,d0
 	bhi.w	Touch_NextObj
+	; Here ends the duplicate code.
 	bra.w	Touch_ChkValue
 ; ===========================================================================
 ; collision sizes (width,height)
@@ -81919,25 +81929,34 @@ Touch_Boss:
 	add.w	d5,d5
 	lea	(Dynamic_Object_RAM).w,a1
 	move.w	#(Dynamic_Object_RAM_End-Dynamic_Object_RAM)/object_size-1,d6
-
-loc_3F69C:
+; loc_3F69C:
+Touch_Boss_Loop:
+	; Note that this uses a branch instead of a 'bsr'.
+	; This is because only one object can be collided with in a single frame.
+	; If 'Touch_Boss_CheckCollision' determines that the character isn't colliding with the
+	; object, then it manually branches back to 'Touch_Boss_NextObj' to try the next one.
 	move.b	collision_flags(a1),d0
-	bne.s	loc_3F6AE
-
-loc_3F6A2:
+	bne.s	Touch_Boss_CheckCollision
+; loc_3F6A2:
+Touch_Boss_NextObj:
 	lea	next_object(a1),a1 ; a1=object
-	dbf	d6,loc_3F69C
+	dbf	d6,Touch_Boss_Loop
 
 	moveq	#0,d0
 	rts
 ; ===========================================================================
-
-loc_3F6AE:
+;loc_3F6AE:
+Touch_Boss_CheckCollision:
 	bsr.w	BossSpecificCollision
 	andi.w	#$3F,d0
-	beq.s	loc_3F6A2
+	beq.s	Touch_Boss_NextObj
 	add.w	d0,d0
 	lea	(a3,d0.w),a2
+
+	; From here to 'Touch_ChkValue', this code is the same as 'Touch_CheckWidth',
+	; only it returns to 'Touch_Boss_NextObj' instead of 'Touch_NextObj'.
+	; This could have been avoided with some clever stack usage.
+;Touch_Boss_CheckWidth:
 	moveq	#0,d1
 	move.b	(a2)+,d1
 	move.w	x_pos(a1),d0
@@ -81946,15 +81965,15 @@ loc_3F6AE:
 	bcc.s	loc_3F6D4
 	add.w	d1,d1
 	add.w	d1,d0
-	bcs.s	loc_3F6D8
-	bra.s	loc_3F6A2
+	bcs.s	Touch_Boss_CheckHeight
+	bra.s	Touch_Boss_NextObj
 ; ===========================================================================
 
 loc_3F6D4:
 	cmp.w	d4,d0
-	bhi.s	loc_3F6A2
-
-loc_3F6D8:
+	bhi.s	Touch_Boss_NextObj
+;loc_3F6D8:
+Touch_Boss_CheckHeight:
 	moveq	#0,d1
 	move.b	(a2)+,d1
 	move.w	y_pos(a1),d0
@@ -81964,12 +81983,13 @@ loc_3F6D8:
 	add.w	d1,d1
 	add.w	d1,d0
 	bcs.s	Touch_ChkValue
-	bra.s	loc_3F6A2
+	bra.s	Touch_Boss_NextObj
 ; ===========================================================================
 
 loc_3F6EE:
 	cmp.w	d5,d0
-	bhi.s	loc_3F6A2
+	bhi.s	Touch_Boss_NextObj
+	; Here ends the duplicate code.
 ; loc_3F6F2:
 Touch_ChkValue:
 	move.b	collision_flags(a1),d1	; load touch response number
