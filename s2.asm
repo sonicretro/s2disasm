@@ -59727,6 +59727,14 @@ Obj5D_Pipe_Retract_ChkID:
 	move.b	#ObjID_CPZBoss,d7
 	cmp.b	id(a1),d7	; is object a subtype of the CPZ Boss?
 	beq.s	loc_2DFF0	; if yes, branch
+	; [Bug] There is no code to advance to the next object here.
+	; This causes the loop to get stuck repeatedly checking the same object until 'd1' reaches 0.
+	; If the boss's hovering motion is disabled, then it's actually possible to get the boss's
+	; pipe stuck because of this bug by positioning Sonic or Tails at the same Y-coordinate as a
+	; pipe segment. Even if the boss's hovering motion isn't disabled, this bug can still cause
+	; the pipe's updating to be delayed by a frame.
+	; Uncomment the below line to fix this.
+	;lea	next_object(a1),a1
 	dbf	d1,Obj5D_Pipe_Retract_Loop
 	bra.s	Obj5D_PipeSegment
 ; ===========================================================================
