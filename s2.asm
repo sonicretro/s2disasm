@@ -59702,6 +59702,8 @@ Obj5D_Pipe_Retract:
 	moveq	#0,d0
 	move.b	Obj5D_y_offset(a0),d0
 	add.w	y_pos(a0),d0	; get y pos of current pipe segment
+	; This checks the entirely of the 'normal' object pool, even
+	; though it only really has to search the dynamic object pool.
 	lea	(Object_RAM).w,a1 ; a1=object
 	moveq	#(Object_RAM_End-Object_RAM)/object_size-1,d1
 
