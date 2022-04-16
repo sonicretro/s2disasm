@@ -81836,8 +81836,8 @@ Touch_CheckCollision:
 	add.w	d0,d0
 	lea	Touch_Sizes(pc,d0.w),a2
 
-	; From here to the branch to 'Touch_ChkValue', this code is the same as
-	; 'Touch_Boss_CheckWidth', only it returns to 'Touch_NextObj' instead of 'Touch_NextObj'.
+	; From here to the branch to 'Touch_ChkValue', this code is the same as 'Touch_Boss_CheckWidth',
+	; only it returns to 'Touch_NextObj' instead of 'Touch_Boss_NextObj'.
 	; This could have been avoided with some clever stack usage.
 ;Touch_CheckWidth:
 	moveq	#0,d1
