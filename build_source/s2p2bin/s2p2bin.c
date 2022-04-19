@@ -103,7 +103,7 @@ bool buildRom(FILE* from, FILE* to)
 	if(fgetc(from) != 0x89) printf("\nWarning: First byte of a .p file should be $89");
 	if(fgetc(from) != 0x14) printf("\nWarning: Second byte of a .p file should be $14");
 	
-	int cpuType = 0, segmentType = 0, granularity = 0;
+	int cpuType = 0, /*segmentType = 0,*/ granularity = 0;
 	signed long start = 0, lastStart = 0;
 	unsigned short length = 0, lastLength = 0;
 	static const int scratchSize = 4096;
@@ -125,7 +125,7 @@ bool buildRom(FILE* from, FILE* to)
 				continue;
 			case 0x81:  // code or data segment
 				cpuType = fgetc(from);
-				segmentType = fgetc(from);
+				/*segmentType =*/ fgetc(from);
 				granularity = fgetc(from);
 				if(granularity != 1)
 					{ printf("\nERROR: Unsupported granularity %d.", granularity); return false; }

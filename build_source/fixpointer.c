@@ -7,7 +7,7 @@
 
 void printUsage(void)
 {
-	printf("usage: fixpointer.exe symbolfile.h romname.bin [patchDestLabel ptrTableLabel   tableIndex destOffset count]*\n");
+	printf("usage: fixpointer symbolfile.h romname.bin [patchDestLabel ptrTableLabel   tableIndex destOffset count]*\n");
 }
 
 long stringToLong(const char* string)
