@@ -2405,7 +2405,7 @@ zUpdateFadeout:
 	inc	(ix+zTrack.Volume)		; increment channel volume (remember -- higher is quieter!)
 	ld	a,10h
 	cp	(ix+zTrack.Volume)		; Don't let volume go over 0Fh on PSG tracks!
-	jp	nc,.sendpsgvol			; This branch was inverted from Sonic 1's sound driver
+	jp	nc,.sendpsgvol
 	res	7,(ix+zTrack.PlaybackControl)	; Otherwise, stop playing this track
 	jr	.nextpsg
 
