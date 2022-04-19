@@ -87,12 +87,7 @@ void editShareFile()
 		if(share)
 		{
 			fseek(share, 0, SEEK_SET);
-			#ifdef __MINGW32__
-			#define FPRINTF __mingw_fprintf
-			#else
-			#define FPRINTF fprintf
-			#endif
-			FPRINTF(share, "comp_z80_size 0x%zX ", compressedLength);
+			fprintf(share, "comp_z80_size 0x%zX ", compressedLength);
 			fclose(share);
 		}
 	}
@@ -200,12 +195,7 @@ bool buildRom(FILE* from, FILE* to)
 		{
 			if(start < ftell(to))
 			{
-				#ifdef __MINGW32__
-				#define PRINTF __mingw_printf
-				#else
-				#define PRINTF printf
-				#endif
-				PRINTF("\nERROR: Compressed sound driver might not fit.\nPlease increase your value of Size_of_Snd_driver_guess to at least $%zX and try again.", compressedLength);
+				printf("\nERROR: Compressed sound driver might not fit.\nPlease increase your value of Size_of_Snd_driver_guess to at least $%zX and try again.", compressedLength);
 				return false;
 			}
 		}
