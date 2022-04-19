@@ -2131,7 +2131,7 @@ zPlaySound:
 .sfx_loadloop:
 	push	bc		; Backup divisor/channel usage
 	xor	a		; a = 0 (will end up being NO CUSTOM VOICE TABLE!)
-	ld	(.bgmchannel+1),a	; Store into the instruction after .bgmchannel (self-modifying code) (Kind of pointless, always sets it to zero... maybe PSG would've had custom "flutter" tables?)
+	ld	(.is_psg+1),a	; Store into the instruction after .bgmchannel (self-modifying code)
 	push	hl		; Save current position within sound (offset 04h)
 	inc	hl		; Next byte...
 
@@ -2145,7 +2145,7 @@ zPlaySound:
 .sfxinitpsg:
 	; This is a PSG track!
 	; Always ends up writing zero to voice table pointer?
-	ld	(.bgmchannel+1),a	; Store into the instruction after .bgmchannel (self-modifying code)
+	ld	(.is_psg+1),a	; Store into the instruction after .bgmchannel (self-modifying code)
 	cp	0C0h		; Is this PSG3?
 	jr	nz,.getindex	; If not, skip this part
 	push	af
@@ -2238,10 +2238,11 @@ zPlaySound:
 	ldi						; *de++ = *hl++ (channel volume)
 
 ; zloc_A1D
-.bgmchannel:	; Modified way back within .sfx_loadloop
-	ld	a,0				; Self-modified code: if 00h, no custom voice table defined for this track
+.is_psg:	; Modified way back within .sfx_loadloop
+	ld	a,0				; Self-modified code
 	or	a				; Test it
-	jr	nz,.sfxpsginitdone		; If not zero, skip next part...
+	jr	nz,.sfxpsginitdone		; Jump, if this is a PSG track
+	; Do some more FM-related initialisation
 	ld	(ix+zTrack.AMSFMSPan),0C0h	; Default panning / AMS / FMS settings (just L/R Stereo enabled)
 
 ; zloc_A26
