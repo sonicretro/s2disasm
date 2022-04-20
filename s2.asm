@@ -4788,6 +4788,13 @@ UpdateWaterSurface:
 	tst.b	(Water_flag).w
 	beq.s	++	; rts
 	move.w	(Camera_X_pos).w,d1
+	; [Bug] This function can cause the water surface's to be cut off at
+	; the left when the game is paused. This is because this function
+	; pushes the water surface sprite to the right every frame. To fix
+	; this, just avoid pushing the sprite to the right when the game is
+	; about to be paused, like this:
+;	btst	#button_start,(Ctrl_1_Press).w
+;	bne.s	+
 	btst	#0,(Timer_frames+1).w
 	beq.s	+
 	addi.w	#$20,d1
