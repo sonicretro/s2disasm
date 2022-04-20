@@ -34103,6 +34103,11 @@ Sonic_TurnLeft:
 	move.w	#-$80,d0
 +
 	move.w	d0,inertia(a0)
+	; [Bug] These three instructions partially overwrite the inertia
+	; value in 'd0'! This causes the character to trigger their skidding
+	; animation at different speeds depending on whether they're going
+	; right or left. To fix this, make these instructions use 'd1'
+	; instead.
 	move.b	angle(a0),d0
 	addi.b	#$20,d0
 	andi.b	#$C0,d0
@@ -34153,6 +34158,11 @@ Sonic_TurnRight:
 	move.w	#$80,d0
 +
 	move.w	d0,inertia(a0)
+	; [Bug] These three instructions partially overwrite the inertia
+	; value in 'd0'! This causes the character to trigger their skidding
+	; animation at different speeds depending on whether they're going
+	; right or left. To fix this, make these instructions use 'd1'
+	; instead.
 	move.b	angle(a0),d0
 	addi.b	#$20,d0
 	andi.b	#$C0,d0
@@ -37015,6 +37025,11 @@ Tails_TurnLeft:
 	move.w	#-$80,d0
 +
 	move.w	d0,inertia(a0)
+	; [Bug] These three instructions partially overwrite the inertia
+	; value in 'd0'! This causes the character to trigger their skidding
+	; animation at different speeds depending on whether they're going
+	; right or left. To fix this, make these instructions use 'd1'
+	; instead.
 	move.b	angle(a0),d0
 	addi.b	#$20,d0
 	andi.b	#$C0,d0
@@ -37065,6 +37080,11 @@ Tails_TurnRight:
 	move.w	#$80,d0
 +
 	move.w	d0,inertia(a0)
+	; [Bug] These three instructions partially overwrite the inertia
+	; value in 'd0'! This causes the character to trigger their skidding
+	; animation at different speeds depending on whether they're going
+	; right or left. To fix this, make these instructions use 'd1'
+	; instead.
 	move.b	angle(a0),d0
 	addi.b	#$20,d0
 	andi.b	#$C0,d0
