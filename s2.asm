@@ -73603,6 +73603,12 @@ ObjA7_GrabCharacter:
 	clr.w	x_vel(a1)
 	clr.w	y_vel(a1)
 	move.b	#AniIDSonAni_Float,anim(a1)
+	; [Bug] If the player gets grabbed while charging a Spin Dash, they
+	; won't exist their Spin Dash state: the dust graphic will still
+	; appear, just floating in the air, and when the player touches the
+	; ground, they'll dash off. To fix this, just clear the player's
+	; Spin Dash flag, like this:
+	;clr.b spindash_flag(a1)
 	move.b	#1,mapping_frame(a0)
 	tst.w	y_vel(a0)
 	bmi.s	loc_38F2A
