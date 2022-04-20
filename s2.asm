@@ -24019,7 +24019,7 @@ invincible_monitor:
 	move.w	#20*60,invincibility_time(a1) ; 20 seconds
 	tst.b	(Current_Boss_ID).w	; don't change music during boss battles
 	bne.s	+
-	cmpi.b	#$C,air_left(a1)	; or when drowning
+	cmpi.b	#12,air_left(a1)	; or when drowning
 	bls.s	+
 	move.w	#MusID_Invincible,d0
 	jsr	(PlayMusic).l
@@ -33425,7 +33425,7 @@ Obj01_Init_Continued:
 	move.b	#0,flips_remaining(a0)
 	move.b	#4,flip_speed(a0)
 	move.b	#0,(Super_Sonic_flag).w
-	move.b	#$1E,air_left(a0)
+	move.b	#30,air_left(a0)
 	subi.w	#$20,x_pos(a0)
 	addi_.w	#4,y_pos(a0)
 	move.w	#0,(Sonic_Pos_Record_Index).w
@@ -33519,7 +33519,7 @@ Obj01_ChkInvin:		; Checks if invincibility has expired and disables it if it has
 	bne.s	Obj01_ChkShoes
 	tst.b	(Current_Boss_ID).w	; Don't change music if in a boss fight
 	bne.s	Obj01_RmvInvin
-	cmpi.b	#$C,air_left(a0)	; Don't change music if drowning
+	cmpi.b	#12,air_left(a0)	; Don't change music if drowning
 	blo.s	Obj01_RmvInvin
 	move.w	(Level_Music).w,d0
 	jsr	(PlayMusic).l
@@ -33583,6 +33583,8 @@ Sonic_RecordPos:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+obj0a_character = objoff_3C
+
 ; loc_1A186:
 Sonic_Water:
 	tst.b	(Water_flag).w	; does level have water?
@@ -33604,7 +33606,7 @@ Obj01_InWater:
 	bsr.w	ResumeMusic
 	move.b	#ObjID_SmallBubbles,(Sonic_BreathingBubbles+id).w ; load Obj0A (Sonic's breathing bubbles) at $FFFFD080
 	move.b	#$81,(Sonic_BreathingBubbles+subtype).w
-	move.l	a0,(Sonic_BreathingBubbles+objoff_3C).w
+	move.l	a0,(Sonic_BreathingBubbles+obj0a_character).w
 	move.w	#$300,(Sonic_top_speed).w
 	move.w	#6,(Sonic_acceleration).w
 	move.w	#$40,(Sonic_deceleration).w
@@ -34126,7 +34128,7 @@ Sonic_TurnLeft:
 	bclr	#0,status(a0)
 	move.w	#SndID_Skidding,d0
 	jsr	(PlaySound).l
-	cmpi.b	#$C,air_left(a0)
+	cmpi.b	#12,air_left(a0)
 	blo.s	return_1A744	; if he's drowning, branch to not make dust
 	move.b	#6,(Sonic_Dust+routine).w
 	move.b	#$15,(Sonic_Dust+mapping_frame).w
@@ -34181,7 +34183,7 @@ Sonic_TurnRight:
 	bset	#0,status(a0)
 	move.w	#SndID_Skidding,d0	; use "stopping" sound
 	jsr	(PlaySound).l
-	cmpi.b	#$C,air_left(a0)
+	cmpi.b	#12,air_left(a0)
 	blo.s	return_1A7C4	; if he's drowning, branch to not make dust
 	move.b	#6,(Sonic_Dust+routine).w
 	move.b	#$15,(Sonic_Dust+mapping_frame).w
@@ -34737,7 +34739,7 @@ Sonic_CheckSpindash:
 	addq.l	#4,sp
 	move.b	#1,spindash_flag(a0)
 	move.w	#0,spindash_counter(a0)
-	cmpi.b	#$C,air_left(a0)	; if he's drowning, branch to not make dust
+	cmpi.b	#12,air_left(a0)	; if he's drowning, branch to not make dust
 	blo.s	+
 	move.b	#2,(Sonic_Dust+anim).w
 +
@@ -36050,7 +36052,7 @@ Obj02_Init_Continued:
 	move.w	top_solid_bit(a0),(Saved_Solid_bits_2P).w
 	move.b	#0,flips_remaining(a0)
 	move.b	#4,flip_speed(a0)
-	move.b	#$1E,air_left(a0)
+	move.b	#30,air_left(a0)
 	move.w	#0,(Tails_CPU_routine).w	; set AI state to TailsCPU_Init
 	move.w	#0,(Tails_control_counter).w
 	move.w	#0,(Tails_respawn_counter).w
@@ -36144,7 +36146,7 @@ Obj02_ChkInvinc:	; Checks if invincibility has expired and disables it if it has
 	bne.s	Obj02_ChkShoes
 	tst.b	(Current_Boss_ID).w	; Don't change music if in a boss fight
 	bne.s	Obj02_RmvInvin
-	cmpi.b	#$C,air_left(a0)	; Don't change music if drowning
+	cmpi.b	#12,air_left(a0)	; Don't change music if drowning
 	blo.s	Obj02_RmvInvin
 	move.w	(Level_Music).w,d0
 	jsr	(PlayMusic).l
@@ -36663,7 +36665,7 @@ Obj02_InWater:
 	bsr.w	ResumeMusic
 	move.b	#ObjID_SmallBubbles,(Tails_BreathingBubbles+id).w ; load Obj0A (tail's breathing bubbles) at $FFFFD0C0
 	move.b	#$81,(Tails_BreathingBubbles+subtype).w
-	move.l	a0,(Tails_BreathingBubbles+objoff_3C).w ; set its parent to be this (obj0A uses $3C instead of $3E for some reason)
+	move.l	a0,(Tails_BreathingBubbles+obj0a_character).w ; set its parent to be this (obj0A uses $3C instead of $3E for some reason)
 	move.w	#$300,(Tails_top_speed).w
 	move.w	#6,(Tails_acceleration).w
 	move.w	#$40,(Tails_deceleration).w
@@ -37048,7 +37050,7 @@ Tails_TurnLeft:
 	bclr	#0,status(a0)
 	move.w	#SndID_Skidding,d0
 	jsr	(PlaySound).l
-	cmpi.b	#$C,air_left(a0)
+	cmpi.b	#12,air_left(a0)
 	blo.s	return_1C328	; if he's drowning, branch to not make dust
 	move.b	#6,(Tails_Dust+routine).w
 	move.b	#$15,(Tails_Dust+mapping_frame).w
@@ -37103,7 +37105,7 @@ Tails_TurnRight:
 	bset	#0,status(a0)
 	move.w	#SndID_Skidding,d0	; use "stopping" sound
 	jsr	(PlaySound).l
-	cmpi.b	#$C,air_left(a0)
+	cmpi.b	#12,air_left(a0)
 	blo.s	return_1C3A8	; if he's drowning, branch to not make dust
 	move.b	#6,(Tails_Dust+routine).w
 	move.b	#$15,(Tails_Dust+mapping_frame).w
@@ -37559,7 +37561,7 @@ Tails_CheckSpindash:
 	addq.l	#4,sp
 	move.b	#1,spindash_flag(a0)
 	move.w	#0,spindash_counter(a0)
-	cmpi.b	#$C,air_left(a0)	; if he's drowning, branch to not make dust
+	cmpi.b	#12,air_left(a0)	; if he's drowning, branch to not make dust
 	blo.s	loc_1C754
 	move.b	#2,(Tails_Dust+anim).w
 
@@ -38846,6 +38848,17 @@ JmpTo2_KillCharacter ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Object 0A - Small bubbles from Sonic's face while underwater
 ; ----------------------------------------------------------------------------
+obj0a_time_until_freeze             = objoff_2C
+obj0a_current_dplc                  = objoff_2E
+obj0a_original_x_pos                = objoff_30
+obj0a_seconds_between_numbers_timer = objoff_32
+obj0a_seconds_between_numbers       = objoff_33
+obj0a_total_bubbles_to_spawn        = objoff_34
+obj0a_flags                         = objoff_36
+obj0a_timer                         = objoff_38
+obj0a_next_bubble_timer             = objoff_3A
+;obj0a_character                    = objoff_3C
+
 ; Sprite_1D320:
 Obj0A:
 	moveq	#0,d0
@@ -38867,27 +38880,32 @@ Obj0A_Index:	offsetTable
 ; ===========================================================================
 ; loc_1D340: Obj0A_Main:
 Obj0A_Init:
-	addq.b	#2,routine(a0)
+	addq.b	#2,routine(a0) ; Obj0A_Animate
+	; Use different mappings depending on which player the bubbles
+	; are coming from.
 	move.l	#Obj24_MapUnc_1FBF6,mappings(a0)
-	tst.b	parent+1(a0)
+	tst.b	obj0a_character+3(a0)
 	beq.s	+
 	move.l	#Obj24_MapUnc_1FC18,mappings(a0)
 +
 	move.w	#make_art_tile(ArtTile_ArtNem_BigBubbles,0,1),art_tile(a0)
 	move.b	#$84,render_flags(a0)
-	move.b	#$10,width_pixels(a0)
+	move.b	#16,width_pixels(a0)
 	move.b	#1,priority(a0)
 	move.b	subtype(a0),d0
 	bpl.s	loc_1D388
-	addq.b	#8,routine(a0)
+	addq.b	#8,routine(a0) ; Obj0A_Countdown
 	andi.w	#$7F,d0
-	move.b	d0,objoff_33(a0)
+	; Yes, this is actually configurable, but it is normally only ever
+	; set to 2 seconds. The countdown starts at 12 seconds remaining, and
+	; the numbers count from 5 to 0, so 2 seconds is ideal.
+	move.b	d0,obj0a_seconds_between_numbers(a0)
 	bra.w	Obj0A_Countdown
 ; ===========================================================================
 
 loc_1D388:
 	move.b	d0,anim(a0)
-	move.w	x_pos(a0),objoff_30(a0)
+	move.w	x_pos(a0),obj0a_original_x_pos(a0)
 	move.w	#-$88,y_vel(a0)
 
 ; loc_1D398:
@@ -38901,7 +38919,7 @@ Obj0A_ChkWater:
 	cmp.w	y_pos(a0),d0		; has bubble reached the water surface?
 	blo.s	Obj0A_Wobble		; if not, branch
 	; pop the bubble:
-	move.b	#6,routine(a0)
+	move.b	#6,routine(a0) ; Obj0A_Display
 	addq.b	#7,anim(a0)
 	cmpi.b	#$D,anim(a0)
 	beq.s	Obj0A_Display
@@ -38911,9 +38929,10 @@ Obj0A_ChkWater:
 ; ===========================================================================
 ; loc_1D3CA:
 Obj0A_Wobble:
+	; If in a wind-tunnel, then make the bubbles move to the right.
 	tst.b	(WindTunnel_flag).w
 	beq.s	+
-	addq.w	#4,objoff_30(a0)
+	addq.w	#4,obj0a_original_x_pos(a0)
 +
 	move.b	angle(a0),d0
 	addq.b	#1,angle(a0)
@@ -38921,7 +38940,7 @@ Obj0A_Wobble:
 	lea	(Obj0A_WobbleData).l,a1
 	move.b	(a1,d0.w),d0
 	ext.w	d0
-	add.w	objoff_30(a0),d0
+	add.w	obj0a_original_x_pos(a0),d0
 	move.w	d0,x_pos(a0)
 	bsr.s	Obj0A_ShowNumber
 	jsr	(ObjectMove).l
@@ -38935,8 +38954,8 @@ JmpTo4_DeleteObject ; JmpTo
 ; ===========================================================================
 ; loc_1D40E:
 Obj0A_DisplayNumber:
-	movea.l	objoff_3C(a0),a2 ; a2=character
-	cmpi.b	#$C,air_left(a2)
+	movea.l	obj0a_character(a0),a2 ; a2=character
+	cmpi.b	#12,air_left(a2)
 	bhi.s	JmpTo5_DeleteObject
 
 ; loc_1D41A:
@@ -38952,12 +38971,12 @@ JmpTo5_DeleteObject ; JmpTo
 ; ===========================================================================
 ; loc_1D434:
 Obj0A_AirLeft:
-	movea.l	objoff_3C(a0),a2 ; a2=character
-	cmpi.b	#$C,air_left(a2)	; check air remaining
+	movea.l	obj0a_character(a0),a2 ; a2=character
+	cmpi.b	#12,air_left(a2)	; check air remaining
 	bhi.s	JmpTo6_DeleteObject	; if higher than $C, branch
-	subq.w	#1,objoff_38(a0)
+	subq.w	#1,obj0a_timer(a0)
 	bne.s	Obj0A_Display2
-	move.b	#$E,routine(a0)
+	move.b	#$E,routine(a0) ; Obj0A_DisplayNumber
 	addq.b	#7,anim(a0)
 	bra.s	Obj0A_Display
 ; ===========================================================================
@@ -38976,24 +38995,29 @@ JmpTo6_DeleteObject ; JmpTo
 ; ===========================================================================
 ; loc_1D474:
 Obj0A_ShowNumber:
-	tst.w	objoff_38(a0)
+	tst.w	obj0a_timer(a0)
 	beq.s	return_1D4BE
-	subq.w	#1,objoff_38(a0)
+	subq.w	#1,obj0a_timer(a0)
 	bne.s	return_1D4BE
 	cmpi.b	#7,anim(a0)
 	bhs.s	return_1D4BE
-	move.w	#$F,objoff_38(a0)
+
+	; Turn this bubble into a number.
+	move.w	#15,obj0a_timer(a0)
 	clr.w	y_vel(a0)
 	move.b	#$80,render_flags(a0)
+
 	move.w	x_pos(a0),d0
 	sub.w	(Camera_X_pos).w,d0
 	addi.w	#$80,d0
 	move.w	d0,x_pixel(a0)
+
 	move.w	y_pos(a0),d0
 	sub.w	(Camera_Y_pos).w,d0
 	addi.w	#$80,d0
 	move.w	d0,y_pixel(a0)
-	move.b	#$C,routine(a0)
+
+	move.b	#$C,routine(a0) ; Obj0A_AirLeft
 
 return_1D4BE:
 	rts
@@ -39009,8 +39033,8 @@ Obj0A_WobbleData:
 	dc.b -4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-3;112
 	dc.b -3,-3,-3,-3,-3,-3,-2,-2,-2,-2,-2,-1,-1,-1,-1,-1;128
 
-	; Unused S1 leftover
-	; This was used by LZ's water ripple effect in REV01
+	; Unused leftover from Sonic 1.
+	; This was used by Labyrinth Zone's water ripple effect in REV01.
 	dc.b  0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2;144
 	dc.b  2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3;160
 	dc.b  3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2;176
@@ -39029,9 +39053,9 @@ Obj0A_LoadCountdownArt:
 	blo.s	return_1D604
 	cmpi.b	#$E,d1
 	bhs.s	return_1D604
-	cmp.b	objoff_2E(a0),d1
+	cmp.b	obj0a_current_dplc(a0),d1
 	beq.s	return_1D604
-	move.b	d1,objoff_2E(a0)
+	move.b	d1,obj0a_current_dplc(a0)
 	subq.w	#8,d1
 	move.w	d1,d0
 	add.w	d1,d1
@@ -39052,59 +39076,73 @@ return_1D604:
 
 ; loc_1D606:
 Obj0A_Countdown:
-	movea.l	objoff_3C(a0),a2 ; a2=character
-	tst.w	objoff_2C(a0)
-	bne.w	loc_1D708
-	cmpi.b	#6,routine(a2)
+	movea.l	obj0a_character(a0),a2 ; a2=character
+
+	; If the player has drowned, and the object is waiting until the
+	; world should pause, then go deal with that.
+	tst.w	obj0a_time_until_freeze(a0)
+	bne.w	Obj0A_PlayerHasDrowned
+
+	cmpi.b	#6,routine(a2) ; If player is dead, return.
 	bhs.w	return_1D81C
 	btst	#6,status(a2)
 	beq.w	return_1D81C
-	subq.w	#1,objoff_38(a0)
-	bpl.w	loc_1D72C
-	move.w	#$3B,objoff_38(a0)
-	move.w	#1,objoff_36(a0)
+
+	; Wait a second.
+	subq.w	#1,obj0a_timer(a0)
+	bpl.w	Obj0A_MakeBubbleMaybe
+	move.w	#60-1,obj0a_timer(a0)
+
+	move.w	#1,obj0a_flags(a0)
+
+	; Randomly spawn either one or two bubbles.
 	jsr	(RandomNumber).l
 	andi.w	#1,d0
-	move.b	d0,objoff_34(a0)
+	move.b	d0,obj0a_total_bubbles_to_spawn(a0)
+
 	moveq	#0,d0
 	move.b	air_left(a2),d0	; check air remaining
-	cmpi.w	#$19,d0
-	beq.s	Obj0A_WarnSound	; play ding sound if air is $19
-	cmpi.w	#$14,d0
-	beq.s	Obj0A_WarnSound	; play ding sound if air is $14
-	cmpi.w	#$F,d0
-	beq.s	Obj0A_WarnSound	; play ding sound if air is $F
-	cmpi.w	#$C,d0
-	bhi.s	Obj0A_ReduceAir	; if air is above $C, branch
+	cmpi.w	#25,d0
+	beq.s	Obj0A_WarnSound	; play ding sound when there are 25 seconds left
+	cmpi.w	#20,d0
+	beq.s	Obj0A_WarnSound	; play ding sound when there are 20 seconds left
+	cmpi.w	#15,d0
+	beq.s	Obj0A_WarnSound	; play ding sound when there are 15 seconds left
+	cmpi.w	#12,d0
+	bhi.s	Obj0A_ReduceAir	; play drowning theme when there are 12 seconds left
 	bne.s	+
-	tst.b	parent+1(a0)
+	; Play countdown music if this is player 1.
+	tst.b	obj0a_character+3(a0)
 	bne.s	+
 	move.w	#MusID_Countdown,d0
-	jsr	(PlayMusic).l	; play countdown music
+	jsr	(PlayMusic).l
 +
-	subq.b	#1,objoff_32(a0)
+	subq.b	#1,obj0a_seconds_between_numbers_timer(a0)
 	bpl.s	Obj0A_ReduceAir
-	move.b	objoff_33(a0),objoff_32(a0)
-	bset	#7,objoff_36(a0)
+	move.b	obj0a_seconds_between_numbers(a0),obj0a_seconds_between_numbers_timer(a0)
+	; Set the flag to create a number.
+	bset	#7,obj0a_flags(a0)
 	bra.s	Obj0A_ReduceAir
 ; ===========================================================================
 ; loc_1D68C:
 Obj0A_WarnSound:
-	tst.b	parent+1(a0)
+	; If this is player 1, then play the "ding-ding" warning sound.
+	tst.b	obj0a_character+3(a0)
 	bne.s	Obj0A_ReduceAir
 	move.w	#SndID_WaterWarning,d0
-	jsr	(PlaySound).l	; play "ding-ding" warning sound
+	jsr	(PlaySound).l
 
 ; loc_1D69C:
 Obj0A_ReduceAir:
 	subq.b	#1,air_left(a2)		; subtract 1 from air remaining
-	bcc.w	BranchTo_Obj0A_MakeItem	; if air is above 0, branch
+	bcc.w	BranchTo_Obj0A_MakeBubbleNow	; if air is above 0, branch
+	; Drown the player.
 	move.b	#$81,obj_control(a2)	; lock controls
 	move.w	#SndID_Drown,d0
 	jsr	(PlaySound).l		; play drowning sound
-	move.b	#$A,objoff_34(a0)
-	move.w	#1,objoff_36(a0)
-	move.w	#$78,objoff_2C(a0)
+	move.b	#10,obj0a_total_bubbles_to_spawn(a0) ; spawn ten bubbles
+	move.w	#1,obj0a_flags(a0)
+	move.w	#60*2,obj0a_time_until_freeze(a0) ; two seconds until the world pauses
 	movea.l	a2,a1
 	bsr.w	ResumeMusic
 	move.l	a0,-(sp)
@@ -39123,37 +39161,40 @@ Obj0A_ReduceAir:
 +
 	rts
 ; ===========================================================================
-
-loc_1D708:
-	subq.w	#1,objoff_2C(a0)
+; loc_1D708:
+Obj0A_PlayerHasDrowned:
+	subq.w	#1,obj0a_time_until_freeze(a0)
 	bne.s	+
+	; Signal that the player is dead.
 	move.b	#6,routine(a2)
 	rts
 ; ---------------------------------------------------------------------------
-+	move.l	a0,-(sp)
++	; Move the player downwards as they drown.
+	move.l	a0,-(sp)
 	movea.l	a2,a0
 	jsr	(ObjectMove).l
 	addi.w	#$10,y_vel(a0)
 	movea.l	(sp)+,a0 ; load 0bj address
-	bra.s	loc_1D72C
+	bra.s	Obj0A_MakeBubbleMaybe
 ; ===========================================================================
-
-BranchTo_Obj0A_MakeItem ; BranchTo
-	bra.s	Obj0A_MakeItem
+; BranchTo_Obj0A_MakeItem
+BranchTo_Obj0A_MakeBubbleNow ; BranchTo
+	bra.s	Obj0A_MakeBubbleNow
 ; ===========================================================================
-
-loc_1D72C:
-	tst.w	objoff_36(a0)
+;loc_1D72C:
+Obj0A_MakeBubbleMaybe:
+	tst.w	obj0a_flags(a0)
 	beq.w	return_1D81C
-	subq.w	#1,objoff_3A(a0)
+	subq.w	#1,obj0a_next_bubble_timer(a0)
 	bpl.w	return_1D81C
 
-; loc_1D73C:
-Obj0A_MakeItem:
+; loc_1D73C: Obj0A_MakeItem:
+Obj0A_MakeBubbleNow:
 	jsr	(RandomNumber).l
 	andi.w	#$F,d0
 	addq.w	#8,d0
-	move.w	d0,objoff_3A(a0)
+	move.w	d0,obj0a_next_bubble_timer(a0)
+
 	jsr	(SingleObjLoad).l
 	bne.w	return_1D81C
 	_move.b	id(a0),id(a1)		; load obj0A
@@ -39166,53 +39207,67 @@ Obj0A_MakeItem:
 +
 	add.w	d0,x_pos(a1)
 	move.w	y_pos(a2),y_pos(a1)
-	move.l	objoff_3C(a0),objoff_3C(a1)
-	move.b	#6,subtype(a1)
-	tst.w	objoff_2C(a0)
-	beq.w	loc_1D7C6
+	move.l	obj0a_character(a0),obj0a_character(a1)
+	move.b	#6,subtype(a1)	; Small bubble?
 
-	andi.w	#7,objoff_3A(a0)
-	addi.w	#0,objoff_3A(a0)
+	tst.w	obj0a_time_until_freeze(a0)
+	beq.w	Obj0A_MakeNumberBubbleMaybe
+
+	; The player has drowned.
+
+	; Shorten bubble timer, to make bubbles spawn faster.
+	andi.w	#7,obj0a_next_bubble_timer(a0)
+	addi.w	#0,obj0a_next_bubble_timer(a0)	; Pointless
+
 	move.w	y_pos(a2),d0
-	subi.w	#$C,d0
+	subi.w	#12,d0
 	move.w	d0,y_pos(a1)
+
 	jsr	(RandomNumber).l
 	move.b	d0,angle(a1)
+
 	move.w	(Timer_frames).w,d0
 	andi.b	#3,d0
-	bne.s	loc_1D812
-	move.b	#$E,subtype(a1)
-	bra.s	loc_1D812
+	bne.s	Obj0A_DoneCreatingBubble
+
+	move.b	#$E,subtype(a1)	; Big bubble?
+	bra.s	Obj0A_DoneCreatingBubble
 ; ---------------------------------------------------------------------------
-; has something to do with making bubbles come out less regularly
-; when Sonic is almost drowning
-loc_1D7C6:
-	btst	#7,objoff_36(a0)
-	beq.s	loc_1D812
+; loc_1D7C6:
+Obj0A_MakeNumberBubbleMaybe:
+	; The player has not drowned.
+
+	; If it's not time to create a number bubble, then skip this.
+	btst	#7,obj0a_flags(a0)
+	beq.s	Obj0A_DoneCreatingBubble
+
 	moveq	#0,d2
 	move.b	air_left(a2),d2
-	cmpi.b	#$C,d2
-	bhs.s	loc_1D812
+	cmpi.b	#12,d2
+	bhs.s	Obj0A_DoneCreatingBubble
+
+	; This player is about to drown.
 	lsr.w	#1,d2
 	jsr	(RandomNumber).l
 	andi.w	#3,d0
 	bne.s	+
-	bset	#6,objoff_36(a0)
-	bne.s	loc_1D812
+	bset	#6,obj0a_flags(a0) ; This flag prevents more than one number bubble from spawning at once.
+	bne.s	Obj0A_DoneCreatingBubble
 	move.b	d2,subtype(a1)
-	move.w	#$1C,objoff_38(a1)
+	move.w	#28,obj0a_timer(a1) ; Make this bubble turn into a number later.
 +
-	tst.b	objoff_34(a0)
-	bne.s	loc_1D812
-	bset	#6,objoff_36(a0)
-	bne.s	loc_1D812
+	tst.b	obj0a_total_bubbles_to_spawn(a0)
+	bne.s	Obj0A_DoneCreatingBubble
+	bset	#6,obj0a_flags(a0) ; This flag prevents more than one number bubble from spawning at once.
+	bne.s	Obj0A_DoneCreatingBubble
 	move.b	d2,subtype(a1)
-	move.w	#$1C,objoff_38(a1)
-
-loc_1D812:
-	subq.b	#1,objoff_34(a0)
+	move.w	#28,obj0a_timer(a1) ; Make this bubble turn into a number later.
+; loc_1D812:
+Obj0A_DoneCreatingBubble:
+	subq.b	#1,obj0a_total_bubbles_to_spawn(a0)
 	bpl.s	return_1D81C
-	clr.w	objoff_36(a0)
+	; Don't spawn any more bubbles.
+	clr.w	obj0a_flags(a0)
 
 return_1D81C:
 	rts
@@ -39226,7 +39281,7 @@ return_1D81C:
 
 ; loc_1D81E:
 ResumeMusic:
-	cmpi.b	#$C,air_left(a1)
+	cmpi.b	#12,air_left(a1)
 	bhi.s	ResumeMusic_Done	; branch if countdown hasn't started yet
 
 	cmpa.w	#MainCharacter,a1
@@ -39249,7 +39304,7 @@ ResumeMusic:
 	jsr	(PlayMusic).l
 ; return_1D858:
 ResumeMusic_Done:
-	move.b	#$1E,air_left(a1)	; reset air to full
+	move.b	#30,air_left(a1)	; reset air to full
 	rts
 
 ; ===========================================================================
@@ -39636,7 +39691,7 @@ Obj08_MdSplash:
 ; ===========================================================================
 ; loc_1DDCC:
 Obj08_MdSpindashDust:
-	cmpi.b	#$C,air_left(a2)
+	cmpi.b	#12,air_left(a2)
 	blo.s	Obj08_ResetDisplayMode
 	cmpi.b	#4,routine(a2)
 	bhs.s	Obj08_ResetDisplayMode
@@ -39660,7 +39715,7 @@ Obj08_MdSpindashDust:
 ; ===========================================================================
 ; loc_1DE20:
 Obj08_MdSkidDust:
-	cmpi.b	#$C,air_left(a2)
+	cmpi.b	#12,air_left(a2)
 	blo.s	Obj08_ResetDisplayMode
 
 ; loc_1DE28:
