@@ -13,6 +13,8 @@
 ; symbols. Your brain may melt if you don't know how those work.
 ;
 ; See s2.notes.txt for more comments about this disassembly and other useful info.
+;
+; To find the known bugs in the game, search for '[Bug]'.
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; ASSEMBLY OPTIONS:
@@ -1311,7 +1313,7 @@ ClearScreen:
 	clr.l	(Vscroll_Factor).w
 	clr.l	(unk_F61A).w
 
-	; Bug: These '+4's shouldn't be here; clearRAM accidentally clears an additional 4 bytes
+	; [Bug] These '+4's shouldn't be here; clearRAM accidentally clears an additional 4 bytes
 	clearRAM Sprite_Table,Sprite_Table_End+4
 	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+4
 
@@ -4378,7 +4380,7 @@ Level_ClrRam:
 	clearRAM MiscLevelVariables,MiscLevelVariables_End
 	clearRAM Misc_Variables,Misc_Variables_End
 	clearRAM Oscillating_Data,Oscillating_variables_End
-	; Bug: The '+C0' shouldn't be here; CNZ_saucer_data is only $40 bytes large
+	; [Bug] The '+C0' shouldn't be here; CNZ_saucer_data is only $40 bytes large
 	clearRAM CNZ_saucer_data,CNZ_saucer_data_End+$C0
 
 	cmpi.w	#chemical_plant_zone_act_2,(Current_ZoneAndAct).w ; CPZ 2
@@ -6096,26 +6098,26 @@ SpecialStage:
 ; | Now we clear out some regions in main RAM where we want to store some  |
 ; | of our data structures.                                                |
 ; \------------------------------------------------------------------------/
-	; Bug: These '+4's shouldn't be here; clearRAM accidentally clears an additional 4 bytes
+	; [Bug] These '+4's shouldn't be here; clearRAM accidentally clears an additional 4 bytes
 	clearRAM Sprite_Table,Sprite_Table_End+4
 	clearRAM SS_Horiz_Scroll_Buf_1,SS_Horiz_Scroll_Buf_1_End+4
 	clearRAM SS_Shared_RAM,SS_Shared_RAM_End+4
 	clearRAM Sprite_Table_Input,Sprite_Table_Input_End
 	clearRAM Object_RAM,Object_RAM_End
 
-	; However, the '+4' after SS_Shared_RAM_End is very useful. It resets the
-	; VDP_Command_Buffer queue, avoiding graphical glitches in the Special Stage.
-	; In fact, without resetting the VDP_Command_Buffer queue, Tails sprite DPLCs and other
+	; [Bug] However, the '+4' after 'SS_Shared_RAM_End' is very useful, as it resets the
+	; 'VDP_Command_Buffer' queue, avoiding graphical glitches in the Special Stage.
+	; In fact, without resetting the 'VDP_Command_Buffer' queue, Tails sprite DPLCs and other
 	; level DPLCs that are still in the queue erase the Special Stage graphics the next
-	; time ProcessDMAQueue is called.
+	; time 'ProcessDMAQueue' is called.
 	; This '+4' doesn't seem to be intentional, because of the other useless '+4' above,
-	; and because a '+2' is enough to reset the VDP_Command_Buffer queue and fix this bug.
+	; and because a '+2' is enough to reset the 'VDP_Command_Buffer' queue and fix this bug.
 	; This is a fortunate accident!
-	; Note that this is not a clean way to reset the VDP_Command_Buffer queue because the
+	; Note that this is not a clean way to reset the 'VDP_Command_Buffer' queue because the
 	; VDP_Command_Buffer_Slot address should be updated as well. They tried to do that in a
 	; cleaner way after branching to ClearScreen (see below). But they messed up by doing it
 	; after several WaitForVint calls.
-	; You can uncomment the two lines below to clear the VDP_Command_Buffer queue intentionally.
+	; You can uncomment the two lines below to clear the 'VDP_Command_Buffer' queue intentionally.
 	;clr.w	(VDP_Command_Buffer).w
 	;move.l	#VDP_Command_Buffer,(VDP_Command_Buffer_Slot).w
 
@@ -6265,8 +6267,10 @@ SpecialStage:
 	move.w	#$8C81,(a6)		; H res 40 cells, no interlace, S/H disabled
 	bsr.w	ClearScreen
 	jsrto	(Hud_Base).l, JmpTo_Hud_Base
+	; [Bug] By fixing the 'clearRAM' earlier in this code, these two instructions are made redundant.
 	clr.w	(VDP_Command_Buffer).w
 	move.l	#VDP_Command_Buffer,(VDP_Command_Buffer_Slot).w
+
 	move	#$2300,sr
 	moveq	#PalID_Result,d0
 	bsr.w	PalLoad_Now
@@ -12323,7 +12327,7 @@ CheckCheats:	; This is called from 2 places: the options screen and the level se
 	tst.w	d2				; Test this to determine which cheat to enable
 	bne.s	+				; If not 0, branch
 	move.b	#$F,(Continue_count).w		; Give 15 continues
-	; The next line causes the bug where the OOZ music plays until reset.
+	; [Bug] The next line causes the bug where the OOZ music plays until reset.
 	; Remove "&$7F" to fix the bug.
 	move.b	#SndID_ContinueJingle&$7F,d0	; Play the continue jingle
 	jsrto	(PlayMusic).l, JmpTo_PlayMusic
@@ -12519,7 +12523,7 @@ EndingSequence:
 	move.w	d0,(Ending_VInt_Subrout).w
 	move.w	d0,(Credits_Trigger).w
 
-	; Bug: The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
+	; [Bug] The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
 	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+4
 
 	move.w	#$7FFF,(PalCycle_Timer).w
@@ -12595,7 +12599,7 @@ EndgameCredits:
 	move.w	d0,(Ending_VInt_Subrout).w
 	move.w	d0,(Credits_Trigger).w
 
-	; Bug: The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
+	; [Bug] The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
 	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+4
 
 	moveq	#signextendB(MusID_Credits),d0
@@ -14778,7 +14782,12 @@ SwScrl_EHZ:
 	swap	d3
 	dbf	d1,-
 
-	; note there is a bug here. the bottom 8 pixels haven't had their hscroll values set. only the EHZ scrolling code has this bug.
+	; [Bug] The bottom two lines haven't had their H-scroll values set.
+	; Knuckles in Sonic 2 fixes this with the following code:
+	;move.w	d4,(a1)+
+	;move.w	d3,(a1)+
+	;move.w	d4,(a1)+
+	;move.w	d3,(a1)+
 
 	rts
 ; ===========================================================================
@@ -15031,7 +15040,7 @@ SwScrl_WFZ_Normal_Array:
 	dc.b $30, $C,$30,$10,$20,  8,$30, $C,$30,$10,$20,  8,$30, $C,$30,$10; 32
 	dc.b $20,  8,$30, $C,$30,$10,$20,  8,$30, $C,$30,$10,$20,  8,$30, $C; 48
 	dc.b $30,$10,$20,  8,$30, $C,$30,$10,$C0,  0,$C0,  0,$80,  0; 64
-; Note: this array is missing $80 lines compared to the transition array.
+; [Bug] This array is missing data for the last $80 lines compared to the transition array.
 ; This causes the lower clouds to read data from the start of SwScrl_HTZ.
 ; These are the missing entries:
     if 1==0
@@ -30354,7 +30363,7 @@ ObjectsManager_Init:
 	move.w	#$101,(a2)+	; the first two bytes are not used as respawn values
 	; instead, they are used to keep track of the current respawn indexes
 
-	; Bug: The '+7E' shouldn't be here; this loop accidentally clears an additional $7E bytes
+	; [Bug] The '+$7E' shouldn't be here; this loop accidentally clears an additional $7E bytes
 	move.w	#bytesToLcnt(Obj_respawn_data_End-Obj_respawn_data+$7E),d0 ; set loop counter
 -	clr.l	(a2)+		; loop clears all other respawn values
 	dbf	d0,-
@@ -41340,7 +41349,7 @@ CheckLeftWallDist_Part2:
 ObjCheckLeftWallDist:
 	add.w	x_pos(a0),d3
 	move.w	y_pos(a0),d2
-	; Engine bug: colliding with left walls is erratic with this function.
+	; [Bug] Colliding with left walls is erratic with this function.
 	; The cause is this: a missing instruction to flip collision on the found
 	; 16x16 block; this one:
 	;eori.w	#$F,d3
@@ -49198,7 +49207,7 @@ loc_261EC:
 	move.b	#8,width_pixels(a1)
 	move.b	#1,priority(a1)
 	move.b	#4,objoff_38(a1)
-	; (Bug) This line makes no sense: d1 is never set to anything,
+	; [Bug] This line makes no sense: d1 is never set to anything,
 	; the object being written to is the parent, not the child,
 	; and angle isn't used by the parent at all.
 	move.b	d1,angle(a0)		; ???
@@ -49402,7 +49411,7 @@ loc_2645E:
 	btst	#0,status(a0)
 	beq.s	loc_2647A
 	not.w	d0
-	; BUG: this should be 2*$1C instead of $27. As is, this makes it
+	; [Bug] This should be 2*$1C instead of $27. As is, this makes it
 	; impossible to get as high of a launch from flipped pressure springs
 	; as you can for unflipped ones.
 	addi.w	#$27,d0
@@ -59746,7 +59755,7 @@ loc_2DFD8:
 ; ===========================================================================
 
 Obj5D_Pipe_Retract_ChkID:
-	; BUG: d7 should not be used here. This causes RunObjects routine to either
+	; [Bug] d7 should not be used here. This causes RunObjects routine to either
 	; run too few objects or too many objects, causing all sorts of errors.
 	moveq	#0,d7
 	move.b	#ObjID_CPZBoss,d7
@@ -60514,7 +60523,7 @@ loc_2E9A8:
 	; This should be 'routine' instead of 'routine_secondary'...
 	addq.b	#2,routine_secondary(a0)
 	move.l	#Obj5D_MapUnc_2EEA0,mappings(a0)
-	; ..and this should be 'make_art_tile(ArtTile_ArtNem_BossSmoke_1,1,0)' instead.
+	; [Bug] ..and this should be 'make_art_tile(ArtTile_ArtNem_BossSmoke_1,1,0)' instead.
 	move.w	#make_art_tile(ArtTile_ArtNem_EggpodJets_1,0,0),art_tile(a0)
 	jsrto	(Adjust2PArtPointer).l, JmpTo60_Adjust2PArtPointer
 	move.b	#0,mapping_frame(a0)
@@ -63615,7 +63624,7 @@ Obj57_Main_SubA: ; slowly hovering down, no explosions
 	blo.s	Obj57_Main_SubA_Standard
 	lea	(Boss_AnimationArray).w,a1
 	move.b	#$D,7(a1)	; face grin when hit
-	_move.b	#2,0(a2)	; There is a bug here. This should be a1 instead of a2. A random part of RAM gets written to instead.
+	_move.b	#2,0(a2)	; [Bug] This should be 'a1' instead of 'a2'. A random part of RAM gets written to instead.
 	move.b	#0,1(a1)	; hover thingies fire off
 	addq.b	#2,boss_routine(a0)
 	bra.s	Obj57_Main_SubA_Standard
@@ -69295,7 +69304,7 @@ loc_361D8:
     endm
     endif
 
-	; Bug: The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
+	; [Bug] The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
 	clearRAM Sprite_Table,Sprite_Table_End+4
 
 	rts
@@ -74680,8 +74689,10 @@ loc_39B92:
 loc_39BA4:
 	move.w	#$1000,(Camera_Max_X_pos).w
 	addq.b	#2,(Dynamic_Resize_Routine).w
-	; There's a bug here: Level_Music is a word long, not a byte.
+	; [Bug] 'Level_Music' is a word long, not a byte.
 	; All this does is try to play Sound 0, which doesn't do anything.
+	; This causes the Death Egg Music music to not resume after the
+	; Silver Sonic fight.
 	move.b	(Level_Music).w,d0
 	jsrto	(PlayMusic).l, JmpTo5_PlayMusic
 	bra.w	JmpTo65_DeleteObject
@@ -75029,7 +75040,7 @@ ObjB0_Init:
 	subq.w	#1,d6
 -	move.w	(a2)+,d0
 	move.w	d0,d1
-	; Depending on the exact location (and size) of the art being used,
+	; [Bug] Depending on the exact location (and size) of the art being used,
 	; you may encounter an overflow in the original code which garbles
 	; the enlarged Sonic. The following code fixes this:
     if 1==0
@@ -75146,7 +75157,7 @@ loc_3A346:
 
 	; This clears a lot more than the horizontal scroll buffer, which is $400 bytes.
 	; This is because the loop counter is erroneously set to $400, instead of ($400/4)-1.
-	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+$C04	; Bug: That '+$C04' shouldn't be there; accidentally clears an additional $C04 bytes
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+$C04	; [Bug] That '+$C04' shouldn't be there; accidentally clears an additional $C04 bytes
 
 	; Initialize streak horizontal offsets for Sonic going right.
 	; 9 full lines (8 pixels) + 7 pixels, 2-byte interleaved entries for PNT A and PNT B
@@ -83480,8 +83491,7 @@ LoadLevelBlocks:
 ; ===========================================================================
 ; loc_40338:
 LoadLevelBlocks_2P:
-	; There's a bug in here, where d1, the loop counter,
-	; is overwritten with VRAM data
+	; [Bug] d1, the loop counter, is overwritten with VRAM data.
 	move.w	(a0)+,d0
 	move.w	d0,d1
 	andi.w	#nontile_mask,d0	; d0 holds the preserved non-tile data
@@ -84016,7 +84026,7 @@ APM_ARZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$0,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$1,0,0,2,1)
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$2,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$3,0,0,2,1)
     else
-	; These are invalid animation entries for waterfalls (bug in original game):
+	; [Bug] These are invalid animation entries for waterfalls:
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$C,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$D,0,0,2,1)
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$E,0,0,2,1),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$F,0,0,2,1)
     endif
@@ -84034,7 +84044,7 @@ APM_ARZ:	begin_animpat
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$0,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$1,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$2,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$3,0,0,2,0)
     else
-	; These are invalid animation entries for waterfalls (bug in original game):
+	; [Bug] These are invalid animation entries for waterfalls:
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$C,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$D,0,0,2,0)
 	dc.w make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$E,0,0,2,0),make_block_tile(ArtTile_ArtUnc_Waterfall1_2+$F,0,0,2,0)
     endif
@@ -85425,9 +85435,9 @@ Debug_ResetPlayerStats:
 	move.w	d0,x_vel(a1)
 	move.w	d0,y_vel(a1)
 	move.w	d0,inertia(a1)
-	; note: this resets the 'is underwater' flag, causing the bug where
+	; [Bug] This resets the 'is underwater' flag, causing the bug where
 	; if you enter Debug Mode underwater, and exit it above-water, Sonic
-	; will still move as if he's underwater
+	; will still move as if he's underwater.
 	move.b	#2,status(a1)
 	move.b	#2,routine(a1)
 	move.b	#0,routine_secondary(a1)
@@ -90044,7 +90054,7 @@ MusCred_PSG2:	dc.b $80,$30
 		dc.w z80_ptr(-)
 		dc.b $80,$60,$F5,$00
     if 1==1
-		; This is wrong: it should convert from EHZ 2P's PSG2 transpose ($D0)
+		; [Bug] This is wrong: it should convert from EHZ 2P's PSG2 transpose ($D0)
 		; to CNZ's PSG2 transpose ($DC), but instead of adding $C, it subtracts
 		; $C, causing the note to be too low and underflow the sound driver's
 		; frequency table, producing invalid notes.
@@ -90061,7 +90071,7 @@ MusCred_PSG2:	dc.b $80,$30
 		dc.b $FC,$80,$B1,$80,$B1,$80,$B1,$18,$08,$B1,$04,$EC
 		dc.b $01
     if 1==1
-		; If the above bug is fixed, then this line needs removing (the track
+		; [Bug] If the above bug is fixed, then this line needs removing (the track
 		; will already be $18 keys higher).
 		dc.b $E9,$18
     endif
