@@ -58424,6 +58424,15 @@ Obj4B_Projectile:
 ; loc_2D090:
 Obj4B_Flame:
 	movea.l	Obj4B_parent(a0),a1 ; a1=object
+	; [Bug] This check doesn't really work: it's possible for an object
+	; to be loaded into the parent's slot before this object can check if
+	; the slot is empty. In fact, it will always be immediately occupied
+	; by the explosion object. This defect causes the flame to linger for
+	; a while after the Buzzer is destroyed. A better way to do this
+	; check would be to check if the ID is equal to 'ObjID_Buzzer, like
+	; this:
+	;cmpi.b	#ObjID_Buzzer,id(a1)
+	;bne.w	JmpTo49_DeleteObject
 	tst.b	id(a1)
 	beq.w	JmpTo49_DeleteObject	; branch, if object slot is empty. This check is incomplete and very unreliable; check Obj50_Wing to see how it should be done
 	tst.w	Obj4B_turn_delay(a1)
