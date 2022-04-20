@@ -43470,12 +43470,19 @@ Obj31_Init:
 	moveq	#0,d0
 	move.b	subtype(a0),d0
 	move.b	Obj31_CollisionFlagsBySubtype(pc,d0.w),collision_flags(a0)
+	; [Bug] This dumb code is a workaround for the bug below. If you fix
+	; it, then 'Obj31_MapUnc_20E6C' and the associated code can be
+	; removed.
 	move.l	#Obj31_MapUnc_20E6C,mappings(a0)
 	tst.w	(Debug_placement_mode).w
 	beq.s	+
 	move.l	#Obj31_MapUnc_20E74,mappings(a0)
 +
 	move.w	#make_art_tile(ArtTile_ArtNem_Powerups,0,1),art_tile(a0)
+	; [Bug] The high bit of 'render_flags' should not be set here: this
+	; causes this object to become visible when the player dies, because
+	; of how 'RunObjectsWhenPlayerIsDead' works. To fix this, set
+	; 'render_flags' to 4 instead.
 	move.b	#$84,render_flags(a0)
 	move.b	#$80,width_pixels(a0)
 	move.b	#4,priority(a0)
@@ -49239,6 +49246,10 @@ Obj2C_Init:
 	move.b	Obj2C_CollisionFlags(pc,d0.w),collision_flags(a0)
 	move.l	#Obj31_MapUnc_20E74,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Powerups,0,1),art_tile(a0)
+	; [Bug] The high bit of 'render_flags' should not be set here: this
+	; causes this object to become visible when the player dies, because
+	; of how 'RunObjectsWhenPlayerIsDead' works. To fix this, set
+	; 'render_flags' to 4 instead.
 	move.b	#$84,render_flags(a0)
 	move.b	#$80,width_pixels(a0)
 	move.b	#4,priority(a0)
@@ -49250,6 +49261,13 @@ Obj2C_Main:
 	sub.w	(Camera_X_pos_coarse).w,d0
 	cmpi.w	#$280,d0
 	bhi.w	JmpTo29_DeleteObject
+	; [Bug] This object never actually displays itself, even in Debug
+	; Mode. To make this consistent with other debug objects such as
+	; Obj66 and Obj74, uncomment the following code:
+	;tst.w	(Debug_placement_mode).w
+	;beq.s	+
+	;jsr	(DisplaySprite).l
+;+
 	move.b	collision_property(a0),d0
 	beq.s	loc_261C2
 	move.w	objoff_2E(a0),d0
