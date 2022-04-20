@@ -60509,10 +60509,12 @@ loc_2E9A8:
 	rts
 ; ===========================================================================
 +
-	; BUG: this should be 'routine' instead of 'routine_secondary'.
+	; [Bug] Eggman is supposed to starting leaving a trail of smoke here,
+	; but this code is incorrect which prevents it from appearing.
+	; This should be 'routine' instead of 'routine_secondary'...
 	addq.b	#2,routine_secondary(a0)
 	move.l	#Obj5D_MapUnc_2EEA0,mappings(a0)
-	; BUG: this should be make_art_tile(ArtTile_ArtNem_BossSmoke_1,1,0) instead.
+	; ..and this should be 'make_art_tile(ArtTile_ArtNem_BossSmoke_1,1,0)' instead.
 	move.w	#make_art_tile(ArtTile_ArtNem_EggpodJets_1,0,0),art_tile(a0)
 	jsrto	(Adjust2PArtPointer).l, JmpTo60_Adjust2PArtPointer
 	move.b	#0,mapping_frame(a0)
