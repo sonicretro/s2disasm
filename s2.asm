@@ -38934,6 +38934,7 @@ Obj0A_Wobble:
 	beq.s	+
 	addq.w	#4,obj0a_original_x_pos(a0)
 +
+	; Wiggle the bubble left and right.
 	move.b	angle(a0),d0
 	addq.b	#1,angle(a0)
 	andi.w	#$7F,d0
@@ -38942,7 +38943,8 @@ Obj0A_Wobble:
 	ext.w	d0
 	add.w	obj0a_original_x_pos(a0),d0
 	move.w	d0,x_pos(a0)
-	bsr.s	Obj0A_ShowNumber
+
+	bsr.s	Obj0A_BecomeNumberMaybe
 	jsr	(ObjectMove).l
 	tst.b	render_flags(a0)
 	bpl.s	JmpTo4_DeleteObject
@@ -38960,9 +38962,13 @@ Obj0A_DisplayNumber:
 
 ; loc_1D41A:
 Obj0A_Display:
-	bsr.s	Obj0A_ShowNumber
+	bsr.s	Obj0A_BecomeNumberMaybe
 	lea	(Ani_obj0A).l,a1
 	jsr	(AnimateSprite).l
+	; [Bug] If you stand in very shallow water and begin drowning, the
+	; countdown graphics will appear incorrectly. The cause is a missing
+	; call to 'Obj0A_LoadCountdownArt'.
+	;bsr.w	Obj0A_LoadCountdownArt
 	jmp	(DisplaySprite).l
 ; ===========================================================================
 
@@ -38993,8 +38999,8 @@ Obj0A_Display2:
 JmpTo6_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
 ; ===========================================================================
-; loc_1D474:
-Obj0A_ShowNumber:
+; loc_1D474: Obj0A_ShowNumber:
+Obj0A_BecomeNumberMaybe:
 	tst.w	obj0a_timer(a0)
 	beq.s	return_1D4BE
 	subq.w	#1,obj0a_timer(a0)
@@ -39063,7 +39069,7 @@ Obj0A_LoadCountdownArt:
 	lsl.w	#6,d1
 	addi.l	#ArtUnc_Countdown,d1
 	move.w	#tiles_to_bytes(ArtTile_ArtNem_SonicDust),d2
-	tst.b	parent+1(a0)
+	tst.b	obj0a_character+3(a0)
 	beq.s	+
 	move.w	#tiles_to_bytes(ArtTile_ArtNem_TailsDust),d2
 +
