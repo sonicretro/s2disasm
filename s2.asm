@@ -12284,8 +12284,23 @@ LevelSelect_DrawIcon:
 	lea	(a1,d0.w),a1
 	lea	(Normal_palette_line3).w,a2
 
+    if fixBugs
+	; When the icon changes, the colours are briefly incorrect. This is
+	; because there's a delay between the icon being updated and the
+	; colours being updated, due to the colours being uploaded to the VDP
+	; during V-Int. To avoid this we can upload the colours ourselves right
+	; here.
+	; Prepare the VDP for data transfer.
+	move.l  #vdpComm(2*16*2,CRAM,WRITE),VDP_control_port-VDP_data_port(a6)
+    endif
+
 	moveq	#bytesToLcnt(palette_line_size),d1
--	move.l	(a1)+,(a2)+
+-
+    if fixBugs
+	; Upload colours to the VDP.
+	move.l	(a1),(a6)
+    endif
+	move.l	(a1)+,(a2)+
 	dbf	d1,-
 
 	rts
@@ -32281,14 +32296,27 @@ Obj0D_RingSparklePositions:
 Obj0D_Main_State3:
 	tst.w	(Debug_placement_mode).w
 	bne.w	return_194D0
+    if fixBugs
+	; This function's checks are a mess, creating an edgecase where it's
+	; possible for the player to avoid having their controls locked by
+	; jumping at the right side of the screen just as the score tally
+	; appears.
+	tst.b	(MainCharacter+id).w
+	beq.s	loc_1944C
+	btst	#1,(MainCharacter+status).w
+	bne.w	return_194D0
+    else
 	btst	#1,(MainCharacter+status).w
 	bne.s	loc_19434
+    endif
 	move.b	#1,(Control_Locked).w
 	move.w	#(button_right_mask<<8)|0,(Ctrl_1_Logical).w
+    if ~~fixBugs
 loc_19434:
 	; This check here is for S1's Big Ring, which would set Sonic's Object ID to 0
 	tst.b	(MainCharacter+id).w
 	beq.s	loc_1944C
+    endif
 	move.w	(MainCharacter+x_pos).w,d0
 	move.w	(Camera_Max_X_pos).w,d1
 	addi.w	#$128,d1
@@ -32897,6 +32925,18 @@ SolidObject_TestClearPush:
 	beq.s	loc_19AEA
 	cmpi.b	#AniIDSonAni_Roll,anim(a1)
 	beq.s	loc_19ADC
+    if fixBugs
+	; Prevent Sonic or Tails from entering their running animation when
+	; stood next to solid objects while charging a Spin Dash, dying, or
+	; drowning. One way to see this bug is by charging a Spin Dash while
+	; next to one of Mystic Cave Zone's crushing pillars.
+	cmpi.b	#AniIDSonAni_Spindash,anim(a1)
+	beq.s	loc_19ADC
+	cmpi.b	#AniIDSonAni_Death,anim(a1)
+	beq.s	loc_19ADC
+	cmpi.b	#AniIDSonAni_Drown,anim(a1)
+	beq.s	loc_19ADC
+    endif
 	move.w	#AniIDSonAni_Run,anim(a1)
 
 loc_19ADC:
@@ -34725,6 +34765,15 @@ Sonic_CheckGoSuper:
 	beq.s	return_1ABA4		; if yes, branch
     endif
 
+    if fixBugs
+	; If Sonic was executing a roll-jump when he turned Super, then this
+	; will remove him from that state. The original code forgot to do
+	; this.
+	bclr	#2,status(a0)
+	bclr	#4,status(a0)
+	move.b	#$13,y_radius(a0)
+	move.b	#9,x_radius(a0)
+    endif
 	move.b	#1,(Super_Sonic_palette).w
 	move.b	#$F,(Palette_timer).w
 	move.b	#1,(Super_Sonic_flag).w
@@ -82178,8 +82227,16 @@ TouchResponse:
 	move.b	y_radius(a0),d5
 	subq.b	#3,d5
 	sub.w	d5,d3
+    if fixBugs
+	cmpi.b	#AniIDSonAni_Duck,anim(a0)	; is Sonic ducking?
+	bne.s	Touch_NoDuck			; if not, branch
+    else
+	; This logic only works for Sonic, not Tails. Also, it only applies
+	; to the last frame of his ducking animation. This is a leftover from
+	; Sonic 1, where Sonic's ducking animation only had one frame.
 	cmpi.b	#$4D,mapping_frame(a0)	; is Sonic ducking?
 	bne.s	Touch_NoDuck		; if not, branch
+    endif
 	addi.w	#$C,d3
 	moveq	#$A,d5
 ; loc_3F592:
@@ -82850,7 +82907,13 @@ BossCollision_MCZ:
 	cmpi.b	#1,(Boss_CollisionRoutine).w
 	blt.s	BossCollision_MCZ2
 ; Boss_CollisionRoutine = 1, i.e. diggers pointing to the side
+    if fixBugs
+	; The below call to 'Boss_DoCollision' clobbers 'a1', so back it up
+	; here. This fixes Eggman not laughing when he hurts Sonic.
+	movem.w	d7/a1,-(sp)
+    else
 	move.w	d7,-(sp)
+    endif
 	move.w	x_pos(a1),d0
 	move.w	y_pos(a1),d7
 	addi_.w	#4,d7
@@ -82861,7 +82924,12 @@ BossCollision_MCZ:
 +
 	move.l	#$40004,d1		; heigth 4, width 4
 	bsr.w	Boss_DoCollision
+    if fixBugs
+	; See the above bugfix.
+	movem.w	(sp)+,d7/a1
+    else
 	move.w	(sp)+,d7
+    endif
 	move.b	collision_flags(a1),d0
 	cmpi.w	#$78,invulnerable_time(a0)
 	bne.s	+	; rts
@@ -88656,6 +88724,9 @@ ArtKos_CPZ:	BINCLUDE	"art/kosinski/CPZ_DEZ.bin"
 BM128_CPZ:	BINCLUDE	"mappings/128x128/CPZ_DEZ.bin"
 ;-----------------------------------------------------------------------------------
 ; ARZ 16x16 block mappings (Kosinski compression)
+; This file contains $320 blocks, overflowing the 'Block_table' buffer. This causes
+; 'TempArray_LayerDef' to be overwritten with (empty) block data.
+; If only 'fixBugs' could fix this...
 BM16_ARZ:	BINCLUDE	"mappings/16x16/ARZ.bin"
 ;-----------------------------------------------------------------------------------
 ; ARZ main level patterns (Kosinski compression)
