@@ -11634,6 +11634,17 @@ OptionScreen_Select:
 	move.w	d0,(Two_player_mode).w
 	move.w	d0,(Two_player_mode_copy).w
 	move.w	d0,(Current_ZoneAndAct).w	; emerald_hill_zone_act_1
+    if fixBugs
+	; The game forgets to reset these variables here, making it possible
+	; for the player to repeatedly soft-reset and play Emerald Hill Zone
+	; over and over again, collecting all of the emeralds within the
+	; first act. This code is borrowed from similar logic in the title
+	; screen, which doesn't make this mistake.
+	move.w	d0,(Current_Special_StageAndAct).w
+	move.w	d0,(Got_Emerald).w
+	move.l	d0,(Got_Emeralds_array).w
+	move.l	d0,(Got_Emeralds_array+4).w
+    endif
 	move.b	#GameModeID_Level,(Game_Mode).w ; => Level (Zone play mode)
 	rts
 ; ===========================================================================
@@ -11645,6 +11656,15 @@ OptionScreen_Select_Not1P:
 	moveq	#1,d0
 	move.w	d0,(Two_player_mode).w
 	move.w	d0,(Two_player_mode_copy).w
+    if fixBugs
+	; The game forgets to reset these variables here, making it possible
+	; for the player to play two player mode with all emeralds collected,
+	; allowing them to use Super Sonic. This code is borrowed from
+	; similar logic in the title screen, which doesn't make this mistake.
+	move.w	d0,(Got_Emerald).w
+	move.l	d0,(Got_Emeralds_array).w
+	move.l	d0,(Got_Emeralds_array+4).w
+    endif
 	move.b	#GameModeID_2PLevelSelect,(Game_Mode).w ; => LevelSelectMenu2P
 	move.b	#0,(Current_Zone_2P).w
 	move.w	#0,(Player_mode).w
@@ -22212,8 +22232,17 @@ Obj1C_Radii:
 	dc.b   0	; 1
 	dc.b   0	; 2
 	dc.b   0	; 3
+    if fixBugs
+	; These are the stakes that the ziplines are attached to in Hill Top Zone.
+	; Using 0 here is good for objects that are at most 32 pixels tall, but these are 40
+	; pixels tall, so they need to be explicitly set here.
+	; This fixes these objects disappearing when they're partially off-screen vertically.
+	dc.b  40	; 4
+	dc.b  40	; 5
+    else
 	dc.b   0	; 4
 	dc.b   0	; 5
+    endif
 	dc.b   0	; 6
 	dc.b   0	; 7
 	dc.b   0	; 8
@@ -29101,7 +29130,7 @@ Adjust2PArtPointer2:
 ; sub_16DA6:
 ChkDrawSprite_2P:
 	cmpi.b	#80,d5
-	blo.s	DrawSprite_2P_Loop
+	blo.s	DrawSprite_2P_Cont
 	rts
 ; End of function ChkDrawSprite_2P
 
@@ -29115,10 +29144,21 @@ DrawSprite_2P:
 	movea.w	art_tile(a0),a3
 	cmpi.b	#80,d5
 	bhs.s	DrawSprite_2P_Done
+    if fixBugs
+DrawSprite_2P_Cont:
+    endif
 	btst	#0,d4
 	bne.s	DrawSprite_2P_FlipX
 	btst	#1,d4
 	bne.w	DrawSprite_2P_FlipY
+    if ~~fixBugs
+	; This skips the X-flip and Y-flip checks, causing multi-sprite
+	; objects to not properly mirror in two player mode.
+	; An easy place to see this is Mystic Case Zone: the Crawltons
+	; badnik's body segments will always face in one direction, and only
+	; the head will be properly flipped.
+DrawSprite_2P_Cont:
+    endif
 ; loc_16DC6:
 DrawSprite_2P_Loop:
 	move.b	(a1)+,d0
@@ -39622,6 +39662,12 @@ loc_1D9A4:
 	move.b	#4,objoff_34(a0)
 
 loc_1DA0C:
+    if fixBugs
+	; If Sonic is invincible and he turns Super, then the invincibility
+	; stars will not go away. S3K fixes this by doing this:
+	tst.b	(Super_Sonic_flag).w
+	bne.w	DeleteObject
+    endif
 	movea.w	parent(a0),a1 ; a1=character
 	btst	#status_sec_isInvincible,status_secondary(a1)
 	beq.w	DeleteObject
@@ -39666,6 +39712,12 @@ loc_1DA74:
 ; ===========================================================================
 
 loc_1DA80:
+    if fixBugs
+	; If Sonic is invincible and he turns Super, then the invincibility
+	; stars will not go away. S3K fixes this by doing this:
+	tst.b	(Super_Sonic_flag).w
+	bne.w	DeleteObject
+    endif
 	movea.w	parent(a0),a1 ; a1=character
 	btst	#status_sec_isInvincible,status_secondary(a1)
 	beq.w	DeleteObject
