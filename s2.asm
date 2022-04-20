@@ -1407,6 +1407,14 @@ PauseGame:
 	nop
 	tst.b	(Life_count).w	; do you have any lives left?
 	beq.w	Unpause		; if not, branch
+	; [Bug] The game still lets you pause if player 2 got a Game Over, or
+	; if either player got a Time Over. The following code fixes this.
+	;tst.b	(Life_count_2P).w
+	;beq.w	Unpause
+	;tst.b	(Time_Over_flag).w
+	;bne.w	Unpause
+	;tst.b   (Time_Over_flag_2P).w
+	;bne.w   Unpause
 	tst.w	(Game_paused).w	; is game already paused?
 	bne.s	+		; if yes, branch
 	move.b	(Ctrl_1_Press).w,d0 ; is Start button pressed?
