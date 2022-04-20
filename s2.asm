@@ -9853,6 +9853,20 @@ ContinueScreen:
 
 	clearRAM Object_RAM,Object_RAM_End
 
+    if fixBugs
+	; Clear the DMA queue. This fixes the bug where, if you get a
+	; Game Over in Hill Top Zone, then Tails' graphics will be corrupted
+	; on the Continue screen.
+	; This is caused by HTZ's transforming cloud art being loaded over
+	; Tails' Continue art: 'Dynamic_HTZ' is responsible for queueing the
+	; art to be transferred with 'QueueDMATransfer', which takes effect
+	; around the next frame. The problem here is, the art is queued, you
+	; die, get a Game Over, advance to the Continue screen, and then
+	; finally the art is loaded.
+	clr.w	(VDP_Command_Buffer).w
+	move.l	#VDP_Command_Buffer,(VDP_Command_Buffer_Slot).w
+    endif
+
 	bsr.w	ContinueScreen_LoadLetters
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_ContinueTails),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_ContinueTails).l,a0
@@ -15594,6 +15608,12 @@ SwScrl_MCZ:
 	bsr.w	SetVertiScrollFlagsBG2
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	moveq	#0,d2
+    if fixBugs
+	; The screen shaking is not applied to the background parallax
+	; scrolling, causing it to distort. This is trivial to fix: just add
+	; the Y component of the shaking to the camera's Y position.
+	moveq	#0,d3
+    endif
 	tst.b	(Screen_Shaking_Flag).w
 	beq.s	+
 
@@ -15606,6 +15626,10 @@ SwScrl_MCZ:
 	add.w	d0,(Vscroll_Factor_FG).w
 	add.w	d0,(Vscroll_Factor_BG).w
 	add.w	d0,(Camera_Y_pos_copy).w
+    if fixBugs
+	; Ditto.
+	move.w	d0,d3
+    endif
 	move.b	(a1)+,d2
 	add.w	d2,(Camera_X_pos_copy).w
 +
@@ -15672,6 +15696,10 @@ SwScrl_MCZ:
 	lea	(TempArray_LayerDef).w,a2
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_BG_Y_pos).w,d1
+    if fixBugs
+	; Ditto.
+	add.w	d3,d1
+    endif
 	moveq	#0,d0
 
 -	move.b	(a3)+,d0
@@ -16285,6 +16313,36 @@ SwScrl_DEZ:
 	asl.l	#8,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+
+    if fixBugs
+	; The screen shaking is not applied to the background parallax
+	; scrolling, causing it to distort. This is trivial to fix: just add
+	; the Y component of the shaking to the camera's Y position.
+	; This block of code also has to be moved to the start of this
+	; function.
+	moveq	#0,d2
+	moveq	#0,d3
+	tst.b	(Screen_Shaking_Flag).w
+	beq.s	++	; rts
+	subq.w	#1,(DEZ_Shake_Timer).w
+	bpl.s	+
+	clr.b	(Screen_Shaking_Flag).w
++
+	move.w	(Timer_frames).w,d0
+	andi.w	#$3F,d0
+	lea_	SwScrl_RippleData,a1
+	lea	(a1,d0.w),a1
+	moveq	#0,d0
+	move.b	(a1)+,d0
+	add.w	d0,(Vscroll_Factor_FG).w
+	add.w	d0,(Vscroll_Factor_BG).w
+	add.w	d0,(Camera_Y_pos_copy).w
+	move.w	d0,d3
+	move.b	(a1)+,d2
+	add.w	d2,(Camera_X_pos_copy).w
++
+    endif
+
 	move.w	(Camera_X_pos).w,d4
 	lea	(TempArray_LayerDef).w,a2
 	move.w	d4,(a2)+
@@ -16347,6 +16405,10 @@ SwScrl_DEZ:
 	lea	(TempArray_LayerDef).w,a2
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_BG_Y_pos).w,d1
+    if fixBugs
+	; Apply screen shaking effect to the background parallax scrolling.
+	add.w	d3,d1
+    endif
 	moveq	#0,d0
 
 -	move.b	(a3)+,d0
@@ -16370,7 +16432,12 @@ SwScrl_DEZ:
 	move.w	(a2)+,d0
 	neg.w	d0
 +	dbf	d2,-
-
+    if ~~fixBugs
+	; The screen shaking is not applied to the background parallax
+	; scrolling, causing it to distort. This is trivial to fix: just add
+	; the Y component of the shaking to the camera's Y position.
+	; This block of code also has to be moved to the start of this
+	; function.
 	moveq	#0,d2
 	tst.b	(Screen_Shaking_Flag).w
 	beq.s	++	; rts
@@ -16390,6 +16457,7 @@ SwScrl_DEZ:
 	move.b	(a1)+,d2
 	add.w	d2,(Camera_X_pos_copy).w
 +
+    endif
 	rts
 ; ===========================================================================
 ; byte_D48A:
@@ -16452,6 +16520,12 @@ SwScrl_ARZ:
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 
 	moveq	#0,d2
+    if fixBugs
+	; The screen shaking is not applied to the background parallax
+	; scrolling, causing it to distort. This is trivial to fix: just add
+	; the Y component of the shaking to the camera's Y position.
+	moveq	#0,d3
+    endif
 	tst.b	(Screen_Shaking_Flag).w
 	beq.s	.screenNotShaking
 
@@ -16460,11 +16534,15 @@ SwScrl_ARZ:
 	lea_	SwScrl_RippleData,a1
 	lea	(a1,d0.w),a1
 	moveq	#0,d0
-	; Shake camera Y-pos (note that BG scrolling is not affected by this, causing it to distort)
+	; Shake camera Y-pos
 	move.b	(a1)+,d0
 	add.w	d0,(Vscroll_Factor_FG).w
 	add.w	d0,(Vscroll_Factor_BG).w
 	add.w	d0,(Camera_Y_pos_copy).w
+    if fixBugs
+	; Ditto
+	move.w d0,d3
+    endif
 	; Shake camera X-pos
 	move.b	(a1)+,d2
 	add.w	d2,(Camera_X_pos_copy).w
@@ -16526,6 +16604,10 @@ SwScrl_ARZ:
 	lea	(TempArray_LayerDef).w,a2
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_BG_Y_pos).w,d1
+    if fixBugs
+	; Ditto
+	add.w	d3,d1
+    endif
 	moveq	#0,d0
 
 	; Find which row of background is visible at the top of the screen
