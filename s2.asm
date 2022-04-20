@@ -43196,25 +43196,31 @@ Obj04_Action:
 	tst.b	objoff_32(a0)
 	bne.s	Obj04_Animate
 	btst	#button_start,(Ctrl_1_Press).w	; is Start button pressed?
-	beq.s	loc_20962	; if not, branch
+	beq.s	loc_20962		; if not, branch
 	addq.b	#3,mapping_frame(a0)	; use different frames
 	move.b	#1,objoff_32(a0)	; stop animation
-	bra.s	loc_20962
+	bra.s	loc_20962		; [Bug] This should be 'loc_208E4'.
 ; ===========================================================================
 ; loc_20952:
 Obj04_Animate:
-	tst.w	(Game_paused).w	; is the game paused?
-	bne.s	loc_20962		; if yes, branch
+	tst.w	(Game_paused).w		; is the game paused?
+	bne.s	loc_20962		; if yes, branch ; [Bug] This should be 'loc_208E4'.
 	move.b	#0,objoff_32(a0)	; resume animation
 	subq.b	#3,mapping_frame(a0)	; use normal frames
 
 loc_20962:
+	; [Bug] This code should be skipped when the game is paused, but is isn't.
+	; This causes the wrong sprite to display when the game is paused.
+	; To fix this, the above two branches to 'loc_20962' should instead
+	; branch to 'loc_208E4'.
 	lea	(Anim_obj04).l,a1
 	moveq	#0,d1
 	move.b	anim_frame(a0),d1
 	move.b	(a1,d1.w),mapping_frame(a0)
 	addq.b	#1,anim_frame(a0)
 	andi.b	#$3F,anim_frame(a0)
+
+;loc_208E4:
 	jmpto	(DisplaySprite).l, JmpTo10_DisplaySprite
 ; ===========================================================================
 ; water sprite animation 'script' (custom format for this object)
