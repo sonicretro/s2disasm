@@ -9644,7 +9644,7 @@ SSStartNewAct:
 	cmpi.w	#100,d1
 	bge.s	-
     else
-	; This code (the original) is limited to 299 rings:
+	; [Bug] This code (the original) is limited to 299 rings:
 	subi.w	#100,d1
 	move.w	#$100,d0
 	cmpi.w	#100,d1
@@ -68476,7 +68476,7 @@ Obj5A_RingsNeeded:
 	cmpi.w	#100,d1
 	bge.s	-
     else
-	; This code (the original) breaks when 101+ rings are needed:
+	; [Bug] This code (the original) breaks when 101+ rings are needed:
 -	addi.w	#$100,d0
 	subi.w	#100,d1
 	bgt.s	-
