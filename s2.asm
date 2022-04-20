@@ -29550,10 +29550,17 @@ BuildRings_Loop:
 	addi.w	#128,d3		; screen top is 128x128 not 0x0
 	move.w	4(a0),d2	; get ring Y pos
 	sub.w	4(a3),d2	; subtract camera Y pos
+	; [Bug] Note that this 'andi' occurs *before* an 'addi'. This can cause
+	; 'd2' to wrap incorrectly. This defect is the reason why rings disappear
+	; when they go halfway off the top of the screen. To fix this, simply
+	; swap these two instructions around.
 	andi.w	#$7FF,d2
 	addi_.w	#8,d2
-	bmi.s	BuildRings_NextRing	; dunno how this check is supposed to work
-	cmpi.w	#240,d2
+	; This line is completely redundant: an apparent leftover from one of the
+	; prototypes, back when the above 'andi' didn't exist. S3K gets rid of this.
+	bmi.s	BuildRings_NextRing
+	cmpi.w	#224+8*2,d2
+	; The above 'andi' means that this could just be a plain 'bhs'. S3K does this.
 	bge.s	BuildRings_NextRing	; if the ring is not on-screen, branch
 	addi.w	#128-8,d2
 	lea	(MapUnc_Rings).l,a1
@@ -29626,10 +29633,24 @@ BuildRings_2P_Loop:
 	addi.w	#128,d3
 	move.w	4(a0),d2	; get ring Y pos
 	sub.w	4(a3),d2	; subtract camera Y pos
+	; [Bug] Note that this 'andi' occurs *before* an 'addi'. This can cause
+	; 'd2' to wrap incorrectly. This defect is the reason why rings disappear
+	; when they go halfway off the top of the screen. To fix this, simply
+	; swap these two instructions around.
 	andi.w	#$7FF,d2
 	addi.w	#128+8,d2
+	; This line is completely redundant: an apparent leftover from one of the
+	; prototypes, back when the above 'andi' didn't exist. S3K gets rid of this.
 	bmi.s	BuildRings_2P_NextRing
-	cmpi.w	#240+128,d2
+	; [Bug] Fixing the above bug exposes another issue: this instruction and
+	; the above 'addi' should not have 128 added to their values. Instead,
+	; 128 should be added to the values assigned to 'd6' in 'BuildRings_P1'
+	; and 'BuildRings_P2'. The reason that this is a problem is because it
+	; extends the vertical range in which rings are not culled, creating a
+	; 128 line region above the top of the screen where the rings are
+	; off-screen, but not culled.
+	cmpi.w	#224+8*2+128,d2
+	; The above 'andi' means that this could just be a plain 'bhs'. S3K does this.
 	bge.s	BuildRings_2P_NextRing
 	add.w	d6,d2		; add base Y pos
 	lea	(MapUnc_Rings).l,a1
