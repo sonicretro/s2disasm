@@ -37116,6 +37116,9 @@ Tails_RollSpeed:
 	asl.w	#1,d6
 	move.w	(Tails_acceleration).w,d5
 	asr.w	#1,d5	; natural roll deceleration = 1/2 normal acceleration
+	; [Bug] This code is outdated, matching the behaviour of Sonic in
+	; Sonic 1 rather than in this game. To fix this, replace the
+	; following two instructions with a single 'move.w #$20,d4'.
 	move.w	(Tails_deceleration).w,d4
 	asr.w	#2,d4	; controlled roll deceleration...
 			; interestingly, Tails is much worse at this than Sonic when underwater
