@@ -15191,23 +15191,92 @@ SwScrl_WFZ:
 ; 	number of lines, index into TempArray_LayerDef
 ; byte_C8CA
 SwScrl_WFZ_Transition_Array:
-	dc.b $C0,  0,$C0,  0,$80,  0,$20,  8,$30, $C,$30,$10,$20,  8,$30, $C
-	dc.b $30,$10,$20,  8,$30, $C,$30,$10,$20,  8,$30, $C,$30,$10,$20,  8; 16
-	dc.b $30, $C,$30,$10,$20,  8,$30, $C,$30,$10,$20,  8,$30, $C,$30,$10; 32
-	dc.b $80,  4,$80,  4,$20,  8,$30, $C,$30,$10,$20,  8,$30, $C,$30,$10; 48
-	dc.b $20,  8,$30, $C,$30,$10,$C0,  0,$C0,  0,$80,  0; 64
+	dc.b $C0,  0
+	dc.b $C0,  0
+	dc.b $80,  0
+	dc.b $20,  8
+	dc.b $30, $C
+	dc.b $30,$10
+	dc.b $20,  8
+	dc.b $30, $C
+	dc.b $30,$10
+	dc.b $20,  8
+	dc.b $30, $C
+	dc.b $30,$10
+	dc.b $20,  8
+	dc.b $30, $C
+	dc.b $30,$10
+	dc.b $20,  8
+	dc.b $30, $C
+	dc.b $30,$10
+	dc.b $20,  8
+	dc.b $30, $C
+	dc.b $30,$10
+	dc.b $20,  8
+	dc.b $30, $C
+	dc.b $30,$10
+	dc.b $80,  4
+	dc.b $80,  4
+	dc.b $20,  8
+	dc.b $30, $C
+	dc.b $30,$10
+	dc.b $20,  8
+	dc.b $30, $C
+	dc.b $30,$10
+	dc.b $20,  8
+	dc.b $30, $C
+	dc.b $30,$10
+	dc.b $C0,  0
+	dc.b $C0,  0
+	dc.b $80,  0
 ;byte_C916
 SwScrl_WFZ_Normal_Array:
-	dc.b $C0,  0,$C0,  0,$80,  0,$20,  8,$30, $C,$30,$10,$20,  8,$30, $C
-	dc.b $30,$10,$20,  8,$30, $C,$30,$10,$20,  8,$30, $C,$30,$10,$20,  8; 16
-	dc.b $30, $C,$30,$10,$20,  8,$30, $C,$30,$10,$20,  8,$30, $C,$30,$10; 32
-	dc.b $20,  8,$30, $C,$30,$10,$20,  8,$30, $C,$30,$10,$20,  8,$30, $C; 48
-	dc.b $30,$10,$20,  8,$30, $C,$30,$10,$C0,  0,$C0,  0,$80,  0; 64
+	dc.b $C0,  0
+	dc.b $C0,  0
+	dc.b $80,  0
+	dc.b $20,  8
+	dc.b $30, $C
+	dc.b $30,$10
+	dc.b $20,  8
+	dc.b $30, $C
+	dc.b $30,$10
+	dc.b $20,  8
+	dc.b $30, $C
+	dc.b $30,$10
+	dc.b $20,  8
+	dc.b $30, $C
+	dc.b $30,$10
+	dc.b $20,  8
+	dc.b $30, $C
+	dc.b $30,$10
+	dc.b $20,  8
+	dc.b $30, $C
+	dc.b $30,$10
+	dc.b $20,  8
+	dc.b $30, $C
+	dc.b $30,$10
+	dc.b $20,  8
+	dc.b $30, $C
+	dc.b $30,$10
+	dc.b $20,  8
+	dc.b $30, $C
+	dc.b $30,$10
+	dc.b $20,  8
+	dc.b $30, $C
+	dc.b $30,$10
+	dc.b $20,  8
+	dc.b $30, $C
+	dc.b $30,$10
+	dc.b $C0,  0
+	dc.b $C0,  0
+	dc.b $80,  0
 ; This array is missing data for the last $80 lines compared to the transition array.
 ; This causes the lower clouds to read data from the start of SwScrl_HTZ.
 ; These are the missing entries:
     if fixBugs
-	dc.b $20,  8,$30, $C,$30,$10
+	dc.b $20,  8
+	dc.b $30, $C
+	dc.b $30,$10
     endif
 ; ===========================================================================
 ; loc_C964:
