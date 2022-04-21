@@ -9467,7 +9467,16 @@ loc_74EA:
 
 loc_7536:
 	move.b	d3,mainspr_childsprites(a0)
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*0,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo_DisplaySprite
+    endif
 ; ===========================================================================
 
 loc_753E:
@@ -9515,19 +9524,46 @@ loc_753E:
 	move.b	d1,sub3_mapframe-sub2_x_pos(a1)	; sub3_mapframe
 	move.w	#$88,sub4_x_pos-sub2_x_pos(a1)	; sub4_x_pos
 	move.b	d0,sub4_mapframe-sub2_x_pos(a1)	; sub4_mapframe
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*0,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo_DisplaySprite
+    endif
 ; ===========================================================================
 +
 	move.w	#$80,(a1)			; sub2_x_pos
 	move.b	d0,sub2_mapframe-sub2_x_pos(a1)	; sub2_mapframe
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*0,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo_DisplaySprite
+    endif
 ; ===========================================================================
 +
 	move.w	#$7C,(a1)			; sub2_x_pos
 	move.b	d1,sub2_mapframe-sub2_x_pos(a1)	; sub2_mapframe
 	move.w	#$84,sub3_x_pos-sub2_x_pos(a1)	; sub3_x_pos
 	move.b	d0,sub3_mapframe-sub2_x_pos(a1)	; sub3_mapframe
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*0,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo_DisplaySprite
+    endif
 ; ===========================================================================
 
 loc_75DE:
@@ -9572,7 +9608,16 @@ loc_75DE:
 	move.w	#$D8,(a1)	; sub?_x_pos
 +
 	move.b	d2,mainspr_childsprites(a0)
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*0,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo_DisplaySprite
+    endif
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -63783,7 +63828,11 @@ Obj57_Init:
 	move.l	#Obj57_MapUnc_316EC,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_MCZBoss,0,0),art_tile(a0)
 	ori.b	#4,render_flags(a0)
+    if ~~fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST as it is
+	; overwritten by 'sub3_y_pos';
 	move.b	#3,priority(a0)	; gets overwritten
+    endif
 	move.w	#$21A0,x_pos(a0)
 	move.w	#$560,y_pos(a0)
 	move.b	#5,mainspr_mapframe(a0)
@@ -63894,7 +63943,16 @@ Obj57_Main_Sub0_Standard:
 	lea	(Ani_obj57).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj57_TransferPositions
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*3,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo38_DisplaySprite
+    endif
 ; ===========================================================================
 ;loc_3116E:
 Obj57_Main_Sub2: ; boss moving down, stuff falling down
@@ -63912,7 +63970,16 @@ Obj57_Main_Sub2_Standard:
 	lea	(Ani_obj57).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj57_TransferPositions
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*3,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo38_DisplaySprite
+    endif
 ; ===========================================================================
 ;loc_311AA:
 Obj57_Main_Sub4: ; moving down, stop stuff falling down
@@ -63950,7 +64017,16 @@ Obj57_Main_Sub4_Standard:
 	lea	(Ani_obj57).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj57_TransferPositions
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*3,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo38_DisplaySprite
+    endif
 ; ===========================================================================
 ;loc_3124A:
 Obj57_Main_Sub6: ; digger transition (rotation), moving back and forth
@@ -64004,7 +64080,16 @@ Obj57_Main_Sub6_Standard:
 	lea	(Ani_obj57).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj57_TransferPositions
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*3,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo38_DisplaySprite
+    endif
 ; ===========================================================================
 ;loc_3130A:
 Obj57_TransferPositions:
@@ -64180,7 +64265,16 @@ Obj57_Main_Sub8_Standard:
 	move.w	(Boss_Y_pos).w,y_pos(a0)
 	move.w	(Boss_X_pos).w,x_pos(a0)
 	bsr.w	Obj57_TransferPositions
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*3,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo38_DisplaySprite
+    endif
 ; ===========================================================================
 ;loc_31526:
 Obj57_Main_SubA: ; slowly hovering down, no explosions
@@ -64232,7 +64326,16 @@ Obj57_Main_SubA_Standard:
 	move.w	(Boss_Y_pos).w,y_pos(a0)
 	move.w	(Boss_X_pos).w,x_pos(a0)
 	bsr.w	Obj57_TransferPositions
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*3,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo38_DisplaySprite
+    endif
 ; ===========================================================================
 ;loc_315A6:
 Obj57_Main_SubC: ; moving away fast
@@ -64255,7 +64358,16 @@ Obj57_Main_SubC_Standard:
 	lea	(Ani_obj57).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj57_TransferPositions
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*3,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo38_DisplaySprite
+    endif
 ; ===========================================================================
 
 JmpTo56_DeleteObject ; JmpTo
@@ -64378,7 +64490,11 @@ Obj51_Init:
 	move.l	#Obj51_MapUnc_320EA,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_CNZBoss_Fudge,0,0),art_tile(a0)
 	ori.b	#4,render_flags(a0)
+    if ~~fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST as it is
+	; overwritten by 'sub3_y_pos';
 	move.b	#3,priority(a0)
+    endif
 	move.w	#$2A46,x_pos(a0)
 	move.w	#$654,y_pos(a0)
 	move.b	#0,mainspr_mapframe(a0)
@@ -64594,11 +64710,21 @@ loc_31C08:
 	lea	(Ani_obj51).l,a1
 	bsr.w	AnimateBoss
 
-    if removeJmpTos
+    if removeJmpTos&&~~fixBugs
+	; This has to be moved so that it doesn't point to 'DisplaySprite3'.
 JmpTo39_DisplaySprite ; JmpTo
     endif
 
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*3,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo39_DisplaySprite
+    endif
 ; ===========================================================================
 
 loc_31C22:
@@ -64735,7 +64861,16 @@ loc_31DB8:
 	move.w	(Boss_Y_pos).w,y_pos(a0)
 	move.w	(Boss_X_pos).w,x_pos(a0)
 	bsr.w	loc_31E76
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*3,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo39_DisplaySprite
+    endif
 ; ===========================================================================
 
 loc_31DCC:
@@ -64777,7 +64912,16 @@ loc_31E0E:
 	move.w	(Boss_Y_pos).w,y_pos(a0)
 	move.w	(Boss_X_pos).w,x_pos(a0)
 	bsr.w	loc_31E76
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*3,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo39_DisplaySprite
+    endif
 ; ===========================================================================
 
 loc_31E2A:
@@ -64801,7 +64945,16 @@ loc_31E4A:
 	bsr.w	loc_31E76
 	lea	(Ani_obj51).l,a1
 	bsr.w	AnimateBoss
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*3,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo39_DisplaySprite
+    endif
 ; ===========================================================================
 
     if removeJmpTos
@@ -64916,6 +65069,12 @@ loc_31F96:
 	addq.b	#2,routine_secondary(a0)
 	move.w	#0,x_vel(a0)
 	move.w	#0,y_vel(a0)
+
+    if removeJmpTos&&fixBugs
+	; This has to be moved so that it doesn't point to 'DisplaySprite3'.
+JmpTo39_DisplaySprite ; JmpTo
+    endif
+
 	jmpto	(DisplaySprite).l, JmpTo39_DisplaySprite
 ; ===========================================================================
 
@@ -65080,7 +65239,11 @@ Obj54_Init:
 	move.l	#Obj54_MapUnc_32DC6,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_MTZBoss,0,0),art_tile(a0)
 	ori.b	#4,render_flags(a0)
+    if ~~fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST as it is
+	; overwritten by 'sub3_y_pos';
 	move.b	#3,priority(a0)
+    endif
 	move.w	#$2B50,x_pos(a0)
 	move.w	#$380,y_pos(a0)
 	move.b	#2,mainspr_mapframe(a0)
@@ -65174,7 +65337,16 @@ Obj54_MainSub0:
 	lea	(Ani_obj53).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj54_AlignSprites
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*3,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo40_DisplaySprite
+    endif
 ; ===========================================================================
 ;loc_3243C
 Obj54_Float:
@@ -65222,7 +65394,16 @@ Obj54_Display:
 	lea	(Ani_obj53).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj54_AlignSprites
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*3,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo40_DisplaySprite
+    endif
 ; ===========================================================================
 ;loc_324DC
 Obj54_MainSub4:
@@ -65529,7 +65710,16 @@ Obj54_MainSub10:
 	lea	(Ani_obj53).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj54_AlignSprites
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*3,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo40_DisplaySprite
+    endif
 ; ===========================================================================
 ;loc_32864
 Obj54_MainSub12:
@@ -65556,7 +65746,16 @@ Obj54_MainSub12:
 	lea	(Ani_obj53).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj54_AlignSprites
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*3,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo40_DisplaySprite
+    endif
 ; ===========================================================================
 
 JmpTo60_DeleteObject ; JmpTo
@@ -66093,7 +66292,11 @@ Obj55_Init:
 	move.l	#Obj55_MapUnc_33756,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_OOZBoss,0,0),art_tile(a0)
 	ori.b	#4,render_flags(a0)
+    if ~~fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST as it is
+	; overwritten by 'sub3_y_pos';
 	move.b	#3,priority(a0)
+    endif
 	bset	#6,render_flags(a0)	; object consists of multiple sprites
 	move.b	#0,mainspr_childsprites(a0)
 	addq.b	#2,boss_subtype(a0)	; => Obj55_Main
@@ -66220,7 +66423,16 @@ Obj55_Main_End:
 	lea	(Ani_obj55).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj55_AlignSprites
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*3,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo41_DisplaySprite
+    endif
 ; ===========================================================================
 ; loc_33174:
 Obj55_HandleHits:
@@ -66251,12 +66463,30 @@ Obj55_Main_Defeated:
 	cmpi.w	#$1E,(Boss_Countdown).w		; has boss waited for a certain ammount of time?
 	bhs.s	Obj55_Explode			; if not, branch
 	move.b	#$B,mainspr_mapframe(a0)	; use defeated animation
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*3,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo41_DisplaySprite
+    endif
 ; ===========================================================================
 ; loc_331C2:
 Obj55_Explode:
 	bsr.w	Boss_LoadExplosion
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*3,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo41_DisplaySprite
+    endif
 ; ===========================================================================
 ; loc_331CA:
 Obj55_Main_Defeated_Part2:
@@ -66283,7 +66513,16 @@ Obj55_ChkDelete:
 Obj55_Defeated_Sink:
 	addi_.w	#1,y_pos(a0)
 	bsr.s	Obj55_AlignSprites
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*3,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo41_DisplaySprite
+    endif
 ; ===========================================================================
     if removeJmpTos
 JmpTo62_DeleteObject ; JmpTo
@@ -66441,7 +66680,16 @@ Obj55_LaserShooter_Lower:
 Obj55_LaserShooter_End:
 	bsr.w	Obj55_LaserShooter_FacePlayer
 	bsr.w	Obj55_LaserShooter_Wind
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*3,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo41_DisplaySprite
+    endif
 ; ===========================================================================
 ; sets the laser shooter's y velocity so that it moves toward its target
 ; loc_333C6:
@@ -66562,7 +66810,16 @@ Obj55_SpikeChain_Main:
 ; loc_334E6:
 Obj55_SpikeChain_End:
 	bsr.w	Obj55_SpikeChain_SetAnimFrame
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*3,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo41_DisplaySprite
+    endif
 ; ===========================================================================
 ; loc_334EE:
 Obj55_SpikeChain_Move:
