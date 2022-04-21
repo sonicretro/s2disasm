@@ -1078,8 +1078,11 @@ VDP_Command_Buffer_Slot:	ds.l	1	; stores the address of the next open slot for a
 Sprite_Table_2:			ds.b	$280	; Sprite attribute table buffer for the bottom split screen in 2-player mode
 				ds.b	$80	; unused, but SAT buffer can spill over into this area when there are too many sprites on-screen
 
-Horiz_Scroll_Buf:		ds.b	$400
+Horiz_Scroll_Buf:		ds.l	224
+				ds.l	16 	; A bug/optimisation in 'Swscrl_CPZ' causes 'Horiz_Scroll_Buf' to overflow into this.
+				ds.b	$40	; unused
 Horiz_Scroll_Buf_End:
+
 Sonic_Stat_Record_Buf:		ds.b	$100
 Sonic_Pos_Record_Buf:		ds.b	$100
 Tails_Pos_Record_Buf:		ds.b	$100

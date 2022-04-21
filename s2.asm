@@ -16278,6 +16278,8 @@ SwScrl_CNZ2P_RowHeights:
 ; ===========================================================================
 ; loc_D27C:
 SwScrl_CPZ:
+	; Update scroll flags, to dynamically load more of the background as
+	; the player moves around.
 	move.w	(Camera_X_pos_diff).w,d4
 	ext.l	d4
 	asl.l	#5,d4
@@ -16285,19 +16287,26 @@ SwScrl_CPZ:
 	ext.l	d5
 	asl.l	#6,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
+
 	move.w	(Camera_X_pos_diff).w,d4
 	ext.l	d4
 	asl.l	#7,d4
 	moveq	#4,d6
 	bsr.w	SetHorizScrollFlagsBG2
+
 	move.w	(Camera_BG_Y_pos).w,d0
 	move.w	d0,(Camera_BG2_Y_pos).w
 	move.w	d0,(Vscroll_Factor_BG).w
+
 	move.b	(Scroll_flags_BG).w,d0
 	or.b	(Scroll_flags_BG2).w,d0
 	move.b	d0,(Scroll_flags_BG3).w
+
 	clr.b	(Scroll_flags_BG).w
 	clr.b	(Scroll_flags_BG2).w
+
+	; Every 8 frames, subtract 1 from 'TempArray_LayerDef'.
+	; This animates the 'special line block'.
 	move.b	(Vint_runcount+3).w,d1
 	andi.w	#7,d1
 	bne.s	+
@@ -16308,50 +16317,100 @@ SwScrl_CPZ:
 	move.w	d0,d2
 	andi.w	#$3F0,d0
 	lsr.w	#4,d0
-	lea	(a0,d0.w),a0
+	lea	(a0,d0.w),a0	; 'a0' goes completely unused after this...
 	move.w	d0,d4
+	; 'd4' now holds the index of the current line block.
+
 	lea	(Horiz_Scroll_Buf).w,a1
-	move.w	#$E,d1
+
+    if fixBugs
+	move.w	#224/16-1,d1
+    else
+	; The '+1' is so that, if one block is partially-offscreen at the
+	; top, then another will fill the gap at the bottom of the screen.
+	; This causes 'Horiz_Scroll_Buf' to overflow due to a lack of
+	; bounds-checking. This was likely a deliberate optimisation. Still,
+	; it's possible to avoid this without any performance penalty with a
+	; little extra code. See belo.w
+	move.w	#224/16+1-1,d1
+    endif
+
+	; Construct horizontal scroll value for this block.
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
+
+	; Get the offset into the starting block.
 	andi.w	#$F,d2
+
+    if fixBugs
+	; See above.
+
+	; Back this up, because we'll need it later.
+	move.w	d2,d5
+	; If this is 0, then we won't need to do an extra block, so skip
+	; ahead.
+	beq.s	.doLineBlocks
+	; Process the first set of line blocks.
+	bsr.s	.doLineBlocks
+
+	; Do one last line block.
+	moveq	#1-1,d1
+
+	; Invert 'd2' to get the number of lines in the first block that we
+	; skipped, so that we can do them now.
+	move.w	#$10,d2
+	sub.w	d5,d2
+
+	; Process the final line block.
+.doLineBlocks:
+    endif
+
+	; Behaviour depends on which line block we're processing.
 	move.w	(Camera_BG_X_pos).w,d0
-	cmpi.b	#$12,d4
-	beq.s	loc_D34A
+	cmpi.b	#18,d4
+	beq.s	.doPartialSpecialLineBlock
 	blo.s	+
 	move.w	(Camera_BG2_X_pos).w,d0
 +
 	neg.w	d0
+
 	add.w	d2,d2
-	jmp	++(pc,d2.w)
+	jmp	.doPartialLineBlock(pc,d2.w)
 ; ===========================================================================
 
--	move.w	(Camera_BG_X_pos).w,d0
-	cmpi.b	#$12,d4
-	beq.s	+++
+.doFullLineBlock:
+	; Behaviour depends on which line block we're processing.
+	move.w	(Camera_BG_X_pos).w,d0
+	cmpi.b	#18,d4
+	beq.s	.doFullSpecialLineBlock
 	blo.s	+
 	move.w	(Camera_BG2_X_pos).w,d0
 +
 	neg.w	d0
 
-+   rept 16
+.doPartialLineBlock:
+    rept 16
 	move.l	d0,(a1)+
     endm
-	addq.b	#1,d4
-	dbf	d1,-
+	addq.b	#1,d4	; Next line block.
+	dbf	d1,.doFullLineBlock
 	rts
 ; ===========================================================================
-
-loc_D34A:
-	move.w	#bytesToLcnt($40),d0
+; loc_D34A:
+.doPartialSpecialLineBlock:
+	; Invert the offset into the starting block to obtain the number of
+	; lines to output minus 1.
+	move.w	#$F,d0
 	sub.w	d2,d0
 	move.w	d0,d2
-	bra.s	++
+	bra.s	+
 ; ===========================================================================
+.doFullSpecialLineBlock:
+	; A block is 16 lines.
+	move.w	#16-1,d2
 +
-	move.w	#$F,d2
-+
+	; The special block row has a ripple effect applied to it.
 	move.w	(Camera_BG_X_pos).w,d3
 	neg.w	d3
 	move.w	(TempArray_LayerDef).w,d0
@@ -16359,14 +16418,15 @@ loc_D34A:
 	lea_	SwScrl_RippleData,a2
 	lea	(a2,d0.w),a2
 
--	move.b	(a2)+,d0
+.doLine:
+	move.b	(a2)+,d0
 	ext.w	d0
 	add.w	d3,d0
 	move.l	d0,(a1)+
-	dbf	d2,-
+	dbf	d2,.doLine
 
-	addq.b	#1,d4
-	dbf	d1,--
+	addq.b	#1,d4	; Next block.
+	dbf	d1,.doFullLineBlock
 	rts
 ; ===========================================================================
 ; loc_D382:
