@@ -27787,7 +27787,29 @@ RunObjectDisplayOnly:
 	; This check prevents objects that do exist, but haven't been initialised yet, from being displayed.
 	tst.b	render_flags(a0)	; was the object displayed on the previous frame?
 	bpl.s	+			; if not, skip it
+    if fixBugs
+	; If this is a multi-sprite object, then we cannot use its 'priority'
+	; value to display it as it's being used for coordinate data.
+	; In theory, this means that calls to 'DisplaySprite' here could
+	; overflow the 'Sprite_Table_Input' buffer and write to 'Object_RAM'
+	; instead, which could be quite disasterous. However, I don't think
+	; it's possible for an object to have a Y coordinate higher than
+	; $7FF, so, in practice, the overflow never occurs. Still, it can
+	; result in objects displaying on a random layer. The best we can do
+	; is force them to display on a certain layer consistently.
+	; This quirk becomes a much bigger problem if you extend the
+	; 'priority' value to 16-bit, such as if you've ported S3K's priority
+	; manager, rather than just the upper byte of the Y coordinate being
+	; read as priority data, the whole word is. This makes it much more
+	; likely to lead to buffer overflow and memory corruption.
+	pea	+(pc)	; This is an optimisation to avoid the need for extra branches: it makes it so '+' will be executed after 'DisplaySprite' or 'DisplaySprite3' return.
+	btst	#6,render_flags(a0)	; Is this a multi-sprite object?
+	beq.w	DisplaySprite		; If not, display using the object's 'priority' value.
+	move.w	#$80*4,d0		; If not, display using a hardcoded priority of 4.
+	bra.w	DisplaySprite3
+    else
 	bsr.w	DisplaySprite
+    endif
 +
 	lea	next_object(a0),a0 ; load 0bj address
 	dbf	d7,RunObjectDisplayOnly
