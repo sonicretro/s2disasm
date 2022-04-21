@@ -30244,8 +30244,13 @@ RingsManager_Setup:
 	; d0 = 0
 	lea	(Ring_consumption_table).w,a1
 
-	move.w	#bytesToLcnt(Ring_consumption_table_End-Ring_consumption_table-$40),d1	; coding error, that '-$40' shouldn't be there
--	move.l	d0,(a1)+	; only half of Ring_consumption_table is cleared
+    if fixBugs
+	move.w	#bytesToLcnt(Ring_consumption_table_End-Ring_consumption_table),d1
+    else
+	; Coding error, that '-$40' shouldn't be there: only half of 'Ring_consumption_table' is cleared.
+	move.w	#bytesToLcnt(Ring_consumption_table_End-Ring_consumption_table-$40),d1
+    endif
+-	move.l	d0,(a1)+
 	dbf	d1,-
 
 	moveq	#0,d5
