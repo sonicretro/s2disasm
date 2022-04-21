@@ -3881,8 +3881,16 @@ Sega_WaitPalette:
 	jsr	(BuildSprites).l
 	tst.b	(SegaScr_PalDone_Flag).w
 	beq.s	Sega_WaitPalette
+    if ~~fixBugs
+	; This is a leftover from Sonic 1: ObjB0 plays the Sega sound now.
+	; Normally, you'll only hear one Sega sound, but the actually tries
+	; to play it twice. The only reason it doesn't is because the sound
+	; queue only has room for one sound per frame. Some custom sound
+	; drivers don't have this limitation, however, and the sound will
+	; indeed play twice in those.
 	move.b	#SndID_SegaSound,d0
 	bsr.w	PlaySound	; play "SEGA" sound
+    endif
 	move.b	#VintID_SEGA,(Vint_routine).w
 	bsr.w	WaitForVint
 	move.w	#3*60,(Demo_Time_left).w	; 3 seconds
@@ -15392,6 +15400,7 @@ HTZ_Screen_Shake:
 
 	rts
 ; ===========================================================================
+; Unused background code for Hill Top Zone in two player mode!
 ; loc_CB10:
 SwScrl_HTZ_2P:
 	move.w	(Camera_X_pos_diff).w,d4
@@ -18083,7 +18092,7 @@ GetBlockAddr:
 	movem.l	d4-d5,-(sp)
 	move.w	d4,d3		; d3 = camera Y pos + offset
 	add.w	d3,d3
-	andi.w	#$F00,d3	; limit to units of $100 ($100 = $80 * 2, $80 = height of a 128x128)
+	andi.w	#$F00,d3	; limit to units of $100 ($100 = size of a row of FG and BG 128x128s in level layout table)
 	lsr.w	#3,d5		; divide by 8
 	move.w	d5,d0
 	lsr.w	#4,d0		; divide by 16 (overall division of 128)
@@ -18347,6 +18356,8 @@ CalcBlockVRAMPos2:
 	tst.w	(Two_player_mode).w
 	bne.s	CalcBlockVRAMPos_2P
 	add.w	4(a3),d4	; add Y pos
+
+CalcBlockVRAMPos_NoCamera:
 	andi.w	#$F0,d4		; round down to the nearest 16-pixel boundary
 	andi.w	#$1F0,d5	; round down to the nearest 16-pixel boundary
 	lsl.w	#4,d4		; make it into units of $100 - the height in plane A of a 16x16
@@ -18361,8 +18372,8 @@ CalcBlockVRAMPos2:
 ; loc_E2A8:
 CalcBlockVRAMPos_2P:
 	add.w	4(a3),d4
-
-loc_E2AC:
+; loc_E2AC:
+CalcBlockVRAMPos_2P_NoCamera:
 	andi.w	#$1F0,d4
 	andi.w	#$1F0,d5
 	lsl.w	#3,d4
@@ -18422,73 +18433,135 @@ DrawInitialBG:
 	lea	(Camera_BG_X_pos).w,a3
 	lea	(Level_Layout+$80).w,a4	; background
 	move.w	#vdpComm(VRAM_Plane_B_Name_Table,VRAM,WRITE)>>16,d2
+    if fixBugs
+	; The purpose of this function is to dynamically load a portion of
+	; the background, based on where the BG camera is pointing. This
+	; makes plenty of sense for levels that dynamically load their
+	; background to Plane B. However, not all levels do this: some are
+	; content with just loading their entire (small) background to
+	; Plane B and leaving it there, untouched.
+	; Unfortunately, that does not mesh well with this function: if the
+	; camera is too high or too low, then only part of the background
+	; will be properly loaded. This bug most visibly manifests itself in
+	; Casino Night Zone Act 1, where the background abruptly cuts off at
+	; the bottom.
+	; To work around this, an ugly hack was added, to cause the function
+	; to load a portion of the background 16 pixels lower than normal.
+	; However, this hack applies to both Act 1 AND Act 2, resulting in
+	; Act 2's background being cut off at the top.
+	; Sonic 3 & Knuckles fixed this problem for good by giving each zone
+	; its own background initialisation function (see 'LevelSetup' in the
+	; Sonic & Knuckles disassembly). This fix won't go quite that far,
+	; but it will give these 'static' backgrounds their own
+	; initialisation logic, much like two player Mystic Cave Zone does.
+	move.b	(Current_Zone).w,d0
+	cmpi.b	#emerald_hill_zone,d0
+	beq.w	DrawInitialBG_LoadWhole64x32Plane
+	cmpi.b	#casino_night_zone,d0
+	beq.w	DrawInitialBG_LoadWhole64x32Plane
+	cmpi.b	#hill_top_zone,d0
+	beq.w	DrawInitialBG_LoadWhole64x32Plane
+    else
+	; This is a nasty hack to work around the bug described above.
 	moveq	#0,d4
 	cmpi.b	#casino_night_zone,(Current_Zone).w
 	beq.w	++
+    endif
 	tst.w	(Two_player_mode).w
 	beq.w	+
 	cmpi.b	#mystic_cave_zone,(Current_Zone).w
-	beq.w	loc_E396
+	beq.w	DrawInitialBG_LoadWhole64x64Plane
 +
-	moveq	#-$10,d4
+	moveq	#-16,d4
 +
-	moveq	#$F,d6
+	moveq	#16-1,d6 ; Height of plane in blocks
 -	movem.l	d4-d6,-(sp)
 	moveq	#0,d5
 	move.w	d4,d1
 	bsr.w	CalcBlockVRAMPos
 	move.w	d1,d4
 	moveq	#0,d5
-	moveq	#$1F,d6
+	moveq	#32-1,d6 ; Width of plane in blocks
 	move	#$2700,sr
 	bsr.w	DrawBlockRow
 	move	#$2300,sr
 	movem.l	(sp)+,d4-d6
-	addi.w	#$10,d4
+	addi.w	#16,d4
 	dbf	d6,-
 
 	rts
 ; ===========================================================================
-; dead code
-	moveq	#-$10,d4
+	; Dead code for initialising the second player's portion of Plane B.
+	; I wonder why this is unused?
+	moveq	#-16,d4
 
-	moveq	#$F,d6
+	moveq	#16-1,d6 ; Height of plane in blocks
 -	movem.l	d4-d6,-(sp)
 	moveq	#0,d5
 	move.w	d4,d1
 	bsr.w	CalcBlockVRAMPosB
 	move.w	d1,d4
 	moveq	#0,d5
-	moveq	#$1F,d6
+	moveq	#32-1,d6 ; Width of plane in blocks
 	move	#$2700,sr
 	bsr.w	DrawBlockRow
 	move	#$2300,sr
 	movem.l	(sp)+,d4-d6
-	addi.w	#$10,d4
+	addi.w	#16,d4
 	dbf	d6,-
 
 	rts
 ; ===========================================================================
-
-loc_E396:
+; loc_E396:
+DrawInitialBG_LoadWhole64x64Plane:
+	; Mystic Cave Zone loads its entire background at once in two player
+	; mode, since the plane is big enough to fit it, unlike in one player
+	; mode (64x64 instead of 64x32).
 	moveq	#0,d4
 
-	moveq	#$1F,d6
+	moveq	#32-1,d6 ; Height of plane in blocks
 -	movem.l	d4-d6,-(sp)
 	moveq	#0,d5
 	move.w	d4,d1
-	bsr.w	loc_E2AC
+	bsr.w	CalcBlockVRAMPos_2P_NoCamera
 	move.w	d1,d4
 	moveq	#0,d5
-	moveq	#$1F,d6
+	moveq	#32-1,d6 ; Width of plane in blocks
 	move	#$2700,sr
 	bsr.w	DrawBlockRow3
 	move	#$2300,sr
 	movem.l	(sp)+,d4-d6
-	addi.w	#$10,d4
+	addi.w	#16,d4
 	dbf	d6,-
 
 	rts
+; ===========================================================================
+    if fixBugs
+DrawInitialBG_LoadWhole64x32Plane:
+	moveq	#0,d4
+
+	moveq	#16-1,d6 ; Height of plane in blocks
+-	movem.l	d4-d6,-(sp)
+	moveq	#0,d5
+	move.w	d4,d1
+	; This is just a fancy efficient way of doing 'if true then call this, else call that'.
+	pea	+(pc)
+	tst.w	(Two_player_mode).w
+	beq.w	CalcBlockVRAMPos_NoCamera
+	bra.w	CalcBlockVRAMPos_2P_NoCamera
++
+	move.w	d1,d4
+	moveq	#0,d5
+	moveq	#32-1,d6 ; Width of plane in blocks
+	move	#$2700,sr
+	bsr.w	DrawBlockRow3
+	move	#$2300,sr
+	movem.l	(sp)+,d4-d6
+	addi.w	#16,d4
+	dbf	d6,-
+
+	rts
+    endif
 ; ===========================================================================
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -86169,6 +86242,13 @@ Debug_Init:
 	clr.b	(Scroll_lock).w
 	move.b	#0,mapping_frame(a0)
 	move.b	#AniIDSonAni_Walk,anim(a0)
+    if fixBugs
+	; The 'in air' bit is left as whatever it was when Sonic entered
+	; Debug Mode. This affects the camera's vertical deadzone.
+	; Since 'Debug_ExitDebugMode' explicitly sets the 'in air' bit, it can
+	; be assumed that having it cleared here was intended.
+	bclr #1,(MainCharacter+status).w
+    endif
 	; S1 leftover
 	cmpi.b	#GameModeID_SpecialStage,(Game_Mode).w ; special stage mode? (you can't enter debug mode in S2's special stage)
 	bne.s	.islevel	; if not, branch
