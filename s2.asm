@@ -62800,6 +62800,17 @@ Obj89_Index:	offsetTable
 		offsetTableEntry.w Obj89_Init	; 0 - Init
 		offsetTableEntry.w Obj89_Main	; 2 - Main Vehicle
 		offsetTableEntry.w Obj89_Pillar	; 4 - Pillars & Arrows
+    if fixBugs
+		; These shouldn't be subtypes of the pillar object, as the
+		; 'obj89_pillar_parent' variable does not exist to them: they
+		; should be subtypes of the main boss object instead.
+		; This mistake causes 'obj89_pillar_parent' to be deferenced
+		; even when it is set to 0, or overwritten by
+		; 'obj89_arrow_routine', which can cause crashes or other
+		; eratic behaviour.
+		offsetTableEntry.w Obj89_Arrow			; 6 - arrow
+		offsetTableEntry.w Obj89_Pillar_BulgingEyes	; 8 - pillar normal (standing)
+    endif
 ; ===========================================================================
 ; loc_30494:
 Obj89_Init:
@@ -62830,7 +62841,11 @@ Obj89_Init_RaisePillars:
 	move.l	#Obj89_MapUnc_30E04,mappings(a0)
 	ori.b	#4,render_flags(a0)
 	move.b	#$20,mainspr_width(a0)
+    if ~~fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST as it is
+	; overwritten by 'sub3_y_pos';
 	move.b	#2,priority(a0)
+    endif
 	move.b	#2,boss_subtype(a0)	; => Obj89_Main
 	move.w	#$2AE0,x_pos(a0)
 	move.w	#$388,y_pos(a0)
@@ -62941,7 +62956,16 @@ Obj89_Main_Sub0:
 Obj89_Main_Sub0_Standard:
 	lea	(Ani_obj89_b).l,a1
 	bsr.w	AnimateBoss
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*2,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo37_DisplaySprite
+    endif
 ; ===========================================================================
 ; loc_3067A:
 Obj89_Main_Sub2:
@@ -62968,7 +62992,16 @@ Obj89_Main_Sub2_AtTarget:
 Obj89_Main_Sub2_Standard:
 	lea	(Ani_obj89_b).l,a1
 	bsr.w	AnimateBoss
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*2,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo37_DisplaySprite
+    endif
 ; ===========================================================================
 ; loc_306B8:
 Obj89_Main_Sub4:
@@ -62991,7 +63024,16 @@ Obj89_Main_Sub4:
 Obj89_Main_Sub4_Standard:
 	lea	(Ani_obj89_b).l,a1
 	bsr.w	AnimateBoss
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*2,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo37_DisplaySprite
+    endif
 ; ===========================================================================
 ; loc_30706:
 Obj89_Main_Sub6:
@@ -63020,7 +63062,16 @@ Obj89_Main_Sub6_Standard:
 	bsr.w	Obj89_Main_AlignParts
 	lea	(Ani_obj89_b).l,a1
 	bsr.w	AnimateBoss
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*2,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo37_DisplaySprite
+    endif
 ; ===========================================================================
 ; loc_3075C:
 Obj89_Main_HandleFace:
@@ -63160,7 +63211,16 @@ Obj89_Main_Sub8_Standard:
 	lea	(Ani_obj89_b).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj89_Main_AlignParts
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*2,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo37_DisplaySprite
+    endif
 ; ===========================================================================
 ; loc_308F4:
 Obj89_Main_SubA:
@@ -63205,7 +63265,16 @@ Obj89_Main_SubA_Standard:
 	lea	(Ani_obj89_b).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj89_Main_AlignParts
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*2,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo37_DisplaySprite
+    endif
 ; ===========================================================================
 ; loc_3095C:
 Obj89_Main_SubC:
@@ -63230,7 +63299,16 @@ Obj89_Main_SubC_Standard:
 	lea	(Ani_obj89_b).l,a1
 	bsr.w	AnimateBoss
 	bsr.w	Obj89_Main_AlignParts
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	move.w	#$80*2,d0
+	jmp	(DisplaySprite3).l
+    else
 	jmpto	(DisplaySprite).l, JmpTo37_DisplaySprite
+    endif
 ; ===========================================================================
 
 JmpTo54_DeleteObject ; JmpTo
@@ -63255,8 +63333,11 @@ Obj89_Pillar_Index:	offsetTable				; pillar/arrow object
 		offsetTableEntry.w Obj89_Pillar_Sub0		; 0 - raise pillars
 		offsetTableEntry.w Obj89_Pillar_Sub2		; 2 - pillars shaking(?)
 		offsetTableEntry.w Obj89_Pillar_Sub4		; 4 - move pillars down
+    if ~~fixBugs
+		; See the bugfix under 'Obj89_Index'.
 		offsetTableEntry.w Obj89_Arrow			; 6 - arrow
 		offsetTableEntry.w Obj89_Pillar_BulgingEyes	; 8 - pillar normal (standing)
+    endif
 ; ===========================================================================
 ; loc_309D2:
 Obj89_Pillar_Sub0:
@@ -63359,8 +63440,13 @@ Obj89_Pillar_Shoot:
 	jsrto	(SingleObjLoad).l, JmpTo14_SingleObjLoad
 	bne.w	return_30B40
 	_move.b	#ObjID_ARZBoss,id(a1) ; load obj89
+    if fixBugs
+	; See the bugfix under 'Obj89_Index'.
+	move.b	#8,boss_subtype(a1)	; => Obj89_Pillar_BulgingEyes
+    else
 	move.b	#4,boss_subtype(a1)
 	move.b	#8,routine_secondary(a1)	; => Obj89_Pillar_BulgingEyes
+    endif
 	move.l	#Obj89_MapUnc_30D68,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_ARZBoss,0,0),art_tile(a1)
 	ori.b	#4,render_flags(a1)
@@ -63382,8 +63468,13 @@ Obj89_Pillar_Shoot:
 	jsrto	(SingleObjLoad).l, JmpTo14_SingleObjLoad
 	bne.s	return_30B40
 	_move.b	#ObjID_ARZBoss,id(a1) ; load obj89
+    if fixBugs
+	; See the bugfix under 'Obj89_Index'.
+	move.b	#6,boss_subtype(a1)	; => Obj89_Arrow
+    else
 	move.b	#4,boss_subtype(a1)
 	move.b	#6,routine_secondary(a1)	; => Obj89_Arrow
+    endif
 	move.l	a2,obj89_arrow_parent2(a1)
 	move.b	d6,subtype(a1)
 	move.l	a3,obj89_arrow_parent(a1)
