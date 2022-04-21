@@ -51377,6 +51377,11 @@ loc_270DC:
 +
 	bclr	#p1_pushing_bit,status(a0)
 	bclr	#p2_pushing_bit,status(a0)
+    if fixBugs
+	; Clear the player's 'roll-jumping' flag, to unlock their controls
+	; and prevent them from getting stuck.
+	bclr	#4,status(a1)
+    endif
 	bclr	#5,status(a1)
 	move.w	#SndID_Spring,d0
 	jmp	(PlaySound).l
