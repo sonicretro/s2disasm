@@ -32868,7 +32868,7 @@ Obj0D_MapRUnc_196EE:	BINCLUDE "mappings/spriteDPLC/obj0D.bin"
 ; These check collision of Sonic/Tails with objects on the screen
 ;
 ; input variables:
-; d1 = object width
+; d1 = object width / 2
 ; d2 = object height / 2 (when jumping)
 ; d3 = object height / 2 (when walking)
 ; d4 = object x-axis position
@@ -32882,15 +32882,18 @@ Obj0D_MapRUnc_196EE:	BINCLUDE "mappings/spriteDPLC/obj0D.bin"
 
 ; loc_19718:
 SolidObject:
-	lea	(MainCharacter).w,a1 ; a1=character
+	; Collide player 1.
+	lea	(MainCharacter).w,a1
 	moveq	#p1_standing_bit,d6
-	movem.l	d1-d4,-(sp)	; store input registers
-	bsr.s	+	; first check collision with Sonic
-	movem.l	(sp)+,d1-d4	; restore input registers
-	lea	(Sidekick).w,a1 ; a1=character ; now check collision with Tails
+	movem.l	d1-d4,-(sp)	; Backup input registers.
+	bsr.s	+
+	movem.l	(sp)+,d1-d4	; Restore input registers.
+
+	; Collide player 2.
+	lea	(Sidekick).w,a1
 	tst.b	render_flags(a1)
-	bpl.w	return_19776	; return if no Tails
-	addq.b	#1,d6
+	bpl.w	return_19776	; Don't bother if Tails is not on-screen.
+	addq.b	#p2_standing_bit-p1_standing_bit,d6
 +
 	btst	d6,status(a0)
 	beq.w	SolidObject_OnScreenTest
@@ -33202,177 +33205,217 @@ DoubleSlopedSolid_cont:
 ; ===========================================================================
 ; loc_199E8: SolidObject_cont:
 SolidObject_OnScreenTest:
+	; If the object is not on-screen, then don't try to collide with it.
+	; This is presumably an optimisation, but this means that if Sonic
+	; outruns the screen then he can phase through solid objects.
 	tst.b	render_flags(a0)
 	bpl.w	SolidObject_TestClearPush
 ;loc_199F0:
 SolidObject_cont:
-	; We now perform the x portion of a bounding box check.  To do this, we assume a
-	; coordinate system where the x origin is at the object's left edge.
-	move.w	x_pos(a1),d0		; load Sonic's x position...
-	sub.w	x_pos(a0),d0		; ...and calculate his x position relative to the object
-	add.w	d1,d0			; assume object's left edge is at (0,0).  This is also Sonic's distance to the object's left edge.
-	bmi.w	SolidObject_TestClearPush	; branch if Sonic is outside the object's left edge
+	; We now perform the X portion of a bounding box check. To do this, we assume a
+	; coordinate system where the X origin is at the object's left edge.
+	move.w	x_pos(a1),d0			; load Sonic's X position...
+	sub.w	x_pos(a0),d0			; ...and calculate his x position relative to the object.
+	add.w	d1,d0				; Put object's left edge at (0,0).  This is also Sonic's distance to the object's left edge.
+	bmi.w	SolidObject_TestClearPush	; Branch if Sonic is outside the object's left edge.
 	move.w	d1,d3
-	add.w	d3,d3			; calculate object's width
+	add.w	d3,d3				; Calculate object's width.
 	cmp.w	d3,d0
-	bhi.w	SolidObject_TestClearPush	; branch if Sonic is outside the object's right edge
-	; We now perform the y portion of a bounding box check.  To do this, we assume a
+	bhi.w	SolidObject_TestClearPush	; Branch if Sonic is outside the object's right edge.
+	; We now perform the y portion of a bounding box check. To do this, we assume a
 	; coordinate system where the y origin is at the highest y position relative to the object
 	; at which Sonic would still collide with it.  This point is
 	;   y_pos(object) - width(object)/2 - y_radius(Sonic) - 4,
 	; where object is stored in (a0), Sonic in (a1), and height(object)/2 in d2.  This way
 	; of doing it causes the object's hitbox to be vertically off-center by -4 pixels.
-	move.b	y_radius(a1),d3		; load Sonic's y radius
+	move.b	y_radius(a1),d3			; load Sonic's Y radius.
 	ext.w	d3
-	add.w	d3,d2			; calculate maximum distance for a top collision
-	move.w	y_pos(a1),d3		; load Sonic's y position...
-	sub.w	y_pos(a0),d3		; ...and calculate his y position relative to the object
-	addq.w	#4,d3			; assume a slightly lower position for Sonic
-	add.w	d2,d3			; assume the highest position where Sonic would still be colliding with the object to be (0,0)
-	bmi.w	SolidObject_TestClearPush	; branch if Sonic is above this point
+	add.w	d3,d2				; Calculate maximum distance for a top collision.
+	move.w	y_pos(a1),d3			; load Sonic's y position...
+	sub.w	y_pos(a0),d3			; ...and calculate his y position relative to the object.
+	addq.w	#4,d3				; Assume a slightly lower position for Sonic.
+	add.w	d2,d3				; Make the highest position where Sonic would still be colliding with the object (0,0).
+	bmi.w	SolidObject_TestClearPush	; Branch if Sonic is above this point.
 	andi.w	#$7FF,d3
 	move.w	d2,d4
-	add.w	d4,d4			; calculate minimum distance for a bottom collision
+	add.w	d4,d4				; Calculate minimum distance for a bottom collision.
 	cmp.w	d4,d3
-	bhs.w	SolidObject_TestClearPush	; branch if Sonic is below this point
+	bhs.w	SolidObject_TestClearPush	; Branch if Sonic is below this point.
 ;loc_19A2E:
 SolidObject_ChkBounds:
 	tst.b	obj_control(a1)
-	bmi.w	SolidObject_TestClearPush	; branch if object collisions are disabled for Sonic
-	cmpi.b	#6,routine(a1)		; is Sonic dead?
-	bhs.w	loc_19AEA		; if yes, branch
+	bmi.w	SolidObject_TestClearPush	; Branch if object collisions are disabled for Sonic.
+	cmpi.b	#6,routine(a1)			; Is Sonic dead?
+	bhs.w	SolidObject_NoCollision		; If yes, branch.
 	tst.w	(Debug_placement_mode).w
-	bne.w	loc_19AEA		; branch if in debug mode
+	bne.w	SolidObject_NoCollision		; Branch if in Debug Mode.
 
 	move.w	d0,d5
 	cmp.w	d0,d1
-	bhs.s	+			; branch if Sonic is to the object's left
+	bhs.s	.isToTheLeft		; Branch if Sonic is to the object's left.
+
+;.isToTheRight:
 	add.w	d1,d1
 	sub.w	d1,d0
-	move.w	d0,d5			; calculate Sonic's distance to the object's right edge...
-	neg.w	d5			; ...and calculate the absolute value
-+
+	move.w	d0,d5			; Calculate Sonic's distance to the object's right edge...
+	neg.w	d5			; ...and calculate the absolute value.
+
+.isToTheLeft:
 	move.w	d3,d1
 	cmp.w	d3,d2
-	bhs.s	+
+	bhs.s	.isAbove
+
+;.isBelow:
 	subq.w	#4,d3
 	sub.w	d4,d3
 	move.w	d3,d1
 	neg.w	d1
-+
+
+.isAbove:
+	; Now...
+	; 'd0' contains Sonic's distance to the nearest object horizontal edge.
+	; 'd5' contains the absolute version of 'd0'.
+	; 'd3' contains Sonic's distance to the nearest object vertical edge.
+	; 'd1' contains the absolute version of 'd3'.
 	cmp.w	d1,d5
-	bhi.w	loc_19AEE		; branch, if horizontal distance is greater than vertical distance
-
-loc_19A6A:
+	bhi.w	SolidObject_TopBottom		; Branch, if horizontal distance is greater than vertical distance.
+; loc_19A6A:
+SolidObject_LeftRight:
+	; If Sonic is extremely close to the top or bottom, then branch.
+	; I guess the point of this is to let Sonic walk over objects that
+	; are barely poking out of the ground?
 	cmpi.w	#4,d1
-	bls.s	loc_19AB6
-	tst.w	d0
-	beq.s	loc_19A90
-	bmi.s	loc_19A7E
-	tst.w	x_vel(a1)
-	bmi.s	loc_19A90
-	bra.s	loc_19A84
+	bls.s	SolidObject_SideAir
+
+	tst.w	d0			; Where is Sonic?
+	beq.s	SolidObject_AtEdge	; If at the object's edge, branch
+	bmi.s	SolidObject_InsideRight	; If in the right side of the object, branch
+
+;SolidObject_InsideLeft:
+	tst.w	x_vel(a1)		; Is Sonic moving left?
+	bmi.s	SolidObject_AtEdge	; If yes, branch
+	bra.s	SolidObject_StopCharacter
 ; ===========================================================================
-
-loc_19A7E:
-	tst.w	x_vel(a1)
-	bpl.s	loc_19A90
-
-loc_19A84:
+; loc_19A7E:
+SolidObject_InsideRight:
+	tst.w	x_vel(a1)		; is Sonic moving right?
+	bpl.s	SolidObject_AtEdge	; if yes, branch
+; loc_19A84:
+SolidObject_StopCharacter:
 	move.w	#0,inertia(a1)
-	move.w	#0,x_vel(a1)
-
-loc_19A90:
-	sub.w	d0,x_pos(a1)
-	btst	#1,status(a1)
-	bne.s	loc_19AB6
+	move.w	#0,x_vel(a1)		; stop Sonic moving
+; loc_19A90:
+SolidObject_AtEdge:
+	sub.w	d0,x_pos(a1)		; correct Sonic's position
+	btst	#1,status(a1)		; is Sonic in the air?
+	bne.s	SolidObject_SideAir	; if yes, branch
 	move.l	d6,d4
 	addq.b	#pushing_bit_delta,d4	; Character is pushing, not standing
-	bset	d4,status(a0)
-	bset	#5,status(a1)
+	bset	d4,status(a0)		; make object be pushed
+	bset	#5,status(a1)		; make Sonic push object
 	move.w	d6,d4
 	addi.b	#($10-p1_standing_bit+p1_touch_side_bit),d4
 	bset	d4,d6	; This sets bits 0 (Sonic) or 1 (Tails) of high word of d6
-	moveq	#1,d4
+	moveq	#1,d4	; return side collision
 	rts
 ; ===========================================================================
-
-loc_19AB6:
-	bsr.s	loc_19ADC
+; loc_19AB6:
+SolidObject_SideAir:
+	bsr.s	Solid_NotPushing
 	move.w	d6,d4
 	addi.b	#($10-p1_standing_bit+p1_touch_side_bit),d4
 	bset	d4,d6	; This sets bits 0 (Sonic) or 1 (Tails) of high word of d6
-	moveq	#1,d4
+	moveq	#1,d4	; return side collision
 	rts
 ; ===========================================================================
 ;loc_19AC4:
 SolidObject_TestClearPush:
 	move.l	d6,d4
 	addq.b	#pushing_bit_delta,d4
-	btst	d4,status(a0)
-	beq.s	loc_19AEA
+	btst	d4,status(a0)		; is Sonic pushing?
+	beq.s	SolidObject_NoCollision	; if not, branch
 	cmpi.b	#AniIDSonAni_Roll,anim(a1)
-	beq.s	loc_19ADC
+	beq.s	Solid_NotPushing
     if fixBugs
 	; Prevent Sonic or Tails from entering their running animation when
 	; stood next to solid objects while charging a Spin Dash, dying, or
 	; drowning. One way to see this bug is by charging a Spin Dash while
 	; next to one of Mystic Cave Zone's crushing pillars.
 	cmpi.b	#AniIDSonAni_Spindash,anim(a1)
-	beq.s	loc_19ADC
+	beq.s	Solid_NotPushing
 	cmpi.b	#AniIDSonAni_Death,anim(a1)
-	beq.s	loc_19ADC
+	beq.s	Solid_NotPushing
 	cmpi.b	#AniIDSonAni_Drown,anim(a1)
-	beq.s	loc_19ADC
+	beq.s	Solid_NotPushing
     endif
-	move.w	#AniIDSonAni_Run,anim(a1)
-
-loc_19ADC:
+	move.w	#AniIDSonAni_Run,anim(a1) ; use running animation
+; loc_19ADC:
+Solid_NotPushing:
 	move.l	d6,d4
 	addq.b	#pushing_bit_delta,d4
-	bclr	d4,status(a0)
-	bclr	#5,status(a1)
-
-loc_19AEA:
-	moveq	#0,d4
+	bclr	d4,status(a0)	; clear pushing flag
+	bclr	#5,status(a1)	; clear Sonic's pushing flag
+; loc_19AEA:
+SolidObject_NoCollision:
+	moveq	#0,d4	; return no collision
 	rts
 ; ===========================================================================
+; loc_19AEE:
+SolidObject_TopBottom:
+	tst.w	d3				; is Sonic below the object?
+	bmi.s	SolidObject_InsideBottom	; if yes, branch
 
-loc_19AEE:
-	tst.w	d3
-	bmi.s	loc_19B06
-	cmpi.w	#$10,d3
-	blo.s	loc_19B56
+;SolidObject_InsideTop:
+	cmpi.w	#$10,d3				; has Sonic landed on the object?
+	blo.s	SolidObject_Landed		; if yes, branch
 	cmpi.b	#ObjID_LauncherSpring,id(a0)
 	bne.s	SolidObject_TestClearPush
-	cmpi.w	#$14,d3
-	blo.s	loc_19B56
+	cmpi.w	#$14,d3				; has Sonic landed on the object?
+	blo.s	SolidObject_Landed		; if yes, branch
 	bra.s	SolidObject_TestClearPush
 ; ===========================================================================
-
-loc_19B06:
-	tst.w	y_vel(a1)
-	beq.s	loc_19B28
-	bpl.s	loc_19B1C
-	tst.w	d3
-	bpl.s	loc_19B1C
-	sub.w	d3,y_pos(a1)
-	move.w	#0,y_vel(a1)
+; loc_19B06:
+SolidObject_InsideBottom:
+	tst.w	y_vel(a1)		; is Sonic moving vertically?
+	beq.s	SolidObject_Squash	; if not, branch
+	bpl.s	loc_19B1C		; if moving downwards, branch
+	tst.w	d3			; is Sonic above the object?
+	bpl.s	loc_19B1C		; if yes, branch (this will never be true)
+    if ~~fixBugs
+	; This is in the wrong place: Sonic will not be pushed out of objects
+	; from above if he's not moving upwards against it!
+	; This is much more noticable when playing as Knuckles, as he'll be
+	; able to phase through objects when climbing up walls.
+	; 'Knuckles in Sonic 2' and 'Sonic 3 & Knuckles' tried to fix this,
+	; but didn't do it very well.
+	sub.w	d3,y_pos(a1)		; Push Sonic out of the object.
+    endif
+	move.w	#0,y_vel(a1)		; Stop Sonic from moving.
 
 loc_19B1C:
+    if fixBugs
+	; See above.
+	sub.w	d3,y_pos(a1)		; Push Sonic out of the object.
+    endif
 	move.w	d6,d4
 	addi.b	#($10-p1_standing_bit+p1_touch_bottom_bit),d4
 	bset	d4,d6	; This sets bits 2 (Sonic) or 3 (Tails) of high word of d6
-	moveq	#-2,d4
+	moveq	#-2,d4			; Return bottom collision.
 	rts
 ; ===========================================================================
-
-loc_19B28:
-	btst	#1,status(a1)
-	bne.s	loc_19B1C
+; loc_19B28:
+SolidObject_Squash:
+	btst	#1,status(a1)	; is Sonic in the air?
+	bne.s	loc_19B1C	; if yes, branch
 	mvabs.w	d0,d4
+
+	; Hey, look: it's the two lines of code that the Taxman/Stealth
+	; remasters forgot to copy.
+	; If Sonic is near the left or right edge of the object, then don't
+	; kill him, instead just push him away horizontally.
 	cmpi.w	#$10,d4
-	blo.w	loc_19A6A
+	blo.w	SolidObject_LeftRight
+
 	move.l	a0,-(sp)
 	movea.l	a1,a0
 	jsr	(KillCharacter).l
@@ -33380,11 +33423,11 @@ loc_19B28:
 	move.w	d6,d4
 	addi.b	#($10-p1_standing_bit+p1_touch_bottom_bit),d4
 	bset	d4,d6	; This sets bits 2 (Sonic) or 3 (Tails) of high word of d6
-	moveq	#-2,d4
+	moveq	#-2,d4			; Return bottom collision.
 	rts
 ; ===========================================================================
-
-loc_19B56:
+; loc_19B56:
+SolidObject_Landed:
 	subq.w	#4,d3
 	moveq	#0,d1
 	move.b	width_pixels(a0),d1
@@ -33392,23 +33435,23 @@ loc_19B56:
 	add.w	d2,d2
 	add.w	x_pos(a1),d1
 	sub.w	x_pos(a0),d1
-	bmi.s	loc_19B8E
-	cmp.w	d2,d1
-	bhs.s	loc_19B8E
-	tst.w	y_vel(a1)
-	bmi.s	loc_19B8E
-	sub.w	d3,y_pos(a1)
+	bmi.s	SolidObject_Miss	; if Sonic is right of object, branch
+	cmp.w	d2,d1			; is Sonic left of object?
+	bhs.s	SolidObject_Miss	; if yes, branch
+	tst.w	y_vel(a1)		; is Sonic moving upwards?
+	bmi.s	SolidObject_Miss	; if yes, branch
+	sub.w	d3,y_pos(a1)		; correct Sonic's position
 	subq.w	#1,y_pos(a1)
 	bsr.w	RideObject_SetRide
 	move.w	d6,d4
 	addi.b	#($10-p1_standing_bit+p1_touch_top_bit),d4
 	bset	d4,d6	; This sets bits 4 (Sonic) or 5 (Tails) of high word of d6
-	moveq	#-1,d4
+	moveq	#-1,d4			; return top collision
 	rts
 ; ===========================================================================
-
-loc_19B8E:
-	moveq	#0,d4
+; loc_19B8E:
+SolidObject_Miss:
+	moveq	#0,d4	; return no collision
 	rts
 ; ===========================================================================
 
