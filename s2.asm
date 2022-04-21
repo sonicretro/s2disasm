@@ -9057,11 +9057,23 @@ SSSingleObjLoad2:
 ; Sprite_6FC0:
 Obj5E:
 	move.b	routine(a0),d0
+    if fixBugs
+	; See below.
+	beq.s	+
+	move.w	#$80*0,d0
+	jmp	(DisplaySprite3).l
++
+    else
 	bne.w	JmpTo_DisplaySprite
+    endif
 	move.l	#Obj5E_MapUnc_7070,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_SpecialHUD,0,0),art_tile(a0)
 	move.b	#4,render_flags(a0)
+    if ~~fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST as it is
+	; overwritten by 'sub3_y_pos'.
 	move.b	#0,priority(a0)
+    endif
 	move.b	#1,routine(a0)
 	bset	#6,render_flags(a0)
 	moveq	#0,d1
@@ -62888,7 +62900,7 @@ Obj89_Init_RaisePillars:
 	move.b	#$20,mainspr_width(a0)
     if ~~fixBugs
 	; Multi-sprite objects cannot use the 'priority' SST as it is
-	; overwritten by 'sub3_y_pos';
+	; overwritten by 'sub3_y_pos'.
 	move.b	#2,priority(a0)
     endif
 	move.b	#2,boss_subtype(a0)	; => Obj89_Main
@@ -63830,7 +63842,7 @@ Obj57_Init:
 	ori.b	#4,render_flags(a0)
     if ~~fixBugs
 	; Multi-sprite objects cannot use the 'priority' SST as it is
-	; overwritten by 'sub3_y_pos';
+	; overwritten by 'sub3_y_pos'.
 	move.b	#3,priority(a0)	; gets overwritten
     endif
 	move.w	#$21A0,x_pos(a0)
@@ -64492,7 +64504,7 @@ Obj51_Init:
 	ori.b	#4,render_flags(a0)
     if ~~fixBugs
 	; Multi-sprite objects cannot use the 'priority' SST as it is
-	; overwritten by 'sub3_y_pos';
+	; overwritten by 'sub3_y_pos'.
 	move.b	#3,priority(a0)
     endif
 	move.w	#$2A46,x_pos(a0)
@@ -65241,7 +65253,7 @@ Obj54_Init:
 	ori.b	#4,render_flags(a0)
     if ~~fixBugs
 	; Multi-sprite objects cannot use the 'priority' SST as it is
-	; overwritten by 'sub3_y_pos';
+	; overwritten by 'sub3_y_pos'.
 	move.b	#3,priority(a0)
     endif
 	move.w	#$2B50,x_pos(a0)
@@ -66294,7 +66306,7 @@ Obj55_Init:
 	ori.b	#4,render_flags(a0)
     if ~~fixBugs
 	; Multi-sprite objects cannot use the 'priority' SST as it is
-	; overwritten by 'sub3_y_pos';
+	; overwritten by 'sub3_y_pos'.
 	move.b	#3,priority(a0)
     endif
 	bset	#6,render_flags(a0)	; object consists of multiple sprites
@@ -69134,7 +69146,11 @@ Obj5A_CreateRingsToGoText:
 	move.w	#make_art_tile(ArtTile_ArtNem_SpecialHUD,2,0),art_tile(a1)
 	move.b	#ObjID_SSMessage,id(a1) ; load obj5A
 	move.b	#4,render_flags(a1)
+    if ~~fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST as it is
+	; overwritten by 'sub3_y_pos'.
 	move.b	#1,priority(a1)
+    endif
 	bset	#6,render_flags(a1)
 	move.b	#0,mainspr_childsprites(a1)
 	move.b	#$E,routine(a1)	; => Obj5A_RingsNeeded
@@ -69198,7 +69214,13 @@ Init_Obj5A:
 	move.l	#Obj5A_MapUnc_35E1E,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_SpecialMessages,2,0),art_tile(a1)
 	move.b	#4,render_flags(a1)
+    if ~~fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST as it is
+	; overwritten by 'sub3_y_pos'. This object doesn't use the
+	; multi-sprite system, but it does share display code with one, so
+	; this might as well be removed since it won't be used.
 	move.b	#1,priority(a1)
+    endif
 	rts
 ; ===========================================================================
 ;loc_35706
@@ -69292,7 +69314,17 @@ Obj5A_FlashMessage:
 	move.b	(Vint_runcount+3).w,d0
 	andi.b	#7,d0
 	cmpi.b	#6,d0
+    if fixBugs
+	; Multi-sprite objects cannot use the 'priority' SST value, so they
+	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
+	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
+	; to display on the wrong layer.
+	bhs.s	+
+	move.w	#$80*1,d0
+	jmp	(DisplaySprite3).l
+    else
 	blo.w	JmpTo44_DisplaySprite
+    endif
 +
 	rts
 ; ===========================================================================
