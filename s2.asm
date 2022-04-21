@@ -28530,15 +28530,20 @@ BuildSprites_LevelLoop:
 BuildSprites_ObjLoop:
 	movea.w	(a4,d6.w),a0 ; a0=object
 
+	; These is a sanity check, to detect invalid objects which should not
+	; have been queued for display. S3K gets rids of this, since it
+	; should not be needed and it just slows this code down.
+	; These are sanity checks, to detect invalid objects which should not
+	; have been queued for display. S3K gets rids of them compeletely,
+	; since they should not be needed and they just slow this code down.
+	; In REV00, it appears that these checks were used for debugging, as
+	; they deliberately crash the console if they detect an invalid object.
     if gameRevision=0
-	; the additional check prevents a crash triggered by placing an object in debug mode while dead
-	; unfortunately, the code it branches *to* causes a crash of its own
 	tst.b	id(a0)			; is this object slot occupied?
-	beq.w	BuildSprites_Unknown	; if not, branch
+	beq.w	BuildSprites_Crash	; if not, branch
 	tst.l	mappings(a0)		; does this object have any mappings?
-	beq.w	BuildSprites_Unknown	; if not, branch
+	beq.w	BuildSprites_Crash	; if not, branch
     else
-	; REV01 uses a better branch, but removed the useful check
 	tst.b	id(a0)			; is this object slot occupied?
 	beq.w	BuildSprites_NextObj	; if not, check next one
     endif
@@ -28621,6 +28626,12 @@ BuildSprites_NextLevel:
 	lea	$80(a4),a4	; load next priority level
 	dbf	d7,BuildSprites_LevelLoop	; loop
 	move.b	d5,(Sprite_count).w
+	; Terminate the sprite list.
+	; If the sprite list is full, then set the link field of the last
+	; entry to 0. Otherwise, push the next sprite offscreen and set its
+	; link field to 0. You might be thinking why this doesn't just do the
+	; first one no matter what. Well, think about what if the sprite list
+	; was empty: then it would access data before the start of the list.
 	cmpi.b	#80,d5	; was the sprite limit reached?
 	beq.s	+	; if it was, branch
 	move.l	#0,(a2)	; set link field to 0
@@ -28630,12 +28641,14 @@ BuildSprites_NextLevel:
 	rts
 ; ===========================================================================
     if gameRevision=0
-BuildSprites_Unknown:
-	; In the Simon Wai prototype, this was a simple BranchTo, but later builds have this mystery line.
-	; This may have possibly been a debugging function, for helping the devs detect when an object
-	; tried to display with a blank ID or mappings pointer.
-	; The latter was actually an issue that plagued Sonic 1, but is (almost) completely absent in this game.
-	move.w	(1).w,d0	; causes a crash on hardware because of the word operation at an odd address
+; BuildSprites_Unknown:
+BuildSprites_Crash:
+	; In the Simon Wai prototype, this line wasn't here.
+	; This may have possibly been a debugging feature, for helping the
+	; devs detect when an object tried to display with a blank ID or
+	; mappings pointer. The latter was actually an issue that plagued
+	; Sonic 1, but is (almost) completely absent in this game.
+	move.w	(1).w,d0	; causes a crash because of the word operation at an odd address
 	bra.s	BuildSprites_NextObj
     endif
 ; loc_1671C:
@@ -28737,12 +28750,16 @@ BuildSprites_MultiDraw_NextObj:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+    if ~~fixBugs
+	; This check has been moved, so it is redundant.
+	; See the bugfix under 'DrawSprite_Loop'.
 ; sub_1680A:
 ChkDrawSprite:
 	cmpi.b	#80,d5		; has the sprite limit been reached?
 	blo.s	DrawSprite_Cont	; if it hasn't, branch
 	rts	; otherwise, return
 ; End of function ChkDrawSprite
+    endif
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -28750,16 +28767,41 @@ ChkDrawSprite:
 ; sub_16812:
 DrawSprite:
 	movea.w	art_tile(a0),a3
+    if ~~fixBugs
+	; This check has been moved, so it is redundant.
+	; See the bugfix under 'DrawSprite_Loop'.
 	cmpi.b	#80,d5
 	bhs.s	DrawSprite_Done
+    endif
+
+    if fixBugs
+; sub_1680A:
+ChkDrawSprite:
+    else
 ; loc_1681C:
 DrawSprite_Cont:
+    endif
 	btst	#0,d4	; is the sprite to be X-flipped?
 	bne.s	DrawSprite_FlipX	; if it is, branch
 	btst	#1,d4	; is the sprite to be Y-flipped?
 	bne.w	DrawSprite_FlipY	; if it is, branch
 ; loc__1682A:
 DrawSprite_Loop:
+    if fixBugs
+	; In a rather overzealous optimisation, this game doesn't check if
+	; the sprite limit has been reached every time it processes a sprite
+	; piece. Naturally, this leads to the 'Sprite_Table' buffer being
+	; overflowed if too many sprites are processed. To mitigate this, the
+	; developers placed an $80 byte large spill buffer after
+	; 'Sprite_Table', to 'catch' the overflow. Unfortunately, this spill
+	; buffer is not big enough to catch all overflow: this oversight is
+	; responsible for the famous 'Ashua' bug. To fix this, we'll just
+	; undo this optimistaion. Sonic 3 & Knuckles undid this optimistaion
+	; too, but heavily optimised the rest of 'BuildSprites' to make up
+	; for it.
+	cmpi.b	#80,d5		; has the sprite limit been reached?
+	bhs.s	DrawSprite_Done	; if it has, branch
+    endif
 	move.b	(a1)+,d0
 	ext.w	d0
 	add.w	d2,d0
@@ -28788,7 +28830,13 @@ DrawSprite_FlipX:
 	btst	#1,d4	; is it to be Y-flipped as well?
 	bne.w	DrawSprite_FlipXY	; if it is, branch
 
--	move.b	(a1)+,d0
+-
+    if fixBugs
+	; See the bugfix under 'DrawSprite_Loop'.
+	cmpi.b	#80,d5		; has the sprite limit been reached?
+	bhs.s	++		; if it has, branch
+    endif
+	move.b	(a1)+,d0
 	ext.w	d0
 	add.w	d2,d0
 	move.w	d0,(a2)+
@@ -28812,7 +28860,7 @@ DrawSprite_FlipX:
 +
 	move.w	d0,(a2)+
 	dbf	d1,-
-
++
 	rts
 ; ===========================================================================
 ; offsets for horizontally mirrored sprite pieces
@@ -28830,6 +28878,12 @@ CellOffsets_YFlip:
 ; ===========================================================================
 ; loc_168B4:
 DrawSprite_FlipY:
+-
+    if fixBugs
+	; See the bugfix under 'DrawSprite_Loop'.
+	cmpi.b	#80,d5		; has the sprite limit been reached?
+	bhs.s	++		; if it has, branch
+    endif
 	move.b	(a1)+,d0
 	move.b	(a1),d4
 	ext.w	d0
@@ -28853,7 +28907,8 @@ DrawSprite_FlipY:
 	addq.w	#1,d0
 +
 	move.w	d0,(a2)+	; set X pos
-	dbf	d1,DrawSprite_FlipY
+	dbf	d1,-
++
 	rts
 ; ===========================================================================
 ; offsets for vertically mirrored sprite pieces
@@ -28865,6 +28920,12 @@ CellOffsets_YFlip2:
 ; ===========================================================================
 ; loc_168FC:
 DrawSprite_FlipXY:
+-
+    if fixBugs
+	; See the bugfix under 'DrawSprite_Loop'.
+	cmpi.b	#80,d5		; has the sprite limit been reached?
+	bhs.s	++		; if it has, branch
+    endif
 	move.b	(a1)+,d0
 	move.b	(a1),d4
 	ext.w	d0
@@ -28892,7 +28953,8 @@ DrawSprite_FlipXY:
 	addq.w	#1,d0
 +
 	move.w	d0,(a2)+
-	dbf	d1,DrawSprite_FlipXY
+	dbf	d1,-
++
 	rts
 ; End of function DrawSprite
 
@@ -28937,8 +28999,13 @@ BuildSprites_P1_LevelLoop:
 ; loc_1698C:
 BuildSprites_P1_ObjLoop:
 	movea.w	(a4,d6.w),a0 ; a0=object
+
+	; These is a sanity check, to detect invalid objects which should not
+	; have been queued for display. S3K gets rids of this, since it
+	; should not be needed and it just slows this code down.
 	tst.b	id(a0)
 	beq.w	BuildSprites_P1_NextObj
+
 	andi.b	#$7F,render_flags(a0)
 	move.b	render_flags(a0),d0
 	move.b	d0,d4
@@ -29019,6 +29086,12 @@ BuildSprites_P1_NextLevel:
 	lea	$80(a4),a4
 	dbf	d7,BuildSprites_P1_LevelLoop
 	move.b	d5,(Sprite_count).w
+	; Terminate the sprite list.
+	; If the sprite list is full, then set the link field of the last
+	; entry to 0. Otherwise, push the next sprite offscreen and set its
+	; link field to 0. You might be thinking why this doesn't just do the
+	; first one no matter what. Well, think about what if the sprite list
+	; was empty: then it would access data before the start of the list.
 	cmpi.b	#80,d5
 	bhs.s	+
 	move.l	#0,(a2)
@@ -29051,8 +29124,13 @@ BuildSprites_P2_LevelLoop:
 ; loc_16AA6:
 BuildSprites_P2_ObjLoop:
 	movea.w	(a4,d6.w),a0 ; a0=object
+
+	; These is a sanity check, to detect invalid objects which should not
+	; have been queued for display. S3K gets rids of this, since it
+	; should not be needed and it just slows this code down.
 	tst.b	id(a0)
 	beq.w	BuildSprites_P2_NextObj
+
 	move.b	render_flags(a0),d0
 	move.b	d0,d4
 	btst	#6,d0
@@ -29135,6 +29213,12 @@ BuildSprites_P2_NextLevel:
 	lea	$80(a4),a4
 	dbf	d7,BuildSprites_P2_LevelLoop
 	move.b	d5,(Sprite_count).w
+	; Terminate the sprite list.
+	; If the sprite list is full, then set the link field of the last
+	; entry to 0. Otherwise, push the next sprite offscreen and set its
+	; link field to 0. You might be thinking why this doesn't just do the
+	; first one no matter what. Well, think about what if the sprite list
+	; was empty: then it would access data before the start of the list.
 	cmpi.b	#80,d5
 	beq.s	+
 	move.l	#0,(a2)
@@ -29361,13 +29445,21 @@ Adjust2PArtPointer2:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+    if ~~fixBugs
+	; This check has been moved, so it is redundant.
+	; See the bugfix under 'DrawSprite_Loop'.
 ; sub_16DA6:
 ChkDrawSprite_2P:
+	; This branch skips the X-flip and Y-flip checks, causing
+	; multi-sprite objects to not properly mirror in two player mode.
+	; An easy place to see this is Mystic Case Zone: the Crawltons
+	; badnik's body segments will always face in one direction, and only
+	; the head will be properly flipped.
 	cmpi.b	#80,d5
-	blo.s	DrawSprite_2P_Cont
+	blo.s	DrawSprite_2P_Loop
 	rts
 ; End of function ChkDrawSprite_2P
-
+    endif
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -29376,25 +29468,27 @@ ChkDrawSprite_2P:
 ; sub_16DAE:
 DrawSprite_2P:
 	movea.w	art_tile(a0),a3
+    if ~~fixBugs
+	; This check has been moved, so it is redundant.
+	; See the bugfix under 'DrawSprite_Loop'.
 	cmpi.b	#80,d5
 	bhs.s	DrawSprite_2P_Done
+    endif
     if fixBugs
-DrawSprite_2P_Cont:
+; sub_16DA6:
+ChkDrawSprite_2P:
     endif
 	btst	#0,d4
 	bne.s	DrawSprite_2P_FlipX
 	btst	#1,d4
 	bne.w	DrawSprite_2P_FlipY
-    if ~~fixBugs
-	; This skips the X-flip and Y-flip checks, causing multi-sprite
-	; objects to not properly mirror in two player mode.
-	; An easy place to see this is Mystic Case Zone: the Crawltons
-	; badnik's body segments will always face in one direction, and only
-	; the head will be properly flipped.
-DrawSprite_2P_Cont:
-    endif
 ; loc_16DC6:
 DrawSprite_2P_Loop:
+    if fixBugs
+	; See the bugfix under 'DrawSprite_Loop'.
+	cmpi.b	#80,d5			; has the sprite limit been reached?
+	bhs.s	DrawSprite_2P_Done	; if it has, branch
+    endif
 	move.b	(a1)+,d0
 	ext.w	d0
 	add.w	d2,d0
@@ -29437,7 +29531,13 @@ DrawSprite_2P_FlipX:
 	btst	#1,d4
 	bne.w	DrawSprite_2P_FlipXY
 
--	move.b	(a1)+,d0
+-
+    if fixBugs
+	; See the bugfix under 'DrawSprite_Loop'.
+	cmpi.b	#80,d5		; has the sprite limit been reached?
+	bhs.s	++		; if it has, branch
+    endif
+	move.b	(a1)+,d0
 	ext.w	d0
 	add.w	d2,d0
 	move.w	d0,(a2)+
@@ -29461,7 +29561,7 @@ DrawSprite_2P_FlipX:
 +
 	move.w	d0,(a2)+
 	dbf	d1,-
-
++
 	rts
 ; ===========================================================================
 ; offsets for horizontally mirrored sprite pieces (2P)
@@ -29479,6 +29579,12 @@ byte_16E56:
 ; ===========================================================================
 ; loc_16E66:
 DrawSprite_2P_FlipY:
+-
+    if fixBugs
+	; See the bugfix under 'DrawSprite_Loop'.
+	cmpi.b	#80,d5		; has the sprite limit been reached?
+	bhs.s	++		; if it has, branch
+    endif
 	move.b	(a1)+,d0
 	move.b	(a1),d4
 	ext.w	d0
@@ -29503,7 +29609,8 @@ DrawSprite_2P_FlipY:
 	addq.w	#1,d0
 +
 	move.w	d0,(a2)+
-	dbf	d1,DrawSprite_2P_FlipY
+	dbf	d1,-
++
 	rts
 ; ===========================================================================
 ; cells are double the height in 2P mode, so halve the number of rows
@@ -29527,6 +29634,12 @@ byte_16EB2:
 ; ===========================================================================
 ; loc_16EC2:
 DrawSprite_2P_FlipXY:
+-
+    if fixBugs
+	; See the bugfix under 'DrawSprite_Loop'.
+	cmpi.b	#80,d5		; has the sprite limit been reached?
+	bhs.s	++		; if it has, branch
+    endif
 	move.b	(a1)+,d0
 	move.b	(a1),d4
 	ext.w	d0
@@ -29554,7 +29667,8 @@ DrawSprite_2P_FlipXY:
 	addq.w	#1,d0
 +
 	move.w	d0,(a2)+
-	dbf	d1,DrawSprite_2P_FlipXY
+	dbf	d1,-
++
 	rts
 ; End of function DrawSprite_2P
 
