@@ -32,8 +32,8 @@ fixBugs = 0
 allOptimizations = 0
 ;	| If 1, enables all optimizations
 ;
-skipChecksumCheck = 0|allOptimizations
-;	| If 1, disables the unnecessary (and slow) bootup checksum calculation
+skipChecksumCheck = 0
+;	| If 1, disables the slow bootup checksum calculation
 ;
 zeroOffsetOptimization = 0|allOptimizations
 ;	| If 1, makes a handful of zero-offset instructions smaller
