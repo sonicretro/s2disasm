@@ -15157,28 +15157,28 @@ SwScrl_WFZ:
 
 	; Find the first visible scrolling section
 .seg_loop:
-	move.b	(a3)+,d0				; Number of lines in this segment
-	addq.w	#1,a3					; Skip index
-	sub.w	d0,d1					; Does this segment have any visible lines?
-	bcc.s	.seg_loop				; Branch if not
+	move.b	(a3)+,d0		; Number of lines in this segment
+	addq.w	#1,a3			; Skip index
+	sub.w	d0,d1			; Does this segment have any visible lines?
+	bcc.s	.seg_loop		; Branch if not
 
-	neg.w	d1					; d1 = number of lines to draw in this segment
-	move.w	#bytesToLcnt($380),d2			; Number of rows in hscroll buffer
+	neg.w	d1			; d1 = number of lines to draw in this segment
+	move.w	#224-1,d2		; Number of rows in hscroll buffer
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
-	move.b	-1(a3),d3				; Fetch TempArray_LayerDef index
-	move.w	(a2,d3.w),d0				; Fetch scroll value for this row...
-	neg.w	d0					; ...and flip sign for VDP
+	move.b	-1(a3),d3		; Fetch TempArray_LayerDef index
+	move.w	(a2,d3.w),d0		; Fetch scroll value for this row...
+	neg.w	d0			; ...and flip sign for VDP
 
 .row_loop:
 	move.l	d0,(a1)+
-	subq.w	#1,d1					; Has the current segment finished?
-	bne.s	.next_row				; Branch if not
-	move.b	(a3)+,d1				; Fetch a new line count
-	move.b	(a3)+,d3				; Fetch TempArray_LayerDef index
-	move.w	(a2,d3.w),d0				; Fetch scroll value for this row...
-	neg.w	d0					; ...and flip sign for VDP
+	subq.w	#1,d1			; Has the current segment finished?
+	bne.s	.next_row		; Branch if not
+	move.b	(a3)+,d1		; Fetch a new line count
+	move.b	(a3)+,d3		; Fetch TempArray_LayerDef index
+	move.w	(a2,d3.w),d0		; Fetch scroll value for this row...
+	neg.w	d0			; ...and flip sign for VDP
 
 .next_row:
 	dbf	d2,.row_loop
@@ -15726,6 +15726,7 @@ OOZ_BGScroll_Lines:
 SwScrl_MCZ:
 	tst.w	(Two_player_mode).w
 	bne.w	SwScrl_MCZ_2P
+
 	move.w	(Camera_Y_pos).w,d0
 	move.l	(Camera_BG_Y_pos).w,d3
 	tst.b	(Current_Act).w
@@ -15733,7 +15734,6 @@ SwScrl_MCZ:
 	divu.w	#3,d0
 	subi.w	#$140,d0
 	bra.s	++
-; ===========================================================================
 +
 	divu.w	#6,d0
 	subi.w	#$10,d0
@@ -15741,7 +15741,9 @@ SwScrl_MCZ:
 	swap	d0
 	moveq	#6,d6
 	bsr.w	SetVertiScrollFlagsBG2
+
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+
 	moveq	#0,d2
     if fixBugs
 	; The screen shaking is not applied to the background parallax
@@ -15771,6 +15773,8 @@ SwScrl_MCZ:
 	lea	(TempArray_LayerDef).w,a2
 	lea	$1E(a2),a3
 	move.w	(Camera_X_pos).w,d0
+
+	; This code is duplicated twice in 'SwScrl_MCZ_2P'.
 	ext.l	d0
 	asl.l	#4,d0
 	divs.w	#$A,d0
@@ -15827,6 +15831,8 @@ SwScrl_MCZ:
 	move.w	d1,(a3)+
 	move.w	d1,(a2)
 	move.w	d1,$16(a2)
+	; Duplicate code end.
+
 	lea	(SwScrl_MCZ_RowHeights).l,a3
 	lea	(TempArray_LayerDef).w,a2
 	lea	(Horiz_Scroll_Buf).w,a1
@@ -15837,27 +15843,31 @@ SwScrl_MCZ:
     endif
 	moveq	#0,d0
 
--	move.b	(a3)+,d0
+.segmentLoop:
+	move.b	(a3)+,d0		; Number of lines in this segment
 	addq.w	#2,a2
-	sub.w	d0,d1
-	bcc.s	-
+	sub.w	d0,d1			; Does this segment have any visible lines?
+	bcc.s	.segmentLoop		; Branch if not
 
-	neg.w	d1
+	neg.w	d1			; d1 = number of lines to draw in this segment
 	subq.w	#2,a2
-	move.w	#bytesToLcnt($380),d2
+	move.w	#224-1,d2		; Number of rows in hscroll buffer
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
-	move.w	(a2)+,d0
-	neg.w	d0
+	move.w	(a2)+,d0		; Fetch scroll value for this row...
+	neg.w	d0			; ...and flip sign for VDP
 
--	move.l	d0,(a1)+
-	subq.w	#1,d1
-	bne.s	+
-	move.b	(a3)+,d1
-	move.w	(a2)+,d0
-	neg.w	d0
-+	dbf	d2,-
+.rowLoop:
+	move.l	d0,(a1)+
+	subq.w	#1,d1			; Has the current segment finished?
+	bne.s	.nextRow		; Branch if not
+	move.b	(a3)+,d1		; Fetch a new line count
+	move.w	(a2)+,d0		; Fetch scroll value for this row...
+	neg.w	d0			; ...and flip sign for VDP
+
+.nextRow:
+	dbf	d2,.rowLoop
 
 	rts
 ; ===========================================================================
@@ -15898,17 +15908,20 @@ SwScrl_MCZ_2P:
 	divu.w	#3,d0
 	subi.w	#$140,d0
 	bra.s	++
-; ===========================================================================
 +
 	divu.w	#6,d0
 	subi.w	#$10,d0
 +
 	move.w	d0,(Camera_BG_Y_pos).w
 	move.w	d0,(Vscroll_Factor_BG).w
+
 	andi.l	#$FFFEFFFE,(Vscroll_Factor).w
+
 	lea	(TempArray_LayerDef).w,a2
 	lea	$1E(a2),a3
 	move.w	(Camera_X_pos).w,d0
+
+	; A huuuuuuuuuuuuge chunk of duplicate code from 'SwScrl_MCZ'.
 	ext.l	d0
 	asl.l	#4,d0
 	divs.w	#$A,d0
@@ -15965,34 +15978,41 @@ SwScrl_MCZ_2P:
 	move.w	d1,(a3)+
 	move.w	d1,(a2)
 	move.w	d1,$16(a2)
+	; Duplicate code end.
+
 	lea	(SwScrl_MCZ2P_RowHeights).l,a3
 	lea	(TempArray_LayerDef).w,a2
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_BG_Y_pos).w,d1
 	lsr.w	#1,d1
+
 	moveq	#0,d0
 
--	move.b	(a3)+,d0
+.segmentLoop:
+	move.b	(a3)+,d0		; Number of lines in this segment
 	addq.w	#2,a2
-	sub.w	d0,d1
-	bcc.s	-
+	sub.w	d0,d1			; Does this segment have any visible lines?
+	bcc.s	.segmentLoop		; Branch if not
 
-	neg.w	d1
+	neg.w	d1			; d1 = number of lines to draw in this segment
 	subq.w	#2,a2
-	move.w	#bytesToLcnt($1C0),d2
+	move.w	#112-1,d2		; Number of rows in hscroll buffer
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
-	move.w	(a2)+,d0
-	neg.w	d0
+	move.w	(a2)+,d0		; Fetch scroll value for this row...
+	neg.w	d0			; ...and flip sign for VDP
 
--	move.l	d0,(a1)+
-	subq.w	#1,d1
-	bne.s	+
-	move.b	(a3)+,d1
-	move.w	(a2)+,d0
-	neg.w	d0
-+	dbf	d2,-
+.rowLoop:
+	move.l	d0,(a1)+
+	subq.w	#1,d1			; Has the current segment finished?
+	bne.s	.nextRow		; Branch if not
+	move.b	(a3)+,d1		; Fetch a new line count
+	move.w	(a2)+,d0		; Fetch scroll value for this row...
+	neg.w	d0			; ...and flip sign for VDP
+
+.nextRow:
+	dbf	d2,.rowLoop
 
 	bra.s	+
 ; ===========================================================================
@@ -16032,20 +16052,23 @@ SwScrl_MCZ2P_RowHeights:
 	divu.w	#3,d0
 	subi.w	#$140,d0
 	bra.s	++
-; ===========================================================================
 +
 	divu.w	#6,d0
 	subi.w	#$10,d0
 +
 	move.w	d0,(Camera_BG_Y_pos_P2).w
 	move.w	d0,(Vscroll_Factor_P2_BG).w
+
 	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
 	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
+
 	lea	(TempArray_LayerDef).w,a2
 	lea	$1E(a2),a3
 	move.w	(Camera_X_pos_P2).w,d0
+
+	; A huuuuuuuuuuuuge chunk of duplicate code from 'SwScrl_MCZ'.
 	ext.l	d0
 	asl.l	#4,d0
 	divs.w	#$A,d0
@@ -16102,37 +16125,47 @@ SwScrl_MCZ2P_RowHeights:
 	move.w	d1,(a3)+
 	move.w	d1,(a2)
 	move.w	d1,$16(a2)
+	; Duplicate code end.
+
+	; Tails' screen is slightly taller, to fill the gap between the two
+	; screens.
 	lea_	SwScrl_MCZ2P_RowHeights+1,a3
 	lea	(TempArray_LayerDef).w,a2
-	lea	(Horiz_Scroll_Buf+$1B0).w,a1
+	lea	(Horiz_Scroll_Buf+(112-4)*2*2).w,a1
 	move.w	(Camera_BG_Y_pos_P2).w,d1
 	lsr.w	#1,d1
-	moveq	#$17,d0
-	bra.s	+
+	; Extend the first segment of 'SwScrl_MCZ2P_RowHeights' by 4 lines;
+	moveq	#$13+4,d0
+	bra.s	.useOwnSegmentSize
 ; ===========================================================================
--
-	move.b	(a3)+,d0
-+
-	addq.w	#2,a2
-	sub.w	d0,d1
-	bcc.s	-
 
-	neg.w	d1
+.segmentLoop:
+	move.b	(a3)+,d0		; Number of lines in this segment
+
+.useOwnSegmentSize:
+	addq.w	#2,a2
+	sub.w	d0,d1			; Does this segment have any visible lines?
+	bcc.s	.segmentLoop		; Branch if not
+
+	neg.w	d1			; d1 = number of lines to draw in this segment
 	subq.w	#2,a2
-	move.w	#bytesToLcnt($1D0),d2
+	move.w	#112+4-1,d2		; Number of rows in hscroll buffer
 	move.w	(Camera_X_pos_P2).w,d0
 	neg.w	d0
 	swap	d0
-	move.w	(a2)+,d0
-	neg.w	d0
+	move.w	(a2)+,d0		; Fetch scroll value for this row...
+	neg.w	d0			; ...and flip sign for VDP
 
--	move.l	d0,(a1)+
-	subq.w	#1,d1
-	bne.s	+
-	move.b	(a3)+,d1
-	move.w	(a2)+,d0
-	neg.w	d0
-+	dbf	d2,-
+.rowLoop:
+	move.l	d0,(a1)+
+	subq.w	#1,d1			; Has the current segment finished?
+	bne.s	.nextRow		; Branch if not
+	move.b	(a3)+,d1		; Fetch a new line count
+	move.w	(a2)+,d0		; Fetch scroll value for this row...
+	neg.w	d0			; ...and flip sign for VDP
+
+.nextRow:
+	dbf	d2,.rowLoop
 
 	rts
 ; ===========================================================================
@@ -16140,46 +16173,58 @@ SwScrl_MCZ2P_RowHeights:
 SwScrl_CNZ:
 	tst.w	(Two_player_mode).w
 	bne.w	SwScrl_CNZ_2P
+
 	move.w	(Camera_Y_pos).w,d0
 	lsr.w	#6,d0
 	move.w	d0,(Camera_BG_Y_pos).w
+
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+
 	move.w	(Camera_X_pos).w,d2
-	bsr.w	sub_D160
+	bsr.w	SwScrl_CNZ_GenerateScrollValues
+
 	lea	(SwScrl_CNZ_RowHeights).l,a3
 	lea	(TempArray_LayerDef).w,a2
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_BG_Y_pos).w,d1
+
 	moveq	#0,d0
 
--	move.b	(a3)+,d0
+	; Find the first visible scrolling section
+.segmentLoop:
+	move.b	(a3)+,d0		; Number of lines in this segment
 	addq.w	#2,a2
-	sub.w	d0,d1
-	bcc.s	-
+	sub.w	d0,d1			; Does this segment have any visible lines?
+	bcc.s	.segmentLoop		; Branch if not
 
-	neg.w	d1
+	neg.w	d1			; d1 = number of lines to draw in this segment
 	subq.w	#2,a2
-	move.w	#bytesToLcnt($380),d2
+	move.w	#224-1,d2		; Number of rows in hscroll buffer
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
-	move.w	(a2)+,d0
-	neg.w	d0
+	move.w	(a2)+,d0		; Fetch scroll value for this row...
+	neg.w	d0			; ...and flip sign for VDP
 
--	move.l	d0,(a1)+
-	subq.w	#1,d1
-	bne.s	+
+.rowLoop:
+	move.l	d0,(a1)+
+	subq.w	#1,d1			; Has the current segment finished?
+	bne.s	.nextRow		; Branch if not
 
--	move.w	(a2)+,d0
-	neg.w	d0
-	move.b	(a3)+,d1
-	beq.s	++
-+	dbf	d2,--
+.nextSegment:
+	move.w	(a2)+,d0		; Fetch scroll value for this row...
+	neg.w	d0			; ...and flip sign for VDP
+	move.b	(a3)+,d1		; Fetch a new line count
+	beq.s	.isRipplingSegment	; Branch if special segment
+
+.nextRow:
+	dbf	d2,.rowLoop
 
 	rts
 ; ===========================================================================
-+
-	move.w	#bytesToLcnt($40),d1
+
+.isRipplingSegment:
+	move.w	#16-1,d1
 	move.w	d0,d3
 	move.b	(Vint_runcount+3).w,d0
 	lsr.w	#3,d0
@@ -16188,33 +16233,34 @@ SwScrl_CNZ:
 	lea_	SwScrl_RippleData,a4
 	lea	(a4,d0.w),a4
 
--	move.b	(a4)+,d0
+.rippleLoop:
+	move.b	(a4)+,d0
 	ext.w	d0
 	add.w	d3,d0
 	move.l	d0,(a1)+
-	dbf	d1,-
+	dbf	d1,.rippleLoop
 
-	subi.w	#$10,d2
-	bra.s	--
+	subi.w	#16,d2
+	bra.s	.nextSegment
 ; ===========================================================================
 ; byte_D156:
 SwScrl_CNZ_RowHeights:
 	dc.b  $10
-	dc.b  $10	; 1
-	dc.b  $10	; 2
-	dc.b  $10	; 3
-	dc.b  $10	; 4
-	dc.b  $10	; 5
-	dc.b  $10	; 6
-	dc.b  $10	; 7
-	dc.b    0	; 8
-	dc.b -$10	; 9
+	dc.b  $10
+	dc.b  $10
+	dc.b  $10
+	dc.b  $10
+	dc.b  $10
+	dc.b  $10
+	dc.b  $10
+	dc.b    0	; Special (actually has a height of $10)
+	dc.b  $F0
 	even
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-
-sub_D160:
+; sub_D160:
+SwScrl_CNZ_GenerateScrollValues:
 	lea	(TempArray_LayerDef).w,a1
 	move.w	d2,d0
 	asr.w	#3,d0
@@ -16225,7 +16271,7 @@ sub_D160:
 	moveq	#0,d3
 	move.w	d2,d3
 
-	move.w	#6,d1
+	move.w	#7-1,d1
 -	move.w	d3,(a1)+
 	swap	d3
 	add.l	d0,d3
@@ -16244,72 +16290,108 @@ sub_D160:
 ; ===========================================================================
 ; loc_D194:
 SwScrl_CNZ_2P:
+	; Do player 1's background.
 	move.w	(Camera_Y_pos).w,d0
 	lsr.w	#6,d0
 	move.w	d0,(Camera_BG_Y_pos).w
+
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	andi.l	#$FFFEFFFE,(Vscroll_Factor).w
+
 	move.w	(Camera_X_pos).w,d2
-	bsr.w	sub_D160
+	bsr.w	SwScrl_CNZ_GenerateScrollValues
+
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_BG_Y_pos).w,d1
 	moveq	#0,d0
 	move.w	(Camera_X_pos).w,d0
-	move.w	#$6F,d2
+	move.w	#112-1,d2
+    if fixBugs
+	lea	(SwScrl_CNZ2P_RowHeights).l,a3
+    else
+	; This little hack is no longer necessary.
 	lea	(SwScrl_CNZ2P_RowHeights+2).l,a3
-	bsr.s	sub_D216
+    endif
+	bsr.s	.doBackground
+
+	; Do player 2's background.
 	move.w	(Camera_Y_pos_P2).w,d0
 	lsr.w	#6,d0
 	move.w	d0,(Camera_BG_Y_pos_P2).w
+
 	move.w	d0,(Vscroll_Factor_P2_BG).w
 	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
+
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
+
 	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
+
 	move.w	(Camera_X_pos_P2).w,d2
-	bsr.w	sub_D160
-	lea	(Horiz_Scroll_Buf+$1B0).w,a1
+	bsr.w	SwScrl_CNZ_GenerateScrollValues
+
+	; Tails' screen is slightly taller, to fill the gap between the two
+	; screens.
+	lea	(Horiz_Scroll_Buf+(112-4)*2*2).w,a1
 	move.w	(Camera_BG_Y_pos_P2).w,d1
 	moveq	#0,d0
 	move.w	(Camera_X_pos_P2).w,d0
-	move.w	#bytesToLcnt($1D0),d2
+	move.w	#112+4-1,d2
 	lea	(SwScrl_CNZ2P_RowHeights+1).l,a3
+
+    if fixBugs
+	; Use a similar trick to Mystic Cave Zone: override the first value
+	; in the code here.
+	lsr.w	#1,d1
+	lea	(TempArray_LayerDef).w,a2
+	; Extend the first segment of 'SwScrl_CNZ2P_RowHeights' by 4 lines;
+	move.w	#8+4,d3
+	bra.s	.useOwnSegmentSize
+    endif
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-
-sub_D216:
+; sub_D216:
+.doBackground:
 	lsr.w	#1,d1
 	lea	(TempArray_LayerDef).w,a2
 	moveq	#0,d3
 
--	move.b	(a3)+,d3
-	addq.w	#2,a2
-	sub.w	d3,d1
-	bcc.s	-
+	; Find the first visible scrolling section
+.segmentLoop:
+	move.b	(a3)+,d3		; Number of lines in this segment
 
-	neg.w	d1
+.useOwnSegmentSize:
+	addq.w	#2,a2
+	sub.w	d3,d1			; Does this segment have any visible lines?
+	bcc.s	.segmentLoop		; Branch if not
+
+	neg.w	d1			; d1 = number of lines to draw in this segment
 	subq.w	#2,a2
 	neg.w	d0
 	swap	d0
-	move.w	(a2)+,d0
-	neg.w	d0
+	move.w	(a2)+,d0		; Fetch scroll value for this row...
+	neg.w	d0			; ...and flip sign for VDP
 
--	move.l	d0,(a1)+
-	subq.w	#1,d1
-	bne.s	+
+.rowLoop:
+	move.l	d0,(a1)+
+	subq.w	#1,d1			; Has the current segment finished?
+	bne.s	.nextRow		; Branch if not
 
--	move.w	(a2)+,d0
-	neg.w	d0
-	move.b	(a3)+,d1
-	beq.s	++
-+
-	dbf	d2,--
+.nextSegment:
+	move.w	(a2)+,d0		; Fetch scroll value for this row...
+	neg.w	d0			; ...and flip sign for VDP
+	move.b	(a3)+,d1		; Fetch a new line count
+	beq.s	.isRipplingSegment	; Branch if special segment
+
+.nextRow:
+	dbf	d2,.rowLoop
 
 	rts
 ; ===========================================================================
-+
-	move.w	#bytesToLcnt($20),d1
+
+.isRipplingSegment:
+	move.w	#8-1,d1
 	move.w	d0,d3
 	move.b	(Vint_runcount+3).w,d0
 	lsr.w	#3,d0
@@ -16318,31 +16400,37 @@ sub_D216:
 	lea_	SwScrl_RippleData,a4
 	lea	(a4,d0.w),a4
 
--	move.b	(a4)+,d0
+.rippleLoop:
+	move.b	(a4)+,d0
 	ext.w	d0
 	add.w	d3,d0
 	move.l	d0,(a1)+
-	dbf	d1,-
+	dbf	d1,.rippleLoop
 
 	subq.w	#8,d2
-	bra.s	--
+	bra.s	.nextSegment
 ; End of function sub_D216
 
 ; ===========================================================================
-; byte_D270:
 SwScrl_CNZ2P_RowHeights:
+    if ~~fixBugs
+	; This doesn't have the effect that the developers intended: rather
+	; than just extend the topmost segment, it creates additional
+	; segments which cause the later segments to use the wrong scroll
+	; values.
 	dc.b   4
-	dc.b   4	; 1
-	dc.b   8	; 2
-	dc.b   8	; 3
-	dc.b   8	; 4
-	dc.b   8	; 5
-	dc.b   8	; 6
-	dc.b   8	; 7
-	dc.b   8	; 8
-	dc.b   8	; 9
-	dc.b   0	; 10
-	dc.b $78	; 11
+	dc.b   4
+    endif
+	dc.b   8
+	dc.b   8
+	dc.b   8
+	dc.b   8
+	dc.b   8
+	dc.b   8
+	dc.b   8
+	dc.b   8
+	dc.b   0	; Special (actually has a height of 8)
+	dc.b 120
 	even
 ; ===========================================================================
 ; loc_D27C:
