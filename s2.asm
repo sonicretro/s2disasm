@@ -14834,7 +14834,9 @@ SwScrl_Title:
 SwScrl_EHZ:
 	tst.w	(Two_player_mode).w
 	bne.w	SwScrl_EHZ_2P
+
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
@@ -14842,14 +14844,16 @@ SwScrl_EHZ:
 	swap	d0
 	move.w	#0,d0
 
-	move.w	#bytesToLcnt($58),d1
+	; Do 22 lines.
+	move.w	#22-1,d1
 -	move.l	d0,(a1)+
 	dbf	d1,-
 
 	move.w	d2,d0
 	asr.w	#6,d0
 
-	move.w	#bytesToLcnt($E8),d1
+	; Do 58 lines.
+	move.w	#58-1,d1
 -	move.l	d0,(a1)+
 	dbf	d1,-
 
@@ -14864,7 +14868,8 @@ SwScrl_EHZ:
 	lea	(SwScrl_RippleData).l,a2
 	lea	(a2,d1.w),a2
 
-	move.w	#bytesToLcnt($54),d1
+	; Do 21 lines.
+	move.w	#21-1,d1
 -	move.b	(a2)+,d0
 	ext.w	d0
 	add.w	d3,d0
@@ -14873,14 +14878,16 @@ SwScrl_EHZ:
 
 	move.w	#0,d0
 
-	move.w	#bytesToLcnt($2C),d1
+	; Do 11 lines.
+	move.w	#11-1,d1
 -	move.l	d0,(a1)+
 	dbf	d1,-
 
 	move.w	d2,d0
 	asr.w	#4,d0
 
-	move.w	#bytesToLcnt($40),d1
+	; Do 16 lines.
+	move.w	#16-1,d1
 -	move.l	d0,(a1)+
 	dbf	d1,-
 
@@ -14890,7 +14897,8 @@ SwScrl_EHZ:
 	asr.w	#1,d1
 	add.w	d1,d0
 
-	move.w	#bytesToLcnt($40),d1
+	; Do 16 lines.
+	move.w	#16-1,d1
 -	move.l	d0,(a1)+
 	dbf	d1,-
 
@@ -14910,7 +14918,8 @@ SwScrl_EHZ:
 	move.w	d2,d3
 	asr.w	#3,d3
 
-	move.w	#bytesToLcnt($3C),d1 ; $3C bytes
+	; Do 15 lines.
+	move.w	#15-1,d1
 -	move.w	d4,(a1)+
 	move.w	d3,(a1)+
 	swap	d3
@@ -14918,7 +14927,8 @@ SwScrl_EHZ:
 	swap	d3
 	dbf	d1,-
 
-	move.w	#($48)/8-1,d1 ; $48 bytes
+	; Do 18 lines.
+	move.w	#18/2-1,d1
 -	move.w	d4,(a1)+
 	move.w	d3,(a1)+
 	move.w	d4,(a1)+
@@ -14929,7 +14939,8 @@ SwScrl_EHZ:
 	swap	d3
 	dbf	d1,-
 
-	move.w	#($B4)/12-1,d1 ; $B4 bytes
+	; Do 45 lines.
+	move.w	#45/3-1,d1
 -	move.w	d4,(a1)+
 	move.w	d3,(a1)+
 	move.w	d4,(a1)+
@@ -14942,6 +14953,9 @@ SwScrl_EHZ:
 	add.l	d0,d3
 	swap	d3
 	dbf	d1,-
+
+	; 22+58+21+11+16+16+15+18+45=222.
+	; Only 222 out of 224 lines have been processed.
 
     if fixBugs
 	; The bottom two lines haven't had their H-scroll values set.
@@ -14972,24 +14986,32 @@ SwScrl_EHZ_2P:
 +
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	andi.l	#$FFFEFFFE,(Vscroll_Factor).w
+
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_X_pos).w,d0
-	move.w	#bytesToLcnt($2C),d1
-	bsr.s	sub_C71A
+	; Do 11 lines.
+	move.w	#11-1,d1
+	bsr.s	.doBackground
+
+
 	moveq	#0,d0
 	move.w	d0,(Vscroll_Factor_P2_BG).w
 	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
 	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
-	lea	(Horiz_Scroll_Buf+$1B0).w,a1
+
+	; Tails' screen is slightly taller, to fill the gap between the two
+	; screens.
+	lea	(Horiz_Scroll_Buf+(112-4)*2*2).w,a1
 	move.w	(Camera_X_pos_P2).w,d0
-	move.w	#bytesToLcnt($3C),d1
+	; Do 11+4 lines.
+	move.w	#11+4-1,d1
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-
-sub_C71A:
+; sub_C71A:
+.doBackground:
 	neg.w	d0
 	move.w	d0,d2
 	swap	d0
@@ -15001,7 +15023,8 @@ sub_C71A:
 	move.w	d2,d0
 	asr.w	#6,d0
 
-	move.w	#bytesToLcnt($74),d1
+	; Do 29 lines.
+	move.w	#29-1,d1
 -	move.l	d0,(a1)+
 	dbf	d1,-
 
@@ -15011,7 +15034,8 @@ sub_C71A:
 	lea_	SwScrl_RippleData,a2
 	lea	(a2,d1.w),a2
 
-	move.w	#bytesToLcnt($2C),d1
+	; Do 11 lines.
+	move.w	#11-1,d1
 -	move.b	(a2)+,d0
 	ext.w	d0
 	add.w	d3,d0
@@ -15020,14 +15044,16 @@ sub_C71A:
 
 	move.w	#0,d0
 
-	move.w	#bytesToLcnt($14),d1
+	; Do 5 lines.
+	move.w	#5-1,d1
 -	move.l	d0,(a1)+
 	dbf	d1,-
 
 	move.w	d2,d0
 	asr.w	#4,d0
 
-	move.w	#bytesToLcnt($20),d1
+	; Do 8 lines.
+	move.w	#8-1,d1
 -	move.l	d0,(a1)+
 	dbf	d1,-
 
@@ -15037,7 +15063,8 @@ sub_C71A:
 	asr.w	#1,d1
 	add.w	d1,d0
 
-	move.w	#bytesToLcnt($20),d1
+	; Do 8 lines.
+	move.w	#8-1,d1
 -	move.l	d0,(a1)+
 	dbf	d1,-
 
@@ -15055,13 +15082,17 @@ sub_C71A:
 	move.w	d2,d3
 	asr.w	#3,d3
 
-	move.w	#bytesToLcnt($A0),d1
+	; Do 40 lines.
+	move.w	#40-1,d1
 -	move.w	d2,(a1)+
 	move.w	d3,(a1)+
 	swap	d3
 	add.l	d0,d3
 	swap	d3
 	dbf	d1,-
+
+	; 11+29+11+5+8+8+40=112.
+	; No missing lines here.
 
 	rts
 ; End of function sub_C71A
