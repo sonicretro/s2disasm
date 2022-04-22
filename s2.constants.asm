@@ -663,8 +663,8 @@ ObjID_Balkiry =			id(ObjPtr_Balkiry)		; AC
 ObjID_CluckerBase =		id(ObjPtr_CluckerBase)		; AD
 ObjID_Clucker =			id(ObjPtr_Clucker)		; AE
 ObjID_MechaSonic =		id(ObjPtr_MechaSonic)		; AF
-ObjID_SonicOnSegaScr =	id(ObjPtr_SonicOnSegaScr)	; B0
-ObjID_SegaHideTM =		id(ObjPtr_SegaHideTM)	; B1
+ObjID_SonicOnSegaScr =		id(ObjPtr_SonicOnSegaScr)	; B0
+ObjID_SegaHideTM =		id(ObjPtr_SegaHideTM)		; B1
 ObjID_Tornado =			id(ObjPtr_Tornado)		; B2
 ObjID_Cloud =			id(ObjPtr_Cloud)		; B3
 ObjID_VPropeller =		id(ObjPtr_VPropeller)		; B4
@@ -881,79 +881,79 @@ offset :=	SonicAniData
 ptrsize :=	2
 idstart :=	0
 
-AniIDSonAni_Walk			= id(SonAni_Walk_ptr)			;  0 ;   0
-AniIDSonAni_Run				= id(SonAni_Run_ptr)			;  1 ;   1
-AniIDSonAni_Roll			= id(SonAni_Roll_ptr)			;  2 ;   2
-AniIDSonAni_Roll2			= id(SonAni_Roll2_ptr)			;  3 ;   3
-AniIDSonAni_Push			= id(SonAni_Push_ptr)			;  4 ;   4
-AniIDSonAni_Wait			= id(SonAni_Wait_ptr)			;  5 ;   5
-AniIDSonAni_Balance			= id(SonAni_Balance_ptr)		;  6 ;   6
-AniIDSonAni_LookUp			= id(SonAni_LookUp_ptr)			;  7 ;   7
-AniIDSonAni_Duck			= id(SonAni_Duck_ptr)			;  8 ;   8
-AniIDSonAni_Spindash		= id(SonAni_Spindash_ptr)		;  9 ;   9
-AniIDSonAni_Blink			= id(SonAni_Blink_ptr)			; 10 ;  $A
-AniIDSonAni_GetUp			= id(SonAni_GetUp_ptr)			; 11 ;  $B
-AniIDSonAni_Balance2		= id(SonAni_Balance2_ptr)		; 12 ;  $C
-AniIDSonAni_Stop			= id(SonAni_Stop_ptr)			; 13 ;  $D
-AniIDSonAni_Float			= id(SonAni_Float_ptr)			; 14 ;  $E
-AniIDSonAni_Float2			= id(SonAni_Float2_ptr)			; 15 ;  $F
-AniIDSonAni_Spring			= id(SonAni_Spring_ptr)			; 16 ; $10
-AniIDSonAni_Hang			= id(SonAni_Hang_ptr)			; 17 ; $11
-AniIDSonAni_Dash2			= id(SonAni_Dash2_ptr)			; 18 ; $12
-AniIDSonAni_Dash3			= id(SonAni_Dash3_ptr)			; 19 ; $13
-AniIDSonAni_Hang2			= id(SonAni_Hang2_ptr)			; 20 ; $14
-AniIDSonAni_Bubble			= id(SonAni_Bubble_ptr)			; 21 ; $15
-AniIDSonAni_DeathBW			= id(SonAni_DeathBW_ptr)		; 22 ; $16
-AniIDSonAni_Drown			= id(SonAni_Drown_ptr)			; 23 ; $17
-AniIDSonAni_Death			= id(SonAni_Death_ptr)			; 24 ; $18
-AniIDSonAni_Hurt			= id(SonAni_Hurt_ptr)			; 25 ; $19
-AniIDSonAni_Hurt2			= id(SonAni_Hurt2_ptr)			; 26 ; $1A
-AniIDSonAni_Slide			= id(SonAni_Slide_ptr)			; 27 ; $1B
-AniIDSonAni_Blank			= id(SonAni_Blank_ptr)			; 28 ; $1C
-AniIDSonAni_Balance3		= id(SonAni_Balance3_ptr)		; 29 ; $1D
-AniIDSonAni_Balance4		= id(SonAni_Balance4_ptr)		; 30 ; $1E
+AniIDSonAni_Walk		= id(SonAni_Walk_ptr)		;  0 ;   0
+AniIDSonAni_Run			= id(SonAni_Run_ptr)		;  1 ;   1
+AniIDSonAni_Roll		= id(SonAni_Roll_ptr)		;  2 ;   2
+AniIDSonAni_Roll2		= id(SonAni_Roll2_ptr)		;  3 ;   3
+AniIDSonAni_Push		= id(SonAni_Push_ptr)		;  4 ;   4
+AniIDSonAni_Wait		= id(SonAni_Wait_ptr)		;  5 ;   5
+AniIDSonAni_Balance		= id(SonAni_Balance_ptr)	;  6 ;   6
+AniIDSonAni_LookUp		= id(SonAni_LookUp_ptr)		;  7 ;   7
+AniIDSonAni_Duck		= id(SonAni_Duck_ptr)		;  8 ;   8
+AniIDSonAni_Spindash		= id(SonAni_Spindash_ptr)	;  9 ;   9
+AniIDSonAni_Blink		= id(SonAni_Blink_ptr)		; 10 ;  $A
+AniIDSonAni_GetUp		= id(SonAni_GetUp_ptr)		; 11 ;  $B
+AniIDSonAni_Balance2		= id(SonAni_Balance2_ptr)	; 12 ;  $C
+AniIDSonAni_Stop		= id(SonAni_Stop_ptr)		; 13 ;  $D
+AniIDSonAni_Float		= id(SonAni_Float_ptr)		; 14 ;  $E
+AniIDSonAni_Float2		= id(SonAni_Float2_ptr)		; 15 ;  $F
+AniIDSonAni_Spring		= id(SonAni_Spring_ptr)		; 16 ; $10
+AniIDSonAni_Hang		= id(SonAni_Hang_ptr)		; 17 ; $11
+AniIDSonAni_Dash2		= id(SonAni_Dash2_ptr)		; 18 ; $12
+AniIDSonAni_Dash3		= id(SonAni_Dash3_ptr)		; 19 ; $13
+AniIDSonAni_Hang2		= id(SonAni_Hang2_ptr)		; 20 ; $14
+AniIDSonAni_Bubble		= id(SonAni_Bubble_ptr)		; 21 ; $15
+AniIDSonAni_DeathBW		= id(SonAni_DeathBW_ptr)	; 22 ; $16
+AniIDSonAni_Drown		= id(SonAni_Drown_ptr)		; 23 ; $17
+AniIDSonAni_Death		= id(SonAni_Death_ptr)		; 24 ; $18
+AniIDSonAni_Hurt		= id(SonAni_Hurt_ptr)		; 25 ; $19
+AniIDSonAni_Hurt2		= id(SonAni_Hurt2_ptr)		; 26 ; $1A
+AniIDSonAni_Slide		= id(SonAni_Slide_ptr)		; 27 ; $1B
+AniIDSonAni_Blank		= id(SonAni_Blank_ptr)		; 28 ; $1C
+AniIDSonAni_Balance3		= id(SonAni_Balance3_ptr)	; 29 ; $1D
+AniIDSonAni_Balance4		= id(SonAni_Balance4_ptr)	; 30 ; $1E
 AniIDSupSonAni_Transform	= id(SupSonAni_Transform_ptr)	; 31 ; $1F
-AniIDSonAni_Lying			= id(SonAni_Lying_ptr)			; 32 ; $20
-AniIDSonAni_LieDown			= id(SonAni_LieDown_ptr)		; 33 ; $21
+AniIDSonAni_Lying		= id(SonAni_Lying_ptr)		; 32 ; $20
+AniIDSonAni_LieDown		= id(SonAni_LieDown_ptr)	; 33 ; $21
 
 
 offset :=	TailsAniData
 ptrsize :=	2
 idstart :=	0
 
-AniIDTailsAni_Walk			= id(TailsAni_Walk_ptr)			;  0 ;   0
-AniIDTailsAni_Run			= id(TailsAni_Run_ptr)			;  1 ;   1
-AniIDTailsAni_Roll			= id(TailsAni_Roll_ptr)			;  2 ;   2
-AniIDTailsAni_Roll2			= id(TailsAni_Roll2_ptr)		;  3 ;   3
-AniIDTailsAni_Push			= id(TailsAni_Push_ptr)			;  4 ;   4
-AniIDTailsAni_Wait			= id(TailsAni_Wait_ptr)			;  5 ;   5
-AniIDTailsAni_Balance		= id(TailsAni_Balance_ptr)		;  6 ;   6
-AniIDTailsAni_LookUp		= id(TailsAni_LookUp_ptr)		;  7 ;   7
-AniIDTailsAni_Duck			= id(TailsAni_Duck_ptr)			;  8 ;   8
-AniIDTailsAni_Spindash		= id(TailsAni_Spindash_ptr)		;  9 ;   9
-AniIDTailsAni_Dummy1		= id(TailsAni_Dummy1_ptr)		; 10 ;  $A
-AniIDTailsAni_Dummy2		= id(TailsAni_Dummy2_ptr)		; 11 ;  $B
-AniIDTailsAni_Dummy3		= id(TailsAni_Dummy3_ptr)		; 12 ;  $C
-AniIDTailsAni_Stop			= id(TailsAni_Stop_ptr)			; 13 ;  $D
-AniIDTailsAni_Float			= id(TailsAni_Float_ptr)		; 14 ;  $E
-AniIDTailsAni_Float2		= id(TailsAni_Float2_ptr)		; 15 ;  $F
-AniIDTailsAni_Spring		= id(TailsAni_Spring_ptr)		; 16 ; $10
-AniIDTailsAni_Hang			= id(TailsAni_Hang_ptr)			; 17 ; $11
-AniIDTailsAni_Blink			= id(TailsAni_Blink_ptr)		; 18 ; $12
-AniIDTailsAni_Blink2		= id(TailsAni_Blink2_ptr)		; 19 ; $13
-AniIDTailsAni_Hang2			= id(TailsAni_Hang2_ptr)		; 20 ; $14
-AniIDTailsAni_Bubble		= id(TailsAni_Bubble_ptr)		; 21 ; $15
-AniIDTailsAni_DeathBW		= id(TailsAni_DeathBW_ptr)		; 22 ; $16
-AniIDTailsAni_Drown			= id(TailsAni_Drown_ptr)		; 23 ; $17
-AniIDTailsAni_Death			= id(TailsAni_Death_ptr)		; 24 ; $18
-AniIDTailsAni_Hurt			= id(TailsAni_Hurt_ptr)			; 25 ; $19
-AniIDTailsAni_Hurt2			= id(TailsAni_Hurt2_ptr)		; 26 ; $1A
-AniIDTailsAni_Slide			= id(TailsAni_Slide_ptr)		; 27 ; $1B
-AniIDTailsAni_Blank			= id(TailsAni_Blank_ptr)		; 28 ; $1C
-AniIDTailsAni_Dummy4		= id(TailsAni_Dummy4_ptr)		; 29 ; $1D
-AniIDTailsAni_Dummy5		= id(TailsAni_Dummy5_ptr)		; 30 ; $1E
-AniIDTailsAni_HaulAss		= id(TailsAni_HaulAss_ptr)		; 31 ; $1F
-AniIDTailsAni_Fly			= id(TailsAni_Fly_ptr)			; 32 ; $20
+AniIDTailsAni_Walk		= id(TailsAni_Walk_ptr)		;  0 ;   0
+AniIDTailsAni_Run		= id(TailsAni_Run_ptr)		;  1 ;   1
+AniIDTailsAni_Roll		= id(TailsAni_Roll_ptr)		;  2 ;   2
+AniIDTailsAni_Roll2		= id(TailsAni_Roll2_ptr)	;  3 ;   3
+AniIDTailsAni_Push		= id(TailsAni_Push_ptr)		;  4 ;   4
+AniIDTailsAni_Wait		= id(TailsAni_Wait_ptr)		;  5 ;   5
+AniIDTailsAni_Balance		= id(TailsAni_Balance_ptr)	;  6 ;   6
+AniIDTailsAni_LookUp		= id(TailsAni_LookUp_ptr)	;  7 ;   7
+AniIDTailsAni_Duck		= id(TailsAni_Duck_ptr)		;  8 ;   8
+AniIDTailsAni_Spindash		= id(TailsAni_Spindash_ptr)	;  9 ;   9
+AniIDTailsAni_Dummy1		= id(TailsAni_Dummy1_ptr)	; 10 ;  $A
+AniIDTailsAni_Dummy2		= id(TailsAni_Dummy2_ptr)	; 11 ;  $B
+AniIDTailsAni_Dummy3		= id(TailsAni_Dummy3_ptr)	; 12 ;  $C
+AniIDTailsAni_Stop		= id(TailsAni_Stop_ptr)		; 13 ;  $D
+AniIDTailsAni_Float		= id(TailsAni_Float_ptr)	; 14 ;  $E
+AniIDTailsAni_Float2		= id(TailsAni_Float2_ptr)	; 15 ;  $F
+AniIDTailsAni_Spring		= id(TailsAni_Spring_ptr)	; 16 ; $10
+AniIDTailsAni_Hang		= id(TailsAni_Hang_ptr)		; 17 ; $11
+AniIDTailsAni_Blink		= id(TailsAni_Blink_ptr)	; 18 ; $12
+AniIDTailsAni_Blink2		= id(TailsAni_Blink2_ptr)	; 19 ; $13
+AniIDTailsAni_Hang2		= id(TailsAni_Hang2_ptr)	; 20 ; $14
+AniIDTailsAni_Bubble		= id(TailsAni_Bubble_ptr)	; 21 ; $15
+AniIDTailsAni_DeathBW		= id(TailsAni_DeathBW_ptr)	; 22 ; $16
+AniIDTailsAni_Drown		= id(TailsAni_Drown_ptr)	; 23 ; $17
+AniIDTailsAni_Death		= id(TailsAni_Death_ptr)	; 24 ; $18
+AniIDTailsAni_Hurt		= id(TailsAni_Hurt_ptr)		; 25 ; $19
+AniIDTailsAni_Hurt2		= id(TailsAni_Hurt2_ptr)	; 26 ; $1A
+AniIDTailsAni_Slide		= id(TailsAni_Slide_ptr)	; 27 ; $1B
+AniIDTailsAni_Blank		= id(TailsAni_Blank_ptr)	; 28 ; $1C
+AniIDTailsAni_Dummy4		= id(TailsAni_Dummy4_ptr)	; 29 ; $1D
+AniIDTailsAni_Dummy5		= id(TailsAni_Dummy5_ptr)	; 30 ; $1E
+AniIDTailsAni_HaulAss		= id(TailsAni_HaulAss_ptr)	; 31 ; $1F
+AniIDTailsAni_Fly		= id(TailsAni_Fly_ptr)		; 32 ; $20
 
 
 ; Other sizes
@@ -1105,12 +1105,12 @@ Camera_X_pos_P2:		ds.l	1
 Camera_Y_pos_P2:		ds.l	1
 Camera_BG_X_pos_P2:		ds.l	1	; only used sometimes as the layer deformation makes it sort of redundant
 Camera_BG_Y_pos_P2:		ds.l	1
-Camera_BG2_X_pos_P2:	ds.w	1	; unused (only initialised at beginning of level)?
+Camera_BG2_X_pos_P2:		ds.w	1	; unused (only initialised at beginning of level)?
 				ds.w	1	; $FFFFEE32-$FFFFEE33 ; seems unused
-Camera_BG2_Y_pos_P2:	ds.l	1
-Camera_BG3_X_pos_P2:	ds.w	1	; unused (only initialised at beginning of level)?
+Camera_BG2_Y_pos_P2:		ds.l	1
+Camera_BG3_X_pos_P2:		ds.w	1	; unused (only initialised at beginning of level)?
 				ds.w	1	; $FFFFEE3A-$FFFFEE3B ; seems unused
-Camera_BG3_Y_pos_P2:	ds.l	1
+Camera_BG3_Y_pos_P2:		ds.l	1
 Horiz_block_crossed_flag:	ds.b	1	; toggles between 0 and $10 when you cross a block boundary horizontally
 Verti_block_crossed_flag:	ds.b	1	; toggles between 0 and $10 when you cross a block boundary vertically
 Horiz_block_crossed_flag_BG:	ds.b	1	; toggles between 0 and $10 when background camera crosses a block boundary horizontally
@@ -1128,8 +1128,8 @@ Scroll_flags_BG2:		ds.w	1	; bitfield ; essentially unused; bit 0 = redraw left-m
 Scroll_flags_BG3:		ds.w	1	; bitfield ; for CPZ; bits 0-3 as Scroll_flags_BG but using Y-dependent BG camera; bits 4-5 = bits 2-3; bits 6-7 = bits 2-3
 Scroll_flags_P2:		ds.w	1	; bitfield ; bit 0 = redraw top row, bit 1 = redraw bottom row, bit 2 = redraw left-most column, bit 3 = redraw right-most column
 Scroll_flags_BG_P2:		ds.w	1	; bitfield ; bits 0-3 as above, bit 4 = redraw top row (except leftmost block), bit 5 = redraw bottom row (except leftmost block), bits 6-7 = as bits 0-1
-Scroll_flags_BG2_P2:	ds.w	1	; bitfield ; essentially unused; bit 0 = redraw left-most column, bit 1 = redraw right-most column
-Scroll_flags_BG3_P2:	ds.w	1	; bitfield ; for CPZ; bits 0-3 as Scroll_flags_BG but using Y-dependent BG camera; bits 4-5 = bits 2-3; bits 6-7 = bits 2-3
+Scroll_flags_BG2_P2:		ds.w	1	; bitfield ; essentially unused; bit 0 = redraw left-most column, bit 1 = redraw right-most column
+Scroll_flags_BG3_P2:		ds.w	1	; bitfield ; for CPZ; bits 0-3 as Scroll_flags_BG but using Y-dependent BG camera; bits 4-5 = bits 2-3; bits 6-7 = bits 2-3
 Camera_RAM_copy:		ds.l	2	; copied over every V-int
 Camera_BG_copy:			ds.l	2	; copied over every V-int
 Camera_BG2_copy:		ds.l	2	; copied over every V-int
@@ -1146,8 +1146,8 @@ Scroll_flags_BG3_copy_P2:	ds.w	1	; copied over every V-int
 
 Camera_X_pos_diff:		ds.w	1	; (new X pos - old X pos) * 256
 Camera_Y_pos_diff:		ds.w	1	; (new Y pos - old Y pos) * 256
-Camera_BG_X_pos_diff:	ds.w	1	; Effective camera change used in WFZ ending and HTZ screen shake
-Camera_BG_Y_pos_diff:	ds.w	1	; Effective camera change used in WFZ ending and HTZ screen shake
+Camera_BG_X_pos_diff:		ds.w	1	; Effective camera change used in WFZ ending and HTZ screen shake
+Camera_BG_Y_pos_diff:		ds.w	1	; Effective camera change used in WFZ ending and HTZ screen shake
 Camera_X_pos_diff_P2:		ds.w	1	; (new X pos - old X pos) * 256
 Camera_Y_pos_diff_P2:		ds.w	1	; (new Y pos - old Y pos) * 256
 Screen_Shaking_Flag_HTZ:	ds.b	1	; activates screen shaking code in HTZ's layer deformation routine
@@ -1219,8 +1219,8 @@ VDP_Reg1_val:			ds.w	1	; normal value of VDP register #1 when display is disable
 Demo_Time_left:			ds.w	1	; 2 bytes
 
 Vscroll_Factor:
-Vscroll_Factor_FG:			ds.w	1
-Vscroll_Factor_BG:			ds.w	1
+Vscroll_Factor_FG:		ds.w	1
+Vscroll_Factor_BG:		ds.w	1
 unk_F61A:			ds.l	1	; Only ever cleared, never used
 Vscroll_Factor_P2:
 Vscroll_Factor_P2_FG:		ds.w	1
@@ -1254,23 +1254,23 @@ Water_Level_3:			ds.w	1
 Water_on:			ds.b	1	; is set based on Water_flag
 Water_routine:			ds.b	1
 Water_fullscreen_flag:		ds.b	1	; was "Water_move"
-Do_Updates_in_H_int:	ds.b	1
+Do_Updates_in_H_int:		ds.b	1
 
 PalCycle_Frame_CNZ:		ds.w	1
 PalCycle_Frame2:		ds.w	1
 PalCycle_Frame3:		ds.w	1
-PalCycle_Frame2_CNZ:	ds.w	1
+PalCycle_Frame2_CNZ:		ds.w	1
 				ds.b	4	; $FFFFF658-$FFFFF65B ; seems unused
 Palette_frame:			ds.w	1
 Palette_timer:			ds.b	1	; was "Palette_frame_count"
 Super_Sonic_palette:		ds.b	1
 
-DEZ_Eggman:						; Word
+DEZ_Eggman:					; Word
 DEZ_Shake_Timer:				; Word
-WFZ_LevEvent_Subrout:			; Word
-SegaScr_PalDone_Flag:			; Byte (cleared once as a word)
+WFZ_LevEvent_Subrout:				; Word
+SegaScr_PalDone_Flag:				; Byte (cleared once as a word)
 Credits_Trigger:		ds.b	1	; cleared as a word a couple times
-Ending_PalCycle_flag:	ds.b	1
+Ending_PalCycle_flag:		ds.b	1
 
 SegaScr_VInt_Subrout:
 Ending_VInt_Subrout:
@@ -1325,14 +1325,14 @@ Ring_start_addr_P2:		ds.w	1
 Ring_end_addr_P2:		ds.w	1
 CNZ_Bumper_routine:		ds.b	1
 CNZ_Bumper_UnkFlag:		ds.b	1	; Set only, never used again
-CNZ_Visible_bumpers_start:			ds.l	1
-CNZ_Visible_bumpers_end:			ds.l	1
-CNZ_Visible_bumpers_start_P2:			ds.l	1
-CNZ_Visible_bumpers_end_P2:			ds.l	1
+CNZ_Visible_bumpers_start:	ds.l	1
+CNZ_Visible_bumpers_end:	ds.l	1
+CNZ_Visible_bumpers_start_P2:	ds.l	1
+CNZ_Visible_bumpers_end_P2:	ds.l	1
 
-Screen_redraw_flag:			ds.b	1	; if whole screen needs to redraw, such as when you destroy that piston before the boss in WFZ
-CPZ_UnkScroll_Timer:	ds.b	1	; Used only in unused CPZ scrolling function
-WFZ_SCZ_Fire_Toggle:	ds.b	1
+Screen_redraw_flag:		ds.b	1	; if whole screen needs to redraw, such as when you destroy that piston before the boss in WFZ
+CPZ_UnkScroll_Timer:		ds.b	1	; Used only in unused CPZ scrolling function
+WFZ_SCZ_Fire_Toggle:		ds.b	1
 				ds.b	1	; $FFFFF72F ; seems unused
 Water_flag:			ds.b	1	; if the level has water or oil
 				ds.b	1	; $FFFFF731 ; seems unused
@@ -1353,7 +1353,7 @@ Boss_Y_pos:			ds.w	1
 				ds.w	1	; same here
 Boss_X_vel:			ds.w	1
 Boss_Y_vel:			ds.w	1
-Boss_Countdown:		ds.w	1
+Boss_Countdown:			ds.w	1
 				ds.w	1	; $FFFFF75E-$FFFFF75F ; unused
 Boss_variables_end:
 
@@ -1362,9 +1362,9 @@ Sonic_acceleration:		ds.w	1
 Sonic_deceleration:		ds.w	1
 Sonic_LastLoadedDPLC:		ds.b	1	; mapping frame number when Sonic last had his tiles requested to be transferred from ROM to VRAM. can be set to a dummy value like -1 to force a refresh DMA. was: Sonic_mapping_frame
 				ds.b	1	; $FFFFF767 ; seems unused
-Primary_Angle:		ds.b	1
+Primary_Angle:			ds.b	1
 				ds.b	1	; $FFFFF769 ; seems unused
-Secondary_Angle:	ds.b	1
+Secondary_Angle:		ds.b	1
 				ds.b	1	; $FFFFF76B ; seems unused
 Obj_placement_routine:		ds.b	1
 				ds.b	1	; $FFFFF76D ; seems unused
@@ -1392,18 +1392,18 @@ Boss_defeated_flag:		ds.b	1
 				ds.b	2	; $FFFFF7A8-$FFFFF7A9 ; seems unused
 Current_Boss_ID:		ds.b	1
 				ds.b	5	; $FFFFF7AB-$FFFFF7AF ; seems unused
-MTZ_Platform_Cog_X:			ds.w	1	; X position of moving MTZ platform for cog animation.
+MTZ_Platform_Cog_X:		ds.w	1	; X position of moving MTZ platform for cog animation.
 MTZCylinder_Angle_Sonic:	ds.b	1
 MTZCylinder_Angle_Tails:	ds.b	1
 				ds.b	$A	; $FFFFF7B4-$FFFFF7BD ; seems unused
-BigRingGraphics:	ds.w	1	; S1 holdover
+BigRingGraphics:		ds.w	1	; S1 holdover
 				ds.b	7	; $FFFFF7C0-$FFFFF7C6 ; seems unused
 WindTunnel_flag:		ds.b	1
 				ds.b	1	; $FFFFF7C8 ; seems unused
-WindTunnel_holding_flag:			ds.b	1
+WindTunnel_holding_flag:	ds.b	1
 				ds.b	2	; $FFFFF7CA-$FFFFF7CB ; seems unused
 Control_Locked:			ds.b	1
-SpecialStage_flag_2P:			ds.b	1
+SpecialStage_flag_2P:		ds.b	1
 				ds.b	1	; $FFFFF7CE ; seems unused
 Control_Locked_P2:		ds.b	1
 Chain_Bonus_counter:		ds.w	1	; counts up when you destroy things that give points, resets when you touch the ground
@@ -1442,15 +1442,15 @@ Obj_respawn_data_End:
 				ds.b	$FE	; Stack; the first $7E bytes are cleared by ObjectsManager_Init, with possibly disastrous consequences. At least $A0 bytes are needed.
 System_Stack:
 
-SS_2p_Flag:				ds.w	1	; $FFFFFE00-$FFFFFE01 ; seems unused
+SS_2p_Flag:			ds.w	1	; $FFFFFE00-$FFFFFE01 ; seems unused
 Level_Inactive_flag:		ds.w	1	; (2 bytes)
 Timer_frames:			ds.w	1	; (2 bytes)
 Debug_object:			ds.b	1
 				ds.b	1	; $FFFFFE07 ; seems unused
 Debug_placement_mode:		ds.b	1
 				ds.b	1	; the whole word is tested, but the debug mode code uses only the low byte
-Debug_Accel_Timer:	ds.b	1
-Debug_Speed:		ds.b	1
+Debug_Accel_Timer:		ds.b	1
+Debug_Speed:			ds.b	1
 Vint_runcount:			ds.l	1
 
 Current_ZoneAndAct:				; 2 bytes
@@ -1491,7 +1491,7 @@ Saved_y_pos:			ds.w	1
 Saved_Ring_count:		ds.w	1
 Saved_Timer:			ds.l	1
 Saved_art_tile:			ds.w	1
-Saved_Solid_bits:			ds.w	1
+Saved_Solid_bits:		ds.w	1
 Saved_Camera_X_pos:		ds.w	1
 Saved_Camera_Y_pos:		ds.w	1
 Saved_Camera_BG_X_pos:		ds.w	1
@@ -1510,9 +1510,9 @@ Saved_Dynamic_Resize_Routine:	ds.b	1
 
 				ds.b	5	; $FFFFFE59-$FFFFFE5D ; seems unused
 Oscillating_Numbers:
-Oscillation_Control:			ds.w	1
+Oscillation_Control:		ds.w	1
 Oscillating_variables:
-Oscillating_Data:				ds.w	$20
+Oscillating_Data:		ds.w	$20
 Oscillating_Numbers_End
 
 Logspike_anim_counter:		ds.b	1
@@ -1557,7 +1557,7 @@ Saved_y_pos_2P:			ds.w	1
 Saved_Ring_count_2P:		ds.w	1
 Saved_Timer_2P:			ds.l	1
 Saved_art_tile_2P:		ds.w	1
-Saved_Solid_bits_2P:			ds.w	1
+Saved_Solid_bits_2P:		ds.w	1
 Rings_Collected:		ds.w	1	; number of rings collected during an act in two player mode
 Rings_Collected_2P:		ds.w	1
 Monitors_Broken:		ds.w	1	; number of monitors broken during an act in two player mode
@@ -1580,26 +1580,26 @@ Results_Data_2P_End:
 SS_Total_Won:			ds.b	2	; 2 bytes (player 1 then player 2)
 				ds.b	6	; $FFFFFF3A-$FFFFFF3F ; seems unused
 Perfect_rings_left:		ds.w	1
-Perfect_rings_flag:			ds.w	1
+Perfect_rings_flag:		ds.w	1
 				ds.b	8	; $FFFFFF44-$FFFFFF4B ; seems unused
 
 CreditsScreenIndex:
-SlotMachineInUse:			ds.w	1
-SlotMachineVariables:	; $12 values
-SlotMachine_Routine:	ds.b	1
+SlotMachineInUse:		ds.w	1
+SlotMachineVariables:		; $12 values
+SlotMachine_Routine:		ds.b	1
 SlotMachine_Timer:		ds.b	1
 				ds.b	1	; $FFFFFF50 ; seems unused except for 1 write
 SlotMachine_Index:		ds.b	1
 SlotMachine_Reward:		ds.w	1
-SlotMachine_Slot1Pos:	ds.w	1
-SlotMachine_Slot1Speed:	ds.b	1
-SlotMachine_Slot1Rout:	ds.b	1
-SlotMachine_Slot2Pos:	ds.w	1
-SlotMachine_Slot2Speed:	ds.b	1
-SlotMachine_Slot2Rout:	ds.b	1
-SlotMachine_Slot3Pos:	ds.w	1
-SlotMachine_Slot3Speed:	ds.b	1
-SlotMachine_Slot3Rout:	ds.b	1
+SlotMachine_Slot1Pos:		ds.w	1
+SlotMachine_Slot1Speed:		ds.b	1
+SlotMachine_Slot1Rout:		ds.b	1
+SlotMachine_Slot2Pos:		ds.w	1
+SlotMachine_Slot2Speed:		ds.b	1
+SlotMachine_Slot2Rout:		ds.b	1
+SlotMachine_Slot3Pos:		ds.w	1
+SlotMachine_Slot3Speed:		ds.b	1
+SlotMachine_Slot3Rout:		ds.b	1
 
 				ds.b	$10	; $FFFFFF60-$FFFFFF6F ; seems unused
 
@@ -1637,7 +1637,7 @@ Got_Emeralds_array:		ds.b	7	; 7 bytes
 Next_Extra_life_score:		ds.l	1
 Next_Extra_life_score_2P:	ds.l	1
 Level_Has_Signpost:		ds.w	1	; 1 = signpost, 0 = boss or nothing
-Signpost_prev_frame:	ds.b	1
+Signpost_prev_frame:		ds.b	1
 				ds.b	1	; $FFFFFFCB ; seems unused
 Camera_Min_Y_pos_Debug_Copy:	ds.w	1
 Camera_Max_Y_pos_Debug_Copy:	ds.w	1
@@ -1771,75 +1771,75 @@ SS_Dynamic_Object_RAM_End:
 	dephase
 
 	phase (SS_Shared_RAM)
-				; The special stage mode also uses the rest of the RAM for
-				; different purposes.
-PNT_Buffer:			ds.b	$700
+					; The special stage mode also uses the rest of the RAM for
+					; different purposes.
+PNT_Buffer:				ds.b	$700
 PNT_Buffer_End:
-SS_Horiz_Scroll_Buf_2:		ds.b	$400
+SS_Horiz_Scroll_Buf_2:			ds.b	$400
 
-SSTrack_mappings_bitflags:				ds.l	1
-SSTrack_mappings_uncompressed:			ds.l	1
-SSTrack_anim:							ds.b	1
-SSTrack_last_anim_frame:				ds.b	1
-SpecialStage_CurrentSegment:			ds.b	1
-SSTrack_anim_frame:						ds.b	1
-SS_Alternate_PNT:						ds.b	1
-SSTrack_drawing_index:					ds.b	1
-SSTrack_Orientation:					ds.b	1
-SS_Alternate_HorizScroll_Buf:			ds.b	1
-SSTrack_mapping_frame:					ds.b	1
-SS_Last_Alternate_HorizScroll_Buf:		ds.b	1
-SS_New_Speed_Factor:					ds.l	1
-SS_Cur_Speed_Factor:					ds.l	1
-		ds.b	5
-SSTrack_duration_timer:					ds.b	1
-		ds.b	1
-SS_player_anim_frame_timer:				ds.b	1
-SpecialStage_LastSegment:				ds.b	1
-SpecialStage_Started:					ds.b	1
-		ds.b	4
-SSTrack_last_mappings_copy:				ds.l	1
-SSTrack_last_mappings:					ds.l	1
-		ds.b	4
-SSTrack_LastVScroll:					ds.w	1
-		ds.b	3
-SSTrack_last_mapping_frame:				ds.b	1
-SSTrack_mappings_RLE:					ds.l	1
-SSDrawRegBuffer:						ds.w	6
+SSTrack_mappings_bitflags:		ds.l	1
+SSTrack_mappings_uncompressed:		ds.l	1
+SSTrack_anim:				ds.b	1
+SSTrack_last_anim_frame:		ds.b	1
+SpecialStage_CurrentSegment:		ds.b	1
+SSTrack_anim_frame:			ds.b	1
+SS_Alternate_PNT:			ds.b	1
+SSTrack_drawing_index:			ds.b	1
+SSTrack_Orientation:			ds.b	1
+SS_Alternate_HorizScroll_Buf:		ds.b	1
+SSTrack_mapping_frame:			ds.b	1
+SS_Last_Alternate_HorizScroll_Buf:	ds.b	1
+SS_New_Speed_Factor:			ds.l	1
+SS_Cur_Speed_Factor:			ds.l	1
+					ds.b	5
+SSTrack_duration_timer:			ds.b	1
+					ds.b	1
+SS_player_anim_frame_timer:		ds.b	1
+SpecialStage_LastSegment:		ds.b	1
+SpecialStage_Started:			ds.b	1
+					ds.b	4
+SSTrack_last_mappings_copy:		ds.l	1
+SSTrack_last_mappings:			ds.l	1
+					ds.b	4
+SSTrack_LastVScroll:			ds.w	1
+					ds.b	3
+SSTrack_last_mapping_frame:		ds.b	1
+SSTrack_mappings_RLE:			ds.l	1
+SSDrawRegBuffer:			ds.w	6
 SSDrawRegBuffer_End
-		ds.b	2
-SpecialStage_LastSegment2:	ds.b	1
-SS_unk_DB4D:	ds.b	1
-		ds.b	$14
+					ds.b	2
+SpecialStage_LastSegment2:		ds.b	1
+SS_unk_DB4D:				ds.b	1
+					ds.b	$14
 SS_Ctrl_Record_Buf:
-				ds.w	$F
+					ds.w	$F
 SS_Last_Ctrl_Record:
-				ds.w	1
+					ds.w	1
 SS_Ctrl_Record_Buf_End
-SS_CurrentPerspective:	ds.l	1
-SS_Check_Rings_flag:		ds.b	1
-SS_Pause_Only_flag:		ds.b	1
-SS_CurrentLevelObjectLocations:	ds.l	1
-SS_Ring_Requirement:	ds.w	1
-SS_CurrentLevelLayout:	ds.l	1
-		ds.b	1
-SS_2P_BCD_Score:	ds.b	1
-		ds.b	1
-SS_NoCheckpoint_flag:	ds.b	1
-		ds.b	2
-SS_Checkpoint_Rainbow_flag:	ds.b	1
-SS_Rainbow_palette:	ds.b	1
-SS_Perfect_rings_left:	ds.w	1
-		ds.b	2
-SS_Star_color_1:	ds.b	1
-SS_Star_color_2:	ds.b	1
-SS_NoCheckpointMsg_flag:	ds.b	1
-		ds.b	1
-SS_NoRingsTogoLifetime:	ds.w	1
-SS_RingsToGoBCD:		ds.w	1
-SS_HideRingsToGo:	ds.b	1
-SS_TriggerRingsToGo:	ds.b	1
-			ds.b	$58	; unused
+SS_CurrentPerspective:			ds.l	1
+SS_Check_Rings_flag:			ds.b	1
+SS_Pause_Only_flag:			ds.b	1
+SS_CurrentLevelObjectLocations:		ds.l	1
+SS_Ring_Requirement:			ds.w	1
+SS_CurrentLevelLayout:			ds.l	1
+					ds.b	1
+SS_2P_BCD_Score:			ds.b	1
+					ds.b	1
+SS_NoCheckpoint_flag:			ds.b	1
+					ds.b	2
+SS_Checkpoint_Rainbow_flag:		ds.b	1
+SS_Rainbow_palette:			ds.b	1
+SS_Perfect_rings_left:			ds.w	1
+					ds.b	2
+SS_Star_color_1:			ds.b	1
+SS_Star_color_2:			ds.b	1
+SS_NoCheckpointMsg_flag:		ds.b	1
+					ds.b	1
+SS_NoRingsTogoLifetime:			ds.w	1
+SS_RingsToGoBCD:			ds.w	1
+SS_HideRingsToGo:			ds.b	1
+SS_TriggerRingsToGo:			ds.b	1
+					ds.b	$58	; unused
 
     if * > SS_Shared_RAM_End
 	fatal "Special stage variables exceed size of shared RAM."
@@ -1930,19 +1930,19 @@ Security_Addr =			$A14000
 
 ; ---------------------------------------------------------------------------
 ; I/O Area 
-HW_Version =				$A10001
-HW_Port_1_Data =			$A10003
-HW_Port_2_Data =			$A10005
-HW_Expansion_Data =			$A10007
-HW_Port_1_Control =			$A10009
-HW_Port_2_Control =			$A1000B
+HW_Version =			$A10001
+HW_Port_1_Data =		$A10003
+HW_Port_2_Data =		$A10005
+HW_Expansion_Data =		$A10007
+HW_Port_1_Control =		$A10009
+HW_Port_2_Control =		$A1000B
 HW_Expansion_Control =		$A1000D
-HW_Port_1_TxData =			$A1000F
-HW_Port_1_RxData =			$A10011
-HW_Port_1_SCtrl =			$A10013
-HW_Port_2_TxData =			$A10015
-HW_Port_2_RxData =			$A10017
-HW_Port_2_SCtrl =			$A10019
+HW_Port_1_TxData =		$A1000F
+HW_Port_1_RxData =		$A10011
+HW_Port_1_SCtrl =		$A10013
+HW_Port_2_TxData =		$A10015
+HW_Port_2_RxData =		$A10017
+HW_Port_2_SCtrl =		$A10019
 HW_Expansion_TxData =		$A1001B
 HW_Expansion_RxData =		$A1001D
 HW_Expansion_SCtrl =		$A1001F
@@ -2433,4 +2433,3 @@ ArtTile_ArtNem_BigRing_Flash          = $0462
 ArtTile_ArtNem_EndPoints              = $04B6
 ArtTile_ArtNem_BreakWall              = $0590
 ArtTile_ArtNem_GHZ_Purple_Rock        = $06C0
-
