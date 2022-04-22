@@ -62779,21 +62779,28 @@ Obj52_Init:
 	move.l	#Obj52_MapUnc_302BC,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Eggpod_2,0,0),art_tile(a0)
 	ori.b	#4,render_flags(a0)
-	move.b	#-$70,mainspr_width(a0)
-	move.b	#-$70,mainspr_height(a0)
+	move.b	#$90,mainspr_width(a0)
+    if ~~fixBugs
+	; This instruction is pointless, as bit 4 of 'render_flags' is never
+	; set anyway. Also, it clashes with 'boss_invulnerable_time', as they
+	; use the same SST slot. Unlike the Casino Night Zone boss, this does
+	; not result in any bugs, because 'boss_invulnerable_time' is cleared
+	; right after this.
+	move.b	#$90,mainspr_height(a0)
+    endif
 	move.b	#4,priority(a0)
 	move.w	#$3040,x_pos(a0)
 	move.w	#$580,y_pos(a0)
-	move.b	#1,objoff_2C(a0)
+	move.b	#1,boss_defeated(a0)
 	move.b	#1,mainspr_mapframe(a0)
 	addq.b	#2,boss_subtype(a0)
 	bset	#6,render_flags(a0)
 	move.b	#$32,collision_flags(a0)
-	move.b	#8,objoff_32(a0)
+	move.b	#8,boss_hitcount2(a0)
 	move.w	#-$E0,(Boss_Y_vel).w
 	move.w	x_pos(a0),(Boss_X_pos).w
 	move.w	y_pos(a0),(Boss_Y_pos).w
-	clr.b	objoff_14(a0)
+	clr.b	boss_invulnerable_time(a0)
 	move.w	x_pos(a0),sub2_x_pos(a0)
 	move.w	y_pos(a0),sub2_y_pos(a0)
 	move.b	#2,sub2_mapframe(a0)
@@ -62813,7 +62820,7 @@ loc_2FCEA:
 ; loc_2FD00:
 Obj52_Mobile:
 	moveq	#0,d0
-	move.b	angle(a0),d0
+	move.b	boss_routine(a0),d0
 	move.w	off_2FD0E(pc,d0.w),d1
 	jmp	off_2FD0E(pc,d1.w)
 ; ===========================================================================
@@ -62829,7 +62836,7 @@ off_2FD0E:	offsetTable
 Obj52_Mobile_Raise:
 	move.b	#0,(Boss_CollisionRoutine).w
 	bsr.w	Boss_MoveObject
-	tst.b	objoff_2C(a0)
+	tst.b	boss_defeated(a0)
 	bne.s	loc_2FD32
 	cmpi.w	#$518,(Boss_Y_pos).w
 	bgt.s	loc_2FD50
@@ -62842,9 +62849,9 @@ loc_2FD32:
 
 loc_2FD3A:
 	move.w	#0,(Boss_Y_vel).w
-	move.b	#4,mapping_frame(a0)
-	addq.b	#2,angle(a0)
-	move.b	#$3C,objoff_3E(a0)
+	move.b	#4,boss_sine_count(a0)
+	addq.b	#2,boss_routine(a0)
+	move.b	#60,objoff_3E(a0)
 
 loc_2FD50:
 	move.w	(Boss_Y_pos).w,y_pos(a0)
@@ -62885,12 +62892,12 @@ loc_2FDAA:
 
 ; loc_2FDC0:
 Obj52_Mobile_Hover:
-	move.b	mapping_frame(a0),d0
+	move.b	boss_sine_count(a0),d0
 	jsr	(CalcSine).l
 	asr.w	#7,d1
 	add.w	(Boss_Y_pos).w,d1
 	move.w	d1,y_pos(a0)
-	addq.b	#4,mapping_frame(a0)
+	addq.b	#4,boss_sine_count(a0)
 	bra.s	loc_2FDAA
 ; ===========================================================================
 
@@ -62903,7 +62910,7 @@ Obj52_Mobile_BeginLower:
 	subi_.b	#1,objoff_3E(a0)
 	bne.w	Obj52_Mobile_Hover
 	move.w	#$E0,(Boss_Y_vel).w
-	addq.b	#2,angle(a0)
+	addq.b	#2,boss_routine(a0)
 	bsr.w	loc_2FEDE
 	jmpto	(DisplaySprite).l, JmpTo36_DisplaySprite
 ; ===========================================================================
@@ -62911,7 +62918,7 @@ Obj52_Mobile_BeginLower:
 ; loc_2FE0E:
 Obj52_Mobile_Lower:
 	bsr.w	Boss_MoveObject
-	tst.b	objoff_2C(a0)
+	tst.b	boss_defeated(a0)
 	bne.s	loc_2FE22
 	cmpi.w	#$538,(Boss_Y_pos).w
 	blt.s	loc_2FE58
@@ -62937,7 +62944,7 @@ Obj52_CreateLavaBall:
 	jsrto	(PlaySound).l, JmpTo7_PlaySound
 
 loc_2FE58:
-	tst.b	objoff_2C(a0)
+	tst.b	boss_defeated(a0)
 	bne.s	loc_2FE6E
 	cmpi.w	#$5A0,(Boss_Y_pos).w
 	blt.s	loc_2FED0
@@ -62952,21 +62959,21 @@ loc_2FE6E:
 
 loc_2FE7C:
 	move.w	#-$E0,(Boss_Y_vel).w
-	move.b	#0,angle(a0)
+	move.b	#0,boss_routine(a0)
 	sf	objoff_38(a0)
 	move.w	(MainCharacter+x_pos).w,d0
 	subi.w	#$2FC0,d0
 	bmi.s	loc_2FEA8
 	move.w	#$580,(Boss_Y_pos).w
 	move.w	#$3040,x_pos(a0)
-	st	objoff_2C(a0)
+	st	boss_defeated(a0)
 	bra.s	loc_2FEB8
 ; ===========================================================================
 
 loc_2FEA8:
 	move.w	#$2F40,x_pos(a0)
 	move.w	#$5A0,(Boss_Y_pos).w
-	sf	objoff_2C(a0)
+	sf	boss_defeated(a0)
 
 loc_2FEB8:
 	move.w	x_pos(a0),d0
@@ -63142,15 +63149,15 @@ Obj52_LavaBall_Move:
 ; ===========================================================================
 
 loc_300A4:
-	cmpi.b	#8,angle(a0)
+	cmpi.b	#8,boss_routine(a0)
 	bhs.s	return_300EA
-	tst.b	objoff_32(a0)
+	tst.b	boss_hitcount2(a0)
 	beq.s	Obj52_Defeat
 	tst.b	collision_flags(a0)
 	bne.s	return_300EA
-	tst.b	objoff_14(a0)
+	tst.b	boss_invulnerable_time(a0)
 	bne.s	loc_300CE
-	move.b	#$20,objoff_14(a0)
+	move.b	#32,boss_invulnerable_time(a0)
 	move.w	#SndID_BossHit,d0
 	jsr	(PlaySound).l
 
@@ -63163,7 +63170,7 @@ loc_300CE:
 
 loc_300DC:
 	move.w	d0,(a1)
-	subq.b	#1,objoff_14(a0)
+	subq.b	#1,boss_invulnerable_time(a0)
 	bne.s	return_300EA
 	move.b	#$32,collision_flags(a0)
 
@@ -63176,7 +63183,7 @@ Obj52_Defeat:
 	moveq	#100,d0
 	jsrto	(AddPoints).l, JmpTo4_AddPoints
 	move.w	#$B3,(Boss_Countdown).w
-	move.b	#8,angle(a0)
+	move.b	#8,boss_routine(a0)
 	moveq	#PLCID_Capsule,d0
 	jsrto	(LoadPLC).l, JmpTo7_LoadPLC
 	rts
@@ -63231,7 +63238,7 @@ loc_30170:
 loc_30182:
 	tst.b	render_flags(a0)
 	bpl.s	loc_301AA
-	tst.b	objoff_2C(a0)
+	tst.b	boss_defeated(a0)
 	bne.s	loc_3019C
 	cmpi.w	#$578,y_pos(a0)
 	bgt.w	loc_301AA
@@ -63700,8 +63707,8 @@ Obj89_Main_Laugh:
 
 ; loc_3077A:
 Obj89_Main_ChkHurt:
-	cmpi.b	#$3F,boss_invulnerable_time(a0)	; was boss hurt?
-	bne.s	return_3078C			; if not, branch
+	cmpi.b	#64-1,boss_invulnerable_time(a0)	; was boss hurt?
+	bne.s	return_3078C				; if not, branch
 	lea	(Boss_AnimationArray).w,a1
 	move.b	#-$40,1*2+1(a1)			; use hurt animation
 
@@ -63725,7 +63732,7 @@ Obj89_Main_HandleHoveringAndHits:
 	bne.s	return_307F2			; if yes, branch
 	tst.b	boss_invulnerable_time(a0)	; is boss invulnerable?
 	bne.s	Obj89_Main_Flash		; if yes, branch
-	move.b	#$40,boss_invulnerable_time(a0)	; make boss invulnerable
+	move.b	#64,boss_invulnerable_time(a0)	; make boss invulnerable
 	move.w	#SndID_BossHit,d0		; play "boss hit" sound
 	jsr	(PlaySound).l
 
@@ -65066,13 +65073,21 @@ Obj51_Init:
 	move.w	#$654,y_pos(a0)
 	move.b	#0,mainspr_mapframe(a0)
 	move.b	#$20,mainspr_width(a0)
+    if ~~fixBugs
+	; This instruction is pointless, as bit 4 of 'render_flags' is never
+	; set anyway. Also, it clashes with 'boss_invulnerable_time', as they
+	; use the same SST slot. This causes this boss to behave in numerous
+	; strange ways when it is first hit: no hit sound plays, the boss is
+	; invulnerable for much longer than it should be, and Eggman takes a
+	; while to react and show his hurt face.
 	move.b	#$80,mainspr_height(a0)
+    endif
 	addq.b	#2,boss_subtype(a0)
-	move.b	#0,angle(a0)
+	move.b	#0,boss_routine(a0)
 	bset	#6,render_flags(a0)
 	move.b	#4,mainspr_childsprites(a0)
 	move.b	#$F,collision_flags(a0)
-	move.b	#8,objoff_32(a0)
+	move.b	#8,boss_hitcount2(a0)
 	move.w	x_pos(a0),(Boss_X_pos).w
 	move.w	y_pos(a0),(Boss_Y_pos).w
 	move.w	x_pos(a0),sub2_x_pos(a0)
@@ -65122,7 +65137,7 @@ loc_31A04:
 
 loc_31A1C:
 	moveq	#0,d0
-	move.b	angle(a0),d0
+	move.b	boss_routine(a0),d0
 	move.w	off_31A2A(pc,d0.w),d1
 	jmp	off_31A2A(pc,d1.w)
 ; ===========================================================================
@@ -65189,7 +65204,7 @@ loc_31AB6:
 	cmpi.b	#3,objoff_2D(a0)
 	bhs.s	loc_31B46
 	addq.b	#1,objoff_2D(a0)
-	addq.b	#2,angle(a0)
+	addq.b	#2,boss_routine(a0)
 	move.b	#8,(Boss_AnimationArray).w
 	move.b	#0,(Boss_AnimationArray+3).w
 	move.b	#0,(Boss_AnimationArray+9).w
@@ -65207,7 +65222,7 @@ loc_31B06:
 	move.b	#$20,(Boss_AnimationArray+3).w
 	move.b	#$20,(Boss_AnimationArray+9).w
 	move.b	#9,(Boss_AnimationArray).w
-	addq.b	#4,angle(a0)
+	addq.b	#4,boss_routine(a0)
 	move.w	#0,(Boss_X_vel).w
 	move.w	#$180,(Boss_Y_vel).w
 	move.b	#0,objoff_3E(a0)
@@ -65253,7 +65268,7 @@ loc_31BC6:
 	bgt.w	loc_31C08
 	move.b	#0,(Boss_AnimationArray+3).w
 	move.b	#0,(Boss_AnimationArray+9).w
-	move.b	#0,angle(a0)
+	move.b	#0,boss_routine(a0)
 	move.w	#-1,(Boss_Countdown).w
 	move.b	#$40,objoff_3F(a0)
 	bra.w	loc_31C08
@@ -65313,7 +65328,7 @@ loc_31C22:
 loc_31C60:
 	cmpi.w	#$654,y_pos(a0)
 	bhs.s	loc_31C08
-	move.b	#0,angle(a0)
+	move.b	#0,boss_routine(a0)
 	move.w	#0,(Boss_Y_vel).w
 	move.w	#-$180,(Boss_X_vel).w
 	btst	#0,render_flags(a0)
@@ -65326,7 +65341,7 @@ BranchTo_loc_31C08 ; BranchTo
 ; ===========================================================================
 
 loc_31C92:
-	cmpi.b	#$2F,mainspr_height(a0)
+	cmpi.b	#48-1,boss_invulnerable_time(a0)
 	bne.s	loc_31CAC
 	lea	(Boss_AnimationArray).w,a1
 	andi.b	#$F0,6(a1)
@@ -65354,22 +65369,22 @@ return_31CDA:
 ; ===========================================================================
 
 loc_31CDC:
-	move.b	mapping_frame(a0),d0
+	move.b	boss_sine_count(a0),d0
 	jsr	(CalcSine).l
 	asr.w	#6,d0
 	add.w	(Boss_Y_pos).w,d0
 	move.w	d0,y_pos(a0)
 	move.w	(Boss_X_pos).w,x_pos(a0)
-	addq.b	#2,mapping_frame(a0)
-	cmpi.b	#6,angle(a0)
+	addq.b	#2,boss_sine_count(a0)
+	cmpi.b	#6,boss_routine(a0)
 	bhs.s	return_31D40
-	tst.b	objoff_32(a0)
+	tst.b	boss_hitcount2(a0)
 	beq.s	loc_31D42
 	tst.b	collision_flags(a0)
 	bne.s	return_31D40
-	tst.b	mainspr_height(a0)
+	tst.b	boss_invulnerable_time(a0)
 	bne.s	loc_31D24
-	move.b	#$30,mainspr_height(a0)
+	move.b	#48,boss_invulnerable_time(a0)
 	move.w	#SndID_BossHit,d0
 	jsr	(PlaySound).l
 
@@ -65382,7 +65397,7 @@ loc_31D24:
 
 loc_31D32:
 	move.w	d0,(a1)
-	subq.b	#1,mainspr_height(a0)
+	subq.b	#1,boss_invulnerable_time(a0)
 	bne.s	return_31D40
 	move.b	#$F,collision_flags(a0)
 
@@ -65394,14 +65409,14 @@ loc_31D42:
 	moveq	#100,d0
 	jsrto	(AddPoints).l, JmpTo7_AddPoints
 	move.w	#$B3,(Boss_Countdown).w
-	move.b	#6,angle(a0)
+	move.b	#6,boss_routine(a0)
 	moveq	#PLCID_Capsule,d0
 	jsrto	(LoadPLC).l, JmpTo10_LoadPLC
 	rts
 ; ===========================================================================
 
 loc_31D5C:
-	st	objoff_2C(a0)
+	st	boss_defeated(a0)
 	subq.w	#1,(Boss_Countdown).w
 	bmi.s	loc_31D7E
 	move.b	#0,(Boss_CollisionRoutine).w
@@ -65415,7 +65430,7 @@ loc_31D7E:
 	bset	#0,render_flags(a0)
 	clr.w	(Boss_X_vel).w
 	clr.w	(Boss_Y_vel).w
-	addq.b	#2,angle(a0)
+	addq.b	#2,boss_routine(a0)
 	lea	(Boss_AnimationArray).w,a1
 	andi.b	#$F0,6(a1)
 	ori.b	#3,6(a1)
@@ -65459,7 +65474,7 @@ loc_31DE2:
 	beq.s	loc_31E02
 	cmpi.w	#$20,(Boss_Countdown).w
 	blo.s	loc_31E0E
-	addq.b	#2,angle(a0)
+	addq.b	#2,boss_routine(a0)
 	bra.s	loc_31E0E
 ; ===========================================================================
 
@@ -65539,7 +65554,7 @@ loc_31E76:
 	move.w	d1,sub3_y_pos(a0)
 	move.w	d0,sub4_x_pos(a0)
 	move.w	d1,sub4_y_pos(a0)
-	tst.b	objoff_2C(a0)
+	tst.b	boss_defeated(a0)
 	bne.s	loc_31EAE
 	move.w	d0,sub5_x_pos(a0)
 	move.w	d1,sub5_y_pos(a0)
@@ -65588,7 +65603,7 @@ return_31F22:
 
 loc_31F24:
 	movea.l	objoff_34(a0),a1 ; a1=object
-	cmpi.b	#6,angle(a1)
+	cmpi.b	#6,boss_routine(a1)
 	bhs.w	JmpTo59_DeleteObject
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
@@ -65614,7 +65629,7 @@ loc_31F48:
 	addi.w	#$30,y_pos(a0)
 	move.b	#8,y_radius(a0)
 	move.b	#8,x_radius(a0)
-	move.b	#$12,mapping_frame(a0)
+	move.b	#$12,boss_sine_count(a0)
 	move.b	#$98,collision_flags(a0)
 	rts
 ; ===========================================================================
@@ -65827,7 +65842,7 @@ Obj54_Init:
 	move.b	#$20,mainspr_width(a0)
 	clr.b	objoff_2B(a0)
 	clr.b	objoff_2C(a0)
-	move.b	#$40,mapping_frame(a0)
+	move.b	#$40,boss_sine_count(a0)
 	move.b	#$27,objoff_33(a0)
 	move.b	#$27,objoff_39(a0)
 	move.w	x_pos(a0),sub2_x_pos(a0)
@@ -65866,7 +65881,7 @@ Obj54_Init:
 ;loc_323BA
 Obj54_Main:
 	moveq	#0,d0
-	move.b	angle(a0),d0
+	move.b	boss_routine(a0),d0
 	move.w	Obj54_MainSubStates(pc,d0.w),d1
 	jmp	Obj54_MainSubStates(pc,d1.w)
 ; ===========================================================================
@@ -65888,7 +65903,7 @@ Obj54_MainSub0:
 	move.w	(Boss_Y_pos).w,y_pos(a0)
 	cmpi.w	#$4A0,(Boss_Y_pos).w
 	blo.s	+
-	addq.b	#2,angle(a0)		; => Obj54_MainSub2
+	addq.b	#2,boss_routine(a0)		; => Obj54_MainSub2
 	move.w	#0,(Boss_Y_vel).w
 	move.w	#-$100,(Boss_X_vel).w
 	bclr	#7,objoff_2B(a0)
@@ -65917,12 +65932,12 @@ Obj54_MainSub0:
 ; ===========================================================================
 ;loc_3243C
 Obj54_Float:
-	move.b	mapping_frame(a0),d0
+	move.b	boss_sine_count(a0),d0
 	jsr	(CalcSine).l
 	asr.w	#6,d0
 	add.w	(Boss_Y_pos).w,d0
 	move.w	d0,y_pos(a0)
-	addq.b	#4,mapping_frame(a0)
+	addq.b	#4,boss_sine_count(a0)
 	rts
 ; ===========================================================================
 ;loc_32456
@@ -65937,7 +65952,7 @@ Obj54_MainSub2:
 	bset	#0,render_flags(a0)
 	bset	#6,objoff_2B(a0)
 	beq.s	Obj54_MoveAndShow
-	addq.b	#2,angle(a0)		; => Obj54_MainSub4
+	addq.b	#2,boss_routine(a0)		; => Obj54_MainSub4
 	move.w	#-$100,(Boss_Y_vel).w
 	bra.s	Obj54_MoveAndShow
 ; ===========================================================================
@@ -65949,7 +65964,7 @@ Obj54_MainSub2:
 	bclr	#0,render_flags(a0)
 	bset	#6,objoff_2B(a0)
 	beq.s	Obj54_MoveAndShow
-	addq.b	#2,angle(a0)		; => Obj54_MainSub4
+	addq.b	#2,boss_routine(a0)		; => Obj54_MainSub4
 	move.w	#-$100,(Boss_Y_vel).w
 ;loc_324BC
 Obj54_MoveAndShow:
@@ -65994,7 +66009,7 @@ Obj54_MainSub4:
 	move.w	(Boss_X_vel).w,d0
 	or.w	(Boss_Y_vel).w,d0
 	bne.s	BranchTo_Obj54_MoveAndShow
-	addq.b	#2,angle(a0)		; => Obj54_MainSub6
+	addq.b	#2,boss_routine(a0)		; => Obj54_MainSub6
 
 BranchTo_Obj54_MoveAndShow ; BranchTo
 	bra.s	Obj54_MoveAndShow
@@ -66010,7 +66025,7 @@ Obj54_MainSub6:
 +
 	subq.b	#1,objoff_39(a0)
 	bne.s	BranchTo2_Obj54_MoveAndShow
-	addq.b	#2,angle(a0)		; => Obj54_MainSub8
+	addq.b	#2,boss_routine(a0)		; => Obj54_MainSub8
 
 BranchTo2_Obj54_MoveAndShow
 	bra.w	Obj54_MoveAndShow
@@ -66027,7 +66042,7 @@ Obj54_MainSub8:
 	cmpi.b	#$27,objoff_39(a0)
 	blo.s	BranchTo3_Obj54_MoveAndShow
 	move.w	#$100,(Boss_Y_vel).w
-	move.b	#0,angle(a0)		; => Obj54_MainSub0
+	move.b	#0,boss_routine(a0)		; => Obj54_MainSub0
 	bclr	#6,objoff_2B(a0)
 
 BranchTo3_Obj54_MoveAndShow
@@ -66058,7 +66073,7 @@ Obj54_MainSubA:
 	beq.s	+
 	move.b	#$80,objoff_3A(a0)
 +
-	addq.b	#2,angle(a0)		; => Obj54_MainSubC
+	addq.b	#2,boss_routine(a0)		; => Obj54_MainSubC
 
 BranchTo4_Obj54_MoveAndShow
 	bra.w	Obj54_MoveAndShow
@@ -66076,7 +66091,7 @@ Obj54_MainSubC:
 ; ===========================================================================
 +
 	move.w	#$100,(Boss_Y_vel).w
-	move.b	#0,angle(a0)		; => Obj54_MainSub0
+	move.b	#0,boss_routine(a0)		; => Obj54_MainSub0
 	bclr	#6,objoff_2B(a0)
 	bra.s	BranchTo5_Obj54_MoveAndShow
 ; ===========================================================================
@@ -66089,7 +66104,7 @@ Obj54_MainSubC:
 	move.w	#$100,(Boss_X_vel).w
 	bset	#0,render_flags(a0)
 +
-	move.b	#$E,angle(a0)		; => Obj54_MainSubE
+	move.b	#$E,boss_routine(a0)		; => Obj54_MainSubE
 	move.b	#0,objoff_2E(a0)
 	bclr	#6,objoff_2B(a0)
 	move.b	#0,objoff_2F(a0)
@@ -66227,7 +66242,7 @@ Obj54_AnimateFace:
 	ori.b	#5,2(a1)
 	tst.b	objoff_3E(a0)
 	beq.s	+
-	move.b	#$A,angle(a0)		; => Obj54_MainSubA
+	move.b	#$A,boss_routine(a0)		; => Obj54_MainSubA
 	move.w	#-$180,(Boss_Y_vel).w
 	subq.b	#1,objoff_3E(a0)
 	move.w	#0,(Boss_X_vel).w
@@ -66266,7 +66281,7 @@ Obj54_MainSub10:
 	bset	#0,render_flags(a0)
 	clr.w	(Boss_X_vel).w
 	clr.w	(Boss_Y_vel).w
-	addq.b	#2,angle(a0)		; => Obj54_MainSub12
+	addq.b	#2,boss_routine(a0)		; => Obj54_MainSub12
 	move.w	#-$12,(Boss_Countdown).w
 	lea	(Boss_AnimationArray).w,a1
 	move.b	#3,2(a1)
@@ -66330,16 +66345,16 @@ JmpTo60_DeleteObject ; JmpTo
 ; ===========================================================================
 
 loc_328C0:
-	move.b	mapping_frame(a0),d0
+	move.b	boss_sine_count(a0),d0
 	jsr	(CalcSine).l
 	asr.w	#6,d0
 	add.w	(Boss_Y_pos).w,d0
 	move.w	d0,y_pos(a0)
 	move.w	(Boss_X_pos).w,x_pos(a0)
-	addq.b	#2,mapping_frame(a0)
+	addq.b	#2,boss_sine_count(a0)
 ;loc_328DE
 Obj54_CheckHit:
-	cmpi.b	#$10,angle(a0)
+	cmpi.b	#$10,boss_routine(a0)
 	bhs.s	return_32924
 	tst.b	boss_hitcount2(a0)
 	beq.s	Obj54_Defeated
@@ -66370,7 +66385,7 @@ Obj54_Defeated:
 	moveq	#100,d0
 	jsrto	(AddPoints).l, JmpTo8_AddPoints
 	move.w	#$EF,(Boss_Countdown).w
-	move.b	#$10,angle(a0)		; => Obj54_MainSub10
+	move.b	#$10,boss_routine(a0)		; => Obj54_MainSub10
 	moveq	#PLCID_Capsule,d0
 	jsrto	(LoadPLC).l, JmpTo11_LoadPLC
 	rts
@@ -66454,7 +66469,7 @@ Obj53_Main:
 	move.b	#0,objoff_38(a1)
 	addi_.b	#1,objoff_2C(a1)
 	addq.b	#2,routine(a0)		; => Obj53_BreakAway
-	move.b	#$3C,objoff_32(a0)
+	move.b	#60,objoff_32(a0)
 	move.b	#2,anim(a0)
 	move.w	#-$400,y_vel(a0)
 	move.w	#-$80,d1
