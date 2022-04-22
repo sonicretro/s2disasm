@@ -17189,6 +17189,16 @@ ScrollVerti:
 	btst	#2,status(a0)	; is the player rolling?
 	beq.s	.notRolling	; if not, branch
 	subq.w	#5,d0		; subtract difference between standing and rolling heights
+    if fixBugs
+	; Tails is shorter than Sonic, so the above subtraction actually
+	; causes the camera to jolt slightly when he goes from standing to
+	; rolling, and vice versa. Not even Sonic 3 & Knuckles fixed this.
+	; To fix this, just adjust the subtraction to suit Tails (who is four
+	; pixels shorter).
+	cmpi.b	#ObjID_Tails,id(a0)
+	bne.s	.notRolling
+	addq.w	#4,d0
+    endif
 ; loc_D798:
 .notRolling:
 	btst	#1,status(a0)			; is the player in the air?
@@ -30167,8 +30177,16 @@ Touch_Rings:
 	move.b	y_radius(a0),d5
 	subq.b	#3,d5
 	sub.w	d5,d3	; subtract (Y radius - 3) from Y pos
-	cmpi.b	#$4D,mapping_frame(a0)
-	bne.s	+	; if you're not ducking, branch
+    if fixBugs
+	cmpi.b	#AniIDSonAni_Duck,anim(a0)	; is Sonic ducking?
+	bne.s	+				; if not, branch
+    else
+	; This logic only works for Sonic, not Tails. Also, it only applies
+	; to the last frame of his ducking animation. This is a leftover from
+	; Sonic 1, where Sonic's ducking animation only had one frame.
+	cmpi.b	#$4D,mapping_frame(a0)	; is Sonic ducking?
+	bne.s	+			; if not, branch
+    endif
 	addi.w	#$C,d3
 	moveq	#$A,d5
 +
@@ -30688,8 +30706,16 @@ Check_CNZ_bumpers:
 	move.b	y_radius(a0),d5
 	subq.b	#3,d5
 	sub.w	d5,d3
-	cmpi.b	#$4D,mapping_frame(a0)
-	bne.s	+
+    if fixBugs
+	cmpi.b	#AniIDSonAni_Duck,anim(a0)	; is Sonic ducking?
+	bne.s	+				; if not, branch
+    else
+	; This logic only works for Sonic, not Tails. Also, it only applies
+	; to the last frame of his ducking animation. This is a leftover from
+	; Sonic 1, where Sonic's ducking animation only had one frame.
+	cmpi.b	#$4D,mapping_frame(a0)	; is Sonic ducking?
+	bne.s	+			; if not, branch
+    endif
 	addi.w	#$C,d3
 	moveq	#$A,d5
 +
@@ -39574,8 +39600,21 @@ Obj05_Main:
 +
 	moveq	#0,d0
 	move.b	anim(a2),d0
+    if fixBugs
+	; Tails doesn't actually have to be pushing against something for his
+	; tails to animate as if he is. This is because bit 5 of 'status' is
+	; set whenever Tails is stood next to something: he doesn't
+	; necessarily have to be pushing against it. To fix this, we have to
+	; check if Tails is displaying any of his pushing sprites. This is
+	; exactly how this bug is fixed in Sonic 3 & Knuckles.
+	cmpi.b	#$63,mapping_frame(a2)
+	blo.s	+
+	cmpi.b	#$66,mapping_frame(a2)
+	bhi.s	+
+    else
 	btst	#5,status(a2)
 	beq.s	+
+    endif
 	moveq	#4,d0
 +
 	; This is here so Obj05Ani_Flick works
