@@ -17738,78 +17738,78 @@ Draw_BG1:
 	beq.w	return_DC90
 	bclr	#0,(a2)
 	beq.s	+
-	moveq	#-$10,d4
-	moveq	#-$10,d5
+	moveq	#-16,d4
+	moveq	#-16,d5
 	bsr.w	CalcBlockVRAMPos
-	moveq	#-$10,d4
-	moveq	#-$10,d5
+	moveq	#-16,d4
+	moveq	#-16,d5
 	bsr.w	DrawBlockRow1
 +
 	bclr	#1,(a2)
 	beq.s	+
-	move.w	#$E0,d4
-	moveq	#-$10,d5
+	move.w	#224,d4
+	moveq	#-16,d5
 	bsr.w	CalcBlockVRAMPos
-	move.w	#$E0,d4
-	moveq	#-$10,d5
+	move.w	#224,d4
+	moveq	#-16,d5
 	bsr.w	DrawBlockRow1
 +
 	bclr	#2,(a2)
 	beq.s	+
-	moveq	#-$10,d4
-	moveq	#-$10,d5
+	moveq	#-16,d4
+	moveq	#-16,d5
 	bsr.w	CalcBlockVRAMPos
-	moveq	#-$10,d4
-	moveq	#-$10,d5
+	moveq	#-16,d4
+	moveq	#-16,d5
 	bsr.w	DrawBlockCol1
 +
 	bclr	#3,(a2)
 	beq.s	+
-	moveq	#-$10,d4
+	moveq	#-16,d4
 	move.w	#320,d5
 	bsr.w	CalcBlockVRAMPos
-	moveq	#-$10,d4
+	moveq	#-16,d4
 	move.w	#320,d5
 	bsr.w	DrawBlockCol1
 +
 	bclr	#4,(a2)
 	beq.s	+
-	moveq	#-$10,d4
+	moveq	#-16,d4
 	moveq	#0,d5
 	bsr.w	CalcBlockVRAMPos2
-	moveq	#-$10,d4
+	moveq	#-16,d4
 	moveq	#0,d5
-	moveq	#$1F,d6
+	moveq	#64/2-1,d6 ; The entire width of the plane.
 	bsr.w	DrawBlockRow2
 +
 	bclr	#5,(a2)
 	beq.s	+
-	move.w	#$E0,d4
+	move.w	#224,d4
 	moveq	#0,d5
 	bsr.w	CalcBlockVRAMPos2
-	move.w	#$E0,d4
+	move.w	#224,d4
 	moveq	#0,d5
-	moveq	#$1F,d6
+	moveq	#64/2-1,d6 ; The entire width of the plane.
 	bsr.w	DrawBlockRow2
 +
 	bclr	#6,(a2)
 	beq.s	+
-	moveq	#-$10,d4
-	moveq	#-$10,d5
+	moveq	#-16,d4
+	moveq	#-16,d5
 	bsr.w	CalcBlockVRAMPos
-	moveq	#-$10,d4
-	moveq	#-$10,d5
-	moveq	#$1F,d6
+	moveq	#-16,d4
+	moveq	#-16,d5
+	moveq	#64/2-1,d6 ; The entire width of the plane.
 	bsr.w	DrawBlockRow
 +
 	bclr	#7,(a2)
 	beq.s	return_DC90
-	move.w	#$E0,d4
-	moveq	#-$10,d5
+	move.w	#224,d4
+	moveq	#-16,d5
 	bsr.w	CalcBlockVRAMPos
-	move.w	#$E0,d4
-	moveq	#-$10,d5
-	moveq	#$1F,d6
+	move.w	#224,d4
+	moveq	#-16,d5
+	moveq	#64/2-1,d6 ; The entire width of the plane.
 	bsr.w	DrawBlockRow
 
 return_DC90:
@@ -18219,7 +18219,7 @@ DrawBlockRow:
 
 ; sub_DF92: DrawTiles_Vertical1:
 DrawBlockRow1:
-	moveq	#$15,d6
+	moveq	#(16+320+16)/16-1,d6 ; Just enough blocks to cover the screen.
 	add.w	(a3),d5		; add X pos
 ; loc_DF96: DrawTiles_Vertical2:
 DrawBlockRow2:
