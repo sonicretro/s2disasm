@@ -83401,8 +83401,16 @@ Touch_Boss:
 	move.b	y_radius(a0),d5
 	subq.b	#3,d5
 	sub.w	d5,d3
-	cmpi.b	#$4D,mapping_frame(a0)
-	bne.s	+
+    if fixBugs
+	cmpi.b	#AniIDSonAni_Duck,anim(a0)	; is Sonic ducking?
+	bne.s	+				; if not, branch
+    else
+	; This logic only works for Sonic, not Tails. Also, it only applies
+	; to the last frame of his ducking animation. This is a leftover from
+	; Sonic 1, where Sonic's ducking animation only had one frame.
+	cmpi.b	#$4D,mapping_frame(a0)	; is Sonic ducking?
+	bne.s	+			; if not, branch
+    endif
 	addi.w	#$C,d3
 	moveq	#$A,d5
 +
@@ -83500,11 +83508,20 @@ Touch_ChkValue:
 ; loc_3F73C:
 Touch_Monitor:
 	tst.w	y_vel(a0)	; is Sonic moving upwards?
-	bpl.s	loc_3F768	; if not, branch
+	bpl.s	.breakMonitor	; if not, branch
+
+	; If the center of Sonic is not under the bottom of the monitor, then
+	; return. This is a way of checking if Sonic is jumping into the
+	; bottom of the monitor, or just the side of it.
 	move.w	y_pos(a0),d0
 	subi.w	#$10,d0
 	cmp.w	y_pos(a1),d0
+	; Return. This means that if Sonic jumps upwards into the side of a
+	; monitor, then he'll just phase through it.
 	blo.s	return_3F78A
+
+	; If we've gotten this far, then Sonic has just jumped into the
+	; bottom of this monitor: knock it down.
 	neg.w	y_vel(a0)	; reverse Sonic's y-motion
 	move.w	#-$180,y_vel(a1)
 	tst.b	routine_secondary(a1)
@@ -83512,8 +83529,8 @@ Touch_Monitor:
 	move.b	#4,routine_secondary(a1) ; set the monitor's routine counter
 	rts
 ; ===========================================================================
-
-loc_3F768:
+; loc_3F768:
+.breakMonitor:
 	cmpa.w	#MainCharacter,a0
 	beq.s	+
 	tst.w	(Two_player_mode).w
@@ -83586,21 +83603,31 @@ loc_3F81C:
 	bsr.w	AddPoints2
 	_move.b	#ObjID_Explosion,id(a1) ; load obj
 	move.b	#0,routine(a1)
+
+	; Decide how to bounce Sonic back.
 	tst.w	y_vel(a0)
 	bmi.s	loc_3F844
 	move.w	y_pos(a0),d0
 	cmp.w	y_pos(a1),d0
 	bhs.s	loc_3F84C
+	; If Sonic is jumping downwards onto an enemy, and lands directly on
+	; top of it, then completely negate his Y velocity, giving him a big
+	; bounce.
 	neg.w	y_vel(a0)
 	rts
 ; ===========================================================================
 
 loc_3F844:
+	; If Sonic is jumping upwards into an enemy, then bounce him back
+	; down very slightly.
 	addi.w	#$100,y_vel(a0)
 	rts
 ; ===========================================================================
 
 loc_3F84C:
+	; If Sonic is jumping downwards onto an enemy, but is somehow not
+	; above the enemy (such as when jumping into the *side* of an enemy),
+	; then only give him a tiny bounce upwards.
 	subi.w	#$100,y_vel(a0)
 	rts
 ; ===========================================================================
