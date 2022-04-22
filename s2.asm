@@ -45281,7 +45281,7 @@ Obj14_Index:	offsetTable
 		offsetTableEntry.w return_21A74		;  4
 		offsetTableEntry.w Obj14_Ball_Init	;  6
 		offsetTableEntry.w Obj14_Ball_Main	;  8
-		offsetTableEntry.w Obj14_Ball_Fly		; $A
+		offsetTableEntry.w Obj14_Ball_Fly	; $A
 ; ===========================================================================
 ; loc_2194A:
 Obj14_Init:
@@ -45563,6 +45563,12 @@ Obj14_LaunchCharacter:
 	clr.b	jumping(a2)         ; clear character jumping flag
 	move.b	#AniIDSonAni_Spring,anim(a2) ; set character to spring animation
 	move.b	#2,routine(a2)      ; set character to airborne state
+    if fixBugs
+	; If the player charges a Spin Dash on a seesaw, and gets launched by
+	; it, they will retain their Spin Dash state in the air. This fixes
+	; that.
+	clr.b	spindash_flag(a2)
+    endif
 	move.w	#SndID_Spring,d0    ; play spring sound
 	jmp	(PlaySound).l
 ; ===========================================================================
