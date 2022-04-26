@@ -15152,13 +15152,15 @@ SwScrl_WFZ:
 	move.w	(Camera_BG_X_pos_diff).w,d4
 	ext.l	d4
 	asl.l	#8,d4
-	moveq	#2,d6
+	moveq	#scroll_flag_bg1_left,d6
 	bsr.w	SetHorizScrollFlagsBG
+
 	move.w	(Camera_BG_Y_pos_diff).w,d5
 	ext.l	d5
 	lsl.l	#8,d5
-	moveq	#6,d6
+	moveq	#scroll_flag_bg1_up_whole_row_2,d6
 	bsr.w	SetVertiScrollFlagsBG
+
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	move.l	(Camera_BG_X_pos).w,d0
 	; This can be removed if the getaway ship's entry uses d0 instead.
@@ -15459,13 +15461,15 @@ HTZ_Screen_Shake:
 	move.w	(Camera_BG_X_pos_diff).w,d4
 	ext.l	d4
 	lsl.l	#8,d4
-	moveq	#2,d6
+	moveq	#scroll_flag_bg1_left,d6
 	bsr.w	SetHorizScrollFlagsBG
+
 	move.w	(Camera_BG_Y_pos_diff).w,d5
 	ext.l	d5
 	lsl.l	#8,d5
-	moveq	#0,d6
+	moveq	#scroll_flag_bg1_up,d6
 	bsr.w	SetVertiScrollFlagsBG
+
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	move.w	(Camera_Y_pos).w,(Vscroll_Factor_FG).w
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
@@ -15554,13 +15558,15 @@ SwScrl_HPZ:
 	move.w	(Camera_X_pos_diff).w,d4
 	ext.l	d4
 	asl.l	#6,d4
-	moveq	#2,d6
+	moveq	#scroll_flag_bg1_left,d6
 	bsr.w	SetHorizScrollFlagsBG
+
 	move.w	(Camera_Y_pos_diff).w,d5
 	ext.l	d5
 	asl.l	#7,d5
-	moveq	#6,d6
+	moveq	#scroll_flag_bg1_up_whole_row_2,d6
 	bsr.w	SetVertiScrollFlagsBG
+
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	lea	(TempArray_LayerDef).w,a1
 	move.w	(Camera_X_pos).w,d2
@@ -15640,13 +15646,15 @@ SwScrl_OOZ:
 	ext.l	d0
 	asl.l	#5,d0
 	add.l	d0,(Camera_BG_X_pos).w
+
 	move.w	(Camera_Y_pos_diff).w,d0
 	ext.l	d0
 	asl.l	#5,d0
 	move.l	(Camera_BG_Y_pos).w,d3
 	add.l	d3,d0
-	moveq	#4,d6
+	moveq	#scroll_flag_bg1_up_whole_row,d6
 	bsr.w	SetVertiScrollFlagsBG2
+
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	lea	(Horiz_Scroll_Buf+$380).w,a1
 	move.w	(Camera_X_pos).w,d0
@@ -15770,7 +15778,7 @@ SwScrl_MCZ:
 	subi.w	#$10,d0
 +
 	swap	d0
-	moveq	#6,d6
+	moveq	#scroll_flag_bg1_up_whole_row_2,d6
 	bsr.w	SetVertiScrollFlagsBG2
 
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
@@ -16479,7 +16487,7 @@ SwScrl_CPZ:
 	move.w	(Camera_X_pos_diff).w,d4
 	ext.l	d4
 	asl.l	#7,d4
-	moveq	#4,d6
+	moveq	#scroll_flag_bg3_cpz_left,d6
 	bsr.w	SetHorizScrollFlagsBG2
 
 	move.w	(Camera_BG_Y_pos).w,d0
@@ -16519,7 +16527,7 @@ SwScrl_CPZ:
 	; This causes 'Horiz_Scroll_Buf' to overflow due to a lack of
 	; bounds-checking. This was likely a deliberate optimisation. Still,
 	; it's possible to avoid this without any performance penalty with a
-	; little extra code. See belo.w
+	; little extra code. See below.
 	move.w	#224/16+1-1,d1
     endif
 
@@ -16819,8 +16827,9 @@ SwScrl_ARZ:
 	move.w	(Camera_X_pos_diff).w,d4
 	ext.l	d4
 	muls.w	#$119,d4
-	moveq	#2,d6
+	moveq	#scroll_flag_bg1_left,d6
 	bsr.w	SetHorizScrollFlagsBG_ARZ
+
 	move.w	(Camera_Y_pos_diff).w,d5
 	ext.l	d5
 	asl.l	#7,d5
@@ -16828,7 +16837,7 @@ SwScrl_ARZ:
 	bne.s	+
 	asl.l	#1,d5
 +
-	moveq	#6,d6
+	moveq	#scroll_flag_bg1_up_whole_row_2,d6
 	bsr.w	SetVertiScrollFlagsBG
 
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
@@ -16975,6 +16984,7 @@ SwScrl_ARZ_RowHeights:
 SwScrl_SCZ:
 	tst.w	(Debug_placement_mode).w
 	bne.w	SwScrl_Minimal
+
 	lea	(Camera_X_pos).w,a1
 	lea	(Scroll_flags).w,a3
 	lea	(Camera_X_pos_diff).w,a4
@@ -16988,6 +16998,7 @@ SwScrl_SCZ:
 	move.w	d1,(a4)
 	lea	(Horiz_block_crossed_flag).w,a2
 	bsr.w	SetHorizScrollFlags
+
 	lea	(Camera_Y_pos).w,a1
 	lea	(Camera_Y_pos_diff).w,a4
 	move.w	(Tornado_Velocity_Y).w,d0
@@ -17000,6 +17011,7 @@ SwScrl_SCZ:
 	move.w	d1,(a4)
 	lea	(Verti_block_crossed_flag).w,a2
 	bsr.w	SetVertiScrollFlags
+
 	move.w	(Camera_X_pos_diff).w,d4
 	beq.s	+
 	move.w	#$100,d4
@@ -17008,6 +17020,7 @@ SwScrl_SCZ:
 	asl.l	#7,d4
 	moveq	#0,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
+
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	#bytesToLcnt($380),d1
@@ -17031,7 +17044,9 @@ SwScrl_Minimal:
 	ext.l	d5
 	asl.l	#6,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
+
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	#bytesToLcnt($380),d1
 	move.w	(Camera_X_pos).w,d0
@@ -17085,11 +17100,11 @@ SetHorizScrollFlags:
 	move.w	(a1),d0		; get camera X pos
 	sub.w	d4,d0		; subtract previous camera X pos
 	bpl.s	+		; branch if the camera has moved forward
-	bset	#2,(a3)		; set moving back in level bit
+	bset	#scroll_flag_fg_left,(a3)	; set moving back in level bit
 	rts
 ; ===========================================================================
 +
-	bset	#3,(a3)		; set moving forward in level bit
+	bset	#scroll_flag_fg_right,(a3)	; set moving forward in level bit
 +
 	rts
 ; End of function SetHorizScrollFlags
@@ -17344,11 +17359,11 @@ SetVertiScrollFlags:
 	move.w	(a1),d0		; get camera Y pos
 	sub.w	d4,d0		; subtract old camera Y pos
 	bpl.s	+		; branch if the camera has scrolled down
-	bset	#0,(a3)		; set moving up in level bit
+	bset	#scroll_flag_fg_up,(a3)	; set moving up in level bit
 	rts
 ; ===========================================================================
 +
-	bset	#1,(a3)		; set moving down in level bit
+	bset	#scroll_flag_fg_down,(a3)	; set moving down in level bit
 +
 	rts
 ; End of function SetVertiScrollFlags
@@ -17373,11 +17388,11 @@ SetHorizVertiScrollFlagsBG: ; used by lev2, MTZ, HTZ, CPZ, DEZ, SCZ, Minimal
 	eori.b	#$10,(Horiz_block_crossed_flag_BG).w
 	sub.l	d2,d0
 	bpl.s	+
-	bset	#2,(Scroll_flags_BG).w
+	bset	#scroll_flag_bg1_left,(Scroll_flags_BG).w
 	bra.s	++
 ; ===========================================================================
 +
-	bset	#3,(Scroll_flags_BG).w
+	bset	#scroll_flag_bg1_right,(Scroll_flags_BG).w
 +
 	move.l	(Camera_BG_Y_pos).w,d3
 	move.l	d3,d0
@@ -17392,11 +17407,11 @@ SetHorizVertiScrollFlagsBG: ; used by lev2, MTZ, HTZ, CPZ, DEZ, SCZ, Minimal
 	eori.b	#$10,(Verti_block_crossed_flag_BG).w
 	sub.l	d3,d0
 	bpl.s	+
-	bset	#0,(Scroll_flags_BG).w
+	bset	#scroll_flag_bg1_up,(Scroll_flags_BG).w
 	rts
 ; ===========================================================================
 +
-	bset	#1,(Scroll_flags_BG).w
+	bset	#scroll_flag_bg1_down,(Scroll_flags_BG).w
 +
 	rts
 ; End of function SetHorizVertiScrollFlagsBG
@@ -17598,12 +17613,15 @@ LoadTilesAsYouMove:
 	lea	(Level_Layout+$80).w,a4	; first background line
 	move.w	#vdpComm(VRAM_Plane_B_Name_Table,VRAM,WRITE)>>16,d2
 	bsr.w	Draw_BG1
+
 	lea	(Scroll_flags_BG2_copy).w,a2	; referred to in CPZ deformation routine, but cleared right after
 	lea	(Camera_BG2_copy).w,a3
 	bsr.w	Draw_BG2	; Essentially unused, though
+
 	lea	(Scroll_flags_BG3_copy).w,a2
 	lea	(Camera_BG3_copy).w,a3
 	bsr.w	Draw_BG3	; used in CPZ deformation routine
+
 	tst.w	(Two_player_mode).w
 	beq.s	+
 	lea	(Scroll_flags_copy_P2).w,a2
@@ -17617,68 +17635,72 @@ LoadTilesAsYouMove:
 	lea	(Camera_RAM_copy).w,a3
 	lea	(Level_Layout).w,a4
 	move.w	#vdpComm(VRAM_Plane_A_Name_Table,VRAM,WRITE)>>16,d2
-	tst.b	(Screen_redraw_flag).w
 
-	; comment out this line to disable blast processing
+	tst.b	(Screen_redraw_flag).w
 	beq.s	Draw_FG
 
 	move.b	#0,(Screen_redraw_flag).w
-	moveq	#-$10,d4
-	moveq	#$F,d6
+
+	moveq	#-16,d4	; X (relative to camera)
+	moveq	#(1+224/16+1)-1,d6 ; Cover the screen, plus an extra row at the top and bottom.
 ; loc_DACE:
 Draw_All:
-	movem.l	d4-d6,-(sp)	; This whole routine basically redraws the whole
-	moveq	#-$10,d5	; area instead of merely a line of tiles
+	; Redraw the whole screen.
+	movem.l	d4-d6,-(sp)
+	moveq	#-16,d5	; X (relative)
 	move.w	d4,d1
-	bsr.w	CalcBlockVRAMPos
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
 	move.w	d1,d4
-	moveq	#-$10,d5
-	bsr.w	DrawBlockRow1	; draw the current row
+	moveq	#-16,d5	; X (relative)
+	bsr.w	DrawBlockRow	; draw the current row
 	movem.l	(sp)+,d4-d6
-	addi.w	#$10,d4		; move onto the next row
+	addi.w	#16,d4		; move onto the next row
 	dbf	d6,Draw_All	; repeat for all rows
+
 	move.b	#0,(Scroll_flags_copy).w
+
 	rts
 ; ===========================================================================
 ; loc_DAF6:
 Draw_FG:
 	tst.b	(a2)		; is any scroll flag set?
 	beq.s	return_DB5A	; if not, branch
-	bclr	#0,(a2)		; has the level scrolled up?
-	beq.s	+		; if not, branch
-	moveq	#-$10,d4
-	moveq	#-$10,d5
-	bsr.w	CalcBlockVRAMPos
-	moveq	#-$10,d4
-	moveq	#-$10,d5
-	bsr.w	DrawBlockRow1	; redraw upper row
+
+	bclr	#scroll_flag_fg_up,(a2)	; has the level scrolled up?
+	beq.s	+			; if not, branch
+	moveq	#-16,d4
+	moveq	#-16,d5
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
+	moveq	#-16,d4
+	moveq	#-16,d5
+	bsr.w	DrawBlockRow	; redraw upper row
 +
-	bclr	#1,(a2)		; has the level scrolled down?
-	beq.s	+		; if not, branch
+	bclr	#scroll_flag_fg_down,(a2)	; has the level scrolled down?
+	beq.s	+			; if not, branch
 	move.w	#224,d4
-	moveq	#-$10,d5
-	bsr.w	CalcBlockVRAMPos
+	moveq	#-16,d5
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
 	move.w	#224,d4
-	moveq	#-$10,d5
-	bsr.w	DrawBlockRow1	; redraw bottom row
+	moveq	#-16,d5
+	bsr.w	DrawBlockRow	; redraw bottom row
 +
-	bclr	#2,(a2)		; has the level scrolled to the left?
-	beq.s	+	; if not, branch
-	moveq	#-$10,d4
-	moveq	#-$10,d5
-	bsr.w	CalcBlockVRAMPos
-	moveq	#-$10,d4
-	moveq	#-$10,d5
-	bsr.w	DrawBlockCol1	; redraw left-most column
+	bclr	#scroll_flag_fg_left,(a2)	; has the level scrolled to the left?
+	beq.s	+			; if not, branch
+	moveq	#-16,d4
+	moveq	#-16,d5
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
+	moveq	#-16,d4
+	moveq	#-16,d5
+	bsr.w	DrawBlockColumn	; redraw left-most column
 +
-	bclr	#3,(a2)		; has the level scrolled to the right?
-	beq.s	return_DB5A	; if not, return
-	moveq	#-$10,d4
+	bclr	#scroll_flag_fg_right,(a2)	; has the level scrolled to the right?
+	beq.s	return_DB5A		; if not, return
+	moveq	#-16,d4
 	move.w	#320,d5
-	bsr.w	CalcBlockVRAMPos
-	moveq	#-$10,d4
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
+	moveq	#-16,d4
 	move.w	#320,d5
-	bsr.w	DrawBlockCol1	; redraw right-most column
+	bsr.w	DrawBlockColumn	; redraw right-most column
 
 return_DB5A:
 	rts
@@ -17689,41 +17711,42 @@ return_DB5A:
 Draw_FG_P2:
 	tst.b	(a2)
 	beq.s	return_DBC0
-	bclr	#0,(a2)
+
+	bclr	#scroll_flag_fg_up,(a2)
 	beq.s	+
-	moveq	#-$10,d4
-	moveq	#-$10,d5
-	bsr.w	CalcBlockVRAMPosB
-	moveq	#-$10,d4
-	moveq	#-$10,d5
-	bsr.w	DrawBlockRow1
+	moveq	#-16,d4	; Y offset
+	moveq	#-16,d5	; X offset
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer2
+	moveq	#-16,d4	; Y offset
+	moveq	#-16,d5	; X offset
+	bsr.w	DrawBlockRow
 +
-	bclr	#1,(a2)
+	bclr	#scroll_flag_fg_down,(a2)
 	beq.s	+
-	move.w	#$E0,d4
-	moveq	#-$10,d5
-	bsr.w	CalcBlockVRAMPosB
-	move.w	#$E0,d4
-	moveq	#-$10,d5
-	bsr.w	DrawBlockRow1
+	move.w	#224,d4	; Y offset
+	moveq	#-16,d5	; X offset
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer2
+	move.w	#224,d4	; Y offset
+	moveq	#-16,d5	; X offset
+	bsr.w	DrawBlockRow
 +
-	bclr	#2,(a2)
+	bclr	#scroll_flag_fg_left,(a2)
 	beq.s	+
-	moveq	#-$10,d4
-	moveq	#-$10,d5
-	bsr.w	CalcBlockVRAMPosB
-	moveq	#-$10,d4
-	moveq	#-$10,d5
-	bsr.w	DrawBlockCol1
+	moveq	#-16,d4	; Y offset
+	moveq	#-16,d5	; X offset
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer2
+	moveq	#-16,d4	; Y offset
+	moveq	#-16,d5	; X offset
+	bsr.w	DrawBlockColumn
 +
-	bclr	#3,(a2)
+	bclr	#scroll_flag_fg_right,(a2)
 	beq.s	return_DBC0
-	moveq	#-$10,d4
-	move.w	#320,d5
-	bsr.w	CalcBlockVRAMPosB
-	moveq	#-$10,d4
-	move.w	#320,d5
-	bsr.w	DrawBlockCol1
+	moveq	#-16,d4	; Y offset
+	move.w	#320,d5	; X offset
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer2
+	moveq	#-16,d4	; Y offset
+	move.w	#320,d5	; X offset
+	bsr.w	DrawBlockColumn
 
 return_DBC0:
 	rts
@@ -17736,81 +17759,90 @@ return_DBC0:
 Draw_BG1:
 	tst.b	(a2)
 	beq.w	return_DC90
-	bclr	#0,(a2)
+
+	bclr	#scroll_flag_bg1_up,(a2)
 	beq.s	+
-	moveq	#-16,d4
-	moveq	#-16,d5
-	bsr.w	CalcBlockVRAMPos
-	moveq	#-16,d4
-	moveq	#-16,d5
-	bsr.w	DrawBlockRow1
-+
-	bclr	#1,(a2)
-	beq.s	+
-	move.w	#224,d4
-	moveq	#-16,d5
-	bsr.w	CalcBlockVRAMPos
-	move.w	#224,d4
-	moveq	#-16,d5
-	bsr.w	DrawBlockRow1
-+
-	bclr	#2,(a2)
-	beq.s	+
-	moveq	#-16,d4
-	moveq	#-16,d5
-	bsr.w	CalcBlockVRAMPos
-	moveq	#-16,d4
-	moveq	#-16,d5
-	bsr.w	DrawBlockCol1
-+
-	bclr	#3,(a2)
-	beq.s	+
-	moveq	#-16,d4
-	move.w	#320,d5
-	bsr.w	CalcBlockVRAMPos
-	moveq	#-16,d4
-	move.w	#320,d5
-	bsr.w	DrawBlockCol1
-+
-	bclr	#4,(a2)
-	beq.s	+
-	moveq	#-16,d4
-	moveq	#0,d5
-	bsr.w	CalcBlockVRAMPos2
-	moveq	#-16,d4
-	moveq	#0,d5
-	moveq	#64/2-1,d6 ; The entire width of the plane.
-	bsr.w	DrawBlockRow2
-+
-	bclr	#5,(a2)
-	beq.s	+
-	move.w	#224,d4
-	moveq	#0,d5
-	bsr.w	CalcBlockVRAMPos2
-	move.w	#224,d4
-	moveq	#0,d5
-	moveq	#64/2-1,d6 ; The entire width of the plane.
-	bsr.w	DrawBlockRow2
-+
-	bclr	#6,(a2)
-	beq.s	+
-	moveq	#-16,d4
-	moveq	#-16,d5
-	bsr.w	CalcBlockVRAMPos
-	moveq	#-16,d4
-	moveq	#-16,d5
-	moveq	#64/2-1,d6 ; The entire width of the plane.
+	moveq	#-16,d4	; Y offset
+	moveq	#-16,d5	; X offset
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
+	moveq	#-16,d4	; Y offset
+	moveq	#-16,d5	; X offset
 	bsr.w	DrawBlockRow
 +
-	bclr	#7,(a2)
+	bclr	#scroll_flag_bg1_down,(a2)
+	beq.s	+
+	move.w	#224,d4	; Y offset
+	moveq	#-16,d5	; X offset
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
+	move.w	#224,d4	; Y offset
+	moveq	#-16,d5	; X offset
+	bsr.w	DrawBlockRow
++
+	bclr	#scroll_flag_bg1_left,(a2)
+	beq.s	+
+	moveq	#-16,d4	; Y offset
+	moveq	#-16,d5	; X offset
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
+	moveq	#-16,d4	; Y offset
+	moveq	#-16,d5	; X offset
+	bsr.w	DrawBlockColumn
++
+	bclr	#scroll_flag_bg1_right,(a2)
+	beq.s	+
+	moveq	#-16,d4	; Y offset
+	move.w	#320,d5	; X offset
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
+	moveq	#-16,d4	; Y offset
+	move.w	#320,d5	; X offset
+	bsr.w	DrawBlockColumn
++
+	bclr	#scroll_flag_bg1_up_whole_row,(a2)
+	beq.s	+
+	moveq	#-16,d4		; Y offset
+	moveq	#0,d5		; X (absolute)
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1.AbsoluteX
+	moveq	#-16,d4
+	moveq	#0,d5
+	moveq	#512/16-1,d6	; The entire width of the plane in blocks minus 1.
+	bsr.w	DrawBlockRow.AbsoluteXCustomWidth
++
+	bclr	#scroll_flag_bg1_down_whole_row,(a2)
+	beq.s	+
+	move.w	#224,d4		; Y offset
+	moveq	#0,d5		; X (absolute)
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1.AbsoluteX
+	move.w	#224,d4
+	moveq	#0,d5
+	moveq	#512/16-1,d6	; The entire width of the plane in blocks minus 1.
+	bsr.w	DrawBlockRow.AbsoluteXCustomWidth
++
+	; This should be no different than 'scroll_flag_bg1_up_whole_row'.
+	; The only difference between the two is that this has a relative X
+	; coordinate, but that doesn't matter since the entire row is copied
+	; anyway.
+	bclr	#scroll_flag_bg1_up_whole_row_2,(a2)
+	beq.s	+
+	moveq	#-16,d4		; Y offset (relative to camera)
+	moveq	#-16,d5		; X offset (relative to camera)
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
+	moveq	#-16,d4
+	moveq	#-16,d5
+	moveq	#512/16-1,d6	; The entire width of the plane in blocks minus 1.
+	bsr.w	DrawBlockRow_CustomWidth
++
+	; This should be no different than 'scroll_flag_bg1_down_whole_row'.
+	; The only difference between the two is that this has a relative X
+	; coordinate, but that doesn't matter since the entire row is copied
+	; anyway.
+	bclr	#scroll_flag_bg1_down_whole_row_2,(a2)
 	beq.s	return_DC90
+	move.w	#224,d4		; Y offset (relative to camera)
+	moveq	#-16,d5		; X offset (relative to camera)
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
 	move.w	#224,d4
 	moveq	#-16,d5
-	bsr.w	CalcBlockVRAMPos
-	move.w	#224,d4
-	moveq	#-16,d5
-	moveq	#64/2-1,d6 ; The entire width of the plane.
-	bsr.w	DrawBlockRow
+	moveq	#512/16-1,d6	; The entire width of the plane in blocks minus 1.
+	bsr.w	DrawBlockRow_CustomWidth
 
 return_DC90:
 	rts
@@ -17823,25 +17855,27 @@ return_DC90:
 Draw_BG2:
 	tst.b	(a2)
 	beq.w	++	; rts
-	bclr	#0,(a2)
+
+	; Leftover from Sonic 1: was used by Green Hill Zone and Spring Yard Zone.
+	bclr	#scroll_flag_bg2_left,(a2)
 	beq.s	+
-	move.w	#$70,d4
-	moveq	#-$10,d5
-	bsr.w	CalcBlockVRAMPos
-	move.w	#$70,d4
-	moveq	#-$10,d5
-	moveq	#2,d6
-	bsr.w	DrawBlockCol2
+	move.w	#112,d4	; Y offset
+	moveq	#-16,d5	; X offset
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
+	move.w	#112,d4	; Y offset
+	moveq	#-16,d5	; X offset
+	moveq	#3-1,d6	; Only three blocks, which works out to 48 pixels in height.
+	bsr.w	DrawBlockColumn.CustomHeight
 +
-	bclr	#1,(a2)
-	beq.s	+	; rts
-	move.w	#$70,d4
-	move.w	#320,d5
-	bsr.w	CalcBlockVRAMPos
-	move.w	#$70,d4
-	move.w	#320,d5
-	moveq	#2,d6
-	bsr.w	DrawBlockCol2
+	bclr	#scroll_flag_bg2_right,(a2)
+	beq.s	+
+	move.w	#112,d4	; Y offset
+	move.w	#320,d5		; X offset
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
+	move.w	#112,d4	; Y offset
+	move.w	#320,d5	; X offset
+	moveq	#3-1,d6	; Only three blocks, which works out to 48 pixels in height.
+	bsr.w	DrawBlockColumn.CustomHeight
 +
 	rts
 ; End of function Draw_BG2
@@ -17891,12 +17925,12 @@ SBZ_CameraSections:
 ; Scrap Brain Zone 1 drawing code -- S1 left-over
 ; Compare with CPZ drawing code
 ; begin unused routine
-	moveq	#-$10,d4
+	moveq	#-16,d4	; X offset (relative to camera)
 	bclr	#0,(a2)
 	bne.s	+
 	bclr	#1,(a2)
 	beq.s	+++
-	move.w	#$E0,d4
+	move.w	#224,d4	; Y offset (relative to camera)
 +
 	lea_	SBZ_CameraSections+1,a0
 	move.w	(Camera_BG_Y_pos).w,d0
@@ -17907,28 +17941,28 @@ SBZ_CameraSections:
 	lea	(BGCameraLookup).l,a3
 	movea.w	(a3,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
 	beq.s	+
-	moveq	#-$10,d5
+	moveq	#-16,d5	; X offset (relative to camera)
 	movem.l	d4-d5,-(sp)
-	bsr.w	CalcBlockVRAMPos
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
 	movem.l	(sp)+,d4-d5
-	bsr.w	DrawBlockRow1
+	bsr.w	DrawBlockRow
 	bra.s	++
 ; ===========================================================================
 +
-	moveq	#0,d5
+	moveq	#0,d5	; X (absolute)
 	movem.l	d4-d5,-(sp)
-	bsr.w	CalcBlockVRAMPos2
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1.AbsoluteX
 	movem.l	(sp)+,d4-d5
-	moveq	#$1F,d6
-	bsr.w	DrawBlockRow2
+	moveq	#512/16-1,d6	; The entire width of the plane in blocks minus 1.
+	bsr.w	DrawBlockRow.AbsoluteXCustomWidth
 +
 	tst.b	(a2)
 	bne.s	+
 	rts
 ; ===========================================================================
 +
-	moveq	#-$10,d4
-	moveq	#-$10,d5
+	moveq	#-16,d4
+	moveq	#-16,d5
 	move.b	(a2),d0
 	andi.b	#-$58,d0
 	beq.s	+
@@ -17950,28 +17984,30 @@ SBZ_CameraSections:
 Draw_BG3:
 	tst.b	(a2)
 	beq.w	++	; rts
+
 	cmpi.b	#chemical_plant_zone,(Current_Zone).w
 	beq.w	Draw_BG3_CPZ
-	; S1 left-over: GHZ used this
-	bclr	#0,(a2)
+
+	; Leftover from Sonic 1: was used by Green Hill Zone.
+	bclr	#scroll_flag_bg3_left,(a2)
 	beq.s	+
-	move.w	#$40,d4
-	moveq	#-$10,d5
-	bsr.w	CalcBlockVRAMPos
-	move.w	#$40,d4
-	moveq	#-$10,d5
-	moveq	#2,d6
-	bsr.w	DrawBlockCol2
+	move.w	#64,d4	; Y offset (relative to camera)
+	moveq	#-16,d5	; X offset (relative to camera)
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
+	move.w	#64,d4	; Y offset (relative to camera)
+	moveq	#-16,d5	; X offset (relative to camera)
+	moveq	#3-1,d6
+	bsr.w	DrawBlockColumn.CustomHeight
 +
-	bclr	#1,(a2)
-	beq.s	+	; rts
-	move.w	#$40,d4
-	move.w	#320,d5
-	bsr.w	CalcBlockVRAMPos
-	move.w	#$40,d4
-	move.w	#320,d5
-	moveq	#2,d6
-	bsr.w	DrawBlockCol2
+	bclr	#scroll_flag_bg3_right,(a2)
+	beq.s	+
+	move.w	#64,d4	; Y offset (relative to camera)
+	move.w	#320,d5	; X offset (relative to camera)
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
+	move.w	#64,d4	; Y offset (relative to camera)
+	move.w	#320,d5	; X offset (relative to camera)
+	moveq	#3-1,d6
+	bsr.w	DrawBlockColumn.CustomHeight
 +
 	rts
 ; ===========================================================================
@@ -18050,12 +18086,12 @@ CPZ_CameraSections:
 ; ===========================================================================
 ; loc_DE12:
 Draw_BG3_CPZ:
-	moveq	#-$10,d4	; bit0 = top row
-	bclr	#0,(a2)
+	moveq	#-16,d4	; Y offset
+	bclr	#scroll_flag_bg1_up,(a2)
 	bne.s	+
-	bclr	#1,(a2)
+	bclr	#scroll_flag_bg1_down,(a2)
 	beq.s	++
-	move.w	#$E0,d4		; bit1 = bottom row
+	move.w	#224,d4	; Y offset
 +
 	lea_	CPZ_CameraSections+1,a0
 	move.w	(Camera_BG_Y_pos).w,d0
@@ -18064,25 +18100,26 @@ Draw_BG3_CPZ:
 	lsr.w	#4,d0
 	move.b	(a0,d0.w),d0
 	movea.w	BGCameraLookup(pc,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
-	moveq	#-$10,d5
+	moveq	#-16,d5	; X offset
 	movem.l	d4-d5,-(sp)
-	bsr.w	CalcBlockVRAMPos
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
 	movem.l	(sp)+,d4-d5
-	bsr.w	DrawBlockRow1
+	bsr.w	DrawBlockRow
 +
 	tst.b	(a2)
 	bne.s	+
 	rts
 ; ===========================================================================
 +
-	moveq	#-$10,d4
-	moveq	#-$10,d5
+	moveq	#-16,d4 ; Y offset
+
+	moveq	#-16,d5 ; X offset
 	move.b	(a2),d0
-	andi.b	#-$58,d0
+	andi.b	#$A8,d0
 	beq.s	+
 	lsr.b	#1,d0
 	move.b	d0,(a2)
-	move.w	#320,d5
+	move.w	#320,d5 ; X offset
 +
 	lea_	CPZ_CameraSections,a0
 	move.w	(Camera_BG_Y_pos).w,d0
@@ -18102,7 +18139,7 @@ BGCameraLookup:
 loc_DE86:
 	tst.w	(Two_player_mode).w
 	bne.s	++
-	moveq	#$F,d6
+	moveq	#(1+224/16+1)-1,d6
 	move.l	#vdpCommDelta($0080),d7
 
 -	moveq	#0,d0
@@ -18112,20 +18149,21 @@ loc_DE86:
 	movea.w	BGCameraLookup(pc,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
 	movem.l	d4-d5/a0,-(sp)
 	movem.l	d4-d5,-(sp)
-	bsr.w	GetBlockPtr
+	bsr.w	GetBlock
 	movem.l	(sp)+,d4-d5
-	bsr.w	CalcBlockVRAMPos
-	bsr.w	ProcessAndWriteBlock2
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
+	bsr.w	ProcessAndWriteBlock_Vertical
 	movem.l	(sp)+,d4-d5/a0
 +
-	addi.w	#$10,d4
+	addi.w	#16,d4
 	dbf	d6,-
 
 	clr.b	(a2)
 	rts
 ; ===========================================================================
 +
-	moveq	#$F,d6
+	; Unused code for Chemical Plant Zone's background in two player mode.
+	moveq	#(1+224/16+1)-1,d6
 	move.l	#vdpCommDelta($0080),d7
 
 -	moveq	#0,d0
@@ -18135,13 +18173,13 @@ loc_DE86:
 	movea.w	BGCameraLookup(pc,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
 	movem.l	d4-d5/a0,-(sp)
 	movem.l	d4-d5,-(sp)
-	bsr.w	GetBlockPtr
+	bsr.w	GetBlock
 	movem.l	(sp)+,d4-d5
-	bsr.w	CalcBlockVRAMPos
-	bsr.w	ProcessAndWriteBlock2_2P
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
+	bsr.w	ProcessAndWriteBlock_DoubleResolution_Vertical
 	movem.l	(sp)+,d4-d5/a0
 +
-	addi.w	#$10,d4
+	addi.w	#16,d4
 	dbf	d6,-
 
 	clr.b	(a2)
@@ -18151,18 +18189,19 @@ loc_DE86:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; sub_DF04:
-DrawBlockCol1:
-	moveq	#$F,d6
-
-DrawBlockCol2:
+; sub_DF04: DrawBlockCol1:
+DrawBlockColumn:
+	moveq	#(1+224/16+1)-1,d6 ; Enough blocks to cover the screen, plus one more on the left and right.
+; DrawBlockCol2:
+.CustomHeight:
 	add.w	(a3),d5		; add camera X pos
 	add.w	4(a3),d4	; add camera Y pos
-	move.l	#vdpCommDelta($0080),d7	; store VDP command for line increment
+	move.l	#vdpCommDelta(64*2),d7	; store VDP command for line increment
 	move.l	d0,d1		; copy byte-swapped VDP command for later access
-	bsr.w	GetBlockAddr
+	bsr.w	GetAddressOfBlockInChunk
+
 	tst.w	(Two_player_mode).w
-	bne.s	++
+	bne.s	.doubleResolution
 
 -	move.w	(a0),d3		; get ID of the 16x16 block
 	andi.w	#$3FF,d3
@@ -18170,64 +18209,66 @@ DrawBlockCol2:
 	lea	(Block_Table).w,a1
 	adda.w	d3,a1		; a1 = address of the current 16x16 in the block table
 	move.l	d1,d0
-	bsr.w	ProcessAndWriteBlock2
-	adda.w	#$10,a0		; move onto the 16x16 vertically below this one
+	bsr.w	ProcessAndWriteBlock_Vertical
+	adda.w	#128/16*2,a0	; move onto the 16x16 vertically below this one
 	addi.w	#64*2*2,d1	; draw on alternate 8x8 lines
 	andi.w	#(64*32*2)-1,d1	; wrap around plane (assumed to be in 64x32 mode)
-	addi.w	#$10,d4		; add 16 to Y offset
+	addi.w	#16,d4		; add 16 to Y offset
 	move.w	d4,d0
 	andi.w	#$70,d0		; have we reached a new 128x128?
-	bne.s	+	; if not, branch
-	bsr.w	GetBlockAddr	; otherwise, renew the block address
+	bne.s	+		; if not, branch
+	bsr.w	GetAddressOfBlockInChunk	; otherwise, renew the block address
 +	dbf	d6,-		; repeat 16 times
 
 	rts
 ; ===========================================================================
 
-/	move.w	(a0),d3
+.doubleResolution:
+-	move.w	(a0),d3
 	andi.w	#$3FF,d3
 	lsl.w	#3,d3
 	lea	(Block_Table).w,a1
 	adda.w	d3,a1
 	move.l	d1,d0
-	bsr.w	ProcessAndWriteBlock2_2P
-	adda.w	#$10,a0
+	bsr.w	ProcessAndWriteBlock_DoubleResolution_Vertical
+	adda.w	#128/16*2,a0
 	addi.w	#$80,d1
-	andi.w	#$FFF,d1
-	addi.w	#$10,d4
+	andi.w	#(64*32*2)-1,d1
+	addi.w	#16,d4
 	move.w	d4,d0
 	andi.w	#$70,d0
 	bne.s	+
-	bsr.w	GetBlockAddr
+	bsr.w	GetAddressOfBlockInChunk
 +	dbf	d6,-
 
 	rts
-; End of function DrawBlockCol1
+; End of function DrawBlockColumn
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; sub_DF8A: DrawTiles_Vertical:
-DrawBlockRow:
+; sub_DF8A: DrawTiles_Vertical: DrawBlockRow:
+DrawBlockRow_CustomWidth:
 	add.w	(a3),d5
 	add.w	4(a3),d4
-	bra.s	DrawBlockRow3
-; End of function DrawBlockRow
+	bra.s	DrawBlockRow.AbsoluteXAbsoluteYCustomWidth
+; End of function DrawBlockRow_CustomWidth
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; sub_DF92: DrawTiles_Vertical1:
-DrawBlockRow1:
-	moveq	#(16+320+16)/16-1,d6 ; Just enough blocks to cover the screen.
+; sub_DF92: DrawTiles_Vertical1: DrawBlockRow1:
+DrawBlockRow:
+	moveq	#(1+320/16+1)-1,d6 ; Just enough blocks to cover the screen.
 	add.w	(a3),d5		; add X pos
-; loc_DF96: DrawTiles_Vertical2:
-DrawBlockRow2:
+; loc_DF96: DrawTiles_Vertical2: DrawBlockRow2:
+.AbsoluteXCustomWidth:
 	add.w	4(a3),d4	; add Y pos
-; loc_DF9A: DrawTiles_Vertical3:
-DrawBlockRow3:
+; loc_DF9A: DrawTiles_Vertical3: DrawBlockRow3:
+.AbsoluteXAbsoluteYCustomWidth:
 	tst.w	(Two_player_mode).w
-	bne.s	DrawBlockRow_2P
+	bne.s	.doubleResolution
+
 	move.l	a2,-(sp)
 	move.w	d6,-(sp)
 	lea	(Block_cache).w,a2
@@ -18237,14 +18278,14 @@ DrawBlockRow3:
 	move.l	d1,-(sp)
 	move.l	d1,(a5)		; set up a VRAM write at that address
 	swap	d1
-	bsr.w	GetBlockAddr
+	bsr.w	GetAddressOfBlockInChunk
 
 -	move.w	(a0),d3		; get ID of the 16x16 block
 	andi.w	#$3FF,d3
 	lsl.w	#3,d3		; multiply by 8, the size in bytes of a 16x16
 	lea	(Block_Table).w,a1
 	adda.w	d3,a1		; a1 = address of current 16x16 in the block table
-	bsr.w	ProcessAndWriteBlock
+	bsr.w	ProcessAndWriteBlock_Horizontal
 	addq.w	#2,a0		; move onto next 16x16
 	addq.b	#4,d1		; increment VRAM write address
 	bpl.s	+
@@ -18253,16 +18294,16 @@ DrawBlockRow3:
 	move.l	d1,(a5)		; set up a VRAM write at a new address
 	swap	d1
 +
-	addi.w	#$10,d5		; add 16 to X offset
+	addi.w	#16,d5		; add 16 to X offset
 	move.w	d5,d0
 	andi.w	#$70,d0		; have we reached a new 128x128?
 	bne.s	+		; if not, branch
-	bsr.w	GetBlockAddr	; otherwise, renew the block address
+	bsr.w	GetAddressOfBlockInChunk	; otherwise, renew the block address
 +
 	dbf	d6,-		; repeat 22 times
 
 	move.l	(sp)+,d1
-	addi.l	#vdpCommDelta($0080),d1	; move onto next line
+	addi.l	#vdpCommDelta(64*2),d1	; move onto next line
 	lea	(Block_cache).w,a2
 	move.l	d1,(a5)		; write to this VRAM address
 	swap	d1
@@ -18281,8 +18322,8 @@ DrawBlockRow3:
 	movea.l	(sp)+,a2
 	rts
 ; ===========================================================================
-; loc_E018:
-DrawBlockRow_2P:
+; loc_E018: DrawBlockRow_2P:
+.doubleResolution:
 	move.l	d0,d1
 	or.w	d2,d1
 	swap	d1
@@ -18290,14 +18331,15 @@ DrawBlockRow_2P:
 	swap	d1
 	tst.b	d1
 	bmi.s	+++
-	bsr.w	GetBlockAddr
+
+	bsr.w	GetAddressOfBlockInChunk
 
 -	move.w	(a0),d3
 	andi.w	#$3FF,d3
 	lsl.w	#3,d3
 	lea	(Block_Table).w,a1
 	adda.w	d3,a1
-	bsr.w	ProcessAndWriteBlock_2P
+	bsr.w	ProcessAndWriteBlock_DoubleResolution_Horizontal
 	addq.w	#2,a0
 	addq.b	#4,d1
 	bpl.s	+
@@ -18306,24 +18348,24 @@ DrawBlockRow_2P:
 	move.l	d1,(a5)
 	swap	d1
 +
-	addi.w	#$10,d5
+	addi.w	#16,d5
 	move.w	d5,d0
 	andi.w	#$70,d0
 	bne.s	+
-	bsr.w	GetBlockAddr
+	bsr.w	GetAddressOfBlockInChunk
 +	dbf	d6,-
 
 	rts
 ; ===========================================================================
 +
-	bsr.w	GetBlockAddr
+	bsr.w	GetAddressOfBlockInChunk
 
 -	move.w	(a0),d3
 	andi.w	#$3FF,d3
 	lsl.w	#3,d3
 	lea	(Block_Table).w,a1
 	adda.w	d3,a1
-	bsr.w	ProcessAndWriteBlock_2P
+	bsr.w	ProcessAndWriteBlock_DoubleResolution_Horizontal
 	addq.w	#2,a0
 	addq.b	#4,d1
 	bmi.s	+
@@ -18332,21 +18374,21 @@ DrawBlockRow_2P:
 	move.l	d1,(a5)
 	swap	d1
 +
-	addi.w	#$10,d5
+	addi.w	#16,d5
 	move.w	d5,d0
 	andi.w	#$70,d0
 	bne.s	+
-	bsr.w	GetBlockAddr
+	bsr.w	GetAddressOfBlockInChunk
 +	dbf	d6,-
 
 	rts
-; End of function DrawBlockRow1
+; End of function DrawBlockRow
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; sub_E09E:
-GetBlockAddr:
+; sub_E09E: GetBlockAddr:
+GetAddressOfBlockInChunk:
 	movem.l	d4-d5,-(sp)
 	move.w	d4,d3		; d3 = camera Y pos + offset
 	add.w	d3,d3
@@ -18367,23 +18409,26 @@ GetBlockAddr:
 	movea.l	d3,a0		; store address, in the metablock table, of the current 16x16
 	movem.l	(sp)+,d4-d5
 	rts
-; End of function GetBlockAddr
+; End of function GetAddressOfBlockInChunk
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; sub_E0D4:
-ProcessAndWriteBlock:
+; sub_E0D4: ProcessAndWriteBlock:
+ProcessAndWriteBlock_Horizontal:
+	; Compared to 'ProcessAndWriteBlock_Vertical', this caches the bottom
+	; two tiles far later writing. This avoids the need to constantly
+	; alternate VRAM destinations.
 	btst	#3,(a0)		; is this 16x16 to be Y-flipped?
-	bne.s	ProcessAndWriteBlock_FlipY	; if it is, branch
+	bne.s	.flipY		; if it is, branch
 	btst	#2,(a0)		; is this 16x16 to be X-flipped?
-	bne.s	ProcessAndWriteBlock_FlipX	; if it is, branch
+	bne.s	.flipX		; if it is, branch
 	move.l	(a1)+,(a6)	; write top two 8x8s to VRAM
 	move.l	(a1)+,(a2)+	; store bottom two 8x8s for later writing
 	rts
 ; ===========================================================================
-
-ProcessAndWriteBlock_FlipX:
+; ProcessAndWriteBlock_FlipX:
+.flipX:
 	move.l	(a1)+,d3
 	eori.l	#(flip_x<<16)|flip_x,d3	; toggle X-flip flag of the 8x8s
 	swap	d3		; swap the position of the 8x8s
@@ -18394,10 +18439,10 @@ ProcessAndWriteBlock_FlipX:
 	move.l	d3,(a2)+	; store bottom two 8x8s for later writing
 	rts
 ; ===========================================================================
-
-ProcessAndWriteBlock_FlipY:
+; ProcessAndWriteBlock_FlipY:
+.flipY:
 	btst	#2,(a0)		; is this 16x16 to be X-flipped as well?
-	bne.s	ProcessAndWriteBlock_FlipXY	; if it is, branch
+	bne.s	.flipXY		; if it is, branch
 	move.l	(a1)+,d0
 	move.l	(a1)+,d3
 	eori.l	#(flip_y<<16)|flip_y,d3	; toggle Y-flip flag of the 8x8s
@@ -18406,8 +18451,8 @@ ProcessAndWriteBlock_FlipY:
 	move.l	d0,(a2)+	; store top two 8x8s for later writing
 	rts
 ; ===========================================================================
-
-ProcessAndWriteBlock_FlipXY:
+; ProcessAndWriteBlock_FlipXY:
+.flipXY:
 	move.l	(a1)+,d0
 	move.l	(a1)+,d3
 	eori.l	#((flip_x|flip_y)<<16)|flip_x|flip_y,d3	; toggle X and Y-flip flags of the 8x8s
@@ -18417,58 +18462,60 @@ ProcessAndWriteBlock_FlipXY:
 	swap	d0
 	move.l	d0,(a2)+	; store top two 8x8s for later writing
 	rts
-; End of function ProcessAndWriteBlock
+; End of function ProcessAndWriteBlock_Horizontal
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-
-;sub_E136:
-ProcessAndWriteBlock_2P:
+;sub_E136: ProcessAndWriteBlock_2P:
+ProcessAndWriteBlock_DoubleResolution_Horizontal:
+	; In two player mode, the VDP's Interlace Mode 2 is enabled, making
+	; tiles twice as tall (16x8 instead of 8x8). Because of this, blocks
+	; are now composed of only two tiles, arranged side by side.
 	btst	#3,(a0)
-	bne.s	loc_E154
+	bne.s	.flipY
 	btst	#2,(a0)
-	bne.s	loc_E146
+	bne.s	.flipX
 	move.l	(a1)+,(a6)
 	rts
 ; ===========================================================================
-
-loc_E146:
+; loc_E146:
+.flipX:
 	move.l	(a1)+,d3
 	eori.l	#(flip_x<<16)|flip_x,d3
 	swap	d3
 	move.l	d3,(a6)
 	rts
 ; ===========================================================================
-
-loc_E154:
+; loc_E154:
+.flipY:
 	btst	#2,(a0)
-	bne.s	loc_E166
+	bne.s	.flipXY
 	move.l	(a1)+,d3
 	eori.l	#(flip_y<<16)|flip_y,d3
 	move.l	d3,(a6)
 	rts
 ; ===========================================================================
-
-loc_E166:
+;loc_E166:
+.flipXY:
 	move.l	(a1)+,d3
 	eori.l	#((flip_x|flip_y)<<16)|flip_x|flip_y,d3
 	swap	d3
 	move.l	d3,(a6)
 	rts
-; End of function ProcessAndWriteBlock_2P
+; End of function ProcessAndWriteBlock_DoubleResolution_Horizontal
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; sub_E174:
-ProcessAndWriteBlock2:
+; sub_E174: ProcessAndWriteBlock2:
+ProcessAndWriteBlock_Vertical:
 	or.w	d2,d0
 	swap	d0		; make VRAM write command
 	btst	#3,(a0)		; is the 16x16 to be Y-flipped?
-	bne.s	ProcessAndWriteBlock2_FlipY	; if it is, branch
+	bne.s	.flipY		; if it is, branch
 	btst	#2,(a0)		; is the 16x16 to be X-flipped?
-	bne.s	ProcessAndWriteBlock2_FlipX	; if it is, branch
+	bne.s	.flipX		; if it is, branch
 	move.l	d0,(a5)		; write to this VRAM address
 	move.l	(a1)+,(a6)	; write top two 8x8s
 	add.l	d7,d0		; move onto next line
@@ -18476,8 +18523,8 @@ ProcessAndWriteBlock2:
 	move.l	(a1)+,(a6)	; write bottom two 8x8s
 	rts
 ; ===========================================================================
-
-ProcessAndWriteBlock2_FlipX:
+; ProcessAndWriteBlock2_FlipX:
+.flipX:
 	move.l	d0,(a5)
 	move.l	(a1)+,d3
 	eori.l	#(flip_x<<16)|flip_x,d3	; toggle X-flip flag of the 8x8s
@@ -18491,10 +18538,10 @@ ProcessAndWriteBlock2_FlipX:
 	move.l	d3,(a6)		; write bottom two 8x8s
 	rts
 ; ===========================================================================
-
-ProcessAndWriteBlock2_FlipY:
+; ProcessAndWriteBlock2_FlipY:
+.flipY:
 	btst	#2,(a0)		; is the 16x16 to be X-flipped as well?
-	bne.s	ProcessAndWriteBlock2_FlipXY	; if it is, branch
+	bne.s	.flipXY		; if it is, branch
 	move.l	d5,-(sp)
 	move.l	d0,(a5)
 	move.l	(a1)+,d5
@@ -18508,8 +18555,8 @@ ProcessAndWriteBlock2_FlipY:
 	move.l	(sp)+,d5
 	rts
 ; ===========================================================================
-
-ProcessAndWriteBlock2_FlipXY:
+;ProcessAndWriteBlock2_FlipXY:
+.flipXY:
 	move.l	d5,-(sp)
 	move.l	d0,(a5)
 	move.l	(a1)+,d5
@@ -18524,26 +18571,26 @@ ProcessAndWriteBlock2_FlipXY:
 	move.l	d5,(a6)		; write top two 8x8s
 	move.l	(sp)+,d5
 	rts
-; End of function ProcessAndWriteBlock2
+; End of function ProcessAndWriteBlock_Vertical
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
-;sub_E1FA:
-ProcessAndWriteBlock2_2P:
+;sub_E1FA: ProcessAndWriteBlock2_2P:
+ProcessAndWriteBlock_DoubleResolution_Vertical:
 	or.w	d2,d0
 	swap	d0
 	btst	#3,(a0)
-	bne.s	loc_E220
+	bne.s	.flipY
 	btst	#2,(a0)
-	bne.s	loc_E210
+	bne.s	.flipX
 	move.l	d0,(a5)
 	move.l	(a1)+,(a6)
 	rts
 ; ===========================================================================
-
-loc_E210:
+; loc_E210:
+.flipX:
 	move.l	d0,(a5)
 	move.l	(a1)+,d3
 	eori.l	#(flip_x<<16)|flip_x,d3
@@ -18551,31 +18598,31 @@ loc_E210:
 	move.l	d3,(a6)
 	rts
 ; ===========================================================================
-
-loc_E220:
+; loc_E220:
+.flipY:
 	btst	#2,(a0)
-	bne.s	loc_E234
+	bne.s	.flipXY
 	move.l	d0,(a5)
 	move.l	(a1)+,d3
 	eori.l	#(flip_y<<16)|flip_y,d3
 	move.l	d3,(a6)
 	rts
 ; ===========================================================================
-
-loc_E234:
+; loc_E234:
+.flipXY:
 	move.l	d0,(a5)
 	move.l	(a1)+,d3
 	eori.l	#((flip_x|flip_y)<<16)|flip_x|flip_y,d3
 	swap	d3
 	move.l	d3,(a6)
 	rts
-; End of function ProcessAndWriteBlock2_2P
+; End of function ProcessAndWriteBlock_DoubleResolution_Vertical
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-;sub_E244
-GetBlockPtr:
+; sub_E244: GetBlockPtr:
+GetBlock:
 	add.w	(a3),d5
 	add.w	4(a3),d4
 	lea	(Block_Table).w,a1
@@ -18601,21 +18648,21 @@ GetBlockPtr:
 	lsl.w	#3,d3
 	adda.w	d3,a1
 	rts
-; End of function GetBlockPtr
+; End of function GetBlock
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; sub_E286: Calc_VRAM_Pos:
-CalcBlockVRAMPos:
+; sub_E286: Calc_VRAM_Pos: CalcBlockVRAMPos:
+CalculateVRAMAddressOfBlockForPlayer1:
 	add.w	(a3),d5		; add X pos
-
-CalcBlockVRAMPos2:
+; CalcBlockVRAMPos2:
+.AbsoluteX:
 	tst.w	(Two_player_mode).w
-	bne.s	CalcBlockVRAMPos_2P
+	bne.s	.AbsoluteX_DoubleResolution
 	add.w	4(a3),d4	; add Y pos
-
-CalcBlockVRAMPos_NoCamera:
+; CalcBlockVRAMPos_NoCamera:
+.AbsoluteXAbsoluteY:
 	andi.w	#$F0,d4		; round down to the nearest 16-pixel boundary
 	andi.w	#$1F0,d5	; round down to the nearest 16-pixel boundary
 	lsl.w	#4,d4		; make it into units of $100 - the height in plane A of a 16x16
@@ -18627,11 +18674,11 @@ CalcBlockVRAMPos_NoCamera:
 	move.w	d4,d0		; make word-swapped VDP command
 	rts
 ; ===========================================================================
-; loc_E2A8:
-CalcBlockVRAMPos_2P:
+; loc_E2A8: CalcBlockVRAMPos_2P:
+.AbsoluteX_DoubleResolution:
 	add.w	4(a3),d4
-; loc_E2AC:
-CalcBlockVRAMPos_2P_NoCamera:
+; loc_E2AC: CalcBlockVRAMPos_2P_NoCamera:
+.AbsoluteXAbsoluteY_DoubleResolution:
 	andi.w	#$1F0,d4
 	andi.w	#$1F0,d5
 	lsl.w	#3,d4
@@ -18642,16 +18689,18 @@ CalcBlockVRAMPos_2P_NoCamera:
 	swap	d0
 	move.w	d4,d0
 	rts
-; End of function CalcBlockVRAMPos
+; End of function CalculateVRAMAddressOfBlockForPlayer1
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
-;loc_E2C2:
-CalcBlockVRAMPosB:
+;loc_E2C2: CalcBlockVRAMPosB:
+CalculateVRAMAddressOfBlockForPlayer2:
 	tst.w	(Two_player_mode).w
-	bne.s	+
+	bne.s	.doubleResolution
+
+;.regularResolution:
 	add.w	4(a3),d4
 	add.w	(a3),d5
 	andi.w	#$F0,d4
@@ -18666,7 +18715,7 @@ CalcBlockVRAMPosB:
 	rts
 ; ===========================================================================
 ; interestingly, this subroutine was in the Sonic 1 ROM, unused
-+
+.doubleResolution:
 	add.w	4(a3),d4
 	add.w	(a3),d5
 	andi.w	#$1F0,d4
@@ -18679,7 +18728,7 @@ CalcBlockVRAMPosB:
 	swap	d0
 	move.w	d4,d0
 	rts
-; End of function CalcBlockVRAMPosB
+; End of function CalculateVRAMAddressOfBlockForPlayer2
 
 ; ===========================================================================
 ; Loads the background in its initial state into VRAM (plane B).
@@ -18714,11 +18763,11 @@ DrawInitialBG:
 	; initialisation logic, much like two player Mystic Cave Zone does.
 	move.b	(Current_Zone).w,d0
 	cmpi.b	#emerald_hill_zone,d0
-	beq.w	DrawInitialBG_LoadWhole64x32Plane
+	beq.w	DrawInitialBG_LoadWholeBackground_512x256
 	cmpi.b	#casino_night_zone,d0
-	beq.w	DrawInitialBG_LoadWhole64x32Plane
+	beq.w	DrawInitialBG_LoadWholeBackground_512x256
 	cmpi.b	#hill_top_zone,d0
-	beq.w	DrawInitialBG_LoadWhole64x32Plane
+	beq.w	DrawInitialBG_LoadWholeBackground_512x256
     else
 	; This is a nasty hack to work around the bug described above.
 	moveq	#0,d4
@@ -18728,20 +18777,20 @@ DrawInitialBG:
 	tst.w	(Two_player_mode).w
 	beq.w	+
 	cmpi.b	#mystic_cave_zone,(Current_Zone).w
-	beq.w	DrawInitialBG_LoadWhole64x64Plane
+	beq.w	DrawInitialBG_LoadWholeBackground_512x512
 +
 	moveq	#-16,d4
 +
-	moveq	#16-1,d6 ; Height of plane in blocks
+	moveq	#256/16-1,d6 ; Height of plane in blocks minus 1.
 -	movem.l	d4-d6,-(sp)
 	moveq	#0,d5
 	move.w	d4,d1
-	bsr.w	CalcBlockVRAMPos
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
 	move.w	d1,d4
 	moveq	#0,d5
-	moveq	#32-1,d6 ; Width of plane in blocks
+	moveq	#512/16-1,d6 ; Width of plane in blocks minus 1.
 	move	#$2700,sr
-	bsr.w	DrawBlockRow
+	bsr.w	DrawBlockRow_CustomWidth
 	move	#$2300,sr
 	movem.l	(sp)+,d4-d6
 	addi.w	#16,d4
@@ -18753,16 +18802,16 @@ DrawInitialBG:
 	; I wonder why this is unused?
 	moveq	#-16,d4
 
-	moveq	#16-1,d6 ; Height of plane in blocks
+	moveq	#256/16-1,d6 ; Height of plane in blocks minus 1.
 -	movem.l	d4-d6,-(sp)
 	moveq	#0,d5
 	move.w	d4,d1
-	bsr.w	CalcBlockVRAMPosB
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer2
 	move.w	d1,d4
 	moveq	#0,d5
-	moveq	#32-1,d6 ; Width of plane in blocks
+	moveq	#512/16-1,d6 ; Width of plane in blocks minus 1.
 	move	#$2700,sr
-	bsr.w	DrawBlockRow
+	bsr.w	DrawBlockRow_CustomWidth
 	move	#$2300,sr
 	movem.l	(sp)+,d4-d6
 	addi.w	#16,d4
@@ -18771,22 +18820,22 @@ DrawInitialBG:
 	rts
 ; ===========================================================================
 ; loc_E396:
-DrawInitialBG_LoadWhole64x64Plane:
+DrawInitialBG_LoadWholeBackground_512x512:
 	; Mystic Cave Zone loads its entire background at once in two player
 	; mode, since the plane is big enough to fit it, unlike in one player
-	; mode (64x64 instead of 64x32).
-	moveq	#0,d4
+	; mode (512x512 instead of 512x256).
+	moveq	#0,d4	; Absolute plane Y coordinate.
 
-	moveq	#32-1,d6 ; Height of plane in blocks
+	moveq	#512/16-1,d6 ; Height of plane in blocks minus 1.
 -	movem.l	d4-d6,-(sp)
 	moveq	#0,d5
 	move.w	d4,d1
-	bsr.w	CalcBlockVRAMPos_2P_NoCamera
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1.AbsoluteXAbsoluteY_DoubleResolution
 	move.w	d1,d4
 	moveq	#0,d5
-	moveq	#32-1,d6 ; Width of plane in blocks
+	moveq	#512/16-1,d6 ; Width of plane in blocks minus 1.
 	move	#$2700,sr
-	bsr.w	DrawBlockRow3
+	bsr.w	DrawBlockRow.AbsoluteXAbsoluteYCustomWidth
 	move	#$2300,sr
 	movem.l	(sp)+,d4-d6
 	addi.w	#16,d4
@@ -18795,24 +18844,24 @@ DrawInitialBG_LoadWhole64x64Plane:
 	rts
 ; ===========================================================================
     if fixBugs
-DrawInitialBG_LoadWhole64x32Plane:
-	moveq	#0,d4
+DrawInitialBG_LoadWholeBackground_512x256:
+	moveq	#0,d4	; Absolute plane Y coordinate.
 
-	moveq	#16-1,d6 ; Height of plane in blocks
+	moveq	#256/16-1,d6 ; Height of plane in blocks minus 1.
 -	movem.l	d4-d6,-(sp)
 	moveq	#0,d5
 	move.w	d4,d1
 	; This is just a fancy efficient way of doing 'if true then call this, else call that'.
 	pea	+(pc)
 	tst.w	(Two_player_mode).w
-	beq.w	CalcBlockVRAMPos_NoCamera
-	bra.w	CalcBlockVRAMPos_2P_NoCamera
+	beq.w	CalculateVRAMAddressOfBlockForPlayer1.AbsoluteXAbsoluteY
+	bra.w	CalculateVRAMAddressOfBlockForPlayer1.AbsoluteXAbsoluteY_DoubleResolution
 +
 	move.w	d1,d4
 	moveq	#0,d5
-	moveq	#32-1,d6 ; Width of plane in blocks
+	moveq	#512/16-1,d6 ; Width of plane in blocks minus 1.
 	move	#$2700,sr
-	bsr.w	DrawBlockRow3
+	bsr.w	DrawBlockRow.AbsoluteXAbsoluteYCustomWidth
 	move	#$2300,sr
 	movem.l	(sp)+,d4-d6
 	addi.w	#16,d4
@@ -27451,11 +27500,11 @@ loc_15714:
 -	movem.l	d4-d6,-(sp)
 	moveq	#-$10,d5
 	move.w	d4,d1
-	bsr.w	CalcBlockVRAMPosB
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer2
 	move.w	d1,d4
 	moveq	#-$10,d5
 	moveq	#$1F,d6
-	bsr.w	DrawBlockRow
+	bsr.w	DrawBlockRow_CustomWidth
 	movem.l	(sp)+,d4-d6
 	addi.w	#$10,d4
 	dbf	d6,-
@@ -27466,17 +27515,17 @@ loc_15758:
 	move.w	#vdpComm(VRAM_Plane_A_Name_Table,VRAM,WRITE)>>16,d2
 	move.w	(TitleCard_Background+titlecard_vram_dest).w,d4
 
-	moveq	#1,d6
+	moveq	#2-1,d6 ; Do two rows
 -	movem.l	d4-d6,-(sp)
-	moveq	#-$10,d5
+	moveq	#-16,d5
 	move.w	d4,d1
-	bsr.w	CalcBlockVRAMPos
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
 	move.w	d1,d4
-	moveq	#-$10,d5
-	moveq	#$1F,d6
-	bsr.w	DrawBlockRow
+	moveq	#-16,d5
+	moveq	#64/2-1,d6
+	bsr.w	DrawBlockRow_CustomWidth
 	movem.l	(sp)+,d4-d6
-	addi.w	#$10,d4
+	addi.w	#16,d4
 	dbf	d6,-
 
 loc_1578C:

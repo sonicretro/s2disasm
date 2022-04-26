@@ -202,6 +202,31 @@ p2_touch_top       = 1<<p2_touch_top_bit
 touch_top_mask     = p1_touch_top|p2_touch_top
 
 ; ---------------------------------------------------------------------------
+; Scroll Flags
+scroll_flag_fg_up    = 0
+scroll_flag_fg_down  = 1
+scroll_flag_fg_left  = 2
+scroll_flag_fg_right = 3
+
+scroll_flag_bg1_up               = 0
+scroll_flag_bg1_down             = scroll_flag_bg1_up + 1
+scroll_flag_bg1_left             = 2
+scroll_flag_bg1_right            = scroll_flag_bg1_left + 1
+scroll_flag_bg1_up_whole_row     = 4
+scroll_flag_bg1_down_whole_row   = scroll_flag_bg1_up_whole_row + 1
+scroll_flag_bg1_up_whole_row_2   = 6
+scroll_flag_bg1_down_whole_row_2 = scroll_flag_bg1_up_whole_row_2 + 1
+
+scroll_flag_bg2_left  = 0
+scroll_flag_bg2_right = 1
+
+scroll_flag_bg3_left  = 0
+scroll_flag_bg3_right = 1
+
+scroll_flag_bg3_cpz_left  = 4
+scroll_flag_bg3_cpz_right = 5
+
+; ---------------------------------------------------------------------------
 ; Controller Buttons
 ;
 ; Buttons bit numbers
@@ -1186,7 +1211,7 @@ Tails_Min_Y_pos:		ds.w	1 ; seems not actually implemented (only written to)
 Tails_Max_Y_pos:		ds.w	1
 Camera_RAM_End:
 
-Block_cache:			ds.b	$80
+Block_cache:			ds.b	512/16*2*2	; Width of plane in blocks, with each block getting two words.
 Ring_consumption_table:		ds.b	$80	; contains RAM addresses of rings currently being consumed
 Ring_consumption_table_End:
 
