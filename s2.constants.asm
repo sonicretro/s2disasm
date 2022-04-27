@@ -1269,7 +1269,7 @@ Camera_Boundaries_P2_End:
 
 Camera_RAM_End:
 
-Block_cache:			ds.b	512/16*2*2	; Width of plane in blocks, with each block getting two words.
+Block_cache:			ds.w	512/16*2	; Width of plane in blocks, with each block getting two words.
 Ring_consumption_table:		ds.b	$80	; contains RAM addresses of rings currently being consumed
 Ring_consumption_table_End:
 
