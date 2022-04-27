@@ -31289,10 +31289,10 @@ ObjectsManager_Init:
 	; initialize each object load address with the first object in the layout
 	move.l	a0,(Obj_load_addr_right).w
 	move.l	a0,(Obj_load_addr_left).w
-	move.l	a0,(Obj_load_addr_2).w
-	move.l	a0,(Obj_load_addr_3).w
+	move.l	a0,(Obj_load_addr_right_P2).w
+	move.l	a0,(Obj_load_addr_left_P2).w
 	lea	(Object_Respawn_Table).w,a2
-	move.w	#$101,(a2)+	; the first two bytes are not used as respawn values
+	move.w	#$0101,(a2)+	; the first two bytes are not used as respawn values
 	; instead, they are used to keep track of the current respawn indexes
 
     if fixBugs
@@ -31329,7 +31329,7 @@ ObjectsManager_Init:
 
 loc_17B3E:
 	move.l	a0,(Obj_load_addr_right).w	; remember rightmost object that has been processed, so far (we still need to look forward)
-	move.l	a0,(Obj_load_addr_2).w
+	move.l	a0,(Obj_load_addr_right_P2).w
 	movea.l	(Obj_load_addr_left).w,a0	; reset a0
 	subi.w	#$80,d6		; look even farther left (any object behind this is out of range)
 	bcs.s	loc_17B62	; branch, if camera position would be behind level's left boundary
@@ -31348,7 +31348,7 @@ loc_17B3E:
 
 loc_17B62:
 	move.l	a0,(Obj_load_addr_left).w	; remember current object from the left
-	move.l	a0,(Obj_load_addr_3).w
+	move.l	a0,(Obj_load_addr_left_P2).w
 	move.w	#-1,(Camera_X_pos_last).w	; make sure ObjectsManager_GoingForward is run
 	move.w	#-1,(Camera_X_pos_last_P2).w
 	tst.w	(Two_player_mode).w	; is it two player mode?
@@ -31473,10 +31473,23 @@ ObjectsManager_SameXRange:
 ObjectsManager_2P_Init:
 	; Reset all of the 2P object manager variables to $FF.
 	moveq	#-1,d0
-	move.l	d0,(Object_manager_2P_RAM+0).w
-	move.l	d0,(Object_manager_2P_RAM+4).w
-	move.l	d0,(Object_manager_2P_RAM+8).w
-	move.l	d0,(Object_manager_2P_RAM+12).w	; both words that this sets to -1 are overwritten directly underneath, so this line is rather pointless...
+
+	; Some code to generate an unrolled loop of instructions which clear
+	; the 2P object manager variables.
+.c := 0
+    rept (Object_manager_2P_RAM_End-Object_manager_2P_RAM)/4
+	move.l	d0,(Object_manager_2P_RAM+.c).w
+.c := .c+4
+    endm
+
+    if (Object_manager_2P_RAM_End-Object_manager_2P_RAM)&2
+	move.w	d0,(Object_manager_2P_RAM+.c).w
+.c := .c+2
+    endif
+
+    if (Object_manager_2P_RAM_End-Object_manager_2P_RAM)&1
+	move.b	d0,(Object_manager_2P_RAM+.c).w
+    endif
 
 	move.w	#0,(Camera_X_pos_last).w
 	move.w	#0,(Camera_X_pos_last_P2).w
@@ -31485,7 +31498,7 @@ ObjectsManager_2P_Init:
 	moveq	#0,d2
 	; run initialization for player 1
 	lea	(Obj_respawn_index).w,a5
-	lea	(Obj_load_addr_right).w,a4
+	lea	(Object_Manager_Addresses).w,a4
 	lea	(Player_1_loaded_object_blocks).w,a1	; = -1, -1, -1
 	lea	(Player_2_loaded_object_blocks).w,a6	; = -1, -1, -1
 	moveq	#-2,d6
@@ -31498,7 +31511,7 @@ ObjectsManager_2P_Init:
 	bsr.w	ObjMan2P_GoingForward
 	; run initialization for player 2
 	lea	(Obj_respawn_index_P2).w,a5
-	lea	(Obj_load_addr_2).w,a4
+	lea	(Object_Manager_Addresses_P2).w,a4
 	lea	(Player_2_loaded_object_blocks).w,a1
 	lea	(Player_1_loaded_object_blocks).w,a6
 	moveq	#-2,d6
@@ -31527,7 +31540,7 @@ ObjectsManager_2P_Main:
 	beq.s	+				; if yes, branch
 	move.w	d6,(Camera_X_pos_last).w	; remember current position for next time
 	lea	(Obj_respawn_index).w,a5
-	lea	(Obj_load_addr_right).w,a4
+	lea	(Object_Manager_Addresses).w,a4
 	lea	(Player_1_loaded_object_blocks).w,a1
 	lea	(Player_2_loaded_object_blocks).w,a6
 	bsr.s	ObjectsManager_2P_Run
@@ -31539,7 +31552,7 @@ ObjectsManager_2P_Main:
 	beq.s	return_17D34			; if yes, branch (rts)
 	move.w	d6,(Camera_X_pos_last_P2).w
 	lea	(Obj_respawn_index_P2).w,a5
-	lea	(Obj_load_addr_2).w,a4
+	lea	(Object_Manager_Addresses_P2).w,a4
 	lea	(Player_2_loaded_object_blocks).w,a1
 	lea	(Player_1_loaded_object_blocks).w,a6
 	bsr.s	ObjectsManager_2P_Run

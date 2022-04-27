@@ -1476,8 +1476,8 @@ Obj_load_addr_left:		ds.l	1	; contains the address of the last object loaded whe
 Object_Manager_Addresses_End:
 
 Object_Manager_Addresses_P2:
-Obj_load_addr_2:		ds.l	1
-Obj_load_addr_3:		ds.l	1
+Obj_load_addr_right_P2:		ds.l	1
+Obj_load_addr_left_P2:		ds.l	1
 Object_Manager_Addresses_P2_End:
 
 Object_manager_2P_RAM:	; The next 16 bytes belong to this.
@@ -1490,6 +1490,7 @@ Camera_X_pos_last_P2_End:
 
 Obj_respawn_index_P2:		ds.b	2	; respawn table indices of the next objects when moving left or right for the second player
 Obj_respawn_index_P2_End:
+Object_manager_2P_RAM_End:
 
 Demo_button_index:		ds.w	1	; index into button press demo data, for player 1
 Demo_press_counter:		ds.b	1	; frames remaining until next button press, for player 1
