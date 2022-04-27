@@ -1127,44 +1127,66 @@ loc_1072:
 ; Input our music/sound selection to the sound driver.
 
 sndDriverInput:
-	lea	(Music_to_play&$00FFFFFF).l,a0
+	lea	(Sound_Queue&$00FFFFFF).l,a0
 	lea	(Z80_RAM+zAbsVar).l,a1 ; $A01B80
+
 	cmpi.b	#$80,zVar.QueueToPlay(a1)	; If this (zReadyFlag) isn't $80, the driver is processing a previous sound request.
-	bne.s	loc_10C4	; So we'll wait until at least the next frame before putting anything in there.
-	_move.b	0(a0),d0
-	beq.s	loc_10A4
-	_clr.b	0(a0)
-	bra.s	loc_10AE
+	bne.s	.doSFX	; So we'll wait until at least the next frame before putting anything in there.
+
+	; If there's something in the first music queue slot, then play it.
+	_move.b	SoundQueue.Music0(a0),d0
+	beq.s	.checkMusic2
+	_clr.b	SoundQueue.Music0(a0)
+	bra.s	.playMusic
 ; ---------------------------------------------------------------------------
-
-loc_10A4:
-	move.b	4(a0),d0	; If there was something in Music_to_play_2, check what that was. Else, just go to the loop.
-	beq.s	loc_10C4
-	clr.b	4(a0)
-
-loc_10AE:		; Check that the sound is not FE or FF
-	move.b	d0,d1	; If it is, we need to put it in $A01B83 as $7F or $80 respectively
+; loc_10A4:
+.checkMusic2:
+	; If there's something in the second music queue slot, then play it.
+	move.b	SoundQueue.Music1(a0),d0
+	beq.s	.doSFX
+	clr.b	SoundQueue.Music1(a0)
+; loc_10AE:
+.playMusic:
+	; If this is 'MusID_Pause' or 'MusID_Unpause', then this isn't a real
+	; sound ID, and it shouldn't be passed to the driver. Instead, it
+	; should be used here to manually set the driver's pause flag.
+	move.b	d0,d1
 	subi.b	#MusID_Pause,d1
-	bcs.s	loc_10C0
+	bcs.s	.isNotPauseCommand
 	addi.b	#$7F,d1
 	move.b	d1,zVar.StopMusic(a1)
-	bra.s	loc_10C4
+	bra.s	.doSFX
 ; ---------------------------------------------------------------------------
-
-loc_10C0:
+; loc_10C0:
+.isNotPauseCommand:
+	; Send the music's sound ID to the driver.
 	move.b	d0,zVar.QueueToPlay(a1)
-
-loc_10C4:
+; loc_10C4:
+.doSFX:
+	; Process the SFX queue.
+    if fixBugs
+	moveq	#3-1,d1
+    else
+	; This is too high: there is only room for three bytes in the
+	; driver's queue. This causes the first byte of 'VoiceTblPtr' to be
+	; overwritten.
 	moveq	#4-1,d1
-				; FFE4 (Music_to_play_2) goes to 1B8C (zMusicToPlay),
--	move.b	1(a0,d1.w),d0	; FFE3 (unk_FFE3) goes to 1B8B, (unknown)
-	beq.s	+		; FFE2 (SFX_to_play_2) goes to 1B8A (zSFXToPlay2),
-	tst.b	zVar.SFXToPlay(a1,d1.w)	; FFE1 (SFX_to_play) goes to 1B89 (zSFXToPlay).
-	bne.s	+
-	clr.b	1(a0,d1.w)
-	move.b	d0,zVar.SFXToPlay(a1,d1.w)
-+
-	dbf	d1,-
+    endif
+
+.loop:
+	; If there's no sound queued, skip this slot.
+	move.b	SoundQueue.SFX0(a0,d1.w),d0
+	beq.s	.skip
+	; If this slot in the driver's queue is occupied, skip this slot.
+	tst.b	zVar.Queue0(a1,d1.w)
+	bne.s	.skip
+	; Remove the sound from this queue, and put it in the driver's queue.
+	clr.b	SoundQueue.SFX0(a0,d1.w)
+	move.b	d0,zVar.Queue0(a1,d1.w)
+
+.skip:
+	dbf	d1,.loop
+
 	rts
 ; End of function sndDriverInput
 
@@ -1354,45 +1376,48 @@ JmpTo_SoundDriverLoad ; JmpTo
 	rts
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-; If Music_to_play is clear, move d0 into Music_to_play,
-; else move d0 into Music_to_play_2.
+; Despite the name, this can actually be used for playing sounds.
+; The original source code called this 'bgmset'.
 ; sub_135E:
 PlayMusic:
-	tst.b	(Music_to_play).w
+	tst.b	(Sound_Queue.Music0).w
 	bne.s	+
-	move.b	d0,(Music_to_play).w
+	move.b	d0,(Sound_Queue.Music0).w
 	rts
 +
-	move.b	d0,(Music_to_play_2).w
+	move.b	d0,(Sound_Queue.Music1).w
 	rts
 ; End of function PlayMusic
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
+; Despite the name, this can actually be used for playing music.
+; The original source code called this 'sfxset'.
 ; sub_1370
 PlaySound:
-	move.b	d0,(SFX_to_play).w
+	; Curiously, none of these functions write to 'Sound_Queue.Queue2'...
+	move.b	d0,(Sound_Queue.SFX0).w
 	rts
 ; End of function PlaySound
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-; play a sound in alternating speakers (as in the ring collection sound)
-; sub_1376:
-PlaySoundStereo:
-	move.b	d0,(SFX_to_play_2).w
+; Despite the name, this can actually be used for playing music.
+; Unfortunately, the original name for this is not known.
+; sub_1376: PlaySoundStereo:
+PlaySound2:
+	move.b	d0,(Sound_Queue.SFX1).w
 	rts
-; End of function PlaySoundStereo
+; End of function PlaySound2
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-; play a sound if the source is onscreen
+; Play a sound if the source is on-screen.
 ; sub_137C:
 PlaySoundLocal:
 	tst.b	render_flags(a0)
 	bpl.s	.return
-	move.b	d0,(SFX_to_play).w
+	move.b	d0,(Sound_Queue.SFX0).w
 
 .return:
 	rts
@@ -1427,7 +1452,7 @@ PauseGame:
 	beq.s	Pause_DoNothing	; if not, branch
 +
 	move.w	#1,(Game_paused).w	; freeze time
-	move.b	#MusID_Pause,(Music_to_play).w	; pause music
+	move.b	#MusID_Pause,(Sound_Queue.Music0).w	; pause music
 ; loc_13B2:
 Pause_Loop:
 	move.b	#VintID_Pause,(Vint_routine).w
@@ -1454,7 +1479,7 @@ Pause_ChkStart:
 	beq.s	Pause_Loop	; if not, branch
 ; loc_13F2:
 Pause_Resume:
-	move.b	#MusID_Unpause,(Music_to_play).w	; unpause the music
+	move.b	#MusID_Unpause,(Sound_Queue.Music0).w	; unpause the music
 ; loc_13F8:
 Unpause:
 	move.w	#0,(Game_paused).w	; unpause the game
@@ -1465,7 +1490,7 @@ Pause_DoNothing:
 ; loc_1400:
 Pause_SlowMo:
 	move.w	#1,(Game_paused).w
-	move.b	#MusID_Unpause,(Music_to_play).w
+	move.b	#MusID_Unpause,(Sound_Queue.Music0).w
 	rts
 ; End of function PauseGame
 
@@ -6378,7 +6403,7 @@ loc_540C:
 
 ; loc_541A:
 SpecialStage_Unpause:
-	move.b	#MusID_Unpause,(Music_to_play).w
+	move.b	#MusID_Unpause,(Sound_Queue.Music0).w
 	move.b	#VintID_Level,(Vint_routine).w
 	bra.w	WaitForVint
 
@@ -23801,26 +23826,26 @@ CollectRing_1P:
     else
 	move.w	#SndID_Ring,d0		; prepare to play the ring sound
 	cmpi.w	#999,(Ring_count).w	; does the player 1 have 999 or more rings?
-	bhs.s	JmpTo_PlaySoundStereo	; if yes, play the ring sound
+	bhs.s	JmpTo_PlaySound2	; if yes, play the ring sound
 	addq.w	#1,(Ring_count).w	; add 1 to the ring count
 	ori.b	#1,(Update_HUD_rings).w	; set flag to update the ring counter in the HUD
     endif
 
 	cmpi.w	#100,(Ring_count).w	; does the player 1 have less than 100 rings?
-	blo.s	JmpTo_PlaySoundStereo	; if yes, play the ring sound
+	blo.s	JmpTo_PlaySound2	; if yes, play the ring sound
 	bset	#1,(Extra_life_flags).w	; test and set the flag for the first extra life
 	beq.s	+			; if it was clear before, branch
 	cmpi.w	#200,(Ring_count).w	; does the player 1 have less than 200 rings?
-	blo.s	JmpTo_PlaySoundStereo	; if yes, play the ring sound
+	blo.s	JmpTo_PlaySound2	; if yes, play the ring sound
 	bset	#2,(Extra_life_flags).w	; test and set the flag for the second extra life
-	bne.s	JmpTo_PlaySoundStereo	; if it was set before, play the ring sound
+	bne.s	JmpTo_PlaySound2	; if it was set before, play the ring sound
 +
 	addq.b	#1,(Life_count).w	; add 1 to the life count
 	addq.b	#1,(Update_HUD_lives).w	; add 1 to the displayed life count
 	move.w	#MusID_ExtraLife,d0	; prepare to play the extra life jingle
 
-JmpTo_PlaySoundStereo ; JmpTo
-	jmp	(PlaySoundStereo).l
+JmpTo_PlaySound2 ; JmpTo
+	jmp	(PlaySound2).l
 ; ===========================================================================
 	rts
 ; ===========================================================================
@@ -23841,20 +23866,20 @@ CollectRing_Tails:
 	ori.b	#1,(Update_HUD_rings_2P).w	; set flag to update the ring counter in the second player's HUD
 	move.w	#SndID_Ring,d0			; prepare to play the ring sound
 	cmpi.w	#100,(Ring_count_2P).w		; does the player 2 have less than 100 rings?
-	blo.s	JmpTo2_PlaySoundStereo		; if yes, play the ring sound
+	blo.s	JmpTo2_PlaySound2		; if yes, play the ring sound
 	bset	#1,(Extra_life_flags_2P).w	; test and set the flag for the first extra life
 	beq.s	+				; if it was clear before, branch
 	cmpi.w	#200,(Ring_count_2P).w		; does the player 2 have less than 200 rings?
-	blo.s	JmpTo2_PlaySoundStereo		; if yes, play the ring sound
+	blo.s	JmpTo2_PlaySound2		; if yes, play the ring sound
 	bset	#2,(Extra_life_flags_2P).w	; test and set the flag for the second extra life
-	bne.s	JmpTo2_PlaySoundStereo		; if it was set before, play the ring sound
+	bne.s	JmpTo2_PlaySound2		; if it was set before, play the ring sound
 +
 	addq.b	#1,(Life_count_2P).w		; add 1 to the life count
 	addq.b	#1,(Update_HUD_lives_2P).w	; add 1 to the displayed life count
 	move.w	#MusID_ExtraLife,d0		; prepare to play the extra life jingle
 
-JmpTo2_PlaySoundStereo ; JmpTo
-	jmp	(PlaySoundStereo).l
+JmpTo2_PlaySound2 ; JmpTo
+	jmp	(PlaySound2).l
 ; End of function CollectRing
 
 ; ===========================================================================
@@ -23935,7 +23960,7 @@ Obj37_Init:
 	dbf	d5,-
 +
 	move.w	#SndID_RingSpill,d0
-	jsr	(PlaySoundStereo).l
+	jsr	(PlaySound2).l
 	tst.b	parent+1(a0)
 	bne.s	+
 	move.w	#0,(Ring_count).w
@@ -24065,7 +24090,7 @@ BigRing_Enter:
 	bset	#0,render_flags(a1)
 +
 	move.w	#SndID_EnterGiantRing,d0
-	jsr	(PlaySoundStereo).l
+	jsr	(PlaySound2).l
 	bra.s	BigRing_Main
 ; ===========================================================================
 ; BranchTo6_DeleteObject
@@ -55568,7 +55593,7 @@ Obj81_BridgeUp:
 	bne.s	+
 	move.b	#1,objoff_36(a0)
 	move.w	#SndID_DrawbridgeMove,d0
-	jsr	(PlaySoundStereo).l
+	jsr	(PlaySound2).l
 	cmpi.b	#$81,status(a0)
 	bne.s	+
 	move.w	objoff_30(a0),x_pos(a0)
@@ -57395,7 +57420,7 @@ ObjD3:
 	blo.s	+
 	clr.w	(Bonus_Countdown_3).w
 	move.w	#SndID_HurtBySpikes,d0
-	jsr	(PlaySoundStereo).l
+	jsr	(PlaySound2).l
 +
 	tst.b	parent+1(a0)
 	beq.s	++
@@ -69150,7 +69175,7 @@ loc_34F28:
 	bcc.s	return_34F68
 	move.b	#1,collision_property(a1)
 	move.w	#SndID_SlowSmash,d0
-	jsr	(PlaySoundStereo).l
+	jsr	(PlaySound2).l
 	move.b	#6,routine(a0)
 	move.b	#0,anim_frame(a0)
 	move.b	#0,anim_frame_duration(a0)
@@ -69271,7 +69296,7 @@ loc_3507A:
 
 loc_35094:
 	move.w	#SndID_Ring,d0
-	jsr	(PlaySoundStereo).l
+	jsr	(PlaySound2).l
 
 return_3509E:
 	rts

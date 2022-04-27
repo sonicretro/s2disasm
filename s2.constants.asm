@@ -1777,11 +1777,16 @@ unk_FFDF:			ds.b	1	; Written to near loc_175EA, never read from
 
 ; Values in these variables are passed to the sound driver during V-INT.
 ; They use a playlist index, not a sound test index.
-Music_to_play:			ds.b	1
-SFX_to_play:			ds.b	1	; normal
-SFX_to_play_2:			ds.b	1	; alternating stereo
-unk_FFE3:			ds.b	1
-Music_to_play_2:		ds.b	1	; alternate (higher priority?) slot
+SoundQueue STRUCT DOTS
+	Music0:	ds.b	1
+	SFX0:	ds.b	1
+	SFX1:	ds.b	1
+	SFX2:	ds.b	1 ; This one is never used, since nothing ever gets written to it.
+	Music1:	ds.b	1
+SoundQueue ENDSTRUCT
+
+Sound_Queue:			SoundQueue
+
 				ds.b	$B	; $FFFFFFE5-$FFFFFFEF ; seems unused
 
 Demo_mode_flag:			ds.w	1 ; 1 if a demo is playing (2 bytes)

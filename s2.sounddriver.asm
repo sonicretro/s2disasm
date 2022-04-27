@@ -148,10 +148,10 @@ zVar STRUCT DOTS
 	FadeOutDelay:		ds.b 1
 	Communication:		ds.b 1	; Unused byte used to synchronise gameplay events with music
 	DACUpdating:		ds.b 1	; Set to FFh while DAC is updating, then back to 00h
-	QueueToPlay:		ds.b 1	; If NOT set to 80h, means new index was requested by 68K
-	SFXToPlay:		ds.b 1	; When Genesis wants to play "normal" sound, it writes it here
-	SFXStereoToPlay:	ds.b 1	; When Genesis wants to play alternating stereo sound, it writes it here
-	SFXUnknown:		ds.b 1	; Unknown type of sound queue, but it's in Genesis code like it was once used
+	QueueToPlay:		ds.b 1	; The head of the queue
+	Queue0:			ds.b 1
+	Queue1:			ds.b 1
+	Queue2:			ds.b 1	; This slot was totally broken in Sonic 1's driver. It's mostly fixed here, but it's still a little broken (see 'zInitMusicPlayback').
 	VoiceTblPtr:		ds.b 2	; Address of the voices
 	FadeInFlag:		ds.b 1
 	FadeInDelay:		ds.b 1
@@ -404,12 +404,14 @@ zUpdateEverything:
 	ld	a,(zAbsVar.FadeOutCounter)	; Are we fading out?
 	or	a
 	call	nz,zUpdateFadeout		; If so, update that
+
 	ld	a,(zAbsVar.FadeInFlag)		; Are we fading in?
 	or	a
 	call	nz,zUpdateFadeIn		; If so, update that
-	ld	a,(zAbsVar.SFXToPlay)		; zComRange+09h -- play normal sound
-	or	(ix+zVar.SFXStereoToPlay)	; zComRange+0Ah -- play stereo sound (alternating speakers)
-	or	(ix+zVar.SFXUnknown)		; zComRange+0Bh -- "unknown" slot
+
+	ld	a,(zAbsVar.Queue0)
+	or	(ix+zVar.Queue1)
+	or	(ix+zVar.Queue2)		; This was missing in Sonic 1's driver, breaking the third queue slot.
 	call	nz,zCycleQueue			; If any of those are non-zero, cycle queue
 
 	; Apparently if this is 80h, it does not play anything new,
@@ -1462,10 +1464,10 @@ zCycleQueue:
 	ld	a,(zAbsVar.QueueToPlay)		; Check if a sound request was made zComRange+08h
 	cp	80h				; Is queue slot equal to 80h?
 	ret	nz				; If not, return
-	ld	hl,zAbsVar.SFXToPlay		; Get address of next sound
+	ld	hl,zAbsVar.Queue0		; Get address of next sound
 	ld	a,(zAbsVar.SFXPriorityVal)	; Get current SFX priority
 	ld	c,a				; a -> c
-	ld	b,3				; b = 3
+	ld	b,3				; 3, for Queue0, Queue1, and Queue2
 
 zInputLoop:
 	ld	a,(hl)				; Get sound to play -> 'a'
@@ -2515,9 +2517,14 @@ zInitMusicPlayback:
 	ld	b,(ix+zVar.SpeedUpFlag)		; Speed shoe flag
 	ld	c,(ix+zVar.FadeInCounter)	; Fade in frames
 	push	bc
-	ld	b,(ix+zVar.SFXToPlay)		; SFX queue slot
-	ld	c,(ix+zVar.SFXStereoToPlay)	; Stereo SFX queue slot
+	ld	b,(ix+zVar.Queue0)
+	ld	c,(ix+zVar.Queue1)
 	push	bc
+    if FixDriverBugs
+	; Queue2 isn't backed up! This was a bug in Sonic 1's driver as well.
+	ld	b,(ix+zVar.Queue2)
+	push	bc
+    endif
 	; The following clears all playback memory and non-SFX tracks
 	ld	hl,zAbsVar
 	ld	de,zAbsVar+1
@@ -2526,8 +2533,13 @@ zInitMusicPlayback:
 	ldir
 	; Restore those queue/flags:
 	pop	bc
-	ld	(ix+zVar.SFXToPlay),b		; SFX queue slot
-	ld	(ix+zVar.SFXStereoToPlay),c	; Stereo SFX queue slot
+	ld	(ix+zVar.Queue0),b
+	ld	(ix+zVar.Queue1),c
+    if FixDriverBugs
+	; Ditto.
+	pop	bc
+	ld	(ix+zVar.Queue2),b
+    endif
 	pop	bc
 	ld	(ix+zVar.SpeedUpFlag),b		; Speed shoe flag
 	ld	(ix+zVar.FadeInCounter),c	; Fade in frames

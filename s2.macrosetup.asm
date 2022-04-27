@@ -110,7 +110,7 @@ chkop function op,ref,(substr(lowstring(op),0,strlen(ref))<>ref)
 
 ; 1-arg instruction that's self-patching to remove 0-offset optimization
 insn1op	 macro oper,x
-	  if (chkop("x","0(") && chkop("x","id(") && chkop("x","slot_rout("))
+	  if (chkop("x","0(") && chkop("x","id(") && chkop("x","slot_rout(") && chkop("x","soundqueue.music0("))
 		!oper	x
 	  else
 		!oper	1+x
@@ -121,8 +121,8 @@ insn1op	 macro oper,x
 
 ; 2-arg instruction that's self-patching to remove 0-offset optimization
 insn2op	 macro oper,x,y
-	  if (chkop("x","0(") && chkop("x","id(") && chkop("x","slot_rout("))
-		  if (chkop("y","0(") && chkop("y","id(") && chkop("y","slot_rout("))
+	  if (chkop("x","0(") && chkop("x","id(") && chkop("x","slot_rout(") && chkop("x","soundqueue.music0("))
+		  if (chkop("y","0(") && chkop("y","id(") && chkop("y","slot_rout(") && chkop("y","soundqueue.music0("))
 			!oper	x,y
 		  else
 			!oper	x,1+y
@@ -131,7 +131,7 @@ insn2op	 macro oper,x,y
 		  endif
 	  else
 		if chkop("y","d")
-		  if (chkop("y","0(") && chkop("y","id(") && chkop("y","slot_rout("))
+		  if (chkop("y","0(") && chkop("y","id(") && chkop("y","slot_rout(") && chkop("y","soundqueue.music0("))
 start:
 			!oper	1+x,y
 end:
