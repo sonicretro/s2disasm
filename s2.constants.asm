@@ -1241,7 +1241,11 @@ Tails_Pos_Record_Index:		ds.w	1	; into Tails_Pos_Record_Buf
 Camera_Delay_P2_End:
 
 Camera_Y_pos_bias:		ds.w	1	; added to y position for lookup/lookdown, $60 is center
+Camera_Y_pos_bias_End:
+
 Camera_Y_pos_bias_P2:		ds.w	1	; for Tails
+Camera_Y_pos_bias_P2_End:
+
 Deform_lock:			ds.b	1	; set to 1 to stop all deformation
 				ds.b	1	; $FFFFEEDD ; seems unused
 Camera_Max_Y_Pos_Changing:	ds.b	1
@@ -1464,6 +1468,7 @@ Secondary_Angle:		ds.b	1
 Obj_placement_routine:		ds.b	1
 				ds.b	1	; $FFFFF76D ; seems unused
 Camera_X_pos_last:		ds.w	1	; Camera_X_pos_coarse from the previous frame
+Camera_X_pos_last_End:
 
 Object_Manager_Addresses:
 Obj_load_addr_right:		ds.l	1	; contains the address of the next object to load when moving right
@@ -1479,8 +1484,12 @@ Object_manager_2P_RAM:	; The next 16 bytes belong to this.
 Object_RAM_block_indices:	ds.b	6	; seems to be an array of horizontal chunk positions, used for object position range checks
 Player_1_loaded_object_blocks:	ds.b	3
 Player_2_loaded_object_blocks:	ds.b	3
+
 Camera_X_pos_last_P2:		ds.w	1
+Camera_X_pos_last_P2_End:
+
 Obj_respawn_index_P2:		ds.b	2	; respawn table indices of the next objects when moving left or right for the second player
+Obj_respawn_index_P2_End:
 
 Demo_button_index:		ds.w	1	; index into button press demo data, for player 1
 Demo_press_counter:		ds.b	1	; frames remaining until next button press, for player 1
@@ -1511,8 +1520,13 @@ Bonus_Countdown_1:		ds.w	1	; level results time bonus or special stage Sonic rin
 Bonus_Countdown_2:		ds.w	1	; level results ring bonus or special stage Tails ring bonus
 Update_Bonus_score:		ds.b	1
 				ds.b	3	; $FFFFF7D7-$FFFFF7D9 ; seems unused
+
 Camera_X_pos_coarse:		ds.w	1	; (Camera_X_pos - 128) / 256
+Camera_X_pos_coarse_End:
+
 Camera_X_pos_coarse_P2:		ds.w	1
+Camera_X_pos_coarse_P2_End:
+
 Tails_LastLoadedDPLC:		ds.b	1	; mapping frame number when Tails last had his tiles requested to be transferred from ROM to VRAM. can be set to a dummy value like -1 to force a refresh DMA.
 TailsTails_LastLoadedDPLC:	ds.b	1	; mapping frame number when Tails' tails last had their tiles requested to be transferred from ROM to VRAM. can be set to a dummy value like -1 to force a refresh DMA.
 ButtonVine_Trigger:		ds.b	$10	; 16 bytes flag array, #subtype byte set when button/vine of respective subtype activated
@@ -1537,6 +1551,7 @@ Target_palette_End:
 
 Object_Respawn_Table:
 Obj_respawn_index:		ds.b	2		; respawn table indices of the next objects when moving left or right for the first player
+Obj_respawn_index_End:
 Obj_respawn_data:		ds.b	$100	; Maximum possible number of respawn entries that S2 can handle; for stock S2, $80 is enough
 Obj_respawn_data_End:
 				ds.b	$FE	; Stack; the first $7E bytes are cleared by ObjectsManager_Init, with possibly disastrous consequences. At least $A0 bytes are needed.
