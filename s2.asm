@@ -24839,24 +24839,24 @@ swap_loop_objects:
 ; when a teleport monitor is destroyed
 ;byte_12C52:
 teleport_swap_table:
-	dc.w MainCharacter+x_pos,	Sidekick+x_pos,			$1B
-	dc.w Camera_X_pos_last,		Camera_X_pos_last_P2,		  0
-	dc.w Obj_respawn_index,		Obj_respawn_index_P2,		  0
-	dc.w Obj_load_addr_right,	Obj_load_addr_2,		  3
-	dc.w Sonic_top_speed,		Tails_top_speed,		  2
-	dc.w Ring_start_addr,		Ring_start_addr_P2,		  1
-	dc.w CNZ_Visible_bumpers_start,	CNZ_Visible_bumpers_start_P2,  3
-	dc.w Camera_X_pos,		Camera_X_pos_P2,		 $F
-	dc.w Camera_X_pos_coarse,	Camera_X_pos_coarse_P2,		  0
-	dc.w Camera_Min_X_pos,		Tails_Min_X_pos,		  3
-	dc.w Horiz_scroll_delay_val,	Horiz_scroll_delay_val_P2,	  1
-	dc.w Camera_Y_pos_bias,		Camera_Y_pos_bias_P2,		  0
-	dc.w Horiz_block_crossed_flag,	Horiz_block_crossed_flag_P2,	  3
-	dc.w Scroll_flags,		Scroll_flags_P2,		  3
-	dc.w Camera_RAM_copy,		Camera_P2_copy,			 $F
-	dc.w Scroll_flags_copy,		Scroll_flags_copy_P2,		  3
-	dc.w Camera_X_pos_diff,		Camera_X_pos_diff_P2,		  1
-	dc.w Sonic_Pos_Record_Buf,	Tails_Pos_Record_Buf,		$7F
+	dc.w MainCharacter+x_pos,	Sidekick+x_pos,			bytesToWcnt(object_size-x_pos)
+	dc.w Camera_X_pos_last,		Camera_X_pos_last_P2,		bytesToWcnt(2)
+	dc.w Obj_respawn_index,		Obj_respawn_index_P2,		bytesToWcnt(2)
+	dc.w Object_Manager_Addresses,	Object_Manager_Addresses_P2,	bytesToWcnt(Object_Manager_Addresses_End-Object_Manager_Addresses)
+	dc.w Sonic_Speeds,		Tails_Speeds,			bytesToWcnt(Sonic_Speeds_End-Sonic_Speeds)
+	dc.w Ring_Manager_Addresses,	Ring_Manager_Addresses_P2,	bytesToWcnt(Ring_Manager_Addresses_End-Ring_Manager_Addresses)
+	dc.w Bumper_Manager_Addresses,	Bumper_Manager_Addresses_P2,	bytesToWcnt(Bumper_Manager_Addresses_End-Bumper_Manager_Addresses)
+	dc.w Camera_Positions,		Camera_Positions_P2,		bytesToWcnt(Camera_Positions_End-Camera_Positions)
+	dc.w Camera_X_pos_coarse,	Camera_X_pos_coarse_P2,		bytesToWcnt(2)
+	dc.w Camera_Boundaries,		Camera_Boundaries_P2,		bytesToWcnt(Camera_Boundaries_End-Camera_Boundaries)
+	dc.w Camera_Delay,		Camera_Delay_P2,		bytesToWcnt(Camera_Delay_End-Camera_Delay)
+	dc.w Camera_Y_pos_bias,		Camera_Y_pos_bias_P2,		bytesToWcnt(2)
+	dc.w Block_Crossed_Flags,	Block_Crossed_Flags_P2,		bytesToWcnt(Block_Crossed_Flags_End-Block_Crossed_Flags)
+	dc.w Scroll_Flags_All,		Scroll_Flags_All_P2,		bytesToWcnt(Scroll_Flags_All_End-Scroll_Flags_All)
+	dc.w Camera_Positions_Copy,	Camera_Positions_Copy_P2,	bytesToWcnt(Camera_Positions_Copy_End-Camera_Positions_Copy)
+	dc.w Scroll_Flags_Copy_All,	Scroll_Flags_Copy_All_P2,	bytesToWcnt(Scroll_Flags_Copy_All_End-Scroll_Flags_Copy_All)
+	dc.w Camera_Difference,		Camera_Difference_P2,		bytesToWcnt(Camera_Difference_End-Camera_Difference)
+	dc.w Sonic_Pos_Record_Buf,	Tails_Pos_Record_Buf,		bytesToWcnt(Sonic_Pos_Record_Buf_End-Sonic_Pos_Record_Buf)
 teleport_swap_table_end:
 ; ===========================================================================
 ; ---------------------------------------------------------------------------

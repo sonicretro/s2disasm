@@ -1109,8 +1109,13 @@ Horiz_Scroll_Buf:		ds.l	224
 Horiz_Scroll_Buf_End:
 
 Sonic_Stat_Record_Buf:		ds.b	$100
+
 Sonic_Pos_Record_Buf:		ds.b	$100
+Sonic_Pos_Record_Buf_End:
+
 Tails_Pos_Record_Buf:		ds.b	$100
+Tails_Pos_Record_Buf_End:
+
 CNZ_saucer_data:		ds.b	$40	; the number of saucer bumpers in a group which have been destroyed. Used to decide when to give 500 points instead of 10
 CNZ_saucer_data_End:
 				ds.b	$C0	; $FFFFE740-$FFFFE7FF ; unused as far as I can tell
@@ -1118,6 +1123,8 @@ Ring_Positions:			ds.b	$600
 Ring_Positions_End:
 
 Camera_RAM:
+
+Camera_Positions:
 Camera_X_pos:			ds.l	1
 Camera_Y_pos:			ds.l	1
 Camera_BG_X_pos:		ds.l	1	; only used sometimes as the layer deformation makes it sort of redundant
@@ -1126,16 +1133,20 @@ Camera_BG2_X_pos:		ds.l	1	; used in CPZ
 Camera_BG2_Y_pos:		ds.l	1	; used in CPZ
 Camera_BG3_X_pos:		ds.l	1	; unused (only initialised at beginning of level)?
 Camera_BG3_Y_pos:		ds.l	1	; unused (only initialised at beginning of level)?
+Camera_Positions_End:
+
+Camera_Positions_P2:
 Camera_X_pos_P2:		ds.l	1
 Camera_Y_pos_P2:		ds.l	1
 Camera_BG_X_pos_P2:		ds.l	1	; only used sometimes as the layer deformation makes it sort of redundant
 Camera_BG_Y_pos_P2:		ds.l	1
-Camera_BG2_X_pos_P2:		ds.w	1	; unused (only initialised at beginning of level)?
-				ds.w	1	; $FFFFEE32-$FFFFEE33 ; seems unused
+Camera_BG2_X_pos_P2:		ds.l	1	; unused (only initialised at beginning of level)?
 Camera_BG2_Y_pos_P2:		ds.l	1
-Camera_BG3_X_pos_P2:		ds.w	1	; unused (only initialised at beginning of level)?
-				ds.w	1	; $FFFFEE3A-$FFFFEE3B ; seems unused
+Camera_BG3_X_pos_P2:		ds.l	1	; unused (only initialised at beginning of level)?
 Camera_BG3_Y_pos_P2:		ds.l	1
+Camera_Positions_P2_End:
+
+Block_Crossed_Flags:
 Horiz_block_crossed_flag:	ds.b	1	; toggles between 0 and $10 when you cross a block boundary horizontally
 Verti_block_crossed_flag:	ds.b	1	; toggles between 0 and $10 when you cross a block boundary vertically
 Horiz_block_crossed_flag_BG:	ds.b	1	; toggles between 0 and $10 when background camera crosses a block boundary horizontally
@@ -1144,37 +1155,66 @@ Horiz_block_crossed_flag_BG2:	ds.b	1	; used in CPZ
 				ds.b	1	; $FFFFEE45 ; seems unused
 Horiz_block_crossed_flag_BG3:	ds.b	1
 				ds.b	1	; $FFFFEE47 ; seems unused
+Block_Crossed_Flags_End:
+
+Block_Crossed_Flags_P2:
 Horiz_block_crossed_flag_P2:	ds.b	1	; toggles between 0 and $10 when you cross a block boundary horizontally
 Verti_block_crossed_flag_P2:	ds.b	1	; toggles between 0 and $10 when you cross a block boundary vertically
 				ds.b	6	; $FFFFEE4A-$FFFFEE4F ; seems unused
+Block_Crossed_Flags_P2_End:
+
+Scroll_Flags_All:
 Scroll_flags:			ds.w	1	; bitfield ; bit 0 = redraw top row, bit 1 = redraw bottom row, bit 2 = redraw left-most column, bit 3 = redraw right-most column
 Scroll_flags_BG:		ds.w	1	; bitfield ; bits 0-3 as above, bit 4 = redraw top row (except leftmost block), bit 5 = redraw bottom row (except leftmost block), bits 6-7 = as bits 0-1
 Scroll_flags_BG2:		ds.w	1	; bitfield ; essentially unused; bit 0 = redraw left-most column, bit 1 = redraw right-most column
 Scroll_flags_BG3:		ds.w	1	; bitfield ; for CPZ; bits 0-3 as Scroll_flags_BG but using Y-dependent BG camera; bits 4-5 = bits 2-3; bits 6-7 = bits 2-3
+Scroll_Flags_All_End:
+
+Scroll_Flags_All_P2:
 Scroll_flags_P2:		ds.w	1	; bitfield ; bit 0 = redraw top row, bit 1 = redraw bottom row, bit 2 = redraw left-most column, bit 3 = redraw right-most column
 Scroll_flags_BG_P2:		ds.w	1	; bitfield ; bits 0-3 as above, bit 4 = redraw top row (except leftmost block), bit 5 = redraw bottom row (except leftmost block), bits 6-7 = as bits 0-1
 Scroll_flags_BG2_P2:		ds.w	1	; bitfield ; essentially unused; bit 0 = redraw left-most column, bit 1 = redraw right-most column
 Scroll_flags_BG3_P2:		ds.w	1	; bitfield ; for CPZ; bits 0-3 as Scroll_flags_BG but using Y-dependent BG camera; bits 4-5 = bits 2-3; bits 6-7 = bits 2-3
+Scroll_Flags_All_P2_End:
+
+Camera_Positions_Copy:
 Camera_RAM_copy:		ds.l	2	; copied over every V-int
 Camera_BG_copy:			ds.l	2	; copied over every V-int
 Camera_BG2_copy:		ds.l	2	; copied over every V-int
 Camera_BG3_copy:		ds.l	2	; copied over every V-int
+Camera_Positions_Copy_End:
+
+Camera_Positions_Copy_P2:
 Camera_P2_copy:			ds.l	8	; copied over every V-int
+Camera_Positions_Copy_P2_End:
+
+Scroll_Flags_Copy_All:
 Scroll_flags_copy:		ds.w	1	; copied over every V-int
 Scroll_flags_BG_copy:		ds.w	1	; copied over every V-int
 Scroll_flags_BG2_copy:		ds.w	1	; copied over every V-int
 Scroll_flags_BG3_copy:		ds.w	1	; copied over every V-int
+Scroll_Flags_Copy_All_End:
+
+Scroll_Flags_Copy_All_P2:
 Scroll_flags_copy_P2:		ds.w	1	; copied over every V-int
 Scroll_flags_BG_copy_P2:	ds.w	1	; copied over every V-int
 Scroll_flags_BG2_copy_P2:	ds.w	1	; copied over every V-int
 Scroll_flags_BG3_copy_P2:	ds.w	1	; copied over every V-int
+Scroll_Flags_Copy_All_P2_End:
 
+Camera_Difference:
 Camera_X_pos_diff:		ds.w	1	; (new X pos - old X pos) * 256
 Camera_Y_pos_diff:		ds.w	1	; (new Y pos - old Y pos) * 256
+Camera_Difference_End:
+
 Camera_BG_X_pos_diff:		ds.w	1	; Effective camera change used in WFZ ending and HTZ screen shake
 Camera_BG_Y_pos_diff:		ds.w	1	; Effective camera change used in WFZ ending and HTZ screen shake
+
+Camera_Difference_P2:
 Camera_X_pos_diff_P2:		ds.w	1	; (new X pos - old X pos) * 256
 Camera_Y_pos_diff_P2:		ds.w	1	; (new Y pos - old Y pos) * 256
+Camera_Difference_P2_End:
+
 Screen_Shaking_Flag_HTZ:	ds.b	1	; activates screen shaking code in HTZ's layer deformation routine
 Screen_Shaking_Flag:		ds.b	1	; activates screen shaking code (if existent) in layer deformation routine
 Scroll_lock:			ds.b	1	; set to 1 to stop all scrolling for P1
@@ -1182,14 +1222,24 @@ Scroll_lock_P2:			ds.b	1	; set to 1 to stop all scrolling for P2
 unk_EEC0:			ds.l	1	; unused, except on write in LevelSizeLoad...
 unk_EEC4:			ds.w	1	; same as above. The write being a long also overwrites the address below
 Camera_Max_Y_pos:		ds.w	1
+
+Camera_Boundaries:
 Camera_Min_X_pos:		ds.w	1
 Camera_Max_X_pos:		ds.w	1
 Camera_Min_Y_pos:		ds.w	1
 Camera_Max_Y_pos_now:		ds.w	1	; was "Camera_max_scroll_spd"...
+Camera_Boundaries_End:
+
+Camera_Delay:
 Horiz_scroll_delay_val:		ds.w	1	; if its value is a, where a != 0, X scrolling will be based on the player's X position a-1 frames ago
 Sonic_Pos_Record_Index:		ds.w	1	; into Sonic_Pos_Record_Buf and Sonic_Stat_Record_Buf
+Camera_Delay_End:
+
+Camera_Delay_P2:
 Horiz_scroll_delay_val_P2:	ds.w	1
 Tails_Pos_Record_Index:		ds.w	1	; into Tails_Pos_Record_Buf
+Camera_Delay_P2_End:
+
 Camera_Y_pos_bias:		ds.w	1	; added to y position for lookup/lookdown, $60 is center
 Camera_Y_pos_bias_P2:		ds.w	1	; for Tails
 Deform_lock:			ds.b	1	; set to 1 to stop all deformation
@@ -1205,10 +1255,14 @@ HTZ_Terrain_Direction:		ds.b	1	; During HTZ screen shake, 0 if terrain/lava is r
 Vscroll_Factor_P2_HInt:	ds.l	1
 Camera_X_pos_copy:		ds.l	1
 Camera_Y_pos_copy:		ds.l	1
+
+Camera_Boundaries_P2:
 Tails_Min_X_pos:		ds.w	1
 Tails_Max_X_pos:		ds.w	1
 Tails_Min_Y_pos:		ds.w	1 ; seems not actually implemented (only written to)
 Tails_Max_Y_pos:		ds.w	1
+Camera_Boundaries_P2_End:
+
 Camera_RAM_End:
 
 Block_cache:			ds.b	512/16*2*2	; Width of plane in blocks, with each block getting two words.
@@ -1344,16 +1398,29 @@ Tails_CPU_jumping:		ds.b	1
 
 Rings_manager_routine:		ds.b	1
 Level_started_flag:		ds.b	1
+
+Ring_Manager_Addresses:
 Ring_start_addr:		ds.w	1
 Ring_end_addr:			ds.w	1
+Ring_Manager_Addresses_End:
+
+Ring_Manager_Addresses_P2:
 Ring_start_addr_P2:		ds.w	1
 Ring_end_addr_P2:		ds.w	1
+Ring_Manager_Addresses_P2_End:
+
 CNZ_Bumper_routine:		ds.b	1
 CNZ_Bumper_UnkFlag:		ds.b	1	; Set only, never used again
+
+Bumper_Manager_Addresses:
 CNZ_Visible_bumpers_start:	ds.l	1
 CNZ_Visible_bumpers_end:	ds.l	1
+Bumper_Manager_Addresses_End:
+
+Bumper_Manager_Addresses_P2:
 CNZ_Visible_bumpers_start_P2:	ds.l	1
 CNZ_Visible_bumpers_end_P2:	ds.l	1
+Bumper_Manager_Addresses_P2_End:
 
 Screen_redraw_flag:		ds.b	1	; if whole screen needs to redraw, such as when you destroy that piston before the boss in WFZ
 CPZ_UnkScroll_Timer:		ds.b	1	; Used only in unused CPZ scrolling function
@@ -1382,9 +1449,12 @@ Boss_Countdown:			ds.w	1
 				ds.w	1	; $FFFFF75E-$FFFFF75F ; unused
 Boss_variables_end:
 
+Sonic_Speeds:
 Sonic_top_speed:		ds.w	1
 Sonic_acceleration:		ds.w	1
 Sonic_deceleration:		ds.w	1
+Sonic_Speeds_End:
+
 Sonic_LastLoadedDPLC:		ds.b	1	; mapping frame number when Sonic last had his tiles requested to be transferred from ROM to VRAM. can be set to a dummy value like -1 to force a refresh DMA. was: Sonic_mapping_frame
 				ds.b	1	; $FFFFF767 ; seems unused
 Primary_Angle:			ds.b	1
@@ -1395,10 +1465,15 @@ Obj_placement_routine:		ds.b	1
 				ds.b	1	; $FFFFF76D ; seems unused
 Camera_X_pos_last:		ds.w	1	; Camera_X_pos_coarse from the previous frame
 
+Object_Manager_Addresses:
 Obj_load_addr_right:		ds.l	1	; contains the address of the next object to load when moving right
 Obj_load_addr_left:		ds.l	1	; contains the address of the last object loaded when moving left
+Object_Manager_Addresses_End:
+
+Object_Manager_Addresses_P2:
 Obj_load_addr_2:		ds.l	1
 Obj_load_addr_3:		ds.l	1
+Object_Manager_Addresses_P2_End:
 
 Object_manager_2P_RAM:	; The next 16 bytes belong to this.
 Object_RAM_block_indices:	ds.b	6	; seems to be an array of horizontal chunk positions, used for object position range checks
@@ -1554,9 +1629,12 @@ Oscillating_variables_End
 				ds.b	$10	; $FFFFFEB0-$FFFFFEBF ; seems unused
 
 ; values for the second player (some of these only apply to 2-player games)
+Tails_Speeds:
 Tails_top_speed:		ds.w	1	; Tails_max_vel
 Tails_acceleration:		ds.w	1
 Tails_deceleration:		ds.w	1
+Tails_Speeds_End:
+
 Life_count_2P:			ds.b	1
 Extra_life_flags_2P:		ds.b	1
 Update_HUD_lives_2P:		ds.b	1
