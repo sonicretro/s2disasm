@@ -15822,6 +15822,40 @@ SwScrl_HPZ:
 ; ===========================================================================
 ; loc_CC66:
 SwScrl_OOZ:
+    if fixBugs
+	; As described below, part of Oil Ocean Zone's background is rendered
+	; unused because the basic background drawer that this zone uses is
+	; unable to draw it without making the clouds and sun disappear.
+	; However, it is possible to fix this by using the advanced
+	; background drawer that Chemical Plant Zone uses.
+
+	; Update scroll flags, to dynamically load more of the background as
+	; the player moves around.
+	move.w	(Camera_X_pos_diff).w,d4
+	ext.l	d4
+	asl.l	#5,d4
+	move.w	(Camera_Y_pos_diff).w,d5
+	ext.l	d5
+	asl.l	#5,d5
+	bsr.w	SetHorizVertiScrollFlagsBG
+
+	; Update 'Camera_BG2_Y_pos', which is used by the sky.
+	; We'll leave its X value as 0 though, so that it never dynamically
+	; loads tiles horizontally, which would cause the sun and clouds to
+	; disappear.
+	move.w	(Camera_BG_Y_pos).w,d0
+	move.w	d0,(Camera_BG2_Y_pos).w
+
+	; Update the background's vertical scrolling.
+	move.w	d0,(Vscroll_Factor_BG).w
+
+	; Move BG1's scroll flags into BG3...
+	move.b	(Scroll_flags_BG).w,(Scroll_flags_BG3).w
+
+	; ...then clear BG1's scroll flags.
+	; This zone basically uses its own dynamic background loader.
+	clr.b	(Scroll_flags_BG).w
+    else
 	; Update 'Camera_BG_X_pos', since there's no call to
 	; 'SetHorizScrollFlagsBG' or 'SetHorizVertiScrollFlagsBG' to do it
 	; for us.
@@ -15844,6 +15878,7 @@ SwScrl_OOZ:
 
 	; Update the background's vertical scrolling.
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+    endif
 
 	; Update the background's (and foreground's) horizontal scrolling.
 	; Curiously, Oil Ocean Zone fills 'Horiz_Scroll_Buf' starting from
@@ -18478,6 +18513,10 @@ Draw_BG3:
 
 	cmpi.b	#chemical_plant_zone,(Current_Zone).w
 	beq.w	Draw_BG3_CPZ
+    if fixBugs
+	cmpi.b	#oil_ocean_zone,(Current_Zone).w
+	beq.w	Draw_BG3_OOZ
+    endif
 
 	; Leftover from Sonic 1: was used by Green Hill Zone.
 	bclr	#scroll_flag_bg3_left,(a2)
@@ -18723,6 +18762,139 @@ DrawBlockColumn_Advanced:
 	rts
 ; End of function Draw_BG3
 
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+    if fixBugs
+	; See 'SwScrl_OOZ'.
+	; This uses the same drawing method as Chemical Plant Zone to enable
+	; the unused part of Oil Ocean Zone's background to be drawn without
+	; it causing the clouds and sun to disappear.
+
+; Oil Ocean Zone block positioning array
+; Each entry is an index into BGCameraLookup; used to decide the camera to use
+; for given block for reloading BG. A entry of 0 means assume X = 0 for section,
+; but otherwise loads camera Y for selected camera.
+
+OOZ_CameraSections:
+	; BG1 (draw whole row) for the sky.
+	dc.b   0
+	dc.b   0
+	dc.b   0
+	dc.b   0
+	dc.b   0
+	dc.b   0
+	dc.b   0
+	dc.b   0
+	dc.b   0
+	dc.b   0
+	dc.b   0
+	dc.b   0
+	dc.b   0
+	dc.b   0
+	dc.b   0
+	dc.b   0
+	dc.b   0
+	; BG1 for the factory.
+	dc.b   2
+	dc.b   2
+	dc.b   2
+	dc.b   2
+	dc.b   2
+	dc.b   2
+	dc.b   2
+	dc.b   2
+	dc.b   2
+	dc.b   2
+	dc.b   2
+	dc.b   2
+	dc.b   2
+	dc.b   2
+	dc.b   2
+	dc.b   2
+	even
+
+Draw_BG3_OOZ:
+	; This is a lighty-modified duplicate of Scrap Brain Zone's drawing
+	; code (which is still in this game - it's labelled 'Draw_BG2_SBZ').
+	; This is an advanced form of the usual background-drawing code that
+	; allows each row of blocks to update and scroll independently...
+	; kind of. There are only three possible 'cameras' that each row can
+	; align itself with. Still, each row is free to decide which camera
+	; it aligns with.
+	; This could have really benefitted Oil Ocean Zone's background,
+	; which has a section that goes unseen because the regular background
+	; drawer is too primitive to display it without making the sun and
+	; clouds disappear. Using this would have avoided that.
+	; This code differs from the Scrap Brain Zone version by being
+	; hardcoded to a different table ('CPZ_CameraSections' instead of
+	; 'SBZ_CameraSections'), and lacking support for redrawing the whole
+	; row when it uses "camera 0".
+
+	; Handle loading the rows as the camera moves up and down.
+	moveq	#-16,d4	; Y offset
+	bclr	#scroll_flag_advanced_bg_up,(a2)
+	bne.s	.doUpOrDown
+	bclr	#scroll_flag_advanced_bg_down,(a2)
+	beq.s	.checkIfShouldDoLeftOrRight
+	move.w	#224,d4	; Y offset
+
+.doUpOrDown:
+	; Select the correct camera, so that the X value of the loaded row is
+	; right.
+	lea_	OOZ_CameraSections+1,a0
+	move.w	(Camera_BG_Y_pos).w,d0
+	add.w	d4,d0
+	andi.w	#$3F0,d0
+	lsr.w	#4,d0
+	move.b	(a0,d0.w),d0
+	lea	BGCameraLookup(pc),a3
+	movea.w	(a3,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
+	beq.s	.doWholeRow
+	moveq	#-16,d5	; X offset
+	movem.l	d4-d5,-(sp)
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
+	movem.l	(sp)+,d4-d5
+	bsr.w	DrawBlockRow
+	bra.s	.checkIfShouldDoLeftOrRight
+; ===========================================================================
+
+.doWholeRow:
+	moveq	#0,d5	; X (absolute)
+	movem.l	d4-d5,-(sp)
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1.AbsoluteX
+	movem.l	(sp)+,d4-d5
+	moveq	#512/16-1,d6	; The entire width of the plane in blocks minus 1.
+	bsr.w	DrawBlockRow.AbsoluteXCustomWidth
+
+.checkIfShouldDoLeftOrRight:
+	; If there are other scroll flags set, then go do them.
+	tst.b	(a2)
+	bne.s	.doLeftOrRight
+	rts
+; ===========================================================================
+
+.doLeftOrRight:
+	moveq	#-16,d4 ; Y offset
+
+	; Load left column.
+	moveq	#-16,d5 ; X offset
+	move.b	(a2),d0
+	andi.b	#(1<<scroll_flag_advanced_bg1_right)|(1<<scroll_flag_advanced_bg2_right)|(1<<scroll_flag_advanced_bg3_right),d0
+	beq.s	+
+	lsr.b	#1,d0	; Make the left and right flags share the same bits, to simplify a calculation later.
+	move.b	d0,(a2)
+	; Load right column.
+	move.w	#320,d5 ; X offset
++
+	; Select the correct starting background section, and then begin
+	; drawing the column.
+	lea_	OOZ_CameraSections,a0
+	move.w	(Camera_BG_Y_pos).w,d0
+	andi.w	#$7F0,d0	; Curiously, this bitmask differs from the one used earlier. Perhaps this is a bug?
+	lsr.w	#4,d0
+	lea	(a0,d0.w),a0
+	bra.w	DrawBlockColumn_Advanced
+    endif
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
