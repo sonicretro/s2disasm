@@ -18502,10 +18502,10 @@ Draw_BG3:
 +
 	rts
 ; ===========================================================================
-; Chemical Plant Zone 1 block positioning array
+; Chemical Plant Zone block positioning array
 ; Each entry is an index into BGCameraLookup; used to decide the camera to use
-; for given block for reloading BG. A entry of 0 means assume X = 0 for section,
-; but otherwise loads camera Y for selected camera.
+; for given block for reloading BG. Unlike the Scrap Brain Zone version, 0
+; does not make X = 0: it's just a duplicate of 2.
 ;byte_DDD0
 CPZ_CameraSections:
 	; BG1
