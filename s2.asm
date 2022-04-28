@@ -14725,10 +14725,12 @@ DeformBgLayer:
 	clr.w	(Camera_Y_pos_diff).w
 	clr.w	(Camera_X_pos_diff_P2).w
 	clr.w	(Camera_Y_pos_diff_P2).w
+
+	; Sky Chase Zone handles scrolling manually, in 'SwScrl_SCZ'.
 	cmpi.b	#sky_chase_zone,(Current_Zone).w
 	bne.w	+
 	tst.w	(Debug_placement_mode).w
-	beq.w	loc_C4D0	; skip normal scrolling for SCZ
+	beq.w	loc_C4D0
 +
 	tst.b	(Scroll_lock).w
 	bne.s	DeformBgLayerAfterScrollVert
@@ -14830,25 +14832,34 @@ SwScrl_Index: zoneOrderedOffsetTable 2,1	; JmpTbl_SwScrlMgr
 ; ===========================================================================
 ; loc_C51E:
 SwScrl_Title:
+	; Update the background's vertical scrolling.
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+
+	; Automatically scroll the background.
 	addq.w	#1,(Camera_X_pos).w
+
+	; Calculate the background X position from the foreground X position.
 	move.w	(Camera_X_pos).w,d2
 	neg.w	d2
 	asr.w	#2,d2
-	lea	(Horiz_Scroll_Buf).w,a1
-	moveq	#0,d0
 
-	move.w	#bytesToLcnt($280),d1
+	; Update the background's (and foreground's) horizontal scrolling.
+	lea	(Horiz_Scroll_Buf).w,a1
+
+	; Do 160 lines that don't move.
+	moveq	#0,d0
+	move.w	#160-1,d1
 -	move.l	d0,(a1)+
 	dbf	d1,-
 
+	; Do 32 lines that scroll with the camera.
 	move.w	d2,d0
-
-	move.w	#bytesToLcnt($80),d1
+	move.w	#32-1,d1
 -	move.l	d0,(a1)+
 	dbf	d1,-
 
 	move.w	d0,d3
+	; Make the 'ripple' animate every 8 frames.
 	move.b	(Vint_runcount+3).w,d1
 	andi.w	#7,d1
 	bne.s	+
@@ -14859,22 +14870,29 @@ SwScrl_Title:
 	lea	SwScrl_RippleData(pc),a2
 	lea	(a2,d1.w),a2
 
-	move.w	#bytesToLcnt($40),d1
+	; Do 16 lines that scroll with the camera and 'ripple'.
+	move.w	#16-1,d1
 -	move.b	(a2)+,d0
 	ext.w	d0
 	add.w	d3,d0
 	move.l	d0,(a1)+
 	dbf	d1,-
 
+	; The remaining 16 lines are not set.
+
 	rts
 ; ===========================================================================
 ; loc_C57E:
 SwScrl_EHZ:
+	; Use different background scrolling code for two player mode.
 	tst.w	(Two_player_mode).w
 	bne.w	SwScrl_EHZ_2P
 
+	; Update the background's vertical scrolling.
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 
+	; Update the background's (and foreground's) horizontal scrolling.
+	; This creates an elaborate parallax effect.
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
@@ -14896,6 +14914,8 @@ SwScrl_EHZ:
 	dbf	d1,-
 
 	move.w	d0,d3
+
+	; Make the 'ripple' animate every 8 frames.
 	move.b	(Vint_runcount+3).w,d1
 	andi.w	#7,d1
 	bne.s	+
@@ -15018,28 +15038,44 @@ SwScrl_RippleData:
 ; ===========================================================================
 ; loc_C6C4:
 SwScrl_EHZ_2P:
+	; Make the 'ripple' animate every 8 frames.
 	move.b	(Vint_runcount+3).w,d1
 	andi.w	#7,d1
 	bne.s	+
 	subq.w	#1,(TempArray_LayerDef).w
 +
+	; Do Player 1's screen.
+
+	; Update the background's vertical scrolling.
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+
+	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor).w
 
+	; Update the background's (and foreground's) horizontal scrolling.
+	; This creates an elaborate parallax effect.
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_X_pos).w,d0
 	; Do 11 lines.
 	move.w	#11-1,d1
 	bsr.s	.doBackground
 
+	; Do Player 2's screen.
 
+	; Update the background's vertical scrolling.
 	moveq	#0,d0
 	move.w	d0,(Vscroll_Factor_P2_BG).w
 	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
+
+	; Update the foregrounds's vertical scrolling.
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
 	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
+
+	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
 
+	; Update the background's (and foreground's) horizontal scrolling.
+	; This creates an elaborate parallax effect.
 	; Tails' screen is slightly taller, to fill the gap between the two
 	; screens.
 	lea	(Horiz_Scroll_Buf+(112-4)*2*2).w,a1
@@ -15141,6 +15177,9 @@ SwScrl_EHZ_2P:
 ; loc_C7BA:
 SwScrl_Lev2:
     if gameRevision<2
+	; Just a duplicate of 'SwScrl_Minimal'.
+
+	; Set the flags to dynamically load the background as it moves.
 	move.w	(Camera_X_pos_diff).w,d4
 	ext.l	d4
 	asl.l	#5,d4
@@ -15148,9 +15187,14 @@ SwScrl_Lev2:
 	ext.l	d5
 	asl.l	#6,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
+
+	; Update the background's vertical scrolling.
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+
+	; Update the background's (and foreground's) horizontal scrolling.
+	; This is very basic: there is no parallax effect here.
 	lea	(Horiz_Scroll_Buf).w,a1
-	move.w	#bytesToLcnt($380),d1
+	move.w	#224-1,d1
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
@@ -15165,6 +15209,9 @@ SwScrl_Lev2:
 ; ===========================================================================
 ; loc_C7F2:
 SwScrl_MTZ:
+	; Just a duplicate of 'SwScrl_Minimal'.
+
+	; Set the flags to dynamically load the background as it moves.
 	move.w	(Camera_X_pos_diff).w,d4
 	ext.l	d4
 	asl.l	#5,d4
@@ -15172,9 +15219,14 @@ SwScrl_MTZ:
 	ext.l	d5
 	asl.l	#6,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
+
+	; Update the background's vertical scrolling.
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+
+	; Update the background's (and foreground's) horizontal scrolling.
+	; This is very basic: there is no parallax effect here.
 	lea	(Horiz_Scroll_Buf).w,a1
-	move.w	#bytesToLcnt($380),d1
+	move.w	#224-1,d1
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
@@ -15188,19 +15240,24 @@ SwScrl_MTZ:
 ; ===========================================================================
 ; loc_C82A:
 SwScrl_WFZ:
+	; Set the flags to dynamically load the background as it moves.
 	move.w	(Camera_BG_X_pos_diff).w,d4
 	ext.l	d4
 	asl.l	#8,d4
 	moveq	#scroll_flag_bg1_left,d6
 	bsr.w	SetHorizScrollFlagsBG
 
+	; Ditto.
 	move.w	(Camera_BG_Y_pos_diff).w,d5
 	ext.l	d5
 	lsl.l	#8,d5
 	moveq	#scroll_flag_bg1_up_whole_row_2,d6
 	bsr.w	SetVertiScrollFlagsBG
 
+	; Update the background's vertical scrolling.
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+
+	; Update the background's (and foreground's) horizontal scrolling.
 	move.l	(Camera_BG_X_pos).w,d0
 	; This can be removed if the getaway ship's entry uses d0 instead.
 	move.l	d0,d1
@@ -15353,11 +15410,18 @@ SwScrl_WFZ_Normal_Array:
 ; ===========================================================================
 ; loc_C964:
 SwScrl_HTZ:
+	; Use different background scrolling code for two player mode.
 	tst.w	(Two_player_mode).w
 	bne.w	SwScrl_HTZ_2P	; never used in normal gameplay
+
 	tst.b	(Screen_Shaking_Flag_HTZ).w
 	bne.w	HTZ_Screen_Shake
+
+	; Update the background's vertical scrolling.
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+
+	; Update the background's (and foreground's) horizontal scrolling.
+	; This creates an elaborate parallax effect.
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
@@ -15366,10 +15430,12 @@ SwScrl_HTZ:
 	move.w	d2,d0
 	asr.w	#3,d0
 
-	move.w	#bytesToLcnt($200),d1
+	; Do 128 lines that move together with the camera.
+	move.w	#128-1,d1
 -	move.l	d0,(a1)+
 	dbf	d1,-
 
+	; The remaining lines compose the animating clouds.
 	move.l	d0,d4
 	move.w	(TempArray_LayerDef+$22).w,d0
 	addq.w	#4,(TempArray_LayerDef+$22).w
@@ -15384,7 +15450,7 @@ SwScrl_HTZ:
 	divs.w	#$70,d0
 	ext.l	d0
 	asl.l	#8,d0
-	lea	(TempArray_LayerDef).w,a2
+	lea	(TempArray_LayerDef).w,a2	; See 'loc_3FE5C'.
 	moveq	#0,d3
 	move.w	d1,d3
 	swap	d3
@@ -15405,7 +15471,7 @@ SwScrl_HTZ:
 	add.l	d0,d3
 	swap	d3
 
-	moveq	#3,d1
+	moveq	#4-1,d1
 -	move.w	d3,(a2)+
 	move.w	d3,(a2)+
 	move.w	d3,(a2)+
@@ -15416,6 +15482,7 @@ SwScrl_HTZ:
 	swap	d3
 	dbf	d1,-
 
+	; Do 8 lines.
 	add.l	d0,d0
 	add.l	d0,d0
 	move.w	d3,d4
@@ -15431,35 +15498,40 @@ SwScrl_HTZ:
 	move.l	d4,(a1)+
 	move.l	d4,(a1)+
 	move.l	d4,(a1)+
+
+	; Do 7 lines.
 	swap	d3
 	add.l	d0,d3
 	swap	d3
 	move.w	d3,d4
 
-	move.w	#6,d1
+	move.w	#7-1,d1
 -	move.l	d4,(a1)+
 	dbf	d1,-
 
-	swap	d3
-	add.l	d0,d3
-	add.l	d0,d3
-	swap	d3
-	move.w	d3,d4
-
-	move.w	#7,d1
--	move.l	d4,(a1)+
-	dbf	d1,-
-
+	; Do 8 lines.
 	swap	d3
 	add.l	d0,d3
 	add.l	d0,d3
 	swap	d3
 	move.w	d3,d4
 
-	move.w	#9,d1
+	move.w	#8-1,d1
 -	move.l	d4,(a1)+
 	dbf	d1,-
 
+	; Do 10 lines.
+	swap	d3
+	add.l	d0,d3
+	add.l	d0,d3
+	swap	d3
+	move.w	d3,d4
+
+	move.w	#10-1,d1
+-	move.l	d4,(a1)+
+	dbf	d1,-
+
+	; Do 15 lines.
 	swap	d3
 	add.l	d0,d3
 	add.l	d0,d3
@@ -15467,20 +15539,21 @@ SwScrl_HTZ:
 	swap	d3
 	move.w	d3,d4
 
-	move.w	#$E,d1
+	move.w	#15-1,d1
 -	move.l	d4,(a1)+
 	dbf	d1,-
 
+	; Do 48 lines.
 	swap	d3
 	add.l	d0,d3
 	add.l	d0,d3
 	add.l	d0,d3
 	swap	d3
 
-	move.w	#2,d2
+	move.w	#3-1,d2
 -	move.w	d3,d4
 
-	move.w	#$F,d1
+	move.w	#16-1,d1
 -	move.l	d4,(a1)+
 	dbf	d1,-
 
@@ -15492,30 +15565,40 @@ SwScrl_HTZ:
 	swap	d3
 	dbf	d2,--
 
+	; 128 + 8 + 7 + 8 + 10 + 15 + 48 = 224
+	; All lines have bene written.
+
 	rts
 ; ===========================================================================
 
 ;loc_CA92:
 HTZ_Screen_Shake:
+	; Set the flags to dynamically load the background as it moves.
 	move.w	(Camera_BG_X_pos_diff).w,d4
 	ext.l	d4
 	lsl.l	#8,d4
 	moveq	#scroll_flag_bg1_left,d6
 	bsr.w	SetHorizScrollFlagsBG
 
+	; Ditto.
 	move.w	(Camera_BG_Y_pos_diff).w,d5
 	ext.l	d5
 	lsl.l	#8,d5
 	moveq	#scroll_flag_bg1_up,d6
 	bsr.w	SetVertiScrollFlagsBG
 
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+	; Update the background's vertical scrolling.
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w ; Redundant.
+	; Update the foreground's vertical scrolling.
 	move.w	(Camera_Y_pos).w,(Vscroll_Factor_FG).w
+	; Update the background's vertical scrolling.
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+
 	moveq	#0,d2
 	tst.b	(Screen_Shaking_Flag).w
 	beq.s	+
 
+	; Make the screen shake.
 	move.w	(Timer_frames).w,d0
 	andi.w	#$3F,d0
 	lea_	SwScrl_RippleData,a1
@@ -15528,8 +15611,10 @@ HTZ_Screen_Shake:
 	move.b	(a1)+,d2
 	add.w	d2,(Camera_X_pos_copy).w
 +
+	; Update the background's (and foreground's) horizontal scrolling.
+	; This is very basic: there is no parallax effect here.
 	lea	(Horiz_Scroll_Buf).w,a1
-	move.w	#bytesToLcnt($380),d1
+	move.w	#224-1,d1
 	move.w	(Camera_X_pos).w,d0
 	add.w	d2,d0
 	neg.w	d0
@@ -15544,8 +15629,11 @@ HTZ_Screen_Shake:
 	rts
 ; ===========================================================================
 ; Unused background code for Hill Top Zone in two player mode!
+; Unfortunately, it doesn't do anything very interesting: it's just a basic,
+; flat background with no parallax effect.
 ; loc_CB10:
 SwScrl_HTZ_2P:
+	; Set the flags to dynamically load the background as it moves.
 	move.w	(Camera_X_pos_diff).w,d4
 	ext.l	d4
 	asl.l	#6,d4
@@ -15554,11 +15642,22 @@ SwScrl_HTZ_2P:
 	asl.l	#2,d5
 	moveq	#0,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
+
+	; ...But then immediately wipe them. Strange.
+	; I guess the only reason 'SetHorizVertiScrollFlagsBG' is called is
+	; so that 'Camera_BG_X_pos' and 'Camera_BG_Y_pos' are updated?
 	move.b	#0,(Scroll_flags_BG).w
+
+	; Update the background's vertical scrolling.
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+
+	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor).w
+
+	; Update the background's (and foreground's) horizontal scrolling.
+	; This is very basic: there is no parallax effect here.
 	lea	(Horiz_Scroll_Buf).w,a1
-	move.w	#bytesToLcnt($1C0),d1
+	move.w	#112-1,d1
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
@@ -15568,18 +15667,30 @@ SwScrl_HTZ_2P:
 -	move.l	d0,(a1)+
 	dbf	d1,-
 
+	; Update 'Camera_BG_X_pos_P2'.
 	move.w	(Camera_X_pos_diff_P2).w,d4
 	ext.l	d4
 	asl.l	#6,d4
 	add.l	d4,(Camera_BG_X_pos_P2).w
+
+	; Update the background's vertical scrolling.
 	moveq	#0,d0
 	move.w	d0,(Vscroll_Factor_P2_BG).w
 	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
+
+	; Update the foreground's vertical scrolling.
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
 	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
+
+	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
-	lea	(Horiz_Scroll_Buf+$1B0).w,a1
-	move.w	#bytesToLcnt($1D0),d1
+
+	; Update the background's (and foreground's) horizontal scrolling.
+	; This is very basic: there is no parallax effect here.
+	; Tails' screen is slightly taller, to fill the gap between the two
+	; screens.
+	lea	(Horiz_Scroll_Buf+(112-4)*2*2).w,a1
+	move.w	#112+4-1,d1
 	move.w	(Camera_X_pos_P2).w,d0
 	neg.w	d0
 	swap	d0
@@ -15594,29 +15705,43 @@ SwScrl_HTZ_2P:
 ; unused...
 ; loc_CBA0:
 SwScrl_HPZ:
+	; Set the flags to dynamically load the background as it moves.
 	move.w	(Camera_X_pos_diff).w,d4
 	ext.l	d4
 	asl.l	#6,d4
 	moveq	#scroll_flag_bg1_left,d6
 	bsr.w	SetHorizScrollFlagsBG
 
+	; Ditto.
 	move.w	(Camera_Y_pos_diff).w,d5
 	ext.l	d5
 	asl.l	#7,d5
 	moveq	#scroll_flag_bg1_up_whole_row_2,d6
 	bsr.w	SetVertiScrollFlagsBG
 
+	; Update the background's vertical scrolling.
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+
+	; Rather than scroll each individual line of the background, this
+	; zone scrolls entire blocks of lines (16 lines) at once. The scroll
+	; value of each row is written to 'TempArray_LayerDef', before it is
+	; applied to 'Horiz_Scroll_Buf' in 'SwScrl_HPZ_Continued'. This is
+	; vaguely similar to how Chemical Plant Zone scrolls its background,
+	; even overflowing 'Horiz_Scroll_Buf' in the same way.
 	lea	(TempArray_LayerDef).w,a1
 	move.w	(Camera_X_pos).w,d2
 	neg.w	d2
+
+	; Do 8 line blocks.
 	move.w	d2,d0
 	asr.w	#1,d0
 
-	move.w	#7,d1
+	move.w	#8-1,d1
 -	move.w	d0,(a1)+
 	dbf	d1,-
 
+	; Do 7 line blocks.
+	; This also does the 7 line blocks that get skipped later.
 	move.w	d2,d0
 	asr.w	#3,d0
 	sub.w	d2,d0
@@ -15629,7 +15754,7 @@ SwScrl_HPZ:
 	moveq	#0,d3
 	move.w	d2,d3
 	asr.w	#1,d3
-	lea	(TempArray_LayerDef+$60).w,a2
+	lea	(TempArray_LayerDef+(8+7+26+7)*2).w,a2
 	swap	d3
 	add.l	d0,d3
 	swap	d3
@@ -15656,36 +15781,59 @@ SwScrl_HPZ:
 	swap	d3
 	move.w	d3,(a1)+
 	move.w	d3,-(a2)
+
+	; Do 26 line blocks.
 	move.w	(Camera_BG_X_pos).w,d0
 	neg.w	d0
 
-	move.w	#$19,d1
+	move.w	#26-1,d1
 -	move.w	d0,(a1)+
 	dbf	d1,-
 
-	adda.w	#$E,a1
+	; Skip 7 line blocks which were done earlier.
+	adda.w	#7*2,a1
+
+	; Do 24 line blocks.
 	move.w	d2,d0
 	asr.w	#1,d0
 
-	move.w	#$17,d1
+	move.w	#24-1,d1
 -	move.w	d0,(a1)+
 	dbf	d1,-
 
+	; We're done creating the line block scroll values: now to apply them
+	; to 'Horiz_Scroll_Buf'.
+
+	; Take the background's Y position, and use it to select a line block
+	; in 'TempArray_LayerDef'. Since each line block is 16 lines long,
+	; this code essentially divides the Y position by 16, and then
+	; multiples it by 2 to turn it into an offset into
+	; 'TempArray_LayerDef'.
 	lea	(TempArray_LayerDef).w,a2
 	move.w	(Camera_BG_Y_pos).w,d0
 	move.w	d0,d2
 	andi.w	#$3F0,d0
 	lsr.w	#3,d0
 	lea	(a2,d0.w),a2
+
+	; Begin filling 'Horiz_Scroll_Buf' starting with the line block
+	; scroll data pointed to by 'a2'.
 	bra.w	SwScrl_HPZ_Continued
 ; ===========================================================================
 ; loc_CC66:
 SwScrl_OOZ:
+	; Update 'Camera_BG_X_pos', since there's no call to
+	; 'SetHorizScrollFlagsBG' or 'SetHorizVertiScrollFlagsBG' to do it
+	; for us.
 	move.w	(Camera_X_pos_diff).w,d0
 	ext.l	d0
 	asl.l	#5,d0
 	add.l	d0,(Camera_BG_X_pos).w
 
+	; Set the flags to dynamically load the background as it moves.
+	; Note that this is only done vertically: Oil Ocean Zone does have
+	; extra background art that can only be seen with horizontal dynamic
+	; loading, but, because of this, it is never seen.
 	move.w	(Camera_Y_pos_diff).w,d0
 	ext.l	d0
 	asl.l	#5,d0
@@ -15694,44 +15842,67 @@ SwScrl_OOZ:
 	moveq	#scroll_flag_bg1_up_whole_row,d6
 	bsr.w	SetVertiScrollFlagsBG2
 
+	; Update the background's vertical scrolling.
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
-	lea	(Horiz_Scroll_Buf+$380).w,a1
+
+	; Update the background's (and foreground's) horizontal scrolling.
+	; Curiously, Oil Ocean Zone fills 'Horiz_Scroll_Buf' starting from
+	; the end and working backwards towards the beginning, unlike other
+	; zones.
+	lea	(Horiz_Scroll_Buf+224*2*2).w,a1
+
+	; Set up the foreground part of the horizontal scroll value.
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
+
+	; Set up the background part of the horizontal scroll value.
 	move.w	(Camera_BG_X_pos).w,d7
 	neg.w	d7
+
+	; Figure out how many lines to do for the bottom (factory) part the
+	; background.
 	move.w	(Camera_BG_Y_pos).w,d1
-	subi.w	#$50,d1
+	subi.w	#80,d1
 	bcc.s	+
 	moveq	#0,d1
 +
-	subi.w	#$B0,d1
+	subi.w	#176,d1
 	bcs.s	+
 	moveq	#0,d1
 +
-	move.w	#$DF,d6
+	; This will keep track of how many lines we have left to output.
+	move.w	#224-1,d6
+
+	; Do the factory part of the background.
 	add.w	d6,d1
 	move.w	d7,d0
-	bsr.s	OOZ_BGScroll_Lines
-	bsr.s	OOZ_BGScroll_MediumClouds
-	bsr.s	OOZ_BGScroll_SlowClouds
-	bsr.s	OOZ_BGScroll_FastClouds
+	bsr.s	.doLines
+
+	; Now do some clouds.
+	bsr.s	.doMediumClouds
+	bsr.s	.doSlowClouds
+	bsr.s	.doFastClouds
+
+	; Do another slow cloud layer, except 7 lines tall instead of 8.
 	move.w	d7,d0
 	asr.w	#4,d0
-	moveq	#6,d1
-	bsr.s	OOZ_BGScroll_Lines
+	moveq	#7-1,d1
+	bsr.s	.doLines
+
+	; Make the sun's heat haze effect animate every 8 frames.
 	move.b	(Vint_runcount+3).w,d1
 	andi.w	#7,d1
 	bne.s	+
 	subq.w	#1,(TempArray_LayerDef).w
 +
+	; Do the sun.
 	move.w	(TempArray_LayerDef).w,d1
 	andi.w	#$1F,d1
 	lea	SwScrl_RippleData(pc),a2
 	lea	(a2,d1.w),a2
 
-	moveq	#$20,d1
+	moveq	#33-1,d1
 -	move.b	(a2)+,d0
 	ext.w	d0
 	move.l	d0,-(a1)
@@ -15739,89 +15910,109 @@ SwScrl_OOZ:
 	bmi.s	+	; rts
 	dbf	d1,-
 
-	bsr.s	OOZ_BGScroll_MediumClouds
-	bsr.s	OOZ_BGScroll_SlowClouds
-	bsr.s	OOZ_BGScroll_FastClouds
-	bsr.s	OOZ_BGScroll_SlowClouds
-	bsr.s	OOZ_BGScroll_MediumClouds
+	; Do some more clouds.
+	bsr.s	.doMediumClouds
+	bsr.s	.doSlowClouds
+	bsr.s	.doFastClouds
+	bsr.s	.doSlowClouds
+	bsr.s	.doMediumClouds
+
+	; Do the final, empty part of the sky.
 	move.w	d7,d0
-	moveq	#$47,d1
-	bsr.s	OOZ_BGScroll_Lines
-+	rts
+	moveq	#72-1,d1
+	bsr.s	.doLines
++
+	rts
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-;sub_CD0A
-OOZ_BGScroll_FastClouds:
+; sub_CD0A: OOZ_BGScroll_FastClouds:
+.doFastClouds:
 	move.w	d7,d0
 	asr.w	#2,d0
 	bra.s	+
-; End of function OOZ_BGScroll_FastClouds
+; End of function .doFastClouds
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-;sub_CD10
-OOZ_BGScroll_MediumClouds:
+; sub_CD10: OOZ_BGScroll_MediumClouds:
+.doMediumClouds:
 	move.w	d7,d0
 	asr.w	#3,d0
 	bra.s	+
-; End of function OOZ_BGScroll_MediumClouds
+; End of function .doMediumClouds
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-;sub_CD16
-OOZ_BGScroll_SlowClouds:
+; sub_CD16: OOZ_BGScroll_SlowClouds:
+.doSlowClouds:
 	move.w	d7,d0
 	asr.w	#4,d0
 
 +
-	moveq	#7,d1
-; End of function OOZ_BGScroll_SlowClouds
+	; Each 'layer' of cloud is 8 lines thick.
+	moveq	#8-1,d1
+; End of function .doSlowClouds
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ; Scrolls min(d6,d1+1) lines by an (constant) amount specified in d0
 
-;sub_CD1C
-OOZ_BGScroll_Lines:
+; sub_CD1C: OOZ_BGScroll_Lines:
+.doLines:
+	; Output a line.
 	move.l	d0,-(a1)
+
+	; If we've reach 224 lines, bail.
 	subq.w	#1,d6
 	bmi.s	+
-	dbf	d1,OOZ_BGScroll_Lines
+
+	; Do the next line.
+	dbf	d1,.doLines
 
 	rts
 ; ===========================================================================
 +
+	; Do not return to 'SwScrl_OOZ'.
 	addq.l	#4,sp
 	rts
-; End of function OOZ_BGScroll_Lines
+; End of function .doLines
 
 ; ===========================================================================
 ; loc_CD2C:
 SwScrl_MCZ:
+	; Use different background scrolling code for two player mode.
 	tst.w	(Two_player_mode).w
 	bne.w	SwScrl_MCZ_2P
 
+	; Set the flags to dynamically load the background as it moves.
+	; Note that this is only done vertically: Mystic Cave Zone's
+	; background repeats horizontally, so dynamic horizontal loading is
+	; not needed.
 	move.w	(Camera_Y_pos).w,d0
 	move.l	(Camera_BG_Y_pos).w,d3
+	; Curiously, the background moves vertically at different speeds
+	; depending on what the current act is.
 	tst.b	(Current_Act).w
 	bne.s	+
 	divu.w	#3,d0
-	subi.w	#$140,d0
+	subi.w	#320,d0
 	bra.s	++
 +
 	divu.w	#6,d0
-	subi.w	#$10,d0
+	subi.w	#16,d0
 +
 	swap	d0
 	moveq	#scroll_flag_bg1_up_whole_row_2,d6
 	bsr.w	SetVertiScrollFlagsBG2
 
+	; Update the background's vertical scrolling.
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 
+	; Handle the screen shaking during the boss fight.
 	moveq	#0,d2
     if fixBugs
 	; The screen shaking is not applied to the background parallax
@@ -15848,69 +16039,84 @@ SwScrl_MCZ:
 	move.b	(a1)+,d2
 	add.w	d2,(Camera_X_pos_copy).w
 +
+	; Populate a list of horizontal scroll values for each row.
+	; The background is broken up into multiple rows of arbitrary
+	; heights, with each row getting its own scroll value.
+	; This is used to create an elaborate parallax effect.
 	lea	(TempArray_LayerDef).w,a2
-	lea	$1E(a2),a3
+	lea	15*2(a2),a3
 	move.w	(Camera_X_pos).w,d0
 
 	; This code is duplicated twice in 'SwScrl_MCZ_2P'.
 	ext.l	d0
 	asl.l	#4,d0
-	divs.w	#$A,d0
+	divs.w	#10,d0
 	ext.l	d0
 	asl.l	#4,d0
 	asl.l	#8,d0
 	move.l	d0,d1
 	swap	d1
+
 	move.w	d1,(a3)+
-	move.w	d1,$E(a2)
+	move.w	d1,7*2(a2)
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
-	move.w	d1,$C(a2)
+	move.w	d1,6*2(a2)
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
-	move.w	d1,$A(a2)
+	move.w	d1,5*2(a2)
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
-	move.w	d1,8(a2)
+	move.w	d1,4*2(a2)
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
-	move.w	d1,6(a2)
-	move.w	d1,$10(a2)
-	move.w	d1,$1C(a2)
+	move.w	d1,3*2(a2)
+	move.w	d1,8*2(a2)
+	move.w	d1,14*2(a2)
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
-	move.w	d1,4(a2)
-	move.w	d1,$12(a2)
-	move.w	d1,$1A(a2)
+	move.w	d1,2*2(a2)
+	move.w	d1,9*2(a2)
+	move.w	d1,13*2(a2)
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
-	move.w	d1,2(a2)
-	move.w	d1,$14(a2)
-	move.w	d1,$18(a2)
+	move.w	d1,1*2(a2)
+	move.w	d1,10*2(a2)
+	move.w	d1,12*2(a2)
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
-	move.w	d1,(a2)
-	move.w	d1,$16(a2)
+	move.w	d1,0*2(a2)
+	move.w	d1,11*2(a2)
 	; Duplicate code end.
 
+	; Use the list of row scroll values and a list of row heights to fill
+	; 'Horiz_Scroll_Buf'.
 	lea	(SwScrl_MCZ_RowHeights).l,a3
 	lea	(TempArray_LayerDef).w,a2
 	lea	(Horiz_Scroll_Buf).w,a1
@@ -15921,6 +16127,7 @@ SwScrl_MCZ:
     endif
 	moveq	#0,d0
 
+	; Find the first visible scrolling section
 .segmentLoop:
 	move.b	(a3)+,d0		; Number of lines in this segment
 	addq.w	#2,a2
@@ -15951,113 +16158,139 @@ SwScrl_MCZ:
 ; ===========================================================================
 ; byte_CE6C:
 SwScrl_MCZ_RowHeights:
-	dc.b $25
-	dc.b $17	; 1
-	dc.b $12	; 2
-	dc.b   7	; 3
-	dc.b   7	; 4
-	dc.b   2	; 5
-	dc.b   2	; 6
-	dc.b $30	; 7
-	dc.b  $D	; 8
-	dc.b $13	; 9
-	dc.b $20	; 10
-	dc.b $40	; 11
-	dc.b $20	; 12
-	dc.b $13	; 13
-	dc.b  $D	; 14
-	dc.b $30	; 15
-	dc.b   2	; 16
-	dc.b   2	; 17
-	dc.b   7	; 18
-	dc.b   7	; 19
-	dc.b $20	; 20
-	dc.b $12	; 21
-	dc.b $17	; 22
-	dc.b $25	; 23
+	dc.b 37
+	dc.b 23	; 1
+	dc.b 18	; 2
+	dc.b  7	; 3
+	dc.b  7	; 4
+	dc.b  2	; 5
+	dc.b  2	; 6
+	dc.b 48	; 7
+	dc.b 13	; 8
+	dc.b 19	; 9
+	dc.b 32	; 10
+	dc.b 64	; 11
+	dc.b 32	; 12
+	dc.b 19	; 13
+	dc.b 13	; 14
+	dc.b 48	; 15
+	dc.b  2	; 16
+	dc.b  2	; 17
+	dc.b  7	; 18
+	dc.b  7	; 19
+	dc.b 32	; 20
+	dc.b 18	; 21
+	dc.b 23	; 22
+	dc.b 37	; 23
 	even
 ; ===========================================================================
 ; loc_CE84:
 SwScrl_MCZ_2P:
+	; Note that the flags to dynamically load the background as it moves
+	; aren't set here. This is because the background is not dynamically
+	; loaded in two player mode: instead, the whole background is
+	; pre-loaded into Plane B. This is possible because Plane B is larger
+	; in two player mode (able to 512x512 pixels instead of 512x256).
 	moveq	#0,d0
 	move.w	(Camera_Y_pos).w,d0
+	; Curiously, the background moves vertically at different speeds
+	; depending on what the current act is.
 	tst.b	(Current_Act).w
 	bne.s	+
 	divu.w	#3,d0
-	subi.w	#$140,d0
+	subi.w	#320,d0
 	bra.s	++
 +
 	divu.w	#6,d0
-	subi.w	#$10,d0
+	subi.w	#16,d0
 +
+	; Update 'Camera_BG_Y_pos'.
 	move.w	d0,(Camera_BG_Y_pos).w
+
+	; Update the background's vertical scrolling.
 	move.w	d0,(Vscroll_Factor_BG).w
 
+	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor).w
 
+	; Populate a list of horizontal scroll values for each row.
+	; The background is broken up into multiple rows of arbitrary
+	; heights, with each row getting its own scroll value.
+	; This is used to create an elaborate parallax effect.
 	lea	(TempArray_LayerDef).w,a2
-	lea	$1E(a2),a3
+	lea	15*2(a2),a3
 	move.w	(Camera_X_pos).w,d0
 
 	; A huuuuuuuuuuuuge chunk of duplicate code from 'SwScrl_MCZ'.
 	ext.l	d0
 	asl.l	#4,d0
-	divs.w	#$A,d0
+	divs.w	#10,d0
 	ext.l	d0
 	asl.l	#4,d0
 	asl.l	#8,d0
 	move.l	d0,d1
 	swap	d1
+
 	move.w	d1,(a3)+
-	move.w	d1,$E(a2)
+	move.w	d1,7*2(a2)
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
-	move.w	d1,$C(a2)
+	move.w	d1,6*2(a2)
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
-	move.w	d1,$A(a2)
+	move.w	d1,5*2(a2)
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
-	move.w	d1,8(a2)
+	move.w	d1,4*2(a2)
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
-	move.w	d1,6(a2)
-	move.w	d1,$10(a2)
-	move.w	d1,$1C(a2)
+	move.w	d1,3*2(a2)
+	move.w	d1,8*2(a2)
+	move.w	d1,14*2(a2)
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
-	move.w	d1,4(a2)
-	move.w	d1,$12(a2)
-	move.w	d1,$1A(a2)
+	move.w	d1,2*2(a2)
+	move.w	d1,9*2(a2)
+	move.w	d1,13*2(a2)
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
-	move.w	d1,2(a2)
-	move.w	d1,$14(a2)
-	move.w	d1,$18(a2)
+	move.w	d1,1*2(a2)
+	move.w	d1,10*2(a2)
+	move.w	d1,12*2(a2)
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
-	move.w	d1,(a2)
-	move.w	d1,$16(a2)
+	move.w	d1,0*2(a2)
+	move.w	d1,11*2(a2)
 	; Duplicate code end.
 
+	; Use the list of row scroll values and a list of row heights to fill
+	; 'Horiz_Scroll_Buf'.
 	lea	(SwScrl_MCZ2P_RowHeights).l,a3
 	lea	(TempArray_LayerDef).w,a2
 	lea	(Horiz_Scroll_Buf).w,a1
@@ -16066,6 +16299,7 @@ SwScrl_MCZ_2P:
 
 	moveq	#0,d0
 
+	; Find the first visible scrolling section
 .segmentLoop:
 	move.b	(a3)+,d0		; Number of lines in this segment
 	addq.w	#2,a2
@@ -16096,115 +16330,143 @@ SwScrl_MCZ_2P:
 ; ===========================================================================
 ; byte_CF90:
 SwScrl_MCZ2P_RowHeights:
-	dc.b $13
-	dc.b  $B
-	dc.b   9	; 1
-	dc.b   4	; 2
-	dc.b   3	; 3
-	dc.b   1	; 4
-	dc.b   1	; 5
-	dc.b $18	; 6
-	dc.b   6	; 7
-	dc.b  $A	; 8
-	dc.b $10	; 9
-	dc.b $20	; 10
-	dc.b $10	; 11
-	dc.b  $A	; 12
-	dc.b   6	; 13
-	dc.b $18	; 14
-	dc.b   1	; 15
-	dc.b   1	; 16
-	dc.b   3	; 17
-	dc.b   4	; 18
-	dc.b $10	; 19
-	dc.b   9	; 20
-	dc.b  $B	; 21
-	dc.b $13	; 22
+	dc.b 19
+	dc.b 11	; 1
+	dc.b  9	; 2
+	dc.b  4	; 3
+	dc.b  3	; 4
+	dc.b  1	; 5
+	dc.b  1	; 6
+	dc.b 24	; 7
+	dc.b  6	; 8
+	dc.b 10	; 9
+	dc.b 16	; 10
+	dc.b 32	; 11
+	dc.b 16	; 12
+	dc.b 10	; 13
+	dc.b  6	; 14
+	dc.b 24	; 15
+	dc.b  1	; 16
+	dc.b  1	; 17
+	dc.b  3	; 18
+	dc.b  4	; 19
+	dc.b 16	; 20
+	dc.b  9	; 21
+	dc.b 11	; 22
+	dc.b 19	; 23
 	even
 ; ===========================================================================
 +
+	; Note that the flags to dynamically load the background as it moves
+	; aren't set here. This is because the background is not dynamically
+	; loaded in two player mode: instead, the whole background is
+	; pre-loaded into Plane B. This is possible because Plane B is larger
+	; in two player mode (able to 512x512 pixels instead of 512x256).
 	moveq	#0,d0
 	move.w	(Camera_Y_pos_P2).w,d0
+	; Curiously, the background moves vertically at different speeds
+	; depending on what the current act is.
 	tst.b	(Current_Act).w
 	bne.s	+
 	divu.w	#3,d0
-	subi.w	#$140,d0
+	subi.w	#320,d0
 	bra.s	++
 +
 	divu.w	#6,d0
-	subi.w	#$10,d0
+	subi.w	#16,d0
 +
+	; Update 'Camera_BG_Y_pos_P2'.
 	move.w	d0,(Camera_BG_Y_pos_P2).w
-	move.w	d0,(Vscroll_Factor_P2_BG).w
 
+	; Update the background's vertical scrolling.
+	move.w	d0,(Vscroll_Factor_P2_BG).w
 	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
+
+	; Update the foreground's vertical scrolling.
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
 	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
+
+	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
 
+	; Populate a list of horizontal scroll values for each row.
+	; The background is broken up into multiple rows of arbitrary
+	; heights, with each row getting its own scroll value.
+	; This is used to create an elaborate parallax effect.
 	lea	(TempArray_LayerDef).w,a2
-	lea	$1E(a2),a3
+	lea	15*2(a2),a3
 	move.w	(Camera_X_pos_P2).w,d0
 
 	; A huuuuuuuuuuuuge chunk of duplicate code from 'SwScrl_MCZ'.
 	ext.l	d0
 	asl.l	#4,d0
-	divs.w	#$A,d0
+	divs.w	#10,d0
 	ext.l	d0
 	asl.l	#4,d0
 	asl.l	#8,d0
 	move.l	d0,d1
 	swap	d1
+
 	move.w	d1,(a3)+
-	move.w	d1,$E(a2)
+	move.w	d1,7*2(a2)
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
-	move.w	d1,$C(a2)
+	move.w	d1,6*2(a2)
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
-	move.w	d1,$A(a2)
+	move.w	d1,5*2(a2)
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
-	move.w	d1,8(a2)
+	move.w	d1,4*2(a2)
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
-	move.w	d1,6(a2)
-	move.w	d1,$10(a2)
-	move.w	d1,$1C(a2)
+	move.w	d1,3*2(a2)
+	move.w	d1,8*2(a2)
+	move.w	d1,14*2(a2)
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
-	move.w	d1,4(a2)
-	move.w	d1,$12(a2)
-	move.w	d1,$1A(a2)
+	move.w	d1,2*2(a2)
+	move.w	d1,9*2(a2)
+	move.w	d1,13*2(a2)
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
-	move.w	d1,2(a2)
-	move.w	d1,$14(a2)
-	move.w	d1,$18(a2)
+	move.w	d1,1*2(a2)
+	move.w	d1,10*2(a2)
+	move.w	d1,12*2(a2)
+
 	swap	d1
 	add.l	d0,d1
 	swap	d1
 	move.w	d1,(a3)+
-	move.w	d1,(a2)
-	move.w	d1,$16(a2)
+	move.w	d1,0*2(a2)
+	move.w	d1,11*2(a2)
 	; Duplicate code end.
 
+	; Use the list of row scroll values and a list of row heights to fill
+	; 'Horiz_Scroll_Buf'.
 	; Tails' screen is slightly taller, to fill the gap between the two
 	; screens.
 	lea_	SwScrl_MCZ2P_RowHeights+1,a3
@@ -16212,12 +16474,13 @@ SwScrl_MCZ2P_RowHeights:
 	lea	(Horiz_Scroll_Buf+(112-4)*2*2).w,a1
 	move.w	(Camera_BG_Y_pos_P2).w,d1
 	lsr.w	#1,d1
-	; Extend the first segment of 'SwScrl_MCZ2P_RowHeights' by 4 lines;
-	moveq	#$13+4,d0
+	; Extend the first segment of 'SwScrl_MCZ2P_RowHeights' by 4 lines.
+	moveq	#19+4,d0
 	bra.s	.useOwnSegmentSize
 ; ===========================================================================
 
 .segmentLoop:
+	; Find the first visible scrolling section
 	move.b	(a3)+,d0		; Number of lines in this segment
 
 .useOwnSegmentSize:
@@ -16249,18 +16512,27 @@ SwScrl_MCZ2P_RowHeights:
 ; ===========================================================================
 ; loc_D0C6:
 SwScrl_CNZ:
+	; Use different background scrolling code for two player mode.
 	tst.w	(Two_player_mode).w
 	bne.w	SwScrl_CNZ_2P
 
+	; Update 'Camera_BG_Y_pos'.
 	move.w	(Camera_Y_pos).w,d0
 	lsr.w	#6,d0
 	move.w	d0,(Camera_BG_Y_pos).w
 
+	; Update the background's vertical scrolling.
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 
+	; Populate a list of horizontal scroll values for each row.
+	; The background is broken up into multiple rows of arbitrary
+	; heights, with each row getting its own scroll value.
+	; This is used to create an elaborate parallax effect.
 	move.w	(Camera_X_pos).w,d2
 	bsr.w	SwScrl_CNZ_GenerateScrollValues
 
+	; Use the list of row scroll values and a list of row heights to fill
+	; 'Horiz_Scroll_Buf'.
 	lea	(SwScrl_CNZ_RowHeights).l,a3
 	lea	(TempArray_LayerDef).w,a2
 	lea	(Horiz_Scroll_Buf).w,a1
@@ -16302,8 +16574,10 @@ SwScrl_CNZ:
 ; ===========================================================================
 
 .isRipplingSegment:
+	; This row is 16 pixels tall.
 	move.w	#16-1,d1
 	move.w	d0,d3
+	; Animate the rippling effect every 8 frames.
 	move.b	(Vint_runcount+3).w,d0
 	lsr.w	#3,d0
 	neg.w	d0
@@ -16318,27 +16592,32 @@ SwScrl_CNZ:
 	move.l	d0,(a1)+
 	dbf	d1,.rippleLoop
 
+	; We've done 16 lines, so subtract them from the counter.
 	subi.w	#16,d2
 	bra.s	.nextSegment
 ; ===========================================================================
 ; byte_D156:
 SwScrl_CNZ_RowHeights:
-	dc.b  $10
-	dc.b  $10
-	dc.b  $10
-	dc.b  $10
-	dc.b  $10
-	dc.b  $10
-	dc.b  $10
-	dc.b  $10
-	dc.b    0	; Special (actually has a height of $10)
-	dc.b  $F0
+	dc.b  16
+	dc.b  16
+	dc.b  16
+	dc.b  16
+	dc.b  16
+	dc.b  16
+	dc.b  16
+	dc.b  16
+	dc.b   0	; Special (actually has a height of 16)
+	dc.b 240
 	even
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ; sub_D160:
 SwScrl_CNZ_GenerateScrollValues:
+	; Populate a list of horizontal scroll values for each row.
+	; The background is broken up into multiple rows of arbitrary
+	; heights, with each row getting its own scroll value.
+	; This is used to create an elaborate parallax effect.
 	lea	(TempArray_LayerDef).w,a1
 	move.w	d2,d0
 	asr.w	#3,d0
@@ -16369,45 +16648,62 @@ SwScrl_CNZ_GenerateScrollValues:
 ; loc_D194:
 SwScrl_CNZ_2P:
 	; Do player 1's background.
+
+	; Update 'Camera_BG_Y_pos'.
 	move.w	(Camera_Y_pos).w,d0
 	lsr.w	#6,d0
 	move.w	d0,(Camera_BG_Y_pos).w
 
+	; Update the background's vertical scrolling.
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+
+	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor).w
 
+	; Populate a list of horizontal scroll values for each row.
+	; The background is broken up into multiple rows of arbitrary
+	; heights, with each row getting its own scroll value.
+	; This is used to create an elaborate parallax effect.
 	move.w	(Camera_X_pos).w,d2
 	bsr.w	SwScrl_CNZ_GenerateScrollValues
 
+	; Use the list of row scroll values and a list of row heights to fill
+	; 'Horiz_Scroll_Buf'.
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_BG_Y_pos).w,d1
 	moveq	#0,d0
 	move.w	(Camera_X_pos).w,d0
 	move.w	#112-1,d2
-    if fixBugs
-	lea	(SwScrl_CNZ2P_RowHeights).l,a3
-    else
-	; This little hack is no longer necessary.
-	lea	(SwScrl_CNZ2P_RowHeights+2).l,a3
-    endif
+	lea	(SwScrl_CNZ2P_RowHeights_P1).l,a3
 	bsr.s	.doBackground
 
 	; Do player 2's background.
+
+	; Update 'Camera_BG_Y_pos'.
 	move.w	(Camera_Y_pos_P2).w,d0
 	lsr.w	#6,d0
 	move.w	d0,(Camera_BG_Y_pos_P2).w
 
+	; Update the background's vertical scrolling.
 	move.w	d0,(Vscroll_Factor_P2_BG).w
 	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
 
+	; Update the foreground's vertical scrolling.
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
-
 	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
+
+	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
 
+	; Populate a list of horizontal scroll values for each row.
+	; The background is broken up into multiple rows of arbitrary
+	; heights, with each row getting its own scroll value.
+	; This is used to create an elaborate parallax effect.
 	move.w	(Camera_X_pos_P2).w,d2
 	bsr.w	SwScrl_CNZ_GenerateScrollValues
 
+	; Use the list of row scroll values and a list of row heights to fill
+	; 'Horiz_Scroll_Buf'.
 	; Tails' screen is slightly taller, to fill the gap between the two
 	; screens.
 	lea	(Horiz_Scroll_Buf+(112-4)*2*2).w,a1
@@ -16415,14 +16711,14 @@ SwScrl_CNZ_2P:
 	moveq	#0,d0
 	move.w	(Camera_X_pos_P2).w,d0
 	move.w	#112+4-1,d2
-	lea	(SwScrl_CNZ2P_RowHeights+1).l,a3
+	lea	(SwScrl_CNZ2P_RowHeights_P2).l,a3
 
     if fixBugs
 	; Use a similar trick to Mystic Cave Zone: override the first value
 	; in the code here.
 	lsr.w	#1,d1
 	lea	(TempArray_LayerDef).w,a2
-	; Extend the first segment of 'SwScrl_CNZ2P_RowHeights' by 4 lines;
+	; Extend the first segment of 'SwScrl_CNZ2P_RowHeights' by 4 lines.
 	move.w	#8+4,d3
 	bra.s	.useOwnSegmentSize
     endif
@@ -16469,8 +16765,10 @@ SwScrl_CNZ_2P:
 ; ===========================================================================
 
 .isRipplingSegment:
+	; This row is 8 pixels tall.
 	move.w	#8-1,d1
 	move.w	d0,d3
+	; Animate the rippling effect every 8 frames.
 	move.b	(Vint_runcount+3).w,d0
 	lsr.w	#3,d0
 	neg.w	d0
@@ -16485,21 +16783,27 @@ SwScrl_CNZ_2P:
 	move.l	d0,(a1)+
 	dbf	d1,.rippleLoop
 
+	; We've done 8 lines, so subtract them from the counter.
 	subq.w	#8,d2
 	bra.s	.nextSegment
 ; End of function sub_D216
 
 ; ===========================================================================
-SwScrl_CNZ2P_RowHeights:
     if ~~fixBugs
 	; This doesn't have the effect that the developers intended: rather
 	; than just extend the topmost segment, it creates additional
 	; segments which cause the later segments to use the wrong scroll
 	; values.
 	dc.b   4
+SwScrl_CNZ2P_RowHeights_P2:
 	dc.b   4
     endif
+SwScrl_CNZ2P_RowHeights_P1:
 	dc.b   8
+    if fixBugs
+	; See above.
+SwScrl_CNZ2P_RowHeights_P2:
+    endif
 	dc.b   8
 	dc.b   8
 	dc.b   8
@@ -16523,20 +16827,27 @@ SwScrl_CPZ:
 	asl.l	#6,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
 
+	; Ditto.
 	move.w	(Camera_X_pos_diff).w,d4
 	ext.l	d4
 	asl.l	#7,d4
 	moveq	#scroll_flag_bg3_cpz_left,d6
 	bsr.w	SetHorizScrollFlagsBG2
 
+	; Update 'Camera_BG2_Y_pos'.
 	move.w	(Camera_BG_Y_pos).w,d0
 	move.w	d0,(Camera_BG2_Y_pos).w
+
+	; Update the background's vertical scrolling.
 	move.w	d0,(Vscroll_Factor_BG).w
 
+	; Merge BG1's and BG2's scroll flags into BG3...
 	move.b	(Scroll_flags_BG).w,d0
 	or.b	(Scroll_flags_BG2).w,d0
 	move.b	d0,(Scroll_flags_BG3).w
 
+	; ...then clear BG1's and BG2's scroll flags.
+	; This zone basically uses its own dynamic background loader.
 	clr.b	(Scroll_flags_BG).w
 	clr.b	(Scroll_flags_BG2).w
 
@@ -16570,7 +16881,7 @@ SwScrl_CPZ:
 	move.w	#224/16+1-1,d1
     endif
 
-	; Construct horizontal scroll value for this block.
+	; Set up the foreground part of the horizontal scroll value.
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
@@ -16624,6 +16935,7 @@ SwScrl_CPZ:
 +
 	neg.w	d0
 
+	; This works like a Duff's Device.
 .doPartialLineBlock:
     rept 16
 	move.l	d0,(a1)+
@@ -16666,6 +16978,8 @@ SwScrl_CPZ:
 ; ===========================================================================
 ; loc_D382:
 SwScrl_DEZ:
+	; Update scroll flags, to dynamically load more of the background as
+	; the player moves around.
 	move.w	(Camera_X_pos_diff).w,d4
 	ext.l	d4
 	asl.l	#8,d4
@@ -16673,6 +16987,8 @@ SwScrl_DEZ:
 	ext.l	d5
 	asl.l	#8,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
+
+	; Update the background's vertical scrolling.
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 
     if fixBugs
@@ -16681,6 +16997,8 @@ SwScrl_DEZ:
 	; the Y component of the shaking to the camera's Y position.
 	; This block of code also has to be moved to the start of this
 	; function.
+
+	; Handle screen shaking when the final boss explodes.
 	moveq	#0,d2
 	moveq	#0,d3
 	tst.b	(Screen_Shaking_Flag).w
@@ -16704,11 +17022,19 @@ SwScrl_DEZ:
 +
     endif
 
+	; Populate a list of horizontal scroll values for each row.
+	; The background is broken up into multiple rows of arbitrary
+	; heights, with each row getting its own scroll value.
+	; This is used to create an elaborate parallax effect.
 	move.w	(Camera_X_pos).w,d4
 	lea	(TempArray_LayerDef).w,a2
+
+	; Empty space with no stars.
 	move.w	d4,(a2)+
 
-	addq.w	#3,(a2)+ ; these random-seeming numbers control how fast each row of stars scrolls by
+	; These seemingly random numbers control how fast each row of stars
+	; scrolls by.
+	addq.w	#3,(a2)+
 	addq.w	#2,(a2)+
 	addq.w	#4,(a2)+
 	addq.w	#1,(a2)+
@@ -16733,35 +17059,49 @@ SwScrl_DEZ:
 	addq.w	#2,(a2)+
 	addq.w	#1,(a2)
 
-	move.w	(a2)+,d0 ; this is to make one row go at half speed (1 pixel every other frame)
+	; This is to make one row go at half speed (1 pixel every other
+	; frame).
+	move.w	(a2)+,d0
 	moveq	#0,d1
 	move.w	d0,d1
 	lsr.w	#1,d0
 	move.w	d0,(a2)+
 
-	addq.w	#3,(a2)+ ; more star speeds...
+	; More star speeds...
+	addq.w	#3,(a2)+
 	addq.w	#2,(a2)+
 	addq.w	#4,(a2)+
 
+	; Now do Earth.
 	swap	d1
 	move.l	d1,d0
 	lsr.l	#3,d1
 	sub.l	d1,d0
 	swap	d0
 	move.w	d0,4(a2)
+
 	swap	d0
 	sub.l	d1,d0
 	swap	d0
 	move.w	d0,2(a2)
+
 	swap	d0
 	sub.l	d1,d0
 	swap	d0
 	move.w	d0,(a2)+
-	addq.w	#4,a2
+
+	; Skip past the rows we just did.
+	addq.w	#2*2,a2
+
 	addq.w	#1,(a2)+
+
+	; Do the sky.
 	move.w	d4,(a2)+
 	move.w	d4,(a2)+
 	move.w	d4,(a2)+
+
+	; Use the list of row scroll values and a list of row heights to fill
+	; 'Horiz_Scroll_Buf'.
 	lea	(SwScrl_DEZ_RowHeights).l,a3
 	lea	(TempArray_LayerDef).w,a2
 	lea	(Horiz_Scroll_Buf).w,a1
@@ -16770,35 +17110,44 @@ SwScrl_DEZ:
 	; Apply screen shaking effect to the background parallax scrolling.
 	add.w	d3,d1
     endif
+
 	moveq	#0,d0
 
--	move.b	(a3)+,d0
+	; Find the first visible scrolling section
+.segmentLoop:
+	move.b	(a3)+,d0		; Number of lines in this segment
 	addq.w	#2,a2
-	sub.w	d0,d1
-	bcc.s	-
+	sub.w	d0,d1			; Does this segment have any visible lines?
+	bcc.s	.segmentLoop		; Branch if not
 
-	neg.w	d1
+	neg.w	d1			; d1 = number of lines to draw in this segment
 	subq.w	#2,a2
-	move.w	#bytesToLcnt($380),d2
+	move.w	#224-1,d2		; Number of rows in hscroll buffer
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
-	move.w	(a2)+,d0
-	neg.w	d0
+	move.w	(a2)+,d0		; Fetch scroll value for this row...
+	neg.w	d0			; ...and flip sign for VDP
 
--	move.l	d0,(a1)+
-	subq.w	#1,d1
-	bne.s	+
-	move.b	(a3)+,d1
-	move.w	(a2)+,d0
-	neg.w	d0
-+	dbf	d2,-
+.rowLoop:
+	move.l	d0,(a1)+
+	subq.w	#1,d1			; Has the current segment finished?
+	bne.s	.nextRow		; Branch if not
+	move.b	(a3)+,d1		; Fetch a new line count
+	move.w	(a2)+,d0		; Fetch scroll value for this row...
+	neg.w	d0			; ...and flip sign for VDP
+
+.nextRow:
+	dbf	d2,.rowLoop
+
     if ~~fixBugs
 	; The screen shaking is not applied to the background parallax
 	; scrolling, causing it to distort. This is trivial to fix: just add
 	; the Y component of the shaking to the camera's Y position.
 	; This block of code also has to be moved to the start of this
 	; function.
+
+	; Handle screen shaking when the final boss explodes.
 	moveq	#0,d2
 	tst.b	(Screen_Shaking_Flag).w
 	beq.s	++	; rts
@@ -16819,11 +17168,14 @@ SwScrl_DEZ:
 	add.w	d2,(Camera_X_pos_copy).w
 +
     endif
+
 	rts
 ; ===========================================================================
 ; byte_D48A:
 SwScrl_DEZ_RowHeights:
-	dc.b $80
+	; Empty space.
+	dc.b 128
+	; Stars.
 	dc.b   8	; 1
 	dc.b   8	; 2
 	dc.b   8	; 3
@@ -16852,26 +17204,33 @@ SwScrl_DEZ_RowHeights:
 	dc.b   8	; 26
 	dc.b   8	; 27
 	dc.b   8	; 28
+	; The edge of Earth.
 	dc.b   3	; 29
 	dc.b   5	; 30
 	dc.b   8	; 31
-	dc.b $10	; 32
-	dc.b $80	; 33
-	dc.b $80	; 34
-	dc.b $80	; 35
+	dc.b  16	; 32
+	; The sky.
+	dc.b 128	; 33
+	dc.b 128	; 34
+	dc.b 128	; 35
 	even
 ; ===========================================================================
 ; loc_D4AE:
 SwScrl_ARZ:
+	; Update scroll flags, to dynamically load more of the background as
+	; the player moves around.
 	move.w	(Camera_X_pos_diff).w,d4
 	ext.l	d4
-	muls.w	#$119,d4
+	muls.w	#281,d4
 	moveq	#scroll_flag_bg1_left,d6
 	bsr.w	SetHorizScrollFlagsBG_ARZ
 
+	; Ditto.
 	move.w	(Camera_Y_pos_diff).w,d5
 	ext.l	d5
 	asl.l	#7,d5
+	; Curiously, the background moves vertically at different speeds
+	; depending on what the current act is.
 	tst.b	(Current_Act).w
 	bne.s	+
 	asl.l	#1,d5
@@ -16879,8 +17238,10 @@ SwScrl_ARZ:
 	moveq	#scroll_flag_bg1_up_whole_row_2,d6
 	bsr.w	SetVertiScrollFlagsBG
 
+	; Update the background's vertical scrolling.
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 
+	; Handle the screen shaking during the boss fight.
 	moveq	#0,d2
     if fixBugs
 	; The screen shaking is not applied to the background parallax
@@ -16910,14 +17271,18 @@ SwScrl_ARZ:
 	add.w	d2,(Camera_X_pos_copy).w
 
 .screenNotShaking:
+	; Populate a list of horizontal scroll values for each row.
+	; The background is broken up into multiple rows of arbitrary
+	; heights, with each row getting its own scroll value.
+	; This is used to create an elaborate parallax effect.
 	lea	(TempArray_LayerDef).w,a2	; Starts at BG scroll row 1
-	lea	6(a2),a3			; Starts at BG scroll row 4
+	lea	3*2(a2),a3			; Starts at BG scroll row 4
 
 	; Set up the speed of each row (there are 16 rows in total)
 	move.w	(Camera_X_pos).w,d0
 	ext.l	d0
 	asl.l	#4,d0
-	divs.w	#$A,d0
+	divs.w	#10,d0
 	ext.l	d0
 	asl.l	#4,d0
 	asl.l	#8,d0
@@ -16925,7 +17290,7 @@ SwScrl_ARZ:
 
 	; Set row 4's speed
 	swap	d1
-	move.w	d1,(a3)+	; Top row of background moves 10 ($A) times slower than foreground
+	move.w	d1,(a3)+	; Top row of background moves 10 times slower than foreground
 	swap	d1
 	add.l	d1,d1
 	add.l	d0,d1
@@ -16947,8 +17312,8 @@ SwScrl_ARZ:
 	; the first and third rows were meant to scroll at a different speed to the
 	; second. Possibly due to how bad it looks, the speed values are overwritten
 	; a few instructions later, so all three move at the same speed.
-	; This code seems to pre-date the Simon Wai build, which uses the final's
-	; scrolling.
+	; This code seems to pre-date the Simon Wai build, which uses the same
+	; scrolling as the final game.
 	move.w	d1,(a2)		; Set row 1's speed
 	move.w	d1,4(a2)	; Set row 3's speed
 
@@ -16957,11 +17322,13 @@ SwScrl_ARZ:
 	move.w	d0,$16(a2)	; Set row 12's speed
 	_move.w	d0,0(a2)	; Overwrite row 1's speed (now same as row 2's)
 	move.w	d0,4(a2)	; Overwrite row 3's speed (now same as row 2's)
-	move.w	d0,$18(a2)	; Set row 13's speed
-	move.w	d0,$1A(a2)	; Set row 14's speed
-	move.w	d0,$1C(a2)	; Set row 15's speed
-	move.w	d0,$1E(a2)	; Set row 16's speed
+	move.w	d0,12*2(a2)	; Set row 13's speed
+	move.w	d0,13*2(a2)	; Set row 14's speed
+	move.w	d0,14*2(a2)	; Set row 15's speed
+	move.w	d0,15*2(a2)	; Set row 16's speed
 
+	; Use the list of row scroll values and a list of row heights to fill
+	; 'Horiz_Scroll_Buf'.
 	lea	(SwScrl_ARZ_RowHeights).l,a3
 	lea	(TempArray_LayerDef).w,a2
 	lea	(Horiz_Scroll_Buf).w,a1
@@ -16977,12 +17344,12 @@ SwScrl_ARZ:
 	move.b	(a3)+,d0	; Get row height
 	addq.w	#2,a2		; Next row speed (note: is off by 2. This is fixed below)
 	sub.w	d0,d1
-	bcc.s	.findTopRowLoop		; If current row is above the screen, loop and do next row
+	bcc.s	.findTopRowLoop	; If current row is above the screen, loop and do next row
 
-	neg.w	d1	; d1 now contains how many pixels of the row is currently on-screen
-	subq.w	#2,a2	; Get correct row speed
+	neg.w	d1		; d1 now contains how many pixels of the row is currently on-screen
+	subq.w	#2,a2		; Get correct row speed
 
-	move.w	#224-1,d2 ; Height of screen
+	move.w	#224-1,d2 	; Height of screen
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0		; Store FG X-pos in upper 16-bits...
@@ -17001,22 +17368,22 @@ SwScrl_ARZ:
 ; ===========================================================================
 ; byte_D5CE:
 SwScrl_ARZ_RowHeights:
-	dc.b $B0
-	dc.b $70	; 1
-	dc.b $30	; 2
-	dc.b $60	; 3
-	dc.b $15	; 4
-	dc.b  $C	; 5
-	dc.b  $E	; 6
+	dc.b 176
+	dc.b 112	; 1
+	dc.b  48	; 2
+	dc.b  96	; 3
+	dc.b  21	; 4
+	dc.b  12	; 5
+	dc.b  14	; 6
 	dc.b   6	; 7
-	dc.b  $C	; 8
-	dc.b $1F	; 9
-	dc.b $30	; 10
-	dc.b $C0	; 11
-	dc.b $F0	; 12
-	dc.b $F0	; 13
-	dc.b $F0	; 14
-	dc.b $F0	; 15
+	dc.b  12	; 8
+	dc.b  31	; 9
+	dc.b  48	; 10
+	dc.b 192	; 11
+	dc.b 240	; 12
+	dc.b 240	; 13
+	dc.b 240	; 14
+	dc.b 240	; 15
 	even
 ; ===========================================================================
 ; loc_D5DE:
@@ -17024,6 +17391,8 @@ SwScrl_SCZ:
 	tst.w	(Debug_placement_mode).w
 	bne.w	SwScrl_Minimal
 
+	; Set the flags to dynamically load the foreground manually. This is
+	; normally done in 'DeformBgLayer'.
 	lea	(Camera_X_pos).w,a1
 	lea	(Scroll_flags).w,a3
 	lea	(Camera_X_pos_diff).w,a4
@@ -17038,6 +17407,7 @@ SwScrl_SCZ:
 	lea	(Horiz_block_crossed_flag).w,a2
 	bsr.w	SetHorizScrollFlags
 
+	; Ditto.
 	lea	(Camera_Y_pos).w,a1
 	lea	(Camera_Y_pos_diff).w,a4
 	move.w	(Tornado_Velocity_Y).w,d0
@@ -17051,6 +17421,8 @@ SwScrl_SCZ:
 	lea	(Verti_block_crossed_flag).w,a2
 	bsr.w	SetVertiScrollFlags
 
+	; Update scroll flags, to dynamically load more of the background as
+	; the player moves around.
 	move.w	(Camera_X_pos_diff).w,d4
 	beq.s	+
 	move.w	#$100,d4
@@ -17060,9 +17432,13 @@ SwScrl_SCZ:
 	moveq	#0,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
 
+	; Update the background's vertical scrolling.
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+
+	; Update the background's (and foreground's) horizontal scrolling.
+	; This is very basic: there is no parallax effect here.
 	lea	(Horiz_Scroll_Buf).w,a1
-	move.w	#bytesToLcnt($380),d1
+	move.w	#224-1,d1
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
@@ -17076,6 +17452,7 @@ SwScrl_SCZ:
 ; ===========================================================================
 ; loc_D666:
 SwScrl_Minimal:
+	; Set the flags to dynamically load the background as it moves.
 	move.w	(Camera_X_pos_diff).w,d4
 	ext.l	d4
 	asl.l	#5,d4
@@ -17084,10 +17461,13 @@ SwScrl_Minimal:
 	asl.l	#6,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
 
+	; Update the background's vertical scrolling.
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
 
+	; Update the background's (and foreground's) horizontal scrolling.
+	; This is very basic: there is no parallax effect here.
 	lea	(Horiz_Scroll_Buf).w,a1
-	move.w	#bytesToLcnt($380),d1
+	move.w	#224-1,d1
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
@@ -17103,22 +17483,68 @@ SwScrl_Minimal:
 ; loc_D69E:
 SwScrl_HPZ_Continued:
 	lea	(Horiz_Scroll_Buf).w,a1
-	move.w	#$E,d1
+
+    if fixBugs
+	move.w	#224/16-1,d1
+    else
+	; The '+1' is so that, if one block is partially-offscreen at the
+	; top, then another will fill the gap at the bottom of the screen.
+	; This causes 'Horiz_Scroll_Buf' to overflow due to a lack of
+	; bounds-checking. This was likely a deliberate optimisation. Still,
+	; it's possible to avoid this without any performance penalty with a
+	; little extra code. See below.
+	move.w	#224/16+1-1,d1
+    endif
+
+	; Set up the foreground part of the horizontal scroll value.
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
+
 	andi.w	#$F,d2
+
+    if fixBugs
+	; See above.
+
+	; Back this up, because we'll need it later.
+	move.w	d2,d5
+	; If this is 0, then we won't need to do an extra block, so skip
+	; ahead.
+	beq.s	.doLineBlocks
+	; Process the first set of line blocks.
+	bsr.s	.doLineBlocks
+
+	; Do one last line block.
+	moveq	#1-1,d1
+
+	; Invert 'd2' to get the number of lines in the first block that we
+	; skipped, so that we can do them now.
+	move.w	#$10,d2
+	sub.w	d5,d2
+
+	; Process the final line block.
+.doLineBlocks:
+    endif
+
+	; Turn d2 into an offset into '.doPartialLineBlock' (each instruction
+	; is 2 bytes long).
 	add.w	d2,d2
+	; Get line block scroll value.
 	move.w	(a2)+,d0
-	jmp	+(pc,d2.w)
+	; Output the first line block.
+	jmp	.doPartialLineBlock(pc,d2.w)
 ; ===========================================================================
 
--	move.w	(a2)+,d0
+.doFullLineBlock:
+	; Get next line block scroll value.
+	move.w	(a2)+,d0
 
-+   rept 16
+	; This works like a Duff's Device.
+.doPartialLineBlock:
+    rept 16
 	move.l	d0,(a1)+
     endm
-	dbf	d1,-
+	dbf	d1,.doFullLineBlock
 
 	rts
 
@@ -84662,7 +85088,7 @@ loc_3FE5C:
 	move.l	a2,-(sp)
 	lea	(ArtUnc_HTZClouds).l,a0
 	lea	(Chunk_Table+$7C00).l,a2
-	moveq	#$F,d1
+	moveq	#16-1,d1
 
 loc_3FE78:
 	move.w	(a1)+,d0
