@@ -16831,7 +16831,7 @@ SwScrl_CPZ:
 	move.w	(Camera_X_pos_diff).w,d4
 	ext.l	d4
 	asl.l	#7,d4
-	moveq	#scroll_flag_bg3_cpz_left,d6
+	moveq	#scroll_flag_advanced_bg2_left,d6
 	bsr.w	SetHorizScrollFlagsBG2
 
 	; Update 'Camera_BG2_Y_pos'.
@@ -18352,11 +18352,13 @@ Draw_BG2:
 ; but otherwise loads camera Y for selected camera.
 ;byte_DCD6
 SBZ_CameraSections:
+	; BG1 (draw whole row)
 	dc.b   0
 	dc.b   0	; 1
 	dc.b   0	; 2
 	dc.b   0	; 3
 	dc.b   0	; 4
+	; BG3
 	dc.b   6	; 5
 	dc.b   6	; 6
 	dc.b   6	; 7
@@ -18367,6 +18369,7 @@ SBZ_CameraSections:
 	dc.b   6	; 12
 	dc.b   6	; 13
 	dc.b   6	; 14
+	; BG2
 	dc.b   4	; 15
 	dc.b   4	; 16
 	dc.b   4	; 17
@@ -18374,6 +18377,7 @@ SBZ_CameraSections:
 	dc.b   4	; 19
 	dc.b   4	; 20
 	dc.b   4	; 21
+	; BG1
 	dc.b   2	; 22
 	dc.b   2	; 23
 	dc.b   2	; 24
@@ -18387,16 +18391,29 @@ SBZ_CameraSections:
 	dc.b   2	; 32
 	even
 ; ===========================================================================
-; Scrap Brain Zone 1 drawing code -- S1 left-over
-; Compare with CPZ drawing code
-; begin unused routine
+	; Scrap Brain Zone 1 drawing code -- Sonic 1 left-over.
+
+;Draw_BG2_SBZ:
+	; Chemical Plant Zone uses a lighty-modified version this code.
+	; This is an advanced form of the usual background-drawing code that
+	; allows each row of blocks to update and scroll independently...
+	; kind of. There are only three possible 'cameras' that each row can
+	; align itself with. Still, each row is free to decide which camera
+	; it aligns with.
+	; This could have really benefitted Oil Ocean Zone's background,
+	; which has a section that goes unseen because the regular background
+	; drawer is too primitive to display it without making the sun and
+	; clouds disappear. Using this would have avoided that.
+
+	; Handle loading the rows as the camera moves up and down.
 	moveq	#-16,d4	; X offset (relative to camera)
-	bclr	#0,(a2)
-	bne.s	+
-	bclr	#1,(a2)
-	beq.s	+++
+	bclr	#scroll_flag_advanced_bg_up,(a2)
+	bne.s	.doUpOrDown
+	bclr	#scroll_flag_advanced_bg_down,(a2)
+	beq.s	.checkIfShouldDoLeftOrRight
 	move.w	#224,d4	; Y offset (relative to camera)
-+
+
+.doUpOrDown:
 	lea_	SBZ_CameraSections+1,a0
 	move.w	(Camera_BG_Y_pos).w,d0
 	add.w	d4,d0
@@ -18405,42 +18422,51 @@ SBZ_CameraSections:
 	move.b	(a0,d0.w),d0
 	lea	(BGCameraLookup).l,a3
 	movea.w	(a3,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
-	beq.s	+
+	beq.s	.doWholeRow
 	moveq	#-16,d5	; X offset (relative to camera)
 	movem.l	d4-d5,-(sp)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
 	movem.l	(sp)+,d4-d5
 	bsr.w	DrawBlockRow
-	bra.s	++
+	bra.s	.checkIfShouldDoLeftOrRight
 ; ===========================================================================
-+
+
+.doWholeRow:
 	moveq	#0,d5	; X (absolute)
 	movem.l	d4-d5,-(sp)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1.AbsoluteX
 	movem.l	(sp)+,d4-d5
 	moveq	#512/16-1,d6	; The entire width of the plane in blocks minus 1.
 	bsr.w	DrawBlockRow.AbsoluteXCustomWidth
-+
+
+.checkIfShouldDoLeftOrRight:
+	; If there are other scroll flags set, then go do them.
 	tst.b	(a2)
-	bne.s	+
+	bne.s	.doLeftOrRight
 	rts
 ; ===========================================================================
-+
-	moveq	#-16,d4
-	moveq	#-16,d5
+
+.doLeftOrRight:
+	moveq	#-16,d4 ; Y offset
+
+	; Load left column.
+	moveq	#-16,d5 ; X offset
 	move.b	(a2),d0
-	andi.b	#-$58,d0
+	andi.b	#(1<<scroll_flag_advanced_bg1_right)|(1<<scroll_flag_advanced_bg2_right)|(1<<scroll_flag_advanced_bg3_right),d0
 	beq.s	+
-	lsr.b	#1,d0
+	lsr.b	#1,d0	; Make the left and right flags share the same bits, to simplify a calculation later.
 	move.b	d0,(a2)
-	move.w	#320,d5
+	; Load right column.
+	move.w	#320,d5 ; X offset
 +
+	; Select the correct starting background section, and then begin
+	; drawing the column.
 	lea_	SBZ_CameraSections,a0
 	move.w	(Camera_BG_Y_pos).w,d0
 	andi.w	#$1F0,d0
 	lsr.w	#4,d0
 	lea	(a0,d0.w),a0
-	bra.w	loc_DE86
+	bra.w	DrawBlockColumn_Advanced
 ; end unused routine
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -18482,6 +18508,7 @@ Draw_BG3:
 ; but otherwise loads camera Y for selected camera.
 ;byte_DDD0
 CPZ_CameraSections:
+	; BG1
 	dc.b   2
 	dc.b   2	; 1
 	dc.b   2	; 2
@@ -18502,6 +18529,7 @@ CPZ_CameraSections:
 	dc.b   2	; 17
 	dc.b   2	; 18
 	dc.b   2	; 19
+	; BG2
 	dc.b   4	; 20
 	dc.b   4	; 21
 	dc.b   4	; 22
@@ -18551,13 +18579,33 @@ CPZ_CameraSections:
 ; ===========================================================================
 ; loc_DE12:
 Draw_BG3_CPZ:
+	; This is a lighty-modified duplicate of Scrap Brain Zone's drawing
+	; code (which is still in this game - it's labelled 'Draw_BG2_SBZ').
+	; This is an advanced form of the usual background-drawing code that
+	; allows each row of blocks to update and scroll independently...
+	; kind of. There are only three possible 'cameras' that each row can
+	; align itself with. Still, each row is free to decide which camera
+	; it aligns with.
+	; This could have really benefitted Oil Ocean Zone's background,
+	; which has a section that goes unseen because the regular background
+	; drawer is too primitive to display it without making the sun and
+	; clouds disappear. Using this would have avoided that.
+	; This code differs from the Scrap Brain Zone version by being
+	; hardcoded to a different table ('CPZ_CameraSections' instead of
+	; 'SBZ_CameraSections'), and lacking support for redrawing the whole
+	; row when it uses "camera 0".
+
+	; Handle loading the rows as the camera moves up and down.
 	moveq	#-16,d4	; Y offset
-	bclr	#scroll_flag_bg1_up,(a2)
-	bne.s	+
-	bclr	#scroll_flag_bg1_down,(a2)
-	beq.s	++
+	bclr	#scroll_flag_advanced_bg_up,(a2)
+	bne.s	.doUpOrDown
+	bclr	#scroll_flag_advanced_bg_down,(a2)
+	beq.s	.checkIfShouldDoLeftOrRight
 	move.w	#224,d4	; Y offset
-+
+
+.doUpOrDown:
+	; Select the correct camera, so that the X value of the loaded row is
+	; right.
 	lea_	CPZ_CameraSections+1,a0
 	move.w	(Camera_BG_Y_pos).w,d0
 	add.w	d4,d0
@@ -18570,28 +18618,35 @@ Draw_BG3_CPZ:
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
 	movem.l	(sp)+,d4-d5
 	bsr.w	DrawBlockRow
-+
+
+.checkIfShouldDoLeftOrRight:
+	; If there are other scroll flags set, then go do them.
 	tst.b	(a2)
-	bne.s	+
+	bne.s	.doLeftOrRight
 	rts
 ; ===========================================================================
-+
+
+.doLeftOrRight:
 	moveq	#-16,d4 ; Y offset
 
+	; Load left column.
 	moveq	#-16,d5 ; X offset
 	move.b	(a2),d0
-	andi.b	#$A8,d0
+	andi.b	#(1<<scroll_flag_advanced_bg1_right)|(1<<scroll_flag_advanced_bg2_right)|(1<<scroll_flag_advanced_bg3_right),d0
 	beq.s	+
-	lsr.b	#1,d0
+	lsr.b	#1,d0	; Make the left and right flags share the same bits, to simplify a calculation later.
 	move.b	d0,(a2)
+	; Load right column.
 	move.w	#320,d5 ; X offset
 +
+	; Select the correct starting background section, and then begin
+	; drawing the column.
 	lea_	CPZ_CameraSections,a0
 	move.w	(Camera_BG_Y_pos).w,d0
-	andi.w	#$7F0,d0
+	andi.w	#$7F0,d0	; Curiously, this bitmask differs from the one used earlier. Perhaps this is a bug?
 	lsr.w	#4,d0
 	lea	(a0,d0.w),a0
-	bra.w	loc_DE86
+	bra.w	DrawBlockColumn_Advanced
 ; ===========================================================================
 ;word_DE7E
 BGCameraLookup:
@@ -18600,17 +18655,23 @@ BGCameraLookup:
 	dc.w Camera_BG2_copy	; BG2 Camera
 	dc.w Camera_BG3_copy	; BG3 Camera
 ; ===========================================================================
-
-loc_DE86:
+; loc_DE86:
+DrawBlockColumn_Advanced:
 	tst.w	(Two_player_mode).w
-	bne.s	++
-	moveq	#(1+224/16+1)-1,d6
+	bne.s	.doubleResolution
+
+	moveq	#(1+224/16+1)-1,d6	; Enough blocks to cover the screen, plus one more on the top and bottom.
 	move.l	#vdpCommDelta($0080),d7
 
--	moveq	#0,d0
+-
+	; If the block is not part of the row that needs updating, then skip
+	; drawing it.
+	moveq	#0,d0
 	move.b	(a0)+,d0
 	btst	d0,(a2)
 	beq.s	+
+
+	; Get the correct camera and draw this block.
 	movea.w	BGCameraLookup(pc,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
 	movem.l	d4-d5/a0,-(sp)
 	movem.l	d4-d5,-(sp)
@@ -18620,21 +18681,29 @@ loc_DE86:
 	bsr.w	ProcessAndWriteBlock_Vertical
 	movem.l	(sp)+,d4-d5/a0
 +
+	; Move onto the next block down.
 	addi.w	#16,d4
 	dbf	d6,-
 
+	; Clear the scroll flags now that we're done here.
 	clr.b	(a2)
+
 	rts
 ; ===========================================================================
-+
-	; Unused code for Chemical Plant Zone's background in two player mode.
-	moveq	#(1+224/16+1)-1,d6
+
+.doubleResolution:
+	moveq	#(1+224/16+1)-1,d6	; Enough blocks to cover the screen, plus one more on the top and bottom.
 	move.l	#vdpCommDelta($0080),d7
 
--	moveq	#0,d0
+-
+	; If the block is not part of the row that needs updating, then skip
+	; drawing it.
+	moveq	#0,d0
 	move.b	(a0)+,d0
 	btst	d0,(a2)
 	beq.s	+
+
+	; Get the correct camera and draw this block.
 	movea.w	BGCameraLookup(pc,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
 	movem.l	d4-d5/a0,-(sp)
 	movem.l	d4-d5,-(sp)
@@ -18644,10 +18713,13 @@ loc_DE86:
 	bsr.w	ProcessAndWriteBlock_DoubleResolution_Vertical
 	movem.l	(sp)+,d4-d5/a0
 +
+	; Move onto the next block down.
 	addi.w	#16,d4
 	dbf	d6,-
 
+	; Clear the scroll flags now that we're done here.
 	clr.b	(a2)
+
 	rts
 ; End of function Draw_BG3
 
@@ -18656,7 +18728,7 @@ loc_DE86:
 
 ; sub_DF04: DrawBlockCol1:
 DrawBlockColumn:
-	moveq	#(1+224/16+1)-1,d6 ; Enough blocks to cover the screen, plus one more on the left and right.
+	moveq	#(1+224/16+1)-1,d6 ; Enough blocks to cover the screen, plus one more on the top and bottom.
 ; DrawBlockCol2:
 .CustomHeight:
 	add.w	(a3),d5		; add camera X pos

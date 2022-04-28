@@ -223,8 +223,14 @@ scroll_flag_bg2_right = 1
 scroll_flag_bg3_left  = 0
 scroll_flag_bg3_right = 1
 
-scroll_flag_bg3_cpz_left  = 4
-scroll_flag_bg3_cpz_right = 5
+scroll_flag_advanced_bg_up     = 0
+scroll_flag_advanced_bg_down   = 1
+scroll_flag_advanced_bg1_left  = 2
+scroll_flag_advanced_bg1_right = 3
+scroll_flag_advanced_bg2_left  = 4
+scroll_flag_advanced_bg2_right = 5
+scroll_flag_advanced_bg3_left  = 6
+scroll_flag_advanced_bg3_right = 7
 
 ; ---------------------------------------------------------------------------
 ; Controller Buttons
