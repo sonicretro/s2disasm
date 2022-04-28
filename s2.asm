@@ -15839,16 +15839,6 @@ SwScrl_OOZ:
 	asl.l	#5,d5
 	bsr.w	SetHorizVertiScrollFlagsBG
 
-	; Update 'Camera_BG2_Y_pos', which is used by the sky.
-	; We'll leave its X value as 0 though, so that it never dynamically
-	; loads tiles horizontally, which would cause the sun and clouds to
-	; disappear.
-	move.w	(Camera_BG_Y_pos).w,d0
-	move.w	d0,(Camera_BG2_Y_pos).w
-
-	; Update the background's vertical scrolling.
-	move.w	d0,(Vscroll_Factor_BG).w
-
 	; Move BG1's scroll flags into BG3...
 	move.b	(Scroll_flags_BG).w,(Scroll_flags_BG3).w
 
@@ -15875,10 +15865,10 @@ SwScrl_OOZ:
 	add.l	d3,d0
 	moveq	#scroll_flag_bg1_up_whole_row,d6
 	bsr.w	SetVertiScrollFlagsBG2
+    endif
 
 	; Update the background's vertical scrolling.
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
-    endif
 
 	; Update the background's (and foreground's) horizontal scrolling.
 	; Curiously, Oil Ocean Zone fills 'Horiz_Scroll_Buf' starting from
