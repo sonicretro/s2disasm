@@ -645,19 +645,26 @@ Vint_Level:
 	bne.s	+
 	move.b	#0,(Teleport_flag).w
 +
-	cmpi.b	#$10,(Teleport_timer).w
+	cmpi.b	#16,(Teleport_timer).w
 	blo.s	loc_6F8
 	lea	(VDP_data_port).l,a6
 	move.l	#vdpComm($0000,CRAM,WRITE),(VDP_control_port).l
-	move.w	#$EEE,d0
+	move.w	#$EEE,d0 ; White.
 
-	move.w	#$1F,d1
+	move.w	#32-1,d1
 -	move.w	d0,(a6)
 	dbf	d1,-
 
+	; Skip a colour.
 	move.l	#vdpComm($0042,CRAM,WRITE),(VDP_control_port).l
 
-	move.w	#$1F,d1
+    if fixBugs
+	move.w	#31-1,d1
+    else
+	; This does one more colour than necessary: it isn't accounting for
+	; the colour that was skipped earlier!
+	move.w	#32-1,d1
+    endif
 -	move.w	d0,(a6)
 	dbf	d1,-
 
