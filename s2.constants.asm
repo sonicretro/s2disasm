@@ -47,6 +47,7 @@ subtype =		$28
 ; conventions specific to Sonic/Tails (Obj01, Obj02, and ObjDB):
 ; note: $1F, $20, and $21 are unused and available
 inertia =		$14 ; and $15 ; directionless representation of speed... not updated in the air
+knuckles_something =	$21
 flip_angle =		$27 ; angle about the x axis (360 degrees = 256) (twist/tumble)
 air_left =		$28
 flip_turned =		$29 ; 0 for normal, 1 to invert flipping (it's a 180 degree rotation about the axis of Sonic's spine, so he stays in the same position but looks turned around)
@@ -1726,7 +1727,15 @@ SlotMachine_Slot3Pos:		ds.w	1
 SlotMachine_Slot3Speed:		ds.b	1
 SlotMachine_Slot3Rout:		ds.b	1
 
-				ds.b	$10	; $FFFFFF60-$FFFFFF6F ; seems unused
+				;ds.b	$10	; $FFFFFF60-$FFFFFF6F ; seems unused
+Demo_mode_flag:			ds.w	1 ; 1 if a demo is playing (2 bytes)
+Demo_number:			ds.w	1 ; which demo will play next (2 bytes)
+Ending_demo_number:		ds.w	1 ; zone for the ending demos (2 bytes, unused)
+				ds.w	1
+Graphics_Flags:			ds.w	1 ; misc. bitfield
+Debug_mode_flag:		ds.w	1 ; (2 bytes)
+				ds.b	4	; Unused
+
 
 Player_mode:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails
 Player_option:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails
@@ -1795,12 +1804,11 @@ Sound_Queue:			SoundQueue
 
 				ds.b	$B	; $FFFFFFE5-$FFFFFFEF ; seems unused
 
-Demo_mode_flag:			ds.w	1 ; 1 if a demo is playing (2 bytes)
-Demo_number:			ds.w	1 ; which demo will play next (2 bytes)
-Ending_demo_number:		ds.w	1 ; zone for the ending demos (2 bytes, unused)
-				ds.w	1
-Graphics_Flags:			ds.w	1 ; misc. bitfield
-Debug_mode_flag:		ds.w	1 ; (2 bytes)
+V_Int_Opcode:			ds.w	1
+V_Int_Address:			ds.l	1
+H_Int_Opcode:			ds.w	1
+H_Int_Address:			ds.l	1
+
 Checksum_fourcc:		ds.l	1 ; (4 bytes)
 
 RAM_End

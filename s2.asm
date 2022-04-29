@@ -13,12 +13,14 @@
 ; symbols. Your brain may melt if you don't know how those work.
 ;
 ; See s2.notes.txt for more comments about this disassembly and other useful info.
+;
+; Differences from regular Sonic 2 are marked with 'KiS2'.
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; ASSEMBLY OPTIONS:
 ;
     ifndef gameRevision
-gameRevision = 1
+gameRevision = 2
     endif
 ;	| If 0, a REV00 ROM is built
 ;	| If 1, a REV01 ROM is built, which contains some fixes
@@ -41,7 +43,7 @@ zeroOffsetOptimization = 0|allOptimizations
 removeJmpTos = 0|(gameRevision=2)|allOptimizations
 ;	| If 1, many unnecessary JmpTos are removed, improving performance
 ;
-addsubOptimize = 0|(gameRevision=2)|allOptimizations
+addsubOptimize = 0;|(gameRevision=2)|allOptimizations ; TODO
 ;	| If 1, some add/sub instructions are optimized to addq/subq
 ;
 relativeLea = 0|(gameRevision<>2)|allOptimizations
@@ -67,317 +69,58 @@ useFullWaterTables = 0
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; start of ROM
 
-StartOfRom:
-    if * <> 0
-	fatal "StartOfRom was $\{*} but it should be 0"
-    endif
-Vectors:
-	dc.l System_Stack	; Initial stack pointer value
-	dc.l EntryPoint		; Start of program
-	dc.l ErrorTrap		; Bus error
-	dc.l ErrorTrap		; Address error (4)
-	dc.l ErrorTrap		; Illegal instruction
-	dc.l ErrorTrap		; Division by zero
-	dc.l ErrorTrap		; CHK exception
-	dc.l ErrorTrap		; TRAPV exception (8)
-	dc.l ErrorTrap		; Privilege violation
-	dc.l ErrorTrap		; TRACE exception
-	dc.l ErrorTrap		; Line-A emulator
-	dc.l ErrorTrap		; Line-F emulator (12)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved) (16)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved) (20)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved) (24)
-	dc.l ErrorTrap		; Spurious exception
-	dc.l ErrorTrap		; IRQ level 1
-	dc.l ErrorTrap		; IRQ level 2
-	dc.l ErrorTrap		; IRQ level 3 (28)
-	dc.l H_Int			; IRQ level 4 (horizontal retrace interrupt)
-	dc.l ErrorTrap		; IRQ level 5
-	dc.l V_Int			; IRQ level 6 (vertical retrace interrupt)
-	dc.l ErrorTrap		; IRQ level 7 (32)
-	dc.l ErrorTrap		; TRAP #00 exception
-	dc.l ErrorTrap		; TRAP #01 exception
-	dc.l ErrorTrap		; TRAP #02 exception
-	dc.l ErrorTrap		; TRAP #03 exception (36)
-	dc.l ErrorTrap		; TRAP #04 exception
-	dc.l ErrorTrap		; TRAP #05 exception
-	dc.l ErrorTrap		; TRAP #06 exception
-	dc.l ErrorTrap		; TRAP #07 exception (40)
-	dc.l ErrorTrap		; TRAP #08 exception
-	dc.l ErrorTrap		; TRAP #09 exception
-	dc.l ErrorTrap		; TRAP #10 exception
-	dc.l ErrorTrap		; TRAP #11 exception (44)
-	dc.l ErrorTrap		; TRAP #12 exception
-	dc.l ErrorTrap		; TRAP #13 exception
-	dc.l ErrorTrap		; TRAP #14 exception
-	dc.l ErrorTrap		; TRAP #15 exception (48)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved) (52)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved) (56)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved) (60)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved) (64)
-; byte_100:
-Header:
-	dc.b "SEGA GENESIS    " ; Console name
-	dc.b "(C)SEGA 1992.SEP" ; Copyright holder and release date (generally year)
-	dc.b "SONIC THE             HEDGEHOG 2                " ; Domestic name
-	dc.b "SONIC THE             HEDGEHOG 2                " ; International name
-    if gameRevision=0
-	dc.b "GM 00001051-00"   ; Version (REV00)
-    elseif gameRevision=1
-	dc.b "GM 00001051-01"   ; Version (REV01)
-    elseif gameRevision=2
-	dc.b "GM 00001051-02"   ; Version (REV02)
-    endif
-; word_18E
-Checksum:
-	dc.w $D951		; Checksum (patched later if incorrect)
-	dc.b "J               " ; I/O Support
-	dc.l StartOfRom		; Start address of ROM
-; dword_1A4
-ROMEndLoc:
-	dc.l EndOfRom-1		; End address of ROM
-	dc.l RAM_Start&$FFFFFF		; Start address of RAM
-	dc.l (RAM_End-1)&$FFFFFF		; End address of RAM
-	dc.b "    "		; Backup RAM ID
-	dc.l $20202020		; Backup RAM start address
-	dc.l $20202020		; Backup RAM end address
-	dc.b "            "	; Modem support
-	dc.b "                                        "	; Notes (unused, anything can be put in this space, but it has to be 52 bytes.)
-	dc.b "JUE             " ; Country code (region)
-EndOfHeader:
+	binclude "sks2.bin"
 
-; ===========================================================================
-; Crash/Freeze the 68000. Note that the Z80 continues to run, so the music keeps playing.
-; loc_200:
-ErrorTrap:
-	nop	; delay
-	nop	; delay
-	bra.s	ErrorTrap	; Loop indefinitely.
+	; KiS2: The header and much of the initialisation code are gone.
 
-; ===========================================================================
 ; loc_206:
-EntryPoint:
-	tst.l	(HW_Port_1_Control-1).l	; test ports A and B control
-	bne.s	PortA_Ok	; If so, branch.
-	tst.w	(HW_Expansion_Control-1).l	; test port C control
-; loc_214:
-PortA_Ok:
-	bne.s	PortC_OK ; Skip the VDP and Z80 setup code if port A, B or C is ok...?
-	lea	SetupValues(pc),a5	; Load setup values array address.
-	movem.w	(a5)+,d5-d7
-	movem.l	(a5)+,a0-a4
-	move.b	HW_Version-Z80_Bus_Request(a1),d0	; Get hardware version
-	andi.b	#$F,d0	; Compare
-	beq.s	SkipSecurity	; If the console has no TMSS, skip the security stuff.
-	move.l	#'SEGA',Security_Addr-Z80_Bus_Request(a1) ; Satisfy the TMSS
-; loc_234:
-SkipSecurity:
-	move.w	(a4),d0	; check if VDP works
-	moveq	#0,d0	; clear d0
-	movea.l	d0,a6	; clear a6
-	move.l	a6,usp	; set usp to $0
+;EntryPoint:
+	; KiS2: Some unique initialisation code.
 
-	moveq	#VDPInitValues_End-VDPInitValues-1,d1 ; run the following loop $18 times
-; loc_23E:
-VDPInitLoop:
-	move.b	(a5)+,d5	; add $8000 to value
-	move.w	d5,(a4)	; move value to VDP register
-	add.w	d7,d5	; next register
-	dbf	d1,VDPInitLoop
+	; Set the stack register to point to Sonic 2's stack region.
+	lea	(System_Stack).w,sp
 
-	move.l	(a5)+,(a4)	; set VRAM write mode
-	move.w	d0,(a3)	; clear the screen
-	move.w	d7,(a1)	; stop the Z80
-	move.w	d7,(a2)	; reset the Z80
-; loc_250:
-WaitForZ80:
-	btst	d0,(a1)	; has the Z80 stopped?
-	bne.s	WaitForZ80	; if not, branch
+	; Update the V-Int and H-Int jumps.
+	move.w	#$4EF9,(V_Int_Opcode).w
+	move.l	#V_Int,(V_Int_Address).w
+	move.w	#$4EF9,(H_Int_Opcode).w
+	move.l	#H_Int,(H_Int_Address).w
 
-	moveq	#Z80StartupCodeEnd-Z80StartupCodeBegin-1,d2
-; loc_256:
-Z80InitLoop:
-	move.b	(a5)+,(a0)+
-	dbf	d2,Z80InitLoop
-
-	move.w	d0,(a2)
-	move.w	d0,(a1)	; start the Z80
-	move.w	d7,(a2)	; reset the Z80
-
-; loc_262:
-ClrRAMLoop:
-	move.l	d0,-(a6)	; clear 4 bytes of RAM
-	dbf	d6,ClrRAMLoop	; repeat until the entire RAM is clear
-	move.l	(a5)+,(a4)	; set VDP display mode and increment mode
-	move.l	(a5)+,(a4)	; set VDP to CRAM write
-
-	moveq	#bytesToLcnt($80),d3	; set repeat times
-; loc_26E:
-ClrCRAMLoop:
-	move.l	d0,(a3)	; clear 2 palettes
-	dbf	d3,ClrCRAMLoop	; repeat until the entire CRAM is clear
-	move.l	(a5)+,(a4)	; set VDP to VSRAM write
-
-	moveq	#bytesToLcnt($50),d4	; set repeat times
-; loc_278: ClrVDPStuff:
-ClrVSRAMLoop:
-	move.l	d0,(a3)	; clear 4 bytes of VSRAM.
-	dbf	d4,ClrVSRAMLoop	; repeat until the entire VSRAM is clear
-	moveq	#PSGInitValues_End-PSGInitValues-1,d5	; set repeat times.
-; loc_280:
-PSGInitLoop:
-	move.b	(a5)+,PSG_input-VDP_data_port(a3) ; reset the PSG
-	dbf	d5,PSGInitLoop	; repeat for other channels
-	move.w	d0,(a2)
-	movem.l	(a6),d0-a6	; clear all registers
-	move	#$2700,sr	; set the sr
- ; loc_292:
-PortC_OK: ;;
-	bra.s	GameProgram	; Branch to game program.
-; ===========================================================================
-; byte_294:
-SetupValues:
-	dc.w	$8000,bytesToLcnt($10000),$100
-
-	dc.l	Z80_RAM
-	dc.l	Z80_Bus_Request
-	dc.l	Z80_Reset
-	dc.l	VDP_data_port, VDP_control_port
-
-VDPInitValues:	; values for VDP registers
-	dc.b 4			; Command $8004 - HInt off, Enable HV counter read
-	dc.b $14		; Command $8114 - Display off, VInt off, DMA on, PAL off
-	dc.b $30		; Command $8230 - Scroll A Address $C000
-	dc.b $3C		; Command $833C - Window Address $F000
-	dc.b 7			; Command $8407 - Scroll B Address $E000
-	dc.b $6C		; Command $856C - Sprite Table Address $D800
-	dc.b 0			; Command $8600 - Null
-	dc.b 0			; Command $8700 - Background color Pal 0 Color 0
-	dc.b 0			; Command $8800 - Null
-	dc.b 0			; Command $8900 - Null
-	dc.b $FF		; Command $8AFF - Hint timing $FF scanlines
-	dc.b 0			; Command $8B00 - Ext Int off, VScroll full, HScroll full
-	dc.b $81		; Command $8C81 - 40 cell mode, shadow/highlight off, no interlace
-	dc.b $37		; Command $8D37 - HScroll Table Address $DC00
-	dc.b 0			; Command $8E00 - Null
-	dc.b 1			; Command $8F01 - VDP auto increment 1 byte
-	dc.b 1			; Command $9001 - 64x32 cell scroll size
-	dc.b 0			; Command $9100 - Window H left side, Base Point 0
-	dc.b 0			; Command $9200 - Window V upside, Base Point 0
-	dc.b $FF		; Command $93FF - DMA Length Counter $FFFF
-	dc.b $FF		; Command $94FF - See above
-	dc.b 0			; Command $9500 - DMA Source Address $0
-	dc.b 0			; Command $9600 - See above
-	dc.b $80		; Command $9780	- See above + VRAM fill mode
-VDPInitValues_End:
-
-	dc.l	vdpComm($0000,VRAM,DMA) ; value for VRAM write mode
-
-	; Z80 instructions (not the sound driver; that gets loaded later)
-Z80StartupCodeBegin: ; loc_2CA:
-    if (*)+$26 < $10000
-    save
-    CPU Z80 ; start assembling Z80 code
-    phase 0 ; pretend we're at address 0
-	xor	a	; clear a to 0
-	ld	bc,((Z80_RAM_End-Z80_RAM)-zStartupCodeEndLoc)-1 ; prepare to loop this many times
-	ld	de,zStartupCodeEndLoc+1	; initial destination address
-	ld	hl,zStartupCodeEndLoc	; initial source address
-	ld	sp,hl	; set the address the stack starts at
-	ld	(hl),a	; set first byte of the stack to 0
-	ldir		; loop to fill the stack (entire remaining available Z80 RAM) with 0
-	pop	ix	; clear ix
-	pop	iy	; clear iy
-	ld	i,a	; clear i
-	ld	r,a	; clear r
-	pop	de	; clear de
-	pop	hl	; clear hl
-	pop	af	; clear af
-	ex	af,af'	; swap af with af'
-	exx		; swap bc/de/hl with their shadow registers too
-	pop	bc	; clear bc
-	pop	de	; clear de
-	pop	hl	; clear hl
-	pop	af	; clear af
-	ld	sp,hl	; clear sp
-	di		; clear iff1 (for interrupt handler)
-	im	1	; interrupt handling mode = 1
-	ld	(hl),0E9h ; replace the first instruction with a jump to itself
-	jp	(hl)	  ; jump to the first instruction (to stay there forever)
-zStartupCodeEndLoc:
-    dephase ; stop pretending
-	restore
-    padding off ; unfortunately our flags got reset so we have to set them again...
-    else ; due to an address range limitation I could work around but don't think is worth doing so:
-	message "Warning: using pre-assembled Z80 startup code."
-	dc.w $AF01,$D91F,$1127,$0021,$2600,$F977,$EDB0,$DDE1,$FDE1,$ED47,$ED4F,$D1E1,$F108,$D9C1,$D1E1,$F1F9,$F3ED,$5636,$E9E9
-    endif
-Z80StartupCodeEnd:
-
-	dc.w	$8104	; value for VDP display mode
-	dc.w	$8F02	; value for VDP increment
-	dc.l	vdpComm($0000,CRAM,WRITE)	; value for CRAM write mode
-	dc.l	vdpComm($0000,VSRAM,WRITE)	; value for VSRAM write mode
-
-PSGInitValues:
-	dc.b	$9F,$BF,$DF,$FF	; values for PSG channel volumes
-PSGInitValues_End:
-; ===========================================================================
-
-	even
-; loc_300:
-GameProgram:
-	tst.w	(VDP_control_port).l
-; loc_306:
-CheckSumCheck:
-    if gameRevision>0
-	move.w	(VDP_control_port).l,d1
-	btst	#1,d1
-	bne.s	CheckSumCheck	; wait until DMA is completed
-    endif
 	btst	#6,(HW_Expansion_Control).l
 	beq.s	ChecksumTest
-	cmpi.l	#'init',(Checksum_fourcc).w ; has checksum routine already run?
+	; KiS2: This code was changed from 'init' to 's2md'. Cute. This is presumably short for 'Sonic 2 Mega Drive'.
+	cmpi.l	#'s2md',(Checksum_fourcc).w ; has checksum routine already run?
 	beq.w	GameInit
 
 ; loc_328:
 ChecksumTest:
     if skipChecksumCheck=0	; checksum code
-	movea.l	#EndOfHeader,a0	; start checking bytes after the header ($200)
-	movea.l	#ROMEndLoc,a1	; stop at end of ROM
+	; TODO - Stop using hardcoded addresses.
+	movea.l	#$200,a0	; start checking bytes after the header ($200)
+	movea.l	#$1A4,a1	; stop at end of ROM
 	move.l	(a1),d0
 	moveq	#0,d1
 ; loc_338:
 ChecksumLoop:
 	add.w	(a0)+,d1
 	cmp.l	a0,d0
+    if 1
+	; KiS2: The checksum was dummied out.
+	nop
+	nop
+    else
 	bhs.s	ChecksumLoop
-	movea.l	#Checksum,a1	; read the checksum
+    endif
+	movea.l	#$18E,a1	; read the checksum
 	cmp.w	(a1),d1	; compare correct checksum to the one in ROM
+    if 1
+	; KiS2: Ditto.
+	nop
+	nop
+    else
 	bne.w	ChecksumError	; if they don't match, branch
     endif
-;checksum_good:
+    endif
 	lea	(System_Stack).w,a6
 	moveq	#0,d7
 
@@ -388,9 +131,12 @@ ChecksumLoop:
 	move.b	(HW_Version).l,d0
 	andi.b	#$C0,d0
 	move.b	d0,(Graphics_Flags).w
-	move.l	#'init',(Checksum_fourcc).w ; set flag so checksum won't be run again
+	; KiS2: This code was changed from 'init' to 's2md' too.
+	move.l	#'s2md',(Checksum_fourcc).w ; set flag so checksum won't be run again
 ; loc_370:
 GameInit:
+    if 0
+	; KiS2: KiS2 doesn't clear memory here.
 	lea	(RAM_Start&$FFFFFF).l,a6
 	moveq	#0,d7
 	move.w	#bytesToLcnt(System_Stack&$FFFF),d6
@@ -398,6 +144,7 @@ GameInit:
 GameClrRAM:
 	move.l	d7,(a6)+
 	dbf	d6,GameClrRAM	; clear RAM ($0000-$FDFF)
+    endif
 
 	bsr.w	VDPSetupGame
 	bsr.w	JmpTo_SoundDriverLoad
@@ -424,6 +171,25 @@ GameMode_EndingSequence:bra.w	JmpTo_EndingSequence	; End sequence mode
 GameMode_OptionsMenu:	bra.w	OptionsMenu		; Options mode
 GameMode_LevelSelect:	bra.w	LevelSelectMenu		; Level select mode
 ; ===========================================================================
+    if 1
+; KiS2: For some reason these were moved from below.
+; loc_3F0:
+LevelSelectMenu2P: ;;
+	jmp	(MenuScreen).l
+; ===========================================================================
+; loc_3F6:
+JmpTo_EndingSequence ; JmpTo
+	jmp	(EndingSequence).l
+; ===========================================================================
+; loc_3FC:
+OptionsMenu: ;;
+	jmp	(MenuScreen).l
+; ===========================================================================
+; loc_402:
+LevelSelectMenu: ;;
+	jmp	(MenuScreen).l
+    endif
+; ===========================================================================
     if skipChecksumCheck=0	; checksum error code
 ; loc_3CE:
 ChecksumError:
@@ -441,6 +207,8 @@ ChecksumFailed_Loop:
 	bra.s	ChecksumFailed_Loop
     endif
 ; ===========================================================================
+    if 0
+; KiS2: For some reason these were moved to above.
 ; loc_3F0:
 LevelSelectMenu2P: ;;
 	jmp	(MenuScreen).l
@@ -456,12 +224,18 @@ OptionsMenu: ;;
 ; loc_402:
 LevelSelectMenu: ;;
 	jmp	(MenuScreen).l
+    endif
 ; ===========================================================================
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; vertical and horizontal interrupt handlers
 ; VERTICAL INTERRUPT HANDLER:
 V_Int:
+    if 1
+	; KiS2. A NOP was added here, for some reason.
+	nop
+    endif
+
 	movem.l	d0-a6,-(sp)
 	tst.b	(Vint_routine).w
 	beq.w	Vint_Lag
@@ -1355,11 +1129,20 @@ ClearScreen:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+; KiS2: This patches the sound driver to read data from the Sonic 2
+; ROM's new position at $200000.
+
 ; JumpTo load the sound driver
 ; sub_130A:
 JmpTo_SoundDriverLoad ; JmpTo
 	nop
+    if 1
+	; KiS2, use a 'jsr', so that we can enter the following code
+	; afterwards.
+	jsr	(SoundDriverLoad).l
+    else
 	jmp	(SoundDriverLoad).l
+    endif
 ; End of function JmpTo_SoundDriverLoad
 
 ; ===========================================================================
@@ -1368,11 +1151,27 @@ JmpTo_SoundDriverLoad ; JmpTo
 	move.w	#$100,(Z80_Bus_Request).l ; stop the Z80
 	move.w	#$100,(Z80_Reset).l ; reset the Z80
 	lea	(Z80_RAM).l,a1
+
+    if 1
+	; KiS2: Patch the sound driver's various bankswitches so that they
+	; point to the ROM's new location.
+	moveq	#signextendB($73),d0	; The Z80 'ld (hl),e' instruction
+	move.b	d0,$A0(a1)
+	move.b	d0,$D8(a1)
+	move.b	d0,$632(a1)
+	move.b	d0,$700(a1)
+	move.b	d0,$981(a1)
+	move.b	d0,$C75(a1)
+	move.b	d0,$C85(a1)
+	move.b	d0,$F45(a1)
+    else
 	move.b	#$F3,(a1)+	; di
 	move.b	#$F3,(a1)+	; di
 	move.b	#$C3,(a1)+	; jp
 	move.b	#0,(a1)+	; jp address low byte
 	move.b	#0,(a1)+	; jp address high byte
+    endif
+
 	move.w	#0,(Z80_Reset).l
 	nop
 	nop
@@ -2889,8 +2688,9 @@ CyclingPal_WFZ2:
 
 ; sub_213E:
 PalCycle_SuperSonic:
+	; TODO: Make these 'rts' branches less stupid.
 	move.b	(Super_Sonic_palette).w,d0
-	beq.s	++	; rts	; return, if Sonic isn't super
+	beq.s	+	; rts	; return, if Sonic isn't super
 	bmi.w	PalCycle_SuperSonic_normal	; branch, if fade-in is done
 	subq.b	#1,d0
 	bne.s	PalCycle_SuperSonic_revert	; branch for values greater than 1
@@ -2898,9 +2698,16 @@ PalCycle_SuperSonic:
 	; fade from Sonic's to Super Sonic's palette
 	; run frame timer
 	subq.b	#1,(Palette_timer).w
-	bpl.s	++	; rts
+	bpl.s	+	; rts
 	move.b	#3,(Palette_timer).w
 
+    if 1
+	; KiS2: Of course, the Super palette cycle code has been changed to
+	; suit Super Knuckles.
+	move.b	#-1,(Super_Sonic_palette).w	; mark fade-in as done
+	move.w	#0,(Palette_frame).w
+	move.b	#0,(MainCharacter+obj_control).w	; restore Knuckles' movement
+    else
 	; increment palette frame and update Sonic's palette
 	lea	(CyclingPal_SSTransformation).l,a0
 	move.w	(Palette_frame).w,d0
@@ -2915,10 +2722,19 @@ PalCycle_SuperSonic:
 	move.l	4(a0,d0.w),(a1)
 	; note: the fade in for Sonic's underwater palette is missing.
 	; branch to the code below (*) to fix this
+    endif
+
 /	rts
 ; ===========================================================================
 ; loc_2188:
 PalCycle_SuperSonic_revert:	; runs the fade in transition backwards
+    if 1
+	moveq	#0,d0
+	move.w	d0,(Palette_frame).w
+	move.b	d0,(Super_Sonic_palette).w	; stop palette cycle
+	lea	(CyclingPal_SKRevert).l,a0
+	bra.w	PalCycle_SuperKnuckles_LoadPalette
+    else
 	; run frame timer
 	subq.b	#1,(Palette_timer).w
 	bpl.s	-	; rts
@@ -2946,9 +2762,37 @@ PalCycle_SuperSonic_revert:	; runs the fade in transition backwards
 	move.l	(a0,d0.w),(a1)+
 	move.l	4(a0,d0.w),(a1)
 	rts
+    endif
 ; ===========================================================================
 ; loc_21E6:
 PalCycle_SuperSonic_normal:
+    if 1
+	; run frame timer
+	subq.b	#1,(Palette_timer).w
+	bpl.w	-	; rts
+	move.b	#2,(Palette_timer).w
+
+	; increment palette frame and update Sonic's palette
+	lea	(CyclingPal_SKTransformation).l,a0
+	move.w	(Palette_frame).w,d0
+	addq.w	#6,(Palette_frame).w	; next frame
+	cmpi.w	#$3C,(Palette_frame).w	; is it the last frame?
+	blo.s	+			; if not, branch
+	move.w	#0,(Palette_frame).w	; reset frame counter
+	move.w	#15,(Palette_timer).w
++
+
+PalCycle_SuperKnuckles_LoadPalette:
+	lea	(Normal_palette+4).w,a1
+	move.l	(a0,d0.w),(a1)+
+	move.w	4(a0,d0.w),2(a1)
+	; underwater palettes
+	tst.b	(Water_flag).w
+	beq.w	-
++	lea	(Underwater_palette+4).w,a1
+	move.l	(a0,d0.w),(a1)+
+	move.w	4(a0,d0.w),2(a1)
+    else
 	; run frame timer
 	subq.b	#1,(Palette_timer).w
 	bpl.s	-	; rts
@@ -2975,10 +2819,29 @@ PalCycle_SuperSonic_normal:
 +	lea	(Underwater_palette+4).w,a1
 	move.l	(a0,d0.w),(a1)+
 	move.l	4(a0,d0.w),(a1)
+    endif
+
 	rts
 ; End of function PalCycle_SuperSonic
 
 ; ===========================================================================
+    if 1
+	; KiS2: Custom palettes for Super Knuckles.
+	; TODO: Split these to files.
+;----------------------------------------------------------------------------
+;Palette for transformation to Super Knuckles
+;----------------------------------------------------------------------------
+CyclingPal_SKTransformation:
+	dc.w	$428, $64E, $A6E, $64A,	$86E, $C8E, $86C, $A8E,	$EAE
+	dc.w	$A8E, $CAE, $ECE, $CAE, $ECE, $EEE, $A8E, $CAE, $ECE
+	dc.w	$86C, $A8E, $EAE, $64A, $86E, $C8E, $428, $64E, $A6E
+	dc.w 	$206, $40C, $84E
+;----------------------------------------------------------------------------
+;Palette for reverting from Super Knuckles
+;----------------------------------------------------------------------------
+CyclingPal_SKRevert:
+	dc.w	$206, $20C, $64E
+    else
 ;----------------------------------------------------------------------------
 ;Palette for transformation to Super Sonic
 ;----------------------------------------------------------------------------
@@ -2997,6 +2860,7 @@ CyclingPal_CPZUWTransformation:
 ; Pal_2346:
 CyclingPal_ARZUWTransformation:
 	BINCLUDE	"art/palettes/ARZWater SS transformation.bin"
+    endif
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to fade in from black
@@ -4007,6 +3871,8 @@ TitleScreen:
 	clearRAM Misc_Variables,Misc_Variables_End ; clear CPU player RAM and following variables
 	clearRAM Camera_RAM,Camera_RAM_End ; clear camera RAM and following variables
 
+    if 0
+	; KiS2: No 'Sonic the Hedgehod & Miles "Tails" Prower in' text.
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_CreditText),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_CreditText).l,a0
 	bsr.w	NemDec
@@ -4017,6 +3883,8 @@ TitleScreen:
 	moveq	#PalID_BGND,d0
 	bsr.w	PalLoad_ForFade
 	bsr.w	Pal_FadeFromBlack
+    endif
+
 	move	#$2700,sr
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_Title),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_Title).l,a0
@@ -4033,16 +3901,40 @@ TitleScreen:
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_FontStuff_TtlScr),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_FontStuff).l,a0
 	bsr.w	NemDec
+
+    if 1
+	; KiS2: Load new title screen assets.
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_FontStuff_TtlScr),VRAM,WRITE),(VDP_control_port).l
+	lea	(ArtNem_FontStuff).l,a0
+	bsr.w	NemDec
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_FontStuff_TtlScr),VRAM,WRITE),(VDP_control_port).l
+	lea	(ArtNem_FontStuff).l,a0
+	bsr.w	NemDec
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_FontStuff_TtlScr),VRAM,WRITE),(VDP_control_port).l
+	lea	(ArtNem_FontStuff).l,a0
+	bsr.w	NemDec
+    endif
+
 	move.b	#0,(Last_star_pole_hit).w
 	move.b	#0,(Last_star_pole_hit_2P).w
 	move.w	#0,(Debug_placement_mode).w
 	move.w	#0,(Demo_mode_flag).w
+
+    if 0
+	; KiS2: This unused variable was removed. Huh.
 	move.w	#0,(unk_FFDA).w
+    endif
+
 	move.w	#0,(PalCycle_Timer).w
 	move.w	#0,(Two_player_mode).w
 	move.b	#0,(Level_started_flag).w
+
+    if 0
+	; KiS2: No need to fade since there's no screen here anymore.
 	bsr.w	Pal_FadeToBlack
 	move	#$2700,sr
+    endif
+
 	lea	(Chunk_Table).l,a1
 	lea	(MapEng_TitleScreen).l,a0
 	move.w	#make_art_tile(ArtTile_ArtNem_Title,2,0),d0
@@ -4061,17 +3953,21 @@ TitleScreen:
 	moveq	#$17,d1
 	moveq	#$1B,d2
 	jsrto	PlaneMapToVRAM_H40, PlaneMapToVRAM_H40
+
 	lea	(Chunk_Table).l,a1
 	lea	(MapEng_TitleLogo).l,a0
 	move.w	#make_art_tile(ArtTile_ArtNem_Title,3,1),d0
 	bsr.w	EniDec
 
+    if 0
+	; KiS2: No copyright string processing here.
 	lea	(Chunk_Table+$858).l,a1
 	lea	(CopyrightText).l,a2
 
 	moveq	#bytesToWcnt(CopyrightText_End-CopyrightText),d6
 -	move.w	(a2)+,(a1)+	; load mappings for copyright 1992 sega message
 	dbf	d6,-
+    endif
 
 	lea	(Chunk_Table).l,a1
 	move.l	#vdpComm(VRAM_TtlScr_Plane_A_Name_Table,VRAM,WRITE),d0
@@ -4087,6 +3983,12 @@ TitleScreen:
 	move.w	#0,(Two_player_mode).w
 	move.w	#$280,(Demo_Time_left).w
 	clr.w	(Ctrl_1).w
+
+    if 1
+	; KiS2: Clear an extra variable.
+	clr.b	(Ending_VInt_Subrout).w	; TODO - The addresses were probably shuffled.
+    endif
+
 	move.b	#ObjID_IntroStars,(IntroSonic+id).w ; load Obj0E (flashing intro star)
 	move.b	#2,(IntroSonic+subtype).w				; Sonic
 	jsr	(RunObjects).l
@@ -4170,9 +4072,15 @@ TitleScreen_Loop:
 	move.l	#5000,(Next_Extra_life_score_2P).w
 	move.b	#MusID_FadeOut,d0 ; prepare to stop music (fade out)
 	bsr.w	PlaySound
+
+    if 1
+	; KiS2: There is no title screen menu.
+	move.w	#1,($FFFFFFFE).w
+    else
 	moveq	#0,d0
 	move.b	(Title_screen_option).w,d0
 	bne.s	TitleScreen_CheckIfChose2P	; branch if not a 1-player game
+    endif
 
 	moveq	#0,d0
 	move.w	d0,(Two_player_mode_copy).w
@@ -4196,6 +4104,8 @@ TitleScreen_Loop:
 	move.l	d0,(Got_Emeralds_array+4).w
 	rts
 ; ===========================================================================
+    if 0
+	; KiS2: No title screen menu.
 ; loc_3CF6:
 TitleScreen_CheckIfChose2P:
 	subq.b	#1,d0
@@ -4217,6 +4127,7 @@ TitleScreen_ChoseOptions:
 	move.b	#GameModeID_OptionsMenu,(Game_Mode).w ; => OptionsMenu
 	move.b	#0,(Options_menu_box).w
 	rts
+    endif
 ; ===========================================================================
 ; loc_3D2E:
 TitleScreen_Demo:
@@ -4234,10 +4145,14 @@ TitleScreen_Demo:
 +
 	move.w	#1,(Demo_mode_flag).w
 	move.b	#GameModeID_Demo,(Game_Mode).w ; => Level (Demo mode)
+    if 0
+	; KiS2: This little hack makes the first demo single player instead
+	; of two player.
 	cmpi.w	#emerald_hill_zone_act_1,(Current_ZoneAndAct).w
 	bne.s	+
 	move.w	#1,(Two_player_mode).w
 +
+    endif
 	move.b	#3,(Life_count).w
 	move.b	#3,(Life_count_2P).w
 	moveq	#0,d0
@@ -4284,11 +4199,25 @@ TailsNameCheat:
 ; ===========================================================================
 ; byte_3DEE:
 TailsNameCheat_Buttons:
+    if 1
+	; KiS2: Different cheat code.
+	dc.b	button_up_mask
+	dc.b	button_up_mask
+	dc.b	button_up_mask
+	dc.b	button_down_mask
+	dc.b	button_down_mask
+	dc.b	button_down_mask
+	dc.b	button_left_mask
+	dc.b	button_right_mask
+	dc.b	button_left_mask
+	dc.b	button_right_mask
+    else
 	dc.b	button_up_mask
 	dc.b	button_down_mask
 	dc.b	button_down_mask
 	dc.b	button_down_mask
 	dc.b	button_up_mask
+    endif
 	dc.b	0	; end
 	even
 ; ---------------------------------------------------------------------------------
@@ -4300,6 +4229,8 @@ TailsNameCheat_Buttons:
 ArtNem_Player1VS2:	BINCLUDE	"art/nemesis/1Player2VS.bin"
 	even
 
+    if 0
+	; KiS2: There's no copyright text stuff in this version.
 	charset '0','9',0 ; Add character set for numbers
 	charset '*',$A ; Add character for star
 	charset '@',$B ; Add character for copyright symbol
@@ -4319,6 +4250,7 @@ CopyrightText:
 CopyrightText_End:
 
     charset ; Revert character set
+    endif
 
     if ~~removeJmpTos
 ; sub_3E98:
@@ -4470,10 +4402,13 @@ Level_InitWater:
 	move.w	#$8C81,(a6)		; H res 40 cells, no interlace
 	tst.b	(Debug_options_flag).w
 	beq.s	++
+    if 0
+	; KiS2: No shadow-highlight mode. RIP.
 	btst	#button_C,(Ctrl_1_Held).w
 	beq.s	+
 	move.w	#$8C89,(a6)	; H res 40 cells, no interlace, S/H enabled
 +
+    endif
 	btst	#button_A,(Ctrl_1_Held).w
 	beq.s	+
 	move.b	#1,(Debug_mode_flag).w
@@ -4544,6 +4479,13 @@ Level_PlayBgm:
 	move.b	#ObjID_TitleCard,(TitleCard+id).w ; load Obj34 (level title card) at $FFFFB080
 ; loc_40DA:
 Level_TtlCard:
+titlecard_x_target     = objoff_30	; the X position the object will reach
+titlecard_x_source     = objoff_32	; the X position the object starts from and will end at
+titlecard_location     = objoff_34	; point up to which titlecard is drawn
+titlecard_vram_dest    = objoff_36	; target of VRAM write
+titlecard_vram_dest_2P = objoff_38	; target of VRAM write
+titlecard_split_point  = objoff_3A	; point to split drawing for yellow and red portions
+titlecard_leaveflag    = objoff_3E	; whether or not titlecard is leaving screen
 	move.b	#VintID_TitleCard,(Vint_routine).w
 	bsr.w	WaitForVint
 	jsr	(RunObjects).l
@@ -5094,8 +5036,21 @@ WindTunnel:
 	move.w	#0,y_vel(a1)
 	move.b	#AniIDSonAni_Float2,anim(a1)
 	bset	#1,status(a1)	; set "in-air" bit
+
+    if 1
+	; KiS2: A previously unknown bugfix!
+	bclr	#4,status(a1)	; clear "roll-jumping" bit
+	move.b	#0,knuckles_something(a1)
+    endif
+
 	btst	#button_up,(Ctrl_1_Held).w	; is Up being pressed?
 	beq.s	+				; if not, branch
+    if 1
+	; KiS2: Another bugfix!
+	move.w	y_pos(a1),d2
+	cmp.w	windtunnel_min_y_pos(a2),d2
+	bls.w	+
+    endif
 	subq.w	#1,y_pos(a1)	; move up
 +
 	btst	#button_down,(Ctrl_1_Held).w	; is Down being pressed?
@@ -5354,6 +5309,8 @@ MoveDemo_On_P1:
 	addq.w	#2,(Demo_button_index).w ; advance to next button press
 ; loc_4908:
 MoveDemo_On_P2:
+    if 0
+	; KiS2: No support for a second player during the demos.
     if emerald_hill_zone_act_1<$100 ; will it fit within a byte?
 	cmpi.b	#emerald_hill_zone_act_1,(Current_Zone).w
     else
@@ -5382,6 +5339,7 @@ MoveDemo_On_P2:
 ; ===========================================================================
 ; loc_4940:
 MoveDemo_On_SkipP2:
+    endif
 	move.w	#0,(Ctrl_2).w
 	rts
 ; End of function MoveSonicInDemo
@@ -9221,6 +9179,7 @@ SSHUD_SonicTails:
 ; -----------------------------------------------------------------------------------
 ; sprite mappings
 ; -----------------------------------------------------------------------------------
+; KiS2: These sprite mappings have been modified.
 Obj5E_MapUnc_7070:	BINCLUDE "mappings/sprite/obj5E.bin"
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -9260,11 +9219,22 @@ loc_710A:
 	cmpi.w	#0,y_pos(a0)
 	blt.w	JmpTo_DeleteObject
 
+    if 0
+	; KiS2: This was moved as well.
     if removeJmpTos
 JmpTo_DisplaySprite ; JmpTo
     endif
+    endif
 
 	jmpto	DisplaySprite, JmpTo_DisplaySprite
+
+    if 1
+	; KiS2: This JmpTo was moved, for some reason.
+    if removeJmpTos
+JmpTo_DeleteObject ; JmpTo
+	jmp	(DeleteObject).l
+    endif
+    endif
 ; ===========================================================================
 
 ; loc_714A:
@@ -9291,6 +9261,13 @@ Obj5F_Main:
 	move.w	#$48,y_pos(a0)
 	move.b	#4,routine(a0)
 	move.b	#$F,objoff_2A(a0)
+
+    if 1
+	; KiS2: This was moved as well.
+    if removeJmpTos
+JmpTo_DisplaySprite ; JmpTo
+    endif
+    endif
 	jmpto	DisplaySprite, JmpTo_DisplaySprite
 ; ===========================================================================
 
@@ -9304,6 +9281,7 @@ loc_71B4:
 	moveq	#6,d6
 
 ; WARNING: the build script needs editing if you rename this label
+; KiS2: TODO
 word_728C_user: lea	(Obj5F_MapUnc_7240+$4C).l,a2 ; word_728C
 
 	moveq	#2,d3
@@ -9355,9 +9333,12 @@ loc_7218:
 +	rts
 ; ===========================================================================
 
+    if 0
+	; KiS2: This JmpTo was moved, for some reason.
     if removeJmpTos
 JmpTo_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
+    endif
     endif
 
 ; ===========================================================================
@@ -9799,7 +9780,9 @@ SSStartNewAct:
 ; stage, corresponding to the four possible parts of the level. Last part is unused.
 ; ----------------------------------------------------------------------------
 ; Misc_7756:
-SpecialStage_RingReq_Team:
+SpecialStage_RingReq_Team: ; KiS2: TODO - Get rid of this label.
+    if 0
+	; KiS2: No two player mode.
 	dc.b  40, 80,140,120	; 4
 	dc.b  50,100,140,150	; 8
 	dc.b  60,110,160,170	; 12
@@ -9808,6 +9791,7 @@ SpecialStage_RingReq_Team:
 	dc.b  80,140,220,220	; 24
 	dc.b 100,190,210,210	; 28
 	even
+    endif
 ; ----------------------------------------------------------------------------
 ; Ring requirement values for Sonic or Tails alone games
 ;
@@ -9817,6 +9801,18 @@ SpecialStage_RingReq_Team:
 ; ----------------------------------------------------------------------------
 ; Misc_7772:
 SpecialStage_RingReq_Alone:
+    if 1
+	; KiS2: The Special Stage ring requirements were lowered, to make
+	; them less ball-bustingly hard. Oddly, even the unused fourth ring
+	; requirements were updated.
+	dc.b  30, 70,130,110	; 4
+	dc.b  50, 90,130,130	; 8
+	dc.b  50,100,140,160	; 12
+	dc.b  40, 90,140,150	; 16
+	dc.b  40, 80,130,130	; 20
+	dc.b  70,130,170,170	; 24
+	dc.b  50,100,140,140	; 28
+    else
 	dc.b  30, 70,130,110	; 4
 	dc.b  50,100,140,140	; 8
 	dc.b  50,110,160,160	; 12
@@ -9824,6 +9820,7 @@ SpecialStage_RingReq_Alone:
 	dc.b  50, 90,160,160	; 20
 	dc.b  80,140,210,210	; 24
 	dc.b 100,150,190,190	; 28
+    endif
 	even
 
 ; special stage palette table
@@ -9916,7 +9913,12 @@ used := used|1<<strstr(llookup,"char")	; if not, mark it as used
 
 ;word_7822:
 SpecialStage_ResultsLetters:
+    if 1
+	; KiS2: Letters added for Knuckles' name.
+	titleLetters	"ACDGHILMPRSTUW.KN"
+    else
 	titleLetters	"ACDGHILMPRSTUW."
+    endif
 
  charset ; revert character set
 
@@ -10003,8 +10005,11 @@ ContinueScreen:
 	clr.l	(Camera_X_pos_copy).w
 	move.l	#$1000000,(Camera_Y_pos_copy).w
 	move.b	#ObjID_ContinueChars,(MainCharacter+id).w ; load ObjDB (Sonic on continue screen)
+    if 0
+	; KiS2: No Tails on the Continue screen.
 	move.b	#ObjID_ContinueChars,(Sidekick+id).w ; load ObjDB (Tails on continue screen)
 	move.b	#6,(Sidekick+routine).w ; => ObjDB_Tails_Init
+    endif
 	move.b	#ObjID_ContinueText,(ContinueText+id).w ; load ObjDA (continue screen text)
 	move.b	#ObjID_ContinueIcons,(ContinueIcons+id).w ; load ObjDA (continue icons)
 	move.b	#4,(ContinueIcons+routine).w ; => loc_7AD0
@@ -10227,9 +10232,12 @@ ObjDB_Index:	offsetTable
 		offsetTableEntry.w ObjDB_Sonic_Init	;  0
 		offsetTableEntry.w ObjDB_Sonic_Wait	;  2
 		offsetTableEntry.w ObjDB_Sonic_Run	;  4
+    if 0
+		; KiS2: No Tails on the Continue screen.
 		offsetTableEntry.w ObjDB_Tails_Init	;  6
 		offsetTableEntry.w ObjDB_Tails_Wait	;  8
 		offsetTableEntry.w ObjDB_Tails_Run	; $A
+    endif
 ; ===========================================================================
 ; loc_7BA2:
 ObjDB_Sonic_Init:
@@ -10271,6 +10279,8 @@ ObjDB_Sonic_Run:
 	jsr	(Sonic_Animate).l
 	jmp	(LoadSonicDynPLC).l
 ; ===========================================================================
+    if 0
+		; KiS2: No Tails on the Continue screen.
 ; loc_7C22:
 ObjDB_Tails_Init:
 	addq.b	#2,routine(a0) ; => ObjDB_Tails_Wait
@@ -10312,6 +10322,7 @@ ObjDB_Tails_Run:
 	jsr	(ObjectMove).l
 	jsr	(Tails_Animate).l
 	jmp	(LoadTailsDynPLC).l
+    endif
 ; ===========================================================================
 ; animation script for continue screen Tails nagging
 ; off_7CB0
@@ -10338,8 +10349,11 @@ JmpTo_Adjust2PArtPointer ; JmpTo
 
 
 ; ===========================================================================
+; KiS2: TODO - Get rid of this label.
 ; loc_7D50:
 TwoPlayerResults:
+    if 0
+	; KiS2: This menu is completely gone.
 	bsr.w	Pal_FadeToBlack
 	move	#$2700,sr
 	move.w	(VDP_Reg1_val).w,d0
@@ -11355,7 +11369,14 @@ JmpTo_Dynamic_Normal ; JmpTo
 
 	align 4
     endif
+    endif
 
+	; KiS2: TODO - Unduplicate this.
+	; Menu text
+menutxt	macro	text
+	dc.b	strlen(text)-1
+	dc.b	text
+	endm
 
 
 
@@ -11402,6 +11423,10 @@ MenuScreen:
 	moveq	#$1B,d2
 	jsrto	PlaneMapToVRAM_H40, JmpTo_PlaneMapToVRAM_H40	; fullscreen background
 
+    if 1
+	; KiS2: No two player mode.
+	; Fall straight through to 'MenuScreen_LevelSelect'.
+    else
 	cmpi.b	#GameModeID_OptionsMenu,(Game_Mode).w	; options menu?
 	beq.w	MenuScreen_Options	; if yes, branch
 
@@ -12024,6 +12049,7 @@ off_92EA:
 	dc.l TextOptScr_TeleportOnly
 off_92F2:
 	dc.l TextOptScr_0
+    endif
 ; ===========================================================================
 ; loc_92F6:
 MenuScreen_LevelSelect:
@@ -12074,7 +12100,19 @@ MenuScreen_LevelSelect:
 	move.b	#MusID_Options,d0
 	jsrto	PlayMusic, JmpTo_PlayMusic
 
+    if 1
+	; KiS2: TODO.
+	moveq	#0,d0
+	bsr.w	PlayMusic
+    endif
+
 	move.w	#(30*60)-1,(Demo_Time_left).w	; 30 seconds
+
+    if 1
+	; KiS2: TODO.
+	move.w	#1,(Camera_Y_pos).w
+    endif
+
 	clr.w	(Two_player_mode).w
 	clr.l	(Camera_X_pos).w
 	clr.l	(Camera_Y_pos).w
@@ -12109,6 +12147,11 @@ LevelSelect_Main:	; routine running during level select
 
 	lea	(Anim_SonicMilesBG).l,a2
 	jsrto	Dynamic_Normal, JmpTo2_Dynamic_Normal
+
+    if 1
+	; KiS2: TODO.
+	bsr.w	PlayMusic
+    endif
 
 	move.b	(Ctrl_1_Press).w,d0
 	or.b	(Ctrl_2_Press).w,d0
@@ -12543,6 +12586,21 @@ CheckCheats:	; This is called from 2 places: the options screen and the level se
 +
 	rts
 ; ===========================================================================
+    if 1
+	; KiS2: The terminating byte has been changed from 0 to $FF, so that
+	; 0 can be used as part of the cheat code. Speaking of which, the
+	; cheat codes have been changed.
+level_select_cheat:	dc.b $19, $65,   9, $17, $FF	; 17th September 1965, Yuji Naka's birthdate
+	rev02even
+; byte_97B7
+continues_cheat:	dc.b   1,   1,   2,   4, $FF	; 24th November, Sonic 2's release date in the EU and US: "Sonic 2sday"
+	rev02even
+debug_cheat:		dc.b   1,   9,   9,   4,   1,   0,   1,   8, $FF	; 18th October 1994, Sonic & Knuckles' release date in the EU(?) and US.
+	rev02even
+; byte_97C5
+super_sonic_cheat:	dc.b   1,   6,   7,   7,   7,   2,   1,   6, $FF	; ...I have absolutely no idea what this is a reference to.
+	rev02even
+    else
 level_select_cheat:	dc.b $19, $65,   9, $17,   0	; 17th September 1965, Yuji Naka's birthdate
 	rev02even
 ; byte_97B7
@@ -12553,7 +12611,10 @@ debug_cheat:		dc.b   1,   9,   9,   2,   1,   1,   2,   4,   0	; 24th November 1
 ; byte_97C5
 super_sonic_cheat:	dc.b   4,   1,   2,   6,   0	; Book of Genesis, 41:26
 	rev02even
+    endif
 
+    if 0
+	; KiS2: No two player mode.
 	; set the character set for menu text
 	charset '@',"\27\30\31\32\33\34\35\36\37\38\39\40\41\42\43\44\45\46\47\48\49\50\51\52\53\54\55"
 	charset '0',"\16\17\18\19\20\21\22\23\24\25"
@@ -12577,11 +12638,14 @@ TextOptScr_SoundTest:		menutxt	"*  SOUND TEST   *"	; byte_985E:
 TextOptScr_0:			menutxt	"      00       "	; byte_9870:
 
 	charset ; reset character set
+    endif
 
 ; level select picture palettes
 ; byte_9880:
 Pal_LevelIcons:	BINCLUDE "art/palettes/Level Select Icons.bin"
 
+    if 0
+	; KiS2: No two player mode or options menu.
 ; 2-player level select screen mappings (Enigma compressed)
 ; byte_9A60:
 	even
@@ -12591,6 +12655,7 @@ MapEng_LevSel2P:	BINCLUDE "mappings/misc/Level Select 2P.bin"
 ; byte_9AB2:
 	even
 MapEng_Options:	BINCLUDE "mappings/misc/Options Screen.bin"
+    endif
 
 ; level select screen mappings (Enigma compressed)
 ; byte_9ADE:
@@ -12602,6 +12667,13 @@ MapEng_LevSel:	BINCLUDE "mappings/misc/Level Select.bin"
 	even
 MapEng_LevSelIcon:	BINCLUDE "mappings/misc/Level Select Icons.bin"
 	even
+
+    if 1
+	; KiS2: I don't know. New plane map data, maybe? TODO
+	dc.b	$00, $00, $FF, $27, $CD, $2C, $00, $20
+	dc.b	$06, $0A, $00, $C7, $0A, $05, $14, $05
+	dc.b	$1E, $C7, $14, $05, $0A, $05
+    endif
 
     if ~~removeJmpTos
 JmpTo_PlaySound ; JmpTo
@@ -12658,6 +12730,11 @@ EndingSequence:
 	move.b	#$F,(Palette_timer).w
 	move.w	#$30,(Palette_frame).w
 +
+    if 1
+	; KiS2: TODO
+	clr.w	(Ending_Routine).w
+    else
+	bsr.w	
 	moveq	#0,d0
 	cmpi.w	#2,(Player_mode).w
 	beq.s	+
@@ -12672,6 +12749,7 @@ EndingSequence:
 	addq.w	#2,d0
 +
 	move.w	d0,(Ending_Routine).w
+    endif
 	bsr.w	EndingSequence_LoadCharacterArt
 	bsr.w	EndingSequence_LoadFlickyArt
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_EndingFinalTornado),VRAM,WRITE),(VDP_control_port).l
@@ -12857,6 +12935,18 @@ EndgameCredits:
 	move.l	#vdpComm($0000,VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_EndingTitle).l,a0
 	jsrto	NemDec, JmpTo_NemDec
+    if 1
+	; KiS2: TODO
+	move.l	#vdpComm($0000,VRAM,WRITE),(VDP_control_port).l
+	lea	(ArtNem_EndingTitle).l,a0
+	bsr.w	*
+	move.l	#vdpComm($0000,VRAM,WRITE),(VDP_control_port).l
+	lea	(ArtNem_EndingTitle).l,a0
+	bsr.w	*
+	move.l	#vdpComm($0000,VRAM,WRITE),(VDP_control_port).l
+	lea	(ArtNem_EndingTitle).l,a0
+	bsr.w	*
+    endif
 	lea	(MapEng_EndGameLogo).l,a0
 	lea	(Chunk_Table).l,a1
 	move.w	#0,d0
@@ -12866,17 +12956,60 @@ EndgameCredits:
 	moveq	#$F,d1
 	moveq	#5,d2
 	jsrto	PlaneMapToVRAM_H40, JmpTo2_PlaneMapToVRAM_H40
+
+    if 1
+	; KiS2: TODO
+	lea	(MainCharacter).w,a1
+	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#$16,subtype(a1)
+	tst.b	(0).w
+	bne.s	+
+	lea	(Sidekick).w,a1
+	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#$18,subtype(a1)
++
+    endif
+
 	clr.w	(CreditsScreenIndex).w
 	bsr.w	EndgameLogoFlash
 
-	move.w	#$3B,d0
--	move.b	#VintID_Ending,(Vint_routine).w
-	bsr.w	WaitForVint
-	dbf	d0,-
+    if 1
+	; KiS2: TODO
+	lea	Pal_KiS2_Ending(pc),a1
+	lea	(Normal_palette).w,a2
+	moveq	#bytesToLcnt(palette_line_size),d0
 
-	move.w	#$257,d6
+-	move.l	(a1)+,(a2)+
+	dbf	d0,-
+    endif
+
+    if 1
+	move.w	#$3B,(Demo_Time_left).w
+    else
+	move.w	#$3B,d0
+    endif
 -	move.b	#VintID_Ending,(Vint_routine).w
 	bsr.w	WaitForVint
+    if 1
+	jsr	(0).l
+	jsr	(0).l
+	subq.w	#1,(Demo_Time_left).w
+	bpl.s	-
+    else
+	dbf	d0,-
+    endif
+
+    if 1
+	move.w	#$257,(Demo_Time_left).w
+    else
+	move.w	#$257,d6
+    endif
+-	move.b	#VintID_Ending,(Vint_routine).w
+	bsr.w	WaitForVint
+    if 1
+	jsr	(0).l
+	jsr	(0).l
+    endif
 	addq.w	#1,(CreditsScreenIndex).w
 	bsr.w	EndgameLogoFlash
 	cmpi.w	#$5E,(CreditsScreenIndex).w
@@ -12884,7 +13017,12 @@ EndgameCredits:
 	move.b	(Ctrl_1_Press).w,d1
 	andi.b	#button_B_mask|button_C_mask|button_A_mask|button_start_mask,d1
 	bne.s	+
+    if 1
+	subq.w	#1,(Demo_Time_left).w
+	bpl.s	-
+    else
 	dbf	d6,-
+    endif
 +
 	st	(Level_Inactive_flag).w
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
@@ -12940,6 +13078,13 @@ byte_A0EC:
 
 ; palette cycle for the end-of-game logo
 pal_A0FE:	BINCLUDE	"art/palettes/Ending Cycle.bin"
+
+    if 1
+Pal_KiS2_Ending:
+	; KiS2: A new palette TODO
+	dc.w	$0C00, $0000, $0C00, $0E44, $0E66, $0E88, $00EE, $00AE
+	dc.w	$006A, $0026, $0EEE, $0EAA, $000C, $0006, $0002, $00E8
+    endif
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -13282,7 +13427,12 @@ loc_A53A:
 -
 	move.w	d0,y_pos(a1)
 	move.w	x_pos(a0),x_pos(a1)
+    if 1
+	; KiS2: TODO
+	move.w	#$500,anim(a1)
+    else
 	move.l	#$1000505,mapping_frame(a1)
+    endif
 	move.w	#$100,anim_frame_duration(a1)
 	rts
 ; ===========================================================================
@@ -13742,6 +13892,12 @@ loc_AA8A:
 	tst.w	y_pos(a0)
 	bmi.w	JmpTo3_DeleteObject
 	jmpto	DisplaySprite, JmpTo5_DisplaySprite
+
+    if 1
+	; KiS2: TODO
+	jmp	(DisplaySprite).l
+    endif
+
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object CD - Birds from ending sequence
@@ -13885,6 +14041,12 @@ sub_ABBA:
 
 ; sub_ABE2:
 EndingSequence_LoadCharacterArt:
+    if 1
+	; KiS2: TODO
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_EndingCharacter),VRAM,WRITE),(VDP_control_port).l
+	lea	(ArtNem_EndingSonic).l,a0
+	jmpto	NemDec, JmpTo_NemDec
+    else
 	move.w	(Ending_Routine).w,d0
 	move.w	EndingSequence_LoadCharacterArt_Characters(pc,d0.w),d0
 	jmp	EndingSequence_LoadCharacterArt_Characters(pc,d0.w)
@@ -13913,13 +14075,23 @@ EndingSequence_LoadCharacterArt_Tails:
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_EndingCharacter),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_EndingTails).l,a0
 	jmpto	NemDec, JmpTo_NemDec
+    endif
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
 ; sub_AC30:
 EndingSequence_LoadFlickyArt:
+    if 1
+	; KiS2: TODO
+	moveq	#0,d0
+	cmpi.b	#7,(Emerald_count).w
+	bne.s	+
+	moveq	#2,d0
++
+    else
 	move.w	(Ending_Routine).w,d0
+    endif
 	move.w	EndingSequence_LoadFlickyArt_Flickies(pc,d0.w),d0
 	jmp	EndingSequence_LoadFlickyArt_Flickies(pc,d0.w)
 ; End of function EndingSequence_LoadFlickyArt
@@ -13928,7 +14100,10 @@ EndingSequence_LoadFlickyArt:
 EndingSequence_LoadFlickyArt_Flickies: offsetTable
 	offsetTableEntry.w EndingSequence_LoadFlickyArt_Bird	; 0
 	offsetTableEntry.w EndingSequence_LoadFlickyArt_Eagle	; 2
+    if 0
+	; KiS2:
 	offsetTableEntry.w EndingSequence_LoadFlickyArt_Chicken	; 4
+    endif
 ; ===========================================================================
 ; loc_AC42:
 EndingSequence_LoadFlickyArt_Bird:
@@ -13942,11 +14117,14 @@ EndingSequence_LoadFlickyArt_Eagle:
 	lea	(ArtNem_Eagle).l,a0
 	jmpto	NemDec, JmpTo_NemDec
 ; ===========================================================================
+    if 0
+	; KiS2:
 ; loc_AC6A:
 EndingSequence_LoadFlickyArt_Chicken:
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_Animal_2),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_Chicken).l,a0
 	jmpto	NemDec, JmpTo_NemDec
+    endif
 ; ===========================================================================
 Pal_AC7E:	BINCLUDE	"art/palettes/Ending Sonic.bin"
 Pal_AC9E:	BINCLUDE	"art/palettes/Ending Sonic Far.bin"
@@ -13999,6 +14177,7 @@ byte_AD9E:	dc.b   1,  5,  6,$FF
 ; -----------------------------------------------------------------------------
 ; sprite mappings
 ; -----------------------------------------------------------------------------
+; KiS2: These mappings were changed.
 ObjCF_MapUnc_ADA2:	BINCLUDE "mappings/sprite/objCF.bin"
 ; --------------------------------------------------------------------------------------
 ; Enigma compressed art mappings
@@ -14777,6 +14956,8 @@ DeformBgLayer:
 	bsr.w	SetVertiScrollFlags
 
 DeformBgLayerAfterScrollVert:
+    if 0
+	; KiS2: No two player mode.
 	tst.w	(Two_player_mode).w
 	beq.s	loc_C4D0
 	tst.b	(Scroll_lock_P2).w
@@ -14798,6 +14979,7 @@ DeformBgLayerAfterScrollVert:
 	bsr.w	ScrollVerti
 	lea	(Verti_block_crossed_flag_P2).w,a2
 	bsr.w	SetVertiScrollFlags
+    endif
 
 loc_C4D0:
 	bsr.w	RunDynamicLevelEvents
@@ -14899,9 +15081,12 @@ SwScrl_Title:
 ; ===========================================================================
 ; loc_C57E:
 SwScrl_EHZ:
+    if 0
+	; KiS2: No two player mode.
 	; Use different background scrolling code for two player mode.
 	tst.w	(Two_player_mode).w
 	bne.w	SwScrl_EHZ_2P
+    endif
 
 	; Update the background's vertical scrolling.
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
@@ -15030,7 +15215,8 @@ SwScrl_EHZ:
 	; 22+58+21+11+16+16+15+18+45=222.
 	; Only 222 out of 224 lines have been processed.
 
-    if fixBugs
+	; KiS2: The Emerald Hill Zone background bug is fix in this game.
+    if fixBugs|1
 	; The bottom two lines haven't had their H-scroll values set.
 	; Knuckles in Sonic 2 fixes this with the following code:
 	move.w	d4,(a1)+
@@ -15051,6 +15237,8 @@ SwScrl_RippleData:
 	dc.b   1,  2	; 66
 	even
 ; ===========================================================================
+    if 0
+	; KiS2: No two player mode.
 ; loc_C6C4:
 SwScrl_EHZ_2P:
 	; Make the 'ripple' animate every 8 frames.
@@ -15186,6 +15374,7 @@ SwScrl_EHZ_2P:
 
 	rts
 ; End of function sub_C71A
+    endif
 
 ; ===========================================================================
 ; unused...
@@ -15425,9 +15614,12 @@ SwScrl_WFZ_Normal_Array:
 ; ===========================================================================
 ; loc_C964:
 SwScrl_HTZ:
+    if 0
+	; KiS2: No two player mode.
 	; Use different background scrolling code for two player mode.
 	tst.w	(Two_player_mode).w
 	bne.w	SwScrl_HTZ_2P	; never used in normal gameplay
+    endif
 
 	tst.b	(Screen_Shaking_Flag_HTZ).w
 	bne.w	HTZ_Screen_Shake
@@ -15643,6 +15835,8 @@ HTZ_Screen_Shake:
 
 	rts
 ; ===========================================================================
+    if 0
+	; KiS2: No two player mode.
 ; Unused background code for Hill Top Zone in two player mode!
 ; Unfortunately, it doesn't do anything very interesting: it's just a basic,
 ; flat background with no parallax effect.
@@ -15716,6 +15910,7 @@ SwScrl_HTZ_2P:
 	dbf	d1,-
 
 	rts
+    endif
 ; ===========================================================================
 ; unused...
 ; loc_CBA0:
@@ -16024,9 +16219,12 @@ SwScrl_OOZ:
 ; ===========================================================================
 ; loc_CD2C:
 SwScrl_MCZ:
+    if 0
+	; KiS2: No two player mode.
 	; Use different background scrolling code for two player mode.
 	tst.w	(Two_player_mode).w
 	bne.w	SwScrl_MCZ_2P
+    endif
 
 	; Set the flags to dynamically load the background as it moves.
 	; Note that this is only done vertically: Mystic Cave Zone's
@@ -16224,6 +16422,8 @@ SwScrl_MCZ_RowHeights:
 	dc.b 37	; 23
 	even
 ; ===========================================================================
+    if 0
+	; KiS2: No two player mode.
 ; loc_CE84:
 SwScrl_MCZ_2P:
 	; Note that the flags to dynamically load the background as it moves
@@ -16549,12 +16749,16 @@ SwScrl_MCZ2P_RowHeights:
 	dbf	d2,.rowLoop
 
 	rts
+    endif
 ; ===========================================================================
 ; loc_D0C6:
 SwScrl_CNZ:
+    if 0
+	; KiS2: No two player mode.
 	; Use different background scrolling code for two player mode.
 	tst.w	(Two_player_mode).w
 	bne.w	SwScrl_CNZ_2P
+    endif
 
 	; Update 'Camera_BG_Y_pos'.
 	move.w	(Camera_Y_pos).w,d0
@@ -16685,6 +16889,8 @@ SwScrl_CNZ_GenerateScrollValues:
 ; End of function sub_D160
 
 ; ===========================================================================
+    if 0
+	; KiS2: No two player mode.
 ; loc_D194:
 SwScrl_CNZ_2P:
 	; Do player 1's background.
@@ -16854,6 +17060,7 @@ SwScrl_CNZ2P_RowHeights_P2:
 	dc.b   0	; Special (actually has a height of 8)
 	dc.b 120
 	even
+    endif
 ; ===========================================================================
 ; loc_D27C:
 SwScrl_CPZ:
@@ -18127,6 +18334,8 @@ LoadTilesAsYouMove:
 	lea	(Camera_BG3_copy).w,a3
 	bsr.w	Draw_BG3	; used in CPZ deformation routine
 
+    if 0
+	; KiS2: No two player mode.
 	tst.w	(Two_player_mode).w
 	beq.s	+
 	lea	(Scroll_flags_copy_P2).w,a2
@@ -18136,6 +18345,7 @@ LoadTilesAsYouMove:
 	bsr.w	Draw_FG_P2
 
 +
+    endif
 	lea	(Scroll_flags_copy).w,a2
 	lea	(Camera_RAM_copy).w,a3
 	lea	(Level_Layout).w,a4
@@ -18212,6 +18422,8 @@ return_DB5A:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+    if 0
+	; KiS2: No two player mode.
 ;sub_DB5C:
 Draw_FG_P2:
 	tst.b	(a2)
@@ -18256,6 +18468,7 @@ Draw_FG_P2:
 return_DBC0:
 	rts
 ; End of function Draw_FG_P2
+    endif
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -18701,8 +18914,11 @@ BGCameraLookup:
 ; ===========================================================================
 ; loc_DE86:
 DrawBlockColumn_Advanced:
+    if 0
+	; KiS2: No two player mode.
 	tst.w	(Two_player_mode).w
 	bne.s	.doubleResolution
+    endif
 
 	moveq	#(1+224/16+1)-1,d6	; Enough blocks to cover the screen, plus one more on the top and bottom.
 	move.l	#vdpCommDelta($0080),d7
@@ -18735,6 +18951,8 @@ DrawBlockColumn_Advanced:
 	rts
 ; ===========================================================================
 
+    if 0
+	; KiS2: No two player mode.
 .doubleResolution:
 	moveq	#(1+224/16+1)-1,d6	; Enough blocks to cover the screen, plus one more on the top and bottom.
 	move.l	#vdpCommDelta($0080),d7
@@ -18765,6 +18983,7 @@ DrawBlockColumn_Advanced:
 	clr.b	(a2)
 
 	rts
+    endif
 ; End of function Draw_BG3
 
 
@@ -18914,8 +19133,11 @@ DrawBlockColumn:
 	move.l	d0,d1		; copy byte-swapped VDP command for later access
 	bsr.w	GetAddressOfBlockInChunk
 
+    if 0
+	; KiS2: No two player mode.
 	tst.w	(Two_player_mode).w
 	bne.s	.doubleResolution
+    endif
 
 -	move.w	(a0),d3		; get ID of the 16x16 block
 	andi.w	#$3FF,d3
@@ -18937,6 +19159,8 @@ DrawBlockColumn:
 	rts
 ; ===========================================================================
 
+    if 0
+	; KiS2: No two player mode.
 .doubleResolution:
 -	move.w	(a0),d3
 	andi.w	#$3FF,d3
@@ -18956,6 +19180,7 @@ DrawBlockColumn:
 +	dbf	d6,-
 
 	rts
+    endif
 ; End of function DrawBlockColumn
 
 
@@ -18980,8 +19205,11 @@ DrawBlockRow:
 	add.w	4(a3),d4	; add Y pos
 ; loc_DF9A: DrawTiles_Vertical3: DrawBlockRow3:
 .AbsoluteXAbsoluteYCustomWidth:
+    if 0
+	; KiS2: No two player mode.
 	tst.w	(Two_player_mode).w
 	bne.s	.doubleResolution
+    endif
 
 	move.l	a2,-(sp)
 	move.w	d6,-(sp)
@@ -19036,6 +19264,8 @@ DrawBlockRow:
 	movea.l	(sp)+,a2
 	rts
 ; ===========================================================================
+    if 0
+	; KiS2: No two player mode.
 ; loc_E018: DrawBlockRow_2P:
 .doubleResolution:
 	move.l	d0,d1
@@ -19096,6 +19326,7 @@ DrawBlockRow:
 +	dbf	d6,-
 
 	rts
+    endif
 ; End of function DrawBlockRow
 
 
@@ -19291,6 +19522,8 @@ ProcessAndWriteBlock_Vertical:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
+    if 0
+	; KiS2: No two player mode.
 ;sub_E1FA: ProcessAndWriteBlock2_2P:
 ProcessAndWriteBlock_DoubleResolution_Vertical:
 	or.w	d2,d0
@@ -19331,6 +19564,7 @@ ProcessAndWriteBlock_DoubleResolution_Vertical:
 	move.l	d3,(a6)
 	rts
 ; End of function ProcessAndWriteBlock_DoubleResolution_Vertical
+    endif
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -19372,8 +19606,11 @@ CalculateVRAMAddressOfBlockForPlayer1:
 	add.w	(a3),d5		; add X pos
 ; CalcBlockVRAMPos2:
 .AbsoluteX:
+    if 0
+	; KiS2: No two player mode.
 	tst.w	(Two_player_mode).w
 	bne.s	.AbsoluteX_DoubleResolution
+    endif
 	add.w	4(a3),d4	; add Y pos
 ; CalcBlockVRAMPos_NoCamera:
 .AbsoluteXAbsoluteY:
@@ -19388,6 +19625,8 @@ CalculateVRAMAddressOfBlockForPlayer1:
 	move.w	d4,d0		; make word-swapped VDP command
 	rts
 ; ===========================================================================
+    if 0
+	; KiS2: No two player mode.
 ; loc_E2A8: CalcBlockVRAMPos_2P:
 .AbsoluteX_DoubleResolution:
 	add.w	4(a3),d4
@@ -19403,6 +19642,7 @@ CalculateVRAMAddressOfBlockForPlayer1:
 	swap	d0
 	move.w	d4,d0
 	rts
+    endif
 ; End of function CalculateVRAMAddressOfBlockForPlayer1
 
 
@@ -19411,8 +19651,11 @@ CalculateVRAMAddressOfBlockForPlayer1:
 
 ;loc_E2C2: CalcBlockVRAMPosB:
 CalculateVRAMAddressOfBlockForPlayer2:
+    if 0
+	; KiS2: No two player mode.
 	tst.w	(Two_player_mode).w
 	bne.s	.doubleResolution
+    endif
 
 ;.regularResolution:
 	add.w	4(a3),d4
@@ -19428,6 +19671,8 @@ CalculateVRAMAddressOfBlockForPlayer2:
 	move.w	d4,d0
 	rts
 ; ===========================================================================
+    if 0
+	; KiS2: No two player mode.
 ; interestingly, this subroutine was in the Sonic 1 ROM, unused
 .doubleResolution:
 	add.w	4(a3),d4
@@ -19442,6 +19687,7 @@ CalculateVRAMAddressOfBlockForPlayer2:
 	swap	d0
 	move.w	d4,d0
 	rts
+    endif
 ; End of function CalculateVRAMAddressOfBlockForPlayer2
 
 ; ===========================================================================
@@ -19488,10 +19734,13 @@ DrawInitialBG:
 	cmpi.b	#casino_night_zone,(Current_Zone).w
 	beq.w	++
     endif
+    if 0
+	; KiS2: No two player mode.
 	tst.w	(Two_player_mode).w
 	beq.w	+
 	cmpi.b	#mystic_cave_zone,(Current_Zone).w
 	beq.w	DrawInitialBG_LoadWholeBackground_512x512
+    endif
 +
 	moveq	#-16,d4
 +
@@ -19533,6 +19782,8 @@ DrawInitialBG:
 
 	rts
 ; ===========================================================================
+    if 0
+	; KiS2: No two player mode.
 ; loc_E396:
 DrawInitialBG_LoadWholeBackground_512x512:
 	; Mystic Cave Zone loads its entire background at once in two player
@@ -19556,6 +19807,7 @@ DrawInitialBG_LoadWholeBackground_512x512:
 	dbf	d6,-
 
 	rts
+    endif
 ; ===========================================================================
     if fixBugs
 DrawInitialBG_LoadWholeBackground_512x256:
@@ -19613,6 +19865,8 @@ loadZoneBlockMaps:
 	lea	(BM16_HTZ).l,a0
 	jsrto	KosDec, JmpTo_KosDec	; patch for Hill Top Zone block map
 +
+    if 0
+	; KiS2: No two player mode.
 	tst.w	(Two_player_mode).w
 	beq.s	+
 	; In 2P mode, adjust the block table to halve the pattern index on each block
@@ -19628,6 +19882,7 @@ loadZoneBlockMaps:
 	move.w	d0,(a1)+	; change the entry with the adjusted value
 	dbf	d2,-
 +
+    endif
 	move.l	(a2)+,d0
 	andi.l	#$FFFFFF,d0	; pointer to chunk mappings
 	movea.l	d0,a0
@@ -19664,6 +19919,9 @@ loadLevelLayout:
 
 ; ===========================================================================
 
+    if 0
+	; KiS2: It looks like the devs *finally* noticed this old stuff was
+	; here, and removed it.
 ;loadLevelLayout_Sonic1:
 	; This loads level layout data in Sonic 1's format. Curiously, this
 	; function has been changed since Sonic 1: in particular, it repeats
@@ -19845,6 +20103,7 @@ ConvertHalfOf256x256ChunkToTwo128x128Chunks:
 
 	rts
 ; End of function ConvertHalfOf256x256ChunkToTwo128x128Chunks
+    endif
 
 ; ===========================================================================
 
@@ -22326,7 +22585,12 @@ Obj15_State4:
 	beq.w	BranchTo_loc_1000C
 	tst.b	(Oscillating_Data+$18).w
 	bne.w	BranchTo_loc_1000C
+    if 1
+	; KiS2: TODO
+	bsr.w	SingleObjLoad2
+    else
 	jsrto	SingleObjLoad2, JmpTo2_SingleObjLoad2
+    endif
 	bne.s	loc_100E4
 	moveq	#0,d0
 
@@ -22482,6 +22746,29 @@ Obj15_Obj7A_MapUnc_10256:	offsetTable
 	offsetTableEntry.w word_10270
 	offsetTableEntry.w word_1027A
 	offsetTableEntry.w word_1028C
+    if 1
+	; KiS2: These mappings, like the rest of the mappings in this game,
+	; have been converted to S3K's format.
+word_1025E:	dc.w 2
+	dc.w $F809, $6060, $FFE8
+	dc.w $F809, $6860, 0
+word_10270:	dc.w 1
+		dc.w $F805, $6066, $FFF8
+word_1027A:	dc.w 2
+		dc.w $E805, $406A, $FFF4
+		dc.w $F80B, $406E, $FFF4
+word_1028C:	dc.w $A
+		dc.w $A805, $406A, $FFF4
+		dc.w $B80B, $406E, $FFF4
+		dc.w $C805, $6066, $FFF8
+		dc.w $D805, $6066, $FFF8
+		dc.w $E805, $6066, $FFF8
+		dc.w $F805, $6066, $FFF8
+		dc.w $805, $6066, $FFF8
+		dc.w $1805, $6066, $FFF8
+		dc.w $2805, $6066, $FFF8
+		dc.w $3805, $6066, $FFF8
+    else
 word_1025E:	dc.w 2
 	dc.w $F809, $6060, $6030, $FFE8
 	dc.w $F809, $6860, $6830, 0
@@ -22501,6 +22788,7 @@ word_1028C:	dc.w $A
 		dc.w $1805, $6066, $6033, $FFF8
 		dc.w $2805, $6066, $6033, $FFF8
 		dc.w $3805, $6066, $6033, $FFF8
+    endif
 
 ; ----------------------------------------------------------------------------
 ; sprite mappings
@@ -22510,8 +22798,15 @@ Obj15_MapUnc_102DE:	offsetTable
 	offsetTableEntry.w word_10270
 	offsetTableEntry.w word_1027A
 word_102E4:	dc.w 2
+    if 1
+	; KiS2: These mappings, like the rest of the mappings in this game,
+	; have been converted to S3K's format.
+	dc.w $F80D, $6058, $FFE0
+	dc.w $F80D, $6858, 0
+    else
 	dc.w $F80D, $6058, $602C, $FFE0
 	dc.w $F80D, $6858, $682C, 0
+    endif
 
 ; ===========================================================================
 
@@ -26678,13 +26973,13 @@ JmpTo4_PlayMusic ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Object 34 - level title card (screen with red, yellow, and blue)
 ; ----------------------------------------------------------------------------
-titlecard_x_target     = objoff_30	; the X position the object will reach
-titlecard_x_source     = objoff_32	; the X position the object starts from and will end at
-titlecard_location     = objoff_34	; point up to which titlecard is drawn
-titlecard_vram_dest    = objoff_36	; target of VRAM write
-titlecard_vram_dest_2P = objoff_38	; target of VRAM write
-titlecard_split_point  = objoff_3A	; point to split drawing for yellow and red portions
-titlecard_leaveflag    = objoff_3E	; whether or not titlecard is leaving screen
+;titlecard_x_target     = objoff_30	; the X position the object will reach
+;titlecard_x_source     = objoff_32	; the X position the object starts from and will end at
+;titlecard_location     = objoff_34	; point up to which titlecard is drawn
+;titlecard_vram_dest    = objoff_36	; target of VRAM write
+;titlecard_vram_dest_2P = objoff_38	; target of VRAM write
+;titlecard_split_point  = objoff_3A	; point to split drawing for yellow and red portions
+;titlecard_leaveflag    = objoff_3E	; whether or not titlecard is leaving screen
 ; Sprite_13C48:
 Obj34: ; (note: screen-space obj)
 	moveq	#0,d0
@@ -91502,6 +91797,8 @@ Objects_Null:
 
 
 
+	; KiS2: No sound driver.
+    if 0
 ; ---------------------------------------------------------------------------
 ; Subroutine to load the sound driver
 ; ---------------------------------------------------------------------------
@@ -91651,6 +91948,7 @@ Snd_Driver:
 
 ; loc_ED04C:
 Snd_Driver_End:
+    endif
 
 
 
@@ -93836,6 +94134,8 @@ Sound70:	dc.w $0000,$0101
 
 	finishBank
 
+	include "s2.lockon.asm"
+
 ; end of 'ROM'
 	if padToPowerOfTwo && (*)&(*-1)
 		cnop	-1,2<<lastbit(*-1)
@@ -93849,6 +94149,7 @@ paddingSoFar	:= paddingSoFar+1
 		message "ROM size is $\{*} bytes (\{*/1024.0} kb). About $\{paddingSoFar} bytes are padding. "
 	endif
 	; share these symbols externally (WARNING: don't rename, move or remove these labels!)
-	shared word_728C_user,Obj5F_MapUnc_7240,off_3A294,MapRUnc_Sonic,movewZ80CompSize
+	; KiS2: 'movewZ80CompSize' doesn't need to be exported anymore.
+	shared word_728C_user,Obj5F_MapUnc_7240,off_3A294,MapRUnc_Sonic
 EndOfRom:
 	END

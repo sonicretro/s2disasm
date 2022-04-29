@@ -77,7 +77,7 @@ REM // fix some pointers and things that are impossible to fix from the assemble
 IF EXIST s2built.bin "win32/fixpointer" s2.h s2built.bin   off_3A294 MapRUnc_Sonic $2D 0 4   word_728C_user Obj5F_MapUnc_7240 2 2 1
 
 REM REM // fix the rom header (checksum)
-IF EXIST s2built.bin "win32/fixheader" s2built.bin
+REM IF EXIST s2built.bin "win32/fixheader" s2built.bin
 
 REM // if there were errors/warnings, a log file is produced
 IF EXIST s2.log goto LABLERROR4
