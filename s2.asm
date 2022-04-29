@@ -31385,8 +31385,79 @@ RingsMgr_SortRings:
 ; sprite mappings
 ; -------------------------------------------------------------------------------
 
+; Custom mappings format. Compare to Obj25_MapUnc_12382.
+
+; Differences include...
+;  No 'sprite pieces per frame' value (hardcoded to 1)
+
+; This was customised even further in Sonic 3 & Knuckles.
+
 ; off_1736A:
-MapUnc_Rings:	BINCLUDE "mappings/sprite/Rings.bin"
+MapUnc_Rings: offsetTable
+	offsetTableEntry.w .frame1
+	offsetTableEntry.w .frame2
+	offsetTableEntry.w .frame3
+	offsetTableEntry.w .frame4
+	offsetTableEntry.w .frame5
+	offsetTableEntry.w .frame6
+	offsetTableEntry.w .frame7
+	offsetTableEntry.w .frame8
+
+.frame1:
+	dc.b -8
+	dc.b  5
+	dc.w make_block_tile(0,0,0,0,0)
+	dc.w make_block_tile_2p(0,0,0,0,0)
+	dc.w -8
+
+.frame2:
+	dc.b -8
+	dc.b  5
+	dc.w make_block_tile(4,0,0,0,0)
+	dc.w make_block_tile_2p(4,0,0,0,0)
+	dc.w -8
+
+.frame3:
+	dc.b -8
+	dc.b  1
+	dc.w make_block_tile(8,0,0,0,0)
+	dc.w make_block_tile_2p(8,0,0,0,0)
+	dc.w -4
+
+.frame4:
+	dc.b -8
+	dc.b  5
+	dc.w make_block_tile(4,1,0,0,0)
+	dc.w make_block_tile_2p(4,1,0,0,0)
+	dc.w -8
+
+.frame5:
+	dc.b -8
+	dc.b  5
+	dc.w make_block_tile(10,0,0,0,0)
+	dc.w make_block_tile_2p(10,0,0,0,0)
+	dc.w -8
+
+.frame6:
+	dc.b -8
+	dc.b  5
+	dc.w make_block_tile(10,1,1,0,0)
+	dc.w make_block_tile_2p(10,1,1,0,0)
+	dc.w -8
+
+.frame7:
+	dc.b -8
+	dc.b  5
+	dc.w make_block_tile(10,1,0,0,0)
+	dc.w make_block_tile_2p(10,1,0,0,0)
+	dc.w -8
+
+.frame8:
+	dc.b -8
+	dc.b  5
+	dc.w make_block_tile(10,0,1,0,0)
+	dc.w make_block_tile_2p(10,0,1,0,0)
+	dc.w -8
 
     if ~~removeJmpTos
 	align 4
