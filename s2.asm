@@ -24132,7 +24132,12 @@ Obj2D_Main:
 	move.w	d2,d3
 	addq.w	#1,d3
 	move.w	x_pos(a0),d4
+    if 1
+	; KiS2: TODO
+	bsr.w	SolidObject
+    else
 	jsrto	SolidObject, JmpTo2_SolidObject
+    endif
 	bra.w	MarkObjGone                          ; delete object if off screen
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -24776,8 +24781,11 @@ Obj25_Delete:
 
 ; sub_11FC2:
 CollectRing:
+    if 0
+	; KiS2: No Tails.
 	tst.b	parent+1(a0)		; did Tails collect the ring?
 	bne.s	CollectRing_Tails	; if yes, branch
+    endif
 
 CollectRing_Sonic:
 	cmpi.w	#999,(Rings_Collected).w ; did Sonic collect 999 or more rings?
@@ -24820,6 +24828,8 @@ JmpTo_PlaySound2 ; JmpTo
 	rts
 ; ===========================================================================
 
+    if 0
+	; KiS2: No Tails.
 CollectRing_Tails:
 	cmpi.w	#999,(Rings_Collected_2P).w	; did Tails collect 999 or more rings?
 	bhs.s	+				; if yes, branch
@@ -24850,6 +24860,7 @@ CollectRing_Tails:
 
 JmpTo2_PlaySound2 ; JmpTo
 	jmp	(PlaySound2).l
+    endif
 ; End of function CollectRing
 
 ; ===========================================================================
@@ -24997,6 +25008,8 @@ Obj37_Delete:
 
 ; Unused - dead code/data S1 big ring:
 ; ===========================================================================
+    if 0
+	; KiS2: More removed unused code.
 ; BigRing:
 	; a0=object
 	moveq	#0,d0
@@ -25135,6 +25148,7 @@ BigRingFlash_Delete:
 	bra.w	DeleteObject
 
 ; end of dead code/data
+    endif
 
 ; ===========================================================================
 
@@ -25149,6 +25163,8 @@ Ani_Ring:	offsetTable
 ; -------------------------------------------------------------------------------
 Obj25_MapUnc_12382:	BINCLUDE "mappings/sprite/obj37_a.bin"
 
+    if 0
+	; KiS2: More removed unused code.
 ; -------------------------------------------------------------------------------
 ; Unused sprite mappings
 ; -------------------------------------------------------------------------------
@@ -25157,6 +25173,7 @@ Obj37_MapUnc_123E6:	BINCLUDE "mappings/sprite/obj37_b.bin"
 ; Unused sprite mappings
 ; -------------------------------------------------------------------------------
 Obj37_MapUnc_124E6:	BINCLUDE "mappings/sprite/obj37_c.bin"
+    endif
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -25267,7 +25284,10 @@ Obj26_Init:
 	move.b	#$E,x_radius(a0)
 	move.l	#Obj26_MapUnc_12D36,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Powerups,0,0),art_tile(a0)
+    if 0
+	; KiS2: No two-player mode.
 	bsr.w	Adjust2PArtPointer
+    endif
 	move.b	#4,render_flags(a0)
 	move.b	#3,priority(a0)
 	move.b	#$F,width_pixels(a0)
@@ -25275,6 +25295,10 @@ Obj26_Init:
 	lea	(Object_Respawn_Table).w,a2
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
+    if 1
+	; KiS2: Monitors in this game can *not* have respawn entries?
+	beq.s	+
+    endif
 	bclr	#7,2(a2,d0.w)
 	btst	#0,2(a2,d0.w)	; if this bit is set it means the monitor is already broken
 	beq.s	+
@@ -25285,9 +25309,12 @@ Obj26_Init:
 +
 	move.b	#$46,collision_flags(a0)
 	move.b	subtype(a0),anim(a0)	; subtype = icon to display
+    if 0
+	; KiS2: No two player mode.
 	tst.w	(Two_player_mode).w	; is it two player mode?
 	beq.s	Obj26_Main		; if not, branch
 	move.b	#9,anim(a0)		; use '?' icon
+    endif
 ;obj_26_sub_2:
 Obj26_Main:
 	move.b	routine_secondary(a0),d0
@@ -25339,6 +25366,10 @@ SolidObject_Monitor_Sonic:
 ; sub_12768:
 SolidObject_Monitor_Tails:
 	btst	d6,status(a0)			; is Tails standing on the monitor?
+    if 1
+	; KiS2
+	beq.w	SolidObject_cont
+    else
 	bne.s	Obj26_ChkOverEdge		; if yes, branch
 	tst.w	(Two_player_mode).w		; is it two player mode?
 	beq.w	SolidObject_cont		; if not, branch
@@ -25346,6 +25377,7 @@ SolidObject_Monitor_Tails:
 	cmpi.b	#AniIDTailsAni_Roll,anim(a1)	; is Tails spinning?
 	bne.w	SolidObject_cont		; if not, branch
 	rts
+    endif
 ; End of function SolidObject_Monitor_Tails
 
 ; ---------------------------------------------------------------------------
@@ -25443,7 +25475,10 @@ Obj2E_Index:	offsetTable
 Obj2E_Init:
 	addq.b	#2,routine(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Powerups,0,1),art_tile(a0)
+    if 0
+	; KiS2: No two player mode.
 	bsr.w	Adjust2PArtPointer
+    endif
 	move.b	#$24,render_flags(a0)
 	move.b	#3,priority(a0)
 	move.b	#8,width_pixels(a0)
@@ -25451,6 +25486,8 @@ Obj2E_Init:
 	moveq	#0,d0
 	move.b	anim(a0),d0
 
+    if 0
+	; KiS2: No two player mode.
 	tst.w	(Two_player_mode).w	; is it two player mode?
 	beq.s	loc_128C6		; if not, branch
 	; give 'random' item in two player mode
@@ -25472,6 +25509,7 @@ Obj2E_Init:
 	move.b	d0,anim(a0)
 ;loc_128C6:
 loc_128C6:			; Determine correct mappings offset.
+    endif
 	addq.b	#1,d0
 	move.b	d0,mapping_frame(a0)
 	movea.l	#Obj26_MapUnc_12D36,a1
@@ -25549,11 +25587,14 @@ sonic_1up:
 ; gives Tails an extra life in two player mode
 ; ---------------------------------------------------------------------------
 tails_1up:
+    if 0
+	; KiS2: No two player mode.
 	addq.w	#1,(Monitors_Broken_2P).w
 	addq.b	#1,(Life_count_2P).w
 	addq.b	#1,(Update_HUD_lives_2P).w
 	move.w	#MusID_ExtraLife,d0
 	jmp	(PlayMusic).l	; Play extra life music
+    endif
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Super Ring Monitor
@@ -25566,18 +25607,24 @@ super_ring:
 	lea	(Ring_count).w,a2
 	lea	(Update_HUD_rings).w,a3
 	lea	(Extra_life_flags).w,a4
+    if 0
+	; KiS2: No two player mode.
 	cmpa.w	#MainCharacter,a1
 	beq.s	+
 	lea	(Ring_count_2P).w,a2
 	lea	(Update_HUD_rings_2P).w,a3
 	lea	(Extra_life_flags_2P).w,a4
-+	; give player 10 rings
++
+    endif
+	; give player 10 rings
 	addi.w	#10,(a2)
     else
 	lea	(Ring_count).w,a2
 	lea	(Update_HUD_rings).w,a3
 	lea	(Extra_life_flags).w,a4
 	lea	(Rings_Collected).w,a5
+    if 0
+	; KiS2: No two player mode.
 	cmpa.w	#MainCharacter,a1
 	beq.s	+
 	lea	(Ring_count_2P).w,a2
@@ -25585,6 +25632,7 @@ super_ring:
 	lea	(Extra_life_flags_2P).w,a4
 	lea	(Rings_Collected_2P).w,a5
 +
+    endif
 	addi.w	#10,(a5)
 	cmpi.w	#999,(a5)
 	blo.s	+
@@ -25626,13 +25674,18 @@ super_shoes:
 	addq.w	#1,(a2)
 	bset	#status_sec_hasSpeedShoes,status_secondary(a1)	; give super sneakers status
 	move.w	#$4B0,speedshoes_time(a1)
+    if 0
+	; KiS2: No two player mode.
 	cmpa.w	#MainCharacter,a1	; did the main character break the monitor?
 	bne.s	super_shoes_Tails	; if not, branch
 	cmpi.w	#2,(Player_mode).w	; is player using Tails?
 	beq.s	super_shoes_Tails	; if yes, branch
+    endif
 	move.w	#$C00,(Sonic_top_speed).w	; set stats
 	move.w	#$18,(Sonic_acceleration).w
 	move.w	#$80,(Sonic_deceleration).w
+    if 0
+	; KiS2: No two player mode.
 	bra.s	+
 ; ---------------------------------------------------------------------------
 ;loc_12A10:
@@ -25641,6 +25694,7 @@ super_shoes_Tails:
 	move.w	#$18,(Tails_acceleration).w
 	move.w	#$80,(Tails_deceleration).w
 +
+    endif
 	move.w	#MusID_SpeedUp,d0
 	jmp	(PlayMusic).l	; Speed up tempo
 ; ===========================================================================
@@ -25653,16 +25707,22 @@ shield_monitor:
 	bset	#status_sec_hasShield,status_secondary(a1)	; give shield status
 	move.w	#SndID_Shield,d0
 	jsr	(PlayMusic).l
+    if 0
+	; KiS2: No Tails.
 	tst.b	parent+1(a0)
 	bne.s	+
+    endif
 	move.b	#ObjID_Shield,(Sonic_Shield+id).w ; load Obj38 (shield) at $FFFFD180
 	move.w	a1,(Sonic_Shield+parent).w
 	rts
 ; ---------------------------------------------------------------------------
+    if 0
+	; KiS2: No Tails.
 +	; give shield to sidekick
 	move.b	#ObjID_Shield,(Tails_Shield+id).w ; load Obj38 (shield) at $FFFFD1C0
 	move.w	a1,(Tails_Shield+parent).w
 	rts
+    endif
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Invincibility Monitor
@@ -25681,15 +25741,21 @@ invincible_monitor:
 	move.w	#MusID_Invincible,d0
 	jsr	(PlayMusic).l
 +
+    if 0
+	; KiS2: No Tails.
 	tst.b	parent+1(a0)
 	bne.s	+
+    endif
 	move.b	#ObjID_InvStars,(Sonic_InvincibilityStars+id).w ; load Obj35 (invincibility stars) at $FFFFD200
 	move.w	a1,(Sonic_InvincibilityStars+parent).w
 	rts
 ; ---------------------------------------------------------------------------
 +	; give invincibility to sidekick
+    if 0
+	; KiS2: No Tails.
 	move.b	#ObjID_InvStars,(Tails_InvincibilityStars+id).w ; load Obj35 (invincibility stars) at $FFFFD300
 	move.w	a1,(Tails_InvincibilityStars+parent).w
+    endif
 +
 	rts
 ; ===========================================================================
@@ -25699,6 +25765,8 @@ invincible_monitor:
 ; ---------------------------------------------------------------------------
 ;loc_12AA6:
 teleport_monitor:
+    if 0
+	; KiS2: No two player mode.
 	addq.w	#1,(a2)
 	cmpi.b	#6,(MainCharacter+routine).w	; is player 1 dead or respawning?
 	bhs.s	+				; if yes, branch
@@ -25886,6 +25954,7 @@ teleport_swap_table:
 	TeleportTableEntry	Camera_Difference,        Camera_Difference_P2
 	TeleportTableEntry	Sonic_Pos_Record_Buf,     Tails_Pos_Record_Buf
 teleport_swap_table_end:
+    endif
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; '?' Monitor
@@ -31488,9 +31557,14 @@ Touch_Rings_Done:
 ; loc_17168:
 Touch_ConsumeRing:
 	subq.w	#1,(Perfect_rings_left).w
+    if 1
+	; KiS2: No Tails.
+	bra.w	CollectRing_Sonic	; if it was Sonic, branch here
+    else
 	cmpa.w	#MainCharacter,a0	; who collected the ring?
 	beq.w	CollectRing_Sonic	; if it was Sonic, branch here
 	bra.w	CollectRing_Tails	; if it was Tails, branch here
+    endif
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to draw on-screen rings
