@@ -25669,6 +25669,12 @@ Obj26_MapUnc_12D36:	BINCLUDE "mappings/sprite/obj26.bin"
 ; ----------------------------------------------------------------------------
 ; Object 0E - Flashing stars from intro
 ; ----------------------------------------------------------------------------
+obj0e_counter		= objoff_2A
+obj0e_array_index	= objoff_2C
+obj0e_intro_complete	= objoff_2F
+obj0e_music_playing	= objoff_30
+obj0e_current_frame	= objoff_34
+
 ; Sprite_12E18:
 Obj0E:
 	moveq	#0,d0
@@ -25677,16 +25683,16 @@ Obj0E:
 	jmp	Obj0E_Index(pc,d1.w)
 ; ===========================================================================
 ; off_12E26: Obj0E_States:
-Obj0E_Index:	offsetTable
-		offsetTableEntry.w Obj0E_Init	;   0
-		offsetTableEntry.w Obj0E_Sonic	;   2
-		offsetTableEntry.w Obj0E_Tails	;   4
-		offsetTableEntry.w Obj0E_LogoTop	;   6
-		offsetTableEntry.w Obj0E_LargeStar	;   8
-		offsetTableEntry.w Obj0E_SonicHand	;  $A
-		offsetTableEntry.w Obj0E_SmallStar	;  $C
-		offsetTableEntry.w Obj0E_SkyPiece	;  $E
-		offsetTableEntry.w Obj0E_TailsHand	; $10
+Obj0E_Index: offsetTable
+	offsetTableEntry.w Obj0E_Init		;   0
+	offsetTableEntry.w Obj0E_Sonic		;   2
+	offsetTableEntry.w Obj0E_Tails		;   4
+	offsetTableEntry.w Obj0E_LogoTop	;   6
+	offsetTableEntry.w Obj0E_LargeStar	;   8
+	offsetTableEntry.w Obj0E_SonicHand	;  $A
+	offsetTableEntry.w Obj0E_SmallStar	;  $C
+	offsetTableEntry.w Obj0E_SkyPiece	;  $E
+	offsetTableEntry.w Obj0E_TailsHand	; $10
 ; ===========================================================================
 ; loc_12E38:
 Obj0E_Init:
@@ -25699,100 +25705,121 @@ Obj0E_Init:
 ; ===========================================================================
 
 Obj0E_Sonic:
-	addq.w	#1,objoff_34(a0)
-	cmpi.w	#$120,objoff_34(a0)
+	addq.w	#1,obj0e_current_frame(a0)
+	cmpi.w	#288,obj0e_current_frame(a0)
 	bhs.s	+
 	bsr.w	TitleScreen_SetFinalState
 +
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
-	move.w	off_12E76(pc,d0.w),d1
-	jmp	off_12E76(pc,d1.w)
+	move.w	Obj0E_Sonic_Index(pc,d0.w),d1
+	jmp	Obj0E_Sonic_Index(pc,d1.w)
 ; ===========================================================================
-off_12E76:	offsetTable
-		offsetTableEntry.w Obj0E_Sonic_Init	;   0
-		offsetTableEntry.w loc_12EC2	;   2
-		offsetTableEntry.w loc_12EE8	;   4
-		offsetTableEntry.w loc_12F18	;   6
-		offsetTableEntry.w loc_12F52	;   8
-		offsetTableEntry.w Obj0E_Sonic_LastFrame	;  $A
-		offsetTableEntry.w loc_12F7C	;  $C
-		offsetTableEntry.w loc_12F9A	;  $E
-		offsetTableEntry.w loc_12FD6	; $10
-		offsetTableEntry.w loc_13014	; $12
+; off_12E76:
+Obj0E_Sonic_Index: offsetTable
+	offsetTableEntry.w Obj0E_Sonic_Init			;   0
+	offsetTableEntry.w Obj0E_Sonic_FadeInAndPlayMusic	;   2
+	offsetTableEntry.w Obj0E_Sonic_LoadPalette		;   4
+	offsetTableEntry.w Obj0E_Sonic_Move			;   6
+	offsetTableEntry.w Obj0E_Animate			;   8
+	offsetTableEntry.w Obj0E_Sonic_AnimationFinished	;  $A
+	offsetTableEntry.w Obj0E_Sonic_SpawnTails		;  $C
+	offsetTableEntry.w Obj0E_Sonic_FlashBackground		;  $E
+	offsetTableEntry.w Obj0E_Sonic_SpawnFallingStar		; $10
+	offsetTableEntry.w Obj0E_Sonic_MakeStarSparkle		; $12
 ; ===========================================================================
 ; spawn more stars
 Obj0E_Sonic_Init:
-	addq.b	#2,routine_secondary(a0)
+	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_FadeInAndPlayMusic
 	move.b	#5,mapping_frame(a0)
-	move.w	#$110,x_pixel(a0)
-	move.w	#$E0,y_pixel(a0)
+
+	move.w	#128+144,x_pixel(a0)
+	move.w	#128+96,y_pixel(a0)
+
+	; Load flashing star object.
 	lea	(IntroLargeStar).w,a1
-	move.b	#ObjID_IntroStars,id(a1) ; load obj0E (flashing intro stars) at $FFFFB0C0
-	move.b	#8,subtype(a1)				; large star
+	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#8,subtype(a1)
+
+	; Load emblem top object.
 	lea	(IntroEmblemTop).w,a1
-	move.b	#ObjID_IntroStars,id(a1) ; load obj0E (flashing intro stars) at $FFFFD140
-	move.b	#6,subtype(a1)				; logo top
+	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#6,subtype(a1)
+
+	; Play twinkling sound.
 	moveq	#signextendB(SndID_Sparkle),d0
 	jmpto	PlaySound, JmpTo4_PlaySound
 ; ===========================================================================
-
-loc_12EC2:
-	cmpi.w	#$38,objoff_34(a0)
+; loc_12EC2:
+Obj0E_Sonic_FadeInAndPlayMusic:
+	; Wait.
+	cmpi.w	#56,obj0e_current_frame(a0)
 	bhs.s	+
 	rts
 ; ===========================================================================
 +
-	addq.b	#2,routine_secondary(a0)
+	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_LoadPalette
+
+	; Load palette-changer object.
 	lea	(TitleScreenPaletteChanger3).w,a1
-	move.b	#ObjID_TtlScrPalChanger,id(a1) ; load objC9 (palette change)
+	move.b	#ObjID_TtlScrPalChanger,id(a1)
 	move.b	#0,subtype(a1)
-	st.b	objoff_30(a0)
-	moveq	#signextendB(MusID_Title),d0 ; title music
+
+	; Play title screen music.
+	st.b	obj0e_music_playing(a0)
+	moveq	#signextendB(MusID_Title),d0
 	jmpto	PlayMusic, JmpTo4_PlayMusic
 ; ===========================================================================
-
-loc_12EE8:
-	cmpi.w	#$80,objoff_34(a0)
+; loc_12EE8:
+Obj0E_Sonic_LoadPalette:
+	; Wait.
+	cmpi.w	#128,obj0e_current_frame(a0)
 	bhs.s	+
 	rts
 ; ===========================================================================
 +
-	addq.b	#2,routine_secondary(a0)
+	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_Move
+
+	; Load Sonic's palette to palette line 1.
 	lea	(Pal_133EC).l,a1
 	lea	(Normal_palette).w,a2
-
-	moveq	#$F,d6
+	moveq	#bytesToWcnt(palette_line_size),d6
 -	move.w	(a1)+,(a2)+
 	dbf	d6,-
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
-
-sub_12F08:
+; sub_12F08:
+Obj0E_Sonic_LoadSky:
+	; Load piece-of-sky object.
 	lea	(IntroSmallStar1).w,a1
-	move.b	#ObjID_IntroStars,id(a1) ; load obj0E (flashing intro star) at $FFFFB180
-	move.b	#$E,subtype(a1)				; piece of sky
+	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#$E,subtype(a1)
 	rts
-; End of function sub_12F08
+; End of function Obj0E_Sonic_LoadPalette
 
 ; ===========================================================================
-
-loc_12F18:
-	moveq	#word_13046_end-word_13046+4,d2
-	lea	(word_13046).l,a1
+; loc_12F18:
+Obj0E_Sonic_Move:
+	; 'd2' is used to detect when the end of the position array has been
+	; reached.
+	moveq	#Obj0E_Sonic_Positions_End-Obj0E_Sonic_Positions+4,d2
+	lea	(Obj0E_Sonic_Positions).l,a1
 
 loc_12F20:
-	move.w	objoff_2A(a0),d0
+	; Change position every 4 frames.
+	move.w	obj0e_counter(a0),d0
 	addq.w	#1,d0
-	move.w	d0,objoff_2A(a0)
+	move.w	d0,obj0e_counter(a0)
 	andi.w	#3,d0
 	bne.s	+
-	move.w	objoff_2C(a0),d1
+
+	; Advance index, while checking if we've reached the end of the
+	; position array.
+	move.w	obj0e_array_index(a0),d1
 	addq.w	#4,d1
 	cmp.w	d2,d1
-	bhs.w	loc_1310A
-	move.w	d1,objoff_2C(a0)
+	bhs.w	Obj0E_NextRoutineSecondary
+	move.w	d1,obj0e_array_index(a0)
+
+	; Obtain position from the array and apply it to the object.
 	move.l	-4(a1,d1.w),d0
 	move.w	d0,y_pixel(a0)
 	swap	d0
@@ -25800,88 +25827,110 @@ loc_12F20:
 +
 	bra.w	DisplaySprite
 ; ===========================================================================
-
-loc_12F52:
+; loc_12F52:
+Obj0E_Animate:
 	lea	(Ani_obj0E).l,a1
 	bsr.w	AnimateSprite
 	bra.w	DisplaySprite
 ; ===========================================================================
-
-Obj0E_Sonic_LastFrame:
-	addq.b	#2,routine_secondary(a0)
+; Obj0E_Sonic_LastFrame:
+Obj0E_Sonic_AnimationFinished:
+	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_SpawnTails
 	move.b	#$12,mapping_frame(a0)
+
+	; Load Sonic's hand object.
 	lea	(IntroSonicHand).w,a1
-	move.b	#ObjID_IntroStars,id(a1) ; load obj0E (flashing intro star) at $FFFFB1C0
-	move.b	#$A,subtype(a1)				; Sonic's hand
+	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#$A,subtype(a1)
+
 	bra.w	DisplaySprite
 ; ===========================================================================
-
-loc_12F7C:
-	cmpi.w	#$C0,objoff_34(a0)
+; loc_12F7C:
+Obj0E_Sonic_SpawnTails:
+	cmpi.w	#192,obj0e_current_frame(a0)
 	blo.s	+
-	addq.b	#2,routine_secondary(a0)
+	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_FlashBackground
+
+	; Load Tails object.
 	lea	(IntroTails).w,a1
-	move.b	#ObjID_IntroStars,id(a1) ; load obj0E (flashing intro star) at $FFFFB080
-	move.b	#4,subtype(a1)				; Tails
+	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#4,subtype(a1)
 +
 	bra.w	DisplaySprite
 ; ===========================================================================
-
-loc_12F9A:
-	cmpi.w	#$120,objoff_34(a0)
+; loc_12F9A:
+Obj0E_Sonic_FlashBackground:
+	cmpi.w	#288,obj0e_current_frame(a0)
 	blo.s	+
-	addq.b	#2,routine_secondary(a0)
-	clr.w	objoff_2C(a0)
-	st	objoff_2F(a0)
+	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_SpawnFallingStar
+	clr.w	obj0e_array_index(a0)
+	st	obj0e_intro_complete(a0)
+
+	; Fill palette line 3 with white.
 	lea	(Normal_palette_line3).w,a1
 	move.w	#$EEE,d0
-
-	moveq	#$F,d6
+	moveq	#bytesToWcnt(palette_line_size),d6
 -	move.w	d0,(a1)+
 	dbf	d6,-
 
+	; Load palette-changer object.
 	lea	(TitleScreenPaletteChanger2).w,a1
-	move.b	#ObjID_TtlScrPalChanger,id(a1) ; load objC9 (palette change handler) at $FFFFB240
+	move.b	#ObjID_TtlScrPalChanger,id(a1)
 	move.b	#2,subtype(a1)
+
+	; Load title screen menu object.
 	move.b	#ObjID_TitleMenu,(TitleScreenMenu+id).w ; load Obj0F (title screen menu) at $FFFFB400
 +
 	bra.w	DisplaySprite
 ; ===========================================================================
-
-loc_12FD6:
+; loc_12FD6:
+Obj0E_Sonic_SpawnFallingStar:
+	; Wait a different amount of time on PAL consoles so that it's timed
+	; right with the music.
 	btst	#6,(Graphics_Flags).w
 	beq.s	+
-	cmpi.w	#$190,objoff_34(a0)
+	cmpi.w	#400,obj0e_current_frame(a0)
 	beq.s	++
 	bra.w	DisplaySprite
 ; ===========================================================================
 +
-	cmpi.w	#$1D0,objoff_34(a0)
+	cmpi.w	#464,obj0e_current_frame(a0)
 	beq.s	+
 	bra.w	DisplaySprite
 ; ===========================================================================
 +
+	; Create falling star object.
 	lea	(IntroSmallStar2).w,a1
-	move.b	#ObjID_IntroStars,id(a1) ; load obj0E (flashing intro star) at $FFFFB440
-	move.b	#$C,subtype(a1)				; small star
-	addq.b	#2,routine_secondary(a0)
+	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#$C,subtype(a1)
+
+	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_MakeStarSparkle
+
+	; Delete piece-of-sky object.
 	lea	(IntroSmallStar1).w,a1
-	bsr.w	DeleteObject2 ; delete object at $FFFFB180
+	bsr.w	DeleteObject2
+
 	bra.w	DisplaySprite
 ; ===========================================================================
-
-loc_13014:
+; loc_13014:
+Obj0E_Sonic_MakeStarSparkle:
+	; Animate the falling star every 8 frames.
 	move.b	(Vint_runcount+3).w,d0
 	andi.b	#7,d0
 	bne.s	++
-	move.w	objoff_2C(a0),d0
+
+	; Advance index, while checking if we've reached the end of the
+	; colour array.
+	move.w	obj0e_array_index(a0),d0
 	addq.w	#2,d0
 	cmpi.w	#CyclingPal_TitleStar_End-CyclingPal_TitleStar,d0
 	blo.s	+
 	moveq	#0,d0
 +
-	move.w	d0,objoff_2C(a0)
-	move.w	CyclingPal_TitleStar(pc,d0.w),(Normal_palette_line3+$A).w
+	move.w	d0,obj0e_array_index(a0)
+
+	; Obtain colour from the array and apply it to the object.
+	move.w	CyclingPal_TitleStar(pc,d0.w),(Normal_palette_line3+5*2).w
 +
 	bra.w	DisplaySprite
 ; ===========================================================================
@@ -25890,34 +25939,37 @@ CyclingPal_TitleStar:
 	binclude "art/palettes/Title Star Cycle.bin"
 CyclingPal_TitleStar_End
 
-word_13046:
-	dc.w  $108, $D0
-	dc.w  $100, $C0	; 2
-	dc.w   $F8, $B0	; 4
-	dc.w   $F6, $A6	; 6
-	dc.w   $FA, $9E	; 8
-	dc.w  $100, $9A	; $A
-	dc.w  $104, $99	; $C
-	dc.w  $108, $98	; $E
-word_13046_end
+;word_13046:
+Obj0E_Sonic_Positions:
+	;           X,      Y
+	dc.w  128+136, 128+80
+	dc.w  128+128, 128+64
+	dc.w  128+120, 128+48
+	dc.w  128+118, 128+38
+	dc.w  128+122, 128+30
+	dc.w  128+128, 128+26
+	dc.w  128+132, 128+25
+	dc.w  128+136, 128+24
+Obj0E_Sonic_Positions_End
 ; ===========================================================================
 
 Obj0E_Tails:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
-	move.w	off_13074(pc,d0.w),d1
-	jmp	off_13074(pc,d1.w)
+	move.w	Obj0E_Tails_Index(pc,d0.w),d1
+	jmp	Obj0E_Tails_Index(pc,d1.w)
 ; ===========================================================================
-off_13074:	offsetTable
-		offsetTableEntry.w Obj0E_Tails_Init			; 0
-		offsetTableEntry.w loc_13096			; 2
-		offsetTableEntry.w loc_12F52			; 4
-		offsetTableEntry.w loc_130A2			; 6
-		offsetTableEntry.w BranchTo10_DisplaySprite	; 8
+; off_13074:
+Obj0E_Tails_Index: offsetTable
+	offsetTableEntry.w Obj0E_Tails_Init			; 0
+	offsetTableEntry.w Obj0E_Tails_Move			; 2
+	offsetTableEntry.w Obj0E_Animate			; 4
+	offsetTableEntry.w Obj0E_Tails_AnimationFinished	; 6
+	offsetTableEntry.w BranchTo10_DisplaySprite		; 8
 ; ===========================================================================
 
 Obj0E_Tails_Init:
-	addq.b	#2,routine_secondary(a0)
+	addq.b	#2,routine_secondary(a0)	; Obj0E_Tails_Move
     if fixBugs
 	; Tails' priority is never set, even though it is set in
 	; 'TitleScreen_SetFinalState', suggesting that it was meant to be.
@@ -25925,61 +25977,67 @@ Obj0E_Tails_Init:
 	; him.
 	move.b	#3,priority(a0)
     endif
-	move.w	#$D8,x_pixel(a0)
-	move.w	#$D8,y_pixel(a0)
+	move.w	#128+88,x_pixel(a0)
+	move.w	#128+88,y_pixel(a0)
 	move.b	#1,anim(a0)
 	rts
 ; ===========================================================================
-
-loc_13096:
-	moveq	#word_130B8_end-word_130B8+4,d2
-	lea	(word_130B8).l,a1
+; loc_13096:
+Obj0E_Tails_Move:
+	moveq	#Obj0E_Tails_Positions_End-Obj0E_Tails_Positions+4,d2
+	lea	(Obj0E_Tails_Positions).l,a1
 	bra.w	loc_12F20
 ; ===========================================================================
+; loc_130A2:
+Obj0E_Tails_AnimationFinished:
+	addq.b	#2,routine_secondary(a0)	; BranchTo10_DisplaySprite
 
-loc_130A2:
-	addq.b	#2,routine_secondary(a0)
+	; Load Tails' hand object.
 	lea	(IntroTailsHand).w,a1
-	move.b	#ObjID_IntroStars,id(a1) ; load obj0E (flashing intro star) at $FFFFB200
-	move.b	#$10,subtype(a1)			; Tails' hand
+	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#$10,subtype(a1)
 
 BranchTo10_DisplaySprite
 	bra.w	DisplaySprite
 ; ===========================================================================
-word_130B8:
-	dc.w   $D7,$C8
-	dc.w   $D3,$B8	; 2
-	dc.w   $CE,$AC	; 4
-	dc.w   $CC,$A6	; 6
-	dc.w   $CA,$A2	; 8
-	dc.w   $C9,$A1	; $A
-	dc.w   $C8,$A0	; $C
-word_130B8_end
+; word_130B8:
+Obj0E_Tails_Positions:
+	;           X,      Y
+	dc.w   128+87, 128+72
+	dc.w   128+83, 128+56
+	dc.w   128+78, 128+44
+	dc.w   128+76, 128+38
+	dc.w   128+74, 128+34
+	dc.w   128+73, 128+33
+	dc.w   128+72, 128+32
+Obj0E_Tails_Positions_End
 ; ===========================================================================
 
 Obj0E_LogoTop:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
-	move.w	off_130E2(pc,d0.w),d1
-	jmp	off_130E2(pc,d1.w)
+	move.w	Obj0E_LogoTop_Index(pc,d0.w),d1
+	jmp	Obj0E_LogoTop_Index(pc,d1.w)
 ; ===========================================================================
-off_130E2:	offsetTable
-		offsetTableEntry.w Obj0E_LogoTop_Init			; 0
-		offsetTableEntry.w BranchTo11_DisplaySprite	; 2
+; off_130E2:
+Obj0E_LogoTop_Index: offsetTable
+	offsetTableEntry.w Obj0E_LogoTop_Init		; 0
+	offsetTableEntry.w BranchTo11_DisplaySprite	; 2
 ; ===========================================================================
 
 Obj0E_LogoTop_Init:
+	; Don't show the trademark symbol on Japanese consoles.
 	move.b	#$B,mapping_frame(a0)
 	tst.b	(Graphics_Flags).w
 	bmi.s	+
 	move.b	#$A,mapping_frame(a0)
 +
 	move.b	#2,priority(a0)
-	move.w	#$120,x_pixel(a0)
-	move.w	#$E8,y_pixel(a0)
-
-loc_1310A:
-	addq.b	#2,routine_secondary(a0)
+	move.w	#128+320/2,x_pixel(a0)
+	move.w	#128+104,y_pixel(a0)
+; loc_1310A:
+Obj0E_NextRoutineSecondary:
+	addq.b	#2,routine_secondary(a0)	; BranchTo11_DisplaySprite
 
 BranchTo11_DisplaySprite
 	bra.w	DisplaySprite
@@ -25988,21 +26046,22 @@ BranchTo11_DisplaySprite
 Obj0E_SkyPiece:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
-	move.w	off_13120(pc,d0.w),d1
-	jmp	off_13120(pc,d1.w)
+	move.w	Obj0E_SkyPiece_Index(pc,d0.w),d1
+	jmp	Obj0E_SkyPiece_Index(pc,d1.w)
 ; ===========================================================================
-off_13120:	offsetTable
-		offsetTableEntry.w Obj0E_SkyPiece_Init			; 0
-		offsetTableEntry.w BranchTo12_DisplaySprite	; 2
+; off_13120:
+Obj0E_SkyPiece_Index: offsetTable
+	offsetTableEntry.w Obj0E_SkyPiece_Init		; 0
+	offsetTableEntry.w BranchTo12_DisplaySprite	; 2
 ; ===========================================================================
 
 Obj0E_SkyPiece_Init:
-	addq.b	#2,routine_secondary(a0)
+	addq.b	#2,routine_secondary(a0)	; BranchTo12_DisplaySprite
 	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,0,0),art_tile(a0)
 	move.b	#$11,mapping_frame(a0)
 	move.b	#2,priority(a0)
-	move.w	#$100,x_pixel(a0)
-	move.w	#$F0,y_pixel(a0)
+	move.w	#128+128,x_pixel(a0)
+	move.w	#128+112,y_pixel(a0)
 
 BranchTo12_DisplaySprite
 	bra.w	DisplaySprite
@@ -26011,83 +26070,92 @@ BranchTo12_DisplaySprite
 Obj0E_LargeStar:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
-	move.w	off_13158(pc,d0.w),d1
-	jmp	off_13158(pc,d1.w)
+	move.w	Obj0E_LargeStar_Index(pc,d0.w),d1
+	jmp	Obj0E_LargeStar_Index(pc,d1.w)
 ; ===========================================================================
-off_13158:	offsetTable
-		offsetTableEntry.w Obj0E_LargeStar_Init	; 0
-		offsetTableEntry.w loc_12F52	; 2
-		offsetTableEntry.w loc_13190	; 4
-		offsetTableEntry.w loc_1319E	; 6
+; off_13158:
+Obj0E_LargeStar_Index: offsetTable
+	offsetTableEntry.w Obj0E_LargeStar_Init	; 0
+	offsetTableEntry.w Obj0E_Animate	; 2
+	offsetTableEntry.w Obj0E_LargeStar_Wait	; 4
+	offsetTableEntry.w Obj0E_LargeStar_Move	; 6
 ; ===========================================================================
 
 Obj0E_LargeStar_Init:
-	addq.b	#2,routine_secondary(a0)
+	addq.b	#2,routine_secondary(a0)	; Obj0E_Animate
 	move.b	#$C,mapping_frame(a0)
 	ori.w	#high_priority,art_tile(a0)
 	move.b	#2,anim(a0)
 	move.b	#1,priority(a0)
-	move.w	#$100,x_pixel(a0)
-	move.w	#$A8,y_pixel(a0)
-	move.w	#4,objoff_2A(a0)
+	move.w	#128+128,x_pixel(a0)
+	move.w	#128+40,y_pixel(a0)
+	move.w	#4,obj0e_counter(a0)
 	rts
 ; ===========================================================================
-
-loc_13190:
-	subq.w	#1,objoff_2A(a0)
+; loc_13190:
+Obj0E_LargeStar_Wait:
+	subq.w	#1,obj0e_counter(a0)
 	bmi.s	+
 	rts
 ; ===========================================================================
 +
-	addq.b	#2,routine_secondary(a0)
+	addq.b	#2,routine_secondary(a0)	; Obj0E_LargeStar_Move
 	rts
 ; ===========================================================================
-
-loc_1319E:
-	move.b	#2,routine_secondary(a0)
+; loc_1319E:
+Obj0E_LargeStar_Move:
+	move.b	#2,routine_secondary(a0)	; Obj0E_Animate
 	move.b	#0,anim_frame(a0)
 	move.b	#0,anim_frame_duration(a0)
-	move.w	#6,objoff_2A(a0)
-	move.w	objoff_2C(a0),d0
+	move.w	#6,obj0e_counter(a0)
+
+	; Advance index, while checking if we've reached the end of the
+	; position array.
+	move.w	obj0e_array_index(a0),d0
 	addq.w	#4,d0
-	cmpi.w	#word_131DC_end-word_131DC+4,d0
+	cmpi.w	#Obj0E_LargeStar_Positions_End-Obj0E_LargeStar_Positions+4,d0
 	bhs.w	DeleteObject
-	move.w	d0,objoff_2C(a0)
-	move.l	word_131DC-4(pc,d0.w),d0
+	move.w	d0,obj0e_array_index(a0)
+
+	; Obtain position from the array and apply it to the object.
+	move.l	Obj0E_LargeStar_Positions-4(pc,d0.w),d0
 	move.w	d0,y_pixel(a0)
 	swap	d0
 	move.w	d0,x_pixel(a0)
-	moveq	#signextendB(SndID_Sparkle),d0 ; play intro sparkle sound
+
+	; Play twinkling sound.
+	moveq	#signextendB(SndID_Sparkle),d0
 	jmpto	PlaySound, JmpTo4_PlaySound
 ; ===========================================================================
-; unknown
-word_131DC:
-	dc.w   $DA, $F2
-	dc.w  $170, $F8	; 2
-	dc.w  $132,$131	; 4
-	dc.w  $19E, $A2	; 6
-	dc.w   $C0, $E3	; 8
-	dc.w  $180, $E0	; $A
-	dc.w  $10D,$13B	; $C
-	dc.w   $C0, $AB	; $E
-	dc.w  $165, $107	; $10
-word_131DC_end
+; word_131DC:
+Obj0E_LargeStar_Positions:
+	dc.w  128+90,  128+114
+	dc.w  128+240, 128+120
+	dc.w  128+178, 128+177
+	dc.w  128+286, 128+34
+	dc.w  128+64,  128+99
+	dc.w  128+256, 128+96
+	dc.w  128+141, 128+187
+	dc.w  128+64,  128+43
+	dc.w  128+229, 128+135
+Obj0E_LargeStar_Positions_End
 ; ===========================================================================
 
 Obj0E_SonicHand:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
-	move.w	off_1320E(pc,d0.w),d1
-	jmp	off_1320E(pc,d1.w)
+	move.w	Obj0E_SonicHand_Index(pc,d0.w),d1
+	jmp	Obj0E_SonicHand_Index(pc,d1.w)
 ; ===========================================================================
-off_1320E:	offsetTable
-		offsetTableEntry.w Obj0E_SonicHand_Init			; 0
-		offsetTableEntry.w loc_13234			; 2
-		offsetTableEntry.w BranchTo13_DisplaySprite	; 4
+; off_1320E:
+Obj0E_SonicHand_Index: offsetTable
+	offsetTableEntry.w Obj0E_SonicHand_Init		; 0
+	offsetTableEntry.w Obj0E_SonicHand_Move		; 2
+	offsetTableEntry.w BranchTo13_DisplaySprite	; 4
 ; ===========================================================================
 
 Obj0E_SonicHand_Init:
-	addq.b	#2,routine_secondary(a0)
+	addq.b	#2,routine_secondary(a0)	; Obj0E_SonicHand_Move
 	move.b	#9,mapping_frame(a0)
     if fixBugs
 	; This matches 'TitleScreen_SetFinalState'.
@@ -26096,39 +26164,41 @@ Obj0E_SonicHand_Init:
 	; This is inconsistent with 'TitleScreen_SetFinalState'.
 	move.b	#3,priority(a0)
     endif
-	move.w	#$145,x_pixel(a0)
-	move.w	#$BF,y_pixel(a0)
+	move.w	#128+197,x_pixel(a0)
+	move.w	#128+63,y_pixel(a0)
 
 BranchTo13_DisplaySprite
 	bra.w	DisplaySprite
 ; ===========================================================================
-
-loc_13234:
-	moveq	#word_13240_end-word_13240+4,d2
-	lea	(word_13240).l,a1
+; loc_13234:
+Obj0E_SonicHand_Move:
+	moveq	#Obj0E_SonicHand_Positions_End-Obj0E_SonicHand_Positions+4,d2
+	lea	(Obj0E_SonicHand_Positions).l,a1
 	bra.w	loc_12F20
 ; ===========================================================================
-word_13240:
-	dc.w  $143, $C1
-	dc.w  $140, $C2	; 2
-	dc.w  $141, $C1	; 4
-word_13240_end
+; word_13240:
+Obj0E_SonicHand_Positions:
+	dc.w  128+195, 128+65
+	dc.w  128+192, 128+66
+	dc.w  128+193, 128+65
+Obj0E_SonicHand_Positions_End
 ; ===========================================================================
 
 Obj0E_TailsHand:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
-	move.w	off_1325A(pc,d0.w),d1
-	jmp	off_1325A(pc,d1.w)
+	move.w	Obj0E_TailsHand_Index(pc,d0.w),d1
+	jmp	Obj0E_TailsHand_Index(pc,d1.w)
 ; ===========================================================================
-off_1325A:	offsetTable
-		offsetTableEntry.w Obj0E_TailsHand_Init			; 0
-		offsetTableEntry.w loc_13280			; 2
-		offsetTableEntry.w BranchTo14_DisplaySprite	; 4
+; off_1325A:
+Obj0E_TailsHand_Index: offsetTable
+	offsetTableEntry.w Obj0E_TailsHand_Init		; 0
+	offsetTableEntry.w Obj0E_TailsHand_Move		; 2
+	offsetTableEntry.w BranchTo14_DisplaySprite	; 4
 ; ===========================================================================
 
 Obj0E_TailsHand_Init:
-	addq.b	#2,routine_secondary(a0)
+	addq.b	#2,routine_secondary(a0)	; Obj0E_TailsHand_Move
 	move.b	#$13,mapping_frame(a0)
     if fixBugs
 	; This matches 'TitleScreen_SetFinalState'.
@@ -26138,51 +26208,56 @@ Obj0E_TailsHand_Init:
 	; the hand to be layered behind Tails is his priority is fixed.
 	move.b	#3,priority(a0)
     endif
-	move.w	#$10F,x_pixel(a0)
-	move.w	#$D5,y_pixel(a0)
+	move.w	#128+143,x_pixel(a0)
+	move.w	#128+85,y_pixel(a0)
 
 BranchTo14_DisplaySprite
 	bra.w	DisplaySprite
 ; ===========================================================================
-
-loc_13280:
-	moveq	#word_1328C_end-word_1328C+4,d2
-	lea	(word_1328C).l,a1
+; loc_13280:
+Obj0E_TailsHand_Move:
+	moveq	#Obj0E_TailsHand_Positions_End-Obj0E_TailsHand_Positions+4,d2
+	lea	(Obj0E_TailsHand_Positions).l,a1
 	bra.w	loc_12F20
 ; ===========================================================================
-word_1328C:
-	dc.w  $10C, $D0
-	dc.w  $10D, $D1	; 2
-word_1328C_end
+; word_1328C:
+Obj0E_TailsHand_Positions:
+	dc.w  128+140, 128+80
+	dc.w  128+141, 128+81
+Obj0E_TailsHand_Positions_End
 ; ===========================================================================
 
 Obj0E_SmallStar:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
-	move.w	off_132A2(pc,d0.w),d1
-	jmp	off_132A2(pc,d1.w)
+	move.w	Obj0E_SmallStar_Index(pc,d0.w),d1
+	jmp	Obj0E_SmallStar_Index(pc,d1.w)
 ; ===========================================================================
-off_132A2:	offsetTable
-		offsetTableEntry.w Obj0E_SmallStar_Init	; 0
-		offsetTableEntry.w loc_132D2	; 2
+; off_132A2:
+Obj0E_SmallStar_Index: offsetTable
+	offsetTableEntry.w Obj0E_SmallStar_Init	; 0
+	offsetTableEntry.w Obj0E_SmallStar_Main	; 2
 ; ===========================================================================
 
 Obj0E_SmallStar_Init:
-	addq.b	#2,routine_secondary(a0)
+	addq.b	#2,routine_secondary(a0)	; Obj0E_SmallStar_Main
 	move.b	#$C,mapping_frame(a0)
 	move.b	#5,priority(a0)
-	move.w	#$170,x_pixel(a0)
-	move.w	#$80,y_pixel(a0)
+	move.w	#128+240,x_pixel(a0)
+	move.w	#128+0,y_pixel(a0)
 	move.b	#3,anim(a0)
-	move.w	#$8C,objoff_2A(a0)
+	move.w	#140,obj0e_counter(a0)
 	bra.w	DisplaySprite
 ; ===========================================================================
-
-loc_132D2:
-	subq.w	#1,objoff_2A(a0)
+; loc_132D2:
+Obj0E_SmallStar_Main:
+	subq.w	#1,obj0e_counter(a0)
 	bmi.w	DeleteObject
+
+	; Make the star fall.
 	subq.w	#2,x_pixel(a0)
 	addq.w	#1,y_pixel(a0)
+
 	lea	(Ani_obj0E).l,a1
 	bsr.w	AnimateSprite
 	bra.w	DisplaySprite
@@ -26355,19 +26430,24 @@ loc_134B6:
 
 
 TitleScreen_SetFinalState:
-	tst.b	objoff_2F(a0)
+	tst.b	obj0e_intro_complete(a0)
 	bne.w	+	; rts
+
 	move.b	(Ctrl_1_Press).w,d0
 	or.b	(Ctrl_2_Press).w,d0
 	andi.b	#button_up_mask|button_down_mask|button_left_mask|button_right_mask|button_B_mask|button_C_mask|button_A_mask,(Ctrl_1_Press).w
 	andi.b	#button_up_mask|button_down_mask|button_left_mask|button_right_mask|button_B_mask|button_C_mask|button_A_mask,(Ctrl_2_Press).w
 	andi.b	#button_start_mask,d0
 	beq.w	+	; rts
-	st.b	objoff_2F(a0)
+
+	; Initialise Sonic object.
+	st.b	obj0e_intro_complete(a0)
 	move.b	#$10,routine_secondary(a0)
 	move.b	#$12,mapping_frame(a0)
-	move.w	#$108,x_pixel(a0)
-	move.w	#$98,y_pixel(a0)
+	move.w	#128+136,x_pixel(a0)
+	move.w	#128+24,y_pixel(a0)
+
+	; Initialise Sonic's hand object.
 	lea	(IntroSonicHand).w,a1
 	bsr.w	TitleScreen_InitSprite
 	move.b	#ObjID_IntroStars,id(a1) ; load obj0E (flashing intro star) at $FFFFB1C0
@@ -26375,8 +26455,10 @@ TitleScreen_SetFinalState:
 	move.b	#2,priority(a1)
 	move.b	#9,mapping_frame(a1)
 	move.b	#4,routine_secondary(a1)
-	move.w	#$141,x_pixel(a1)
-	move.w	#$C1,y_pixel(a1)
+	move.w	#128+193,x_pixel(a1)
+	move.w	#128+65,y_pixel(a1)
+
+	; Initialise Tails object.
 	lea	(IntroTails).w,a1
 	bsr.w	TitleScreen_InitSprite
 	move.b	#ObjID_IntroStars,id(a1) ; load obj0E
@@ -26384,8 +26466,10 @@ TitleScreen_SetFinalState:
 	move.b	#4,mapping_frame(a1)
 	move.b	#6,routine_secondary(a1)
 	move.b	#3,priority(a1)
-	move.w	#$C8,x_pixel(a1)
-	move.w	#$A0,y_pixel(a1)
+	move.w	#128+72,x_pixel(a1)
+	move.w	#128+32,y_pixel(a1)
+
+	; Initialise Tails' hand object.
 	lea	(IntroTailsHand).w,a1
 	bsr.w	TitleScreen_InitSprite
 	move.b	#ObjID_IntroStars,id(a1) ; load obj0E
@@ -26393,51 +26477,60 @@ TitleScreen_SetFinalState:
 	move.b	#2,priority(a1)
 	move.b	#$13,mapping_frame(a1)
 	move.b	#4,routine_secondary(a1)
-	move.w	#$10D,x_pixel(a1)
-	move.w	#$D1,y_pixel(a1)
+	move.w	#128+141,x_pixel(a1)
+	move.w	#128+81,y_pixel(a1)
+
+	; Initialise top-of-emblem object.
 	lea	(IntroEmblemTop).w,a1
 	move.b	#ObjID_IntroStars,id(a1) ; load obj0E
 	move.b	#6,subtype(a1)				; logo top
-	bsr.w	sub_12F08
+
+	; Initialise sky object.
+	bsr.w	Obj0E_Sonic_LoadSky
+
+	; Initialise title screen menu object.
 	move.b	#ObjID_TitleMenu,(TitleScreenMenu+id).w ; load Obj0F (title screen menu) at $FFFFB400
+
+	; Delete palette-changer object.
 	lea	(TitleScreenPaletteChanger).w,a1
 	bsr.w	DeleteObject2
+
+	; Load palette line 4.
 	lea_	Pal_1342C,a1
 	lea	(Normal_palette_line4).w,a2
-
-	moveq	#7,d6
+	moveq	#bytesToLcnt(palette_line_size),d6
 -	move.l	(a1)+,(a2)+
 	dbf	d6,-
 
+	; Load palette line 3.
 	lea_	Pal_1340C,a1
 	lea	(Normal_palette_line3).w,a2
-
-	moveq	#7,d6
+	moveq	#bytesToLcnt(palette_line_size),d6
 -	move.l	(a1)+,(a2)+
 	dbf	d6,-
 
+	; Load palette line 1.
 	lea_	Pal_133EC,a1
 	lea	(Normal_palette).w,a2
-
-	moveq	#7,d6
+	moveq	#bytesToLcnt(palette_line_size),d6
 -	move.l	(a1)+,(a2)+
 	dbf	d6,-
 
-	tst.b	objoff_30(a0)
+	; Play music if it isn't already playing.
+	tst.b	obj0e_music_playing(a0)
 	bne.s	+	; rts
 	moveq	#signextendB(MusID_Title),d0 ; title music
 	jsrto	PlayMusic, JmpTo4_PlayMusic
 +
 	rts
-; End of function sub_134BC
+; End of function TitleScreen_SetFinalState
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
-;sub_135EA:
+; sub_135EA:
 TitleScreen_InitSprite:
-
 	move.l	#Obj0E_MapUnc_136A8,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_TitleSprites,0,0),art_tile(a1)
 	move.b	#4,priority(a1)
