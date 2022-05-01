@@ -26058,18 +26058,35 @@ Obj0E:
 Obj0E_Index: offsetTable
 	offsetTableEntry.w Obj0E_Init		;   0
 	offsetTableEntry.w Obj0E_Sonic		;   2
+    if 1
+	; KiS2: Different intro,
+	offsetTableEntry.w Obj0E_Thing1		;   4
+	offsetTableEntry.w Obj0E_Thing2		;   6
+    else
 	offsetTableEntry.w Obj0E_Tails		;   4
 	offsetTableEntry.w Obj0E_LogoTop	;   6
+    endif
 	offsetTableEntry.w Obj0E_FlashingStar	;   8
+    if 1
+	; KiS2: Different intro,
+	offsetTableEntry.w Obj0E_Thing3	;  $A
+    else
 	offsetTableEntry.w Obj0E_SonicHand	;  $A
+    endif
 	offsetTableEntry.w Obj0E_FallingStar	;  $C
+    if 0
+	; KiS2: Different intro,
 	offsetTableEntry.w Obj0E_MaskingSprite	;  $E
 	offsetTableEntry.w Obj0E_TailsHand	; $10
+    endif
 ; ===========================================================================
 ; loc_12E38:
 Obj0E_Init:
 	addq.b	#2,routine(a0)	; useless, because it's overwritten with the subtype below
+    if 0
+	; KiS2: Different intro.
 	move.l	#Obj0E_MapUnc_136A8,mappings(a0)
+    endif
 	move.w	#make_art_tile(ArtTile_ArtNem_TitleSprites,0,0),art_tile(a0)
 	move.b	#4,priority(a0)
 	move.b	subtype(a0),routine(a0)
@@ -26095,7 +26112,10 @@ Obj0E_Sonic_Index: offsetTable
 	offsetTableEntry.w Obj0E_Sonic_Move			;   6
 	offsetTableEntry.w Obj0E_Animate			;   8
 	offsetTableEntry.w Obj0E_Sonic_AnimationFinished	;  $A
+    if 0
+	; KiS2: Different intro.
 	offsetTableEntry.w Obj0E_Sonic_SpawnTails		;  $C
+    endif
 	offsetTableEntry.w Obj0E_Sonic_FlashBackground		;  $E
 	offsetTableEntry.w Obj0E_Sonic_SpawnFallingStar		; $10
 	offsetTableEntry.w Obj0E_Sonic_MakeStarSparkle		; $12
@@ -26103,7 +26123,15 @@ Obj0E_Sonic_Index: offsetTable
 ; spawn more stars
 Obj0E_Sonic_Init:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_FadeInAndPlayMusic
+
+    if 1
+	; KiS2: Different intro.
+	move.l	#Obj0E_MapUnc_136A8,mappings(a0)
+	move.w	#0,art_tile(a0)
+	move.b	#0,mapping_frame(a0)
+    else
 	move.b	#5,mapping_frame(a0)
+    endif
 
 	move.w	#128+144,x_pixel(a0)
 	move.w	#128+96,y_pixel(a0)
@@ -26117,6 +26145,11 @@ Obj0E_Sonic_Init:
 	lea	(IntroEmblemTop).w,a1
 	move.b	#ObjID_IntroStars,id(a1)
 	move.b	#6,subtype(a1)
+
+	; Load emblem top object.
+	lea	(IntroEmblemTop).w,a1
+	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#$12,subtype(a1)
 
 	; Play twinkling sound.
 	moveq	#signextendB(SndID_Sparkle),d0
@@ -26198,6 +26231,20 @@ Obj0E_Move:
 	move.w	d0,x_pixel(a0)
 +
 	bra.w	DisplaySprite
+
+    if 1
+Obj0E_Sonic_Positions:
+	;           X,      Y
+	dc.w  128+116, 128+80
+	dc.w  128+120, 128+64
+	dc.w  128+124, 128+50
+	dc.w  128+128, 128+38
+	dc.w  128+132, 128+30
+	dc.w  128+126, 128+24
+	dc.w  128+120, 128+20
+	dc.w  128+116, 128+18
+Obj0E_Sonic_Positions_End:
+    endif
 ; ===========================================================================
 ; loc_12F52:
 Obj0E_Animate:
@@ -26208,7 +26255,12 @@ Obj0E_Animate:
 ; Obj0E_Sonic_LastFrame:
 Obj0E_Sonic_AnimationFinished:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_SpawnTails
+    if 1
+	move.b	#4,mapping_frame(a0)
+	move.w	y_pixel(a0),obj0e_counter(a0)
+    else
 	move.b	#$12,mapping_frame(a0)
+    endif
 
 	; Load Sonic's hand object.
 	lea	(IntroSonicHand).w,a1
@@ -26217,6 +26269,8 @@ Obj0E_Sonic_AnimationFinished:
 
 	bra.w	DisplaySprite
 ; ===========================================================================
+    if 0
+	; KiS2: Different intro.
 ; loc_12F7C:
 Obj0E_Sonic_SpawnTails:
 	cmpi.w	#192,obj0e_current_frame(a0)
@@ -26229,6 +26283,7 @@ Obj0E_Sonic_SpawnTails:
 	move.b	#4,subtype(a1)
 +
 	bra.w	DisplaySprite
+    endif
 ; ===========================================================================
 ; loc_12F9A:
 Obj0E_Sonic_FlashBackground:
@@ -26253,6 +26308,10 @@ Obj0E_Sonic_FlashBackground:
 	; Load title screen menu object.
 	move.b	#ObjID_TitleMenu,(TitleScreenMenu+id).w
 +
+    if 1
+	; KiS2: Different intro.
+	bsr.w	sub_31017E
+    endif
 	bra.w	DisplaySprite
 ; ===========================================================================
 ; loc_12FD6:
@@ -26263,11 +26322,19 @@ Obj0E_Sonic_SpawnFallingStar:
 	beq.s	+
 	cmpi.w	#400,obj0e_current_frame(a0)
 	beq.s	++
+    if 1
+	; KiS2: Different intro.
+	bsr.w	sub_31017E
+    endif
 	bra.w	DisplaySprite
 ; ===========================================================================
 +
 	cmpi.w	#464,obj0e_current_frame(a0)
 	beq.s	+
+    if 1
+	; KiS2: Different intro.
+	bsr.w	sub_31017E
+    endif
 	bra.w	DisplaySprite
 ; ===========================================================================
 +
@@ -26278,10 +26345,17 @@ Obj0E_Sonic_SpawnFallingStar:
 
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_MakeStarSparkle
 
+    if 0
+	; KiS2: Different intro.
 	; Delete sprite mask object.
 	lea	(IntroMaskingSprite).w,a1
 	bsr.w	DeleteObject2
+    endif
 
+    if 1
+	; KiS2: Different intro.
+	bsr.w	sub_31017E
+    endif
 	bra.w	DisplaySprite
 ; ===========================================================================
 ; loc_13014:
@@ -26304,6 +26378,11 @@ Obj0E_Sonic_MakeStarSparkle:
 	; Obtain colour from the array and apply it to the palette line.
 	move.w	CyclingPal_TitleStar(pc,d0.w),(Normal_palette_line3+5*2).w
 +
+    if 1
+	; KiS2: Different intro.
+	bsr.w	sub_31017E
+sub_31017E:
+    endif
 	bra.w	DisplaySprite
 ; ===========================================================================
 ; word_1303A:
@@ -26311,6 +26390,8 @@ CyclingPal_TitleStar:
 	binclude "art/palettes/Title Star Cycle.bin"
 CyclingPal_TitleStar_End
 
+    if 0
+	; KiS2: Different intro.
 ;word_13046:
 Obj0E_Sonic_Positions:
 	;           X,      Y
@@ -26323,8 +26404,12 @@ Obj0E_Sonic_Positions:
 	dc.w  128+132, 128+25
 	dc.w  128+136, 128+24
 Obj0E_Sonic_Positions_End
+    endif
 ; ===========================================================================
-
+    if 1
+	; KiS2: Different intro.
+Obj0E_Thing
+    else
 Obj0E_Tails:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
@@ -26440,6 +26525,7 @@ Obj0E_MaskingSprite_Init:
 
 BranchTo12_DisplaySprite
 	bra.w	DisplaySprite
+    endif
 ; ===========================================================================
 ; Obj0E_LargeStar:
 Obj0E_FlashingStar:
@@ -26628,7 +26714,13 @@ Obj0E_FallingStar_Init:
 Obj0E_FallingStar_Main:
 	subq.w	#1,obj0e_counter(a0)
 	bmi.w	DeleteObject
-
+    if 1
+	; KiS2: Different intro.
+	cmpi.w	#60,obj0e_counter(a0)
+	bne.s	+
+	move.b	#1,priority(a0)
++
+    endif
 	; Make the star fall.
 	subq.w	#2,x_pixel(a0)
 	addq.w	#1,y_pixel(a0)
