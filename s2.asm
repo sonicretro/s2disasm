@@ -4124,15 +4124,23 @@ TitleScreen_Loop:
 	jsrto	SwScrl_Title, JmpTo_SwScrl_Title
 	jsr	(BuildSprites).l
 
-	; write alternating 0s and 4s, 80 times, at every 4th word,
-	; starting at Sprite_Table+6
+	; Find the masking sprite, and move it to the proper location. The
+	; sprite is normally at X 128+128, but in order to perform masking,
+	; it must be at X 0.
+	; The masking sprite is used to stop Sonic and Tails from overlapping
+	; the emblem.
+	; You might be wondering why it alternates between 0 and 4 for the X
+	; position. That's because masking sprites only work if another
+	; sprite rendered before them (or if the previous scanline reached
+	; its pixel limit). Because of this, a sprite is placed at X 4 before
+	; a second one is placed at X 0.
 	lea	(Sprite_Table+4).w,a1
 	moveq	#0,d0
 
-	moveq	#79,d6
--	tst.w	(a1)
+	moveq	#(Sprite_Table_End-Sprite_Table)/8-1,d6
+-	tst.w	(a1)	; The masking sprite has its art-tile set to $0000.
 	bne.s	+
-	bchg	#2,d0
+	bchg	#2,d0	; Alternate between X positions of 0 and 4.
 	move.w	d0,2(a1)
 +	addq.w	#8,a1
 	dbf	d6,-
@@ -25691,7 +25699,7 @@ Obj0E_Index: offsetTable
 	offsetTableEntry.w Obj0E_LargeStar	;   8
 	offsetTableEntry.w Obj0E_SonicHand	;  $A
 	offsetTableEntry.w Obj0E_SmallStar	;  $C
-	offsetTableEntry.w Obj0E_SkyPiece	;  $E
+	offsetTableEntry.w Obj0E_MaskingSprite	;  $E
 	offsetTableEntry.w Obj0E_TailsHand	; $10
 ; ===========================================================================
 ; loc_12E38:
@@ -25786,9 +25794,9 @@ Obj0E_Sonic_LoadPalette:
 	moveq	#bytesToWcnt(palette_line_size),d6
 -	move.w	(a1)+,(a2)+
 	dbf	d6,-
-; sub_12F08:
-Obj0E_Sonic_LoadSky:
-	; Load piece-of-sky object.
+; sub_12F08: Obj0E_Sonic_LoadSky:
+Obj0E_LoadMaskingSprite:
+	; Load sprite mask object.
 	lea	(IntroSmallStar1).w,a1
 	move.b	#ObjID_IntroStars,id(a1)
 	move.b	#$E,subtype(a1)
@@ -25802,8 +25810,8 @@ Obj0E_Sonic_Move:
 	; reached.
 	moveq	#Obj0E_Sonic_Positions_End-Obj0E_Sonic_Positions+4,d2
 	lea	(Obj0E_Sonic_Positions).l,a1
-
-loc_12F20:
+; loc_12F20:
+Obj0E_Move:
 	; Change position every 4 frames.
 	move.w	obj0e_counter(a0),d0
 	addq.w	#1,d0
@@ -25906,7 +25914,7 @@ Obj0E_Sonic_SpawnFallingStar:
 
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_MakeStarSparkle
 
-	; Delete piece-of-sky object.
+	; Delete sprite mask object.
 	lea	(IntroSmallStar1).w,a1
 	bsr.w	DeleteObject2
 
@@ -25929,7 +25937,7 @@ Obj0E_Sonic_MakeStarSparkle:
 +
 	move.w	d0,obj0e_array_index(a0)
 
-	; Obtain colour from the array and apply it to the object.
+	; Obtain colour from the array and apply it to the palette line.
 	move.w	CyclingPal_TitleStar(pc,d0.w),(Normal_palette_line3+5*2).w
 +
 	bra.w	DisplaySprite
@@ -25986,7 +25994,7 @@ Obj0E_Tails_Init:
 Obj0E_Tails_Move:
 	moveq	#Obj0E_Tails_Positions_End-Obj0E_Tails_Positions+4,d2
 	lea	(Obj0E_Tails_Positions).l,a1
-	bra.w	loc_12F20
+	bra.w	Obj0E_Move
 ; ===========================================================================
 ; loc_130A2:
 Obj0E_Tails_AnimationFinished:
@@ -26042,26 +26050,29 @@ Obj0E_NextRoutineSecondary:
 BranchTo11_DisplaySprite
 	bra.w	DisplaySprite
 ; ===========================================================================
-
-Obj0E_SkyPiece:
+; Obj0E_SkyPiece:
+Obj0E_MaskingSprite:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
-	move.w	Obj0E_SkyPiece_Index(pc,d0.w),d1
-	jmp	Obj0E_SkyPiece_Index(pc,d1.w)
+	move.w	Obj0E_MaskingSprite_Index(pc,d0.w),d1
+	jmp	Obj0E_MaskingSprite_Index(pc,d1.w)
 ; ===========================================================================
 ; off_13120:
-Obj0E_SkyPiece_Index: offsetTable
-	offsetTableEntry.w Obj0E_SkyPiece_Init		; 0
+Obj0E_MaskingSprite_Index: offsetTable
+	offsetTableEntry.w Obj0E_MaskingSprite_Init	; 0
 	offsetTableEntry.w BranchTo12_DisplaySprite	; 2
 ; ===========================================================================
 
-Obj0E_SkyPiece_Init:
+Obj0E_MaskingSprite_Init:
 	addq.b	#2,routine_secondary(a0)	; BranchTo12_DisplaySprite
-	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,0,0),art_tile(a0)
+	move.w	#make_art_tile(ArtTile_ArtNem_Title,0,0),art_tile(a0)
 	move.b	#$11,mapping_frame(a0)
 	move.b	#2,priority(a0)
+	; Masking sprites normally must have an X coordinate of 0. I don't
+	; know why it isn't set to that here, but it is corrected to 0 in
+	; 'TitleScreen_Loop'.
 	move.w	#128+128,x_pixel(a0)
-	move.w	#128+112,y_pixel(a0)
+	move.w	#128+224/2,y_pixel(a0)
 
 BranchTo12_DisplaySprite
 	bra.w	DisplaySprite
@@ -26174,7 +26185,7 @@ BranchTo13_DisplaySprite
 Obj0E_SonicHand_Move:
 	moveq	#Obj0E_SonicHand_Positions_End-Obj0E_SonicHand_Positions+4,d2
 	lea	(Obj0E_SonicHand_Positions).l,a1
-	bra.w	loc_12F20
+	bra.w	Obj0E_Move
 ; ===========================================================================
 ; word_13240:
 Obj0E_SonicHand_Positions:
@@ -26218,7 +26229,7 @@ BranchTo14_DisplaySprite
 Obj0E_TailsHand_Move:
 	moveq	#Obj0E_TailsHand_Positions_End-Obj0E_TailsHand_Positions+4,d2
 	lea	(Obj0E_TailsHand_Positions).l,a1
-	bra.w	loc_12F20
+	bra.w	Obj0E_Move
 ; ===========================================================================
 ; word_1328C:
 Obj0E_TailsHand_Positions:
@@ -26450,8 +26461,8 @@ TitleScreen_SetFinalState:
 	; Initialise Sonic's hand object.
 	lea	(IntroSonicHand).w,a1
 	bsr.w	TitleScreen_InitSprite
-	move.b	#ObjID_IntroStars,id(a1) ; load obj0E (flashing intro star) at $FFFFB1C0
-	move.b	#$A,routine(a1)				; Sonic's hand
+	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#$A,routine(a1)
 	move.b	#2,priority(a1)
 	move.b	#9,mapping_frame(a1)
 	move.b	#4,routine_secondary(a1)
@@ -26461,8 +26472,8 @@ TitleScreen_SetFinalState:
 	; Initialise Tails object.
 	lea	(IntroTails).w,a1
 	bsr.w	TitleScreen_InitSprite
-	move.b	#ObjID_IntroStars,id(a1) ; load obj0E
-	move.b	#4,routine(a1)				; Tails
+	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#4,routine(a1)
 	move.b	#4,mapping_frame(a1)
 	move.b	#6,routine_secondary(a1)
 	move.b	#3,priority(a1)
@@ -26472,8 +26483,8 @@ TitleScreen_SetFinalState:
 	; Initialise Tails' hand object.
 	lea	(IntroTailsHand).w,a1
 	bsr.w	TitleScreen_InitSprite
-	move.b	#ObjID_IntroStars,id(a1) ; load obj0E
-	move.b	#$10,routine(a1)			; Tails' hand
+	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#$10,routine(a1)
 	move.b	#2,priority(a1)
 	move.b	#$13,mapping_frame(a1)
 	move.b	#4,routine_secondary(a1)
@@ -26482,14 +26493,14 @@ TitleScreen_SetFinalState:
 
 	; Initialise top-of-emblem object.
 	lea	(IntroEmblemTop).w,a1
-	move.b	#ObjID_IntroStars,id(a1) ; load obj0E
-	move.b	#6,subtype(a1)				; logo top
+	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#6,subtype(a1)
 
-	; Initialise sky object.
-	bsr.w	Obj0E_Sonic_LoadSky
+	; Initialise sprite mask object.
+	bsr.w	Obj0E_LoadMaskingSprite
 
 	; Initialise title screen menu object.
-	move.b	#ObjID_TitleMenu,(TitleScreenMenu+id).w ; load Obj0F (title screen menu) at $FFFFB400
+	move.b	#ObjID_TitleMenu,(TitleScreenMenu+id).w
 
 	; Delete palette-changer object.
 	lea	(TitleScreenPaletteChanger).w,a1
@@ -26516,10 +26527,10 @@ TitleScreen_SetFinalState:
 -	move.l	(a1)+,(a2)+
 	dbf	d6,-
 
-	; Play music if it isn't already playing.
+	; Play title screen music if it isn't already playing.
 	tst.b	obj0e_music_playing(a0)
-	bne.s	+	; rts
-	moveq	#signextendB(MusID_Title),d0 ; title music
+	bne.s	+
+	moveq	#signextendB(MusID_Title),d0
 	jsrto	PlayMusic, JmpTo4_PlayMusic
 +
 	rts
@@ -26560,7 +26571,7 @@ Obj0F_Init:
 	move.w	#$128,x_pixel(a0)
 	move.w	#$14C,y_pixel(a0)
 	move.l	#Obj0F_MapUnc_13B70,mappings(a0)
-	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,0,0),art_tile(a0)
+	move.w	#make_art_tile(0,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	andi.b	#1,(Title_screen_option).w
 	move.b	(Title_screen_option).w,mapping_frame(a0)
@@ -30366,7 +30377,7 @@ BuildSprites_P2_ObjLoop:
 BuildSprites_P2_ScreenSpaceObj:
 	move.w	y_pixel(a0),d2
 	move.w	x_pixel(a0),d3
-	addi.w	#$160,d2
+	addi.w	#128+224,d2
 	bra.s	BuildSprites_P2_DrawSprite
 ; ===========================================================================
 ; loc_16B22:
