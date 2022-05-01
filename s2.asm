@@ -25696,9 +25696,9 @@ Obj0E_Index: offsetTable
 	offsetTableEntry.w Obj0E_Sonic		;   2
 	offsetTableEntry.w Obj0E_Tails		;   4
 	offsetTableEntry.w Obj0E_LogoTop	;   6
-	offsetTableEntry.w Obj0E_LargeStar	;   8
+	offsetTableEntry.w Obj0E_FlashingStar	;   8
 	offsetTableEntry.w Obj0E_SonicHand	;  $A
-	offsetTableEntry.w Obj0E_SmallStar	;  $C
+	offsetTableEntry.w Obj0E_FallingStar	;  $C
 	offsetTableEntry.w Obj0E_MaskingSprite	;  $E
 	offsetTableEntry.w Obj0E_TailsHand	; $10
 ; ===========================================================================
@@ -25745,7 +25745,7 @@ Obj0E_Sonic_Init:
 	move.w	#128+96,y_pixel(a0)
 
 	; Load flashing star object.
-	lea	(IntroLargeStar).w,a1
+	lea	(IntroFlashingStar).w,a1
 	move.b	#ObjID_IntroStars,id(a1)
 	move.b	#8,subtype(a1)
 
@@ -25797,7 +25797,7 @@ Obj0E_Sonic_LoadPalette:
 ; sub_12F08: Obj0E_Sonic_LoadSky:
 Obj0E_LoadMaskingSprite:
 	; Load sprite mask object.
-	lea	(IntroSmallStar1).w,a1
+	lea	(IntroMaskingSprite).w,a1
 	move.b	#ObjID_IntroStars,id(a1)
 	move.b	#$E,subtype(a1)
 	rts
@@ -25887,7 +25887,7 @@ Obj0E_Sonic_FlashBackground:
 	move.b	#2,subtype(a1)
 
 	; Load title screen menu object.
-	move.b	#ObjID_TitleMenu,(TitleScreenMenu+id).w ; load Obj0F (title screen menu) at $FFFFB400
+	move.b	#ObjID_TitleMenu,(TitleScreenMenu+id).w
 +
 	bra.w	DisplaySprite
 ; ===========================================================================
@@ -25908,14 +25908,14 @@ Obj0E_Sonic_SpawnFallingStar:
 ; ===========================================================================
 +
 	; Create falling star object.
-	lea	(IntroSmallStar2).w,a1
+	lea	(IntroFallingStar).w,a1
 	move.b	#ObjID_IntroStars,id(a1)
 	move.b	#$C,subtype(a1)
 
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_MakeStarSparkle
 
 	; Delete sprite mask object.
-	lea	(IntroSmallStar1).w,a1
+	lea	(IntroMaskingSprite).w,a1
 	bsr.w	DeleteObject2
 
 	bra.w	DisplaySprite
@@ -26077,22 +26077,22 @@ Obj0E_MaskingSprite_Init:
 BranchTo12_DisplaySprite
 	bra.w	DisplaySprite
 ; ===========================================================================
-
-Obj0E_LargeStar:
+; Obj0E_LargeStar:
+Obj0E_FlashingStar:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
-	move.w	Obj0E_LargeStar_Index(pc,d0.w),d1
-	jmp	Obj0E_LargeStar_Index(pc,d1.w)
+	move.w	Obj0E_FlashingStar_Index(pc,d0.w),d1
+	jmp	Obj0E_FlashingStar_Index(pc,d1.w)
 ; ===========================================================================
 ; off_13158:
-Obj0E_LargeStar_Index: offsetTable
-	offsetTableEntry.w Obj0E_LargeStar_Init	; 0
-	offsetTableEntry.w Obj0E_Animate	; 2
-	offsetTableEntry.w Obj0E_LargeStar_Wait	; 4
-	offsetTableEntry.w Obj0E_LargeStar_Move	; 6
+Obj0E_FlashingStar_Index: offsetTable
+	offsetTableEntry.w Obj0E_FlashingStar_Init	; 0
+	offsetTableEntry.w Obj0E_Animate		; 2
+	offsetTableEntry.w Obj0E_FlashingStar_Wait	; 4
+	offsetTableEntry.w Obj0E_FlashingStar_Move	; 6
 ; ===========================================================================
 
-Obj0E_LargeStar_Init:
+Obj0E_FlashingStar_Init:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Animate
 	move.b	#$C,mapping_frame(a0)
 	ori.w	#high_priority,art_tile(a0)
@@ -26104,17 +26104,17 @@ Obj0E_LargeStar_Init:
 	rts
 ; ===========================================================================
 ; loc_13190:
-Obj0E_LargeStar_Wait:
+Obj0E_FlashingStar_Wait:
 	subq.w	#1,obj0e_counter(a0)
 	bmi.s	+
 	rts
 ; ===========================================================================
 +
-	addq.b	#2,routine_secondary(a0)	; Obj0E_LargeStar_Move
+	addq.b	#2,routine_secondary(a0)	; Obj0E_FlashingStar_Move
 	rts
 ; ===========================================================================
 ; loc_1319E:
-Obj0E_LargeStar_Move:
+Obj0E_FlashingStar_Move:
 	move.b	#2,routine_secondary(a0)	; Obj0E_Animate
 	move.b	#0,anim_frame(a0)
 	move.b	#0,anim_frame_duration(a0)
@@ -26124,12 +26124,12 @@ Obj0E_LargeStar_Move:
 	; position array.
 	move.w	obj0e_array_index(a0),d0
 	addq.w	#4,d0
-	cmpi.w	#Obj0E_LargeStar_Positions_End-Obj0E_LargeStar_Positions+4,d0
+	cmpi.w	#Obj0E_FlashingStar_Positions_End-Obj0E_FlashingStar_Positions+4,d0
 	bhs.w	DeleteObject
 	move.w	d0,obj0e_array_index(a0)
 
 	; Obtain position from the array and apply it to the object.
-	move.l	Obj0E_LargeStar_Positions-4(pc,d0.w),d0
+	move.l	Obj0E_FlashingStar_Positions-4(pc,d0.w),d0
 	move.w	d0,y_pixel(a0)
 	swap	d0
 	move.w	d0,x_pixel(a0)
@@ -26139,7 +26139,7 @@ Obj0E_LargeStar_Move:
 	jmpto	PlaySound, JmpTo4_PlaySound
 ; ===========================================================================
 ; word_131DC:
-Obj0E_LargeStar_Positions:
+Obj0E_FlashingStar_Positions:
 	dc.w  128+90,  128+114
 	dc.w  128+240, 128+120
 	dc.w  128+178, 128+177
@@ -26149,7 +26149,7 @@ Obj0E_LargeStar_Positions:
 	dc.w  128+141, 128+187
 	dc.w  128+64,  128+43
 	dc.w  128+229, 128+135
-Obj0E_LargeStar_Positions_End
+Obj0E_FlashingStar_Positions_End
 ; ===========================================================================
 
 Obj0E_SonicHand:
@@ -26237,21 +26237,21 @@ Obj0E_TailsHand_Positions:
 	dc.w  128+141, 128+81
 Obj0E_TailsHand_Positions_End
 ; ===========================================================================
-
-Obj0E_SmallStar:
+; Obj0E_SmallStar:
+Obj0E_FallingStar:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
-	move.w	Obj0E_SmallStar_Index(pc,d0.w),d1
-	jmp	Obj0E_SmallStar_Index(pc,d1.w)
+	move.w	Obj0E_FallingStar_Index(pc,d0.w),d1
+	jmp	Obj0E_FallingStar_Index(pc,d1.w)
 ; ===========================================================================
 ; off_132A2:
-Obj0E_SmallStar_Index: offsetTable
-	offsetTableEntry.w Obj0E_SmallStar_Init	; 0
-	offsetTableEntry.w Obj0E_SmallStar_Main	; 2
+Obj0E_FallingStar_Index: offsetTable
+	offsetTableEntry.w Obj0E_FallingStar_Init	; 0
+	offsetTableEntry.w Obj0E_FallingStar_Main	; 2
 ; ===========================================================================
-
-Obj0E_SmallStar_Init:
-	addq.b	#2,routine_secondary(a0)	; Obj0E_SmallStar_Main
+; Obj0E_SmallStar_Init:
+Obj0E_FallingStar_Init:
+	addq.b	#2,routine_secondary(a0)	; Obj0E_FallingStar_Main
 	move.b	#$C,mapping_frame(a0)
 	move.b	#5,priority(a0)
 	move.w	#128+240,x_pixel(a0)
@@ -26260,8 +26260,8 @@ Obj0E_SmallStar_Init:
 	move.w	#140,obj0e_counter(a0)
 	bra.w	DisplaySprite
 ; ===========================================================================
-; loc_132D2:
-Obj0E_SmallStar_Main:
+; loc_132D2: Obj0E_SmallStar_Main:
+Obj0E_FallingStar_Main:
 	subq.w	#1,obj0e_counter(a0)
 	bmi.w	DeleteObject
 
@@ -26568,8 +26568,8 @@ Obj0F_Index:	offsetTable
 ; loc_13616:
 Obj0F_Init:
 	addq.b	#2,routine(a0) ; => Obj0F_Main
-	move.w	#$128,x_pixel(a0)
-	move.w	#$14C,y_pixel(a0)
+	move.w	#128+320/2+8,x_pixel(a0)
+	move.w	#128+224/2+92,y_pixel(a0)
 	move.l	#Obj0F_MapUnc_13B70,mappings(a0)
 	move.w	#make_art_tile(0,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
@@ -26607,47 +26607,51 @@ Obj0F_Main:
 ; animation script
 ; off_13686:
 Ani_obj0E:	offsetTable
-		offsetTableEntry.w byte_1368E	; 0
-		offsetTableEntry.w byte_13694	; 1
-		offsetTableEntry.w byte_1369C	; 2
-		offsetTableEntry.w byte_136A4	; 3
-byte_1368E:
+		offsetTableEntry.w Ani_obj0E_Sonic		; 0
+		offsetTableEntry.w Ani_obj0E_Tails		; 1
+		offsetTableEntry.w Ani_obj0E_FlashingStar	; 2
+		offsetTableEntry.w Ani_obj0E_FallingStar	; 3
+; byte_1368E:
+Ani_obj0E_Sonic:
 	dc.b   1
-	dc.b   5	; 1
-	dc.b   6	; 2
-	dc.b   7	; 3
+	dc.b   5
+	dc.b   6
+	dc.b   7
     if ~~fixBugs
 	; This appears to be a leftover prototype frame: it's a duplicate of
 	; frame $12, except Sonic is missing his right arm. The old frame
 	; being here in this animation script causes Sonic to appear with
 	; both of his arms missing for a single frame.
-	dc.b   8	; 4
+	dc.b   8
     endif
-	dc.b $FA	; 5
+	dc.b $FA
 	even
-byte_13694:
+; byte_13694:
+Ani_obj0E_Tails:
 	dc.b   1
-	dc.b   0	; 1
-	dc.b   1	; 2
-	dc.b   2	; 3
-	dc.b   3	; 4
-	dc.b   4	; 5
-	dc.b $FA	; 6
-	even
-byte_1369C:
+	dc.b   0
 	dc.b   1
-	dc.b  $C	; 1
-	dc.b  $D	; 2
-	dc.b  $E	; 3
-	dc.b  $D	; 4
-	dc.b  $C	; 5
-	dc.b $FA	; 6
-	even
-byte_136A4:
+	dc.b   2
 	dc.b   3
-	dc.b  $C	; 1
-	dc.b  $F	; 2
-	dc.b $FF	; 3
+	dc.b   4
+	dc.b $FA
+	even
+; byte_1369C:
+Ani_obj0E_FlashingStar:
+	dc.b   1
+	dc.b  $C
+	dc.b  $D
+	dc.b  $E
+	dc.b  $D
+	dc.b  $C
+	dc.b $FA
+	even
+; byte_136A4:
+Ani_obj0E_FallingStar:
+	dc.b   3
+	dc.b  $C
+	dc.b  $F
+	dc.b $FF
 	even
 ; -----------------------------------------------------------------------------
 ; Sprite Mappings - Flashing stars from intro (Obj0E)

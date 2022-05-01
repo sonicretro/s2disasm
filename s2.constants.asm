@@ -1831,14 +1831,14 @@ IntroSonic:			; stars on the title screen
 				ds.b	object_size
 IntroTails:
 				ds.b	object_size
-IntroLargeStar:
+IntroFlashingStar:
 TitleScreenPaletteChanger:
 				ds.b	object_size
 TitleScreenPaletteChanger3:
 				ds.b	object_size
 IntroEmblemTop:
 				ds.b	object_size
-IntroSmallStar1:
+IntroMaskingSprite:
 				ds.b	object_size
 IntroSonicHand:
 				ds.b	object_size
@@ -1851,7 +1851,7 @@ TitleScreenPaletteChanger2:
 
 TitleScreenMenu:
 				ds.b	object_size
-IntroSmallStar2:
+IntroFallingStar:
 				ds.b	object_size
     if * > Object_RAM_End
 	fatal "Title screen objects exceed size of object RAM buffer."
