@@ -145,3 +145,8 @@ VsResultsScreen_SSZone = $87FC
 Anim_SonicMilesBG = 0
 sub_8476 = $308476
 Obj21 = $3080BE
+
+Off_Objects_KiS2 = $DF370
+
+SK_PLC_Knuckles = $14BD0A
+SK_ArtUnc_Knux = $1200E0

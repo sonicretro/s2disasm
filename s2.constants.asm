@@ -47,7 +47,11 @@ subtype =		$28
 ; conventions specific to Sonic/Tails (Obj01, Obj02, and ObjDB):
 ; note: $1F, $20, and $21 are unused and available
 inertia =		$14 ; and $15 ; directionless representation of speed... not updated in the air
+    if 1
+	; KiS2
+knuckles_something2 =	$1F
 knuckles_something =	$21
+    endif
 flip_angle =		$27 ; angle about the x axis (360 degrees = 256) (twist/tumble)
 air_left =		$28
 flip_turned =		$29 ; 0 for normal, 1 to invert flipping (it's a 180 degree rotation about the axis of Sonic's spine, so he stays in the same position but looks turned around)
@@ -945,10 +949,21 @@ AniIDSonAni_Blank		= id(SonAni_Blank_ptr)		; 28 ; $1C
 AniIDSonAni_Balance3		= id(SonAni_Balance3_ptr)	; 29 ; $1D
 AniIDSonAni_Balance4		= id(SonAni_Balance4_ptr)	; 30 ; $1E
 AniIDSupSonAni_Transform	= id(SupSonAni_Transform_ptr)	; 31 ; $1F
+    if 1
+	; KiS2
+AniIDKnuxAni_Glide		= id(KnuxAni_Glide_ptr)			; 32 ; $20
+AniIDKnuxAni_FallAfterGlide	= id(KnuxAni_FallAfterGlide_ptr)	; 33 ; $21
+AniIDKnuxAni_ClimbLedge		= id(KnuxAni_ClimbLedge_ptr)		; 34 ; $22
+AniIDKnuxAni_LandAfterGlide	= id(KnuxAni_LandAfterGlide_ptr)	; 35 ; $23
+AniIDKnuxAni_ShadowBox		= id(KnuxAni_ShadowBox_ptr)		; 36 ; $24
+    else
 AniIDSonAni_Lying		= id(SonAni_Lying_ptr)		; 32 ; $20
 AniIDSonAni_LieDown		= id(SonAni_LieDown_ptr)	; 33 ; $21
+    endif
 
 
+    if 0
+	; KiS2: No Tails.
 offset :=	TailsAniData
 ptrsize :=	2
 idstart :=	0
@@ -986,6 +1001,7 @@ AniIDTailsAni_Dummy4		= id(TailsAni_Dummy4_ptr)	; 29 ; $1D
 AniIDTailsAni_Dummy5		= id(TailsAni_Dummy5_ptr)	; 30 ; $1E
 AniIDTailsAni_HaulAss		= id(TailsAni_HaulAss_ptr)	; 31 ; $1F
 AniIDTailsAni_Fly		= id(TailsAni_Fly_ptr)		; 32 ; $20
+    endif
 
 
 ; Other sizes
@@ -1290,6 +1306,9 @@ Underwater_palette_line2:	ds.b palette_line_size
 Underwater_palette_line3:	ds.b palette_line_size
 Underwater_palette_line4:	ds.b palette_line_size
 
+    if 1
+Knuckles_Art_Conversion_Buffer:
+    endif
 				ds.b	$500	; $FFFFF100-$FFFFF5FF ; unused, leftover from the Sonic 1 sound driver (and used by it when you port it to Sonic 2)
 
 Game_Mode:			ds.b	1	; see GameModesArray (master level trigger, Mstr_Lvl_Trigger)
