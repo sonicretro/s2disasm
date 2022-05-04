@@ -145,6 +145,7 @@ VsResultsScreen_SSZone = $87FC
 Anim_SonicMilesBG = 0
 sub_8476 = $308476
 Obj21 = $3080BE
+AniIDTailsAni_Roll = 2
 
 Off_Objects_KiS2 = $DF370
 

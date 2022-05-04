@@ -32630,7 +32630,11 @@ Touch_Rings:
 	; This logic only works for Sonic, not Tails. Also, it only applies
 	; to the last frame of his ducking animation. This is a leftover from
 	; Sonic 1, where Sonic's ducking animation only had one frame.
+    if 1
+	cmpi.b	#$9C,mapping_frame(a0)	; is Sonic ducking?
+    else
 	cmpi.b	#$4D,mapping_frame(a0)	; is Sonic ducking?
+    endif
 	bne.s	+			; if not, branch
     endif
 	addi.w	#$C,d3
@@ -33276,7 +33280,11 @@ Check_CNZ_bumpers:
 	; This logic only works for Sonic, not Tails. Also, it only applies
 	; to the last frame of his ducking animation. This is a leftover from
 	; Sonic 1, where Sonic's ducking animation only had one frame.
+    if 1
+	cmpi.b	#$9C,mapping_frame(a0)	; is Sonic ducking?
+    else
 	cmpi.b	#$4D,mapping_frame(a0)	; is Sonic ducking?
+    endif
 	bne.s	+			; if not, branch
     endif
 	addi.w	#$C,d3
@@ -69579,12 +69587,19 @@ Obj57_FallingStuff:	; Spikes & Stones
 	jsrto	ObjectMoveAndFall, JmpTo5_ObjectMoveAndFall
 	subi.w	#$28,sub2_y_pos(a0)	; decrease gravity
 	cmpi.w	#$6F0,y_pos(a0)	; if below boundary, delete
-    if ~~removeJmpTos
+	; KiS2: For some reason, this REV02 change was reverted.
+    if 1|~~removeJmpTos
 	bgt.w	JmpTo57_DeleteObject
     else
 	bgt.s	JmpTo56_DeleteObject
     endif
 	jmpto	DisplaySprite, JmpTo38_DisplaySprite
+
+    if 1
+	; KiS2
+JmpTo57_DeleteObject ; JmpTo
+	jmp	(DeleteObject).l
+    endif
 ; ===========================================================================
 ; off_3160A: Obj57_AnimIndex:
 Ani_obj57:	offsetTable
@@ -69919,7 +69934,8 @@ loc_31C08:
 	lea	(Ani_obj51).l,a1
 	bsr.w	AnimateBoss
 
-    if removeJmpTos&&~~fixBugs
+	; KiS2: Moved.
+    if 0&&removeJmpTos&&~~fixBugs
 	; This has to be moved so that it doesn't point to 'DisplaySprite3'.
 JmpTo39_DisplaySprite ; JmpTo
     endif
@@ -70166,7 +70182,8 @@ loc_31E4A:
     endif
 ; ===========================================================================
 
-    if removeJmpTos
+	; KiS2: Moved.
+    if 0&&removeJmpTos
 JmpTo59_DeleteObject ; JmpTo
     endif
 
@@ -70279,7 +70296,8 @@ loc_31F96:
 	move.w	#0,x_vel(a0)
 	move.w	#0,y_vel(a0)
 
-    if removeJmpTos&&fixBugs
+	; KiS2: Moved.
+    if 0&&removeJmpTos&&fixBugs
 	; This has to be moved so that it doesn't point to 'DisplaySprite3'.
 JmpTo39_DisplaySprite ; JmpTo
     endif
@@ -70357,6 +70375,16 @@ loc_32080:
 	cmpi.w	#$705,y_pos(a0)
 	blo.w	JmpTo39_DisplaySprite
 	jmpto	JmpTo59_DeleteObject, JmpTo59_DeleteObject
+
+    if 1
+	; KiS2: Moved.
+JmpTo39_DisplaySprite ; JmpTo
+	jmp	(DisplaySprite).l
+
+JmpTo59_DeleteObject ; JmpTo
+	jmp	(DeleteObject).l
+    endif
+
 ; ===========================================================================
 ; animation script
 ; off_3209C:
@@ -71330,7 +71358,8 @@ Obj53_Burst:
 	movea.l	objoff_34(a0),a1 ; a1=object
 	subi_.b	#1,objoff_2C(a1)
 
-    if removeJmpTos
+	; KiS2: Moved.
+    if 0&&removeJmpTos
 JmpTo61_DeleteObject ; JmpTo
     endif
 
@@ -71392,11 +71421,21 @@ Obj54_LaserShooter:
 	beq.w	JmpTo40_DisplaySprite
 	bset	#0,render_flags(a0)
 
-    if removeJmpTos
+	; KiS2: Moved.
+    if 0&&removeJmpTos
 JmpTo40_DisplaySprite ; JmpTo
     endif
 
 	jmpto	DisplaySprite, JmpTo40_DisplaySprite
+
+    if 1
+	; KiS2: Moved.
+JmpTo40_DisplaySprite ; JmpTo
+	jmp	(DisplaySprite).l
+
+JmpTo61_DeleteObject ; JmpTo
+	jmp	(DeleteObject).l
+    endif
 ; ===========================================================================
 ; animation script
 ; off_32D7A:
@@ -71733,7 +71772,8 @@ Obj55_Defeated_Sink:
 	jmpto	DisplaySprite, JmpTo41_DisplaySprite
     endif
 ; ===========================================================================
-    if removeJmpTos
+	; KiS2: Moved.
+    if 0&&removeJmpTos
 JmpTo62_DeleteObject ; JmpTo
     endif
 
@@ -72128,6 +72168,12 @@ Obj55_Laser_Main:
 	cmpi.w	#$2A10,x_pos(a0)	; has laser moved off screen going right?
 	bhs.w	JmpTo62_DeleteObject	; if yes, branch
 	jmpto	DisplaySprite, JmpTo41_DisplaySprite
+
+    if 1
+	; KiS2: Moved.
+JmpTo62_DeleteObject ; JmpTo
+	jmp	(DeleteObject).l
+    endif
 ; ===========================================================================
 ; checks if laser hit the ground
 ; loc_335FE:
@@ -72227,7 +72273,12 @@ Obj55_Wave_End:
 ; ===========================================================================
 
 BranchTo2_JmpTo62_DeleteObject
+    if 1
+	; KiS2
+	jmp	(DeleteObject).l
+    else
 	bra.w	JmpTo62_DeleteObject
+    endif
 ; ===========================================================================
 ; animation script
 ; off_33712:
@@ -72443,11 +72494,16 @@ byte_33A92:
 	dc.b   0,  2	; 10
 	dc.b   4,  3	; 12
 	dc.b  $C,  1	; 14
+    if 0
+	; KiS2: It seems that the DPLC loader was rewritten, possibly to
+	; make it use standard DPLCs instead of the weird custom DPLCs that
+	; regular Sonic 2 uses.
 dword_33AA2:
 	dc.l   (SSRAM_ArtNem_SpecialSonicAndTails & $FFFFFF) + tiles_to_bytes($000)		; Sonic in upright position, $58 tiles
 	dc.l   (SSRAM_ArtNem_SpecialSonicAndTails & $FFFFFF) + tiles_to_bytes($058)		; Sonic in diagonal position, $CC tiles
 	dc.l   (SSRAM_ArtNem_SpecialSonicAndTails & $FFFFFF) + tiles_to_bytes($124)		; Sonic in horizontal position, $4D tiles
 	dc.l   (SSRAM_ArtNem_SpecialSonicAndTails & $FFFFFF) + tiles_to_bytes($171)		; Sonic in ball form, $12 tiles
+    endif
 ; ===========================================================================
 
 LoadSSSonicDynPLC:
@@ -72461,6 +72517,45 @@ LoadSSSonicDynPLC:
 ; ===========================================================================
 +
 	jsrto	DisplaySprite, JmpTo42_DisplaySprite
+    if 1
+	; KiS2: It seems that the DPLC loader was rewritten, possibly to
+	; make it use standard DPLCs instead of the weird custom DPLCs that
+	; regular Sonic 2 uses.
+	move.l	#SSRAM_ArtNem_SpecialSonicAndTails&$FFFFFF,d6
+	lea	(Sonic_LastLoadedDPLC).w,a4
+	move.w	#tiles_to_bytes(ArtTile_ArtNem_SpecialSonic),d4
+	moveq	#0,d1
+
+LoadSSPlayerDynPLC:
+	moveq	#0,d0
+	move.b	mapping_frame(a0),d0
+	cmp.b	(a4),d0
+	beq.s	return_33B3E
+	move.b	d0,(a4)
+	add.w	d1,d0
+	add.w	d0,d0
+	lea	(Obj09_MapRUnc_345FA).l,a2
+	add.w	(a2,d0.w),a2
+	move.w	(a2)+,d5
+	subq.w	#1,d5
+	bmi.s	return_33B3E
+
+loc_33AFE:
+	moveq	#0,d1
+	move.w	(a2)+,d1
+	move.w	d1,d3
+	lsr.w	#8,d3
+	and.w	#$F0,d3
+	add.w	#$10,d3
+	and.w	#$FFF,d1
+	lsl.l	#5,d1
+	add.l	d6,d1
+	move.w	d4,d2
+	add.w	d3,d4
+	add.w	d3,d4
+	jsr	(QueueDMATransfer).l
+	dbf	d5,loc_33AFE
+    else
 	lea	dword_33AA2(pc),a3
 	lea	(Sonic_LastLoadedDPLC).w,a4
 	move.w	#tiles_to_bytes(ArtTile_ArtNem_SpecialSonic),d4
@@ -72508,6 +72603,7 @@ SSPLC_ReadEntry:
 	add.w	d3,d4
 	jsr	(QueueDMATransfer).l
 	dbf	d5,SSPLC_ReadEntry
+    endif
 
 return_33B3E:
 	rts
@@ -73172,6 +73268,7 @@ byte_34208:
 ; ----------------------------------------------------------------------------
 ; sprite mappings - uses ArtNem_SpecialSonicAndTails
 ; ----------------------------------------------------------------------------
+; KiS2: These mappings were modified.
 Obj09_MapUnc_34212:	BINCLUDE "mappings/sprite/obj09.bin"
 ; ----------------------------------------------------------------------------
 ; sprite mappings for special stage shadows
@@ -73187,6 +73284,8 @@ Obj63_MapUnc_34492:	BINCLUDE "mappings/sprite/obj63.bin"
 ; The same applies to the last $15 frames, but they have yet another difference:
 ; a small space optimization. These frames only have one dplc per frame ever,
 ; hence the two-byte dplc count is removed from each frame.
+; KiS2: These mappings were modified (to suit Knuckles) and they were
+; converted to a different format.
 ; ----------------------------------------------------------------------------
 Obj09_MapRUnc_345FA:	BINCLUDE "mappings/spriteDPLC/obj09.bin"
 ; ===========================================================================
@@ -73571,7 +73670,12 @@ loc_34F06:
 	tst.b	render_flags(a0)
 	bpl.s	return_34F26
 	bsr.w	loc_34F28
+    if 1
+	; KiS2
+	jmp	(DisplaySprite).l
+    else
 	bra.w	JmpTo44_DisplaySprite
+    endif
 ; ===========================================================================
 
 return_34F26:
@@ -73606,7 +73710,12 @@ loc_34F6A:
 	bsr.w	loc_351A0
 	lea	(Ani_obj61).l,a1
 	jsrto	AnimateSprite, JmpTo24_AnimateSprite
+    if 1
+	; KiS2
+	jmp	(DisplaySprite).l
+    else
 	bra.w	JmpTo44_DisplaySprite
+    endif
 ; ===========================================================================
 
 loc_34F90:
@@ -73668,7 +73777,12 @@ loc_35010:
 	bsr.w	loc_351A0
 	lea	(Ani_obj5B_obj60).l,a1
 	jsrto	AnimateSprite, JmpTo24_AnimateSprite
+    if 1
+	; KiS2
+	jmp	(DisplaySprite).l
+    else
 	bra.w	JmpTo44_DisplaySprite
+    endif
 ; ===========================================================================
 
 loc_35036:
@@ -73820,7 +73934,8 @@ loc_3516C:
 	movea.l	d0,a1 ; a1=object
 	st	objoff_2A(a1)
 
-    if removeJmpTos
+	; KiS2: Moved.
+    if 0&&removeJmpTos
 JmpTo63_DeleteObject ; JmpTo
     endif
 
@@ -74051,7 +74166,12 @@ loc_3538A:
 
 loc_35392:
 	move.b	d0,mapping_frame(a0)
+    if 1
+	; KiS2
+	jmp	(DisplaySprite).l
+    else
 	bra.w	JmpTo44_DisplaySprite
+    endif
 ; ===========================================================================
 
 BranchTo_JmpTo63_DeleteObject ; BranchTo
@@ -74217,7 +74337,12 @@ Obj5B_Main:
 	bgt.w	JmpTo63_DeleteObject
 	lea	(Ani_obj5B_obj60).l,a1
 	jsrto	AnimateSprite, JmpTo24_AnimateSprite
+    if 1
+	; KiS2
+	jmp	(DisplaySprite).l
+    else
 	bra.w	JmpTo44_DisplaySprite
+    endif
 ; ===========================================================================
 
 loc_3551C:
@@ -74292,7 +74417,12 @@ Obj5A_Init:
 	move.b	#-1,mapping_frame(a1)
 +	dbf	d0,-
 
+    if 1
+	; KiS2
+	jmp	(DeleteObject).l
+    else
 	bra.w	JmpTo63_DeleteObject
+    endif
 ; ===========================================================================
 +
 	rts
@@ -74306,7 +74436,12 @@ Obj5A_RingsMessageInit:
 	sf.b	(SS_TriggerRingsToGo).w
 	move.w	#0,(SS_NoRingsTogoLifetime).w
 	move.b	#0,objoff_3A(a0)
+    if 1
+	; KiS2
+	jmp	(DeleteObject).l
+    else
 	bra.w	JmpTo63_DeleteObject
+    endif
 ; ===========================================================================
  ; temporarily remap characters to title card letter format
  ; Characters are encoded as Aa, Bb, Cc, etc. through a macro
@@ -74576,7 +74711,12 @@ Obj5A_CheckpointRainbow:
 	move.b	Obj5A_Rainbow_Positions(pc,d0.w),1+x_pos(a0)
 	move.b	Obj5A_Rainbow_Positions+1(pc,d0.w),1+y_pos(a0)
 	addi.w	#$E,objoff_30(a0)
+    if 1
+	; KiS2
+	jmp	(DisplaySprite).l
+    else
 	bra.w	JmpTo44_DisplaySprite
+    endif
 ; ===========================================================================
 +
 	tst.b	mapping_frame(a0)
@@ -74682,7 +74822,12 @@ Obj5A_Rainbow_Positions:
 	add.w	d6,art_tile(a1)
 	add.w	d6,2(a2)
 	bsr.w	Obj5A_PrintPhrase
+    if 1
+	; KiS2
+	jmp	(DeleteObject).l
+    else
 	bra.w	JmpTo63_DeleteObject
+    endif
 ; ===========================================================================
 +
 	subi.b	#$10,(SS_2P_BCD_Score).w
@@ -74714,7 +74859,12 @@ loc_35978:
 	jsr	(PlaySound).l
 	move.w	d1,d0
 	bsr.w	Obj5A_PrintCheckpointMessage
+    if 1
+	; KiS2
+	jmp	(DeleteObject).l
+    else
 	bra.w	JmpTo63_DeleteObject
+    endif
 ; ===========================================================================
 ;loc_359A6
 Obj5A_MostRingsWin:
@@ -74725,7 +74875,12 @@ Obj5A_MostRingsWin:
 +
 	move.w	#$A,d0			; MOST RINGS WINS
 	bsr.w	Obj5A_PrintPhrase
+    if 1
+	; KiS2
+	jmp	(DeleteObject).l
+    else
 	bra.w	JmpTo63_DeleteObject
+    endif
 ; ===========================================================================
 ;loc_359BC
 Obj5A_RingCheckTrigger:
@@ -74785,11 +74940,21 @@ Obj5A_Handshake:
 	beq.s	-
 	move.w	#$A,d0
 	bsr.w	Obj5A_PrintPhrase
+    if 1
+	; KiS2
+	jmp	(DeleteObject).l
+    else
 	bra.w	JmpTo63_DeleteObject
+    endif
 ; ===========================================================================
 +
 	bsr.w	Obj5A_CreateRingReqMessage
+    if 1
+	; KiS2
+	jmp	(DeleteObject).l
+    else
 	bra.w	JmpTo63_DeleteObject
+    endif
 ; ===========================================================================
 ;loc_35A7A
 Obj5A_VSReset:
@@ -74864,7 +75029,12 @@ Obj5A_TextFlyoutInit:
 	subi.w	#$70,d2
 	jsrto	CalcAngle, JmpTo_CalcAngle
 	move.b	d0,angle(a0)
+    if 1
+	; KiS2
+	jmp	(DisplaySprite).l
+    else
 	bra.w	JmpTo44_DisplaySprite
+    endif
 ; ===========================================================================
 ; this makes special stage messages like "most rings wins!" fly off the screen
 ;loc_35B96
@@ -74884,7 +75054,12 @@ Obj5A_TextFlyout:
 	bgt.w	JmpTo63_DeleteObject
 	cmpi.w	#0,y_pos(a0)
 	blt.w	JmpTo63_DeleteObject
+    if 1
+	; KiS2
+	jmp	(DisplaySprite).l
+    else
 	bra.w	JmpTo44_DisplaySprite
+    endif
 ; ===========================================================================
 ;loc_35BD6
 Obj5A_PrintNumber:
@@ -75205,7 +75380,12 @@ loc_36022:
 	bsr.w	loc_3603C
 	lea	(off_36228).l,a1
 	bsr.w	loc_3539E
+    if 1
+	; KiS2
+	jmp	(DisplaySprite).l
+    else
 	bra.w	JmpTo44_DisplaySprite
+    endif
 ; ===========================================================================
 
 loc_3603C:
@@ -75352,7 +75532,12 @@ loc_361A4:
 	andi.w	#3,d0
 	add.b	byte_361C8(pc,d0.w),d2
 	move.w	d2,y_pos(a0)
+    if 1
+	; KiS2
+	jmp	(DisplaySprite).l
+    else
 	bra.w	JmpTo44_DisplaySprite
+    endif
 ; ===========================================================================
 byte_361C8:
 	dc.b $FF
@@ -75414,6 +75599,14 @@ loc_36210:
 	rts
 	; end of unused code
 
+    if 1
+	; KiS2: Moved.
+JmpTo44_DisplaySprite ; JmpTo
+	jmp	(DisplaySprite).l
+
+JmpTo63_DeleteObject ; JmpTo
+	jmp	(DeleteObject).l
+    endif
 ; ===========================================================================
 ; animation script for object 59
 off_36228:	offsetTable
@@ -75545,8 +75738,11 @@ byte_36502: dc.b   2, $A, $B, $C,$FF
 Obj61_MapUnc_36508:	BINCLUDE "mappings/sprite/obj61.bin"
 ; ===========================================================================
 
+    if 0
+	; KiS2: Moved.
 JmpTo44_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
+    endif
 ; ===========================================================================
 
     if ~~removeJmpTos
@@ -76514,6 +76710,44 @@ Obj90_MapUnc_36D00: offsetTable
 	offsetTableEntry.w word_36D9A	; 0
 word_36D02:
 	dc.w 4
+    if 1
+	; KiS2: Converted to S3K's format.
+	dc.w $F400,    0,$FFF8
+	dc.w $FC06,    1,$FFF0 ; 4
+	dc.w $F400, $800,	   0 ; 8
+	dc.w $FC06, $801,	   0 ; 12
+word_36D24:
+	dc.w 4
+	dc.w $EC00,    7,$FFF8
+	dc.w $F407,    8,$FFF0 ; 4
+	dc.w $EC00, $807,	   0 ; 8
+	dc.w $F407, $808,	   0 ; 12
+word_36D46:
+	dc.w 2
+	dc.w $EC0F,  $10,$FFF0
+	dc.w  $C0C,  $20,$FFF0 ; 4
+word_36D58:
+	dc.w 2
+	dc.w $EC0F,  $10,$FFF0
+	dc.w  $C0C,  $24,$FFF0 ; 4
+word_36D6A:
+	dc.w 2
+	dc.w $EC0F,  $10,$FFF0
+	dc.w  $C0C,  $28,$FFF0 ; 4
+word_36D7C:
+	dc.w 1
+	dc.w $F805,  $2C,$FFF8
+word_36D86:
+	dc.w 1
+	dc.w $FC00,  $30,$FFFC
+word_36D90:
+	dc.w 1
+	dc.w $FC00,  $31,$FFFC
+word_36D9A:
+	dc.w 2
+	dc.w $F805,$4093,$FFF0
+	dc.w $F805,$4097,	   0 ; 4
+    else
 	dc.w $F400,    0,    0,$FFF8
 	dc.w $FC06,    1,    0,$FFF0 ; 4
 	dc.w $F400, $800, $800,	   0 ; 8
@@ -76549,6 +76783,7 @@ word_36D9A:
 	dc.w 2
 	dc.w $F805,$4093,$4049,$FFF0
 	dc.w $F805,$4097,$404B,	   0 ; 4
+    endif
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object 91 - Chop Chop (piranha/shark badnik) from ARZ
@@ -78647,7 +78882,12 @@ loc_38266:
 
 loc_3827A:
 	addq.w	#4,sp
+    if 1
+	; KiS2
+	jmp	(DeleteObject).l
+    else
 	bra.w	JmpTo65_DeleteObject
+    endif
 ; ===========================================================================
 
 loc_38280:
@@ -79743,7 +79983,12 @@ loc_38FE8:
 loc_3900A:
 	move.b	#0,obj_control(a2)
 	bset	#1,status(a2)
+    if 1
+	; KiS2
+	jmp	(DeleteObject).l
+    else
 	bra.w	JmpTo65_DeleteObject
+    endif
 ; ===========================================================================
 
 loc_3901A:
@@ -79968,7 +80213,12 @@ loc_39182:
 	jsrto	DeleteObject2, JmpTo6_DeleteObject2
 	dbf	d6,-
 
+    if 1
+	; KiS2
+	jmp	(DeleteObject).l
+    else
 	bra.w	JmpTo65_DeleteObject
+    endif
 ; End of subroutine loc_39182
 
 ; ===========================================================================
@@ -80030,6 +80280,76 @@ ObjAA_MapUnc_39228: offsetTable
 	offsetTableEntry.w word_3932E	; 8	; This should point to word_39350
 word_3923A:
 	dc.w 3
+    if 1
+	; KiS2: These mappings were converted to S3K's format.
+	dc.w $F801,    0,$FFE5
+	dc.w $F80D,    2,$FFED; 4
+	dc.w  $809,  $1D,$FFF1; 8
+word_39254:
+	dc.w 3
+	dc.w $F801,    0,$FFE5
+	dc.w $F80D,    2,$FFED; 4
+	dc.w  $80D,  $23,$FFF1; 8
+word_3926E:
+	dc.w 1
+	dc.w $FC00,   $A,$FFFC
+word_39278:
+	dc.w 1
+	dc.w $F809,   $F,$FFF9
+word_39282:
+	dc.w 1
+	dc.w $F80D,  $15,$FFF9
+word_3928C:
+	dc.w 1
+	dc.w $FC00,  $2B,$FFFC
+word_39296:
+	dc.w 1
+	dc.w $FC00,  $2C,$FFFC
+word_392A0:
+	dc.w 1
+	dc.w	 1,   $B,$FFFC
+word_392AA:
+	dc.w 1
+	dc.w	 3,   $B,$FFFC
+word_392B4:
+	dc.w 2
+	dc.w	 1,   $B,$FFFC
+	dc.w $1003,   $B,$FFFC; 4
+word_392C6:
+	dc.w 2
+	dc.w	 3,   $B,$FFFC
+	dc.w $2003,   $B,$FFFC; 4
+word_392D8:
+	dc.w 3
+	dc.w	 1,   $B,$FFFC
+	dc.w $1003,   $B,$FFFC; 4
+	dc.w $3003,   $B,$FFFC; 8
+word_392F2:
+	dc.w 3
+	dc.w	 3,   $B,$FFFC
+	dc.w $2003,   $B,$FFFC; 4
+	dc.w $4003,   $B,$FFFC; 8
+word_3930C:
+	dc.w 4
+	dc.w	 1,   $B,$FFFC
+	dc.w $1003,   $B,$FFFC; 4
+	dc.w $3003,   $B,$FFFC; 8
+	dc.w $5003,   $B,$FFFC; 12
+word_3932E:
+	dc.w 4
+	dc.w	 3,   $B,$FFFC
+	dc.w $2003,   $B,$FFFC; 4
+	dc.w $4003,   $B,$FFFC; 8
+	dc.w $6003,   $B,$FFFC; 12
+; Unused frame
+;word_39350:
+	dc.w 5
+	dc.w	 1,   $B,$FFFC
+	dc.w $1003,   $B,$FFFC; 4
+	dc.w $3003,   $B,$FFFC; 8
+	dc.w $5003,   $B,$FFFC; 12
+	dc.w $7003,   $B,$FFFC; 16
+    else
 	dc.w $F801,    0,    0,$FFE5
 	dc.w $F80D,    2,    1,$FFED; 4
 	dc.w  $809,  $1D,   $E,$FFF1; 8
@@ -80097,6 +80417,7 @@ word_3932E:
 	dc.w $3003,   $B,    5,$FFFC; 8
 	dc.w $5003,   $B,    5,$FFFC; 12
 	dc.w $7003,   $B,    5,$FFFC; 16
+    endif
 
 
 
@@ -80800,7 +81121,12 @@ loc_39BA4:
 	move.b	(Level_Music).w,d0
     endif
 	jsrto	PlayMusic, JmpTo5_PlayMusic
+    if 1
+	; KiS2
+	jmp	(DeleteObject).l
+    else
 	bra.w	JmpTo65_DeleteObject
+    endif
 ; ===========================================================================
 
 loc_39BBA:
@@ -81704,7 +82030,12 @@ ObjB2_Main_WFZ_Start:
 	jsr	off_3A8BA(pc,d1.w)
 	lea	(Ani_objB2_a).l,a1
 	jsrto	AnimateSprite, JmpTo25_AnimateSprite
+    if 1
+	; KiS2
+	bra.w	Obj_DeleteOffScreen
+    else
 	jmpto	Obj_DeleteOffScreen, Obj_DeleteOffScreen
+    endif
 ; ===========================================================================
 off_3A8BA:	offsetTable
 		offsetTableEntry.w ObjB2_Main_WFZ_Start_init	; 0
@@ -81792,8 +82123,22 @@ ObjB2_Main_WFZ_states:	offsetTable
 ; loc_3A982:
 ObjB2_Wait_Leader_position:
 	lea	(MainCharacter).w,a1 ; a1=character
+    if 1
+	; KiS2
+	cmpi.w	#$540,y_pos(a1)
+	blo.s	+
+	st.b	(Control_Locked).w
+	clr.w	(Ctrl_1).w
+	clr.w	(Ctrl_1_Logical).w
++
+    endif
 	cmpi.w	#$5EC,y_pos(a1)
 	blo.s	+	; rts
+    if 1
+	; KiS2
+	btst	#1,status(a1)
+	bne.s	+
+    endif
 	clr.w	(Ctrl_1_Logical).w
 	addq.w	#1,objoff_2E(a0)
 	cmpi.w	#$40,objoff_2E(a0)
@@ -81916,7 +82261,12 @@ loc_3AB18:
 	clr.w	inertia(a1)
 	bclr	#1,status(a1)
 	bclr	#2,status(a1)
+    if 1
+	; KiS2
+	move.w	#AniIDSonAni_Wait<<8,anim(a1)
+    else
 	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|AniIDSonAni_Wait,mapping_frame(a1)
+    endif
 	move.w	#$100,anim_frame_duration(a1)
 	move.b	#$13,y_radius(a1)
 	cmpi.w	#2,(Player_mode).w
@@ -81933,11 +82283,21 @@ ObjB2_Approaching_ship:
 	cmpi.w	#$437,objoff_2A(a0)
 	blo.s	loc_3AB8A
 	addq.b	#2,routine_secondary(a0)
+    if 1
+	; KiS2
+	move.w	#(button_A_mask<<8)|button_A_mask,(Ctrl_1_Logical).w
+	bra.w	loc_3AB8A
+    endif
 ; loc_3AB7C:
 ObjB2_Jump_to_ship:
 	cmpi.w	#$447,objoff_2A(a0)
 	bhs.s	loc_3AB8A
+    if 1
+	; KiS2
+	move.w	#button_A_mask<<8,(Ctrl_1_Logical).w
+    else
 	move.w	#(button_A_mask<<8)|button_A_mask,(Ctrl_1_Logical).w
+    endif
 
 loc_3AB8A:
 	cmpi.w	#$460,objoff_2A(a0)
@@ -82026,8 +82386,18 @@ ObjB2_Deactivate_level:
 ; loc_3AC56:
 ObjB2_Waiting_animation:
 	lea	(MainCharacter).w,a1 ; a1=character
+    if 1
+	; KiS2
+	move.w	#AniIDSonAni_Wait<<8,anim(a1)
+    else
 	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|AniIDSonAni_Wait,mapping_frame(a1)
+    endif
 	move.w	#$100,anim_frame_duration(a1)
+    if 1
+	; KiS2
+	clr.w	x_vel(a1)
+	clr.w	y_vel(a1)
+    endif
 	rts
 ; ===========================================================================
 ; loc_3AC6A:
@@ -82618,7 +82988,12 @@ ObjB5_Animate:
 ; loc_3B456:
 ObjB5_CheckPlayers:
 	cmpi.b	#4,anim(a0)
+    if 1
+	; KiS2
+	bne.w	++	; rts
+    else
 	bne.s	++	; rts
+    endif
 	lea	(MainCharacter).w,a1 ; a1=character
 	bsr.w	ObjB5_CheckPlayer
 	lea	(Sidekick).w,a1 ; a1=character
@@ -82647,6 +83022,11 @@ ObjB5_CheckPlayer:
 	asr.w	#4,d1
 	add.w	d1,y_pos(a1)
 	bset	#1,status(a1)
+    if 1
+	; KiS2
+	bclr	#4,status(a1)
+	move.b	#0,knuckles_something(a1)
+    endif
 	move.w	#0,y_vel(a1)
 	move.w	#1,inertia(a1)
 	tst.b	flip_angle(a1)
@@ -83386,7 +83766,12 @@ loc_3BCD6:
 	; To prevent this, just meddle with the stack to prevent returning to 'loc_3BC50', like this:
 	addq.w	#4,sp
     endif
+    if 1
+	; KiS2
+	jmp	(DeleteObject).l
+    else
 	bra.w	JmpTo65_DeleteObject
+    endif
 ; ===========================================================================
 
 loc_3BCDE:
@@ -84335,7 +84720,12 @@ ObjC5_End:	; play music and change camera speed
 	move.w	#$720,d0
 	move.w	d0,(Camera_Max_Y_pos_now).w
 	move.w	d0,(Camera_Max_Y_pos).w
+    if 1
+	; KiS2
+	jsr	(DeleteObject).l
+    else
 	bsr.w	JmpTo65_DeleteObject
+    endif
 	addq.w	#4,sp
 	rts
 ; ===========================================================================
@@ -84803,7 +85193,12 @@ ObjC5_RobotnikDown:
 ObjC5_RobotnikDelete:		; Deletes Robotnik and the platform he's on
 	movea.w	parent(a0),a1 ; a1=object (Robotnik Platform)
 	jsrto	DeleteObject2, JmpTo6_DeleteObject2
+    if 1
+	; KiS2
+	jmp	(DeleteObject).l
+    else
 	bra.w	JmpTo65_DeleteObject
+    endif
 ; ===========================================================================
 
 ObjC5_RobotnikPlatform:	; Just displays the platform and move accordingly to the Robotnik object
@@ -85108,7 +85503,12 @@ ObjC6_State3_State2:
 ObjC6_State3_State3:
 	lea	(MainCharacter).w,a1 ; a1=character
 	bclr	#5,status(a1)
+    if 1
+	; KiS2
+	jmp	(DeleteObject).l
+    else
 	bra.w	JmpTo65_DeleteObject
+    endif
 ; ===========================================================================
 
 loc_3D086:
@@ -85263,8 +85663,6 @@ loc_3D2D4:
 +
 	bsr.s	loc_3D3A4
 +
-    if 0
-	; KiS2: No Tails.
 	lea	(Sidekick).w,a1 ; a1=character
 	bclr	#1,collision_property(a0)
 	beq.s	+++
@@ -85282,7 +85680,6 @@ loc_3D2D4:
 +
 	bsr.s	loc_3D3A4
 +
-    endif
 	clr.b	collision_property(a0)
 
 BranchTo18_JmpTo39_MarkObjGone
@@ -85933,7 +86330,12 @@ loc_3D9D6:
 	moveq	#signextendB(MusID_FadeOut),d0
 	jsrto	PlaySound, JmpTo12_PlaySound
 	move.b	#GameModeID_EndingSequence,(Game_Mode).w ; => EndingSequence
+    if 1
+	; KiS2
+	jmp	(DeleteObject).l
+    else
 	bra.w	JmpTo65_DeleteObject
+    endif
 ; ===========================================================================
 
 ObjC7_Shoulder:
@@ -86437,7 +86839,12 @@ loc_3DE3C:
 loc_3DE62:
 	movea.w	objoff_2C(a0),a1 ; a1=object
 	move.w	x_pos(a0),objoff_28(a1)
+    if 1
+	; KiS2
+	jmp	(DeleteObject).l
+    else
 	bra.w	JmpTo65_DeleteObject
+    endif
 ; ===========================================================================
 ;loc_3DE70
 ObjC7_TargettingLock:
@@ -87985,7 +88392,11 @@ TouchResponse:
 	; This logic only works for Sonic, not Tails. Also, it only applies
 	; to the last frame of his ducking animation. This is a leftover from
 	; Sonic 1, where Sonic's ducking animation only had one frame.
+    if 1
+	cmpi.b	#$9C,mapping_frame(a0)	; is Sonic ducking?
+    else
 	cmpi.b	#$4D,mapping_frame(a0)	; is Sonic ducking?
+    endif
 	bne.s	Touch_NoDuck		; if not, branch
     endif
 	addi.w	#$C,d3
@@ -88129,7 +88540,11 @@ Touch_Boss:
 	; This logic only works for Sonic, not Tails. Also, it only applies
 	; to the last frame of his ducking animation. This is a leftover from
 	; Sonic 1, where Sonic's ducking animation only had one frame.
+    if 1
+	cmpi.b	#$9C,mapping_frame(a0)	; is Sonic ducking?
+    else
 	cmpi.b	#$4D,mapping_frame(a0)	; is Sonic ducking?
+    endif
 	bne.s	+			; if not, branch
     endif
 	addi.w	#$C,d3
@@ -88258,7 +88673,17 @@ Touch_Monitor:
 	beq.s	return_3F78A
 +
 	cmpi.b	#AniIDSonAni_Roll,anim(a0)
+    if 1
+	; KiS2
+	beq.s	+
+	cmpi.b	#1,knuckles_something(a0)
+	beq.s	+
+	cmpi.b	#3,knuckles_something(a0)
 	bne.s	return_3F78A
++
+    else
+	bne.s	return_3F78A
+    endif
 	neg.w	y_vel(a0)	; reverse Sonic's y-motion
 	move.b	#4,routine(a1)
 	move.w	a0,parent(a1)
@@ -88273,7 +88698,17 @@ Touch_Enemy:
 	cmpi.b	#AniIDSonAni_Spindash,anim(a0)
 	beq.s	+
 	cmpi.b	#AniIDSonAni_Roll,anim(a0)		; is Sonic rolling?
+    if 1
+	; KiS2
+	beq.s	+
+	cmpi.b	#1,knuckles_something(a0)
+	beq.s	+
+	cmpi.b	#3,knuckles_something(a0)
+	beq.s	+
+	bra.w	Touch_ChkHurt		; if not, branch
+    else
 	bne.w	Touch_ChkHurt		; if not, branch
+    endif
 +
 	btst	#6,render_flags(a1)
 	beq.s	Touch_Enemy_Part2
@@ -88295,8 +88730,29 @@ Touch_Enemy_Part2:
 	neg.w	y_vel(a0)
 	move.b	#0,collision_flags(a1)
 	subq.b	#1,collision_property(a1)
+    if 1
+	; KiS2
+	bne.s	+
+    else
 	bne.s	return_3F7E8
+    endif
 	bset	#7,status(a1)
+
+    if 1
+	; KiS2
++
+	cmpi.b	#1,knuckles_something(a0)
+	bne.s	return_3F7E8
+	move.b	#2,knuckles_something(a0)
+	move.b	#AniIDKnuxAni_FallAfterGlide,anim(a0)
+	bclr	#0,status(a0)
+	tst.w	x_vel(a0)
+	bmi.s	+
+	bset	#0,status(a0)
++
+	move.b	#19,y_radius(a0)
+	move.b	#9,x_radius(a0)
+    endif
 
 return_3F7E8:
 	rts
@@ -88394,6 +88850,8 @@ Touch_Hurt:
 ; loc_3F878: HurtSonic:
 HurtCharacter:
 	move.w	(Ring_count).w,d0
+    if 0
+	; KiS2: No two player mode.
 	cmpa.w	#MainCharacter,a0
 	beq.s	loc_3F88C
 	tst.w	(Two_player_mode).w
@@ -88401,6 +88859,7 @@ HurtCharacter:
 	move.w	(Ring_count_2P).w,d0
 
 loc_3F88C:
+    endif
 	btst	#status_sec_hasShield,status_secondary(a0)
 	bne.s	Hurt_Shield
 	tst.w	d0
@@ -90597,9 +91056,13 @@ BuildHUD_P2_Continued:
 HUD_MapUnc_40A9A:	BINCLUDE "mappings/sprite/hud_a.bin"
 
 
+    if 0
+	; KiS2: No two player.
 HUD_MapUnc_40BEA:	BINCLUDE "mappings/sprite/hud_b.bin"
+    endif
 
-
+; It seems that the devs didn't realise this was related to two player mode,
+; so they forgot to delete it.
 HUD_MapUnc_40C82:	BINCLUDE "mappings/sprite/hud_c.bin"
 
 ; ---------------------------------------------------------------------------
@@ -90609,6 +91072,11 @@ HUD_MapUnc_40C82:	BINCLUDE "mappings/sprite/hud_c.bin"
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
+    if 1
+	; KiS2: No two player mode.
+; sub_40D42:
+AddPoints2:
+    endif
 ; sub_40D06:
 AddPoints:
 	move.b	#1,(Update_HUD_score).w
@@ -90632,6 +91100,8 @@ AddPoints:
 ; End of function AddPoints
 
 
+    if 0
+	; KiS2: No two player mode.
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ; ---------------------------------------------------------------------------
@@ -90665,6 +91135,7 @@ AddPoints2:
 ; ===========================================================================
 +	rts
 ; End of function AddPoints2
+    endif
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to update the HUD
@@ -90676,8 +91147,11 @@ AddPoints2:
 HudUpdate:
 	nop
 	lea	(VDP_data_port).l,a6
+    if 0
+	; KiS2: No two player mode.
 	tst.w	(Two_player_mode).w
 	bne.w	loc_40F50
+    endif
 	tst.w	(Debug_mode_flag).w	; is debug mode on?
 	bne.w	loc_40E9A	; if yes, branch
 	tst.b	(Update_HUD_score).w	; does the score need updating?
@@ -90833,6 +91307,8 @@ return_40F4E:
 	rts
 ; ===========================================================================
 
+    if 0
+	; KiS2: No two player mode.
 loc_40F50:
 	tst.w	(Game_paused).w
 	bne.w	return_4101A
@@ -90941,6 +91417,7 @@ TimeOver2:
 +
 	rts
 ; End of function TimeOver0
+    endif
 
 
 ; ---------------------------------------------------------------------------
@@ -90967,8 +91444,11 @@ Hud_InitRings:
 Hud_Base:
 	lea	(VDP_data_port).l,a6
 	bsr.w	Hud_Lives
+    if 0
+	; KiS2: No two player mode.
 	tst.w	(Two_player_mode).w
 	bne.s	loc_410BC
+    endif
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_HUD_Score_E),VRAM,WRITE),(VDP_control_port).l
 	lea	Hud_TilesBase(pc),a2
 	move.w	#(Hud_TilesBase_End-Hud_TilesBase)-1,d2
@@ -91001,12 +91481,15 @@ loc_410B0:
 
 ; ===========================================================================
 
+    if 0
+	; KiS2: No two player mode.
 loc_410BC:
 	bsr.w	Hud_Lives2
 	move.l	#Art_Hud,d1 ; source addreses
 	move.w	#tiles_to_bytes(ArtTile_Art_HUD_Numbers_2P),d2 ; destination VRAM address
 	move.w	#tiles_to_bytes(22)/2,d3 ; DMA transfer length (in words)
 	jmp	(QueueDMATransfer).l
+    endif
 ; ===========================================================================
 
 	charset	' ',$FF
@@ -91677,6 +92160,26 @@ LoadDebugObjectSprite:
 ; account for its third act. Hidden Palace Zone uses Oil Ocean Zone's list.
 ; ---------------------------------------------------------------------------
 JmpTbl_DbgObjLists: zoneOrderedOffsetTable 2,1
+    if 1
+	; KiS2: For some reason, the debug lists were all blanked.
+	zoneOffsetTableEntry.w DbgObjList_Def	; 0
+	zoneOffsetTableEntry.w DbgObjList_Def	; 1
+	zoneOffsetTableEntry.w DbgObjList_Def	; 2
+	zoneOffsetTableEntry.w DbgObjList_Def	; 3
+	zoneOffsetTableEntry.w DbgObjList_Def	; 4
+	zoneOffsetTableEntry.w DbgObjList_Def	; 5
+	zoneOffsetTableEntry.w DbgObjList_Def	; 6
+	zoneOffsetTableEntry.w DbgObjList_Def	; 7
+	zoneOffsetTableEntry.w DbgObjList_Def	; 8
+	zoneOffsetTableEntry.w DbgObjList_Def	; 9
+	zoneOffsetTableEntry.w DbgObjList_Def	; $A
+	zoneOffsetTableEntry.w DbgObjList_Def	; $B
+	zoneOffsetTableEntry.w DbgObjList_Def	; $C
+	zoneOffsetTableEntry.w DbgObjList_Def	; $D
+	zoneOffsetTableEntry.w DbgObjList_Def	; $E
+	zoneOffsetTableEntry.w DbgObjList_Def	; $F
+	zoneOffsetTableEntry.w DbgObjList_Def	; $10
+    else
 	zoneOffsetTableEntry.w DbgObjList_EHZ	; 0
 	zoneOffsetTableEntry.w DbgObjList_Def	; 1
 	zoneOffsetTableEntry.w DbgObjList_Def	; 2
@@ -91694,6 +92197,7 @@ JmpTbl_DbgObjLists: zoneOrderedOffsetTable 2,1
 	zoneOffsetTableEntry.w DbgObjList_Def	; $E
 	zoneOffsetTableEntry.w DbgObjList_ARZ	; $F
 	zoneOffsetTableEntry.w DbgObjList_SCZ	; $10
+    endif
     zoneTableEnd
 
 ; macro for a debug object list header
@@ -91712,9 +92216,16 @@ dbglistobj macro   obj, mapaddr, subtype, frame, vram
 
 DbgObjList_Def: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0) ; obj25 = ring
+    if 1
+	; KiS2: The monitor's subtype was changed.
+	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0) ; obj26 = monitor
+    else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0) ; obj26 = monitor
+    endif
 DbgObjList_Def_End
 
+    if 0
+	; KiS2: For some reason, the debug lists were all blanked.
 DbgObjList_EHZ: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
@@ -92012,6 +92523,7 @@ DbgObjList_SCZ: dbglistheader
 	dbglistobj ObjID_Nebula,	Obj99_Obj98_MapUnc_3789A, $12,   0, make_art_tile(ArtTile_ArtNem_Nebula,1,1)
 	dbglistobj ObjID_EggPrison,	Obj3E_MapUnc_3F436,   0,   0, make_art_tile(ArtTile_ArtNem_Capsule,1,0)
 DbgObjList_SCZ_End
+    endif
 
     if ~~removeJmpTos
 JmpTo66_Adjust2PArtPointer ; JmpTo
@@ -92589,6 +93101,10 @@ PlrList_Results_End
 ;---------------------------------------------------------------------------------------
 PlrList_Signpost: plrlistheader
 	plreq ArtTile_ArtNem_Signpost, ArtNem_Signpost
+    if 1
+	; KiS2
+	plreq ArtTile_ArtNem_Signpost+tiles_to_bytes(34), ArtNem_Signpost
+    endif
 PlrList_Signpost_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
@@ -92838,6 +93354,8 @@ PlrList_ResultsTails_End
 
 
 
+    if 0
+	; KiS2: No duplicates here.
 ;---------------------------------------------------------------------------------------
 ; Weird revision-specific duplicates of portions of the PLR lists (unused)
 ;---------------------------------------------------------------------------------------
@@ -93136,6 +93654,7 @@ PlrList_ResultsTails_Dup: plrlistheader
 	plreq ArtTile_ArtNem_MiniCharacter, ArtNem_MiniTails
 	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
 PlrList_ResultsTails_Dup_End
+    endif
     endif
 
 
