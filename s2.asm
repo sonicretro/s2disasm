@@ -52,6 +52,9 @@ relativeLea = 0|(gameRevision<>2)|allOptimizations
 useFullWaterTables = 0
 ;	| If 1, zone offset tables for water levels cover all level slots instead of only slots 8-$F
 ;	| Set to 1 if you've shifted level IDs around or you want water in levels with a level slot below 8
+kiS2Standalone = 0
+;	| If 1, a standalone version of KiS2 is built that does not depend on S2 or S&K
+;
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; AS-specific macros and assembler settings
@@ -9988,6 +9991,7 @@ ContinueScreen:
 	bsr.w	NemDec
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_MiniContinue),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_MiniSonic).l,a0
+
 	cmpi.w	#2,(Player_mode).w
 	bne.s	+
 	lea	(ArtNem_MiniTails).l,a0
@@ -62608,7 +62612,7 @@ SlotMachine_GetPixelRow:
 	move.b	(a3,d0.w),d0			; Get slot pic id
 	andi.w	#7,d0				; Get only lower 3 bits; leaves space for 2 more images
     if 1
-	; KiS2: This is probably a hack to add Knuckles to the slot machine.
+	; KiS2: This is a hack to add Knuckles to the slot machine.
 	beq.s	loc_32598C
     endif
 	ror.w	#7,d0				; Equal to shifting left 9 places, or multiplying by 4*4 tiles, in bytes
@@ -62621,10 +62625,9 @@ SlotMachine_GetPixelRow:
 	rts
 
     if 1
-	; KiS2: This is probably a hack to add Knuckles to the slot machine.
+	; KiS2: This is a hack to add Knuckles to the slot machine.
 loc_32598C:
-byte_33B1F0:
-	lea	(byte_33B1F0).l,a2
+	lea	(ArtUnc_CNZSlotPicsKnucklesPatch).l,a2
 	move.w	d3,d0
 	andi.w	#$F8,d0
 	lsr.w	#1,d0
@@ -92737,8 +92740,14 @@ PlrList_Std1_End
 PlrList_Std2: plrlistheader
 	plreq ArtTile_ArtNem_Checkpoint, ArtNem_Checkpoint
 	plreq ArtTile_ArtNem_Powerups, ArtNem_Powerups
+    if 1
+	; KiS2: The shield, invincibility, and monitor icons were all customised.
+	plreq ArtTile_ArtNem_Powerups+tiles_to_bytes(44), ArtNem_PowerupsKnucklesPatch
+	plreq ArtTile_ArtNem_Shield, ArtNem_Shield_and_invincible_stars
+    else
 	plreq ArtTile_ArtNem_Shield, ArtNem_Shield
 	plreq ArtTile_ArtNem_Invincible_stars, ArtNem_Invincible_stars
+    endif
 PlrList_Std2_End
 ;---------------------------------------------------------------------------------------
 ; PATTERN LOAD REQUEST LIST
@@ -93103,7 +93112,7 @@ PlrList_Signpost: plrlistheader
 	plreq ArtTile_ArtNem_Signpost, ArtNem_Signpost
     if 1
 	; KiS2
-	plreq ArtTile_ArtNem_Signpost+tiles_to_bytes(34), ArtNem_Signpost
+	plreq ArtTile_ArtNem_Signpost+tiles_to_bytes(34), ArtNem_SignpostKnucklesPatch
     endif
 PlrList_Signpost_End
 ;---------------------------------------------------------------------------------------
@@ -93659,6 +93668,79 @@ PlrList_ResultsTails_Dup_End
 
 
 
+    if 1
+	; KiS2: Assets unique to this game go here.
+;---------------------------------------------------------------------------------------
+; Nemesis compressed art
+; Knuckles extra continue icon
+ArtNem_MiniSonic:	BINCLUDE	"art/nemesis/Knuckles continue.bin"
+	even
+;---------------------------------------------------------------------------------------
+; Nemesis compressed art
+; Knuckles lives counter
+	even
+ArtNem_Sonic_life_counter:	BINCLUDE	"art/nemesis/Knuckles lives counter.bin"
+;--------------------------------------------------------------------------------------
+; Nemesis compressed art
+; Shield and invincibility stars
+ArtNem_Shield_and_invincible_stars:	BINCLUDE	"art/nemesis/Shield and invincibility stars.bin"
+	even
+;--------------------------------------------------------------------------------------
+; Nemesis compressed art
+; Signpost (Knuckles patch)
+ArtNem_SignpostKnucklesPatch:	BINCLUDE	"art/nemesis/Signpost (Knuckles patch).bin"
+	even
+;--------------------------------------------------------------------------------------
+; Nemesis compressed art
+; Monitors and contents (Knuckles patch)
+ArtNem_PowerupsKnucklesPatch:	BINCLUDE	"art/nemesis/Monitor and contents (Knuckles patch).bin"
+	even
+;--------------------------------------------------------------------------------------
+; Uncompressed art
+; Bonus pictures for slots in CNZ (Knuckles patch)
+ArtUnc_CNZSlotPicsKnucklesPatch:	BINCLUDE	"art/uncompressed/Slot pictures (Knuckles patch).bin"
+;--------------------------------------------------------------------------------------
+; Nemesis compressed art
+; Knuckles animation frames from special stage
+; Art for Obj09 and Obj10 and Obj88
+ArtNem_SpecialSonicAndTails:	BINCLUDE	"art/nemesis/Knuckles animation frames in special stage.bin"
+	even
+;---------------------------------------------------------------------------------------
+; Nemesis compressed art
+; Knuckles from title screen (part 1)
+ArtNem_TitleSprites_Knuckles1:	BINCLUDE	"art/nemesis/Knuckles from title screen (part 1).bin"
+	even
+;---------------------------------------------------------------------------------------
+; Nemesis compressed art
+; Knuckles from title screen (part 2)
+ArtNem_TitleSprites_Knuckles2:	BINCLUDE	"art/nemesis/Knuckles from title screen (part 2).bin"
+	even
+;---------------------------------------------------------------------------------------
+; Nemesis compressed art
+; Knuckles from title screen (part 3)
+ArtNem_TitleSprites_Knuckles3:	BINCLUDE	"art/nemesis/Knuckles from title screen (part 3).bin"
+	even
+;---------------------------------------------------------------------------------------
+; Nemesis compressed art
+; Knuckles from title screen (part 4)
+ArtNem_TitleSprites_Knuckles4:	BINCLUDE	"art/nemesis/Knuckles from title screen (part 4).bin"
+	even
+;---------------------------------------------------------------------------------------
+; Nemesis compressed art
+; Knuckles from title screen (part 5)
+ArtNem_TitleSprites_Knuckles5:	BINCLUDE	"art/nemesis/Knuckles from title screen (part 5).bin"
+	even
+;---------------------------------------------------------------------------------------
+; Nemesis compressed art
+; Knuckles from title screen (part 6)
+ArtNem_TitleSprites_Knuckles6:	BINCLUDE	"art/nemesis/Knuckles from title screen (part 6).bin"
+	even
+;--------------------------------------------------------------------------------------
+    endif
+
+    if 0
+	; KiS2: The assets and sound driver were all removed: they are instead loaded
+	; from the locked-on Sonic 2 ROM.
 ;---------------------------------------------------------------------------------------
 ; Curve and resistance mapping
 ;---------------------------------------------------------------------------------------
@@ -93961,6 +94043,8 @@ Mapunc_Sonic:	BINCLUDE	"mappings/sprite/Sonic.bin"
 ;          or if you move Sonic's running frame to somewhere else than frame $2D
 MapRUnc_Sonic:	BINCLUDE	"mappings/spriteDPLC/Sonic.bin"
 ;--------------------------------------------------------------------------------------
+    if ~~kiS2Standalone
+	; These are replaced by grey versions.
 ; Nemesis compressed art (32 blocks)
 ; Shield			; ArtNem_71D8E:
 ArtNem_Shield:	BINCLUDE	"art/nemesis/Shield.bin"
@@ -93970,6 +94054,7 @@ ArtNem_Shield:	BINCLUDE	"art/nemesis/Shield.bin"
 ; Invincibility stars		; ArtNem_71F14:
 ArtNem_Invincible_stars:	BINCLUDE	"art/nemesis/Invincibility stars.bin"
 	even
+    endif
 ;--------------------------------------------------------------------------------------
 ; Uncompressed art
 ; Splash in water and dust from skidding	; ArtUnc_71FFC:
@@ -95590,8 +95675,6 @@ Objects_Null:
 
 
 
-	; KiS2: No sound driver.
-    if 0
 ; ---------------------------------------------------------------------------
 ; Subroutine to load the sound driver
 ; ---------------------------------------------------------------------------
@@ -95741,7 +95824,6 @@ Snd_Driver:
 
 ; loc_ED04C:
 Snd_Driver_End:
-    endif
 
 
 
@@ -97926,6 +98008,7 @@ Sound70:	dc.w $0000,$0101
 
 
 	finishBank
+    endif
 
 	include "s2.lockon.asm"
 
