@@ -8,30 +8,10 @@ if [[ ! -f bin/checkhash ]]; then
 	echo ""
 fi
 
-echo "Assembling REV00..."
-./build.sh -a -r0 &> /dev/null
+echo "Assembling KiS2..."
+./build.sh -a &> /dev/null
 if [[ -f s2built.bin ]]; then
-	bin/checkhash s2built.bin 07329F4561044A504923EB0742894485C61FC42EBB0891EEBFF247CA2E086D61 &> /dev/null && echo "REV00 is bit-perfect" || echo "REV00 is NOT bit-perfect"
+	bin/checkhash s2built.bin 3DA827D319A60B6180E327C37E1FE5D448746C1644CCE01ADA1F2788D1E182F4 &> /dev/null && echo "KiS2 is bit-perfect" || echo "KiS2 is NOT bit-perfect"
 else
-	echo "REV00 build failed"
-fi
-
-echo ""
-
-echo "Assembling REV01..."
-./build.sh -a -r1 &> /dev/null
-if [[ -f s2built.bin ]]; then
-	bin/checkhash s2built.bin 193BC4064CE0DAF27EA9E908ED246D87EC576CC294833BADEBB590B6AD8E8F6B &> /dev/null && echo "REV01 is bit-perfect" || echo "REV01 is NOT bit-perfect"
-else
-	echo "REV01 build failed"
-fi
-
-echo ""
-
-echo "Assembling REV02..."
-./build.sh -a -r2 &> /dev/null
-if [[ -f s2built.bin ]]; then
-	bin/checkhash s2built.bin 3EF0C3CDDEC79CB66AF7E5053963C4506E5551E2A47338C53236388F6E081A19 &> /dev/null && echo "REV02 is bit-perfect" || echo "REV02 is NOT bit-perfect"
-else
-	echo "REV02 build failed"
+	echo "KiS2 build failed"
 fi
