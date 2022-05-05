@@ -66,7 +66,7 @@ fi
 
 [[ -f s2.p ]] && bin/s2p2bin $s2p2bin_args s2.p s2built.bin s2.h
 [[ -f s2built.bin ]] && bin/fixpointer s2.h s2built.bin   off_3A294 MapRUnc_Sonic \$2D 0 4   word_728C_user Obj5F_MapUnc_7240 2 2 1
-[[ -f s2built.bin ]] && bin/fixheader s2built.bin
+#[[ -f s2built.bin ]] && bin/fixheader s2built.bin
 
 if [[ -f s2.log ]]; then
 	echo

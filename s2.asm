@@ -96,6 +96,8 @@ StartOfRom:
 	lea	(System_Stack).w,sp
 
 	; Update the V-Int and H-Int jumps.
+	; These are needed because Sonic & Knuckles' vector table has V-Int
+	; and H-Int pointing to these locations in RAM.
 	move.w	#$4EF9,(V_Int_Opcode).w
 	move.l	#V_Int,(V_Int_Address).w
 	move.w	#$4EF9,(H_Int_Opcode).w
