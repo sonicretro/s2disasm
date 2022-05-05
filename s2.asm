@@ -98308,6 +98308,31 @@ Sound70:	dc.w $0000,$0101
     endif
 
 ; end of 'ROM'
+    if 1
+	; KiS2: KiS2 is padded at the end with $FF, not $00, so we'll have to
+	; do this differently...
+
+	; TODO: All this fancy stuff is temporary until we don't need to
+	; include the S&K and S2 ROMs at the start of this, and we just use
+	; 'phase' instead.
+
+	; Determine where to begin relative to.
+	if kiS2Standalone
+rombase = 0
+	else
+rombase = $300000 ; Start of KiS2
+	endif
+
+	; Calculate a mask which represents how much to pad to.
+padmask = (2<<lastbit(*-rombase-1))-1
+
+	; Do a little math trick to determine how much padding is necessary to
+	; pad to the next power of two.
+	rept (((*)!padmask)+1)&padmask
+		dc.b	$FF
+paddingSoFar	:= paddingSoFar+1
+	endm
+    else
 	if padToPowerOfTwo && (*)&(*-1)
 		cnop	-1,2<<lastbit(*-1)
 		dc.b	0
@@ -98315,12 +98340,17 @@ paddingSoFar	:= paddingSoFar+1
 	else
 		even
 	endif
+    endif
 	if MOMPASS=2
 		; "About" because it will be off by the same amount that Size_of_Snd_driver_guess is incorrect (if you changed it), and because I may have missed a small amount of internal padding somewhere
 		message "ROM size is $\{*} bytes (\{*/1024.0} kb). About $\{paddingSoFar} bytes are padding. "
 	endif
 	; share these symbols externally (WARNING: don't rename, move or remove these labels!)
+    if 1
 	; KiS2: 'movewZ80CompSize' doesn't need to be exported anymore.
 	shared word_728C_user,Obj5F_MapUnc_7240,off_3A294,MapRUnc_Sonic
+    else
+	shared word_728C_user,Obj5F_MapUnc_7240,off_3A294,MapRUnc_Sonic,movewZ80CompSize
+    endif
 EndOfRom:
 	END
