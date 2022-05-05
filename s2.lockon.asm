@@ -1,3 +1,12 @@
+; TODO - Temporary.
+TwoPlayerResultsPointers = $87DC
+VsResultsScreen_Act = $87DC
+VsResultsScreen_Zone = $87E4
+VsResultsScreen_Game = $87EC
+VsResultsScreen_SS = $87F4
+VsResultsScreen_SSZone = $87FC
+AniIDTailsAni_Roll = 2
+
     if ~~standaloneKiS2
 ; These are just nonsense.
 Checksum	= $18E
@@ -497,12 +506,3 @@ zVar.Queue0		= 9
 zVar.Queue1		= 10
 zVar.Queue2		= 11
     endif
-
-; TODO - Temporary.
-TwoPlayerResultsPointers = $87DC
-VsResultsScreen_Act = $87DC 
-VsResultsScreen_Zone = $87E4
-VsResultsScreen_Game = $87EC
-VsResultsScreen_SS = $87F4  
-VsResultsScreen_SSZone = $87FC
-AniIDTailsAni_Roll = 2
