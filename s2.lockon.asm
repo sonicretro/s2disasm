@@ -1,3 +1,4 @@
+    if ~~standaloneKiS2
 ; These are just nonsense.
 Checksum	= $18E
 ROMEndLoc	= $1A4
@@ -7,7 +8,7 @@ EndOfHeader	= $200
 ; Sonic & Knuckles
 
 ArtNem_EndingKnuckles	=  $DEA00
-Off_Objects_KiS2	=  $DF370
+Off_Objects		=  $DF370
 ArtUnc_Knuckles		= $1200E0
 MapUnc_Knuckles		= $14A8D6
 MapRUnc_Knuckles	= $14BD0A
@@ -495,6 +496,7 @@ zVar.QueueToPlay	= 8
 zVar.Queue0		= 9
 zVar.Queue1		= 10
 zVar.Queue2		= 11
+    endif
 
 ; TODO - Temporary.
 TwoPlayerResultsPointers = $87DC

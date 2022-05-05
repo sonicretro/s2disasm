@@ -104,7 +104,60 @@ bool buildRom(FILE* from, FILE* to)
 	static const int scratchSize = 4096;
 	unsigned char scratch [scratchSize];
 	bool lastSegmentCompressed = false;
-	
+
+	int check_size = 0;
+	bool done=false;
+
+	while(!done)
+	{
+		int tempbuf;
+		int temp_length;
+		unsigned char headerByte = fgetc(from);
+
+		if(ferror(from) || feof(from))
+			break;
+
+		switch(headerByte)
+		{
+			case 0x00: // "END" segment
+				done=true; break;
+			case 0x80: // "entry point" segment
+				fseek(from, 3, SEEK_CUR);
+				continue;
+			case 0x81:  // code or data segment
+				tempbuf = fgetc(from);
+				tempbuf = fgetc(from);
+				tempbuf = fgetc(from);
+				break;
+			default:
+				if(headerByte > 0x81)
+					{ printf("\nERROR: Unsupported segment header $%02X", headerByte); return false; }
+				tempbuf = headerByte;
+				break;
+		}
+
+		if(!done)
+		{
+			tempbuf=0;
+			tempbuf = fgetc(from); // integers in AS .p files are always little endian
+			tempbuf |= fgetc(from) << 8;
+			tempbuf |= fgetc(from) << 16;
+			tempbuf |= fgetc(from) << 24;
+			temp_length = fgetc(from);
+			temp_length |= fgetc(from) << 8;
+
+			if(tempbuf+temp_length > check_size) check_size = tempbuf+temp_length;
+
+			fseek(from,temp_length,SEEK_CUR);
+		}
+	}
+
+	for(int i=0; i<check_size; i++)
+		fputc(0xFF,to);
+
+	fseek(to,0,SEEK_SET);
+	fseek(from,2,SEEK_SET);
+
 	while(true)
 	{
 		unsigned char headerByte = fgetc(from);

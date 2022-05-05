@@ -16,6 +16,7 @@
 ;
 ; Differences from regular Sonic 2 are marked with 'KiS2'.
 ; 'KiS2 (mappings)' - Modifications to mappings.
+; 'KiS2 (standalone) - Modifications needed for standalone builds of KiS2.
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; ASSEMBLY OPTIONS:
@@ -53,7 +54,7 @@ relativeLea = 0|(gameRevision<>2)|allOptimizations
 useFullWaterTables = 0
 ;	| If 1, zone offset tables for water levels cover all level slots instead of only slots 8-$F
 ;	| Set to 1 if you've shifted level IDs around or you want water in levels with a level slot below 8
-kiS2Standalone = 0
+standaloneKiS2 = 0
 ;	| If 1, a standalone version of KiS2 is built that does not depend on S2 or S&K
 ;
 
@@ -77,14 +78,28 @@ kiS2Standalone = 0
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; start of ROM
 
-    if 1
-	; Include the base ROMs here.
+    if ~~standaloneKiS2
+	; KiS2: Include the base ROMs here.
 	; TODO: This is temporary, until AS can do 'phase $300000' without
 	; resulting in a ton of bugs.
 	BINCLUDE "Sonic & Knuckles.bin"
 	BINCLUDE "Sonic the Hedgehog 2.bin"
 
 StartOfRom:
+	; KiS2: The header and much of the initialisation code are gone.
+
+; loc_206:
+;EntryPoint:
+	; KiS2: Some unique initialisation code.
+
+	; Set the stack register to point to Sonic 2's stack region.
+	lea	(System_Stack).w,sp
+
+	; Update the V-Int and H-Int jumps.
+	move.w	#$4EF9,(V_Int_Opcode).w
+	move.l	#V_Int,(V_Int_Address).w
+	move.w	#$4EF9,(H_Int_Opcode).w
+	move.l	#H_Int,(H_Int_Address).w
     else
 StartOfRom:
     if * <> 0
@@ -376,21 +391,6 @@ CheckSumCheck:
 	bne.s	CheckSumCheck	; wait until DMA is completed
     endif
     endif
-
-	; KiS2: The header and much of the initialisation code are gone.
-
-; loc_206:
-;EntryPoint:
-	; KiS2: Some unique initialisation code.
-
-	; Set the stack register to point to Sonic 2's stack region.
-	lea	(System_Stack).w,sp
-
-	; Update the V-Int and H-Int jumps.
-	move.w	#$4EF9,(V_Int_Opcode).w
-	move.l	#V_Int,(V_Int_Address).w
-	move.w	#$4EF9,(H_Int_Opcode).w
-	move.l	#H_Int,(H_Int_Address).w
 
 	btst	#6,(HW_Expansion_Control).l
 	beq.s	ChecksumTest
@@ -1460,7 +1460,7 @@ ClearScreen:
 ; sub_130A:
 JmpTo_SoundDriverLoad ; JmpTo
 	nop
-    if 1
+    if 1 && ~~standaloneKiS2
 	; KiS2, use a 'jsr', so that we can enter the following code
 	; afterwards.
 	jsr	(SoundDriverLoad).l
@@ -1476,7 +1476,7 @@ JmpTo_SoundDriverLoad ; JmpTo
 	move.w	#$100,(Z80_Reset).l ; reset the Z80
 	lea	(Z80_RAM).l,a1
 
-    if 1
+    if 1 && ~~standaloneKiS2
 	; KiS2: Patch the sound driver's various bankswitches so that they
 	; point to the ROM's new location.
 	moveq	#signextendB($73),d0	; The Z80 'ld (hl),e' instruction
@@ -20252,12 +20252,17 @@ DrawInitialBG_LoadWholeBackground_512x256:
 -	movem.l	d4-d6,-(sp)
 	moveq	#0,d5
 	move.w	d4,d1
+    if 1
+	; KiS2: No two player mode.
+	bsr.w	CalculateVRAMAddressOfBlockForPlayer1.AbsoluteXAbsoluteY
+    else
 	; This is just a fancy efficient way of doing 'if true then call this, else call that'.
 	pea	+(pc)
 	tst.w	(Two_player_mode).w
 	beq.w	CalculateVRAMAddressOfBlockForPlayer1.AbsoluteXAbsoluteY
 	bra.w	CalculateVRAMAddressOfBlockForPlayer1.AbsoluteXAbsoluteY_DoubleResolution
 +
+    endif
 	move.w	d1,d4
 	moveq	#0,d5
 	moveq	#512/16-1,d6 ; Width of plane in blocks minus 1.
@@ -34199,10 +34204,11 @@ ObjectsManager_Init:
 	addq.b	#2,(Obj_placement_routine).w
 	move.w	(Current_ZoneAndAct).w,d0 ; If level == $0F01 (ARZ 2)...
 	ror.b	#1,d0			; then this yields $0F80...
-    if 1
-	; KiS2: Custom object list that is stored in S&K.
+    if 1 && ~~standaloneKiS2
+	; KiS2: KiS2 features its own custom object layouts, which are stored
+	; in the S&K ROM.
 	lsr.w	#5,d0			; and this yields $007C.
-	lea	(Off_Objects_KiS2).l,a0
+	lea	(Off_Objects).l,a0
 	movea.l	(a0,d0.w),a0
     else
 	lsr.w	#6,d0			; and this yields $003E.
@@ -94338,9 +94344,9 @@ ArtNem_TitleSprites_Knuckles6:	BINCLUDE	"art/nemesis/Knuckles from title screen 
 ;--------------------------------------------------------------------------------------
     endif
 
-    if 0
-	; KiS2: The assets and sound driver were all removed: they are instead loaded
-	; from the locked-on Sonic 2 ROM.
+; KiS2: The assets and sound driver were all removed: they are instead loaded
+; from the locked-on Sonic 2 ROM.
+    if standaloneKiS2 ; KiS2 (standalone): We need to keep these assets for standalone builds.
 ;---------------------------------------------------------------------------------------
 ; Curve and resistance mapping
 ;---------------------------------------------------------------------------------------
@@ -94634,8 +94640,7 @@ ArtUnc_Tails:	BINCLUDE	"art/uncompressed/Tails's art.bin"
 ; Sprite Mappings
 ; Sonic			; MapUnc_6FBE0: SprTbl_Sonic:
 ;--------------------------------------------------------------------------------------
-    if ~~kiS2Standalone
-	; This isn't needed by anything.
+    if 0 ; KiS2 (standalone): Not used by anything.
 Mapunc_Sonic:	BINCLUDE	"mappings/sprite/Sonic.bin"
     endif
 ;--------------------------------------------------------------------------------------
@@ -94645,9 +94650,27 @@ Mapunc_Sonic:	BINCLUDE	"mappings/sprite/Sonic.bin"
 ; WARNING: the build script needs editing if you rename this label
 ;          or if you move Sonic's running frame to somewhere else than frame $2D
 MapRUnc_Sonic:	BINCLUDE	"mappings/spriteDPLC/Sonic.bin"
+
+    if 1 ; KiS2 (standalone): Knuckles' graphical assets from S&K.
+;---------------------------------------------------------------------------------------
+; Uncompressed art
+; Patterns for Knuckles
+;---------------------------------------------------------------------------------------
+ArtUnc_Knuckles:	BINCLUDE	"art/uncompressed/Knuckles' art.bin"
 ;--------------------------------------------------------------------------------------
-    if ~~kiS2Standalone
-	; These are replaced by grey versions.
+; Sprite Mappings
+; Knuckles
+;--------------------------------------------------------------------------------------
+MapUnc_Knuckles:	BINCLUDE	"mappings/sprite/Knuckles.bin"
+;--------------------------------------------------------------------------------------
+; Sprite Dynamic Pattern Reloading
+; Knuckles DPLCs
+;--------------------------------------------------------------------------------------
+MapRUnc_Knuckles:	BINCLUDE	"mappings/spriteDPLC/Knuckles.bin"
+    endif
+
+    if 0 ; KiS2 (standalone): These are replaced by 'ArtNem_Shield_and_invincible_stars'.
+;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (32 blocks)
 ; Shield			; ArtNem_71D8E:
 ArtNem_Shield:	BINCLUDE	"art/nemesis/Shield.bin"
@@ -94658,6 +94681,7 @@ ArtNem_Shield:	BINCLUDE	"art/nemesis/Shield.bin"
 ArtNem_Invincible_stars:	BINCLUDE	"art/nemesis/Invincibility stars.bin"
 	even
     endif
+
 ;--------------------------------------------------------------------------------------
 ; Uncompressed art
 ; Splash in water and dust from skidding	; ArtUnc_71FFC:
@@ -94750,8 +94774,10 @@ ArtNem_HUD:	BINCLUDE	"art/nemesis/HUD.bin"
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art (12 blocks)
 ; Sonic lives counter		ArtNem_79346:
+    if 0 ; KiS2 (standalone): This isn't needed by anything.
 	even
 ArtNem_Sonic_life_counter:	BINCLUDE	"art/nemesis/Sonic lives counter.bin"
+    endif
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art (14 blocks)
 ; Ring				ArtNem_7945C:
@@ -94841,8 +94867,10 @@ ArtNem_ContinueTails:	BINCLUDE	"art/nemesis/Tails on continue screen.bin"
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art (12 blocks)
 ; Sonic extra continue icon	; ArtNem_7C0AA:
+    if 0 ; KiS2 (standalone): This isn't needed by anything.
 	even
 ArtNem_MiniSonic:	BINCLUDE	"art/nemesis/Sonic continue.bin"
+    endif
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art (12 blocks)
 ; Tails life counter		; ArtNem_7C20C:
@@ -95572,6 +95600,14 @@ ArtNem_EndingFinalTornado:	BINCLUDE	"art/nemesis/Final image of Tornado with it 
 ; Mini pictures of Tornado in final ending sequence	; ArtNem_927E0:
 	even
 ArtNem_EndingMiniTornado:	BINCLUDE	"art/nemesis/Small pictures of Tornado in final ending sequence.bin"
+
+    if 1 ; KiS2 (standalone): Knuckles' ending pose sprite from S&K.
+;--------------------------------------------------------------------------------------
+; Nemesis compressed art
+; Final image of Knuckles
+	even
+ArtNem_EndingKnuckles:	BINCLUDE	"art/nemesis/Final image of Knuckles.bin"
+    else
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (135 blocks)
 ; Mini pictures of Sonic and final image of Sonic
@@ -95587,6 +95623,8 @@ ArtNem_EndingSuperSonic:	BINCLUDE	"art/nemesis/Small pictures of Sonic and final
 ; Final image of Tails		; ArtNem_93F3C:
 	even
 ArtNem_EndingTails:	BINCLUDE	"art/nemesis/Final image of Tails.bin"
+    endif
+
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (72 blocks)
 ; Sonic the Hedgehog 2 image at end of credits	; ArtNem_94B28:
@@ -96032,8 +96070,11 @@ ArtNem_SpecialMessages:	BINCLUDE	"art/nemesis/Special stage messages and icons.b
 ; Nemesis compressed art (851 blocks)
 ; Sonic and Tails animation frames from special stage
 ; Art for Obj09 and Obj10 and Obj88	; ArtNem_DEEAE:
+    if 0
+	; This isn't needed by anything.
 	even
 ArtNem_SpecialSonicAndTails:	BINCLUDE	"art/nemesis/Sonic and Tails animation frames in special stage.bin"
+    endif
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (5 blocks)
 ; "Tails" patterns from special stage	; ArtNem_E247E:
@@ -96186,6 +96227,7 @@ Off_Objects: zoneOrderedOffsetTable 2,2
 
 	; These things act as boundaries for the object layout parser, so it doesn't read past the end/beginning of the file
 	ObjectLayoutBoundary
+; KiS2: This was modified.
 Objects_EHZ_1:	BINCLUDE	"level/objects/EHZ_1.bin"
 	ObjectLayoutBoundary
 
@@ -96193,14 +96235,18 @@ Objects_EHZ_1:	BINCLUDE	"level/objects/EHZ_1.bin"
 ; A collision switcher was improperly placed
 Objects_EHZ_2:	BINCLUDE	"level/objects/EHZ_2 (REV00).bin"
     else
+; KiS2: This was modified.
 Objects_EHZ_2:	BINCLUDE	"level/objects/EHZ_2.bin"
     endif
 
 	ObjectLayoutBoundary
+; KiS2: This was modified.
 Objects_MTZ_1:	BINCLUDE	"level/objects/MTZ_1.bin"
 	ObjectLayoutBoundary
+; KiS2: This was modified.
 Objects_MTZ_2:	BINCLUDE	"level/objects/MTZ_2.bin"
 	ObjectLayoutBoundary
+; KiS2: This was modified.
 Objects_MTZ_3:	BINCLUDE	"level/objects/MTZ_3.bin"
 	ObjectLayoutBoundary
 
@@ -96208,14 +96254,18 @@ Objects_MTZ_3:	BINCLUDE	"level/objects/MTZ_3.bin"
 ; The lampposts were bugged: their 'remember state' flags weren't set
 Objects_WFZ_1:	BINCLUDE	"level/objects/WFZ_1 (REV00).bin"
     else
+; KiS2: This was modified.
 Objects_WFZ_1:	BINCLUDE	"level/objects/WFZ_1.bin"
     endif
 
 	ObjectLayoutBoundary
+; KiS2: This was modified.
 Objects_WFZ_2:	BINCLUDE	"level/objects/WFZ_2.bin"
 	ObjectLayoutBoundary
+; KiS2: This was modified.
 Objects_HTZ_1:	BINCLUDE	"level/objects/HTZ_1.bin"
 	ObjectLayoutBoundary
+; KiS2: This was modified.
 Objects_HTZ_2:	BINCLUDE	"level/objects/HTZ_2.bin"
 	ObjectLayoutBoundary
 Objects_HPZ_1:	BINCLUDE	"level/objects/HPZ_1.bin"
@@ -96224,12 +96274,16 @@ Objects_HPZ_2:	BINCLUDE	"level/objects/HPZ_2.bin"
 	ObjectLayoutBoundary
 	; Oddly, there's a gap for another layout here
 	ObjectLayoutBoundary
+; KiS2: This was modified.
 Objects_OOZ_1:	BINCLUDE	"level/objects/OOZ_1.bin"
 	ObjectLayoutBoundary
+; KiS2: This was modified.
 Objects_OOZ_2:	BINCLUDE	"level/objects/OOZ_2.bin"
 	ObjectLayoutBoundary
+; KiS2: This was modified.
 Objects_MCZ_1:	BINCLUDE	"level/objects/MCZ_1.bin"
 	ObjectLayoutBoundary
+; KiS2: This was modified.
 Objects_MCZ_2:	BINCLUDE	"level/objects/MCZ_2.bin"
 	ObjectLayoutBoundary
 
@@ -96245,16 +96299,20 @@ Objects_CNZ_2:	BINCLUDE	"level/objects/CNZ_2.bin"
     endif
 
 	ObjectLayoutBoundary
+; KiS2: This was modified.
 Objects_CPZ_1:	BINCLUDE	"level/objects/CPZ_1.bin"
 	ObjectLayoutBoundary
+; KiS2: This was modified.
 Objects_CPZ_2:	BINCLUDE	"level/objects/CPZ_2.bin"
 	ObjectLayoutBoundary
 Objects_DEZ_1:	BINCLUDE	"level/objects/DEZ_1.bin"
 	ObjectLayoutBoundary
 Objects_DEZ_2:	BINCLUDE	"level/objects/DEZ_2.bin"
 	ObjectLayoutBoundary
+; KiS2: This was modified.
 Objects_ARZ_1:	BINCLUDE	"level/objects/ARZ_1.bin"
 	ObjectLayoutBoundary
+; KiS2: This was modified.
 Objects_ARZ_2:	BINCLUDE	"level/objects/ARZ_2.bin"
 	ObjectLayoutBoundary
 Objects_SCZ_1:	BINCLUDE	"level/objects/SCZ_1.bin"
@@ -98614,39 +98672,18 @@ Sound70:	dc.w $0000,$0101
     endif
 
 ; end of 'ROM'
-    if 1
-	; KiS2: KiS2 is padded at the end with $FF, not $00, so we'll have to
-	; do this differently...
-
-	; TODO: All this fancy stuff is temporary until we don't need to
-	; include the S&K and S2 ROMs at the start of this, and we just use
-	; 'phase' instead.
-
-	; Determine where to begin relative to.
-	if kiS2Standalone
-rombase = 0
-	else
-rombase = $300000 ; Start of KiS2
-	endif
-
-	; Calculate a mask which represents how much to pad to.
-padmask = (2<<lastbit(*-rombase-1))-1
-
-	; Do a little math trick to determine how much padding is necessary to
-	; pad to the next power of two.
-	rept (((*)!padmask)+1)&padmask
-		dc.b	$FF
-paddingSoFar	:= paddingSoFar+1
-	endm
-    else
-	if padToPowerOfTwo && (*)&(*-1)
-		cnop	-1,2<<lastbit(*-1)
-		dc.b	0
+	if padToPowerOfTwo && (*-StartOfRom)&(*-StartOfRom-1)
+		cnop	-1,2<<lastbit(*-StartOfRom-1)
+		if 1
+		; KiS2: KiS2 is padded with $FF instead of $00.
+			dc.b	$FF
+		else
+			dc.b	$00
+		endif
 paddingSoFar	:= paddingSoFar+1
 	else
 		even
 	endif
-    endif
 	if MOMPASS=2
 		; "About" because it will be off by the same amount that Size_of_Snd_driver_guess is incorrect (if you changed it), and because I may have missed a small amount of internal padding somewhere
 		message "ROM size is $\{*} bytes (\{*/1024.0} kb). About $\{paddingSoFar} bytes are padding. "
