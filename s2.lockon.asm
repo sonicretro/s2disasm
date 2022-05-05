@@ -1,8 +1,10 @@
 ; Sonic & Knuckles
 
+ArtNem_EndingKnuckles	=  $DEA00
 Off_Objects_KiS2	=  $DF370
-SK_ArtUnc_Knux		= $1200E0
-SK_PLC_Knuckles		= $14BD0A
+ArtUnc_Knuckles		= $1200E0
+MapUnc_Knuckles		= $14A8D6
+MapRUnc_Knuckles	= $14BD0A
 
 
 ; Sonic 2
@@ -51,7 +53,6 @@ ArtUnc_Waterfall2		= $24FDFE
 ArtUnc_Waterfall3		= $24FEFE
 ArtUnc_Sonic			= $250000
 ArtUnc_Tails			= $264320
-Mapunc_Sonic			= $26FBE0
 MapRUnc_Sonic			= $2714E0
 ArtUnc_SplashAndDust		= $271FFC
 ArtNem_SuperSonic_stars		= $27393C
@@ -63,8 +64,6 @@ MapEng_TitleScreen		= $274DC6
 MapEng_TitleBack		= $274E3A
 MapEng_TitleLogo		= $274E86
 ArtNem_Title			= $274F6C
-ArtNem_TitleSprites		= $27667A
-ArtNem_MenuJunk			= $278CBC
 ArtNem_Button			= $278DAC
 ArtNem_VrtclSprng		= $278E84
 ArtNem_HrzntlSprng		= $278FA0
@@ -91,6 +90,7 @@ ArtNem_TailsLife		= $27C20C
 ArtNem_MiniTails		= $27C2F2
 ArtNem_FontStuff		= $27C43A
 MapEng_MenuBack			= $27CB80
+ArtUnc_MenuBack			= $27CD2C
 ArtNem_TitleCard		= $27D22C
 ArtNem_TitleCard2		= $27D58A
 ArtNem_MenuBox			= $27D990
@@ -497,7 +497,4 @@ VsResultsScreen_Zone = $87E4
 VsResultsScreen_Game = $87EC
 VsResultsScreen_SS = $87F4  
 VsResultsScreen_SSZone = $87FC
-Anim_SonicMilesBG = 0
-sub_8476 = $308476
-Obj21 = $3080BE
 AniIDTailsAni_Roll = 2

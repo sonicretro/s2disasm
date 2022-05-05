@@ -1374,6 +1374,11 @@ Palette_frame:			ds.w	1
 Palette_timer:			ds.b	1	; was "Palette_frame_count"
 Super_Sonic_palette:		ds.b	1
 
+    if 1
+	; KiS2: A new variable, I guess.
+Endgame_Logo_Timer:				; Word
+Title_Screen_Something:				; Word
+    endif
 DEZ_Eggman:					; Word
 DEZ_Shake_Timer:				; Word
 WFZ_LevEvent_Subrout:				; Word
@@ -1381,6 +1386,10 @@ SegaScr_PalDone_Flag:				; Byte (cleared once as a word)
 Credits_Trigger:		ds.b	1	; cleared as a word a couple times
 Ending_PalCycle_flag:		ds.b	1
 
+    if 1
+	; KiS2: A new variable, I guess.
+Title_Intro_Complete:				; Word
+    endif
 SegaScr_VInt_Subrout:
 Ending_VInt_Subrout:
 WFZ_BG_Y_Speed:			ds.w	1
@@ -1468,7 +1477,10 @@ Boss_spawn_delay:		ds.b	1	; Boss spawn delay timer
 				ds.b	4	; $FFFFF73B-$FFFFF73E
 Boss_CollisionRoutine:		ds.b	1
 Boss_AnimationArray:		ds.b	$10	; up to $10 bytes; 2 bytes per entry
+    if 0
+	; KiS2: This was moved.
 Ending_Routine:
+    endif
 Boss_X_pos:			ds.w	1
 				ds.w	1	; Boss_MoveObject reads a long, but all other places in the game use only the high word
 Boss_Y_pos:			ds.w	1
@@ -1527,7 +1539,15 @@ Collision_addr:			ds.l	1
 Boss_defeated_flag:		ds.b	1
 				ds.b	2	; $FFFFF7A8-$FFFFF7A9 ; seems unused
 Current_Boss_ID:		ds.b	1
+    if 1
+	; KiS2: 'Ending_Routine' was moved.
+				ds.b	1	; unused
+Something_Related_To_Gliding:	ds.b	1	; TODO
+Something_Related_To_Gliding2:	ds.b	1	; TODO
+Ending_Routine:			ds.w	1
+    else
 				ds.b	5	; $FFFFF7AB-$FFFFF7AF ; seems unused
+    endif
 MTZ_Platform_Cog_X:		ds.w	1	; X position of moving MTZ platform for cog animation.
 MTZCylinder_Angle_Sonic:	ds.b	1
 MTZCylinder_Angle_Tails:	ds.b	1
@@ -1711,7 +1731,18 @@ Loser_Time_Left:				; 2 bytes
 				ds.b	1	; seconds
 				ds.b	1	; frames
 
+    if 1
+	; KiS2: The cheat flags were moved.
+				ds.b	6+8	; Unused
+Level_select_flag:		ds.b	1
+Slow_motion_flag:		ds.b	1	; This NEEDs to be after Level_select_flag because of the call to CheckCheats
+Debug_options_flag:		ds.b	1	; if set, allows you to enable debug mode and "night mode"
+S1_hidden_credits_flag:		ds.b	1	; Leftover from Sonic 1. This NEEDs to be after Debug_options_flag because of the call to CheckCheats
+Correct_cheat_entries:		ds.w	1
+Correct_cheat_entries_2:	ds.w	1	; for 14 continues or 7 emeralds codes
+    else
 				ds.b	$16	; $FFFFFEFA-$FFFFFF0F ; seems unused
+    endif
 Results_Screen_2P:		ds.w	1	; 0 = act, 1 = zone, 2 = game, 3 = SS, 4 = SS all
 				ds.b	$E	; $FFFFFF12-$FFFFFF1F ; seems unused
 
@@ -1746,15 +1777,7 @@ SlotMachine_Slot3Pos:		ds.w	1
 SlotMachine_Slot3Speed:		ds.b	1
 SlotMachine_Slot3Rout:		ds.b	1
 
-				;ds.b	$10	; $FFFFFF60-$FFFFFF6F ; seems unused
-Demo_mode_flag:			ds.w	1 ; 1 if a demo is playing (2 bytes)
-Demo_number:			ds.w	1 ; which demo will play next (2 bytes)
-Ending_demo_number:		ds.w	1 ; zone for the ending demos (2 bytes, unused)
-				ds.w	1
-Graphics_Flags:			ds.w	1 ; misc. bitfield
-Debug_mode_flag:		ds.w	1 ; (2 bytes)
-				ds.b	4	; Unused
-
+				ds.b	$10	; $FFFFFF60-$FFFFFF6F ; seems unused
 
 Player_mode:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails
 Player_option:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails
@@ -1795,19 +1818,36 @@ Signpost_prev_frame:		ds.b	1
 Camera_Min_Y_pos_Debug_Copy:	ds.w	1
 Camera_Max_Y_pos_Debug_Copy:	ds.w	1
 
+    if 1
+	; KiS2: The cheat flags were moved.
+    else
 Level_select_flag:		ds.b	1
 Slow_motion_flag:		ds.b	1	; This NEEDs to be after Level_select_flag because of the call to CheckCheats
 Debug_options_flag:		ds.b	1	; if set, allows you to enable debug mode and "night mode"
 S1_hidden_credits_flag:		ds.b	1	; Leftover from Sonic 1. This NEEDs to be after Debug_options_flag because of the call to CheckCheats
 Correct_cheat_entries:		ds.w	1
 Correct_cheat_entries_2:	ds.w	1	; for 14 continues or 7 emeralds codes
+    endif
+
+    if 1
+	; KiS2: Moved.
+Demo_mode_flag:			ds.w	1 ; 1 if a demo is playing (2 bytes)
+Demo_number:			ds.w	1 ; which demo will play next (2 bytes)
+Ending_demo_number:		ds.w	1 ; zone for the ending demos (2 bytes, unused)
+				ds.w	1
+Graphics_Flags:			ds.w	1 ; misc. bitfield
+Debug_mode_flag:		ds.w	1 ; (2 bytes)
+    endif
 
 Two_player_mode:		ds.w	1	; flag (0 for main game)
 unk_FFDA:			ds.w	1	; Written to once at title screen, never read from
+    if 0
+	; KiS2: These were all removed.
 unk_FFDC:			ds.b	1	; Written to near loc_175EA, never read from
 unk_FFDD:			ds.b	1	; Written to near loc_175EA, never read from
 unk_FFDE:			ds.b	1	; Written to near loc_175EA, never read from
 unk_FFDF:			ds.b	1	; Written to near loc_175EA, never read from
+    endif
 
 ; Values in these variables are passed to the sound driver during V-INT.
 ; They use a playlist index, not a sound test index.
@@ -1821,21 +1861,40 @@ SoundQueue ENDSTRUCT
 
 Sound_Queue:			SoundQueue
 
+    if 0
+				ds.b	 1
+    else
 				ds.b	$B	; $FFFFFFE5-$FFFFFFEF ; seems unused
+    endif
 
-V_Int_Opcode:			ds.w	1
-V_Int_Address:			ds.l	1
-H_Int_Opcode:			ds.w	1
-H_Int_Address:			ds.l	1
-
-Checksum_fourcc:		ds.l	1 ; (4 bytes)
+    if 0
+	; KiS2: Moved.
+Demo_mode_flag:			ds.w	1 ; 1 if a demo is playing (2 bytes)
+Demo_number:			ds.w	1 ; which demo will play next (2 bytes)
+Ending_demo_number:		ds.w	1 ; zone for the ending demos (2 bytes, unused)
+				ds.w	1
+Graphics_Flags:			ds.w	1 ; misc. bitfield
+Debug_mode_flag:		ds.w	1 ; (2 bytes)
+    endif
 
 RAM_End
-
     if * > 0	; Don't declare more space than the RAM can contain!
 	fatal "The RAM variable declarations are too large by $\{*} bytes."
     endif
 	dephase
+
+    if 1
+    phase $FFFFFFF0
+	; KiS2: These were added.
+	;			ds.b  $10 ; unused
+V_Int_Opcode:			ds.w	1
+V_Int_Address:			ds.l	1
+H_Int_Opcode:			ds.w	1
+H_Int_Address:			ds.l	1
+Checksum_fourcc:		ds.l	1 ; (4 bytes)
+	dephase
+    endif
+
 
 ; RAM variables - SEGA screen
 	phase	Object_RAM	; Move back to the object RAM
@@ -1880,6 +1939,11 @@ TitleScreenMenu:
 				ds.b	object_size
 IntroFallingStar:
 				ds.b	object_size
+    if 1
+	; KiS2: New title screen objects.
+IntroSomething1:
+				ds.b	object_size
+    endif
     if * > Object_RAM_End
 	fatal "Title screen objects exceed size of object RAM buffer."
     endif
@@ -1917,10 +1981,20 @@ SS_Dynamic_Object_RAM:
 				ds.b	$18*object_size
 SpecialStageResults:
 				ds.b	object_size
+    if 1
+				; KiS2: An extra object was added here.
+				ds.b	$D*object_size
+    else
 				ds.b	$C*object_size
+    endif
 SpecialStageResults2:
 				ds.b	object_size
+    if 1
+				; KiS2: An extra object was added here.
+				ds.b	$50*object_size
+    else
 				ds.b	$51*object_size
+    endif
 SS_Dynamic_Object_RAM_End:
     if * > Object_RAM_End
 	fatal "Special stage objects go past end of object RAM buffer."
@@ -2179,8 +2253,17 @@ ArtTile_ArtUnc_Giant_Sonic            = $0088
 ; Title screen
 ArtTile_ArtNem_Title                  = $0000
 ArtTile_ArtNem_TitleSprites           = $0150
+    if 1
+	; KiS2
+ArtTile_ArtNem_TitleKnuckles2         = $03C0
+ArtTile_ArtNem_TitleKnuckles3         = $03CF
+ArtTile_ArtNem_TitleKnuckles4         = $03DD
+ArtTile_ArtNem_TitleKnuckles5         = $03FE
+ArtTile_ArtNem_TitleKnuckles6         = $0488
+    else
 ArtTile_ArtNem_MenuJunk               = $03F2
 ArtTile_ArtNem_Player1VS2             = $0402
+    endif
 ArtTile_ArtNem_CreditText             = $0500
 ArtTile_ArtNem_FontStuff_TtlScr       = $0680
 
