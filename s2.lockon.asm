@@ -1,3 +1,9 @@
+; These are just nonsense.
+Checksum	= $18E
+ROMEndLoc	= $1A4
+EndOfHeader	= $200
+
+
 ; Sonic & Knuckles
 
 ArtNem_EndingKnuckles	=  $DEA00
@@ -7,7 +13,7 @@ MapUnc_Knuckles		= $14A8D6
 MapRUnc_Knuckles	= $14BD0A
 
 
-; Sonic 2
+; Sonic the Hedgehog 2
 
 ColCurveMap			= $242D50
 ColArray			= $242E50
