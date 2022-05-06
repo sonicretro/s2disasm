@@ -38456,10 +38456,7 @@ loc_315CFC:
 	beq.s	loc_315D1C
 	cmpi.b	#$80,d0
 	beq.s	loc_315D1C
-	tst.b	d0
-	bpl.s	+
-	neg.b	d0
-+
+	abs.b	d0
 	addq.b	#2,d0
 	bra.s	loc_315D3A
 ; ---------------------------------------------------------------------------
