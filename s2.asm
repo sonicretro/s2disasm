@@ -4803,8 +4803,8 @@ Level_SetPlayerMode:
 	bne.s	+			; if yes, branch
 	move.w	(Player_option).w,(Player_mode).w ; use the option chosen in the Options screen
 	rts
-; ---------------------------------------------------------------------------
-+	move.w	#0,(Player_mode).w	; force Sonic and Tails
++
+	move.w	#0,(Player_mode).w	; force Sonic and Tails
 	rts
 ; End of function Level_SetPlayerMode
 
@@ -8991,7 +8991,7 @@ loc_6F0A:
 ; ===========================================================================
 
 loc_6F2A:
-	st	d7								; Set flag to increase vertical scroll
+	st.b	d7								; Set flag to increase vertical scroll
 	move.b	+(pc,d2.w),d1							; Get current frame's vertical scroll offset
 	bpl.s	SSTrack_ApplyVscroll						; Branch if positive
 	rts
@@ -12664,7 +12664,7 @@ EndingSequence:
 	bne.s	+
 	cmpi.w	#2,(Player_mode).w
 	beq.s	+
-	st	(Super_Sonic_flag).w
+	st.b	(Super_Sonic_flag).w
 	move.b	#-1,(Super_Sonic_palette).w
 	move.b	#$F,(Palette_timer).w
 	move.w	#$30,(Palette_frame).w
@@ -12780,7 +12780,7 @@ EndingSequence:
 ; sub_9EF4
 EndgameCredits:
 	tst.b	(Credits_Trigger).w
-	beq.w	+++	; rts
+	beq.w	.return
 	bsr.w	Pal_FadeToBlack
 	lea	(VDP_control_port).l,a6
 	move.w	#$8004,(a6)		; H-INT disabled
@@ -12897,11 +12897,12 @@ EndgameCredits:
 	bne.s	+
 	dbf	d6,-
 +
-	st	(Level_Inactive_flag).w
+	st.b	(Level_Inactive_flag).w
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
-/
+
+.return:
 	rts
-; End of function sub_9EF4
+; End of function EndgameCredits
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -12912,9 +12913,9 @@ EndgameLogoFlash:
 	lea	(Normal_palette+2).w,a2
 	move.w	(CreditsScreenIndex).w,d0
 	cmpi.w	#$24,d0
-	bhs.s	-
+	bhs.s	EndgameCredits.return
 	btst	#0,d0
-	bne.s	-
+	bne.s	EndgameCredits.return
 	lsr.w	#1,d0
 	move.b	byte_A0EC(pc,d0.w),d0
 	mulu.w	#$18,d0
@@ -12963,7 +12964,7 @@ ObjCA:
 	beq.s	+
 	cmpi.w	#2,(Ending_Routine).w
 	bne.s	+
-	st	(Super_Sonic_flag).w
+	st.b	(Super_Sonic_flag).w
 	move.w	#$100,(Ring_count).w
 	move.b	#-1,(Super_Sonic_palette).w
 +
@@ -13051,8 +13052,8 @@ off_A29C:
 ; ===========================================================================
 +
 	move.w	#2,(Ending_VInt_Subrout).w
-	st	(Control_Locked).w
-	st	(Ending_PalCycle_flag).w
+	st.b	(Control_Locked).w
+	st.b	(Ending_PalCycle_flag).w
 	lea	(MainCharacter).w,a1 ; a1=character
 	move.w	(Ending_Routine).w,d0
 	move.w	ObjCA_State5_States(pc,d0.w),d0
@@ -13154,7 +13155,7 @@ loc_A38E:
 
 loc_A3BE:
 	addq.b	#2,routine(a0)
-	st	(Credits_Trigger).w
+	st.b	(Credits_Trigger).w
 	rts
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -13235,7 +13236,7 @@ loc_A474:
 	move.w	#$3D0,objoff_3C(a0)
 +
 	move.w	#$40,objoff_32(a0)
-	st	(CutScene+objoff_34).w
+	st.b	(CutScene+objoff_34).w
 	clr.w	x_vel(a0)
 	clr.w	y_vel(a0)
 	bra.s	-
@@ -20252,7 +20253,7 @@ LevEvents_WFZ_Routine6:
 	cmpi.w	#$500,(Camera_Y_pos).w
 	blo.s	+	; rts
 	addq.w	#2,(WFZ_LevEvent_Subrout).w ; => LevEvents_WFZ_RoutineNull
-	st	(Control_Locked).w
+	st.b	(Control_Locked).w
 	moveq	#PLCID_Tornado,d0
 	jsrto	LoadPLC, JmpTo2_LoadPLC
 +
@@ -22489,13 +22490,13 @@ Obj15_Obj83_MapUnc_1021E:	BINCLUDE "mappings/sprite/obj83.bin"
 ; sprite mappings
 ; ----------------------------------------------------------------------------
 Obj15_Obj7A_MapUnc_10256:	offsetTable
-	offsetTableEntry.w word_1025E
-	offsetTableEntry.w word_10270
-	offsetTableEntry.w word_1027A
-	offsetTableEntry.w word_1028C
+		offsetTableEntry.w word_1025E
+		offsetTableEntry.w word_10270
+		offsetTableEntry.w word_1027A
+		offsetTableEntry.w word_1028C
 word_1025E:	dc.w 2
-	dc.w $F809, $6060, $6030, $FFE8
-	dc.w $F809, $6860, $6830, 0
+		dc.w $F809, $6060, $6030, $FFE8
+		dc.w $F809, $6860, $6830, 0
 word_10270:	dc.w 1
 		dc.w $F805, $6066, $6033, $FFF8
 word_1027A:	dc.w 2
@@ -22517,12 +22518,12 @@ word_1028C:	dc.w $A
 ; sprite mappings
 ; ----------------------------------------------------------------------------
 Obj15_MapUnc_102DE:	offsetTable
-	offsetTableEntry.w	word_102E4
-	offsetTableEntry.w word_10270
-	offsetTableEntry.w word_1027A
+		offsetTableEntry.w word_102E4
+		offsetTableEntry.w word_10270
+		offsetTableEntry.w word_1027A
 word_102E4:	dc.w 2
-	dc.w $F80D, $6058, $602C, $FFE0
-	dc.w $F80D, $6858, $682C, 0
+		dc.w $F80D, $6058, $602C, $FFE0
+		dc.w $F80D, $6858, $682C, 0
 
 ; ===========================================================================
 
@@ -25186,7 +25187,7 @@ Obj2E_Init:
 	moveq	#7,d0	; give invincibility, instead
 +
 	move.b	d0,anim(a0)
-;loc_128C6:
+
 loc_128C6:			; Determine correct mappings offset.
 	addq.b	#1,d0
 	move.b	d0,mapping_frame(a0)
@@ -25883,7 +25884,7 @@ Obj0E_Sonic_FlashBackground:
 	blo.s	+
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_SpawnFallingStar
 	clr.w	obj0e_array_index(a0)
-	st	obj0e_intro_complete(a0)
+	st.b	obj0e_intro_complete(a0)
 
 	; Fill palette line 3 with white.
 	lea	(Normal_palette_line3).w,a1
@@ -31143,14 +31144,13 @@ Touch_Rings:
 	sub.w	d5,d3	; subtract (Y radius - 3) from Y pos
     if fixBugs
 	cmpi.b	#AniIDSonAni_Duck,anim(a0)	; is Sonic ducking?
-	bne.s	+				; if not, branch
     else
 	; This logic only works for Sonic, not Tails. Also, it only applies
 	; to the last frame of his ducking animation. This is a leftover from
 	; Sonic 1, where Sonic's ducking animation only had one frame.
 	cmpi.b	#$4D,mapping_frame(a0)	; is Sonic ducking?
-	bne.s	+			; if not, branch
     endif
+	bne.s	+				; if not, branch
 	addi.w	#$C,d3
 	moveq	#$A,d5
 +
@@ -31743,14 +31743,13 @@ Check_CNZ_bumpers:
 	sub.w	d5,d3
     if fixBugs
 	cmpi.b	#AniIDSonAni_Duck,anim(a0)	; is Sonic ducking?
-	bne.s	+				; if not, branch
     else
 	; This logic only works for Sonic, not Tails. Also, it only applies
 	; to the last frame of his ducking animation. This is a leftover from
 	; Sonic 1, where Sonic's ducking animation only had one frame.
 	cmpi.b	#$4D,mapping_frame(a0)	; is Sonic ducking?
-	bne.s	+			; if not, branch
     endif
+	bne.s	+				; if not, branch
 	addi.w	#$C,d3
 	moveq	#$A,d5
 +
@@ -36424,7 +36423,7 @@ Sonic_Jump:
 +
 	btst	#6,status(a0)	; Test if underwater
 	beq.s	+
-	move.w	#$380,d2	; set lower jump speed if under
+	move.w	#$380,d2	; set lower jump speed if underwater
 +
 	moveq	#0,d0
 	move.b	angle(a0),d0
@@ -60327,7 +60326,7 @@ Obj50_Shooting:
 Obj50_ChkIfShoot:
 	tst.b	Obj50_shooting_flag(a0)	; is object allowed to shoot?
 	bne.w	return_2CEAC		; if not, branch
-	st	Obj50_shooting_flag(a0)	; else, disallow shooting after this
+	st.b	Obj50_shooting_flag(a0)	; else, disallow shooting after this
 	jsrto	Obj_GetOrientationToPlayer, JmpTo_Obj_GetOrientationToPlayer
 	tst.w	d1		; is player above object?
 	beq.s	return_2CEAC	; if yes, don't shoot
@@ -60672,7 +60671,7 @@ Obj4B_PlayerIsLeft:
 
 ; loc_2D21E:
 Obj4B_ReadyToShoot:
-	st	Obj4B_shooting_flag(a0)		; disable shooting
+	st.b	Obj4B_shooting_flag(a0)		; disable shooting
 	addq.b	#2,routine_secondary(a0)	; => Obj4B_Shooting
 	move.b	#3,anim(a0)		; play shooting animation
 	move.w	#$32,Obj4B_shot_timer(a0)
@@ -61038,7 +61037,7 @@ AnimateBoss_Loop:	; increases a2 (AnimationArray) by 2 each iteration
 	move.b	d0,d2
 	cmp.b	d0,d1
 	beq.s	+
-	st	d4		; anim_IDs not equal
+	st.b	d4		; anim_IDs not equal
 +
 	move.b	d0,d5
 	lsl.b	#4,d5
@@ -61911,7 +61910,7 @@ Obj5D_Pipe_Retract_Loop:
 ; ===========================================================================
 
 loc_2DFD8:
-	st	Obj5D_flag(a0)
+	st.b	Obj5D_flag(a0)
 	bra.s	Obj5D_PipeSegment
 ; ===========================================================================
 
@@ -64008,7 +64007,7 @@ loc_2FE22:
 Obj52_CreateLavaBall:
 	tst.b	objoff_38(a0)
 	bne.s	loc_2FE58
-	st	objoff_38(a0)
+	st.b	objoff_38(a0)
 	jsrto	SingleObjLoad, JmpTo13_SingleObjLoad
 	bne.s	loc_2FE58
 	move.b	#ObjID_HTZBoss,id(a1) ; load obj52
@@ -64041,7 +64040,7 @@ loc_2FE7C:
 	bmi.s	loc_2FEA8
 	move.w	#$580,(Boss_Y_pos).w
 	move.w	#$3040,x_pos(a0)
-	st	boss_defeated(a0)
+	st.b	boss_defeated(a0)
 	bra.s	loc_2FEB8
 ; ===========================================================================
 
@@ -64644,7 +64643,7 @@ Obj89_Main_Sub0:
 	addi_.b	#2,boss_routine(a0)	; => Obj89_Main_Sub2
 	move.w	#0,(Boss_Y_vel).w		; stop y movement
 	move.w	#-$C8,(Boss_X_vel).w		; move leftward
-	st	obj89_target(a0)
+	st.b	obj89_target(a0)
 
 ; loc_3066C:
 Obj89_Main_Sub0_Standard:
@@ -64878,7 +64877,7 @@ return_3088A:
 ; ===========================================================================
 ; loc_3088C:
 Obj89_Main_Sub8:
-	st	boss_defeated(a0)
+	st.b	boss_defeated(a0)
 	subq.w	#1,(Boss_Countdown).w
 	bmi.s	Obj89_Main_SetupEscapeAnim
 	bsr.w	Boss_LoadExplosion
@@ -65073,7 +65072,7 @@ Obj89_Pillar_Sub2_RightPillar:
 loc_30A2C:
 	bclr	#0,obj89_hammer_flags(a3)	; clear "hitting-pillar" flag
 	bsr.w	Obj89_Pillar_Shoot		; shoot an arrow
-	st	obj89_pillar_shaking(a0)	; make pillar shake
+	st.b	obj89_pillar_shaking(a0)	; make pillar shake
 
 ; loc_30A3A:
 Obj89_Pillar_Sub2_Standard:
@@ -65149,7 +65148,7 @@ Obj89_Pillar_Shoot:
 	move.w	#$2A6A,x_pos(a1)		; align with left pillar
 	tst.b	obj89_target(a3)		; is boss targeting the right?
 	beq.s	+				; if yes, branch
-	st	d6
+	st.b	d6
 	move.w	#$2B56,x_pos(a1)		; align with right pillar
 	bset	#0,render_flags(a1)
 +
@@ -65806,7 +65805,7 @@ Obj57_SpawnStoneSpike:	; decide whether stone or spike
 	beq.s	Obj57_LoadStoneSpike
 	andi.b	#7,d1
 	bne.s	return_31438
-	st	d2
+	st.b	d2
  ;loc_313DA:
 Obj57_LoadStoneSpike:
 	jsrto	RandomNumber, JmpTo4_RandomNumber
@@ -65893,7 +65892,7 @@ Obj57_FinalDefeat:
 ; ===========================================================================
 ;loc_314D2:
 Obj57_Main_Sub8: ; boss defeated, standing still, exploding
-	st	boss_defeated(a0)
+	st.b	boss_defeated(a0)
 	move.b	#0,(Screen_Shaking_Flag).w
 	subq.w	#1,(Boss_Countdown).w	; countdown initially $B3
 	bmi.s	+			; branch if countdown finished
@@ -66491,7 +66490,7 @@ loc_31D42:
 ; ===========================================================================
 
 loc_31D5C:
-	st	boss_defeated(a0)
+	st.b	boss_defeated(a0)
 	subq.w	#1,(Boss_Countdown).w
 	bmi.s	loc_31D7E
 	move.b	#0,(Boss_CollisionRoutine).w
@@ -69155,7 +69154,7 @@ loc_33D02:
 	moveq	#0,d0
 	move.w	ss_x_pos(a1),d0
 	bpl.s	loc_33D10
-	st	d6
+	st.b	d6
 	neg.w	d0
 
 loc_33D10:
@@ -70040,7 +70039,7 @@ loc_34F28:
 	beq.s	return_34F68
 	move.l	#0,objoff_34(a0)
 	movea.l	d0,a1 ; a1=object
-	st	objoff_2A(a1)
+	st.b	objoff_2A(a1)
 
 return_34F68:
 	rts
@@ -70149,7 +70148,7 @@ loc_3507A:
 	beq.s	loc_35094
 	move.l	#0,objoff_34(a0)
 	movea.l	d0,a1 ; a1=object
-	st	objoff_2A(a1)
+	st.b	objoff_2A(a1)
 
 loc_35094:
 	move.w	#SndID_Ring,d0
@@ -70266,7 +70265,7 @@ loc_3516C:
 	move.l	objoff_34(a0),d0
 	beq.w	JmpTo63_DeleteObject
 	movea.l	d0,a1 ; a1=object
-	st	objoff_2A(a1)
+	st.b	objoff_2A(a1)
 
     if removeJmpTos
 JmpTo63_DeleteObject ; JmpTo
@@ -71738,7 +71737,7 @@ loc_360F0:
 	bne.s	loc_3610C
 	move.w	#MusID_FadeOut,d0
 	jsr	(PlayMusic).l
-	st	objoff_3E(a0)
+	st.b	objoff_3E(a0)
 
 loc_3610C:
 	cmpi.b	#6,anim(a0)
@@ -71780,8 +71779,8 @@ loc_36172:
 	moveq	#0,d0
 	move.b	(Current_Special_Stage).w,d0
 	lea	(Got_Emeralds_array).w,a0
-	st	(a0,d0.w)
-	st	(Got_Emerald).w
+	st.b	(a0,d0.w)
+	st.b	(Got_Emerald).w
 	addi_.b	#1,(Current_Special_Stage).w
 	addi_.b	#1,(Emerald_count).w
 	st.b	(SS_Check_Rings_flag).w
@@ -72699,7 +72698,7 @@ loc_36ADC:
 ; ===========================================================================
 +
 	addq.b	#2,routine(a0)
-	st	objoff_2B(a0)
+	st.b	objoff_2B(a0)
 	bsr.w	loc_36C2C
 	jmpto	MarkObjGone, JmpTo39_MarkObjGone
 ; ===========================================================================
@@ -73244,7 +73243,7 @@ loc_36F90:
 loc_36FA4:
 	jsrto	SingleObjLoad2, JmpTo25_SingleObjLoad2
 	bne.s	loc_36FDC
-	st	objoff_2B(a0)
+	st.b	objoff_2B(a0)
 	_move.b	#ObjID_SpikerDrill,id(a1) ; load obj93
 	move.b	subtype(a0),subtype(a1)
 	move.w	a0,objoff_2C(a1)
@@ -74140,7 +74139,7 @@ loc_37834:
 ; ===========================================================================
 
 loc_37850:
-	st	objoff_2A(a0)
+	st.b	objoff_2A(a0)
 	jsrto	SingleObjLoad2, JmpTo25_SingleObjLoad2
 	bne.s	return_37886
 	_move.b	#ObjID_Projectile,id(a1) ; load obj98
@@ -75091,7 +75090,7 @@ loc_38266:
 	bne.s	loc_3827A
 	movea.w	objoff_2C(a0),a1 ; a1=object
 	move.b	#0,mapping_frame(a1)
-	st	objoff_2C(a1)
+	st.b	objoff_2C(a1)
 
 loc_3827A:
 	addq.w	#4,sp
@@ -76161,7 +76160,7 @@ loc_38F88:
 	clr.b	collision_flags(a0)
 	addq.b	#2,routine(a0)
 	add.w	d0,d0
-	st	objoff_30(a1)
+	st.b	objoff_30(a1)
 	move.w	word_38FE0-6(pc,d0.w),objoff_32(a1)
 	move.w	word_38FE0(pc,d0.w),objoff_34(a1)
 
@@ -76323,7 +76322,7 @@ loc_390E6:
 	andi.b	#$C,d0
 	beq.s	return_390E4
 	nop
-	st	objoff_31(a0)
+	st.b	objoff_31(a0)
 	move.b	d0,objoff_36(a0)
 	nop
 	rts
@@ -77203,7 +77202,7 @@ loc_39B44:
 	bne.s	loc_39B66
 	tst.w	y_vel(a0)
 	bmi.s	loc_39B66
-	st	objoff_2E(a0)
+	st.b	objoff_2E(a0)
 	bsr.w	loc_39D82
 	moveq	#signextendB(SndID_SpikeSwitch),d0
 	jsrto	PlaySound, JmpTo12_PlaySound
@@ -77765,7 +77764,7 @@ loc_3A3DA:
 
 loc_3A3E6:
 	addq.b	#2,routine(a0)
-	st	(SegaScr_PalDone_Flag).w
+	st.b	(SegaScr_PalDone_Flag).w
 	move.b	#SndID_SegaSound,d0
 	jsrto	PlaySound, JmpTo12_PlaySound
 
@@ -78121,7 +78120,7 @@ ObjB2_Main_SCZ:
 	blo.s	loc_3A878
 	cmpi.w	#$1568,d1
 	bhs.s	ObjB2_SCZ_Finished
-	st	(Control_Locked).w
+	st.b	(Control_Locked).w
 	move.w	#(button_right_mask<<8)|button_right_mask,(Ctrl_1_Logical).w
 	bra.w	loc_3A87C
 ; ===========================================================================
@@ -78648,7 +78647,7 @@ ObjB2_Move_vert:
 	bne.s	loc_3AE16
 	tst.b	objoff_2E(a0)
 	beq.s	return_3AE38
-	st	objoff_2F(a0)
+	st.b	objoff_2F(a0)
 	clr.b	objoff_30(a0)
 	move.w	#$200,y_vel(a0)
 	move.b	#$14,objoff_31(a0)
@@ -78721,7 +78720,7 @@ ObjB2_Move_vert2:
 	bne.s	loc_3AEC0
 	tst.b	objoff_2E(a0)
 	beq.s	return_3AE9E
-	st	objoff_30(a0)
+	st.b	objoff_30(a0)
 	clr.b	objoff_2F(a0)
 	move.w	#$200,y_vel(a0)
 	move.b	#$2B,objoff_31(a0)
@@ -80769,7 +80768,7 @@ ObjC5_CaseStartOver:
 
 ObjC5_CaseDefeated:
 	clr.b	collision_flags(a0)
-	st	collision_property(a0)
+	st.b	collision_property(a0)
 	bclr	#6,status(a0)
 	subq.w	#1,objoff_30(a0)	; timer
 	bmi.s	ObjC5_End
@@ -80918,7 +80917,7 @@ ObjC5_PlatformReleaserLoadP:	; P=Platforms
 	move.b	d0,objoff_2E(a0)
 	tst.b	objoff_30(a0,d0.w)
 	bne.s	BranchTo8_JmpTo45_DisplaySprite
-	st	objoff_30(a0,d0.w)
+	st.b	objoff_30(a0,d0.w)
 	lea	(ObjC5_PlatformData).l,a2
 	bsr.w	LoadChildObject
 	move.b	objoff_2E(a0),objoff_2E(a1)
@@ -82295,7 +82294,7 @@ loc_3D922:
 ; ---------------------------------------------------------------------------
 +
 	addq.b	#2,anim(a0)
-	st	(Control_Locked).w
+	st.b	(Control_Locked).w
 	move.w	#$1000,(Camera_Max_X_pos).w
 	rts
 ; ===========================================================================
@@ -84425,14 +84424,13 @@ TouchResponse:
 	sub.w	d5,d3
     if fixBugs
 	cmpi.b	#AniIDSonAni_Duck,anim(a0)	; is Sonic ducking?
-	bne.s	Touch_NoDuck			; if not, branch
     else
 	; This logic only works for Sonic, not Tails. Also, it only applies
 	; to the last frame of his ducking animation. This is a leftover from
 	; Sonic 1, where Sonic's ducking animation only had one frame.
 	cmpi.b	#$4D,mapping_frame(a0)	; is Sonic ducking?
-	bne.s	Touch_NoDuck		; if not, branch
     endif
+	bne.s	Touch_NoDuck			; if not, branch
 	addi.w	#$C,d3
 	moveq	#$A,d5
 ; loc_3F592:
@@ -85157,7 +85155,7 @@ BossCollision_MCZ:
 	move.b	collision_flags(a1),d0
 	cmpi.w	#$78,invulnerable_time(a0)
 	bne.s	+	; rts
-	st	boss_hurt_sonic(a1)	; Sonic has just been hurt flag
+	st.b	boss_hurt_sonic(a1)	; Sonic has just been hurt flag
 +
 	rts
 ; ===========================================================================
@@ -85182,7 +85180,7 @@ BossCollision_MCZ2:
 	move.b	collision_flags(a1),d0
 	cmpi.w	#$78,invulnerable_time(a0)
 	bne.s	+	; rts
-	st	boss_hurt_sonic(a1)	; Sonic has just been hurt flag
+	st.b	boss_hurt_sonic(a1)	; Sonic has just been hurt flag
 +
 	rts
 ; ===========================================================================

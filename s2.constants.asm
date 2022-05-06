@@ -67,7 +67,7 @@ spindash_counter =	$3A ; and $3B
 restart_countdown =	spindash_counter; and 1+spindash_counter
 jumping =		$3C
 interact =		$3D ; RAM address of the last object Sonic stood on, minus $FFFFB000 and divided by $40
-top_solid_bit =   $3E ; the bit to check for top solidity (either $C or $E)
+top_solid_bit = 	$3E ; the bit to check for top solidity (either $C or $E)
 lrb_solid_bit =		$3F ; the bit to check for left/right/bottom solidity (either $D or $F)
 ; ---------------------------------------------------------------------------
 ; conventions followed by several objects but NOT Sonic/Tails:
