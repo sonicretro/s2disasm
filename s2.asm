@@ -32100,14 +32100,17 @@ loc_177FA:
 	move.w	#SndID_LargeBumper,d0
 	jmp	(PlaySound).l
 ; ===========================================================================
+SpecialCNZBumpers_Act1:
     if fixBugs
 	; Sonic Team forgot to start this file with a boundary marker,
 	; meaning the game could potentially read past the start of the file
 	; and load random bumpers.
 	dc.w	$0000, $0000, $0000
     endif
-SpecialCNZBumpers_Act1:	BINCLUDE	"level/objects/CNZ 1 bumpers.bin"	; byte_1781A
-SpecialCNZBumpers_Act2:	BINCLUDE	"level/objects/CNZ 2 bumpers.bin"	; byte_1795E
+	BINCLUDE	"level/objects/CNZ 1 bumpers.bin"	; byte_1781A
+
+SpecialCNZBumpers_Act2:
+	BINCLUDE	"level/objects/CNZ 2 bumpers.bin"	; byte_1795E
 ; ===========================================================================
 
     if gameRevision<2
