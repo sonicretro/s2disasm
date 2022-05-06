@@ -17,7 +17,7 @@ EndOfHeader	= $200
 ; Sonic & Knuckles
 
 ArtNem_EndingKnuckles	=  $DEA00
-Off_Objects		=  $DF370
+Off_Objects_KiS2	=  $DF370
 ArtUnc_Knuckles		= $1200E0
 MapUnc_Knuckles		= $14A8D6
 MapRUnc_Knuckles	= $14BD0A

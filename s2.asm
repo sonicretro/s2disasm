@@ -15,8 +15,13 @@
 ; See s2.notes.txt for more comments about this disassembly and other useful info.
 ;
 ; Differences from regular Sonic 2 are marked with 'KiS2'.
-; 'KiS2 (mappings)' - Modifications to mappings.
-; 'KiS2 (standalone) - Modifications needed for standalone builds of KiS2.
+; 'KiS2 (mappings)'     - Modifications to mappings.
+; 'KiS2 (palettes)'     - Modifications to palettes.
+; 'KiS2 (standalone)    - Modifications needed for standalone builds of KiS2.
+; 'KiS2 (JmpTo cleanup) - The JmpTos appears to have been cleaned-up in KiS2.
+; 'KiS2 (intro)         - Changes related to the new title screen intro.
+; 'KiS2 (bugfix)        - Changes related to bugfixes.
+; 'KiS2'                - Miscellaneous modifications.
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; ASSEMBLY OPTIONS:
@@ -79,7 +84,7 @@ standaloneKiS2 = 0
 ; start of ROM
 
     if ~~standaloneKiS2
-	; KiS2: Include the base ROMs here.
+	; Include the base ROMs here.
 	; TODO: This is temporary, until AS can do 'phase $300000' without
 	; resulting in a ton of bugs.
 	BINCLUDE "Sonic & Knuckles.bin"
@@ -508,7 +513,7 @@ OptionsMenu: ;;
 	jmp	(MenuScreen).l
 ; ===========================================================================
     if 1
-	; KiS2: Redirected to here.
+; KiS2: Redirected to here.
 TwoPlayerResults:
     endif
 ; loc_402:
@@ -558,7 +563,7 @@ LevelSelectMenu: ;;
 ; VERTICAL INTERRUPT HANDLER:
 V_Int:
     if 1
-	; KiS2. A NOP was added here, for some reason.
+	; KiS2: A NOP was added here, for some reason.
 	nop
     endif
 
@@ -1463,7 +1468,7 @@ ClearScreen:
 JmpTo_SoundDriverLoad ; JmpTo
 	nop
     if 1 && ~~standaloneKiS2
-	; KiS2, use a 'jsr', so that we can enter the following code
+	; KiS2: Use a 'jsr', so that we can enter the following code
 	; afterwards.
 	jsr	(SoundDriverLoad).l
     else
@@ -3055,6 +3060,7 @@ PalCycle_SuperSonic:
 ; loc_2188:
 PalCycle_SuperSonic_revert:	; runs the fade in transition backwards
     if 1
+	; KiS2: More Super Knuckles palette stuff.
 	moveq	#0,d0
 	move.w	d0,(Palette_frame).w
 	move.b	d0,(Super_Sonic_palette).w	; stop palette cycle
@@ -3093,6 +3099,8 @@ PalCycle_SuperSonic_revert:	; runs the fade in transition backwards
 ; loc_21E6:
 PalCycle_SuperSonic_normal:
     if 1
+	; KiS2: More Super Knuckles palette stuff.
+
 	; run frame timer
 	subq.b	#1,(Palette_timer).w
 	bpl.w	-	; rts
@@ -3152,21 +3160,17 @@ PalCycle_SuperKnuckles_LoadPalette:
 
 ; ===========================================================================
     if 1
-	; KiS2: Custom palettes for Super Knuckles.
-	; TODO: Split these to files.
+	; KiS2 (misc).: Custom palettes for Super Knuckles.
 ;----------------------------------------------------------------------------
 ;Palette for transformation to Super Knuckles
 ;----------------------------------------------------------------------------
 CyclingPal_SKTransformation:
-	dc.w	$428, $64E, $A6E, $64A,	$86E, $C8E, $86C, $A8E,	$EAE
-	dc.w	$A8E, $CAE, $ECE, $CAE, $ECE, $EEE, $A8E, $CAE, $ECE
-	dc.w	$86C, $A8E, $EAE, $64A, $86E, $C8E, $428, $64E, $A6E
-	dc.w 	$206, $40C, $84E
+	BINCLUDE	"art/palettes/Super Knuckles transformation.bin"
 ;----------------------------------------------------------------------------
 ;Palette for reverting from Super Knuckles
 ;----------------------------------------------------------------------------
 CyclingPal_SKRevert:
-	dc.w	$206, $20C, $64E
+	BINCLUDE	"art/palettes/Super Knuckles revert.bin"
     else
 ;----------------------------------------------------------------------------
 ;Palette for transformation to Super Sonic
@@ -4221,7 +4225,6 @@ TitleScreen:
 	bsr.w	NemDec
     if 1
 	; KiS2: Load new title screen assets.
-	; TODO
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleSprites),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_TitleSprites_Knuckles1).l,a0
 	bsr.w	NemDec
@@ -4325,8 +4328,8 @@ TitleScreen:
 	clr.w	(Ctrl_1).w
 
     if 1
-	; KiS2: Clear an extra variable.
-	clr.b	(Ending_VInt_Subrout).w	; TODO - The addresses were probably shuffled.
+	; KiS2 (intro): Clear a new variable.
+	clr.b	(Title_Intro_Complete).w
     endif
 
 	move.b	#ObjID_IntroStars,(IntroSonic+id).w ; load Obj0E (flashing intro star)
@@ -4392,7 +4395,7 @@ TitleScreen_Loop:
 	tst.w	(Demo_Time_left).w
 	beq.w	TitleScreen_Demo
     if 1
-	; KiS2
+	; KiS2 (intro): The intro's completion is detected with a different variable.
 	tst.b	(Title_Intro_Complete).w
     else
 	tst.b	(IntroSonic+objoff_2F).w
@@ -4491,8 +4494,8 @@ TitleScreen_Demo:
 	move.w	#1,(Demo_mode_flag).w
 	move.b	#GameModeID_Demo,(Game_Mode).w ; => Level (Demo mode)
     if 0
-	; KiS2: This little hack makes the first demo single player instead
-	; of two player.
+	; KiS2: Removing this makes the first demo single player instead of
+	; two player.
 	cmpi.w	#emerald_hill_zone_act_1,(Current_ZoneAndAct).w
 	bne.s	+
 	move.w	#1,(Two_player_mode).w
@@ -5090,11 +5093,12 @@ Level_SetPlayerMode:
 	move.w	(Player_option).w,(Player_mode).w ; use the option chosen in the Options screen
 	rts
 ; ---------------------------------------------------------------------------
++
     if 1
 	; KiS2: Force Sonic Alone, since Knuckles is alone.
-+	move.w	#1,(Player_mode).w	; force Sonic
+	move.w	#1,(Player_mode).w	; force Sonic
     else
-+	move.w	#0,(Player_mode).w	; force Sonic and Tails
+	move.w	#0,(Player_mode).w	; force Sonic and Tails
     endif
 	rts
 ; End of function Level_SetPlayerMode
@@ -5402,7 +5406,8 @@ WindTunnel:
 	bset	#1,status(a1)	; set "in-air" bit
 
     if 1
-	; KiS2: A previously unknown bugfix!
+	; KiS2 (bugfix): This function appears to contain some previously
+	; unknown bugfixes!
 	bclr	#4,status(a1)	; clear "roll-jumping" bit
 	move.b	#0,knuckles_something(a1)
     endif
@@ -5410,7 +5415,8 @@ WindTunnel:
 	btst	#button_up,(Ctrl_1_Held).w	; is Up being pressed?
 	beq.s	+				; if not, branch
     if 1
-	; KiS2: Another bugfix!
+	; KiS2 (bugfix): This appears to prevent the player from going
+	; above the wind-tunnel.
 	move.w	y_pos(a1),d2
 	cmp.w	windtunnel_min_y_pos(a2),d2
 	bls.w	+
@@ -5443,7 +5449,7 @@ WindTunnel_End:
 ; word_46A8:
 WindTunnelsCoordinates:
     if 1
-	; KiS2: A wind-tunnel was repositioned.
+	; KiS2: A wind-tunnel was made shorter.
 	dc.w $1510,$420,$1AF0,$580
     else
 	dc.w $1510,$400,$1AF0,$580
@@ -9602,7 +9608,7 @@ loc_710A:
 	blt.w	JmpTo_DeleteObject
 
     if 0
-	; KiS2: This was moved as well.
+	; KiS2 (JmpTo cleanup): Moved.
     if removeJmpTos
 JmpTo_DisplaySprite ; JmpTo
     endif
@@ -9611,7 +9617,7 @@ JmpTo_DisplaySprite ; JmpTo
 	jmpto	DisplaySprite, JmpTo_DisplaySprite
 
     if 1
-	; KiS2: This JmpTo was moved, for some reason.
+	; KiS2 (JmpTo cleanup): Moved.
     if removeJmpTos
 JmpTo_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
@@ -9645,7 +9651,7 @@ Obj5F_Main:
 	move.b	#$F,objoff_2A(a0)
 
     if 1
-	; KiS2: This was moved as well.
+	; KiS2 (JmpTo cleanup): Moved.
     if removeJmpTos
 JmpTo_DisplaySprite ; JmpTo
     endif
@@ -9663,7 +9669,6 @@ loc_71B4:
 	moveq	#6,d6
 
 ; WARNING: the build script needs editing if you rename this label
-; KiS2: TODO
 word_728C_user: lea	(Obj5F_MapUnc_7240+$4C).l,a2 ; word_728C
 
 	moveq	#2,d3
@@ -9716,7 +9721,7 @@ loc_7218:
 ; ===========================================================================
 
     if 0
-	; KiS2: This JmpTo was moved, for some reason.
+	; KiS2 (JmpTo cleanup): Moved.
     if removeJmpTos
 JmpTo_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
@@ -10162,7 +10167,7 @@ SSStartNewAct:
 ; stage, corresponding to the four possible parts of the level. Last part is unused.
 ; ----------------------------------------------------------------------------
 ; Misc_7756:
-SpecialStage_RingReq_Team: ; KiS2: TODO - Get rid of this label.
+SpecialStage_RingReq_Team:
     if 0
 	; KiS2: No two player mode.
 	dc.b  40, 80,140,120	; 4
@@ -10645,7 +10650,7 @@ ObjDB_Sonic_Init:
 	; KiS2: Uses different animations.
 	move.b	#AniIDKnuxAni_ShadowBox,anim(a0)
     else
-	move.b	#$20,anim(a0)
+	move.b	#AniIDSonAni_Lying,anim(a0)
     endif
 
 ; loc_7BD2:
@@ -10662,7 +10667,7 @@ ObjDB_Sonic_StartRunning:
 	; KiS2: Uses different animations.
 	move.b	#AniIDSonAni_Walk,anim(a0)
     else
-	move.b	#$21,anim(a0)
+	move.b	#AniIDSonAni_LieDown,anim(a0)
     endif
 	clr.w	inertia(a0)
 	move.b	#SndID_SpindashRev,d0 ; super peel-out sound
@@ -10683,7 +10688,7 @@ ObjDB_Sonic_Run:
 	jmp	(LoadSonicDynPLC).l
 ; ===========================================================================
     if 0
-		; KiS2: No Tails on the Continue screen.
+	; KiS2: No Tails on the Continue screen.
 ; loc_7C22:
 ObjDB_Tails_Init:
 	addq.b	#2,routine(a0) ; => ObjDB_Tails_Wait
@@ -11773,7 +11778,6 @@ JmpTo_Dynamic_Normal ; JmpTo
     endif
     endif
 
-	; KiS2: TODO - Unduplicate this.
 	; Menu text
 menutxt	macro	text
 	dc.b	strlen(text)-1
@@ -12503,7 +12507,7 @@ MenuScreen_LevelSelect:
 	jsrto	PlayMusic, JmpTo_PlayMusic
 
     if 1
-	; KiS2: TODO.
+	; KiS2: This PLC is loaded for some reason.
 	moveq	#PLCID_Std1,d0
 	bsr.w	LoadPLC2
     endif
@@ -12511,7 +12515,7 @@ MenuScreen_LevelSelect:
 	move.w	#(30*60)-1,(Demo_Time_left).w	; 30 seconds
 
     if 1
-	; KiS2: TODO.
+	; KiS2: Force 'Sonic alone'.
 	move.w	#1,(Player_option).w
     endif
 
@@ -12551,7 +12555,7 @@ LevelSelect_Main:	; routine running during level select
 	jsrto	Dynamic_Normal, JmpTo2_Dynamic_Normal
 
     if 1
-	; KiS2: TODO.
+	; KiS2: Allow the PLC to be loaded.
 	bsr.w	RunPLC_RAM
     endif
 
@@ -12950,7 +12954,8 @@ CheckCheats:	; This is called from 2 places: the options screen and the level se
 	addq.w	#1,(Correct_cheat_entries).w	; Add 1 to the number of correct entries
 	tst.b	1(a0)				; Is the next entry 0?
     if 1
-	; KiS2: Cheat codes are teminated with $FF instead of $00 now.
+	; KiS2: Cheat codes are teminated with $FF instead of $00 now, so
+	; that sound 00 can be used in cheat codes.
 	bpl.s	++
     else
 	bne.s	++				; If not, branch
@@ -12969,7 +12974,8 @@ CheckCheats:	; This is called from 2 places: the options screen and the level se
 	addq.w	#1,(Correct_cheat_entries_2).w
 	tst.b	1(a2)
     if 1
-	; KiS2: Cheat codes are teminated with $FF instead of $00 now.
+	; KiS2: Cheat codes are teminated with $FF instead of $00 now, so
+	; that sound 00 can be used in cheat codes.
 	bpl.s	+++	; rts
     else
 	bne.s	+++	; rts
@@ -12977,7 +12983,7 @@ CheckCheats:	; This is called from 2 places: the options screen and the level se
 	tst.w	d2				; Test this to determine which cheat to enable
 	bne.s	+				; If not 0, branch
 	move.b	#$F,(Continue_count).w		; Give 15 continues
-    if 1||fixBugs ; KiS2: Yup, KiS2 fixed this bug too.
+    if 1 || fixBugs ; KiS2 (bugfix): Yup, KiS2 fixed this bug too.
 	; Fun fact: this was fixed in the version of Sonic 2 included in
 	; Sonic Mega Collection.
 	move.b	#SndID_ContinueJingle,d0	; Play the continue jingle
@@ -13000,8 +13006,8 @@ CheckCheats:	; This is called from 2 places: the options screen and the level se
 ; ===========================================================================
     if 1
 	; KiS2: The terminating byte has been changed from 0 to $FF, so that
-	; 0 can be used as part of the cheat code. Speaking of which, the
-	; cheat codes have been changed.
+	; sound 00 can be used as part of the cheat code. Speaking of which,
+	; the cheat codes have been changed.
 level_select_cheat:	dc.b $19, $65,   9, $17, $FF	; 17th September 1965, Yuji Naka's birthdate
 	rev02even
 ; byte_97B7
@@ -13026,7 +13032,7 @@ super_sonic_cheat:	dc.b   4,   1,   2,   6,   0	; Book of Genesis, 41:26
     endif
 
     if 0
-	; KiS2: No two player mode.
+	; KiS2: No two player mode, no Sonic and Tails, and no options menu.
 	; set the character set for menu text
 	charset '@',"\27\30\31\32\33\34\35\36\37\38\39\40\41\42\43\44\45\46\47\48\49\50\51\52\53\54\55"
 	charset '0',"\16\17\18\19\20\21\22\23\24\25"
@@ -13057,7 +13063,7 @@ TextOptScr_0:			menutxt	"      00       "	; byte_9870:
 Pal_LevelIcons:	BINCLUDE "art/palettes/Level Select Icons.bin"
 
     if 0
-	; KiS2: No two player mode or options menu.
+; KiS2: No two player mode or options menu.
 ; 2-player level select screen mappings (Enigma compressed)
 ; byte_9A60:
 	even
@@ -13081,8 +13087,8 @@ MapEng_LevSelIcon:	BINCLUDE "mappings/misc/Level Select Icons.bin"
 	even
 
     if 1
-	; KiS2: Moved here from elsewhere, since the code surrounding it was
-	; deleted.
+; KiS2: Moved here from elsewhere, since the code surrounding it was
+; deleted.
 ;word_87C6:
 Anim_SonicMilesBG:	zoneanimstart
 	; Sonic/Miles animated background
@@ -13154,10 +13160,9 @@ EndingSequence:
 	move.w	#$30,(Palette_frame).w
 +
     if 1
-	; KiS2: TODO
+	; KiS2: All endings play out similarly.
 	clr.w	(Ending_Routine).w
     else
-	bsr.w	
 	moveq	#0,d0
 	cmpi.w	#2,(Player_mode).w
 	beq.s	+
@@ -13359,14 +13364,14 @@ EndgameCredits:
 	lea	(ArtNem_EndingTitle).l,a0
 	jsrto	NemDec, JmpTo_NemDec
     if 1
-	; KiS2: TODO
-	move.l	#vdpComm(tiles_to_bytes($03DD),VRAM,WRITE),(VDP_control_port).l
+	; KiS2: Load the giant 'KNUCKLES THE ECHIDNA IN' banner.
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleKnuckles4),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_TitleSprites_Knuckles4).l,a0
 	bsr.w	NemDec
-	move.l	#vdpComm(tiles_to_bytes($03FE),VRAM,WRITE),(VDP_control_port).l
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleKnuckles5),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_TitleSprites_Knuckles5).l,a0
 	bsr.w	NemDec
-	move.l	#vdpComm(tiles_to_bytes($0488),VRAM,WRITE),(VDP_control_port).l
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleKnuckles6),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_TitleSprites_Knuckles6).l,a0
 	bsr.w	NemDec
     endif
@@ -13386,7 +13391,7 @@ EndgameCredits:
 	jsrto	PlaneMapToVRAM_H40, JmpTo2_PlaneMapToVRAM_H40
 
     if 1
-	; KiS2: TODO
+	; KiS2: Create the objects that display the 'KNUCKLES IN' banner.
 	lea	(MainCharacter).w,a1
 	move.b	#ObjID_IntroStars,id(a1)
 	move.b	#$16,subtype(a1)
@@ -13402,7 +13407,7 @@ EndgameCredits:
 	bsr.w	EndgameLogoFlash
 
     if 1
-	; KiS2: TODO
+	; KiS2: Load the extra palette for the 'KNUCKLES IN' banner.
 	lea	Pal_KiS2_Ending(pc),a1
 	lea	(Normal_palette_line4).w,a2
 	moveq	#bytesToLcnt(palette_line_size),d0
@@ -13412,6 +13417,8 @@ EndgameCredits:
     endif
 
     if 1
+	; KiS2: Due to the added function calls, the counter is stored in a
+	; variable instead of being kept in a register.
 	move.w	#$3B,(Endgame_Logo_Timer).w
     else
 	move.w	#$3B,d0
@@ -13419,6 +13426,8 @@ EndgameCredits:
 -	move.b	#VintID_Ending,(Vint_routine).w
 	bsr.w	WaitForVint
     if 1
+	; Function calls are added for updating and displaying the objects
+	; that are responsible for managing the 'KNUCKLES IN' banner.
 	jsr	(RunObjects).l
 	jsr	(BuildSprites).l
 	subq.w	#1,(Endgame_Logo_Timer).w
@@ -13428,6 +13437,8 @@ EndgameCredits:
     endif
 
     if 1
+	; KiS2: Due to the added function calls, the counter is stored in a
+	; variable instead of being kept in a register.
 	move.w	#$257,(Endgame_Logo_Timer).w
     else
 	move.w	#$257,d6
@@ -13435,6 +13446,8 @@ EndgameCredits:
 -	move.b	#VintID_Ending,(Vint_routine).w
 	bsr.w	WaitForVint
     if 1
+	; Function calls are added for updating and displaying the objects
+	; that are responsible for managing the 'KNUCKLES IN' banner.
 	jsr	(RunObjects).l
 	jsr	(BuildSprites).l
     endif
@@ -13446,6 +13459,8 @@ EndgameCredits:
 	andi.b	#button_B_mask|button_C_mask|button_A_mask|button_start_mask,d1
 	bne.s	+
     if 1
+	; KiS2: Due to the added function calls, the counter is stored in a
+	; variable instead of being kept in a register.
 	subq.w	#1,(Endgame_Logo_Timer).w
 	bpl.s	-
     else
@@ -13509,10 +13524,8 @@ byte_A0EC:
 pal_A0FE:	BINCLUDE	"art/palettes/Ending Cycle.bin"
 
     if 1
-Pal_KiS2_Ending:
-	; KiS2: A new palette TODO
-	dc.w	$0C00, $0000, $0C00, $0E44, $0E66, $0E88, $00EE, $00AE
-	dc.w	$006A, $0026, $0EEE, $0EAA, $000C, $0006, $0002, $00E8
+; KiS2: A new palette, for the giant 'KNUCKLES THE ECHIDNA IN' banner.
+Pal_KiS2_Ending:	BINCLUDE	"art/palettes/Ending Knuckles Banner.bin"
     endif
 
 ; ===========================================================================
@@ -13857,8 +13870,10 @@ loc_A53A:
 	move.w	d0,y_pos(a1)
 	move.w	x_pos(a0),x_pos(a1)
     if 1
-	; KiS2: TODO
-	move.w	#$500,anim(a1)
+	; KiS2: 'mapping_frame' and 'anim_frame' are no longer set here.
+	; By setting 'prev_anim' to 0, the animation is forced to reset and
+	; automatically update 'mapping_frame' and 'anim_frame' anyway.
+	move.w	#AniIDSonAni_Wait<<8,anim(a1)
     else
 	move.l	#$1000505,mapping_frame(a1)
     endif
@@ -14323,7 +14338,7 @@ loc_AA8A:
 	jmpto	DisplaySprite, JmpTo5_DisplaySprite
 
     if 1
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
     if removeJmpTos
 JmpTo3_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
@@ -14433,7 +14448,7 @@ loc_AB8E:
 	addq.w	#4,sp
 
     if 0
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
     if removeJmpTos
 JmpTo3_DeleteObject ; JmpTo
     endif
@@ -14477,7 +14492,9 @@ sub_ABBA:
 ; sub_ABE2:
 EndingSequence_LoadCharacterArt:
     if 1
-	; KiS2: TODO
+	; KiS2: Since Knuckles is the only character in the game, and there's
+	; no unique art for his Super form, there's no need to decide which
+	; art to load.
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_EndingCharacter),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_EndingKnuckles).l,a0
 	jmpto	NemDec, JmpTo_NemDec
@@ -14518,7 +14535,9 @@ EndingSequence_LoadCharacterArt_Tails:
 ; sub_AC30:
 EndingSequence_LoadFlickyArt:
     if 1
-	; KiS2: TODO
+	; KiS2: This has been hardcoded, so that it no longer depends on
+	; 'Ending_Routine'. If Knuckles has all of the emeralds, then load
+	; eagles. If not, then load Flickies.
 	moveq	#0,d0
 	cmpi.b	#7,(Emerald_count).w
 	bne.s	+
@@ -14536,7 +14555,7 @@ EndingSequence_LoadFlickyArt_Flickies: offsetTable
 	offsetTableEntry.w EndingSequence_LoadFlickyArt_Bird	; 0
 	offsetTableEntry.w EndingSequence_LoadFlickyArt_Eagle	; 2
     if 0
-	; KiS2:
+	; KiS2: The code for Tails' chickens have been completely removed.
 	offsetTableEntry.w EndingSequence_LoadFlickyArt_Chicken	; 4
     endif
 ; ===========================================================================
@@ -14553,7 +14572,7 @@ EndingSequence_LoadFlickyArt_Eagle:
 	jmpto	NemDec, JmpTo_NemDec
 ; ===========================================================================
     if 0
-	; KiS2:
+	; KiS2: The code for Tails' chickens have been completely removed.
 ; loc_AC6A:
 EndingSequence_LoadFlickyArt_Chicken:
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_Animal_2),VRAM,WRITE),(VDP_control_port).l
@@ -14561,9 +14580,9 @@ EndingSequence_LoadFlickyArt_Chicken:
 	jmpto	NemDec, JmpTo_NemDec
     endif
 ; ===========================================================================
-; KiS2: This has been modified to feature Knuckles' colours.
+; KiS2 (palette): This has been modified to feature Knuckles' colours.
 Pal_AC7E:	BINCLUDE	"art/palettes/Ending Sonic.bin"
-; KiS2: This has been modified to feature Knuckles' colours.
+; KiS2 (palette): This has been modified to feature Knuckles' colours.
 Pal_AC9E:	BINCLUDE	"art/palettes/Ending Sonic Far.bin"
 Pal_ACDE:	BINCLUDE	"art/palettes/Ending Background.bin"
 Pal_AD1E:	BINCLUDE	"art/palettes/Ending Photos.bin"
@@ -15652,8 +15671,9 @@ SwScrl_EHZ:
 	; 22+58+21+11+16+16+15+18+45=222.
 	; Only 222 out of 224 lines have been processed.
 
-	; KiS2: The Emerald Hill Zone background bug is fix in this game.
-    if fixBugs|1
+    if 1 || fixBugs
+	; KiS2 (bugfix): The Emerald Hill Zone background bug is fixed in
+	; this game.
 	; The bottom two lines haven't had their H-scroll values set.
 	; Knuckles in Sonic 2 fixes this with the following code:
 	move.w	d4,(a1)+
@@ -20364,6 +20384,7 @@ loadLevelLayout:
     if 0
 	; KiS2: It looks like the devs *finally* noticed this old stuff was
 	; here, and removed it.
+
 ;loadLevelLayout_Sonic1:
 	; This loads level layout data in Sonic 1's format. Curiously, this
 	; function has been changed since Sonic 1: in particular, it repeats
@@ -23028,7 +23049,7 @@ Obj15_State4:
 	tst.b	(Oscillating_Data+$18).w
 	bne.w	BranchTo_loc_1000C
     if 1
-	; KiS2: TODO
+	; KiS2: This branch was optimised.
 	bsr.w	SingleObjLoad2
     else
 	jsrto	SingleObjLoad2, JmpTo2_SingleObjLoad2
@@ -24581,7 +24602,7 @@ Obj2D_Main:
 	addq.w	#1,d3
 	move.w	x_pos(a0),d4
     if 1
-	; KiS2: TODO
+	; KiS2: This branch was optimised.
 	bsr.w	SolidObject
     else
 	jsrto	SolidObject, JmpTo2_SolidObject
@@ -25815,7 +25836,7 @@ SolidObject_Monitor_Sonic:
 SolidObject_Monitor_Tails:
 	btst	d6,status(a0)			; is Tails standing on the monitor?
     if 1
-	; KiS2
+	; KiS2: No two player mode.
 	beq.w	SolidObject_cont
     else
 	bne.s	Obj26_ChkOverEdge		; if yes, branch
@@ -26511,7 +26532,7 @@ Obj0E_Index: offsetTable
 	offsetTableEntry.w Obj0E_Init		;   0
 	offsetTableEntry.w Obj0E_Sonic		;   2
     if 1
-	; KiS2: Different intro,
+	; KiS2 (intro): Different intro.
 	offsetTableEntry.w Obj0E_LowerTheEmblem	;   4
 	offsetTableEntry.w Obj0E_Thing2		;   6
     else
@@ -26520,14 +26541,14 @@ Obj0E_Index: offsetTable
     endif
 	offsetTableEntry.w Obj0E_FlashingStar	;   8
     if 1
-	; KiS2: Different intro,
+	; KiS2 (intro): Different intro.
 	offsetTableEntry.w Obj0E_Thing3		;  $A
     else
 	offsetTableEntry.w Obj0E_SonicHand	;  $A
     endif
 	offsetTableEntry.w Obj0E_FallingStar	;  $C
     if 1
-	; KiS2: Different intro,
+	; KiS2 (intro): Different intro.
 	offsetTableEntry.w Obj0E_Thing4		; $E
 	offsetTableEntry.w Obj0E_Thing5		; $10
 	offsetTableEntry.w Obj0E_Thing6		; $12
@@ -26543,7 +26564,7 @@ Obj0E_Index: offsetTable
 Obj0E_Init:
 	addq.b	#2,routine(a0)	; useless, because it's overwritten with the subtype below
     if 0
-	; KiS2: Different intro.
+	; KiS2 (intro): Different intro.
 	move.l	#Obj0E_MapUnc_136A8,mappings(a0)
     endif
 	move.w	#make_art_tile(ArtTile_ArtNem_TitleSprites,0,0),art_tile(a0)
@@ -26572,7 +26593,7 @@ Obj0E_Sonic_Index: offsetTable
 	offsetTableEntry.w Obj0E_Animate			;   8
 	offsetTableEntry.w Obj0E_Sonic_AnimationFinished	;  $A
     if 0
-	; KiS2: Different intro.
+	; KiS2 (intro): Different intro.
 	offsetTableEntry.w Obj0E_Sonic_SpawnTails		;  $C
     endif
 	offsetTableEntry.w Obj0E_Sonic_FlashBackground		;  $E
@@ -26584,7 +26605,7 @@ Obj0E_Sonic_Init:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_FadeInAndPlayMusic
 
     if 1
-	; KiS2: Different intro.
+	; KiS2 (intro): Different intro.
 	move.l	#Obj0E_MapUnc_C,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_TitleSprites,0,1),art_tile(a0)
 	move.b	#0,mapping_frame(a0)
@@ -26606,8 +26627,7 @@ Obj0E_Sonic_Init:
 	move.b	#6,subtype(a1)
 
     if 1
-	; KiS2:
-	; Load... something.
+	; KiS2 (intro): Load... something.
 	lea	(IntroSomething1).w,a1
 	move.b	#ObjID_IntroStars,id(a1)
 	move.b	#$12,subtype(a1)
@@ -26695,6 +26715,7 @@ Obj0E_Move:
 	bra.w	DisplaySprite
 
     if 1
+	; KiS2 (intro): Different intro; different positions.
 Obj0E_Sonic_Positions:
 	;           X,      Y
 	dc.w  128+116, 128+80
@@ -26718,6 +26739,7 @@ Obj0E_Animate:
 Obj0E_Sonic_AnimationFinished:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_SpawnTails
     if 1
+	; KiS2 (intro): Different intro.
 	move.b	#4,mapping_frame(a0)
 	move.w	y_pixel(a0),obj0e_counter(a0)
     else
@@ -26732,7 +26754,7 @@ Obj0E_Sonic_AnimationFinished:
 	bra.w	DisplaySprite
 ; ===========================================================================
     if 0
-	; KiS2: Different intro.
+	; KiS2 (intro): Different intro.
 ; loc_12F7C:
 Obj0E_Sonic_SpawnTails:
 	cmpi.w	#192,obj0e_current_frame(a0)
@@ -26754,6 +26776,7 @@ Obj0E_Sonic_FlashBackground:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_SpawnFallingStar
 	clr.w	obj0e_array_index(a0)
     if 1
+	; KiS2 (intro): 
 	st	(Title_Intro_Complete).w
     else
 	st	obj0e_intro_complete(a0)
@@ -26775,7 +26798,7 @@ Obj0E_Sonic_FlashBackground:
 	move.b	#ObjID_TitleMenu,(TitleScreenMenu+id).w
 +
     if 1
-	; KiS2: Different intro.
+	; KiS2 (intro): Different intro.
 	bsr.w	Obj0E_OffsetYPosition
     endif
 	bra.w	DisplaySprite
@@ -26789,7 +26812,7 @@ Obj0E_Sonic_SpawnFallingStar:
 	cmpi.w	#400,obj0e_current_frame(a0)
 	beq.s	++
     if 1
-	; KiS2: Different intro.
+	; KiS2 (intro): Different intro.
 	bsr.w	Obj0E_OffsetYPosition
     endif
 	bra.w	DisplaySprite
@@ -26798,7 +26821,7 @@ Obj0E_Sonic_SpawnFallingStar:
 	cmpi.w	#464,obj0e_current_frame(a0)
 	beq.s	+
     if 1
-	; KiS2: Different intro.
+	; KiS2 (intro): Different intro.
 	bsr.w	Obj0E_OffsetYPosition
     endif
 	bra.w	DisplaySprite
@@ -26812,14 +26835,14 @@ Obj0E_Sonic_SpawnFallingStar:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_MakeStarSparkle
 
     if 0
-	; KiS2: Different intro.
+	; KiS2 (intro): Different intro.
 	; Delete sprite mask object.
 	lea	(IntroMaskingSprite).w,a1
 	bsr.w	DeleteObject2
     endif
 
     if 1
-	; KiS2: Different intro.
+	; KiS2 (intro): Different intro.
 	bsr.w	Obj0E_OffsetYPosition
     endif
 	bra.w	DisplaySprite
@@ -26845,7 +26868,7 @@ Obj0E_Sonic_MakeStarSparkle:
 	move.w	CyclingPal_TitleStar(pc,d0.w),(Normal_palette_line3+5*2).w
 +
     if 1
-	; KiS2: Different intro.
+	; KiS2 (intro): Different intro.
 	bsr.w	Obj0E_OffsetYPosition
     endif
 	bra.w	DisplaySprite
@@ -26856,7 +26879,7 @@ CyclingPal_TitleStar:
 CyclingPal_TitleStar_End
 
     if 0
-	; KiS2: Different intro.
+	; KiS2 (intro): Different intro.
 ;word_13046:
 Obj0E_Sonic_Positions:
 	;           X,      Y
@@ -26872,7 +26895,7 @@ Obj0E_Sonic_Positions_End
     endif
 ; ===========================================================================
     if 1
-	; KiS2: Different intro.
+	; KiS2 (intro): Different intro.
 Obj0E_LowerTheEmblem:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
@@ -27157,7 +27180,7 @@ Obj0E_FlashingStar_Index: offsetTable
 Obj0E_FlashingStar_Init:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Animate
     if 1
-	; KiS2
+	; KiS2 (intro)
 	move.b	#0,mapping_frame(a0)
 	move.l	#Obj0E_MapUnc_A,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_TitleKnuckles2,1,1),art_tile(a0)
@@ -27221,6 +27244,7 @@ Obj0E_FlashingStar_Positions:
 Obj0E_FlashingStar_Positions_End
 ; ===========================================================================
     if 1
+	; KiS2 (intro): Different intro.
 Obj0E_Thing3:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
@@ -27472,7 +27496,7 @@ Obj0E_FallingStar_Index: offsetTable
 Obj0E_FallingStar_Init:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_FallingStar_Main
     if 1
-	; KiS2
+	; KiS2 (intro): Different intro.
 	move.l	#Obj0E_MapUnc_A,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_TitleKnuckles2,1,0),art_tile(a0)
 	move.b	#0,mapping_frame(a0)
@@ -27491,7 +27515,7 @@ Obj0E_FallingStar_Main:
 	subq.w	#1,obj0e_counter(a0)
 	bmi.w	DeleteObject
     if 1
-	; KiS2: Different intro.
+	; KiS2 (intro): Different intro.
 	cmpi.w	#60,obj0e_counter(a0)
 	bne.s	+
 	move.b	#1,priority(a0)
@@ -27506,6 +27530,7 @@ Obj0E_FallingStar_Main:
 	bra.w	DisplaySprite
 
     if 1
+	; KiS2 (intro): Different intro.
 ; loc_310434:
 Obj0E_Thing6:
 	moveq	#0,d0
@@ -27759,7 +27784,7 @@ off_133C8:	C9PalInfo                      loc_1344C,  Pal_ACDE, $40,$1F,4,7
 off_133D4:	C9PalInfo                      loc_1344C,  Pal_AD3E,   0, $F,4,7
 off_133E0:	C9PalInfo                      loc_1344C,  Pal_AC9E,   0,$1F,4,7
 
-; KiS2: This has been modified to feature Knuckles' colours.
+; KiS2 (intro): KiS2 (palette): This has been modified to feature Knuckles' colours.
 Pal_133EC:	BINCLUDE "art/palettes/Title Sonic.bin"
 Pal_1340C:	BINCLUDE "art/palettes/Title Background.bin"
 Pal_1342C:	BINCLUDE "art/palettes/Title Emblem.bin"
@@ -27835,7 +27860,7 @@ loc_134B6:
 
 TitleScreen_SetFinalState:
     if 1
-	; KiS2: Different variable.
+	; KiS2 (intro): Different variable.
 	tst.b	(Title_Intro_Complete).w
     else
 	tst.b	obj0e_intro_complete(a0)
@@ -27851,15 +27876,16 @@ TitleScreen_SetFinalState:
 
 	; Initialise Sonic object.
     if 1
-	; KiS2: Different variable.
+	; KiS2 (intro): Different variable.
 	st.b	(Title_Intro_Complete).w
     else
 	st.b	obj0e_intro_complete(a0)
     endif
 
     if 1
-	move.w	#$FFE8,($FFFFF616).w
+	move.w	#-$18,(Vscroll_Factor_FG).w
 
+	; KiS2 TODO
 	lea	($FFFFB000).w,a1
 	jsr	DeleteObject2
 
@@ -27989,7 +28015,7 @@ TitleScreen_SetFinalState:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
     if 0
-	; KiS2
+	; KiS2 (intro): Different intro.
 ; sub_135EA:
 TitleScreen_InitSprite:
 	move.l	#Obj0E_MapUnc_136A8,mappings(a1)
@@ -28020,21 +28046,20 @@ Obj0F_Index:	offsetTable
 Obj0F_Init:
 	addq.b	#2,routine(a0) ; => Obj0F_Main
     if 1
+	; KiS2 (intro): Repositioned.
 	move.w	#128+320/2,x_pixel(a0)
 	move.w	#128+224/2+84,y_pixel(a0)
-    else
-	move.w	#128+320/2+8,x_pixel(a0)
-	move.w	#128+224/2+92,y_pixel(a0)
-    endif
-    if 1
 	move.l	#Obj0E_MapUnc_E,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_TitleKnuckles4,3,1),art_tile(a0)
     else
+	move.w	#128+320/2+8,x_pixel(a0)
+	move.w	#128+224/2+92,y_pixel(a0)
 	move.l	#Obj0F_MapUnc_13B70,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Title,0,0),art_tile(a0)
     endif
 	bsr.w	Adjust2PArtPointer
     if 1
+	; KiS2 (intro): Dummied-out.
 	move.b	#0,(Title_screen_option).w
     else
 	andi.b	#1,(Title_screen_option).w
@@ -28044,7 +28069,7 @@ Obj0F_Init:
 ; loc_13644:
 Obj0F_Main:
     if 0
-	; KiS2: The title screen menu has been reduced to a simple
+	; KiS2 (intro): The title screen menu has been reduced to a simple
 	; 'press start' prompt.
 	moveq	#0,d2
 	move.b	(Title_screen_option).w,d2
@@ -28076,7 +28101,7 @@ Obj0F_Main:
 ; animation script
 ; off_13686:
     if 1
-	; KiS2: The animation scripts were modified to suit the new intro.
+; KiS2 (intro): The animation scripts were modified to suit the new intro.
 Ani_obj0E:	offsetTable
 		offsetTableEntry.w Ani_obj0E_Knuckles		; 0
 		offsetTableEntry.w Ani_obj0E_Tails		; 1
@@ -28181,6 +28206,8 @@ Ani_obj0E_FallingStar:
     endif
 
     if 1
+; KiS2 (intro): New title screen mappings.
+; TODO: Document what these are.
 Obj0E_MapUnc_A:		BINCLUDE "mappings/sprite/obj0E_a.bin"
 Obj0E_MapUnc_B:		BINCLUDE "mappings/sprite/obj0E_b.bin"
 Obj0E_MapUnc_C:		BINCLUDE "mappings/sprite/obj0E_c.bin"
@@ -28414,7 +28441,8 @@ Obj34_MoveTowardsTargetPosition:
 	cmp.w	titlecard_x_target(a0),d1 ; compare with target position
 	beq.s	++			; if it reached its target position, branch
     if 1
-	; KiS2
+	; KiS2 (bugfix): This appears to be a bugfix that prevents odd
+	; behaviour if the object's X coordinate was to ever go below 0.
 	bgt.s	+			; if it's beyond the target position, branch
     else
 	bhi.s	+			; if it's beyond the target position, branch
@@ -28424,10 +28452,12 @@ Obj34_MoveTowardsTargetPosition:
 	sub.w	d0,x_pixel(a0)		; move the object
 	cmpi.w	#$200,x_pixel(a0)	; is it beyond $200?
     if 1
-	; KiS2: 
+	; KiS2 (bugfix): This appears to be a bugfix that prevents odd
+	; behaviour if the object's X coordinate was to ever go below 0.
 	bgt.s	++
 +
-	cmpi.w	#$50,x_pixel(a0)
+	; Do not display unless close to the visible portion of the screen.
+	cmpi.w	#128-48,x_pixel(a0)
 	bgt.w	DisplaySprite
     else
 	bhi.s	++			; if yes, return
@@ -29057,7 +29087,7 @@ results_screen_object macro startx, targetx, y, routine, frame
 	dc.b	routine, frame
     endm
     if 1
-	; KiS2: Repositions.
+	; KiS2: Repositioned.
 	results_screen_object   $28, $138,  $B8,   2,  0
     else
 	results_screen_object   $20, $120,  $B8,   2,  0
@@ -29111,6 +29141,7 @@ Obj6F_Index:	offsetTable
 		offsetTableEntry.w Obj6F_MoveToTargetPos	; $32
 		offsetTableEntry.w Obj6F_MoveAndDisplay	; $34
     if 1
+		; KiS2: TODO
 		offsetTableEntry.w loc_311710	; $36
     endif
 ; ===========================================================================
@@ -29124,7 +29155,7 @@ Obj6F_Init:
 	movea.l	a0,a1
 	lea	byte_14752(pc),a2
     if 1
-	; KiS2
+	; KiS2: TODO
 	moveq	#$D,d1
     else
 	moveq	#$C,d1
@@ -29450,12 +29481,14 @@ Obj6F_MoveAndDisplay:
 	move.w	#$B4,anim_frame_duration(a0)
 	move.b	#$20,routine(a0)	; => Obj6F_TimedDisplay
     if 1
+	; KiS2: The branch was extended for whatever reason.
 	jmp	(DisplaySprite).l
     else
 	bra.w	DisplaySprite
     endif
 
     if 1
+	; KiS2: TODO
 loc_311710:
 	cmpi.b	#$30,(SpecialStageResults+routine).w
 	blo.s	loc_31172C
@@ -29512,6 +29545,7 @@ byte_14752:
 	;      startx  targx   starty  routine   map frame
 	results_screen_object  $240, $120,  $AA,   2,   0		; "Special Stage"
     if 1
+	; KiS2: Repositioned.
 	results_screen_object   $50, $170,  $98,   4,   1		; "Knuckles got a"
     else
 	results_screen_object     0, $120,  $98,   4,   1		; "Sonic got a"
@@ -29528,7 +29562,8 @@ byte_14752:
 	results_screen_object  $350, $120, $128, $18,  $E		; Miles Rings
 	results_screen_object  $360, $120, $138, $1A, $10		; Gems Bonus
     if 1
-	results_screen_object     8, $128,  $98, $36, $1D		; Fuck if I know. TODO
+	; KiS2: TODO
+	results_screen_object     8, $128,  $98, $36, $1D		; Fuck if I know.
     endif
 
 ; -------------------------------------------------------------------------------
@@ -30043,6 +30078,7 @@ word_14E96:	dc.w 7
 Obj6F_MapUnc_14ED0:	BINCLUDE "mappings/sprite/obj6F.bin"
 
     if 1
+	; KiS2: A new graphic: the letter 'K'.
 ArtUnc_FontK:
 	BINCLUDE "art/uncompressed/Title card font K.bin"
 ArtUnc_FontK_End:
@@ -33132,7 +33168,8 @@ Touch_Rings:
 	; to the last frame of his ducking animation. This is a leftover from
 	; Sonic 1, where Sonic's ducking animation only had one frame.
     if 1
-	cmpi.b	#$9C,mapping_frame(a0)	; is Sonic ducking?
+	; KiS2: Adjusted to suit Knuckles.
+	cmpi.b	#$9C,mapping_frame(a0)	; is Knuckles ducking?
     else
 	cmpi.b	#$4D,mapping_frame(a0)	; is Sonic ducking?
     endif
@@ -33782,7 +33819,8 @@ Check_CNZ_bumpers:
 	; to the last frame of his ducking animation. This is a leftover from
 	; Sonic 1, where Sonic's ducking animation only had one frame.
     if 1
-	cmpi.b	#$9C,mapping_frame(a0)	; is Sonic ducking?
+	; Adjusted to suit Knuckles.
+	cmpi.b	#$9C,mapping_frame(a0)	; is Knuckles ducking?
     else
 	cmpi.b	#$4D,mapping_frame(a0)	; is Sonic ducking?
     endif
@@ -34150,8 +34188,8 @@ loc_177FA:
 	jmp	(PlaySound).l
 ; ===========================================================================
 SpecialCNZBumpers_Act1:
-    if 1||fixBugs
-	; KiS2: They fixed it! HOORAY!
+    if 1 || fixBugs
+	; KiS2 (bugfix): They fixed it! HOORAY!
 	; Sonic Team forgot to start this file with a boundary marker,
 	; meaning the game could potentially read past the start of the file
 	; and load random bumpers.
@@ -34210,7 +34248,7 @@ ObjectsManager_Init:
 	; KiS2: KiS2 features its own custom object layouts, which are stored
 	; in the S&K ROM.
 	lsr.w	#5,d0			; and this yields $007C.
-	lea	(Off_Objects).l,a0
+	lea	(Off_Objects_KiS2).l,a0
 	movea.l	(a0,d0.w),a0
     else
 	lsr.w	#6,d0			; and this yields $003E.
@@ -36777,7 +36815,7 @@ SolidObject_ChkBounds:
 	cmp.w	d1,d5
 	bhi.w	SolidObject_TopBottom		; Branch, if horizontal distance is greater than vertical distance.
     if 1
-	; KiS2: TODO
+	; KiS2 (bugfix): TODO
 	; If Sonic is extremely close to the top or bottom, then branch.
 	; I guess the point of this is to let Sonic walk over objects that
 	; are barely poking out of the ground?
@@ -36885,9 +36923,9 @@ SolidObject_TopBottom:
 ; ===========================================================================
 ; loc_19B06:
 SolidObject_InsideBottom:
-    if 1&~~fixBugs
-	; KiS2: According to Flamewing, this is an attempt to fix the below
-	; bug, but this bugfix does not work as intended.
+    if 1 && ~~fixBugs
+	; KiS2 (bugfix): According to Flamewing, this is an attempt to fix
+	; the below bug, but this bugfix does not work as intended.
 	btst	#1,status(a1)	; is Sonic in the air?
 	bne.s	loc_314F6A	; if yes, branch
 	cmpi.b	#ObjID_FallingPillar,id(a0)
@@ -36899,8 +36937,8 @@ SolidObject_InsideBottom:
 	bpl.s	loc_19B1C		; if moving downwards, branch
 	tst.w	d3			; is Sonic above the object?
 	bpl.s	loc_19B1C		; if yes, branch (this will never be true)
-    if 1&~~fixBugs
-	; Ditto.
+    if 1 && ~~fixBugs
+	; KiS2 (bugfix): Ditto.
 	bra.s	loc_314F70
 
 loc_314F6A:
@@ -37547,7 +37585,7 @@ Obj01_Control:
 +
 	btst	#0,obj_control(a0)	; is Sonic interacting with another object that holds him in place or controls his movement somehow?
     if 1
-	; KiS2
+	; KiS2: Update Knuckles' gliding.
 	beq.s	+
 	move.b	#0,knuckles_something(a0)
 	bra.s	++
@@ -37826,7 +37864,7 @@ return_1A2DE:
 ; loc_1A2E0: Obj01_MdJump
 Obj01_MdAir:
     if 1
-	; KiS2
+	; KiS2: Knuckles' gliding logic was added.
 	tst.b	knuckles_something(a0)
 	bne.s	Obj01_MdAir_Gliding
     endif
@@ -37844,7 +37882,7 @@ Obj01_MdAir:
 ; End of subroutine Obj01_MdAir
 
     if 1
-	; KiS2
+	; KiS2: Knuckles' gliding logic was added.
 Obj01_MdAir_Gliding:
 	bsr.w	Knuckles_GlideSpeedControl
 	bsr.w	Sonic_LevelBound
@@ -37987,7 +38025,7 @@ Knuckles_FallFromGlide:
 	sub.w	d0,d3
 	subq.w	#1,d3
 
-loc_31584A:					  ; ...
+loc_31584A:
 	move.w	y_pos(a0),d2
 	subi.w	#11,d2
 	jsr	ChkFloorEdge_Part3
@@ -38637,7 +38675,7 @@ Sonic_BalanceOnObjLeft:
 	beq.s	+
 	move.b	#AniIDSonAni_Balance,anim(a0)
     if 1
-	; KiS2
+	; KiS2: Knuckles has simpler balancing behaviour.
 	bra.w	Obj01_ResetScr
 +
 	bset	#0,status(a0)
@@ -38676,7 +38714,7 @@ Sonic_Balance:
 	bne.s	+
 	move.b	#AniIDSonAni_Balance,anim(a0)
     if 1
-	; KiS2
+	; KiS2: Knuckles has simpler balancing behaviour.
 	bra.w	Obj01_ResetScr
 +
 	bclr	#0,status(a0)
@@ -38711,7 +38749,7 @@ Sonic_BalanceLeft:
 	beq.s	+
 	move.b	#AniIDSonAni_Balance,anim(a0)
     if 1
-	; KiS2
+	; KiS2: Knuckles has simpler balancing behaviour.
 	bra.w	Obj01_ResetScr
 +
 	bset	#0,status(a0)
@@ -38740,7 +38778,7 @@ Sonic_BalanceLeft:
     endif
 ; ---------------------------------------------------------------------------
     if 0
-	; KiS2
+	; KiS2: Super Knuckles doesn't have any unique animations.
 ; loc_1A55E:
 SuperSonic_Balance2:
 	cmpi.b	#3,next_tilt(a0)
@@ -38812,7 +38850,7 @@ Obj01_ResetScr_Part2:
 Obj01_UpdateSpeedOnGround:
 	tst.b	(Super_Sonic_flag).w
     if 1
-	; KiS2
+	; KiS2: This branch was optimised.
 	beq.s	+
     else
 	beq.w	+
@@ -38885,7 +38923,11 @@ Obj01_CheckWallsOnGround:
 	beq.s	loc_1A6A2
 	add.w	d1,x_vel(a0)
     if 1
-	; KiS2
+	; KiS2 (bugfix): Modified to prevent Sonic/Knuckles from entering his
+	; pushing state if he's facing in the opposite direction. This
+	; appears to be a fix for that bug where if you slide into a wall
+	; while trying to move in the opposite direction, you enter the
+	; pushing animation as you move away from it.
 	move.w	#0,inertia(a0)
 	btst	#0,status(a0)
 	bne.s	.return
@@ -38905,7 +38947,11 @@ loc_1A6A2:
 loc_1A6A8:
 	sub.w	d1,x_vel(a0)
     if 1
-	; KiS2
+	; KiS2 (bugfix): Modified to prevent Sonic/Knuckles from entering his
+	; pushing state if he's facing in the opposite direction. This
+	; appears to be a fix for that bug where if you slide into a wall
+	; while trying to move in the opposite direction, you enter the
+	; pushing animation as you move away from it.
 	move.w	#0,inertia(a0)
 	btst	#0,status(a0)
 	beq.s	Obj01_CheckWallsOnGround.return
@@ -38958,8 +39004,8 @@ Sonic_TurnLeft:
 	move.w	#-$80,d0
 +
 	move.w	d0,inertia(a0)
-    if 1||fixBugs
-	; KiS2: Another bugfix!
+    if 1 || fixBugs
+	; KiS2 (bugfix): Another bugfix!
 	move.b	angle(a0),d1
 	addi.b	#$20,d1
 	andi.b	#$C0,d1
@@ -39020,8 +39066,8 @@ Sonic_TurnRight:
 	move.w	#$80,d0
 +
 	move.w	d0,inertia(a0)
-    if 1||fixBugs
-	; KiS2: Another bugfix!
+    if 1 || fixBugs
+	; KiS2 (bugfix): Another bugfix!
 	move.b	angle(a0),d1
 	addi.b	#$20,d1
 	andi.b	#$C0,d1
@@ -39229,7 +39275,9 @@ Sonic_ChgJumpDir:
 	cmp.w	d1,d0	; compare new speed with top speed
 	bgt.s	+	; if new speed is less than the maximum, branch
     if 1
-	; KiS2
+	; KiS2 (bugfix): The leftover air speed cap from Sonic 1 is removed.
+	; It is enabled during demos, however, to prevent them from
+	; desynchonising.
 	tst.w	(Demo_mode_flag).w
 	bne.w	loc_31630C
 	add.w	d5,d0
@@ -39248,7 +39296,9 @@ loc_31630C:
 	cmp.w	d6,d0	; compare new speed with top speed
 	blt.s	+	; if new speed is less than the maximum, branch
     if 1
-	; KiS2
+	; KiS2 (bugfix): The leftover air speed cap from Sonic 1 is removed.
+	; It is enabled during demos, however, to prevent them from
+	; desynchonising.
 	tst.w	(Demo_mode_flag).w
 	bne.w	loc_316330
 	sub.w	d5,d0
@@ -39419,7 +39469,9 @@ Sonic_Jump:
 	cmpi.w	#6,d1			; does Sonic have enough room to jump?
 	blt.w	return_1AAE6		; if not, branch
     if 1
-	; KiS2
+	; KiS2: Super Knuckles doesn't jump any higher than regular Knuckles.
+	; Note that Sonic's jump height is used in demos so that they don't
+	; desynchronise.
 	move.w	#$600,d2
 	btst	#6,status(a0)	; Test if underwater
 	beq.s	+
@@ -39497,7 +39549,7 @@ Sonic_JumpHeight:
 +
 	cmp.w	y_vel(a0),d1	; is Sonic going up faster than d1?
     if 1
-	; KiS2
+	; KiS2: Handle gliding and Super transformation.
 	ble.w	Sonic_CheckGoSuper		; if not, branch
     else
 	ble.s	+		; if not, branch
@@ -39508,7 +39560,7 @@ Sonic_JumpHeight:
 	move.w	d1,y_vel(a0)	; immediately reduce Sonic's upward speed to d1
 +
     if 0
-	; KiS2
+	; KiS2: Super Knuckles is activated by double-jumping in this game.
 	tst.b	y_vel(a0)		; is Sonic exactly at the height of his jump?
 	beq.s	Sonic_CheckGoSuper	; if yes, test for turning into Super Sonic
     endif
@@ -39536,7 +39588,7 @@ return_1AB36:
 ; loc_1AB38: test_set_SS:
 Sonic_CheckGoSuper:
     if 1
-	; KiS2
+	; KiS2: Handle gliding and Super transformation.
 	tst.w	(Demo_mode_flag).w	; Don't glide on demos
 	bne.w	return_3165D2
 	tst.b	knuckles_something(a0)
@@ -39551,7 +39603,8 @@ Sonic_CheckGoSuper:
 	blo.s	Knuckles_BeginGlide	; if not, branch
 	cmpi.w	#50,(Ring_count).w	; does Sonic have at least 50 rings?
 	blo.s	Knuckles_BeginGlide	; if not, branch
-	; fixes a bug where the player can get stuck if transforming at the end of a level
+	; A bugfix inheritted from REV02, which fixes a bug where the player
+	; can get stuck if transforming at the end of a level.
 	tst.b	(Update_HUD_timer).w	; has Sonic reached the end of the act?
 	bne.s	Knuckles_TurnSuper	; if yes, branch
 
@@ -39613,7 +39666,8 @@ Knuckles_TurnSuper:
 	move.b	#$F,(Palette_timer).w
 	move.b	#1,(Super_Sonic_flag).w
     if 1
-	; KiS2
+	; KiS2 (bugfix): This is a bugfix to prevent a ring being instantly
+	; drained the moment the player turns Super.
 	move.w	#60,(Super_Sonic_frame_count).w
     endif
 	move.b	#$81,obj_control(a0)
@@ -40008,7 +40062,7 @@ return_1AEA8:
 ; End of function Sonic_JumpFlip
 
     if 1
-	; KiS2:
+	; KiS2: New collision code. Has something to do with gliding.
 ; ---------------------------------------------------------------------------
 ; Subroutine for Sonic to interact with the floor and walls when he's in the air
 ; ---------------------------------------------------------------------------
@@ -40393,10 +40447,19 @@ Sonic_ResetOnFloor:
 	move.b	#AniIDSonAni_Walk,anim(a0)
 ; loc_1B0AC:
 Sonic_ResetOnFloor_Part2:
+    if 0
+	; KiS2: No Tails.
+	; some routines outside of Tails' code can call Sonic_ResetOnFloor_Part2
+	; when they mean to call Tails_ResetOnFloor_Part2, so fix that here
+	_cmpi.b	#ObjID_Sonic,id(a0)	; is this object ID Sonic (obj01)?
+	bne.w	Tails_ResetOnFloor_Part2	; if not, branch to the Tails version of this code
+    endif
+
     if 1
-	; KiS2: The Tails-related code was removed, and the logic for pushing
-	; Sonic out of the ground was updated dynamically adjust itself based
-	; on 'y_radius', instead of being hardcoded.
+	; KiS2: The logic for pushing Sonic out of the ground was updated to
+	; dynamically adjust itself based on 'y_radius', instead of being
+	; hardcoded. This may be a bugfix related to Knuckles gliding onto
+	; the ground, and not being pushed out correctly. TODO.
 	move.b	y_radius(a0),d0
 	move.b	#19,y_radius(a0)
 	move.b	#9,x_radius(a0)
@@ -40408,11 +40471,6 @@ Sonic_ResetOnFloor_Part2:
 	ext.w	d0
 	add.w	d0,y_pos(a0)
     else
-	; some routines outside of Tails' code can call Sonic_ResetOnFloor_Part2
-	; when they mean to call Tails_ResetOnFloor_Part2, so fix that here
-	_cmpi.b	#ObjID_Sonic,id(a0)	; is this object ID Sonic (obj01)?
-	bne.w	Tails_ResetOnFloor_Part2	; if not, branch to the Tails version of this code
-
 	btst	#2,status(a0)
 	beq.s	Sonic_ResetOnFloor_Part3
 	bclr	#2,status(a0)
@@ -40433,7 +40491,7 @@ Sonic_ResetOnFloor_Part3:
 	move.b	#0,flips_remaining(a0)
 	move.w	#0,(Sonic_Look_delay_counter).w
     if 1
-	; KiS2
+	; KiS2: Added logic for Knuckles' gliding.
 	move.b	#0,knuckles_something(a0)
 	cmpi.b	#AniIDKnuxAni_Glide,anim(a0)
 	bhs.s	+
@@ -40504,7 +40562,7 @@ return_1B1C8:
 	rts
 
     if 1
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo_KillCharacter ; JmpTo
 	jmp	(KillCharacter).l
     endif
@@ -40688,9 +40746,9 @@ SAnim_Do2:
 	move.b	anim_frame(a0),d1	; load current frame number
 	move.b	1(a1,d1.w),d0		; read sprite number from script
     if 1
-	; KiS2: Animation flags begin at $FC, so this is the saner check.
-	; This change was presumably made because Knuckles uses over $F0
-	; sprite frames.
+	; KiS2 (bugfix): Animation flags begin at $FC, so this is the saner
+	; check. This change was presumably made because Knuckles uses over
+	; $F0 sprite frames.
 	cmpi.b	#$FC,d0
     else
 	cmpi.b	#$F0,d0
@@ -40972,7 +41030,9 @@ SAnim_Push:
 ; off_1B618:
 SonicAniData:			offsetTable
     if 1
-	; KiS2
+	; KiS2: Knuckles' animation script. This may have been copied
+	; straight from Sonic & Knuckles, considering that some of these
+	; animations don't match Sonic 2 at all.
 SonAni_Walk_ptr:		offsetTableEntry.w KnucklesAni_Walk		;  0 ;   0
 SonAni_Run_ptr:			offsetTableEntry.w KnucklesAni_Run		;  1 ;   1
 SonAni_Roll_ptr:		offsetTableEntry.w KnucklesAni_Roll		;  2 ;   2
@@ -41302,7 +41362,7 @@ LoadSonicDynPLC:
 LoadSonicDynPLC_Part2:
 	cmp.b	(Sonic_LastLoadedDPLC).w,d0
 
-    if 1&&~~standaloneKiS2
+    if 1 && ~~standaloneKiS2
 	; KiS2: This has been modified to convert Knuckles' art to Sonic 2's
 	; palette.
 	beq.w	return_1B89A
@@ -41389,7 +41449,7 @@ return_1B89A:
 	rts
     endif
 
-    if 1&&~~standaloneKiS2
+    if 1 && ~~standaloneKiS2
 ; ---------------------------------------------------------------------------
 ; This table converts art using	palette	indexes	set for	S&K to palette indexes set for S2.
 ; Format: The rightmost	nybble of entry	X in any row = the new index that replaces color X.
@@ -41435,7 +41495,7 @@ ArtConvTable:
 ; ===========================================================================
 
     if 0
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo_KillCharacter ; JmpTo
 	jmp	(KillCharacter).l
     endif
@@ -45260,7 +45320,7 @@ Obj08_ResetDisplayMode:
 
 BranchTo16_DeleteObject
     if 1
-	; KiS2:
+	; KiS2: This branch was extended.
 	jmp	(DeleteObject).l
     else
 	bra.w	DeleteObject
@@ -45270,7 +45330,8 @@ BranchTo16_DeleteObject
 Obj08_CheckSkid:
 	movea.w	parent(a0),a2 ; a2=character
     if 1
-	; KiS2
+	; KiS2: Modified to generate dust when Knuckles glides onto the
+	; ground.
 	moveq	#16,d1
 	cmpi.b	#AniIDSonAni_Stop,anim(a2)	; SonAni_Stop
 	beq.s	Obj08_SkidDust
@@ -45296,20 +45357,21 @@ Obj08_SkidDust:
 	move.w	x_pos(a2),x_pos(a1)
 	move.w	y_pos(a2),y_pos(a1)
     if 0
-	; KiS2
+	; KiS2: The code just under 'Obj08_CheckSkid' makes this redundant.
 	addi.w	#$10,y_pos(a1)
     endif
 	tst.b	obj08_belongs_to_tails(a0)
 	beq.s	+
     if 1
-	; KiS2
+	; KiS2: As part of this object's refactoring, the Y coordinate is
+	; stored in 'd1'.
 	subq.w	#4,d1	; Tails is shorter than Sonic
     else
 	subi_.w	#4,y_pos(a1)	; Tails is shorter than Sonic
     endif
 +
     if 1
-	; KiS2
+	; KiS2: Finally, move the adjusted Y coordinate to 'y_pos(a1)'.
 	add.w	d1,y_pos(a1)
     endif
 	move.b	#0,status(a1)
@@ -46600,7 +46662,7 @@ loc_1ECFE:
 	rts
 
     if 1
-	; KiS2
+	; KiS2: New collision code.
 sub_318FF6:
 	move.b	x_radius(a0),d0
 	ext.w	d0
@@ -46651,7 +46713,7 @@ ChkFloorEdge_Part2:
 	add.w	d0,d2
 
     if 1
-	; KiS2
+	; KiS2: A new label needed by Knuckles' gliding.
 ChkFloorEdge_Part3:
     endif
 	move.l	#Primary_Collision,(Collision_addr).w
@@ -46840,7 +46902,7 @@ CheckRightWallDist_Part2:
 ; End of function CheckRightWallDist
 
     if 1
-	; KiS2
+	; KiS2: New collision code.
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 loc_319208:
@@ -46948,7 +47010,7 @@ CheckCeilingDist_Part2:
 ; End of function CheckCeilingDist
 
     if 1
-	; KiS2
+	; KiS2: New collision code.
 ; =============== S U B	R O U T	I N E =======================================
 
 ; Doesn't exist in S2
@@ -47068,7 +47130,7 @@ CheckLeftWallDist_Part2:
 ; End of function CheckLeftWallDist
 
     if 1
-	; KiS2
+	; KiS2: New collision code.
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 loc_3193D2:
@@ -47320,8 +47382,8 @@ Obj79_LoadData:
 	move.w	(Saved_Ring_count).w,(Ring_count).w
 	move.b	(Saved_Extra_life_flags).w,(Extra_life_flags).w
     if 0
-	; KiS2: This is the change responsible for making your spawn with
-	; rings.
+	; KiS2: This is the change responsible for making the player respawn
+	; with rings.
 	clr.w	(Ring_count).w
 	clr.b	(Extra_life_flags).w
     endif
@@ -47709,7 +47771,7 @@ Obj44_BumpCharacter:
 	movea.w	a1,a3
 	jsr	(AddPoints2).l
     if 1
-	; KiS2
+	; KiS2: Another extended branch.
 	jsr	(SingleObjLoad).l
     else
 	bsr.w	SingleObjLoad
@@ -47865,7 +47927,7 @@ JmpTo14_DeleteObject ; JmpTo
 ; ===========================================================================
 
     if 0
-	; KiS2
+	; KiS2 (JmpTo cleanup): Moved.
     if removeJmpTos
 JmpTo15_DeleteObject ; JmpTo
     endif
@@ -47917,7 +47979,7 @@ loc_1FA2A:
 	andi.w	#$1F,d0
 	move.w	d0,objoff_38(a0)
     if 1
-	; KiS2
+	; KiS2: Another extended branch.
 	jsr	(SingleObjLoad).l
     else
 	bsr.w	SingleObjLoad
@@ -47975,7 +48037,7 @@ loc_1FACE:
 	rts
 
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup)
     if removeJmpTos
 JmpTo15_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
@@ -48250,7 +48312,10 @@ Obj03:
 	move.w	Obj03_Index(pc,d0.w),d1
 	jsr	Obj03_Index(pc,d1.w)
     if 1
-	; KiS2: Plane switchers are visible in Debug Mode!
+	; KiS2 (bugfix): Plane switchers are visible in Debug Mode!
+	; This can be considered a bugfix since the plane switchers
+	; initialise their 'mappings' and 'art_tile', but never use them to
+	; display.
 	tst.w	(Debug_mode_flag).w
 	beq.s	+
 	jmp	(MarkObjGone).l
@@ -48776,7 +48841,7 @@ Obj12_Main:
 	bhi.w	JmpTo16_DeleteObject
 	jmpto	DisplaySprite, JmpTo8_DisplaySprite
     if 1
-	; KiS2: For some reason, this was broken.
+	; KiS2 (JmpTo cleanup): For some reason, this was broken.
 	; This is why Hidden Palace Zone causes this game to reset.
 JmpTo16_DeleteObject ; JmpTo
     if fixBugs
@@ -48807,7 +48872,7 @@ JmpTo10_Adjust2PArtPointer ; JmpTo
 	align 4
     else
     if 0
-	; KiS2: For some reason, this was broken.
+	; KiS2 (JmpTo cleanup): For some reason, this was broken.
 JmpTo16_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
@@ -48935,7 +49000,7 @@ loc_204F0:
 	rts
 
     if 1
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo17_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
@@ -48968,7 +49033,7 @@ JmpTo11_Adjust2PArtPointer ; JmpTo
 	align 4
     else
     if 0
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo17_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
@@ -49236,7 +49301,7 @@ Obj31_Main:
 	rts
 
     if 1
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo18_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
@@ -49300,6 +49365,7 @@ Obj74_Main:
 	addq.w	#1,d3
 	move.w	x_pos(a0),d4
     if 1
+	; KiS2: Another extended branch.
 	jsr	(SolidObject_Always).l
     else
 	bsr.w	SolidObject_Always
@@ -49311,7 +49377,7 @@ Obj74_Main:
 	sub.w	(Camera_X_pos_coarse).w,d0
 	cmpi.w	#$280,d0
 	bhi.w	JmpTo18_DeleteObject
-    if 1|(gameRevision=0)
+    if 1 || (gameRevision=0)
 	; KiS2: This code was restored. Neat.
     ; this object was visible with debug mode in REV00
 +
@@ -49784,7 +49850,7 @@ JmpTo12_Adjust2PArtPointer ; JmpTo
 	align 4
     else
     if 0
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo18_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
@@ -49879,7 +49945,7 @@ loc_21562:
 	tst.b	obj_control(a1)
 	bne.s	return_215BE
     if 1
-	; KiS2
+	; KiS2: Another extended branch.
 	jsr	(RideObject_SetRide).l
     else
 	bsr.w	RideObject_SetRide
@@ -49912,7 +49978,7 @@ loc_215A8:
 	cmpi.w	#$30,d1
 	bhs.s	return_215BE
     if 1
-	; KiS2
+	; KiS2: Another extended branch.
 	jsr	(RideObject_SetRide).l
     else
 	bsr.w	RideObject_SetRide
@@ -50085,7 +50151,7 @@ Obj06_Cylinder:
 	move.w	d2,y_pos(a1)
 	move.b	#1,flip_turned(a1) ; face the other way
     if 1
-	; KiS2
+	; KiS2: Another extended branch.
 	jsr	(RideObject_SetRide).l
     else
 	bsr.w	RideObject_SetRide
@@ -50295,7 +50361,7 @@ Obj14_UpdateMappingAndCollision:
 	moveq	#8,d3
 	move.w	(sp)+,d4
     if 1
-	; KiS2
+	; KiS2: Another extended branch.
 	jmp	(SlopedPlatform).l
     else
 	bra.w	SlopedPlatform
@@ -50772,7 +50838,7 @@ Obj19_Main:
 	jmpto	DisplaySprite, JmpTo11_DisplaySprite
 
     if 1
-	; KiS2: Moved,
+	; KiS2 (JmpTo cleanup): Moved,
 JmpTo20_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
@@ -50964,7 +51030,7 @@ JmpTo5_ObjectMove ; JmpTo
 	align 4
     else
     if 0
-	; KiS2: Moved,
+	; KiS2 (JmpTo cleanup): Moved,
 JmpTo20_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
@@ -52284,7 +52350,7 @@ Obj32_Fragment:
 	jmpto	DisplaySprite, JmpTo12_DisplaySprite
 
     if 1
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo22_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
@@ -52433,7 +52499,7 @@ JmpTo8_ObjectMove ; JmpTo
 	align 4
     else
     if 0
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo22_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
@@ -52518,7 +52584,7 @@ Obj30_Main:
 	rts
 
     if 1
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo2_MarkObjGone3 ; JmpTo
 	jmp	(MarkObjGone3).l
     endif
@@ -52622,7 +52688,7 @@ JmpTo_SlopedSolid ; JmpTo
 	align 4
     else
     if 0
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo2_MarkObjGone3 ; JmpTo
 	jmp	(MarkObjGone3).l
     endif
@@ -54089,7 +54155,7 @@ Obj3D_Fragment:
 	jmpto	DisplaySprite, JmpTo14_DisplaySprite
 
     if 1
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo26_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
 JmpTo3_MarkObjGone3 ; JmpTo
@@ -54257,7 +54323,7 @@ JmpTo10_ObjectMove ; JmpTo
 	align 4
     else
     if 0
-	; KiS2: Moved. 'JmpTo13_MarkObjGone' was removed completely.
+	; KiS2 (JmpTo cleanup): Moved. 'JmpTo13_MarkObjGone' was removed completely.
 JmpTo3_MarkObjGone3 ; JmpTo
 	jmp	(MarkObjGone3).l
 JmpTo26_DeleteObject ; JmpTo
@@ -55005,7 +55071,7 @@ loc_25BA4:
 	jmpto	DisplaySprite, JmpTo16_DisplaySprite
 
     if 1
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo28_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
@@ -55112,7 +55178,7 @@ JmpTo12_ObjectMove ; JmpTo
 	align 4
     else
     if 0
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo28_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
@@ -56545,7 +56611,7 @@ loc_270DC:
     endif
 	bclr	#5,status(a1)
     if 1
-	; KiS2
+	; KiS2: Make Knuckles exit gliding.
 	move.b	#0,knuckles_something(a1)
     endif
 	move.w	#SndID_Spring,d0
@@ -56595,7 +56661,7 @@ Obj67:
 	jmpto	DisplaySprite, JmpTo19_DisplaySprite
 
     if 1
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo4_MarkObjGone3 ; JmpTo
 	jmp	(MarkObjGone3).l
     endif
@@ -56869,7 +56935,7 @@ JmpTo4_MarkObjGone3 ; JmpTo
 	align 4
     else
     if 0
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo4_MarkObjGone3 ; JmpTo
 	jmp	(MarkObjGone3).l
     endif
@@ -59937,6 +60003,9 @@ Obj7F_Action:
 	beq.s	loc_29890
 	andi.b	#button_B_mask|button_C_mask|button_A_mask,d0
     if 1
+	; KiS2 (bugfix): This appears to be a bugfix to prevent the player
+	; from not being positioned correctly, by forcing them to the
+	; object's position every frame.
 	beq.w	loc_3231D0
     else
 	beq.w	return_29936
@@ -59962,7 +60031,7 @@ Obj7F_Action:
 	bra.w	return_29936
 
     if 1
-	; KiS2: Another unknown bugfix?
+	; KiS2 (bugfix): See above.
 loc_3231D0:
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
@@ -61295,7 +61364,7 @@ loc_2A990:
 	add.w	d1,y_pos(a1)
 	bset	#1,status(a1)
     if 1
-	; KiS2
+	; KiS2: Make Knuckles exit gliding.
 	move.b	#0,knuckles_something(a1)
     endif
 	move.w	#0,y_vel(a1)
@@ -64272,7 +64341,7 @@ Obj50_Wing:
 	jmpto	DisplaySprite, JmpTo32_DisplaySprite
 
     if 1
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo48_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
@@ -64474,7 +64543,7 @@ JmpTo20_ObjectMove ; JmpTo
 	align 4
     else
     if 0
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo48_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
@@ -64545,7 +64614,7 @@ Obj4B_Flame:
 	jmpto	MarkObjGone_P1, JmpTo_MarkObjGone_P1
 
     if 1
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo49_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
@@ -64630,7 +64699,7 @@ Obj4B_TurnAround:
 	rts
 
     if 1
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 ; loc_2D38C:
 JmpTo21_ObjectMove ; JmpTo
 	jmp	(ObjectMove).l
@@ -64772,7 +64841,7 @@ JmpTo21_ObjectMove ; JmpTo
 	align 4
     else
     if 0
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo49_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
 ; loc_2D38C:
@@ -65416,9 +65485,11 @@ Obj5D_Main_Delete:
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
 	jsr	(DeleteObject2).l
 
-	; KiS2: Moved.
-    if 0&&removeJmpTos
+    if 0
+	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo51_DeleteObject ; JmpTo
+    endif
     endif
 
 	jmp	(DeleteObject).l
@@ -65890,7 +65961,8 @@ Obj5D_Pipe_Pump_4:
 	move.b	#8,routine(a1)		; => Obj5D_Pipe_Retract
 	move.b	#$B*8,Obj5D_y_offset(a1)
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DeleteObject).l
     else
 	bra.w	JmpTo51_DeleteObject
@@ -65981,6 +66053,8 @@ Obj5D_PipeSegment:
 
 BranchTo_JmpTo51_DeleteObject ; BranchTo
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DeleteObject).l
     else
 	bra.w	JmpTo51_DeleteObject
@@ -66245,9 +66319,11 @@ loc_2E35C:
 loc_2E3E6:
 	move.l	(sp)+,d7
 
-	; KiS2: Moved.
-    if 0&&removeJmpTos
+    if 0
+	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo34_DisplaySprite ; JmpTo
+    endif
     endif
 
 	jmpto	DisplaySprite, JmpTo34_DisplaySprite
@@ -66512,7 +66588,8 @@ Obj5D_Gunk_OffScreen:
 	bset	#4,Obj5D_status2(a1)
 	move.b	#2,routine_secondary(a1)
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DeleteObject).l
     else
 	bra.w	JmpTo51_DeleteObject
@@ -66629,7 +66706,8 @@ Obj5D_Gunk_Droplets_Move:
 ; ---------------------------------------------------------------------------
 +
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DeleteObject).l
     else
 	bra.w	JmpTo51_DeleteObject
@@ -66757,7 +66835,7 @@ BranchTo2_JmpTo34_DisplaySprite
 	jmpto	DisplaySprite, JmpTo34_DisplaySprite
 
     if 1
-	; KiS2: Moved:
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo34_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
 JmpTo51_DeleteObject ; JmpTo
@@ -67142,6 +67220,8 @@ loc_2F27C:	; Obj56_VehicleMain_Sub0:
 	subi_.w	#1,x_pos(a0)
 	addi_.w	#1,y_pos(a0)	; move diagonally down
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67152,6 +67232,8 @@ loc_2F29A:
 	move.w	#$29D0,x_pos(a0)
 	addq.b	#2,routine_secondary(a0)	; next routine
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67174,6 +67256,8 @@ loc_2F2BA:	; Obj56_VehicleMain_Sub2_0:
 	bge.s	loc_2F2CC
 	addi_.w	#1,y_pos(a0)	; move vertically (down)
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67185,6 +67269,8 @@ loc_2F2CC:
 	bset	#0,objoff_2D(a0)	; Robotnik on ground (relevant for propeller)
 	move.w	#$3C,objoff_2A(a0)	; timer for standing still
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67199,6 +67285,8 @@ loc_2F2E0:	; Obj56_VehicleMain_Sub2_2:
 	move.b	#$F,collision_flags(a0)
 	bset	#1,objoff_2D(a0)	; boss now active and moving
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67220,6 +67308,8 @@ loc_2F304:	; Obj56_VehicleMain_Sub4:
 	add.l	d0,d2
 	move.l	d2,x_pos(a0)	; set x_pos depening on velocity
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67237,6 +67327,8 @@ loc_2F336:	; Obj56_VehicleMain_Sub6:
 	add.w	d1,y_pos(a0)
 	move.w	#0,y_vel(a0)	; set to ground and stand still
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67249,6 +67341,8 @@ loc_2F35C:
 	move.w	#-$26,objoff_3C(a0)
 	move.w	#$C,objoff_2A(a0)
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67261,6 +67355,8 @@ loc_2F374:	; Obj56_VehicleMain_Sub8:
 	addq.b	#2,routine_secondary(a0)
 	move.b	#0,objoff_2C(a0)	; tertiary routine
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67273,6 +67369,8 @@ loc_2F38A:	; Obj56_VehicleMain_SubA:
 	move.w	off_2F39C(pc,d0.w),d1
 	jsr	off_2F39C(pc,d1.w)
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67427,6 +67525,8 @@ loc_2F52A:	; Obj56_PropellerReloaded:	; Propeller after defeat
 	lea	(Ani_obj56_a).l,a1
 	jsrto	AnimateSprite, JmpTo17_AnimateSprite
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67473,6 +67573,8 @@ loc_2F5A0:
 	lea	(Ani_obj56_a).l,a1
 	jsrto	AnimateSprite, JmpTo17_AnimateSprite
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67487,6 +67589,8 @@ loc_2F5C6:	; Obj56_Propeller_Sub2
 	move.b	#4,priority(a0)
 	addi_.w	#1,y_pos(a0)	; move down
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67497,6 +67601,8 @@ loc_2F5E8:
 	lea	(Ani_obj56_a).l,a1
 	jsrto	AnimateSprite, JmpTo17_AnimateSprite
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67513,6 +67619,8 @@ loc_2F5F6:	; Obj56_GroundVehicle:
 	ble.s	loc_2F618
 	subi_.w	#1,x_pos(a0)
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67523,6 +67631,8 @@ loc_2F618:
 	move.w	#$29D0,x_pos(a0)
 	addq.b	#2,routine_secondary(a0)
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67542,6 +67652,8 @@ loc_2F626:	; Obj56_GroundVehicle_Sub2:
 	bmi.w	JmpTo35_DisplaySprite
 	move.b	render_flags(a1),render_flags(a0)
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67619,6 +67731,8 @@ loc_2F706:
 	lea	(Ani_obj56_b).l,a1
 	jsrto	AnimateSprite, JmpTo17_AnimateSprite
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67640,6 +67754,8 @@ loc_2F714:	; Obj56_Wheel_Sub2:
 
 BranchTo_JmpTo35_DisplaySprite ; BranchTo
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67676,6 +67792,8 @@ loc_2F798:
 	lea	(Ani_obj56_b).l,a1
 	jsrto	AnimateSprite, JmpTo17_AnimateSprite
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67692,6 +67810,8 @@ loc_2F7A6:	; Obj56_Wheel_Sub6:
 	beq.w	JmpTo35_DisplaySprite
 	neg.w	x_vel(a0)	; into other direction
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67722,6 +67842,8 @@ loc_2F7F4:	; Obj56_Spike:
 	ble.s	loc_2F816
 	subi_.w	#1,x_pos(a0)
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67732,6 +67854,8 @@ loc_2F816:
 	move.w	#$299A,x_pos(a0)
 	addq.b	#2,routine_secondary(a0)
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67763,6 +67887,8 @@ loc_2F878:
 	lea	(Ani_obj56_b).l,a1
 	jsrto	AnimateSprite, JmpTo17_AnimateSprite
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67780,6 +67906,8 @@ loc_2F898:
 	lea	(Ani_obj56_b).l,a1
 	jsrto	AnimateSprite, JmpTo17_AnimateSprite
     if 1
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo35_DisplaySprite
@@ -67840,7 +67968,7 @@ loc_2F924:
 	jmp	(DisplaySprite).l
 
     if 1
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo35_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
 JmpTo52_DeleteObject ; JmpTo
@@ -67961,7 +68089,7 @@ JmpTo4_ObjectMoveAndFall ; JmpTo
 	align 4
     else
     if 0
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo52_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
 JmpTo35_DisplaySprite ; JmpTo
@@ -68075,7 +68203,7 @@ loc_2FD50:
 	bsr.w	loc_300A4
 
     if 0
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
     if removeJmpTos
 JmpTo36_DisplaySprite ; JmpTo
     endif
@@ -68477,7 +68605,7 @@ loc_301AA:
 	move.w	#$3160,(Camera_Max_X_pos).w
 
     if 0
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
     if removeJmpTos
 JmpTo53_DeleteObject ; JmpTo
     endif
@@ -68534,7 +68662,7 @@ loc_3022A:
 	jmpto	DisplaySprite, JmpTo36_DisplaySprite
 
     if 1
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo36_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
 
@@ -70106,8 +70234,8 @@ Obj57_Main_SubA: ; slowly hovering down, no explosions
 	blo.s	Obj57_Main_SubA_Standard
 	lea	(Boss_AnimationArray).w,a1
 	move.b	#$D,7(a1)	; face grin when hit
-    if 1||fixBugs
-	; KiS2: Another cryptic bug fixed in KiS2!
+    if 1 || fixBugs
+	; KiS2 (bugfix): Another cryptic bug fixed in KiS2!
 	_move.b	#2,0(a1)
     else
 	; This should be 'a1' instead of 'a2'. A random part of RAM gets
@@ -70185,8 +70313,8 @@ Obj57_FallingStuff:	; Spikes & Stones
 	jsrto	ObjectMoveAndFall, JmpTo5_ObjectMoveAndFall
 	subi.w	#$28,sub2_y_pos(a0)	; decrease gravity
 	cmpi.w	#$6F0,y_pos(a0)	; if below boundary, delete
+    if 1 || ~~removeJmpTos
 	; KiS2: For some reason, this REV02 change was reverted.
-    if 1|~~removeJmpTos
 	bgt.w	JmpTo57_DeleteObject
     else
 	bgt.s	JmpTo56_DeleteObject
@@ -70194,7 +70322,7 @@ Obj57_FallingStuff:	; Spikes & Stones
 	jmpto	DisplaySprite, JmpTo38_DisplaySprite
 
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo57_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
@@ -70532,10 +70660,12 @@ loc_31C08:
 	lea	(Ani_obj51).l,a1
 	bsr.w	AnimateBoss
 
-	; KiS2: Moved.
-    if 0&&removeJmpTos&&~~fixBugs
+    if 0
+	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos&&~~fixBugs
 	; This has to be moved so that it doesn't point to 'DisplaySprite3'.
 JmpTo39_DisplaySprite ; JmpTo
+    endif
     endif
 
     if fixBugs
@@ -70780,9 +70910,11 @@ loc_31E4A:
     endif
 ; ===========================================================================
 
-	; KiS2: Moved.
-    if 0&&removeJmpTos
+    if 0
+	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo59_DeleteObject ; JmpTo
+    endif
     endif
 
 JmpTo58_DeleteObject ; JmpTo
@@ -70894,10 +71026,12 @@ loc_31F96:
 	move.w	#0,x_vel(a0)
 	move.w	#0,y_vel(a0)
 
-	; KiS2: Moved.
-    if 0&&removeJmpTos&&fixBugs
+    if 0
+	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos&&fixBugs
 	; This has to be moved so that it doesn't point to 'DisplaySprite3'.
 JmpTo39_DisplaySprite ; JmpTo
+    endif
     endif
 
 	jmpto	DisplaySprite, JmpTo39_DisplaySprite
@@ -70973,14 +71107,15 @@ loc_32080:
 	cmpi.w	#$705,y_pos(a0)
 	blo.w	JmpTo39_DisplaySprite
     if 1
-	; KiS2: KiS2 seems to have undergone a cleanup of its JmpTos...
+	; KiS2 (JmpTo cleanup): KiS2 seems to have undergone a cleanup of its
+	; JmpTos... This super-dumb jump-to-a-jmpto was corrected.
 	jmp	(DeleteObject).l
     else
 	jmpto	JmpTo59_DeleteObject, JmpTo59_DeleteObject
     endif
 
     if 1
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo39_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
 
@@ -71961,9 +72096,11 @@ Obj53_Burst:
 	movea.l	objoff_34(a0),a1 ; a1=object
 	subi_.b	#1,objoff_2C(a1)
 
-	; KiS2: Moved.
-    if 0&&removeJmpTos
+    if 0
+	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo61_DeleteObject ; JmpTo
+    endif
     endif
 
 	jmpto	DeleteObject, JmpTo61_DeleteObject
@@ -72024,15 +72161,17 @@ Obj54_LaserShooter:
 	beq.w	JmpTo40_DisplaySprite
 	bset	#0,render_flags(a0)
 
-	; KiS2: Moved.
-    if 0&&removeJmpTos
+    if 0
+	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo40_DisplaySprite ; JmpTo
+    endif
     endif
 
 	jmpto	DisplaySprite, JmpTo40_DisplaySprite
 
     if 1
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo40_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
 
@@ -72375,9 +72514,11 @@ Obj55_Defeated_Sink:
 	jmpto	DisplaySprite, JmpTo41_DisplaySprite
     endif
 ; ===========================================================================
-	; KiS2: Moved.
-    if 0&&removeJmpTos
+    if 0
+	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo62_DeleteObject ; JmpTo
+    endif
     endif
 
 BranchTo_JmpTo62_DeleteObject ; BranchTo
@@ -72773,7 +72914,7 @@ Obj55_Laser_Main:
 	jmpto	DisplaySprite, JmpTo41_DisplaySprite
 
     if 1
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo62_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
@@ -72877,7 +73018,8 @@ Obj55_Wave_End:
 
 BranchTo2_JmpTo62_DeleteObject
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DeleteObject).l
     else
 	bra.w	JmpTo62_DeleteObject
@@ -73098,7 +73240,7 @@ byte_33A92:
 	dc.b   4,  3	; 12
 	dc.b  $C,  1	; 14
     if 0
-	; KiS2: It seems that the DPLC loader was rewritten, possibly to
+	; KiS2: It seems that the DPLC loader was rewritten, presumably to
 	; make it use standard DPLCs instead of the weird custom DPLCs that
 	; regular Sonic 2 uses.
 dword_33AA2:
@@ -73121,7 +73263,7 @@ LoadSSSonicDynPLC:
 +
 	jsrto	DisplaySprite, JmpTo42_DisplaySprite
     if 1
-	; KiS2: It seems that the DPLC loader was rewritten, possibly to
+	; KiS2: It seems that the DPLC loader was rewritten, presumably to
 	; make it use standard DPLCs instead of the weird custom DPLCs that
 	; regular Sonic 2 uses.
 	move.l	#SSRAM_ArtNem_SpecialSonicAndTails&$FFFFFF,d6
@@ -73887,9 +74029,9 @@ Obj63_MapUnc_34492:	BINCLUDE "mappings/sprite/obj63.bin"
 ; The same applies to the last $15 frames, but they have yet another difference:
 ; a small space optimization. These frames only have one dplc per frame ever,
 ; hence the two-byte dplc count is removed from each frame.
-; KiS2: These mappings were modified (to suit Knuckles) and they were
-; converted to a different format.
 ; ----------------------------------------------------------------------------
+; KiS2 (mappings): These mappings were modified (to suit Knuckles) and they
+; were converted to a different format.
 Obj09_MapRUnc_345FA:	BINCLUDE "mappings/spriteDPLC/obj09.bin"
 ; ===========================================================================
 
@@ -74281,7 +74423,8 @@ loc_34F06:
 	bpl.s	return_34F26
 	bsr.w	loc_34F28
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo44_DisplaySprite
@@ -74321,7 +74464,8 @@ loc_34F6A:
 	lea	(Ani_obj61).l,a1
 	jsrto	AnimateSprite, JmpTo24_AnimateSprite
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo44_DisplaySprite
@@ -74388,7 +74532,8 @@ loc_35010:
 	lea	(Ani_obj5B_obj60).l,a1
 	jsrto	AnimateSprite, JmpTo24_AnimateSprite
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo44_DisplaySprite
@@ -74544,9 +74689,11 @@ loc_3516C:
 	movea.l	d0,a1 ; a1=object
 	st	objoff_2A(a1)
 
-	; KiS2: Moved.
-    if 0&&removeJmpTos
+    if 0
+	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo63_DeleteObject ; JmpTo
+    endif
     endif
 
 	jmpto	DeleteObject, JmpTo63_DeleteObject
@@ -74777,7 +74924,8 @@ loc_3538A:
 loc_35392:
 	move.b	d0,mapping_frame(a0)
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo44_DisplaySprite
@@ -74948,7 +75096,8 @@ Obj5B_Main:
 	lea	(Ani_obj5B_obj60).l,a1
 	jsrto	AnimateSprite, JmpTo24_AnimateSprite
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo44_DisplaySprite
@@ -75028,7 +75177,8 @@ Obj5A_Init:
 +	dbf	d0,-
 
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DeleteObject).l
     else
 	bra.w	JmpTo63_DeleteObject
@@ -75047,7 +75197,8 @@ Obj5A_RingsMessageInit:
 	move.w	#0,(SS_NoRingsTogoLifetime).w
 	move.b	#0,objoff_3A(a0)
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DeleteObject).l
     else
 	bra.w	JmpTo63_DeleteObject
@@ -75322,7 +75473,8 @@ Obj5A_CheckpointRainbow:
 	move.b	Obj5A_Rainbow_Positions+1(pc,d0.w),1+y_pos(a0)
 	addi.w	#$E,objoff_30(a0)
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo44_DisplaySprite
@@ -75433,7 +75585,8 @@ Obj5A_Rainbow_Positions:
 	add.w	d6,2(a2)
 	bsr.w	Obj5A_PrintPhrase
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DeleteObject).l
     else
 	bra.w	JmpTo63_DeleteObject
@@ -75470,7 +75623,8 @@ loc_35978:
 	move.w	d1,d0
 	bsr.w	Obj5A_PrintCheckpointMessage
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DeleteObject).l
     else
 	bra.w	JmpTo63_DeleteObject
@@ -75486,7 +75640,8 @@ Obj5A_MostRingsWin:
 	move.w	#$A,d0			; MOST RINGS WINS
 	bsr.w	Obj5A_PrintPhrase
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DeleteObject).l
     else
 	bra.w	JmpTo63_DeleteObject
@@ -75551,7 +75706,8 @@ Obj5A_Handshake:
 	move.w	#$A,d0
 	bsr.w	Obj5A_PrintPhrase
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DeleteObject).l
     else
 	bra.w	JmpTo63_DeleteObject
@@ -75560,7 +75716,8 @@ Obj5A_Handshake:
 +
 	bsr.w	Obj5A_CreateRingReqMessage
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DeleteObject).l
     else
 	bra.w	JmpTo63_DeleteObject
@@ -75640,7 +75797,8 @@ Obj5A_TextFlyoutInit:
 	jsrto	CalcAngle, JmpTo_CalcAngle
 	move.b	d0,angle(a0)
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo44_DisplaySprite
@@ -75665,7 +75823,8 @@ Obj5A_TextFlyout:
 	cmpi.w	#0,y_pos(a0)
 	blt.w	JmpTo63_DeleteObject
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo44_DisplaySprite
@@ -75991,7 +76150,8 @@ loc_36022:
 	lea	(off_36228).l,a1
 	bsr.w	loc_3539E
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo44_DisplaySprite
@@ -76143,7 +76303,8 @@ loc_361A4:
 	add.b	byte_361C8(pc,d0.w),d2
 	move.w	d2,y_pos(a0)
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DisplaySprite).l
     else
 	bra.w	JmpTo44_DisplaySprite
@@ -76210,7 +76371,7 @@ loc_36210:
 	; end of unused code
 
     if 1
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo44_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
 
@@ -76349,7 +76510,7 @@ Obj61_MapUnc_36508:	BINCLUDE "mappings/sprite/obj61.bin"
 ; ===========================================================================
 
     if 0
-	; KiS2: Moved.
+	; KiS2 (JmpTo cleanup): Moved.
 JmpTo44_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
     endif
@@ -79493,7 +79654,8 @@ loc_38266:
 loc_3827A:
 	addq.w	#4,sp
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DeleteObject).l
     else
 	bra.w	JmpTo65_DeleteObject
@@ -80594,7 +80756,8 @@ loc_3900A:
 	move.b	#0,obj_control(a2)
 	bset	#1,status(a2)
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DeleteObject).l
     else
 	bra.w	JmpTo65_DeleteObject
@@ -80824,7 +80987,8 @@ loc_39182:
 	dbf	d6,-
 
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DeleteObject).l
     else
 	bra.w	JmpTo65_DeleteObject
@@ -81732,7 +81896,8 @@ loc_39BA4:
     endif
 	jsrto	PlayMusic, JmpTo5_PlayMusic
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DeleteObject).l
     else
 	bra.w	JmpTo65_DeleteObject
@@ -82641,7 +82806,7 @@ ObjB2_Main_WFZ_Start:
 	lea	(Ani_objB2_a).l,a1
 	jsrto	AnimateSprite, JmpTo25_AnimateSprite
     if 1
-	; KiS2
+	; KiS2: This branch was optimised.
 	bra.w	Obj_DeleteOffScreen
     else
 	jmpto	Obj_DeleteOffScreen, Obj_DeleteOffScreen
@@ -82734,7 +82899,8 @@ ObjB2_Main_WFZ_states:	offsetTable
 ObjB2_Wait_Leader_position:
 	lea	(MainCharacter).w,a1 ; a1=character
     if 1
-	; KiS2
+	; KiS2: Some adjustments were made in order for Knuckles to work
+	; correctly.
 	cmpi.w	#$540,y_pos(a1)
 	blo.s	+
 	st.b	(Control_Locked).w
@@ -82745,7 +82911,8 @@ ObjB2_Wait_Leader_position:
 	cmpi.w	#$5EC,y_pos(a1)
 	blo.s	+	; rts
     if 1
-	; KiS2
+	; KiS2: Some adjustments were made in order for Knuckles to work
+	; correctly.
 	btst	#1,status(a1)
 	bne.s	+
     endif
@@ -82841,7 +83008,7 @@ ObjB2_Jump_to_plane:
 	subq.w	#1,objoff_2E(a0)
 	bmi.s	+
     if 1
-	; KiS2
+	; KiS2: This change may be to prevent Knuckles from gliding.
 	move.w	#(button_right_mask|button_A_mask)<<8,(Ctrl_1_Logical).w
     else
 	move.w	#((button_right_mask|button_A_mask)<<8)|button_right_mask|button_A_mask,(Ctrl_1_Logical).w
@@ -82882,7 +83049,9 @@ loc_3AB18:
 	bclr	#1,status(a1)
 	bclr	#2,status(a1)
     if 1
-	; KiS2
+	; KiS2: 'mapping_frame' and 'anim_frame' are no longer set here.
+	; By setting 'prev_anim' to 0, the animation is forced to reset and
+	; automatically update 'mapping_frame' and 'anim_frame' anyway.
 	move.w	#AniIDSonAni_Wait<<8,anim(a1)
     else
 	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|AniIDSonAni_Wait,mapping_frame(a1)
@@ -82904,7 +83073,7 @@ ObjB2_Approaching_ship:
 	blo.s	loc_3AB8A
 	addq.b	#2,routine_secondary(a0)
     if 1
-	; KiS2
+	; KiS2: This change may be to prevent Knuckles from gliding.
 	move.w	#(button_A_mask<<8)|button_A_mask,(Ctrl_1_Logical).w
 	bra.w	loc_3AB8A
     endif
@@ -82913,7 +83082,7 @@ ObjB2_Jump_to_ship:
 	cmpi.w	#$447,objoff_2A(a0)
 	bhs.s	loc_3AB8A
     if 1
-	; KiS2
+	; KiS2: This change may be to prevent Knuckles from gliding.
 	move.w	#button_A_mask<<8,(Ctrl_1_Logical).w
     else
 	move.w	#(button_A_mask<<8)|button_A_mask,(Ctrl_1_Logical).w
@@ -83007,14 +83176,17 @@ ObjB2_Deactivate_level:
 ObjB2_Waiting_animation:
 	lea	(MainCharacter).w,a1 ; a1=character
     if 1
-	; KiS2
+	; KiS2: 'mapping_frame' and 'anim_frame' are no longer set here.
+	; By setting 'prev_anim' to 0, the animation is forced to reset and
+	; automatically update 'mapping_frame' and 'anim_frame' anyway.
 	move.w	#AniIDSonAni_Wait<<8,anim(a1)
     else
 	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|AniIDSonAni_Wait,mapping_frame(a1)
     endif
 	move.w	#$100,anim_frame_duration(a1)
     if 1
-	; KiS2
+	; KiS2: Some adjustments were made in order for Knuckles to work
+	; correctly.
 	clr.w	x_vel(a1)
 	clr.w	y_vel(a1)
     endif
@@ -83609,7 +83781,8 @@ ObjB5_Animate:
 ObjB5_CheckPlayers:
 	cmpi.b	#4,anim(a0)
     if 1
-	; KiS2
+	; KiS2: This branch was pushed out of range by the code that was
+	; added below.
 	bne.w	++	; rts
     else
 	bne.s	++	; rts
@@ -83643,7 +83816,9 @@ ObjB5_CheckPlayer:
 	add.w	d1,y_pos(a1)
 	bset	#1,status(a1)
     if 1
-	; KiS2
+	; KiS2 (bugfix): Disable roll-jumping, so that the player's controls
+	; aren't left locked, leaving them helpless. Also make Knuckles stop
+	; gliding.
 	bclr	#4,status(a1)
 	move.b	#0,knuckles_something(a1)
     endif
@@ -84387,7 +84562,8 @@ loc_3BCD6:
 	addq.w	#4,sp
     endif
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DeleteObject).l
     else
 	bra.w	JmpTo65_DeleteObject
@@ -85341,7 +85517,8 @@ ObjC5_End:	; play music and change camera speed
 	move.w	d0,(Camera_Max_Y_pos_now).w
 	move.w	d0,(Camera_Max_Y_pos).w
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jsr	(DeleteObject).l
     else
 	bsr.w	JmpTo65_DeleteObject
@@ -85814,7 +85991,8 @@ ObjC5_RobotnikDelete:		; Deletes Robotnik and the platform he's on
 	movea.w	parent(a0),a1 ; a1=object (Robotnik Platform)
 	jsrto	DeleteObject2, JmpTo6_DeleteObject2
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DeleteObject).l
     else
 	bra.w	JmpTo65_DeleteObject
@@ -86124,7 +86302,8 @@ ObjC6_State3_State3:
 	lea	(MainCharacter).w,a1 ; a1=character
 	bclr	#5,status(a1)
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DeleteObject).l
     else
 	bra.w	JmpTo65_DeleteObject
@@ -86951,7 +87130,8 @@ loc_3D9D6:
 	jsrto	PlaySound, JmpTo12_PlaySound
 	move.b	#GameModeID_EndingSequence,(Game_Mode).w ; => EndingSequence
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DeleteObject).l
     else
 	bra.w	JmpTo65_DeleteObject
@@ -87460,7 +87640,8 @@ loc_3DE62:
 	movea.w	objoff_2C(a0),a1 ; a1=object
 	move.w	x_pos(a0),objoff_28(a1)
     if 1
-	; KiS2
+	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
+	; a jump directly to the intended destination.
 	jmp	(DeleteObject).l
     else
 	bra.w	JmpTo65_DeleteObject
@@ -89013,7 +89194,8 @@ TouchResponse:
 	; to the last frame of his ducking animation. This is a leftover from
 	; Sonic 1, where Sonic's ducking animation only had one frame.
     if 1
-	cmpi.b	#$9C,mapping_frame(a0)	; is Sonic ducking?
+	; KiS2: Adjusted to suit Knuckles.
+	cmpi.b	#$9C,mapping_frame(a0)	; is Knuckles ducking?
     else
 	cmpi.b	#$4D,mapping_frame(a0)	; is Sonic ducking?
     endif
@@ -89291,7 +89473,7 @@ Touch_Monitor:
 +
 	cmpi.b	#AniIDSonAni_Roll,anim(a0)
     if 1
-	; KiS2
+	; KiS2: Allow monitors to be broken by Knuckles' gliding.
 	beq.s	+
 	cmpi.b	#1,knuckles_something(a0)
 	beq.s	+
@@ -89316,7 +89498,7 @@ Touch_Enemy:
 	beq.s	+
 	cmpi.b	#AniIDSonAni_Roll,anim(a0)		; is Sonic rolling?
     if 1
-	; KiS2
+	; KiS2: Allow enemies to be destroyed by Knuckles' gliding.
 	beq.s	+
 	cmpi.b	#1,knuckles_something(a0)
 	beq.s	+
@@ -89348,7 +89530,7 @@ Touch_Enemy_Part2:
 	move.b	#0,collision_flags(a1)
 	subq.b	#1,collision_property(a1)
     if 1
-	; KiS2
+	; KiS2: Bounce Knuckles out of his gliding state.
 	bne.s	+
     else
 	bne.s	return_3F7E8
@@ -89356,7 +89538,7 @@ Touch_Enemy_Part2:
 	bset	#7,status(a1)
 
     if 1
-	; KiS2
+	; KiS2: Bounce Knuckles out of his gliding state.
 +
 	cmpi.b	#1,knuckles_something(a0)
 	bne.s	return_3F7E8
@@ -92786,6 +92968,8 @@ LoadDebugObjectSprite:
 JmpTbl_DbgObjLists: zoneOrderedOffsetTable 2,1
     if 1
 	; KiS2: For some reason, the debug lists were all blanked.
+	; This was possibly done in order to save space (there are only 680
+	; bytes spare at the end of the ROM).
 	zoneOffsetTableEntry.w DbgObjList_Def	; 0
 	zoneOffsetTableEntry.w DbgObjList_Def	; 1
 	zoneOffsetTableEntry.w DbgObjList_Def	; 2
@@ -92841,7 +93025,7 @@ dbglistobj macro   obj, mapaddr, subtype, frame, vram
 DbgObjList_Def: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0) ; obj25 = ring
     if 1
-	; KiS2: The monitor's subtype was changed.
+	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0) ; obj26 = monitor
     else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0) ; obj26 = monitor
@@ -92850,6 +93034,8 @@ DbgObjList_Def_End
 
     if 0
 	; KiS2: For some reason, the debug lists were all blanked.
+	; This was possibly done in order to save space (there are only 680
+	; bytes spare at the end of the ROM).
 DbgObjList_EHZ: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
@@ -93362,7 +93548,9 @@ PlrList_Std2: plrlistheader
 	plreq ArtTile_ArtNem_Checkpoint, ArtNem_Checkpoint
 	plreq ArtTile_ArtNem_Powerups, ArtNem_Powerups
     if 1
-	; KiS2: The shield, invincibility, and monitor icons were all customised.
+	; KiS2: The shield and invincibility were recoloured to grey, to
+	; avoid them using Sonic's blues, which are now red and green.
+	; Likewise, their monitor icons were also recoloured.
 	plreq ArtTile_ArtNem_Powerups+44, ArtNem_PowerupsKnucklesPatch
 	plreq ArtTile_ArtNem_Shield, ArtNem_Shield_and_invincible_stars
     else
@@ -93732,7 +93920,8 @@ PlrList_Results_End
 PlrList_Signpost: plrlistheader
 	plreq ArtTile_ArtNem_Signpost, ArtNem_Signpost
     if 1
-	; KiS2
+	; KiS2: Load a patch that replaces Sonic's signpost graphic with
+	; Knuckles.
 	plreq ArtTile_ArtNem_Signpost+34, ArtNem_SignpostKnucklesPatch
     endif
 PlrList_Signpost_End
