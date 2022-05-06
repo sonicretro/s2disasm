@@ -32,7 +32,7 @@ gameRevision = 3
 ;	| If 0, a REV00 ROM is built
 ;	| If 1, a REV01 ROM is built, which contains some fixes
 ;	| If 2, a (probable) REV02 ROM is built, which contains even more fixes
-;	| If 3, a KiS2 ROM is built
+;	| If 3, a 'Knuckles in Sonic 2' ROM is built
 padToPowerOfTwo = 1
 ;	| If 1, pads the end of the ROM to the next power of two bytes (for real hardware)
 ;
@@ -51,7 +51,7 @@ zeroOffsetOptimization = 0|allOptimizations
 removeJmpTos = 0|(gameRevision>=2)|allOptimizations
 ;	| If 1, many unnecessary JmpTos are removed, improving performance
 ;
-addsubOptimize = 0|(gameRevision=2)|allOptimizations ; TODO
+addsubOptimize = 0|(gameRevision=2)|allOptimizations
 ;	| If 1, some add/sub instructions are optimized to addq/subq
 ;
 relativeLea = 0|(gameRevision<2)|allOptimizations
@@ -79,12 +79,14 @@ standaloneKiS2 = 0
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; Lock-On Technology ROM locations
+    if gameRevision=3
 	include "s2.lockon.asm"
+    endif
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; start of ROM
 
-    if ~~standaloneKiS2
+    if (gameRevision=3) && ~~standaloneKiS2
 	; Include the base ROMs here.
 	; TODO: This is temporary, until AS can do 'phase $300000' without
 	; resulting in a ton of bugs.
@@ -3020,7 +3022,6 @@ CyclingPal_WFZ2:
 
 ; sub_213E:
 PalCycle_SuperSonic:
-	; TODO: Make these 'rts' branches less stupid.
 	move.b	(Super_Sonic_palette).w,d0
 	beq.s	+	; rts	; return, if Sonic isn't super
 	bmi.w	PalCycle_SuperSonic_normal	; branch, if fade-in is done
@@ -41412,7 +41413,7 @@ return_1B89A:
 	beq.s	return_1B89A
 	move.b	d0,(Sonic_LastLoadedDPLC).w
 
-    if standaloneKiS2
+    if (gameRevision=3) && standaloneKiS2
 	; KiS2 (standalone): Load Knuckles' graphics instead of Sonic's.
 	lea	(MapRUnc_Knuckles).l,a2
     else
@@ -41434,7 +41435,7 @@ SPLC_ReadEntry:
 	addi.w	#$10,d3
 	andi.w	#$FFF,d1
 	lsl.l	#5,d1
-    if standaloneKiS2
+    if (gameRevision=3) && standaloneKiS2
 	; KiS2 (standalone): Load Knuckles' graphics instead of Sonic's.
 	addi.l	#ArtUnc_Knuckles,d1
     else
@@ -94548,7 +94549,7 @@ ArtNem_TitleSprites_Knuckles6:	BINCLUDE	"art/nemesis/Knuckles from title screen 
 
 ; KiS2: The assets and sound driver were all removed: they are instead loaded
 ; from the locked-on Sonic 2 ROM.
-    if standaloneKiS2 ; KiS2 (standalone): We need to keep these assets for standalone builds.
+    if (gameRevision<>3) || standaloneKiS2 ; KiS2 (standalone): We need to keep these assets for standalone builds.
 ;---------------------------------------------------------------------------------------
 ; Curve and resistance mapping
 ;---------------------------------------------------------------------------------------
