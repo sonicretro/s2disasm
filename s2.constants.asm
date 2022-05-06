@@ -48,7 +48,7 @@ subtype =		$28
 ; note: $1F, $20, and $21 are unused and available
 inertia =		$14 ; and $15 ; directionless representation of speed... not updated in the air
     if 1
-	; KiS2
+; KiS2: New SSTs, related to Knuckles' abilities.
 knuckles_something2 =	$1F
 knuckles_something =	$21
     endif
@@ -950,7 +950,7 @@ AniIDSonAni_Balance3		= id(SonAni_Balance3_ptr)	; 29 ; $1D
 AniIDSonAni_Balance4		= id(SonAni_Balance4_ptr)	; 30 ; $1E
 AniIDSupSonAni_Transform	= id(SupSonAni_Transform_ptr)	; 31 ; $1F
     if 1
-	; KiS2
+; KiS2
 AniIDKnuxAni_Glide		= id(KnuxAni_Glide_ptr)			; 32 ; $20
 AniIDKnuxAni_FallAfterGlide	= id(KnuxAni_FallAfterGlide_ptr)	; 33 ; $21
 AniIDKnuxAni_ClimbLedge		= id(KnuxAni_ClimbLedge_ptr)		; 34 ; $22
@@ -963,7 +963,7 @@ AniIDSonAni_LieDown		= id(SonAni_LieDown_ptr)	; 33 ; $21
 
 
     if 0
-	; KiS2: No Tails.
+; KiS2: No Tails.
 offset :=	TailsAniData
 ptrsize :=	2
 idstart :=	0
@@ -1306,7 +1306,7 @@ Underwater_palette_line2:	ds.b palette_line_size
 Underwater_palette_line3:	ds.b palette_line_size
 Underwater_palette_line4:	ds.b palette_line_size
 
-    if 1&&~~standaloneKiS2
+    if 1 && ~~standaloneKiS2
 Knuckles_Art_Conversion_Buffer:
     endif
 				ds.b	$500	; $FFFFF100-$FFFFF5FF ; unused, leftover from the Sonic 1 sound driver (and used by it when you port it to Sonic 2)
@@ -1375,10 +1375,11 @@ Palette_timer:			ds.b	1	; was "Palette_frame_count"
 Super_Sonic_palette:		ds.b	1
 
     if 1
-	; KiS2: A new variable, I guess.
+; KiS2: Some new variables.
 Endgame_Logo_Timer:				; Word
 Title_Screen_Something:				; Word
     endif
+
 DEZ_Eggman:					; Word
 DEZ_Shake_Timer:				; Word
 WFZ_LevEvent_Subrout:				; Word
@@ -1387,9 +1388,10 @@ Credits_Trigger:		ds.b	1	; cleared as a word a couple times
 Ending_PalCycle_flag:		ds.b	1
 
     if 1
-	; KiS2: A new variable, I guess.
+; KiS2: A new variable.
 Title_Intro_Complete:				; Word
     endif
+
 SegaScr_VInt_Subrout:
 Ending_VInt_Subrout:
 WFZ_BG_Y_Speed:			ds.w	1
@@ -1477,10 +1479,12 @@ Boss_spawn_delay:		ds.b	1	; Boss spawn delay timer
 				ds.b	4	; $FFFFF73B-$FFFFF73E
 Boss_CollisionRoutine:		ds.b	1
 Boss_AnimationArray:		ds.b	$10	; up to $10 bytes; 2 bytes per entry
+
     if 0
-	; KiS2: This was moved.
+; KiS2: This was moved.
 Ending_Routine:
     endif
+
 Boss_X_pos:			ds.w	1
 				ds.w	1	; Boss_MoveObject reads a long, but all other places in the game use only the high word
 Boss_Y_pos:			ds.w	1
@@ -1539,8 +1543,9 @@ Collision_addr:			ds.l	1
 Boss_defeated_flag:		ds.b	1
 				ds.b	2	; $FFFFF7A8-$FFFFF7A9 ; seems unused
 Current_Boss_ID:		ds.b	1
+
     if 1
-	; KiS2: 'Ending_Routine' was moved.
+; KiS2: 'Ending_Routine' was moved, and some variables were added.
 				ds.b	1	; unused
 Something_Related_To_Gliding:	ds.b	1	; TODO
 Something_Related_To_Gliding2:	ds.b	1	; TODO
@@ -1548,6 +1553,7 @@ Ending_Routine:			ds.w	1
     else
 				ds.b	5	; $FFFFF7AB-$FFFFF7AF ; seems unused
     endif
+
 MTZ_Platform_Cog_X:		ds.w	1	; X position of moving MTZ platform for cog animation.
 MTZCylinder_Angle_Sonic:	ds.b	1
 MTZCylinder_Angle_Tails:	ds.b	1
@@ -1732,7 +1738,7 @@ Loser_Time_Left:				; 2 bytes
 				ds.b	1	; frames
 
     if 1
-	; KiS2: The cheat flags were moved.
+				; KiS2: The cheat flags were moved from below.
 				ds.b	6+8	; Unused
 Level_select_flag:		ds.b	1
 Slow_motion_flag:		ds.b	1	; This NEEDs to be after Level_select_flag because of the call to CheckCheats
@@ -1743,6 +1749,7 @@ Correct_cheat_entries_2:	ds.w	1	; for 14 continues or 7 emeralds codes
     else
 				ds.b	$16	; $FFFFFEFA-$FFFFFF0F ; seems unused
     endif
+
 Results_Screen_2P:		ds.w	1	; 0 = act, 1 = zone, 2 = game, 3 = SS, 4 = SS all
 				ds.b	$E	; $FFFFFF12-$FFFFFF1F ; seems unused
 
@@ -1819,8 +1826,15 @@ Camera_Min_Y_pos_Debug_Copy:	ds.w	1
 Camera_Max_Y_pos_Debug_Copy:	ds.w	1
 
     if 1
-	; KiS2: The cheat flags were moved.
+; KiS2: These were moved from below.
+Demo_mode_flag:			ds.w	1 ; 1 if a demo is playing (2 bytes)
+Demo_number:			ds.w	1 ; which demo will play next (2 bytes)
+Ending_demo_number:		ds.w	1 ; zone for the ending demos (2 bytes, unused)
+				ds.w	1
+Graphics_Flags:			ds.w	1 ; misc. bitfield
+Debug_mode_flag:		ds.w	1 ; (2 bytes)
     else
+; KiS2: The cheat flags were moved elsewhere.
 Level_select_flag:		ds.b	1
 Slow_motion_flag:		ds.b	1	; This NEEDs to be after Level_select_flag because of the call to CheckCheats
 Debug_options_flag:		ds.b	1	; if set, allows you to enable debug mode and "night mode"
@@ -1829,20 +1843,11 @@ Correct_cheat_entries:		ds.w	1
 Correct_cheat_entries_2:	ds.w	1	; for 14 continues or 7 emeralds codes
     endif
 
-    if 1
-	; KiS2: Moved.
-Demo_mode_flag:			ds.w	1 ; 1 if a demo is playing (2 bytes)
-Demo_number:			ds.w	1 ; which demo will play next (2 bytes)
-Ending_demo_number:		ds.w	1 ; zone for the ending demos (2 bytes, unused)
-				ds.w	1
-Graphics_Flags:			ds.w	1 ; misc. bitfield
-Debug_mode_flag:		ds.w	1 ; (2 bytes)
-    endif
-
 Two_player_mode:		ds.w	1	; flag (0 for main game)
 unk_FFDA:			ds.w	1	; Written to once at title screen, never read from
+
     if 0
-	; KiS2: These were all removed.
+; KiS2: These were all removed to make some room for the variables added below.
 unk_FFDC:			ds.b	1	; Written to near loc_175EA, never read from
 unk_FFDD:			ds.b	1	; Written to near loc_175EA, never read from
 unk_FFDE:			ds.b	1	; Written to near loc_175EA, never read from
@@ -1861,14 +1866,20 @@ SoundQueue ENDSTRUCT
 
 Sound_Queue:			SoundQueue
 
-    if 0
-				ds.b	 1
-    else
 				ds.b	$B	; $FFFFFFE5-$FFFFFFEF ; seems unused
-    endif
 
-    if 0
-	; KiS2: Moved.
+    if 1
+        if standaloneKiS2
+				ds.b	$C	; unused
+        else
+; KiS2: These were added. They're from Sonic & Knuckles, whose vector table points here.
+V_Int_Opcode:			ds.w	1
+V_Int_Address:			ds.l	1
+H_Int_Opcode:			ds.w	1
+H_Int_Address:			ds.l	1
+        endif
+    else
+; KiS2: These were moved to make room for the above variables.
 Demo_mode_flag:			ds.w	1 ; 1 if a demo is playing (2 bytes)
 Demo_number:			ds.w	1 ; which demo will play next (2 bytes)
 Ending_demo_number:		ds.w	1 ; zone for the ending demos (2 bytes, unused)
@@ -1877,24 +1888,13 @@ Graphics_Flags:			ds.w	1 ; misc. bitfield
 Debug_mode_flag:		ds.w	1 ; (2 bytes)
     endif
 
+Checksum_fourcc:		ds.l	1 ; (4 bytes)
+
 RAM_End
     if * > 0	; Don't declare more space than the RAM can contain!
 	fatal "The RAM variable declarations are too large by $\{*} bytes."
     endif
 	dephase
-
-    if 1
-    phase $FFFFFFF0
-	; KiS2: These were added.
-	;			ds.b  $10 ; unused
-V_Int_Opcode:			ds.w	1
-V_Int_Address:			ds.l	1
-H_Int_Opcode:			ds.w	1
-H_Int_Address:			ds.l	1
-Checksum_fourcc:		ds.l	1 ; (4 bytes)
-	dephase
-    endif
-
 
 ; RAM variables - SEGA screen
 	phase	Object_RAM	; Move back to the object RAM

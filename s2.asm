@@ -94899,7 +94899,9 @@ ArtNem_SuperSonic_stars:	BINCLUDE	"art/nemesis/Super Sonic stars.bin"
 ; Sprite Mappings
 ; Tails			; MapUnc_739E2:
 ;--------------------------------------------------------------------------------------
+    if 0 ; KiS2 (standalone): Not used by anything.
 MapUnc_Tails:	BINCLUDE	"mappings/sprite/Tails.bin"
+    endif
 ;--------------------------------------------------------------------------------------
 ; Sprite Dynamic Pattern Reloading
 ; Tails DPLCs	; MapRUnc_7446C:
