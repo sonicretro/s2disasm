@@ -11280,10 +11280,6 @@ dword_8732:
 	charset ' ',0
 
 	; Menu text
-menutxt	macro	text
-	dc.b	strlen(text)-1
-	dc.b	text
-	endm
 Text2P_EmeraldHill:	menutxt	"EMERALD HILL"	; byte_874A:
 	rev02even
 Text2P_MysticCave:	menutxt	" MYSTIC CAVE"	; byte_8757:
