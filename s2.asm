@@ -5369,11 +5369,7 @@ MoveDemo_On_P1:
 	addq.w	#2,(Demo_button_index).w ; advance to next button press
 ; loc_4908:
 MoveDemo_On_P2:
-    if emerald_hill_zone_act_1<$100 ; will it fit within a byte?
-	cmpi.b	#emerald_hill_zone_act_1,(Current_Zone).w
-    else
-	cmpi.w #emerald_hill_zone_act_1,(Current_ZoneAndAct).w ; avoid a range overflow error
-    endif
+	cmpi.b	#emerald_hill_zone,(Current_Zone).w
 	bne.s	MoveDemo_On_SkipP2 ; if it's not the EHZ demo, branch to skip player 2
 	lea	(Demo_EHZ_Tails).l,a1
 
