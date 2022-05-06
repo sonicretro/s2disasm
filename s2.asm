@@ -10253,7 +10253,7 @@ ObjDB_Sonic_Init:
 	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a0)
 	move.b	#4,render_flags(a0)
 	move.b	#2,priority(a0)
-	move.b	#$20,anim(a0)
+	move.b	#AniIDSonAni_Lying,anim(a0)
 
 ; loc_7BD2:
 ObjDB_Sonic_Wait:
@@ -10265,7 +10265,7 @@ ObjDB_Sonic_Wait:
 ; loc_7BE4:
 ObjDB_Sonic_StartRunning:
 	addq.b	#2,routine(a0) ; => ObjDB_Sonic_Run
-	move.b	#$21,anim(a0)
+	move.b	#AniIDSonAni_LieDown,anim(a0)
 	clr.w	inertia(a0)
 	move.b	#SndID_SpindashRev,d0 ; super peel-out sound
 	bsr.w	PlaySound
@@ -10293,7 +10293,7 @@ ObjDB_Tails_Init:
 	move.w	#make_art_tile(ArtTile_ArtNem_ContinueTails,0,0),art_tile(a0)
 	move.b	#4,render_flags(a0)
 	move.b	#2,priority(a0)
-	move.b	#0,anim(a0)
+	move.b	#0,anim(a0) ; This is animation 0 of Ani_objDB, not Tails' usual animation script.
 
 ; loc_7C52:
 ObjDB_Tails_Wait:
@@ -10307,7 +10307,7 @@ ObjDB_Tails_StartRunning:
 	addq.b	#2,routine(a0) ; => ObjDB_Tails_Run
 	move.l	#MapUnc_Tails,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
-	move.b	#0,anim(a0)
+	move.b	#AniIDTailsAni_Walk,anim(a0)
 	clr.w	inertia(a0)
 	move.b	#SndID_SpindashRev,d0 ; super peel-out sound
 	bsr.w	PlaySound
