@@ -378,10 +378,11 @@ ChecksumLoop:
 	bne.w	ChecksumError	; if they don't match, branch
     endif
 ;checksum_good:
-	lea	(System_Stack).w,a6
+	; Clear some RAM only on a coldboot.
+	lea	(CrossResetRAM).w,a6
 	moveq	#0,d7
 
-	move.w	#bytesToLcnt($200),d6
+	move.w	#bytesToLcnt(CrossResetRAM_End-CrossResetRAM),d6
 -	move.l	d7,(a6)+
 	dbf	d6,-
 
@@ -391,9 +392,10 @@ ChecksumLoop:
 	move.l	#'init',(Checksum_fourcc).w ; set flag so checksum won't be run again
 ; loc_370:
 GameInit:
+	; Clear some RAM on every boot and reset.
 	lea	(RAM_Start&$FFFFFF).l,a6
 	moveq	#0,d7
-	move.w	#bytesToLcnt(System_Stack&$FFFF),d6
+	move.w	#bytesToLcnt(CrossResetRAM-RAM_Start),d6
 ; loc_37C:
 GameClrRAM:
 	move.l	d7,(a6)+
