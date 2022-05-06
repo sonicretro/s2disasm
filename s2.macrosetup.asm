@@ -244,11 +244,8 @@ lea_ macro address,reg
 
 	; this even will only exist in REV02 (unnecessary)
 rev02even macro
-	if 0
-	; KiS2: It looks like the devs adjusted the assembler (X68k?) to not do this.
 	if gameRevision=2
 		even
-	endif
 	endif
     endm
 

@@ -47,7 +47,7 @@ subtype =		$28
 ; conventions specific to Sonic/Tails (Obj01, Obj02, and ObjDB):
 ; note: $1F, $20, and $21 are unused and available
 inertia =		$14 ; and $15 ; directionless representation of speed... not updated in the air
-    if 1
+    if gameRevision=3
 ; KiS2: New SSTs, related to Knuckles' abilities.
 knuckles_something2 =	$1F
 knuckles_something =	$21
@@ -949,7 +949,7 @@ AniIDSonAni_Blank		= id(SonAni_Blank_ptr)		; 28 ; $1C
 AniIDSonAni_Balance3		= id(SonAni_Balance3_ptr)	; 29 ; $1D
 AniIDSonAni_Balance4		= id(SonAni_Balance4_ptr)	; 30 ; $1E
 AniIDSupSonAni_Transform	= id(SupSonAni_Transform_ptr)	; 31 ; $1F
-    if 1
+    if gameRevision=3
 ; KiS2
 AniIDKnuxAni_Glide		= id(KnuxAni_Glide_ptr)			; 32 ; $20
 AniIDKnuxAni_FallAfterGlide	= id(KnuxAni_FallAfterGlide_ptr)	; 33 ; $21
@@ -962,7 +962,7 @@ AniIDSonAni_LieDown		= id(SonAni_LieDown_ptr)	; 33 ; $21
     endif
 
 
-    if 0
+    if gameRevision<>3
 ; KiS2: No Tails.
 offset :=	TailsAniData
 ptrsize :=	2
@@ -1306,7 +1306,7 @@ Underwater_palette_line2:	ds.b palette_line_size
 Underwater_palette_line3:	ds.b palette_line_size
 Underwater_palette_line4:	ds.b palette_line_size
 
-    if 1 && ~~standaloneKiS2
+    if (gameRevision=3) && ~~standaloneKiS2
 Knuckles_Art_Conversion_Buffer:
     endif
 				ds.b	$500	; $FFFFF100-$FFFFF5FF ; unused, leftover from the Sonic 1 sound driver (and used by it when you port it to Sonic 2)
@@ -1374,7 +1374,7 @@ Palette_frame:			ds.w	1
 Palette_timer:			ds.b	1	; was "Palette_frame_count"
 Super_Sonic_palette:		ds.b	1
 
-    if 1
+    if gameRevision=3
 ; KiS2: Some new variables.
 Endgame_Logo_Timer:				; Word
 Title_Screen_Something:				; Word
@@ -1387,7 +1387,7 @@ SegaScr_PalDone_Flag:				; Byte (cleared once as a word)
 Credits_Trigger:		ds.b	1	; cleared as a word a couple times
 Ending_PalCycle_flag:		ds.b	1
 
-    if 1
+    if gameRevision=3
 ; KiS2: A new variable.
 Title_Intro_Complete:				; Word
     endif
@@ -1480,7 +1480,7 @@ Boss_spawn_delay:		ds.b	1	; Boss spawn delay timer
 Boss_CollisionRoutine:		ds.b	1
 Boss_AnimationArray:		ds.b	$10	; up to $10 bytes; 2 bytes per entry
 
-    if 0
+    if gameRevision<>3
 ; KiS2: This was moved.
 Ending_Routine:
     endif
@@ -1544,7 +1544,7 @@ Boss_defeated_flag:		ds.b	1
 				ds.b	2	; $FFFFF7A8-$FFFFF7A9 ; seems unused
 Current_Boss_ID:		ds.b	1
 
-    if 1
+    if gameRevision=3
 ; KiS2: 'Ending_Routine' was moved, and some variables were added.
 				ds.b	1	; unused
 Something_Related_To_Gliding:	ds.b	1	; TODO
@@ -1737,7 +1737,7 @@ Loser_Time_Left:				; 2 bytes
 				ds.b	1	; seconds
 				ds.b	1	; frames
 
-    if 1
+    if gameRevision=3
 				; KiS2: The cheat flags were moved from below.
 				ds.b	6+8	; Unused
 Level_select_flag:		ds.b	1
@@ -1825,7 +1825,7 @@ Signpost_prev_frame:		ds.b	1
 Camera_Min_Y_pos_Debug_Copy:	ds.w	1
 Camera_Max_Y_pos_Debug_Copy:	ds.w	1
 
-    if 1
+    if gameRevision=3
 ; KiS2: These were moved from below.
 Demo_mode_flag:			ds.w	1 ; 1 if a demo is playing (2 bytes)
 Demo_number:			ds.w	1 ; which demo will play next (2 bytes)
@@ -1846,7 +1846,7 @@ Correct_cheat_entries_2:	ds.w	1	; for 14 continues or 7 emeralds codes
 Two_player_mode:		ds.w	1	; flag (0 for main game)
 unk_FFDA:			ds.w	1	; Written to once at title screen, never read from
 
-    if 0
+    if gameRevision<>3
 ; KiS2: These were all removed to make some room for the variables added below.
 unk_FFDC:			ds.b	1	; Written to near loc_175EA, never read from
 unk_FFDD:			ds.b	1	; Written to near loc_175EA, never read from
@@ -1868,7 +1868,7 @@ Sound_Queue:			SoundQueue
 
 				ds.b	$B	; $FFFFFFE5-$FFFFFFEF ; seems unused
 
-    if 1
+    if gameRevision=3
         if standaloneKiS2
 				ds.b	$C	; unused
         else
@@ -1939,8 +1939,8 @@ TitleScreenMenu:
 				ds.b	object_size
 IntroFallingStar:
 				ds.b	object_size
-    if 1
-	; KiS2: New title screen objects.
+    if gameRevision=3
+; KiS2: A new title screen object.
 IntroSomething1:
 				ds.b	object_size
     endif
@@ -1981,7 +1981,7 @@ SS_Dynamic_Object_RAM:
 				ds.b	$18*object_size
 SpecialStageResults:
 				ds.b	object_size
-    if 1
+    if gameRevision=3
 				; KiS2: An extra object was added here.
 				ds.b	$D*object_size
     else
@@ -1989,8 +1989,8 @@ SpecialStageResults:
     endif
 SpecialStageResults2:
 				ds.b	object_size
-    if 1
-				; KiS2: An extra object was added here.
+    if gameRevision=3
+				; KiS2: An extra object was added above.
 				ds.b	$50*object_size
     else
 				ds.b	$51*object_size
@@ -2253,8 +2253,8 @@ ArtTile_ArtUnc_Giant_Sonic            = $0088
 ; Title screen
 ArtTile_ArtNem_Title                  = $0000
 ArtTile_ArtNem_TitleSprites           = $0150
-    if 1
-	; KiS2
+    if gameRevision=3
+; KiS2: New title screen graphics.
 ArtTile_ArtNem_TitleKnuckles2         = $03C0
 ArtTile_ArtNem_TitleKnuckles3         = $03CF
 ArtTile_ArtNem_TitleKnuckles4         = $03DD
