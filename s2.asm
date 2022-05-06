@@ -10247,7 +10247,7 @@ ObjDB_Sonic_Init:
 	addq.b	#2,routine(a0) ; => ObjDB_Sonic_Wait
 	move.w	#$9C,x_pos(a0)
 	move.w	#$19C,y_pos(a0)
-	move.l	#Mapunc_Sonic,mappings(a0)
+	move.l	#MapUnc_Sonic,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a0)
 	move.b	#4,render_flags(a0)
 	move.b	#2,priority(a0)
@@ -35263,7 +35263,7 @@ Obj01_Init:
 	addq.b	#2,routine(a0)	; => Obj01_Control
 	move.b	#$13,y_radius(a0) ; this sets Sonic's collision height (2*pixels)
 	move.b	#9,x_radius(a0)
-	move.l	#Mapunc_Sonic,mappings(a0)
+	move.l	#MapUnc_Sonic,mappings(a0)
 	move.b	#2,priority(a0)
 	move.b	#$18,width_pixels(a0)
 	move.b	#4,render_flags(a0)
@@ -88040,7 +88040,7 @@ Debug_ExitDebugMode:
 	moveq	#0,d0
 	move.w	d0,(Debug_placement_mode).w
 	lea	(MainCharacter).w,a1 ; a1=character
-	move.l	#Mapunc_Sonic,mappings(a1)
+	move.l	#MapUnc_Sonic,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a1)
 	tst.w	(Two_player_mode).w
 	beq.s	.notTwoPlayerMode
@@ -89869,7 +89869,7 @@ ArtUnc_Tails:	BINCLUDE	"art/uncompressed/Tails's art.bin"
 ; Sprite Mappings
 ; Sonic			; MapUnc_6FBE0: SprTbl_Sonic:
 ;--------------------------------------------------------------------------------------
-Mapunc_Sonic:	BINCLUDE	"mappings/sprite/Sonic.bin"
+MapUnc_Sonic:	BINCLUDE	"mappings/sprite/Sonic.bin"
 ;--------------------------------------------------------------------------------------
 ; Sprite Dynamic Pattern Reloading
 ; Sonic DPLCs   		; MapRUnc_714E0:
