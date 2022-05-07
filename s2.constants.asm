@@ -1559,9 +1559,9 @@ Target_palette_End:
 Object_Respawn_Table:
 Obj_respawn_index:		ds.b	2		; respawn table indices of the next objects when moving left or right for the first player
 Obj_respawn_index_End:
-Obj_respawn_data:		ds.b	$100	; Maximum possible number of respawn entries that S2 can handle; for stock S2, $80 is enough
+Obj_respawn_data:		ds.b	$BE	; For stock S2, $80 is enough
 Obj_respawn_data_End:
-				ds.b	$FE	; Stack; the first $7E bytes are cleared by ObjectsManager_Init, with possibly disastrous consequences. At least $A0 bytes are needed.
+				ds.b	$140	; Stack; the first $BE bytes are cleared by ObjectsManager_Init, with possibly disastrous consequences. At least $A0 bytes are needed.
 System_Stack:
 
 CrossResetRAM:	; RAM in this region will not be cleared after a soft reset.

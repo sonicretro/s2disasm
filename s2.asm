@@ -32278,11 +32278,20 @@ ObjectsManager_Init:
     if fixBugs
 	move.w	#bytesToLcnt(Obj_respawn_data_End-Obj_respawn_data),d0 ; set loop counter
     else
-	; The '+$7E' shouldn't be here; this loop accidentally clears an additional $7E bytes.
-	move.w	#bytesToLcnt(Obj_respawn_data_End-Obj_respawn_data+$7E),d0 ; set loop counter
+	; This clears longwords, but the loop counter is measured in words!
+	; This causes $17C bytes to be cleared instead of $BE.
+	move.w	#bytesToWcnt(Obj_respawn_data_End-Obj_respawn_data),d0 ; set loop counter
     endif
+
 -	clr.l	(a2)+		; loop clears all other respawn values
 	dbf	d0,-
+
+    if fixBugs
+	; Clear the last word, since the above loop only does longwords.
+    if (Obj_respawn_data_End-Obj_respawn_data)&2
+	clr.w	(a2)+
+    endif
+    endif
 
 	lea	(Obj_respawn_index).w,a2	; reset a2
 	moveq	#0,d2
