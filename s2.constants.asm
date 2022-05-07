@@ -2233,15 +2233,16 @@ ArtTile_ArtUnc_Giant_Sonic            = $0088
 
 ; Title screen
 ArtTile_ArtNem_Title                  = $0000
-ArtTile_ArtNem_TitleSprites           = $0150
     if gameRevision=3
 ; KiS2: New title screen graphics.
-ArtTile_ArtNem_TitleKnuckles2         = $03C0
-ArtTile_ArtNem_TitleKnuckles3         = $03CF
-ArtTile_ArtNem_TitleKnuckles4         = $03DD
-ArtTile_ArtNem_TitleKnuckles5         = $03FE
-ArtTile_ArtNem_TitleKnuckles6         = $0488
+ArtTile_ArtNem_TitleKnuckles          = $0150
+ArtTile_ArtNem_TitleStars             = $03C0
+ArtTile_ArtNem_TitleEmblemTop         = $03CF
+ArtTile_ArtNem_TitleOtherText         = $03DD
+ArtTile_ArtNem_TitleBanner            = $03FE
+ArtTile_ArtNem_TitleTheEchidnaIn      = $0488
     else
+ArtTile_ArtNem_TitleSprites           = $0150
 ArtTile_ArtNem_MenuJunk               = $03F2
 ArtTile_ArtNem_Player1VS2             = $0402
     endif

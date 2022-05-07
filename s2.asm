@@ -4266,28 +4266,28 @@ TitleScreen:
 
     if gameRevision=3
 	; KiS2: Load new title screen assets.
-	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleSprites),VRAM,WRITE),(VDP_control_port).l
-	lea	(ArtNem_TitleSprites_Knuckles1).l,a0
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleKnuckles),VRAM,WRITE),(VDP_control_port).l
+	lea	(ArtNem_TitleSprites_Knuckles).l,a0
 	bsr.w	NemDec
 
-	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleKnuckles2),VRAM,WRITE),(VDP_control_port).l
-	lea	(ArtNem_TitleSprites_Knuckles2).l,a0
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleStars),VRAM,WRITE),(VDP_control_port).l
+	lea	(ArtNem_TitleStars).l,a0
 	bsr.w	NemDec
 
-	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleKnuckles3),VRAM,WRITE),(VDP_control_port).l
-	lea	(ArtNem_TitleSprites_Knuckles3).l,a0
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleEmblemTop),VRAM,WRITE),(VDP_control_port).l
+	lea	(ArtNem_TitleEmblemTop).l,a0
 	bsr.w	NemDec
 
-	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleKnuckles4),VRAM,WRITE),(VDP_control_port).l
-	lea	(ArtNem_TitleSprites_Knuckles4).l,a0
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleOtherText),VRAM,WRITE),(VDP_control_port).l
+	lea	(ArtNem_TitleOtherText).l,a0
 	bsr.w	NemDec
 
-	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleKnuckles5),VRAM,WRITE),(VDP_control_port).l
-	lea	(ArtNem_TitleSprites_Knuckles5).l,a0
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleBanner),VRAM,WRITE),(VDP_control_port).l
+	lea	(ArtNem_TitleBanner).l,a0
 	bsr.w	NemDec
 
-	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleKnuckles6),VRAM,WRITE),(VDP_control_port).l
-	lea	(ArtNem_TitleSprites_Knuckles6).l,a0
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleTheEchidnaIn),VRAM,WRITE),(VDP_control_port).l
+	lea	(ArtNem_TitleTheEchidnaIn).l,a0
 	bsr.w	NemDec
     else	
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleSprites),VRAM,WRITE),(VDP_control_port).l
@@ -13496,14 +13496,14 @@ EndgameCredits:
 	jsrto	NemDec, JmpTo_NemDec
     if gameRevision=3
 	; KiS2: Load the giant 'KNUCKLES THE ECHIDNA IN' banner.
-	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleKnuckles4),VRAM,WRITE),(VDP_control_port).l
-	lea	(ArtNem_TitleSprites_Knuckles4).l,a0
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleOtherText),VRAM,WRITE),(VDP_control_port).l
+	lea	(ArtNem_TitleOtherText).l,a0
 	bsr.w	NemDec
-	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleKnuckles5),VRAM,WRITE),(VDP_control_port).l
-	lea	(ArtNem_TitleSprites_Knuckles5).l,a0
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleBanner),VRAM,WRITE),(VDP_control_port).l
+	lea	(ArtNem_TitleBanner).l,a0
 	bsr.w	NemDec
-	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleKnuckles6),VRAM,WRITE),(VDP_control_port).l
-	lea	(ArtNem_TitleSprites_Knuckles6).l,a0
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleTheEchidnaIn),VRAM,WRITE),(VDP_control_port).l
+	lea	(ArtNem_TitleTheEchidnaIn).l,a0
 	bsr.w	NemDec
     endif
 	lea	(MapEng_EndGameLogo).l,a0
@@ -26712,8 +26712,10 @@ Obj0E_Init:
     if gameRevision<>3
 	; KiS2 (intro): Different intro.
 	move.l	#Obj0E_MapUnc_136A8,mappings(a0)
-    endif
 	move.w	#make_art_tile(ArtTile_ArtNem_TitleSprites,0,0),art_tile(a0)
+    else
+	move.w	#make_art_tile(ArtTile_ArtNem_TitleKnuckles,0,0),art_tile(a0)
+    endif
 	move.b	#4,priority(a0)
 	move.b	subtype(a0),routine(a0)
 	bra.s	Obj0E
@@ -26752,8 +26754,8 @@ Obj0E_Sonic_Init:
 
     if gameRevision=3
 	; KiS2 (intro): Different intro.
-	move.l	#Obj0E_MapUnc_C,mappings(a0)
-	move.w	#make_art_tile(ArtTile_ArtNem_TitleSprites,0,1),art_tile(a0)
+	move.l	#Obj0E_MapUnc_Knuckles,mappings(a0)
+	move.w	#make_art_tile(ArtTile_ArtNem_TitleKnuckles,0,1),art_tile(a0)
 	move.b	#0,mapping_frame(a0)
     else
 	move.b	#5,mapping_frame(a0)
@@ -27122,7 +27124,7 @@ loc_31013C:
 ; =============== S U B	R O U T	I N E =======================================
 
 sub_310144:
-	move.l	#Obj0E_MapUnc_B,mappings(a1)
+	move.l	#Obj0E_MapUnc_EmblemTopAndSpriteMask,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_Title,0,0),art_tile(a1)
 	move.b	#1,mapping_frame(a1)
 	tst.b	(Graphics_Flags).w
@@ -27177,12 +27179,12 @@ loc_3101AE:
 
 
 sub_3101B6:
-	move.l	#Obj0E_MapUnc_B,mappings(a1)
+	move.l	#Obj0E_MapUnc_EmblemTopAndSpriteMask,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_Title,0,0),art_tile(a1)
 	move.b	#2,mapping_frame(a1)
 	move.b	#2,priority(a1)
 
-	move.w	#128+320/2-32,x_pixel(a1)
+	move.w	#128+128,x_pixel(a1)
 	move.w	#128+224/2,d0
 	move.w	d0,y_pixel(a1)
 	move.w	d0,obj0e_counter(a1)
@@ -27328,8 +27330,8 @@ Obj0E_FlashingStar_Init:
     if gameRevision=3
 	; KiS2 (intro)
 	move.b	#0,mapping_frame(a0)
-	move.l	#Obj0E_MapUnc_A,mappings(a0)
-	move.w	#make_art_tile(ArtTile_ArtNem_TitleKnuckles2,1,1),art_tile(a0)
+	move.l	#Obj0E_MapUnc_Stars,mappings(a0)
+	move.w	#make_art_tile(ArtTile_ArtNem_TitleStars,1,1),art_tile(a0)
     else
 	move.b	#$C,mapping_frame(a0)
 	ori.w	#high_priority,art_tile(a0)
@@ -27418,8 +27420,8 @@ loc_3102C6:
 
 sub_3102D0:
 	lea	(IntroSonicHand).w,a1
-	move.l	#Obj0E_MapUnc_C,mappings(a1)
-	move.w	#make_art_tile(ArtTile_ArtNem_TitleSprites,0,1),art_tile(a1)
+	move.l	#Obj0E_MapUnc_Knuckles,mappings(a1)
+	move.w	#make_art_tile(ArtTile_ArtNem_TitleKnuckles,0,1),art_tile(a1)
 	move.b	#5,mapping_frame(a1)
 	move.b	#3,priority(a1)
 
@@ -27643,8 +27645,8 @@ Obj0E_FallingStar_Init:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_FallingStar_Main
     if gameRevision=3
 	; KiS2 (intro): Different intro.
-	move.l	#Obj0E_MapUnc_A,mappings(a0)
-	move.w	#make_art_tile(ArtTile_ArtNem_TitleKnuckles2,1,0),art_tile(a0)
+	move.l	#Obj0E_MapUnc_Stars,mappings(a0)
+	move.w	#make_art_tile(ArtTile_ArtNem_TitleStars,1,0),art_tile(a0)
 	move.b	#0,mapping_frame(a0)
     else
 	move.b	#$C,mapping_frame(a0)
@@ -27691,8 +27693,8 @@ off_310442: offsetTable
 
 loc_310446:
 	addq.b	#2,routine_secondary(a0)
-	move.l	#Obj0E_MapUnc_E,mappings(a0)
-	move.w	#make_art_tile(ArtTile_ArtNem_TitleKnuckles4,3,1),art_tile(a0)
+	move.l	#Obj0E_MapUnc_OtherText,mappings(a0)
+	move.w	#make_art_tile(ArtTile_ArtNem_TitleOtherText,3,1),art_tile(a0)
 	move.b	#1,mapping_frame(a0)
 	move.b	#1,priority(a0)
 	move.w	#128+320/2+64,x_pixel(a0)
@@ -27722,7 +27724,7 @@ Obj0E_Banner_Init:
 	lea	($FFFFB4C0).w,a1
 
 sub_31049A:
-	move.l	#Obj0E_MapUnc_D,mappings(a1)
+	move.l	#Obj0E_MapUnc_Banner,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_Title,0,1),art_tile(a1)
 	clr.b	mapping_frame(a1)
 	move.b	#1,priority(a1)
@@ -27804,7 +27806,7 @@ off_31053C: offsetTable
 
 loc_310540:
 	addq.b	#2,routine_secondary(a0)
-	move.l	#Obj0E_MapUnc_D,mappings(a0)
+	move.l	#Obj0E_MapUnc_Banner,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Title,0,1),art_tile(a0)
 	clr.b	mapping_frame(a0)
 	move.b	#1,priority(a0)
@@ -27827,8 +27829,8 @@ off_31057C: offsetTable
 
 loc_310580:
 	addq.b	#2,routine_secondary(a0)
-	move.l	#Obj0E_MapUnc_E,mappings(a0)
-	move.w	#make_art_tile(ArtTile_ArtNem_TitleKnuckles4,3,1),art_tile(a0)
+	move.l	#Obj0E_MapUnc_OtherText,mappings(a0)
+	move.w	#make_art_tile(ArtTile_ArtNem_TitleOtherText,3,1),art_tile(a0)
 	move.b	#2,mapping_frame(a0)
 	move.b	#1,priority(a0)
 	move.w	#128+292,x_pixel(a0)
@@ -28195,8 +28197,8 @@ Obj0F_Init:
 	; KiS2 (intro): Repositioned.
 	move.w	#128+320/2,x_pixel(a0)
 	move.w	#128+224/2+84,y_pixel(a0)
-	move.l	#Obj0E_MapUnc_E,mappings(a0)
-	move.w	#make_art_tile(ArtTile_ArtNem_TitleKnuckles4,3,1),art_tile(a0)
+	move.l	#Obj0E_MapUnc_OtherText,mappings(a0)
+	move.w	#make_art_tile(ArtTile_ArtNem_TitleOtherText,3,1),art_tile(a0)
     else
 	move.w	#128+320/2+8,x_pixel(a0)
 	move.w	#128+224/2+92,y_pixel(a0)
@@ -28353,12 +28355,11 @@ Ani_obj0E_FallingStar:
 
     if gameRevision=3
 ; KiS2 (intro): New title screen mappings.
-; TODO: Document what these are.
-Obj0E_MapUnc_A:		BINCLUDE "mappings/sprite/obj0E_a.bin"
-Obj0E_MapUnc_B:		BINCLUDE "mappings/sprite/obj0E_b.bin"
-Obj0E_MapUnc_C:		BINCLUDE "mappings/sprite/obj0E_c.bin"
-Obj0E_MapUnc_D:		BINCLUDE "mappings/sprite/obj0E_d.bin"
-Obj0E_MapUnc_E:		BINCLUDE "mappings/sprite/obj0E_e.bin"
+Obj0E_MapUnc_Stars:	BINCLUDE "mappings/sprite/obj0E_stars.bin"
+Obj0E_MapUnc_EmblemTopAndSpriteMask:	BINCLUDE "mappings/sprite/obj0E_emblem_top_and_sprite_mask.bin"
+Obj0E_MapUnc_Knuckles:	BINCLUDE "mappings/sprite/obj0E_knuckles.bin"
+Obj0E_MapUnc_Banner:	BINCLUDE "mappings/sprite/obj0E_banner.bin"
+Obj0E_MapUnc_OtherText:	BINCLUDE "mappings/sprite/obj0E_other_text.bin"
     else
 ; -----------------------------------------------------------------------------
 ; Sprite Mappings - Flashing stars from intro (Obj0E)
@@ -94681,33 +94682,33 @@ ArtNem_SpecialSonicAndTails:	BINCLUDE	"art/nemesis/Knuckles animation frames in 
 	even
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art
-; Knuckles from title screen (part 1)
-ArtNem_TitleSprites_Knuckles1:	BINCLUDE	"art/nemesis/Knuckles from title screen (part 1).bin"
+; Knuckles from title screen
+ArtNem_TitleSprites_Knuckles:	BINCLUDE	"art/nemesis/Knuckles from title screen.bin"
 	even
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art
-; Knuckles from title screen (part 2)
-ArtNem_TitleSprites_Knuckles2:	BINCLUDE	"art/nemesis/Knuckles from title screen (part 2).bin"
+; Stars from title screen
+ArtNem_TitleStars:	BINCLUDE	"art/nemesis/Stars from title screen.bin"
 	even
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art
-; Knuckles from title screen (part 3)
-ArtNem_TitleSprites_Knuckles3:	BINCLUDE	"art/nemesis/Knuckles from title screen (part 3).bin"
+; Top of emblem from title screen
+ArtNem_TitleEmblemTop:	BINCLUDE	"art/nemesis/Top of emblem from title screen.bin"
 	even
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art
 ; Knuckles from title screen (part 4)
-ArtNem_TitleSprites_Knuckles4:	BINCLUDE	"art/nemesis/Knuckles from title screen (part 4).bin"
+ArtNem_TitleOtherText:	BINCLUDE	"art/nemesis/Other text from title screen.bin"
 	even
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art
 ; Knuckles from title screen (part 5)
-ArtNem_TitleSprites_Knuckles5:	BINCLUDE	"art/nemesis/Knuckles from title screen (part 5).bin"
+ArtNem_TitleBanner:	BINCLUDE	"art/nemesis/Giant banner from title screen.bin"
 	even
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art
 ; Knuckles from title screen (part 6)
-ArtNem_TitleSprites_Knuckles6:	BINCLUDE	"art/nemesis/Knuckles from title screen (part 6).bin"
+ArtNem_TitleTheEchidnaIn:	BINCLUDE	"art/nemesis/'THE ECHIDNA IN' from title screen.bin"
 	even
 ;--------------------------------------------------------------------------------------
     endif
@@ -95109,13 +95110,17 @@ ArtNem_Title:	BINCLUDE	"art/nemesis/Main patterns from title screen.bin"
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art (674 blocks)
 ; Sonic and Tails from title screen	; ArtNem_7667A:
+    if gameRevision<>3 ; KiS2 (standalone): This isn't needed by anything.
 	even
 ArtNem_TitleSprites:	BINCLUDE	"art/nemesis/Sonic and Tails from title screen.bin"
+    endif
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art (10 blocks)
 ; A few menu patterns	; ArtNem_78CBC:
+    if gameRevision<>3 ; KiS2 (standalone): This isn't needed by anything.
 	even
 ArtNem_MenuJunk:	BINCLUDE	"art/nemesis/A few menu blocks.bin"
+    endif
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art (16 blocks)
 ; Button			ArtNem_78DAC:
