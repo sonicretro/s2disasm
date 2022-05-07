@@ -296,7 +296,6 @@ VDPInitValues_End:
 
 	; Z80 instructions (not the sound driver; that gets loaded later)
 Z80StartupCodeBegin: ; loc_2CA:
-    if (*)+$26 < $10000
     save
     CPU Z80 ; start assembling Z80 code
     phase 0 ; pretend we're at address 0
@@ -329,10 +328,6 @@ zStartupCodeEndLoc:
     dephase ; stop pretending
 	restore
     padding off ; unfortunately our flags got reset so we have to set them again...
-    else ; due to an address range limitation I could work around but don't think is worth doing so:
-	message "Warning: using pre-assembled Z80 startup code."
-	dc.w $AF01,$D91F,$1127,$0021,$2600,$F977,$EDB0,$DDE1,$FDE1,$ED47,$ED4F,$D1E1,$F108,$D9C1,$D1E1,$F1F9,$F3ED,$5636,$E9E9
-    endif
 Z80StartupCodeEnd:
 
 	dc.w	$8104	; value for VDP display mode
