@@ -84547,6 +84547,9 @@ byte_3F42F:	dc.b   3,  0,  1,  2,  3,$FE,  1
 		even
 ; ----------------------------------------------------------------------------
 ; sprite mappings
+; [fixBugs] These mappings contain a bug: the second and third sprites have
+; their 'total sprite pieces' value set too low by one, causing the last
+; sprite piece to not be displayed.
 ; ----------------------------------------------------------------------------
 Obj3E_MapUnc_3F436:	BINCLUDE "mappings/sprite/obj3E.bin"
 ; ===========================================================================
@@ -91434,6 +91437,7 @@ ArtNem_SpecialMessages:	BINCLUDE	"art/nemesis/Special stage messages and icons.b
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (851 blocks)
 ; Sonic and Tails animation frames from special stage
+; [fixBugs] In this file, Tails' arms are tan instead of orange.
 ; Art for Obj09 and Obj10 and Obj88	; ArtNem_DEEAE:
 	even
 ArtNem_SpecialSonicAndTails:	BINCLUDE	"art/nemesis/Sonic and Tails animation frames in special stage.bin"
