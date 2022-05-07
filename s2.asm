@@ -26660,6 +26660,9 @@ Obj26_MapUnc_12D36:	BINCLUDE "mappings/sprite/obj26.bin"
 ; ----------------------------------------------------------------------------
 ; Object 0E - Title screen intro animation
 ; ----------------------------------------------------------------------------
+    if gameRevision=3
+obj0e_base_y_pos	= objoff_2A
+    endif
 obj0e_counter		= objoff_2A
 obj0e_array_index	= objoff_2C
 obj0e_intro_complete	= objoff_2F
@@ -26887,7 +26890,7 @@ Obj0E_Sonic_AnimationFinished:
     if gameRevision=3
 	; KiS2 (intro): Different intro.
 	move.b	#4,mapping_frame(a0)
-	move.w	y_pixel(a0),obj0e_counter(a0)
+	move.w	y_pixel(a0),obj0e_base_y_pos(a0)
     else
 	move.b	#$12,mapping_frame(a0)
     endif
@@ -27208,7 +27211,7 @@ Obj0E_LogoTop_Init_Part2:
 	move.w	#128+320/2,x_pixel(a1)
 	move.w	#128+104,d0
 	move.w	d0,y_pixel(a1)
-	move.w	d0,obj0e_counter(a1)
+	move.w	d0,obj0e_base_y_pos(a1)
 
 	rts
     else
@@ -27238,7 +27241,7 @@ Obj0E_OffsetYPosition:
 	bne.s	+
 	move.w	(Title_Screen_Something).w,d0
 	neg.w	d0
-	move.w	obj0e_counter(a0),d1
+	move.w	obj0e_base_y_pos(a0),d1
 	add.w	d0,d1
 	move.w	d1,y_pixel(a0)
 +
@@ -27293,7 +27296,7 @@ Obj0E_MaskingSprite_Init_Part2:
 	move.w	#128+128,x_pixel(a1)
 	move.w	#128+224/2,d0
 	move.w	d0,y_pixel(a1)
-	move.w	d0,obj0e_counter(a1)
+	move.w	d0,obj0e_base_y_pos(a1)
 
 return_3101E2:
 	rts
@@ -27461,7 +27464,7 @@ sub_310322:
 	bpl.s	return_310344
 
 	addq.b	#2,routine_secondary(a0)
-	move.w	y_pixel(a0),obj0e_counter(a0)
+	move.w	y_pixel(a0),obj0e_base_y_pos(a0)
 
 	lea	($FFFFB000).w,a1
 	move.b	#ObjID_TitleIntro,id(a1)
