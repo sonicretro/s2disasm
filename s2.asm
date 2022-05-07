@@ -35675,6 +35675,10 @@ Obj01_OutWater:
 ; ---------------------------------------------------------------------------
 ; loc_1A26E:
 Obj01_MdNormal_Checks:
+	; If Sonic has been waiting for a while, and is tapping his foot
+	; impatiently, then make him blink once the player starts moving
+	; again. Likewise, if he's been waiting for so long that he's laying
+	; down, then make him play an animation of standing up.
 	move.b	(Ctrl_1_Press_Logical).w,d0
 	andi.b	#button_B_mask|button_C_mask|button_A_mask,d0
 	bne.s	Obj01_MdNormal
