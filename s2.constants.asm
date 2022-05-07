@@ -72,7 +72,7 @@ spindash_counter =	$3A ; and $3B
 restart_countdown =	spindash_counter; and 1+spindash_counter
 jumping =		$3C
 interact =		$3D ; RAM address of the last object Sonic stood on, minus $FFFFB000 and divided by $40
-top_solid_bit =   $3E ; the bit to check for top solidity (either $C or $E)
+top_solid_bit = 	$3E ; the bit to check for top solidity (either $C or $E)
 lrb_solid_bit =		$3F ; the bit to check for left/right/bottom solidity (either $D or $F)
 ; ---------------------------------------------------------------------------
 ; conventions followed by several objects but NOT Sonic/Tails:
@@ -535,7 +535,7 @@ ObjID_SonicSS =			id(ObjPtr_SonicSS)		; 09
 ObjID_SmallBubbles =		id(ObjPtr_SmallBubbles)		; 0A
 ObjID_TippingFloor =		id(ObjPtr_TippingFloor)		; 0B
 ObjID_Signpost =		id(ObjPtr_Signpost)		; 0D
-ObjID_IntroStars =		id(ObjPtr_IntroStars)		; 0E
+ObjID_TitleIntro =		id(ObjPtr_TitleIntro)		; 0E
 ObjID_TitleMenu =		id(ObjPtr_TitleMenu)		; 0F
 ObjID_TailsSS =			id(ObjPtr_TailsSS)		; 10
 ObjID_Bridge =			id(ObjPtr_Bridge)		; 11
@@ -558,7 +558,7 @@ ObjID_BlueBalls =		id(ObjPtr_BlueBalls)		; 1D
 ObjID_CPZSpinTube =		id(ObjPtr_CPZSpinTube)		; 1E
 ObjID_CollapsPform =		id(ObjPtr_CollapsPform)		; 1F
 ObjID_LavaBubble =		id(ObjPtr_LavaBubble)		; 20
-ObjID_HUD =			id(ObjPtr_HUD)			; 21
+ObjID_2PResults =		id(ObjPtr_2PResults)		; 21
 ObjID_ArrowShooter =		id(ObjPtr_ArrowShooter)		; 22
 ObjID_FallingPillar =		id(ObjPtr_FallingPillar)	; 23
 ObjID_ARZBubbles =		id(ObjPtr_ARZBubbles)		; 24
@@ -927,16 +927,16 @@ AniIDSonAni_Balance		= id(SonAni_Balance_ptr)	;  6 ;   6
 AniIDSonAni_LookUp		= id(SonAni_LookUp_ptr)		;  7 ;   7
 AniIDSonAni_Duck		= id(SonAni_Duck_ptr)		;  8 ;   8
 AniIDSonAni_Spindash		= id(SonAni_Spindash_ptr)	;  9 ;   9
-AniIDSonAni_Blink		= id(SonAni_Blink_ptr)		; 10 ;  $A
-AniIDSonAni_GetUp		= id(SonAni_GetUp_ptr)		; 11 ;  $B
-AniIDSonAni_Balance2		= id(SonAni_Balance2_ptr)	; 12 ;  $C
+AniIDSonAni_Blink		= id(SonAni_Blink_ptr)		; 10 ;  $A ; Exclusive to Sonic
+AniIDSonAni_GetUp		= id(SonAni_GetUp_ptr)		; 11 ;  $B ; Exclusive to Sonic
+AniIDSonAni_Balance2		= id(SonAni_Balance2_ptr)	; 12 ;  $C ; Exclusive to Sonic
 AniIDSonAni_Stop		= id(SonAni_Stop_ptr)		; 13 ;  $D
 AniIDSonAni_Float		= id(SonAni_Float_ptr)		; 14 ;  $E
 AniIDSonAni_Float2		= id(SonAni_Float2_ptr)		; 15 ;  $F
 AniIDSonAni_Spring		= id(SonAni_Spring_ptr)		; 16 ; $10
 AniIDSonAni_Hang		= id(SonAni_Hang_ptr)		; 17 ; $11
-AniIDSonAni_Dash2		= id(SonAni_Dash2_ptr)		; 18 ; $12
-AniIDSonAni_Dash3		= id(SonAni_Dash3_ptr)		; 19 ; $13
+AniIDSonAni_Dash2		= id(SonAni_Dash2_ptr)		; 18 ; $12 ; Unused.
+AniIDSonAni_Dash3		= id(SonAni_Dash3_ptr)		; 19 ; $13 ; Unused.
 AniIDSonAni_Hang2		= id(SonAni_Hang2_ptr)		; 20 ; $14
 AniIDSonAni_Bubble		= id(SonAni_Bubble_ptr)		; 21 ; $15
 AniIDSonAni_DeathBW		= id(SonAni_DeathBW_ptr)	; 22 ; $16
@@ -946,9 +946,9 @@ AniIDSonAni_Hurt		= id(SonAni_Hurt_ptr)		; 25 ; $19
 AniIDSonAni_Hurt2		= id(SonAni_Hurt2_ptr)		; 26 ; $1A
 AniIDSonAni_Slide		= id(SonAni_Slide_ptr)		; 27 ; $1B
 AniIDSonAni_Blank		= id(SonAni_Blank_ptr)		; 28 ; $1C
-AniIDSonAni_Balance3		= id(SonAni_Balance3_ptr)	; 29 ; $1D
-AniIDSonAni_Balance4		= id(SonAni_Balance4_ptr)	; 30 ; $1E
-AniIDSupSonAni_Transform	= id(SupSonAni_Transform_ptr)	; 31 ; $1F
+AniIDSonAni_Balance3		= id(SonAni_Balance3_ptr)	; 29 ; $1D ; Exclusive to Sonic
+AniIDSonAni_Balance4		= id(SonAni_Balance4_ptr)	; 30 ; $1E ; Exclusive to Sonic
+AniIDSupSonAni_Transform	= id(SupSonAni_Transform_ptr)	; 31 ; $1F ; Exclusive to Sonic
     if gameRevision=3
 ; KiS2
 AniIDKnuxAni_Glide		= id(KnuxAni_Glide_ptr)			; 32 ; $20
@@ -957,8 +957,8 @@ AniIDKnuxAni_ClimbLedge		= id(KnuxAni_ClimbLedge_ptr)		; 34 ; $22
 AniIDKnuxAni_LandAfterGlide	= id(KnuxAni_LandAfterGlide_ptr)	; 35 ; $23
 AniIDKnuxAni_ShadowBox		= id(KnuxAni_ShadowBox_ptr)		; 36 ; $24
     else
-AniIDSonAni_Lying		= id(SonAni_Lying_ptr)		; 32 ; $20
-AniIDSonAni_LieDown		= id(SonAni_LieDown_ptr)	; 33 ; $21
+AniIDSonAni_Lying		= id(SonAni_Lying_ptr)		; 32 ; $20 ; Exclusive to Sonic
+AniIDSonAni_LieDown		= id(SonAni_LieDown_ptr)	; 33 ; $21 ; Exclusive to Sonic
     endif
 
 
@@ -968,37 +968,6 @@ offset :=	TailsAniData
 ptrsize :=	2
 idstart :=	0
 
-AniIDTailsAni_Walk		= id(TailsAni_Walk_ptr)		;  0 ;   0
-AniIDTailsAni_Run		= id(TailsAni_Run_ptr)		;  1 ;   1
-AniIDTailsAni_Roll		= id(TailsAni_Roll_ptr)		;  2 ;   2
-AniIDTailsAni_Roll2		= id(TailsAni_Roll2_ptr)	;  3 ;   3
-AniIDTailsAni_Push		= id(TailsAni_Push_ptr)		;  4 ;   4
-AniIDTailsAni_Wait		= id(TailsAni_Wait_ptr)		;  5 ;   5
-AniIDTailsAni_Balance		= id(TailsAni_Balance_ptr)	;  6 ;   6
-AniIDTailsAni_LookUp		= id(TailsAni_LookUp_ptr)	;  7 ;   7
-AniIDTailsAni_Duck		= id(TailsAni_Duck_ptr)		;  8 ;   8
-AniIDTailsAni_Spindash		= id(TailsAni_Spindash_ptr)	;  9 ;   9
-AniIDTailsAni_Dummy1		= id(TailsAni_Dummy1_ptr)	; 10 ;  $A
-AniIDTailsAni_Dummy2		= id(TailsAni_Dummy2_ptr)	; 11 ;  $B
-AniIDTailsAni_Dummy3		= id(TailsAni_Dummy3_ptr)	; 12 ;  $C
-AniIDTailsAni_Stop		= id(TailsAni_Stop_ptr)		; 13 ;  $D
-AniIDTailsAni_Float		= id(TailsAni_Float_ptr)	; 14 ;  $E
-AniIDTailsAni_Float2		= id(TailsAni_Float2_ptr)	; 15 ;  $F
-AniIDTailsAni_Spring		= id(TailsAni_Spring_ptr)	; 16 ; $10
-AniIDTailsAni_Hang		= id(TailsAni_Hang_ptr)		; 17 ; $11
-AniIDTailsAni_Blink		= id(TailsAni_Blink_ptr)	; 18 ; $12
-AniIDTailsAni_Blink2		= id(TailsAni_Blink2_ptr)	; 19 ; $13
-AniIDTailsAni_Hang2		= id(TailsAni_Hang2_ptr)	; 20 ; $14
-AniIDTailsAni_Bubble		= id(TailsAni_Bubble_ptr)	; 21 ; $15
-AniIDTailsAni_DeathBW		= id(TailsAni_DeathBW_ptr)	; 22 ; $16
-AniIDTailsAni_Drown		= id(TailsAni_Drown_ptr)	; 23 ; $17
-AniIDTailsAni_Death		= id(TailsAni_Death_ptr)	; 24 ; $18
-AniIDTailsAni_Hurt		= id(TailsAni_Hurt_ptr)		; 25 ; $19
-AniIDTailsAni_Hurt2		= id(TailsAni_Hurt2_ptr)	; 26 ; $1A
-AniIDTailsAni_Slide		= id(TailsAni_Slide_ptr)	; 27 ; $1B
-AniIDTailsAni_Blank		= id(TailsAni_Blank_ptr)	; 28 ; $1C
-AniIDTailsAni_Dummy4		= id(TailsAni_Dummy4_ptr)	; 29 ; $1D
-AniIDTailsAni_Dummy5		= id(TailsAni_Dummy5_ptr)	; 30 ; $1E
 AniIDTailsAni_HaulAss		= id(TailsAni_HaulAss_ptr)	; 31 ; $1F
 AniIDTailsAni_Fly		= id(TailsAni_Fly_ptr)		; 32 ; $20
     endif
@@ -1605,10 +1574,12 @@ Target_palette_End:
 Object_Respawn_Table:
 Obj_respawn_index:		ds.b	2		; respawn table indices of the next objects when moving left or right for the first player
 Obj_respawn_index_End:
-Obj_respawn_data:		ds.b	$100	; Maximum possible number of respawn entries that S2 can handle; for stock S2, $80 is enough
+Obj_respawn_data:		ds.b	$BE	; For stock S2, $80 is enough
 Obj_respawn_data_End:
-				ds.b	$FE	; Stack; the first $7E bytes are cleared by ObjectsManager_Init, with possibly disastrous consequences. At least $A0 bytes are needed.
+				ds.b	$140	; Stack; the first $BE bytes are cleared by ObjectsManager_Init, with possibly disastrous consequences. At least $A0 bytes are needed.
 System_Stack:
+
+CrossResetRAM:	; RAM in this region will not be cleared after a soft reset.
 
 SS_2p_Flag:			ds.w	1	; $FFFFFE00-$FFFFFE01 ; seems unused
 Level_Inactive_flag:		ds.w	1	; (2 bytes)
@@ -1869,6 +1840,11 @@ Sound_Queue:			SoundQueue
 				ds.b	$B	; $FFFFFFE5-$FFFFFFEF ; seems unused
 
     if gameRevision=3
+	; KiS2: Moved.
+CrossResetRAM_End:
+    endif
+
+    if gameRevision=3
         if standaloneKiS2
 				ds.b	$C	; unused
         else
@@ -1889,6 +1865,11 @@ Debug_mode_flag:		ds.w	1 ; (2 bytes)
     endif
 
 Checksum_fourcc:		ds.l	1 ; (4 bytes)
+
+    if gameRevision<>3
+	; KiS2: Moved.
+CrossResetRAM_End:
+    endif
 
 RAM_End
     if * > 0	; Don't declare more space than the RAM can contain!
