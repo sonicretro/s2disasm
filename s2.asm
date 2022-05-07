@@ -25088,6 +25088,16 @@ Obj26_Init:
 	lea	(Object_Respawn_Table).w,a2
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
+    if fixBugs
+	; If you spawn a monitor in Debug Mode and destroy it, then every
+	; monitor that is spawned with Debug Mode afterwards will be broken.
+	; The cause of the bug is that the spawned monitor does not have a
+	; respawn entry, but this object fails to check for that before
+	; accessing the respawn table.
+	; Knuckles in Sonic 2 contains this half of the bugfix, but not the
+	; other half under 'Obj26_SpawnSmoke'.
+	beq.s	+
+    endif
 	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 	btst	#0,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)	; if this bit is set it means the monitor is already broken
 	beq.s	+
@@ -25231,7 +25241,16 @@ Obj26_SpawnSmoke:
 	lea	(Object_Respawn_Table).w,a2
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
+    if fixBugs
+	; If you spawn a monitor in Debug Mode and destroy it, then every
+	; monitor that is spawned with Debug Mode afterwards will be broken.
+	; The cause of the bug is that the spawned monitor does not have a
+	; respawn entry, but this object fails to check for that before
+	; accessing the respawn table.
+	beq.s	+
+    endif
 	bset	#0,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)	; mark monitor as destroyed
++
 	move.b	#$A,anim(a0)
 	bra.w	DisplaySprite
 ; ===========================================================================
@@ -43566,6 +43585,14 @@ Obj79_Init:
 	lea	(Object_Respawn_Table).w,a2
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
+    if fixBugs
+	; If you spawn a checkpoint in Debug Mode and activate it, then
+	; every checkpoint that is spawned with Debug Mode afterwards will be
+	; activated too. The cause of the bug is that the spawned checkpoint
+	; does not have a respawn entry, but this object fails to check for
+	; that before accessing the respawn table.
+	beq.s	Obj79_Main
+    endif
 	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 	btst	#0,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 	bne.s	loc_1F120
@@ -43642,6 +43669,14 @@ loc_1F206:
 	lea	(Object_Respawn_Table).w,a2
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
+    if fixBugs
+	; If you spawn a checkpoint in Debug Mode and activate it, then
+	; every checkpoint that is spawned with Debug Mode afterwards will be
+	; activated too. The cause of the bug is that the spawned checkpoint
+	; does not have a respawn entry, but this object fails to check for
+	; that before accessing the respawn table.
+	beq.s	return_1F220
+    endif
 	bset	#0,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 
 return_1F220:
