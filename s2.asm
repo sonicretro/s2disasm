@@ -4389,11 +4389,18 @@ TailsNameCheat:
 	addq.w	#1,(Correct_cheat_entries).w
 	tst.b	1(a0)		; read the next entry
 	bne.s	++		; if it's not zero, return
-	bchg	#7,(Graphics_Flags).w ; turn on the cheat that changes MILES to "TAILS"
+
+	; Switch the detected console's region between Japanese and
+	; international. This affects the presence of trademark symbols, and
+	; causes Tails' name to swap between 'Tails' and 'Miles'.
+	bchg	#7,(Graphics_Flags).w
+
 	move.b	#SndID_Ring,d0 ; play the ring sound for a successfully entered cheat
 	bsr.w	PlaySound
-+	move.w	#0,(Correct_cheat_entries).w
-+	rts
++
+	move.w	#0,(Correct_cheat_entries).w
++
+	rts
 ; End of function TailsNameCheat
 
 ; ===========================================================================
