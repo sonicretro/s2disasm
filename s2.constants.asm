@@ -1892,8 +1892,13 @@ SegaHideTM:				; Object that hides TM symbol on JP region
 
 ; RAM variables - Title screen
 	phase	Object_RAM	; Move back to the object RAM
+    if gameRevision=3
+				; A new title screen object.
+IntroEmblemLowerer:		ds.b	object_size
+    else
 				; Unused slot
 				ds.b	object_size
+    endif
 IntroSonic:			; stars on the title screen
 				ds.b	object_size
 IntroTails:
@@ -1921,8 +1926,10 @@ TitleScreenMenu:
 IntroFallingStar:
 				ds.b	object_size
     if gameRevision=3
-; KiS2: A new title screen object.
-IntroSomething1:
+				; KiS2: New title screen objects.
+IntroCopyright:
+				ds.b	object_size
+IntroBanner:
 				ds.b	object_size
     endif
     if * > Object_RAM_End

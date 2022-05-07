@@ -13525,7 +13525,7 @@ EndgameCredits:
 	; KiS2: Create the objects that display the 'KNUCKLES IN' banner.
 	lea	(MainCharacter).w,a1
 	move.b	#ObjID_TitleIntro,id(a1)
-	move.b	#$16,subtype(a1)
+	move.b	#$16,subtype(a1)	; Obj0E_CreditsBanner
 	tst.b	(Graphics_Flags).w
 	bpl.s	+
 	lea	(Sidekick).w,a1
@@ -26690,21 +26690,19 @@ Obj0E_Index: offsetTable
 	offsetTableEntry.w Obj0E_FlashingStar	;   8
     if gameRevision=3
 	; KiS2 (intro): Different intro.
-	offsetTableEntry.w Obj0E_Thing3		;  $A
+	offsetTableEntry.w Obj0E_KnucklesHand	;  $A
     else
 	offsetTableEntry.w Obj0E_SonicHand	;  $A
     endif
 	offsetTableEntry.w Obj0E_FallingStar	;  $C
 	offsetTableEntry.w Obj0E_MaskingSprite	;  $E
+	offsetTableEntry.w Obj0E_TailsHand	; $10
     if gameRevision=3
 	; KiS2 (intro): Different intro.
-	offsetTableEntry.w Obj0E_Thing5		; $10
-	offsetTableEntry.w Obj0E_Thing6		; $12
+	offsetTableEntry.w Obj0E_Copyright	; $12
 	offsetTableEntry.w Obj0E_Banner		; $14
-	offsetTableEntry.w Obj0E_Thing8		; $16
-	offsetTableEntry.w Obj0E_Thing9		; $18
-    else
-	offsetTableEntry.w Obj0E_TailsHand	; $10
+	offsetTableEntry.w Obj0E_CreditsBanner	; $16
+	offsetTableEntry.w Obj0E_CreditsTrademark	; $18
     endif
 ; ===========================================================================
 ; loc_12E38:
@@ -26776,10 +26774,10 @@ Obj0E_Sonic_Init:
 	move.b	#6,subtype(a1)
 
     if gameRevision=3
-	; KiS2 (intro): Load... something.
-	lea	(IntroSomething1).w,a1
+	; KiS2 (intro): Load copyright text object.
+	lea	(IntroCopyright).w,a1
 	move.b	#ObjID_TitleIntro,id(a1)
-	move.b	#$12,subtype(a1)
+	move.b	#$12,subtype(a1)	; Obj0E_Copyright
     endif
 
 	; Play twinkling sound.
@@ -27395,34 +27393,32 @@ Obj0E_FlashingStar_Positions:
 	dc.w  128+229, 128+135
 Obj0E_FlashingStar_Positions_End
 ; ===========================================================================
+
     if gameRevision=3
 	; KiS2 (intro): Different intro.
-Obj0E_Thing3:
+Obj0E_KnucklesHand:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
-	move.w	off_3102B6(pc,d0.w),d1
-	jsr	off_3102B6(pc,d1.w)
+	move.w	Obj0E_KnucklesHand_Index(pc,d0.w),d1
+	jsr	Obj0E_KnucklesHand_Index(pc,d1.w)
 	bra.w	DisplaySprite
 ; ---------------------------------------------------------------------------
-off_3102B6: offsetTable
-	offsetTableEntry.w loc_3102C6		; 0
-	offsetTableEntry.w sub_310306		; 2
-	offsetTableEntry.w Obj0E_Animate	; 4
-	offsetTableEntry.w sub_310322		; 6
-	offsetTableEntry.w sub_310346		; 8
-	offsetTableEntry.w Obj0E_Animate	; $A
-	offsetTableEntry.w sub_31035E		; $C
-	offsetTableEntry.w nullsub_2		; $E
+Obj0E_KnucklesHand_Index: offsetTable
+	offsetTableEntry.w Obj0E_KnucklesHand_Init		; 0
+	offsetTableEntry.w Obj0E_KnucklesHand_Raise		; 2
+	offsetTableEntry.w Obj0E_Animate			; 4
+	offsetTableEntry.w Obj0E_KnucklesHand_Lower		; 6
+	offsetTableEntry.w Obj0E_KnucklesHand_FallWithEmblem	; 8
+	offsetTableEntry.w Obj0E_Animate			; $A
+	offsetTableEntry.w Obj0E_KnucklesHand_CreateBanner	; $C
+	offsetTableEntry.w Obj0E_KnucklesHand_Return		; $E
 ; ---------------------------------------------------------------------------
 
-loc_3102C6:
+Obj0E_KnucklesHand_Init:
 	addq.b	#2,routine_secondary(a0)
 	move.w	#3,obj0e_counter(a0)
 
-; =============== S U B	R O U T	I N E =======================================
-
-
-sub_3102D0:
+Obj0E_KnucklesHand_Init_Part2:
 	lea	(IntroSonicHand).w,a1
 	move.l	#Obj0E_MapUnc_Knuckles,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_TitleKnuckles,0,1),art_tile(a1)
@@ -27436,116 +27432,82 @@ sub_3102D0:
 	move.w	d0,y_pixel(a1)
 
 	rts
-; End of function sub_3102D0
+; End of function Obj0E_KnucklesHand_Init
 
 
 ; =============== S U B	R O U T	I N E =======================================
 
 
-sub_310306:
+Obj0E_KnucklesHand_Raise:
 	subq.w	#2,y_pixel(a0)
 	subq.w	#1,obj0e_counter(a0)
-	bpl.s	return_310320
+	bpl.s	+
+
 	addq.b	#2,routine_secondary(a0)
 	move.b	#4,anim(a0)
 	move.w	#3,obj0e_counter(a0)
-
-return_310320:
++
 	rts
-; End of function sub_310306
+; End of function Obj0E_KnucklesHand_Raise
 
 
 ; =============== S U B	R O U T	I N E =======================================
 
 
-sub_310322:
+Obj0E_KnucklesHand_Lower:
 	addq.w	#2,y_pixel(a0)
 	subq.w	#1,obj0e_counter(a0)
-	bpl.s	return_310344
+	bpl.s	+
 
 	addq.b	#2,routine_secondary(a0)
 	move.w	y_pixel(a0),obj0e_base_y_pos(a0)
 
-	lea	($FFFFB000).w,a1
+	lea	(IntroEmblemLowerer).w,a1
 	move.b	#ObjID_TitleIntro,id(a1)
 	move.b	#4,subtype(a1)	; Obj0E_LowerTheEmblem
-
-return_310344:
++
 	rts
-; End of function sub_310322
+; End of function Obj0E_KnucklesHand_Lower
 
 
 ; =============== S U B	R O U T	I N E =======================================
 
 
-sub_310346:
+Obj0E_KnucklesHand_FallWithEmblem:
 	bsr.w	Obj0E_OffsetYPosition
 	cmpi.w	#293,(IntroSonic+obj0e_current_frame).w
-	bne.s	return_31035C
+	bne.s	+
 	addq.b	#2,routine_secondary(a0)
 	move.w	#$400,anim(a0)
-
-return_31035C:
++
 	rts
-; End of function sub_310346
+; End of function Obj0E_KnucklesHand_FallWithEmblem
 
 
 ; =============== S U B	R O U T	I N E =======================================
 
 
-sub_31035E:
+Obj0E_KnucklesHand_CreateBanner:
 	addq.b	#2,routine_secondary(a0)
-	lea	($FFFFB4C0).w,a1
+
+	; Create banner object.
+	lea	(IntroBanner).w,a1
 	move.b	#ObjID_TitleIntro,id(a1)
 	move.b	#$14,subtype(a1)	; Obj0E_Banner
+
 	rts
-; End of function sub_31035E
+; End of function Obj0E_KnucklesHand_CreateBanner
 
 
 ; =============== S U B	R O U T	I N E =======================================
 
 
-nullsub_2:					  ; ...
-		rts
-; End of function nullsub_2
+Obj0E_KnucklesHand_Return:
+	rts
+; End of function Obj0E_KnucklesHand_Return
 
-; ---------------------------------------------------------------------------
-; loc_310374:
-Obj0E_Thing5:
-	moveq	#0,d0
-	move.b	routine_secondary(a0),d0
-	move.w	off_310382(pc,d0.w),d1
-	jmp	off_310382(pc,d1.w)
-; ---------------------------------------------------------------------------
-off_310382: offsetTable
-	offsetTableEntry.w loc_310388	; 0
-	offsetTableEntry.w loc_3103A8	; 2
-	offsetTableEntry.w loc_3103A4	; 4
-; ---------------------------------------------------------------------------
-
-loc_310388:
-	move.b	#$13,mapping_frame(a0)
-	move.b	#3,priority(a0)
-	move.w	#128+320/2-17,x_pixel(a0)
-	move.w	#128+224/2-27,y_pixel(a0)
-
-Obj0E_NextRoutineSecondary:
-	addq.b	#2,routine_secondary(a0)
-
-loc_3103A4:
-	bra.w	DisplaySprite
-; ---------------------------------------------------------------------------
-
-loc_3103A8:
-	moveq	#$C,d2
-	lea	(loc_3103B4).l,a1
-	bra.w	Obj0E_Move
-; ---------------------------------------------------------------------------
-
-loc_3103B4:
-	movep.w	$D0(a4),d0
-	movep.w	$D1(a5),d0
     else
+
 Obj0E_SonicHand:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
@@ -27588,6 +27550,7 @@ Obj0E_SonicHand_Positions:
 	dc.w  128+193, 128+65
 Obj0E_SonicHand_Positions_End
 ; ===========================================================================
+    endif
 
 Obj0E_TailsHand:
 	moveq	#0,d0
@@ -27603,7 +27566,10 @@ Obj0E_TailsHand_Index: offsetTable
 ; ===========================================================================
 
 Obj0E_TailsHand_Init:
+    if gameRevision<>3
+	; KiS2 (intro): Despite being unused, this sub-object was modified.
 	addq.b	#2,routine_secondary(a0)	; Obj0E_TailsHand_Move
+    endif
 	move.b	#$13,mapping_frame(a0)
     if fixBugs
 	; This matches 'TitleScreen_SetFinalState'.
@@ -27615,6 +27581,12 @@ Obj0E_TailsHand_Init:
     endif
 	move.w	#128+143,x_pixel(a0)
 	move.w	#128+85,y_pixel(a0)
+
+    if gameRevision=3
+	; KiS2 (intro): Despite being unused, this sub-object was modified.
+Obj0E_NextRoutineSecondary:
+	addq.b	#2,routine_secondary(a0)	; Obj0E_TailsHand_Move
+    endif
 
 BranchTo14_DisplaySprite
 	bra.w	DisplaySprite
@@ -27630,7 +27602,6 @@ Obj0E_TailsHand_Positions:
 	dc.w  128+140, 128+80
 	dc.w  128+141, 128+81
 Obj0E_TailsHand_Positions_End
-    endif
 ; ===========================================================================
 ; Obj0E_SmallStar:
 Obj0E_FallingStar:
@@ -27684,18 +27655,18 @@ Obj0E_FallingStar_Main:
     if gameRevision=3
 	; KiS2 (intro): Different intro.
 ; loc_310434:
-Obj0E_Thing6:
+Obj0E_Copyright:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
-	move.w	off_310442(pc,d0.w),d1
-	jmp	off_310442(pc,d1.w)
+	move.w	Obj0E_Copyright_Index(pc,d0.w),d1
+	jmp	Obj0E_Copyright_Index(pc,d1.w)
 ; ---------------------------------------------------------------------------
-off_310442: offsetTable
-	offsetTableEntry.w loc_310446	; 0
-	offsetTableEntry.w loc_310470	; 2
+Obj0E_Copyright_Index: offsetTable
+	offsetTableEntry.w Obj0E_Copyright_Init	; 0
+	offsetTableEntry.w Obj0E_Copyright_Main	; 2
 ; ---------------------------------------------------------------------------
 
-loc_310446:
+Obj0E_Copyright_Init:
 	addq.b	#2,routine_secondary(a0)
 	move.l	#Obj0E_MapUnc_OtherText,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_TitleOtherText,3,1),art_tile(a0)
@@ -27704,7 +27675,7 @@ loc_310446:
 	move.w	#128+320/2+64,x_pixel(a0)
 	move.w	#128+200,y_pixel(a0)
 
-loc_310470:
+Obj0E_Copyright_Main:
 	bra.w	DisplaySprite
 ; ---------------------------------------------------------------------------
 ; loc_310474:
@@ -27796,19 +27767,19 @@ return_310528:
 
 ; ---------------------------------------------------------------------------
 ; loc_31052A:
-Obj0E_Thing8:
+Obj0E_CreditsBanner:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
-	move.w	off_31053C(pc,d0.w),d1
-	jsr	off_31053C(pc,d1.w)
+	move.w	Obj0E_CreditsBanner_Index(pc,d0.w),d1
+	jsr	Obj0E_CreditsBanner_Index(pc,d1.w)
 	bra.w	DisplaySprite
 ; ---------------------------------------------------------------------------
-off_31053C: offsetTable
-	offsetTableEntry.w loc_310540		; 0
-	offsetTableEntry.w return_3101E2	; 2
+Obj0E_CreditsBanner_Index: offsetTable
+	offsetTableEntry.w Obj0E_CreditsBanner_Init	; 0
+	offsetTableEntry.w return_3101E2		; 2
 ; ---------------------------------------------------------------------------
 
-loc_310540:
+Obj0E_CreditsBanner_Init:
 	addq.b	#2,routine_secondary(a0)
 	move.l	#Obj0E_MapUnc_Banner,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Title,0,1),art_tile(a0)
@@ -27819,19 +27790,19 @@ loc_310540:
 	rts
 ; ---------------------------------------------------------------------------
 ; loc_31056A:
-Obj0E_Thing9:
+Obj0E_CreditsTrademark:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
-	move.w	off_31057C(pc,d0.w),d1
-	jsr	off_31057C(pc,d1.w)
+	move.w	Obj0E_CreditsTrademark_Index(pc,d0.w),d1
+	jsr	Obj0E_CreditsTrademark_Index(pc,d1.w)
 	bra.w	DisplaySprite
 ; ---------------------------------------------------------------------------
-off_31057C: offsetTable
-	offsetTableEntry.w loc_310580		; 0
-	offsetTableEntry.w return_3101E2	; 2
+Obj0E_CreditsTrademark_Index: offsetTable
+	offsetTableEntry.w Obj0E_CreditsTrademark_Init	; 0
+	offsetTableEntry.w return_3101E2		; 2
 ; ---------------------------------------------------------------------------
 
-loc_310580:
+Obj0E_CreditsTrademark_Init:
 	addq.b	#2,routine_secondary(a0)
 	move.l	#Obj0E_MapUnc_OtherText,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_TitleOtherText,3,1),art_tile(a0)
@@ -28048,8 +28019,8 @@ TitleScreen_SetFinalState:
 
 	lea	($FFFFB1C0).w,a1
 	move.b	#ObjID_TitleIntro,id(a1)
-	move.b	#$A,routine(a1)	; Obj0E_Thing3
-	bsr.w	sub_3102D0
+	move.b	#$A,routine(a1)	; Obj0E_KnucklesHand
+	bsr.w	Obj0E_KnucklesHand_Init_Part2
 	move.b	#$E,routine_secondary(a1)
 
 	lea	($FFFFB140).w,a1
