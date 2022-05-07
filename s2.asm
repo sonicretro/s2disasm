@@ -25088,8 +25088,8 @@ Obj26_Init:
 	lea	(Object_Respawn_Table).w,a2
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
-	bclr	#7,2(a2,d0.w)
-	btst	#0,2(a2,d0.w)	; if this bit is set it means the monitor is already broken
+	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
+	btst	#0,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)	; if this bit is set it means the monitor is already broken
 	beq.s	+
 	move.b	#8,routine(a0)	; set monitor to 'broken' state
 	move.b	#$B,mapping_frame(a0)
@@ -25231,7 +25231,7 @@ Obj26_SpawnSmoke:
 	lea	(Object_Respawn_Table).w,a2
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
-	bset	#0,2(a2,d0.w)	; mark monitor as destroyed
+	bset	#0,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)	; mark monitor as destroyed
 	move.b	#$A,anim(a0)
 	bra.w	DisplaySprite
 ; ===========================================================================
@@ -29537,7 +29537,7 @@ MarkObjGone:
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
 	beq.s	+
-	bclr	#7,2(a2,d0.w)
+	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 +
 	bra.w	DeleteObject
 ; ===========================================================================
@@ -29558,7 +29558,7 @@ MarkObjGone2:
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
 	beq.s	+
-	bclr	#7,2(a2,d0.w)
+	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 +
 	bra.w	DeleteObject
 ; ===========================================================================
@@ -29581,7 +29581,7 @@ MarkObjGone3:
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
 	beq.s	+
-	bclr	#7,2(a2,d0.w)
+	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 +
 	bra.w	DeleteObject
 ; ===========================================================================
@@ -29601,7 +29601,7 @@ MarkObjGone_P1:
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
 	beq.s	+
-	bclr	#7,2(a2,d0.w)
+	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 +
 	bra.w	DeleteObject
 ; ---------------------------------------------------------------------------
@@ -29625,7 +29625,7 @@ MarkObjGone_P2:
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
 	beq.s	+
-	bclr	#7,2(a2,d0.w)
+	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 +
 	bra.w	DeleteObject ; useless branch...
 
@@ -43566,8 +43566,8 @@ Obj79_Init:
 	lea	(Object_Respawn_Table).w,a2
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
-	bclr	#7,2(a2,d0.w)
-	btst	#0,2(a2,d0.w)
+	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
+	btst	#0,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 	bne.s	loc_1F120
 	move.b	(Last_star_pole_hit).w,d1
 	andi.b	#$7F,d1
@@ -43577,7 +43577,7 @@ Obj79_Init:
 	blo.s	Obj79_Main
 
 loc_1F120:
-	bset	#0,2(a2,d0.w)
+	bset	#0,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 	move.b	#2,anim(a0)
 
 ; loc_1F12C:
@@ -43642,7 +43642,7 @@ loc_1F206:
 	lea	(Object_Respawn_Table).w,a2
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
-	bset	#0,2(a2,d0.w)
+	bset	#0,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 
 return_1F220:
 	rts
@@ -44119,9 +44119,9 @@ Obj44_BumpCharacter:
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
 	beq.s	+
-	cmpi.b	#$8A,2(a2,d0.w)
+	cmpi.b	#$8A,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 	bhs.s	return_1F83C
-	addq.b	#1,2(a2,d0.w)
+	addq.b	#1,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 +
 	moveq	#1,d0
 	movea.w	a1,a3
@@ -48711,7 +48711,7 @@ Obj30_Init:
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
 	beq.s	+
-	bclr	#7,2(a2,d0.w)
+	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 +
 	jmpto	DeleteObject, JmpTo23_DeleteObject
 ; ===========================================================================
@@ -49210,7 +49210,7 @@ loc_23F44:
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
 	beq.s	JmpTo24_DeleteObject
-	bclr	#7,2(a2,d0.w)
+	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 
 JmpTo24_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
@@ -49842,8 +49842,8 @@ Obj46_Init:
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
 	beq.s	+
-	bclr	#7,2(a2,d0.w)
-	bset	#0,2(a2,d0.w)
+	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
+	bset	#0,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 	bne.w	JmpTo25_DeleteObject
 +
 	; loads the ball itself
@@ -49958,7 +49958,7 @@ loc_24BC4:
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
 	beq.s	BranchTo_JmpTo25_DeleteObject
-	bclr	#7,2(a2,d0.w)
+	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 
     if removeJmpTos
 JmpTo25_DeleteObject ; JmpTo
@@ -52232,7 +52232,7 @@ loc_26C04:
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
 	beq.s	loc_26C16
-	bclr	#7,2(a2,d0.w)
+	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 
 loc_26C16:
 	andi.b	#$F,subtype(a0)
@@ -52266,7 +52266,7 @@ loc_26C66:
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
 	beq.s	+
-	bclr	#7,2(a2,d0.w)
+	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 +
 	jmp	(DeleteObject).l
 ; ===========================================================================
@@ -52334,7 +52334,7 @@ loc_26CF2:
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
 	beq.s	loc_26CD0
-	bset	#0,2(a2,d0.w)
+	bset	#0,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 	bra.s	loc_26CD0
 ; ===========================================================================
 
@@ -52385,7 +52385,7 @@ loc_26D72:
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
 	beq.s	loc_26D50
-	bclr	#0,2(a2,d0.w)
+	bclr	#0,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 	bra.s	loc_26D50
 ; ===========================================================================
 
@@ -54434,7 +54434,7 @@ loc_28432:
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
 	beq.s	+
-	bclr	#7,2(a2,d0.w)
+	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 +
 	jmp	(DeleteObject).l
 ; ===========================================================================
@@ -54475,7 +54475,7 @@ loc_284BC:
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
 	beq.s	+
-	bclr	#7,2(a2,d0.w)
+	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 +
 	jmp	(DeleteObject).l
 ; ===========================================================================
@@ -55773,7 +55773,7 @@ loc_294C4:
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
 	beq.s	JmpTo39_DeleteObject
-	bclr	#7,2(a2,d0.w)
+	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 
 JmpTo39_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
@@ -57508,7 +57508,7 @@ Obj85:
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
 	beq.s	BranchTo_JmpTo43_DeleteObject
-	bclr	#7,2(a2,d0.w)
+	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 
 BranchTo_JmpTo43_DeleteObject ; BranchTo
 	jmpto	DeleteObject, JmpTo43_DeleteObject
@@ -59685,7 +59685,7 @@ loc_2C5F8:
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
 	beq.s	+
-	bclr	#7,2(a2,d0.w)
+	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 +
 	jmp	(DeleteObject).l
 
@@ -76508,7 +76508,7 @@ loc_39182:
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
 	beq.s	+
-	bclr	#7,2(a3,d0.w)
+	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a3,d0.w)
 +
 	tst.b	objoff_30(a0)
 	beq.s	+
