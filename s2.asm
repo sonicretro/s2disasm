@@ -10412,7 +10412,7 @@ ObjDB_Tails_StartRunning:
 	addq.b	#2,routine(a0) ; => ObjDB_Tails_Run
 	move.l	#MapUnc_Tails,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
-	move.b	#AniIDTailsAni_Walk,anim(a0)
+	move.b	#AniIDSonAni_Walk,anim(a0)
 	clr.w	inertia(a0)
 	move.b	#SndID_SpindashRev,d0 ; super peel-out sound
 	bsr.w	PlaySound
@@ -25185,7 +25185,7 @@ SolidObject_Monitor_Tails:
 	tst.w	(Two_player_mode).w		; is it two player mode?
 	beq.w	SolidObject_cont		; if not, branch
 	; in one player mode monitors always behave as solid for Tails
-	cmpi.b	#AniIDTailsAni_Roll,anim(a1)	; is Tails spinning?
+	cmpi.b	#AniIDSonAni_Roll,anim(a1)	; is Tails spinning?
 	bne.w	SolidObject_cont		; if not, branch
 	rts
 ; End of function SolidObject_Monitor_Tails
@@ -25580,7 +25580,7 @@ process_swap_table:
 	dbf	d2,process_swap_table	; process remaining entries in the list
 
 	move.b	#AniIDSonAni_Run,(MainCharacter+prev_anim).w	; force Sonic's animation to restart
-	move.b	#AniIDTailsAni_Run,(Sidekick+prev_anim).w	; force Tails' animation to restart
+	move.b	#AniIDSonAni_Run,(Sidekick+prev_anim).w	; force Tails' animation to restart
     if gameRevision>0
 	move.b	#0,(MainCharacter+mapping_frame).w
 	move.b	#0,(Sidekick+mapping_frame).w
@@ -38240,7 +38240,7 @@ TailsCPU_States: offsetTable
 TailsCPU_Init:
 	move.w	#6,(Tails_CPU_routine).w	; => TailsCPU_Normal
 	move.b	#0,obj_control(a0)
-	move.b	#AniIDTailsAni_Walk,anim(a0)
+	move.b	#AniIDSonAni_Walk,anim(a0)
 	move.w	#0,x_vel(a0)
 	move.w	#0,y_vel(a0)
 	move.w	#0,inertia(a0)
@@ -38376,7 +38376,7 @@ loc_1BC68:
 	bne.s	return_1BCDE
 	move.w	#6,(Tails_CPU_routine).w	; => TailsCPU_Normal
 	move.b	#0,obj_control(a0)
-	move.b	#AniIDTailsAni_Walk,anim(a0)
+	move.b	#AniIDSonAni_Walk,anim(a0)
 	move.w	#0,x_vel(a0)
 	move.w	#0,y_vel(a0)
 	move.w	#0,inertia(a0)
@@ -38389,7 +38389,7 @@ loc_1BC68:
 +
 	move.b	top_solid_bit(a1),top_solid_bit(a0)
 	move.b	lrb_solid_bit(a1),lrb_solid_bit(a0)
-	cmpi.b	#AniIDTailsAni_Spindash,anim(a1)
+	cmpi.b	#AniIDSonAni_Spindash,anim(a1)
 	beq.s	return_1BCDE
 	move.b	spindash_flag(a0),d0
 	beq.s	return_1BCDE
@@ -38516,7 +38516,7 @@ TailsCPU_Normal_FilterAction_Part2:
 	move.b	(Timer_frames+1).w,d0
 	andi.b	#$3F,d0
 	bne.s	TailsCPU_Normal_SendAction
-	cmpi.b	#AniIDTailsAni_Duck,anim(a0)
+	cmpi.b	#AniIDSonAni_Duck,anim(a0)
 	beq.s	TailsCPU_Normal_SendAction
 	ori.w	#((button_B_mask|button_C_mask|button_A_mask)<<8)|(button_B_mask|button_C_mask|button_A_mask),d1
 	move.b	#1,(Tails_CPU_jumping).w
@@ -38623,7 +38623,7 @@ TailsCPU_Panic:
 	andi.b	#$7F,d0
 	beq.s	TailsCPU_Panic_ReleaseDash
 
-	cmpi.b	#AniIDTailsAni_Duck,anim(a0)
+	cmpi.b	#AniIDSonAni_Duck,anim(a0)
 	bne.s	return_1BF36
 	move.w	#((button_down_mask|button_B_mask|button_C_mask|button_A_mask)<<8)|(button_down_mask|button_B_mask|button_C_mask|button_A_mask),(Ctrl_2_Logical).w
 	rts
@@ -38846,7 +38846,7 @@ Obj02_NotRight:
 	tst.w	inertia(a0)	; is Tails moving?
 	bne.w	Obj02_ResetScr	; if yes, branch
 	bclr	#5,status(a0)
-	move.b	#AniIDTailsAni_Wait,anim(a0)	; use "standing" animation
+	move.b	#AniIDSonAni_Wait,anim(a0)	; use "standing" animation
 	btst	#3,status(a0)
 	beq.s	Tails_Balance
 	moveq	#0,d0
@@ -38895,14 +38895,14 @@ Tails_BalanceOnObjLeft:
 	bset	#0,status(a0)
 ; loc_1C16C:
 Tails_BalanceDone:
-	move.b	#AniIDTailsAni_Balance,anim(a0)
+	move.b	#AniIDSonAni_Balance,anim(a0)
 	bra.s	Obj02_ResetScr
 ; ---------------------------------------------------------------------------
 ; loc_1C174:
 Tails_Lookup:
 	btst	#button_up,(Ctrl_2_Held_Logical).w	; is up being pressed?
 	beq.s	Tails_Duck			; if not, branch
-	move.b	#AniIDTailsAni_LookUp,anim(a0)			; use "looking up" animation
+	move.b	#AniIDSonAni_LookUp,anim(a0)			; use "looking up" animation
 	addq.w	#1,(Tails_Look_delay_counter).w
 	cmpi.w	#$78,(Tails_Look_delay_counter).w
 	blo.s	Obj02_ResetScr_Part2
@@ -38916,7 +38916,7 @@ Tails_Lookup:
 Tails_Duck:
 	btst	#button_down,(Ctrl_2_Held_Logical).w	; is down being pressed?
 	beq.s	Obj02_ResetScr			; if not, branch
-	move.b	#AniIDTailsAni_Duck,anim(a0)			; use "ducking" animation
+	move.b	#AniIDSonAni_Duck,anim(a0)			; use "ducking" animation
 	addq.w	#1,(Tails_Look_delay_counter).w
 	cmpi.w	#$78,(Tails_Look_delay_counter).w
 	blo.s	Obj02_ResetScr_Part2
@@ -39044,7 +39044,7 @@ Tails_MoveLeft:
 	bset	#0,status(a0)
 	bne.s	+
 	bclr	#5,status(a0)
-	move.b	#AniIDTailsAni_Run,prev_anim(a0)	; force walking animation to restart if it's already in-progress
+	move.b	#AniIDSonAni_Run,prev_anim(a0)	; force walking animation to restart if it's already in-progress
 +
 	sub.w	d5,d0	; add acceleration to the left
 	move.w	d6,d1
@@ -39057,7 +39057,7 @@ Tails_MoveLeft:
 	move.w	d1,d0	; limit speed on ground going left
 +
 	move.w	d0,inertia(a0)
-	move.b	#AniIDTailsAni_Walk,anim(a0)	; use walking animation
+	move.b	#AniIDSonAni_Walk,anim(a0)	; use walking animation
 	rts
 ; ---------------------------------------------------------------------------
 ; loc_1C2DE:
@@ -39084,7 +39084,7 @@ Tails_TurnLeft:
 	bne.s	return_1C328
 	cmpi.w	#$400,d0
 	blt.s	return_1C328
-	move.b	#AniIDTailsAni_Stop,anim(a0)	; use "stopping" animation
+	move.b	#AniIDSonAni_Stop,anim(a0)	; use "stopping" animation
 	bclr	#0,status(a0)
 	move.w	#SndID_Skidding,d0
 	jsr	(PlaySound).l
@@ -39107,7 +39107,7 @@ Tails_MoveRight:
 	bclr	#0,status(a0)
 	beq.s	+
 	bclr	#5,status(a0)
-	move.b	#AniIDTailsAni_Run,prev_anim(a0)	; force walking animation to restart if it's already in-progress
+	move.b	#AniIDSonAni_Run,prev_anim(a0)	; force walking animation to restart if it's already in-progress
 +
 	add.w	d5,d0	; add acceleration to the right
 	cmp.w	d6,d0	; compare new speed with top speed
@@ -39118,7 +39118,7 @@ Tails_MoveRight:
 	move.w	d6,d0	; limit speed on ground going right
 +
 	move.w	d0,inertia(a0)
-	move.b	#AniIDTailsAni_Walk,anim(a0)	; use walking animation
+	move.b	#AniIDSonAni_Walk,anim(a0)	; use walking animation
 	rts
 ; ---------------------------------------------------------------------------
 ; loc_1C35E:
@@ -39145,7 +39145,7 @@ Tails_TurnRight:
 	bne.s	return_1C3A8
 	cmpi.w	#-$400,d0
 	bgt.s	return_1C3A8
-	move.b	#AniIDTailsAni_Stop,anim(a0)	; use "stopping" animation
+	move.b	#AniIDSonAni_Stop,anim(a0)	; use "stopping" animation
 	bset	#0,status(a0)
 	move.w	#SndID_Skidding,d0	; use "stopping" sound
 	jsr	(PlaySound).l
@@ -39228,7 +39228,7 @@ Tails_CheckRollStop:
 	bclr	#2,status(a0)
 	move.b	#$F,y_radius(a0) ; sets standing height to only slightly higher than rolling height, unlike Sonic
 	move.b	#9,x_radius(a0)
-	move.b	#AniIDTailsAni_Wait,anim(a0)
+	move.b	#AniIDSonAni_Wait,anim(a0)
 	subq.w	#1,y_pos(a0)
 	bra.s	Obj02_Roll_ResetScr
 
@@ -39283,7 +39283,7 @@ Tails_RollLeft:
 	bpl.s	Tails_BrakeRollingRight
 +
 	bset	#0,status(a0)
-	move.b	#AniIDTailsAni_Roll,anim(a0)	; use "rolling" animation
+	move.b	#AniIDSonAni_Roll,anim(a0)	; use "rolling" animation
 	rts
 ; ---------------------------------------------------------------------------
 ; loc_1C49E:
@@ -39305,7 +39305,7 @@ Tails_RollRight:
 	move.w	inertia(a0),d0
 	bmi.s	Tails_BrakeRollingLeft
 	bclr	#0,status(a0)
-	move.b	#AniIDTailsAni_Roll,anim(a0)	; use "rolling" animation
+	move.b	#AniIDSonAni_Roll,anim(a0)	; use "rolling" animation
 	rts
 ; ---------------------------------------------------------------------------
 ; loc_1C4C0:
@@ -39482,7 +39482,7 @@ Obj02_DoRoll:
 	bset	#2,status(a0)
 	move.b	#$E,y_radius(a0)
 	move.b	#7,x_radius(a0)
-	move.b	#AniIDTailsAni_Roll,anim(a0)	; use "rolling" animation
+	move.b	#AniIDSonAni_Roll,anim(a0)	; use "rolling" animation
 	addq.w	#1,y_pos(a0)
 	move.w	#SndID_Roll,d0
 	jsr	(PlaySound).l	; play rolling sound
@@ -39540,7 +39540,7 @@ Tails_Jump:
 	bne.s	Tails_RollJump
 	move.b	#$E,y_radius(a0)
 	move.b	#7,x_radius(a0)
-	move.b	#AniIDTailsAni_Roll,anim(a0)	; use "jumping" animation
+	move.b	#AniIDSonAni_Roll,anim(a0)	; use "jumping" animation
 	bset	#2,status(a0)
 	addq.w	#1,y_pos(a0)
 
@@ -39598,12 +39598,12 @@ return_1C70C:
 Tails_CheckSpindash:
 	tst.b	spindash_flag(a0)
 	bne.s	Tails_UpdateSpindash
-	cmpi.b	#AniIDTailsAni_Duck,anim(a0)
+	cmpi.b	#AniIDSonAni_Duck,anim(a0)
 	bne.s	return_1C75C
 	move.b	(Ctrl_2_Press_Logical).w,d0
 	andi.b	#button_B_mask|button_C_mask|button_A_mask,d0
 	beq.w	return_1C75C
-	move.b	#AniIDTailsAni_Spindash,anim(a0)
+	move.b	#AniIDSonAni_Spindash,anim(a0)
 	move.w	#SndID_SpindashRev,d0
 	jsr	(PlaySound).l
 	addq.l	#4,sp
@@ -39637,7 +39637,7 @@ Tails_UpdateSpindash:
 	; unleash the charged spindash and start rolling quickly:
 	move.b	#$E,y_radius(a0)
 	move.b	#7,x_radius(a0)
-	move.b	#AniIDTailsAni_Roll,anim(a0)
+	move.b	#AniIDSonAni_Roll,anim(a0)
 	addq.w	#1,y_pos(a0)	; add the difference between Tails' rolling and standing heights
 	move.b	#0,spindash_flag(a0)
 	moveq	#0,d0
@@ -39687,7 +39687,7 @@ loc_1C7F8:
 	move.b	(Ctrl_2_Press_Logical).w,d0
 	andi.b	#button_B_mask|button_C_mask|button_A_mask,d0
 	beq.w	loc_1C828
-	move.w	#(AniIDTailsAni_Spindash<<8),anim(a0)
+	move.w	#(AniIDSonAni_Spindash<<8),anim(a0)
 	move.w	#SndID_SpindashRev,d0
 	jsr	(PlaySound).l
 	addi.w	#$200,spindash_counter(a0)
@@ -40104,7 +40104,7 @@ return_1CB4E:
 Tails_ResetOnFloor:
 	tst.b	pinball_mode(a0)
 	bne.s	Tails_ResetOnFloor_Part3
-	move.b	#AniIDTailsAni_Walk,anim(a0)
+	move.b	#AniIDSonAni_Walk,anim(a0)
 ; loc_1CB5C:
 Tails_ResetOnFloor_Part2:
 	btst	#2,status(a0)
@@ -40112,7 +40112,7 @@ Tails_ResetOnFloor_Part2:
 	bclr	#2,status(a0)
 	move.b	#$F,y_radius(a0) ; this slightly increases Tails' collision height to standing
 	move.b	#9,x_radius(a0)
-	move.b	#AniIDTailsAni_Walk,anim(a0)	; use running/walking/standing animation
+	move.b	#AniIDSonAni_Walk,anim(a0)	; use running/walking/standing animation
 	subq.w	#1,y_pos(a0)	; move Tails up 1 pixel so the increased height doesn't push him slightly into the ground
 ; loc_1CB80:
 Tails_ResetOnFloor_Part3:
@@ -40125,9 +40125,9 @@ Tails_ResetOnFloor_Part3:
 	move.b	#0,flip_turned(a0)
 	move.b	#0,flips_remaining(a0)
 	move.w	#0,(Tails_Look_delay_counter).w
-	cmpi.b	#AniIDTailsAni_Hang2,anim(a0)
+	cmpi.b	#AniIDSonAni_Hang2,anim(a0)
 	bne.s	return_1CBC4
-	move.b	#AniIDTailsAni_Walk,anim(a0)
+	move.b	#AniIDSonAni_Walk,anim(a0)
 
 return_1CBC4:
 	rts
@@ -40170,7 +40170,7 @@ Tails_HurtStop:
 	move.w	d0,x_vel(a0)
 	move.w	d0,inertia(a0)
 	move.b	d0,obj_control(a0)
-	move.b	#AniIDTailsAni_Walk,anim(a0)
+	move.b	#AniIDSonAni_Walk,anim(a0)
 	move.b	#2,routine(a0)	; => Obj02_Control
 	move.w	#$78,invulnerable_time(a0)
 	move.b	#0,spindash_flag(a0)
@@ -40581,37 +40581,37 @@ loc_1D006:
 ; ---------------------------------------------------------------------------
 ; off_1D038:
 TailsAniData:		offsetTable
-TailsAni_Walk_ptr:	offsetTableEntry.w TailsAni_Walk	;  0 ;   0
-TailsAni_Run_ptr:	offsetTableEntry.w TailsAni_Run		;  1 ;   1
-TailsAni_Roll_ptr:	offsetTableEntry.w TailsAni_Roll	;  2 ;   2
-TailsAni_Roll2_ptr:	offsetTableEntry.w TailsAni_Roll2	;  3 ;   3
-TailsAni_Push_ptr:	offsetTableEntry.w TailsAni_Push	;  4 ;   4
-TailsAni_Wait_ptr:	offsetTableEntry.w TailsAni_Wait	;  5 ;   5
-TailsAni_Balance_ptr:	offsetTableEntry.w TailsAni_Balance	;  6 ;   6
-TailsAni_LookUp_ptr:	offsetTableEntry.w TailsAni_LookUp	;  7 ;   7
-TailsAni_Duck_ptr:	offsetTableEntry.w TailsAni_Duck	;  8 ;   8
-TailsAni_Spindash_ptr:	offsetTableEntry.w TailsAni_Spindash	;  9 ;   9
-TailsAni_Dummy1_ptr:	offsetTableEntry.w TailsAni_Dummy1	; 10 ;  $A
-TailsAni_Dummy2_ptr:	offsetTableEntry.w TailsAni_Dummy2	; 11 ;  $B
-TailsAni_Dummy3_ptr:	offsetTableEntry.w TailsAni_Dummy3	; 12 ;  $C
-TailsAni_Stop_ptr:	offsetTableEntry.w TailsAni_Stop	; 13 ;  $D
-TailsAni_Float_ptr:	offsetTableEntry.w TailsAni_Float	; 14 ;  $E
-TailsAni_Float2_ptr:	offsetTableEntry.w TailsAni_Float2	; 15 ;  $F
-TailsAni_Spring_ptr:	offsetTableEntry.w TailsAni_Spring	; 16 ; $10
-TailsAni_Hang_ptr:	offsetTableEntry.w TailsAni_Hang	; 17 ; $11
-TailsAni_Blink_ptr:	offsetTableEntry.w TailsAni_Blink	; 18 ; $12
-TailsAni_Blink2_ptr:	offsetTableEntry.w TailsAni_Blink2	; 19 ; $13
-TailsAni_Hang2_ptr:	offsetTableEntry.w TailsAni_Hang2	; 20 ; $14
-TailsAni_Bubble_ptr:	offsetTableEntry.w TailsAni_Bubble	; 21 ; $15
-TailsAni_DeathBW_ptr:	offsetTableEntry.w TailsAni_DeathBW	; 22 ; $16
-TailsAni_Drown_ptr:	offsetTableEntry.w TailsAni_Drown	; 23 ; $17
-TailsAni_Death_ptr:	offsetTableEntry.w TailsAni_Death	; 24 ; $18
-TailsAni_Hurt_ptr:	offsetTableEntry.w TailsAni_Hurt	; 25 ; $19
-TailsAni_Hurt2_ptr:	offsetTableEntry.w TailsAni_Hurt2	; 26 ; $1A
-TailsAni_Slide_ptr:	offsetTableEntry.w TailsAni_Slide	; 27 ; $1B
-TailsAni_Blank_ptr:	offsetTableEntry.w TailsAni_Blank	; 28 ; $1C
-TailsAni_Dummy4_ptr:	offsetTableEntry.w TailsAni_Dummy4	; 29 ; $1D
-TailsAni_Dummy5_ptr:	offsetTableEntry.w TailsAni_Dummy5	; 30 ; $1E
+			offsetTableEntry.w TailsAni_Walk	;  0 ;   0
+			offsetTableEntry.w TailsAni_Run		;  1 ;   1
+			offsetTableEntry.w TailsAni_Roll	;  2 ;   2
+			offsetTableEntry.w TailsAni_Roll2	;  3 ;   3
+			offsetTableEntry.w TailsAni_Push	;  4 ;   4
+			offsetTableEntry.w TailsAni_Wait	;  5 ;   5
+			offsetTableEntry.w TailsAni_Balance	;  6 ;   6
+			offsetTableEntry.w TailsAni_LookUp	;  7 ;   7
+			offsetTableEntry.w TailsAni_Duck	;  8 ;   8
+			offsetTableEntry.w TailsAni_Spindash	;  9 ;   9
+			offsetTableEntry.w TailsAni_Dummy1	; 10 ;  $A
+			offsetTableEntry.w TailsAni_Dummy2	; 11 ;  $B
+			offsetTableEntry.w TailsAni_Dummy3	; 12 ;  $C
+			offsetTableEntry.w TailsAni_Stop	; 13 ;  $D
+			offsetTableEntry.w TailsAni_Float	; 14 ;  $E
+			offsetTableEntry.w TailsAni_Float2	; 15 ;  $F
+			offsetTableEntry.w TailsAni_Spring	; 16 ; $10
+			offsetTableEntry.w TailsAni_Hang	; 17 ; $11
+			offsetTableEntry.w TailsAni_Blink	; 18 ; $12
+			offsetTableEntry.w TailsAni_Blink2	; 19 ; $13
+			offsetTableEntry.w TailsAni_Hang2	; 20 ; $14
+			offsetTableEntry.w TailsAni_Bubble	; 21 ; $15
+			offsetTableEntry.w TailsAni_DeathBW	; 22 ; $16
+			offsetTableEntry.w TailsAni_Drown	; 23 ; $17
+			offsetTableEntry.w TailsAni_Death	; 24 ; $18
+			offsetTableEntry.w TailsAni_Hurt	; 25 ; $19
+			offsetTableEntry.w TailsAni_Hurt2	; 26 ; $1A
+			offsetTableEntry.w TailsAni_Slide	; 27 ; $1B
+			offsetTableEntry.w TailsAni_Blank	; 28 ; $1C
+			offsetTableEntry.w TailsAni_Dummy4	; 29 ; $1D
+			offsetTableEntry.w TailsAni_Dummy5	; 30 ; $1E
 TailsAni_HaulAss_ptr:	offsetTableEntry.w TailsAni_HaulAss	; 31 ; $1F
 TailsAni_Fly_ptr:	offsetTableEntry.w TailsAni_Fly		; 32 ; $20
 
@@ -81875,7 +81875,7 @@ loc_3D2D4:
 	lea	(Sidekick).w,a1 ; a1=character
 	bclr	#1,collision_property(a0)
 	beq.s	+++
-	cmpi.b	#AniIDTailsAni_Roll,anim(a1)
+	cmpi.b	#AniIDSonAni_Roll,anim(a1)
 	bne.s	loc_3D36C
 	btst	#1,status(a1)
 	bne.s	++
