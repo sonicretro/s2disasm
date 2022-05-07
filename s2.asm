@@ -13499,9 +13499,11 @@ EndgameCredits:
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleOtherText),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_TitleOtherText).l,a0
 	bsr.w	NemDec
+
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleBanner),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_TitleBanner).l,a0
 	bsr.w	NemDec
+
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleTheEchidnaIn),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_TitleTheEchidnaIn).l,a0
 	bsr.w	NemDec
@@ -13526,11 +13528,13 @@ EndgameCredits:
 	lea	(MainCharacter).w,a1
 	move.b	#ObjID_TitleIntro,id(a1)
 	move.b	#$16,subtype(a1)	; Obj0E_CreditsBanner
+
+	; Create trademark object if this is not a Japanese console.
 	tst.b	(Graphics_Flags).w
 	bpl.s	+
 	lea	(Sidekick).w,a1
 	move.b	#ObjID_TitleIntro,id(a1)
-	move.b	#$18,subtype(a1)
+	move.b	#$18,subtype(a1)	; Obj0E_CreditsTrademark
 +
     endif
 
