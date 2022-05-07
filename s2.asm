@@ -27700,7 +27700,7 @@ Obj0E_Banner_Index: offsetTable
 Obj0E_Banner_Init:
 	addq.b	#2,routine_secondary(a0)
 	move.w	#$200,y_vel(a0)
-	lea	($FFFFB4C0).w,a1
+	lea	(IntroBanner).w,a1
 
 Obj0E_Banner_Init_Part2:
 	move.l	#Obj0E_MapUnc_Banner,mappings(a1)
@@ -38597,7 +38597,7 @@ loc_315CE2:
 loc_315CFC:
 	move.w	d0,inertia(a0)
 	move.b	knuckles_something2(a0),d0
-	btst	#2,($FFFFF602).w
+	btst	#2,(Ctrl_1_Held_Logical).w
 	beq.s	loc_315D1C
 	cmpi.b	#$80,d0
 	beq.s	loc_315D1C
