@@ -13010,15 +13010,26 @@ CheckCheats:	; This is called from 2 places: the options screen and the level se
 	; KiS2: The terminating byte has been changed from 0 to $FF, so that
 	; sound 00 can be used as part of the cheat code. Speaking of which,
 	; the cheat codes have been changed.
-level_select_cheat:	dc.b $19, $65,   9, $17, $FF	; 17th September 1965, Yuji Naka's birthdate
+level_select_cheat:
+	; 17th September 1965, Yuji Naka's birthdate
+	dc.b $19, $65,   9, $17, $FF
 	rev02even
 ; byte_97B7
-continues_cheat:	dc.b   1,   1,   2,   4, $FF	; 24th November, Sonic 2's release date in the EU and US: "Sonic 2sday"
+continues_cheat:
+	; 24th November, Sonic 2's release date in the EU and US: "Sonic 2sday"
+	dc.b   1,   1,   2,   4, $FF
 	rev02even
-debug_cheat:		dc.b   1,   9,   9,   4,   1,   0,   1,   8, $FF	; 18th October 1994, Sonic & Knuckles' release date in the EU(?) and US.
+debug_cheat:
+	; 18th October 1994, Sonic & Knuckles' release date in the EU(?) and US.
+	dc.b   1,   9,   9,   4,   1,   0,   1,   8, $FF
 	rev02even
 ; byte_97C5
-super_sonic_cheat:	dc.b   1,   6,   7,   7,   7,   2,   1,   6, $FF	; ...I have absolutely no idea what this is a reference to.
+super_sonic_cheat:
+	; 16777216 is 2^24. It's unclear what the significance of '24' is,
+	; but the Motorola 68000 *does* have a 24-bit address bus. It could
+	; also be a reference to Sonic 2's release date in the EU and US,
+	; which was the 24th of November.
+	dc.b   1,   6,   7,   7,   7,   2,   1,   6, $FF
 	rev02even
     else
 level_select_cheat:	dc.b $19, $65,   9, $17,   0	; 17th September 1965, Yuji Naka's birthdate
