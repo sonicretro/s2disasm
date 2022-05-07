@@ -14346,7 +14346,6 @@ JmpTo3_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
     endif
-
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object CD - Birds from ending sequence
@@ -40569,7 +40568,6 @@ return_1B1C8:
 JmpTo_KillCharacter ; JmpTo
 	jmp	(KillCharacter).l
     endif
-
 ; ===========================================================================
 ; makes Sonic recover control after being hurt before landing
 ; seems to be unused
@@ -55078,7 +55076,6 @@ loc_25BA4:
 JmpTo28_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
-
 ; ===========================================================================
 byte_25BB0:
 	dc.b   0
@@ -68668,7 +68665,6 @@ loc_3022A:
 	; KiS2 (JmpTo cleanup): Moved.
 JmpTo36_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
-
 JmpTo53_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
@@ -71121,11 +71117,9 @@ loc_32080:
 	; KiS2 (JmpTo cleanup): Moved.
 JmpTo39_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
-
 JmpTo59_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
-
 ; ===========================================================================
 ; animation script
 ; off_3209C:
@@ -72177,7 +72171,6 @@ JmpTo40_DisplaySprite ; JmpTo
 	; KiS2 (JmpTo cleanup): Moved.
 JmpTo40_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
-
 JmpTo61_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
@@ -76377,7 +76370,6 @@ loc_36210:
 	; KiS2 (JmpTo cleanup): Moved.
 JmpTo44_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
-
 JmpTo63_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
