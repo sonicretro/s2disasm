@@ -3888,23 +3888,32 @@ SegaScreen:
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_Sega_Logo),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_SEGA).l,a0
 	bsr.w	NemDec
+
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_Trails),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_IntroTrails).l,a0
 	bsr.w	NemDec
+
+	; This gets overwritten by the upscaled Sonic sprite. This may have
+	; been used to test the Sega screen before the sprite upscaling logic
+	; was added.
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtUnc_Giant_Sonic),VRAM,WRITE),(VDP_control_port).l
-	lea	(ArtNem_SilverSonic).l,a0 ; ?? seems unused here
+	lea	(ArtNem_SilverSonic).l,a0
 	bsr.w	NemDec
+
 	lea	(Chunk_Table).l,a1
 	lea	(MapEng_SEGA).l,a0
 	move.w	#make_art_tile(ArtTile_VRAM_Start,0,0),d0
 	bsr.w	EniDec
+
 	lea	(Chunk_Table).l,a1
 	move.l	#vdpComm(VRAM_SegaScr_Plane_B_Name_Table,VRAM,WRITE),d0
-	moveq	#$27,d1		; 40 cells wide
-	moveq	#$1B,d2		; 28 cells tall
+	moveq	#40-1,d1	; 40 cells wide
+	moveq	#28-1,d2	; 28 cells tall
 	bsr.w	PlaneMapToVRAM_H80_Sega
+
 	tst.b	(Graphics_Flags).w ; are we on a Japanese Mega Drive?
 	bmi.s	SegaScreen_Contin ; if not, branch
+
 	; load an extra sprite to hide the TM (trademark) symbol on the SEGA screen
 	lea	(SegaHideTM).w,a1
 	move.b	#ObjID_SegaHideTM,id(a1)	; load objB1 at $FFFFB080
@@ -26717,7 +26726,7 @@ Obj0F_Init:
 	move.w	#128+320/2+8,x_pixel(a0)
 	move.w	#128+224/2+92,y_pixel(a0)
 	move.l	#Obj0F_MapUnc_13B70,mappings(a0)
-	move.w	#make_art_tile(0,0,0),art_tile(a0)
+	move.w	#make_art_tile(ArtTile_VRAM_Start,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	andi.b	#1,(Title_screen_option).w
 	move.b	(Title_screen_option).w,mapping_frame(a0)
