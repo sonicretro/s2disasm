@@ -1,4 +1,6 @@
-A disassembly of Knuckles the Echidna in Sonic the Hedgehog 2 for the Sega Mega Drive/Genesis.
+A disassembly of Sonic the Hedgehog 2 for the Sega Mega Drive/Genesis.
+
+This branch in particular is a disassembly of Knuckles the Echidna in Sonic the Hedgehog 2.
 
 To build this, use build.bat if you're a Windows user, or build.sh otherwise. The built ROM will be called 's2built.bin'.
 
