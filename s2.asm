@@ -26680,11 +26680,10 @@ Obj0E_Index: offsetTable
     if gameRevision=3
 	; KiS2 (intro): Different intro.
 	offsetTableEntry.w Obj0E_LowerTheEmblem	;   4
-	offsetTableEntry.w Obj0E_Thing2		;   6
     else
 	offsetTableEntry.w Obj0E_Tails		;   4
-	offsetTableEntry.w Obj0E_LogoTop	;   6
     endif
+	offsetTableEntry.w Obj0E_LogoTop	;   6
 	offsetTableEntry.w Obj0E_FlashingStar	;   8
     if gameRevision=3
 	; KiS2 (intro): Different intro.
@@ -26693,16 +26692,15 @@ Obj0E_Index: offsetTable
 	offsetTableEntry.w Obj0E_SonicHand	;  $A
     endif
 	offsetTableEntry.w Obj0E_FallingStar	;  $C
+	offsetTableEntry.w Obj0E_MaskingSprite	;  $E
     if gameRevision=3
 	; KiS2 (intro): Different intro.
-	offsetTableEntry.w Obj0E_Thing4		; $E
 	offsetTableEntry.w Obj0E_Thing5		; $10
 	offsetTableEntry.w Obj0E_Thing6		; $12
 	offsetTableEntry.w Obj0E_Banner		; $14
 	offsetTableEntry.w Obj0E_Thing8		; $16
 	offsetTableEntry.w Obj0E_Thing9		; $18
     else
-	offsetTableEntry.w Obj0E_MaskingSprite	;  $E
 	offsetTableEntry.w Obj0E_TailsHand	; $10
     endif
 ; ===========================================================================
@@ -27102,96 +27100,6 @@ Obj0E_LowerTheEmblem_Positions_End
 
 return_310122:
 		rts
-; ---------------------------------------------------------------------------
-
-Obj0E_Thing2:
-	moveq	#0,d0
-	move.b	routine_secondary(a0),d0
-	move.w	off_310136(pc,d0.w),d1
-	jsr	off_310136(pc,d1.w)
-	bra.w	DisplaySprite
-; ---------------------------------------------------------------------------
-off_310136: offsetTable
-	offsetTableEntry.w loc_31013C			; 0
-	offsetTableEntry.w Obj0E_OffsetYPosition	; 2
-	offsetTableEntry.w return_3101E2		; 4
-; ---------------------------------------------------------------------------
-
-loc_31013C:
-	addq.b	#2,routine_secondary(a0)
-	lea	(IntroEmblemTop).w,a1
-
-; =============== S U B	R O U T	I N E =======================================
-
-sub_310144:
-	move.l	#Obj0E_MapUnc_EmblemTopAndSpriteMask,mappings(a1)
-	move.w	#make_art_tile(ArtTile_ArtNem_Title,0,0),art_tile(a1)
-	move.b	#1,mapping_frame(a1)
-	tst.b	(Graphics_Flags).w
-	bmi.s	+
-	move.b	#0,mapping_frame(a1)
-+
-	move.b	#2,priority(a1)
-
-	move.w	#128+320/2,x_pixel(a1)
-	move.w	#128+224/2-8,d0
-	move.w	d0,y_pixel(a1)
-	move.w	d0,obj0e_counter(a1)
-
-	rts
-; End of function sub_310144
-
-
-; =============== S U B	R O U T	I N E =======================================
-; sub_31017E:
-Obj0E_OffsetYPosition:
-	tst.b	(Title_Intro_Complete).w
-	bne.s	+
-	move.w	(Title_Screen_Something).w,d0
-	neg.w	d0
-	move.w	obj0e_counter(a0),d1
-	add.w	d0,d1
-	move.w	d1,y_pixel(a0)
-+
-	rts
-; End of function Obj0E_OffsetYPosition
-
-; ---------------------------------------------------------------------------
-
-Obj0E_Thing4:
-	moveq	#0,d0
-	move.b	routine_secondary(a0),d0
-	move.w	off_3101A8(pc,d0.w),d1
-	jsr	off_3101A8(pc,d1.w)
-	bra.w	DisplaySprite
-; ---------------------------------------------------------------------------
-off_3101A8: offsetTable
-	offsetTableEntry.w loc_3101AE			; 0
-	offsetTableEntry.w Obj0E_OffsetYPosition	; 2
-	offsetTableEntry.w return_3101E2		; 4
-; ---------------------------------------------------------------------------
-
-loc_3101AE:
-	addq.b	#2,routine_secondary(a0)
-	lea	(IntroMaskingSprite).w,a1
-
-; =============== S U B	R O U T	I N E =======================================
-
-
-sub_3101B6:
-	move.l	#Obj0E_MapUnc_EmblemTopAndSpriteMask,mappings(a1)
-	move.w	#make_art_tile(ArtTile_ArtNem_Title,0,0),art_tile(a1)
-	move.b	#2,mapping_frame(a1)
-	move.b	#2,priority(a1)
-
-	move.w	#128+128,x_pixel(a1)
-	move.w	#128+224/2,d0
-	move.w	d0,y_pixel(a1)
-	move.w	d0,obj0e_counter(a1)
-
-return_3101E2:
-	rts
-; End of function sub_3101B6
     else
 Obj0E_Tails:
 	moveq	#0,d0
@@ -27251,21 +27159,59 @@ Obj0E_Tails_Positions:
 	dc.w   128+73, 128+33
 	dc.w   128+72, 128+32
 Obj0E_Tails_Positions_End
+    endif
 ; ===========================================================================
 
 Obj0E_LogoTop:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
 	move.w	Obj0E_LogoTop_Index(pc,d0.w),d1
+    if gameRevision=3
+	; KiS2 (intro): Different intro.
+	jsr	Obj0E_LogoTop_Index(pc,d1.w)
+	bra.w	DisplaySprite
+    else
 	jmp	Obj0E_LogoTop_Index(pc,d1.w)
+    endif
 ; ===========================================================================
 ; off_130E2:
 Obj0E_LogoTop_Index: offsetTable
 	offsetTableEntry.w Obj0E_LogoTop_Init		; 0
+    if gameRevision=3
+	; KiS2 (intro): Different intro.
+	offsetTableEntry.w Obj0E_OffsetYPosition	; 2
+	offsetTableEntry.w return_3101E2		; 4
+    else
 	offsetTableEntry.w BranchTo11_DisplaySprite	; 2
+    endif
 ; ===========================================================================
 
 Obj0E_LogoTop_Init:
+    if gameRevision=3
+	; KiS2 (intro): This was modified to initialise the object in a
+	; different slot to its own, use separate mappings to the rest of the
+	; object, and store the initial Y coordinate in the object's scratch
+	; RAM.
+	addq.b	#2,routine_secondary(a0)	; Obj0E_OffsetYPosition
+	lea	(IntroEmblemTop).w,a1
+
+Obj0E_LogoTop_Init_Part2:
+	move.l	#Obj0E_MapUnc_EmblemTopAndSpriteMask,mappings(a1)
+	move.w	#make_art_tile(ArtTile_ArtNem_Title,0,0),art_tile(a1)
+	; Don't show the trademark symbol on Japanese consoles.
+	move.b	#1,mapping_frame(a1)
+	tst.b	(Graphics_Flags).w
+	bmi.s	+
+	move.b	#0,mapping_frame(a1)
++
+	move.b	#2,priority(a1)
+	move.w	#128+320/2,x_pixel(a1)
+	move.w	#128+104,d0
+	move.w	d0,y_pixel(a1)
+	move.w	d0,obj0e_counter(a1)
+
+	rts
+    else
 	; Don't show the trademark symbol on Japanese consoles.
 	move.b	#$B,mapping_frame(a0)
 	tst.b	(Graphics_Flags).w
@@ -27281,22 +27227,77 @@ Obj0E_NextRoutineSecondary:
 
 BranchTo11_DisplaySprite
 	bra.w	DisplaySprite
+    endif
+
+
+    if gameRevision=3
+; =============== S U B	R O U T	I N E =======================================
+; sub_31017E:
+Obj0E_OffsetYPosition:
+	tst.b	(Title_Intro_Complete).w
+	bne.s	+
+	move.w	(Title_Screen_Something).w,d0
+	neg.w	d0
+	move.w	obj0e_counter(a0),d1
+	add.w	d0,d1
+	move.w	d1,y_pixel(a0)
++
+	rts
+; End of function Obj0E_OffsetYPosition
+    endif
+
 ; ===========================================================================
 ; Obj0E_SkyPiece:
 Obj0E_MaskingSprite:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
 	move.w	Obj0E_MaskingSprite_Index(pc,d0.w),d1
+    if gameRevision=3
+	; KiS2 (intro): Different intro.
+	jsr	Obj0E_MaskingSprite_Index(pc,d1.w)
+	bra.w	DisplaySprite
+    else
 	jmp	Obj0E_MaskingSprite_Index(pc,d1.w)
+    endif
 ; ===========================================================================
 ; off_13120:
 Obj0E_MaskingSprite_Index: offsetTable
 	offsetTableEntry.w Obj0E_MaskingSprite_Init	; 0
+    if gameRevision=3
+	; KiS2 (intro): Different intro.
+	offsetTableEntry.w Obj0E_OffsetYPosition	; 2
+	offsetTableEntry.w return_3101E2		; 4
+    else
 	offsetTableEntry.w BranchTo12_DisplaySprite	; 2
+    endif
 ; ===========================================================================
 
 Obj0E_MaskingSprite_Init:
 	addq.b	#2,routine_secondary(a0)	; BranchTo12_DisplaySprite
+
+    if gameRevision=3
+	; KiS2 (intro): This was modified to initialise the object in a
+	; different slot to its own, use separate mappings to the rest of the
+	; object, and store the initial Y coordinate in the object's scratch
+	; RAM.
+	lea	(IntroMaskingSprite).w,a1
+
+Obj0E_MaskingSprite_Init_Part2:
+	move.l	#Obj0E_MapUnc_EmblemTopAndSpriteMask,mappings(a1)
+	move.w	#make_art_tile(ArtTile_ArtNem_Title,0,0),art_tile(a1)
+	move.b	#2,mapping_frame(a1)
+	move.b	#2,priority(a1)
+	; Masking sprites normally must have an X coordinate of 0. I don't
+	; know why it isn't set to that here, but it is corrected to 0 in
+	; 'TitleScreen_Loop'.
+	move.w	#128+128,x_pixel(a1)
+	move.w	#128+224/2,d0
+	move.w	d0,y_pixel(a1)
+	move.w	d0,obj0e_counter(a1)
+
+return_3101E2:
+	rts
+    else
 	move.w	#make_art_tile(ArtTile_ArtNem_Title,0,0),art_tile(a0)
 	move.b	#$11,mapping_frame(a0)
 	move.b	#2,priority(a0)
@@ -28050,19 +28051,19 @@ TitleScreen_SetFinalState:
 
 	lea	($FFFFB140).w,a1
 	move.b	#ObjID_TitleIntro,id(a1)
-	move.b	#6,d0	; Obj0E_Thing2
+	move.b	#6,d0	; Obj0E_LogoTop
 	move.b	d0,subtype(a1)
 	move.b	d0,routine(a1)
-	bsr.w	sub_310144
+	bsr.w	Obj0E_LogoTop_Init_Part2
 	add.w	#$18,y_pixel(a1)
 	move.b	#4,routine_secondary(a1)
 
 	lea	($FFFFB180).w,a1
 	move.b	#ObjID_TitleIntro,id(a1)
-	move.b	#$E,d0	; Obj0E_Thing4
+	move.b	#$E,d0	; Obj0E_MaskingSprite
 	move.b	d0,subtype(a1)
 	move.b	d0,routine(a1)
-	bsr.w	sub_3101B6
+	bsr.w	Obj0E_MaskingSprite_Init_Part2
 	add.w	#$18,y_pixel(a1)
 	move.b	#4,routine_secondary(a1)
 
