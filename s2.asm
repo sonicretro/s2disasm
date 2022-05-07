@@ -12650,15 +12650,27 @@ CheckCheats:	; This is called from 2 places: the options screen and the level se
 +
 	rts
 ; ===========================================================================
-level_select_cheat:	dc.b $19, $65,   9, $17,   0	; 17th September 1965, Yuji Naka's birthdate
+level_select_cheat:
+	; 17th September 1965, the birthdate of one of Sonic 2's developers,
+	; Yuji Naka.
+	dc.b $19, $65,   9, $17,   0
 	rev02even
 ; byte_97B7
-continues_cheat:	dc.b   1,   1,   2,   4,   0	; 24th November, Sonic 2's release date in the EU and US: "Sonic 2sday"
+continues_cheat:
+	; November 24th, which was Sonic 2's release date in the EU and US.
+	dc.b   1,   1,   2,   4,   0
 	rev02even
-debug_cheat:		dc.b   1,   9,   9,   2,   1,   1,   2,   4,   0	; 24th November 1992, Sonic 2's release date in the EU and US: "Sonic 2sday"
+debug_cheat:
+	; 24th November 1992 (also known as "Sonic 2sday"), which was
+	; Sonic 2's release date in the EU and US.
+	dc.b   1,   9,   9,   2,   1,   1,   2,   4,   0
 	rev02even
 ; byte_97C5
-super_sonic_cheat:	dc.b   4,   1,   2,   6,   0	; Book of Genesis, 41:26
+super_sonic_cheat:
+	; Book of Genesis, 41:26, which makes frequent reference to the
+	; number 7. 7 happens to be the number of Chaos Emeralds.
+	; The Mega Drive is known as the Genesis in the US.
+	dc.b   4,   1,   2,   6,   0
 	rev02even
 
 	; set the character set for menu text
