@@ -27698,7 +27698,7 @@ Obj0E_Banner_Init:
 	move.w	#$200,y_vel(a0)
 	lea	($FFFFB4C0).w,a1
 
-sub_31049A:
+Obj0E_Banner_Init_Part2:
 	move.l	#Obj0E_MapUnc_Banner,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_Title,0,1),art_tile(a1)
 	clr.b	mapping_frame(a1)
@@ -28006,48 +28006,56 @@ TitleScreen_SetFinalState:
     endif
 
     if gameRevision=3
-	move.w	#-$18,(Vscroll_Factor_FG).w
+	; KiS2 (intro): Notably, a lot of duplicate code was avoided by
+	; calling the init function of each object here.
 
-	; KiS2 TODO
-	lea	($FFFFB000).w,a1
+	; Lower the emblem.
+	move.w	#-24,(Vscroll_Factor_FG).w
+
+	; Delete the emblem-lowering object.
+	lea	(IntroEmblemLowerer).w,a1
 	jsr	DeleteObject2
 
 	move.b	#$E,routine_secondary(a0)
 	move.b	#4,mapping_frame(a0)
-	move.w	#$F4,x_pixel(a0)
-	move.w	#$AA,y_pixel(a0)
+	move.w	#128+116,x_pixel(a0)
+	move.w	#128+42,y_pixel(a0)
 
-	lea	($FFFFB1C0).w,a1
+	; Initialise Knuckles's hand object.
+	lea	(IntroSonicHand).w,a1
 	move.b	#ObjID_TitleIntro,id(a1)
 	move.b	#$A,routine(a1)	; Obj0E_KnucklesHand
 	bsr.w	Obj0E_KnucklesHand_Init_Part2
 	move.b	#$E,routine_secondary(a1)
 
-	lea	($FFFFB140).w,a1
+	; Initialise top-of-emblem object.
+	lea	(IntroEmblemTop).w,a1
 	move.b	#ObjID_TitleIntro,id(a1)
 	move.b	#6,d0	; Obj0E_LogoTop
 	move.b	d0,subtype(a1)
 	move.b	d0,routine(a1)
 	bsr.w	Obj0E_LogoTop_Init_Part2
-	add.w	#$18,y_pixel(a1)
+	addi.w	#24,y_pixel(a1)
 	move.b	#4,routine_secondary(a1)
 
-	lea	($FFFFB180).w,a1
+	; Initialise sprite mask object.
+	lea	(IntroMaskingSprite).w,a1
 	move.b	#ObjID_TitleIntro,id(a1)
 	move.b	#$E,d0	; Obj0E_MaskingSprite
 	move.b	d0,subtype(a1)
 	move.b	d0,routine(a1)
 	bsr.w	Obj0E_MaskingSprite_Init_Part2
-	add.w	#$18,y_pixel(a1)
+	addi.w	#24,y_pixel(a1)
 	move.b	#4,routine_secondary(a1)
 
-	lea	($FFFFB4C0).w,a1
+	; Initialise 'KNUCKLES' banner object.
+	lea	(IntroBanner).w,a1
 	move.b	#ObjID_TitleIntro,id(a1)
 	move.b	#$14,d0	; Obj0E_Banner
 	move.b	d0,subtype(a1)
 	move.b	d0,routine(a1)
-	bsr.w	sub_31049A
-	add.w	#$38,y_pixel(a1)
+	bsr.w	Obj0E_Banner_Init_Part2
+	addi.w	#56,y_pixel(a1)
 	move.b	#4,routine_secondary(a1)
     else
 	move.b	#$10,routine_secondary(a0)
