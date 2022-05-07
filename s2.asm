@@ -25767,7 +25767,11 @@ Obj26_Init:
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
     if gameRevision=3
-	; KiS2: Monitors in this game can *not* have respawn entries?
+	; KiS2 (bugfix): If you spawn a monitor in Debug Mode and destroy it,
+	; then every monitor that is spawned with Debug Mode afterwards will
+	; be broken. The cause of the bug is that the spawned monitor does
+	; not have a respawn entry, but this object fails to check for that
+	; before writing to the respawn table. This change fixes that.
 	beq.s	+
     endif
 	bclr	#7,2(a2,d0.w)
