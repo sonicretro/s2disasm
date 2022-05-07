@@ -4171,7 +4171,7 @@ TitleScreen:
 	clr.w	(Ctrl_1).w
 
 	; Load the object responsible for the intro animation.
-	move.b	#ObjID_IntroStars,(IntroSonic+id).w
+	move.b	#ObjID_TitleIntro,(IntroSonic+id).w
 	move.b	#2,(IntroSonic+subtype).w
 
 	; Run it for a frame, so that it initialises.
@@ -10540,7 +10540,7 @@ TwoPlayerResults:
 	clr.l	(Vscroll_Factor).w
 	clr.l	(Vscroll_Factor_P2).w
 	clr.l	(Vscroll_Factor_P2_HInt).w
-	move.b	#ObjID_HUD,(VSResults_HUD+id).w
+	move.b	#ObjID_2PResults,(VSResults_HUD+id).w
 	move.b	#VintID_Menu,(Vint_routine).w
 	bsr.w	WaitForVint
 	move.w	(VDP_Reg1_val).w,d0
@@ -25830,7 +25830,7 @@ Obj26_MapUnc_12D36:	BINCLUDE "mappings/sprite/obj26.bin"
 
 
 ; ----------------------------------------------------------------------------
-; Object 0E - Flashing stars from intro
+; Object 0E - Title screen intro animation
 ; ----------------------------------------------------------------------------
 obj0e_counter		= objoff_2A
 obj0e_array_index	= objoff_2C
@@ -25901,12 +25901,12 @@ Obj0E_Sonic_Init:
 
 	; Load flashing star object.
 	lea	(IntroFlashingStar).w,a1
-	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#ObjID_TitleIntro,id(a1)
 	move.b	#8,subtype(a1)
 
 	; Load emblem top object.
 	lea	(IntroEmblemTop).w,a1
-	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#ObjID_TitleIntro,id(a1)
 	move.b	#6,subtype(a1)
 
 	; Play twinkling sound.
@@ -25953,7 +25953,7 @@ Obj0E_Sonic_LoadPalette:
 Obj0E_LoadMaskingSprite:
 	; Load sprite mask object.
 	lea	(IntroMaskingSprite).w,a1
-	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#ObjID_TitleIntro,id(a1)
 	move.b	#$E,subtype(a1)
 	rts
 ; End of function Obj0E_Sonic_LoadPalette
@@ -26003,7 +26003,7 @@ Obj0E_Sonic_AnimationFinished:
 
 	; Load Sonic's hand object.
 	lea	(IntroSonicHand).w,a1
-	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#ObjID_TitleIntro,id(a1)
 	move.b	#$A,subtype(a1)
 
 	bra.w	DisplaySprite
@@ -26016,7 +26016,7 @@ Obj0E_Sonic_SpawnTails:
 
 	; Load Tails object.
 	lea	(IntroTails).w,a1
-	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#ObjID_TitleIntro,id(a1)
 	move.b	#4,subtype(a1)
 +
 	bra.w	DisplaySprite
@@ -26064,7 +26064,7 @@ Obj0E_Sonic_SpawnFallingStar:
 +
 	; Create falling star object.
 	lea	(IntroFallingStar).w,a1
-	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#ObjID_TitleIntro,id(a1)
 	move.b	#$C,subtype(a1)
 
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_MakeStarSparkle
@@ -26157,7 +26157,7 @@ Obj0E_Tails_AnimationFinished:
 
 	; Load Tails' hand object.
 	lea	(IntroTailsHand).w,a1
-	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#ObjID_TitleIntro,id(a1)
 	move.b	#$10,subtype(a1)
 
 BranchTo10_DisplaySprite
@@ -26616,7 +26616,7 @@ TitleScreen_SetFinalState:
 	; Initialise Sonic's hand object.
 	lea	(IntroSonicHand).w,a1
 	bsr.w	TitleScreen_InitSprite
-	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#ObjID_TitleIntro,id(a1)
 	move.b	#$A,routine(a1)
 	move.b	#2,priority(a1)
 	move.b	#9,mapping_frame(a1)
@@ -26627,7 +26627,7 @@ TitleScreen_SetFinalState:
 	; Initialise Tails object.
 	lea	(IntroTails).w,a1
 	bsr.w	TitleScreen_InitSprite
-	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#ObjID_TitleIntro,id(a1)
 	move.b	#4,routine(a1)
 	move.b	#4,mapping_frame(a1)
 	move.b	#6,routine_secondary(a1)
@@ -26638,7 +26638,7 @@ TitleScreen_SetFinalState:
 	; Initialise Tails' hand object.
 	lea	(IntroTailsHand).w,a1
 	bsr.w	TitleScreen_InitSprite
-	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#ObjID_TitleIntro,id(a1)
 	move.b	#$10,routine(a1)
 	move.b	#2,priority(a1)
 	move.b	#$13,mapping_frame(a1)
@@ -26648,7 +26648,7 @@ TitleScreen_SetFinalState:
 
 	; Initialise top-of-emblem object.
 	lea	(IntroEmblemTop).w,a1
-	move.b	#ObjID_IntroStars,id(a1)
+	move.b	#ObjID_TitleIntro,id(a1)
 	move.b	#6,subtype(a1)
 
 	; Initialise sprite mask object.
@@ -29276,7 +29276,7 @@ ObjPtr_SmallBubbles:	dc.l Obj0A	; Small bubbles from Sonic's face while underwat
 ObjPtr_TippingFloor:	dc.l Obj0B	; Section of pipe that tips you off from CPZ
 			dc.l Obj0C	; Small floating platform (unused)
 ObjPtr_Signpost:	dc.l Obj0D	; End of level signpost
-ObjPtr_IntroStars:	dc.l Obj0E	; Flashing stars from intro
+ObjPtr_TitleIntro:	dc.l Obj0E	; Title screen intro animation
 ObjPtr_TitleMenu:	dc.l Obj0F	; Title screen menu
 ObjPtr_TailsSS:		dc.l Obj10	; Tails in Special Stage
 ObjPtr_Bridge:		dc.l Obj11	; Bridge in Emerald Hill Zone and Hidden Palace Zone
@@ -29300,7 +29300,7 @@ ObjPtr_BlueBalls:	dc.l Obj1D	; Blue balls in CPZ (jumping droplets hazard)
 ObjPtr_CPZSpinTube:	dc.l Obj1E	; Spin tube from CPZ
 ObjPtr_CollapsPform:	dc.l Obj1F	; Collapsing platform from ARZ, MCZ and OOZ (and MZ, SLZ and SBZ)
 ObjPtr_LavaBubble:	dc.l Obj20	; Lava bubble from Hill Top Zone (boss weapon)
-ObjPtr_HUD:		dc.l Obj21	; Score/Rings/Time display (HUD)
+ObjPtr_2PResults:	dc.l Obj21	; 2P results
 ObjPtr_ArrowShooter:	dc.l Obj22	; Arrow shooter from ARZ
 ObjPtr_FallingPillar:	dc.l Obj23	; Pillar that drops its lower part from ARZ
 ObjPtr_ARZBubbles:	dc.l Obj24	; Bubbles in Aquatic Ruin Zone
