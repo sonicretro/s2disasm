@@ -28061,7 +28061,7 @@ Obj0F_Init:
 	move.w	#128+320/2+8,x_pixel(a0)
 	move.w	#128+224/2+92,y_pixel(a0)
 	move.l	#Obj0F_MapUnc_13B70,mappings(a0)
-	move.w	#make_art_tile(ArtTile_ArtNem_Title,0,0),art_tile(a0)
+	move.w	#make_art_tile(0,0,0),art_tile(a0)
     endif
 	bsr.w	Adjust2PArtPointer
     if gameRevision=3
