@@ -49,8 +49,8 @@ subtype =		$28
 inertia =		$14 ; and $15 ; directionless representation of speed... not updated in the air
     if gameRevision=3
 ; KiS2: New SSTs, related to Knuckles' abilities.
-knuckles_something2 =	$1F
-knuckles_something =	$21
+double_jump_property =	$1F
+double_jump_flag =	$21
     endif
 flip_angle =		$27 ; angle about the x axis (360 degrees = 256) (twist/tumble)
 air_left =		$28
@@ -266,6 +266,16 @@ bumper_x            = 2
 bumper_y            = 4
 next_bumper         = 6
 prev_bumper_x       = bumper_x-next_bumper
+
+; ---------------------------------------------------------------------------
+; 'status' bitfield variables
+Status_Facing       = 0
+Status_InAir        = 1
+Status_Roll         = 2
+Status_OnObj        = 3
+Status_RollJump     = 4
+Status_Push         = 5
+Status_Underwater   = 6
 
 ; ---------------------------------------------------------------------------
 ; status_secondary bitfield variables
@@ -1516,8 +1526,8 @@ Current_Boss_ID:		ds.b	1
     if gameRevision=3
 ; KiS2: 'Ending_Routine' was moved, and some variables were added.
 				ds.b	1	; unused
-Something_Related_To_Gliding:	ds.b	1	; TODO
-Something_Related_To_Gliding2:	ds.b	1	; TODO
+Gliding_collision_flags:	ds.b	1
+Disable_wall_grab:		ds.b	1	; Leftover from S3K: only read, and never written.
 Ending_Routine:			ds.w	1
     else
 				ds.b	5	; $FFFFF7AB-$FFFFF7AF ; seems unused
