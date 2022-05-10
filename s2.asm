@@ -1975,7 +1975,17 @@ RunPLC_RAM:
 	adda.w	#NemDec_WriteAndStay_XOR-NemDec_WriteAndStay,a3
 +
 	andi.w	#$7FFF,d2
+    if ~~fixBugs
+	; This is done too early: this variable is used to determine when
+	; there are PLCs to process, which means that as soon as this
+	; variable is set, PLC processing will occur during V-Int. If an
+	; interrupt occurs between here and the end of this function, then
+	; the PLC processor will begin despite it not being fully
+	; initialised yet, causing a crash. S3K fixes this bug by moving this
+	; instruction to the end of the function.
 	move.w	d2,(Plc_Buffer_Reg18).w
+    endif
+
 	bsr.w	NemDecPrepare
 	move.b	(a0)+,d5
 	asl.w	#8,d5
@@ -1989,6 +1999,10 @@ RunPLC_RAM:
 	move.l	d0,(Plc_Buffer_RegC).w
 	move.l	d5,(Plc_Buffer_Reg10).w
 	move.l	d6,(Plc_Buffer_Reg14).w
+    if fixBugs
+	; See above.
+	move.w	d2,(Plc_Buffer_Reg18).w
+    endif
 
 .return:
 	rts
