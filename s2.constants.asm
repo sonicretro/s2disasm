@@ -1728,8 +1728,8 @@ SS2p_RingBuffer:		ds.w	6
 				ds.b	4	; $FFFFFFAC-$FFFFFFAF ; seems unused
 Got_Emerald:			ds.b	1
 Emerald_count:			ds.b	1
-Got_Emeralds_array:		ds.b	7	; 7 bytes
-				ds.b	7	; $FFFFFFB9-$FFFFFFBF ; filler
+Got_Emeralds_array:		ds.b	8	; Technically this is only 7 bytes long, but an 8th byte is cleared
+				ds.b	6	; $FFFFFFBA-$FFFFFFBF ; filler
 Next_Extra_life_score:		ds.l	1
 Next_Extra_life_score_2P:	ds.l	1
 Level_Has_Signpost:		ds.w	1	; 1 = signpost, 0 = boss or nothing

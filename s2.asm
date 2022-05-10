@@ -11936,7 +11936,11 @@ OptionScreen_Select:
 	moveq	#0,d0
 	move.w	d0,(Two_player_mode).w
 	move.w	d0,(Two_player_mode_copy).w
-	move.w	d0,(Current_ZoneAndAct).w	; emerald_hill_zone_act_1
+    if emerald_hill_zone_act_1=0
+	move.w	d0,(Current_ZoneAndAct).w ; emerald_hill_zone_act_1
+    else
+	move.w	#emerald_hill_zone_act_1,(Current_ZoneAndAct).w
+    endif
     if fixBugs
 	; The game forgets to reset these variables here, making it possible
 	; for the player to repeatedly soft-reset and play Emerald Hill Zone
