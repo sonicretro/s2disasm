@@ -2955,7 +2955,13 @@ PalCycle_SuperSonic:
 	move.w	(Palette_frame).w,d0
 	subq.w	#8,(Palette_frame).w	; previous frame
 	bcc.s	+			; branch, if it isn't the first frame
+    if fixBugs
+	move.w	#0,(Palette_frame).w
+    else
+	; This does not clear the full variable, causing this palette cycle
+	; to behave incorrectly the next time it is activated.
 	move.b	#0,(Palette_frame).w
+    endif
 	move.b	#0,(Super_Sonic_palette).w	; stop palette cycle
 +
 	lea	(Normal_palette+4).w,a1
@@ -2985,7 +2991,12 @@ PalCycle_SuperSonic:
 	move.w	(Palette_frame).w,d0
 	addq.w	#8,(Palette_frame).w	; next frame
 	cmpi.w	#$78,(Palette_frame).w	; is it the last frame?
+    if fixBugs
+	bls.s	+			; if not, branch
+    else
+	; This condition causes the last frame to be skipped.
 	blo.s	+			; if not, branch
+    endif
 	move.w	#$30,(Palette_frame).w	; reset frame counter (Super Sonic's normal palette cycle starts at $30. Everything before that is for the palette fade)
 +
 	lea	(Normal_palette+4).w,a1
