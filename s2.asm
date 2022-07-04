@@ -36755,8 +36755,7 @@ Sonic_CheckGoSuper:
 	; If Sonic was executing a roll-jump when he turned Super, then this
 	; will remove him from that state. The original code forgot to do
 	; this.
-	bclr	#2,status(a0)
-	bclr	#4,status(a0)
+	andi.b	#~((1<<2)|(1<<4)),status(a0)	; Clear bits 2 and 4
 	move.b	#$13,y_radius(a0)
 	move.b	#9,x_radius(a0)
     endif
