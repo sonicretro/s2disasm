@@ -1,3 +1,9 @@
+The assembler used here is Flamewing's modified version of The Macro Assembler AS, found here:
+
+https://github.com/flamewing/asl-releases
+
+AS is under the GPL, so here's its license:
+
 		    GNU GENERAL PUBLIC LICENSE
 		       Version 2, June 1991
 
