@@ -111,6 +111,10 @@ if not file_exists("s2.p") then
 			*                                                                    *\n\z
 			**********************************************************************\n\z"
 	else
+		for line in io.lines("s2.log") do
+			print(line)
+		end
+
 		print "\n\z
 			**********************************************************************\n\z
 			*                                                                    *\n\z
@@ -163,6 +167,10 @@ rom:close()
 
 -- If we've gotten this far but a log file exists, then there must have been build warnings.
 if file_exists("s2.log") then
+	for line in io.lines("s2.log") do
+		print(line)
+	end
+
 	print "\n\z
 		**********************************************************************\n\z
 		*                                                                    *\n\z
