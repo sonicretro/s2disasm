@@ -69,7 +69,7 @@ if not file_exists(p2bin_path) then
 		Once compiled, copy the executable to '%s'.\n\z
 		\n\z
 		We'd appreciate it if you could send us your binary in a pull request at\n\z
-		https://github.com/sonicretro/s1disasm, so other users don't have this problem\n\z
+		https://github.com/sonicretro/s2disasm, so other users don't have this problem\n\z
 		in the future.", platform_directory))
 
 	os.exit(false)
@@ -81,7 +81,7 @@ elseif not file_exists(fixpointer_path) then
 		Once compiled, copy the executable to '%s'.\n\z
 		\n\z
 		We'd appreciate it if you could send us your binary in a pull request at\n\z
-		https://github.com/sonicretro/s1disasm, so other users don't have this problem\n\z
+		https://github.com/sonicretro/s2disasm, so other users don't have this problem\n\z
 		in the future.", platform_directory))
 
 	os.exit(false)
