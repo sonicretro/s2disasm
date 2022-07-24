@@ -13,60 +13,14 @@ local improved_sound_driver_compression = false
 -- End of settings --
 ---------------------
 
+local common = require "build_tools.Lua.common"
 local md5 = require "build_tools.Lua.md5"
 
-local function file_exists(path)
-	local file = io.open(path, "rb")
+-- Obtain the paths to the native build tools for the current platform.
+local tools, platform_directory = common.find_tools({"s2p2bin", "fixpointer", "saxman"})
 
-	if file then
-		file:close()
-		return true
-	else
-		return false
-	end
-end
-
--- Before we begin, let's detect our OS and set up our paths.
-local os_name, arch_name = require "build_tools.Lua.get_os_name".get_os_name()
-
-local platform_directory, as_path, p2bin_path, fixpointer_path
-
-platform_directory = "build_tools"
-
-if os_name == "Windows" and (arch_name == "x86" or arch_name == "x86_64") then
-	platform_directory = platform_directory .. "\\Win32"
-	as_path = platform_directory .. "\\asw.exe"
-	p2bin_path = platform_directory .. "\\s2p2bin.exe"
-	fixpointer_path = platform_directory .. "\\fixpointer.exe"
-	saxman_path = platform_directory .. "\\saxman.exe"
-elseif os_name == "Mac" then
-	platform_directory = platform_directory .. "/Osx"
-	as_path = platform_directory .. "/asl"
-	p2bin_path = platform_directory .. "/s2p2bin"
-	fixpointer_path = platform_directory .. "/fixpointer"
-	saxman_path = platform_directory .. "/saxman"
-elseif os_name == "Linux" then
-	if arch_name == "x86" then
-		platform_directory = platform_directory .. "/Linux32"
-	elseif arch_name == "x86_64" then
-		platform_directory = platform_directory .. "/Linux"
-	end
-
-	as_path = platform_directory .. "/asl"
-	p2bin_path = platform_directory .. "/s2p2bin"
-	fixpointer_path = platform_directory .. "/fixpointer"
-	saxman_path = platform_directory .. "/saxman"
-else
-	print "Build failed: Your OS is unsupported."
-	os.exit(false)
-end
-
-if arch_name ~= "x86" and arch_name ~= "x86_64" then
-	print "Build failed: Your CPU architecture is unsupported."
-	os.exit(false)
-end
-
-if not file_exists(p2bin_path) or not file_exists(fixpointer_path) or not file_exists(saxman_path) then
+-- Present an error message to the user if the build tools for their platform do not exist.
+if not tools then
 	print(string.format("\z
 		Sorry, the build tools for your platform are outdated and need recompiling.\n\z
 		\n\z
@@ -116,7 +70,7 @@ for song_name in io.lines("sound/music/compressed/list of compressed songs.txt")
 	-- If it doesn't match, then the song has been modified and needs to be reassembled.
 	-- Alternatively, the song will need reassembling if the user has changed the compression.
 	-- Or reassemble the song if the assembled version is missing.
-	if current_hash ~= previous_hashes[song_name] or improved_sound_driver_compression ~= previous_hashes.improved_sound_driver_compression or not file_exists("sound/music/compressed/" .. song_name .. ".bin") then
+	if current_hash ~= previous_hashes[song_name] or improved_sound_driver_compression ~= previous_hashes.improved_sound_driver_compression or not common.file_exists("sound/music/compressed/" .. song_name .. ".bin") then
 		print("Reassembling song '" .. song_name .. ".asm'...")
 
 		-- To begin with, we'll create a wrapper ASM file to set the environment
@@ -144,47 +98,51 @@ SonicDriverVer = 2
 
 		song_file:close()
 
-		-- Now assemble this ASM file to assemble the song.
-		os.execute(as_path .. " -xx -n -q -A -L -U -E -i . song.asm")
+		-- Assemble the song to an uncompressed binary.
+		local assemble_result = common.assemble_file("song", "song.bin", tools.as, tools.s2p2bin .. (improved_sound_driver_compression and "" or " -a"), false)
 
 		-- We can get rid of this wrapper ASM file now.
 		os.remove("song.asm")
 
-		-- If the assembler encountered an error, then the object file will not exist.
-		if not file_exists("song.p") then
-			if not file_exists("song.log") then
-				print "\n\z
-					**********************************************************************\n\z
-					*                                                                    *\n\z
-					*         The assembler crashed. See above for more details.         *\n\z
-					*                                                                    *\n\z
-					**********************************************************************\n\z"
-			else
-				for line in io.lines("song.log") do
-					print(line)
-				end
-
-				print "\n\z
-					**********************************************************************\n\z
-					*                                                                    *\n\z
-					*       There were build errors. See song.log for more details.      *\n\z
-					*                                                                    *\n\z
-					**********************************************************************\n\z"
-			end
+		if assemble_result == "crash" then
+			print "\n\z
+				**********************************************************************\n\z
+				*                                                                    *\n\z
+				*         The assembler crashed. See above for more details.         *\n\z
+				*                                                                    *\n\z
+				**********************************************************************\n\z"
 
 			os.exit(false)
+		elseif assemble_result == "error" then
+			for line in io.lines("song.log") do
+				print(line)
+			end
+
+			print "\n\z
+				**********************************************************************\n\z
+				*                                                                    *\n\z
+				*       There were build errors. See song.log for more details.      *\n\z
+				*                                                                    *\n\z
+				**********************************************************************\n\z"
+
+			os.exit(false)
+		elseif assemble_result == "warning" then
+			for line in io.lines("song.log") do
+				print(line)
+			end
+
+			print "\n\z
+				**********************************************************************\n\z
+				*                                                                    *\n\z
+				*      There were build warnings. See song.log for more details.     *\n\z
+				*                                                                    *\n\z
+				**********************************************************************\n\z"
 		end
 
-		-- Produce the raw song binary from the object file.
-		os.execute(p2bin_path .. " song.p song.bin")
-
 		-- Now that we have an assembled song binary, compress it.
-		local saxman_args = improved_sound_driver_compression and "" or "-a"
-
-		os.execute(saxman_path .. " " .. saxman_args .. " song.bin \"sound/music/compressed/" .. song_name .. ".bin\"")
+		os.execute(tools.saxman .. " " .. (improved_sound_driver_compression and "" or "-a") .. " song.bin \"sound/music/compressed/" .. song_name .. ".bin\"")
 
 		-- Remove junk files from the assembly process.
-		os.remove("song.p")
 		os.remove("song.lst")
 		os.remove("song.bin")
 	end
@@ -205,84 +163,36 @@ os.remove("s2built.prev.bin")
 -- Backup the most recent ROM.
 os.rename("s2built.bin", "s2built.prev.bin")
 
--- Delete object file, so that we can use its presence to detect a successful build.
-os.remove("s2.p")
+-- Assemble the ROM.
+local assemble_result = common.assemble_file("s2", "s2built.bin", tools.as, tools.s2p2bin .. (improved_sound_driver_compression and "" or " -a"), true)
 
--- Remove this while we're at it.
-os.remove("s2.h")
+if assemble_result == "crash" then
+	print "\n\z
+		**********************************************************************\n\z
+		*                                                                    *\n\z
+		*         The assembler crashed. See above for more details.         *\n\z
+		*                                                                    *\n\z
+		**********************************************************************\n\z"
 
--- Assemble the ROM, producing an object file.
--- '-xx'  - shows the most detailed error output
--- '-c'   - outputs a shared file (s2.h)
--- '-q'   - shuts up AS
--- '-A'   - gives us a small speedup
--- '-U'   - forces case-sensitivity
--- '-E'   - output errors to a file (s2.log)
--- '-i .' - allows (b)include paths to be absolute
-os.execute(as_path .. " -xx -c -n -q -A -L -U -E -i . s2.asm")
-
--- If the assembler encountered an error, then the object file will not exist.
-if not file_exists("s2.p") then
-	if not file_exists("s2.log") then
-		print "\n\z
-			**********************************************************************\n\z
-			*                                                                    *\n\z
-			*         The assembler crashed. See above for more details.         *\n\z
-			*                                                                    *\n\z
-			**********************************************************************\n\z"
-	else
-		for line in io.lines("s2.log") do
-			print(line)
-		end
-
-		print "\n\z
-			**********************************************************************\n\z
-			*                                                                    *\n\z
-			*        There were build errors. See s2.log for more details.       *\n\z
-			*                                                                    *\n\z
-			**********************************************************************\n\z"
-	end
+	os.exit(false)
+elseif assemble_result == "error" then
+	print "\n\z
+		**********************************************************************\n\z
+		*                                                                    *\n\z
+		*        There were build errors. See s2.log for more details.       *\n\z
+		*                                                                    *\n\z
+		**********************************************************************\n\z"
 
 	os.exit(false)
 end
 
--- Convert the object file into a ROM.
-local p2bin_args = improved_sound_driver_compression and "" or "-a"
-
-os.execute(p2bin_path .. " " .. p2bin_args .. " s2.p s2built.bin s2.h")
-
-os.execute(fixpointer_path .. " s2.h s2built.bin   off_3A294 MapRUnc_Sonic $2D 0 4   word_728C_user Obj5F_MapUnc_7240 2 2 1")
+-- Correct some pointers and other data that we couldn't until after the ROM had been assembled.
+os.execute(tools.fixpointer .. " s2.h s2built.bin   off_3A294 MapRUnc_Sonic $2D 0 4   word_728C_user Obj5F_MapUnc_7240 2 2 1")
 
 -- Correct the ROM's header with a proper checksum and end-of-ROM value.
-local rom = io.open("s2built.bin", "r+b")
+common.fix_header("s2built.bin")
 
--- Obtain the end-of-ROM value.
-local rom_end = rom:seek("end", 0) - 1
-
--- Write the end-of-ROM value to the ROM header.
-rom:seek("set", 0x1A4)
-rom:write(string.pack(">I4", rom_end))
-
--- Calculate the checksum.
-local checksum = 0
-rom:seek("set", 0x200)
-for bytes in function() return rom:read(2) end do
-	if bytes:len() == 2 then
-		checksum = checksum + string.unpack(">I2", bytes)
-	else
-		checksum = checksum + (string.unpack("I1", byte) << 8)
-	end
-end
-
--- Write the checksum to the ROM header.
-rom:seek("set", 0x18E)
-rom:write(string.pack(">I2", checksum & 0xFFFF))
-
--- We're done editing the ROM header.
-rom:close()
-
--- If we've gotten this far but a log file exists, then there must have been build warnings.
-if file_exists("s2.log") then
+if assemble_result == "warning" then
 	for line in io.lines("s2.log") do
 		print(line)
 	end
