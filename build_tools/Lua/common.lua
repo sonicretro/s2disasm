@@ -14,10 +14,7 @@ end
 
 -- Returns a table containing paths to the specified native tools.
 -- Returns nil if the tools could not be found for the current platform.
-local function find_tools(tool_names)
-
-	local tools = {}
-
+local function find_tools(...)
 	local path_separator, executable_suffix, as_filename, platform_directory
 
 	local os_name, arch_name = require "get_os_name".get_os_name()
@@ -55,11 +52,13 @@ local function find_tools(tool_names)
 	-- Complete the platform directory.
 	platform_directory = "build_tools" .. path_separator .. platform_directory
 
+	local tools = {}
+
 	-- Create the path to AS.
 	tools.as = platform_directory .. path_separator .. as_filename .. executable_suffix
 
-	-- Create the path to the specified tools.
-	for _, tool_name in ipairs(tool_names) do
+	-- Create the paths to the specified tools.
+	for _, tool_name in ipairs{...} do
 		local tool_path = platform_directory .. path_separator .. tool_name .. executable_suffix
 
 		if not file_exists(tool_path) then

@@ -14,10 +14,9 @@ local improved_sound_driver_compression = false
 ---------------------
 
 local common = require "build_tools.Lua.common"
-local md5 = require "build_tools.Lua.md5"
 
 -- Obtain the paths to the native build tools for the current platform.
-local tools, platform_directory = common.find_tools({"s2p2bin", "fixpointer", "saxman"})
+local tools, platform_directory = common.find_tools("s2p2bin", "fixpointer", "saxman")
 
 -- Present an error message to the user if the build tools for their platform do not exist.
 if not tools then
@@ -35,6 +34,8 @@ if not tools then
 end
 
 -- Begin the insane task of assembling and compressing Sonic 2's music...
+
+local md5 = require "build_tools.Lua.md5"
 
 -- 'hashes.lua' contains the hashes of every assembled song. If a song's hash
 -- matches the one recorded in this file, then there is no need to assemble it again.
