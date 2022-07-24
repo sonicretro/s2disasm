@@ -68,14 +68,14 @@ end
 
 if not file_exists(p2bin_path) or not file_exists(fixpointer_path) or not file_exists(saxman_path) then
 	print(string.format("\z
-		Sorry, the build tools for your platform is outdated and needs recompiling.\n\z
+		Sorry, the build tools for your platform are outdated and need recompiling.\n\z
 		\n\z
 		You can find the source code in 'build_tools/source_code'.\n\z
 		Once compiled, copy the executables to '%s'.\n\z
 		\n\z
 		We'd appreciate it if you could send us your executables in a pull request at\n\z
-		https://github.com/sonicretro/s2disasm, so other users don't have this problem\n\z
-		in the future.", platform_directory))
+		https://github.com/sonicretro/s2disasm, so that other users don't have this\n\z
+		problem in the future.", platform_directory))
 
 	os.exit(false)
 end
