@@ -104,6 +104,8 @@ end
 -- Now that that's done, we can begin re-writing 'hashes.lua' with the new hashes that we compute in the next step.
 hashes_file = io.open("sound/music/compressed/hashes.lua", "w")
 
+hashes_file:write("improved_sound_driver_compression = " .. tostring(improved_sound_driver_compression) .. ",\n")
+
 -- Compress the songs.
 -- The songs to compress are listed in 'list of compressed songs.txt'.
 for song_name in io.lines("sound/music/compressed/list of compressed songs.txt") do
@@ -114,8 +116,10 @@ for song_name in io.lines("sound/music/compressed/list of compressed songs.txt")
 	hashes_file:write("['" .. song_name .. "'] = '" .. current_hash .. "',\n")
 
 	-- Finally, check if the hash matches the one in 'hashes.lua'.
-	if current_hash ~= previous_hashes[song_name] then
-		-- The file has been modified, so reassemble it.
+	-- If it doesn't match, then the song has been modified and needs to be reassembled.
+	-- Alternatively, the song will need reassembling if the user has changed the compression.
+	-- Or reassemble the song if the assembled version is missing.
+	if current_hash ~= previous_hashes[song_name] or improved_sound_driver_compression ~= previous_hashes.improved_sound_driver_compression or not file_exists("sound/music/compressed/" .. song_name .. ".bin") then
 		print("Reassembling song '" .. song_name .. ".asm'...")
 
 		-- To begin with, we'll create a wrapper ASM file to set the environment
