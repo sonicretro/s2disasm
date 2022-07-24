@@ -262,12 +262,12 @@ local function CreateMD5Object()
 end
 
 local function HashFile(filename)
-	local rom = io.open(filename, "rb")
+	local file = io.open(filename, "rb")
 
 	local hasher = CreateMD5Object()
 
 	while true do
-		local block_string = rom:read(64)
+		local block_string = file:read(64)
 
 		if block_string == nil then
 			bytes = 0
@@ -276,11 +276,13 @@ local function HashFile(filename)
 		end
 
 		if bytes == 64 then
-			hasher:PushData(block_string) -- All 64 bytes
+			-- All 64 bytes
+			hasher:PushData(block_string)
 		else
-			rom:close()
+			-- 63 or fewer bytes
+			file:close()
 
-			return hasher:PushFinalData(block_string, bytes * 8) -- 63 or fewer bytes
+			return hasher:PushFinalData(block_string, bytes * 8)
 		end
 	end
 end
