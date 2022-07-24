@@ -112,9 +112,6 @@ for song_name in io.lines("sound/music/compressed/list of compressed songs.txt")
 	-- Determine the hash of the current song.
 	local current_hash = md5.HashFile("sound/music/" .. song_name .. ".asm")
 
-	-- Write this hash to 'hashes.lua'.
-	hashes_file:write("['" .. song_name .. "'] = '" .. current_hash .. "',\n")
-
 	-- Finally, check if the hash matches the one in 'hashes.lua'.
 	-- If it doesn't match, then the song has been modified and needs to be reassembled.
 	-- Alternatively, the song will need reassembling if the user has changed the compression.
@@ -139,7 +136,11 @@ SonicDriverVer = 2
 
 	phase $1380
 	include "sound/music/%s.asm"
-	dephase]], song_name))
+	dephase
+
+	if *>$7C0
+		error "This song is too big and will overflow the decompression buffer! It should be uncompressed instead!"
+	endif]], song_name))
 
 		song_file:close()
 
@@ -187,6 +188,9 @@ SonicDriverVer = 2
 		os.remove("song.lst")
 		os.remove("song.bin")
 	end
+
+	-- Write this hash to 'hashes.lua'.
+	hashes_file:write("['" .. song_name .. "'] = '" .. current_hash .. "',\n")
 end
 
 -- We've written the last part of the 'hashes.lua' file, so we can close it now.
