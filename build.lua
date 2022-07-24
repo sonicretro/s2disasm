@@ -239,11 +239,7 @@ if not file_exists("s2.p") then
 end
 
 -- Convert the object file into a ROM.
-local p2bin_args = "-a"
-
-if improved_sound_driver_compression then
-	p2bin_args = ""
-end
+local p2bin_args = improved_sound_driver_compression and "" or "-a"
 
 os.execute(p2bin_path .. " " .. p2bin_args .. " s2.p s2built.bin s2.h")
 
