@@ -121,7 +121,7 @@ local function assemble_file(input_filename, output_filename, as_path, p2bin_pat
 	-- '-E'   - output errors to a file (*.log)
 	-- '-i .' - allows (b)include paths to be absolute
 	-- '-c'   - outputs a shared file (*.h)
-	os.execute(as_path .. " -xx -n -q -A -L -U -E -c -i . " .. (create_header and "-c " or " ") .. asm_filename)
+	os.execute(as_path .. " -xx -n -q -A -L -U -E -i . " .. (create_header and "-c " or " ") .. asm_filename)
 
 	-- If the assembler encountered an error, then the object file will not exist.
 	if not file_exists(object_filename) then
