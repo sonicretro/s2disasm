@@ -2,8 +2,13 @@
 
 local md5 = require "build_tools.Lua.md5"
 
+-- Prevent build.lua's calls to os.exit from terminating the program.
+local os_exit = os.exit
+os.exit = coroutine.yield
+
 -- Build the ROM.
-dofile("build.lua")
+local co = coroutine.create(function() dofile("build.lua") end)
+coroutine.resume(co)
 
 -- Hash the ROM.
 local hash = md5.HashFile("s2built.bin")
