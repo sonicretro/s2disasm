@@ -189,6 +189,9 @@ end
 -- Correct some pointers and other data that we couldn't until after the ROM had been assembled.
 os.execute(tools.fixpointer .. " s2.h s2built.bin   off_3A294 MapRUnc_Sonic $2D 0 4   word_728C_user Obj5F_MapUnc_7240 2 2 1")
 
+-- Remove the header file, since we no longer need it.
+os.remove("s2.h")
+
 -- Correct the ROM's header with a proper checksum and end-of-ROM value.
 common.fix_header("s2built.bin")
 

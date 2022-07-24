@@ -114,6 +114,7 @@ local function assemble_file(input_filename, output_filename, as_path, p2bin_pat
 	-- Delete the object file, so that we can use its presence to detect a successful build later on.
 	os.remove(object_filename)
 
+	-- Assemble the ROM, producing an object file.
 	-- '-xx'  - shows the most detailed error output
 	-- '-q'   - shuts up AS
 	-- '-A'   - gives us a small speedup
@@ -121,14 +122,7 @@ local function assemble_file(input_filename, output_filename, as_path, p2bin_pat
 	-- '-E'   - output errors to a file (*.log)
 	-- '-i .' - allows (b)include paths to be absolute
 	-- '-c'   - outputs a shared file (*.h)
-	as_arguments = "-xx -n -q -A -L -U -E -i ."
-
-	if create_header then
-		as_arguments = as_arguments .. " -c"
-	end
-
-	-- Assemble the ROM, producing an object file.
-	os.execute(as_path .. " " .. as_arguments .. " " .. asm_filename)
+	os.execute(as_path .. " -xx -n -q -A -L -U -E -c -i . " .. (create_header and "-c " or " ") .. asm_filename)
 
 	-- If the assembler encountered an error, then the object file will not exist.
 	if not file_exists(object_filename) then
@@ -142,12 +136,8 @@ local function assemble_file(input_filename, output_filename, as_path, p2bin_pat
 	-- Convert the object file to a flat binary.
 	os.execute(p2bin_path .. " " .. object_filename .. " " .. output_filename .. " " .. (create_header and header_filename or ""))
 
-	-- Remove the object and header files, since we no longer need them.
+	-- Remove the object file, since we no longer need it.
 	os.remove(object_filename)
-
-	if create_header then
-		os.remove(header_filename)
-	end
 
 	-- If a log file exists, then there were warnings.
 	if not file_exists(log_filename) then
