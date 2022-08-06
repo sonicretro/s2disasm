@@ -102,7 +102,7 @@ SonicDriverVer = 2
 		song_file:close()
 
 		-- Assemble the song to an uncompressed binary.
-		local assemble_result = common.assemble_file("song", "song.bin", tools.as, tools.s2p2bin .. (improved_sound_driver_compression and "" or " -a"), false)
+		local assemble_result = common.assemble_file("song.asm", "song.bin", tools.as, tools.s2p2bin .. (improved_sound_driver_compression and "" or " -a"), false)
 
 		-- We can get rid of this wrapper ASM file now.
 		os.remove("song.asm")
@@ -188,7 +188,7 @@ os.remove("s2built.prev.bin")
 os.rename("s2built.bin", "s2built.prev.bin")
 
 -- Assemble the ROM.
-local assemble_result = common.assemble_file("s2", "s2built.bin", tools.as, tools.s2p2bin .. (improved_sound_driver_compression and "" or " -a"), true)
+local assemble_result = common.assemble_file("s2.asm", "s2built.bin", tools.as, tools.s2p2bin .. (improved_sound_driver_compression and "" or " -a"), true)
 
 if assemble_result == "crash" then
 	print "\n\z
