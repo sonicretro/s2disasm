@@ -1,11 +1,21 @@
 SonLVL INI Files/dllcache
 SonLVL INI Files/SonLVL.log
 *~
+
+# Misc. compiler output.
 s2.h
 s2.p
 s2.lst
 s2.log
 s2.map
+
+# Built ROMs.
 s2built.bin
 s2built.prev.bin
-bin/
+
+# Automatically-generated music compression data.
+sound/music/compressed/*.bin
+sound/music/compressed/hashes.lua
+
+# Typical CMake build directory.
+build_tools/source_code/build
