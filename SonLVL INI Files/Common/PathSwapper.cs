@@ -26,8 +26,7 @@ namespace S2ObjectDefinitions.Common
 			for (int i = 0; i < 32; i++)
 			{
 				byte[] artfile = tmpartfile.GetRange(((i & 0x1C) << 5), 128).ToArray();
-
-				BitmapBits tempim = ObjectHelper.MapToBmp(artfile, mapfile, (i & 4), 0).GetBitmap();
+				BitmapBits tempim = ObjectHelper.MapASMToBmp(artfile, mapfile, (i & 4), 0).Image;
 				if ((i & 4) != 0)
 				{
 					im = new BitmapBits(tempim.Width * (1 << (i & 3)), tempim.Height);
@@ -76,9 +75,16 @@ namespace S2ObjectDefinitions.Common
 			return imgs[subtype & 0x1F];
 		}
 
+		public override Rectangle GetBounds(ObjectEntry obj, Point camera)
+		{
+			return new Rectangle(obj.X + imgs[obj.SubType & 0x1F].X - camera.X, obj.Y + imgs[obj.SubType & 0x1F].Y - camera.Y, imgs[obj.SubType & 0x1F].Width, imgs[obj.SubType & 0x1F].Height);
+		}
+
 		public override Sprite GetSprite(ObjectEntry obj)
 		{
-			return imgs[obj.SubType & 0x1F];
+			Sprite spr = new Sprite(imgs[obj.SubType & 0x1F].Image, imgs[obj.SubType & 0x1F].Offset);
+			spr.Offset = new Point(obj.X + spr.X, obj.Y + spr.Y);
+			return spr;
 		}
 
 		public override bool Debug { get { return true; } }
