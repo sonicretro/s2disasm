@@ -51,23 +51,29 @@ bytesToLcnt function n,n>>2-1
 bytesToWcnt function n,n>>1-1
 
 ; fills a region of 68k RAM with 0
-clearRAM macro addr,length
-    if ((addr)&$8000)==0
-	lea	(addr).l,a1
+clearRAM macro startaddr,endaddr
+    if startaddr>endaddr
+	fatal "Starting address of clearRAM \{startaddr} is after ending address \{endaddr}."
+    elseif startaddr==endaddr
+	warning "clearRAM is clearing zero bytes. Turning this into a nop instead."
+	exitm
+    endif
+    if ((startaddr)&$8000)==0
+	lea	(startaddr).l,a1
     else
-	lea	(addr).w,a1
+	lea	(startaddr).w,a1
     endif
 	moveq	#0,d0
-    if ((addr)&1)
+    if ((startaddr)&1)
 	move.b	d0,(a1)+
     endif
-	move.w	#bytesToLcnt(length - ((addr)&1)),d1
+	move.w	#bytesToLcnt((endaddr-startaddr) - ((startaddr)&1)),d1
 .loop:	move.l	d0,(a1)+
 	dbf	d1,.loop
-    if ((length - ((addr)&1))&2)
+    if (((endaddr-startaddr) - ((startaddr)&1))&2)
 	move.w	d0,(a1)+
     endif
-    if ((length - ((addr)&1))&1)
+    if (((endaddr-startaddr) - ((startaddr)&1))&1)
 	move.b	d0,(a1)+
     endif
     endm
@@ -262,5 +268,10 @@ planeLocH40 function col,line,(($80 * line) + (2 * col))
 ; function to calculate the location of a tile in plane mappings with a width of 128 cells
 planeLocH80 function col,line,(($100 * line) + (2 * col))
 
-SonicMappingsVer = 2
 	include "SpritePiece.asm"
+
+; macro formatting text for the game's menus
+menutxt	macro	text
+	dc.b	strlen(text)-1
+	dc.b	text
+	endm

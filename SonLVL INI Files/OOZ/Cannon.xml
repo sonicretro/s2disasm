@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="Ball Launcher" Image="up">
+  <Images>
+    <ImageFromMappings id="up">
+      <ArtFile filename="../art/nemesis/Transporter ball from OOZ.bin" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj48.bin" frame="0" startpal="3" />
+    </ImageFromMappings>
+    <ImageFromMappings id="side">
+      <ArtFile filename="../art/nemesis/Transporter ball from OOZ.bin" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj48.bin" frame="7" startpal="3" />
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="00" name="In Top" image="up" />
+    <Subtype id="01" name="In Right" image="side" />
+    <Subtype id="02" name="In Bottom">
+	  <ImageRef image="up" yflip="AlwaysFlip"/>
+	</Subtype>
+    <Subtype id="03" name="In Left">
+	  <ImageRef image="side" xflip="AlwaysFlip"/>
+	</Subtype>
+    <Subtype id="80" name="Last Cannon - In Top" image="up" />
+    <Subtype id="81" name="Last Cannon - In Right" image="side" />
+    <Subtype id="82" name="Last Cannon - In Bottom">
+	  <ImageRef image="up" yflip="AlwaysFlip"/>
+	</Subtype>
+    <Subtype id="83" name="Last Cannon - In Left">
+	  <ImageRef image="side" xflip="AlwaysFlip"/>
+	</Subtype>
+  </Subtypes>
+  <Properties>
+    <BitsProperty name="LastCannon" displayname="Last Cannon" type="bool" startbit="7" length="1" />
+    <BitsProperty name="Behaviour" type="CannonBehaviour" startbit="0" length="2" />
+  </Properties>
+  <Enums>
+    <Enum name="CannonBehaviour">
+      <EnumMember name="In Top" />
+      <EnumMember name="In Right" />
+      <EnumMember name="In Bottom" />
+      <EnumMember name="In Left" />
+    </Enum>
+  </Enums>
+  <Display>
+    <DisplayOption>
+      <Condition property="Behaviour" value="In Top"/>
+      <ImageRef image="up" xflip="NeverFlip" yflip="NeverFlip"/>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Behaviour" value="In Right"/>
+      <ImageRef image="side" xflip="NeverFlip" yflip="NeverFlip"/>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Behaviour" value="In Bottom"/>
+      <ImageRef image="up" xflip="NeverFlip" yflip="AlwaysFlip"/>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Behaviour" value="In Left"/>
+      <ImageRef image="side" xflip="AlwaysFlip" yflip="NeverFlip"/>
+    </DisplayOption>
+  </Display>
+</ObjDef>

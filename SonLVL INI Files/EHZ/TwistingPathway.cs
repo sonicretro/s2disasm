@@ -98,12 +98,12 @@ namespace S2ObjectDefinitions.EHZ
         
 		public override Sprite GetSprite(ObjectEntry obj)
 		{
-			return new Sprite(sprite.Image, new Point(sprite.X + obj.X, sprite.Y + obj.Y));
+			return sprite;
 		}
 
-		public override Rectangle GetBounds(ObjectEntry obj, Point camera)
+		public override Rectangle GetBounds(ObjectEntry obj)
 		{
-			return new Rectangle(obj.X + img.X - camera.X, obj.Y + img.Y - camera.Y, img.Width, img.Height);
+			return new Rectangle(obj.X + img.X, obj.Y + img.Y, img.Width, img.Height);
 		}
 
 		public override bool Debug { get { return true; } }
