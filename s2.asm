@@ -90208,7 +90208,7 @@ ArtUnc_Tails:	BINCLUDE	"art/uncompressed/Tails's art.bin"
 ; Sonic			; MapUnc_6FBE0: SprTbl_Sonic:
 ;--------------------------------------------------------------------------------------
 
-Mapunc_Sonic:	include	"mappings/sprite/Sonic.asm"
+MapUnc_Sonic:	include	"mappings/sprite/Sonic.asm"
 
 ;--------------------------------------------------------------------------------------
 ; Sprite Dynamic Pattern Reloading

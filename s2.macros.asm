@@ -268,6 +268,8 @@ planeLocH40 function col,line,(($80 * line) + (2 * col))
 ; function to calculate the location of a tile in plane mappings with a width of 128 cells
 planeLocH80 function col,line,(($100 * line) + (2 * col))
 
+SonicMappingsVer = 2
+
 	include "SpritePiece.asm"
 
 ; macro formatting text for the game's menus
