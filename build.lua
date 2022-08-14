@@ -1,4 +1,4 @@
-#!/usr/bin/env lua54
+#!/usr/bin/env lua
 
 --------------
 -- Settings --

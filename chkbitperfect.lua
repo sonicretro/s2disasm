@@ -1,4 +1,4 @@
-#!/usr/bin/env lua54
+#!/usr/bin/env lua
 
 local clownmd5 = require "build_tools.lua.clownmd5"
 
