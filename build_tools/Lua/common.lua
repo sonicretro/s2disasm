@@ -17,7 +17,7 @@ end
 local function find_tools(...)
 	local path_separator, executable_suffix, as_filename, platform_directory
 
-	local os_name, arch_name = require "get_os_name".get_os_name()
+	local os_name, arch_name = require "build_tools.Lua.get_os_name".get_os_name()
 
 	if os_name == "Windows" and (arch_name == "x86" or arch_name == "x86_64") then
 		path_separator = "\\"
