@@ -1,6 +1,6 @@
-#!/usr/bin/env lua
+#!/usr/bin/env lua54
 
-local clownmd5 = require "build_tools.Lua.clownmd5"
+local clownmd5 = require "build_tools.lua.clownmd5"
 
 -- Prevent build.lua's calls to os.exit from terminating the program.
 local os_exit = os.exit
