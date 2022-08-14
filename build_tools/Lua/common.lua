@@ -40,12 +40,12 @@ local function find_tools(...)
 			platform_directory = "Linux"
 		end
 	else
-		print "Build failed: Your OS is unsupported."
+		print(string.format("Build failed: Your OS (\"" .. os_name .. "\") is unsupported."))
 		os.exit(false)
 	end
 
 	if arch_name ~= "x86" and arch_name ~= "x86_64" then
-		print "Build failed: Your CPU architecture is unsupported."
+		print(string.format("Build failed: Your CPU architecture (\"" .. arch_name .. "\") is unsupported."))
 		os.exit(false)
 	end
 
