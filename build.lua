@@ -13,7 +13,7 @@ local improved_sound_driver_compression = false
 -- End of settings --
 ---------------------
 
-local common = require "build_tools.Lua.common"
+local common = require "build_tools.lua.common"
 
 -- Obtain the paths to the native build tools for the current platform.
 local tools, platform_directory = common.find_tools("s2p2bin", "fixpointer", "saxman")
@@ -35,7 +35,7 @@ end
 
 -- Begin the insane task of assembling and compressing Sonic 2's music...
 
-local clownmd5 = require "build_tools.Lua.clownmd5"
+local clownmd5 = require "build_tools.lua.clownmd5"
 
 -- 'hashes.lua' contains the hashes of every assembled song. If a song's hash
 -- matches the one recorded in this file, then there is no need to assemble it again.
@@ -102,7 +102,7 @@ SonicDriverVer = 2
 		song_file:close()
 
 		-- Assemble the song to an uncompressed binary.
-		local assemble_result = common.assemble_file("song.asm", "song.bin", tools.as, tools.s2p2bin .. (improved_sound_driver_compression and "" or " -a"), false)
+		local assemble_result = common.assemble_file("song.asm", "song.bin", tools.as, "", tools.s2p2bin, improved_sound_driver_compression and "" or "-a", false)
 
 		-- We can get rid of this wrapper ASM file now.
 		os.remove("song.asm")
@@ -188,7 +188,7 @@ os.remove("s2built.prev.bin")
 os.rename("s2built.bin", "s2built.prev.bin")
 
 -- Assemble the ROM.
-local assemble_result = common.assemble_file("s2.asm", "s2built.bin", tools.as, tools.s2p2bin .. (improved_sound_driver_compression and "" or " -a"), true)
+local assemble_result = common.assemble_file("s2.asm", "s2built.bin", tools.as, "", tools.s2p2bin, improved_sound_driver_compression and "" or "-a", true)
 
 if assemble_result == "crash" then
 	print "\n\z
@@ -200,6 +200,10 @@ if assemble_result == "crash" then
 
 	os.exit(false)
 elseif assemble_result == "error" then
+	for line in io.lines("s2.log") do
+		print(line)
+	end
+
 	print "\n\z
 		**********************************************************************\n\z
 		*                                                                    *\n\z
@@ -211,7 +215,7 @@ elseif assemble_result == "error" then
 end
 
 -- Correct some pointers and other data that we couldn't until after the ROM had been assembled.
-os.execute(tools.fixpointer .. " s2.h s2built.bin   off_3A294 MapRUnc_Sonic $2D 0 4   word_728C_user Obj5F_MapUnc_7240 2 2 1")
+os.execute(tools.fixpointer .. " s2.h s2built.bin   off_3A294 MapRUnc_Sonic 0x2D 0 4   word_728C_user Obj5F_MapUnc_7240 2 2 1")
 
 -- Remove the header file, since we no longer need it.
 os.remove("s2.h")

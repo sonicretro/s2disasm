@@ -1,5 +1,3 @@
-#!/usr/bin/env lua
-
 -- Determine if a file exists.
 local function file_exists(path)
 	local file = io.open(path, "rb")
@@ -15,42 +13,26 @@ end
 -- Returns a table containing paths to the specified native tools.
 -- Returns nil if the tools could not be found for the current platform.
 local function find_tools(...)
-	local path_separator, executable_suffix, as_filename, platform_directory
+	local path_separator, executable_suffix, as_filename
 
-	local os_name, arch_name = require "get_os_name".get_os_name()
+	local os_name, arch_name = require "build_tools.lua.get_os_name".get_os_name()
 
-	if os_name == "Windows" and (arch_name == "x86" or arch_name == "x86_64") then
+	if os_name == "Windows" then
+		-- 64-bit x86 Windows can run 32-bit x86 executables.
+		if arch_name == "x86_64" then
+			arch_name = "x86"
+		end
 		path_separator = "\\"
 		executable_suffix = ".exe"
 		as_filename = "asw"
-		platform_directory = "Win32"
-	elseif os_name == "Mac" then
-		path_separator = "/"
-		executable_suffix = ""
-		as_filename = "asl"
-		platform_directory = "Osx"
-	elseif os_name == "Linux" then
-		path_separator = "/"
-		executable_suffix = ""
-		as_filename = "asl"
-
-		if arch_name == "x86" then
-			platform_directory = "Linux32"
-		elseif arch_name == "x86_64" then
-			platform_directory = "Linux"
-		end
 	else
-		print "Build failed: Your OS is unsupported."
-		os.exit(false)
+		path_separator = "/"
+		executable_suffix = ""
+		as_filename = "asl"
 	end
 
-	if arch_name ~= "x86" and arch_name ~= "x86_64" then
-		print "Build failed: Your CPU architecture is unsupported."
-		os.exit(false)
-	end
-
-	-- Complete the platform directory.
-	platform_directory = "build_tools" .. path_separator .. platform_directory
+	-- Determine the platform directory.
+	local platform_directory = "build_tools" .. path_separator .. os_name .. "-" .. arch_name
 
 	local tools = {}
 
@@ -104,7 +86,7 @@ local function fix_header(filename)
 end
 
 -- Produce a binary from an assembly file.
-local function assemble_file(input_filename, output_filename, as_path, p2bin_path, create_header)
+local function assemble_file(input_filename, output_filename, as_path, as_arguments, p2bin_path, p2bin_arguments, create_header)
 	-- As substitutes everything after the first period.
 	local input_filename_before_first_period = string.match(input_filename, "(.-)%.");
 
@@ -123,7 +105,7 @@ local function assemble_file(input_filename, output_filename, as_path, p2bin_pat
 	-- '-E'   - output errors to a file (*.log)
 	-- '-i .' - allows (b)include paths to be absolute
 	-- '-c'   - outputs a shared file (*.h)
-	os.execute(as_path .. " -xx -n -q -A -L -U -E -i . " .. (create_header and "-c " or " ") .. input_filename)
+	os.execute(as_path .. " -xx -n -q -A -L -U -E -i . " .. (create_header and "-c" or "") .. " " .. as_arguments .. " " .. input_filename)
 
 	-- If the assembler encountered an error, then the object file will not exist.
 	if not file_exists(object_filename) then
@@ -135,7 +117,7 @@ local function assemble_file(input_filename, output_filename, as_path, p2bin_pat
 	end
 
 	-- Convert the object file to a flat binary.
-	os.execute(p2bin_path .. " " .. object_filename .. " " .. output_filename .. " " .. (create_header and header_filename or ""))
+	os.execute(p2bin_path .. " " .. p2bin_arguments .. " " .. object_filename .. " " .. output_filename .. " " .. (create_header and header_filename or ""))
 
 	-- Remove the object file, since we no longer need it.
 	os.remove(object_filename)

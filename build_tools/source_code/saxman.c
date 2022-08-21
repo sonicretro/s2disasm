@@ -71,6 +71,8 @@ int main(int argc, char **argv)
 					if (uncompressed_buffer == NULL)
 					{
 						fputs("Failed to allocate memory for compression buffer.\n", stderr);
+
+						compressed_size = 0;
 					}
 					else
 					{
