@@ -3966,11 +3966,11 @@ Sega_WaitPalette:
 	beq.s	Sega_WaitPalette
     if ~~fixBugs
 	; This is a leftover from Sonic 1: ObjB0 plays the Sega sound now.
-	; Normally, you'll only hear one Sega sound, but the actually tries
-	; to play it twice. The only reason it doesn't is because the sound
-	; queue only has room for one sound per frame. Some custom sound
-	; drivers don't have this limitation, however, and the sound will
-	; indeed play twice in those.
+	; Normally, you'll only hear one Sega sound, but the game actually
+	; tries to play it twice. The only reason it doesn't is because the
+	; sound queue only has room for one sound per frame. Some custom
+	; sound drivers don't have this limitation, however, and the sound
+	; will indeed play twice in those.
 	move.b	#SndID_SegaSound,d0
 	bsr.w	PlaySound	; play "SEGA" sound
     endif
