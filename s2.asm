@@ -69015,7 +69015,7 @@ Obj09_Index:	offsetTable
 loc_33908:
 	lea	(SS_Ctrl_Record_Buf_End).w,a1
 
-	moveq	#(SS_Ctrl_Record_Buf_End-SS_Ctrl_Record_Buf)/2-2,d0
+	moveq	#bytesToWcnt(SS_Ctrl_Record_Buf_End-SS_Ctrl_Record_Buf)-1,d0
 -	move.w	-4(a1),-(a1)
 	dbf	d0,-
 
@@ -70020,11 +70020,18 @@ SSTailsCPU_Control:
 	andi.b	#button_up_mask|button_down_mask|button_left_mask|button_right_mask|button_B_mask|button_C_mask|button_A_mask,d0
 	beq.s	+
 	moveq	#0,d0
-	moveq	#3,d1
+	moveq	#bytesToXcnt(SS_Ctrl_Record_Buf_End-SS_Ctrl_Record_Buf,4*2),d1
 	lea	(SS_Ctrl_Record_Buf).w,a1
 -
+    if fixBugs
+	move.l	d0,(a1)+
+	move.l	d0,(a1)+
+    else
+	; The pointer does not increment, preventing the 'SS_Ctrl_Record_Buf'
+	; buffer from being cleared!
 	move.l	d0,(a1)
 	move.l	d0,(a1)
+    endif
 	dbf	d1,-
 	move.w	#$B4,(Tails_control_counter).w
 	rts
@@ -70036,7 +70043,7 @@ SSTailsCPU_Control:
 	rts
 ; ===========================================================================
 +
-	lea	(SS_Last_Ctrl_Record).w,a1
+	lea	(SS_Ctrl_Record_Buf_End-2).w,a1 ; Last value
 	move.w	(a1),(Ctrl_2_Logical).w
 	rts
 ; ===========================================================================
