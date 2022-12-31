@@ -17832,6 +17832,32 @@ ScrollHoriz:
 	move.w	(a1),d4		; get camera X pos
 	tst.b	(Teleport_flag).w
 	bne.s	.return		; if a teleport is in progress, return
+    if fixBugs
+	; To prevent the bug that is described below, this caps the position
+	; array index offset so that it does not access position data from
+	; before the spin dash was performed. Note that this required
+	; modifications to 'Sonic_UpdateSpindash' and 'Tails_UpdateSpindash'.
+	move.b	(a5),d1		; should scrolling be delayed?
+	beq.s	.scrollNotDelayed	; if not, branch
+	lsl.b	#2,d1		; multiply by 4, the size of a position buffer entry
+	subq.b	#1,(a5)		; reduce delay value
+	move.b	3(a5),d0
+	sub.b	1(a5),d0
+	cmp.b	d0,d1
+	blo.s	.doNotCap
+	move.b	d0,d1
+.doNotCap:
+    else
+	; The intent of this code is to make the camera briefly lag behind the
+	; player right after releasing a spin dash, however it does this by
+	; simply making the camera use position data from previous frames. This
+	; means that if the camera had been moving recently enough, then
+	; releasing a spin dash will cause the camera to jerk around instead of
+	; remain still. This can be encountered by running into a wall, and
+	; quickly turning around and spin dashing away. Sonic 3 would have had
+	; this same issue with the Fire Shield, but it shoddily works around
+	; the issue by resetting the old position values to the current
+	; position (see 'Reset_Player_Position_Array').
 	move.w	(a5),d1		; should scrolling be delayed?
 	beq.s	.scrollNotDelayed	; if not, branch
 	subi.w	#$100,d1	; reduce delay value
@@ -17840,6 +17866,7 @@ ScrollHoriz:
 	move.b	(a5),d1		; get delay value
 	lsl.b	#2,d1		; multiply by 4, the size of a position buffer entry
 	addq.b	#4,d1
+    endif
 	move.w	2(a5),d0	; get current position buffer index
 	sub.b	d1,d0
 	move.w	(a6,d0.w),d0	; get Sonic's position a certain number of frames ago
@@ -36892,13 +36919,31 @@ Sonic_UpdateSpindash:
 	beq.s	+
 	move.w	SpindashSpeedsSuper(pc,d0.w),inertia(a0)
 +
+	; Determine how long to lag the camera for.
+	; Notably, the faster Sonic goes, the less the camera lags.
+	; This is seemingly to prevent Sonic from going off-screen.
 	move.w	inertia(a0),d0
-	subi.w	#$800,d0
+	subi.w	#$800,d0 ; $800 is the lowest spin dash speed
+    if fixBugs
+	; To fix a bug in 'ScrollHoriz', we need an extra variable, so this
+	; code has been modified to make the delay value only a single byte.
+	; The lower byte has been repurposed to hold a copy of the position
+	; array index at the time that the spin dash was released.
+	; This is used by the fixed 'ScrollHoriz'.
+	lsr.w	#7,d0
+	neg.w	d0
+	addi.w	#$20,d0
+	move.b	d0,(Horiz_scroll_delay_val).w
+	; Back up the position array index for later.
+	move.b	(Sonic_Pos_Record_Index+1).w,(Horiz_scroll_delay_val+1).w
+    else
 	add.w	d0,d0
-	andi.w	#$1F00,d0
+	andi.w	#$1F00,d0 ; This line is not necessary, as none of the removed bits are ever set in the first place
 	neg.w	d0
 	addi.w	#$2000,d0
 	move.w	d0,(Horiz_scroll_delay_val).w
+    endif
+
 	btst	#0,status(a0)
 	beq.s	+
 	neg.w	inertia(a0)
@@ -39727,13 +39772,32 @@ Tails_UpdateSpindash:
 	move.b	spindash_counter(a0),d0
 	add.w	d0,d0
 	move.w	Tails_SpindashSpeeds(pc,d0.w),inertia(a0)
+
+	; Determine how long to lag the camera for.
+	; Notably, the faster Tails goes, the less the camera lags.
+	; This is seemingly to prevent Tails from going off-screen.
 	move.w	inertia(a0),d0
-	subi.w	#$800,d0
+	subi.w	#$800,d0 ; $800 is the lowest spin dash speed
+    if fixBugs
+	; To fix a bug in 'ScrollHoriz', we need an extra variable, so this
+	; code has been modified to make the delay value only a single byte.
+	; The lower byte has been repurposed to hold a copy of the position
+	; array index at the time that the spin dash was released.
+	; This is used by the fixed 'ScrollHoriz'.
+	lsr.w	#7,d0
+	neg.w	d0
+	addi.w	#$20,d0
+	move.b	d0,(Horiz_scroll_delay_val_P2).w
+	; Back up the position array index for later.
+	move.b	(Tails_Pos_Record_Index+1).w,(Horiz_scroll_delay_val_P2+1).w
+    else
 	add.w	d0,d0
-	andi.w	#$1F00,d0
+	andi.w	#$1F00,d0 ; This line is not necessary, as none of the removed bits are ever set in the first place
 	neg.w	d0
 	addi.w	#$2000,d0
 	move.w	d0,(Horiz_scroll_delay_val_P2).w
+    endif
+
 	btst	#0,status(a0)
 	beq.s	+
 	neg.w	inertia(a0)
