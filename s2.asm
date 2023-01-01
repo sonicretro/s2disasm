@@ -17855,9 +17855,9 @@ ScrollHoriz:
 	; releasing a spin dash will cause the camera to jerk around instead of
 	; remain still. This can be encountered by running into a wall, and
 	; quickly turning around and spin dashing away. Sonic 3 would have had
-	; this same issue with the Fire Shield, but it shoddily works around
-	; the issue by resetting the old position values to the current
-	; position (see 'Reset_Player_Position_Array').
+	; this same issue with the Fire Shield's dash abiliity, but it shoddily
+	; works around the issue by resetting the old position values to the
+	; current position (see 'Reset_Player_Position_Array').
 	move.w	Horiz_scroll_delay_val-Camera_Delay(a5),d1	; should scrolling be delayed?
 	beq.s	.scrollNotDelayed				; if not, branch
 	subi.w	#$100,d1					; reduce delay value
