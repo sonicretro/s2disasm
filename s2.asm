@@ -38221,6 +38221,24 @@ Obj02_Init_Continued:
 	move.w	top_solid_bit(a0),(Saved_Solid_bits_2P).w
 	move.b	#0,flips_remaining(a0)
 	move.b	#4,flip_speed(a0)
+    if fixBugs
+	; The Super Sonic flag can be carried to the title screen by either
+	; watching the Super Sonic ending or resetting/getting a game over
+	; while playing as Super Sonic. If you then start a Tails Alone game,
+	; the flag will stay set throughout the game, as it's only reset by the
+	; Sonic object and the ending sequence.
+	; This causes the following bugs:
+	; - Invincibility monitors don't work (see invincible_monitor)
+	; - WFZ->DEZ cutscene will desync (see ObjB2_Prepare_to_jump)
+	; - The crash that happens with Super Sonic on the continue screen.
+	;   (see ObjDB_Sonic_Init)
+	; To fix this, we make the Tails object clear the flag too.
+	; TODO: figure out if it's safe to do this unconditionally
+	cmpi.w	#2,(Player_mode).w
+	bne.s	+
+	move.b	#0,(Super_Sonic_flag).w
++
+    endif
 	move.b	#30,air_left(a0)
 	move.w	#0,(Tails_CPU_routine).w	; set AI state to TailsCPU_Init
 	move.w	#0,(Tails_control_counter).w
