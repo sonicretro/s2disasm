@@ -10434,6 +10434,13 @@ ObjDB_Sonic_Init:
 	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a0)
 	move.b	#4,render_flags(a0)
 	move.b	#2,priority(a0)
+    if fixBugs
+	; Super Sonic is missing the Lying and LieDown animations. Trying to
+	; display the second one will crash the game. To prevent that, switch
+	; to regular Sonic. (Not to mention the continue screen uses the
+	; regular Sonic palette anyway.)
+	move.b	#0,(Super_Sonic_flag).w
+    endif
 	move.b	#AniIDSonAni_Lying,anim(a0)
 
 ; loc_7BD2:
@@ -38072,6 +38079,8 @@ SuperSonicAniData: offsetTable
 	offsetTableEntry.w SonAni_Balance3	; 29 ; $1D
 	offsetTableEntry.w SonAni_Balance4	; 30 ; $1E
 	offsetTableEntry.w SupSonAni_Transform	; 31 ; $1F
+	; NOTE: Lying and LieDown animations are missing. This causes a crash
+	; on the continue screen. See ObjDB_Sonic_Init for the fix.
 
 SupSonAni_Walk:		dc.b $FF,$77,$78,$79,$7A,$7B,$7C,$75,$76,$FF
 	rev02even
