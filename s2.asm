@@ -62118,20 +62118,6 @@ Obj5D_Pipe_Extend_Part2:
 	move.w	d0,Obj5D_y_pos_next(a1)
 	add.w	d0,y_pos(a1)
 	move.b	#1,anim(a1)
-    if fixBugs
-	; If the Chemical Plant Zone boss is defeated while its pipe is
-	; extending, then an incorrect sprite will appear at the boss's rear
-	; as it explodes.
-	; The above line is supposed to make the newly-spawned pipe segment
-	; use sprite frame 1, but the AnimateSprite function must be called
-	; afterwards for that to happen. When the boss is defeated, the segment
-	; will switch from calling Obj5D_PipeSegment to Obj5D_FallingParts,
-	; which does not call AnimateSprite.
-	; This means that if the boss were to be defeated right as a pipe
-	; segment spawns, then it will never call AnimateSprite, causing it to
-	; display sprite frame 0 instead of 1.
-	move.b	#1,mapping_frame(a1)
-    endif
 	cmpi.b	#2,routine_secondary(a1)
 	beq.w	Obj5D_PipeSegment	; only true for the first object
 	move.b	#$E,routine(a1)	; => Obj5D_PipeSegment
@@ -62348,7 +62334,26 @@ Obj5D_PipeSegment_End:
 	addi.b	#$1E,d0
 	andi.w	#$7F,d0
 	move.b	d0,Obj5D_timer(a0)
+    if fixBugs
+	lea	(Ani_Obj5D_Dripper).l,a1
+	jsr	(AnimateSprite).l
+	jmp	(DisplaySprite).l
+    else
+	; If the Chemical Plant Zone boss is defeated while its pipe is
+	; extending, then an incorrect sprite will appear at the boss's rear
+	; as it explodes.
+	; Pipe segments are supposed to use sprite frame 1, but the
+	; AnimateSprite function must be called for that to happen. When the
+	; boss is defeated, the segment will switch from calling
+	; Obj5D_PipeSegment to Obj5D_PipeSegment_End, which does not call
+	; AnimateSprite.
+	; This means that if the boss were to be defeated right as a pipe
+	; segment spawns, then it will never call AnimateSprite, causing it to
+	; display sprite frame 0 instead of 1.
+	; To fix this bug, Obj5D_PipeSegment_End should be made to call
+	; AnimateSprite.
 	jmpto	DisplaySprite, JmpTo34_DisplaySprite
+    endif
 ; ===========================================================================
 
 Obj5D_Dripper:
