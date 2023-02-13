@@ -61629,13 +61629,13 @@ Obj5D_Main:
 	jmp	(DisplaySprite).l
 ; ===========================================================================
 Obj5D_Main_Index:	offsetTable
-		offsetTableEntry.w Obj5D_Main_0	;  0
-		offsetTableEntry.w Obj5D_Main_2	;  2
-		offsetTableEntry.w Obj5D_Main_4	;  4
-		offsetTableEntry.w Obj5D_Main_6	;  6
-		offsetTableEntry.w Obj5D_Main_8	;  8
-		offsetTableEntry.w Obj5D_Main_A	; $A
-		offsetTableEntry.w Obj5D_Main_C	; $C
+		offsetTableEntry.w Obj5D_Main_Descend		;  0
+		offsetTableEntry.w Obj5D_Main_MoveTowardTarget	;  2
+		offsetTableEntry.w Obj5D_Main_Wait		;  4
+		offsetTableEntry.w Obj5D_Main_FollowPlayer	;  6
+		offsetTableEntry.w Obj5D_Main_Explode		;  8
+		offsetTableEntry.w Obj5D_Main_StopExploding	; $A
+		offsetTableEntry.w Obj5D_Main_Retreat		; $C
 ; ===========================================================================
 ; Makes the boss look in Sonic's direction under certain circumstances.
 
@@ -61653,26 +61653,28 @@ Obj5D_LookAtChar:
 	bset	#0,status(a0)
 	rts
 ; ===========================================================================
-
-Obj5D_Main_8:
+;Obj5D_Main_8:
+Obj5D_Main_Explode:
 	subq.w	#1,Obj5D_defeat_timer(a0)
-	bpl.w	Obj5D_Main_Explode
+	bpl.w	Obj5D_Main_CreateExplosion
 	bset	#0,status(a0)
 	bclr	#7,status(a0)
 	clr.w	x_vel(a0)
-	addq.b	#2,routine_secondary(a0)	; => Obj5D_Main_A
+	addq.b	#2,routine_secondary(a0)	; => Obj5D_Main_StopExploding
 	move.w	#-$26,Obj5D_defeat_timer(a0)
 	rts
 ; ===========================================================================
-
-Obj5D_Main_A:
+;Obj5D_Main_A:
+Obj5D_Main_StopExploding:
 	addq.w	#1,Obj5D_defeat_timer(a0)
 	beq.s	+
 	bpl.s	++
+	; Fall slightly
 	addi.w	#$18,y_vel(a0)
 	bra.s	Obj5D_Main_A_End
 ; ---------------------------------------------------------------------------
 +
+	; Stop falling
 	clr.w	y_vel(a0)
 	bra.s	Obj5D_Main_A_End
 ; ---------------------------------------------------------------------------
@@ -61682,14 +61684,16 @@ Obj5D_Main_A:
 	beq.s	++
 	cmpi.w	#$38,Obj5D_defeat_timer(a0)
 	blo.s	Obj5D_Main_A_End
-	addq.b	#2,routine_secondary(a0)	; => Obj5D_Main_C
+	addq.b	#2,routine_secondary(a0)	; => Obj5D_Main_Retreat
 	bra.s	Obj5D_Main_A_End
 ; ---------------------------------------------------------------------------
 +
+	; Rise slightly
 	subi_.w	#8,y_vel(a0)
 	bra.s	Obj5D_Main_A_End
 ; ---------------------------------------------------------------------------
 +
+	; Stop rising
 	clr.w	y_vel(a0)
 	jsrto	PlayLevelMusic, JmpTo_PlayLevelMusic
 	jsrto	LoadPLC_AnimalExplosion, JmpTo_LoadPLC_AnimalExplosion
@@ -61698,8 +61702,8 @@ Obj5D_Main_A_End:
 	bsr.w	Obj5D_Main_Move
 	bra.w	Obj5D_Main_Pos_and_Collision
 ; ===========================================================================
-
-Obj5D_Main_C:
+;Obj5D_Main_C:
+Obj5D_Main_Retreat:
 	bset	#6,Obj5D_status2(a0)
 	move.w	#$400,x_vel(a0)
 	move.w	#-$40,y_vel(a0)
@@ -61728,14 +61732,20 @@ JmpTo51_DeleteObject ; JmpTo
 
 	jmp	(DeleteObject).l
 ; ===========================================================================
-
-Obj5D_Main_0:
+;Obj5D_Main_0:
+Obj5D_Main_Descend:
+	; Strangely, there is code here for Eggman to descend into the arena
+	; just like he does in Green Hill Zone in Sonic 1. Because Eggman
+	; spawns off-screen, the player never gets to see him do this.
+	; The reason for this is that this entire function is copied from
+	; Green Hill Zone's boss (see `BGHZ_ShipStart` in the Sonic 1
+	; disassembly).
 	move.w	#$100,y_vel(a0)
 	bsr.w	Obj5D_Main_Move
 	cmpi.w	#$4C0,Obj5D_y_pos_next(a0)
 	bne.s	Obj5D_Main_Pos_and_Collision
 	move.w	#0,y_vel(a0)
-	addq.b	#2,routine_secondary(a0)	; => Obj5D_Main_2
+	addq.b	#2,routine_secondary(a0)	; => Obj5D_Main_MoveTowardTarget
 
 Obj5D_Main_Pos_and_Collision:
 	; do hovering motion using sine wave
@@ -61757,10 +61767,12 @@ Obj5D_Main_Pos_and_Collision:
 	; if collisions are turned off, it means the boss was hit
 	tst.b	Obj5D_invulnerable_time(a0)
 	bne.s	+			; branch, if still invulnerable
-	move.b	#$20,Obj5D_invulnerable_time(a0)
+	move.b	#32,Obj5D_invulnerable_time(a0)
 	move.w	#SndID_BossHit,d0
 	jsr	(PlaySound).l
 +
+	; Make the boss sprite flash by alternating the black
+	; colour in palette line 3 between black and white.
 	lea	(Normal_palette_line2+2).w,a1
 	moveq	#0,d0		; color black
 	tst.w	(a1)	; test palette entry
@@ -61768,6 +61780,7 @@ Obj5D_Main_Pos_and_Collision:
 	move.w	#$EEE,d0	; color white
 +
 	move.w	d0,(a1)		; set color for flashing effect
+
 	subq.b	#1,Obj5D_invulnerable_time(a0)
 	bne.s	return_2DAE8
 	move.b	#$F,collision_flags(a0)	; restore collisions
@@ -61781,8 +61794,8 @@ return_2DAE8:
 Obj5D_Defeated:
 	moveq	#100,d0
 	jsrto	AddPoints, JmpTo2_AddPoints
-	move.b	#8,routine_secondary(a0)	; => Obj5D_Main_8
-	move.w	#$B3,Obj5D_defeat_timer(a0)
+	move.b	#8,routine_secondary(a0)	; => Obj5D_Main_Explode
+	move.w	#60*3-1,Obj5D_defeat_timer(a0)
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
 	move.b	#4,anim(a1)
 	moveq	#PLCID_Capsule,d0
@@ -61807,8 +61820,8 @@ Obj5D_Main_Move:
 	rts
 ; ===========================================================================
 ; Creates an explosion every 8 frames at a random position relative to boss.
-
-Obj5D_Main_Explode:
+;Obj5D_Main_Explode:
+Obj5D_Main_CreateExplosion:
 	move.b	(Vint_runcount+3).w,d0
 	andi.b	#7,d0
 	bne.s	+	; rts
@@ -61837,13 +61850,20 @@ Obj5D_Main_Explode2:
 	jsr	(SingleObjLoad).l
 	bne.s	+	; rts
 	_move.b	#ObjID_BossExplosion,id(a1) ; load obj58
+	; This code suggests that the intended effect is for each piece of
+	; the boss to explode before falling off. However, this does not work
+	; as the `x_pos` and `y_pos` values do not match the actual physical
+	; locations of the pieces. In fact, most pieces' X and Y positions are
+	; in the middle of the Eggmobile, completely ruining the effect.
+	; I would use `fixBugs` to fix this, but this is a pretty deep-rooted
+	; issue to would be complicated to fix.
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
 +
 	rts
 ; ===========================================================================
-
-Obj5D_Main_2:
+;Obj5D_Main_2:
+Obj5D_Main_MoveTowardTarget:
 	btst	#3,Obj5D_status(a0)	; is boss on the left side of the arena?
 	bne.s	+			; if yes, branch
 	move.w	#$2B30,d0	; right side of arena
@@ -61876,30 +61896,35 @@ Obj5D_Main_2_End:
 ; ===========================================================================
 
 Obj5D_Main_2_Stop:
+	; Once again, there's some strange code that changes Eggman's
+	; behaviour if he's above or below his target. Because Eggman is
+	; always at the expected Y position, this behaviour is never seen
+	; in-game.
 	cmpi.w	#$4C0,Obj5D_y_pos_next(a0)
 	bne.w	Obj5D_Main_Pos_and_Collision
+
 	move.w	#0,x_vel(a0)
-	move.w	#0,y_vel(a0)
-	addq.b	#2,routine_secondary(a0)	; => Obj5D_Main_4
+	move.w	#0,y_vel(a0)	; Halt Eggman's vertical movement... not that he had any to begin with.
+	addq.b	#2,routine_secondary(a0)	; => Obj5D_Main_Wait
 	bchg	#3,Obj5D_status(a0)	; indicate boss is now at the other side
 	bset	#0,Obj5D_status2(a0)	; action 0
 	bra.w	Obj5D_Main_Pos_and_Collision
 ; ===========================================================================
 ; when status2 bit 0 set, wait for something
-
-Obj5D_Main_4:
+;Obj5D_Main_4:
+Obj5D_Main_Wait:
 	btst	#0,Obj5D_status2(a0)	; action 0?
 	beq.s	+			; if not, branch
 	bra.w	Obj5D_Main_Pos_and_Collision
 ; ---------------------------------------------------------------------------
 +
-	addq.b	#2,routine_secondary(a0)	; => Obj5D_Main_6
+	addq.b	#2,routine_secondary(a0)	; => Obj5D_Main_FollowPlayer
 	bra.w	Obj5D_Main_Pos_and_Collision
 ; ===========================================================================
-
-Obj5D_Main_6:
+;Obj5D_Main_6:
+Obj5D_Main_FollowPlayer:
 	move.w	(MainCharacter+x_pos).w,d0
-	addi.w	#$4C,d0
+	addi.w	#76,d0				; Keep a distance of 76 pixels when following the player.
 	cmp.w	Obj5D_x_pos_next(a0),d0
 	bgt.s	Obj5D_Main_6_MoveRight
 	beq.w	Obj5D_Main_Pos_and_Collision
@@ -61949,7 +61974,8 @@ Obj5D_FallingParts:
 
 Obj5D_Pump:
 	btst	#7,status(a0)
-	bne.s	+
+	bne.s	.bossDefeated
+
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
 	move.l	x_pos(a1),x_pos(a0)
 	move.l	y_pos(a1),y_pos(a0)
@@ -61959,8 +61985,11 @@ Obj5D_Pump:
 	jsr	(AnimateSprite).l
 	jmp	(DisplaySprite).l
 ; ---------------------------------------------------------------------------
-+
-	moveq	#$22,d3
+
+.bossDefeated:
+	; Split this object into three pieces which each separately fall
+	; apart from the boss.
+	moveq	#$22,d3	; Start with sprite $22
 	move.b	#$78,Obj5D_timer(a0)
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
 	move.w	x_pos(a1),x_pos(a0)
@@ -61972,7 +62001,8 @@ Obj5D_Pump:
 	asr.w	#6,d0
 	move.w	d0,x_vel(a0)
 	move.w	#-$380,y_vel(a0)
-	moveq	#1,d2
+
+	moveq	#2-1,d2 ; Create two more objects
 	addq.w	#1,d3
 
 -
@@ -61999,7 +62029,7 @@ Obj5D_Pump:
 	addi.b	#$1E,d0
 	andi.w	#$7F,d0
 	move.b	d0,Obj5D_timer(a1)
-	addq.w	#1,d3
+	addq.w	#1,d3	; Next sprite
 	dbf	d2,-
 	rts
 ; ===========================================================================
@@ -62012,12 +62042,14 @@ Obj5D_Pipe:
 	jmp	Obj5D_Pipe_Index(pc,d1.w)
 ; ===========================================================================
 Obj5D_Pipe_Index:	offsetTable
-		offsetTableEntry.w Obj5D_Pipe_0	; 0
-		offsetTableEntry.w Obj5D_Pipe_2_Load	; 2
+		offsetTableEntry.w Obj5D_Pipe_Wait	; 0
+		offsetTableEntry.w Obj5D_Pipe_Extend	; 2
 ; ===========================================================================
 ; wait for main vehicle's action 0
-
-Obj5D_Pipe_0:
+;Obj5D_Pipe_0:
+Obj5D_Pipe_Wait:
+	; Bit 0 of `Obj5D_status2` is set when the boss has reached its
+	; destination and is ready to begin filling its tank.
 	movea.l	Obj5D_parent(a0),a1	; parent = main vehicle ; a1=object
 	btst	#0,Obj5D_status2(a1)	; parent's action 0?
 	bne.s	+			; if yes, branch
@@ -62034,20 +62066,20 @@ Obj5D_Pipe_0:
 	; See the below bugfix.
 	move.w	#$C,Obj5D_pipe_segments(a0)
     endif
-	addq.b	#2,routine_secondary(a0)	; => Obj5D_Pipe_2_Load
+	addq.b	#2,routine_secondary(a0)	; => Obj5D_Pipe_Extend
 	movea.l	a0,a1
-	bra.s	Obj5D_Pipe_2_Load_Part2		; skip initial loading setup
+	bra.s	Obj5D_Pipe_Extend_Part2		; skip initial loading setup
 ; ===========================================================================
 ; load pipe segments, first object controls rest of pipe
 ; objects not loaded in a loop => one segment loaded per frame
 ; pipe extends gradually
-
-Obj5D_Pipe_2_Load:
+;Obj5D_Pipe_2_Load:
+Obj5D_Pipe_Extend:
 	; This code allocates one more object than necessary, leaving a
 	; partially initialised object in memory.
     if fixBugs
 	subq.w  #1,Obj5D_pipe_segments(a0)	; is pipe fully extended?
-	blt.s   Obj5D_Pipe_2_Load_End		; if yes, branch
+	blt.s   Obj5D_Pipe_Extend_End		; if yes, branch
     endif
 	jsr	(SingleObjLoad2).l
 	beq.s	+
@@ -62055,11 +62087,11 @@ Obj5D_Pipe_2_Load:
 ; ---------------------------------------------------------------------------
 +
 	move.l	a0,Obj5D_parent(a1)
-
-Obj5D_Pipe_2_Load_Part2:
+;Obj5D_Pipe_2_Load_Part2:
+Obj5D_Pipe_Extend_Part2:
     if ~~fixBugs
 	subq.w  #1,Obj5D_pipe_segments(a0)	; is pipe fully extended?
-	blt.s   Obj5D_Pipe_2_Load_End		; if yes, branch
+	blt.s   Obj5D_Pipe_Extend_End		; if yes, branch
     endif
 
 	_move.b #ObjID_CPZBoss,id(a1)	; load obj5D
@@ -62073,22 +62105,36 @@ Obj5D_Pipe_2_Load_Part2:
 
 	; calculate y position for current pipe segment
 	move.w	Obj5D_pipe_segments(a0),d0
-	subi.w	#$B,d0	; $B = maximum number of pipe segments -1, result is always negative or zero
+	subi.w	#$C-1,d0	; $B = maximum number of pipe segments -1, result is always negative or zero
 	neg.w	d0	; positive value needed
 	lsl.w	#3,d0	; multiply with 8
 	move.w	d0,Obj5D_y_pos_next(a1)
 	add.w	d0,y_pos(a1)
 	move.b	#1,anim(a1)
+    if fixBugs
+	; If the Chemical Plant Zone boss is defeated while its pipe is
+	; extending, then an incorrect sprite will appear at the boss's rear
+	; as it explodes.
+	; The above line is supposed to make the newly-spawned pipe segment
+	; use sprite frame 1, but the AnimateSprite function must be called
+	; afterwards for that to happen. When the boss is defeated, the segment
+	; will switch from calling Obj5D_PipeSegment to Obj5D_FallingParts,
+	; which does not call AnimateSprite.
+	; This means that if the boss were to be defeated right as a pipe
+	; segment spawns, then it will never call AnimateSprite, causing it to
+	; display sprite frame 0 instead of 1.
+	move.b	#1,mapping_frame(a1)
+    endif
 	cmpi.b	#2,routine_secondary(a1)
 	beq.w	Obj5D_PipeSegment	; only true for the first object
 	move.b	#$E,routine(a1)	; => Obj5D_PipeSegment
 	bra.w	Obj5D_PipeSegment
 ; ===========================================================================
 ; once all pipe segments have been loaded, switch to pumping routine
-
-Obj5D_Pipe_2_Load_End:
-	move.b	#0,routine_secondary(a0)
-	move.b	#6,routine(a0)	; => Obj5D_Pipe_Pump_0
+;Obj5D_Pipe_2_Load_End:
+Obj5D_Pipe_Extend_End:
+	move.b	#0,routine_secondary(a0)	; => Obj5D_Pipe_Pump_0
+	move.b	#6,routine(a0)			; => Obj5D_Pipe_Pump
 	bra.w	Obj5D_PipeSegment
 ; ===========================================================================
 ; Object to control the pipe's actions while pumping.
@@ -62110,7 +62156,7 @@ Obj5D_Pipe_Pump_0:
 	jsr	(SingleObjLoad2).l
 	bne.w	Obj5D_PipeSegment
 	move.b	#$E,routine(a0)	; => Obj5D_PipeSegment	; temporarily turn control object into a pipe segment
-	move.b	#6,routine(a1)
+	move.b	#6,routine(a1)			; => Obj5D_Pipe_Pump
 	move.b	#2,routine_secondary(a1)	; => Obj5D_Pipe_Pump_2
 	_move.b	#ObjID_CPZBoss,id(a1) ; load obj5D
 	move.l	#Obj5D_MapUnc_2EADC,mappings(a1)
@@ -62129,6 +62175,7 @@ Obj5D_Pipe_Pump_0:
 	move.b	#2,anim(a1)
 	move.l	a0,Obj5D_parent(a1)	; address of control object
 	move.b	#$12,Obj5D_timer(a1)
+
 	jsr	(SingleObjLoad2).l
 	bne.s	BranchTo_Obj5D_PipeSegment
 	_move.b	#ObjID_CPZBoss,id(a1) ; load obj5D
@@ -62284,7 +62331,7 @@ BranchTo_JmpTo51_DeleteObject ; BranchTo
 ; ===========================================================================
 
 Obj5D_PipeSegment_End:
-	move.b	#$14,routine(a0)
+	move.b	#$14,routine(a0)	; => Obj5D_FallingParts
 	jsr	(RandomNumber).l
 	asr.w	#8,d0
 	asr.w	#6,d0
@@ -62479,7 +62526,7 @@ Obj5D_Container_FallOff:
 +
 	add.w	d0,x_pos(a0)
 	move.b	#$20,mapping_frame(a0)
-	move.b	#$14,routine(a0)
+	move.b	#$14,routine(a0)	; => Obj5D_FallingParts
 	jsr	(RandomNumber).l
 	asr.w	#8,d0
 	asr.w	#6,d0
@@ -62511,7 +62558,7 @@ loc_2E35C:
 	_move.b	#ObjID_CPZBoss,id(a1) ; load obj5D
 	move.l	#Obj5D_MapUnc_2EADC,mappings(a1)
 	move.b	#$21,mapping_frame(a1)
-	move.b	#$14,routine(a1)
+	move.b	#$14,routine(a1)	; => Obj5D_FallingParts
 	move.w	#make_art_tile(ArtTile_ArtNem_CPZBoss,1,0),art_tile(a1)
 	move.b	render_flags(a0),render_flags(a1)
 	move.b	#$20,width_pixels(a1)
@@ -62595,8 +62642,8 @@ loc_2E464:
 	bne.s	return_2E4CC
 	_move.b	#ObjID_CPZBoss,id(a1) ; load obj5D
 	move.l	a0,Obj5D_parent(a1)
-	move.b	#$10,routine(a1)
-	move.b	#8,routine_secondary(a1)
+	move.b	#$10,routine(a1)		; => Obj5D_Container
+	move.b	#8,routine_secondary(a1)	; => Obj5D_Container_Floor2
 	move.l	#Obj5D_MapUnc_2EADC,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_CPZBoss,1,0),art_tile(a1)
 	move.b	#4,render_flags(a1)
@@ -62635,11 +62682,12 @@ loc_2E4CE:
 	move.b	#4,priority(a1)
 	move.l	x_pos(a0),x_pos(a1)
 	move.l	y_pos(a0),y_pos(a1)
-	move.b	#4,routine(a1)
+	move.b	#4,routine(a1)		; => Obj5D_Pipe
 	move.b	#0,routine_secondary(a0)
 	bra.s	return_2E550
 ; ===========================================================================
-	move.b	#$A,routine(a1)
+	; Some mysterious dead code...
+	move.b	#$A,routine(a1)		; => Obj5D_Dripper
 	move.l	Obj5D_parent(a0),Obj5D_parent(a1)
 
 return_2E550:
@@ -62954,11 +63002,11 @@ Obj5D_Robotnik_End:
 	jsr	(AnimateSprite).l
 	jmp	(DisplaySprite).l
 ; ===========================================================================
-byte_2E94A:
+;byte_2E94A:
+Obj5D_Flame_Frames:
 	dc.b   0
-	dc.b $FF	; 1
+	dc.b  -1	; 1
 	dc.b   1	; 2
-	dc.b   0	; 3
 	even
 ; ===========================================================================
 
@@ -62979,7 +63027,7 @@ Obj5D_Flame:
 	ble.s	+
 	moveq	#0,d0
 +
-	move.b	byte_2E94A(pc,d0.w),mapping_frame(a0)
+	move.b	Obj5D_Flame_Frames(pc,d0.w),mapping_frame(a0)
 	move.b	d0,Obj5D_timer2(a0)
 
 loc_2E996:
@@ -62999,7 +63047,7 @@ loc_2E9A8:
     if fixBugs
 	addq.b	#2,routine(a0)
     else
-	; Eggman is supposed to starting leaving a trail of smoke here, but
+	; Eggman is supposed to start leaving a trail of smoke here, but
 	; this code is incorrect which prevents it from appearing.
 	; This should be 'routine' instead of 'routine_secondary'...
 	addq.b	#2,routine_secondary(a0)
