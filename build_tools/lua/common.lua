@@ -87,7 +87,7 @@ end
 
 -- Produce a binary from an assembly file.
 local function assemble_file(input_filename, output_filename, as_path, as_arguments, p2bin_path, p2bin_arguments, create_header)
-	-- As substitutes everything after the first period.
+	-- AS substitutes everything after the first period.
 	local input_filename_before_first_period = string.match(input_filename, "(.-)%.");
 
 	local object_filename = input_filename_before_first_period .. ".p"
