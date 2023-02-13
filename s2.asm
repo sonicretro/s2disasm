@@ -62031,7 +62031,14 @@ Obj5D_Pump:
 	move.b	d0,Obj5D_timer(a1)
 	addq.w	#1,d3	; Next sprite
 	dbf	d2,-
+    if fixBugs
+	jmp	(DisplaySprite).l
+    else
+	; This function fails to display the current object, causing the top
+	; piece of the Chemical Plant Zone boss to disappear for one frame when
+	; the boss is defeated.
 	rts
+    endif
 ; ===========================================================================
 ; Object to control the pipe's actions before pumping starts.
 
