@@ -26,9 +26,7 @@
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; ASSEMBLY OPTIONS:
 ;
-    ifndef gameRevision
 gameRevision = 3
-    endif
 ;	| If 0, a REV00 ROM is built
 ;	| If 1, a REV01 ROM is built, which contains some fixes
 ;	| If 2, a (probable) REV02 ROM is built, which contains even more fixes
@@ -77,6 +75,10 @@ standaloneKiS2 = 0
 ; Simplifying macros and functions
 	include "s2.macros.asm"
 
+; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+; Expressing SMPS bytecode in a portable and human-readable form
+SonicDriverVer = 2 ; Tell SMPS2ASM that we are targetting Sonic 2's sound driver
+	include "sound/_smps2asm_inc.asm"
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; Lock-On Technology ROM locations
     if gameRevision=3
@@ -2103,7 +2105,17 @@ RunPLC_RAM:
 	adda.w	#NemDec_WriteAndStay_XOR-NemDec_WriteAndStay,a3
 +
 	andi.w	#$7FFF,d2
+    if ~~fixBugs
+	; This is done too early: this variable is used to determine when
+	; there are PLCs to process, which means that as soon as this
+	; variable is set, PLC processing will occur during V-Int. If an
+	; interrupt occurs between here and the end of this function, then
+	; the PLC processor will begin despite it not being fully
+	; initialised yet, causing a crash. S3K fixes this bug by moving this
+	; instruction to the end of the function.
 	move.w	d2,(Plc_Buffer_Reg18).w
+    endif
+
 	bsr.w	NemDecPrepare
 	move.b	(a0)+,d5
 	asl.w	#8,d5
@@ -2117,6 +2129,10 @@ RunPLC_RAM:
 	move.l	d0,(Plc_Buffer_RegC).w
 	move.l	d5,(Plc_Buffer_Reg10).w
 	move.l	d6,(Plc_Buffer_Reg14).w
+    if fixBugs
+	; See above.
+	move.w	d2,(Plc_Buffer_Reg18).w
+    endif
 
 .return:
 	rts
@@ -3085,7 +3101,13 @@ PalCycle_SuperSonic:
 	move.w	(Palette_frame).w,d0
 	subq.w	#8,(Palette_frame).w	; previous frame
 	bcc.s	+			; branch, if it isn't the first frame
+    if fixBugs
+	move.w	#0,(Palette_frame).w
+    else
+	; This does not clear the full variable, causing this palette cycle
+	; to behave incorrectly the next time it is activated.
 	move.b	#0,(Palette_frame).w
+    endif
 	move.b	#0,(Super_Sonic_palette).w	; stop palette cycle
 +
 	lea	(Normal_palette+4).w,a1
@@ -3145,7 +3167,12 @@ PalCycle_SuperSonic:
 	move.w	(Palette_frame).w,d0
 	addq.w	#8,(Palette_frame).w	; next frame
 	cmpi.w	#$78,(Palette_frame).w	; is it the last frame?
+    if fixBugs
+	bls.s	+			; if not, branch
+    else
+	; This condition causes the last frame to be skipped.
 	blo.s	+			; if not, branch
+    endif
 	move.w	#$30,(Palette_frame).w	; reset frame counter (Super Sonic's normal palette cycle starts at $30. Everything before that is for the palette fade)
 +
 	lea	(Normal_palette+4).w,a1
@@ -4132,11 +4159,11 @@ Sega_WaitPalette:
 	beq.s	Sega_WaitPalette
     if ~~fixBugs
 	; This is a leftover from Sonic 1: ObjB0 plays the Sega sound now.
-	; Normally, you'll only hear one Sega sound, but the actually tries
-	; to play it twice. The only reason it doesn't is because the sound
-	; queue only has room for one sound per frame. Some custom sound
-	; drivers don't have this limitation, however, and the sound will
-	; indeed play twice in those.
+	; Normally, you'll only hear one Sega sound, but the game actually
+	; tries to play it twice. The only reason it doesn't is because the
+	; sound queue only has room for one sound per frame. Some custom
+	; sound drivers don't have this limitation, however, and the sound
+	; will indeed play twice in those.
 	move.b	#SndID_SegaSound,d0
 	bsr.w	PlaySound	; play "SEGA" sound
     endif
@@ -5792,10 +5819,32 @@ MoveDemo_On_P1:
 	move.b	(a1),d0	; load button press
 	lea	(Ctrl_1_Held).w,a0
 	move.b	d0,d1
-	moveq	#0,d2 ; this was modified from (a0) to #0 in Rev01 of Sonic 1 to nullify the following line
-	eor.b	d2,d0	; does nothing now (used to let you hold a button to prevent Sonic from jumping in demos)
+    if fixBugs
+	; In REV00 of Sonic 1, this instruction was 'move.b (a0),d2'. The
+	; purpose of this is to XOR the current frame's input with the
+	; previous frame's input to determine which inputs had been pressed
+	; on the current frame. The usage of '(a0)' for this is a problem
+	; because it doesn't hold the *demo* inputs from the previous frame,
+	; but rather the *player's* inputs from the *current* frame.
+	; This meant that it was possible for the player to influence the
+	; demos by pressing buttons on the joypad. In REV01 of Sonic 1, this
+	; instruction was replaced with a 'moveq #0,d2', effectively
+	; dummying-out the process of differentiating newly-pressed inputs
+	; from old held inputs, causing every input to be treated as
+	; newly-pressed on every frame. While this isn't a problem in this
+	; game, it does become a problem if Sonic or Tails is given a
+	; double-jump ability, as the ability will constantly be activated
+	; when they shouldn't be. While not exactly the intended use for this
+	; variable, 'Ctrl_1_Held_Logical' does happen to hold the inputs from
+	; the previous frame, so we can use this here instead to fix this bug
+	; properly.
+	move.b	Ctrl_1_Held_Logical-Ctrl_1_Held(a0),d2
+    else
+	moveq	#0,d2
+    endif
+	eor.b	d2,d0	; determine which buttons differ between this frame and the last
 	move.b	d1,(a0)+ ; save button press data from demo to Ctrl_1_Held
-	and.b	d1,d0	; does nothing now
+	and.b	d1,d0	; only keep the buttons that were pressed on this frame
 	move.b	d0,(a0)+ ; save the same thing to Ctrl_1_Press
 	subq.b	#1,(Demo_press_counter).w  ; decrement counter until next press
 	bcc.s	MoveDemo_On_P2	   ; if it isn't 0 yet, branch
@@ -5815,7 +5864,29 @@ MoveDemo_On_P2:
 	move.b	(a1),d0
 	lea	(Ctrl_2_Held).w,a0
 	move.b	d0,d1
+    if fixBugs
+	; In REV00 of Sonic 1, this instruction was 'move.b (a0),d2'. The
+	; purpose of this is to XOR the current frame's input with the
+	; previous frame's input to determine which inputs had been pressed
+	; on the current frame. The usage of '(a0)' for this is a problem
+	; because it doesn't hold the *demo* inputs from the previous frame,
+	; but rather the *player's* inputs from the *current* frame.
+	; This meant that it was possible for the player to influence the
+	; demos by pressing buttons on the joypad. In REV01 of Sonic 1, this
+	; instruction was replaced with a 'moveq #0,d2', effectively
+	; dummying-out the process of differentiating newly-pressed inputs
+	; from old held inputs, causing every input to be treated as
+	; newly-pressed on every frame. While this isn't a problem in this
+	; game, it does become a problem if Sonic or Tails is given a
+	; double-jump ability, as the ability will constantly be activated
+	; when they shouldn't be. While not exactly the intended use for this
+	; variable, 'Ctrl_1_Held_Logical' does happen to hold the inputs from
+	; the previous frame, so we can use this here instead to fix this bug
+	; properly.
+	move.b	Ctrl_1_Held_Logical-Ctrl_1_Held(a0),d2
+    else
 	moveq	#0,d2
+    endif
 	eor.b	d2,d0
 	move.b	d1,(a0)+
 	and.b	d1,d0
@@ -12297,7 +12368,11 @@ OptionScreen_Select:
 	moveq	#0,d0
 	move.w	d0,(Two_player_mode).w
 	move.w	d0,(Two_player_mode_copy).w
-	move.w	d0,(Current_ZoneAndAct).w	; emerald_hill_zone_act_1
+    if emerald_hill_zone_act_1=0
+	move.w	d0,(Current_ZoneAndAct).w ; emerald_hill_zone_act_1
+    else
+	move.w	#emerald_hill_zone_act_1,(Current_ZoneAndAct).w
+    endif
     if fixBugs
 	; The game forgets to reset these variables here, making it possible
 	; for the player to repeatedly soft-reset and play Emerald Hill Zone
@@ -15520,21 +15595,21 @@ DeformBgLayer:
 	bne.s	DeformBgLayerAfterScrollVert
 	lea	(MainCharacter).w,a0 ; a0=character
 	lea	(Camera_X_pos).w,a1
-	lea	(Camera_Min_X_pos).w,a2
+	lea	(Camera_Boundaries).w,a2
 	lea	(Scroll_flags).w,a3
 	lea	(Camera_X_pos_diff).w,a4
-	lea	(Horiz_scroll_delay_val).w,a5
+	lea	(Camera_Delay).w,a5
 	lea	(Sonic_Pos_Record_Buf).w,a6
 	cmpi.w	#2,(Player_mode).w
 	bne.s	+
-	lea	(Horiz_scroll_delay_val_P2).w,a5
+	lea	(Camera_Delay_P2).w,a5
 	lea	(Tails_Pos_Record_Buf).w,a6
 +
 	bsr.w	ScrollHoriz
 	lea	(Horiz_block_crossed_flag).w,a2
 	bsr.w	SetHorizScrollFlags
 	lea	(Camera_Y_pos).w,a1
-	lea	(Camera_Min_X_pos).w,a2
+	lea	(Camera_Boundaries).w,a2
 	lea	(Camera_Y_pos_diff).w,a4
 	move.w	(Camera_Y_pos_bias).w,d3
 	cmpi.w	#2,(Player_mode).w
@@ -15554,16 +15629,16 @@ DeformBgLayerAfterScrollVert:
 	bne.s	loc_C4D0
 	lea	(Sidekick).w,a0 ; a0=character
 	lea	(Camera_X_pos_P2).w,a1
-	lea	(Tails_Min_X_pos).w,a2
+	lea	(Camera_Boundaries_P2).w,a2
 	lea	(Scroll_flags_P2).w,a3
 	lea	(Camera_X_pos_diff_P2).w,a4
-	lea	(Horiz_scroll_delay_val_P2).w,a5
+	lea	(Camera_Delay_P2).w,a5
 	lea	(Tails_Pos_Record_Buf).w,a6
 	bsr.w	ScrollHoriz
 	lea	(Horiz_block_crossed_flag_P2).w,a2
 	bsr.w	SetHorizScrollFlags
 	lea	(Camera_Y_pos_P2).w,a1
-	lea	(Tails_Min_X_pos).w,a2
+	lea	(Camera_Boundaries_P2).w,a2
 	lea	(Camera_Y_pos_diff_P2).w,a4
 	move.w	(Camera_Y_pos_bias_P2).w,d3
 	bsr.w	ScrollVerti
@@ -18423,15 +18498,42 @@ ScrollHoriz:
 	move.w	(a1),d4		; get camera X pos
 	tst.b	(Teleport_flag).w
 	bne.s	.return		; if a teleport is in progress, return
-	move.w	(a5),d1		; should scrolling be delayed?
-	beq.s	.scrollNotDelayed	; if not, branch
-	subi.w	#$100,d1	; reduce delay value
-	move.w	d1,(a5)
+    if fixBugs
+	; To prevent the bug that is described below, this caps the position
+	; array index offset so that it does not access position data from
+	; before the spin dash was performed. Note that this required
+	; modifications to 'Sonic_UpdateSpindash' and 'Tails_UpdateSpindash'.
+	move.b	Horiz_scroll_delay_val-Camera_Delay(a5),d1	; should scrolling be delayed?
+	beq.s	.scrollNotDelayed				; if not, branch
+	lsl.b	#2,d1		; multiply by 4, the size of a position buffer entry
+	subq.b	#1,Horiz_scroll_delay_val-Camera_Delay(a5)	; reduce delay value
+	move.b	Sonic_Pos_Record_Index+1-Camera_Delay(a5),d0
+	sub.b	Horiz_scroll_delay_val+1-Camera_Delay(a5),d0
+	cmp.b	d0,d1
+	blo.s	.doNotCap
+	move.b	d0,d1
+.doNotCap:
+    else
+	; The intent of this code is to make the camera briefly lag behind the
+	; player right after releasing a spin dash, however it does this by
+	; simply making the camera use position data from previous frames. This
+	; means that if the camera had been moving recently enough, then
+	; releasing a spin dash will cause the camera to jerk around instead of
+	; remain still. This can be encountered by running into a wall, and
+	; quickly turning around and spin dashing away. Sonic 3 would have had
+	; this same issue with the Fire Shield's dash abiliity, but it shoddily
+	; works around the issue by resetting the old position values to the
+	; current position (see 'Reset_Player_Position_Array').
+	move.w	Horiz_scroll_delay_val-Camera_Delay(a5),d1	; should scrolling be delayed?
+	beq.s	.scrollNotDelayed				; if not, branch
+	subi.w	#$100,d1					; reduce delay value
+	move.w	d1,Horiz_scroll_delay_val-Camera_Delay(a5)
 	moveq	#0,d1
-	move.b	(a5),d1		; get delay value
+	move.b	Horiz_scroll_delay_val-Camera_Delay(a5),d1	; get delay value
 	lsl.b	#2,d1		; multiply by 4, the size of a position buffer entry
 	addq.b	#4,d1
-	move.w	2(a5),d0	; get current position buffer index
+    endif
+	move.w	Sonic_Pos_Record_Index-Camera_Delay(a5),d0	; get current position buffer index
 	sub.b	d1,d0
 	move.w	(a6,d0.w),d0	; get Sonic's position a certain number of frames ago
 	andi.w	#$3FFF,d0
@@ -18459,10 +18561,10 @@ ScrollHoriz:
 	move.w	#-16,d0		; limit scrolling to 16 pixels per frame
 ; loc_D74E:
 .maxNotReached:
-	add.w	(a1),d0		; get new camera position
-	cmp.w	(a2),d0		; is it greater than the minimum position?
-	bgt.s	.doScroll		; if it is, branch
-	move.w	(a2),d0		; prevent camera from going any further back
+	add.w	(a1),d0						; get new camera position
+	cmp.w	Camera_Min_X_pos-Camera_Boundaries(a2),d0	; is it greater than the minimum position?
+	bgt.s	.doScroll					; if it is, branch
+	move.w	Camera_Min_X_pos-Camera_Boundaries(a2),d0	; prevent camera from going any further back
 	bra.s	.doScroll
 ; ===========================================================================
 ; loc_D758:
@@ -18472,10 +18574,10 @@ ScrollHoriz:
 	move.w	#16,d0
 ; loc_D762:
 .maxNotReached2:
-	add.w	(a1),d0		; get new camera position
-	cmp.w	Camera_Max_X_pos-Camera_Min_X_pos(a2),d0	; is it less than the max position?
-	blt.s	.doScroll	; if it is, branch
-	move.w	Camera_Max_X_pos-Camera_Min_X_pos(a2),d0	; prevent camera from going any further forward
+	add.w	(a1),d0						; get new camera position
+	cmp.w	Camera_Max_X_pos-Camera_Boundaries(a2),d0	; is it less than the max position?
+	blt.s	.doScroll					; if it is, branch
+	move.w	Camera_Max_X_pos-Camera_Boundaries(a2),d0	; prevent camera from going any further forward
 ; loc_D76E:
 .doScroll:
 	move.w	d0,d1
@@ -18602,7 +18704,7 @@ ScrollVerti:
 	swap	d1	; actual Y-coordinate is now the low word
 ; loc_D82E:
 .scrollUp:
-	cmp.w	Camera_Min_Y_pos-Camera_Min_X_pos(a2),d1	; is the new position less than the minimum Y pos?
+	cmp.w	Camera_Min_Y_pos-Camera_Boundaries(a2),d1	; is the new position less than the minimum Y pos?
 	bgt.s	.doScroll	; if not, branch
 	cmpi.w	#-$100,d1
 	bgt.s	.minYPosReached
@@ -18612,7 +18714,7 @@ ScrollVerti:
 ; ===========================================================================
 ; loc_D844:
 .minYPosReached:
-	move.w	Camera_Min_Y_pos-Camera_Min_X_pos(a2),d1	; prevent camera from going any further up
+	move.w	Camera_Min_Y_pos-Camera_Boundaries(a2),d1	; prevent camera from going any further up
 	bra.s	.doScroll
 ; ===========================================================================
 ; loc_D84A:
@@ -18623,7 +18725,7 @@ ScrollVerti:
 	swap	d1		; actual Y-coordinate is now the low word
 ; loc_D852:
 .scrollDown:
-	cmp.w	Camera_Max_Y_pos_now-Camera_Min_X_pos(a2),d1	; is the new position greater than the maximum Y pos?
+	cmp.w	Camera_Max_Y_pos_now-Camera_Boundaries(a2),d1	; is the new position greater than the maximum Y pos?
 	blt.s	.doScroll	; if not, branch
 	subi.w	#$800,d1
 	bcs.s	.maxYPosReached
@@ -18632,7 +18734,7 @@ ScrollVerti:
 ; ===========================================================================
 ; loc_D864:
 .maxYPosReached:
-	move.w	Camera_Max_Y_pos_now-Camera_Min_X_pos(a2),d1	; prevent camera from going any further down
+	move.w	Camera_Max_Y_pos_now-Camera_Boundaries(a2),d1	; prevent camera from going any further down
 ; loc_D868:
 .doScroll:
 	move.w	(a1),d4		; get old pos (used by SetVertiScrollFlags)
@@ -40039,8 +40141,7 @@ Knuckles_TurnSuper:
 	; If Sonic was executing a roll-jump when he turned Super, then this
 	; will remove him from that state. The original code forgot to do
 	; this.
-	bclr	#2,status(a0)
-	bclr	#4,status(a0)
+	andi.b	#~((1<<2)|(1<<4)),status(a0)	; Clear bits 2 and 4
 	move.b	#$13,y_radius(a0)
 	move.b	#9,x_radius(a0)
     endif
@@ -40186,13 +40287,31 @@ Sonic_UpdateSpindash:
 	beq.s	+
 	move.w	SpindashSpeedsSuper(pc,d0.w),inertia(a0)
 +
+	; Determine how long to lag the camera for.
+	; Notably, the faster Sonic goes, the less the camera lags.
+	; This is seemingly to prevent Sonic from going off-screen.
 	move.w	inertia(a0),d0
-	subi.w	#$800,d0
+	subi.w	#$800,d0 ; $800 is the lowest spin dash speed
+    if fixBugs
+	; To fix a bug in 'ScrollHoriz', we need an extra variable, so this
+	; code has been modified to make the delay value only a single byte.
+	; The lower byte has been repurposed to hold a copy of the position
+	; array index at the time that the spin dash was released.
+	; This is used by the fixed 'ScrollHoriz'.
+	lsr.w	#7,d0
+	neg.w	d0
+	addi.w	#$20,d0
+	move.b	d0,(Horiz_scroll_delay_val).w
+	; Back up the position array index for later.
+	move.b	(Sonic_Pos_Record_Index+1).w,(Horiz_scroll_delay_val+1).w
+    else
 	add.w	d0,d0
-	andi.w	#$1F00,d0
+	andi.w	#$1F00,d0 ; This line is not necessary, as none of the removed bits are ever set in the first place
 	neg.w	d0
 	addi.w	#$2000,d0
 	move.w	d0,(Horiz_scroll_delay_val).w
+    endif
+
 	btst	#0,status(a0)
 	beq.s	+
 	neg.w	inertia(a0)
@@ -43520,13 +43639,32 @@ Tails_UpdateSpindash:
 	move.b	spindash_counter(a0),d0
 	add.w	d0,d0
 	move.w	Tails_SpindashSpeeds(pc,d0.w),inertia(a0)
+
+	; Determine how long to lag the camera for.
+	; Notably, the faster Tails goes, the less the camera lags.
+	; This is seemingly to prevent Tails from going off-screen.
 	move.w	inertia(a0),d0
-	subi.w	#$800,d0
+	subi.w	#$800,d0 ; $800 is the lowest spin dash speed
+    if fixBugs
+	; To fix a bug in 'ScrollHoriz', we need an extra variable, so this
+	; code has been modified to make the delay value only a single byte.
+	; The lower byte has been repurposed to hold a copy of the position
+	; array index at the time that the spin dash was released.
+	; This is used by the fixed 'ScrollHoriz'.
+	lsr.w	#7,d0
+	neg.w	d0
+	addi.w	#$20,d0
+	move.b	d0,(Horiz_scroll_delay_val_P2).w
+	; Back up the position array index for later.
+	move.b	(Tails_Pos_Record_Index+1).w,(Horiz_scroll_delay_val_P2+1).w
+    else
 	add.w	d0,d0
-	andi.w	#$1F00,d0
+	andi.w	#$1F00,d0 ; This line is not necessary, as none of the removed bits are ever set in the first place
 	neg.w	d0
 	addi.w	#$2000,d0
 	move.w	d0,(Horiz_scroll_delay_val_P2).w
+    endif
+
 	btst	#0,status(a0)
 	beq.s	+
 	neg.w	inertia(a0)
@@ -65791,13 +65929,13 @@ Obj5D_Main:
 	jmp	(DisplaySprite).l
 ; ===========================================================================
 Obj5D_Main_Index:	offsetTable
-		offsetTableEntry.w Obj5D_Main_0	;  0
-		offsetTableEntry.w Obj5D_Main_2	;  2
-		offsetTableEntry.w Obj5D_Main_4	;  4
-		offsetTableEntry.w Obj5D_Main_6	;  6
-		offsetTableEntry.w Obj5D_Main_8	;  8
-		offsetTableEntry.w Obj5D_Main_A	; $A
-		offsetTableEntry.w Obj5D_Main_C	; $C
+		offsetTableEntry.w Obj5D_Main_Descend		;  0
+		offsetTableEntry.w Obj5D_Main_MoveTowardTarget	;  2
+		offsetTableEntry.w Obj5D_Main_Wait		;  4
+		offsetTableEntry.w Obj5D_Main_FollowPlayer	;  6
+		offsetTableEntry.w Obj5D_Main_Explode		;  8
+		offsetTableEntry.w Obj5D_Main_StopExploding	; $A
+		offsetTableEntry.w Obj5D_Main_Retreat		; $C
 ; ===========================================================================
 ; Makes the boss look in Sonic's direction under certain circumstances.
 
@@ -65815,26 +65953,28 @@ Obj5D_LookAtChar:
 	bset	#0,status(a0)
 	rts
 ; ===========================================================================
-
-Obj5D_Main_8:
+;Obj5D_Main_8:
+Obj5D_Main_Explode:
 	subq.w	#1,Obj5D_defeat_timer(a0)
-	bpl.w	Obj5D_Main_Explode
+	bpl.w	Obj5D_Main_CreateExplosion
 	bset	#0,status(a0)
 	bclr	#7,status(a0)
 	clr.w	x_vel(a0)
-	addq.b	#2,routine_secondary(a0)	; => Obj5D_Main_A
+	addq.b	#2,routine_secondary(a0)	; => Obj5D_Main_StopExploding
 	move.w	#-$26,Obj5D_defeat_timer(a0)
 	rts
 ; ===========================================================================
-
-Obj5D_Main_A:
+;Obj5D_Main_A:
+Obj5D_Main_StopExploding:
 	addq.w	#1,Obj5D_defeat_timer(a0)
 	beq.s	+
 	bpl.s	++
+	; Fall slightly
 	addi.w	#$18,y_vel(a0)
 	bra.s	Obj5D_Main_A_End
 ; ---------------------------------------------------------------------------
 +
+	; Stop falling
 	clr.w	y_vel(a0)
 	bra.s	Obj5D_Main_A_End
 ; ---------------------------------------------------------------------------
@@ -65844,14 +65984,16 @@ Obj5D_Main_A:
 	beq.s	++
 	cmpi.w	#$38,Obj5D_defeat_timer(a0)
 	blo.s	Obj5D_Main_A_End
-	addq.b	#2,routine_secondary(a0)	; => Obj5D_Main_C
+	addq.b	#2,routine_secondary(a0)	; => Obj5D_Main_Retreat
 	bra.s	Obj5D_Main_A_End
 ; ---------------------------------------------------------------------------
 +
+	; Rise slightly
 	subi_.w	#8,y_vel(a0)
 	bra.s	Obj5D_Main_A_End
 ; ---------------------------------------------------------------------------
 +
+	; Stop rising
 	clr.w	y_vel(a0)
 	jsrto	PlayLevelMusic, JmpTo_PlayLevelMusic
 	jsrto	LoadPLC_AnimalExplosion, JmpTo_LoadPLC_AnimalExplosion
@@ -65860,8 +66002,8 @@ Obj5D_Main_A_End:
 	bsr.w	Obj5D_Main_Move
 	bra.w	Obj5D_Main_Pos_and_Collision
 ; ===========================================================================
-
-Obj5D_Main_C:
+;Obj5D_Main_C:
+Obj5D_Main_Retreat:
 	bset	#6,Obj5D_status2(a0)
 	move.w	#$400,x_vel(a0)
 	move.w	#-$40,y_vel(a0)
@@ -65893,14 +66035,20 @@ JmpTo51_DeleteObject ; JmpTo
 
 	jmp	(DeleteObject).l
 ; ===========================================================================
-
-Obj5D_Main_0:
+;Obj5D_Main_0:
+Obj5D_Main_Descend:
+	; Strangely, there is code here for Eggman to descend into the arena
+	; just like he does in Green Hill Zone in Sonic 1. Because Eggman
+	; spawns off-screen, the player never gets to see him do this.
+	; The reason for this is that this entire function is copied from
+	; Green Hill Zone's boss (see `BGHZ_ShipStart` in the Sonic 1
+	; disassembly).
 	move.w	#$100,y_vel(a0)
 	bsr.w	Obj5D_Main_Move
 	cmpi.w	#$4C0,Obj5D_y_pos_next(a0)
 	bne.s	Obj5D_Main_Pos_and_Collision
 	move.w	#0,y_vel(a0)
-	addq.b	#2,routine_secondary(a0)	; => Obj5D_Main_2
+	addq.b	#2,routine_secondary(a0)	; => Obj5D_Main_MoveTowardTarget
 
 Obj5D_Main_Pos_and_Collision:
 	; do hovering motion using sine wave
@@ -65922,10 +66070,12 @@ Obj5D_Main_Pos_and_Collision:
 	; if collisions are turned off, it means the boss was hit
 	tst.b	Obj5D_invulnerable_time(a0)
 	bne.s	+			; branch, if still invulnerable
-	move.b	#$20,Obj5D_invulnerable_time(a0)
+	move.b	#32,Obj5D_invulnerable_time(a0)
 	move.w	#SndID_BossHit,d0
 	jsr	(PlaySound).l
 +
+	; Make the boss sprite flash by alternating the black
+	; colour in palette line 3 between black and white.
 	lea	(Normal_palette_line2+2).w,a1
 	moveq	#0,d0		; color black
 	tst.w	(a1)	; test palette entry
@@ -65933,6 +66083,7 @@ Obj5D_Main_Pos_and_Collision:
 	move.w	#$EEE,d0	; color white
 +
 	move.w	d0,(a1)		; set color for flashing effect
+
 	subq.b	#1,Obj5D_invulnerable_time(a0)
 	bne.s	return_2DAE8
 	move.b	#$F,collision_flags(a0)	; restore collisions
@@ -65946,8 +66097,8 @@ return_2DAE8:
 Obj5D_Defeated:
 	moveq	#100,d0
 	jsrto	AddPoints, JmpTo2_AddPoints
-	move.b	#8,routine_secondary(a0)	; => Obj5D_Main_8
-	move.w	#$B3,Obj5D_defeat_timer(a0)
+	move.b	#8,routine_secondary(a0)	; => Obj5D_Main_Explode
+	move.w	#60*3-1,Obj5D_defeat_timer(a0)
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
 	move.b	#4,anim(a1)
 	moveq	#PLCID_Capsule,d0
@@ -65972,8 +66123,8 @@ Obj5D_Main_Move:
 	rts
 ; ===========================================================================
 ; Creates an explosion every 8 frames at a random position relative to boss.
-
-Obj5D_Main_Explode:
+;Obj5D_Main_Explode:
+Obj5D_Main_CreateExplosion:
 	move.b	(Vint_runcount+3).w,d0
 	andi.b	#7,d0
 	bne.s	+	; rts
@@ -66002,13 +66153,20 @@ Obj5D_Main_Explode2:
 	jsr	(SingleObjLoad).l
 	bne.s	+	; rts
 	_move.b	#ObjID_BossExplosion,id(a1) ; load obj58
+	; This code suggests that the intended effect is for each piece of
+	; the boss to explode before falling off. However, this does not work
+	; as the `x_pos` and `y_pos` values do not match the actual physical
+	; locations of the pieces. In fact, most pieces' X and Y positions are
+	; in the middle of the Eggmobile, completely ruining the effect.
+	; I would use `fixBugs` to fix this, but this is a pretty deep-rooted
+	; issue to would be complicated to fix.
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
 +
 	rts
 ; ===========================================================================
-
-Obj5D_Main_2:
+;Obj5D_Main_2:
+Obj5D_Main_MoveTowardTarget:
 	btst	#3,Obj5D_status(a0)	; is boss on the left side of the arena?
 	bne.s	+			; if yes, branch
 	move.w	#$2B30,d0	; right side of arena
@@ -66041,30 +66199,35 @@ Obj5D_Main_2_End:
 ; ===========================================================================
 
 Obj5D_Main_2_Stop:
+	; Once again, there's some strange code that changes Eggman's
+	; behaviour if he's above or below his target. Because Eggman is
+	; always at the expected Y position, this behaviour is never seen
+	; in-game.
 	cmpi.w	#$4C0,Obj5D_y_pos_next(a0)
 	bne.w	Obj5D_Main_Pos_and_Collision
+
 	move.w	#0,x_vel(a0)
-	move.w	#0,y_vel(a0)
-	addq.b	#2,routine_secondary(a0)	; => Obj5D_Main_4
+	move.w	#0,y_vel(a0)	; Halt Eggman's vertical movement... not that he had any to begin with.
+	addq.b	#2,routine_secondary(a0)	; => Obj5D_Main_Wait
 	bchg	#3,Obj5D_status(a0)	; indicate boss is now at the other side
 	bset	#0,Obj5D_status2(a0)	; action 0
 	bra.w	Obj5D_Main_Pos_and_Collision
 ; ===========================================================================
 ; when status2 bit 0 set, wait for something
-
-Obj5D_Main_4:
+;Obj5D_Main_4:
+Obj5D_Main_Wait:
 	btst	#0,Obj5D_status2(a0)	; action 0?
 	beq.s	+			; if not, branch
 	bra.w	Obj5D_Main_Pos_and_Collision
 ; ---------------------------------------------------------------------------
 +
-	addq.b	#2,routine_secondary(a0)	; => Obj5D_Main_6
+	addq.b	#2,routine_secondary(a0)	; => Obj5D_Main_FollowPlayer
 	bra.w	Obj5D_Main_Pos_and_Collision
 ; ===========================================================================
-
-Obj5D_Main_6:
+;Obj5D_Main_6:
+Obj5D_Main_FollowPlayer:
 	move.w	(MainCharacter+x_pos).w,d0
-	addi.w	#$4C,d0
+	addi.w	#76,d0				; Keep a distance of 76 pixels when following the player.
 	cmp.w	Obj5D_x_pos_next(a0),d0
 	bgt.s	Obj5D_Main_6_MoveRight
 	beq.w	Obj5D_Main_Pos_and_Collision
@@ -66114,7 +66277,8 @@ Obj5D_FallingParts:
 
 Obj5D_Pump:
 	btst	#7,status(a0)
-	bne.s	+
+	bne.s	.bossDefeated
+
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
 	move.l	x_pos(a1),x_pos(a0)
 	move.l	y_pos(a1),y_pos(a0)
@@ -66124,8 +66288,11 @@ Obj5D_Pump:
 	jsr	(AnimateSprite).l
 	jmp	(DisplaySprite).l
 ; ---------------------------------------------------------------------------
-+
-	moveq	#$22,d3
+
+.bossDefeated:
+	; Split this object into three pieces which each separately fall
+	; apart from the boss.
+	moveq	#$22,d3	; Start with sprite $22
 	move.b	#$78,Obj5D_timer(a0)
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
 	move.w	x_pos(a1),x_pos(a0)
@@ -66137,7 +66304,8 @@ Obj5D_Pump:
 	asr.w	#6,d0
 	move.w	d0,x_vel(a0)
 	move.w	#-$380,y_vel(a0)
-	moveq	#1,d2
+
+	moveq	#2-1,d2 ; Create two more objects
 	addq.w	#1,d3
 
 -
@@ -66164,9 +66332,16 @@ Obj5D_Pump:
 	addi.b	#$1E,d0
 	andi.w	#$7F,d0
 	move.b	d0,Obj5D_timer(a1)
-	addq.w	#1,d3
+	addq.w	#1,d3	; Next sprite
 	dbf	d2,-
+    if fixBugs
+	jmp	(DisplaySprite).l
+    else
+	; This function fails to display the current object, causing the top
+	; piece of the Chemical Plant Zone boss to disappear for one frame when
+	; the boss is defeated.
 	rts
+    endif
 ; ===========================================================================
 ; Object to control the pipe's actions before pumping starts.
 
@@ -66177,12 +66352,14 @@ Obj5D_Pipe:
 	jmp	Obj5D_Pipe_Index(pc,d1.w)
 ; ===========================================================================
 Obj5D_Pipe_Index:	offsetTable
-		offsetTableEntry.w Obj5D_Pipe_0	; 0
-		offsetTableEntry.w Obj5D_Pipe_2_Load	; 2
+		offsetTableEntry.w Obj5D_Pipe_Wait	; 0
+		offsetTableEntry.w Obj5D_Pipe_Extend	; 2
 ; ===========================================================================
 ; wait for main vehicle's action 0
-
-Obj5D_Pipe_0:
+;Obj5D_Pipe_0:
+Obj5D_Pipe_Wait:
+	; Bit 0 of `Obj5D_status2` is set when the boss has reached its
+	; destination and is ready to begin filling its tank.
 	movea.l	Obj5D_parent(a0),a1	; parent = main vehicle ; a1=object
 	btst	#0,Obj5D_status2(a1)	; parent's action 0?
 	bne.s	+			; if yes, branch
@@ -66199,20 +66376,20 @@ Obj5D_Pipe_0:
 	; See the below bugfix.
 	move.w	#$C,Obj5D_pipe_segments(a0)
     endif
-	addq.b	#2,routine_secondary(a0)	; => Obj5D_Pipe_2_Load
+	addq.b	#2,routine_secondary(a0)	; => Obj5D_Pipe_Extend
 	movea.l	a0,a1
-	bra.s	Obj5D_Pipe_2_Load_Part2		; skip initial loading setup
+	bra.s	Obj5D_Pipe_Extend_Part2		; skip initial loading setup
 ; ===========================================================================
 ; load pipe segments, first object controls rest of pipe
 ; objects not loaded in a loop => one segment loaded per frame
 ; pipe extends gradually
-
-Obj5D_Pipe_2_Load:
+;Obj5D_Pipe_2_Load:
+Obj5D_Pipe_Extend:
 	; This code allocates one more object than necessary, leaving a
 	; partially initialised object in memory.
     if fixBugs
 	subq.w  #1,Obj5D_pipe_segments(a0)	; is pipe fully extended?
-	blt.s   Obj5D_Pipe_2_Load_End		; if yes, branch
+	blt.s   Obj5D_Pipe_Extend_End		; if yes, branch
     endif
 	jsr	(SingleObjLoad2).l
 	beq.s	+
@@ -66220,11 +66397,11 @@ Obj5D_Pipe_2_Load:
 ; ---------------------------------------------------------------------------
 +
 	move.l	a0,Obj5D_parent(a1)
-
-Obj5D_Pipe_2_Load_Part2:
+;Obj5D_Pipe_2_Load_Part2:
+Obj5D_Pipe_Extend_Part2:
     if ~~fixBugs
 	subq.w  #1,Obj5D_pipe_segments(a0)	; is pipe fully extended?
-	blt.s   Obj5D_Pipe_2_Load_End		; if yes, branch
+	blt.s   Obj5D_Pipe_Extend_End		; if yes, branch
     endif
 
 	_move.b #ObjID_CPZBoss,id(a1)	; load obj5D
@@ -66238,7 +66415,7 @@ Obj5D_Pipe_2_Load_Part2:
 
 	; calculate y position for current pipe segment
 	move.w	Obj5D_pipe_segments(a0),d0
-	subi.w	#$B,d0	; $B = maximum number of pipe segments -1, result is always negative or zero
+	subi.w	#$C-1,d0	; $B = maximum number of pipe segments -1, result is always negative or zero
 	neg.w	d0	; positive value needed
 	lsl.w	#3,d0	; multiply with 8
 	move.w	d0,Obj5D_y_pos_next(a1)
@@ -66250,10 +66427,10 @@ Obj5D_Pipe_2_Load_Part2:
 	bra.w	Obj5D_PipeSegment
 ; ===========================================================================
 ; once all pipe segments have been loaded, switch to pumping routine
-
-Obj5D_Pipe_2_Load_End:
-	move.b	#0,routine_secondary(a0)
-	move.b	#6,routine(a0)	; => Obj5D_Pipe_Pump_0
+;Obj5D_Pipe_2_Load_End:
+Obj5D_Pipe_Extend_End:
+	move.b	#0,routine_secondary(a0)	; => Obj5D_Pipe_Pump_0
+	move.b	#6,routine(a0)			; => Obj5D_Pipe_Pump
 	bra.w	Obj5D_PipeSegment
 ; ===========================================================================
 ; Object to control the pipe's actions while pumping.
@@ -66275,7 +66452,7 @@ Obj5D_Pipe_Pump_0:
 	jsr	(SingleObjLoad2).l
 	bne.w	Obj5D_PipeSegment
 	move.b	#$E,routine(a0)	; => Obj5D_PipeSegment	; temporarily turn control object into a pipe segment
-	move.b	#6,routine(a1)
+	move.b	#6,routine(a1)			; => Obj5D_Pipe_Pump
 	move.b	#2,routine_secondary(a1)	; => Obj5D_Pipe_Pump_2
 	_move.b	#ObjID_CPZBoss,id(a1) ; load obj5D
 	move.l	#Obj5D_MapUnc_2EADC,mappings(a1)
@@ -66294,6 +66471,7 @@ Obj5D_Pipe_Pump_0:
 	move.b	#2,anim(a1)
 	move.l	a0,Obj5D_parent(a1)	; address of control object
 	move.b	#$12,Obj5D_timer(a1)
+
 	jsr	(SingleObjLoad2).l
 	bne.s	BranchTo_Obj5D_PipeSegment
 	_move.b	#ObjID_CPZBoss,id(a1) ; load obj5D
@@ -66461,7 +66639,7 @@ BranchTo_JmpTo51_DeleteObject ; BranchTo
 ; ===========================================================================
 
 Obj5D_PipeSegment_End:
-	move.b	#$14,routine(a0)
+	move.b	#$14,routine(a0)	; => Obj5D_FallingParts
 	jsr	(RandomNumber).l
 	asr.w	#8,d0
 	asr.w	#6,d0
@@ -66471,7 +66649,26 @@ Obj5D_PipeSegment_End:
 	addi.b	#$1E,d0
 	andi.w	#$7F,d0
 	move.b	d0,Obj5D_timer(a0)
+    if fixBugs
+	lea	(Ani_Obj5D_Dripper).l,a1
+	jsr	(AnimateSprite).l
+	jmp	(DisplaySprite).l
+    else
+	; If the Chemical Plant Zone boss is defeated while its pipe is
+	; extending, then an incorrect sprite will appear at the boss's rear
+	; as it explodes.
+	; Pipe segments are supposed to use sprite frame 1, but the
+	; AnimateSprite function must be called for that to happen. When the
+	; boss is defeated, the segment will switch from calling
+	; Obj5D_PipeSegment to Obj5D_PipeSegment_End, which does not call
+	; AnimateSprite.
+	; This means that if the boss were to be defeated right as a pipe
+	; segment spawns, then it will never call AnimateSprite, causing it to
+	; display sprite frame 0 instead of 1.
+	; To fix this bug, Obj5D_PipeSegment_End should be made to call
+	; AnimateSprite.
 	jmpto	DisplaySprite, JmpTo34_DisplaySprite
+    endif
 ; ===========================================================================
 
 Obj5D_Dripper:
@@ -66656,7 +66853,7 @@ Obj5D_Container_FallOff:
 +
 	add.w	d0,x_pos(a0)
 	move.b	#$20,mapping_frame(a0)
-	move.b	#$14,routine(a0)
+	move.b	#$14,routine(a0)	; => Obj5D_FallingParts
 	jsr	(RandomNumber).l
 	asr.w	#8,d0
 	asr.w	#6,d0
@@ -66688,7 +66885,7 @@ loc_2E35C:
 	_move.b	#ObjID_CPZBoss,id(a1) ; load obj5D
 	move.l	#Obj5D_MapUnc_2EADC,mappings(a1)
 	move.b	#$21,mapping_frame(a1)
-	move.b	#$14,routine(a1)
+	move.b	#$14,routine(a1)	; => Obj5D_FallingParts
 	move.w	#make_art_tile(ArtTile_ArtNem_CPZBoss,1,0),art_tile(a1)
 	move.b	render_flags(a0),render_flags(a1)
 	move.b	#$20,width_pixels(a1)
@@ -66775,8 +66972,8 @@ loc_2E464:
 	bne.s	return_2E4CC
 	_move.b	#ObjID_CPZBoss,id(a1) ; load obj5D
 	move.l	a0,Obj5D_parent(a1)
-	move.b	#$10,routine(a1)
-	move.b	#8,routine_secondary(a1)
+	move.b	#$10,routine(a1)		; => Obj5D_Container
+	move.b	#8,routine_secondary(a1)	; => Obj5D_Container_Floor2
 	move.l	#Obj5D_MapUnc_2EADC,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_CPZBoss,1,0),art_tile(a1)
 	move.b	#4,render_flags(a1)
@@ -66815,11 +67012,12 @@ loc_2E4CE:
 	move.b	#4,priority(a1)
 	move.l	x_pos(a0),x_pos(a1)
 	move.l	y_pos(a0),y_pos(a1)
-	move.b	#4,routine(a1)
+	move.b	#4,routine(a1)		; => Obj5D_Pipe
 	move.b	#0,routine_secondary(a0)
 	bra.s	return_2E550
 ; ===========================================================================
-	move.b	#$A,routine(a1)
+	; Some mysterious dead code...
+	move.b	#$A,routine(a1)		; => Obj5D_Dripper
 	move.l	Obj5D_parent(a0),Obj5D_parent(a1)
 
 return_2E550:
@@ -67146,11 +67344,11 @@ Obj5D_Robotnik_End:
 	jsr	(AnimateSprite).l
 	jmp	(DisplaySprite).l
 ; ===========================================================================
-byte_2E94A:
+;byte_2E94A:
+Obj5D_Flame_Frames:
 	dc.b   0
-	dc.b $FF	; 1
+	dc.b  -1	; 1
 	dc.b   1	; 2
-	dc.b   0	; 3
 	even
 ; ===========================================================================
 
@@ -67171,7 +67369,7 @@ Obj5D_Flame:
 	ble.s	+
 	moveq	#0,d0
 +
-	move.b	byte_2E94A(pc,d0.w),mapping_frame(a0)
+	move.b	Obj5D_Flame_Frames(pc,d0.w),mapping_frame(a0)
 	move.b	d0,Obj5D_timer2(a0)
 
 loc_2E996:
@@ -67191,7 +67389,7 @@ loc_2E9A8:
     if fixBugs
 	addq.b	#2,routine(a0)
     else
-	; Eggman is supposed to starting leaving a trail of smoke here, but
+	; Eggman is supposed to start leaving a trail of smoke here, but
 	; this code is incorrect which prevents it from appearing.
 	; This should be 'routine' instead of 'routine_secondary'...
 	addq.b	#2,routine_secondary(a0)
@@ -73514,7 +73712,7 @@ Obj09_Index:	offsetTable
 loc_33908:
 	lea	(SS_Ctrl_Record_Buf_End).w,a1
 
-	moveq	#(SS_Ctrl_Record_Buf_End-SS_Ctrl_Record_Buf)/2-2,d0
+	moveq	#bytesToWcnt(SS_Ctrl_Record_Buf_End-SS_Ctrl_Record_Buf)-1,d0
 -	move.w	-4(a1),-(a1)
 	dbf	d0,-
 
@@ -74567,11 +74765,18 @@ SSTailsCPU_Control:
 	andi.b	#button_up_mask|button_down_mask|button_left_mask|button_right_mask|button_B_mask|button_C_mask|button_A_mask,d0
 	beq.s	+
 	moveq	#0,d0
-	moveq	#3,d1
+	moveq	#bytesToXcnt(SS_Ctrl_Record_Buf_End-SS_Ctrl_Record_Buf,4*2),d1
 	lea	(SS_Ctrl_Record_Buf).w,a1
 -
+    if fixBugs
+	move.l	d0,(a1)+
+	move.l	d0,(a1)+
+    else
+	; The pointer does not increment, preventing the 'SS_Ctrl_Record_Buf'
+	; buffer from being cleared!
 	move.l	d0,(a1)
 	move.l	d0,(a1)
+    endif
 	dbf	d1,-
 	move.w	#$B4,(Tails_control_counter).w
 	rts
@@ -74583,7 +74788,7 @@ SSTailsCPU_Control:
 	rts
 ; ===========================================================================
 +
-	lea	(SS_Last_Ctrl_Record).w,a1
+	lea	(SS_Ctrl_Record_Buf_End-2).w,a1 ; Last value
 	move.w	(a1),(Ctrl_2_Logical).w
 	rts
 ; ===========================================================================
@@ -97153,10 +97358,11 @@ MusicPoint1:	startBank
 MusPtr_Continue:	rom_ptr_z80	Mus_Continue
 
 
-Mus_Continue:   BINCLUDE	"sound/music/Continue.bin"
+Mus_Continue:   BINCLUDE	"sound/music/compressed/9C - Continue.bin"
 
 	finishBank
 
+	align $20
 ; --------------------------------------------------------------------
 ; Nemesis compressed art (20 blocks)
 ; HTZ boss lava ball / Sol fireball
@@ -97347,1049 +97553,37 @@ MusPtr_Drowning:	rom_ptr_z80	Mus_Drowning
 MusPtr_Credits:		rom_ptr_z80	Mus_Credits
 
 ; loc_F803C:
-Mus_HPZ:	BINCLUDE	"sound/music/HPZ.bin"
-Mus_Drowning:	BINCLUDE	"sound/music/Drowning.bin"
-Mus_Invincible:	BINCLUDE	"sound/music/Invincible.bin"
-Mus_CNZ_2P:	BINCLUDE	"sound/music/CNZ_2p.bin"
-Mus_EHZ:	BINCLUDE	"sound/music/EHZ.bin"
-Mus_MTZ:	BINCLUDE	"sound/music/MTZ.bin"
-Mus_CNZ:	BINCLUDE	"sound/music/CNZ.bin"
-Mus_MCZ:	BINCLUDE	"sound/music/MCZ.bin"
-Mus_MCZ_2P:	BINCLUDE	"sound/music/MCZ_2p.bin"
-Mus_ARZ:	BINCLUDE	"sound/music/ARZ.bin"
-Mus_DEZ:	BINCLUDE	"sound/music/DEZ.bin"
-Mus_SpecStage:	BINCLUDE	"sound/music/SpecStg.bin"
-Mus_Options:	BINCLUDE	"sound/music/Options.bin"
-Mus_Ending:	BINCLUDE	"sound/music/Ending.bin"
-Mus_EndBoss:	BINCLUDE	"sound/music/End_Boss.bin"
-Mus_CPZ:	BINCLUDE	"sound/music/CPZ.bin"
-Mus_Boss:	BINCLUDE	"sound/music/Boss.bin"
-Mus_SCZ:	BINCLUDE	"sound/music/SCZ.bin"
-Mus_OOZ:	BINCLUDE	"sound/music/OOZ.bin"
-Mus_WFZ:	BINCLUDE	"sound/music/WFZ.bin"
-Mus_EHZ_2P:	BINCLUDE	"sound/music/EHZ_2p.bin"
-Mus_2PResult:	BINCLUDE	"sound/music/2player results screen.bin"
-Mus_SuperSonic:	BINCLUDE	"sound/music/Supersonic.bin"
-Mus_HTZ:	BINCLUDE	"sound/music/HTZ.bin"
-Mus_Title:	BINCLUDE	"sound/music/Title screen.bin"
-Mus_EndLevel:	BINCLUDE	"sound/music/End of level.bin"
+Mus_HPZ:	BINCLUDE	"sound/music/compressed/90 - HPZ.bin"
+Mus_Drowning:	BINCLUDE	"sound/music/compressed/9F - Drowning.bin"
+Mus_Invincible:	BINCLUDE	"sound/music/compressed/97 - Invincible.bin"
+Mus_CNZ_2P:	BINCLUDE	"sound/music/compressed/88 - CNZ 2P.bin"
+Mus_EHZ:	BINCLUDE	"sound/music/compressed/82 - EHZ.bin"
+Mus_MTZ:	BINCLUDE	"sound/music/compressed/85 - MTZ.bin"
+Mus_CNZ:	BINCLUDE	"sound/music/compressed/89 - CNZ.bin"
+Mus_MCZ:	BINCLUDE	"sound/music/compressed/8B - MCZ.bin"
+Mus_MCZ_2P:	BINCLUDE	"sound/music/compressed/83 - MCZ 2P.bin"
+Mus_ARZ:	BINCLUDE	"sound/music/compressed/87 - ARZ.bin"
+Mus_DEZ:	BINCLUDE	"sound/music/compressed/8A - DEZ.bin"
+Mus_SpecStage:	BINCLUDE	"sound/music/compressed/92 - Special Stage.bin"
+Mus_Options:	BINCLUDE	"sound/music/compressed/91 - Options.bin"
+Mus_Ending:	BINCLUDE	"sound/music/compressed/95 - Ending.bin"
+Mus_EndBoss:	BINCLUDE	"sound/music/compressed/94 - Final Boss.bin"
+Mus_CPZ:	BINCLUDE	"sound/music/compressed/8E - CPZ.bin"
+Mus_Boss:	BINCLUDE	"sound/music/compressed/93 - Boss.bin"
+Mus_SCZ:	BINCLUDE	"sound/music/compressed/8D - SCZ.bin"
+Mus_OOZ:	BINCLUDE	"sound/music/compressed/84 - OOZ.bin"
+Mus_WFZ:	BINCLUDE	"sound/music/compressed/8F - WFZ.bin"
+Mus_EHZ_2P:	BINCLUDE	"sound/music/compressed/8C - EHZ 2P.bin"
+Mus_2PResult:	BINCLUDE	"sound/music/compressed/81 - 2 Player Menu.bin"
+Mus_SuperSonic:	BINCLUDE	"sound/music/compressed/96 - Super Sonic.bin"
+Mus_HTZ:	BINCLUDE	"sound/music/compressed/86 - HTZ.bin"
+Mus_Title:	BINCLUDE	"sound/music/compressed/99 - Title Screen.bin"
+Mus_EndLevel:	BINCLUDE	"sound/music/compressed/9A - End of Act.bin"
 
-	; The following act mostly like sound effects
-	; despite being listed with the music.
-	; This means they're uncompressed format with absolute pointers
-	; instead of compressed with relative pointers.
-	; Because they have absolute pointers,
-	; they have to be assembled rather than BINCLUDE'd.
-	; See below (right before Sound20) for other notes
-	; about the sound format that apply to these too.
-
-;Mus_ExtraLife:	BINCLUDE	"sound/music/Extra life.bin"
-Mus_ExtraLife:	dc.w z80_ptr(Mus_EL_Voices),$0603,$02CD
-		dc.w z80_ptr(Mus_EL_DAC),$0000
-		dc.w z80_ptr(Mus_EL_FM1),$E810
-		dc.w z80_ptr(Mus_EL_FM2),$E810
-		dc.w z80_ptr(Mus_EL_FM3),$E810
-		dc.w z80_ptr(Mus_EL_FM4),$E810
-		dc.w z80_ptr(Mus_EL_FM5),$E810
-		dc.w z80_ptr(Mus_EL_PSG1),$D008,$0005
-		dc.w z80_ptr(Mus_EL_PSG2),$DC08,$0005
-		dc.w z80_ptr(Mus_EL_PSG3),$DC00,$0004
-Mus_EL_FM4:	dc.b $E1,$03,$E0,$40,$F6
-		dc.w z80_ptr(+)
-Mus_EL_FM1:	dc.b $E0,$80
-+		dc.b $EF,$00,$E8,$06,$D9,$06,$03,$03,$06,$06
-		dc.b $E8,$00,$DB,$09,$D7,$D6,$06,$D9,$18,$F2
-Mus_EL_FM2:	dc.b $EF,$01,$E8,$06,$E2,$01,$D6,$06,$03,$03,$06,$06
-		dc.b $E8,$00,$D7,$09,$D4,$D2,$06,$D6,$18,$E2,$01,$F2
-Mus_EL_FM5:	dc.b $E1,$03,$E0,$40,$F6
-		dc.w z80_ptr(+)
-Mus_EL_FM3:	dc.b $E0,$80
-+		dc.b $EF,$02,$BA,$0C,$80,$06,$BA,$B8,$80,$03
-		dc.b $B8,$06,$80,$03,$B8,$06,$BA,$18,$F2
-Mus_EL_PSG1:	dc.b $E8,$06,$D6,$06,$03,$03,$06,$06,$E8,$00,$D7,$09
-		dc.b $D4,$D2,$06,$D6,$18
-Mus_EL_PSG2:
-Mus_EL_PSG3:	dc.b $F2
-Mus_EL_DAC:	dc.b $88,$12,$06,$8B,$09,$09,$06,$88,$06,$8A,$88,$8A
-		dc.b $88,$0C,$E4
-Mus_EL_Voices:	dc.b $3A,$01,$01,$07,$01,$8E,$8D,$8E,$53,$0E,$0E,$0E
-		dc.b $03,$00,$00,$00,$00,$1F,$1F,$FF,$0F,$18,$16,$4E,$80
-		dc.b $3A,$01,$01,$07,$01,$8E,$8D,$8E,$53,$0E,$0E,$0E
-		dc.b $03,$00,$00,$00,$00,$1F,$1F,$FF,$0F,$18,$27,$28,$80
-		dc.b $3A,$01,$01,$07,$01,$8E,$8D,$8E,$53,$0E,$0E,$0E
-		dc.b $03,$00,$00,$00,$07,$1F,$1F,$FF,$0F,$18,$27,$28,$80
-
-
-;Mus_GameOver:	BINCLUDE	"sound/music/Game over.bin"
-Mus_GameOver:	dc.w z80_ptr(MusGO_Voices),$0603,$02F2
-		dc.w z80_ptr(MusGOver_DAC),$0000
-		dc.w z80_ptr(MusGOver_FM1),$E80A
-		dc.w z80_ptr(MusGOver_FM2),$F40F
-		dc.w z80_ptr(MusGOver_FM3),$F40F
-		dc.w z80_ptr(MusGOver_FM4),$F40D
-		dc.w z80_ptr(MusGOver_FM5),$DC16
-		dc.w z80_ptr(MusGOver_PSG),$D003,$0005
-		dc.w z80_ptr(MusGOver_PSG),$DC06,$0005
-		dc.w z80_ptr(MusGOver_PSG),$DC00,$0004
-MusGOver_FM1:	dc.b $EF,$00
-		dc.b $F0,$20,$01,$04,$05
-		dc.b $80,$0C,$CA,$12,$80,$06,$CA,$80,$CB,$12,$C8,$1E
-		dc.b $CA,$06,$80,$CA,$80,$CA,$80,$C6,$80,$C4,$12,$C8
-		dc.b $0C,$80,$12,$C9,$04,$80,$C9,$C8,$06,$80,$C7,$80
-		dc.b $C6,$80
-		dc.b $F0,$28,$01,$18,$05
-		dc.b $C5,$60,$F2
-MusGOver_FM2:	dc.b $EF,$01,$80,$01,$D9,$06,$80,$D9,$80,$D6,$80,$D6
-		dc.b $80,$D7,$15,$D7,$1B,$D9,$06,$80,$D9,$80,$D6,$80
-		dc.b $D6,$80,$DC,$15,$DC,$1B,$F2
-MusGOver_FM3:	dc.b $EF,$01,$D6,$0C,$D6,$D2,$D2,$D4,$15,$D4,$1B,$D6
-		dc.b $0C,$D6,$D2,$D2,$D7,$15,$D7,$1B,$F2
-MusGOver_FM4:	dc.b $EF,$02,$E2,$01,$AE,$06,$80,$AE,$80,$A9,$80,$A9
-		dc.b $80,$AC,$15,$AB,$0C,$AC,$03,$AB,$0C,$AE,$06,$80
-		dc.b $AE,$80,$A9,$80,$A9,$80,$B3,$15,$B2,$0C,$B3,$03
-		dc.b $B2,$0C,$AE,$04,$80,$AE,$AD,$06,$80,$AC,$80,$AB
-		dc.b $80,$AB,$60,$E2,$01,$F2
-MusGOver_FM5:	dc.b $EF,$03,$80,$30,$D7,$12,$80,$03,$D7,$1B,$80,$30
-		dc.b $DC,$12,$80,$03,$DC,$1B
-MusGOver_PSG:	dc.b $F2
-MusGOver_DAC:	dc.b $80,$18,$81
-		dc.b $F7,$00,$04
-		dc.w z80_ptr(MusGOver_DAC)
-		dc.b $F2
-MusGO_Voices:	dc.b $3A,$51,$51,$08,$02,$1E,$1E,$1E,$10,$1F,$1F,$1F
-		dc.b $0F,$00,$00,$00,$02,$0F,$0F,$0F,$1F,$18,$22,$24,$81
-		dc.b $3C,$33,$73,$30,$70,$94,$96,$9F,$9F,$12,$14,$00
-		dc.b $0F,$04,$04,$0A,$0D,$2F,$4F,$0F,$2F,$33,$1A,$80,$80
-		dc.b $3A,$01,$01,$07,$01,$8E,$8D,$8E,$53,$0E,$0E,$0E
-		dc.b $03,$00,$00,$00,$07,$1F,$1F,$FF,$0F,$1C,$27,$28,$80
-		dc.b $1F,$66,$53,$31,$22,$1C,$1F,$98,$1F,$12,$0F,$0F
-		dc.b $0F,$00,$00,$00,$00,$FF,$0F,$0F,$0F,$8C,$8A,$8D,$8B
-
-;Mus_Emerald:	BINCLUDE	"sound/music/Got an emerald.bin"
-Mus_Emerald:	dc.w z80_ptr(MusEmrldVoices),$0703,$01D5
-		dc.w z80_ptr(MusEmeraldDAC),$0000
-		dc.w z80_ptr(MusEmeraldFM1),$F408
-		dc.w z80_ptr(MusEmeraldFM2),$F408
-		dc.w z80_ptr(MusEmeraldFM3),$F407
-		dc.w z80_ptr(MusEmeraldFM4),$F416
-		dc.w z80_ptr(MusEmeraldFM5),$F416
-		dc.w z80_ptr(MusEmeraldFM6),$F416
-		dc.w z80_ptr(MusEmeraldPSG1),$F402,$0004
-		dc.w z80_ptr(MusEmeraldPSG2),$F402,$0005
-		dc.w z80_ptr(MusEmeraldPSG3),$F400,$0004
-MusEmeraldFM3:	dc.b $E1,$02
-MusEmeraldFM1:	dc.b $EF,$00,$C1,$06,$C4,$C9,$CD,$0C,$C9,$D0,$2A,$F2
-MusEmeraldFM2:	dc.b $EF,$00,$BD,$06,$C1,$C4,$C9,$0C,$C6,$CB,$2A,$F2
-MusEmeraldFM4:	dc.b $EF,$01,$C1,$0C,$C1,$06,$C4,$06,$80,$C4,$80,$C9
-		dc.b $2A,$F2
-MusEmeraldFM5:	dc.b $EF,$01,$C9,$0C,$C9,$06,$CD,$06,$80,$CD,$80,$D0
-		dc.b $2A,$F2
-MusEmeraldFM6:	dc.b $EF,$01,$C4,$0C,$C4,$06,$C9,$06,$80,$C9,$80,$CD
-		dc.b $2A,$F2
-MusEmeraldPSG2:	dc.b $80,$2D
--		dc.b $C4,$06,$C2,$C1,$BF,$EC,$03
-		dc.b $F7,$00,$04
-		dc.w z80_ptr(-)
-		dc.b $F2
-MusEmeraldPSG1:	dc.b $E2,$01,$80,$02,$80,$2D
--		dc.b $C4,$06,$C2,$C1,$BF,$EC,$03
-		dc.b $F7,$00,$04
-		dc.w z80_ptr(-)
-MusEmeraldPSG3:
-MusEmeraldDAC:	dc.b $E2,$01,$F2
-MusEmrldVoices:	dc.b $04,$35,$54,$72,$46,$1F,$1F,$1F,$1F,$07,$07,$0A
-		dc.b $0D,$00,$00,$0B,$0B,$1F,$1F,$0F,$0F,$23,$1D,$14,$80
-		dc.b $3C,$31,$50,$52,$30,$52,$52,$53,$53,$08,$08,$00
-		dc.b $00,$04,$04,$00,$00,$10,$10,$07,$07,$1A,$16,$80,$80
-
-;Mus_Credits:	BINCLUDE	"sound/music/Credits.bin"
-Mus_Credits:	dc.w z80_ptr(MusCred_Voices),$0603,$01F0
-		dc.w z80_ptr(MusCred_DAC),$0000
-		dc.w z80_ptr(MusCred_FM1),$000E
-		dc.w z80_ptr(MusCred_FM2),$180A
-		dc.w z80_ptr(MusCred_FM3),$0014
-		dc.w z80_ptr(MusCred_FM4),$0016
-		dc.w z80_ptr(MusCred_FM5),$0C16
-		dc.w z80_ptr(MusCred_PSG1),$E806,$000B
-		dc.w z80_ptr(MusCred_PSG2),$DC07,$000B
-		dc.w z80_ptr(MusCred_PSG3),$0002,$0003
-MusCred_FM1:	dc.b $E9,$F4,$E6,$FE,$F8
-		dc.w z80_ptr(MusCreditsDB06)
-		dc.b $E9,$0C,$E6,$02
--		dc.b $80,$30
-		dc.b $F7,$00,$08
-		dc.w z80_ptr(-)
-		dc.b $EF,$03,$F8
-		dc.w z80_ptr(MusCreditsD9D1)
-		dc.b $AE,$06,$A2,$F8
-		dc.w z80_ptr(MusCreditsD9D1)
-		dc.b $E6,$FD
--		dc.b $EF,$00,$B7,$06,$BA,$F8
-		dc.w z80_ptr(MusCreditsDA13)
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
-		dc.b $80,$06,$80,$80,$30,$80,$EF,$0B,$E9,$18,$E6,$02
--		dc.b $94,$0C,$8F,$92,$8F,$06,$94,$05,$94,$07,$06,$8F
-		dc.b $0C,$92,$8F
-		dc.b $F7,$00,$05
-		dc.w z80_ptr(-)
-		dc.b $80,$30,$80,$EF,$0E,$E6,$FF,$E9,$E8,$F8
-		dc.w z80_ptr(MusCreditsDAE5)
-		dc.b $80,$12,$91,$94,$06,$80,$18,$96,$12,$9A,$06,$80
-		dc.b $80,$12,$8F,$93,$08,$80,$16,$96,$06,$91,$92,$94
-		dc.b $96,$F8
-		dc.w z80_ptr(MusCreditsDAE5)
-		dc.b $80,$12,$9D,$9A,$08,$80,$16,$96,$12,$9D,$08,$80
-		dc.b $04,$EF,$12
-		dc.b $F0,$18,$01,$0A,$04
-		dc.b $80,$30,$80,$F8
-		dc.w z80_ptr(MusCreditsDA5F)
-		dc.b $E7,$24,$E7,$C5,$01,$E7,$C4,$E7,$C3,$E7,$C2,$E7
-		dc.b $C1,$E7,$C0,$E7,$BF,$E7,$BE,$E7,$BD,$E7,$BC,$E7
-		dc.b $BB,$E7,$BA,$80,$60,$EF,$01,$E9,$F4,$E6,$FA,$F4
-		dc.b $F8
-		dc.w z80_ptr(MusCreditsDA99)
-		dc.b $B1,$03,$F8
-		dc.w z80_ptr(MusCreditsDA99)
-		dc.b $80,$03,$80,$60,$E6,$04,$E1,$01,$EF,$1B,$E6,$06
-		dc.b $C1,$0C,$E8,$06,$BD,$06,$BA,$BD,$0C,$80,$80,$EF
-		dc.b $1C,$E6,$FA,$E8,$00,$BC,$0C,$12,$06,$EF,$1B,$E6
-		dc.b $06,$E8,$06,$C2,$06,$C2,$80,$C2,$80,$C2,$E8,$00
-		dc.b $C3,$0C,$C4,$80,$E8,$06,$C4,$06,$06,$C6,$C4,$E8
-		dc.b $00,$C1,$0C,$E8,$06,$BD,$06,$BA,$BD,$0C,$80,$80
-		dc.b $E8,$00,$EF,$1C,$E6,$FA,$C1,$C4,$C1,$EF,$1A,$E6
-		dc.b $06,$E8,$06,$C2,$06,$C2,$80,$C2,$80,$C2,$E8,$00
-		dc.b $C3,$0C,$C4,$06,$80,$80,$24,$80,$30,$80,$EF,$1F
-		dc.b $E9,$18,$E6,$F7,$E1,$00,$80,$06,$AC,$AE,$80,$B1
-		dc.b $80,$B3,$80,$B4,$80,$B3,$80,$B1,$B3,$80,$B1,$E9
-		dc.b $F4,$EF,$00,$80,$0C,$AC,$06,$AE,$B1,$80,$12,$AC
-		dc.b $06,$AE,$B1,$80,$B4,$B1,$80,$B1,$E9,$0C,$EF,$1F
-		dc.b $80,$06,$B8,$12,$B4,$06,$80,$B3,$80,$B4,$80,$B3
-		dc.b $80,$B1,$AE,$80,$B1,$E9,$F4,$EF,$00,$80,$06,$AF
-		dc.b $12,$AE,$06,$80,$12,$AF,$06,$80,$AE,$80,$AF,$B1
-		dc.b $80,$B1,$80,$30,$80,$EF,$21,$E9,$0C,$80,$30,$80
-		dc.b $08,$A0,$04,$9E,$0C,$9D,$9B,$99,$08,$04,$91,$0C
-		dc.b $92,$93,$94,$98,$99,$9B,$9D,$98,$95,$93,$91,$98
-		dc.b $9D,$91,$96,$98,$99,$98,$96,$99,$9D,$96,$95,$97
-		dc.b $99,$97,$95,$96,$97,$98,$99,$98,$99,$9B,$9D,$08
-		dc.b $04,$98,$0C,$91,$95,$96,$98,$99,$9D,$9E,$08,$96
-		dc.b $10,$97,$0C,$98,$F8
-		dc.w z80_ptr(MusCreditsDAFE)
-		dc.b $9E,$E6,$04,$F8
-		dc.w z80_ptr(MusCreditsDAFE)
-		dc.b $9E,$E6,$FC,$F8
-		dc.w z80_ptr(MusCreditsDAFE)
-		dc.b $9E,$08,$99,$04,$EF,$23,$E9,$E8,$E6,$07,$80,$60
-		dc.b $F8
-		dc.w z80_ptr(MusCreditsDABE)
-		dc.b $80,$60,$E6,$FB,$80,$0C,$CD,$06,$80,$D4,$CD,$06
-		dc.b $80,$0C,$CD,$06,$80,$D4,$CD,$06,$80,$18,$E6,$05
-		dc.b $80,$0C,$AE,$80,$AE,$80,$24,$E1,$02,$E6,$08,$A2
-		dc.b $6C,$F2
-MusCreditsD9D1:	dc.b $A5,$0C,$B1,$06,$80,$B1,$0C,$AC,$B3,$12,$B1,$0C
-		dc.b $AC,$06,$AE,$B1,$A7,$0C,$B3,$06,$80,$B3,$0C,$AE
-		dc.b $B5,$12,$B3,$06,$80,$AE,$B0,$B3,$A3,$0C,$AF,$06
-		dc.b $80,$AF,$0C,$AA,$B1,$12,$AF,$0C,$AA,$06,$AC,$AF
-		dc.b $A2,$0C,$AE,$06,$A2,$A4,$0C,$B0,$06,$A4,$A5,$0C
-		dc.b $B1,$06,$A5,$A2,$0C,$E3
-MusCreditsDA13:	dc.b $BE,$0C,$BC,$06,$BA,$BC,$BA,$04,$E7,$08,$BA,$04
-		dc.b $80,$0E,$EF,$07,$B7,$06,$B2,$B5,$B7,$EF,$00,$B7
-		dc.b $BA,$BE,$0C,$BC,$06,$BA,$BC,$BA,$0C,$BC,$04,$80
-		dc.b $08,$BA,$04,$80,$08,$BC,$04,$80,$08,$BE,$12,$BA
-		dc.b $06,$B7,$80,$B7,$80,$24,$EF,$07,$B7,$06,$B2,$B5
-		dc.b $B7,$80,$0C,$80,$30,$BE,$06,$BE,$BA,$04,$80,$08
-		dc.b $BC,$06,$BE,$E3
-MusCreditsDA5F:	dc.b $C3,$01,$E7,$C4,$E7,$C5,$E7,$C6,$2D,$E9,$02,$C3
-		dc.b $01,$E7,$C4,$E7,$C5,$E7,$C6,$2D,$E9,$01,$C3,$01
-		dc.b $E7,$C4,$E7,$C5,$E7,$C6,$2D,$E9,$FC,$C3,$01,$E7
-		dc.b $C4,$E7,$C5,$E7,$C6,$2D,$E9,$01,$C3,$01,$E7,$C4
-		dc.b $E7,$C5,$E7,$C6,$2D,$E7,$30,$E7,$30,$E3
-MusCreditsDA99:	dc.b $A7,$0C,$B3,$06,$80,$B1,$80,$B3,$0C,$A7,$03,$80
-		dc.b $06,$A7,$03,$B3,$0C,$B1,$B3,$09,$AE,$03,$AC,$06
-		dc.b $80,$AC,$0C,$AE,$06,$80,$AE,$0C,$AF,$06,$80,$27
-		dc.b $E3
-MusCreditsDABE:	dc.b $80,$0C,$CA,$15,$80,$03,$CA,$06,$80,$CB,$0F,$80
-		dc.b $03,$C8,$18,$80,$06,$CA,$80,$CA,$80,$CA,$80,$C6
-		dc.b $80,$C4,$0F,$80,$03,$C8,$18,$80,$06
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(MusCreditsDABE)
-		dc.b $E3
-MusCreditsDAE5:	dc.b $80,$12,$94,$97,$06,$80,$18,$99,$12,$94,$06,$80
-		dc.b $80,$12,$92,$96,$06,$80,$18,$97,$12,$92,$06,$80
-		dc.b $E3
-MusCreditsDAFE:	dc.b $80,$99,$80,$99,$80,$9E,$80,$E3
-MusCreditsDB06:	dc.b $EF,$07,$80,$54,$C7,$04,$C8,$C9,$CA,$24,$CD,$D2
-		dc.b $18,$D0,$24,$CF,$CB,$18,$CB,$0C,$CA,$80,$CD,$60
-		dc.b $E7,$3C,$CA,$24,$CD,$D2,$18,$D4,$24,$D0,$D4,$18
-		dc.b $D4,$24,$D6,$60,$E7,$3C,$E3
-MusCred_FM2:	dc.b $80,$60,$EF,$01,$E8,$06,$F8
-		dc.w z80_ptr(MusCreditsDE2A)
-		dc.b $F8
-		dc.w z80_ptr(MusCreditsDE2A)
--		dc.b $85,$0C
-		dc.b $F7,$00,$0C
-		dc.w z80_ptr(-)
-		dc.b $8A,$87,$88,$89,$F8
-		dc.w z80_ptr(MusCreditsDE2A)
--		dc.b $88
-		dc.b $F7,$00,$0B
-		dc.w z80_ptr(-)
--		dc.b $8A
-		dc.b $F7,$00,$0A
-		dc.w z80_ptr(-)
-		dc.b $E8,$00,$E6,$FC,$8A,$8B,$8C,$E6,$04,$E8,$09
--		dc.b $8D,$0C
-		dc.b $F7,$00,$0C
-		dc.w z80_ptr(-)
-		dc.b $E8,$00,$8D,$8A,$8B,$8C,$E8,$09
--		dc.b $8D,$0C
-		dc.b $F7,$00,$0C
-		dc.w z80_ptr(-)
-		dc.b $8D,$06,$99,$E8,$00,$8A,$0C,$8B,$8C,$E9,$E8,$E6
-		dc.b $0C,$EF,$04
--		dc.b $F8
-		dc.w z80_ptr(MusCreditsDD59)
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
-		dc.b $E6,$F9,$EF,$08
-MusCreditsDB93:	dc.b $F8
-		dc.w z80_ptr(MusCreditsDD8D)
--		dc.b $9F,$04,$80,$08,$9F,$0C
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
-		dc.b $06,$9C,$12,$9D,$0C,$9E,$F8
-		dc.w z80_ptr(MusCreditsDD8D)
--		dc.b $9D,$04,$80,$08,$9D,$0C
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
--		dc.b $9C,$04,$80,$08,$9C,$0C
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
-		dc.b $F7,$01,$02
-		dc.w z80_ptr(MusCreditsDB93)
-		dc.b $80,$60,$80,$48,$EF,$0C,$E6,$13,$F8
-		dc.w z80_ptr(MusCreditsDD9D)
-		dc.b $24,$80,$60,$EF,$0F,$E6,$F3
-		dc.b $F0,$04,$02,$03,$02
-		dc.b $F8
-		dc.w z80_ptr(MusCreditsDDB5)
-		dc.b $C4,$18,$C3,$30,$E7,$18,$80,$0C,$F8
-		dc.w z80_ptr(MusCreditsDDB5)
-		dc.b $BE,$EF,$13,$E6,$F5,$F4,$80,$60
--		dc.b $F8
-		dc.w z80_ptr(MusCreditsDDEA)
-		dc.b $A8,$0C,$A9,$08,$A1,$10,$F8
-		dc.w z80_ptr(MusCreditsDDEA)
-		dc.b $A8,$08,$A9,$04,$80,$18
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
-		dc.b $80,$60,$EF,$17,$E1,$02,$E9,$F4,$E6,$0A,$F8
-		dc.w z80_ptr(MusCreditsDDD5)
-		dc.b $CE,$15,$CD,$03,$CB,$06,$80,$C9,$0C,$CD,$06,$80
-		dc.b $C9,$0C,$CB,$06,$80,$12,$80,$60,$EF,$1B,$E1,$00
-		dc.b $E8,$06,$80,$3C,$B8,$06,$06,$BA,$BD,$BD,$BA,$EF
-		dc.b $1D,$E6,$FA,$E8,$00,$F8
-		dc.w z80_ptr(MusCreditsDDF9)
-		dc.b $80,$F8
-		dc.w z80_ptr(MusCreditsDE09)
-		dc.b $F8
-		dc.w z80_ptr(MusCreditsDDF9)
-		dc.b $EF,$1C,$BD,$EF,$1D,$F8
-		dc.w z80_ptr(MusCreditsDE09)
-		dc.b $80,$30,$80,$EF,$01,$E9,$18,$E6,$F9
--		dc.b $99,$0C,$A5,$06,$80,$96,$0C,$A2,$06,$80,$97,$0C
-		dc.b $A3,$06,$80,$98,$0C,$A8,$06,$A7,$99,$06,$99,$12
-		dc.b $96,$0C,$A2,$06,$80,$97,$0C,$A3,$06,$80,$98,$0C
-		dc.b $A4,$06,$80
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
-		dc.b $80,$60,$EF,$22,$E9,$E8,$E6,$03
-		dc.b $F0,$1C,$01,$06,$04
-		dc.b $80,$50,$AC,$04,$AE,$08,$B1,$04,$B5,$30,$80,$0C
-		dc.b $B5,$08,$80,$04,$B6,$08,$B5,$10,$B9,$08,$04,$80
-		dc.b $08,$B5,$34,$80,$0C,$B5,$BA,$08,$04,$80,$08,$B5
-		dc.b $04,$B1,$24,$80,$0C,$B1,$08,$80,$04,$B3,$08,$B1
-		dc.b $04,$B4,$0C,$B3,$08,$B1,$4C,$80,$0C,$B5,$08,$80
-		dc.b $04,$B6,$08,$80,$04,$B5,$08,$80,$04,$B9,$08,$04
-		dc.b $80,$08,$B5,$1C,$80,$0C,$BA,$18,$BC,$08,$BA,$04
-		dc.b $BD,$18,$80,$0C,$BA,$04,$80,$08,$B8,$18,$B5,$B1
-		dc.b $B3,$0C,$E6,$04,$F8
-		dc.w z80_ptr(MusCreditsDE17)
-		dc.b $B3,$0C,$E6,$FC,$F8
-		dc.w z80_ptr(MusCreditsDE17)
-		dc.b $B3,$14,$B1,$04,$E6,$FF,$EF,$24,$F4,$80,$60
--		dc.b $F8
-		dc.w z80_ptr(MusCreditsDE20)
-		dc.b $AC,$12,$AB,$0C,$AC,$06,$AB,$0C,$F8
-		dc.w z80_ptr(MusCreditsDE20)
-		dc.b $B3,$12,$B2,$0C,$B3,$06,$B2,$0C
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
-		dc.b $AC,$06,$80,$A9,$80,$AA,$80,$AB,$80,$AC,$AC,$A9
-		dc.b $80,$AA,$80,$AC,$80,$A9,$80,$A9,$80,$AD,$80,$AD
-		dc.b $80,$B0,$80,$B0,$80,$B3,$80,$B3,$80,$80,$0C,$A2
-		dc.b $12,$80,$06,$A2,$12,$AD,$AE,$06,$80,$E6,$FD,$A2
-		dc.b $6C,$F2
-MusCreditsDD59:	dc.b $80,$0C,$C4,$06,$80,$C6,$80,$C4,$80,$C9,$80,$C9
-		dc.b $80,$CB,$CD,$80,$0C,$80,$CB,$18,$C6,$06,$80,$C9
-		dc.b $C9,$80,$CB,$0C,$80,$12,$80,$1E,$C7,$06,$C9,$C7
-		dc.b $CB,$80,$C9,$80,$C7,$C9,$80,$C6,$E7,$C6,$30,$E7
-		dc.b $18,$80,$18,$E3
-MusCreditsDD8D:	dc.b $9F,$04,$80,$08,$9F,$0C
-		dc.b $F7,$00,$03
-		dc.w z80_ptr(MusCreditsDD8D)
-		dc.b $06,$AB,$9F,$0C,$E3
-MusCreditsDD9D:	dc.b $B8,$08,$BA,$BC,$B6,$30,$E7,$30,$E7,$B6,$80,$18
-		dc.b $B8,$08,$BA,$BC,$B6,$30,$E7,$30,$E7,$30,$E7,$E3
-MusCreditsDDB5:	dc.b $BF,$06,$BD,$BF,$12,$C2,$BF,$0C,$C1,$80,$06,$12
-		dc.b $C4,$0C,$C2,$06,$80,$C9,$C6,$3C,$80,$06,$0C,$C7
-		dc.b $12,$C6,$C4,$06,$C2,$C1,$18,$E3
-MusCreditsDDD5:	dc.b $CE,$15,$CD,$03,$CB,$06,$80,$C9,$0C,$CD,$06,$80
-		dc.b $C9,$0C,$CB,$06,$80,$12,$80,$60,$E3
-MusCreditsDDEA:	dc.b $A2,$0C,$AE,$AC,$08,$AE,$04,$AC,$08,$A9,$04,$A7
-		dc.b $08,$04,$E3
-MusCreditsDDF9:	dc.b $80,$0C,$B1,$AE,$06,$06,$AC,$0C,$80,$B0,$AE,$06
-		dc.b $06,$AC,$0C,$E3
-MusCreditsDE09:	dc.b $AE,$AC,$06,$06,$AA,$0C,$80,$AC,$0C,$06,$06,$AE
-		dc.b $AC,$E3
-MusCreditsDE17:	dc.b $BA,$04,$80,$08,$B8,$18,$B5,$B1,$E3
-MusCreditsDE20:	dc.b $AE,$06,$80,$AE,$80,$A9,$80,$A9,$80,$E3
-MusCreditsDE2A:	dc.b $8A,$0C
-		dc.b $F7,$00,$08
-		dc.w z80_ptr(MusCreditsDE2A)
-		dc.b $E3
-MusCred_FM3:	dc.b $80,$60,$F8
-		dc.w z80_ptr(MusCreditsE065)
-		dc.b $E9,$18,$EF,$02,$F8
-		dc.w z80_ptr(MusCreditsE040)
-		dc.b $B8,$3C,$F8
-		dc.w z80_ptr(MusCreditsE040)
-		dc.b $BD,$3C,$E9,$E8,$E6,$02,$E1,$03,$EF,$04,$E0,$80
--		dc.b $F8
-		dc.w z80_ptr(MusCreditsDD59)
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
-		dc.b $EF,$09,$E9,$0C,$E6,$FD,$E0,$40
-		dc.b $F0,$06,$01,$05,$04
-		dc.b $E1,$00
--		dc.b $9F,$0C,$AB,$06,$80,$A9,$80,$AB,$9F,$80,$9F,$AB
-		dc.b $80,$A9,$80,$AB,$0C
-		dc.b $F7,$00,$03
-		dc.w z80_ptr(-)
-		dc.b $9D,$0C,$A9,$06,$80,$A8,$80,$A9,$9C,$80,$9C,$A8
-		dc.b $80,$A6,$80,$A8,$0C
-		dc.b $F7,$01,$02
-		dc.w z80_ptr(-)
-		dc.b $80,$60,$EF,$0D,$E6,$FB,$E0,$C0,$F4,$80,$60
--		dc.b $F8
-		dc.w z80_ptr(MusCreditsDFF2)
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
-		dc.b $80,$60,$EF,$0F,$E0,$80,$E6,$0B,$F8
-		dc.w z80_ptr(MusCreditsDDB5)
-		dc.b $C4,$18,$C3,$48,$80,$0C,$F8
-		dc.w z80_ptr(MusCreditsDDB5)
-		dc.b $BE,$0C
-		dc.b $F0,$18,$01,$03,$04
-		dc.b $E6,$F3,$E0,$C0,$EF,$14,$A2,$14,$A4,$04,$A5,$04
-		dc.b $80,$08,$A9,$04,$80,$08,$A8,$04,$80,$08,$A9,$04
-		dc.b $80,$08,$AC,$08,$A9,$10
--		dc.b $80,$30
-		dc.b $F7,$00,$0A
-		dc.w z80_ptr(-)
-		dc.b $EF,$18,$E9,$F4,$E6,$08,$F4,$E0,$40,$80,$60,$80
-		dc.b $30,$C6,$06,$80,$C2,$0C,$C4,$09,$C2,$03,$BF,$0C
-		dc.b $80,$60,$80,$3C,$80,$60,$EF,$1B,$E6,$FB,$E0,$C0
-		dc.b $E8,$06,$C4,$06,$06,$C6,$C9,$C9,$C6,$E8,$00,$CD
-		dc.b $0C,$E8,$06,$C9,$06,$C6,$C9,$0C,$80,$80,$12,$EF
-		dc.b $1C,$E8,$00,$BD,$BA,$0C,$E8,$06,$EF,$1B,$CE,$06
-		dc.b $CE,$80,$CE,$80,$CE,$E8,$00,$CF,$0C,$D0,$80,$E8
-		dc.b $06,$D0,$06,$06,$D2,$D0,$E8,$00,$CD,$0C,$E8,$06
-		dc.b $C9,$06,$C6,$C9,$0C,$E8,$00,$EF,$1C,$80,$1E,$C2
-		dc.b $0C,$C2,$BD,$06,$80,$60,$80,$60,$EF,$00,$E9,$18
-		dc.b $80,$60,$80,$0C,$AC,$06,$AE,$B1,$80,$12,$AC,$06
-		dc.b $AE,$B1,$80,$B4,$B1,$80,$B1,$80,$60,$80,$06,$AF
-		dc.b $12,$AE,$06,$80,$12,$AF,$06,$80,$AE,$80,$AF,$B1
-		dc.b $80,$B1,$80,$60,$EF,$22,$E9,$DC,$E6,$FF,$E0,$80
-		dc.b $80,$60,$F8
-		dc.w z80_ptr(MusCreditsE004)
-		dc.b $CD,$30,$CB,$18,$CD,$0C,$CB,$C9,$30,$CE,$F8
-		dc.w z80_ptr(MusCreditsE051)
-		dc.b $E6,$04,$F8
-		dc.w z80_ptr(MusCreditsE051)
-		dc.b $E6,$FC,$80,$C4,$80,$C4,$80,$C6,$18,$08,$C4,$04
-		dc.b $E9,$0C,$E6,$FF,$E0,$C0,$EF,$00,$80,$60
--		dc.b $F8
-		dc.w z80_ptr(MusCreditsE05B)
-		dc.b $CB,$12,$CB,$1E,$F8
-		dc.w z80_ptr(MusCreditsE05B)
-		dc.b $D0,$12,$D0,$1E
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
-		dc.b $80,$0C,$CB,$12,$80,$06,$CB,$80,$CA,$12,$CB,$CA
-		dc.b $0C,$C5,$18,$C8,$CB,$D1,$80,$0C,$CD,$80,$CD,$12
-		dc.b $CC,$CD,$06,$80,$E6,$F8,$EF,$01,$E1,$03,$A2,$6C
-		dc.b $F2
-MusCreditsDFF2:	dc.b $80,$60,$BC,$06,$BD,$BC,$B8,$BA,$B6,$0C,$B8,$B3
-		dc.b $B3,$06,$B6,$0C,$B8,$E3
-MusCreditsE004:	dc.b $80,$0C,$CD,$04,$80,$10,$CD,$04,$80,$0C,$CD,$0C
-		dc.b $CE,$08,$CD,$04,$80,$18,$80,$0C,$CB,$04,$80,$10
-		dc.b $CB,$04,$80,$0C,$CB,$0C,$CD,$08,$CB,$04,$80,$18
--		dc.b $80,$0C,$C9,$04,$80,$10,$C9,$04,$80,$0C,$C9,$0C
-		dc.b $CB,$08,$C9,$04,$80,$18
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
-		dc.b $E3
-MusCreditsE040:	dc.b $80,$18,$B8,$0B,$80,$0D,$BA,$0C,$0B,$80,$19,$BD
-		dc.b $0C,$0B,$80,$0D,$E3
-MusCreditsE051:	dc.b $80,$0C,$C4,$80,$C4,$80,$C6,$80,$C6,$E3
-MusCreditsE05B:	dc.b $CD,$06,$80,$CD,$80,$CA,$80,$CA,$80,$E3
-MusCreditsE065:	dc.b $EF,$05,$E9,$F4,$C6,$60,$CB,$CD,$E7,$CD,$C6,$60
-		dc.b $D0,$D0,$24,$D2,$60,$E7,$3C,$E3
-MusCred_FM4:	dc.b $80,$60,$E9,$FB,$E6,$FE,$F8
-		dc.w z80_ptr(MusCreditsE065)
-		dc.b $E9,$1D,$E6,$02,$EF,$02,$F8
-		dc.w z80_ptr(MusCreditsE2AE)
-		dc.b $B5,$3C,$F8
-		dc.w z80_ptr(MusCreditsE2AE)
-		dc.b $B8,$3C,$E6,$06,$EF,$05
-		dc.b $F0,$02,$01,$FE,$04
--		dc.b $C1,$30,$E7,$30,$C3,$E7,$30,$BF,$E7,$30,$BD,$E7
-		dc.b $30
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
-		dc.b $EF,$0A,$E9,$F4,$E6,$F7
-		dc.b $F0,$0C,$01,$FB,$04
--		dc.b $F8
-		dc.w z80_ptr(MusCreditsE2BF)
-		dc.b $80,$25,$C3,$06,$C3,$80,$0C,$C3,$06,$C3,$05,$80
-		dc.b $0D,$C3,$06,$C5,$30,$E7,$06,$F8
-		dc.w z80_ptr(MusCreditsE2BF)
-		dc.b $80,$31,$80,$60
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
-		dc.b $80,$60,$80,$48,$EF,$0C,$E6,$05,$F4,$E1,$02,$E0
-		dc.b $80,$F8
-		dc.w z80_ptr(MusCreditsDD9D)
-		dc.b $24,$80,$0C,$80,$60,$EF,$10,$E6,$F7,$E1,$00,$E0
-		dc.b $40,$F8
-		dc.w z80_ptr(MusCreditsE2D2)
-		dc.b $B3,$B7,$06,$AE,$0C,$B1,$B3,$B7,$06,$80,$B7,$AE
-		dc.b $0C,$B1,$F8
-		dc.w z80_ptr(MusCreditsE2D2)
-		dc.b $EF,$15,$E6,$01,$F8
-		dc.w z80_ptr(MusCreditsE22D)
--		dc.b $EF,$14,$80,$4E,$E0,$40,$A1,$12,$A2,$06,$E0,$C0
-		dc.b $EF,$16,$80,$30,$80,$06,$BA,$08,$B9,$04,$B8,$08
-		dc.b $B7,$04,$B6,$08,$B5,$04
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
-		dc.b $80,$60,$EF,$17,$E9,$F4,$E6,$02,$E0,$C0
-		dc.b $F0,$01,$01,$03,$03
--		dc.b $F8
-		dc.w z80_ptr(MusCreditsDDD5)
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
-		dc.b $80,$60,$EF,$1E,$E0,$40,$E6,$FE,$E9,$F4,$F4,$E8
-		dc.b $06,$80,$0C,$C1,$06,$12,$18,$C4,$06,$12,$0C,$EF
-		dc.b $1C,$E0,$C0,$E6,$FA,$E8,$00,$C6,$E8,$06,$E6,$06
-		dc.b $EF,$1E,$E0,$40,$C2,$06,$12,$18,$C4,$06,$12,$18
-		dc.b $C1,$06,$12,$18,$C4,$06,$12,$0C,$EF,$1A,$E0,$C0
-		dc.b $E9,$0C,$C6,$06,$C6,$80,$C6,$80,$C6,$E8,$00,$C7
-		dc.b $0C,$C8,$06,$EF,$1E,$E0,$40,$E9,$F4,$E8,$06,$80
-		dc.b $C4,$06,$12,$0C,$80,$60,$EF,$20,$E9,$18,$E6,$FA
-		dc.b $E0,$C0,$E8,$00,$B4,$03,$E7,$B6,$5D,$B3,$03,$E7
-		dc.b $B5,$5D,$B1,$03,$E7,$B3,$5D,$B3,$03,$E7,$B5,$5D
-		dc.b $80,$60,$EF,$22,$E0,$40,$E9,$E8,$E6,$04,$80,$30
-		dc.b $80,$F8
-		dc.w z80_ptr(MusCreditsE246)
-		dc.b $C9,$30,$C8,$18,$C9,$0C,$C8,$C6,$30,$C9,$80,$0C
-		dc.b $C1,$80,$C1,$80,$C2,$80,$C2,$E6,$04,$80,$C1,$80
-		dc.b $C1,$80,$C2,$80,$C2,$E6,$FC,$80,$C1,$80,$C1,$80
-		dc.b $C2,$18,$08,$C1,$04,$E9,$0C,$E6,$FF,$E0,$C0,$EF
-		dc.b $00,$80,$60
--		dc.b $F8
-		dc.w z80_ptr(MusCreditsE2C8)
-		dc.b $C8,$12,$C8,$1E,$F8
-		dc.w z80_ptr(MusCreditsE2C8)
-		dc.b $CB,$12,$CB,$1E
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
-		dc.b $E1,$03,$E6,$08,$F8
-		dc.w z80_ptr(MusCreditsE28F)
-		dc.b $E6,$F0,$EF,$01
-		dc.b $F0,$00,$01,$06,$04
-		dc.b $A2,$6C,$F2
-MusCreditsE22D:	dc.b $A2,$14,$A4,$04,$A5,$04,$80,$08,$A9,$04,$80,$08
-		dc.b $A8,$04,$80,$08,$A9,$04,$80,$08,$AC,$08,$A9,$10
-		dc.b $E3
-MusCreditsE246:	dc.b $80,$0C
-		dc.b $C9,$04,$80,$10
-		dc.b $C9,$04,$80,$0C
-		dc.b $C9,$0C
-		dc.b $CB,$08
-		dc.b $C9,$04,$80,$18,$80,$0C
-		dc.b $C8,$04,$80,$10
-		dc.b $C8,$04,$80,$0C
-		dc.b $C8,$0C
-		dc.b $C9,$08
-		dc.b $C8,$04,$80,$18,$80,$0C
-		dc.b $C6,$04,$80,$10
-		dc.b $C6,$04,$80,$0C
-		dc.b $C6,$0C
-		dc.b $C8,$08
-		dc.b $C6,$04,$80,$18,$80,$0C
-		dc.b $C5,$04,$80,$10
-		dc.b $C5,$04,$80,$0C
-		dc.b $C5,$0C
-		dc.b $C7,$08
-		dc.b $C5,$04,$80,$18
-		dc.b $E3
-MusCreditsE28F:	dc.b $EF,$25,$80,$0C,$D0,$D4,$D7,$DB,$0C,$80,$06,$DB
-		dc.b $0C,$DC,$06,$DB,$0C,$DD,$60,$DE,$0C,$80,$DE,$80
-		dc.b $80,$06,$DD,$12,$DE,$0C,$E3
-MusCreditsE2AE:	dc.b $80,$18,$B5,$0B,$80,$0D,$B7,$0C,$0B,$80,$19,$BA
-		dc.b $0C,$0B,$80,$0D,$E3
-MusCreditsE2BF:	dc.b $C3,$05,$80,$13,$C3,$12,$C3,$05,$E3
-MusCreditsE2C8:	dc.b $CA,$06,$80,$CA,$80,$C6,$80,$C6,$80,$E3
-MusCreditsE2D2:	dc.b $AF,$0C,$B3,$06,$B6,$0C,$AF,$B1,$06,$80,$B1,$0C
-		dc.b $B5,$06,$B8,$0C,$B1,$06,$80,$B6,$0C,$BA,$06,$B1
-		dc.b $0C,$B5,$B6,$BA,$06,$80,$BA,$AF,$0C,$B3,$B5,$B8
-		dc.b $06,$B2,$0C,$B3,$B5,$B8,$06,$80,$B8,$B2,$0C,$B5
-		dc.b $E3
-MusCred_FM5:	dc.b $E9,$E8,$E6,$F8,$E1,$05,$F8
-		dc.w z80_ptr(MusCreditsDB06)
-		dc.b $E9,$18,$E6,$08,$E1,$00,$EF,$02
-		dc.b $F0,$0C,$01,$FC,$04
-		dc.b $F8
-		dc.w z80_ptr(MusCreditsE4E8)
-		dc.b $B1,$3C,$F8
-		dc.w z80_ptr(MusCreditsE4E8)
-		dc.b $B5,$3C,$E9,$F4,$E6,$07
-		dc.b $F0,$30,$01,$04,$04
-		dc.b $EF,$06
--		dc.b $C4,$30,$E7,$30,$C6,$E7,$30,$C2,$E7,$30,$C1,$E7
-		dc.b $30
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
-		dc.b $EF,$0A,$E6,$F6
-		dc.b $F0,$0C,$01,$05,$04
-		dc.b $E0,$80
--		dc.b $F8
-		dc.w z80_ptr(MusCreditsE4F9)
-		dc.b $80,$25,$C6,$06,$C6,$80,$0C,$C6,$06,$C6,$05,$80
-		dc.b $0D,$C6,$06,$C8,$30,$E7,$06,$F8
-		dc.w z80_ptr(MusCreditsE4F9)
-		dc.b $80,$31,$80,$60
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
-		dc.b $80,$60,$80,$48,$E6,$05,$F4,$80,$01,$EF,$0C,$E1
-		dc.b $FE,$E0,$40,$F8
-		dc.w z80_ptr(MusCreditsDD9D)
-		dc.b $23,$80,$0C,$80,$60,$EF,$11,$E9,$F4,$E6,$F4,$E1
-		dc.b $00,$E0,$C0
-		dc.b $F0,$06,$01,$06,$05
-		dc.b $80,$60,$80,$30,$C2,$06,$C2,$C9,$C6,$1E,$80,$60
-		dc.b $80,$06,$CB,$80,$CB,$C9,$80,$C9,$80,$C7,$80,$C7
-		dc.b $80,$C6,$03,$80,$C6,$80,$09,$80,$06,$80,$60,$80
-		dc.b $30,$C2,$06,$C2,$C9,$C6,$1E,$80,$60,$EF,$16,$E9
-		dc.b $0C,$E6,$04,$F4,$E0,$80,$80,$01,$F8
-		dc.w z80_ptr(MusCreditsE22D)
-		dc.b $80,$2F,$F8
-		dc.w z80_ptr(MusCreditsE4CD)
-		dc.b $80,$30,$F8
-		dc.w z80_ptr(MusCreditsE4CD)
-		dc.b $80,$60,$EF,$19,$E9,$F4,$E0,$C0,$F8
-		dc.w z80_ptr(MusCreditsE502)
-		dc.b $80,$27,$B1,$03,$F8
-		dc.w z80_ptr(MusCreditsE502)
-		dc.b $80,$2A,$80,$60,$EF,$1E,$E9,$F4,$E8,$06
--		dc.b $80,$0C,$C4,$06,$12,$18,$C8,$06,$12,$0C,$80,$C6
-		dc.b $06,$12,$18,$C8,$06,$12,$0C
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
-		dc.b $80,$60,$EF,$20,$E8,$00,$E9,$18,$E6,$FA,$B8,$03
-		dc.b $E7,$BA,$5D,$B6,$03,$E7,$B8,$5D,$B4,$03,$E7,$B6
-		dc.b $5D,$B6,$03,$E7,$B8,$5D,$80,$60,$EF,$22,$E9,$F4
-		dc.b $E6,$05
-		dc.b $F0,$1C,$01,$06,$04
-		dc.b $80,$50,$A7,$04,$A9,$08,$AC,$04,$B1,$30,$80,$0C
-		dc.b $B1,$08,$80,$04,$B3,$08,$B1,$10,$B5,$08,$B5,$04
-		dc.b $80,$08,$B0,$34,$80,$0C,$B0,$B5,$08,$04,$80,$08
-		dc.b $B1,$04,$AE,$24,$80,$0C,$AE,$08,$80,$04,$B0,$08
-		dc.b $AE,$04,$B1,$0C,$AF,$08,$AD,$4C,$80,$0C,$B1,$08
-		dc.b $80,$04,$B3,$08,$80,$04,$B1,$08,$80,$04,$B5,$08
-		dc.b $B5,$04,$80,$08,$B0,$1C,$80,$0C,$B5,$18,$B8,$08
-		dc.b $B5,$04,$BA,$18,$80,$0C,$B6,$04,$80,$08,$B5,$18
-		dc.b $B1,$AE,$B0,$0C,$E6,$04,$B6,$04,$80,$08,$B5,$18
-		dc.b $B1,$AE,$B0,$0C,$E6,$F8,$B6,$04,$80,$08,$B5,$18
-		dc.b $B1,$AE,$AA,$14,$A9,$04,$E6,$0C,$EF,$23,$E1,$03
-		dc.b $E6,$F7,$80,$60,$F8
-		dc.w z80_ptr(MusCreditsDABE)
-		dc.b $E6,$09
-		dc.b $F0,$00,$01,$06,$04
-		dc.b $F8
-		dc.w z80_ptr(MusCreditsE28F)
-		dc.b $F2
-MusCreditsE4CD:	dc.b $80,$1E,$EF,$14,$A4,$12,$A5,$06,$EF,$16,$80,$30
-		dc.b $80,$06,$BD,$08,$BC,$04,$BB,$08,$BA,$04,$B9,$08
-		dc.b $B8,$04,$E3
-MusCreditsE4E8:	dc.b $80,$18,$B1,$0B,$80,$0D,$B3,$0C,$0B,$80,$19,$B6
-		dc.b $0C,$0B,$80,$0D,$E3
-MusCreditsE4F9:	dc.b $C6,$05,$80,$13,$C6,$12,$C6,$05,$E3
-MusCreditsE502:	dc.b $80,$60,$AC,$06,$80,$AC,$0C,$AE,$06,$80,$AE,$0C
-		dc.b $AF,$06,$E3
-MusCred_PSG1:	dc.b $80,$30
-		dc.b $F7,$00,$1A
-		dc.w z80_ptr(MusCred_PSG1)
--		dc.b $C4,$30,$E7,$30,$C6,$E7,$30,$C2,$E7,$30,$C1,$E7
-		dc.b $30
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
--		dc.b $80,$30
-		dc.b $F7,$00,$10
-		dc.w z80_ptr(-)
-		dc.b $80,$60
--		dc.b $80,$30
-		dc.b $F7,$00,$0A
-		dc.w z80_ptr(-)
-		dc.b $80,$60,$E9,$F4,$E6,$FE,$F5,$01,$F8
-		dc.w z80_ptr(MusCreditsE635)
-		dc.b $AE,$B3,$06,$AC,$0C,$AE,$AE,$B3,$06,$80,$B3,$AB
-		dc.b $0C,$AE,$F8
-		dc.w z80_ptr(MusCreditsE635)
-		dc.b $F5,$0B,$80,$04,$80,$60,$F8
-		dc.w z80_ptr(MusCreditsDA5F)
-		dc.b $E7,$20,$E7,$C5,$01,$E7,$C4,$E7,$C3,$E7,$C2,$E7
-		dc.b $C1,$E7,$C0,$E7,$BF,$E7,$BE,$E7,$BD,$E7,$BC,$E7
-		dc.b $BB,$E7,$BA,$80,$60,$F5,$00,$E8,$06,$E9,$F4,$F8
-		dc.w z80_ptr(MusCreditsE62C)
-		dc.b $C2,$80,$C2,$F8
-		dc.w z80_ptr(MusCreditsE62C)
-		dc.b $C2,$04,$80,$C2,$80,$0C,$C2,$80,$60,$F5,$08,$E9
-		dc.b $04,$EC,$02,$E8,$06
--		dc.b $F8
-		dc.w z80_ptr(MusCreditsE618)
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
--		dc.b $80,$30
-		dc.b $F7,$00,$0A
-		dc.w z80_ptr(-)
-		dc.b $80,$60,$F5,$00,$E9,$F0,$EC,$FF,$80,$60
-		dc.b $F8
-		dc.w z80_ptr(MusCreditsE004)
-		dc.b $E9,$18,$EC,$02,$B5,$30,$B3,$18,$B5,$0C,$B3,$B1
-		dc.b $30,$B6,$EC,$FE,$80,$0C,$B8,$80,$B8,$80,$BA,$80
-		dc.b $BA,$EC,$03,$C4,$18,$C1,$BD,$BF,$0C,$80,$EC,$FC
-		dc.b $80,$B8,$80,$B8,$80,$BA,$18,$08,$B8,$04,$E9,$F4
-		dc.b $EC,$01,$F5,$05
--		dc.b $80,$60
-		dc.b $F7,$00,$05
-		dc.w z80_ptr(-)
-		dc.b $80,$0C,$C8,$12,$80,$06,$C8,$80,$C6,$12,$C8,$C6
-		dc.b $0C,$C1,$18,$C5,$C8,$CB,$80,$0C,$CA,$80,$CA,$12
-		dc.b $C9,$CA,$06,$80,$09,$E9,$30,$EC,$FC,$F6
-		dc.w z80_ptr(MusCreditsE770)
-		dc.b $F2
-MusCreditsE618:	dc.b $80,$0C,$BD,$06,$12,$18,$C4,$06,$12,$0C,$80,$C2
-		dc.b $06,$12,$18,$C4,$06,$12,$0C,$E3
-MusCreditsE62C:	dc.b $80,$60,$80,$0C,$C2,$80,$C2,$80,$E3
-MusCreditsE635:	dc.b $AC,$0C,$AF,$06,$B3,$0C,$AC,$AC,$06,$80,$AC,$0C
-		dc.b $AF,$06,$B5,$0C,$AC,$06,$80,$06,$B1,$0C,$B6,$06
-		dc.b $AE,$0C,$B1,$B3,$B6,$06,$80,$B6,$AA,$0C,$AF,$AF
-		dc.b $B5,$06,$AC,$0C,$AF,$B2,$B5,$06,$80,$B5,$AE,$0C
-		dc.b $B2,$E3
-MusCred_PSG2:	dc.b $80,$30
-		dc.b $F7,$00,$1A
-		dc.w z80_ptr(MusCred_PSG2)
--		dc.b $C1,$30,$E7,$30,$C3,$E7,$30,$BF,$E7,$30,$BD,$E7
-		dc.b $30
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
--		dc.b $80,$30
-		dc.b $F7,$00,$10
-		dc.w z80_ptr(-)
-		dc.b $80,$60,$E9,$0C,$EC,$FD,$F5,$04,$80
--		dc.b $F8
-		dc.w z80_ptr(MusCreditsDFF2)
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
-		dc.b $80,$60
-		dc.b $F0,$03,$02,$01,$05
-		dc.b $F5,$0A,$E9,$E8,$EC,$02,$80,$30,$80,$80,$BD,$06
-		dc.b $BF,$C6,$C2,$1E,$80,$60,$80,$06,$C6,$80,$C6,$C4
-		dc.b $80,$C4,$80,$C3,$80,$C3,$80,$BF,$03,$80,$BF,$80
-		dc.b $09,$80,$06,$80,$30,$80,$80,$BD,$06,$BF,$C6,$C2
-		dc.b $1E,$80,$60,$F4
--		dc.b $80,$30
-		dc.b $F7,$00,$0C
-		dc.w z80_ptr(-)
-		dc.b $F5,$00,$EC,$FE,$E8,$06,$80,$60,$80,$0C,$BF,$80
-		dc.b $BF,$80,$BF,$80,$BF,$80,$60,$80,$0C,$BF,$80,$BF
-		dc.b $80,$BF,$04,$80,$BF,$80,$0C,$BF,$80,$60,$EC,$02
--		dc.b $F8
-		dc.w z80_ptr(MusCreditsE618)
-		dc.b $F7,$00,$02
-		dc.w z80_ptr(-)
--		dc.b $80,$30
-		dc.b $F7,$00,$0A
-		dc.w z80_ptr(-)
-		dc.b $80,$60,$F5,$00
-    if fixBugs
-		dc.b $E9,$0C
-    else
-		; This is wrong: it should convert from EHZ 2P's PSG2 transpose ($D0)
-		; to CNZ's PSG2 transpose ($DC), but instead of adding $C, it subtracts
-		; $C, causing the note to be too low and underflow the sound driver's
-		; frequency table, producing invalid notes.
-		dc.b $E9,$F4
-    endif
-		dc.b $EC,$FF,$E9,$E8,$80,$60
-		dc.b $F8
-		dc.w z80_ptr(MusCreditsE246)
-		dc.b $E9,$18,$EC,$02,$B1,$30,$B0,$18,$B1,$0C,$B0,$AE
-		dc.b $30,$B1,$EC,$FE,$80,$0C,$B5,$80,$B5,$80,$B6,$80
-		dc.b $B6,$EC,$03,$80,$B1,$80,$B1,$80,$B1,$80,$B1,$EC
-		dc.b $FC,$80,$B1,$80,$B1,$80,$B1,$18,$08,$B1,$04,$EC
-		dc.b $01
-    if ~~fixBugs
-		; If the above bug is fixed, then this line needs removing (the track
-		; will already be $18 keys higher).
-		dc.b $E9,$18
-    endif
-		dc.b $F5,$05,$E1,$01,$80,$60,$80,$80,$80
-		dc.b $80,$80,$80,$0C,$CD,$06,$80,$D4,$CD,$80,$0C,$CD
-		dc.b $06,$80,$D4,$CD,$80,$18,$80,$54,$E9,$24,$EC,$FD
-MusCreditsE770:	dc.b $F5,$03,$80,$06
--		dc.b $BF,$03,$C1,$C3,$EC,$01,$E9,$FF
-		dc.b $F7,$00,$05
-		dc.w z80_ptr(-)
--		dc.b $BF,$03,$C1,$C3,$EC,$01,$E9,$01
-		dc.b $F7,$00,$07
-		dc.w z80_ptr(-)
-		dc.b $F2
-MusCred_PSG3:	dc.b $F3,$E7,$80,$60,$F5,$02
--		dc.b $C6,$0C,$0C,$0C,$06,$06,$0C,$0C,$06,$06,$0C
-		dc.b $F7,$00,$08
-		dc.w z80_ptr(-)
--		dc.b $80,$30
-		dc.b $F7,$00,$08
-		dc.w z80_ptr(-)
--		dc.b $C6,$0C,$06,$06
-		dc.b $F7,$00,$1F
-		dc.w z80_ptr(-)
-		dc.b $0C,$F5,$03,$C6,$F5,$02
--		dc.b $C6,$0C,$06,$06
-		dc.b $F7,$00,$07
-		dc.w z80_ptr(-)
-		dc.b $06,$06,$06,$06
-		dc.b $F7,$01,$04
-		dc.w z80_ptr(-)
--		dc.b $80,$30
-		dc.b $F7,$00,$0C
-		dc.w z80_ptr(-)
-		dc.b $F5,$04,$EC,$02
--		dc.b $E8,$03,$C6,$06,$06,$E8,$00,$0C
-		dc.b $F7,$00,$04
-		dc.w z80_ptr(-)
-		dc.b $F5,$02,$EC,$FD
--		dc.b $80,$0C,$C6,$06,$80,$07,$C6,$06,$80,$11,$C6,$0C
-		dc.b $80,$06,$C6,$0C,$80,$06,$C6,$80
-		dc.b $F7,$00,$07
-		dc.w z80_ptr(-)
-		dc.b $EC,$02
--		dc.b $C6,$0C,$08,$04
-		dc.b $F7,$00,$18
-		dc.w z80_ptr(-)
--		dc.b $C6,$0C,$0C,$0C,$08,$04
-		dc.b $F7,$00,$08
-		dc.w z80_ptr(-)
-		dc.b $80,$60,$F5,$04,$EC,$02
--		dc.b $C6,$06,$06,$0C
-		dc.b $F7,$00,$10
-		dc.w z80_ptr(-)
--		dc.b $80,$30
-		dc.b $F7,$00,$0A
-		dc.w z80_ptr(-)
-		dc.b $80,$60,$EC,$FF
--		dc.b $F5,$01,$C6,$0C,$F5,$02,$EC,$FF,$08,$F5,$01,$EC
-		dc.b $01,$04
-		dc.b $F7,$00,$27
-		dc.w z80_ptr(-)
-		dc.b $EC,$FF,$F5,$04
--		dc.b $E8,$03,$C6,$0C,$E8,$0C,$0C
-		dc.b $F7,$00,$1E
-		dc.w z80_ptr(-)
-		dc.b $E8,$03,$C6,$06,$E8,$0E,$12,$E8,$03,$0C,$E8,$0F
-		dc.b $0C,$F2
-MusCred_DAC:	dc.b $82,$06,$82,$82,$82,$82,$0C,$06,$0C,$06,$0C,$0C
-		dc.b $0C
--		dc.b $81,$18,$82
-		dc.b $F7,$00,$0E
-		dc.w z80_ptr(-)
-		dc.b $81,$0C
--		dc.b $82
-		dc.b $F7,$00,$07
-		dc.w z80_ptr(-)
-		dc.b $EA,$EA,$F8
-		dc.w z80_ptr(MusCreditsEA6E)
-		dc.b $81,$0C,$8D,$82,$81,$81,$8E,$82,$84,$04,$06,$02
-		dc.b $81,$0C,$82,$06,$82,$82,$82,$81,$0C,$82,$06,$82
-		dc.b $81,$81,$82,$82,$82,$82
--		dc.b $81,$18,$82,$81,$82
-		dc.b $F7,$00,$07
-		dc.w z80_ptr(-)
-		dc.b $81,$0C,$82,$82,$82,$82,$06,$82,$8C,$8C,$8D,$8D
-		dc.b $8E,$8E,$F8
-		dc.w z80_ptr(MusCreditsEA84)
-		dc.b $81,$18,$82,$0C,$81,$18,$82,$0C,$82,$82,$06,$82
-		dc.b $F8
-		dc.w z80_ptr(MusCreditsEA84)
-		dc.b $81,$0C,$82,$82,$82,$8D,$06,$8D,$8E,$8E,$82,$06
-		dc.b $82,$8D,$0C,$82,$0C,$82,$06,$82,$80,$82,$82,$0C
-MusCreditsE8E5:	dc.b $82,$0C,$82,$82,$06,$82,$8D,$8D
--		dc.b $81,$0C,$8F,$06,$90,$82,$0C,$90,$06,$91,$81,$0C
-		dc.b $8F,$06,$91,$82,$0C,$8F,$06,$91
-		dc.b $F7,$00,$04
-		dc.w z80_ptr(-)
-		dc.b $81,$0C,$8F,$06,$91,$82,$0C,$8F,$06,$91,$8C,$06
-		dc.b $03,$03,$8D,$06,$8D,$8D,$8E,$8E,$8E,$81,$06,$0C
-		dc.b $82,$06,$80,$0C,$81,$82,$8E,$82,$06,$82,$82,$82
--		dc.b $81,$0C,$82,$06,$81,$12,$81,$06,$81,$12,$8C,$06
-		dc.b $82,$0C,$83,$06,$81,$80
-		dc.b $F7,$00,$06
-		dc.w z80_ptr(-)
-		dc.b $81,$0C,$82,$06,$81,$12,$81,$06,$81,$06,$82,$06
-		dc.b $81,$0C,$06,$82,$0C,$08,$04,$EA,$CD,$82,$30,$82
-		dc.b $0C,$82,$82,$82,$08,$04,$F8
-		dc.w z80_ptr(MusCreditsEA9F)
-		dc.b $F8
-		dc.w z80_ptr(MusCreditsEA9F)
-		dc.b $81,$08,$0C,$04,$82,$0C,$81,$08,$04,$82,$08,$04
-		dc.b $08,$04,$04,$04,$04,$08,$04,$EA,$C5
--		dc.b $81,$09,$81,$03,$0C,$82,$81,$81,$18,$82
-		dc.b $F7,$00,$03
-		dc.w z80_ptr(-)
-		dc.b $81,$09,$81,$03,$0C,$82,$81,$81,$18,$82,$0C,$06
-		dc.b $06,$81,$0C,$82,$06,$82,$82,$82,$8D,$0C,$82,$0C
-		dc.b $0C,$0C,$06,$06
--		dc.b $81,$0C,$81,$82,$80,$81,$81,$82,$83
-		dc.b $F7,$00,$03
-		dc.w z80_ptr(-)
-		dc.b $81,$82,$82,$82,$82,$06,$06,$06,$06,$0C,$06,$06
-		dc.b $81,$06,$81,$82,$82,$81,$82,$81,$81,$82,$02,$82
-		dc.b $04,$81,$0C,$06,$82,$0C,$06,$06,$81,$18,$82,$0C
-		dc.b $81,$81,$18,$82,$81,$06,$81,$12,$82,$0C,$81,$81
-		dc.b $18,$82,$81,$18,$82,$0C,$81,$81,$18,$82,$81,$06
-		dc.b $81,$12,$82,$0C,$0C,$06,$06,$06,$06,$0C,$06,$06
-		dc.b $82,$02,$04,$81,$0C,$06,$0C,$82,$02,$04,$81,$0C
-		dc.b $06,$0C,$82,$06,$82,$82,$82,$EA,$C0,$81,$0C,$82
-		dc.b $81,$82,$81,$82,$81,$08,$82,$04,$0C
--		dc.b $81,$0C,$82
-		dc.b $F7,$00,$0F
-		dc.w z80_ptr(-)
-		dc.b $81,$08,$82,$04,$0C
--		dc.b $81,$0C,$82
-		dc.b $F7,$00,$13
-		dc.w z80_ptr(-)
-		dc.b $82,$08,$0C,$04,$81,$0C,$82,$81,$82,$81,$0C,$82
-		dc.b $81,$06,$80,$02,$82,$82,$82,$09,$82,$03
--		dc.b $81,$0C,$82
-		dc.b $F7,$00,$06
-		dc.w z80_ptr(-)
-		dc.b $81,$0C,$82,$81,$06,$80,$02,$82,$82,$82,$09,$82
-		dc.b $03
-		dc.b $F7,$01,$03
-		dc.w z80_ptr(-)
-		dc.b $81,$0C,$82,$81,$82,$81,$06,$82,$12,$82,$0C,$81
-		dc.b $F2
-MusCreditsEA6E:	dc.b $81,$0C,$8D,$82,$81,$81,$8E,$82,$84,$04,$06,$02
-		dc.b $81,$0C,$8D,$82,$81,$81,$8E,$82,$83,$E3
-MusCreditsEA84:	dc.b $81,$18,$82,$0C,$81,$18,$0C,$82,$81,$81,$18,$82
-		dc.b $0C,$81,$12,$81,$82,$18,$81,$82,$0C,$81,$18,$0C
-		dc.b $82,$81,$E3
-MusCreditsEA9F:	dc.b $81,$08,$0C,$04,$82,$0C,$81,$08,$0C,$82,$04,$81
-		dc.b $0C,$82,$81,$81,$08,$0C,$04,$82,$0C,$81,$08,$0C
-		dc.b $82,$04,$81,$0C,$82,$82,$08,$04,$E3,$81,$06,$80
-		dc.b $03,$81,$81,$06,$82,$81,$06,$80,$03,$81,$81,$06
-		dc.b $82,$03,$82,$81,$06,$80,$03,$81,$81,$06,$82,$E3
-MusCred_Voices:	dc.b $3A,$01,$01,$07,$01,$8E,$8D,$8E,$53,$0E,$0E,$0E
-		dc.b $03,$00,$00,$00,$01,$1F,$1F,$FF,$0F,$17,$27,$28,$80
-		dc.b $08,$09,$30,$70,$00,$1F,$5F,$1F,$5F,$12,$0A,$0E
-		dc.b $0A,$00,$04,$04,$03,$2F,$2F,$2F,$2F,$25,$0E,$30,$84
-		dc.b $3C,$31,$50,$52,$30,$52,$52,$53,$53,$08,$08,$00
-		dc.b $00,$04,$04,$00,$00,$10,$10,$0B,$0D,$19,$0B,$80,$80
-		dc.b $08,$0A,$30,$70,$00,$1F,$5F,$1F,$5F,$12,$0A,$0E
-		dc.b $0A,$00,$04,$04,$03,$2F,$2F,$2F,$2F,$24,$13,$2D,$80
-		dc.b $3D,$01,$51,$21,$01,$12,$14,$14,$0F,$0A,$05,$05
-		dc.b $05,$00,$00,$00,$00,$2B,$2B,$2B,$1B,$19,$80,$80,$80
-		dc.b $04,$57,$70,$02,$50,$1F,$1F,$1F,$1F,$00,$00,$00
-		dc.b $00,$06,$00,$0A,$0A,$00,$00,$0F,$0F,$1A,$10,$80,$80
-		dc.b $35,$01,$13,$01,$00,$1F,$18,$1D,$19,$00,$06,$09
-		dc.b $0D,$00,$02,$00,$03,$00,$15,$06,$16,$1E,$83,$80,$80
-		dc.b $3C,$31,$50,$52,$30,$52,$52,$53,$53,$08,$08,$00
-		dc.b $00,$04,$04,$00,$00,$1F,$1F,$0F,$0F,$1A,$16,$88,$88
-		dc.b $20,$36,$30,$35,$31,$DF,$9F,$DF,$9F,$07,$09,$06
-		dc.b $06,$07,$06,$06,$08,$2F,$1F,$1F,$FF,$14,$0F,$37,$80
-		dc.b $3B,$0F,$01,$06,$02,$DF,$1F,$1F,$DF,$0C,$0A,$00
-		dc.b $03,$0F,$00,$00,$01,$F3,$55,$05,$5C,$22,$22,$20,$80
-		dc.b $3C,$31,$50,$52,$30,$52,$52,$53,$53,$08,$08,$00
-		dc.b $00,$04,$04,$00,$00,$1F,$1F,$0F,$0F,$1C,$14,$84,$80
-		dc.b $3A,$69,$50,$70,$60,$1C,$1A,$18,$18,$10,$02,$0C
-		dc.b $09,$08,$06,$06,$03,$F9,$06,$56,$06,$28,$14,$15,$00
-		dc.b $3D,$00,$02,$01,$01,$4C,$50,$0F,$12,$0C,$00,$02
-		dc.b $05,$01,$00,$00,$00,$28,$2A,$29,$19,$1A,$06,$00,$00
-		dc.b $2C,$71,$31,$71,$31,$1F,$1F,$16,$16,$00,$00,$0F
-		dc.b $0F,$00,$00,$0F,$0F,$00,$00,$FA,$FA,$15,$14,$00,$00
-		dc.b $18,$37,$31,$32,$31,$9E,$1C,$DC,$9C,$0D,$04,$06
-		dc.b $01,$08,$03,$0A,$05,$B6,$36,$B6,$28,$2C,$14,$22,$00
-		dc.b $3D,$01,$02,$02,$02,$10,$50,$50,$50,$07,$08,$08
-		dc.b $08,$01,$00,$00,$00,$24,$18,$18,$18,$1C,$82,$82,$82
-		dc.b $32,$71,$33,$0D,$01,$5F,$5F,$99,$94,$05,$05,$05
-		dc.b $07,$02,$02,$02,$02,$11,$11,$11,$72,$23,$26,$2D,$80
-		dc.b $3A,$32,$52,$01,$31,$1F,$1F,$1F,$18,$01,$00,$1F
-		dc.b $00,$00,$00,$0F,$00,$5A,$03,$0F,$1A,$3B,$4F,$30,$00
-		dc.b $3C,$42,$32,$41,$41,$12,$12,$12,$12,$00,$00,$00
-		dc.b $00,$00,$00,$00,$00,$06,$06,$08,$08,$24,$24,$08,$08
-		dc.b $31,$34,$30,$35,$31,$DF,$9F,$DF,$9F,$0C,$0C,$07
-		dc.b $09,$07,$07,$07,$08,$2F,$1F,$1F,$2F,$17,$14,$32,$80
-		dc.b $3D,$01,$01,$01,$01,$10,$50,$50,$50,$07,$08,$08
-		dc.b $08,$01,$00,$00,$00,$20,$1A,$1A,$1A,$19,$84,$84,$84
-		dc.b $24,$70,$30,$74,$38,$12,$1F,$1F,$1F,$05,$05,$03
-		dc.b $03,$05,$05,$03,$03,$36,$26,$2C,$2C,$0A,$06,$08,$08
-		dc.b $3A,$01,$01,$01,$02,$8D,$07,$07,$52,$09,$00,$00
-		dc.b $03,$01,$02,$02,$00,$5F,$0F,$0F,$2F,$18,$18,$22,$80
-		dc.b $3A,$01,$01,$07,$01,$8E,$8D,$8E,$53,$0E,$0E,$0E
-		dc.b $03,$00,$00,$00,$00,$1F,$1F,$FF,$0F,$18,$16,$4E,$80
-		dc.b $3A,$03,$03,$08,$01,$8E,$8D,$8E,$53,$0E,$0E,$0E
-		dc.b $03,$00,$00,$00,$00,$1F,$1F,$FF,$0F,$17,$20,$28,$80
-		dc.b $20,$7A,$00,$31,$00,$9F,$DC,$D8,$DF,$10,$04,$0A
-		dc.b $04,$0F,$08,$08,$08,$5F,$BF,$5F,$BF,$14,$17,$2B,$80
-		dc.b $3A,$61,$51,$08,$02,$5D,$5D,$5D,$50,$04,$1F,$0F
-		dc.b $1F,$00,$00,$00,$00,$1F,$0F,$5F,$0F,$22,$22,$1E,$80
-		dc.b $02,$01,$02,$55,$04,$92,$8E,$8D,$54,$0D,$00,$0C
-		dc.b $03,$00,$00,$00,$00,$FF,$0F,$2F,$5F,$16,$1D,$2A,$80
-		dc.b $02,$75,$73,$71,$31,$1F,$96,$58,$9F,$01,$03,$1B
-		dc.b $08,$01,$01,$04,$05,$FF,$3F,$2F,$2F,$24,$30,$29,$80
-		dc.b $20,$66,$60,$65,$60,$DF,$9F,$DF,$1F,$00,$09,$06
-		dc.b $0C,$07,$06,$06,$08,$2F,$1F,$1F,$FF,$1C,$16,$3A,$80
-		dc.b $0D,$32,$06,$08,$01,$1F,$19,$19,$19,$0A,$05,$05
-		dc.b $05,$00,$02,$02,$02,$3F,$2F,$2F,$2F,$28,$86,$80,$8D
-		dc.b $38,$3A,$11,$0A,$02,$D4,$50,$14,$0E,$05,$02,$08
-		dc.b $88,$00,$00,$00,$00,$99,$09,$09,$1A,$2D,$19,$2C,$86
-		dc.b $0D,$32,$02,$04,$01,$1F,$19,$19,$19,$0A,$05,$05
-		dc.b $05,$00,$02,$02,$02,$3F,$2F,$2F,$2F,$28,$8B,$86,$93
-		dc.b $3A,$20,$60,$23,$01,$1E,$1F,$1F,$1F,$0A,$0B,$0A
-		dc.b $0A,$05,$0A,$07,$08,$A4,$96,$85,$78,$21,$28,$25,$00
-		dc.b $3A,$32,$32,$56,$42,$8D,$15,$4F,$52,$06,$07,$08
-		dc.b $04,$02,$00,$00,$00,$18,$28,$18,$28,$19,$2A,$20,$00
-		dc.b $3A,$51,$51,$08,$02,$1E,$1E,$1E,$10,$1F,$1F,$1F
-		dc.b $0F,$00,$00,$00,$02,$0F,$0F,$0F,$1F,$18,$22,$24,$81
-		dc.b $20,$36,$30,$35,$31,$DF,$9F,$DF,$9F,$07,$09,$06
-		dc.b $06,$07,$06,$06,$08,$2F,$1F,$1F,$FF,$19,$13,$37,$80
-		dc.b $3D,$01,$02,$02,$02,$14,$8C,$0E,$0E,$08,$02,$05
-		dc.b $05,$00,$00,$00,$00,$1F,$1F,$1F,$1F,$1A,$80,$80,$80
-; end of Mus_Credits
+Mus_ExtraLife:	include		"sound/music/98 - Extra Life.asm"
+Mus_GameOver:	include		"sound/music/9B - Game Over.asm"
+Mus_Emerald:	include		"sound/music/9D - Got Emerald.asm"
+Mus_Credits:	include		"sound/music/9E - Credits.asm"
 
 ; ------------------------------------------------------------------------------------------
 ; Sound effect pointers
@@ -98493,784 +97687,87 @@ SndPtr_LargeLaser:	rom_ptr_z80	Sound6F
 SndPtr_OilSlide:	rom_ptr_z80	Sound70
 SndPtr__End:
 
-	; There are many non-relative pointers in these sound effects,
-	; so the sounds shouldn't simply be BINCLUDE'd.
-	; They could be included as separate .asm files using "include" instead of "binclude",
-	; but I wanted to minimize the number of included asm files.
-
-	; some comments on what the various script commands do (after the header):
-	;  0x00-0x7F sets the note duration (of the previous note and following notes)
-	;  0x81-0xDF plays a note (the valid range may be smaller for PSG or DAC)
-	;  0x80 plays silence
-	;  0xE0-0xFF does special things. I won't list them here... search for "Coordination flags" Sonic 2.
-
-	; the FM voices (poorly named "ssamp" or "samples" below)
-	; are 25 bytes each and go directly to YM2612 registers.
-	; they can be hard to edit (there's an art to it)
-	; but search for Sonic "Voice editing" for more info if you want to try.
-
-; jumping sound
-Sound20:	dc.w $0000,$0101
-		dc.w $8080,z80_ptr(+),$F400
-+		dc.b $F5,$00,$9E,$05,$F0,$02,$01,$F8,$65,$A3,$15,$F2
-
-; checkpoint ding-dong sound
-Sound21:	dc.w z80_ptr(ssamp21),$0101
-		dc.w $8005,z80_ptr(+),$0001
-ssamp21:	dc.b $3C,$05,$0A,$01,$01,$56,$5C,$5C,$5C,$0E,$11,$11
-		dc.b $11,$09,$06,$0A,$0A,$4F,$3F,$3F,$3F,$17,$20,$80,$80
-+		dc.b $EF,$00,$BD,$06,$BA,$16,$F2
-
-; spike switch sound
-Sound22:	dc.w $0000,$0101
-		dc.w $80C0,z80_ptr(+),$0000
-+		dc.b $F0,$01,$01,$F0,$08,$F3,$E7,$C0,$04,$CA,$04
--		dc.b $C0,$01,$EC
-		dc.w $01F7,$0006,z80_ptr(-)
-		dc.b $F2
-
-; hurt sound
-Sound23:	dc.w z80_ptr(ssamp23),$0101
-		dc.w $8005,z80_ptr(+),$F400
-+		dc.b $EF,$00,$B0,$07,$E7,$AD
--		dc.b $01,$E6
-		dc.w $01F7,$002F,z80_ptr(-)
-		dc.b $F2
-ssamp23:	dc.b $30,$30,$30,$30,$30,$9E,$DC,$D8,$DC,$0E,$04,$0A
-		dc.b $05,$08,$08,$08,$08,$BF,$BF,$BF,$BF,$14,$14,$3C,$80
-
-; skidding sound
-Sound24:	dc.w $0000,$0102 ; sound header... no sample and 2 script entries
-		dc.w $80A0,z80_ptr(+),$F400 ; entry 1 header
-		dc.w $80C0,z80_ptr(++),$F400 ; entry 2 header
-+		dc.b $F5,$00,$AF,$01,$80,$AF,$80,$03 ; script entry 1
--		dc.b $AF,$01,$80
-		dc.w $01F7,$000B,z80_ptr(-) ; loopback
-		dc.b $F2 ; script 1 end
-+		dc.b $F5,$00,$80,$01,$AD,$80,$AD,$80,$03 ; script entry 2
--		dc.b $AD,$01,$80
-		dc.w $01F7,$000B,z80_ptr(-) ; loopback
-		dc.b $F2 ; script 2 end
-
-; block push sound
-Sound25:	dc.w z80_ptr(ssamp25),$0101
-		dc.w $8005,z80_ptr(+),$0000
-+		dc.b $EF,$00,$80,$01,$8B,$0A,$80,$02,$F2
-ssamp25:	dc.b $FA,$21,$10,$30,$32,$2F,$2F,$1F,$2F,$05,$09,$08
-		dc.b $02,$06,$06,$0F,$02,$1F,$4F,$2F,$2F,$0F,$0E,$1A,$80
-
-; spiky impalement sound
-Sound26:	dc.w z80_ptr(ssamp26),$0101
-		dc.w $8005,z80_ptr(+),$F200
-+		dc.b $EF,$00,$F0,$01,$01,$10,$FF,$CF,$05,$D7,$25,$F2
-ssamp26:	dc.b $3B,$3C,$30,$39,$31,$DF,$1F,$1F,$DF,$04,$04,$05
-		dc.b $01,$04,$04,$04,$02,$FF,$1F,$0F,$AF,$29,$0F,$20,$80
-
-; sparkling sound
-Sound27:	dc.w z80_ptr(ssamp27),$0101
-		dc.w $8004,z80_ptr(+),$0C1C
-+		dc.b $EF,$00,$C1,$05,$C4,$05,$C9,$2B,$F2
-ssamp27:	dc.b $07,$73,$33,$33,$73,$0F,$19,$14,$1A,$0A,$0A,$0A
-		dc.b $0A,$0A,$0A,$0A,$0A,$57,$57,$57,$57,$00,$00,$00,$00
-
-; short beep
-Sound28:	dc.w $0000,$0101
-		dc.w $8080,z80_ptr(+),$E803
-+		dc.b $F5,$04,$CB,$04,$F2
-
-; bwoop (unused)
-Sound29:	dc.w $0000,$0101
-		dc.w $80A0,z80_ptr(+),$0000
-+		dc.b $F0,$01,$01,$E6,$35,$8E,$06,$F2
-
-; splash sound
-Sound2A:	dc.w z80_ptr(ssamp2A),$0102
-		dc.w $80C0,z80_ptr(+),$0000
-		dc.w $8005,z80_ptr(++),$0003
-+		dc.b $F5,$00,$F3,$E7,$C2,$05,$C6,$05,$E7
--		dc.b $07,$EC,$01
-		dc.w $E7F7,$000F,z80_ptr(-)
-		dc.b $F2
-+		dc.b $EF,$00,$A6,$14,$F2
-ssamp2A:	dc.b $00,$00,$02,$03,$00,$D9,$1F,$DF,$1F,$12,$14,$11
-		dc.b $0F,$0A,$0A,$00,$0D,$FF,$FF,$FF,$FF,$22,$27,$07,$80
-
-; swish
-Sound2B:	dc.w $0000,$0101
-		dc.w $80C0,z80_ptr(+),$0000
-+		dc.b $F5,$00,$F3,$E7,$C6,$03,$80,$03,$C6,$01,$E7
--		dc.b $01,$EC,$01
-		dc.w $E7F7,$0015,z80_ptr(-)
-		dc.b $F2
-
-; boss hit
-Sound2C:	dc.w z80_ptr(smashsamp),$0101
-		dc.w $8005,z80_ptr(+),$0000
-+		dc.b $EF,$00,$F0,$01,$01,$0C,$01
--		dc.b $81,$0A,$E6
-		dc.w $10F7,$0004,z80_ptr(-)
-		dc.b $F2
-smashsamp:	dc.b $F9,$21,$10,$30,$32,$1F,$1F,$1F,$1F,$05,$09,$18
-		dc.b $02,$0B,$10,$1F,$05,$1F,$4F,$2F,$2F,$0E,$04,$07,$80
-
-; inhaling a bubble
-Sound2D:	dc.w z80_ptr(ssamp2D),$0101
-		dc.w $8005,z80_ptr(+),$0E00
-+		dc.b $EF,$00,$F0,$01,$01,$21,$6E,$A6,$07
-		dc.b $80,$06,$F0,$01,$01,$44,$1E,$AD,$08,$F2
-ssamp2D:	dc.b $35,$05,$08,$09,$07,$1E,$0D,$0D,$0E,$0C,$03,$15
-		dc.b $06,$16,$09,$0E,$10,$2F,$1F,$2F,$1F,$15,$12,$12,$80
-
-; arrow firing
-Sound2E:	dc.w z80_ptr(ssamp2E),$0102
-		dc.w $8005,z80_ptr(+),$0000
-		dc.w $80C0,z80_ptr(++),$0000
-+		dc.b $EF,$00,$80,$01,$F0,$01,$01,$40,$48,$83,$06,$85,$02,$F2
-+		dc.b $F5,$00,$80,$0B,$F3,$E7,$C6,$01,$E7
--		dc.b $02,$EC,$01
-		dc.w $E7F7,$0010,z80_ptr(-)
-		dc.b $F2
-ssamp2E:	dc.b $FA,$02,$00,$03,$05,$12,$0F,$11,$13,$05,$09,$18
-		dc.b $02,$06,$06,$0F,$02,$1F,$4F,$2F,$2F,$2F,$0E,$1A,$80
-
-; shield sound
-Sound2F:	dc.w z80_ptr(ssamp2F),$0101
-		dc.w $8005,z80_ptr(+),$0C00
-+		dc.b $EF,$00,$80,$01,$A3,$05,$E7,$A4,$26,$F2
-ssamp2F:	dc.b $30,$30,$30,$30,$30,$9E,$AC,$A8,$DC,$0E,$04,$0A
-		dc.b $05,$08,$08,$08,$08,$BF,$BF,$BF,$BF,$04,$14,$2C,$80
-
-; laser beam
-Sound30:	dc.w z80_ptr(ssamp30),$0101 ; sound header... a voice and 1 script entry
-		dc.w $8005,z80_ptr(+),$FB05 ; script entry header
-+		dc.b $EF,$00,$DF,$7F ; script start
--		dc.b $DF,$02,$E6 ; script continued
-		dc.w $01F7,$001B,z80_ptr(-) ; loopback
-		dc.b $F2 ; script end
-ssamp30:	dc.b $83,$1F,$1F,$15,$1F,$1F,$1F,$1F,$1F,$00,$00,$00 ; voice
-		dc.b $00,$02,$02,$02,$02,$2F,$FF,$2F,$3F,$0B,$01,$16,$82 ; (fixed length)
-
-; zap (unused)
-Sound31:	dc.w z80_ptr(ssamp31),$0101
-		dc.w $8005,z80_ptr(+),$FB02
-+		dc.b $EF,$00,$B3,$05,$80,$01,$B3,$09,$F2
-ssamp31:	dc.b $83,$12,$13,$10,$1E,$1F,$1F,$1F,$1F,$00,$00,$00
-		dc.b $00,$02,$02,$02,$02,$2F,$FF,$2F,$3F,$05,$34,$10,$87
-
-; drownage
-Sound32:	dc.w z80_ptr(ssamp32),$0102
-		dc.w $8004,z80_ptr(++),$0C04
-		dc.w $8005,z80_ptr(+),$0E02
-+		dc.b $EF,$00,$F0,$01,$01,$83,$0C
--		dc.b $8A,$05,$05,$E6
-		dc.w $03F7,$000A,z80_ptr(-)
-		dc.b $F2
-+		dc.b $80,$06,$EF,$00,$F0,$01,$01,$6F,$0E
--		dc.b $8D,$04,$05,$E6
-		dc.w $03F7,$000A,z80_ptr(-)
-		dc.b $F2
-ssamp32:	dc.b $35,$14,$04,$1A,$09,$0E,$11,$10,$0E,$0C,$03,$15
-		dc.b $06,$16,$09,$0E,$10,$2F,$4F,$2F,$4F,$2F,$12,$12,$80
-
-; fire + burn
-Sound33:	dc.w z80_ptr(ssamp2E),$0102
-		dc.w $8005,z80_ptr(+),$0000
-		dc.w $80C0,z80_ptr(++),$0000
-+		dc.b $EF,$00,$80,$01,$F0,$01,$01,$40,$48,$83,$06,$85,$02,$F2
-+		dc.b $F5,$00,$80,$0B,$F3,$E7,$A7,$25,$E7
--		dc.b $02,$EC,$01
-		dc.w $E7F7,$0010,z80_ptr(-)
-		dc.b $F2
-
-; bumper bing
-Sound34:	dc.w z80_ptr(ssamp34),$0103
-		dc.w $8005,z80_ptr(+),$0000
-		dc.w $8004,z80_ptr(++),$0000
-		dc.w $8002,z80_ptr(+++),$0002
-+		dc.b $EF,$00,$F6
-		dc.w z80_ptr(Sound34_3)
-+		dc.b $EF,$00,$E1,$07,$80,$01
-Sound34_3:
-		dc.b $BA,$20,$F2
-+		dc.b $EF,$01,$9A,$03,$F2
-ssamp34:	dc.b $3C,$05,$0A,$01,$01,$56,$5C,$5C,$5C,$0E,$11,$11
-		dc.b $11,$09,$06,$0A,$0A,$4F,$3F,$3F,$3F,$1F,$2B,$80,$80
-		dc.b $05,$00,$00,$00,$00,$1F,$1F,$1F,$1F,$12,$0C,$0C
-		dc.b $0C,$12,$08,$08,$08,$1F,$5F,$5F,$5F,$07,$80,$80,$80
-
-; ring sound
-Sound35:	dc.w z80_ptr(ringsamp),$0101
-		dc.w $8005,z80_ptr(+),$0005
-+		dc.b $EF,$00,$E0,$40,$C1,$05,$C4,$05,$C9,$1B,$F2
-
-
-Sound36:	dc.w $0000,$0101
-		dc.w $80C0,z80_ptr(+),$0000
-+		dc.b $F0,$01,$01,$F0,$08,$F3,$E7,$C1,$07
--		dc.b $D0,$01,$EC
-		dc.w $01F7,$000C,z80_ptr(-)
-		dc.b $F2
-
-; rumbling
-Sound37:	dc.w z80_ptr(ssamp37),$0101
-		dc.w $8005,z80_ptr(+),$0000
-+		dc.b $EF,$00,$F0,$01,$01,$20,$08
--		dc.b $8B
-		dc.w $0AF7,$0008,z80_ptr(-)
--		dc.b $8B,$10,$E6
-		dc.w $03F7,$0009,z80_ptr(-)
-		dc.b $F2
-ssamp37:	dc.b $FA,$21,$10,$30,$32,$1F,$1F,$1F,$1F,$05,$09,$18
-		dc.b $02,$06,$06,$0F,$02,$1F,$4F,$2F,$2F,$0F,$0E,$1A,$80
-
-; (unused)
-Sound38:	dc.w $0000,$0101
-		dc.w $80C0,z80_ptr(+),$0000
-+		dc.b $F0,$01,$01,$F0,$08,$F3,$E7,$B4,$08
--		dc.b $B0,$02,$EC
-		dc.w $01F7,$0003,z80_ptr(-)
-		dc.b $F2
-
-; smash/breaking
-Sound39:	dc.w z80_ptr(smashsamp),$0104
-		dc.w $8002,z80_ptr(+),$1000
-		dc.w $8004,z80_ptr(+++),$0000
-		dc.w $8005,z80_ptr(++),$1000
-		dc.w $80C0,z80_ptr(s39s4),$0000
-+		dc.b $E0,$40,$80,$02,$F6
-		dc.w z80_ptr(++)
-+		dc.b $E0,$80,$80,$01
-+		dc.b $EF,$00,$F0,$03,$01,$20,$04
--		dc.b $81,$18,$E6
-		dc.w $0AF7,$0006,z80_ptr(-)
-		dc.b $F2
-s39s4:		dc.b $F0,$01,$01,$0F,$05,$F3,$E7
--		dc.b $B0,$18,$E7,$EC
-		dc.w $03F7,$0005,z80_ptr(-)
-		dc.b $F2
-
-; nondescript ding (unused)
-Sound3A:	dc.w z80_ptr(ssamp3A),$0101
-		dc.w $8005,z80_ptr(+),$0007
-+		dc.b $EF,$00,$AE,$08,$F2
-ssamp3A:	dc.b $1C,$2E,$0F,$02,$02,$1F,$1F,$1F,$1F,$18,$14,$0F
-		dc.b $0E,$00,$00,$00,$00,$FF,$FF,$FF,$FF,$20,$1B,$80,$80
-
-; door slamming shut
-Sound3B:	dc.w z80_ptr(ssamp3B),$0101
-		dc.w $8005,z80_ptr(+),$F400
-+		dc.b $EF,$00,$9B,$04,$80,$A0,$06,$F2
-ssamp3B:	dc.b $3C,$00,$00,$00,$00,$1F,$1F,$1F,$1F,$00,$0F,$16
-		dc.b $0F,$00,$00,$00,$00,$0F,$FF,$AF,$FF,$00,$0A,$80,$80
-
-; spindash unleashed
-Sound3C:	dc.w z80_ptr(ssamp3C),$0102
-		dc.w $8005,z80_ptr(+),$9000
-		dc.w $80C0,z80_ptr(++),$0000
-+		dc.b $EF,$00,$F0,$01,$01,$C5,$1A,$CD,$07,$F2
-+		dc.b $F5,$07,$80,$07,$F0,$01,$02,$05,$FF,$F3,$E7,$BB,$4F,$F2
-ssamp3C:	dc.b $FD,$09,$00,$03,$00,$1F,$1F,$1F,$1F,$10,$0C,$0C
-		dc.b $0C,$0B,$10,$1F,$05,$1F,$4F,$2F,$2F,$09,$92,$84,$8E
-
-; slide-thunk
-Sound3D:	dc.w z80_ptr(ssamp3D),$0102
-		dc.w $8005,z80_ptr(+),$100A
-		dc.w $8004,z80_ptr(++),$0000
-+		dc.b $EF,$00,$F0,$01,$01,$60,$01,$A7,$08,$F2
-+		dc.b $80,$08,$EF,$01,$84,$22,$F2
-ssamp3D:	dc.b $FA,$21,$19,$3A,$30,$1F,$1F,$1F,$1F,$05,$09,$18
-		dc.b $02,$0B,$10,$1F,$05,$1F,$4F,$2F,$2F,$0E,$04,$07,$80
-		dc.b $FA,$31,$10,$30,$32,$1F,$1F,$1F,$1F,$05,$05,$18
-		dc.b $10,$0B,$10,$1F,$10,$1F,$1F,$2F,$2F,$0D,$01,$00,$80
-
-; rolling sound
-Sound3E:	dc.w z80_ptr(ssamp3E),$0101
-		dc.w $8004,z80_ptr(+),$0C05
-+		dc.b $EF,$00,$80,$01,$F0,$03,$01,$09,$FF,$CA,$25,$F4
--		dc.b $E7,$E6,$01,$D0
-		dc.w $02F7,$002A,z80_ptr(-)
-		dc.b $F2
-ssamp3E:	dc.b $3C,$00,$02,$44,$02,$1F,$1F,$1F,$15,$00,$00,$1F
-		dc.b $00,$00,$00,$00,$00,$0F,$0F,$0F,$0F,$0D,$28,$00,$00
-
-; got continue
-Sound3F:	dc.w z80_ptr(ssamp3F),$0103
-		dc.w $8002,z80_ptr(+),$F406
-		dc.w $8004,z80_ptr(++),$F406
-		dc.w $8005,z80_ptr(+++),$F406
-+		dc.b $EF,$00,$C9,$07,$CD,$D0,$CB,$CE,$D2,$CD,$D0,$D4,$CE,$D2,$D5
--		dc.b $D0,$07,$D4,$D7,$E6
-		dc.w $05F7,$0008,z80_ptr(-)
-		dc.b $F2
-+		dc.b $EF,$00,$E1,$01,$80,$07,$CD,$15,$CE,$D0,$D2
--		dc.b $D4,$15,$E6
-		dc.w $05F7,$0008,z80_ptr(-)
-		dc.b $F2
-+		dc.b $EF,$00,$E1,$01,$C9,$15,$CB,$CD,$CE
--		dc.b $D0,$15,$E6
-		dc.w $05F7,$0008,z80_ptr(-)
-		dc.b $F2
-ssamp3F:	dc.b $14,$25,$36,$33,$11,$1F,$1F,$1F,$1F,$15,$1C,$18
-		dc.b $13,$0B,$0D,$08,$09,$0F,$8F,$9F,$0F,$24,$0A,$05,$80
-
-; short bonus ding
-Sound40:	dc.w z80_ptr(ssamp3F),$0102
-		dc.w $8005,z80_ptr(++),$0008
-		dc.w $8004,z80_ptr(+),$0008
-+		dc.b $E1,$03,$80,$02
-+		dc.b $EF,$00,$C4,$16,$F2
-
-; badnik bust
-Sound41:	dc.w z80_ptr(ssamp41),$0102
-		dc.w $8005,z80_ptr(+),$0000
-		dc.w $80C0,z80_ptr(++),$0002
-+		dc.b $F0,$03,$01,$72,$0B,$EF,$00,$BA,$16,$F2
-+		dc.b $F5,$01,$F3,$E7,$B0,$1B,$F2
-ssamp41:	dc.b $3C,$0F,$03,$01,$01,$1F,$1F,$1F,$1F,$19,$19,$12
-		dc.b $0E,$05,$00,$12,$0F,$0F,$FF,$7F,$FF,$00,$00,$80,$80
-
-; warning ding-ding
-Sound42:	dc.w z80_ptr(ssamp3F),$0101
-		dc.w $8005,z80_ptr(+),$0C08
-+		dc.b $EF,$00,$BA,$08,$BA,$25,$F2
-
-; special stage ring flash (mostly unused)
-Sound43:	dc.w z80_ptr(ssamp43),$0102
-		dc.w $8004,z80_ptr(+),$0C00
-		dc.w $8005,z80_ptr(++),$0013
-+		dc.b $EF,$01,$80,$01,$A2,$08,$EF,$00,$E7,$AD,$26,$F2
-+		dc.b $EF,$02,$F0,$06,$01,$03,$FF,$80,$0A
--		dc.b $C3
-		dc.w $06F7,$0005,z80_ptr(-)
-		dc.b $C3,$17,$F2
-ssamp43:	dc.b $30,$30,$34,$5C,$30,$9E,$AC,$A8,$DC,$0E,$04,$0A
-		dc.b $05,$08,$08,$08,$08,$BF,$BF,$BF,$BF,$24,$04,$1C,$80
-		dc.b $30,$30,$34,$5C,$30,$9E,$AC,$A8,$DC,$0E,$04,$0A
-		dc.b $05,$08,$08,$08,$08,$BF,$BF,$BF,$BF,$24,$04,$2C,$80
-		dc.b $04,$37,$77,$72,$49,$1F,$1F,$1F,$1F,$07,$07,$0A
-		dc.b $0D,$00,$00,$0B,$0B,$1F,$1F,$0F,$0F,$13,$13,$81,$88
-
-; thunk
-Sound44:	dc.w z80_ptr(ssamp44),$0101
-		dc.w $8005,z80_ptr(+),$0000
-+		dc.b $EF,$00,$8A,$22,$F2
-ssamp44:	dc.b $FA,$21,$10,$30,$32,$1F,$1F,$1F,$1F,$05,$05,$18
-		dc.b $10,$0B,$10,$1F,$10,$1F,$4F,$2F,$2F,$0D,$04,$07,$80
-
-; cha-ching
-Sound45:	dc.w z80_ptr(ssamp45),$0103
-		dc.w $8005,z80_ptr(+),$0000
-		dc.w $8004,z80_ptr(++),$0000
-		dc.w $80C0,z80_ptr(+++),$0000
-+		dc.b $EF,$00,$8A,$08,$80,$02,$8A,$08,$F2
-+		dc.b $EF,$01,$80,$12,$C6,$55,$F2
-+		dc.b $F5,$02,$F3,$E7,$80,$02,$C2,$05,$C4,$04,$C2,$05,$C4,$04,$F2
-ssamp45:	dc.b $3B,$03,$02,$02,$06,$18,$1A,$1A,$96,$17,$0A,$0E
-		dc.b $10,$00,$00,$00,$00,$FF,$FF,$FF,$FF,$00,$39,$28,$80
-ringsamp:	dc.b $04,$37,$77,$72,$49,$1F,$1F,$1F,$1F,$07,$07,$0A
-		dc.b $0D,$00,$00,$0B,$0B,$1F,$1F,$0F,$0F,$23,$23,$80,$80
-
-; losing rings (scatter)
-Sound46:	dc.w z80_ptr(ringsamp),$0102
-		dc.w $8004,z80_ptr(+),$0005
-		dc.w $8005,z80_ptr(++),$0008
-+		dc.b $EF,$00,$C6,$02,$05,$05,$05,$05,$05,$05,$3A,$F2
-+		dc.b $EF,$00,$80,$02,$C4,$02,$05,$15,$02,$05,$32,$F2
-
-; chain pull chink-chink (unused)
-Sound47:	dc.w z80_ptr(ssamp47),$0101
-		dc.w $8005,z80_ptr(+),$0000
-+		dc.b $EF,$00,$BE,$05,$80,$04,$BE,$04,$80,$04,$F2
-ssamp47:	dc.b $28,$2F,$37,$5F,$2B,$1F,$1F,$1F,$1F,$15,$15,$15
-		dc.b $13,$13,$0D,$0C,$10,$2F,$3F,$2F,$2F,$00,$1F,$10,$80
-
-; flamethrower
-Sound48:	dc.w $0000,$0101
-		dc.w $80C0,z80_ptr(+),$0000
-+		dc.b $F5,$00,$F3,$E7,$A7,$25,$F2
-
-; bonus pwoieeew (mostly unused)
-Sound49:	dc.w z80_ptr(ssamp49),$0101
-		dc.w $8005,z80_ptr(+),$0E00
-+		dc.b $EF,$00,$F0,$01,$01,$33,$18,$B9,$1A,$F2
-ssamp49:	dc.b $3B,$0A,$05,$31,$02,$5F,$5F,$5F,$5F,$04,$16,$14
-		dc.b $0C,$00,$00,$04,$00,$1F,$D8,$6F,$FF,$03,$00,$25,$80
-
-; special stage entry
-Sound4A:	dc.w z80_ptr(ssamp4A),$0101
-		dc.w $8005,z80_ptr(+),$0002
-+		dc.b $EF,$00,$F0,$01,$01,$5B,$02,$CC,$65,$F2
-ssamp4A:	dc.b $20,$36,$30,$35,$31,$41,$3B,$49,$4B,$09,$09,$06
-		dc.b $08,$01,$02,$03,$A9,$0F,$0F,$0F,$0F,$29,$23,$27,$80
-
-; slower smash/crumble
-Sound4B:	dc.w z80_ptr(smashsamp),$0102
-		dc.w $8005,z80_ptr(+),$0000
-		dc.w $80C0,z80_ptr(++),$0000
-+		dc.b $EF,$00,$F0,$03,$01,$20,$04
--		dc.b $81,$18,$E6
-		dc.w $0AF7,$0006,z80_ptr(-)
-		dc.b $F2
-+		dc.b $F0,$01,$01,$0F,$05,$F3,$E7
--		dc.b $B0,$18,$E7,$EC
-		dc.w $03F7,$0005,z80_ptr(-)
-		dc.b $F2
-
-; spring boing
-Sound4C:	dc.w z80_ptr(ssamp4C),$0101
-		dc.w $8004,z80_ptr(+),$0002
-+		dc.b $EF,$00,$80,$01,$F0,$03,$01,$5D,$0F,$B0,$0C,$F4
--		dc.b $E7,$E6,$02,$BD
-		dc.w $02F7,$0019,z80_ptr(-)
-		dc.b $F2
-ssamp4C:	dc.b $20,$36,$30,$35,$31,$DF,$9F,$DF,$9F,$07,$09,$06
-		dc.b $06,$07,$06,$06,$08,$2F,$1F,$1F,$FF,$16,$13,$30,$80
-
-; selection blip
-Sound4D:	dc.w $0000,$0101
-		dc.w $80C0,z80_ptr(+),$0000
-+		dc.b $BB,$02,$F2
-
-; another ring sound (only plays in the left speaker?)
-Sound4E:	dc.w z80_ptr(ringsamp),$0101
-		dc.w $8004,z80_ptr(+),$0005
-+		dc.b $EF,$00,$E0,$80,$C1,$04,$C4,$05,$C9,$1B,$F2
-
-; signpost spin sound
-Sound4F:	dc.w z80_ptr(ssamp4F),$0102
-		dc.w $8004,z80_ptr(+),$2703
-		dc.w $8005,z80_ptr(++),$2700
-+		dc.b $80,$04
-+		dc.b $EF,$00
--		dc.b $B4,$05,$E6
-		dc.w $02F7,$0015,z80_ptr(-)
-		dc.b $F2
-ssamp4F:	dc.b $F4,$06,$0F,$04,$0E,$1F,$1F,$1F,$1F,$00,$0B,$00
-		dc.b $0B,$00,$05,$00,$08,$0F,$FF,$0F,$FF,$0C,$03,$8B,$80
-
-; mosquito zapper
-Sound50:	dc.w z80_ptr(ssamp50),$0101
-		dc.w $8005,z80_ptr(+),$F400
-+		dc.b $EF,$00,$B3,$04,$80,$01
--		dc.b $B4,$04,$80
-		dc.w $01F7,$0004,z80_ptr(-)
-		dc.b $F2
-ssamp50:	dc.b $83,$12,$13,$10,$1E,$1F,$1F,$1F,$1F,$00,$00,$00
-		dc.b $00,$02,$02,$02,$02,$2F,$FF,$2F,$3F,$06,$34,$10,$87
-
-; (unused)
-Sound51:	dc.w z80_ptr(ssamp51),$0102
-		dc.w $80C0,z80_ptr(+),$0001
-		dc.w $8005,z80_ptr(++),$000B
-+		dc.b $F5,$02,$F3,$E4,$B0,$04,$85,$02,$F2
-+		dc.b $EF,$00,$E8,$04,$A5,$06,$F2
-ssamp51:	dc.b $3C,$02,$01,$00,$01,$1F,$1F,$1F,$1F,$00,$19,$0E
-		dc.b $10,$00,$00,$0C,$0F,$0F,$FF,$EF,$FF,$05,$00,$80,$80
-
-; (unused)
-Sound52:	dc.w z80_ptr(ssamp52),$0101
-		dc.w $8005,z80_ptr(+),$0002
-+		dc.b $F0,$01,$01,$2A,$07,$EF,$00
--		dc.b $A5,$03
-		dc.w $E7F7,$0013,z80_ptr(-)
--		dc.b $A5,$03,$E7,$E6
-		dc.w $02F7,$0013,z80_ptr(-)
-		dc.b $F2
-ssamp52:	dc.b $28,$21,$21,$21,$30,$1F,$1F,$1F,$1F,$00,$00,$00
-		dc.b $00,$00,$00,$00,$00,$FF,$FF,$FF,$FF,$29,$20,$29,$80
-
-
-Sound53:	dc.w z80_ptr(ssamp53),$0101
-		dc.w $8005,z80_ptr(+),$F503
-+		dc.b $EF,$00,$F0,$01,$01,$46,$09,$A7,$14,$E7,$14,$E7,$E6,$04
-		dc.b $14,$E7,$E6,$04,$14,$E7,$E6,$04,$0A,$E7,$E6,$04,$0A,$F2
-ssamp53:	dc.b $07,$0A,$0C,$0C,$0C,$1F,$1F,$1F,$1F,$00,$00,$00
-		dc.b $00,$00,$00,$00,$00,$FF,$FF,$FF,$FF,$2A,$0F,$0F,$80
-
-; OOZ lid pop sound
-Sound54:	dc.w z80_ptr(ssamp54),$0102
-		dc.w $8005,z80_ptr(+),$0000
-		dc.w $80C0,z80_ptr(++),$0006
-+		dc.b $EF,$00,$B6,$15,$F2
-+		dc.b $F3,$E7,$F5,$04,$C6,$03,$E7,$C5,$E7
-		dc.b $C4,$E7,$C3,$E7,$C2,$E7,$C1,$E7,$C0,$F2
-ssamp54:	dc.b $07,$03,$02,$03,$00,$FF,$6F,$6F,$3F,$12,$14,$11
-		dc.b $0E,$1A,$0A,$03,$0D,$FF,$FF,$FF,$FF,$03,$07,$07,$80
-
-
-Sound55:	dc.w z80_ptr(ssamp55),$0101
-		dc.w $8005,z80_ptr(+),$0000
-+		dc.b $EF,$00,$AA,$07,$B6,$15,$F2
-ssamp55:	dc.b $42,$20,$0E,$0F,$0F,$1F,$1F,$1F,$1F,$1F,$1F,$1F
-		dc.b $1F,$0F,$0E,$0F,$0E,$0F,$0F,$0F,$0F,$2E,$80,$20,$80
-
-
-Sound56:	dc.w z80_ptr(ssamp56),$0101
-		dc.w $8005,z80_ptr(+),$100E
-+		dc.b $EF,$00,$F0,$01,$01,$1E,$FF,$8F,$1C,$F4
--		dc.b $E7,$9A
-		dc.w $05F7,$0009,z80_ptr(-)
--		dc.b $E7,$9A,$04,$E6,$02,$E7,$9A,$04,$E6
-		dc.w $02F7,$0008,z80_ptr(-)
-		dc.b $F2
-ssamp56:	dc.b $0D,$06,$00,$00,$E5,$1F,$1F,$1F,$1F,$00,$00,$00
-		dc.b $00,$00,$00,$00,$00,$0F,$0F,$0F,$0F,$27,$80,$80,$80
-
-
-Sound57:	dc.w z80_ptr(ssamp57),$0101
-		dc.w $8005,z80_ptr(+),$0000
-+		dc.b $EF,$00,$CA,$15,$F2
-ssamp57:	dc.b $04,$09,$70,$00,$30,$1C,$1F,$DF,$1F,$15,$12,$0B
-		dc.b $0F,$0C,$0D,$00,$0D,$07,$2F,$FA,$FA,$00,$29,$00,$00
-
-; CNZ bonusy bumper sound
-Sound58:	dc.w z80_ptr(ssamp58),$0101
-		dc.w $8005,z80_ptr(+),$0007
-+		dc.b $EF,$00,$B3,$06,$B3,$15,$F2
-ssamp58:	dc.b $3C,$05,$0A,$01,$01,$56,$5C,$5C,$5C,$0E,$11,$11
-		dc.b $11,$09,$06,$0A,$0A,$4F,$3F,$3F,$3F,$17,$20,$80,$80
-
-; CNZ baaang bumper sound
-Sound59:	dc.w z80_ptr(ssamp59),$0103
-		dc.w $8004,z80_ptr(+),$0000
-		dc.w $8002,z80_ptr(++),$0002
-		dc.w $8005,z80_ptr(+++),$0000
-+		dc.b $EF,$00,$E1,$0C,$B5,$14,$F2
-+		dc.b $EF,$01,$9A,$03,$F2
-+		dc.b $EF,$00,$B6,$14,$F2
-ssamp59:	dc.b $32,$30,$30,$40,$70,$1F,$1F,$1F,$1F,$12,$0A,$01
-		dc.b $0D,$00,$01,$01,$0C,$00,$23,$C3,$F6,$08,$07,$1C,$03
-		dc.b $05,$00,$00,$00,$00,$1F,$1F,$1F,$1F,$12,$0C,$0C
-		dc.b $0C,$12,$08,$08,$08,$1F,$5F,$5F,$5F,$07,$80,$80,$80
-
-; CNZ gloop / water droplet sound
-Sound5A:	dc.w z80_ptr(ssamp5A),$0101
-		dc.w $8005,z80_ptr(+),$0000
-+		dc.b $EF,$00,$F0,$01,$01,$7F,$F1,$AA,$0A,$F2
-ssamp5A:	dc.b $47,$03,$02,$02,$04,$5F,$5F,$5F,$5F,$0E,$1A,$11
-		dc.b $0A,$09,$0A,$0A,$0A,$4F,$3F,$3F,$3F,$7F,$80,$80,$A3
-
-
-Sound5B:	dc.w z80_ptr(ssamp5B),$0101
-		dc.w $8005,z80_ptr(+),$0000
-+		dc.b $EF,$00,$80,$02,$A5,$01,$E7
--		dc.b $01,$E7,$E6
-		dc.w $02F7,$0005,z80_ptr(-)
-		dc.b $F2
-ssamp5B:	dc.b $38,$0F,$0F,$0F,$0F,$1F,$1F,$1F,$0E,$00,$00,$00
-		dc.b $00,$00,$00,$00,$00,$0F,$0F,$0F,$1F,$00,$00,$00,$80
-
-
-Sound5C:	dc.w z80_ptr(ssamp5C),$0102
-		dc.w $8004,z80_ptr(+),$000E
-		dc.w $80C0,z80_ptr(++),$0000
-+		dc.b $EF,$00,$85,$40
--		dc.b $E7,$04,$E6
-		dc.w $04F7,$000A,z80_ptr(-)
-		dc.b $F2
-+		dc.b $F5,$00,$F3,$E7,$A7,$40
--		dc.b $E7,$08,$E6
-		dc.w $01F7,$0005,z80_ptr(-)
-		dc.b $F2
-ssamp5C:	dc.b $FA,$12,$01,$01,$01,$1F,$1F,$1F,$1F,$00,$00,$00
-		dc.b $00,$00,$00,$00,$00,$0F,$0F,$0F,$0F,$81,$8E,$14,$80
-
-; chain clink
-Sound5D:	dc.w z80_ptr(ssamp5D),$0101
-		dc.w $8005,z80_ptr(+),$0000
-+		dc.b $EF,$00,$C0,$04,$F2
-ssamp5D:	dc.b $28,$2F,$37,$5F,$2B,$1F,$1F,$1F,$1F,$15,$15,$15
-		dc.b $13,$13,$0D,$0C,$10,$2F,$3F,$2F,$2F,$00,$1F,$10,$80
-
-; helicopter
-Sound5E:	dc.w z80_ptr(ssamp5E),$0101
-		dc.w $8002,z80_ptr(+),$1405
-+		dc.b $EF,$00
--		dc.b $95,$02,$95
-		dc.w $01F7,$0013,z80_ptr(-)
--		dc.b $95,$02,$95,$01,$E6
-		dc.w $01F7,$001B,z80_ptr(-)
-		dc.b $F2
-ssamp5E:	dc.b $35,$30,$44,$40,$51,$1F,$1F,$1F,$1F,$10,$00,$13
-		dc.b $15,$1F,$00,$1F,$1A,$7F,$0F,$7F,$5F,$02,$A8,$80,$80
-
-
-Sound5F:	dc.w z80_ptr(ssamp5F),$0103
-		dc.w $8005,z80_ptr(s5Fs1),$0000
-		dc.w $80C0,z80_ptr(s5Fs2),$0000
-		dc.w $80A0,z80_ptr(s5Fs3),$0000
-s5Fs1		dc.b $EF,$00,$F0,$01,$01,$C5,$1A,$CD,$07,$E6,$0A,$80
-		dc.b $06,$EF,$01,$F0,$01,$01,$11,$FF,$A2,$28
--		dc.b $E7,$03,$E6
-		dc.w $03F7,$0005,z80_ptr(-)
-		dc.b $F2
-s5Fs2		dc.b $80,$07,$F0,$01,$02,$05,$FF,$F3,$E7,$BB,$1D
--		dc.b $E7,$07,$EC
-		dc.w $01F7,$0010,z80_ptr(-)
-		dc.b $F2
-s5Fs3		dc.b $80,$16,$F5,$03
--		dc.b $BF,$04,$C1,$C3,$EC,$01,$E9
-		dc.w $FFF7,$0005,z80_ptr(-)
--		dc.b $BF,$04,$C1,$C3,$EC,$01,$E9
-		dc.w $01F7,$0007,z80_ptr(-)
-		dc.b $F2
-ssamp5F:	dc.b $FD,$09,$00,$03,$00,$1F,$1F,$1F,$1F,$10,$0C,$0C
-		dc.b $0C,$0B,$10,$1F,$05,$1F,$4F,$2F,$2F,$09,$92,$84,$8E
-		dc.b $3A,$70,$30,$04,$01,$0F,$14,$19,$16,$08,$0A,$0B
-		dc.b $05,$03,$03,$03,$05,$1F,$6F,$8F,$5F,$1F,$22,$1F,$80
-
-; spindash charge
-Sound60:	dc.w z80_ptr(ssamp60),$0101
-		dc.w $8005,z80_ptr(+),$FE00
-+		dc.b $EF,$00,$F0,$00,$01,$20,$F6,$C4,$16,$E7,$F4,$D0,$18,$E7
--		dc.b $04,$E7,$E6
-		dc.w $03F7,$0010,z80_ptr(-)
-		dc.b $F2
-ssamp60:	dc.b $34,$00,$03,$0C,$09,$9F,$8C,$8F,$95,$00,$00,$00
-		dc.b $00,$00,$00,$00,$00,$0F,$0F,$0F,$0F,$00,$1D,$00,$00
-
-; rumbling
-Sound61:	dc.w z80_ptr(ssamp61),$0101
-		dc.w $8004,z80_ptr(+),$0004
-+		dc.b $80,$01,$EF,$00,$F0,$00,$01,$70,$06,$82,$06,$85,$08,$83
-		dc.b $01,$82,$05,$86,$06,$89,$03,$82,$08,$88,$04,$82,$06,$E6
-		dc.b $02,$85,$08,$E6,$02,$83,$01,$E6,$02,$82,$05,$E6,$02,$86
-		dc.b $06,$E6,$02,$89,$03,$E6,$02,$82,$08,$E6,$02,$88,$04,$E6,$02,$F2
-ssamp61:	dc.b $32,$30,$30,$50,$30,$1F,$0E,$19,$0E,$07,$12,$15
-		dc.b $09,$0A,$09,$1D,$06,$E8,$03,$0A,$17,$07,$00,$00,$00
-
-
-Sound62:	dc.w z80_ptr(ssamp62),$0101
-		dc.w $8005,z80_ptr(+),$FF00
-+		dc.b $EF,$00,$A6,$05,$F0,$01,$01,$E7,$40
--		dc.b $C4,$02,$E7,$E6
-		dc.w $01F7,$0012,z80_ptr(-)
-		dc.b $F2
-ssamp62:	dc.b $34,$0C,$10,$73,$0C,$AF,$AC,$FF,$D5,$06,$00,$02
-		dc.b $01,$02,$0A,$04,$08,$BF,$BF,$BF,$BF,$00,$08,$80,$80
-
-; CNZ blooing bumper
-Sound63:	dc.w z80_ptr(ssamp63),$0101
-		dc.w $8005,z80_ptr(+),$0907
-+		dc.b $EF,$00,$F0,$01,$01,$04,$56,$92,$03,$9A,$25,$F2
-ssamp63:	dc.b $3D,$12,$10,$77,$30,$5F,$5F,$5F,$5F,$0F,$0A,$00
-		dc.b $01,$0A,$0A,$0D,$0D,$4F,$0F,$0F,$0F,$13,$80,$80,$80
-
-; HTZ track click sound
-Sound64:	dc.w z80_ptr(ssamp64),$0101
-		dc.w $8005,z80_ptr(+),$1100
-+		dc.b $EF,$00,$C7,$02,$F2
-ssamp64:	dc.b $24,$2A,$02,$05,$01,$1A,$1F,$10,$1F,$0F,$1F,$1F
-		dc.b $1F,$0C,$0D,$11,$11,$0C,$09,$09,$0F,$0E,$04,$80,$80
-
-; kicking up leaves sound
-Sound65:	dc.w z80_ptr(ssamp65),$0101
-		dc.w $80C0,z80_ptr(+),$F800
-+		dc.b $F5,$03,$F3,$E7,$CE,$03,$F5,$06,$CE,$04,$EC
-		dc.b $02,$CE,$02,$F5,$03,$EC,$FE,$CE,$08,$CE,$18,$F2
-ssamp65:	; uhm... apparently they forgot to null out the pointer to here.
-		; luckily, sound 65 doesn't really use its sample
-
-; leaf splash?
-Sound66:	dc.w z80_ptr(ssamp66),$0102
-		dc.w $8005,z80_ptr(++),$EE08
-		dc.w $80C0,z80_ptr(+),$0000
-+		dc.b $F3,$E7,$F5,$09,$C6,$36,$F2
-+		dc.b $EF,$00,$80,$01,$92,$02,$02,$02,$30,$F2
-ssamp66:	dc.b $32,$33,$17,$34,$13,$0F,$0D,$1B,$17,$00,$04,$02
-		dc.b $0B,$08,$00,$08,$09,$6F,$5F,$4F,$6F,$05,$00,$00,$80
-
-
-Sound67:	dc.w z80_ptr(ssamp67),$0101
-		dc.w $80C0,z80_ptr(+),$0000
-+		dc.b $F5,$06,$F3,$E7,$90,$0A,$94,$0A,$98,$0A,$9C
-		dc.b $0A,$A0,$0A,$A4,$08,$A8,$08,$AC,$08,$B0,$08,$F2
-ssamp67:	; another not-really-used sample (like Sound65)
-
-; door slamming quickly (unused)
-Sound68:	dc.w z80_ptr(ssamp68),$0101
-		dc.w $8005,z80_ptr(+),$F400
-+		dc.b $EF,$00,$9B,$04,$A5,$06,$F2
-ssamp68:	dc.b $3C,$00,$00,$00,$00,$1F,$1F,$1F,$1F,$00,$0F,$16
-		dc.b $0F,$00,$00,$00,$00,$0F,$FF,$AF,$FF,$00,$0A,$80,$80
-
-
-Sound69:	dc.w z80_ptr(ssamp69),$0102
-		dc.w $8005,z80_ptr(+),$F400
-		dc.w $80C0,z80_ptr(++),$0000
-+		dc.b $EF,$00,$9B,$03,$A8,$06,$9E,$08,$F2
-+		dc.b $F5,$04,$F3,$E7,$C6,$03,$C6,$06,$C6,$08,$F2
-ssamp69:	dc.b $3C,$00,$00,$00,$00,$1F,$1F,$1F,$1F,$00,$0F,$16
-		dc.b $0F,$00,$00,$00,$00,$0F,$FF,$AF,$FF,$00,$0A,$80,$80
-
-; robotic laser burst
-Sound6A:	dc.w z80_ptr(ssamp6A),$0101
-		dc.w $8005,z80_ptr(+),$0004
-+		dc.b $EF,$00,$DF,$14,$E6,$18,$06,$F2
-ssamp6A:	dc.b $3D,$09,$34,$34,$28,$1F,$16,$16,$16,$00,$00,$00
-		dc.b $04,$00,$00,$00,$00,$0F,$0F,$0F,$0F,$15,$02,$02,$00
-
-; scatter
-Sound6B:	dc.w z80_ptr(ssamp6B),$0101
-		dc.w $8004,z80_ptr(+),$0002
-+		dc.b $EF,$00,$81,$04,$80,$0C,$F2
-ssamp6B:	dc.b $3A,$30,$30,$40,$70,$1F,$1F,$1F,$1F,$12,$0A,$01
-		dc.b $07,$00,$01,$01,$03,$00,$23,$C3,$46,$08,$07,$1C,$03
-
-
-Sound6C:	dc.w z80_ptr(ssamp6C),$0104
-		dc.w $8005,z80_ptr(++),$0010
-		dc.w $8004,z80_ptr(+),$0010
-		dc.w $80C0,z80_ptr(s5Fs2),$0000
-		dc.w $80A0,z80_ptr(s5Fs3),$0000
-+		dc.b $E1,$10
-+		dc.b $EF,$01,$F0,$01,$01,$EC,$56,$C0,$24,$F4,$EF,$00,$E6,$F0
--		dc.b $BB,$02,$E7,$E6,$02,$E9
-		dc.w $01F7,$0020,z80_ptr(-)
-		dc.b $F2
-ssamp6C:	dc.b $00,$53,$30,$03,$30,$1F,$1F,$1F,$1F,$00,$00,$00
-		dc.b $00,$00,$00,$00,$00,$00,$00,$00,$0F,$0F,$06,$23,$80
-		dc.b $3C,$72,$32,$32,$72,$14,$14,$0F,$0F,$00,$00,$00
-		dc.b $00,$00,$00,$00,$00,$02,$02,$08,$08,$35,$14,$00,$00
-
-; error sound
-Sound6D:	dc.w z80_ptr(ssamp6D),$0101
-		dc.w $8005,z80_ptr(+),$0004
-+		dc.b $EF,$00,$B0,$06,$80,$06,$B0,$18,$F2
-ssamp6D:	dc.b $38,$00,$00,$00,$00,$1F,$1F,$1F,$1F,$00,$00,$00
-		dc.b $00,$00,$00,$00,$00,$0F,$0F,$0F,$0F,$1F,$0C,$17,$00
-
-; Silver Sonic buzz saw
-Sound6E:	dc.w z80_ptr(ssamp6E),$0102
-		dc.w $8005,z80_ptr(+),$0000
-		dc.w $80C0,z80_ptr(++),$0000
-+		dc.b $EF,$00,$C6,$24,$E7
--		dc.b $C6,$04,$E7,$E6
-		dc.w $04F7,$0008,z80_ptr(-)
-		dc.b $F2
-+		dc.b $F3,$E7,$C7,$44,$F2
-ssamp6E:	dc.b $33,$00,$10,$00,$31,$1F,$1D,$1E,$0E,$00,$0C,$1D
-		dc.b $00,$00,$00,$01,$00,$0F,$0F,$0F,$0F,$08,$06,$07,$80
-
-
-Sound6F:	dc.w z80_ptr(ssamp6A),$0103
-		dc.w $8005,z80_ptr(++),$000B
-		dc.w $8004,z80_ptr(+),$0012
-		dc.w $80C0,z80_ptr(+++),$0000
-+		dc.b $E1,$02,$80,$02
-+		dc.b $EF,$00,$E6,$0C,$DF,$06,$E7,$E6,$F4,$06,$E7
-		dc.b $E6,$F4,$12,$E7,$E6,$0C,$06,$E7,$E6,$0C,$06,$F2
-+		dc.b $F3,$E7,$C6,$04,$C0,$BA,$B4,$AE,$E6
-		dc.b $01,$AE,$E6,$01,$AE,$E6,$01,$AE,$F2
-
-
-Sound70:	dc.w $0000,$0101
-		dc.w $80C0,z80_ptr(+),$0000
-+		dc.b $F3,$E7,$C6,$18
--		dc.b $E7,$03,$E6
-		dc.w $01F7,$0008,z80_ptr(-)
-		dc.b $F2
-
+Sound20:	include "sound/sfx/A0 - Jump.asm"
+Sound21:	include "sound/sfx/A1 - Checkpoint.asm"
+Sound22:	include "sound/sfx/A2 - Spike Switch.asm"
+Sound23:	include "sound/sfx/A3 - Hurt.asm"
+Sound24:	include "sound/sfx/A4 - Skidding.asm"
+Sound25:	include "sound/sfx/A5 - Block Push.asm"
+Sound26:	include "sound/sfx/A6 - Hurt by Spikes.asm"
+Sound27:	include "sound/sfx/A7 - Sparkle.asm"
+Sound28:	include "sound/sfx/A8 - Beep.asm"
+Sound29:	include "sound/sfx/A9 - Special Stage Item (Unused).asm"
+Sound2A:	include "sound/sfx/AA - Splash.asm"
+Sound2B:	include "sound/sfx/AB - Swish.asm"
+Sound2C:	include "sound/sfx/AC - Boss Hit.asm"
+Sound2D:	include "sound/sfx/AD - Inhaling Bubble.asm"
+Sound2E:	include "sound/sfx/AE - Lava Ball.asm"
+Sound2F:	include "sound/sfx/AF - Shield.asm"
+Sound30:	include "sound/sfx/B0 - Laser Beam.asm"
+Sound31:	include "sound/sfx/B1 - Electricity (Unused).asm"
+Sound32:	include "sound/sfx/B2 - Drown.asm"
+Sound33:	include "sound/sfx/B3 - Fire Burn.asm"
+Sound34:	include "sound/sfx/B4 - Bumper.asm"
+Sound35:	include "sound/sfx/B5 - Ring.asm"
+Sound36:	include "sound/sfx/B6 - Spikes Move.asm"
+Sound37:	include "sound/sfx/B7 - Rumbling.asm"
+Sound38:	include "sound/sfx/B8 - Unknown (Unused).asm"
+Sound39:	include "sound/sfx/B9 - Smash.asm"
+Sound3A:	include "sound/sfx/BA - Special Stage Glass (Unused).asm"
+Sound3B:	include "sound/sfx/BB - Door Slam.asm"
+Sound3C:	include "sound/sfx/BC - Spin Dash Release.asm"
+Sound3D:	include "sound/sfx/BD - Hammer.asm"
+Sound3E:	include "sound/sfx/BE - Roll.asm"
+Sound3F:	include "sound/sfx/BF - Continue Jingle.asm"
+Sound40:	include "sound/sfx/C0 - Casino Bonus.asm"
+Sound41:	include "sound/sfx/C1 - Explosion.asm"
+Sound42:	include "sound/sfx/C2 - Water Warning.asm"
+Sound43:	include "sound/sfx/C3 - Enter Giant Ring (Unused).asm"
+Sound44:	include "sound/sfx/C4 - Boss Explosion.asm"
+Sound45:	include "sound/sfx/C5 - Tally End.asm"
+Sound46:	include "sound/sfx/C6 - Ring Spill.asm"
+Sound47:	include "sound/sfx/C7 - Chain Rise (Unused).asm"
+Sound48:	include "sound/sfx/C8 - Flamethrower.asm"
+Sound49:	include "sound/sfx/C9 - Hidden Bonus (Unused).asm"
+Sound4A:	include "sound/sfx/CA - Special Stage Entry.asm"
+Sound4B:	include "sound/sfx/CB - Slow Smash.asm"
+Sound4C:	include "sound/sfx/CC - Spring.asm"
+Sound4D:	include "sound/sfx/CD - Switch.asm"
+Sound4E:	include "sound/sfx/CE - Ring Left Speaker.asm"
+Sound4F:	include "sound/sfx/CF - Signpost.asm"
+Sound50:	include "sound/sfx/D0 - CNZ Boss Zap.asm"
+Sound51:	include "sound/sfx/D1 - Unknown (Unused).asm"
+Sound52:	include "sound/sfx/D2 - Unknown (Unused).asm"
+Sound53:	include "sound/sfx/D3 - Signpost 2P.asm"
+Sound54:	include "sound/sfx/D4 - OOZ Lid Pop.asm"
+Sound55:	include "sound/sfx/D5 - Sliding Spike.asm"
+Sound56:	include "sound/sfx/D6 - CNZ Elevator.asm"
+Sound57:	include "sound/sfx/D7 - Platform Knock.asm"
+Sound58:	include "sound/sfx/D8 - Bonus Bumper.asm"
+Sound59:	include "sound/sfx/D9 - Large Bumper.asm"
+Sound5A:	include "sound/sfx/DA - Gloop.asm"
+Sound5B:	include "sound/sfx/DB - Pre-Arrow Firing.asm"
+Sound5C:	include "sound/sfx/DC - Fire.asm"
+Sound5D:	include "sound/sfx/DD - Arrow Stick.asm"
+Sound5E:	include "sound/sfx/DE - Helicopter.asm"
+Sound5F:	include "sound/sfx/DF - Super Transform.asm"
+Sound60:	include "sound/sfx/E0 - Spin Dash Rev.asm"
+Sound61:	include "sound/sfx/E1 - Rumbling 2.asm"
+Sound62:	include "sound/sfx/E2 - CNZ Launch.asm"
+Sound63:	include "sound/sfx/E3 - Flipper.asm"
+Sound64:	include "sound/sfx/E4 - HTZ Lift Click.asm"
+Sound65:	include "sound/sfx/E5 - Leaves.asm"
+Sound66:	include "sound/sfx/E6 - Mega Mack Drop.asm"
+Sound67:	include "sound/sfx/E7 - Drawbridge Move.asm"
+Sound68:	include "sound/sfx/E8 - Quick Door Slam.asm"
+Sound69:	include "sound/sfx/E9 - Drawbridge Down.asm"
+Sound6A:	include "sound/sfx/EA - Laser Burst.asm"
+Sound6B:	include "sound/sfx/EB - Scatter.asm"
+Sound6C:	include "sound/sfx/EC - Teleport.asm"
+Sound6D:	include "sound/sfx/ED - Error.asm"
+Sound6E:	include "sound/sfx/EE - Mecha Sonic Buzz.asm"
+Sound6F:	include "sound/sfx/EF - Large Laser.asm"
+Sound70:	include "sound/sfx/F0 - Oil Slide.asm"
 
 	finishBank
     endif

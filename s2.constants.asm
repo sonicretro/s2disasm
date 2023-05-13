@@ -1796,8 +1796,8 @@ SS2p_RingBuffer:		ds.w	6
 				ds.b	4	; $FFFFFFAC-$FFFFFFAF ; seems unused
 Got_Emerald:			ds.b	1
 Emerald_count:			ds.b	1
-Got_Emeralds_array:		ds.b	7	; 7 bytes
-				ds.b	7	; $FFFFFFB9-$FFFFFFBF ; filler
+Got_Emeralds_array:		ds.b	8	; Technically this is only 7 bytes long, but an 8th byte is cleared
+				ds.b	6	; $FFFFFFBA-$FFFFFFBF ; filler
 Next_Extra_life_score:		ds.l	1
 Next_Extra_life_score_2P:	ds.l	1
 Level_Has_Signpost:		ds.w	1	; 1 = signpost, 0 = boss or nothing
@@ -2038,12 +2038,10 @@ SSDrawRegBuffer:			ds.w	6
 SSDrawRegBuffer_End
 					ds.b	2
 SpecialStage_LastSegment2:		ds.b	1
-SS_unk_DB4D:				ds.b	1
+SS_unk_DB4D:				ds.b	1	; written but never read
 					ds.b	$14
 SS_Ctrl_Record_Buf:
-					ds.w	$F
-SS_Last_Ctrl_Record:
-					ds.w	1
+					ds.w	$10
 SS_Ctrl_Record_Buf_End
 SS_CurrentPerspective:			ds.l	1
 SS_Check_Rings_flag:			ds.b	1
