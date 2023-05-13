@@ -95144,6 +95144,10 @@ ArtNem_TitleBanner:	BINCLUDE	"art/nemesis/Giant banner from title screen.bin"
 ArtNem_TitleTheEchidnaIn:	BINCLUDE	"art/nemesis/'THE ECHIDNA IN' from title screen.bin"
 	even
 ;--------------------------------------------------------------------------------------
+; Casino Night Zone's object layouts. Bizarrely, only CNZ's object layouts are here: the others are in the Sonic 3 ROM.
+Objects_CNZ_1:	BINCLUDE	"level/objects/CNZ_1.bin"
+Objects_CNZ_2:	BINCLUDE	"level/objects/CNZ_2.bin"
+
     endif
 
 ; KiS2: The assets and sound driver were all removed: they are instead loaded
