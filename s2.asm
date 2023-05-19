@@ -97798,6 +97798,7 @@ paddingSoFar	:= paddingSoFar+1
 		message "ROM size is $\{*} bytes (\{*/1024.0} kb). About $\{paddingSoFar} bytes are padding. "
 	endif
 	; share these symbols externally (WARNING: don't rename, move or remove these labels!)
+	; KiS2: TODO: These don't work properly in non-standalone builds with the S2 and S&K ROMs at the beginning because fixpointer.exe expects the addresses to not be offset.
 	shared word_728C_user,Obj5F_MapUnc_7240,off_3A294,MapRUnc_Sonic
     if (gameRevision<>3) || standaloneKiS2
 	; KiS2: 'movewZ80CompSize' doesn't need to be exported anymore.
