@@ -97110,8 +97110,10 @@ Objects_CNZ_1:	BINCLUDE	"level/objects/CNZ_1 (REV00).bin"
 	ObjectLayoutBoundary
 Objects_CNZ_2:	BINCLUDE	"level/objects/CNZ_2 (REV00).bin"
     else
+; KiS2: This was modified.
 Objects_CNZ_1:	BINCLUDE	"level/objects/CNZ_1.bin"
 	ObjectLayoutBoundary
+; KiS2: This was modified.
 Objects_CNZ_2:	BINCLUDE	"level/objects/CNZ_2.bin"
     endif
 
