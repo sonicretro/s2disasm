@@ -12,7 +12,7 @@ const char* shareFileName = NULL;
 size_t compressedLength = 0;
 bool accurate_compression;
 
-void printUsage() { printf("usage: s2p2bin [-a | --accurate] inputcodefile.p outputromfile.bin sharefile.h\n\n  -a, --accurate    use weaker sound driver compression that's accurate to\n                    the original ROM"); }
+void printUsage() { printf("usage: p2bin [-a | --accurate] inputcodefile.p outputromfile.bin sharefile.h\n\n  -a, --accurate    use weaker sound driver compression that's accurate to\n                    the original ROM"); }
 bool buildRom(FILE* from, FILE* to);
 void editShareFile();
 
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 
 	if(codeFileName && romFileName)
 	{
-		printf("\ns2p2bin: generating %s from %s", romFileName, codeFileName);
+		printf("\np2bin: generating %s from %s", romFileName, codeFileName);
 		
 		FILE* from = fopen(codeFileName, "rb");
 		if(from)
