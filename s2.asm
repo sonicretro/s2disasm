@@ -14691,8 +14691,8 @@ StartLocations: zoneOrderedTable 2,4	; WrdArr_StartLoc
 	zoneTableEntry.w	$1E0,	$4CC
 	zoneTableBinEntry	2, "startpos/HTZ_1.bin"	; $07
 	zoneTableBinEntry	2, "startpos/HTZ_2.bin"
-	zoneTableEntry.w	$230,	$1AC		; $08
-	zoneTableEntry.w	$230,	$1AC
+	zoneTableBinEntry	2, "startpos/HPZ_1.bin"	; $08
+	zoneTableBinEntry	2, "startpos/HPZ_2.bin"
 	zoneTableEntry.w	$60,	$28F		; $09
 	zoneTableEntry.w	$60,	$2AF
 	zoneTableBinEntry	2, "startpos/OOZ_1.bin"	; $0A
