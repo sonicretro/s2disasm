@@ -66,7 +66,7 @@ int main(int argc, char **argv)
 					const size_t input_file_size = ftell(input_file);
 					rewind(input_file);
 
-					unsigned char* const uncompressed_buffer = malloc(input_file_size);
+					unsigned char* const uncompressed_buffer = (unsigned char*)malloc(input_file_size);
 
 					if (uncompressed_buffer == NULL)
 					{
