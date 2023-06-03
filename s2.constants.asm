@@ -1825,10 +1825,15 @@ Correct_cheat_entries_2:	ds.w	1	; for 14 continues or 7 emeralds codes
     endif
 
 Two_player_mode:		ds.w	1	; flag (0 for main game)
+    if gameRevision=3
+; KiS2 (unused): No longer used at all.
+				ds.w	1	; Unused
+    else
 unk_FFDA:			ds.w	1	; Written to once at title screen, never read from
+    endif
 
     if gameRevision<>3
-; KiS2: These were all removed to make some room for the variables added below.
+; KiS2 (unused): These were all removed to make some room for the variables added below.
 unk_FFDC:			ds.b	1	; Written to near loc_175EA, never read from
 unk_FFDD:			ds.b	1	; Written to near loc_175EA, never read from
 unk_FFDE:			ds.b	1	; Written to near loc_175EA, never read from

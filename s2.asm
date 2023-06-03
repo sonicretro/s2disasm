@@ -15,13 +15,20 @@
 ; See s2.notes.txt for more comments about this disassembly and other useful info.
 ;
 ; Differences from regular Sonic 2 are marked with 'KiS2'.
-; 'KiS2 (mappings)'     - Modifications to mappings.
-; 'KiS2 (palettes)'     - Modifications to palettes.
-; 'KiS2 (standalone)    - Modifications needed for standalone builds of KiS2.
-; 'KiS2 (JmpTo cleanup) - The JmpTos appears to have been cleaned-up in KiS2.
-; 'KiS2 (intro)         - Changes related to the new title screen intro.
-; 'KiS2 (bugfix)        - Changes related to bugfixes.
-; 'KiS2'                - Miscellaneous modifications.
+; 'KiS2 (lock-on):'         - Modifications needed for 'lock-on technology'.
+; 'KiS2 (Knuckles):'        - Addition of Knuckles.
+; 'KiS2 (title):'           - The new title screen intro.
+; 'KiS2 (ending):'          - Modifications to the ending.
+; 'KiS2 (results):'         - Modifications to the Special Stage results.
+; 'KiS2 (bugfix):'          - Bugfixes.
+; 'KiS2 (no 2P):'           - Removal of two-player mode.
+; 'KiS2 (no Tails):'        - Removal of Tails.
+; 'KiS2 (no options):'      - Removal of the options menu.
+; 'KiS2 (unused):'          - Removal of unused code, seemingly to save space in the limited 128KiB ROM.
+; 'KiS2 (mappings format):' - The switch from Sonic 2's mappings format to Sonic 3's.
+; 'KiS2 (JmpTo cleanup):'   - The JmpTos appears to have been cleaned-up in KiS2.
+; 'KiS2 (branch):'          - Minor adjustments to branches.
+; 'KiS2:'                   - Miscellaneous modifications.
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; ASSEMBLY OPTIONS:
@@ -96,11 +103,11 @@ SonicDriverVer = 2 ; Tell SMPS2ASM that we are targetting Sonic 2's sound driver
 	BINCLUDE "Sonic the Hedgehog 2.bin"
 
 StartOfRom:
-	; KiS2: The header and much of the initialisation code are gone.
+	; KiS2 (lock-on): The header and much of the initialisation code are gone.
 
 ; loc_206:
 ;EntryPoint:
-	; KiS2: Some unique initialisation code.
+	; KiS2 (lock-on): Some unique initialisation code.
 
 	; Set the stack register to point to Sonic 2's stack region.
 	lea	(System_Stack).w,sp
@@ -422,7 +429,7 @@ ChecksumLoop:
 	add.w	(a0)+,d1
 	cmp.l	a0,d0
     if gameRevision=3
-	; KiS2: The checksum was dummied out.
+	; KiS2 (lock-on): The checksum was dummied out.
 	nop
 	nop
     else
@@ -431,7 +438,7 @@ ChecksumLoop:
 	movea.l	#Checksum,a1	; read the checksum
 	cmp.w	(a1),d1	; compare correct checksum to the one in ROM
     if gameRevision=3
-	; KiS2: Ditto.
+	; KiS2 (lock-on): Ditto.
 	nop
 	nop
     else
@@ -459,7 +466,7 @@ ChecksumLoop:
 ; loc_370:
 GameInit:
     if (gameRevision<>3) || standaloneKiS2
-	; KiS2: KiS2 doesn't clear memory here because Sonic & Knuckles already did so earlier.
+	; KiS2 (lock-on): KiS2 doesn't clear memory here because Sonic & Knuckles already did so earlier.
 	; Clear some RAM on every boot and reset.
 	lea	(RAM_Start&$FFFFFF).l,a6
 	moveq	#0,d7
@@ -1457,7 +1464,7 @@ ClearScreen:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; KiS2: This patches the sound driver to read data from the Sonic 2
+; KiS2 (lock-on): This patches the sound driver to read data from the Sonic 2
 ; ROM's new position at $200000.
 
 ; JumpTo load the sound driver
@@ -1465,7 +1472,7 @@ ClearScreen:
 JmpTo_SoundDriverLoad ; JmpTo
 	nop
     if (gameRevision=3) && ~~standaloneKiS2
-	; KiS2: Use a 'jsr', so that we can enter the following code
+	; KiS2 (lock-on): Use a 'jsr', so that we can enter the following code
 	; afterwards.
 	jsr	(SoundDriverLoad).l
     else
@@ -1481,7 +1488,7 @@ JmpTo_SoundDriverLoad ; JmpTo
 	lea	(Z80_RAM).l,a1
 
     if (gameRevision=3) && ~~standaloneKiS2
-	; KiS2: Patch the sound driver's various bankswitches so that they
+	; KiS2 (lock-on): Patch the sound driver's various bankswitches so that they
 	; point to the ROM's new location.
 	moveq	#signextendB($73),d0	; The Z80 'ld (hl),e' instruction
 	move.b	d0,$A0(a1)
@@ -3043,7 +3050,7 @@ PalCycle_SuperSonic:
 	move.b	#3,(Palette_timer).w
 
     if gameRevision=3
-	; KiS2: Of course, the Super palette cycle code has been changed to
+	; KiS2 (Knuckles): Of course, the Super palette cycle code has been changed to
 	; suit Super Knuckles.
 	move.b	#-1,(Super_Sonic_palette).w	; mark fade-in as done
 	move.w	#0,(Palette_frame).w
@@ -3084,7 +3091,7 @@ PalCycle_SuperSonic:
 ; loc_2188: PalCycle_SuperSonic_revert:
 .revert:	; runs the fade in transition backwards
     if gameRevision=3
-	; KiS2: More Super Knuckles palette stuff.
+	; KiS2 (Knuckles): More Super Knuckles palette stuff.
 	moveq	#0,d0
 	move.w	d0,(Palette_frame).w
 	move.b	d0,(Super_Sonic_palette).w	; stop palette cycle
@@ -3129,7 +3136,7 @@ PalCycle_SuperSonic:
 ; loc_21E6: PalCycle_SuperSonic_normal:
 .normal:
     if gameRevision=3
-	; KiS2: More Super Knuckles palette stuff.
+	; KiS2 (Knuckles): More Super Knuckles palette stuff.
 
 	; run frame timer
 	subq.b	#1,(Palette_timer).w
@@ -3195,7 +3202,7 @@ PalCycle_SuperSonic:
 
 ; ===========================================================================
     if gameRevision=3
-	; KiS2 (misc).: Custom palettes for Super Knuckles.
+	; KiS2 (Knuckles): Custom palettes for Super Knuckles.
 ;----------------------------------------------------------------------------
 ;Palette for transformation to Super Knuckles
 ;----------------------------------------------------------------------------
@@ -3882,7 +3889,7 @@ __LABEL___End label *
 Pal_SEGA:  palette Sega screen.bin ; SEGA screen palette (Sonic and initial background)
 Pal_Title: palette Title screen.bin ; Title screen Palette
 Pal_MenuB: palette S2B Level Select.bin ; Leftover S2B level select palette
-; KiS2: 'SonicAndTails.bin' has been modified to feature Knuckles' colours.
+; KiS2 (Knuckles): 'SonicAndTails.bin' has been modified to feature Knuckles' colours.
 Pal_BGND:  palette SonicAndTails.bin,SonicAndTails2.bin ; "Sonic and Miles" background palette (also usually the primary palette line)
 Pal_EHZ:   palette EHZ.bin ; Emerald Hill Zone palette
 Pal_WZ:    palette Wood Zone.bin ; Wood Zone palette
@@ -3895,18 +3902,18 @@ Pal_OOZ:   palette OOZ.bin ; Oil Ocean Zone palette
 Pal_MCZ:   palette MCZ.bin ; Mystic Cave Zone palette
 Pal_CNZ:   palette CNZ.bin ; Casino Night Zone palette
 Pal_CPZ:   palette CPZ.bin ; Chemical Plant Zone palette
-; KiS2: This has been modified to feature Knuckles' colours.
+; KiS2 (Knuckles): This has been modified to feature Knuckles' colours.
 Pal_CPZ_U: palette CPZ underwater.bin ; Chemical Plant Zone underwater palette
 Pal_DEZ:   palette DEZ.bin ; Death Egg Zone palette
 Pal_ARZ:   palette ARZ.bin ; Aquatic Ruin Zone palette
-; KiS2: This has been modified to feature Knuckles' colours.
+; KiS2 (Knuckles): This has been modified to feature Knuckles' colours.
 Pal_ARZ_U: palette ARZ underwater.bin ; Aquatic Ruin Zone underwater palette
 Pal_SCZ:   palette SCZ.bin ; Sky Chase Zone palette
 Pal_MCZ_B: palette MCZ Boss.bin ; Mystic Cave Zone boss palette
 Pal_CNZ_B: palette CNZ Boss.bin ; Casino Night Zone boss palette
 Pal_OOZ_B: palette OOZ Boss.bin ; Oil Ocean Zone boss palette
 Pal_Menu:  palette Menu.bin ; Menu palette
-; KiS2: This has been modified to feature Knuckles' colours.
+; KiS2 (Knuckles): This has been modified to feature Knuckles' colours.
 Pal_SS:    palette Special Stage Main.bin ; Special Stage palette
 Pal_SS1:   palette Special Stage 1.bin ; Special Stage 1 palette
 Pal_SS2:   palette Special Stage 2.bin ; Special Stage 2 palette
@@ -4264,7 +4271,7 @@ TitleScreen:
 	clearRAM Camera_RAM,Camera_RAM_End ; clear camera RAM and following variables
 
     if gameRevision<>3
-	; KiS2: No 'Sonic the Hedgehog & Miles "Tails" Prower in' text.
+	; KiS2 (title): No 'Sonic the Hedgehog & Miles "Tails" Prower in' text.
 	; Load the credit font for the following text.
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_CreditText),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_CreditText).l,a0
@@ -4292,7 +4299,7 @@ TitleScreen:
 	bsr.w	NemDec
 
     if gameRevision=3
-	; KiS2: Load new title screen assets.
+	; KiS2 (title): Load new title screen assets.
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleKnuckles),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_TitleSprites_Knuckles).l,a0
 	bsr.w	NemDec
@@ -4341,7 +4348,7 @@ TitleScreen:
 	move.w	#0,(Demo_mode_flag).w
 
     if gameRevision<>3
-	; KiS2: This unused variable was removed. Huh.
+	; KiS2 (unused): This unused variable was removed. Huh.
 	move.w	#0,(unk_FFDA).w
     endif
 
@@ -4350,7 +4357,7 @@ TitleScreen:
 	move.b	#0,(Level_started_flag).w
 
     if gameRevision<>3
-	; KiS2: No need to fade since there's no screen here anymore.
+	; KiS2 (title): No need to fade since there's no screen here anymore.
 	; And finally fade out.
 	bsr.w	Pal_FadeToBlack
 
@@ -4393,7 +4400,7 @@ TitleScreen:
 	bsr.w	EniDec
 
     if gameRevision<>3
-	; KiS2: No copyright string processing here.
+	; KiS2 (title): No copyright string processing here.
 	; ...add the copyright text to it...
 	lea	(Chunk_Table+planeLocH40(44,16)).l,a1
 	lea	(CopyrightText).l,a2
@@ -4428,7 +4435,7 @@ TitleScreen:
 	clr.w	(Ctrl_1).w
 
     if gameRevision=3
-	; KiS2 (intro): Clear a new variable.
+	; KiS2 (title): Clear a new variable.
 	clr.b	(Title_Intro_Complete).w
     endif
 
@@ -4517,7 +4524,7 @@ TitleScreen_Loop:
 	; If the intro is still playing, then don't let the start button
 	; begin the game.
     if gameRevision=3
-	; KiS2 (intro): The intro's completion is detected with a different variable.
+	; KiS2 (title): The intro's completion is detected with a different variable.
 	tst.b	(Title_Intro_Complete).w
     else
 	tst.b	(IntroSonic+obj0e_intro_complete).w
@@ -4555,7 +4562,7 @@ TitleScreen_Loop:
 	bsr.w	PlaySound
 
     if gameRevision=3
-	; KiS2: There is no title screen menu.
+	; KiS2 (title): KiS2 (no Tails): There is no title screen menu. Also forces 'Sonic Alone' mode.
 	move.w	#1,(Player_option).w
     else
 	moveq	#0,d0
@@ -4586,7 +4593,7 @@ TitleScreen_Loop:
 	rts
 ; ===========================================================================
     if gameRevision<>3
-	; KiS2: No title screen menu.
+	; KiS2 (title): There is no title screen menu.
 ; loc_3CF6:
 TitleScreen_CheckIfChose2P:
 	subq.b	#1,d0
@@ -4631,7 +4638,7 @@ TitleScreen_Demo:
 	move.w	#1,(Demo_mode_flag).w
 	move.b	#GameModeID_Demo,(Game_Mode).w ; => Level (Demo mode)
     if gameRevision<>3
-	; KiS2: Removing this makes the first demo single player instead of
+	; KiS2 (no 2P): Removing this makes the first demo single player instead of
 	; two player.
 	cmpi.w	#emerald_hill_zone_act_1,(Current_ZoneAndAct).w
 	bne.s	+
@@ -4679,8 +4686,8 @@ TailsNameCheat:
 	bne.s	++		; if it's not zero, return
 
     if gameRevision=3
-	; KiS2: This activates the level select cheat instead of the Miles
-	; cheat.
+	; KiS2 (title): This activates the level select cheat instead of the Miles cheat,
+	; because the options menu is gone.
 	move.w	#$0101,(Level_select_flag).w
     else
 	; Switch the detected console's region between Japanese and
@@ -4701,7 +4708,7 @@ TailsNameCheat:
 ; byte_3DEE:
 TailsNameCheat_Buttons:
     if gameRevision=3
-	; KiS2: Different cheat code.
+	; KiS2 (title): Different cheat code.
 	dc.b	button_up_mask
 	dc.b	button_up_mask
 	dc.b	button_up_mask
@@ -4736,7 +4743,7 @@ ArtNem_Player1VS2:	BINCLUDE	"art/nemesis/1Player2VS.bin"
 	even
 
     if gameRevision<>3
-	; KiS2: There's no copyright text stuff in this version.
+	; KiS2 (title): There's no copyright text stuff in this version.
 	charset '0','9',0 ; Add character set for numbers
 	charset '*',$A ; Add character for star
 	charset '@',$B ; Add character for copyright symbol
@@ -5241,7 +5248,7 @@ Level_SetPlayerMode:
 	rts
 +
     if gameRevision=3
-	; KiS2: Force Sonic Alone, since Knuckles is alone.
+	; KiS2 (no Tails): Force Sonic Alone, since Knuckles is alone.
 	move.w	#1,(Player_mode).w	; force Sonic
     else
 	move.w	#0,(Player_mode).w	; force Sonic and Tails
@@ -5595,7 +5602,7 @@ WindTunnel_End:
 ; word_46A8:
 WindTunnelsCoordinates:
     if gameRevision=3
-	; KiS2: A wind-tunnel was made shorter.
+	; KiS2 (bugfix): A wind-tunnel was made shorter.
 	dc.w $1510,$420,$1AF0,$580
     else
 	dc.w $1510,$400,$1AF0,$580
@@ -5853,7 +5860,7 @@ MoveDemo_On_P1:
 ; loc_4908:
 MoveDemo_On_P2:
     if gameRevision<>3
-	; KiS2: No support for a second player during the demos.
+	; KiS2 (no 2P): No support for a second player during the demos.
 	cmpi.b	#emerald_hill_zone,(Current_Zone).w
 	bne.s	MoveDemo_On_SkipP2 ; if it's not the EHZ demo, branch to skip player 2
 	lea	(Demo_EHZ_Tails).l,a1
@@ -6287,8 +6294,8 @@ btns_mask := btns_mask|button_start_mask
 Demo_EHZ:
 	demoinput ,	$4C
     if gameRevision=3
-	; KiS2: The demo inputs were re-timed slightly, presumably to make
-	; them work with Knuckles.
+	; KiS2 (no 2P): The demo inputs were re-timed slightly, presumably to make
+	; them work in 1P mode.
 	demoinput R,	$45
     else
 	demoinput R,	$43
@@ -6314,8 +6321,8 @@ Demo_EHZ:
 	demoinput DC,	7
 	demoinput D,	$E
     if gameRevision=3
-	; KiS2: The demo inputs were re-timed slightly, presumably to make
-	; them work with Knuckles.
+	; KiS2 (no 2P): The demo inputs were re-timed slightly, presumably to make
+	; them work in 1P mode.
 	demoinput ,	$2C
 	demoinput R,	$1A
     else
@@ -9753,7 +9760,7 @@ SSHUD_SonicTails:
 ; -----------------------------------------------------------------------------------
 ; sprite mappings
 ; -----------------------------------------------------------------------------------
-; KiS2 (mappings): These sprite mappings have been modified.
+; KiS2 (Knuckles): These sprite mappings have been modified.
 Obj5E_MapUnc_7070:	BINCLUDE "mappings/sprite/obj5E.bin"
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -10355,7 +10362,7 @@ SSStartNewAct:
 ; Misc_7756:
 SpecialStage_RingReq_Team:
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	dc.b  40, 80,140,120	; 4
 	dc.b  50,100,140,150	; 8
 	dc.b  60,110,160,170	; 12
@@ -10487,7 +10494,7 @@ used := used|1<<strstr(llookup,"char")	; if not, mark it as used
 ;word_7822:
 SpecialStage_ResultsLetters:
     if gameRevision=3
-	; KiS2: Letters added for Knuckles' name.
+	; KiS2 (Knuckles): Letters added for Knuckles' name.
 	titleLetters	"ACDGHILMPRSTUW.KN"
     else
 	titleLetters	"ACDGHILMPRSTUW."
@@ -10580,7 +10587,7 @@ ContinueScreen:
 	move.l	#$1000000,(Camera_Y_pos_copy).w
 	move.b	#ObjID_ContinueChars,(MainCharacter+id).w ; load ObjDB (Sonic on continue screen)
     if gameRevision<>3
-	; KiS2: No Tails on the Continue screen.
+	; KiS2 (no Tails): No Tails on the Continue screen.
 	move.b	#ObjID_ContinueChars,(Sidekick+id).w ; load ObjDB (Tails on continue screen)
 	move.b	#6,(Sidekick+routine).w ; => ObjDB_Tails_Init
     endif
@@ -10610,7 +10617,7 @@ ContinueScreen:
 	jsr	(RunObjects).l
 	jsr	(BuildSprites).l
     if gameRevision=3
-	; KiS2: No Tails on the Continue screen.
+	; KiS2 (no Tails): No Tails on the Continue screen.
 	cmpi.w	#$180,(MainCharacter+x_pos).w
     else
 	cmpi.w	#$180,(Sidekick+x_pos).w
@@ -10812,7 +10819,7 @@ ObjDB_Index:	offsetTable
 		offsetTableEntry.w ObjDB_Sonic_Wait	;  2
 		offsetTableEntry.w ObjDB_Sonic_Run	;  4
     if gameRevision<>3
-		; KiS2: No Tails on the Continue screen.
+		; KiS2 (no Tails): No Tails on the Continue screen.
 		offsetTableEntry.w ObjDB_Tails_Init	;  6
 		offsetTableEntry.w ObjDB_Tails_Wait	;  8
 		offsetTableEntry.w ObjDB_Tails_Run	; $A
@@ -10824,7 +10831,7 @@ ObjDB_Sonic_Init:
 	move.w	#$9C,x_pos(a0)
 	move.w	#$19C,y_pos(a0)
     if gameRevision=3
-	; KiS2: Uses Knuckles' mappings instead.
+	; KiS2 (Knuckles): Uses Knuckles' mappings instead.
 	move.l	#MapUnc_Knuckles,mappings(a0)
     else
 	move.l	#MapUnc_Sonic,mappings(a0)
@@ -10833,7 +10840,7 @@ ObjDB_Sonic_Init:
 	move.b	#4,render_flags(a0)
 	move.b	#2,priority(a0)
     if gameRevision=3
-	; KiS2: Uses different animations.
+	; KiS2 (Knuckles): Uses different animations.
 	move.b	#AniIDKnuxAni_ShadowBox,anim(a0)
     else
 	move.b	#AniIDSonAni_Lying,anim(a0)
@@ -10850,7 +10857,7 @@ ObjDB_Sonic_Wait:
 ObjDB_Sonic_StartRunning:
 	addq.b	#2,routine(a0) ; => ObjDB_Sonic_Run
     if gameRevision=3
-	; KiS2: Uses different animations.
+	; KiS2 (Knuckles): Uses different animations.
 	move.b	#AniIDSonAni_Walk,anim(a0)
     else
 	move.b	#AniIDSonAni_LieDown,anim(a0)
@@ -10874,7 +10881,7 @@ ObjDB_Sonic_Run:
 	jmp	(LoadSonicDynPLC).l
 ; ===========================================================================
     if gameRevision<>3
-	; KiS2: No Tails on the Continue screen.
+	; KiS2 (no Tails): No Tails on the Continue screen.
 ; loc_7C22:
 ObjDB_Tails_Init:
 	addq.b	#2,routine(a0) ; => ObjDB_Tails_Wait
@@ -10944,7 +10951,7 @@ JmpTo_Adjust2PArtPointer ; JmpTo
 
 ; ===========================================================================
     if gameRevision<>3
-	; KiS2: This menu is completely gone.
+	; KiS2 (no 2P): This menu is completely gone.
 ; loc_7D50:
 TwoPlayerResults:
 	bsr.w	Pal_FadeToBlack
@@ -12007,7 +12014,7 @@ MenuScreen:
 	jsrto	PlaneMapToVRAM_H40, JmpTo_PlaneMapToVRAM_H40	; fullscreen background
 
     if gameRevision=3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): KiS2 (no options): No two player mode nor options menu.
 	; Fall straight through to 'MenuScreen_LevelSelect'.
     else
 	cmpi.b	#GameModeID_OptionsMenu,(Game_Mode).w	; options menu?
@@ -12688,7 +12695,7 @@ MenuScreen_LevelSelect:
 	jsrto	PlayMusic, JmpTo_PlayMusic
 
     if gameRevision=3
-	; KiS2: This PLC is loaded for some reason.
+	; KiS2 (bugfix): This PLC is loaded for some reason. Perhaps an obscure bugfix.
 	moveq	#PLCID_Std1,d0
 	bsr.w	LoadPLC2
     endif
@@ -12696,7 +12703,7 @@ MenuScreen_LevelSelect:
 	move.w	#(30*60)-1,(Demo_Time_left).w	; 30 seconds
 
     if gameRevision=3
-	; KiS2: Force 'Sonic alone'.
+	; KiS2 (no Tails): Force 'Sonic alone'.
 	move.w	#1,(Player_option).w
     endif
 
@@ -12736,7 +12743,7 @@ LevelSelect_Main:	; routine running during level select
 	jsrto	Dynamic_Normal, JmpTo2_Dynamic_Normal
 
     if gameRevision=3
-	; KiS2: Allow the PLC to be loaded.
+	; KiS2 (bugfix): Allow the PLC to be loaded (see the earlier KiS2 bugfix).
 	bsr.w	RunPLC_RAM
     endif
 
@@ -13238,7 +13245,7 @@ super_sonic_cheat:
     endif
 
     if gameRevision<>3
-	; KiS2: No two player mode, no Sonic and Tails, and no options menu.
+	; KiS2 (no options): No two player mode, no Sonic and Tails, and no options menu.
 	; set the character set for menu text
 	charset '@',"\27\30\31\32\33\34\35\36\37\38\39\40\41\42\43\44\45\46\47\48\49\50\51\52\53\54\55"
 	charset '0',"\16\17\18\19\20\21\22\23\24\25"
@@ -13269,7 +13276,7 @@ TextOptScr_0:			menutxt	"      00       "	; byte_9870:
 Pal_LevelIcons:	BINCLUDE "art/palettes/Level Select Icons.bin"
 
     if gameRevision<>3
-; KiS2: No two player mode or options menu.
+; KiS2 (no 2P): KiS2 (no options): No two player mode or options menu.
 ; 2-player level select screen mappings (Enigma compressed)
 ; byte_9A60:
 	even
@@ -13293,8 +13300,7 @@ MapEng_LevSelIcon:	BINCLUDE "mappings/misc/Level Select Icons.bin"
 	even
 
     if gameRevision=3
-; KiS2: Moved here from elsewhere, since the code surrounding it was
-; deleted.
+; KiS2: Moved here from elsewhere, since the code surrounding it was deleted.
 ;word_87C6:
 Anim_SonicMilesBG:	zoneanimstart
 	; Sonic/Miles animated background
@@ -13366,7 +13372,7 @@ EndingSequence:
 	move.w	#$30,(Palette_frame).w
 +
     if gameRevision=3
-	; KiS2: All endings play out similarly.
+	; KiS2 (ending): All endings play out similarly.
 	clr.w	(Ending_Routine).w
     else
 	moveq	#0,d0
@@ -13570,7 +13576,7 @@ EndgameCredits:
 	lea	(ArtNem_EndingTitle).l,a0
 	jsrto	NemDec, JmpTo_NemDec
     if gameRevision=3
-	; KiS2: Load the giant 'KNUCKLES THE ECHIDNA IN' banner.
+	; KiS2 (ending): Load the giant 'KNUCKLES THE ECHIDNA IN' banner.
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleOtherText),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_TitleOtherText).l,a0
 	bsr.w	NemDec
@@ -13589,7 +13595,7 @@ EndgameCredits:
 	jsrto	EniDec, JmpTo_EniDec
 	lea	(Chunk_Table).l,a1
     if gameRevision=3
-	; KiS2: Sonic 2's logo was moved down to make room for the 'KNUCKLES IN' banner.
+	; KiS2 (ending): Sonic 2's logo was moved down to make room for the 'KNUCKLES IN' banner.
 	move.l	#vdpComm(VRAM_Plane_A_Name_Table+planeLocH40(12,15),VRAM,WRITE),d0
     else
 	move.l	#vdpComm(VRAM_Plane_A_Name_Table+planeLocH40(12,11),VRAM,WRITE),d0
@@ -13599,7 +13605,7 @@ EndgameCredits:
 	jsrto	PlaneMapToVRAM_H40, JmpTo2_PlaneMapToVRAM_H40
 
     if gameRevision=3
-	; KiS2: Create the objects that display the 'KNUCKLES IN' banner.
+	; KiS2 (ending): Create the objects that display the 'KNUCKLES IN' banner.
 	lea	(MainCharacter).w,a1
 	move.b	#ObjID_TitleIntro,id(a1)
 	move.b	#$16,subtype(a1)	; Obj0E_CreditsBanner
@@ -13617,7 +13623,7 @@ EndgameCredits:
 	bsr.w	EndgameLogoFlash
 
     if gameRevision=3
-	; KiS2: Load the extra palette for the 'KNUCKLES IN' banner.
+	; KiS2 (ending): Load the extra palette for the 'KNUCKLES IN' banner.
 	lea	Pal_KiS2_Ending(pc),a1
 	lea	(Normal_palette_line4).w,a2
 	moveq	#bytesToLcnt(palette_line_size),d0
@@ -13627,7 +13633,7 @@ EndgameCredits:
     endif
 
     if gameRevision=3
-	; KiS2: Due to the added function calls, the counter is stored in a
+	; KiS2 (ending): Due to the added function calls, the counter is stored in a
 	; variable instead of being kept in a register.
 	move.w	#$3B,(Endgame_Logo_Timer).w
     else
@@ -13647,7 +13653,7 @@ EndgameCredits:
     endif
 
     if gameRevision=3
-	; KiS2: Due to the added function calls, the counter is stored in a
+	; KiS2 (ending): Due to the added function calls, the counter is stored in a
 	; variable instead of being kept in a register.
 	move.w	#$257,(Endgame_Logo_Timer).w
     else
@@ -13669,7 +13675,7 @@ EndgameCredits:
 	andi.b	#button_B_mask|button_C_mask|button_A_mask|button_start_mask,d1
 	bne.s	+
     if gameRevision=3
-	; KiS2: Due to the added function calls, the counter is stored in a
+	; KiS2 (ending): Due to the added function calls, the counter is stored in a
 	; variable instead of being kept in a register.
 	subq.w	#1,(Endgame_Logo_Timer).w
 	bpl.s	-
@@ -13734,7 +13740,7 @@ byte_A0EC:
 pal_A0FE:	BINCLUDE	"art/palettes/Ending Cycle.bin"
 
     if gameRevision=3
-; KiS2: A new palette, for the giant 'KNUCKLES THE ECHIDNA IN' banner.
+; KiS2 (ending): A new palette, for the giant 'KNUCKLES THE ECHIDNA IN' banner.
 Pal_KiS2_Ending:	BINCLUDE	"art/palettes/Ending Knuckles Banner.bin"
     endif
 
@@ -14080,7 +14086,7 @@ loc_A53A:
 	move.w	d0,y_pos(a1)
 	move.w	x_pos(a0),x_pos(a1)
     if gameRevision=3
-	; KiS2: 'mapping_frame' and 'anim_frame' are no longer set here.
+	; KiS2 (bugfix): 'mapping_frame' and 'anim_frame' are no longer set here.
 	; By setting 'prev_anim' to 0, the animation is forced to reset and
 	; automatically update 'mapping_frame' and 'anim_frame' anyway.
 	move.w	#AniIDSonAni_Wait<<8,anim(a1)
@@ -14701,7 +14707,7 @@ sub_ABBA:
 ; sub_ABE2:
 EndingSequence_LoadCharacterArt:
     if gameRevision=3
-	; KiS2: Since Knuckles is the only character in the game, and there's
+	; KiS2 (ending): Since Knuckles is the only character in the game, and there's
 	; no unique art for his Super form, there's no need to decide which
 	; art to load.
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_EndingCharacter),VRAM,WRITE),(VDP_control_port).l
@@ -14744,7 +14750,7 @@ EndingSequence_LoadCharacterArt_Tails:
 ; sub_AC30:
 EndingSequence_LoadFlickyArt:
     if gameRevision=3
-	; KiS2: This has been hardcoded, so that it no longer depends on
+	; KiS2 (ending): This has been hardcoded, so that it no longer depends on
 	; 'Ending_Routine'. If Knuckles has all of the emeralds, then load
 	; eagles. If not, then load Flickies.
 	moveq	#0,d0
@@ -14764,7 +14770,7 @@ EndingSequence_LoadFlickyArt_Flickies: offsetTable
 	offsetTableEntry.w EndingSequence_LoadFlickyArt_Bird	; 0
 	offsetTableEntry.w EndingSequence_LoadFlickyArt_Eagle	; 2
     if gameRevision<>3
-	; KiS2: The code for Tails' chickens has been completely removed.
+	; KiS2 (ending): The code for Tails' chickens has been completely removed.
 	offsetTableEntry.w EndingSequence_LoadFlickyArt_Chicken	; 4
     endif
 ; ===========================================================================
@@ -14781,7 +14787,7 @@ EndingSequence_LoadFlickyArt_Eagle:
 	jmpto	NemDec, JmpTo_NemDec
 ; ===========================================================================
     if gameRevision<>3
-	; KiS2: The code for Tails' chickens has been completely removed.
+	; KiS2 (ending): The code for Tails' chickens has been completely removed.
 ; loc_AC6A:
 EndingSequence_LoadFlickyArt_Chicken:
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_Animal_2),VRAM,WRITE),(VDP_control_port).l
@@ -14789,9 +14795,9 @@ EndingSequence_LoadFlickyArt_Chicken:
 	jmpto	NemDec, JmpTo_NemDec
     endif
 ; ===========================================================================
-; KiS2 (palette): This has been modified to feature Knuckles' colours.
+; KiS2 (ending): This has been modified to feature Knuckles' colours.
 Pal_AC7E:	BINCLUDE	"art/palettes/Ending Sonic.bin"
-; KiS2 (palette): This has been modified to feature Knuckles' colours.
+; KiS2 (ending): This has been modified to feature Knuckles' colours.
 Pal_AC9E:	BINCLUDE	"art/palettes/Ending Sonic Far.bin"
 Pal_ACDE:	BINCLUDE	"art/palettes/Ending Background.bin"
 Pal_AD1E:	BINCLUDE	"art/palettes/Ending Photos.bin"
@@ -14842,7 +14848,7 @@ byte_AD9E:	dc.b   1,  5,  6,$FF
 ; -----------------------------------------------------------------------------
 ; sprite mappings
 ; -----------------------------------------------------------------------------
-; KiS2 (mappings): These mappings were changed.
+; KiS2 (Knuckles): These mappings were changed.
 ObjCF_MapUnc_ADA2:	BINCLUDE "mappings/sprite/objCF.bin"
 ; --------------------------------------------------------------------------------------
 ; Enigma compressed art mappings
@@ -15622,7 +15628,7 @@ DeformBgLayer:
 
 DeformBgLayerAfterScrollVert:
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w
 	beq.s	loc_C4D0
 	tst.b	(Scroll_lock_P2).w
@@ -15747,7 +15753,7 @@ SwScrl_Title:
 ; loc_C57E:
 SwScrl_EHZ:
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	; Use different background scrolling code for two player mode.
 	tst.w	(Two_player_mode).w
 	bne.w	SwScrl_EHZ_2P
@@ -15904,7 +15910,7 @@ SwScrl_RippleData:
 	even
 ; ===========================================================================
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 ; loc_C6C4:
 SwScrl_EHZ_2P:
 	; Make the 'ripple' animate every 8 frames.
@@ -16281,7 +16287,7 @@ SwScrl_WFZ_Normal_Array:
 ; loc_C964:
 SwScrl_HTZ:
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	; Use different background scrolling code for two player mode.
 	tst.w	(Two_player_mode).w
 	bne.w	SwScrl_HTZ_2P	; never used in normal gameplay
@@ -16502,7 +16508,7 @@ HTZ_Screen_Shake:
 	rts
 ; ===========================================================================
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 ; Unused background code for Hill Top Zone in two player mode!
 ; Unfortunately, it doesn't do anything very interesting: it's just a basic,
 ; flat background with no parallax effect.
@@ -16886,7 +16892,7 @@ SwScrl_OOZ:
 ; loc_CD2C:
 SwScrl_MCZ:
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	; Use different background scrolling code for two player mode.
 	tst.w	(Two_player_mode).w
 	bne.w	SwScrl_MCZ_2P
@@ -17089,7 +17095,7 @@ SwScrl_MCZ_RowHeights:
 	even
 ; ===========================================================================
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 ; loc_CE84:
 SwScrl_MCZ_2P:
 	; Note that the flags to dynamically load the background as it moves
@@ -17420,7 +17426,7 @@ SwScrl_MCZ2P_RowHeights:
 ; loc_D0C6:
 SwScrl_CNZ:
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	; Use different background scrolling code for two player mode.
 	tst.w	(Two_player_mode).w
 	bne.w	SwScrl_CNZ_2P
@@ -17556,7 +17562,7 @@ SwScrl_CNZ_GenerateScrollValues:
 
 ; ===========================================================================
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 ; loc_D194:
 SwScrl_CNZ_2P:
 	; Do player 1's background.
@@ -19028,7 +19034,7 @@ LoadTilesAsYouMove:
 	bsr.w	Draw_BG3	; used in CPZ deformation routine
 
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w
 	beq.s	+
 	lea	(Scroll_flags_copy_P2).w,a2
@@ -19116,7 +19122,7 @@ return_DB5A:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 ;sub_DB5C:
 Draw_FG_P2:
 	tst.b	(a2)
@@ -19608,7 +19614,7 @@ BGCameraLookup:
 ; loc_DE86:
 DrawBlockColumn_Advanced:
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w
 	bne.s	.doubleResolution
     endif
@@ -19645,7 +19651,7 @@ DrawBlockColumn_Advanced:
 ; ===========================================================================
 
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 .doubleResolution:
 	moveq	#(1+224/16+1)-1,d6	; Enough blocks to cover the screen, plus one more on the top and bottom.
 	move.l	#vdpCommDelta($0080),d7
@@ -19827,7 +19833,7 @@ DrawBlockColumn:
 	bsr.w	GetAddressOfBlockInChunk
 
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w
 	bne.s	.doubleResolution
     endif
@@ -19853,7 +19859,7 @@ DrawBlockColumn:
 ; ===========================================================================
 
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 .doubleResolution:
 -	move.w	(a0),d3
 	andi.w	#$3FF,d3
@@ -19899,7 +19905,7 @@ DrawBlockRow:
 ; loc_DF9A: DrawTiles_Vertical3: DrawBlockRow3:
 .AbsoluteXAbsoluteYCustomWidth:
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w
 	bne.s	.doubleResolution
     endif
@@ -19958,7 +19964,7 @@ DrawBlockRow:
 	rts
 ; ===========================================================================
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 ; loc_E018: DrawBlockRow_2P:
 .doubleResolution:
 	move.l	d0,d1
@@ -20216,7 +20222,7 @@ ProcessAndWriteBlock_Vertical:
 
 
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 ;sub_E1FA: ProcessAndWriteBlock2_2P:
 ProcessAndWriteBlock_DoubleResolution_Vertical:
 	or.w	d2,d0
@@ -20300,7 +20306,7 @@ CalculateVRAMAddressOfBlockForPlayer1:
 ; CalcBlockVRAMPos2:
 .AbsoluteX:
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w
 	bne.s	.AbsoluteX_DoubleResolution
     endif
@@ -20319,7 +20325,7 @@ CalculateVRAMAddressOfBlockForPlayer1:
 	rts
 ; ===========================================================================
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 ; loc_E2A8: CalcBlockVRAMPos_2P:
 .AbsoluteX_DoubleResolution:
 	add.w	4(a3),d4
@@ -20345,7 +20351,7 @@ CalculateVRAMAddressOfBlockForPlayer1:
 ;loc_E2C2: CalcBlockVRAMPosB:
 CalculateVRAMAddressOfBlockForPlayer2:
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w
 	bne.s	.doubleResolution
     endif
@@ -20365,7 +20371,7 @@ CalculateVRAMAddressOfBlockForPlayer2:
 	rts
 ; ===========================================================================
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 ; interestingly, this subroutine was in the Sonic 1 ROM, unused
 .doubleResolution:
 	add.w	4(a3),d4
@@ -20428,7 +20434,7 @@ DrawInitialBG:
 	beq.w	++
     endif
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w
 	beq.w	+
 	cmpi.b	#mystic_cave_zone,(Current_Zone).w
@@ -20476,7 +20482,7 @@ DrawInitialBG:
 	rts
 ; ===========================================================================
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 ; loc_E396:
 DrawInitialBG_LoadWholeBackground_512x512:
 	; Mystic Cave Zone loads its entire background at once in two player
@@ -20511,7 +20517,7 @@ DrawInitialBG_LoadWholeBackground_512x256:
 	moveq	#0,d5
 	move.w	d4,d1
     if gameRevision=3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1.AbsoluteXAbsoluteY
     else
 	; This is just a fancy efficient way of doing 'if true then call this, else call that'.
@@ -20564,7 +20570,7 @@ loadZoneBlockMaps:
 	jsrto	KosDec, JmpTo_KosDec	; patch for Hill Top Zone block map
 +
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w
 	beq.s	+
 	; In 2P mode, adjust the block table to halve the pattern index on each block
@@ -20618,7 +20624,7 @@ loadLevelLayout:
 ; ===========================================================================
 
     if gameRevision<>3
-	; KiS2: It looks like the devs *finally* noticed this old stuff was
+	; KiS2 (unused): It looks like the devs *finally* noticed this old stuff was
 	; here, and removed it.
 
 ;loadLevelLayout_Sonic1:
@@ -23285,7 +23291,7 @@ Obj15_State4:
 	tst.b	(Oscillating_Data+$18).w
 	bne.w	BranchTo_loc_1000C
     if gameRevision=3
-	; KiS2: This branch was optimised.
+	; KiS2 (branch): This branch was optimised.
 	bsr.w	SingleObjLoad2
     else
 	jsrto	SingleObjLoad2, JmpTo2_SingleObjLoad2
@@ -23446,7 +23452,7 @@ Obj15_Obj7A_MapUnc_10256:	offsetTable
 		offsetTableEntry.w word_1027A
 		offsetTableEntry.w word_1028C
     if gameRevision=3
-		; KiS2: These mappings, like the rest of the mappings in this
+		; KiS2 (mappings format): These mappings, like the rest of the mappings in this
 		; game, have been converted to S3K's format.
 word_1025E:	dc.w 2
 		dc.w $F809, $6060, $FFE8
@@ -23498,7 +23504,7 @@ Obj15_MapUnc_102DE:	offsetTable
 		offsetTableEntry.w word_1027A
 word_102E4:	dc.w 2
     if gameRevision=3
-		; KiS2: These mappings, like the rest of the mappings in this
+		; KiS2 (mappings format): These mappings, like the rest of the mappings in this
 		; game, have been converted to S3K's format.
 		dc.w $F80D, $6058, $FFE0
 		dc.w $F80D, $6858, 0
@@ -24338,7 +24344,7 @@ Obj1A_CreateFragments:
 -	bsr.w	SingleObjLoad
 	bne.s	+++
     if gameRevision=3
-	; KiS2: The mappings are in S3K's format, where each sprite piece is
+	; KiS2 (mappings format): The mappings are in S3K's format, where each sprite piece is
 	; 6 bytes long instead of 8.
 	addq.w	#6,a3
     else
@@ -24838,7 +24844,7 @@ Obj2D_Main:
 	addq.w	#1,d3
 	move.w	x_pos(a0),d4
     if gameRevision=3
-	; KiS2: This branch was optimised.
+	; KiS2 (branch): This branch was optimised.
 	bsr.w	SolidObject
     else
 	jsrto	SolidObject, JmpTo2_SolidObject
@@ -25487,7 +25493,7 @@ Obj25_Delete:
 ; sub_11FC2:
 CollectRing:
     if gameRevision<>3
-	; KiS2: No Tails.
+	; KiS2 (no 2P): No two-player mode.
 	tst.b	parent+1(a0)		; did Tails collect the ring?
 	bne.s	CollectRing_Tails	; if yes, branch
     endif
@@ -25534,7 +25540,7 @@ JmpTo_PlaySound2 ; JmpTo
 ; ===========================================================================
 
     if gameRevision<>3
-	; KiS2: No Tails.
+	; KiS2 (no 2P): No two-player mode.
 CollectRing_Tails:
 	cmpi.w	#999,(Rings_Collected_2P).w	; did Tails collect 999 or more rings?
 	bhs.s	+				; if yes, branch
@@ -25714,7 +25720,7 @@ Obj37_Delete:
 ; Unused - dead code/data S1 big ring:
 ; ===========================================================================
     if gameRevision<>3
-	; KiS2: More removed unused code.
+	; KiS2 (unused): More removed unused code.
 ; BigRing:
 	; a0=object
 	moveq	#0,d0
@@ -25869,7 +25875,7 @@ Ani_Ring:	offsetTable
 Obj25_MapUnc_12382:	BINCLUDE "mappings/sprite/obj37_a.bin"
 
     if gameRevision<>3
-	; KiS2: More removed unused code.
+	; KiS2 (unused): More removed unused code.
 ; -------------------------------------------------------------------------------
 ; Unused sprite mappings
 ; -------------------------------------------------------------------------------
@@ -25990,7 +25996,7 @@ Obj26_Init:
 	move.l	#Obj26_MapUnc_12D36,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Powerups,0,0),art_tile(a0)
     if gameRevision<>3
-	; KiS2: No two-player mode.
+	; KiS2 (no 2P): No two-player mode.
 	bsr.w	Adjust2PArtPointer
     endif
 	move.b	#4,render_flags(a0)
@@ -26022,7 +26028,7 @@ Obj26_Init:
 	move.b	#$46,collision_flags(a0)
 	move.b	subtype(a0),anim(a0)	; subtype = icon to display
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w	; is it two player mode?
 	beq.s	Obj26_Main		; if not, branch
 	move.b	#9,anim(a0)		; use '?' icon
@@ -26079,7 +26085,7 @@ SolidObject_Monitor_Sonic:
 SolidObject_Monitor_Tails:
 	btst	d6,status(a0)			; is Tails standing on the monitor?
     if gameRevision=3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	beq.w	SolidObject_cont
     else
 	bne.s	Obj26_ChkOverEdge		; if yes, branch
@@ -26197,7 +26203,7 @@ Obj2E_Init:
 	addq.b	#2,routine(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Powerups,0,1),art_tile(a0)
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	bsr.w	Adjust2PArtPointer
     endif
 	move.b	#$24,render_flags(a0)
@@ -26208,7 +26214,7 @@ Obj2E_Init:
 	move.b	anim(a0),d0
 
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w	; is it two player mode?
 	beq.s	loc_128C6		; if not, branch
 	; give 'random' item in two player mode
@@ -26298,7 +26304,7 @@ robotnik_monitor:
 ; ---------------------------------------------------------------------------
     if gameRevision=3
 tails_1up:
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
     endif
 sonic_1up:
 	addq.w	#1,(Monitors_Broken).w
@@ -26313,7 +26319,7 @@ sonic_1up:
 ; ---------------------------------------------------------------------------
     if gameRevision<>3
 tails_1up:
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	addq.w	#1,(Monitors_Broken_2P).w
 	addq.b	#1,(Life_count_2P).w
 	addq.b	#1,(Update_HUD_lives_2P).w
@@ -26333,7 +26339,7 @@ super_ring:
 	lea	(Update_HUD_rings).w,a3
 	lea	(Extra_life_flags).w,a4
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	cmpa.w	#MainCharacter,a1
 	beq.s	+
 	lea	(Ring_count_2P).w,a2
@@ -26349,7 +26355,7 @@ super_ring:
 	lea	(Extra_life_flags).w,a4
 	lea	(Rings_Collected).w,a5
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	cmpa.w	#MainCharacter,a1
 	beq.s	+
 	lea	(Ring_count_2P).w,a2
@@ -26400,7 +26406,7 @@ super_shoes:
 	bset	#status_sec_hasSpeedShoes,status_secondary(a1)	; give super sneakers status
 	move.w	#$4B0,speedshoes_time(a1)
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	cmpa.w	#MainCharacter,a1	; did the main character break the monitor?
 	bne.s	super_shoes_Tails	; if not, branch
 	cmpi.w	#2,(Player_mode).w	; is player using Tails?
@@ -26410,7 +26416,7 @@ super_shoes:
 	move.w	#$18,(Sonic_acceleration).w
 	move.w	#$80,(Sonic_deceleration).w
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	bra.s	+
 ; ---------------------------------------------------------------------------
 ;loc_12A10:
@@ -26433,7 +26439,7 @@ shield_monitor:
 	move.w	#SndID_Shield,d0
 	jsr	(PlayMusic).l
     if gameRevision<>3
-	; KiS2: No Tails.
+	; KiS2 (no 2P): No two-player mode.
 	tst.b	parent+1(a0)
 	bne.s	+
     endif
@@ -26442,7 +26448,7 @@ shield_monitor:
 	rts
 ; ---------------------------------------------------------------------------
     if gameRevision<>3
-	; KiS2: No Tails.
+	; KiS2 (no 2P): No two-player mode.
 +	; give shield to sidekick
 	move.b	#ObjID_Shield,(Tails_Shield+id).w ; load Obj38 (shield) at $FFFFD1C0
 	move.w	a1,(Tails_Shield+parent).w
@@ -26467,7 +26473,7 @@ invincible_monitor:
 	jsr	(PlayMusic).l
 +
     if gameRevision<>3
-	; KiS2: No Tails.
+	; KiS2 (no 2P): No two-player mode.
 	tst.b	parent+1(a0)
 	bne.s	+
     endif
@@ -26477,7 +26483,7 @@ invincible_monitor:
 ; ---------------------------------------------------------------------------
 +	; give invincibility to sidekick
     if gameRevision<>3
-	; KiS2: No Tails.
+	; KiS2 (no 2P): No two-player mode.
 	move.b	#ObjID_InvStars,(Tails_InvincibilityStars+id).w ; load Obj35 (invincibility stars) at $FFFFD300
 	move.w	a1,(Tails_InvincibilityStars+parent).w
     endif
@@ -26491,7 +26497,7 @@ invincible_monitor:
 ;loc_12AA6:
 teleport_monitor:
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	addq.w	#1,(a2)
 	cmpi.b	#6,(MainCharacter+routine).w	; is player 1 dead or respawning?
 	bhs.s	+				; if yes, branch
@@ -26787,7 +26793,7 @@ Obj0E_Index: offsetTable
 	offsetTableEntry.w Obj0E_Init		;   0
 	offsetTableEntry.w Obj0E_Sonic		;   2
     if gameRevision=3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 	offsetTableEntry.w Obj0E_LowerTheEmblem	;   4
     else
 	offsetTableEntry.w Obj0E_Tails		;   4
@@ -26795,7 +26801,7 @@ Obj0E_Index: offsetTable
 	offsetTableEntry.w Obj0E_LogoTop	;   6
 	offsetTableEntry.w Obj0E_FlashingStar	;   8
     if gameRevision=3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 	offsetTableEntry.w Obj0E_KnucklesHand	;  $A
     else
 	offsetTableEntry.w Obj0E_SonicHand	;  $A
@@ -26804,7 +26810,7 @@ Obj0E_Index: offsetTable
 	offsetTableEntry.w Obj0E_MaskingSprite	;  $E
 	offsetTableEntry.w Obj0E_TailsHand	; $10
     if gameRevision=3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 	offsetTableEntry.w Obj0E_Copyright	; $12
 	offsetTableEntry.w Obj0E_Banner		; $14
 	offsetTableEntry.w Obj0E_CreditsBanner	; $16
@@ -26815,7 +26821,7 @@ Obj0E_Index: offsetTable
 Obj0E_Init:
 	addq.b	#2,routine(a0)	; useless, because it's overwritten with the subtype below
     if gameRevision<>3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 	move.l	#Obj0E_MapUnc_136A8,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_TitleSprites,0,0),art_tile(a0)
     else
@@ -26846,7 +26852,7 @@ Obj0E_Sonic_Index: offsetTable
 	offsetTableEntry.w Obj0E_Animate			;   8
 	offsetTableEntry.w Obj0E_Sonic_AnimationFinished	;  $A
     if gameRevision<>3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 	offsetTableEntry.w Obj0E_Sonic_SpawnTails		;  $C
     endif
 	offsetTableEntry.w Obj0E_Sonic_FlashBackground		;  $E
@@ -26858,7 +26864,7 @@ Obj0E_Sonic_Init:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_FadeInAndPlayMusic
 
     if gameRevision=3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 	move.l	#Obj0E_MapUnc_Knuckles,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_TitleKnuckles,0,1),art_tile(a0)
 	move.b	#0,mapping_frame(a0)
@@ -26880,7 +26886,7 @@ Obj0E_Sonic_Init:
 	move.b	#6,subtype(a1)
 
     if gameRevision=3
-	; KiS2 (intro): Load copyright text object.
+	; KiS2 (title): Load copyright text object.
 	lea	(IntroCopyright).w,a1
 	move.b	#ObjID_TitleIntro,id(a1)
 	move.b	#$12,subtype(a1)	; Obj0E_Copyright
@@ -26968,7 +26974,7 @@ Obj0E_Move:
 	bra.w	DisplaySprite
 
     if gameRevision=3
-	; KiS2 (intro): Different intro; different positions.
+	; KiS2 (title): Different intro; different positions.
 Obj0E_Sonic_Positions:
 	;           X,      Y
 	dc.w  128+116, 128+80
@@ -26992,7 +26998,7 @@ Obj0E_Animate:
 Obj0E_Sonic_AnimationFinished:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_SpawnTails
     if gameRevision=3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 	move.b	#4,mapping_frame(a0)
 	move.w	y_pixel(a0),obj0e_base_y_pos(a0)
     else
@@ -27007,7 +27013,7 @@ Obj0E_Sonic_AnimationFinished:
 	bra.w	DisplaySprite
 ; ===========================================================================
     if gameRevision<>3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 ; loc_12F7C:
 Obj0E_Sonic_SpawnTails:
 	cmpi.w	#192,obj0e_current_frame(a0)
@@ -27029,7 +27035,7 @@ Obj0E_Sonic_FlashBackground:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_SpawnFallingStar
 	clr.w	obj0e_array_index(a0)
     if gameRevision=3
-	; KiS2 (intro): Different variable.
+	; KiS2 (title): Different variable.
 	st.b	(Title_Intro_Complete).w
     else
 	st.b	obj0e_intro_complete(a0)
@@ -27051,7 +27057,7 @@ Obj0E_Sonic_FlashBackground:
 	move.b	#ObjID_TitleMenu,(TitleScreenMenu+id).w
 +
     if gameRevision=3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 	bsr.w	Obj0E_OffsetYPosition
     endif
 	bra.w	DisplaySprite
@@ -27065,7 +27071,7 @@ Obj0E_Sonic_SpawnFallingStar:
 	cmpi.w	#400,obj0e_current_frame(a0)
 	beq.s	++
     if gameRevision=3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 	bsr.w	Obj0E_OffsetYPosition
     endif
 	bra.w	DisplaySprite
@@ -27074,7 +27080,7 @@ Obj0E_Sonic_SpawnFallingStar:
 	cmpi.w	#464,obj0e_current_frame(a0)
 	beq.s	+
     if gameRevision=3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 	bsr.w	Obj0E_OffsetYPosition
     endif
 	bra.w	DisplaySprite
@@ -27088,14 +27094,14 @@ Obj0E_Sonic_SpawnFallingStar:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_MakeStarSparkle
 
     if gameRevision<>3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 	; Delete sprite mask object.
 	lea	(IntroMaskingSprite).w,a1
 	bsr.w	DeleteObject2
     endif
 
     if gameRevision=3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 	bsr.w	Obj0E_OffsetYPosition
     endif
 	bra.w	DisplaySprite
@@ -27121,7 +27127,7 @@ Obj0E_Sonic_MakeStarSparkle:
 	move.w	CyclingPal_TitleStar(pc,d0.w),(Normal_palette_line3+5*2).w
 +
     if gameRevision=3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 	bsr.w	Obj0E_OffsetYPosition
     endif
 	bra.w	DisplaySprite
@@ -27132,7 +27138,7 @@ CyclingPal_TitleStar:
 CyclingPal_TitleStar_End
 
     if gameRevision<>3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 ;word_13046:
 Obj0E_Sonic_Positions:
 	;           X,      Y
@@ -27148,7 +27154,7 @@ Obj0E_Sonic_Positions_End
     endif
 ; ===========================================================================
     if gameRevision=3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 Obj0E_LowerTheEmblem:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
@@ -27274,7 +27280,7 @@ Obj0E_LogoTop:
 	move.b	routine_secondary(a0),d0
 	move.w	Obj0E_LogoTop_Index(pc,d0.w),d1
     if gameRevision=3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 	jsr	Obj0E_LogoTop_Index(pc,d1.w)
 	bra.w	DisplaySprite
     else
@@ -27285,7 +27291,7 @@ Obj0E_LogoTop:
 Obj0E_LogoTop_Index: offsetTable
 	offsetTableEntry.w Obj0E_LogoTop_Init		; 0
     if gameRevision=3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 	offsetTableEntry.w Obj0E_OffsetYPosition	; 2
 	offsetTableEntry.w return_3101E2		; 4
     else
@@ -27295,7 +27301,7 @@ Obj0E_LogoTop_Index: offsetTable
 
 Obj0E_LogoTop_Init:
     if gameRevision=3
-	; KiS2 (intro): This was modified to initialise the object in a
+	; KiS2 (title): This was modified to initialise the object in a
 	; different slot to its own, use separate mappings to the rest of the
 	; object, and store the initial Y coordinate in the object's scratch
 	; RAM.
@@ -27360,7 +27366,7 @@ Obj0E_MaskingSprite:
 	move.b	routine_secondary(a0),d0
 	move.w	Obj0E_MaskingSprite_Index(pc,d0.w),d1
     if gameRevision=3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 	jsr	Obj0E_MaskingSprite_Index(pc,d1.w)
 	bra.w	DisplaySprite
     else
@@ -27371,7 +27377,7 @@ Obj0E_MaskingSprite:
 Obj0E_MaskingSprite_Index: offsetTable
 	offsetTableEntry.w Obj0E_MaskingSprite_Init	; 0
     if gameRevision=3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 	offsetTableEntry.w Obj0E_OffsetYPosition	; 2
 	offsetTableEntry.w return_3101E2		; 4
     else
@@ -27383,7 +27389,7 @@ Obj0E_MaskingSprite_Init:
 	addq.b	#2,routine_secondary(a0)	; BranchTo12_DisplaySprite
 
     if gameRevision=3
-	; KiS2 (intro): This was modified to initialise the object in a
+	; KiS2 (title): This was modified to initialise the object in a
 	; different slot to its own, use separate mappings to the rest of the
 	; object, and store the initial Y coordinate in the object's scratch
 	; RAM.
@@ -27436,7 +27442,7 @@ Obj0E_FlashingStar_Index: offsetTable
 Obj0E_FlashingStar_Init:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Animate
     if gameRevision=3
-	; KiS2 (intro)
+	; KiS2 (title): This subobject now uses its own graphics.
 	move.b	#0,mapping_frame(a0)
 	move.l	#Obj0E_MapUnc_Stars,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_TitleStars,1,1),art_tile(a0)
@@ -27501,7 +27507,7 @@ Obj0E_FlashingStar_Positions_End
 ; ===========================================================================
 
     if gameRevision=3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 Obj0E_KnucklesHand:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
@@ -27673,7 +27679,7 @@ Obj0E_TailsHand_Index: offsetTable
 
 Obj0E_TailsHand_Init:
     if gameRevision<>3
-	; KiS2 (intro): Despite being unused, this sub-object was modified.
+	; KiS2 (title): Despite being unused, this sub-object was modified.
 	addq.b	#2,routine_secondary(a0)	; Obj0E_TailsHand_Move
     endif
 	move.b	#$13,mapping_frame(a0)
@@ -27682,14 +27688,14 @@ Obj0E_TailsHand_Init:
 	move.b	#2,priority(a0)
     else
 	; This is inconsistent with 'TitleScreen_SetFinalState', and causes
-	; the hand to be layered behind Tails is his priority is fixed.
+	; the hand to be layered behind Tails if his priority is fixed.
 	move.b	#3,priority(a0)
     endif
 	move.w	#128+143,x_pixel(a0)
 	move.w	#128+85,y_pixel(a0)
 
     if gameRevision=3
-	; KiS2 (intro): Despite being unused, this sub-object was modified.
+	; KiS2 (title): Despite being unused, this sub-object was modified.
 Obj0E_NextRoutineSecondary:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_TailsHand_Move
     endif
@@ -27725,7 +27731,7 @@ Obj0E_FallingStar_Index: offsetTable
 Obj0E_FallingStar_Init:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_FallingStar_Main
     if gameRevision=3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 	move.l	#Obj0E_MapUnc_Stars,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_TitleStars,1,0),art_tile(a0)
 	move.b	#0,mapping_frame(a0)
@@ -27744,7 +27750,7 @@ Obj0E_FallingStar_Main:
 	subq.w	#1,obj0e_counter(a0)
 	bmi.w	DeleteObject
     if gameRevision=3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 	cmpi.w	#60,obj0e_counter(a0)
 	bne.s	+
 	move.b	#1,priority(a0)
@@ -27759,7 +27765,7 @@ Obj0E_FallingStar_Main:
 	bra.w	DisplaySprite
 
     if gameRevision=3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 ; loc_310434:
 Obj0E_Copyright:
 	moveq	#0,d0
@@ -28013,7 +28019,7 @@ off_133C8:	C9PalInfo                      loc_1344C,  Pal_ACDE, $40,$1F,4,7
 off_133D4:	C9PalInfo                      loc_1344C,  Pal_AD3E,   0, $F,4,7
 off_133E0:	C9PalInfo                      loc_1344C,  Pal_AC9E,   0,$1F,4,7
 
-; KiS2 (intro): KiS2 (palette): This has been modified to feature Knuckles' colours.
+; KiS2 (title): This has been modified to feature Knuckles' colours.
 Pal_133EC:	BINCLUDE "art/palettes/Title Sonic.bin"
 Pal_1340C:	BINCLUDE "art/palettes/Title Background.bin"
 Pal_1342C:	BINCLUDE "art/palettes/Title Emblem.bin"
@@ -28089,7 +28095,7 @@ loc_134B6:
 
 TitleScreen_SetFinalState:
     if gameRevision=3
-	; KiS2 (intro): Different variable.
+	; KiS2 (title): Different variable.
 	tst.b	(Title_Intro_Complete).w
     else
 	tst.b	obj0e_intro_complete(a0)
@@ -28105,14 +28111,14 @@ TitleScreen_SetFinalState:
 
 	; Initialise Sonic object.
     if gameRevision=3
-	; KiS2 (intro): Different variable.
+	; KiS2 (title): Different variable.
 	st.b	(Title_Intro_Complete).w
     else
 	st.b	obj0e_intro_complete(a0)
     endif
 
     if gameRevision=3
-	; KiS2 (intro): Notably, a lot of duplicate code was avoided by
+	; KiS2 (title): Notably, a lot of duplicate code was avoided by
 	; calling the init function of each object here.
 
 	; Lower the emblem.
@@ -28252,7 +28258,7 @@ TitleScreen_SetFinalState:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
     if gameRevision<>3
-	; KiS2 (intro): Different intro.
+	; KiS2 (title): Different intro.
 ; sub_135EA:
 TitleScreen_InitSprite:
 	move.l	#Obj0E_MapUnc_136A8,mappings(a1)
@@ -28283,7 +28289,7 @@ Obj0F_Index:	offsetTable
 Obj0F_Init:
 	addq.b	#2,routine(a0) ; => Obj0F_Main
     if gameRevision=3
-	; KiS2 (intro): Repositioned.
+	; KiS2 (title): Repositioned.
 	move.w	#128+320/2,x_pixel(a0)
 	move.w	#128+224/2+84,y_pixel(a0)
 	move.l	#Obj0E_MapUnc_OtherText,mappings(a0)
@@ -28296,7 +28302,7 @@ Obj0F_Init:
     endif
 	bsr.w	Adjust2PArtPointer
     if gameRevision=3
-	; KiS2 (intro): Dummied-out.
+	; KiS2 (title): Dummied-out.
 	move.b	#0,(Title_screen_option).w
     else
 	andi.b	#1,(Title_screen_option).w
@@ -28306,7 +28312,7 @@ Obj0F_Init:
 ; loc_13644:
 Obj0F_Main:
     if gameRevision<>3
-	; KiS2 (intro): The title screen menu has been reduced to a simple
+	; KiS2 (title): The title screen menu has been reduced to a simple
 	; 'press start' prompt.
 	moveq	#0,d2
 	move.b	(Title_screen_option).w,d2
@@ -28338,7 +28344,7 @@ Obj0F_Main:
 ; animation script
 ; off_13686:
     if gameRevision=3
-; KiS2 (intro): The animation scripts were modified to suit the new intro.
+; KiS2 (title): The animation scripts were modified to suit the new intro.
 Ani_obj0E:	offsetTable
 		offsetTableEntry.w Ani_obj0E_Knuckles		; 0
 		offsetTableEntry.w Ani_obj0E_Tails		; 1
@@ -28443,7 +28449,7 @@ Ani_obj0E_FallingStar:
     endif
 
     if gameRevision=3
-; KiS2 (intro): New title screen mappings.
+; KiS2 (title): New title screen mappings.
 Obj0E_MapUnc_Stars:	BINCLUDE "mappings/sprite/obj0E_stars.bin"
 Obj0E_MapUnc_EmblemTopAndSpriteMask:	BINCLUDE "mappings/sprite/obj0E_emblem_top_and_sprite_mask.bin"
 Obj0E_MapUnc_Knuckles:	BINCLUDE "mappings/sprite/obj0E_knuckles.bin"
@@ -28937,7 +28943,7 @@ Obj39_TimeOver:
 ; loc_1403E:
 Obj39_Check2PMode:
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w
 	beq.s	Obj39_Display
 
@@ -28995,7 +29001,7 @@ loc_140AC:
 ; ---------------------------------------------------------------------------
 +
     if gameRevision=3
-	; KiS2: Load the 'K' font graphic.
+	; KiS2 (Knuckles): Load the 'K' font graphic.
 	move	#$2700,sr
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_ResultsText+$16),VRAM,WRITE),(VDP_control_port).l
 	lea	ArtUnc_FontK(pc),a1
@@ -29185,7 +29191,7 @@ loc_14270:
 	add.w	d0,d0
 	lea	LevelOrder(pc),a1
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w
 	beq.s	loc_1428C
 	lea	LevelOrder_2P(pc),a1
@@ -29278,7 +29284,7 @@ LevelOrder: zoneOrderedTable 2,2	; WrdArr_LevelOrder
 	zoneTableEntry.w  emerald_hill_zone_act_1	; 33
     zoneTableEnd
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 ;word_1433C:
 LevelOrder_2P: zoneOrderedTable 2,2	; WrdArr_LevelOrder_2P
 	zoneTableEntry.w  emerald_hill_zone_act_2
@@ -29323,7 +29329,7 @@ results_screen_object macro startx, targetx, y, routine, frame
 	dc.b	routine, frame
     endm
     if gameRevision=3
-	; KiS2: Repositioned.
+	; KiS2 (results): Repositioned.
 	results_screen_object   $28, $138,  $B8,   2,  0
     else
 	results_screen_object   $20, $120,  $B8,   2,  0
@@ -29377,7 +29383,7 @@ Obj6F_Index:	offsetTable
 		offsetTableEntry.w Obj6F_MoveToTargetPos	; $32
 		offsetTableEntry.w Obj6F_MoveAndDisplay	; $34
     if gameRevision=3
-		; KiS2: TODO
+		; KiS2 (results): TODO
 		offsetTableEntry.w loc_311710	; $36
     endif
 ; ===========================================================================
@@ -29391,7 +29397,7 @@ Obj6F_Init:
 	movea.l	a0,a1
 	lea	byte_14752(pc),a2
     if gameRevision=3
-	; KiS2: TODO
+	; KiS2 (results): TODO
 	moveq	#$D,d1
     else
 	moveq	#$C,d1
@@ -29579,7 +29585,7 @@ Obj6F_TallyScore:
 	tst.w	(Perfect_rings_flag).w
 	bne.s	+
     if gameRevision<>3
-	; KiS2: No Tails
+	; KiS2 (no Tails): No Tails
 	cmpi.w	#2,(Player_mode).w
 	beq.s	++		; rts
     endif
@@ -29634,7 +29640,7 @@ Obj6F_TallyPerfect:
 	addq.b	#4,routine(a0)
 	move.w	#$78,anim_frame_duration(a0)
     if gameRevision<>3
-	; KiS2: No Tails.
+	; KiS2 (no Tails): No Tails.
 	cmpi.w	#2,(Player_mode).w
 	beq.s	+		; rts
     endif
@@ -29666,7 +29672,7 @@ Obj6F_InitAndMoveSuperMsg:
 	subq.w	#8,next_object+y_pixel(a0)
 	move.b	#$1A,next_object+mapping_frame(a0)		; "Now Sonic can"
     if gameRevision=3
-	; KiS2: TODO
+	; KiS2 (results): TODO
 	subi.w	#4,next_object+x_pixel(a0)
 	move.w	#$120,next_object+objoff_30(a0)
     endif
@@ -29676,7 +29682,7 @@ Obj6F_InitAndMoveSuperMsg:
 	lea	(SpecialStageResults2).w,a1
 	_move.b	id(a0),id(a1) ; load obj6F; (uses screen-space)
     if gameRevision=3
-	; KiS2: TODO
+	; KiS2 (results): TODO
 	move.w	#-80,x_pixel(a1)
     else
 	clr.w	x_pixel(a1)
@@ -29717,14 +29723,14 @@ Obj6F_MoveAndDisplay:
 	move.w	#$B4,anim_frame_duration(a0)
 	move.b	#$20,routine(a0)	; => Obj6F_TimedDisplay
     if gameRevision=3
-	; KiS2: The branch was extended for whatever reason.
+	; KiS2 (branch): The branch was extended for whatever reason. Maybe the label was pushed out of range.
 	jmp	(DisplaySprite).l
     else
 	bra.w	DisplaySprite
     endif
 
     if gameRevision=3
-	; KiS2: TODO
+	; KiS2 (results): TODO
 loc_311710:
 	cmpi.b	#$30,(SpecialStageResults+routine).w
 	blo.s	loc_31172C
@@ -29781,7 +29787,7 @@ byte_14752:
 	;      startx  targx   starty  routine   map frame
 	results_screen_object  $240, $120,  $AA,   2,   0		; "Special Stage"
     if gameRevision=3
-	; KiS2: Repositioned.
+	; KiS2 (results): Repositioned.
 	results_screen_object   $50, $170,  $98,   4,   1		; "Knuckles got a"
     else
 	results_screen_object     0, $120,  $98,   4,   1		; "Sonic got a"
@@ -29798,7 +29804,7 @@ byte_14752:
 	results_screen_object  $350, $120, $128, $18,  $E		; Miles Rings
 	results_screen_object  $360, $120, $138, $1A, $10		; Gems Bonus
     if gameRevision=3
-	; KiS2: TODO
+	; KiS2 (results): TODO
 	results_screen_object     8, $128,  $98, $36, $1D		; Fuck if I know.
     endif
 
@@ -29830,7 +29836,7 @@ Obj34_MapUnc_147BA:	offsetTable
 	offsetTableEntry.w word_14C08
 	offsetTableEntry.w word_14C32
     if gameRevision=3
-	; KiS2: Mappings converted to S3K's format.
+	; KiS2 (mappings format): Mappings converted to S3K's format.
 word_147E8:	dc.w $B
 	dc.w 5,	$8580, $FFC3
 	dc.w 9,	$85DE, $FFD0
@@ -30173,7 +30179,7 @@ Obj3A_MapUnc_14CBC:	offsetTable
 	offsetTableEntry.w word_14E8C
 	offsetTableEntry.w word_14E96
     if gameRevision=3
-	; KiS2: Mappings converted to S3K's format.
+	; KiS2 (mappings format): Mappings converted to S3K's format.
 	; Also the 'Tails' and 'Miles' sprites were removed, and 'Sonic' was
 	; replace with 'Knuckles'.
 word_14CDA:	dc.w $B
@@ -30310,11 +30316,11 @@ word_14E96:	dc.w 7
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
-; KiS2 (mappings): These mappings were changed.
+; KiS2 (results): These mappings were changed.
 Obj6F_MapUnc_14ED0:	BINCLUDE "mappings/sprite/obj6F.bin"
 
     if gameRevision=3
-	; KiS2: A new graphic: the letter 'K'.
+	; KiS2 (Knuckles): A new graphic: the letter 'K'.
 ArtUnc_FontK:
 	BINCLUDE "art/uncompressed/Title card font K.bin"
 ArtUnc_FontK_End:
@@ -30572,7 +30578,7 @@ LoadTitleCard0:
 	jsrto	NemDec, JmpTo2_NemDec
 
     if gameRevision=3
-	; KiS2: Modify the title card art so that it has a green background.
+	; KiS2 (Knuckles): Modify the title card art so that it has a green background.
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleCard+$5A),VRAM,WRITE),(VDP_control_port).l
 	moveq	#bytesToLcnt(tiles_to_bytes(2)),d0
 
@@ -31037,7 +31043,7 @@ Obj3B_MapUnc_15D2E:	BINCLUDE "mappings/sprite/obj3B.bin"
 ; Object 3C - Breakable wall (leftover from S1) (mostly unused)
 ; ----------------------------------------------------------------------------
     if gameRevision<>3
-	; KiS2: Removed unused code.
+	; KiS2 (unused): Removed unused code.
 ; Sprite_15D44:
 Obj3C:
 	moveq	#0,d0
@@ -31124,7 +31130,7 @@ BreakObjectToPieces_Loop:
 	bsr.w	SingleObjLoad2
 	bne.s	loc_15E82
     if gameRevision=3
-	; KiS2: The mappings are in S3K's format, where each sprite piece is
+	; KiS2 (mappings format): The mappings are in S3K's format, where each sprite piece is
 	; 6 bytes long instead of 8.
 	addq.w	#6,a3	; next mapping piece
     else
@@ -31296,7 +31302,7 @@ RunObjectDisplayOnly:
 Obj_Index: ; ObjPtrs: ; loc_1600C:
 ObjPtr_Sonic:		dc.l Obj01	; Sonic
     if gameRevision=3
-	; KiS2: No Tails.
+	; KiS2 (no Tails): No Tails.
 ObjPtr_Tails:		dc.l ObjNull	; Tails
     else
 ObjPtr_Tails:		dc.l Obj02	; Tails
@@ -31304,7 +31310,7 @@ ObjPtr_Tails:		dc.l Obj02	; Tails
 ObjPtr_PlaneSwitcher:	dc.l Obj03	; Collision plane/layer switcher
 ObjPtr_WaterSurface:	dc.l Obj04	; Surface of the water
     if gameRevision=3
-	; KiS2: No Tails.
+	; KiS2 (no Tails): No Tails.
 ObjPtr_TailsTails:	dc.l ObjNull	; Tails' tails
     else
 ObjPtr_TailsTails:	dc.l Obj05	; Tails' tails
@@ -31343,7 +31349,7 @@ ObjPtr_CPZSpinTube:	dc.l Obj1E	; Spin tube from CPZ
 ObjPtr_CollapsPform:	dc.l Obj1F	; Collapsing platform from ARZ, MCZ and OOZ (and MZ, SLZ and SBZ)
 ObjPtr_LavaBubble:	dc.l Obj20	; Lava bubble from Hill Top Zone (boss weapon)
     if gameRevision=3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 ObjPtr_2PResults:	dc.l ObjNull	; 2P results
     else
 ObjPtr_2PResults:	dc.l Obj21	; 2P results
@@ -31377,7 +31383,7 @@ ObjPtr_TimeOver:	dc.l Obj39	; Game/Time Over text
 ObjPtr_Results:		dc.l Obj3A	; End of level results screen
 			dc.l Obj3B	; Purple rock (from Sonic 1, unused)
     if gameRevision=3
-	; KiS2: Removed some unused code.
+	; KiS2 (unused): Removed some unused code.
 			dc.l ObjNull	; Breakable wall (leftover from S1) (mostly unused)
     else
 			dc.l Obj3C	; Breakable wall (leftover from S1) (mostly unused)
@@ -31622,7 +31628,7 @@ ObjectMove:
 ; loc_163D2:
 MarkObjGone:
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w	; is it two player mode?
 	beq.s	+			; if not, branch
 	bra.w	DisplaySprite
@@ -31647,7 +31653,7 @@ MarkObjGone:
 ; loc_1640A:
 MarkObjGone2:
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w
 	beq.s	+
 	bra.w	DisplaySprite
@@ -31672,7 +31678,7 @@ MarkObjGone2:
 ; loc_1643E:
 MarkObjGone3:
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w
 	beq.s	+
 	rts
@@ -31697,7 +31703,7 @@ MarkObjGone3:
 ; loc_16472:
 MarkObjGone_P1:
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w
 	bne.s	MarkObjGone_P2
     endif
@@ -31717,7 +31723,7 @@ MarkObjGone_P1:
 	bra.w	DeleteObject
 ; ---------------------------------------------------------------------------
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 ; input: a0 = the object
 ; loc_164A6:
 MarkObjGone_P2:
@@ -31943,7 +31949,7 @@ Anim_End:
 ; sub_16604:
 BuildSprites:
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w
 	bne.w	BuildSprites_2P
     endif
@@ -32249,7 +32255,7 @@ DrawSprite_Loop:
 	add.w	a3,d0
 	move.w	d0,(a2)+	; set art tile and flags
     if gameRevision<>3
-	; KiS2: Uses S&K's mapping format instead of S2's mapping format.
+	; KiS2 (mappings format): Uses S&K's mapping format instead of S2's mapping format.
 	; The difference between the two being that S2's format has a copy of
 	; the art-tile that is adjusted for two player mode.
 	addq.w	#2,a1
@@ -32290,7 +32296,7 @@ DrawSprite_FlipX:
 	eori.w	#$800,d0	; toggle X flip flag
 	move.w	d0,(a2)+
     if gameRevision<>3
-	; KiS2: Uses S&K's mapping format instead of S2's mapping format.
+	; KiS2 (mappings format): Uses S&K's mapping format instead of S2's mapping format.
 	; The difference between the two being that S2's format has a copy of
 	; the art-tile that is adjusted for two player mode.
 	addq.w	#2,a1
@@ -32346,7 +32352,7 @@ DrawSprite_FlipY:
 	eori.w	#$1000,d0	; toggle Y flip flag
 	move.w	d0,(a2)+	; set art tile and flags
     if gameRevision<>3
-	; KiS2: Uses S&K's mapping format instead of S2's mapping format.
+	; KiS2 (mappings format): Uses S&K's mapping format instead of S2's mapping format.
 	; The difference between the two being that S2's format has a copy of
 	; the art-tile that is adjusted for two player mode.
 	addq.w	#2,a1
@@ -32394,7 +32400,7 @@ DrawSprite_FlipXY:
 	eori.w	#$1800,d0	; toggle X and Y flip flags
 	move.w	d0,(a2)+
     if gameRevision<>3
-	; KiS2: Uses S&K's mapping format instead of S2's mapping format.
+	; KiS2 (mappings format): Uses S&K's mapping format instead of S2's mapping format.
 	; The difference between the two being that S2's format has a copy of
 	; the art-tile that is adjusted for two player mode.
 	addq.w	#2,a1
@@ -32424,7 +32430,7 @@ CellOffsets_XFlip2:
 ; ===========================================================================
 
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 ; ---------------------------------------------------------------------------
 ; Subroutine to convert mappings (etc) to proper Megadrive sprites
 ; for 2-player (split screen) mode
@@ -32872,7 +32878,7 @@ BuildSprites_P2_MultiDraw_NextObj:
 ; sub_16D6E:
 Adjust2PArtPointer:
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w
 	beq.s	.return
 	move.w	art_tile(a0),d0
@@ -32893,7 +32899,7 @@ Adjust2PArtPointer:
 ; sub_16D8A:
 Adjust2PArtPointer2:
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w
 	beq.s	.return
 	move.w	art_tile(a1),d0
@@ -32909,7 +32915,7 @@ Adjust2PArtPointer2:
 
 
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
     if ~~fixBugs
@@ -33319,7 +33325,7 @@ RingsManager_Main:
 	bls.s	-
 	move.w	a2,(Ring_end_addr).w	; update end address
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w	; are we in 2P mode?
 	bne.s	+	; if we are, update P2 addresses
     endif
@@ -33327,7 +33333,7 @@ RingsManager_Main:
 	move.w	a2,(Ring_end_addr_P2).w
 	rts
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 +
 	; update ring start and end addresses for P2
 	movea.w	(Ring_start_addr_P2).w,a1
@@ -33378,7 +33384,7 @@ Touch_Rings:
 	movea.w	(Ring_start_addr).w,a1
 	movea.w	(Ring_end_addr).w,a2
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	cmpa.w	#MainCharacter,a0
 	beq.s	+
 	movea.w	(Ring_start_addr_P2).w,a1
@@ -33403,7 +33409,7 @@ Touch_Rings:
 	; to the last frame of his ducking animation. This is a leftover from
 	; Sonic 1, where Sonic's ducking animation only had one frame.
     if gameRevision=3
-	; KiS2: Adjusted to suit Knuckles.
+	; KiS2 (Knuckles): Adjusted to suit Knuckles.
 	cmpi.b	#$9C,mapping_frame(a0)	; is Knuckles ducking?
     else
 	cmpi.b	#$4D,mapping_frame(a0)	; is Sonic ducking?
@@ -33464,7 +33470,7 @@ Touch_Rings_Done:
 Touch_ConsumeRing:
 	subq.w	#1,(Perfect_rings_left).w
     if gameRevision=3
-	; KiS2: No Tails.
+	; KiS2 (no 2P): No two-player mode.
 	bra.w	CollectRing_Sonic	; if it was Sonic, branch here
     else
 	cmpa.w	#MainCharacter,a0	; who collected the ring?
@@ -33532,7 +33538,7 @@ BuildRings_Loop:
 	addi.w	#make_art_tile(ArtTile_ArtNem_Ring,1,0),d0	; add base art tile
 	move.w	d0,(a2)+	; set art tile and flags
     if gameRevision<>3
-	; KiS2: Uses S&K's mapping format instead of S2's mapping format.
+	; KiS2 (mappings format): Uses S&K's mapping format instead of S2's mapping format.
 	; The difference between the two being that S2's format has a copy of
 	; the art-tile that is adjusted for two player mode.
 	addq.w	#2,a1
@@ -33548,7 +33554,7 @@ BuildRings_NextRing:
 	rts
 
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 ; ---------------------------------------------------------------------------
 ; Subroutine to draw on-screen rings for player 1 in a 2P versus game
 ; ---------------------------------------------------------------------------
@@ -33799,7 +33805,7 @@ MapUnc_Rings: offsetTable
 	dc.b  5
 	dc.w make_block_tile(0,0,0,0,0)
     if gameRevision<>3
-	; KiS2: S&K mapping format.
+	; KiS2 (mappings format): S&K mapping format.
 	dc.w make_block_tile_2p(0,0,0,0,0)
     endif
 	dc.w -8
@@ -33809,7 +33815,7 @@ MapUnc_Rings: offsetTable
 	dc.b  5
 	dc.w make_block_tile(4,0,0,0,0)
     if gameRevision<>3
-	; KiS2: S&K mapping format.
+	; KiS2 (mappings format): S&K mapping format.
 	dc.w make_block_tile_2p(4,0,0,0,0)
     endif
 	dc.w -8
@@ -33819,7 +33825,7 @@ MapUnc_Rings: offsetTable
 	dc.b  1
 	dc.w make_block_tile(8,0,0,0,0)
     if gameRevision<>3
-	; KiS2: S&K mapping format.
+	; KiS2 (mappings format): S&K mapping format.
 	dc.w make_block_tile_2p(8,0,0,0,0)
     endif
 	dc.w -4
@@ -33829,7 +33835,7 @@ MapUnc_Rings: offsetTable
 	dc.b  5
 	dc.w make_block_tile(4,1,0,0,0)
     if gameRevision<>3
-	; KiS2: S&K mapping format.
+	; KiS2 (mappings format): S&K mapping format.
 	dc.w make_block_tile_2p(4,1,0,0,0)
     endif
 	dc.w -8
@@ -33839,7 +33845,7 @@ MapUnc_Rings: offsetTable
 	dc.b  5
 	dc.w make_block_tile(10,0,0,0,0)
     if gameRevision<>3
-	; KiS2: S&K mapping format.
+	; KiS2 (mappings format): S&K mapping format.
 	dc.w make_block_tile_2p(10,0,0,0,0)
     endif
 	dc.w -8
@@ -33849,7 +33855,7 @@ MapUnc_Rings: offsetTable
 	dc.b  5
 	dc.w make_block_tile(10,1,1,0,0)
     if gameRevision<>3
-	; KiS2: S&K mapping format.
+	; KiS2 (mappings format): S&K mapping format.
 	dc.w make_block_tile_2p(10,1,1,0,0)
     endif
 	dc.w -8
@@ -33859,7 +33865,7 @@ MapUnc_Rings: offsetTable
 	dc.b  5
 	dc.w make_block_tile(10,1,0,0,0)
     if gameRevision<>3
-	; KiS2: S&K mapping format.
+	; KiS2 (mappings format): S&K mapping format.
 	dc.w make_block_tile_2p(10,1,0,0,0)
     endif
 	dc.w -8
@@ -33869,7 +33875,7 @@ MapUnc_Rings: offsetTable
 	dc.b  5
 	dc.w make_block_tile(10,0,1,0,0)
     if gameRevision<>3
-	; KiS2: S&K mapping format.
+	; KiS2 (mappings format): S&K mapping format.
 	dc.w make_block_tile_2p(10,0,1,0,0)
     endif
 	dc.w -8
@@ -33974,7 +33980,7 @@ SpecialCNZBumpers_Main:
 	bls.s	-
 	move.l	a2,(CNZ_Visible_bumpers_end).w
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w
 	bne.s	+
     endif
@@ -33983,7 +33989,7 @@ SpecialCNZBumpers_Main:
 	rts
 ; ===========================================================================
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 +
 	movea.l	(CNZ_Visible_bumpers_start_P2).w,a1
 	move.w	(Camera_X_pos_P2).w,d4
@@ -34030,7 +34036,7 @@ Check_CNZ_bumpers:
 	movea.l	(CNZ_Visible_bumpers_start).w,a1
 	movea.l	(CNZ_Visible_bumpers_end).w,a2
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	cmpa.w	#MainCharacter,a0
 	beq.s	+
 	movea.l	(CNZ_Visible_bumpers_start_P2).w,a1
@@ -34053,7 +34059,7 @@ Check_CNZ_bumpers:
 	; to the last frame of his ducking animation. This is a leftover from
 	; Sonic 1, where Sonic's ducking animation only had one frame.
     if gameRevision=3
-	; KiS2: Adjusted to suit Knuckles.
+	; KiS2 (Knuckles): Adjusted to suit Knuckles.
 	cmpi.b	#$9C,mapping_frame(a0)	; is Knuckles ducking?
     else
 	cmpi.b	#$4D,mapping_frame(a0)	; is Sonic ducking?
@@ -34191,7 +34197,7 @@ loc_175EA:
 	move.w	y_vel(a0),d2
 	jsr	(CalcAngle).l
     if gameRevision<>3
-	; KiS2: Whatever this junk is, it was removed.
+	; KiS2 (unused): Whatever this junk is, it was removed.
 	move.b	d0,(unk_FFDC).w
     endif
 	sub.w	d3,d0
@@ -34199,7 +34205,7 @@ loc_175EA:
 	neg.w	d0
 	add.w	d3,d0
     if gameRevision<>3
-	; KiS2: Whatever this junk is, it was removed.
+	; KiS2 (unused): Whatever this junk is, it was removed.
 	move.b	d0,(unk_FFDD).w
 	move.b	d1,(unk_FFDF).w
     endif
@@ -34209,7 +34215,7 @@ loc_175EA:
 
 loc_17618:
     if gameRevision<>3
-	; KiS2: Whatever this junk is, it was removed.
+	; KiS2 (unused): Whatever this junk is, it was removed.
 	move.b	d0,(unk_FFDE).w
     endif
 	jsr	(CalcSine).l
@@ -34471,7 +34477,7 @@ ObjectsManager_States: offsetTable
 	offsetTableEntry.w ObjectsManager_Init		; 0
 	offsetTableEntry.w ObjectsManager_Main		; 2
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	offsetTableEntry.w ObjectsManager_2P_Main	; 4
     endif
 ; ===========================================================================
@@ -34481,7 +34487,7 @@ ObjectsManager_Init:
 	move.w	(Current_ZoneAndAct).w,d0 ; If level == $0F01 (ARZ 2)...
 	ror.b	#1,d0			; then this yields $0F80...
     if (gameRevision=3) && ~~standaloneKiS2
-	; KiS2: KiS2 features its own custom object layouts, which are stored
+	; KiS2 (Knuckles): KiS2 features its own custom object layouts, which are stored
 	; in the S&K ROM.
 	lsr.w	#5,d0			; and this yields $007C.
 	lea	(Off_Objects_KiS2).l,a0
@@ -34493,7 +34499,7 @@ ObjectsManager_Init:
 	adda.w	(a0,d0.w),a0		; (Point1 * 2) + $003E
     endif
     if gameRevision<>3
-	; KiS2: No two player.
+	; KiS2 (no 2P): No two player.
 	tst.w	(Two_player_mode).w	; skip if not in 2-player vs mode
 	beq.s	+
 	cmpi.b	#casino_night_zone,(Current_Zone).w	; skip if not Casino Night Zone
@@ -34579,7 +34585,7 @@ loc_17B62:
 	move.w	#-1,(Camera_X_pos_last).w	; make sure ObjectsManager_GoingForward is run
 	move.w	#-1,(Camera_X_pos_last_P2).w
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w	; is it two player mode?
 	beq.s	ObjectsManager_Main	; if not, branch
 	addq.b	#2,(Obj_placement_routine).w
@@ -34700,7 +34706,7 @@ ObjectsManager_SameXRange:
 	rts
 ; ---------------------------------------------------------------------------
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 ; loc_17C50
 ObjectsManager_2P_Init:
 	; Reset all of the 2P object manager variables to $FF.
@@ -35189,7 +35195,7 @@ return_17F7E:
 	rts
 ; ===========================================================================
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 ;loc_17F80:
 ChkLoadObj_2P:
 	tst.b	2(a0)		; does the object get a respawn table entry?
@@ -35246,7 +35252,7 @@ SingleObjLoad:
 	lea	(Dynamic_Object_RAM).w,a1 ; a1=object
 	move.w	#(Dynamic_Object_RAM_End-Dynamic_Object_RAM)/object_size-1,d0 ; search to end of table
     if gameRevision<>3
-	; KiS2: No two player.
+	; KiS2 (no 2P): No two player.
 	tst.w	(Two_player_mode).w
 	beq.s	+
 	move.w	#(Dynamic_Object_RAM_2P_End-Dynamic_Object_RAM)/object_size-1,d0 ; search to $BF00 exclusive
@@ -35349,7 +35355,7 @@ ObjectLayoutBoundary macro
     endif
 
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 ; byte_1802A;
     if gameRevision=0
 Objects_CNZ1_2P:	BINCLUDE	"level/objects/CNZ_1_2P (REV00).bin"
@@ -36086,7 +36092,7 @@ Obj41_MapUnc_19032: offsetTable
 	offsetTableEntry.w word_19172	;  9
 	offsetTableEntry.w word_19194	; $A
     if gameRevision=3
-	; KiS2: Mappings converted to S&K's format.
+	; KiS2 (mappings format): Mappings converted to S&K's format.
 word_19048:
 	dc.w 2
 	dc.w $F00D,    0,$FFF0
@@ -36651,7 +36657,7 @@ SolidObject:
 	lea	(MainCharacter).w,a1
 	moveq	#p1_standing_bit,d6
     if gameRevision<>3
-	; KiS2: No Tails.
+	; KiS2 (no Tails): No Tails.
 	movem.l	d1-d4,-(sp)	; Backup input registers.
 	bsr.s	+
 	movem.l	(sp)+,d1-d4	; Restore input registers.
@@ -36700,7 +36706,7 @@ SolidObject_Always:
 	lea	(MainCharacter).w,a1 ; a1=character
 	moveq	#p1_standing_bit,d6
     if gameRevision<>3
-	; KiS2: No Tails.
+	; KiS2 (no Tails): No Tails.
 	movem.l	d1-d4,-(sp)
 	bsr.s	SolidObject_Always_SingleCharacter
 	movem.l	(sp)+,d1-d4
@@ -36755,7 +36761,7 @@ SlopedSolid:
 	lea	(MainCharacter).w,a1 ; a1=character
 	moveq	#p1_standing_bit,d6
     if gameRevision<>3
-	; KiS2: No Tails.
+	; KiS2 (no Tails): No Tails.
 	movem.l	d1-d4,-(sp)
 	bsr.s	SlopedSolid_SingleCharacter
 	movem.l	(sp)+,d1-d4
@@ -36801,7 +36807,7 @@ loc_1981E:
 	lea	(MainCharacter).w,a1 ; a1=character
 	moveq	#p1_standing_bit,d6
     if gameRevision<>3
-	; KiS2: No Tails. Heh, they edited this unused code...
+	; KiS2 (no Tails): No Tails. Heh, they edited this unused code...
 	movem.l	d1-d4,-(sp)
 	bsr.s	+
 	movem.l	(sp)+,d1-d4
@@ -36841,7 +36847,7 @@ SolidObject45:
 	lea	(MainCharacter).w,a1 ; a1=character
 	moveq	#p1_standing_bit,d6
     if gameRevision<>3
-	; KiS2: No Tails.
+	; KiS2 (no Tails): No Tails.
 	movem.l	d1-d4,-(sp)
 	bsr.s	loc_19896
 	movem.l	(sp)+,d1-d4
@@ -37362,7 +37368,7 @@ PlatformObject:
 	lea	(MainCharacter).w,a1 ; a1=character
 	moveq	#p1_standing_bit,d6
     if gameRevision<>3
-	; KiS2: No Tails.
+	; KiS2 (no Tails): No Tails.
 	movem.l	d1-d4,-(sp)
 	bsr.s	PlatformObject_SingleCharacter
 	movem.l	(sp)+,d1-d4
@@ -37418,7 +37424,7 @@ SlopedPlatform:
 	lea	(MainCharacter).w,a1 ; a1=character
 	moveq	#p1_standing_bit,d6
     if gameRevision<>3
-	; KiS2: No Tails.
+	; KiS2 (no Tails): No Tails.
 	movem.l	d1-d4,-(sp)
 	bsr.s	SlopedPlatform_SingleCharacter
 	movem.l	(sp)+,d1-d4
@@ -37459,7 +37465,7 @@ PlatformObject2:
 	lea	(MainCharacter).w,a1 ; a1=character
 	moveq	#p1_standing_bit,d6
     if gameRevision<>3
-	; KiS2: No Tails.
+	; KiS2 (no Tails): No Tails.
 	movem.l	d1-d4,-(sp)
 	bsr.s	loc_19CF8
 	movem.l	(sp)+,d1-d4
@@ -37503,7 +37509,7 @@ PlatformObjectD5:
 	lea	(MainCharacter).w,a1 ; a1=character
 	moveq	#p1_standing_bit,d6
     if gameRevision<>3
-	; KiS2: No Tails.
+	; KiS2 (no Tails): No Tails.
 	movem.l	d1-d4,-(sp)
 	bsr.s	loc_19D50
 	movem.l	(sp)+,d1-d4
@@ -37627,7 +37633,7 @@ loc_19E30:
 	move.l	a0,-(sp)
 	movea.l	a1,a0
     if gameRevision=3
-	; KiS2: No Tails.
+	; KiS2 (no Tails): No Tails.
 	jsr	(Sonic_ResetOnFloor_Part2).l
     else
 	move.w	a0,d1
@@ -37714,7 +37720,7 @@ loc_19F08:
 
 loc_19F1E:
     if gameRevision<>3
-	; KiS2: No Tails.
+	; KiS2 (no Tails): No Tails.
 	lea	(Sidekick).w,a1 ; a1=character
 	btst	#p2_standing_bit,status(a0)
 	beq.s	loc_19F4C
@@ -37770,7 +37776,7 @@ Obj01_Init:
 	move.b	#$13,y_radius(a0) ; this sets Sonic's collision height (2*pixels)
 	move.b	#9,x_radius(a0)
     if gameRevision=3
-	; KiS2: Uses Knuckles' mappings instead.
+	; KiS2 (Knuckles): Uses Knuckles' mappings instead.
 	move.l	#MapUnc_Knuckles,mappings(a0)
     else
 	move.l	#MapUnc_Sonic,mappings(a0)
@@ -37830,7 +37836,7 @@ Obj01_Control:
 +
 	btst	#0,obj_control(a0)	; is Sonic interacting with another object that holds him in place or controls his movement somehow?
     if gameRevision=3
-	; KiS2: Update Knuckles' gliding.
+	; KiS2 (Knuckles): Update Knuckles' gliding.
 	beq.s	+
 	move.b	#0,double_jump_flag(a0)
 	bra.s	++
@@ -37920,7 +37926,7 @@ Obj01_ChkShoes:		; Checks if Speed Shoes have expired and disables them if they 
 	tst.b	(Super_Sonic_flag).w
 	beq.s	Obj01_RmvSpeed
     if gameRevision=3
-	; KiS2: Super Knuckles moves slower than Super Sonic.
+	; KiS2 (Knuckles): Super Knuckles moves slower than Super Sonic.
 	move.w	#$800,(Sonic_top_speed).w
 	move.w	#$18,(Sonic_acceleration).w
 	move.w	#$C0,(Sonic_deceleration).w
@@ -38000,7 +38006,7 @@ Obj01_InWater:
 	tst.b	(Super_Sonic_flag).w
 	beq.s	+
     if gameRevision=3
-	; KiS2: Super Knuckles moves slower than Super Sonic.
+	; KiS2 (Knuckles): Super Knuckles moves slower than Super Sonic.
 	move.w	#$400,(Sonic_top_speed).w
 	move.w	#$C,(Sonic_acceleration).w
 	move.w	#$60,(Sonic_deceleration).w
@@ -38031,7 +38037,7 @@ Obj01_OutWater:
 	tst.b	(Super_Sonic_flag).w
 	beq.s	+
     if gameRevision=3
-	; KiS2: Super Knuckles moves slower than Super Sonic.
+	; KiS2 (Knuckles): Super Knuckles moves slower than Super Sonic.
 	move.w	#$800,(Sonic_top_speed).w
 	move.w	#$18,(Sonic_acceleration).w
 	move.w	#$C0,(Sonic_deceleration).w
@@ -38066,7 +38072,7 @@ Obj01_OutWater:
 ; loc_1A26E:
 Obj01_MdNormal_Checks:
     if gameRevision<>3
-	; KiS2: This was removed.
+	; KiS2 (Knuckles): This was removed.
 	; If Sonic has been waiting for a while, and is tapping his foot
 	; impatiently, then make him blink once the player starts moving
 	; again. Likewise, if he's been waiting for so long that he's laying
@@ -38113,7 +38119,7 @@ return_1A2DE:
 ; loc_1A2E0: Obj01_MdJump
 Obj01_MdAir:
     if gameRevision=3
-	; KiS2: Knuckles' gliding logic was added.
+	; KiS2 (Knuckles): Knuckles' gliding logic was added.
 	tst.b	double_jump_flag(a0)
 	bne.s	Obj01_MdAir_Gliding
     endif
@@ -38131,7 +38137,7 @@ Obj01_MdAir:
 ; End of subroutine Obj01_MdAir
 
     if gameRevision=3
-	; KiS2: Knuckles' gliding logic was added.
+	; KiS2 (Knuckles): Knuckles' gliding logic was added.
 Obj01_MdAir_Gliding:
 	bsr.w	Knuckles_GlideSpeedControl
 	bsr.w	Sonic_LevelBound
@@ -39100,7 +39106,7 @@ Obj01_NotRight:
 	add.w	x_pos(a0),d1
 	sub.w	x_pos(a1),d1
     if gameRevision<>3
-	; KiS2: Super Knuckles doesn't have any unique animations.
+	; KiS2 (Knuckles): Super Knuckles doesn't have any unique animations.
 	tst.b	(Super_Sonic_flag).w
 	bne.w	SuperSonic_Balance
     endif
@@ -39111,7 +39117,7 @@ Obj01_NotRight:
 	bra.w	Sonic_Lookup
 ; ---------------------------------------------------------------------------
     if gameRevision<>3
-	; KiS2: Super Knuckles doesn't have any unique animations.
+	; KiS2 (Knuckles): Super Knuckles doesn't have any unique animations.
 ; loc_1A3FE:
 SuperSonic_Balance:
 	cmpi.w	#2,d1
@@ -39128,7 +39134,7 @@ Sonic_BalanceOnObjRight:
 	bne.s	+
 	move.b	#AniIDSonAni_Balance,anim(a0)
     if gameRevision=3
-	; KiS2: Knuckles has simpler balancing behaviour.
+	; KiS2 (Knuckles): Knuckles has simpler balancing behaviour.
 	bra.w	Obj01_ResetScr
 +
 	bclr	#0,status(a0)
@@ -39159,7 +39165,7 @@ Sonic_BalanceOnObjLeft:
 	beq.s	+
 	move.b	#AniIDSonAni_Balance,anim(a0)
     if gameRevision=3
-	; KiS2: Knuckles has simpler balancing behaviour.
+	; KiS2 (Knuckles): Knuckles has simpler balancing behaviour.
 	bra.w	Obj01_ResetScr
 +
 	bset	#0,status(a0)
@@ -39188,7 +39194,7 @@ Sonic_Balance:
 	cmpi.w	#$C,d1
 	blt.w	Sonic_Lookup
     if gameRevision<>3
-	; KiS2: Super Knuckles doesn't have any unique animations.
+	; KiS2 (Knuckles): Super Knuckles doesn't have any unique animations.
 	tst.b	(Super_Sonic_flag).w
 	bne.w	SuperSonic_Balance2
     endif
@@ -39198,7 +39204,7 @@ Sonic_Balance:
 	bne.s	+
 	move.b	#AniIDSonAni_Balance,anim(a0)
     if gameRevision=3
-	; KiS2: Knuckles has simpler balancing behaviour.
+	; KiS2 (Knuckles): Knuckles has simpler balancing behaviour.
 	bra.w	Obj01_ResetScr
 +
 	bclr	#0,status(a0)
@@ -39233,7 +39239,7 @@ Sonic_BalanceLeft:
 	beq.s	+
 	move.b	#AniIDSonAni_Balance,anim(a0)
     if gameRevision=3
-	; KiS2: Knuckles has simpler balancing behaviour.
+	; KiS2 (Knuckles): Knuckles has simpler balancing behaviour.
 	bra.w	Obj01_ResetScr
 +
 	bset	#0,status(a0)
@@ -39262,7 +39268,7 @@ Sonic_BalanceLeft:
     endif
 ; ---------------------------------------------------------------------------
     if gameRevision<>3
-	; KiS2: Super Knuckles doesn't have any unique animations.
+	; KiS2 (Knuckles): Super Knuckles doesn't have any unique animations.
 ; loc_1A55E:
 SuperSonic_Balance2:
 	cmpi.b	#3,next_tilt(a0)
@@ -39334,7 +39340,7 @@ Obj01_ResetScr_Part2:
 Obj01_UpdateSpeedOnGround:
 	tst.b	(Super_Sonic_flag).w
     if gameRevision=3
-	; KiS2: This branch was optimised.
+	; KiS2 (branch): This branch was optimised.
 	beq.s	+
     else
 	beq.w	+
@@ -39953,7 +39959,7 @@ Sonic_Jump:
 	cmpi.w	#6,d1			; does Sonic have enough room to jump?
 	blt.w	return_1AAE6		; if not, branch
     if gameRevision=3
-	; KiS2: Super Knuckles doesn't jump any higher than regular Knuckles.
+	; KiS2 (Knuckles): Super Knuckles doesn't jump any higher than regular Knuckles.
 	; Note that Sonic's jump height is used in demos so that they don't
 	; desynchronise.
 	move.w	#$600,d2
@@ -40033,7 +40039,7 @@ Sonic_JumpHeight:
 +
 	cmp.w	y_vel(a0),d1	; is Sonic going up faster than d1?
     if gameRevision=3
-	; KiS2: Handle gliding and Super transformation.
+	; KiS2 (Knuckles): Handle gliding and Super transformation.
 	ble.w	Sonic_CheckGoSuper		; if not, branch
     else
 	ble.s	+		; if not, branch
@@ -40044,7 +40050,7 @@ Sonic_JumpHeight:
 	move.w	d1,y_vel(a0)	; immediately reduce Sonic's upward speed to d1
 +
     if gameRevision<>3
-	; KiS2: Super Knuckles is activated by double-jumping in this game.
+	; KiS2 (Knuckles): Super Knuckles is activated by double-jumping in this game.
 	tst.b	y_vel(a0)		; is Sonic exactly at the height of his jump?
 	beq.s	Sonic_CheckGoSuper	; if yes, test for turning into Super Sonic
     endif
@@ -40072,7 +40078,7 @@ return_1AB36:
 ; loc_1AB38: test_set_SS:
 Sonic_CheckGoSuper:
     if gameRevision=3
-	; KiS2: Handle gliding and Super transformation.
+	; KiS2 (Knuckles): Handle gliding and Super transformation.
 	tst.w	(Demo_mode_flag).w	; Don't glide on demos
 	bne.w	return_3165D2
 	tst.b	double_jump_flag(a0)
@@ -40157,7 +40163,7 @@ Knuckles_TurnSuper:
 	move.b	#AniIDSupSonAni_Transform,anim(a0)			; use transformation animation
 	move.b	#ObjID_SuperSonicStars,(SuperSonicStars+id).w ; load Obj7E (Super Sonic stars object) at $FFFFD040
     if gameRevision=3
-	; KiS2: Super Knuckles moves slower than Super Sonic.
+	; KiS2 (Knuckles): Super Knuckles moves slower than Super Sonic.
 	move.w	#$800,(Sonic_top_speed).w
 	move.w	#$18,(Sonic_acceleration).w
 	move.w	#$C0,(Sonic_deceleration).w
@@ -40563,7 +40569,7 @@ return_1AEA8:
 ; End of function Sonic_JumpFlip
 
     if gameRevision=3
-	; KiS2: New collision code. Has something to do with gliding.
+	; KiS2 (Knuckles): New collision code. Has something to do with gliding.
 ; ---------------------------------------------------------------------------
 ; Subroutine for Sonic to interact with the floor and walls when he's in the air
 ; ---------------------------------------------------------------------------
@@ -40949,7 +40955,7 @@ Sonic_ResetOnFloor:
 ; loc_1B0AC:
 Sonic_ResetOnFloor_Part2:
     if gameRevision<>3
-	; KiS2: No Tails.
+	; KiS2 (no Tails): No Tails.
 	; some routines outside of Tails' code can call Sonic_ResetOnFloor_Part2
 	; when they mean to call Tails_ResetOnFloor_Part2, so fix that here
 	_cmpi.b	#ObjID_Sonic,id(a0)	; is this object ID Sonic (obj01)?
@@ -40957,7 +40963,7 @@ Sonic_ResetOnFloor_Part2:
     endif
 
     if gameRevision=3
-	; KiS2: The logic for pushing Sonic out of the ground was updated to
+	; KiS2 (Knuckles): The logic for pushing Sonic out of the ground was updated to
 	; dynamically adjust itself based on 'y_radius', instead of being
 	; hardcoded. This may be a bugfix related to Knuckles gliding onto
 	; the ground, and not being pushed out correctly. TODO.
@@ -40992,7 +40998,7 @@ Sonic_ResetOnFloor_Part3:
 	move.b	#0,flips_remaining(a0)
 	move.w	#0,(Sonic_Look_delay_counter).w
     if gameRevision=3
-	; KiS2: Added logic for Knuckles' gliding.
+	; KiS2 (Knuckles): Added logic for Knuckles' gliding.
 	move.b	#0,double_jump_flag(a0)
 	cmpi.b	#AniIDKnuxAni_Glide,anim(a0)
 	bhs.s	+
@@ -41213,7 +41219,7 @@ Obj01_Respawning:
 Sonic_Animate:
 	lea	(SonicAniData).l,a1
     if gameRevision<>3
-	; KiS2: Super Knuckles doesn't have any unique graphics.
+	; KiS2 (Knuckles): Super Knuckles doesn't have any unique graphics.
 	tst.b	(Super_Sonic_flag).w
 	beq.s	+
 	lea	(SuperSonicAniData).l,a1
@@ -41246,7 +41252,7 @@ SAnim_Do2:
 	move.b	anim_frame(a0),d1	; load current frame number
 	move.b	1(a1,d1.w),d0		; read sprite number from script
     if gameRevision=3
-	; KiS2 (bugfix): Animation flags begin at $FC, so this is the saner
+	; KiS2 (Knuckles): Animation flags begin at $FC, so this is the saner
 	; check. This change was presumably made because Knuckles uses over
 	; $F0 sprite frames.
 	cmpi.b	#$FC,d0
@@ -41329,7 +41335,7 @@ SAnim_WalkRun:
 	add.w	d2,d2
 +
     if gameRevision<>3
-	; KiS2: Super Knuckles doesn't have any unique graphics.
+	; KiS2 (Knuckles): Super Knuckles doesn't have any unique graphics.
 	tst.b	(Super_Sonic_flag).w
 	bne.s	SAnim_Super
     endif
@@ -41366,7 +41372,7 @@ return_1B4AC:
 	rts
 ; ===========================================================================
     if gameRevision<>3
-	; KiS2: Super Knuckles doesn't have any unique graphics.
+	; KiS2 (Knuckles): Super Knuckles doesn't have any unique graphics.
 ; loc_1B4AE:
 SAnim_Super:
 	lea	(SupSonAni_Run).l,a1	; use fast animation
@@ -41427,7 +41433,7 @@ SAnim_Tumble:
 	addi.b	#$B,d0
 	divu.w	#$16,d0
     if gameRevision=3
-	; KiS2: Knuckles' tumbling animation begins at a different frame
+	; KiS2 (Knuckles): Knuckles' tumbling animation begins at a different frame
 	; number.
 	addi.b	#$31,d0
     else
@@ -41455,7 +41461,7 @@ loc_1B566:
 loc_1B572:
 	divu.w	#$16,d0
     if gameRevision=3
-	; KiS2: Knuckles' tumbling animation begins at a different frame
+	; KiS2 (Knuckles): Knuckles' tumbling animation begins at a different frame
 	; number.
 	addi.b	#$31,d0
     else
@@ -41503,7 +41509,7 @@ SAnim_Push:
 	moveq	#0,d2
 +
     if gameRevision=3
-	; KiS2: Knuckles' pushing animation is faster.
+	; KiS2 (Knuckles): Knuckles' pushing animation is faster.
 	lsr.w	#8,d2
     else
 	lsr.w	#6,d2
@@ -41511,7 +41517,7 @@ SAnim_Push:
 	move.b	d2,anim_frame_duration(a0)
 	lea	(SonAni_Push).l,a1
     if gameRevision<>3
-	; KiS2: Super Knuckles doesn't have any unique graphics.
+	; KiS2 (Knuckles): Super Knuckles doesn't have any unique graphics.
 	tst.b	(Super_Sonic_flag).w
 	beq.s	+
 	lea	(SupSonAni_Push).l,a1
@@ -41530,7 +41536,7 @@ SAnim_Push:
 ; off_1B618:
 SonicAniData:			offsetTable
     if gameRevision=3
-	; KiS2: Knuckles' animation script. This may have been copied
+	; KiS2 (Knuckles): Knuckles' animation script. This may have been copied
 	; straight from Sonic & Knuckles, considering that some of these
 	; animations don't match Sonic 2 at all.
 SonAni_Walk_ptr:		offsetTableEntry.w KnucklesAni_Walk		;  0 ;   0
@@ -41863,7 +41869,7 @@ LoadSonicDynPLC_Part2:
 	cmp.b	(Sonic_LastLoadedDPLC).w,d0
 
     if (gameRevision=3) && ~~standaloneKiS2
-	; KiS2: This has been modified to convert Knuckles' art to Sonic 2's
+	; KiS2 (Knuckles): This has been modified to convert Knuckles' art to Sonic 2's
 	; palette.
 	beq.w	return_1B89A
 	move.b	d0,(Sonic_LastLoadedDPLC).w
@@ -41912,7 +41918,7 @@ return_1B89A:
 	move.b	d0,(Sonic_LastLoadedDPLC).w
 
     if (gameRevision=3) && standaloneKiS2
-	; KiS2 (standalone): Load Knuckles' graphics instead of Sonic's.
+	; KiS2 (Knuckles): Load Knuckles' graphics instead of Sonic's.
 	lea	(MapRUnc_Knuckles).l,a2
     else
 	lea	(MapRUnc_Sonic).l,a2
@@ -41934,7 +41940,7 @@ SPLC_ReadEntry:
 	andi.w	#$FFF,d1
 	lsl.l	#5,d1
     if (gameRevision=3) && standaloneKiS2
-	; KiS2 (standalone): Load Knuckles' graphics instead of Sonic's.
+	; KiS2 (Knuckles): Load Knuckles' graphics instead of Sonic's.
 	addi.l	#ArtUnc_Knuckles,d1
     else
 	addi.l	#ArtUnc_Sonic,d1
@@ -42008,7 +42014,7 @@ JmpTo_KillCharacter ; JmpTo
 
 
     if gameRevision<>3
-	; KiS2: No Tails. RIP.
+	; KiS2 (no Tails): No Tails. RIP.
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object 02 - Tails
@@ -44769,7 +44775,7 @@ return_1D1FE:
 	rts
 
     if gameRevision<>3
-	; KiS2: No Tails.
+	; KiS2 (no Tails): No Tails.
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object 05 - Tails' tails
@@ -45839,7 +45845,7 @@ Obj08_ResetDisplayMode:
 
 BranchTo16_DeleteObject
     if gameRevision=3
-	; KiS2: This branch was extended.
+	; KiS2 (branch): This branch was extended.
 	jmp	(DeleteObject).l
     else
 	bra.w	DeleteObject
@@ -45849,7 +45855,7 @@ BranchTo16_DeleteObject
 Obj08_CheckSkid:
 	movea.w	parent(a0),a2 ; a2=character
     if gameRevision=3
-	; KiS2: Modified to generate dust when Knuckles glides onto the
+	; KiS2 (Knuckles): Modified to generate dust when Knuckles glides onto the
 	; ground.
 	moveq	#16,d1
 	cmpi.b	#AniIDSonAni_Stop,anim(a2)	; SonAni_Stop
@@ -45876,13 +45882,13 @@ Obj08_SkidDust:
 	move.w	x_pos(a2),x_pos(a1)
 	move.w	y_pos(a2),y_pos(a1)
     if gameRevision<>3
-	; KiS2: The code just under 'Obj08_CheckSkid' makes this redundant.
+	; KiS2 (Knuckles): The code just under 'Obj08_CheckSkid' makes this redundant.
 	addi.w	#$10,y_pos(a1)
     endif
 	tst.b	obj08_belongs_to_tails(a0)
 	beq.s	+
     if gameRevision=3
-	; KiS2: As part of this object's refactoring, the Y coordinate is
+	; KiS2 (Knuckles): As part of this object's refactoring, the Y coordinate is
 	; stored in 'd1'.
 	subq.w	#4,d1	; Tails is shorter than Sonic
     else
@@ -45890,7 +45896,7 @@ Obj08_SkidDust:
     endif
 +
     if gameRevision=3
-	; KiS2: Finally, move the adjusted Y coordinate to 'y_pos(a1)'.
+	; KiS2 (Knuckles): Finally, move the adjusted Y coordinate to 'y_pos(a1)'.
 	add.w	d1,y_pos(a1)
     endif
 	move.b	#0,status(a1)
@@ -47181,7 +47187,7 @@ loc_1ECFE:
 	rts
 
     if gameRevision=3
-	; KiS2: New collision code.
+	; KiS2 (Knuckles): New collision code.
 ; sub_318FF6:
 CheckFloorDist_WithRadius:
 	move.b	x_radius(a0),d0
@@ -47233,7 +47239,7 @@ ChkFloorEdge_Part2:
 	add.w	d0,d2
 
     if gameRevision=3
-	; KiS2: A new label needed by Knuckles' gliding.
+	; KiS2 (Knuckles): A new label needed by Knuckles' gliding.
 ChkFloorEdge_Part3:
     endif
 	move.l	#Primary_Collision,(Collision_addr).w
@@ -47422,7 +47428,7 @@ CheckRightWallDist_Part2:
 ; End of function CheckRightWallDist
 
     if gameRevision=3
-	; KiS2: New collision code.
+	; KiS2 (Knuckles): New collision code.
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ; loc_319208:
@@ -47532,7 +47538,7 @@ CheckCeilingDist_Part2:
 ; End of function CheckCeilingDist
 
     if gameRevision=3
-	; KiS2: New collision code.
+	; KiS2 (Knuckles): New collision code.
 ; =============== S U B	R O U T	I N E =======================================
 
 ; sub_3192E6:
@@ -47651,7 +47657,7 @@ CheckLeftWallDist_Part2:
 ; End of function CheckLeftWallDist
 
     if gameRevision=3
-	; KiS2: New collision code.
+	; KiS2 (Knuckles): New collision code.
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ; loc_3193D2:
@@ -48309,7 +48315,7 @@ Obj44_BumpCharacter:
 	movea.w	a1,a3
 	jsr	(AddPoints2).l
     if gameRevision=3
-	; KiS2: Another extended branch.
+	; KiS2 (branch): Another extended branch.
 	jsr	(SingleObjLoad).l
     else
 	bsr.w	SingleObjLoad
@@ -48517,7 +48523,7 @@ loc_1FA2A:
 	andi.w	#$1F,d0
 	move.w	d0,objoff_38(a0)
     if gameRevision=3
-	; KiS2: Another extended branch.
+	; KiS2 (branch): Another extended branch.
 	jsr	(SingleObjLoad).l
     else
 	bsr.w	SingleObjLoad
@@ -48575,7 +48581,7 @@ loc_1FACE:
 	rts
 
     if gameRevision=3
-	; KiS2 (JmpTo cleanup)
+	; KiS2 (JmpTo cleanup):
     if removeJmpTos
 JmpTo15_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
@@ -48737,7 +48743,7 @@ Obj24_MapUnc_1FC18: offsetTable
 	offsetTableEntry.w word_1FCAC	;  $F
 	offsetTableEntry.w word_1FCB6	; $10
     if gameRevision=3
-	; KiS2: Mappings converted to S3K's format.
+	; KiS2 (mappings format): Mappings converted to S3K's format.
 word_1FC3A:
 	dc.w	1
 	dc.w	$FC00, $008D, $FFFC
@@ -49903,7 +49909,7 @@ Obj74_Main:
 	addq.w	#1,d3
 	move.w	x_pos(a0),d4
     if gameRevision=3
-	; KiS2: Another extended branch.
+	; KiS2 (branch): Another extended branch.
 	jsr	(SolidObject_Always).l
     else
 	bsr.w	SolidObject_Always
@@ -49916,7 +49922,7 @@ Obj74_Main:
 	cmpi.w	#$280,d0
 	bhi.w	JmpTo18_DeleteObject
     if (gameRevision=3) || (gameRevision=0)
-	; KiS2: This code was restored. Neat.
+	; KiS2 (bugfix): This code was restored. Neat.
     ; this object was visible with debug mode in REV00
 +
 	tst.w	(Debug_placement_mode).w
@@ -50483,7 +50489,7 @@ loc_21562:
 	tst.b	obj_control(a1)
 	bne.s	return_215BE
     if gameRevision=3
-	; KiS2: Another extended branch.
+	; KiS2 (branch): Another extended branch.
 	jsr	(RideObject_SetRide).l
     else
 	bsr.w	RideObject_SetRide
@@ -50516,7 +50522,7 @@ loc_215A8:
 	cmpi.w	#$30,d1
 	bhs.s	return_215BE
     if gameRevision=3
-	; KiS2: Another extended branch.
+	; KiS2 (branch): Another extended branch.
 	jsr	(RideObject_SetRide).l
     else
 	bsr.w	RideObject_SetRide
@@ -50689,7 +50695,7 @@ Obj06_Cylinder:
 	move.w	d2,y_pos(a1)
 	move.b	#1,flip_turned(a1) ; face the other way
     if gameRevision=3
-	; KiS2: Another extended branch.
+	; KiS2 (branch): Another extended branch.
 	jsr	(RideObject_SetRide).l
     else
 	bsr.w	RideObject_SetRide
@@ -50899,7 +50905,7 @@ Obj14_UpdateMappingAndCollision:
 	moveq	#8,d3
 	move.w	(sp)+,d4
     if gameRevision=3
-	; KiS2: Another extended branch.
+	; KiS2 (branch): Another extended branch.
 	jmp	(SlopedPlatform).l
     else
 	bra.w	SlopedPlatform
@@ -51878,7 +51884,7 @@ Obj1E:
 	move.b	objoff_2C(a0),d0
 	add.b	objoff_36(a0),d0
     if gameRevision=3
-	; KiS2: This branch was optimised.
+	; KiS2 (branch): This branch was optimised.
 	beq.s	JmpTo_MarkObjGone3
     else
 	beq.w	JmpTo_MarkObjGone3
@@ -52970,7 +52976,7 @@ BreakObjectToPieces_Loop:
 	jsr	(SingleObjLoad2).l
 	bne.s	loc_15E82
     if gameRevision=3
-	; KiS2: The mappings are in S3K's format, where each sprite piece is
+	; KiS2 (mappings format): The mappings are in S3K's format, where each sprite piece is
 	; 6 bytes long instead of 8.
 	addq.w	#6,a3	; next mapping piece
     else
@@ -53114,7 +53120,7 @@ Obj30_Main:
 	jsr	Obj30_Modes(pc,d1.w)
 	tst.b	(Screen_Shaking_Flag_HTZ).w
     if gameRevision=3
-	; KiS2: This branch was optimised.
+	; KiS2 (branch): This branch was optimised.
 	beq.s	JmpTo2_MarkObjGone3
     else
 	beq.w	JmpTo2_MarkObjGone3
@@ -55659,7 +55665,7 @@ loc_25C1C:
 	jsrto	SingleObjLoad2, JmpTo10_SingleObjLoad2
 	bne.s	loc_25C64
     if gameRevision=3
-	; KiS2: The mappings are in S3K's format, where each sprite piece is
+	; KiS2 (mappings format): The mappings are in S3K's format, where each sprite piece is
 	; 6 bytes long instead of 8.
 	addq.w	#6,a3
     else
@@ -57148,7 +57154,7 @@ loc_270DC:
     endif
 	bclr	#5,status(a1)
     if gameRevision=3
-	; KiS2: Make Knuckles exit gliding.
+	; KiS2 (Knuckles): Make Knuckles exit gliding.
 	move.b	#0,double_jump_flag(a1)
     endif
 	move.w	#SndID_Spring,d0
@@ -61901,7 +61907,7 @@ loc_2A990:
 	add.w	d1,y_pos(a1)
 	bset	#1,status(a1)
     if gameRevision=3
-	; KiS2: Make Knuckles exit gliding.
+	; KiS2 (Knuckles): Make Knuckles exit gliding.
 	move.b	#0,double_jump_flag(a1)
     endif
 	move.w	#0,y_vel(a1)
@@ -63808,7 +63814,7 @@ SlotMachine_GetPixelRow:
 	move.b	(a3,d0.w),d0			; Get slot pic id
 	andi.w	#7,d0				; Get only lower 3 bits; leaves space for 2 more images
     if gameRevision=3
-	; KiS2: This is a hack to add Knuckles to the slot machine.
+	; KiS2 (Knuckles): This is a hack to add Knuckles to the slot machine.
 	beq.s	loc_32598C
     endif
 	ror.w	#7,d0				; Equal to shifting left 9 places, or multiplying by 4*4 tiles, in bytes
@@ -63821,7 +63827,7 @@ SlotMachine_GetPixelRow:
 	rts
 
     if gameRevision=3
-	; KiS2: This is a hack to add Knuckles to the slot machine.
+	; KiS2 (Knuckles): This is a hack to add Knuckles to the slot machine.
 loc_32598C:
 	lea	(ArtUnc_CNZSlotPicsKnucklesPatch).l,a2
 	move.w	d3,d0
@@ -70910,7 +70916,7 @@ Obj57_FallingStuff:	; Spikes & Stones
 	subi.w	#$28,sub2_y_pos(a0)	; decrease gravity
 	cmpi.w	#$6F0,y_pos(a0)	; if below boundary, delete
     if (gameRevision=3) || ~~removeJmpTos
-	; KiS2: For some reason, this REV02 change was reverted.
+	; KiS2 (branch): For some reason, this REV02 change was reverted.
 	bgt.w	JmpTo57_DeleteObject
     else
 	bgt.s	JmpTo56_DeleteObject
@@ -73833,7 +73839,7 @@ byte_33A92:
 	dc.b   4,  3	; 12
 	dc.b  $C,  1	; 14
     if gameRevision<>3
-	; KiS2: It seems that the DPLC loader was rewritten, presumably to
+	; KiS2 (Knuckles): It seems that the DPLC loader was rewritten, presumably to
 	; make it use standard DPLCs instead of the weird custom DPLCs that
 	; regular Sonic 2 uses.
 dword_33AA2:
@@ -73856,7 +73862,7 @@ LoadSSSonicDynPLC:
 +
 	jsrto	DisplaySprite, JmpTo42_DisplaySprite
     if gameRevision=3
-	; KiS2: It seems that the DPLC loader was rewritten, presumably to
+	; KiS2 (Knuckles): It seems that the DPLC loader was rewritten, presumably to
 	; make it use standard DPLCs instead of the weird custom DPLCs that
 	; regular Sonic 2 uses.
 	move.l	#SSRAM_ArtNem_SpecialSonicAndTails&$FFFFFF,d6
@@ -74606,7 +74612,7 @@ byte_34208:
 ; ----------------------------------------------------------------------------
 ; sprite mappings - uses ArtNem_SpecialSonicAndTails
 ; ----------------------------------------------------------------------------
-; KiS2 (mappings): These mappings were modified.
+; KiS2 (Knuckles): These mappings were modified.
 Obj09_MapUnc_34212:	BINCLUDE "mappings/sprite/obj09.bin"
 ; ----------------------------------------------------------------------------
 ; sprite mappings for special stage shadows
@@ -74623,8 +74629,7 @@ Obj63_MapUnc_34492:	BINCLUDE "mappings/sprite/obj63.bin"
 ; a small space optimization. These frames only have one dplc per frame ever,
 ; hence the two-byte dplc count is removed from each frame.
 ; ----------------------------------------------------------------------------
-; KiS2 (mappings): These mappings were modified (to suit Knuckles) and they
-; were converted to a different format.
+; KiS2 (Knuckles): These mappings were modified to suit Knuckles.
 Obj09_MapRUnc_345FA:	BINCLUDE "mappings/spriteDPLC/obj09.bin"
 ; ===========================================================================
 
@@ -74999,9 +75004,8 @@ Obj61_Init:
 	move.w	#$58,y_pos(a0)
 	move.l	#Obj61_MapUnc_36508,mappings(a0)
     if gameRevision=3
-	; KiS2: The bombs use a different palette line, presumably to avoid
-	; using Sonic's colours, which have now been overwritten with
-	; Knuckles' colours.
+	; KiS2 (Knuckles): The bombs use a different palette line, presumably to avoid
+	; using Sonic's colours, which have now been overwritten with Knuckles' colours.
 	move.w	#make_art_tile(ArtTile_ArtNem_SpecialBomb,2,0),art_tile(a0)
     else
 	move.w	#make_art_tile(ArtTile_ArtNem_SpecialBomb,1,0),art_tile(a0)
@@ -78081,7 +78085,7 @@ Obj90_MapUnc_36D00: offsetTable
 word_36D02:
 	dc.w 4
     if gameRevision=3
-	; KiS2: Converted to S3K's format.
+	; KiS2 (mappings format): Converted to S3K's format.
 	dc.w $F400,    0,$FFF8
 	dc.w $FC06,    1,$FFF0 ; 4
 	dc.w $F400, $800,	   0 ; 8
@@ -81654,7 +81658,7 @@ ObjAA_MapUnc_39228: offsetTable
 word_3923A:
 	dc.w 3
     if gameRevision=3
-	; KiS2: These mappings were converted to S3K's format.
+	; KiS2 (mappings format): These mappings were converted to S3K's format.
 	dc.w $F801,    0,$FFE5
 	dc.w $F80D,    2,$FFED; 4
 	dc.w  $809,  $1D,$FFF1; 8
@@ -83405,7 +83409,7 @@ ObjB2_Main_WFZ_Start:
 	lea	(Ani_objB2_a).l,a1
 	jsrto	AnimateSprite, JmpTo25_AnimateSprite
     if gameRevision=3
-	; KiS2: This branch was optimised.
+	; KiS2 (branch): This branch was optimised.
 	bra.w	Obj_DeleteOffScreen
     else
 	jmpto	Obj_DeleteOffScreen, Obj_DeleteOffScreen
@@ -83498,8 +83502,7 @@ ObjB2_Main_WFZ_states:	offsetTable
 ObjB2_Wait_Leader_position:
 	lea	(MainCharacter).w,a1 ; a1=character
     if gameRevision=3
-	; KiS2: Some adjustments were made in order for Knuckles to work
-	; correctly.
+	; KiS2 (Knuckles): Some adjustments were made in order for Knuckles to work correctly.
 	cmpi.w	#$540,y_pos(a1)
 	blo.s	+
 	st.b	(Control_Locked).w
@@ -83510,8 +83513,7 @@ ObjB2_Wait_Leader_position:
 	cmpi.w	#$5EC,y_pos(a1)
 	blo.s	+	; rts
     if gameRevision=3
-	; KiS2: Some adjustments were made in order for Knuckles to work
-	; correctly.
+	; KiS2 (Knuckles): Some adjustments were made in order for Knuckles to work correctly.
 	btst	#1,status(a1)
 	bne.s	+
     endif
@@ -83584,7 +83586,7 @@ ObjB2_Prepare_to_jump:
 	bsr.w	ObjB2_Waiting_animation
 	addq.w	#1,objoff_2A(a0)
     if gameRevision=3
-	; KiS2: Cutscene was re-timed to suit Knuckles' unique physics.
+	; KiS2 (Knuckles): Cutscene was re-timed to suit Knuckles' unique physics.
 	cmpi.w	#$20,objoff_2A(a0)
     else
 	cmpi.w	#$30,objoff_2A(a0)
@@ -83607,7 +83609,7 @@ ObjB2_Jump_to_plane:
 	subq.w	#1,objoff_2E(a0)
 	bmi.s	+
     if gameRevision=3
-	; KiS2: This change may be to prevent Knuckles from gliding.
+	; KiS2 (Knuckles): This change may be to prevent Knuckles from gliding.
 	move.w	#(button_right_mask|button_A_mask)<<8,(Ctrl_1_Logical).w
     else
 	move.w	#((button_right_mask|button_A_mask)<<8)|button_right_mask|button_A_mask,(Ctrl_1_Logical).w
@@ -83648,7 +83650,7 @@ loc_3AB18:
 	bclr	#1,status(a1)
 	bclr	#2,status(a1)
     if gameRevision=3
-	; KiS2: 'mapping_frame' and 'anim_frame' are no longer set here.
+	; KiS2 (bugfix): 'mapping_frame' and 'anim_frame' are no longer set here.
 	; By setting 'prev_anim' to 0, the animation is forced to reset and
 	; automatically update 'mapping_frame' and 'anim_frame' anyway.
 	move.w	#AniIDSonAni_Wait<<8,anim(a1)
@@ -83672,7 +83674,7 @@ ObjB2_Approaching_ship:
 	blo.s	loc_3AB8A
 	addq.b	#2,routine_secondary(a0)
     if gameRevision=3
-	; KiS2: This change may be to prevent Knuckles from gliding.
+	; KiS2 (Knuckles): This change may be to prevent Knuckles from gliding.
 	move.w	#(button_A_mask<<8)|button_A_mask,(Ctrl_1_Logical).w
 	bra.w	loc_3AB8A
     endif
@@ -83681,7 +83683,7 @@ ObjB2_Jump_to_ship:
 	cmpi.w	#$447,objoff_2A(a0)
 	bhs.s	loc_3AB8A
     if gameRevision=3
-	; KiS2: This change may be to prevent Knuckles from gliding.
+	; KiS2 (Knuckles): This change may be to prevent Knuckles from gliding.
 	move.w	#button_A_mask<<8,(Ctrl_1_Logical).w
     else
 	move.w	#(button_A_mask<<8)|button_A_mask,(Ctrl_1_Logical).w
@@ -83775,7 +83777,7 @@ ObjB2_Deactivate_level:
 ObjB2_Waiting_animation:
 	lea	(MainCharacter).w,a1 ; a1=character
     if gameRevision=3
-	; KiS2: 'mapping_frame' and 'anim_frame' are no longer set here.
+	; KiS2 (bugfix): 'mapping_frame' and 'anim_frame' are no longer set here.
 	; By setting 'prev_anim' to 0, the animation is forced to reset and
 	; automatically update 'mapping_frame' and 'anim_frame' anyway.
 	move.w	#AniIDSonAni_Wait<<8,anim(a1)
@@ -83784,7 +83786,7 @@ ObjB2_Waiting_animation:
     endif
 	move.w	#$100,anim_frame_duration(a1)
     if gameRevision=3
-	; KiS2: Some adjustments were made in order for Knuckles to work
+	; KiS2 (Knuckles): Some adjustments were made in order for Knuckles to work
 	; correctly.
 	clr.w	x_vel(a1)
 	clr.w	y_vel(a1)
@@ -84380,7 +84382,7 @@ ObjB5_Animate:
 ObjB5_CheckPlayers:
 	cmpi.b	#4,anim(a0)
     if gameRevision=3
-	; KiS2: This branch was pushed out of range by the code that was
+	; KiS2 (branch): This branch was pushed out of range by the code that was
 	; added below.
 	bne.w	++	; rts
     else
@@ -84416,9 +84418,9 @@ ObjB5_CheckPlayer:
 	bset	#1,status(a1)
     if gameRevision=3
 	; KiS2 (bugfix): Disable roll-jumping, so that the player's controls
-	; aren't left locked, leaving them helpless. Also make Knuckles stop
-	; gliding.
+	; aren't left locked, leaving them helpless.
 	bclr	#4,status(a1)
+	; KiS2 (Knuckles): Make Knuckles stop gliding.
 	move.b	#0,double_jump_flag(a1)
     endif
 	move.w	#0,y_vel(a1)
@@ -89795,7 +89797,7 @@ TouchResponse:
 	; to the last frame of his ducking animation. This is a leftover from
 	; Sonic 1, where Sonic's ducking animation only had one frame.
     if gameRevision=3
-	; KiS2: Adjusted to suit Knuckles.
+	; KiS2 (Knuckles): Adjusted to suit Knuckles.
 	cmpi.b	#$9C,mapping_frame(a0)	; is Knuckles ducking?
     else
 	cmpi.b	#$4D,mapping_frame(a0)	; is Sonic ducking?
@@ -90074,7 +90076,7 @@ Touch_Monitor:
 +
 	cmpi.b	#AniIDSonAni_Roll,anim(a0)
     if gameRevision=3
-	; KiS2: Allow monitors to be broken by Knuckles' gliding.
+	; KiS2 (Knuckles): Allow monitors to be broken by Knuckles' gliding.
 	beq.s	+
 	cmpi.b	#1,double_jump_flag(a0)
 	beq.s	+
@@ -90099,7 +90101,7 @@ Touch_Enemy:
 	beq.s	+
 	cmpi.b	#AniIDSonAni_Roll,anim(a0)		; is Sonic rolling?
     if gameRevision=3
-	; KiS2: Allow enemies to be destroyed by Knuckles' gliding.
+	; KiS2 (Knuckles): Allow enemies to be destroyed by Knuckles' gliding.
 	beq.s	+
 	cmpi.b	#1,double_jump_flag(a0)
 	beq.s	+
@@ -90131,7 +90133,7 @@ Touch_Enemy_Part2:
 	move.b	#0,collision_flags(a1)
 	subq.b	#1,collision_property(a1)
     if gameRevision=3
-	; KiS2: Bounce Knuckles out of his gliding state.
+	; KiS2 (Knuckles): Bounce Knuckles out of his gliding state.
 	bne.s	+
     else
 	bne.s	return_3F7E8
@@ -90139,7 +90141,7 @@ Touch_Enemy_Part2:
 	bset	#7,status(a1)
 
     if gameRevision=3
-	; KiS2: Bounce Knuckles out of his gliding state.
+	; KiS2 (Knuckles): Bounce Knuckles out of his gliding state.
 +
 	cmpi.b	#1,double_jump_flag(a0)
 	bne.s	return_3F7E8
@@ -90251,7 +90253,8 @@ Touch_Hurt:
 HurtCharacter:
 	move.w	(Ring_count).w,d0
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no Tails): No Tails.
+	; KiS2 (no 2P): No two player mode.
 	cmpa.w	#MainCharacter,a0
 	beq.s	loc_3F88C
 	tst.w	(Two_player_mode).w
@@ -92199,7 +92202,7 @@ BuildHUD:
 ; ===========================================================================
 
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 BuildHUD_P1:
 	tst.w	(Ring_count).w
 	beq.s	BuildHUD_P1_NoRings
@@ -92453,13 +92456,13 @@ BuildHUD_P2_Continued:
 
 ; sprite mappings for the HUD
 ; uses the art in VRAM from $D940 - $FC00
-; KiS2 (mappings): These mappings were modified so that the 'K.T.E' text
+; KiS2 (Knuckles): These mappings were modified so that the 'K.T.E' text
 ; uses palette line 0.
 HUD_MapUnc_40A9A:	BINCLUDE "mappings/sprite/hud_a.bin"
 
 
     if gameRevision<>3
-	; KiS2: No two player.
+; KiS2 (no 2P): No two player.
 HUD_MapUnc_40BEA:	BINCLUDE "mappings/sprite/hud_b.bin"
     endif
 
@@ -92475,7 +92478,7 @@ HUD_MapUnc_40C82:	BINCLUDE "mappings/sprite/hud_c.bin"
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
     if gameRevision=3
-	; KiS2: No two player mode.
+; KiS2 (no 2P): No two player mode.
 ; sub_40D42:
 AddPoints2:
     endif
@@ -92503,7 +92506,7 @@ AddPoints:
 
 
     if gameRevision<>3
-	; KiS2: No two player mode.
+; KiS2 (no 2P): No two player mode.
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ; ---------------------------------------------------------------------------
@@ -92550,7 +92553,7 @@ HudUpdate:
 	nop
 	lea	(VDP_data_port).l,a6
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w
 	bne.w	loc_40F50
     endif
@@ -92710,7 +92713,7 @@ return_40F4E:
 ; ===========================================================================
 
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 loc_40F50:
 	tst.w	(Game_paused).w
 	bne.w	return_4101A
@@ -92847,7 +92850,7 @@ Hud_Base:
 	lea	(VDP_data_port).l,a6
 	bsr.w	Hud_Lives
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 	tst.w	(Two_player_mode).w
 	bne.s	loc_410BC
     endif
@@ -92884,7 +92887,7 @@ loc_410B0:
 ; ===========================================================================
 
     if gameRevision<>3
-	; KiS2: No two player mode.
+	; KiS2 (no 2P): No two player mode.
 loc_410BC:
 	bsr.w	Hud_Lives2
 	move.l	#Art_Hud,d1 ; source addreses
@@ -93490,7 +93493,7 @@ Debug_ExitDebugMode:
 	move.w	d0,(Debug_placement_mode).w
 	lea	(MainCharacter).w,a1 ; a1=character
     if gameRevision=3
-	; KiS2: Uses Knuckles' mappings instead.
+	; KiS2 (Knuckles): Uses Knuckles' mappings instead.
 	move.l	#MapUnc_Knuckles,mappings(a1)
     else
 	move.l	#MapUnc_Sonic,mappings(a1)
@@ -93626,7 +93629,7 @@ dbglistobj macro   obj, mapaddr, subtype, frame, vram
 DbgObjList_Def: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0) ; obj25 = ring
     if gameRevision=3
-	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+	; KiS2 (no 2P): The monitor's contents was changed from a Teleport to a Super Ring.
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0) ; obj26 = monitor
     else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0) ; obj26 = monitor
@@ -93640,7 +93643,7 @@ DbgObjList_Def_End
 DbgObjList_EHZ: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
     if gameRevision=3
-	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+	; KiS2 (no 2P): The monitor's contents was changed from a Teleport to a Super Ring.
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
     else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
@@ -93667,7 +93670,7 @@ DbgObjList_EHZ_End
 DbgObjList_MTZ: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
     if gameRevision=3
-	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+	; KiS2 (no 2P): The monitor's contents was changed from a Teleport to a Super Ring.
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
     else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
@@ -93709,7 +93712,7 @@ DbgObjList_MTZ_End
 DbgObjList_WFZ: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
     if gameRevision=3
-	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+	; KiS2 (no 2P): The monitor's contents was changed from a Teleport to a Super Ring.
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
     else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
@@ -93749,7 +93752,7 @@ DbgObjList_WFZ_End
 DbgObjList_HTZ: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
     if gameRevision=3
-	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+	; KiS2 (no 2P): The monitor's contents was changed from a Teleport to a Super Ring.
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
     else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
@@ -93788,7 +93791,7 @@ DbgObjList_HTZ_End
 DbgObjList_HPZ:; dbglistheader
 ;	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 ;    if gameRevision=3
-;	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+;	; KiS2 (no 2P): The monitor's contents was changed from a Teleport to a Super Ring.
 ;	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 ;    else
 ;	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
@@ -93798,7 +93801,7 @@ DbgObjList_HPZ:; dbglistheader
 DbgObjList_OOZ: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
     if gameRevision=3
-	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+	; KiS2 (no 2P): The monitor's contents was changed from a Teleport to a Super Ring.
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
     else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
@@ -93839,7 +93842,7 @@ DbgObjList_OOZ_End
 DbgObjList_MCZ: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
     if gameRevision=3
-	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+	; KiS2 (no 2P): The monitor's contents was changed from a Teleport to a Super Ring.
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
     else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
@@ -93871,7 +93874,7 @@ DbgObjList_MCZ_End
 DbgObjList_CNZ: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
     if gameRevision=3
-	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+	; KiS2 (no 2P): The monitor's contents was changed from a Teleport to a Super Ring.
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
     else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
@@ -93903,7 +93906,7 @@ DbgObjList_CNZ_End
 DbgObjList_CPZ: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
     if gameRevision=3
-	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+	; KiS2 (no 2P): The monitor's contents was changed from a Teleport to a Super Ring.
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
     else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
@@ -93935,7 +93938,7 @@ DbgObjList_CPZ_End
 DbgObjList_ARZ: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
     if gameRevision=3
-	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+	; KiS2 (no 2P): The monitor's contents was changed from a Teleport to a Super Ring.
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
     else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
@@ -93972,7 +93975,7 @@ DbgObjList_ARZ_End
 DbgObjList_SCZ: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
     if gameRevision=3
-	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+	; KiS2 (no 2P): The monitor's contents was changed from a Teleport to a Super Ring.
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
     else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
@@ -94204,7 +94207,7 @@ PlrList_Std2: plrlistheader
 	plreq ArtTile_ArtNem_Checkpoint, ArtNem_Checkpoint
 	plreq ArtTile_ArtNem_Powerups, ArtNem_Powerups
     if gameRevision=3
-	; KiS2: The shield and invincibility were recoloured to grey, to
+	; KiS2 (Knuckles): The shield and invincibility were recoloured to grey, to
 	; avoid them using Sonic's blues, which are now red and green.
 	; Likewise, their monitor icons were also recoloured.
 	plreq ArtTile_ArtNem_Powerups+44, ArtNem_PowerupsKnucklesPatch
@@ -94576,8 +94579,7 @@ PlrList_Results_End
 PlrList_Signpost: plrlistheader
 	plreq ArtTile_ArtNem_Signpost, ArtNem_Signpost
     if gameRevision=3
-	; KiS2: Load a patch that replaces Sonic's signpost graphic with
-	; Knuckles.
+	; KiS2 (Knuckles): Load a patch that replaces Sonic's signpost graphic with Knuckles.
 	plreq ArtTile_ArtNem_Signpost+34, ArtNem_SignpostKnucklesPatch
     endif
 PlrList_Signpost_End
@@ -95132,7 +95134,7 @@ PlrList_ResultsTails_Dup_End
 
 
     if gameRevision=3
-	; KiS2: Assets unique to this game go here.
+	; KiS2 (Knuckles): KiS2 (title): Assets unique to this game go here.
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art
 ; Knuckles extra continue icon
@@ -95209,9 +95211,8 @@ Objects_CNZ_2:	BINCLUDE	"level/objects/CNZ_2.bin"
 
     endif
 
-; KiS2: The assets and sound driver were all removed: they are instead loaded
-; from the locked-on Sonic 2 ROM.
-    if (gameRevision<>3) || standaloneKiS2 ; KiS2 (standalone): We need to keep these assets for standalone builds.
+; KiS2 (lock-on): The assets and sound driver were all removed: they are instead loaded from the locked-on Sonic 2 ROM.
+    if (gameRevision<>3) || standaloneKiS2
 ;---------------------------------------------------------------------------------------
 ; Curve and resistance mapping
 ;---------------------------------------------------------------------------------------
@@ -95505,7 +95506,7 @@ ArtUnc_Tails:	BINCLUDE	"art/uncompressed/Tails's art.bin"
 ; Sprite Mappings
 ; Sonic			; MapUnc_6FBE0: SprTbl_Sonic:
 ;--------------------------------------------------------------------------------------
-    if gameRevision<>3 ; KiS2 (standalone): Not used by anything.
+    if gameRevision<>3 ; KiS2 (Knuckles): Not used by anything.
 MapUnc_Sonic:	BINCLUDE	"mappings/sprite/Sonic.bin"
     endif
 ;--------------------------------------------------------------------------------------
@@ -95516,7 +95517,7 @@ MapUnc_Sonic:	BINCLUDE	"mappings/sprite/Sonic.bin"
 ;          or if you move Sonic's running frame to somewhere else than frame $2D
 MapRUnc_Sonic:	BINCLUDE	"mappings/spriteDPLC/Sonic.bin"
 
-    if gameRevision=3 ; KiS2 (standalone): Knuckles' graphical assets from S&K.
+    if gameRevision=3 ; KiS2 (Knuckles): Knuckles' graphical assets from S&K.
 ;---------------------------------------------------------------------------------------
 ; Uncompressed art
 ; Patterns for Knuckles
@@ -95534,7 +95535,7 @@ MapUnc_Knuckles:	BINCLUDE	"mappings/sprite/Knuckles.bin"
 MapRUnc_Knuckles:	BINCLUDE	"mappings/spriteDPLC/Knuckles.bin"
     endif
 
-    if gameRevision<>3 ; KiS2 (standalone): These are replaced by 'ArtNem_Shield_and_invincible_stars'.
+    if gameRevision<>3 ; KiS2 (Knuckles): These are replaced by 'ArtNem_Shield_and_invincible_stars'.
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (32 blocks)
 ; Shield			; ArtNem_71D8E:
@@ -95560,7 +95561,7 @@ ArtNem_SuperSonic_stars:	BINCLUDE	"art/nemesis/Super Sonic stars.bin"
 ; Sprite Mappings
 ; Tails			; MapUnc_739E2:
 ;--------------------------------------------------------------------------------------
-    if gameRevision<>3 ; KiS2 (standalone): Not used by anything.
+    if gameRevision<>3 ; KiS2 (no Tails): Not used by anything.
 MapUnc_Tails:	BINCLUDE	"mappings/sprite/Tails.bin"
     endif
 ;--------------------------------------------------------------------------------------
@@ -95606,14 +95607,14 @@ ArtNem_Title:	BINCLUDE	"art/nemesis/Main patterns from title screen.bin"
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art (674 blocks)
 ; Sonic and Tails from title screen	; ArtNem_7667A:
-    if gameRevision<>3 ; KiS2 (standalone): This isn't needed by anything.
+    if gameRevision<>3 ; KiS2 (title): This isn't needed by anything.
 	even
 ArtNem_TitleSprites:	BINCLUDE	"art/nemesis/Sonic and Tails from title screen.bin"
     endif
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art (10 blocks)
 ; A few menu patterns	; ArtNem_78CBC:
-    if gameRevision<>3 ; KiS2 (standalone): This isn't needed by anything.
+    if gameRevision<>3 ; KiS2 (title): This isn't needed by anything.
 	even
 ArtNem_MenuJunk:	BINCLUDE	"art/nemesis/A few menu blocks.bin"
     endif
@@ -95645,7 +95646,7 @@ ArtNem_HUD:	BINCLUDE	"art/nemesis/HUD.bin"
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art (12 blocks)
 ; Sonic lives counter		ArtNem_79346:
-    if gameRevision<>3 ; KiS2 (standalone): This isn't needed by anything.
+    if gameRevision<>3 ; KiS2 (Knuckles): This isn't needed by anything.
 	even
 ArtNem_Sonic_life_counter:	BINCLUDE	"art/nemesis/Sonic lives counter.bin"
     endif
@@ -95738,7 +95739,7 @@ ArtNem_ContinueTails:	BINCLUDE	"art/nemesis/Tails on continue screen.bin"
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art (12 blocks)
 ; Sonic extra continue icon	; ArtNem_7C0AA:
-    if gameRevision<>3 ; KiS2 (standalone): This isn't needed by anything.
+    if gameRevision<>3 ; KiS2 (Knuckles): This isn't needed by anything.
 	even
 ArtNem_MiniSonic:	BINCLUDE	"art/nemesis/Sonic continue.bin"
     endif
@@ -96472,7 +96473,7 @@ ArtNem_EndingFinalTornado:	BINCLUDE	"art/nemesis/Final image of Tornado with it 
 	even
 ArtNem_EndingMiniTornado:	BINCLUDE	"art/nemesis/Small pictures of Tornado in final ending sequence.bin"
 
-    if gameRevision=3 ; KiS2 (standalone): Knuckles' ending pose sprite from S&K.
+    if gameRevision=3 ; KiS2 (Knuckles): Knuckles' ending pose sprite from S&K.
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art
 ; Final image of Knuckles
@@ -96943,7 +96944,7 @@ ArtNem_SpecialMessages:	BINCLUDE	"art/nemesis/Special stage messages and icons.b
 ; [fixBugs] In this file, Tails' arms are tan instead of orange.
 ; Art for Obj09 and Obj10 and Obj88	; ArtNem_DEEAE:
     if gameRevision<>3
-	; KiS2 (standalone): This isn't needed by anything.
+	; KiS2 (Knuckles): KiS2 (no Tails): This isn't needed by anything.
 	even
 ArtNem_SpecialSonicAndTails:	BINCLUDE	"art/nemesis/Sonic and Tails animation frames in special stage.bin"
     endif
@@ -97099,7 +97100,7 @@ Off_Objects: zoneOrderedOffsetTable 2,2
 
 	; These things act as boundaries for the object layout parser, so it doesn't read past the end/beginning of the file
 	ObjectLayoutBoundary
-; KiS2: This was modified.
+; KiS2 (Knuckles): This was modified.
 Objects_EHZ_1:	BINCLUDE	"level/objects/EHZ_1.bin"
 	ObjectLayoutBoundary
 
@@ -97107,18 +97108,18 @@ Objects_EHZ_1:	BINCLUDE	"level/objects/EHZ_1.bin"
 ; A collision switcher was improperly placed
 Objects_EHZ_2:	BINCLUDE	"level/objects/EHZ_2 (REV00).bin"
     else
-; KiS2: This was modified.
+; KiS2 (Knuckles): This was modified.
 Objects_EHZ_2:	BINCLUDE	"level/objects/EHZ_2.bin"
     endif
 
 	ObjectLayoutBoundary
-; KiS2: This was modified.
+; KiS2 (Knuckles): This was modified.
 Objects_MTZ_1:	BINCLUDE	"level/objects/MTZ_1.bin"
 	ObjectLayoutBoundary
-; KiS2: This was modified.
+; KiS2 (Knuckles): This was modified.
 Objects_MTZ_2:	BINCLUDE	"level/objects/MTZ_2.bin"
 	ObjectLayoutBoundary
-; KiS2: This was modified.
+; KiS2 (Knuckles): This was modified.
 Objects_MTZ_3:	BINCLUDE	"level/objects/MTZ_3.bin"
 	ObjectLayoutBoundary
 
@@ -97126,18 +97127,18 @@ Objects_MTZ_3:	BINCLUDE	"level/objects/MTZ_3.bin"
 ; The lampposts were bugged: their 'remember state' flags weren't set
 Objects_WFZ_1:	BINCLUDE	"level/objects/WFZ_1 (REV00).bin"
     else
-; KiS2: This was modified.
+; KiS2 (Knuckles): This was modified.
 Objects_WFZ_1:	BINCLUDE	"level/objects/WFZ_1.bin"
     endif
 
 	ObjectLayoutBoundary
-; KiS2: This was modified.
+; KiS2 (Knuckles): This was modified.
 Objects_WFZ_2:	BINCLUDE	"level/objects/WFZ_2.bin"
 	ObjectLayoutBoundary
-; KiS2: This was modified.
+; KiS2 (Knuckles): This was modified.
 Objects_HTZ_1:	BINCLUDE	"level/objects/HTZ_1.bin"
 	ObjectLayoutBoundary
-; KiS2: This was modified.
+; KiS2 (Knuckles): This was modified.
 Objects_HTZ_2:	BINCLUDE	"level/objects/HTZ_2.bin"
 	ObjectLayoutBoundary
 Objects_HPZ_1:	BINCLUDE	"level/objects/HPZ_1.bin"
@@ -97146,16 +97147,16 @@ Objects_HPZ_2:	BINCLUDE	"level/objects/HPZ_2.bin"
 	ObjectLayoutBoundary
 	; Oddly, there's a gap for another layout here
 	ObjectLayoutBoundary
-; KiS2: This was modified.
+; KiS2 (Knuckles): This was modified.
 Objects_OOZ_1:	BINCLUDE	"level/objects/OOZ_1.bin"
 	ObjectLayoutBoundary
-; KiS2: This was modified.
+; KiS2 (Knuckles): This was modified.
 Objects_OOZ_2:	BINCLUDE	"level/objects/OOZ_2.bin"
 	ObjectLayoutBoundary
-; KiS2: This was modified.
+; KiS2 (Knuckles): This was modified.
 Objects_MCZ_1:	BINCLUDE	"level/objects/MCZ_1.bin"
 	ObjectLayoutBoundary
-; KiS2: This was modified.
+; KiS2 (Knuckles): This was modified.
 Objects_MCZ_2:	BINCLUDE	"level/objects/MCZ_2.bin"
 	ObjectLayoutBoundary
 
@@ -97165,28 +97166,28 @@ Objects_CNZ_1:	BINCLUDE	"level/objects/CNZ_1 (REV00).bin"
 	ObjectLayoutBoundary
 Objects_CNZ_2:	BINCLUDE	"level/objects/CNZ_2 (REV00).bin"
     else
-; KiS2: This was modified.
+; KiS2 (Knuckles): This was modified.
 Objects_CNZ_1:	BINCLUDE	"level/objects/CNZ_1.bin"
 	ObjectLayoutBoundary
-; KiS2: This was modified.
+; KiS2 (Knuckles): This was modified.
 Objects_CNZ_2:	BINCLUDE	"level/objects/CNZ_2.bin"
     endif
 
 	ObjectLayoutBoundary
-; KiS2: This was modified.
+; KiS2 (Knuckles): This was modified.
 Objects_CPZ_1:	BINCLUDE	"level/objects/CPZ_1.bin"
 	ObjectLayoutBoundary
-; KiS2: This was modified.
+; KiS2 (Knuckles): This was modified.
 Objects_CPZ_2:	BINCLUDE	"level/objects/CPZ_2.bin"
 	ObjectLayoutBoundary
 Objects_DEZ_1:	BINCLUDE	"level/objects/DEZ_1.bin"
 	ObjectLayoutBoundary
 Objects_DEZ_2:	BINCLUDE	"level/objects/DEZ_2.bin"
 	ObjectLayoutBoundary
-; KiS2: This was modified.
+; KiS2 (Knuckles): This was modified.
 Objects_ARZ_1:	BINCLUDE	"level/objects/ARZ_1.bin"
 	ObjectLayoutBoundary
-; KiS2: This was modified.
+; KiS2 (Knuckles): This was modified.
 Objects_ARZ_2:	BINCLUDE	"level/objects/ARZ_2.bin"
 	ObjectLayoutBoundary
 Objects_SCZ_1:	BINCLUDE	"level/objects/SCZ_1.bin"
@@ -97858,7 +97859,7 @@ paddingSoFar	:= paddingSoFar+1
 	; KiS2: TODO: These don't work properly in non-standalone builds with the S2 and S&K ROMs at the beginning because fixpointer.exe expects the addresses to not be offset.
 	shared word_728C_user,Obj5F_MapUnc_7240,off_3A294,MapRUnc_Sonic
     if (gameRevision<>3) || standaloneKiS2
-	; KiS2: 'movewZ80CompSize' doesn't need to be exported anymore.
+	; KiS2 (lock-on): 'movewZ80CompSize' doesn't need to be exported anymore.
 	shared movewZ80CompSize
     endif
 EndOfRom:
