@@ -26406,7 +26406,7 @@ super_shoes:
 	bset	#status_sec_hasSpeedShoes,status_secondary(a1)	; give super sneakers status
 	move.w	#$4B0,speedshoes_time(a1)
     if gameRevision<>3
-	; KiS2 (no 2P): No two player mode.
+	; KiS2 (no Tails): No Tails.
 	cmpa.w	#MainCharacter,a1	; did the main character break the monitor?
 	bne.s	super_shoes_Tails	; if not, branch
 	cmpi.w	#2,(Player_mode).w	; is player using Tails?
@@ -26416,7 +26416,7 @@ super_shoes:
 	move.w	#$18,(Sonic_acceleration).w
 	move.w	#$80,(Sonic_deceleration).w
     if gameRevision<>3
-	; KiS2 (no 2P): No two player mode.
+	; KiS2 (no Tails): No Tails.
 	bra.s	+
 ; ---------------------------------------------------------------------------
 ;loc_12A10:
