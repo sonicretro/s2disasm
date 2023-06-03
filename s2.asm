@@ -458,8 +458,8 @@ ChecksumLoop:
     endif
 ; loc_370:
 GameInit:
-    if gameRevision<>3
-	; KiS2: KiS2 doesn't clear memory here.
+    if (gameRevision<>3) || standaloneKiS2
+	; KiS2: KiS2 doesn't clear memory here because Sonic & Knuckles already did so earlier.
 	; Clear some RAM on every boot and reset.
 	lea	(RAM_Start&$FFFFFF).l,a6
 	moveq	#0,d7
@@ -4264,7 +4264,7 @@ TitleScreen:
 	clearRAM Camera_RAM,Camera_RAM_End ; clear camera RAM and following variables
 
     if gameRevision<>3
-	; KiS2: No 'Sonic the Hedgehod & Miles "Tails" Prower in' text.
+	; KiS2: No 'Sonic the Hedgehog & Miles "Tails" Prower in' text.
 	; Load the credit font for the following text.
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_CreditText),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_CreditText).l,a0
