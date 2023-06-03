@@ -4316,7 +4316,7 @@ TitleScreen:
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleTheEchidnaIn),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_TitleTheEchidnaIn).l,a0
 	bsr.w	NemDec
-    else	
+    else
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleSprites),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_TitleSprites).l,a0
 	bsr.w	NemDec
@@ -27029,7 +27029,7 @@ Obj0E_Sonic_FlashBackground:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_SpawnFallingStar
 	clr.w	obj0e_array_index(a0)
     if gameRevision=3
-	; KiS2 (intro): 
+	; KiS2 (intro): Different variable.
 	st.b	(Title_Intro_Complete).w
     else
 	st.b	obj0e_intro_complete(a0)
@@ -40092,7 +40092,7 @@ Sonic_CheckGoSuper:
 	tst.b	(Update_HUD_timer).w	; has Sonic reached the end of the act?
 	bne.s	Knuckles_TurnSuper	; if yes, branch
 
-Knuckles_BeginGlide:	
+Knuckles_BeginGlide:
 	bclr	#2,status(a0)
 	move.b	#10,y_radius(a0)
 	move.b	#10,x_radius(a0)
