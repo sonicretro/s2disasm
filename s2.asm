@@ -39128,7 +39128,7 @@ Sonic_BalanceOnObjRight:
 	bne.s	+
 	move.b	#AniIDSonAni_Balance,anim(a0)
     if gameRevision=3
-	; KiS2
+	; KiS2: Knuckles has simpler balancing behaviour.
 	bra.w	Obj01_ResetScr
 +
 	bclr	#0,status(a0)
