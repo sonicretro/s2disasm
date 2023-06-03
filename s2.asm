@@ -93567,7 +93567,7 @@ LoadDebugObjectSprite:
 ; account for its third act. Hidden Palace Zone uses Oil Ocean Zone's list.
 ; ---------------------------------------------------------------------------
 JmpTbl_DbgObjLists: zoneOrderedOffsetTable 2,1
-    if gameRevision=3
+    if (gameRevision=3) && ~~standaloneKiS2
 	; KiS2: For some reason, the debug lists were all blanked.
 	; This was possibly done in order to save space (there are only 680
 	; bytes spare at the end of the ROM).
@@ -93633,13 +93633,18 @@ DbgObjList_Def: dbglistheader
     endif
 DbgObjList_Def_End
 
-    if gameRevision<>3
+    if (gameRevision<>3) || standaloneKiS2
 	; KiS2: For some reason, the debug lists were all blanked.
 	; This was possibly done in order to save space (there are only 680
 	; bytes spare at the end of the ROM).
 DbgObjList_EHZ: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+    if gameRevision=3
+	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+    else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+    endif
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_PlaneSwitcher,	Obj03_MapUnc_1FFB8,   9,   1, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_EHZWaterfall,	Obj49_MapUnc_20C50,   0,   0, make_art_tile(ArtTile_ArtNem_Waterfall,1,0)
@@ -93661,7 +93666,12 @@ DbgObjList_EHZ_End
 
 DbgObjList_MTZ: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+    if gameRevision=3
+	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+    else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+    endif
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_PlaneSwitcher,	Obj03_MapUnc_1FFB8,   9,   1, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_SteamSpring,	Obj42_MapUnc_2686C,   1,   7, make_art_tile(ArtTile_ArtKos_LevelArt,3,0)
@@ -93698,7 +93708,12 @@ DbgObjList_MTZ_End
 
 DbgObjList_WFZ: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+    if gameRevision=3
+	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+    else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+    endif
 	dbglistobj ObjID_WFZPalSwitcher, Obj03_MapUnc_1FFB8,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,0,0)
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_Cloud,		ObjB3_MapUnc_3B32C, $5E,   0, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
@@ -93733,7 +93748,12 @@ DbgObjList_WFZ_End
 
 DbgObjList_HTZ: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+    if gameRevision=3
+	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+    else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+    endif
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_ForcedSpin,	Obj03_MapUnc_1FFB8,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,0,0)
 	dbglistobj ObjID_ForcedSpin,	Obj03_MapUnc_1FFB8,   4,   4, make_art_tile(ArtTile_ArtNem_Ring,0,0)
@@ -93767,12 +93787,22 @@ DbgObjList_HTZ_End
 
 DbgObjList_HPZ:; dbglistheader
 ;	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+;    if gameRevision=3
+;	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+;	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+;    else
 ;	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+;    endif
 ;DbgObjList_HPZ_End
 
 DbgObjList_OOZ: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+    if gameRevision=3
+	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+    else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+    endif
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_OOZPoppingPform, Obj33_MapUnc_23DDC,   1,   0, make_art_tile(ArtTile_ArtNem_BurnerLid,3,0)
 	dbglistobj ObjID_SlidingSpike,	Obj43_MapUnc_23FE0,   0,   0, make_art_tile(ArtTile_ArtNem_SpikyThing,2,1)
@@ -93808,7 +93838,12 @@ DbgObjList_OOZ_End
 
 DbgObjList_MCZ: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+    if gameRevision=3
+	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+    else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+    endif
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_SwingingPlatform, Obj15_Obj7A_MapUnc_10256, $48,   2, make_art_tile(ArtTile_ArtKos_LevelArt,0,0)
 	dbglistobj ObjID_CollapsPform,	Obj1F_MapUnc_11106,   0,   0, make_art_tile(ArtTile_ArtNem_MCZCollapsePlat,3,0)
@@ -93835,7 +93870,12 @@ DbgObjList_MCZ_End
 
 DbgObjList_CNZ: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+    if gameRevision=3
+	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+    else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+    endif
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_PinballMode,	Obj03_MapUnc_1FFB8,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,0,0)
 	dbglistobj ObjID_PinballMode,	Obj03_MapUnc_1FFB8,   4,   4, make_art_tile(ArtTile_ArtNem_Ring,0,0)
@@ -93862,7 +93902,12 @@ DbgObjList_CNZ_End
 
 DbgObjList_CPZ: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+    if gameRevision=3
+	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+    else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+    endif
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_TippingFloor,	Obj0B_MapUnc_201A0, $70,   0, make_art_tile(ArtTile_ArtNem_CPZAnimatedBits,3,1)
 	dbglistobj ObjID_SpeedBooster,	Obj1B_MapUnc_223E2,   0,   0, make_art_tile(ArtTile_ArtNem_CPZBooster,3,1)
@@ -93889,7 +93934,12 @@ DbgObjList_CPZ_End
 
 DbgObjList_ARZ: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+    if gameRevision=3
+	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+    else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+    endif
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_SwingingPlatform, Obj15_Obj83_MapUnc_1021E, $88,   2, make_art_tile(ArtTile_ArtKos_LevelArt,0,0)
 	dbglistobj ObjID_ARZPlatform,	Obj18_MapUnc_1084E,   1,   0, make_art_tile(ArtTile_ArtKos_LevelArt,2,0)
@@ -93921,7 +93971,12 @@ DbgObjList_ARZ_End
 
 DbgObjList_SCZ: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+    if gameRevision=3
+	; KiS2: The monitor's contents was changed from a Teleport to a Super Ring.
+	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+    else
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+    endif
 	dbglistobj ObjID_WFZPalSwitcher, Obj03_MapUnc_1FFB8,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,0,0)
 	dbglistobj ObjID_Cloud,		ObjB3_MapUnc_3B32C, $5E,   0, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
 	dbglistobj ObjID_Cloud,		ObjB3_MapUnc_3B32C, $60,   1, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
