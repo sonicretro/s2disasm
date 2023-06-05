@@ -30180,8 +30180,8 @@ Obj3A_MapUnc_14CBC:	offsetTable
 	offsetTableEntry.w word_14E96
     if gameRevision=3
 	; KiS2 (mappings format): Mappings converted to S3K's format.
-	; Also the 'Tails' and 'Miles' sprites were removed, and 'Sonic' was
-	; replace with 'Knuckles'.
+	; KiS2 (Knuckles): The 'Tails' and 'Miles' sprites were removed,
+	; and 'Sonic' was replace with 'Knuckles'.
 word_14CDA:	dc.w $B
 	dc.w 5, $85C6, $FF88
 	dc.w 5, $8584, $FF98
