@@ -29443,13 +29443,13 @@ ObjPtr_LauncherBall:	dc.l Obj48	; Round ball thing from OOZ that fires you off i
 ObjPtr_EHZWaterfall:	dc.l Obj49	; Waterfall from EHZ
 ObjPtr_Octus:		dc.l Obj4A	; Octus (octopus badnik) from OOZ
 ObjPtr_Buzzer:		dc.l Obj4B	; Buzzer (Buzz bomber) from EHZ
-			dc.l ObjNull	; Obj4C
-			dc.l ObjNull	; Obj4D
-			dc.l ObjNull	; Obj4E
-			dc.l ObjNull	; Obj4F
+			dc.l ObjNull	; Used to be the "BBat" badnik from HPZ
+			dc.l ObjNull	; Used to be the "Stego" badnik
+			dc.l ObjNull	; Used to be the "Gator" badnik
+			dc.l ObjNull	; Used to be the "Redz" badnik from HPZ
 ObjPtr_Aquis:		dc.l Obj50	; Aquis (seahorse badnik) from OOZ
 ObjPtr_CNZBoss:		dc.l Obj51	; CNZ boss
-ObjPtr_HTZBoss:		dc.l Obj52	; HTZ boss
+ObjPtr_HTZBoss:		dc.l Obj52	; HTZ boss ; Used to be the "BFish" badnik
 ObjPtr_MTZBossOrb:	dc.l Obj53	; Shield orbs that surround MTZ boss
 ObjPtr_MTZBoss:		dc.l Obj54	; MTZ boss
 ObjPtr_OOZBoss:		dc.l Obj55	; OOZ boss
