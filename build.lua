@@ -152,7 +152,7 @@ hashes_file:close()
 -- Huzzah: we are done with assembling and compressing the music.
 -- We can move onto building the rest of the ROM.
 
-success_continue_wrapper(common.build_rom("s2", "s2built", "", "-p=0 -z=0," .. (improved_sound_driver_compression and "saxman-optimised" or "saxman") .. ",Size_of_Snd_driver_guess,after", true, repository))
+success_continue_wrapper(common.build_rom("s2", "s2built", "", "-p=0 -z=0," .. (improved_sound_driver_compression and "saxman-optimised" or "saxman-bugged") .. ",Size_of_Snd_driver_guess,after", true, repository))
 
 -- Correct some pointers and other data that we couldn't until after the ROM had been assembled.
 os.execute(tools.fixpointer .. " s2.h s2built.bin   off_3A294 MapRUnc_Sonic 0x2D 0 4   word_728C_user Obj5F_MapUnc_7240 2 2 1")
