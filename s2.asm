@@ -4992,16 +4992,6 @@ Level_PlayBgm:
 	move.b	#ObjID_TitleCard,(TitleCard+id).w ; load Obj34 (level title card) at $FFFFB080
 ; loc_40DA:
 Level_TtlCard:
-
-; TODO - This is temporary: AS currently errors unless these are here.
-titlecard_x_target     = objoff_30	; the X position the object will reach
-titlecard_x_source     = objoff_32	; the X position the object starts from and will end at
-titlecard_location     = objoff_34	; point up to which titlecard is drawn
-titlecard_vram_dest    = objoff_36	; target of VRAM write
-titlecard_vram_dest_2P = objoff_38	; target of VRAM write
-titlecard_split_point  = objoff_3A	; point to split drawing for yellow and red portions
-titlecard_leaveflag    = objoff_3E	; whether or not titlecard is leaving screen
-
 	move.b	#VintID_TitleCard,(Vint_routine).w
 	bsr.w	WaitForVint
 	jsr	(RunObjects).l
@@ -28482,14 +28472,13 @@ JmpTo4_PlayMusic ; JmpTo
 ; ----------------------------------------------------------------------------
 ; Object 34 - level title card (screen with red, yellow, and blue)
 ; ----------------------------------------------------------------------------
-; TODO - This is temporary: AS currently errors if these are here.
-;titlecard_x_target     = objoff_30	; the X position the object will reach
-;titlecard_x_source     = objoff_32	; the X position the object starts from and will end at
-;titlecard_location     = objoff_34	; point up to which titlecard is drawn
-;titlecard_vram_dest    = objoff_36	; target of VRAM write
-;titlecard_vram_dest_2P = objoff_38	; target of VRAM write
-;titlecard_split_point  = objoff_3A	; point to split drawing for yellow and red portions
-;titlecard_leaveflag    = objoff_3E	; whether or not titlecard is leaving screen
+titlecard_x_target     = objoff_30	; the X position the object will reach
+titlecard_x_source     = objoff_32	; the X position the object starts from and will end at
+titlecard_location     = objoff_34	; point up to which titlecard is drawn
+titlecard_vram_dest    = objoff_36	; target of VRAM write
+titlecard_vram_dest_2P = objoff_38	; target of VRAM write
+titlecard_split_point  = objoff_3A	; point to split drawing for yellow and red portions
+titlecard_leaveflag    = objoff_3E	; whether or not titlecard is leaving screen
 ; Sprite_13C48:
 Obj34: ; (note: screen-space obj)
 	moveq	#0,d0
