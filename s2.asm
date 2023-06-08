@@ -32341,13 +32341,22 @@ loc_177FA:
 	bclr	#5,status(a0)
 	clr.b	jumping(a0)
 	move.w	#SndID_LargeBumper,d0
+	; This line unintentionally acts as a boundary marker for the below
+	; bumper data. Changes to this instruction, or the location of
+	; `PlaySound`, may cause Casino Night Zone Act 1 to crash. Fix the
+	; below bug to prevent this.
 	jmp	(PlaySound).l
 ; ===========================================================================
 SpecialCNZBumpers_Act1:
     if fixBugs
 	; Sonic Team forgot to start this file with a boundary marker,
 	; meaning the game could potentially read past the start of the file
-	; and load random bumpers.
+	; and load random bumpers. In a stroke of luck, the above `jmp`
+	; instruction happens to resemble a boundary marker well enough to
+	; prevent any misbehaviour. However, this is not the case in
+	; 'Knuckles in Sonic 2' due to the code being located at a
+	; wildly-different address, which necessitated that this bug be fixed
+	; properly, like this.
 	dc.w	$0000, $0000, $0000
     endif
 	BINCLUDE	"level/objects/CNZ 1 bumpers.bin"	; byte_1781A
