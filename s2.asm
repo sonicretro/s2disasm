@@ -89099,14 +89099,14 @@ PlrList_Ehz2_End
 ; Miles 1up patch
 ;---------------------------------------------------------------------------------------
 PlrList_Miles1up: plrlistheader
-	plreq ArtTile_ArtUnc_2p_life_counter, ArtUnc_MilesLife
+	plreq ArtTile_ArtUnc_2p_life_counter, ArtNem_MilesLife
 PlrList_Miles1up_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; Miles life counter
 ;---------------------------------------------------------------------------------------
 PlrList_MilesLifeCounter: plrlistheader
-	plreq ArtTile_ArtNem_life_counter, ArtUnc_MilesLife
+	plreq ArtTile_ArtNem_life_counter, ArtNem_MilesLife
 PlrList_MilesLifeCounter_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
@@ -90448,7 +90448,8 @@ ArtNem_Explosion:	BINCLUDE	"art/nemesis/Explosion.bin"
 ; Nemesis compressed art (12 blocks)
 ; Miles life counter	; ArtNem_7B946:
 	even
-ArtUnc_MilesLife:	BINCLUDE	"art/nemesis/Miles life counter.bin"
+; ArtUnc_MilesLife:
+ArtNem_MilesLife:	BINCLUDE	"art/nemesis/Miles life counter.bin"
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art (49 blocks)
 ; Egg prison		; ArtNem_7BA32:
