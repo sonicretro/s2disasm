@@ -4867,16 +4867,16 @@ Level:
 	moveq	#PLCID_Std2,d0
 	bsr.w	LoadPLC
 	bsr.w	Level_SetPlayerMode
-	moveq	#PLCID_Miles1up,d0
+	moveq	#PLCID_MilesLife2P,d0
 	tst.w	(Two_player_mode).w
 	bne.s	+
 	cmpi.w	#2,(Player_mode).w
 	bne.s	Level_ClrRam
-	addq.w	#PLCID_MilesLife-PLCID_Miles1up,d0
+	addq.w	#PLCID_MilesLife-PLCID_MilesLife2P,d0
 +
 	tst.b	(Graphics_Flags).w
 	bpl.s	+
-	addq.w	#PLCID_Tails1up-PLCID_Miles1up,d0
+	addq.w	#PLCID_TailsLife2P-PLCID_MilesLife2P,d0
 +
 	bsr.w	LoadPLC
 ; loc_3F48:
@@ -34414,6 +34414,10 @@ loc_177FA:
 	bclr	#5,status(a0)
 	clr.b	jumping(a0)
 	move.w	#SndID_LargeBumper,d0
+	; This line unintentionally acts as a boundary marker for the below
+	; bumper data. Changes to this instruction, or the location of
+	; `PlaySound`, may cause Casino Night Zone Act 1 to crash. Fix the
+	; below bug to prevent this.
 	jmp	(PlaySound).l
 ; ===========================================================================
 SpecialCNZBumpers_Act1:
@@ -34421,7 +34425,12 @@ SpecialCNZBumpers_Act1:
 	; KiS2 (bugfix): They fixed it! HOORAY!
 	; Sonic Team forgot to start this file with a boundary marker,
 	; meaning the game could potentially read past the start of the file
-	; and load random bumpers.
+	; and load random bumpers. In a stroke of luck, the above `jmp`
+	; instruction happens to resemble a boundary marker well enough to
+	; prevent any misbehaviour. However, this is not the case in
+	; 'Knuckles in Sonic 2' due to the code being located at a
+	; wildly-different address, which necessitated that this bug be fixed
+	; properly, like this.
 	dc.w	$0000, $0000, $0000
     endif
 	BINCLUDE	"level/objects/CNZ 1 bumpers.bin"	; byte_1781A
@@ -93172,7 +93181,7 @@ Hud_ClrBonusLoop:
 
 ; sub_412D4:
 Hud_Lives2:
-	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtUnc_2p_life_counter_lives),VRAM,WRITE),d0
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_2p_life_counter_lives),VRAM,WRITE),d0
 	moveq	#0,d1
 	move.b	(Life_count_2P).w,d1
 	bra.s	loc_412EE
@@ -94035,23 +94044,23 @@ cur_zone_str := "\{cur_zone_id}"
 ; BEGIN SArt_Ptrs Art_Ptrs_Array[17]
 ; dword_42594: MainLoadBlocks: saArtPtrs:
 LevelArtPointers:
-	levartptrs PLCID_Ehz1,     PLCID_Ehz2,      PalID_EHZ,  ArtKos_EHZ, BM16_EHZ, BM128_EHZ ;   0 ; EHZ  ; EMERALD HILL ZONE
-	levartptrs PLCID_Miles1up, PLCID_MilesLife, PalID_EHZ2, ArtKos_EHZ, BM16_EHZ, BM128_EHZ ;   1 ; LEV1 ; LEVEL 1 (UNUSED)
-	levartptrs PLCID_Tails1up, PLCID_TailsLife, PalID_WZ,   ArtKos_EHZ, BM16_EHZ, BM128_EHZ ;   2 ; LEV2 ; LEVEL 2 (UNUSED)
-	levartptrs PLCID_Unused1,  PLCID_Unused2,   PalID_EHZ3, ArtKos_EHZ, BM16_EHZ, BM128_EHZ ;   3 ; LEV3 ; LEVEL 3 (UNUSED)
-	levartptrs PLCID_Mtz1,     PLCID_Mtz2,      PalID_MTZ,  ArtKos_MTZ, BM16_MTZ, BM128_MTZ ;   4 ; MTZ  ; METROPOLIS ZONE ACTS 1 & 2
-	levartptrs PLCID_Mtz1,     PLCID_Mtz2,      PalID_MTZ,  ArtKos_MTZ, BM16_MTZ, BM128_MTZ ;   5 ; MTZ3 ; METROPOLIS ZONE ACT 3
-	levartptrs PLCID_Wfz1,     PLCID_Wfz2,      PalID_WFZ,  ArtKos_SCZ, BM16_WFZ, BM128_WFZ ;   6 ; WFZ  ; WING FORTRESS ZONE
-	levartptrs PLCID_Htz1,     PLCID_Htz2,      PalID_HTZ,  ArtKos_EHZ, BM16_EHZ, BM128_EHZ ;   7 ; HTZ  ; HILL TOP ZONE
-	levartptrs PLCID_Hpz1,     PLCID_Hpz2,      PalID_HPZ,  ArtKos_HPZ, BM16_HPZ, BM128_HPZ ;   8 ; HPZ  ; HIDDEN PALACE ZONE (UNUSED)
-	levartptrs PLCID_Unused3,  PLCID_Unused4,   PalID_EHZ4, ArtKos_EHZ, BM16_EHZ, BM128_EHZ ;   9 ; LEV9 ; LEVEL 9 (UNUSED)
-	levartptrs PLCID_Ooz1,     PLCID_Ooz2,      PalID_OOZ,  ArtKos_OOZ, BM16_OOZ, BM128_OOZ ;  $A ; OOZ  ; OIL OCEAN ZONE
-	levartptrs PLCID_Mcz1,     PLCID_Mcz2,      PalID_MCZ,  ArtKos_MCZ, BM16_MCZ, BM128_MCZ ;  $B ; MCZ  ; MYSTIC CAVE ZONE
-	levartptrs PLCID_Cnz1,     PLCID_Cnz2,      PalID_CNZ,  ArtKos_CNZ, BM16_CNZ, BM128_CNZ ;  $C ; CNZ  ; CASINO NIGHT ZONE
-	levartptrs PLCID_Cpz1,     PLCID_Cpz2,      PalID_CPZ,  ArtKos_CPZ, BM16_CPZ, BM128_CPZ ;  $D ; CPZ  ; CHEMICAL PLANT ZONE
-	levartptrs PLCID_Dez1,     PLCID_Dez2,      PalID_DEZ,  ArtKos_CPZ, BM16_CPZ, BM128_CPZ ;  $E ; DEZ  ; DEATH EGG ZONE
-	levartptrs PLCID_Arz1,     PLCID_Arz2,      PalID_ARZ,  ArtKos_ARZ, BM16_ARZ, BM128_ARZ ;  $F ; ARZ  ; AQUATIC RUIN ZONE
-	levartptrs PLCID_Scz1,     PLCID_Scz2,      PalID_SCZ,  ArtKos_SCZ, BM16_WFZ, BM128_WFZ ; $10 ; SCZ  ; SKY CHASE ZONE
+	levartptrs PLCID_Ehz1,        PLCID_Ehz2,      PalID_EHZ,  ArtKos_EHZ, BM16_EHZ, BM128_EHZ ;   0 ; EHZ  ; EMERALD HILL ZONE
+	levartptrs PLCID_MilesLife2P, PLCID_MilesLife, PalID_EHZ2, ArtKos_EHZ, BM16_EHZ, BM128_EHZ ;   1 ; LEV1 ; LEVEL 1 (UNUSED)
+	levartptrs PLCID_TailsLife2P, PLCID_TailsLife, PalID_WZ,   ArtKos_EHZ, BM16_EHZ, BM128_EHZ ;   2 ; LEV2 ; LEVEL 2 (UNUSED)
+	levartptrs PLCID_Unused1,     PLCID_Unused2,   PalID_EHZ3, ArtKos_EHZ, BM16_EHZ, BM128_EHZ ;   3 ; LEV3 ; LEVEL 3 (UNUSED)
+	levartptrs PLCID_Mtz1,        PLCID_Mtz2,      PalID_MTZ,  ArtKos_MTZ, BM16_MTZ, BM128_MTZ ;   4 ; MTZ  ; METROPOLIS ZONE ACTS 1 & 2
+	levartptrs PLCID_Mtz1,        PLCID_Mtz2,      PalID_MTZ,  ArtKos_MTZ, BM16_MTZ, BM128_MTZ ;   5 ; MTZ3 ; METROPOLIS ZONE ACT 3
+	levartptrs PLCID_Wfz1,        PLCID_Wfz2,      PalID_WFZ,  ArtKos_SCZ, BM16_WFZ, BM128_WFZ ;   6 ; WFZ  ; WING FORTRESS ZONE
+	levartptrs PLCID_Htz1,        PLCID_Htz2,      PalID_HTZ,  ArtKos_EHZ, BM16_EHZ, BM128_EHZ ;   7 ; HTZ  ; HILL TOP ZONE
+	levartptrs PLCID_Hpz1,        PLCID_Hpz2,      PalID_HPZ,  ArtKos_HPZ, BM16_HPZ, BM128_HPZ ;   8 ; HPZ  ; HIDDEN PALACE ZONE (UNUSED)
+	levartptrs PLCID_Unused3,     PLCID_Unused4,   PalID_EHZ4, ArtKos_EHZ, BM16_EHZ, BM128_EHZ ;   9 ; LEV9 ; LEVEL 9 (UNUSED)
+	levartptrs PLCID_Ooz1,        PLCID_Ooz2,      PalID_OOZ,  ArtKos_OOZ, BM16_OOZ, BM128_OOZ ;  $A ; OOZ  ; OIL OCEAN ZONE
+	levartptrs PLCID_Mcz1,        PLCID_Mcz2,      PalID_MCZ,  ArtKos_MCZ, BM16_MCZ, BM128_MCZ ;  $B ; MCZ  ; MYSTIC CAVE ZONE
+	levartptrs PLCID_Cnz1,        PLCID_Cnz2,      PalID_CNZ,  ArtKos_CNZ, BM16_CNZ, BM128_CNZ ;  $C ; CNZ  ; CASINO NIGHT ZONE
+	levartptrs PLCID_Cpz1,        PLCID_Cpz2,      PalID_CPZ,  ArtKos_CPZ, BM16_CPZ, BM128_CPZ ;  $D ; CPZ  ; CHEMICAL PLANT ZONE
+	levartptrs PLCID_Dez1,        PLCID_Dez2,      PalID_DEZ,  ArtKos_CPZ, BM16_CPZ, BM128_CPZ ;  $E ; DEZ  ; DEATH EGG ZONE
+	levartptrs PLCID_Arz1,        PLCID_Arz2,      PalID_ARZ,  ArtKos_ARZ, BM16_ARZ, BM128_ARZ ;  $F ; ARZ  ; AQUATIC RUIN ZONE
+	levartptrs PLCID_Scz1,        PLCID_Scz2,      PalID_SCZ,  ArtKos_SCZ, BM16_WFZ, BM128_WFZ ; $10 ; SCZ  ; SKY CHASE ZONE
 
     if (cur_zone_id<>no_of_zones)&&(MOMPASS=1)
 	message "Warning: Table LevelArtPointers has \{cur_zone_id/1.0} entries, but it should have \{no_of_zones/1.0} entries"
@@ -94100,10 +94109,10 @@ PLCptr_StdWtr:		offsetTableEntry.w PlrList_StdWtr		; 2
 PLCptr_GameOver:	offsetTableEntry.w PlrList_GameOver		; 3
 PLCptr_Ehz1:		offsetTableEntry.w PlrList_Ehz1			; 4
 PLCptr_Ehz2:		offsetTableEntry.w PlrList_Ehz2			; 5
-PLCptr_Miles1up:	offsetTableEntry.w PlrList_Miles1up		; 6
-PLCptr_MilesLife:	offsetTableEntry.w PlrList_MilesLifeCounter	; 7
-PLCptr_Tails1up:	offsetTableEntry.w PlrList_Tails1up		; 8
-PLCptr_TailsLife:	offsetTableEntry.w PlrList_TailsLifeCounter	; 9
+PLCptr_MilesLife2P:	offsetTableEntry.w PlrList_MilesLife2P		; 6
+PLCptr_MilesLife:	offsetTableEntry.w PlrList_MilesLife		; 7
+PLCptr_TailsLife2P:	offsetTableEntry.w PlrList_TailsLife2P		; 8
+PLCptr_TailsLife:	offsetTableEntry.w PlrList_TailsLife		; 9
 PLCptr_Unused1:		offsetTableEntry.w PlrList_Mtz1			; 10
 PLCptr_Unused2:		offsetTableEntry.w PlrList_Mtz1			; 11
 PLCptr_Mtz1:		offsetTableEntry.w PlrList_Mtz1			; 12
@@ -94248,30 +94257,30 @@ PlrList_Ehz2_End
 ; Pattern load queue
 ; Miles 1up patch
 ;---------------------------------------------------------------------------------------
-PlrList_Miles1up: plrlistheader
-	plreq ArtTile_ArtUnc_2p_life_counter, ArtUnc_MilesLife
-PlrList_Miles1up_End
+PlrList_MilesLife2P: plrlistheader
+	plreq ArtTile_ArtNem_2p_life_counter, ArtNem_MilesLife
+PlrList_MilesLife2P_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; Miles life counter
 ;---------------------------------------------------------------------------------------
-PlrList_MilesLifeCounter: plrlistheader
-	plreq ArtTile_ArtNem_life_counter, ArtUnc_MilesLife
-PlrList_MilesLifeCounter_End
+PlrList_MilesLife: plrlistheader
+	plreq ArtTile_ArtNem_life_counter, ArtNem_MilesLife
+PlrList_MilesLife_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; Tails 1up patch
 ;---------------------------------------------------------------------------------------
-PlrList_Tails1up: plrlistheader
-	plreq ArtTile_ArtUnc_2p_life_counter, ArtNem_TailsLife
-PlrList_Tails1up_End
+PlrList_TailsLife2P: plrlistheader
+	plreq ArtTile_ArtNem_2p_life_counter, ArtNem_TailsLife
+PlrList_TailsLife2P_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
 ; Tails life counter
 ;---------------------------------------------------------------------------------------
-PlrList_TailsLifeCounter: plrlistheader
+PlrList_TailsLife: plrlistheader
 	plreq ArtTile_ArtNem_life_counter, ArtNem_TailsLife
-PlrList_TailsLifeCounter_End
+PlrList_TailsLife_End
 ;---------------------------------------------------------------------------------------
 ; PATTERN LOAD REQUEST LIST
 ; Metropolis Zone primary
@@ -95714,7 +95723,8 @@ ArtNem_Explosion:	BINCLUDE	"art/nemesis/Explosion.bin"
 ; Nemesis compressed art (12 blocks)
 ; Miles life counter	; ArtNem_7B946:
 	even
-ArtUnc_MilesLife:	BINCLUDE	"art/nemesis/Miles life counter.bin"
+; ArtUnc_MilesLife:
+ArtNem_MilesLife:	BINCLUDE	"art/nemesis/Miles life counter.bin"
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art (49 blocks)
 ; Egg prison		; ArtNem_7BA32:
