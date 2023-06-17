@@ -10352,7 +10352,7 @@ SSStartNewAct:
 ; Misc_7756:
 SpecialStage_RingReq_Team:
     if gameRevision<>3
-	; KiS2 (no 2P): No two player mode.
+	; KiS2 (no Tails): No Tails, meaning there's no 'Sonic & Tails' mode either.
 	dc.b  40, 80,140,120	; 4
 	dc.b  50,100,140,150	; 8
 	dc.b  60,110,160,170	; 12
