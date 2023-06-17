@@ -9270,7 +9270,7 @@ ssLdComprsdData:
 	lea	(MiscKoz_SpecialPerspective).l,a0
 	lea	(SSRAM_MiscKoz_SpecialPerspective).l,a1
 	bsr.w	KosDec
-	lea	(MiscKoz_SpecialLevelLayout).l,a0
+	lea	(MiscNem_SpecialLevelLayout).l,a0
 	lea	(SSRAM_MiscNem_SpecialLevelLayout).w,a4
 	bsr.w	NemDecToRAM
 	lea	(MiscKoz_SpecialObjectLocations).l,a0
@@ -16435,7 +16435,7 @@ SwScrl_HTZ:
 	dbf	d2,--
 
 	; 128 + 8 + 7 + 8 + 10 + 15 + 48 = 224
-	; All lines have bene written.
+	; All lines have been written.
 
 	rts
 ; ===========================================================================
@@ -17092,7 +17092,7 @@ SwScrl_MCZ_2P:
 	; aren't set here. This is because the background is not dynamically
 	; loaded in two player mode: instead, the whole background is
 	; pre-loaded into Plane B. This is possible because Plane B is larger
-	; in two player mode (able to 512x512 pixels instead of 512x256).
+	; in two player mode (able to hold 512x512 pixels instead of 512x256).
 	moveq	#0,d0
 	move.w	(Camera_Y_pos).w,d0
 	; Curiously, the background moves vertically at different speeds
@@ -17263,7 +17263,7 @@ SwScrl_MCZ2P_RowHeights:
 	; aren't set here. This is because the background is not dynamically
 	; loaded in two player mode: instead, the whole background is
 	; pre-loaded into Plane B. This is possible because Plane B is larger
-	; in two player mode (able to 512x512 pixels instead of 512x256).
+	; in two player mode (able to hold 512x512 pixels instead of 512x256).
 	moveq	#0,d0
 	move.w	(Camera_Y_pos_P2).w,d0
 	; Curiously, the background moves vertically at different speeds
@@ -28538,16 +28538,16 @@ Obj34_Init:
 ; - the Y position (word)
 titlecardobjdata macro routine,frame,width,duration,xstart,xstop,y
 	dc.b routine,frame,width,duration
-	dc.w xstart,xstop,y
+	dc.w 128+xstart,128+xstop,128+y
     endm
 ; word_13CD4:
 Obj34_TitleCardData:
-	titlecardobjdata  8,   0, $80, $1B, $240, $120, $B8	; zone name
-	titlecardobjdata $A, $11, $40, $1C,  $28, $148, $D0	; "ZONE"
-	titlecardobjdata $C, $12, $18, $1C,  $68, $188, $D0	; act number
-	titlecardobjdata  2,   0,   0,   0,    0,    0,   0	; blue background
-	titlecardobjdata  4, $15, $48,   8, $2A8, $168,$120	; bottom yellow part
-	titlecardobjdata  6, $16,   8, $15,  $80,  $F0, $F0	; left red part
+	titlecardobjdata  8,   0, $80, $1B, 320+128,   160,    56	; zone name
+	titlecardobjdata $A, $11, $40, $1C,    0-88,   200,    80	; "ZONE"
+	titlecardobjdata $C, $12, $18, $1C,    0-24,   264,    80	; act number
+	titlecardobjdata  2,   0,   0,   0,   0-128, 0-128, 0-128	; blue background
+	titlecardobjdata  4, $15, $48,   8, 320+232,   232,   160	; bottom yellow part
+	titlecardobjdata  6, $16,   8, $15,       0,   112,   112	; left red part
 Obj34_TitleCardData_End:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -28667,36 +28667,40 @@ Obj34_ActNumber:	; the act number, coming in
 
 ; sub_13E1C:
 Obj34_MoveTowardsTargetPosition:
-	moveq	#$10,d0			; set speed
-	move.w	x_pixel(a0),d1		; get the X position
-	cmp.w	titlecard_x_target(a0),d1 ; compare with target position
-	beq.s	++			; if it reached its target position, branch
+	moveq	#$10,d0 ; Movement speed
+	move.w	x_pixel(a0),d1
+	cmp.w	titlecard_x_target(a0),d1
+	beq.s	.display
     if gameRevision=3
 	; KiS2 (bugfix): This appears to be a bugfix that prevents odd
 	; behaviour if the object's X coordinate was to ever go below 0.
+	; Curiously, these fixes were not applied to the near-identical
+	; `Obj6F_MoveTowardsSourcePosition` function.
 	bgt.s	+			; if it's beyond the target position, branch
     else
 	bhi.s	+			; if it's beyond the target position, branch
     endif
-	neg.w	d0			; negate the speed
+	neg.w	d0
 +
-	sub.w	d0,x_pixel(a0)		; move the object
-	cmpi.w	#$200,x_pixel(a0)	; is it beyond $200?
+	sub.w	d0,x_pixel(a0)
+	; If target lies very far off-screen, then don't bother trying to display it.
+	; This is because the sprite coordinates are prone to overflow and underflow.
+	cmpi.w	#128+320+64,x_pixel(a0)
     if gameRevision=3
 	; KiS2 (bugfix): This appears to be a bugfix that prevents odd
 	; behaviour if the object's X coordinate was to ever go below 0.
-	bgt.s	++
-+
+	bgt.s	.return
+.display:
 	; Do not display unless close to the visible portion of the screen.
 	cmpi.w	#128-48,x_pixel(a0)
 	bgt.w	DisplaySprite
     else
-	bhi.s	++			; if yes, return
-+
+	bhi.s	.return
+.display:
 	bra.w	DisplaySprite
     endif
-; ---------------------------------------------------------------------------
-+	rts
+.return:
+	rts
 ; End of function Obj34_MoveTowardsTargetPosition
 
 ; ===========================================================================
@@ -29002,8 +29006,8 @@ loc_140AC:
 	move	#$2300,sr
     endif
 	movea.l	a0,a1
-	lea	byte_14380(pc),a2
-	moveq	#7,d1
+	lea	Obj3A_SubObjectMetadata(pc),a2
+	moveq	#bytesToXcnt(Obj3A_SubObjectMetadata_End-Obj3A_SubObjectMetadata, results_screen_object_size),d1
 
 loc_140BC:
 	_move.b	id(a1),d0
@@ -29018,7 +29022,7 @@ loc_140CE:
 
 	_move.b	#ObjID_Results,id(a1) ; load obj3A
 	move.w	(a2)+,x_pixel(a1)
-	move.w	(a2)+,objoff_30(a1)
+	move.w	(a2)+,titlecard_x_target(a1)
 	move.w	(a2)+,y_pixel(a1)
 	move.b	(a2)+,routine(a1)
 	move.b	(a2)+,mapping_frame(a1)
@@ -29042,7 +29046,7 @@ loc_14118:
 	move.b	d0,mapping_frame(a0)
 	bsr.w	Obj34_MoveTowardsTargetPosition
 	move.w	x_pixel(a0),d0
-	cmp.w	objoff_30(a0),d0
+	cmp.w	titlecard_x_target(a0),d0
 	bne.w	return_14138
 	move.b	#$A,routine(a0)
 	move.w	#$B4,anim_frame_duration(a0)
@@ -29312,24 +29316,31 @@ LevelOrder_2P: zoneOrderedTable 2,2	; WrdArr_LevelOrder_2P
 	zoneTableEntry.w  emerald_hill_zone_act_1	; 33
     zoneTableEnd
     endif
-byte_14380:
+
 results_screen_object macro startx, targetx, y, routine, frame
-	dc.w	startx, targetx, y
+	dc.w	128+startx, 128+targetx, 128+y
 	dc.b	routine, frame
     endm
+
+results_screen_object_size = 8
+
+; byte_14380:
+Obj3A_SubObjectMetadata:
+	;                      start X, target X, start Y, routine, map frame
     if gameRevision=3
 	; KiS2 (results): Repositioned.
-	results_screen_object   $28, $138,  $B8,   2,  0
+	results_screen_object     0-88, 320/2+24,      56,       2,         0
     else
-	results_screen_object   $20, $120,  $B8,   2,  0
+	results_screen_object     0-96,    320/2,      56,       2,         0
     endif
-	results_screen_object  $200, $100,  $CA,   4,  3
-	results_screen_object  $240, $140,  $CA,   6,  4
-	results_screen_object  $278, $178,  $BE,   8,  6
-	results_screen_object  $350, $120, $120,   4,  9
-	results_screen_object  $320, $120,  $F0,   4, $A
-	results_screen_object  $330, $120, $100,   4, $B
-	results_screen_object  $340, $120, $110, $16, $E
+	results_screen_object   320+64, 320/2-32,      74,       4,         3
+	results_screen_object  320+128, 320/2+32,      74,       6,         4
+	results_screen_object  320+184, 320/2+88,      62,       8,         6
+	results_screen_object  320+400,    320/2,     160,       4,         9
+	results_screen_object  320+352,    320/2,     112,       4,        $A
+	results_screen_object  320+368,    320/2,     128,       4,        $B
+	results_screen_object  320+384,    320/2,     144,     $16,        $E
+Obj3A_SubObjectMetadata_End:
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object 6F - End of special stage results screen
@@ -29369,7 +29380,7 @@ Obj6F_Index:	offsetTable
 		offsetTableEntry.w Obj6F_TimedDisplay	; $2C
 		offsetTableEntry.w Obj6F_DisplayOnly	; $2E
 		offsetTableEntry.w Obj6F_InitAndMoveSuperMsg	; $30
-		offsetTableEntry.w Obj6F_MoveToTargetPos	; $32
+		offsetTableEntry.w Obj6F_MoveTowardsSourcePosition	; $32
 		offsetTableEntry.w Obj6F_MoveAndDisplay	; $34
     if gameRevision=3
 		; KiS2 (results): TODO
@@ -29384,18 +29395,13 @@ Obj6F_Init:
 ; ===========================================================================
 +
 	movea.l	a0,a1
-	lea	byte_14752(pc),a2
-    if gameRevision=3
-	; KiS2 (results): TODO
-	moveq	#$D,d1
-    else
-	moveq	#$C,d1
-    endif
+	lea	Obj6F_SubObjectMetaData(pc),a2
+	moveq	#bytesToXcnt(Obj6F_SubObjectMetaData_End-Obj6F_SubObjectMetaData, results_screen_object_size),d1
 
 -	_move.b	id(a0),id(a1) ; load obj6F
 	move.w	(a2),x_pixel(a1)
-	move.w	(a2)+,objoff_32(a1)
-	move.w	(a2)+,objoff_30(a1)
+	move.w	(a2)+,titlecard_x_source(a1)
+	move.w	(a2)+,titlecard_x_target(a1)
 	move.w	(a2)+,y_pixel(a1)
 	move.b	(a2)+,routine(a1)
 	move.b	(a2)+,mapping_frame(a1)
@@ -29415,7 +29421,7 @@ Obj6F_InitEmeraldText:
 	bne.s	+
 	move.b	#$19,mapping_frame(a0)		; "Chaos Emeralds"
 +
-	move.w	objoff_30(a0),d0
+	move.w	titlecard_x_target(a0),d0
 	cmp.w	x_pixel(a0),d0
 	bne.s	BranchTo2_Obj34_MoveTowardsTargetPosition
 	move.b	#$1C,routine(a0)	; => Obj6F_TimedDisplay
@@ -29653,17 +29659,17 @@ Obj6F_PerfectBonus:
 ; ===========================================================================
 ;loc_146A6
 Obj6F_InitAndMoveSuperMsg:
-	move.b	#$32,next_object+routine(a0)			; => Obj6F_MoveToTargetPos
-	move.w	x_pos(a0),d0
-	cmp.w	objoff_32(a0),d0
-	bne.s	Obj6F_MoveToTargetPos
+	move.b	#$32,next_object+routine(a0)			; => Obj6F_MoveTowardsSourcePosition
+	move.w	x_pixel(a0),d0
+	cmp.w	titlecard_x_source(a0),d0
+	bne.s	Obj6F_MoveTowardsSourcePosition
 	move.b	#$14,next_object+routine(a0)			; => BranchTo3_Obj34_MoveTowardsTargetPosition
 	subq.w	#8,next_object+y_pixel(a0)
 	move.b	#$1A,next_object+mapping_frame(a0)		; "Now Sonic can"
     if gameRevision=3
 	; KiS2 (results): TODO
 	subi.w	#4,next_object+x_pixel(a0)
-	move.w	#$120,next_object+objoff_30(a0)
+	move.w	#128+320/2,next_object+titlecard_x_target(a0)
     endif
 	move.b	#$34,routine(a0)						; => Obj6F_MoveAndDisplay
 	subq.w	#8,y_pixel(a0)
@@ -29676,7 +29682,7 @@ Obj6F_InitAndMoveSuperMsg:
     else
 	clr.w	x_pixel(a1)
     endif
-	move.w	#$120,objoff_30(a1)
+	move.w	#$120,titlecard_x_target(a1)
 	move.w	#$B4,y_pixel(a1)
 	move.b	#$14,routine(a1)						; => BranchTo3_Obj34_MoveTowardsTargetPosition
 	move.b	#$1C,mapping_frame(a1)					; "Super Sonic"
@@ -29685,29 +29691,32 @@ Obj6F_InitAndMoveSuperMsg:
 	move.b	#0,render_flags(a1)
 	bra.w	DisplaySprite
 ; ===========================================================================
-;loc_14714
-Obj6F_MoveToTargetPos:
-	moveq	#$20,d0
-	move.w	x_pos(a0),d1
-	cmp.w	objoff_32(a0),d1
-	beq.s	BranchTo20_DisplaySprite
+; Modified copy of `Obj34_MoveTowardsTargetPosition`. It has a higher speed
+; and moves the object toward its source instead of its destination.
+;loc_14714 Obj6F_MoveToTargetPos
+Obj6F_MoveTowardsSourcePosition:
+	moveq	#$20,d0 ; Movement speed
+	move.w	x_pixel(a0),d1
+	cmp.w	titlecard_x_source(a0),d1
+	beq.s	.display
 	bhi.s	+
 	neg.w	d0
 +
-	sub.w	d0,x_pos(a0)
-	cmpi.w	#$200,x_pos(a0)
-	bhi.s	+
-
-BranchTo20_DisplaySprite
+	sub.w	d0,x_pixel(a0)
+	; If target lies very far off-screen, then don't bother trying to display it.
+	; This is because the sprite coordinates are prone to overflow and underflow.
+	cmpi.w	#128+320+64,x_pixel(a0)
+	bhi.s	.return
+;BranchTo20_DisplaySprite
+.display:
 	bra.w	DisplaySprite
-; ===========================================================================
-+
+.return:
 	rts
 ; ===========================================================================
 ;loc_14736
 Obj6F_MoveAndDisplay:
-	move.w	x_pos(a0),d0
-	cmp.w	objoff_30(a0),d0
+	move.w	x_pixel(a0),d0
+	cmp.w	titlecard_x_target(a0),d0
 	bne.w	Obj34_MoveTowardsTargetPosition
 	move.w	#$B4,anim_frame_duration(a0)
 	move.b	#$20,routine(a0)	; => Obj6F_TimedDisplay
@@ -29772,31 +29781,32 @@ loc_31178A:
 	bra.w	DeleteObject
     endif
 ; ===========================================================================
-byte_14752:
-	;      startx  targx   starty  routine   map frame
-	results_screen_object  $240, $120,  $AA,   2,   0		; "Special Stage"
+;byte_14752
+Obj6F_SubObjectMetaData:
+	;                       start X, target X, start Y, routine, map frame
+	results_screen_object   320+128,    320/2,      42,       2,         0		; "Special Stage"
     if gameRevision=3
 	; KiS2 (results): Repositioned.
-	results_screen_object   $50, $170,  $98,   4,   1		; "Knuckles got a"
+	results_screen_object      0-48, 320/2+80,      24,       4,         1		; "Knuckles got a"
     else
-	results_screen_object     0, $120,  $98,   4,   1		; "Sonic got a"
+	results_screen_object     0-128,    320/2,      24,       4,         1		; "Sonic got a"
     endif
-	results_screen_object  $118,    0,  $C4,   6,   5		; Emerald 0
-	results_screen_object  $130,    0,  $D0,   8,   6		; Emerald 1
-	results_screen_object  $130,    0,  $E8,  $A,   7		; Emerald 2
-	results_screen_object  $118,    0,  $F4,  $C,   8		; Emerald 3
-	results_screen_object  $100,    0,  $E8,  $E,   9		; Emerald 4
-	results_screen_object  $100,    0,  $D0, $10,  $A		; Emerald 5
-	results_screen_object  $118,    0,  $DC, $12,  $B		; Emerald 6
-	results_screen_object  $330, $120, $108, $14,  $C		; Score
-	results_screen_object  $340, $120, $118, $16,  $D		; Sonic Rings
-	results_screen_object  $350, $120, $128, $18,  $E		; Miles Rings
-	results_screen_object  $360, $120, $138, $1A, $10		; Gems Bonus
+	results_screen_object   320/2-8,    0-128,      68,       6,         5		; Emerald 0
+	results_screen_object  320/2+16,    0-128,      80,       8,         6		; Emerald 1
+	results_screen_object  320/2+16,    0-128,     104,      $A,         7		; Emerald 2
+	results_screen_object   320/2-8,    0-128,     116,      $C,         8		; Emerald 3
+	results_screen_object  320/2-32,    0-128,     104,      $E,         9		; Emerald 4
+	results_screen_object  320/2-32,    0-128,      80,     $10,        $A		; Emerald 5
+	results_screen_object   320/2-8,    0-128,      92,     $12,        $B		; Emerald 6
+	results_screen_object   320+368,    320/2,     136,     $14,        $C		; Score
+	results_screen_object   320+384,    320/2,     152,     $16,        $D		; Sonic Rings
+	results_screen_object   320+400,    320/2,     168,     $18,        $E		; Miles Rings
+	results_screen_object   320+416,    320/2,     184,     $1A,       $10		; Gems Bonus
     if gameRevision=3
 	; KiS2 (results): TODO
-	results_screen_object     8, $128,  $98, $36, $1D		; Fuck if I know.
+	results_screen_object     0-120,  320/2+8,      24,     $36,       $1D		; Fuck if I know.
     endif
-
+Obj6F_SubObjectMetaData_End:
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
@@ -31922,7 +31932,7 @@ Anim_End_FA:
 Anim_End_F9:
 	addq.b	#1,d0	; is the end flag = $F9?
 	bne.s	Anim_End	; if not, branch
-	addq.b	#2,objoff_2A(a0)	; Actually obj89_arrow_routine
+	addq.b	#2,obj89_arrow_routine(a0)
 ; return_16602:
 Anim_End:
 	rts
@@ -96958,10 +96968,10 @@ ArtNem_SpecialTailsText:	BINCLUDE	"art/nemesis/Tails text patterns from special 
 ;--------------------------------------------------------------------------------------
 MiscKoz_SpecialPerspective:	BINCLUDE	"misc/Special stage object perspective data (Kosinski compression).bin"
 ;--------------------------------------------------------------------------------------
-; Special stage level layout (Nemesis compression)	; MiscNem_E34EE:
+; Special stage level layout (Nemesis compression)	; MiscNem_E34EE: MiscKoz_SpecialLevelLayout:
 ;--------------------------------------------------------------------------------------
 	even
-MiscKoz_SpecialLevelLayout:	BINCLUDE	"misc/Special stage level layouts (Nemesis compression).bin"
+MiscNem_SpecialLevelLayout:	BINCLUDE	"misc/Special stage level layouts (Nemesis compression).bin"
 ;--------------------------------------------------------------------------------------
 ; Special stage object location list (Kosinski compression)	; MiscKoz_E35F2:
 ;--------------------------------------------------------------------------------------
