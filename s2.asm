@@ -29383,8 +29383,8 @@ Obj6F_Index:	offsetTable
 		offsetTableEntry.w Obj6F_MoveTowardsSourcePosition	; $32
 		offsetTableEntry.w Obj6F_MoveAndDisplay	; $34
     if gameRevision=3
-		; KiS2 (results): TODO
-		offsetTableEntry.w loc_311710	; $36
+		; KiS2 (results): A new subobject was added just for the word 'Knuckles'.
+		offsetTableEntry.w Obj6F_Knuckles	; $36
     endif
 ; ===========================================================================
 ;loc_14406
@@ -29726,58 +29726,58 @@ Obj6F_MoveAndDisplay:
     else
 	bra.w	DisplaySprite
     endif
-
+; ===========================================================================
     if gameRevision=3
-	; KiS2 (results): TODO
-loc_311710:
-	cmpi.b	#$30,(SpecialStageResults+routine).w
-	blo.s	loc_31172C
-	subi.w	#$20,x_pixel(a0)
-	cmpi.w	#$20,x_pixel(a0)
+	; KiS2 (results): A new subobject was added just for the word 'Knuckles'.
+Obj6F_Knuckles:
+	cmpi.b	#$30,(SpecialStageResults+routine).w ; Obj6F_InitAndMoveSuperMsg
+	blo.s	.not_super_message
+	; Scroll off-screen to the left and delete self when done.
+	subi.w	#32,x_pixel(a0)
+	cmpi.w	#32,x_pixel(a0)
 	bhi.w	DisplaySprite
 	bra.w	DeleteObject
-; ---------------------------------------------------------------------------
 
-loc_31172C:
+.not_super_message:
 	tst.b	objoff_2E(a0)
-	bne.s	loc_31175C
+	bne.s	.skip
 	tst.b	(Got_Emerald).w
-	beq.s	loc_31178A
+	beq.s	.delete
 	cmpi.b	#7,(Emerald_count).w
-	blo.s	loc_31175C
+	blo.s	.skip
 
+	; Offset the 'Knuckles' text.
 	moveq	#44,d0
 	sub.w	d0,x_pixel(a0)
-	sub.w	d0,objoff_30(a0)
-	sub.w	d0,objoff_32(a0)
+	sub.w	d0,titlecard_x_target(a0)
+	sub.w	d0,titlecard_x_source(a0)
 
+	; Offset the 'got a' text.
 	moveq	#12,d0
 	sub.w	d0,-object_size*12+x_pixel(a0)
-	sub.w	d0,-object_size*12+objoff_30(a0)
-	sub.w	d0,-object_size*12+objoff_32(a0)
+	sub.w	d0,-object_size*12+titlecard_x_target(a0)
+	sub.w	d0,-object_size*12+titlecard_x_source(a0)
+.skip:
+	st.b	objoff_2E(a0) ; Prevent this initialisation code from running again.
 
-loc_31175C:
-	st	objoff_2E(a0)
+; Similar to `Obj34_MoveTowardsTargetPosition`.
 	moveq	#16,d0
 	move.w	x_pixel(a0),d1
-	cmp.w	objoff_30(a0),d1
-	beq.s	loc_31177C
+	cmp.w	titlecard_x_target(a0),d1
+	beq.s	.display
 	bgt.s	+
 	neg.w	d0
 +
 	sub.w	d0,x_pixel(a0)
-	cmpi.w	#$200,x_pixel(a0)
-	bgt.s	return_311788
-
-loc_31177C:
+	cmpi.w	#128+320+64,x_pixel(a0)
+	bgt.s	.return
+.display:
 	cmpi.w	#80,x_pixel(a0)
-	blt.s	return_311788
+	blt.s	.return
 	bra.w	DisplaySprite
-
-return_311788:
+.return:
 	rts
-
-loc_31178A:
+.delete:
 	bra.w	DeleteObject
     endif
 ; ===========================================================================
@@ -29786,8 +29786,8 @@ Obj6F_SubObjectMetaData:
 	;                       start X, target X, start Y, routine, map frame
 	results_screen_object   320+128,    320/2,      42,       2,         0		; "Special Stage"
     if gameRevision=3
-	; KiS2 (results): Repositioned.
-	results_screen_object      0-48, 320/2+80,      24,       4,         1		; "Knuckles got a"
+	; KiS2 (results): This object was split into two.
+	results_screen_object      0-48, 320/2+80,      24,       4,         1		; "got a"
     else
 	results_screen_object     0-128,    320/2,      24,       4,         1		; "Sonic got a"
     endif
@@ -29803,8 +29803,8 @@ Obj6F_SubObjectMetaData:
 	results_screen_object   320+400,    320/2,     168,     $18,        $E		; Miles Rings
 	results_screen_object   320+416,    320/2,     184,     $1A,       $10		; Gems Bonus
     if gameRevision=3
-	; KiS2 (results): TODO
-	results_screen_object     0-120,  320/2+8,      24,     $36,       $1D		; Fuck if I know.
+	; KiS2 (results): See above.
+	results_screen_object     0-120,  320/2+8,      24,     $36,       $1D		; "Knuckles"
     endif
 Obj6F_SubObjectMetaData_End:
 ; -------------------------------------------------------------------------------
