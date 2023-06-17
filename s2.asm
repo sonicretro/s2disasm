@@ -29958,7 +29958,7 @@ Anim_End_FA:
 Anim_End_F9:
 	addq.b	#1,d0	; is the end flag = $F9?
 	bne.s	Anim_End	; if not, branch
-	addq.b	#2,objoff_2A(a0)	; Actually obj89_arrow_routine
+	addq.b	#2,obj89_arrow_routine(a0)
 ; return_16602:
 Anim_End:
 	rts
