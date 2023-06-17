@@ -8935,7 +8935,7 @@ ssLdComprsdData:
 	lea	(MiscKoz_SpecialPerspective).l,a0
 	lea	(SSRAM_MiscKoz_SpecialPerspective).l,a1
 	bsr.w	KosDec
-	lea	(MiscKoz_SpecialLevelLayout).l,a0
+	lea	(MiscNem_SpecialLevelLayout).l,a0
 	lea	(SSRAM_MiscNem_SpecialLevelLayout).w,a4
 	bsr.w	NemDecToRAM
 	lea	(MiscKoz_SpecialObjectLocations).l,a0
@@ -91668,10 +91668,10 @@ ArtNem_SpecialTailsText:	BINCLUDE	"art/nemesis/Tails text patterns from special 
 ;--------------------------------------------------------------------------------------
 MiscKoz_SpecialPerspective:	BINCLUDE	"misc/Special stage object perspective data (Kosinski compression).bin"
 ;--------------------------------------------------------------------------------------
-; Special stage level layout (Nemesis compression)	; MiscNem_E34EE:
+; Special stage level layout (Nemesis compression)	; MiscNem_E34EE: MiscKoz_SpecialLevelLayout:
 ;--------------------------------------------------------------------------------------
 	even
-MiscKoz_SpecialLevelLayout:	BINCLUDE	"misc/Special stage level layouts (Nemesis compression).bin"
+MiscNem_SpecialLevelLayout:	BINCLUDE	"misc/Special stage level layouts (Nemesis compression).bin"
 ;--------------------------------------------------------------------------------------
 ; Special stage object location list (Kosinski compression)	; MiscKoz_E35F2:
 ;--------------------------------------------------------------------------------------
