@@ -15788,7 +15788,7 @@ SwScrl_HTZ:
 	dbf	d2,--
 
 	; 128 + 8 + 7 + 8 + 10 + 15 + 48 = 224
-	; All lines have bene written.
+	; All lines have been written.
 
 	rts
 ; ===========================================================================
@@ -16437,7 +16437,7 @@ SwScrl_MCZ_2P:
 	; aren't set here. This is because the background is not dynamically
 	; loaded in two player mode: instead, the whole background is
 	; pre-loaded into Plane B. This is possible because Plane B is larger
-	; in two player mode (able to 512x512 pixels instead of 512x256).
+	; in two player mode (able to hold 512x512 pixels instead of 512x256).
 	moveq	#0,d0
 	move.w	(Camera_Y_pos).w,d0
 	; Curiously, the background moves vertically at different speeds
@@ -16608,7 +16608,7 @@ SwScrl_MCZ2P_RowHeights:
 	; aren't set here. This is because the background is not dynamically
 	; loaded in two player mode: instead, the whole background is
 	; pre-loaded into Plane B. This is possible because Plane B is larger
-	; in two player mode (able to 512x512 pixels instead of 512x256).
+	; in two player mode (able to hold 512x512 pixels instead of 512x256).
 	moveq	#0,d0
 	move.w	(Camera_Y_pos_P2).w,d0
 	; Curiously, the background moves vertically at different speeds
