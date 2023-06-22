@@ -512,13 +512,13 @@ Vint_CtrlDMA_ptr:	offsetTableEntry.w Vint_CtrlDMA		; $1A
 ;VintSub0
 Vint_Lag:
 	cmpi.b	#GameModeID_TitleCard|GameModeID_Demo,(Game_Mode).w	; pre-level Demo Mode?
-	beq.s	loc_4C4
+	beq.s	.isInLevelMode
 	cmpi.b	#GameModeID_TitleCard|GameModeID_Level,(Game_Mode).w	; pre-level Zone play mode?
-	beq.s	loc_4C4
+	beq.s	.isInLevelMode
 	cmpi.b	#GameModeID_Demo,(Game_Mode).w	; Demo Mode?
-	beq.s	loc_4C4
+	beq.s	.isInLevelMode
 	cmpi.b	#GameModeID_Level,(Game_Mode).w	; Zone play mode?
-	beq.s	loc_4C4
+	beq.s	.isInLevelMode
 
 	stopZ80			; stop the Z80
 	bsr.w	sndDriverInput	; give input to the sound driver
@@ -527,7 +527,8 @@ Vint_Lag:
 	bra.s	VintRet
 ; ---------------------------------------------------------------------------
 
-loc_4C4:
+; loc_4C4:
+.isInLevelMode:
 	tst.b	(Water_flag).w
 	beq.w	Vint0_noWater
 	move.w	(VDP_control_port).l,d0
@@ -544,17 +545,19 @@ loc_4C4:
 	stopZ80
 
 	tst.b	(Water_fullscreen_flag).w
-	bne.s	loc_526
+	bne.s	.useUnderwaterPalette
 
 	dma68kToVDP Normal_palette,$0000,palette_line_size*4,CRAM
 
-	bra.s	loc_54A
+	bra.s	.afterSetPalette
 ; ---------------------------------------------------------------------------
 
-loc_526:
+; loc_526:
+.useUnderwaterPalette:
 	dma68kToVDP Underwater_palette,$0000,palette_line_size*4,CRAM
 
-loc_54A:
+; loc_54A:
+.afterSetPalette:
 	move.w	(Hint_counter_reserve).w,(a5)
 	move.w	#$8200|(VRAM_Plane_A_Name_Table/$400),(VDP_control_port).l	; Set scroll A PNT base to $C000
 	bsr.w	sndDriverInput
@@ -647,16 +650,16 @@ Vint_Level:
 
 	bsr.w	ReadJoypads
 	tst.b	(Teleport_timer).w
-	beq.s	loc_6F8
+	beq.s	.setNormalOrUnderwaterPalette
 	lea	(VDP_control_port).l,a5
 	tst.w	(Game_paused).w	; is the game paused?
-	bne.w	loc_748	; if yes, branch
+	bne.w	.afterPaletteSetup	; if yes, branch
 	subq.b	#1,(Teleport_timer).w
 	bne.s	+
 	move.b	#0,(Teleport_flag).w
 +
 	cmpi.b	#16,(Teleport_timer).w
-	blo.s	loc_6F8
+	blo.s	.setNormalOrUnderwaterPalette
 	lea	(VDP_data_port).l,a6
 	move.l	#vdpComm($0000,CRAM,WRITE),(VDP_control_port).l
 	move.w	#$EEE,d0 ; White.
@@ -678,21 +681,23 @@ Vint_Level:
 -	move.w	d0,(a6)
 	dbf	d1,-
 
-	bra.s	loc_748
+	bra.s	.afterPaletteSetup
 ; ---------------------------------------------------------------------------
 
-loc_6F8:
+; loc_6F8:
+.setNormalOrUnderwaterPalette:
 	tst.b	(Water_fullscreen_flag).w
-	bne.s	loc_724
+	bne.s	.useUnderwaterPalette
 	dma68kToVDP Normal_palette,$0000,palette_line_size*4,CRAM
-	bra.s	loc_748
+	bra.s	.afterPaletteSetup
 ; ---------------------------------------------------------------------------
 
-loc_724:
-
+; loc_724:
+.useUnderwaterPalette:
 	dma68kToVDP Underwater_palette,$0000,palette_line_size*4,CRAM
 
-loc_748:
+; loc_748:
+.afterPaletteSetup:
 	move.w	(Hint_counter_reserve).w,(a5)
 	move.w	#$8200|(VRAM_Plane_A_Name_Table/$400),(VDP_control_port).l	; Set scroll A PNT base to $C000
 
@@ -1593,7 +1598,7 @@ PlaneMapToVRAM_H80_SpecialStage:
 QueueDMATransfer:
 	movea.l	(VDP_Command_Buffer_Slot).w,a1
 	cmpa.w	#VDP_Command_Buffer_Slot,a1
-	beq.s	QueueDMATransfer_Done ; return if there's no more room in the buffer
+	beq.s	.return ; return if there's no more room in the buffer
 
 	; piece together some VDP commands and store them for later...
 	move.w	#$9300,d0 ; command to specify DMA transfer length & $00FF
@@ -1630,10 +1635,10 @@ QueueDMATransfer:
 
 	move.l	a1,(VDP_Command_Buffer_Slot).w ; set the next free slot address
 	cmpa.w	#VDP_Command_Buffer_Slot,a1
-	beq.s	QueueDMATransfer_Done ; return if there's no more room in the buffer
+	beq.s	.return ; return if there's no more room in the buffer
 	move.w	#0,(a1) ; put a stop token at the end of the used part of the buffer
-; return_14AA:
-QueueDMATransfer_Done:
+; return_14AA: QueueDMATransfer_Done:
+.return:
 	rts
 ; End of function QueueDMATransfer
 
@@ -1650,10 +1655,10 @@ QueueDMATransfer_Done:
 ProcessDMAQueue:
 	lea	(VDP_control_port).l,a5
 	lea	(VDP_Command_Buffer).w,a1
-; loc_14B6:
-ProcessDMAQueue_Loop:
+; loc_14B6: ProcessDMAQueue_Loop:
+.loop
 	move.w	(a1)+,d0
-	beq.s	ProcessDMAQueue_Done ; branch if we reached a stop token
+	beq.s	.done ; branch if we reached a stop token
 	; issue a set of VDP commands...
 	move.w	d0,(a5)		; transfer length
 	move.w	(a1)+,(a5)	; transfer length
@@ -1663,9 +1668,9 @@ ProcessDMAQueue_Loop:
 	move.w	(a1)+,(a5)	; destination
 	move.w	(a1)+,(a5)	; destination
 	cmpa.w	#VDP_Command_Buffer_Slot,a1
-	bne.s	ProcessDMAQueue_Loop ; loop if we haven't reached the end of the buffer
-; loc_14CE:
-ProcessDMAQueue_Done:
+	bne.s	.loop ; loop if we haven't reached the end of the buffer
+; loc_14CE: ProcessDMAQueue_Done:
+.done:
 	move.w	#0,(VDP_Command_Buffer).w
 	move.l	#VDP_Command_Buffer,(VDP_Command_Buffer_Slot).w
 	rts
@@ -1705,11 +1710,12 @@ NemDecMain:
 	move.w	(a0)+,d2	; get number of patterns
 
 	lsl.w	#1,d2
-	bcc.s	+
+	bcc.s	.noXORMode
 
 	adda.w	#NemDec_WriteAndStay_XOR-NemDec_WriteAndStay,a3	; file uses XOR mode if sign bit isn't set
 
-+	lsl.w	#2,d2	; get number of 8-pixel rows in the uncompressed data
+.noXORMode:
+	lsl.w	#2,d2	; get number of 8-pixel rows in the uncompressed data
 	movea.w	d2,a5	; (stored in a5 because there are no spare data registers)
 	moveq	#8,d3	; a pattern row contains 8 pixels
 	moveq	#0,d2
@@ -1736,8 +1742,8 @@ NemDecRun:
 	lsr.w	d7,d1	; makes it so high bit of the code is in 7th bit
 
 	; if the high 6 bits are set, this signifies inline data
-	cmpi.b	#$FC,d1
-	bhs.s	loc_1574
+	cmpi.b	#%11111100,d1
+	bhs.s	NemDec_InlineData
 
 	andi.w	#$FF,d1
 	add.w	d1,d1
@@ -1747,42 +1753,46 @@ NemDecRun:
 
 	; don't read a new byte if there's no need to
 	cmpi.w	#9,d6
-	bhs.s	+
+	bhs.s	.afterNewByteRead
 
 	addq.w	#8,d6
 	asl.w	#8,d5
 	move.b	(a0)+,d5	; read next byte
 
-+	move.b	1(a1,d1.w),d1
+.afterNewByteRead:
+	move.b	1(a1,d1.w),d1
 	move.w	d1,d0
 	andi.w	#$F,d1	; get palette index for pixel
 	andi.w	#$F0,d0
 
-loc_155E:
+; loc_155E:
+.getRepeatCount:
 	lsr.w	#4,d0
 
-loc_1560:
+; loc_1560:
+.writePixel:
 	lsl.l	#4,d4	; shift up by a nibble
 	or.b	d1,d4	; write pixel
 
 	; loops until an entire 8-pixel row has been written
 	subq.w	#1,d3
-	bne.s	NemDec_WriteIter_Part2
+	bne.s	.writePixelLoopExitCheck
 
 	; writes the row to its destination with the appropriately determined function
 	jmp	(a3) ; dynamic jump! to NemDec_WriteAndStay, NemDec_WriteAndAdvance, NemDec_WriteAndStay_XOR, or NemDec_WriteAndAdvance_XOR
 ; ===========================================================================
 ; loc_156A:
-NemDec_WriteIter:
+.writePixelLoopEntry:
 	moveq	#0,d4	; reset row
 	moveq	#8,d3	; reset nibble counter
 ; loc_156E:
-NemDec_WriteIter_Part2:
-	dbf	d0,loc_1560
+.writePixelLoopExitCheck:
+	dbf	d0,.writePixel
 	bra.s	NemDecRun
 ; ===========================================================================
 
-loc_1574:
+; loc_1574:
+NemDec_InlineData:
 	subq.w	#6,d6	; 6 bits needed to signal inline data
 	cmpi.w	#9,d6
 	bhs.s	+
@@ -1797,11 +1807,11 @@ loc_1574:
 	andi.w	#$F,d1	; get pixel palette index
 	andi.w	#$70,d0	; high nibble is the repeat count for the pixel
 	cmpi.w	#9,d6
-	bhs.s	loc_155E
+	bhs.s	NemDecRun.getRepeatCount
 	addq.w	#8,d6
 	asl.w	#8,d5
 	move.b	(a0)+,d5
-	bra.s	loc_155E
+	bra.s	NemDecRun.getRepeatCount
 ; End of function NemDecRun
 
 ; ===========================================================================
@@ -1812,7 +1822,7 @@ NemDec_WriteAndStay:
 
 	; don't return until all 8-pixel rows have been written
 	move.w	a5,d4
-	bne.s	NemDec_WriteIter
+	bne.s	NemDecRun.writePixelLoopEntry
 	rts
 ; ---------------------------------------------------------------------------
 ; loc_15AA:
@@ -1821,7 +1831,7 @@ NemDec_WriteAndStay_XOR:
 	move.l	d2,(a4)
 	subq.w	#1,a5
 	move.w	a5,d4
-	bne.s	NemDec_WriteIter
+	bne.s	NemDecRun.writePixelLoopEntry
 	rts
 ; ===========================================================================
 ; loc_15B6:
@@ -1829,7 +1839,7 @@ NemDec_WriteAndAdvance:
 	move.l	d4,(a4)+
 	subq.w	#1,a5
 	move.w	a5,d4
-	bne.s	NemDec_WriteIter
+	bne.s	NemDecRun.writePixelLoopEntry
 	rts
 
     if *-NemDec_WriteAndAdvance > NemDec_WriteAndStay_XOR-NemDec_WriteAndStay
@@ -1844,7 +1854,7 @@ NemDec_WriteAndAdvance_XOR:
 	move.l	d2,(a4)+
 	subq.w	#1,a5
 	move.w	a5,d4
-	bne.s	NemDec_WriteIter
+	bne.s	NemDecRun.writePixelLoopEntry
 	rts
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -1855,16 +1865,18 @@ NemDecPrepare:
 	move.b	(a0)+,d0
 
 	; don't return until the end of the code table description has been reached
--	cmpi.b	#$FF,d0
+.checkCodeTableDescriptionEnd:
+	cmpi.b	#$FF,d0
 	bne.s	+
 	rts
 ; ---------------------------------------------------------------------------
 +	move.w	d0,d7
 
-loc_15D8:
+; loc_15D8:
+.nextCode:
 	move.b	(a0)+,d0	; read next byte
 	cmpi.b	#$80,d0	; sign bit being set means a new palette index
-	bhs.s	-	; (note: a bmi could have been used instead of a cmpi+bhs)
+	bhs.s	.checkCodeTableDescriptionEnd	; (note: a bmi could have been used instead of a cmpi+bhs)
 
 	move.b	d0,d1
 	andi.w	#$F,d7	; get palette index
@@ -1878,12 +1890,12 @@ loc_15D8:
 
 	; extra processing is needed if the code isn't 8 bits long
 	sub.w	d0,d1
-	bne.s	loc_1606
+	bne.s	.shorterThan8BitCode
 
 	move.b	(a0)+,d0	; get code
 	add.w	d0,d0	; each code gets a word-sized entry in the table
 	move.w	d7,(a1,d0.w)	; store the entry for the code
-	bra.s	loc_15D8	; repeat
+	bra.s	.nextCode	; repeat
 ; ---------------------------------------------------------------------------
 
 ; the Nemesis decompressor uses prefix-free codes (no valid code is a prefix of a longer code)
@@ -1892,7 +1904,7 @@ loc_15D8:
 ; so the code needs to be bit-shifted appropriately over here before being used as a code table index
 ; additionally, the code needs multiple entries in the table because no masking is done during compressed data processing
 ; so if 11000 is a valid code then all indices of the form 11000XXX need to have the same entry
-loc_1606:
+.shorterThan8BitCode:
 	move.b	(a0)+,d0	; get code
 	lsl.w	d1,d0	; shift so that the high bit is in the 7th bit
 	add.w	d0,d0	; get index into code table
@@ -1901,11 +1913,12 @@ loc_1606:
 	subq.w	#1,d5	; d5 = 2^d1 - 1
 
 	; store the required number of entries
--	move.w	d7,(a1,d0.w)
+.shorterThan8BitCodeLoop:
+	move.w	d7,(a1,d0.w)
 	addq.w	#2,d0
-	dbf	d5,-
+	dbf	d5,.shorterThan8BitCodeLoop
 
-	bra.s	loc_15D8
+	bra.s	.nextCode
 ; End of function NemDecPrepare
 
 ; ---------------------------------------------------------------------------
@@ -1928,7 +1941,7 @@ loc_1606:
 ;    _________DO NOT PUT MORE THAN 16 LOAD REQUESTS IN A LIST!__________
 ;         (or if you change the size of Plc_Buffer, the limit becomes (Plc_Buffer_Only_End-Plc_Buffer)/6)
 
-; sub_161E: PLCLoad:
+; sub_161E: PLCLoad: AddPLC:
 LoadPLC:
 	movem.l	a1-a2,-(sp)
 	lea	(ArtLoadCues).l,a1
@@ -1938,20 +1951,23 @@ LoadPLC:
 	lea	(Plc_Buffer).w,a2
 
 	; exit this loop when we find space available in RAM
--	tst.l	(a2)	; is space available in RAM ?
-	beq.s	+ ; if it's zero, exit this loop
+.findFreeSpaceLoop:
+	tst.l	(a2)	; is space available in RAM ?
+	beq.s	.foundFreeSpace ; if it's zero, exit this loop
 	addq.w	#6,a2	; try next space
-	bra.s	-
+	bra.s	.findFreeSpaceLoop
 
 	; the PLC is only copied to RAM if it has a positive length
-+
+.foundFreeSpace:
 	move.w	(a1)+,d0	; get PLC length
-	bmi.s	+ ; if it's negative, skip the next loop
+	bmi.s	.return ; if it's negative, skip the next loop
 
--	move.l	(a1)+,(a2)+
+.copyPLCLoop:
+	move.l	(a1)+,(a2)+
 	move.w	(a1)+,(a2)+	; copy PLC to RAM
-	dbf	d0,-	; repeat for the whole length of the PLC
-+
+	dbf	d0,.copyPLCLoop	; repeat for the whole length of the PLC
+
+.return:
 	movem.l	(sp)+,a1-a2 ; a1=object
 	rts
 ; End of function LoadPLC
@@ -1980,12 +1996,14 @@ LoadPLC2:
 
 	; the PLC is only copied to RAM if it has a positive length
 	move.w	(a1)+,d0	; get PLC length
-	bmi.s	+ ; if it's negative, skip the next loop
+	bmi.s	.return ; if it's negative, skip the next loop
 
--	move.l	(a1)+,(a2)+
+.copyPLCLoop:
+	move.l	(a1)+,(a2)+
 	move.w	(a1)+,(a2)+
-	dbf	d0,-
-+
+	dbf	d0,.copyPLCLoop
+
+.return:
 	movem.l	(sp)+,a1-a2
 	rts
 ; End of function LoadPLC2
@@ -2106,7 +2124,7 @@ ProcessDPLC_Main:
 	lea	(Decomp_Buffer).w,a1
 
 -	movea.w	#8,a5
-	bsr.w	NemDec_WriteIter
+	bsr.w	NemDecRun.writePixelLoopEntry
 	subq.w	#1,(Plc_Buffer_Reg18).w
 	beq.s	ProcessDPLC_Pop
 	subq.w	#1,(Plc_Buffer_Reg1A).w
@@ -3825,12 +3843,13 @@ WaitForVint:
 ; sub_3390:
 RandomNumber:
 	move.l	(RNG_seed).w,d1
-	bne.s	+
+	bne.s	.afterSanity0ResetCheck
 	move.l	#$2A6D365A,d1 ; if the RNG is 0, reset it to this crazy number
 
 	; set the high word of d0 to be the high word of the RNG
 	; and multiply the RNG by 41
-+	move.l	d1,d0
+.afterSanity0ResetCheck:
+	move.l	d1,d0
 	asl.l	#2,d1
 	add.l	d0,d1
 	asl.l	#3,d1
