@@ -150,6 +150,41 @@ ss_rings_tens = objoff_3D
 ss_rings_units = objoff_3E
 ss_last_angle_index = objoff_3F
 ; ---------------------------------------------------------------------------
+; Sonic 1 equivalency table for SSTs:
+obRender 	=		render_flags
+obGfx		=		art_tile
+obMap		=		mappings
+obX			=		x_pos
+obScreenY	=		x_sub
+obY			=		y_pos
+obVelX		=		x_vel
+obVelY		=		y_vel
+obInertia	=		inertia
+obHeight	=		y_radius
+obWidth		=		x_radius
+obPriority	=		priority
+obActWid	=		width_pixels
+obFrame		=		mapping_frame
+obAniFrame	=		anim_frame
+obAnim		=		anim
+obPrevAni	=		prev_anim					; used to be called obNextAni in Sonic 1
+obTimeFrame	=		anim_frame_duration
+obColType	=		collision_flags
+obColProp	=		collision_property
+obStatus	=		status
+obRespawnNo	=		respawn_index
+obRoutine	=		routine
+ob2ndRout	=		routine_secondary
+obAngle		=		angle
+obSubtype	=		subtype
+
+; the following were specific to Sonic in Sonic 1
+flashtime		=		invulnerable_time
+inv_time		=		invincibility_time
+shoetime		=		speedshoes_time
+standonobject	=		interact
+
+; ---------------------------------------------------------------------------
 ; property of all objects:
 object_size =		$40 ; the size of an object
 next_object =		object_size
