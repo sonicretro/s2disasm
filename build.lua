@@ -18,13 +18,13 @@ local common = require "build_tools.lua.common"
 local exit_code
 local repository = "https://github.com/sonicretro/s2disasm"
 
-local function success_continue_wrapper(success, continue)
-	if not success then
+local function message_abort_wrapper(message, abort)
+	if message then
 		exit_code = false
 	end
 
-	if not continue then
-		os.exit(false)
+	if abort then
+		os.exit(exit_code, true)
 	end
 end
 
@@ -106,12 +106,12 @@ SonicDriverVer = 2
 		song_file:close()
 
 		-- Assemble the song to an uncompressed binary.
-		local success, continue = common.assemble_file("song.asm", "song.bin", "", "", false, repository)
+		local message, abort = common.assemble_file("song.asm", "song.bin", "", "", false, repository)
 
 		-- We can get rid of this wrapper ASM file now.
 		os.remove("song.asm")
 
-		success_continue_wrapper(success, continue)
+		message_abort_wrapper(message, abort)
 
 		-- Now that we have an assembled song binary, compress it.
 		os.execute(tools.saxman .. " " .. (improved_sound_driver_compression and "" or "-a") .. " song.bin \"sound/music/compressed/" .. song_name .. ".bin\"")
@@ -152,7 +152,7 @@ hashes_file:close()
 -- Huzzah: we are done with assembling and compressing the music.
 -- We can move onto building the rest of the ROM.
 
-success_continue_wrapper(common.build_rom("s2", "s2built", "", "-p=0 -z=0," .. (improved_sound_driver_compression and "saxman-optimised" or "saxman-bugged") .. ",Size_of_Snd_driver_guess,after", true, repository))
+message_abort_wrapper(common.build_rom("s2", "s2built", "", "-p=0 -z=0," .. (improved_sound_driver_compression and "saxman-optimised" or "saxman-bugged") .. ",Size_of_Snd_driver_guess,after", true, repository))
 
 -- Correct some pointers and other data that we couldn't until after the ROM had been assembled.
 os.execute(tools.fixpointer .. " s2.h s2built.bin   off_3A294 MapRUnc_Sonic 0x2D 0 4   word_728C_user Obj5F_MapUnc_7240 2 2 1")
@@ -164,4 +164,4 @@ os.remove("s2.h")
 common.fix_header("s2built.bin")
 
 -- A successful build; we can quit now.
-os.exit(exit_code)
+os.exit(exit_code, false)
