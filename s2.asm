@@ -5099,7 +5099,11 @@ Level_FromCheckpoint:
 	movea.l	(a1,d0.w),a1
 +
 	move.b	1(a1),(Demo_press_counter).w
+    if emerald_hill_zone<>0
+	cmpi.b	#emerald_hill_zone,(Current_Zone).w
+    else
 	tst.b	(Current_Zone).w	; emerald_hill_zone
+    endif
 	bne.s	+
 	lea	(Demo_EHZ_Tails).l,a1
 	move.b	1(a1),(Demo_press_counter_2P).w
@@ -6715,18 +6719,10 @@ SpecialStage:
 	clearRAM Object_RAM,Object_RAM_End
 
     if fixBugs
-	; However, the '+4' after 'SS_Shared_RAM_End' is very useful, as it resets the
-	; 'VDP_Command_Buffer' queue, avoiding graphical glitches in the Special Stage.
-	; In fact, without resetting the 'VDP_Command_Buffer' queue, Tails sprite DPLCs and other
-	; level DPLCs that are still in the queue erase the Special Stage graphics the next
-	; time 'ProcessDMAQueue' is called.
-	; This '+4' doesn't seem to be intentional, because of the other useless '+4' above,
-	; and because a '+2' is enough to reset the 'VDP_Command_Buffer' queue and fix this bug.
-	; This is a fortunate accident!
-	; Note that this is not a clean way to reset the 'VDP_Command_Buffer' queue because the
-	; 'VDP_Command_Buffer_Slot' address should be updated as well. They tried to do that in a
-	; cleaner way after branching to 'ClearScreen' (see below). But they messed up by doing it
-	; after several 'WaitForVint' calls.
+	; The DMA queue needs to be reset here, to prevent the remaining queued DMA transfers from
+	; overwriting the special stage's graphics.
+	; In a bizarre twice of luck, the above bug actually nullifies this bug: the excessive
+	; SS_Shared_RAM clear sets VDP_Command_Buffer to 0, just like the below code.
 	clr.w	(VDP_Command_Buffer).w
 	move.l	#VDP_Command_Buffer,(VDP_Command_Buffer_Slot).w
     endif
@@ -6877,12 +6873,8 @@ SpecialStage:
 	move.w	#$8C81,(a6)		; H res 40 cells, no interlace, S/H disabled
 	bsr.w	ClearScreen
 	jsrto	Hud_Base, JmpTo_Hud_Base
-    if ~~fixBugs
-	; By fixing the 'clearRAM' earlier in this code, these two instructions are made redundant.
 	clr.w	(VDP_Command_Buffer).w
 	move.l	#VDP_Command_Buffer,(VDP_Command_Buffer_Slot).w
-    endif
-
 	move	#$2300,sr
 	moveq	#PalID_Result,d0
 	bsr.w	PalLoad_Now
@@ -13741,8 +13733,11 @@ Pal_KiS2_Ending:	BINCLUDE	"art/palettes/Ending Knuckles Banner.bin"
 ; Sprite_A1D6:
 ObjCA:
 	addq.w	#1,objoff_32(a0)
+	; Branch if Tails...
 	cmpi.w	#4,(Ending_Routine).w
 	beq.s	+
+	; ...and branch if not Super Sonic, making the first check redundant.
+	; Was Sonic's ending originally *always* going to feature Super Sonic?
 	cmpi.w	#2,(Ending_Routine).w
 	bne.s	+
 	st.b	(Super_Sonic_flag).w
@@ -14787,8 +14782,8 @@ EndingSequence_LoadFlickyArt_Chicken:
 ; ===========================================================================
 ; KiS2 (ending): This has been modified to feature Knuckles' colours.
 Pal_AC7E:	BINCLUDE	"art/palettes/Ending Sonic.bin"
-; KiS2 (ending): This has been modified to feature Knuckles' colours.
-Pal_AC9E:	BINCLUDE	"art/palettes/Ending Sonic Far.bin"
+; KiS2 (ending): This has been modified to feature Knuckles' colours... despite never being used.
+Pal_AC9E:	BINCLUDE	"art/palettes/Ending Tails.bin"
 Pal_ACDE:	BINCLUDE	"art/palettes/Ending Background.bin"
 Pal_AD1E:	BINCLUDE	"art/palettes/Ending Photos.bin"
 Pal_AD3E:	BINCLUDE	"art/palettes/Ending Super Sonic.bin"
@@ -24129,7 +24124,16 @@ Obj1A_Init:
 ; ===========================================================================
 +
 	move.l	#Obj1A_GHZ_SlopeData,collapsing_platform_slope_pointer(a0)
+    if fixBugs
+	move.b	#$30,width_pixels(a0)
+    else
+	; This is too wide, causing the player to teleport downwards when
+	; running off the platform. Sonic 1 used a width of $30 for the
+	; collision and $64 for width_pixels, but in Sonic 2 they must be
+	; the same. $64 seems to be overkill, as $30 still results in good
+	; sprite culling.
 	move.b	#$34,width_pixels(a0)
+    endif
 	move.b	#$38,y_radius(a0)
 	bset	#4,render_flags(a0)
 ; loc_1097C:
@@ -24535,7 +24539,6 @@ Obj1C_Radii:
 	dc.b $30	; 18
 	dc.b $40	; 19
 	dc.b $50	; 20
-	dc.b   0	; 21
 	even
 ; ===========================================================================
 ; loc_112A4:
@@ -96414,58 +96417,16 @@ MapEng_EndingTailsPlane:	BINCLUDE	"mappings/misc/Closeup of Tails flying plane i
 MapEng_EndingSonicPlane:	BINCLUDE	"mappings/misc/Closeup of Sonic flying plane in ending sequence.bin"
 ;--------------------------------------------------------------------------------------
 ; Enigma compressed sprite mappings
-; Strange unused mappings (duplicate of MapEng_EndGameLogo)
-	even
-; MapEng_9082A:
-	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 1.bin"
-;--------------------------------------------------------------------------------------
-; Enigma compressed sprite mappings
-; Strange unused mappings (same as above)
-	even
-; MapEng_90852:
-	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 2.bin"
-;--------------------------------------------------------------------------------------
-; Enigma compressed sprite mappings
-; Strange unused mappings (same as above)
-	even
-; MapEng_9087A:
-	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 3.bin"
-;--------------------------------------------------------------------------------------
-; Enigma compressed sprite mappings
-; Strange unused mappings (same as above)
-	even
-; MapEng_908A2:
-	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 4.bin"
-;--------------------------------------------------------------------------------------
-; Enigma compressed sprite mappings
-; Strange unused mappings (same as above)
-	even
-; MapEng_908CA:
-	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 5.bin"
-;--------------------------------------------------------------------------------------
-; Enigma compressed sprite mappings
-; Strange unused mappings (same as above)
-	even
-; MapEng_908F2:
-	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 6.bin"
-;--------------------------------------------------------------------------------------
-; Enigma compressed sprite mappings
-; Strange unused mappings (same as above)
-	even
-; MapEng_9091A:
-	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 7.bin"
-;--------------------------------------------------------------------------------------
-; Enigma compressed sprite mappings
-; Strange unused mappings (same as above)
-	even
-; MapEng_90942:
-	BINCLUDE	"mappings/misc/Strange unused mappings 1 - 8.bin"
-;--------------------------------------------------------------------------------------
-; Enigma compressed sprite mappings
-; Strange unused mappings (same as above)
-	even
-; MapEng_9096A:
-	BINCLUDE	"mappings/misc/Strange unused mappings 2.bin"
+; Strange unused mappings (duplicates of MapEng_EndGameLogo)
+	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (363 blocks)
 ; Movie sequence at end of game		; ArtNem_90992:
