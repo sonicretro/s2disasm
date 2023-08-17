@@ -48,7 +48,7 @@ subtype =		$28
 ; note: $1F, $20, and $21 are unused and available
 inertia =		$14 ; and $15 ; directionless representation of speed... not updated in the air
     if gameRevision=3
-; KiS2: New SSTs, related to Knuckles' abilities.
+; KiS2 (Knuckles): New SSTs, related to Knuckles' abilities.
 double_jump_property =	$1F
 double_jump_flag =	$21
     endif
@@ -960,7 +960,7 @@ AniIDSonAni_Balance3		= id(SonAni_Balance3_ptr)	; 29 ; $1D ; Exclusive to Sonic
 AniIDSonAni_Balance4		= id(SonAni_Balance4_ptr)	; 30 ; $1E ; Exclusive to Sonic
 AniIDSupSonAni_Transform	= id(SupSonAni_Transform_ptr)	; 31 ; $1F ; Exclusive to Sonic
     if gameRevision=3
-; KiS2
+; KiS2 (Knuckles): New animations.
 AniIDKnuxAni_Glide		= id(KnuxAni_Glide_ptr)			; 32 ; $20
 AniIDKnuxAni_FallAfterGlide	= id(KnuxAni_FallAfterGlide_ptr)	; 33 ; $21
 AniIDKnuxAni_ClimbLedge		= id(KnuxAni_ClimbLedge_ptr)		; 34 ; $22
@@ -973,7 +973,7 @@ AniIDSonAni_LieDown		= id(SonAni_LieDown_ptr)	; 33 ; $21 ; Exclusive to Sonic
 
 
     if gameRevision<>3
-; KiS2: No Tails.
+; KiS2 (no Tails): No Tails.
 offset :=	TailsAniData
 ptrsize :=	2
 idstart :=	0
@@ -1354,7 +1354,7 @@ Palette_timer:			ds.b	1	; was "Palette_frame_count"
 Super_Sonic_palette:		ds.b	1
 
     if gameRevision=3
-; KiS2: Some new variables.
+; KiS2 (title): Some new variables.
 Endgame_Logo_Timer:				; Word
 Title_Screen_Something:				; Word
     endif
@@ -1367,7 +1367,7 @@ Credits_Trigger:		ds.b	1	; cleared as a word a couple times
 Ending_PalCycle_flag:		ds.b	1
 
     if gameRevision=3
-; KiS2: A new variable.
+; KiS2 (title): A new variable.
 Title_Intro_Complete:				; Word
     endif
 
@@ -1524,7 +1524,7 @@ Boss_defeated_flag:		ds.b	1
 Current_Boss_ID:		ds.b	1
 
     if gameRevision=3
-; KiS2: 'Ending_Routine' was moved, and some variables were added.
+; KiS2 (Knuckles): 'Ending_Routine' was moved, and some variables were added.
 				ds.b	1	; unused
 Gliding_collision_flags:	ds.b	1
 Disable_wall_grab:		ds.b	1	; Leftover from S3K: only read, and never written.
@@ -1719,7 +1719,7 @@ Loser_Time_Left:				; 2 bytes
 				ds.b	1	; frames
 
     if gameRevision=3
-				; KiS2: The cheat flags were moved from below.
+; KiS2: The cheat flags were moved from below.
 				ds.b	6+8	; Unused
 Level_select_flag:		ds.b	1
 Slow_motion_flag:		ds.b	1	; This NEEDs to be after Level_select_flag because of the call to CheckCheats
@@ -1855,7 +1855,7 @@ Sound_Queue:			SoundQueue
 				ds.b	$B	; $FFFFFFE5-$FFFFFFEF ; seems unused
 
     if gameRevision=3
-	; KiS2: Moved.
+; KiS2: Moved.
 CrossResetRAM_End:
     endif
 
@@ -1882,7 +1882,7 @@ Debug_mode_flag:		ds.w	1 ; (2 bytes)
 Checksum_fourcc:		ds.l	1 ; (4 bytes)
 
     if gameRevision<>3
-	; KiS2: Moved.
+; KiS2: Moved.
 CrossResetRAM_End:
     endif
 
@@ -1941,7 +1941,7 @@ TitleScreenMenu:
 IntroFallingStar:
 				ds.b	object_size
     if gameRevision=3
-				; KiS2: New title screen objects.
+				; KiS2 (title): New title screen objects.
 IntroCopyright:
 				ds.b	object_size
 IntroBanner:
@@ -1985,7 +1985,7 @@ SS_Dynamic_Object_RAM:
 SpecialStageResults:
 				ds.b	object_size
     if gameRevision=3
-				; KiS2: An extra object was added here.
+				; KiS2 (results): An extra object was added here.
 				ds.b	$D*object_size
     else
 				ds.b	$C*object_size
@@ -1993,7 +1993,7 @@ SpecialStageResults:
 SpecialStageResults2:
 				ds.b	object_size
     if gameRevision=3
-				; KiS2: An extra object was added above.
+				; KiS2 (results): An extra object was added above.
 				ds.b	$50*object_size
     else
 				ds.b	$51*object_size
@@ -2254,7 +2254,7 @@ ArtTile_ArtUnc_Giant_Sonic            = $0088
 ; Title screen
 ArtTile_ArtNem_Title                  = $0000
     if gameRevision=3
-; KiS2: New title screen graphics.
+; KiS2 (title): New title screen graphics.
 ArtTile_ArtNem_TitleKnuckles          = $0150
 ArtTile_ArtNem_TitleStars             = $03C0
 ArtTile_ArtNem_TitleEmblemTop         = $03CF
