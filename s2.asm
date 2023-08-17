@@ -517,7 +517,7 @@ OptionsMenu: ;;
 	jmp	(MenuScreen).l
 ; ===========================================================================
     if gameRevision=3
-; KiS2: Redirected to here.
+; KiS2 (no 2P): Redirected to here.
 TwoPlayerResults:
     endif
 ; loc_402:
