@@ -5820,7 +5820,7 @@ MoveDemo_On_P1:
 	move.b	(a1),d0	; load button press
 	lea	(Ctrl_1_Held).w,a0
 	move.b	d0,d1
-    if fixBugs
+    if fixBugs && (gameRevision<>3)
 	; In REV00 of Sonic 1, this instruction was 'move.b (a0),d2'. The
 	; purpose of this is to XOR the current frame's input with the
 	; previous frame's input to determine which inputs had been pressed
@@ -5839,6 +5839,9 @@ MoveDemo_On_P1:
 	; variable, 'Ctrl_1_Held_Logical' does happen to hold the inputs from
 	; the previous frame, so we can use this here instead to fix this bug
 	; properly.
+	; KiS2: Awkwardly, this bug is relied upon for the Emerald Hill Zone
+	; demo to work correctly, so the bugfix has been disabled.
+	; TODO: Add a bugfix that tweaks the EHZ demo to not rely on this bug...
 	move.b	Ctrl_1_Held_Logical-Ctrl_1_Held(a0),d2
     else
 	moveq	#0,d2
