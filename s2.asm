@@ -4805,7 +4805,11 @@ Level_FromCheckpoint:
 	movea.l	(a1,d0.w),a1
 +
 	move.b	1(a1),(Demo_press_counter).w
+    if emerald_hill_zone<>0
+	cmpi.b	#emerald_hill_zone,(Current_Zone).w
+    else
 	tst.b	(Current_Zone).w	; emerald_hill_zone
+    endif
 	bne.s	+
 	lea	(Demo_EHZ_Tails).l,a1
 	move.b	1(a1),(Demo_press_counter_2P).w
