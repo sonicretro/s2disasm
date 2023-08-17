@@ -13143,8 +13143,11 @@ pal_A0FE:	BINCLUDE	"art/palettes/Ending Cycle.bin"
 ; Sprite_A1D6:
 ObjCA:
 	addq.w	#1,objoff_32(a0)
+	; Branch if Tails...
 	cmpi.w	#4,(Ending_Routine).w
 	beq.s	+
+	; ...and branch if not Super Sonic, making the first check redundant.
+	; Was Sonic's ending originally *always* going to feature Super Sonic?
 	cmpi.w	#2,(Ending_Routine).w
 	bne.s	+
 	st.b	(Super_Sonic_flag).w
@@ -14144,7 +14147,7 @@ EndingSequence_LoadFlickyArt_Chicken:
 	jmpto	NemDec, JmpTo_NemDec
 ; ===========================================================================
 Pal_AC7E:	BINCLUDE	"art/palettes/Ending Sonic.bin"
-Pal_AC9E:	BINCLUDE	"art/palettes/Ending Sonic Far.bin"
+Pal_AC9E:	BINCLUDE	"art/palettes/Ending Tails.bin"
 Pal_ACDE:	BINCLUDE	"art/palettes/Ending Background.bin"
 Pal_AD1E:	BINCLUDE	"art/palettes/Ending Photos.bin"
 Pal_AD3E:	BINCLUDE	"art/palettes/Ending Super Sonic.bin"
