@@ -6380,18 +6380,10 @@ SpecialStage:
 	clearRAM Object_RAM,Object_RAM_End
 
     if fixBugs
-	; However, the '+4' after 'SS_Shared_RAM_End' is very useful, as it resets the
-	; 'VDP_Command_Buffer' queue, avoiding graphical glitches in the Special Stage.
-	; In fact, without resetting the 'VDP_Command_Buffer' queue, Tails sprite DPLCs and other
-	; level DPLCs that are still in the queue erase the Special Stage graphics the next
-	; time 'ProcessDMAQueue' is called.
-	; This '+4' doesn't seem to be intentional, because of the other useless '+4' above,
-	; and because a '+2' is enough to reset the 'VDP_Command_Buffer' queue and fix this bug.
-	; This is a fortunate accident!
-	; Note that this is not a clean way to reset the 'VDP_Command_Buffer' queue because the
-	; 'VDP_Command_Buffer_Slot' address should be updated as well. They tried to do that in a
-	; cleaner way after branching to 'ClearScreen' (see below). But they messed up by doing it
-	; after several 'WaitForVint' calls.
+	; The DMA queue needs to be reset here, to prevent the remaining queued DMA transfers from
+	; overwriting the special stage's graphics.
+	; In a bizarre twice of luck, the above bug actually nullifies this bug: the excessive
+	; SS_Shared_RAM clear sets VDP_Command_Buffer to 0, just like the below code.
 	clr.w	(VDP_Command_Buffer).w
 	move.l	#VDP_Command_Buffer,(VDP_Command_Buffer_Slot).w
     endif
@@ -6542,12 +6534,8 @@ SpecialStage:
 	move.w	#$8C81,(a6)		; H res 40 cells, no interlace, S/H disabled
 	bsr.w	ClearScreen
 	jsrto	Hud_Base, JmpTo_Hud_Base
-    if ~~fixBugs
-	; By fixing the 'clearRAM' earlier in this code, these two instructions are made redundant.
 	clr.w	(VDP_Command_Buffer).w
 	move.l	#VDP_Command_Buffer,(VDP_Command_Buffer_Slot).w
-    endif
-
 	move	#$2300,sr
 	moveq	#PalID_Result,d0
 	bsr.w	PalLoad_Now
