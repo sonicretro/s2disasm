@@ -23373,7 +23373,16 @@ Obj1A_Init:
 ; ===========================================================================
 +
 	move.l	#Obj1A_GHZ_SlopeData,collapsing_platform_slope_pointer(a0)
+    if fixBugs
+	move.b	#$30,width_pixels(a0)
+    else
+	; This is too wide, causing the player to teleport downwards when
+	; running off the platform. Sonic 1 used a width of $30 for the
+	; collision and $64 for width_pixels, but in Sonic 2 they must be
+	; the same. $64 seems to be overkill, as $30 still results in good
+	; sprite culling.
 	move.b	#$34,width_pixels(a0)
+    endif
 	move.b	#$38,y_radius(a0)
 	bset	#4,render_flags(a0)
 ; loc_1097C:
