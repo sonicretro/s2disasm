@@ -28142,23 +28142,25 @@ Obj6F_SubObjectMetaData_End:
 ; sprite mappings
 ; -------------------------------------------------------------------------------
 Obj34_MapUnc_147BA:	offsetTable
-	offsetTableEntry.w word_147E8
-	offsetTableEntry.w word_147E8
-	offsetTableEntry.w word_147E8
-	offsetTableEntry.w word_147E8
-	offsetTableEntry.w word_14842
-	offsetTableEntry.w word_14842
-	offsetTableEntry.w word_14B24
-	offsetTableEntry.w word_14894
-	offsetTableEntry.w word_148CE
-	offsetTableEntry.w word_147E8
-	offsetTableEntry.w word_14930
-	offsetTableEntry.w word_14972
-	offsetTableEntry.w word_149C4
-	offsetTableEntry.w word_14A1E
-	offsetTableEntry.w word_14B86
-	offsetTableEntry.w word_14A88
-	offsetTableEntry.w word_14AE2
+.zone_names:	zoneOrderedOffsetTable 2,1
+	zoneOffsetTableEntry.w word_147E8
+	zoneOffsetTableEntry.w word_147E8
+	zoneOffsetTableEntry.w word_147E8
+	zoneOffsetTableEntry.w word_147E8
+	zoneOffsetTableEntry.w word_14842
+	zoneOffsetTableEntry.w word_14842
+	zoneOffsetTableEntry.w word_14B24
+	zoneOffsetTableEntry.w word_14894
+	zoneOffsetTableEntry.w word_148CE
+	zoneOffsetTableEntry.w word_147E8
+	zoneOffsetTableEntry.w word_14930
+	zoneOffsetTableEntry.w word_14972
+	zoneOffsetTableEntry.w word_149C4
+	zoneOffsetTableEntry.w word_14A1E
+	zoneOffsetTableEntry.w word_14B86
+	zoneOffsetTableEntry.w word_14A88
+	zoneOffsetTableEntry.w word_14AE2
+    zoneTableEnd
 	offsetTableEntry.w word_14BC8
 	offsetTableEntry.w word_14BEA
 	offsetTableEntry.w word_14BF4
