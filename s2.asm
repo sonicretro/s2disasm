@@ -29758,7 +29758,7 @@ Obj6F_Knuckles:
 	sub.w	d0,titlecard_x_target(a0)
 	sub.w	d0,titlecard_x_source(a0)
 
-	; Offset the 'got a' text.
+	; Offset the 'has all the' text.
 	moveq	#12,d0
 	sub.w	d0,-object_size*12+x_pixel(a0)
 	sub.w	d0,-object_size*12+titlecard_x_target(a0)
@@ -89962,7 +89962,7 @@ Touch_Boss:
 	; This logic only works for Sonic, not Tails. Also, it only applies
 	; to the last frame of his ducking animation. This is a leftover from
 	; Sonic 1, where Sonic's ducking animation only had one frame.
-	; KiS2: Oops... looks like they forgot to update this one.
+	; KiS2 (Knuckles): Oops... looks like they forgot to update this one.
 	cmpi.b	#$4D,mapping_frame(a0)	; is Sonic ducking?
 	bne.s	+			; if not, branch
     endif
