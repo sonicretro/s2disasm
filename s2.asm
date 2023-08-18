@@ -29817,23 +29817,25 @@ Obj6F_SubObjectMetaData_End:
 ; sprite mappings
 ; -------------------------------------------------------------------------------
 Obj34_MapUnc_147BA:	offsetTable
-	offsetTableEntry.w word_147E8
-	offsetTableEntry.w word_147E8
-	offsetTableEntry.w word_147E8
-	offsetTableEntry.w word_147E8
-	offsetTableEntry.w word_14842
-	offsetTableEntry.w word_14842
-	offsetTableEntry.w word_14B24
-	offsetTableEntry.w word_14894
-	offsetTableEntry.w word_148CE
-	offsetTableEntry.w word_147E8
-	offsetTableEntry.w word_14930
-	offsetTableEntry.w word_14972
-	offsetTableEntry.w word_149C4
-	offsetTableEntry.w word_14A1E
-	offsetTableEntry.w word_14B86
-	offsetTableEntry.w word_14A88
-	offsetTableEntry.w word_14AE2
+.zone_names:	zoneOrderedOffsetTable 2,1
+	zoneOffsetTableEntry.w word_147E8
+	zoneOffsetTableEntry.w word_147E8
+	zoneOffsetTableEntry.w word_147E8
+	zoneOffsetTableEntry.w word_147E8
+	zoneOffsetTableEntry.w word_14842
+	zoneOffsetTableEntry.w word_14842
+	zoneOffsetTableEntry.w word_14B24
+	zoneOffsetTableEntry.w word_14894
+	zoneOffsetTableEntry.w word_148CE
+	zoneOffsetTableEntry.w word_147E8
+	zoneOffsetTableEntry.w word_14930
+	zoneOffsetTableEntry.w word_14972
+	zoneOffsetTableEntry.w word_149C4
+	zoneOffsetTableEntry.w word_14A1E
+	zoneOffsetTableEntry.w word_14B86
+	zoneOffsetTableEntry.w word_14A88
+	zoneOffsetTableEntry.w word_14AE2
+    zoneTableEnd
 	offsetTableEntry.w word_14BC8
 	offsetTableEntry.w word_14BEA
 	offsetTableEntry.w word_14BF4
@@ -30633,24 +30635,25 @@ loc_1581A:
 	rts
 ; ===========================================================================
 ; byte_15820:
-Off_TitleCardLetters:
-	dc.b TitleCardLetters_EHZ - TitleCardLetters	; 0
-	dc.b TitleCardLetters_EHZ - TitleCardLetters	; 1
-	dc.b TitleCardLetters_EHZ - TitleCardLetters	; 2
-	dc.b TitleCardLetters_EHZ - TitleCardLetters	; 3
-	dc.b TitleCardLetters_MTZ - TitleCardLetters	; 4
-	dc.b TitleCardLetters_MTZ - TitleCardLetters	; 5
-	dc.b TitleCardLetters_WFZ - TitleCardLetters	; 6
-	dc.b TitleCardLetters_HTZ - TitleCardLetters	; 7
-	dc.b TitleCardLetters_HPZ - TitleCardLetters	; 8
-	dc.b TitleCardLetters_EHZ - TitleCardLetters	; 9
-	dc.b TitleCardLetters_OOZ - TitleCardLetters	; A
-	dc.b TitleCardLetters_MCZ - TitleCardLetters	; B
-	dc.b TitleCardLetters_CNZ - TitleCardLetters	; C
-	dc.b TitleCardLetters_CPZ - TitleCardLetters	; D
-	dc.b TitleCardLetters_DEZ - TitleCardLetters	; E
-	dc.b TitleCardLetters_ARZ - TitleCardLetters	; F
-	dc.b TitleCardLetters_SCZ - TitleCardLetters	; 10
+Off_TitleCardLetters: zoneOrderedTable 1,1
+	zoneTableEntry.b TitleCardLetters_EHZ - TitleCardLetters	; 0
+	zoneTableEntry.b TitleCardLetters_EHZ - TitleCardLetters	; 1
+	zoneTableEntry.b TitleCardLetters_EHZ - TitleCardLetters	; 2
+	zoneTableEntry.b TitleCardLetters_EHZ - TitleCardLetters	; 3
+	zoneTableEntry.b TitleCardLetters_MTZ - TitleCardLetters	; 4
+	zoneTableEntry.b TitleCardLetters_MTZ - TitleCardLetters	; 5
+	zoneTableEntry.b TitleCardLetters_WFZ - TitleCardLetters	; 6
+	zoneTableEntry.b TitleCardLetters_HTZ - TitleCardLetters	; 7
+	zoneTableEntry.b TitleCardLetters_HPZ - TitleCardLetters	; 8
+	zoneTableEntry.b TitleCardLetters_EHZ - TitleCardLetters	; 9
+	zoneTableEntry.b TitleCardLetters_OOZ - TitleCardLetters	; A
+	zoneTableEntry.b TitleCardLetters_MCZ - TitleCardLetters	; B
+	zoneTableEntry.b TitleCardLetters_CNZ - TitleCardLetters	; C
+	zoneTableEntry.b TitleCardLetters_CPZ - TitleCardLetters	; D
+	zoneTableEntry.b TitleCardLetters_DEZ - TitleCardLetters	; E
+	zoneTableEntry.b TitleCardLetters_ARZ - TitleCardLetters	; F
+	zoneTableEntry.b TitleCardLetters_SCZ - TitleCardLetters	; 10
+    zoneTableEnd
 	even
 
  ; temporarily remap characters to title card letter format
