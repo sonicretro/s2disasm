@@ -28713,24 +28713,25 @@ loc_1581A:
 	rts
 ; ===========================================================================
 ; byte_15820:
-Off_TitleCardLetters:
-	dc.b TitleCardLetters_EHZ - TitleCardLetters	; 0
-	dc.b TitleCardLetters_EHZ - TitleCardLetters	; 1
-	dc.b TitleCardLetters_EHZ - TitleCardLetters	; 2
-	dc.b TitleCardLetters_EHZ - TitleCardLetters	; 3
-	dc.b TitleCardLetters_MTZ - TitleCardLetters	; 4
-	dc.b TitleCardLetters_MTZ - TitleCardLetters	; 5
-	dc.b TitleCardLetters_WFZ - TitleCardLetters	; 6
-	dc.b TitleCardLetters_HTZ - TitleCardLetters	; 7
-	dc.b TitleCardLetters_HPZ - TitleCardLetters	; 8
-	dc.b TitleCardLetters_EHZ - TitleCardLetters	; 9
-	dc.b TitleCardLetters_OOZ - TitleCardLetters	; A
-	dc.b TitleCardLetters_MCZ - TitleCardLetters	; B
-	dc.b TitleCardLetters_CNZ - TitleCardLetters	; C
-	dc.b TitleCardLetters_CPZ - TitleCardLetters	; D
-	dc.b TitleCardLetters_DEZ - TitleCardLetters	; E
-	dc.b TitleCardLetters_ARZ - TitleCardLetters	; F
-	dc.b TitleCardLetters_SCZ - TitleCardLetters	; 10
+Off_TitleCardLetters: zoneOrderedTable 1,1
+	zoneTableEntry.b TitleCardLetters_EHZ - TitleCardLetters	; 0
+	zoneTableEntry.b TitleCardLetters_EHZ - TitleCardLetters	; 1
+	zoneTableEntry.b TitleCardLetters_EHZ - TitleCardLetters	; 2
+	zoneTableEntry.b TitleCardLetters_EHZ - TitleCardLetters	; 3
+	zoneTableEntry.b TitleCardLetters_MTZ - TitleCardLetters	; 4
+	zoneTableEntry.b TitleCardLetters_MTZ - TitleCardLetters	; 5
+	zoneTableEntry.b TitleCardLetters_WFZ - TitleCardLetters	; 6
+	zoneTableEntry.b TitleCardLetters_HTZ - TitleCardLetters	; 7
+	zoneTableEntry.b TitleCardLetters_HPZ - TitleCardLetters	; 8
+	zoneTableEntry.b TitleCardLetters_EHZ - TitleCardLetters	; 9
+	zoneTableEntry.b TitleCardLetters_OOZ - TitleCardLetters	; A
+	zoneTableEntry.b TitleCardLetters_MCZ - TitleCardLetters	; B
+	zoneTableEntry.b TitleCardLetters_CNZ - TitleCardLetters	; C
+	zoneTableEntry.b TitleCardLetters_CPZ - TitleCardLetters	; D
+	zoneTableEntry.b TitleCardLetters_DEZ - TitleCardLetters	; E
+	zoneTableEntry.b TitleCardLetters_ARZ - TitleCardLetters	; F
+	zoneTableEntry.b TitleCardLetters_SCZ - TitleCardLetters	; 10
+    zoneTableEnd
 	even
 
  ; temporarily remap characters to title card letter format
