@@ -6010,7 +6010,7 @@ LoadCollisionIndexes:
 Off_ColP: zoneOrderedTable 4,1
 	zoneTableEntry.l ColP_EHZHTZ	; EHZ
 	zoneTableEntry.l ColP_Invalid	; Zone 1
-	zoneTableEntry.l ColP_MTZ	; WZ
+	zoneTableEntry.l ColP_WZ	; WZ
 	zoneTableEntry.l ColP_Invalid	; Zone 3
 	zoneTableEntry.l ColP_MTZ	; MTZ1,2
 	zoneTableEntry.l ColP_MTZ	; MTZ3
@@ -6037,7 +6037,7 @@ Off_ColP: zoneOrderedTable 4,1
 Off_ColS: zoneOrderedTable 4,1
 	zoneTableEntry.l ColS_EHZHTZ	; EHZ
 	zoneTableEntry.l ColP_Invalid	; Zone 1
-	zoneTableEntry.l ColP_MTZ	; WZ
+	zoneTableEntry.l ColP_WZ	; WZ
 	zoneTableEntry.l ColP_Invalid	; Zone 3
 	zoneTableEntry.l ColP_MTZ	; MTZ1,2
 	zoneTableEntry.l ColP_MTZ	; MTZ3
@@ -15728,7 +15728,7 @@ loc_C4D0:
 SwScrl_Index: zoneOrderedOffsetTable 2,1	; JmpTbl_SwScrlMgr
 	zoneOffsetTableEntry.w SwScrl_EHZ	; EHZ
 	zoneOffsetTableEntry.w SwScrl_Minimal	; Zone 1
-	zoneOffsetTableEntry.w SwScrl_Lev2	; WZ
+	zoneOffsetTableEntry.w SwScrl_WZ	; WZ
 	zoneOffsetTableEntry.w SwScrl_Minimal	; Zone 3
 	zoneOffsetTableEntry.w SwScrl_MTZ	; MTZ1,2
 	zoneOffsetTableEntry.w SwScrl_MTZ	; MTZ3
@@ -16097,8 +16097,8 @@ SwScrl_EHZ_2P:
 
 ; ===========================================================================
 ; unused...
-; loc_C7BA:
-SwScrl_Lev2:
+; loc_C7BA: SwScrl_Lev2:
+SwScrl_WZ:
     if gameRevision<2
 	; Just a duplicate of 'SwScrl_Minimal'.
 
@@ -20926,7 +20926,7 @@ RunDynamicLevelEvents:
 DynamicLevelEventIndex: zoneOrderedOffsetTable 2,1
 	zoneOffsetTableEntry.w LevEvents_EHZ	; EHZ
 	zoneOffsetTableEntry.w LevEvents_001	; Zone 1
-	zoneOffsetTableEntry.w LevEvents_002	; WZ
+	zoneOffsetTableEntry.w LevEvents_WZ	; WZ
 	zoneOffsetTableEntry.w LevEvents_003	; Zone 3
 	zoneOffsetTableEntry.w LevEvents_MTZ	; MTZ1,2
 	zoneOffsetTableEntry.w LevEvents_MTZ3	; MTZ3
@@ -21038,8 +21038,8 @@ LevEvents_EHZ2_Routine4:
 LevEvents_001:
 	rts
 ; ===========================================================================
-; return_E754:
-LevEvents_002:
+; return_E754: LevEvents_002:
+LevEvents_WZ:
 	rts
 ; ===========================================================================
 ; return_E756:
@@ -95342,6 +95342,10 @@ ColP_EHZHTZ:	BINCLUDE	"collision/EHZ and HTZ primary 16x16 collision index.bin"
 ; EHZ and HTZ secondary 16x16 collision index (Kosinski compression)
 ColS_EHZHTZ:	BINCLUDE	"collision/EHZ and HTZ secondary 16x16 collision index.bin"
 	even
+;---------------------------------------------------------------------------------------
+; WZ primary 16x16 collision index (Kosinski compression)
+ColP_WZ:	;BINCLUDE	"collision/WZ primary 16x16 collision index.bin"
+	;even
 ;---------------------------------------------------------------------------------------
 ; MTZ primary 16x16 collision index (Kosinski compression)
 ColP_MTZ:	BINCLUDE	"collision/MTZ primary 16x16 collision index.bin"
