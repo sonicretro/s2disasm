@@ -90168,14 +90168,14 @@ Off_Level: zoneOrderedOffsetTable 2,2
 	zoneOffsetTableEntry.w Level_EHZ1	; Act 1
 	zoneOffsetTableEntry.w Level_EHZ2	; Act 2
 	; Zone 1
-	zoneOffsetTableEntry.w Level_EHZ1	; Act 1
-	zoneOffsetTableEntry.w Level_EHZ1	; Act 2
+	zoneOffsetTableEntry.w Level_Invalid	; Act 1
+	zoneOffsetTableEntry.w Level_Invalid	; Act 2
 	; WZ
-	zoneOffsetTableEntry.w Level_EHZ1	; Act 1
-	zoneOffsetTableEntry.w Level_EHZ1	; Act 2
+	zoneOffsetTableEntry.w Level_Invalid	; Act 1
+	zoneOffsetTableEntry.w Level_Invalid	; Act 2
 	; Zone 3
-	zoneOffsetTableEntry.w Level_EHZ1	; Act 1
-	zoneOffsetTableEntry.w Level_EHZ1	; Act 2
+	zoneOffsetTableEntry.w Level_Invalid	; Act 1
+	zoneOffsetTableEntry.w Level_Invalid	; Act 2
 	; MTZ
 	zoneOffsetTableEntry.w Level_MTZ1	; Act 1
 	zoneOffsetTableEntry.w Level_MTZ2	; Act 2
@@ -90192,8 +90192,8 @@ Off_Level: zoneOrderedOffsetTable 2,2
 	zoneOffsetTableEntry.w Level_HPZ1	; Act 1
 	zoneOffsetTableEntry.w Level_HPZ1	; Act 2
 	; Zone 9
-	zoneOffsetTableEntry.w Level_EHZ1	; Act 1
-	zoneOffsetTableEntry.w Level_EHZ1	; Act 2
+	zoneOffsetTableEntry.w Level_Invalid	; Act 1
+	zoneOffsetTableEntry.w Level_Invalid	; Act 2
 	; OOZ
 	zoneOffsetTableEntry.w Level_OOZ1	; Act 1
 	zoneOffsetTableEntry.w Level_OOZ2	; Act 2
@@ -90216,6 +90216,8 @@ Off_Level: zoneOrderedOffsetTable 2,2
 	zoneOffsetTableEntry.w Level_SCZ	; Act 1
 	zoneOffsetTableEntry.w Level_SCZ	; Act 2
     zoneTableEnd
+;---------------------------------------------------------------------------------------
+Level_Invalid: ; Falls-through to EHZ Act 1's layout.
 ;---------------------------------------------------------------------------------------
 ; EHZ act 1 level layout (Kosinski compression)
 Level_EHZ1:	BINCLUDE	"level/layout/EHZ_1.bin"
@@ -91785,8 +91787,8 @@ Off_Rings: zoneOrderedOffsetTable 2,2
 	zoneOffsetTableEntry.w  Rings_Lev1_1	; Act 1
 	zoneOffsetTableEntry.w  Rings_Lev1_2	; Act 2
 	; WZ
-	zoneOffsetTableEntry.w  Rings_Lev2_1	; Act 1
-	zoneOffsetTableEntry.w  Rings_Lev2_2	; Act 2
+	zoneOffsetTableEntry.w  Rings_WZ_1	; Act 1
+	zoneOffsetTableEntry.w  Rings_WZ_2	; Act 2
 	; Zone 3
 	zoneOffsetTableEntry.w  Rings_Lev3_1	; Act 1
 	zoneOffsetTableEntry.w  Rings_Lev3_2	; Act 2
@@ -91835,8 +91837,8 @@ Rings_EHZ_1:	BINCLUDE	"level/rings/EHZ_1.bin"
 Rings_EHZ_2:	BINCLUDE	"level/rings/EHZ_2.bin"
 Rings_Lev1_1:	BINCLUDE	"level/rings/01_1.bin"
 Rings_Lev1_2:	BINCLUDE	"level/rings/01_2.bin"
-Rings_Lev2_1:	BINCLUDE	"level/rings/02_1.bin"
-Rings_Lev2_2:	BINCLUDE	"level/rings/02_2.bin"
+Rings_WZ_1:	BINCLUDE	"level/rings/WZ_1.bin"
+Rings_WZ_2:	BINCLUDE	"level/rings/WZ_2.bin"
 Rings_Lev3_1:	BINCLUDE	"level/rings/03_1.bin"
 Rings_Lev3_2:	BINCLUDE	"level/rings/03_2.bin"
 Rings_MTZ_1:	BINCLUDE	"level/rings/MTZ_1.bin"
