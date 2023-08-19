@@ -2621,23 +2621,23 @@ PalCycle_Load:
 ; ===========================================================================
 ; off_19F4:
 PalCycle: zoneOrderedOffsetTable 2,1
-	zoneOffsetTableEntry.w PalCycle_EHZ	; 0
-	zoneOffsetTableEntry.w PalCycle_Null	; 1
-	zoneOffsetTableEntry.w PalCycle_WZ	; 2
-	zoneOffsetTableEntry.w PalCycle_Null	; 3
-	zoneOffsetTableEntry.w PalCycle_MTZ	; 4
-	zoneOffsetTableEntry.w PalCycle_MTZ	; 5
-	zoneOffsetTableEntry.w PalCycle_WFZ	; 6
-	zoneOffsetTableEntry.w PalCycle_HTZ	; 7
-	zoneOffsetTableEntry.w PalCycle_HPZ	; 8
-	zoneOffsetTableEntry.w PalCycle_Null	; 9
-	zoneOffsetTableEntry.w PalCycle_OOZ	; 10
-	zoneOffsetTableEntry.w PalCycle_MCZ	; 11
-	zoneOffsetTableEntry.w PalCycle_CNZ	; 12
-	zoneOffsetTableEntry.w PalCycle_CPZ	; 13
-	zoneOffsetTableEntry.w PalCycle_CPZ	; 14
-	zoneOffsetTableEntry.w PalCycle_ARZ	; 15
-	zoneOffsetTableEntry.w PalCycle_WFZ	; 16
+	zoneOffsetTableEntry.w PalCycle_EHZ	; EHZ
+	zoneOffsetTableEntry.w PalCycle_Null	; Zone 1
+	zoneOffsetTableEntry.w PalCycle_WZ	; WZ
+	zoneOffsetTableEntry.w PalCycle_Null	; Zone 3
+	zoneOffsetTableEntry.w PalCycle_MTZ	; MTZ1,2
+	zoneOffsetTableEntry.w PalCycle_MTZ	; MTZ3
+	zoneOffsetTableEntry.w PalCycle_WFZ	; WFZ
+	zoneOffsetTableEntry.w PalCycle_HTZ	; HTZ
+	zoneOffsetTableEntry.w PalCycle_HPZ	; HPZ
+	zoneOffsetTableEntry.w PalCycle_Null	; Zone 9
+	zoneOffsetTableEntry.w PalCycle_OOZ	; OOZ
+	zoneOffsetTableEntry.w PalCycle_MCZ	; MCZ
+	zoneOffsetTableEntry.w PalCycle_CNZ	; CNZ
+	zoneOffsetTableEntry.w PalCycle_CPZ	; CPZ
+	zoneOffsetTableEntry.w PalCycle_CPZ	; DEZ
+	zoneOffsetTableEntry.w PalCycle_ARZ	; ARZ
+	zoneOffsetTableEntry.w PalCycle_WFZ	; SCZ
     zoneTableEnd
 
 ; ===========================================================================
@@ -4781,23 +4781,23 @@ JmpTo_SwScrl_Title ; JmpTo
 ;----------------------------------------------------------------------------
 ; byte_3EA0:
 MusicList: zoneOrderedTable 1,1
-	zoneTableEntry.b MusID_EHZ	; 0 ; EHZ
-	zoneTableEntry.b MusID_EHZ	; 1
-	zoneTableEntry.b MusID_MTZ	; 2
-	zoneTableEntry.b MusID_OOZ	; 3
-	zoneTableEntry.b MusID_MTZ	; 4 ; MTZ1,2
-	zoneTableEntry.b MusID_MTZ	; 5 ; MTZ3
-	zoneTableEntry.b MusID_WFZ	; 6 ; WFZ
-	zoneTableEntry.b MusID_HTZ	; 7 ; HTZ
-	zoneTableEntry.b MusID_HPZ	; 8
-	zoneTableEntry.b MusID_SCZ	; 9
-	zoneTableEntry.b MusID_OOZ	; 10 ; OOZ
-	zoneTableEntry.b MusID_MCZ	; 11 ; MCZ
-	zoneTableEntry.b MusID_CNZ	; 12 ; CNZ
-	zoneTableEntry.b MusID_CPZ	; 13 ; CPZ
-	zoneTableEntry.b MusID_DEZ	; 14 ; DEZ
-	zoneTableEntry.b MusID_ARZ	; 15 ; ARZ
-	zoneTableEntry.b MusID_SCZ	; 16 ; SCZ
+	zoneTableEntry.b MusID_EHZ	; EHZ
+	zoneTableEntry.b MusID_EHZ	; Zone 1
+	zoneTableEntry.b MusID_MTZ	; WZ
+	zoneTableEntry.b MusID_OOZ	; Zone 3
+	zoneTableEntry.b MusID_MTZ	; MTZ1,2
+	zoneTableEntry.b MusID_MTZ	; MTZ3
+	zoneTableEntry.b MusID_WFZ	; WFZ
+	zoneTableEntry.b MusID_HTZ	; HTZ
+	zoneTableEntry.b MusID_HPZ	; HPZ
+	zoneTableEntry.b MusID_SCZ	; Zone 9
+	zoneTableEntry.b MusID_OOZ	; OOZ
+	zoneTableEntry.b MusID_MCZ	; MCZ
+	zoneTableEntry.b MusID_CNZ	; CNZ
+	zoneTableEntry.b MusID_CPZ	; CPZ
+	zoneTableEntry.b MusID_DEZ	; DEZ
+	zoneTableEntry.b MusID_ARZ	; ARZ
+	zoneTableEntry.b MusID_SCZ	; SCZ
     zoneTableEnd
 	even
 ;----------------------------------------------------------------------------
@@ -4805,23 +4805,23 @@ MusicList: zoneOrderedTable 1,1
 ;----------------------------------------------------------------------------
 ; byte_3EB2:
 MusicList2: zoneOrderedTable 1,1
-	zoneTableEntry.b MusID_EHZ_2P	; 0  ; EHZ 2P
-	zoneTableEntry.b MusID_EHZ	; 1
-	zoneTableEntry.b MusID_MTZ	; 2
-	zoneTableEntry.b MusID_OOZ	; 3
-	zoneTableEntry.b MusID_MTZ	; 4
-	zoneTableEntry.b MusID_MTZ	; 5
-	zoneTableEntry.b MusID_WFZ	; 6
-	zoneTableEntry.b MusID_HTZ	; 7
-	zoneTableEntry.b MusID_HPZ	; 8
-	zoneTableEntry.b MusID_SCZ	; 9
-	zoneTableEntry.b MusID_OOZ	; 10
-	zoneTableEntry.b MusID_MCZ_2P	; 11 ; MCZ 2P
-	zoneTableEntry.b MusID_CNZ_2P	; 12 ; CNZ 2P
-	zoneTableEntry.b MusID_CPZ	; 13
-	zoneTableEntry.b MusID_DEZ	; 14
-	zoneTableEntry.b MusID_ARZ	; 15
-	zoneTableEntry.b MusID_SCZ	; 16
+	zoneTableEntry.b MusID_EHZ_2P	; EHZ
+	zoneTableEntry.b MusID_EHZ	; Zone 1
+	zoneTableEntry.b MusID_MTZ	; WZ
+	zoneTableEntry.b MusID_OOZ	; Zone 3
+	zoneTableEntry.b MusID_MTZ	; MTZ1,2
+	zoneTableEntry.b MusID_MTZ	; MTZ3
+	zoneTableEntry.b MusID_WFZ	; WFZ
+	zoneTableEntry.b MusID_HTZ	; HTZ
+	zoneTableEntry.b MusID_HPZ	; HPZ
+	zoneTableEntry.b MusID_SCZ	; Zone 9
+	zoneTableEntry.b MusID_OOZ	; OOZ
+	zoneTableEntry.b MusID_MCZ_2P	; MCZ
+	zoneTableEntry.b MusID_CNZ_2P	; CNZ
+	zoneTableEntry.b MusID_CPZ	; CPZ
+	zoneTableEntry.b MusID_DEZ	; DEZ
+	zoneTableEntry.b MusID_ARZ	; ARZ
+	zoneTableEntry.b MusID_SCZ	; SCZ
     zoneTableEnd
 	even
 ; ===========================================================================
@@ -5392,8 +5392,8 @@ WaterHeight: zoneOrderedTable 2,2
 	zoneTableEntry.w  $600, $600	; Zone 1
 	zoneTableEntry.w  $600, $600	; WZ
 	zoneTableEntry.w  $600, $600	; Zone 3
-	zoneTableEntry.w  $600, $600	; MTZ
-	zoneTableEntry.w  $600, $600	; MTZ
+	zoneTableEntry.w  $600, $600	; MTZ1,2
+	zoneTableEntry.w  $600, $600	; MTZ3
 	zoneTableEntry.w  $600, $600	; WFZ
 	zoneTableEntry.w  $600, $600	; HTZ
 	zoneTableEntry.w  $600, $600	; HPZ
@@ -5410,7 +5410,7 @@ WaterHeight: zoneOrderedTable 2,2
 ; word_4584:
 WaterHeight:
 	dc.w  $600, $600	; HPZ
-	dc.w  $600, $600	; Zone 9
+	dc.w  $600, $600
 	dc.w  $600, $600	; OOZ
 	dc.w  $600, $600	; MCZ
 	dc.w  $600, $600	; CNZ
@@ -5449,60 +5449,85 @@ DynamicWater:
 ; ===========================================================================
     if useFullWaterTables
 Dynamic_water_routine_table: zoneOrderedOffsetTable 2,2
-	zoneOffsetTableEntry.w DynamicWaterNull ; EHZ 1
-	zoneOffsetTableEntry.w DynamicWaterNull ; EHZ 2
-	zoneOffsetTableEntry.w DynamicWaterNull ; Zone 1
-	zoneOffsetTableEntry.w DynamicWaterNull ; Zone 1
-	zoneOffsetTableEntry.w DynamicWaterNull ; WZ 1
-	zoneOffsetTableEntry.w DynamicWaterNull ; WZ 2
-	zoneOffsetTableEntry.w DynamicWaterNull ; Zone 3
-	zoneOffsetTableEntry.w DynamicWaterNull ; Zone 3
-	zoneOffsetTableEntry.w DynamicWaterNull ; MTZ 1
-	zoneOffsetTableEntry.w DynamicWaterNull ; MTZ 2
-	zoneOffsetTableEntry.w DynamicWaterNull ; MTZ 3
-	zoneOffsetTableEntry.w DynamicWaterNull ; MTZ 4
-	zoneOffsetTableEntry.w DynamicWaterNull ; WFZ 1
-	zoneOffsetTableEntry.w DynamicWaterNull ; WFZ 2
-	zoneOffsetTableEntry.w DynamicWaterNull ; HTZ 1
-	zoneOffsetTableEntry.w DynamicWaterNull ; HTZ 2
-	zoneOffsetTableEntry.w DynamicWaterNull ; HPZ 1
-	zoneOffsetTableEntry.w DynamicWaterNull ; HPZ 2
-	zoneOffsetTableEntry.w DynamicWaterNull ; Zone 9
-	zoneOffsetTableEntry.w DynamicWaterNull ; Zone 9
-	zoneOffsetTableEntry.w DynamicWaterNull ; OOZ 1
-	zoneOffsetTableEntry.w DynamicWaterNull ; OOZ 2
-	zoneOffsetTableEntry.w DynamicWaterNull ; MCZ 1
-	zoneOffsetTableEntry.w DynamicWaterNull ; MCZ 2
-	zoneOffsetTableEntry.w DynamicWaterNull ; CNZ 1
-	zoneOffsetTableEntry.w DynamicWaterNull ; CNZ 2
-	zoneOffsetTableEntry.w DynamicWaterNull ; CPZ 1
-	zoneOffsetTableEntry.w DynamicWaterCPZ2 ; CPZ 2
-	zoneOffsetTableEntry.w DynamicWaterNull ; DEZ 1
-	zoneOffsetTableEntry.w DynamicWaterNull ; DEZ 2
-	zoneOffsetTableEntry.w DynamicWaterNull ; ARZ 1
-	zoneOffsetTableEntry.w DynamicWaterNull ; ARZ 2
-	zoneOffsetTableEntry.w DynamicWaterNull ; SCZ 1
-	zoneOffsetTableEntry.w DynamicWaterNull ; SCZ 2
+	; EHZ
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 2
+	; Zone 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 2
+	; WZ
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 2
+	; Zone 3
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 2
+	; MTZ
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 2
+	; MTZ
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 3
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 4
+	; WFZ
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 2
+	; HTZ
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 2
+	; HPZ
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 2
+	; Zone 9
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 2
+	; OOZ
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 2
+	; MCZ
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 2
+	; CNZ
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 2
+	; CPZ
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 1
+	zoneOffsetTableEntry.w DynamicWaterCPZ2 ; Act 2
+	; DEZ
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 2
+	; ARZ
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 2
+	; SCZ
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; Act 2
     zoneTableEnd
     else
 ; off_45D8:
 Dynamic_water_routine_table: offsetTable
-	offsetTableEntry.w DynamicWaterNull ; HPZ 1
-	offsetTableEntry.w DynamicWaterNull ; HPZ 2
-	offsetTableEntry.w DynamicWaterNull ; Zone 9
-	offsetTableEntry.w DynamicWaterNull ; Zone 9
-	offsetTableEntry.w DynamicWaterNull ; OOZ 1
-	offsetTableEntry.w DynamicWaterNull ; OOZ 2
-	offsetTableEntry.w DynamicWaterNull ; MCZ 1
-	offsetTableEntry.w DynamicWaterNull ; MCZ 2
-	offsetTableEntry.w DynamicWaterNull ; CNZ 1
-	offsetTableEntry.w DynamicWaterNull ; CNZ 2
-	offsetTableEntry.w DynamicWaterNull ; CPZ 1
-	offsetTableEntry.w DynamicWaterCPZ2 ; CPZ 2
-	offsetTableEntry.w DynamicWaterNull ; DEZ 1
-	offsetTableEntry.w DynamicWaterNull ; DEZ 2
-	offsetTableEntry.w DynamicWaterNull ; ARZ 1
-	offsetTableEntry.w DynamicWaterNull ; ARZ 2
+	; HPZ
+	offsetTableEntry.w DynamicWaterNull ; Act 1
+	offsetTableEntry.w DynamicWaterNull ; Act 2
+	; Zone 9
+	offsetTableEntry.w DynamicWaterNull ; Act 1
+	offsetTableEntry.w DynamicWaterNull ; Act 2
+	; OOZ
+	offsetTableEntry.w DynamicWaterNull ; Act 1
+	offsetTableEntry.w DynamicWaterNull ; Act 2
+	; MCZ
+	offsetTableEntry.w DynamicWaterNull ; Act 1
+	offsetTableEntry.w DynamicWaterNull ; Act 2
+	; CNZ
+	offsetTableEntry.w DynamicWaterNull ; Act 1
+	offsetTableEntry.w DynamicWaterNull ; Act 2
+	; CPZ
+	offsetTableEntry.w DynamicWaterNull ; Act 1
+	offsetTableEntry.w DynamicWaterCPZ2 ; Act 2
+	; DEZ
+	offsetTableEntry.w DynamicWaterNull ; Act 1
+	offsetTableEntry.w DynamicWaterNull ; Act 2
+	; ARZ
+	offsetTableEntry.w DynamicWaterNull ; Act 1
+	offsetTableEntry.w DynamicWaterNull ; Act 2
     endif
 ; ===========================================================================
 ; return_45F8:
@@ -5918,23 +5943,23 @@ MoveDemo_On_SkipP2:
 ; ---------------------------------------------------------------------------
 ; off_4948:
 DemoScriptPointers: zoneOrderedTable 4,1
-	zoneTableEntry.l Demo_EHZ	; $00
-	zoneTableEntry.l Demo_EHZ	; $01
-	zoneTableEntry.l Demo_EHZ	; $02
-	zoneTableEntry.l Demo_EHZ	; $03
-	zoneTableEntry.l Demo_EHZ	; $04
-	zoneTableEntry.l Demo_EHZ	; $05
-	zoneTableEntry.l Demo_EHZ	; $06
-	zoneTableEntry.l Demo_EHZ	; $07
-	zoneTableEntry.l Demo_EHZ	; $08
-	zoneTableEntry.l Demo_EHZ	; $09
-	zoneTableEntry.l Demo_EHZ	; $0A
-	zoneTableEntry.l Demo_EHZ	; $0B
-	zoneTableEntry.l Demo_CNZ	; $0C
-	zoneTableEntry.l Demo_CPZ	; $0D
-	zoneTableEntry.l Demo_EHZ	; $0E
-	zoneTableEntry.l Demo_ARZ	; $0F
-	zoneTableEntry.l Demo_EHZ	; $10
+	zoneTableEntry.l Demo_EHZ	; EHZ
+	zoneTableEntry.l Demo_EHZ	; Zone 1
+	zoneTableEntry.l Demo_EHZ	; WZ
+	zoneTableEntry.l Demo_EHZ	; Zone 3
+	zoneTableEntry.l Demo_EHZ	; MTZ1,2
+	zoneTableEntry.l Demo_EHZ	; MTZ3
+	zoneTableEntry.l Demo_EHZ	; WFZ
+	zoneTableEntry.l Demo_EHZ	; HTZ
+	zoneTableEntry.l Demo_EHZ	; HPZ
+	zoneTableEntry.l Demo_EHZ	; Zone 9
+	zoneTableEntry.l Demo_EHZ	; OOZ
+	zoneTableEntry.l Demo_EHZ	; MCZ
+	zoneTableEntry.l Demo_CNZ	; CNZ
+	zoneTableEntry.l Demo_CPZ	; CPZ
+	zoneTableEntry.l Demo_EHZ	; DEZ
+	zoneTableEntry.l Demo_ARZ	; ARZ
+	zoneTableEntry.l Demo_EHZ	; SCZ
     zoneTableEnd
 ; ---------------------------------------------------------------------------
 ; dword_498C:
@@ -5983,23 +6008,23 @@ LoadCollisionIndexes:
 ; level. 1 pointer for each level, pointing the primary collision index.
 ; ---------------------------------------------------------------------------
 Off_ColP: zoneOrderedTable 4,1
-	zoneTableEntry.l ColP_EHZHTZ
-	zoneTableEntry.l ColP_Invalid	; 1
-	zoneTableEntry.l ColP_MTZ	; 2
-	zoneTableEntry.l ColP_Invalid	; 3
-	zoneTableEntry.l ColP_MTZ	; 4
-	zoneTableEntry.l ColP_MTZ	; 5
-	zoneTableEntry.l ColP_WFZSCZ	; 6
-	zoneTableEntry.l ColP_EHZHTZ	; 7
-	zoneTableEntry.l ColP_HPZ	; 8
-	zoneTableEntry.l ColP_Invalid	; 9
-	zoneTableEntry.l ColP_OOZ	; 10
-	zoneTableEntry.l ColP_MCZ	; 11
-	zoneTableEntry.l ColP_CNZ	; 12
-	zoneTableEntry.l ColP_CPZDEZ	; 13
-	zoneTableEntry.l ColP_CPZDEZ	; 14
-	zoneTableEntry.l ColP_ARZ	; 15
-	zoneTableEntry.l ColP_WFZSCZ	; 16
+	zoneTableEntry.l ColP_EHZHTZ	; EHZ
+	zoneTableEntry.l ColP_Invalid	; Zone 1
+	zoneTableEntry.l ColP_MTZ	; WZ
+	zoneTableEntry.l ColP_Invalid	; Zone 3
+	zoneTableEntry.l ColP_MTZ	; MTZ1,2
+	zoneTableEntry.l ColP_MTZ	; MTZ3
+	zoneTableEntry.l ColP_WFZSCZ	; WFZ
+	zoneTableEntry.l ColP_EHZHTZ	; HTZ
+	zoneTableEntry.l ColP_HPZ	; HPZ
+	zoneTableEntry.l ColP_Invalid	; Zone 9
+	zoneTableEntry.l ColP_OOZ	; OOZ
+	zoneTableEntry.l ColP_MCZ	; MCZ
+	zoneTableEntry.l ColP_CNZ	; CNZ
+	zoneTableEntry.l ColP_CPZDEZ	; CPZ
+	zoneTableEntry.l ColP_CPZDEZ	; DEZ
+	zoneTableEntry.l ColP_ARZ	; ARZ
+	zoneTableEntry.l ColP_WFZSCZ	; SCZ
     zoneTableEnd
 
 ; ---------------------------------------------------------------------------
@@ -6010,23 +6035,23 @@ Off_ColP: zoneOrderedTable 4,1
 ; index.
 ; ---------------------------------------------------------------------------
 Off_ColS: zoneOrderedTable 4,1
-	zoneTableEntry.l ColS_EHZHTZ
-	zoneTableEntry.l ColP_Invalid	; 1
-	zoneTableEntry.l ColP_MTZ	; 2
-	zoneTableEntry.l ColP_Invalid	; 3
-	zoneTableEntry.l ColP_MTZ	; 4
-	zoneTableEntry.l ColP_MTZ	; 5
-	zoneTableEntry.l ColS_WFZSCZ	; 6
-	zoneTableEntry.l ColS_EHZHTZ	; 7
-	zoneTableEntry.l ColS_HPZ	; 8
-	zoneTableEntry.l ColP_Invalid	; 9
-	zoneTableEntry.l ColP_OOZ	; 10
-	zoneTableEntry.l ColP_MCZ	; 11
-	zoneTableEntry.l ColS_CNZ	; 12
-	zoneTableEntry.l ColS_CPZDEZ	; 13
-	zoneTableEntry.l ColS_CPZDEZ	; 14
-	zoneTableEntry.l ColS_ARZ	; 15
-	zoneTableEntry.l ColS_WFZSCZ	; 16
+	zoneTableEntry.l ColS_EHZHTZ	; EHZ
+	zoneTableEntry.l ColP_Invalid	; Zone 1
+	zoneTableEntry.l ColP_MTZ	; WZ
+	zoneTableEntry.l ColP_Invalid	; Zone 3
+	zoneTableEntry.l ColP_MTZ	; MTZ1,2
+	zoneTableEntry.l ColP_MTZ	; MTZ3
+	zoneTableEntry.l ColS_WFZSCZ	; WFZ
+	zoneTableEntry.l ColS_EHZHTZ	; HTZ
+	zoneTableEntry.l ColS_HPZ	; HPZ
+	zoneTableEntry.l ColP_Invalid	; Zone 9
+	zoneTableEntry.l ColP_OOZ	; OOZ
+	zoneTableEntry.l ColP_MCZ	; MCZ
+	zoneTableEntry.l ColS_CNZ	; CNZ
+	zoneTableEntry.l ColS_CPZDEZ	; CPZ
+	zoneTableEntry.l ColS_CPZDEZ	; DEZ
+	zoneTableEntry.l ColS_ARZ	; ARZ
+	zoneTableEntry.l ColS_WFZSCZ	; SCZ
     zoneTableEnd
 
 
@@ -15216,40 +15241,57 @@ LevelSizeLoad:
 ; ----------------------------------------------------------------------------
 ;				xstart	xend	ystart	yend	; ZID ; Zone
 LevelSize: zoneOrderedTable 2,8	; WrdArr_LvlSize
-	zoneTableEntry.w	$0,	$29A0,	$0,	$320	; EHZ act 1
-	zoneTableEntry.w	$0,	$2940,	$0,	$420	; EHZ act 2
-	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; $01
-	zoneTableEntry.w	$0,	$3FFF,	$0,	$720
-	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; $02
-	zoneTableEntry.w	$0,	$3FFF,	$0,	$720
-	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; $03
-	zoneTableEntry.w	$0,	$3FFF,	$0,	$720
-	zoneTableEntry.w	$0,	$2280,	-$100,	$800	; MTZ act 1
-	zoneTableEntry.w	$0,	$1E80,	-$100,	$800	; MTZ act 2
-	zoneTableEntry.w	$0,	$2A80,	-$100,	$800	; MTZ act 3
-	zoneTableEntry.w	$0,	$3FFF,	-$100,	$800
-	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; WFZ
-	zoneTableEntry.w	$0,	$3FFF,	$0,	$720
-	zoneTableEntry.w	$0,	$2800,	$0,	$720	; HTZ act 1
-	zoneTableEntry.w	$0,	$3280,	$0,	$720	; HTZ act 2
-	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; $08
-	zoneTableEntry.w	$0,	$3FFF,	$0,	$720
-	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; $09
-	zoneTableEntry.w	$0,	$3FFF,	$0,	$720
-	zoneTableEntry.w	$0,	$2F80,	$0,	$680	; OOZ act 1
-	zoneTableEntry.w	$0,	$2D00,	$0,	$680	; OOZ act 2
-	zoneTableEntry.w	$0,	$2380,	$3C0,	$720	; MCZ act 1
-	zoneTableEntry.w	$0,	$3FFF,	$60,	$720	; MCZ act 2
-	zoneTableEntry.w	$0,	$27A0,	$0,	$720	; CNZ act 1
-	zoneTableEntry.w	$0,	$2A80,	$0,	$720	; CNZ act 2
-	zoneTableEntry.w	$0,	$2780,	$0,	$720	; CPZ act 1
-	zoneTableEntry.w	$0,	$2A80,	$0,	$720	; CPZ act 2
-	zoneTableEntry.w	$0,	$1000,	$C8,	 $C8	; DEZ
-	zoneTableEntry.w	$0,	$1000,  $C8,	 $C8
-	zoneTableEntry.w	$0,	$28C0,	$200,	$600	; ARZ act 1
-	zoneTableEntry.w	$0,	$3FFF,	$180,	$710	; ARZ act 2
-	zoneTableEntry.w	$0,	$3FFF,	$0,	$000	; SCZ
-	zoneTableEntry.w	$0,	$3FFF,	$0,	$720
+	; EHZ
+	zoneTableEntry.w	$0,	$29A0,	$0,	$320	; Act 1
+	zoneTableEntry.w	$0,	$2940,	$0,	$420	; Act 2
+	; Zone 1
+	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; Act 1
+	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; Act 2
+	; WZ
+	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; Act 1
+	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; Act 2
+	; Zone 3
+	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; Act 1
+	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; Act 2
+	; MTZ
+	zoneTableEntry.w	$0,	$2280,	-$100,	$800	; Act 1
+	zoneTableEntry.w	$0,	$1E80,	-$100,	$800	; Act 2
+	; MTZ
+	zoneTableEntry.w	$0,	$2A80,	-$100,	$800	; Act 3
+	zoneTableEntry.w	$0,	$3FFF,	-$100,	$800	; Act 4
+	; WFZ
+	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; Act 1
+	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; Act 2
+	; HTZ
+	zoneTableEntry.w	$0,	$2800,	$0,	$720	; Act 1
+	zoneTableEntry.w	$0,	$3280,	$0,	$720	; Act 2
+	; HPZ
+	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; Act 1
+	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; Act 2
+	; Zone 9
+	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; Act 1
+	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; Act 2
+	; OOZ
+	zoneTableEntry.w	$0,	$2F80,	$0,	$680	; Act 1
+	zoneTableEntry.w	$0,	$2D00,	$0,	$680	; Act 2
+	; MCZ
+	zoneTableEntry.w	$0,	$2380,	$3C0,	$720	; Act 1
+	zoneTableEntry.w	$0,	$3FFF,	$60,	$720	; Act 2
+	; CNZ
+	zoneTableEntry.w	$0,	$27A0,	$0,	$720	; Act 1
+	zoneTableEntry.w	$0,	$2A80,	$0,	$720	; Act 2
+	; CPZ
+	zoneTableEntry.w	$0,	$2780,	$0,	$720	; Act 1
+	zoneTableEntry.w	$0,	$2A80,	$0,	$720	; Act 2
+	; DEZ
+	zoneTableEntry.w	$0,	$1000,	$C8,	 $C8	; Act 1
+	zoneTableEntry.w	$0,	$1000,  $C8,	 $C8	; Act 2
+	; ARZ
+	zoneTableEntry.w	$0,	$28C0,	$200,	$600	; Act 1
+	zoneTableEntry.w	$0,	$3FFF,	$180,	$710	; Act 2
+	; SCZ
+	zoneTableEntry.w	$0,	$3FFF,	$0,	$000	; Act 1
+	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; Act 2
     zoneTableEnd
 
 ; ===========================================================================
@@ -15306,40 +15348,57 @@ LevelSize: zoneOrderedTable 2,8	; WrdArr_LvlSize
 ; appear at when the level starts.
 ; --------------------------------------------------------------------------------------
 StartLocations: zoneOrderedTable 2,4	; WrdArr_StartLoc
-	zoneTableBinEntry	2, "startpos/EHZ_1.bin"	; $00
-	zoneTableBinEntry	2, "startpos/EHZ_2.bin"
-	zoneTableEntry.w	$60,	$28F		; $01
-	zoneTableEntry.w	$60,	$2AF
-	zoneTableEntry.w	$60,	$1AC		; $02
-	zoneTableEntry.w	$60,	$1AC
-	zoneTableEntry.w	$60,	$28F		; $03
-	zoneTableEntry.w	$60,	$2AF
-	zoneTableBinEntry	2, "startpos/MTZ_1.bin"	; $04
-	zoneTableBinEntry	2, "startpos/MTZ_2.bin"
-	zoneTableBinEntry	2, "startpos/MTZ_3.bin"	; $05
-	zoneTableEntry.w	$60,	$2AF
-	zoneTableBinEntry	2, "startpos/WFZ.bin"	; $06
-	zoneTableEntry.w	$1E0,	$4CC
-	zoneTableBinEntry	2, "startpos/HTZ_1.bin"	; $07
-	zoneTableBinEntry	2, "startpos/HTZ_2.bin"
-	zoneTableBinEntry	2, "startpos/HPZ_1.bin"	; $08
-	zoneTableBinEntry	2, "startpos/HPZ_2.bin"
-	zoneTableEntry.w	$60,	$28F		; $09
-	zoneTableEntry.w	$60,	$2AF
-	zoneTableBinEntry	2, "startpos/OOZ_1.bin"	; $0A
-	zoneTableBinEntry	2, "startpos/OOZ_2.bin"
-	zoneTableBinEntry	2, "startpos/MCZ_1.bin"	; $0B
-	zoneTableBinEntry	2, "startpos/MCZ_2.bin"
-	zoneTableBinEntry	2, "startpos/CNZ_1.bin"	; $0C
-	zoneTableBinEntry	2, "startpos/CNZ_2.bin"
-	zoneTableBinEntry	2, "startpos/CPZ_1.bin"	; $0D
-	zoneTableBinEntry	2, "startpos/CPZ_2.bin"
-	zoneTableBinEntry	2, "startpos/DEZ.bin"	; $0E
-	zoneTableEntry.w	$60,	$12D
-	zoneTableBinEntry	2, "startpos/ARZ_1.bin"	; $0F
-	zoneTableBinEntry	2, "startpos/ARZ_2.bin"
-	zoneTableBinEntry	2, "startpos/SCZ.bin"	; $10
-	zoneTableEntry.w	$140,	$70
+	; EHZ
+	zoneTableBinEntry	2, "startpos/EHZ_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/EHZ_2.bin"	; Act 2
+	; Zone 1
+	zoneTableBinEntry	2, "startpos/01_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/01_2.bin"	; Act 2
+	; WZ
+	zoneTableBinEntry	2, "startpos/WZ_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/WZ_2.bin"	; Act 2
+	; Zone 3
+	zoneTableBinEntry	2, "startpos/03_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/03_2.bin"	; Act 2
+	; MTZ
+	zoneTableBinEntry	2, "startpos/MTZ_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/MTZ_2.bin"	; Act 2
+	; MTZ
+	zoneTableBinEntry	2, "startpos/MTZ_3.bin"	; Act 3
+	zoneTableBinEntry	2, "startpos/MTZ_4.bin"	; Act 4
+	; WFZ
+	zoneTableBinEntry	2, "startpos/WFZ_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/WFZ_2.bin"	; Act 2
+	; HTZ
+	zoneTableBinEntry	2, "startpos/HTZ_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/HTZ_2.bin"	; Act 2
+	; HPZ
+	zoneTableBinEntry	2, "startpos/HPZ_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/HPZ_2.bin"	; Act 2
+	; Zone 9
+	zoneTableBinEntry	2, "startpos/09_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/09_2.bin"	; Act 2
+	; OOZ
+	zoneTableBinEntry	2, "startpos/OOZ_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/OOZ_2.bin"	; Act 2
+	; MCZ
+	zoneTableBinEntry	2, "startpos/MCZ_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/MCZ_2.bin"	; Act 2
+	; CNZ
+	zoneTableBinEntry	2, "startpos/CNZ_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/CNZ_2.bin"	; Act 2
+	; CPZ
+	zoneTableBinEntry	2, "startpos/CPZ_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/CPZ_2.bin"	; Act 2
+	; DEZ
+	zoneTableBinEntry	2, "startpos/DEZ_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/DEZ_2.bin"	; Act 2
+	; ARZ
+	zoneTableBinEntry	2, "startpos/ARZ_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/ARZ_2.bin"	; Act 2
+	; SCZ
+	zoneTableBinEntry	2, "startpos/SCZ_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/SCZ_2.bin"	; Act 2
     zoneTableEnd
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -15369,23 +15428,23 @@ InitCameraValues:
 ; ===========================================================================
 ; off_C296:
 InitCam_Index: zoneOrderedOffsetTable 2,1
-	zoneOffsetTableEntry.w InitCam_EHZ
-	zoneOffsetTableEntry.w InitCam_Null0	; 1
-	zoneOffsetTableEntry.w InitCam_WZ	; 2
-	zoneOffsetTableEntry.w InitCam_Null0	; 3
-	zoneOffsetTableEntry.w InitCam_Std	; 4 MTZ
-	zoneOffsetTableEntry.w InitCam_Std	; 5 MTZ3
-	zoneOffsetTableEntry.w InitCam_Null1	; 6
-	zoneOffsetTableEntry.w InitCam_HTZ	; 7
-	zoneOffsetTableEntry.w InitCam_HPZ	; 8
-	zoneOffsetTableEntry.w InitCam_Null2	; 9
-	zoneOffsetTableEntry.w InitCam_OOZ	; 10
-	zoneOffsetTableEntry.w InitCam_MCZ	; 11
-	zoneOffsetTableEntry.w InitCam_CNZ	; 12
-	zoneOffsetTableEntry.w InitCam_CPZ	; 13
-	zoneOffsetTableEntry.w InitCam_Null3	; 14
-	zoneOffsetTableEntry.w InitCam_ARZ	; 15
-	zoneOffsetTableEntry.w InitCam_SCZ	; 16
+	zoneOffsetTableEntry.w InitCam_EHZ	; EHZ
+	zoneOffsetTableEntry.w InitCam_Null0	; Zone 1
+	zoneOffsetTableEntry.w InitCam_WZ	; WZ
+	zoneOffsetTableEntry.w InitCam_Null0	; Zone 3
+	zoneOffsetTableEntry.w InitCam_Std	; MTZ1,2
+	zoneOffsetTableEntry.w InitCam_Std	; MTZ3
+	zoneOffsetTableEntry.w InitCam_Null1	; WFZ
+	zoneOffsetTableEntry.w InitCam_HTZ	; HTZ
+	zoneOffsetTableEntry.w InitCam_HPZ	; HPZ
+	zoneOffsetTableEntry.w InitCam_Null2	; Zone 9
+	zoneOffsetTableEntry.w InitCam_OOZ	; OOZ
+	zoneOffsetTableEntry.w InitCam_MCZ	; MCZ
+	zoneOffsetTableEntry.w InitCam_CNZ	; CNZ
+	zoneOffsetTableEntry.w InitCam_CPZ	; CPZ
+	zoneOffsetTableEntry.w InitCam_Null3	; DEZ
+	zoneOffsetTableEntry.w InitCam_ARZ	; ARZ
+	zoneOffsetTableEntry.w InitCam_SCZ	; SCZ
     zoneTableEnd
 ; ===========================================================================
 ;loc_C2B8:
@@ -15667,23 +15726,23 @@ loc_C4D0:
 ; water ripple effects in EHZ, and moving the clouds in HTZ and the stars in DEZ.
 ; ---------------------------------------------------------------------------
 SwScrl_Index: zoneOrderedOffsetTable 2,1	; JmpTbl_SwScrlMgr
-	zoneOffsetTableEntry.w SwScrl_EHZ	; $00
-	zoneOffsetTableEntry.w SwScrl_Minimal	; $01
-	zoneOffsetTableEntry.w SwScrl_Lev2	; $02
-	zoneOffsetTableEntry.w SwScrl_Minimal	; $03
-	zoneOffsetTableEntry.w SwScrl_MTZ	; $04
-	zoneOffsetTableEntry.w SwScrl_MTZ	; $05
-	zoneOffsetTableEntry.w SwScrl_WFZ	; $06
-	zoneOffsetTableEntry.w SwScrl_HTZ	; $07
-	zoneOffsetTableEntry.w SwScrl_HPZ	; $08
-	zoneOffsetTableEntry.w SwScrl_Minimal	; $09
-	zoneOffsetTableEntry.w SwScrl_OOZ	; $0A
-	zoneOffsetTableEntry.w SwScrl_MCZ	; $0B
-	zoneOffsetTableEntry.w SwScrl_CNZ	; $0C
-	zoneOffsetTableEntry.w SwScrl_CPZ	; $0D
-	zoneOffsetTableEntry.w SwScrl_DEZ	; $0E
-	zoneOffsetTableEntry.w SwScrl_ARZ	; $0F
-	zoneOffsetTableEntry.w SwScrl_SCZ	; $10
+	zoneOffsetTableEntry.w SwScrl_EHZ	; EHZ
+	zoneOffsetTableEntry.w SwScrl_Minimal	; Zone 1
+	zoneOffsetTableEntry.w SwScrl_Lev2	; WZ
+	zoneOffsetTableEntry.w SwScrl_Minimal	; Zone 3
+	zoneOffsetTableEntry.w SwScrl_MTZ	; MTZ1,2
+	zoneOffsetTableEntry.w SwScrl_MTZ	; MTZ3
+	zoneOffsetTableEntry.w SwScrl_WFZ	; WFZ
+	zoneOffsetTableEntry.w SwScrl_HTZ	; HTZ
+	zoneOffsetTableEntry.w SwScrl_HPZ	; HPZ
+	zoneOffsetTableEntry.w SwScrl_Minimal	; Zone 9
+	zoneOffsetTableEntry.w SwScrl_OOZ	; OOZ
+	zoneOffsetTableEntry.w SwScrl_MCZ	; MCZ
+	zoneOffsetTableEntry.w SwScrl_CNZ	; CNZ
+	zoneOffsetTableEntry.w SwScrl_CPZ	; CPZ
+	zoneOffsetTableEntry.w SwScrl_DEZ	; DEZ
+	zoneOffsetTableEntry.w SwScrl_ARZ	; ARZ
+	zoneOffsetTableEntry.w SwScrl_SCZ	; SCZ
     zoneTableEnd
 ; ===========================================================================
 ; loc_C51E:
@@ -20865,23 +20924,23 @@ RunDynamicLevelEvents:
 ; ===========================================================================
 ; off_E636:
 DynamicLevelEventIndex: zoneOrderedOffsetTable 2,1
-	zoneOffsetTableEntry.w LevEvents_EHZ	;   0 ; EHZ
-	zoneOffsetTableEntry.w LevEvents_001	;   1 ; LEV1
-	zoneOffsetTableEntry.w LevEvents_002	;   2 ; LEV2
-	zoneOffsetTableEntry.w LevEvents_003	;   3 ; LEV3
-	zoneOffsetTableEntry.w LevEvents_MTZ	;   4 ; MTZ
-	zoneOffsetTableEntry.w LevEvents_MTZ3	;   5 ; MTZ3
-	zoneOffsetTableEntry.w LevEvents_WFZ	;   6 ; WFZ
-	zoneOffsetTableEntry.w LevEvents_HTZ	;   7 ; HTZ
-	zoneOffsetTableEntry.w LevEvents_HPZ	;   8 ; HPZ
-	zoneOffsetTableEntry.w LevEvents_009	;   9 ; LEV9
-	zoneOffsetTableEntry.w LevEvents_OOZ	;  $A ; OOZ
-	zoneOffsetTableEntry.w LevEvents_MCZ	;  $B ; MCZ
-	zoneOffsetTableEntry.w LevEvents_CNZ	;  $C ; CNZ
-	zoneOffsetTableEntry.w LevEvents_CPZ	;  $D ; CPZ
-	zoneOffsetTableEntry.w LevEvents_DEZ	;  $E ; DEZ
-	zoneOffsetTableEntry.w LevEvents_ARZ	;  $F ; ARZ
-	zoneOffsetTableEntry.w LevEvents_SCZ	; $10 ; SCZ
+	zoneOffsetTableEntry.w LevEvents_EHZ	; EHZ
+	zoneOffsetTableEntry.w LevEvents_001	; Zone 1
+	zoneOffsetTableEntry.w LevEvents_002	; WZ
+	zoneOffsetTableEntry.w LevEvents_003	; Zone 3
+	zoneOffsetTableEntry.w LevEvents_MTZ	; MTZ1,2
+	zoneOffsetTableEntry.w LevEvents_MTZ3	; MTZ3
+	zoneOffsetTableEntry.w LevEvents_WFZ	; WFZ
+	zoneOffsetTableEntry.w LevEvents_HTZ	; HTZ
+	zoneOffsetTableEntry.w LevEvents_HPZ	; HPZ
+	zoneOffsetTableEntry.w LevEvents_009	; Zone 9
+	zoneOffsetTableEntry.w LevEvents_OOZ	; OOZ
+	zoneOffsetTableEntry.w LevEvents_MCZ	; MCZ
+	zoneOffsetTableEntry.w LevEvents_CNZ	; CNZ
+	zoneOffsetTableEntry.w LevEvents_CPZ	; CPZ
+	zoneOffsetTableEntry.w LevEvents_DEZ	; DEZ
+	zoneOffsetTableEntry.w LevEvents_ARZ	; ARZ
+	zoneOffsetTableEntry.w LevEvents_SCZ	; SCZ
     zoneTableEnd
 ; ===========================================================================
 ; loc_E658:
@@ -24950,8 +25009,8 @@ zoneAnimals macro first,second
 	zoneAnimals.b Squirrel,	Bird	; Zone 1
 	zoneAnimals.b Squirrel,	Bird	; WZ
 	zoneAnimals.b Squirrel,	Bird	; Zone 3
-	zoneAnimals.b Beaver,	Eagle	; MTZ
-	zoneAnimals.b Beaver,	Eagle	; MTZ
+	zoneAnimals.b Beaver,	Eagle	; MTZ1,2
+	zoneAnimals.b Beaver,	Eagle	; MTZ3
 	zoneAnimals.b Beaver,	Eagle	; WFZ
 	zoneAnimals.b Beaver,	Eagle	; HTZ
 	zoneAnimals.b Mouse,	Seal	; HPZ
@@ -28836,23 +28895,23 @@ Obj34_LoadStandardWaterAndAnimalArt:
 ; ===========================================================================
 ;byte_13F62:
 Animal_PLCTable: zoneOrderedTable 1,1
-	zoneTableEntry.b PLCID_EhzAnimals	; $0
-	zoneTableEntry.b PLCID_EhzAnimals	; $1
-	zoneTableEntry.b PLCID_EhzAnimals	; $2
-	zoneTableEntry.b PLCID_EhzAnimals	; $3
-	zoneTableEntry.b PLCID_MtzAnimals	; $4
-	zoneTableEntry.b PLCID_MtzAnimals	; $5
-	zoneTableEntry.b PLCID_WfzAnimals	; $6
-	zoneTableEntry.b PLCID_HtzAnimals	; $7
-	zoneTableEntry.b PLCID_HpzAnimals	; $8
-	zoneTableEntry.b PLCID_HpzAnimals	; $9
-	zoneTableEntry.b PLCID_OozAnimals	; $A
-	zoneTableEntry.b PLCID_MczAnimals	; $B
-	zoneTableEntry.b PLCID_CnzAnimals	; $C
-	zoneTableEntry.b PLCID_CpzAnimals	; $D
-	zoneTableEntry.b PLCID_DezAnimals	; $E
-	zoneTableEntry.b PLCID_ArzAnimals	; $F
-	zoneTableEntry.b PLCID_SczAnimals	; $10
+	zoneTableEntry.b PLCID_EhzAnimals	; EHZ
+	zoneTableEntry.b PLCID_EhzAnimals	; Zone 1
+	zoneTableEntry.b PLCID_EhzAnimals	; WZ
+	zoneTableEntry.b PLCID_EhzAnimals	; Zone 3
+	zoneTableEntry.b PLCID_MtzAnimals	; MTZ1,2
+	zoneTableEntry.b PLCID_MtzAnimals	; MTZ3
+	zoneTableEntry.b PLCID_WfzAnimals	; WFZ
+	zoneTableEntry.b PLCID_HtzAnimals	; HTZ
+	zoneTableEntry.b PLCID_HpzAnimals	; HPZ
+	zoneTableEntry.b PLCID_HpzAnimals	; Zone 9
+	zoneTableEntry.b PLCID_OozAnimals	; OOZ
+	zoneTableEntry.b PLCID_MczAnimals	; MCZ
+	zoneTableEntry.b PLCID_CnzAnimals	; CNZ
+	zoneTableEntry.b PLCID_CpzAnimals	; CPZ
+	zoneTableEntry.b PLCID_DezAnimals	; DEZ
+	zoneTableEntry.b PLCID_ArzAnimals	; ARZ
+	zoneTableEntry.b PLCID_SczAnimals	; SCZ
     zoneTableEnd
 
 	dc.b PLCID_SczAnimals	; level slot $11 (non-existent), not part of main table
@@ -29247,79 +29306,113 @@ loc_142E2:
 ; -------------------------------------------------------------------------------
 ;word_142F8:
 LevelOrder: zoneOrderedTable 2,2	; WrdArr_LevelOrder
-	zoneTableEntry.w  emerald_hill_zone_act_2
-	zoneTableEntry.w  chemical_plant_zone_act_1	; 1
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 2
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 3
-	zoneTableEntry.w  wood_zone_act_2		; 4
-	zoneTableEntry.w  metropolis_zone_act_1		; 5
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 6
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 7
-	zoneTableEntry.w  metropolis_zone_act_2		; 8
-	zoneTableEntry.w  metropolis_zone_act_3		; 9
-	zoneTableEntry.w  sky_chase_zone_act_1		; 10
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 11
-	zoneTableEntry.w  death_egg_zone_act_1		; 12
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 13
-	zoneTableEntry.w  hill_top_zone_act_2		; 14
-	zoneTableEntry.w  mystic_cave_zone_act_1	; 15
-	zoneTableEntry.w  hidden_palace_zone_act_2 	; 16
-	zoneTableEntry.w  oil_ocean_zone_act_1		; 17
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 18
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 19
-	zoneTableEntry.w  oil_ocean_zone_act_2		; 20
-	zoneTableEntry.w  metropolis_zone_act_1		; 21
-	zoneTableEntry.w  mystic_cave_zone_act_2	; 22
-	zoneTableEntry.w  oil_ocean_zone_act_1		; 23
-	zoneTableEntry.w  casino_night_zone_act_2	; 24
-	zoneTableEntry.w  hill_top_zone_act_1		; 25
-	zoneTableEntry.w  chemical_plant_zone_act_2	; 26
-	zoneTableEntry.w  aquatic_ruin_zone_act_1	; 27
-	zoneTableEntry.w  $FFFF				; 28
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 29
-	zoneTableEntry.w  aquatic_ruin_zone_act_2	; 30
-	zoneTableEntry.w  casino_night_zone_act_1	; 31
-	zoneTableEntry.w  wing_fortress_zone_act_1 	; 32
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 33
+	; EHZ
+	zoneTableEntry.w  emerald_hill_zone_act_2	; Act 1
+	zoneTableEntry.w  chemical_plant_zone_act_1	; Act 2
+	; Zone 1
+	zoneTableEntry.w  emerald_hill_zone_act_1	; Act 1
+	zoneTableEntry.w  emerald_hill_zone_act_1	; Act 2
+	; WZ
+	zoneTableEntry.w  wood_zone_act_2		; Act 1
+	zoneTableEntry.w  metropolis_zone_act_1		; Act 2
+	; Zone 3
+	zoneTableEntry.w  emerald_hill_zone_act_1	; Act 1
+	zoneTableEntry.w  emerald_hill_zone_act_1	; Act 2
+	; MTZ
+	zoneTableEntry.w  metropolis_zone_act_2		; Act 1
+	zoneTableEntry.w  metropolis_zone_act_3		; Act 2
+	; MTZ
+	zoneTableEntry.w  sky_chase_zone_act_1		; Act 3
+	zoneTableEntry.w  emerald_hill_zone_act_1	; Act 4
+	; WFZ
+	zoneTableEntry.w  death_egg_zone_act_1		; Act 1
+	zoneTableEntry.w  emerald_hill_zone_act_1	; Act 2
+	; HTZ
+	zoneTableEntry.w  hill_top_zone_act_2		; Act 1
+	zoneTableEntry.w  mystic_cave_zone_act_1	; Act 2
+	; HPZ
+	zoneTableEntry.w  hidden_palace_zone_act_2 	; Act 1
+	zoneTableEntry.w  oil_ocean_zone_act_1		; Act 2
+	; Zone 9
+	zoneTableEntry.w  emerald_hill_zone_act_1	; Act 1
+	zoneTableEntry.w  emerald_hill_zone_act_1	; Act 2
+	; OOZ
+	zoneTableEntry.w  oil_ocean_zone_act_2		; Act 1
+	zoneTableEntry.w  metropolis_zone_act_1		; Act 2
+	; MCZ
+	zoneTableEntry.w  mystic_cave_zone_act_2	; Act 1
+	zoneTableEntry.w  oil_ocean_zone_act_1		; Act 2
+	; CNZ
+	zoneTableEntry.w  casino_night_zone_act_2	; Act 1
+	zoneTableEntry.w  hill_top_zone_act_1		; Act 2
+	; CPZ
+	zoneTableEntry.w  chemical_plant_zone_act_2	; Act 1
+	zoneTableEntry.w  aquatic_ruin_zone_act_1	; Act 2
+	; DEZ
+	zoneTableEntry.w  $FFFF				; Act 1
+	zoneTableEntry.w  emerald_hill_zone_act_1	; Act 2
+	; ARZ
+	zoneTableEntry.w  aquatic_ruin_zone_act_2	; Act 1
+	zoneTableEntry.w  casino_night_zone_act_1	; Act 2
+	; SCZ
+	zoneTableEntry.w  wing_fortress_zone_act_1 	; Act 1
+	zoneTableEntry.w  emerald_hill_zone_act_1	; Act 2
     zoneTableEnd
     if gameRevision<>3
 	; KiS2 (no 2P): No two player mode.
 ;word_1433C:
 LevelOrder_2P: zoneOrderedTable 2,2	; WrdArr_LevelOrder_2P
-	zoneTableEntry.w  emerald_hill_zone_act_2
-	zoneTableEntry.w  casino_night_zone_act_1	; 1
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 2
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 3
-	zoneTableEntry.w  wood_zone_act_2		; 4
-	zoneTableEntry.w  metropolis_zone_act_1		; 5
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 6
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 7
-	zoneTableEntry.w  metropolis_zone_act_2		; 8
-	zoneTableEntry.w  metropolis_zone_act_3		; 9
-	zoneTableEntry.w  sky_chase_zone_act_1		; 10
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 11
-	zoneTableEntry.w  death_egg_zone_act_1		; 12
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 13
-	zoneTableEntry.w  hill_top_zone_act_2		; 14
-	zoneTableEntry.w  mystic_cave_zone_act_1	; 15
-	zoneTableEntry.w  hidden_palace_zone_act_2 	; 16
-	zoneTableEntry.w  oil_ocean_zone_act_1		; 17
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 18
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 19
-	zoneTableEntry.w  oil_ocean_zone_act_2		; 20
-	zoneTableEntry.w  metropolis_zone_act_1		; 21
-	zoneTableEntry.w  mystic_cave_zone_act_2	; 22
-	zoneTableEntry.w  $FFFF				; 23
-	zoneTableEntry.w  casino_night_zone_act_2	; 24
-	zoneTableEntry.w  mystic_cave_zone_act_1	; 25
-	zoneTableEntry.w  chemical_plant_zone_act_2 	; 26
-	zoneTableEntry.w  aquatic_ruin_zone_act_1	; 27
-	zoneTableEntry.w  $FFFF				; 28
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 29
-	zoneTableEntry.w  aquatic_ruin_zone_act_2	; 30
-	zoneTableEntry.w  casino_night_zone_act_1	; 31
-	zoneTableEntry.w  wing_fortress_zone_act_1 	; 32
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 33
+	; EHZ
+	zoneTableEntry.w  emerald_hill_zone_act_2	; Act 1
+	zoneTableEntry.w  casino_night_zone_act_1	; Act 2
+	; Zone 1
+	zoneTableEntry.w  emerald_hill_zone_act_1	; Act 1
+	zoneTableEntry.w  emerald_hill_zone_act_1	; Act 2
+	; WZ
+	zoneTableEntry.w  wood_zone_act_2		; Act 1
+	zoneTableEntry.w  metropolis_zone_act_1		; Act 2
+	; Zone 3
+	zoneTableEntry.w  emerald_hill_zone_act_1	; Act 1
+	zoneTableEntry.w  emerald_hill_zone_act_1	; Act 2
+	; MTZ
+	zoneTableEntry.w  metropolis_zone_act_2		; Act 1
+	zoneTableEntry.w  metropolis_zone_act_3		; Act 2
+	; MTZ
+	zoneTableEntry.w  sky_chase_zone_act_1		; Act 3
+	zoneTableEntry.w  emerald_hill_zone_act_1	; Act 4
+	; WFZ
+	zoneTableEntry.w  death_egg_zone_act_1		; Act 1
+	zoneTableEntry.w  emerald_hill_zone_act_1	; Act 2
+	; HTZ
+	zoneTableEntry.w  hill_top_zone_act_2		; Act 1
+	zoneTableEntry.w  mystic_cave_zone_act_1	; Act 2
+	; HPZ
+	zoneTableEntry.w  hidden_palace_zone_act_2 	; Act 1
+	zoneTableEntry.w  oil_ocean_zone_act_1		; Act 2
+	; Zone 9
+	zoneTableEntry.w  emerald_hill_zone_act_1	; Act 1
+	zoneTableEntry.w  emerald_hill_zone_act_1	; Act 2
+	; OOZ
+	zoneTableEntry.w  oil_ocean_zone_act_2		; Act 1
+	zoneTableEntry.w  metropolis_zone_act_1		; Act 2
+	; MCZ
+	zoneTableEntry.w  mystic_cave_zone_act_2	; Act 1
+	zoneTableEntry.w  $FFFF				; Act 2
+	; CNZ
+	zoneTableEntry.w  casino_night_zone_act_2	; Act 1
+	zoneTableEntry.w  mystic_cave_zone_act_1	; Act 2
+	; CPZ
+	zoneTableEntry.w  chemical_plant_zone_act_2 	; Act 1
+	zoneTableEntry.w  aquatic_ruin_zone_act_1	; Act 2
+	; DEZ
+	zoneTableEntry.w  $FFFF				; Act 1
+	zoneTableEntry.w  emerald_hill_zone_act_1	; Act 2
+	; ARZ
+	zoneTableEntry.w  aquatic_ruin_zone_act_2	; Act 1
+	zoneTableEntry.w  casino_night_zone_act_1	; Act 2
+	; SCZ
+	zoneTableEntry.w  wing_fortress_zone_act_1 	; Act 1
+	zoneTableEntry.w  emerald_hill_zone_act_1	; Act 2
     zoneTableEnd
     endif
 
@@ -29818,23 +29911,23 @@ Obj6F_SubObjectMetaData_End:
 ; -------------------------------------------------------------------------------
 Obj34_MapUnc_147BA:	offsetTable
 .zone_names:	zoneOrderedOffsetTable 2,1
-	zoneOffsetTableEntry.w word_147E8
-	zoneOffsetTableEntry.w word_147E8
-	zoneOffsetTableEntry.w word_147E8
-	zoneOffsetTableEntry.w word_147E8
-	zoneOffsetTableEntry.w word_14842
-	zoneOffsetTableEntry.w word_14842
-	zoneOffsetTableEntry.w word_14B24
-	zoneOffsetTableEntry.w word_14894
-	zoneOffsetTableEntry.w word_148CE
-	zoneOffsetTableEntry.w word_147E8
-	zoneOffsetTableEntry.w word_14930
-	zoneOffsetTableEntry.w word_14972
-	zoneOffsetTableEntry.w word_149C4
-	zoneOffsetTableEntry.w word_14A1E
-	zoneOffsetTableEntry.w word_14B86
-	zoneOffsetTableEntry.w word_14A88
-	zoneOffsetTableEntry.w word_14AE2
+	zoneOffsetTableEntry.w word_147E8	; EHZ
+	zoneOffsetTableEntry.w word_147E8	; Zone 1
+	zoneOffsetTableEntry.w word_147E8	; WZ
+	zoneOffsetTableEntry.w word_147E8	; Zone 3
+	zoneOffsetTableEntry.w word_14842	; MTZ1,2
+	zoneOffsetTableEntry.w word_14842	; MTZ3
+	zoneOffsetTableEntry.w word_14B24	; WFZ
+	zoneOffsetTableEntry.w word_14894	; HTZ
+	zoneOffsetTableEntry.w word_148CE	; HPZ
+	zoneOffsetTableEntry.w word_147E8	; Zone 9
+	zoneOffsetTableEntry.w word_14930	; OOZ
+	zoneOffsetTableEntry.w word_14972	; MCZ
+	zoneOffsetTableEntry.w word_149C4	; CNZ
+	zoneOffsetTableEntry.w word_14A1E	; CPZ
+	zoneOffsetTableEntry.w word_14B86	; DEZ
+	zoneOffsetTableEntry.w word_14A88	; ARZ
+	zoneOffsetTableEntry.w word_14AE2	; SCZ
     zoneTableEnd
 	offsetTableEntry.w word_14BC8
 	offsetTableEntry.w word_14BEA
@@ -30636,23 +30729,23 @@ loc_1581A:
 ; ===========================================================================
 ; byte_15820:
 Off_TitleCardLetters: zoneOrderedTable 1,1
-	zoneTableEntry.b TitleCardLetters_EHZ - TitleCardLetters	; 0
-	zoneTableEntry.b TitleCardLetters_EHZ - TitleCardLetters	; 1
-	zoneTableEntry.b TitleCardLetters_EHZ - TitleCardLetters	; 2
-	zoneTableEntry.b TitleCardLetters_EHZ - TitleCardLetters	; 3
-	zoneTableEntry.b TitleCardLetters_MTZ - TitleCardLetters	; 4
-	zoneTableEntry.b TitleCardLetters_MTZ - TitleCardLetters	; 5
-	zoneTableEntry.b TitleCardLetters_WFZ - TitleCardLetters	; 6
-	zoneTableEntry.b TitleCardLetters_HTZ - TitleCardLetters	; 7
-	zoneTableEntry.b TitleCardLetters_HPZ - TitleCardLetters	; 8
-	zoneTableEntry.b TitleCardLetters_EHZ - TitleCardLetters	; 9
-	zoneTableEntry.b TitleCardLetters_OOZ - TitleCardLetters	; A
-	zoneTableEntry.b TitleCardLetters_MCZ - TitleCardLetters	; B
-	zoneTableEntry.b TitleCardLetters_CNZ - TitleCardLetters	; C
-	zoneTableEntry.b TitleCardLetters_CPZ - TitleCardLetters	; D
-	zoneTableEntry.b TitleCardLetters_DEZ - TitleCardLetters	; E
-	zoneTableEntry.b TitleCardLetters_ARZ - TitleCardLetters	; F
-	zoneTableEntry.b TitleCardLetters_SCZ - TitleCardLetters	; 10
+	zoneTableEntry.b TitleCardLetters_EHZ - TitleCardLetters	; EHZ
+	zoneTableEntry.b TitleCardLetters_EHZ - TitleCardLetters	; Zone 1
+	zoneTableEntry.b TitleCardLetters_EHZ - TitleCardLetters	; WZ
+	zoneTableEntry.b TitleCardLetters_EHZ - TitleCardLetters	; Zone 3
+	zoneTableEntry.b TitleCardLetters_MTZ - TitleCardLetters	; MTZ1,2
+	zoneTableEntry.b TitleCardLetters_MTZ - TitleCardLetters	; MTZ3
+	zoneTableEntry.b TitleCardLetters_WFZ - TitleCardLetters	; WFZ
+	zoneTableEntry.b TitleCardLetters_HTZ - TitleCardLetters	; HTZ
+	zoneTableEntry.b TitleCardLetters_HPZ - TitleCardLetters	; HPZ
+	zoneTableEntry.b TitleCardLetters_EHZ - TitleCardLetters	; Zone 9
+	zoneTableEntry.b TitleCardLetters_OOZ - TitleCardLetters	; OOZ
+	zoneTableEntry.b TitleCardLetters_MCZ - TitleCardLetters	; MCZ
+	zoneTableEntry.b TitleCardLetters_CNZ - TitleCardLetters	; CNZ
+	zoneTableEntry.b TitleCardLetters_CPZ - TitleCardLetters	; CPZ
+	zoneTableEntry.b TitleCardLetters_DEZ - TitleCardLetters	; DEZ
+	zoneTableEntry.b TitleCardLetters_ARZ - TitleCardLetters	; ARZ
+	zoneTableEntry.b TitleCardLetters_SCZ - TitleCardLetters	; SCZ
     zoneTableEnd
 	even
 
@@ -90823,55 +90916,55 @@ AniArt_Load:
 ; with anything except Dynamic_Null, or bad things will happen (for example, a bus error exception).
 ; ---------------------------------------------------------------------------
 PLC_DYNANM: zoneOrderedOffsetTable 2,2		; Zone ID
-	zoneOffsetTableEntry.w Dynamic_Normal	; $00
+	zoneOffsetTableEntry.w Dynamic_Normal	; EHZ
 	zoneOffsetTableEntry.w Animated_EHZ
 
-	zoneOffsetTableEntry.w Dynamic_Null	; $01
+	zoneOffsetTableEntry.w Dynamic_Null	; Zone 1
 	zoneOffsetTableEntry.w Animated_Null
 
-	zoneOffsetTableEntry.w Dynamic_Null	; $02
+	zoneOffsetTableEntry.w Dynamic_Null	; WZ
 	zoneOffsetTableEntry.w Animated_Null
 
-	zoneOffsetTableEntry.w Dynamic_Null	; $03
+	zoneOffsetTableEntry.w Dynamic_Null	; Zone 3
 	zoneOffsetTableEntry.w Animated_Null
 
-	zoneOffsetTableEntry.w Dynamic_Normal	; $04
+	zoneOffsetTableEntry.w Dynamic_Normal	; MTZ1,2
 	zoneOffsetTableEntry.w Animated_MTZ
 
-	zoneOffsetTableEntry.w Dynamic_Normal	; $05
+	zoneOffsetTableEntry.w Dynamic_Normal	; MTZ3
 	zoneOffsetTableEntry.w Animated_MTZ
 
-	zoneOffsetTableEntry.w Dynamic_Null	; $06
+	zoneOffsetTableEntry.w Dynamic_Null	; WFZ
 	zoneOffsetTableEntry.w Animated_Null
 
-	zoneOffsetTableEntry.w Dynamic_HTZ	; $07
+	zoneOffsetTableEntry.w Dynamic_HTZ	; HTZ
 	zoneOffsetTableEntry.w Animated_HTZ
 
-	zoneOffsetTableEntry.w Dynamic_Normal	; $08
+	zoneOffsetTableEntry.w Dynamic_Normal	; HPZ
 	zoneOffsetTableEntry.w Animated_HPZ
 
-	zoneOffsetTableEntry.w Dynamic_Null	; $09
+	zoneOffsetTableEntry.w Dynamic_Null	; Zone 9
 	zoneOffsetTableEntry.w Animated_Null
 
-	zoneOffsetTableEntry.w Dynamic_Normal	; $0A
+	zoneOffsetTableEntry.w Dynamic_Normal	; OOZ
 	zoneOffsetTableEntry.w Animated_OOZ
 
-	zoneOffsetTableEntry.w Dynamic_Null	; $0B
+	zoneOffsetTableEntry.w Dynamic_Null	; MCZ
 	zoneOffsetTableEntry.w Animated_Null
 
-	zoneOffsetTableEntry.w Dynamic_CNZ	; $0C
+	zoneOffsetTableEntry.w Dynamic_CNZ	; CNZ
 	zoneOffsetTableEntry.w Animated_CNZ
 
-	zoneOffsetTableEntry.w Dynamic_Normal	; $0D
+	zoneOffsetTableEntry.w Dynamic_Normal	; CPZ
 	zoneOffsetTableEntry.w Animated_CPZ
 
-	zoneOffsetTableEntry.w Dynamic_Normal	; $0E
+	zoneOffsetTableEntry.w Dynamic_Normal	; DEZ
 	zoneOffsetTableEntry.w Animated_DEZ
 
-	zoneOffsetTableEntry.w Dynamic_ARZ	; $0F
+	zoneOffsetTableEntry.w Dynamic_ARZ	; ARZ
 	zoneOffsetTableEntry.w Animated_ARZ
 
-	zoneOffsetTableEntry.w Dynamic_Null	; $10
+	zoneOffsetTableEntry.w Dynamic_Null	; SCZ
 	zoneOffsetTableEntry.w Animated_Null
     zoneTableEnd
 ; ===========================================================================
@@ -91578,23 +91671,23 @@ LoadLevelBlocks_2P:
 ; --------------------------------------------------------------------------------------
 ; off_40350:
 AnimPatMaps: zoneOrderedOffsetTable 2,1
-	zoneOffsetTableEntry.w APM_EHZ		;  0
-	zoneOffsetTableEntry.w APM_Null		;  1
-	zoneOffsetTableEntry.w APM_Null		;  2
-	zoneOffsetTableEntry.w APM_Null		;  3
-	zoneOffsetTableEntry.w APM_MTZ		;  4
-	zoneOffsetTableEntry.w APM_MTZ		;  5
-	zoneOffsetTableEntry.w APM_Null		;  6
-	zoneOffsetTableEntry.w APM_EHZ		;  7
-	zoneOffsetTableEntry.w APM_HPZ		;  8
-	zoneOffsetTableEntry.w APM_Null		;  9
-	zoneOffsetTableEntry.w APM_OOZ		; $A
-	zoneOffsetTableEntry.w APM_Null		; $B
-	zoneOffsetTableEntry.w APM_CNZ		; $C
-	zoneOffsetTableEntry.w APM_CPZ		; $D
-	zoneOffsetTableEntry.w APM_DEZ		; $E
-	zoneOffsetTableEntry.w APM_ARZ		; $F
-	zoneOffsetTableEntry.w APM_Null		;$10
+	zoneOffsetTableEntry.w APM_EHZ		; EHZ
+	zoneOffsetTableEntry.w APM_Null		; Zone 1
+	zoneOffsetTableEntry.w APM_Null		; WZ
+	zoneOffsetTableEntry.w APM_Null		; Zone 3
+	zoneOffsetTableEntry.w APM_MTZ		; MTZ1,2
+	zoneOffsetTableEntry.w APM_MTZ		; MTZ3
+	zoneOffsetTableEntry.w APM_Null		; WFZ
+	zoneOffsetTableEntry.w APM_EHZ		; HTZ
+	zoneOffsetTableEntry.w APM_HPZ		; HPZ
+	zoneOffsetTableEntry.w APM_Null		; Zone 9
+	zoneOffsetTableEntry.w APM_OOZ		; OOZ
+	zoneOffsetTableEntry.w APM_Null		; MCZ
+	zoneOffsetTableEntry.w APM_CNZ		; CNZ
+	zoneOffsetTableEntry.w APM_CPZ		; CPZ
+	zoneOffsetTableEntry.w APM_DEZ		; DEZ
+	zoneOffsetTableEntry.w APM_ARZ		; ARZ
+	zoneOffsetTableEntry.w APM_Null		; SCZ
     zoneTableEnd
 
 begin_animpat macro {INTLABEL}
@@ -93591,41 +93684,41 @@ JmpTbl_DbgObjLists: zoneOrderedOffsetTable 2,1
 	; KiS2: For some reason, the debug lists were all blanked.
 	; This was possibly done in order to save space (there are only 680
 	; bytes spare at the end of the ROM).
-	zoneOffsetTableEntry.w DbgObjList_Def	; 0
-	zoneOffsetTableEntry.w DbgObjList_Def	; 1
-	zoneOffsetTableEntry.w DbgObjList_Def	; 2
-	zoneOffsetTableEntry.w DbgObjList_Def	; 3
-	zoneOffsetTableEntry.w DbgObjList_Def	; 4
-	zoneOffsetTableEntry.w DbgObjList_Def	; 5
-	zoneOffsetTableEntry.w DbgObjList_Def	; 6
-	zoneOffsetTableEntry.w DbgObjList_Def	; 7
-	zoneOffsetTableEntry.w DbgObjList_Def	; 8
-	zoneOffsetTableEntry.w DbgObjList_Def	; 9
-	zoneOffsetTableEntry.w DbgObjList_Def	; $A
-	zoneOffsetTableEntry.w DbgObjList_Def	; $B
-	zoneOffsetTableEntry.w DbgObjList_Def	; $C
-	zoneOffsetTableEntry.w DbgObjList_Def	; $D
-	zoneOffsetTableEntry.w DbgObjList_Def	; $E
-	zoneOffsetTableEntry.w DbgObjList_Def	; $F
-	zoneOffsetTableEntry.w DbgObjList_Def	; $10
+	zoneOffsetTableEntry.w DbgObjList_Def	; EHZ
+	zoneOffsetTableEntry.w DbgObjList_Def	; Zone 1
+	zoneOffsetTableEntry.w DbgObjList_Def	; WZ
+	zoneOffsetTableEntry.w DbgObjList_Def	; Zone 3
+	zoneOffsetTableEntry.w DbgObjList_Def	; MTZ1,2
+	zoneOffsetTableEntry.w DbgObjList_Def	; MTZ3
+	zoneOffsetTableEntry.w DbgObjList_Def	; WFZ
+	zoneOffsetTableEntry.w DbgObjList_Def	; HTZ
+	zoneOffsetTableEntry.w DbgObjList_Def	; HPZ
+	zoneOffsetTableEntry.w DbgObjList_Def	; Zone 9
+	zoneOffsetTableEntry.w DbgObjList_Def	; OOZ
+	zoneOffsetTableEntry.w DbgObjList_Def	; MCZ
+	zoneOffsetTableEntry.w DbgObjList_Def	; CNZ
+	zoneOffsetTableEntry.w DbgObjList_Def	; CPZ
+	zoneOffsetTableEntry.w DbgObjList_Def	; DEZ
+	zoneOffsetTableEntry.w DbgObjList_Def	; ARZ
+	zoneOffsetTableEntry.w DbgObjList_Def	; SCZ
     else
-	zoneOffsetTableEntry.w DbgObjList_EHZ	; 0
-	zoneOffsetTableEntry.w DbgObjList_Def	; 1
-	zoneOffsetTableEntry.w DbgObjList_Def	; 2
-	zoneOffsetTableEntry.w DbgObjList_Def	; 3
-	zoneOffsetTableEntry.w DbgObjList_MTZ	; 4
-	zoneOffsetTableEntry.w DbgObjList_MTZ	; 5
-	zoneOffsetTableEntry.w DbgObjList_WFZ	; 6
-	zoneOffsetTableEntry.w DbgObjList_HTZ	; 7
-	zoneOffsetTableEntry.w DbgObjList_HPZ	; 8
-	zoneOffsetTableEntry.w DbgObjList_Def	; 9
-	zoneOffsetTableEntry.w DbgObjList_OOZ	; $A
-	zoneOffsetTableEntry.w DbgObjList_MCZ	; $B
-	zoneOffsetTableEntry.w DbgObjList_CNZ	; $C
-	zoneOffsetTableEntry.w DbgObjList_CPZ	; $D
-	zoneOffsetTableEntry.w DbgObjList_Def	; $E
-	zoneOffsetTableEntry.w DbgObjList_ARZ	; $F
-	zoneOffsetTableEntry.w DbgObjList_SCZ	; $10
+	zoneOffsetTableEntry.w DbgObjList_EHZ	; EHZ
+	zoneOffsetTableEntry.w DbgObjList_Def	; Zone 1
+	zoneOffsetTableEntry.w DbgObjList_Def	; WZ
+	zoneOffsetTableEntry.w DbgObjList_Def	; Zone 3
+	zoneOffsetTableEntry.w DbgObjList_MTZ	; MTZ1,2
+	zoneOffsetTableEntry.w DbgObjList_MTZ	; MTZ3
+	zoneOffsetTableEntry.w DbgObjList_WFZ	; WFZ
+	zoneOffsetTableEntry.w DbgObjList_HTZ	; HTZ
+	zoneOffsetTableEntry.w DbgObjList_HPZ	; HPZ
+	zoneOffsetTableEntry.w DbgObjList_Def	; Zone 9
+	zoneOffsetTableEntry.w DbgObjList_OOZ	; OOZ
+	zoneOffsetTableEntry.w DbgObjList_MCZ	; MCZ
+	zoneOffsetTableEntry.w DbgObjList_CNZ	; CNZ
+	zoneOffsetTableEntry.w DbgObjList_CPZ	; CPZ
+	zoneOffsetTableEntry.w DbgObjList_Def	; DEZ
+	zoneOffsetTableEntry.w DbgObjList_ARZ	; ARZ
+	zoneOffsetTableEntry.w DbgObjList_SCZ	; SCZ
     endif
     zoneTableEnd
 
@@ -95314,41 +95407,60 @@ ColP_Invalid:
 ; respectively.
 ;---------------------------------------------------------------------------------------
 Off_Level: zoneOrderedOffsetTable 2,2
-	zoneOffsetTableEntry.w Level_EHZ1
-	zoneOffsetTableEntry.w Level_EHZ2	; 1
-	zoneOffsetTableEntry.w Level_EHZ1	; 2
-	zoneOffsetTableEntry.w Level_EHZ1	; 3
-	zoneOffsetTableEntry.w Level_EHZ1	; 4
-	zoneOffsetTableEntry.w Level_EHZ1	; 5
-	zoneOffsetTableEntry.w Level_EHZ1	; 6
-	zoneOffsetTableEntry.w Level_EHZ1	; 7
-	zoneOffsetTableEntry.w Level_MTZ1	; 8
-	zoneOffsetTableEntry.w Level_MTZ2	; 9
-	zoneOffsetTableEntry.w Level_MTZ3	; 10
-	zoneOffsetTableEntry.w Level_MTZ3	; 11
-	zoneOffsetTableEntry.w Level_WFZ	; 12
-	zoneOffsetTableEntry.w Level_WFZ	; 13
-	zoneOffsetTableEntry.w Level_HTZ1	; 14
-	zoneOffsetTableEntry.w Level_HTZ2	; 15
-	zoneOffsetTableEntry.w Level_HPZ1	; 16
-	zoneOffsetTableEntry.w Level_HPZ1	; 17
-	zoneOffsetTableEntry.w Level_EHZ1	; 18
-	zoneOffsetTableEntry.w Level_EHZ1	; 19
-	zoneOffsetTableEntry.w Level_OOZ1	; 20
-	zoneOffsetTableEntry.w Level_OOZ2	; 21
-	zoneOffsetTableEntry.w Level_MCZ1	; 22
-	zoneOffsetTableEntry.w Level_MCZ2	; 23
-	zoneOffsetTableEntry.w Level_CNZ1	; 24
-	zoneOffsetTableEntry.w Level_CNZ2	; 25
-	zoneOffsetTableEntry.w Level_CPZ1	; 26
-	zoneOffsetTableEntry.w Level_CPZ2	; 27
-	zoneOffsetTableEntry.w Level_DEZ	; 28
-	zoneOffsetTableEntry.w Level_DEZ	; 29
-	zoneOffsetTableEntry.w Level_ARZ1	; 30
-	zoneOffsetTableEntry.w Level_ARZ2	; 31
-	zoneOffsetTableEntry.w Level_SCZ	; 32
-	zoneOffsetTableEntry.w Level_SCZ	; 33
+	; EHZ
+	zoneOffsetTableEntry.w Level_EHZ1	; Act 1
+	zoneOffsetTableEntry.w Level_EHZ2	; Act 2
+	; Zone 1
+	zoneOffsetTableEntry.w Level_Invalid	; Act 1
+	zoneOffsetTableEntry.w Level_Invalid	; Act 2
+	; WZ
+	zoneOffsetTableEntry.w Level_Invalid	; Act 1
+	zoneOffsetTableEntry.w Level_Invalid	; Act 2
+	; Zone 3
+	zoneOffsetTableEntry.w Level_Invalid	; Act 1
+	zoneOffsetTableEntry.w Level_Invalid	; Act 2
+	; MTZ
+	zoneOffsetTableEntry.w Level_MTZ1	; Act 1
+	zoneOffsetTableEntry.w Level_MTZ2	; Act 2
+	; MTZ
+	zoneOffsetTableEntry.w Level_MTZ3	; Act 3
+	zoneOffsetTableEntry.w Level_MTZ3	; Act 4
+	; WFZ
+	zoneOffsetTableEntry.w Level_WFZ	; Act 1
+	zoneOffsetTableEntry.w Level_WFZ	; Act 2
+	; HTZ
+	zoneOffsetTableEntry.w Level_HTZ1	; Act 1
+	zoneOffsetTableEntry.w Level_HTZ2	; Act 2
+	; HPZ
+	zoneOffsetTableEntry.w Level_HPZ1	; Act 1
+	zoneOffsetTableEntry.w Level_HPZ1	; Act 2
+	; Zone 9
+	zoneOffsetTableEntry.w Level_Invalid	; Act 1
+	zoneOffsetTableEntry.w Level_Invalid	; Act 2
+	; OOZ
+	zoneOffsetTableEntry.w Level_OOZ1	; Act 1
+	zoneOffsetTableEntry.w Level_OOZ2	; Act 2
+	; MCZ
+	zoneOffsetTableEntry.w Level_MCZ1	; Act 1
+	zoneOffsetTableEntry.w Level_MCZ2	; Act 2
+	; CNZ
+	zoneOffsetTableEntry.w Level_CNZ1	; Act 1
+	zoneOffsetTableEntry.w Level_CNZ2	; Act 2
+	; CPZ
+	zoneOffsetTableEntry.w Level_CPZ1	; Act 1
+	zoneOffsetTableEntry.w Level_CPZ2	; Act 2
+	; DEZ
+	zoneOffsetTableEntry.w Level_DEZ	; Act 1
+	zoneOffsetTableEntry.w Level_DEZ	; Act 2
+	; ARZ
+	zoneOffsetTableEntry.w Level_ARZ1	; Act 1
+	zoneOffsetTableEntry.w Level_ARZ2	; Act 2
+	; SCZ
+	zoneOffsetTableEntry.w Level_SCZ	; Act 1
+	zoneOffsetTableEntry.w Level_SCZ	; Act 2
     zoneTableEnd
+;---------------------------------------------------------------------------------------
+Level_Invalid: ; Falls-through to EHZ Act 1's layout.
 ;---------------------------------------------------------------------------------------
 ; EHZ act 1 level layout (Kosinski compression)
 Level_EHZ1:	BINCLUDE	"level/layout/EHZ_1.bin"
@@ -96958,48 +97070,65 @@ MiscKoz_SpecialObjectLocations:	BINCLUDE	"misc/Special stage object location lis
 ;  associated zone.
 ;--------------------------------------------------------------------------------------
 Off_Rings: zoneOrderedOffsetTable 2,2
-	zoneOffsetTableEntry.w  Rings_EHZ_1	; 0  $00
-	zoneOffsetTableEntry.w  Rings_EHZ_2	; 1
-	zoneOffsetTableEntry.w  Rings_Lev1_1	; 2  $01
-	zoneOffsetTableEntry.w  Rings_Lev1_2	; 3
-	zoneOffsetTableEntry.w  Rings_Lev2_1	; 4  $02
-	zoneOffsetTableEntry.w  Rings_Lev2_2	; 5
-	zoneOffsetTableEntry.w  Rings_Lev3_1	; 6  $03
-	zoneOffsetTableEntry.w  Rings_Lev3_2	; 7
-	zoneOffsetTableEntry.w  Rings_MTZ_1	; 8  $04
-	zoneOffsetTableEntry.w  Rings_MTZ_2	; 9
-	zoneOffsetTableEntry.w  Rings_MTZ_3	; 10 $05
-	zoneOffsetTableEntry.w  Rings_MTZ_4	; 11
-	zoneOffsetTableEntry.w  Rings_WFZ_1	; 12 $06
-	zoneOffsetTableEntry.w  Rings_WFZ_2	; 13
-	zoneOffsetTableEntry.w  Rings_HTZ_1	; 14 $07
-	zoneOffsetTableEntry.w  Rings_HTZ_2	; 15
-	zoneOffsetTableEntry.w  Rings_HPZ_1	; 16 $08
-	zoneOffsetTableEntry.w  Rings_HPZ_2	; 17
-	zoneOffsetTableEntry.w  Rings_Lev9_1	; 18 $09
-	zoneOffsetTableEntry.w  Rings_Lev9_2	; 19
-	zoneOffsetTableEntry.w  Rings_OOZ_1	; 20 $0A
-	zoneOffsetTableEntry.w  Rings_OOZ_2	; 21
-	zoneOffsetTableEntry.w  Rings_MCZ_1	; 22 $0B
-	zoneOffsetTableEntry.w  Rings_MCZ_2	; 23
-	zoneOffsetTableEntry.w  Rings_CNZ_1	; 24 $0C
-	zoneOffsetTableEntry.w  Rings_CNZ_2	; 25
-	zoneOffsetTableEntry.w  Rings_CPZ_1	; 26 $0D
-	zoneOffsetTableEntry.w  Rings_CPZ_2	; 27
-	zoneOffsetTableEntry.w  Rings_DEZ_1	; 28 $0E
-	zoneOffsetTableEntry.w  Rings_DEZ_2	; 29
-	zoneOffsetTableEntry.w  Rings_ARZ_1	; 30 $0F
-	zoneOffsetTableEntry.w  Rings_ARZ_2	; 31
-	zoneOffsetTableEntry.w  Rings_SCZ_1	; 32 $10
-	zoneOffsetTableEntry.w  Rings_SCZ_2	; 33
+	; EHZ
+	zoneOffsetTableEntry.w  Rings_EHZ_1	; Act 1
+	zoneOffsetTableEntry.w  Rings_EHZ_2	; Act 2
+	; Zone 1
+	zoneOffsetTableEntry.w  Rings_Lev1_1	; Act 1
+	zoneOffsetTableEntry.w  Rings_Lev1_2	; Act 2
+	; WZ
+	zoneOffsetTableEntry.w  Rings_WZ_1	; Act 1
+	zoneOffsetTableEntry.w  Rings_WZ_2	; Act 2
+	; Zone 3
+	zoneOffsetTableEntry.w  Rings_Lev3_1	; Act 1
+	zoneOffsetTableEntry.w  Rings_Lev3_2	; Act 2
+	; MTZ
+	zoneOffsetTableEntry.w  Rings_MTZ_1	; Act 1
+	zoneOffsetTableEntry.w  Rings_MTZ_2	; Act 2
+	; MTZ
+	zoneOffsetTableEntry.w  Rings_MTZ_3	; Act 3
+	zoneOffsetTableEntry.w  Rings_MTZ_4	; Act 4
+	; WFZ
+	zoneOffsetTableEntry.w  Rings_WFZ_1	; Act 1
+	zoneOffsetTableEntry.w  Rings_WFZ_2	; Act 2
+	; HTZ
+	zoneOffsetTableEntry.w  Rings_HTZ_1	; Act 1
+	zoneOffsetTableEntry.w  Rings_HTZ_2	; Act 2
+	; HPZ
+	zoneOffsetTableEntry.w  Rings_HPZ_1	; Act 1
+	zoneOffsetTableEntry.w  Rings_HPZ_2	; Act 2
+	; Zone 9
+	zoneOffsetTableEntry.w  Rings_Lev9_1	; Act 1
+	zoneOffsetTableEntry.w  Rings_Lev9_2	; Act 2
+	; OOZ
+	zoneOffsetTableEntry.w  Rings_OOZ_1	; Act 1
+	zoneOffsetTableEntry.w  Rings_OOZ_2	; Act 2
+	; MCZ
+	zoneOffsetTableEntry.w  Rings_MCZ_1	; Act 1
+	zoneOffsetTableEntry.w  Rings_MCZ_2	; Act 2
+	; CNZ
+	zoneOffsetTableEntry.w  Rings_CNZ_1	; Act 1
+	zoneOffsetTableEntry.w  Rings_CNZ_2	; Act 2
+	; CPZ
+	zoneOffsetTableEntry.w  Rings_CPZ_1	; Act 1
+	zoneOffsetTableEntry.w  Rings_CPZ_2	; Act 2
+	; DEZ
+	zoneOffsetTableEntry.w  Rings_DEZ_1	; Act 1
+	zoneOffsetTableEntry.w  Rings_DEZ_2	; Act 2
+	; ARZ
+	zoneOffsetTableEntry.w  Rings_ARZ_1	; Act 1
+	zoneOffsetTableEntry.w  Rings_ARZ_2	; Act 2
+	; SCZ
+	zoneOffsetTableEntry.w  Rings_SCZ_1	; Act 1
+	zoneOffsetTableEntry.w  Rings_SCZ_2	; Act 2
     zoneTableEnd
 
 Rings_EHZ_1:	BINCLUDE	"level/rings/EHZ_1.bin"
 Rings_EHZ_2:	BINCLUDE	"level/rings/EHZ_2.bin"
 Rings_Lev1_1:	BINCLUDE	"level/rings/01_1.bin"
 Rings_Lev1_2:	BINCLUDE	"level/rings/01_2.bin"
-Rings_Lev2_1:	BINCLUDE	"level/rings/02_1.bin"
-Rings_Lev2_2:	BINCLUDE	"level/rings/02_2.bin"
+Rings_WZ_1:	BINCLUDE	"level/rings/WZ_1.bin"
+Rings_WZ_2:	BINCLUDE	"level/rings/WZ_2.bin"
 Rings_Lev3_1:	BINCLUDE	"level/rings/03_1.bin"
 Rings_Lev3_2:	BINCLUDE	"level/rings/03_2.bin"
 Rings_MTZ_1:	BINCLUDE	"level/rings/MTZ_1.bin"
@@ -97038,40 +97167,57 @@ Rings_SCZ_2:	BINCLUDE	"level/rings/SCZ_2.bin"
 ; Offset index of object locations
 ; --------------------------------------------------------------------------------------
 Off_Objects: zoneOrderedOffsetTable 2,2
-	zoneOffsetTableEntry.w  Objects_EHZ_1	; 0  $00
-	zoneOffsetTableEntry.w  Objects_EHZ_2	; 1
-	zoneOffsetTableEntry.w  Objects_Null	; 2  $01
-	zoneOffsetTableEntry.w  Objects_Null	; 3
-	zoneOffsetTableEntry.w  Objects_Null	; 4  $02
-	zoneOffsetTableEntry.w  Objects_Null	; 5
-	zoneOffsetTableEntry.w  Objects_Null	; 6  $03
-	zoneOffsetTableEntry.w  Objects_Null	; 7
-	zoneOffsetTableEntry.w  Objects_MTZ_1	; 8  $04
-	zoneOffsetTableEntry.w  Objects_MTZ_2	; 9
-	zoneOffsetTableEntry.w  Objects_MTZ_3	; 10 $05
-	zoneOffsetTableEntry.w  Objects_MTZ_3	; 11
-	zoneOffsetTableEntry.w  Objects_WFZ_1	; 12 $06
-	zoneOffsetTableEntry.w  Objects_WFZ_2	; 13
-	zoneOffsetTableEntry.w  Objects_HTZ_1	; 14 $07
-	zoneOffsetTableEntry.w  Objects_HTZ_2	; 15
-	zoneOffsetTableEntry.w  Objects_HPZ_1	; 16 $08
-	zoneOffsetTableEntry.w  Objects_HPZ_2	; 17
-	zoneOffsetTableEntry.w  Objects_Null	; 18 $09
-	zoneOffsetTableEntry.w  Objects_Null	; 19
-	zoneOffsetTableEntry.w  Objects_OOZ_1	; 20 $0A
-	zoneOffsetTableEntry.w  Objects_OOZ_2	; 21
-	zoneOffsetTableEntry.w  Objects_MCZ_1	; 22 $0B
-	zoneOffsetTableEntry.w  Objects_MCZ_2	; 23
-	zoneOffsetTableEntry.w  Objects_CNZ_1	; 24 $0C
-	zoneOffsetTableEntry.w  Objects_CNZ_2	; 25
-	zoneOffsetTableEntry.w  Objects_CPZ_1	; 26 $0D
-	zoneOffsetTableEntry.w  Objects_CPZ_2	; 27
-	zoneOffsetTableEntry.w  Objects_DEZ_1	; 28 $0E
-	zoneOffsetTableEntry.w  Objects_DEZ_2	; 29
-	zoneOffsetTableEntry.w  Objects_ARZ_1	; 30 $0F
-	zoneOffsetTableEntry.w  Objects_ARZ_2	; 31
-	zoneOffsetTableEntry.w  Objects_SCZ_1	; 32 $10
-	zoneOffsetTableEntry.w  Objects_SCZ_2	; 33
+	; EHZ
+	zoneOffsetTableEntry.w  Objects_EHZ_1	; Act 1
+	zoneOffsetTableEntry.w  Objects_EHZ_2	; Act 2
+	; Zone 1
+	zoneOffsetTableEntry.w  Objects_Null	; Act 1
+	zoneOffsetTableEntry.w  Objects_Null	; Act 2
+	; WZ
+	zoneOffsetTableEntry.w  Objects_Null	; Act 1
+	zoneOffsetTableEntry.w  Objects_Null	; Act 2
+	; Zone 3
+	zoneOffsetTableEntry.w  Objects_Null	; Act 1
+	zoneOffsetTableEntry.w  Objects_Null	; Act 2
+	; MTZ
+	zoneOffsetTableEntry.w  Objects_MTZ_1	; Act 1
+	zoneOffsetTableEntry.w  Objects_MTZ_2	; Act 2
+	; MTZ
+	zoneOffsetTableEntry.w  Objects_MTZ_3	; Act 3
+	zoneOffsetTableEntry.w  Objects_MTZ_3	; Act 4
+	; WFZ
+	zoneOffsetTableEntry.w  Objects_WFZ_1	; Act 1
+	zoneOffsetTableEntry.w  Objects_WFZ_2	; Act 2
+	; HTZ
+	zoneOffsetTableEntry.w  Objects_HTZ_1	; Act 1
+	zoneOffsetTableEntry.w  Objects_HTZ_2	; Act 2
+	; HPZ
+	zoneOffsetTableEntry.w  Objects_HPZ_1	; Act 1
+	zoneOffsetTableEntry.w  Objects_HPZ_2	; Act 2
+	; Zone 9
+	zoneOffsetTableEntry.w  Objects_Null	; Act 1
+	zoneOffsetTableEntry.w  Objects_Null	; Act 2
+	; OOZ
+	zoneOffsetTableEntry.w  Objects_OOZ_1	; Act 1
+	zoneOffsetTableEntry.w  Objects_OOZ_2	; Act 2
+	; MCZ
+	zoneOffsetTableEntry.w  Objects_MCZ_1	; Act 1
+	zoneOffsetTableEntry.w  Objects_MCZ_2	; Act 2
+	; CNZ
+	zoneOffsetTableEntry.w  Objects_CNZ_1	; Act 1
+	zoneOffsetTableEntry.w  Objects_CNZ_2	; Act 2
+	; CPZ
+	zoneOffsetTableEntry.w  Objects_CPZ_1	; Act 1
+	zoneOffsetTableEntry.w  Objects_CPZ_2	; Act 2
+	; DEZ
+	zoneOffsetTableEntry.w  Objects_DEZ_1	; Act 1
+	zoneOffsetTableEntry.w  Objects_DEZ_2	; Act 2
+	; ARZ
+	zoneOffsetTableEntry.w  Objects_ARZ_1	; Act 1
+	zoneOffsetTableEntry.w  Objects_ARZ_2	; Act 2
+	; SCZ
+	zoneOffsetTableEntry.w  Objects_SCZ_1	; Act 1
+	zoneOffsetTableEntry.w  Objects_SCZ_2	; Act 2
     zoneTableEnd
 
 	; These things act as boundaries for the object layout parser, so it doesn't read past the end/beginning of the file
