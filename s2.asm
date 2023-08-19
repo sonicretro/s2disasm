@@ -14716,23 +14716,23 @@ StartLocations: zoneOrderedTable 2,4	; WrdArr_StartLoc
 	zoneTableBinEntry	2, "startpos/EHZ_1.bin"	; Act 1
 	zoneTableBinEntry	2, "startpos/EHZ_2.bin"	; Act 2
 	; Zone 1
-	zoneTableEntry.w	$60,	$28F		; Act 1
-	zoneTableEntry.w	$60,	$2AF		; Act 2
+	zoneTableBinEntry	2, "startpos/01_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/01_2.bin"	; Act 2
 	; WZ
-	zoneTableEntry.w	$60,	$1AC		; Act 1
-	zoneTableEntry.w	$60,	$1AC		; Act 2
+	zoneTableBinEntry	2, "startpos/WZ_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/WZ_2.bin"	; Act 2
 	; Zone 3
-	zoneTableEntry.w	$60,	$28F		; Act 1
-	zoneTableEntry.w	$60,	$2AF		; Act 2
+	zoneTableBinEntry	2, "startpos/03_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/03_2.bin"	; Act 2
 	; MTZ
 	zoneTableBinEntry	2, "startpos/MTZ_1.bin"	; Act 1
 	zoneTableBinEntry	2, "startpos/MTZ_2.bin"	; Act 2
 	; MTZ
 	zoneTableBinEntry	2, "startpos/MTZ_3.bin"	; Act 3
-	zoneTableEntry.w	$60,	$2AF		; Act 4
+	zoneTableBinEntry	2, "startpos/MTZ_4.bin"	; Act 4
 	; WFZ
-	zoneTableBinEntry	2, "startpos/WFZ.bin"	; Act 1
-	zoneTableEntry.w	$1E0,	$4CC		; Act 2
+	zoneTableBinEntry	2, "startpos/WFZ_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/WFZ_2.bin"	; Act 2
 	; HTZ
 	zoneTableBinEntry	2, "startpos/HTZ_1.bin"	; Act 1
 	zoneTableBinEntry	2, "startpos/HTZ_2.bin"	; Act 2
@@ -14740,8 +14740,8 @@ StartLocations: zoneOrderedTable 2,4	; WrdArr_StartLoc
 	zoneTableBinEntry	2, "startpos/HPZ_1.bin"	; Act 1
 	zoneTableBinEntry	2, "startpos/HPZ_2.bin"	; Act 2
 	; Zone 9
-	zoneTableEntry.w	$60,	$28F		; Act 1
-	zoneTableEntry.w	$60,	$2AF		; Act 2
+	zoneTableBinEntry	2, "startpos/09_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/09_2.bin"	; Act 2
 	; OOZ
 	zoneTableBinEntry	2, "startpos/OOZ_1.bin"	; Act 1
 	zoneTableBinEntry	2, "startpos/OOZ_2.bin"	; Act 2
@@ -14755,14 +14755,14 @@ StartLocations: zoneOrderedTable 2,4	; WrdArr_StartLoc
 	zoneTableBinEntry	2, "startpos/CPZ_1.bin"	; Act 1
 	zoneTableBinEntry	2, "startpos/CPZ_2.bin"	; Act 2
 	; DEZ
-	zoneTableBinEntry	2, "startpos/DEZ.bin"	; Act 1
-	zoneTableEntry.w	$60,	$12D		; Act 2
+	zoneTableBinEntry	2, "startpos/DEZ_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/DEZ_2.bin"	; Act 2
 	; ARZ
 	zoneTableBinEntry	2, "startpos/ARZ_1.bin"	; Act 1
 	zoneTableBinEntry	2, "startpos/ARZ_2.bin"	; Act 2
 	; SCZ
-	zoneTableBinEntry	2, "startpos/SCZ.bin"	; Act 1
-	zoneTableEntry.w	$140,	$70		; Act 2
+	zoneTableBinEntry	2, "startpos/SCZ_1.bin"	; Act 1
+	zoneTableBinEntry	2, "startpos/SCZ_2.bin"	; Act 2
     zoneTableEnd
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
