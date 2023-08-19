@@ -466,21 +466,24 @@ V_Int:
 	tst.b	(Vint_routine).w
 	beq.w	Vint_Lag
 
+	; waits until vertical blanking is taking place
 -	move.w	(VDP_control_port).l,d0
 	andi.w	#8,d0
 	beq.s	-
 
 	move.l	#vdpComm($0000,VSRAM,WRITE),(VDP_control_port).l
 	move.l	(Vscroll_Factor).w,(VDP_data_port).l ; send screen y-axis pos. to VSRAM
+
 	btst	#6,(Graphics_Flags).w ; is Megadrive PAL?
 	beq.s	+		; if not, branch
 
 	move.w	#$700,d0
 -	dbf	d0,- ; wait here in a loop doing nothing for a while...
 +
+
 	move.b	(Vint_routine).w,d0
 	move.b	#VintID_Lag,(Vint_routine).w
-	move.w	#1,(Hint_flag).w
+	move.w	#1,(Hint_flag).w	; allows horizontal interrupt code to run
 	andi.w	#$3E,d0
 	move.w	Vint_SwitchTbl(pc,d0.w),d0
 	jsr	Vint_SwitchTbl(pc,d0.w)
@@ -528,12 +531,14 @@ loc_4C4:
 	tst.b	(Water_flag).w
 	beq.w	Vint0_noWater
 	move.w	(VDP_control_port).l,d0
-	btst	#6,(Graphics_Flags).w
-	beq.s	+
+
+	btst	#6,(Graphics_Flags).w ; is Megadrive PAL?
+	beq.s	+		; if not, branch
 
 	move.w	#$700,d0
--	dbf	d0,- ; do nothing for a while...
+-	dbf	d0,- ; wait here in a loop doing nothing for a while...
 +
+
 	move.w	#1,(Hint_flag).w
 
 	stopZ80
@@ -563,12 +568,14 @@ Vint0_noWater:
 	move.w	(VDP_control_port).l,d0
 	move.l	#vdpComm($0000,VSRAM,WRITE),(VDP_control_port).l
 	move.l	(Vscroll_Factor).w,(VDP_data_port).l
-	btst	#6,(Graphics_Flags).w
-	beq.s	+
+
+	btst	#6,(Graphics_Flags).w ; is Megadrive PAL?
+	beq.s	+		; if not, branch
 
 	move.w	#$700,d0
--	dbf	d0,- ; do nothing for a while...
+-	dbf	d0,- ; wait here in a loop doing nothing for a while...
 +
+
 	move.w	#1,(Hint_flag).w
 	move.w	(Hint_counter_reserve).w,(VDP_control_port).l
 	move.w	#$8200|(VRAM_Plane_A_Name_Table/$400),(VDP_control_port).l	; Set scroll A PNT base to $C000
@@ -599,12 +606,15 @@ Vint_SEGA:
 ;VintSub14
 Vint_PCM:
 	move.b	(Vint_runcount+3).w,d0
+
+	; makes it so the joypads are only read once every 16 frames
 	andi.w	#$F,d0
 	bne.s	+
 
 	stopZ80
 	bsr.w	ReadJoypads
 	startZ80
+
 +
 	tst.w	(Demo_Time_left).w	; is there time left on the demo?
 	beq.w	+	; if not, return
@@ -1077,6 +1087,7 @@ H_Int:
 	andi.w	#4,d0
 	beq.s	-	; loop end
 
+
 	move.w	(VDP_Reg1_val).w,d0
 	andi.b	#$BF,d0
 	move.w	d0,(VDP_control_port).l		; Display disable
@@ -1088,9 +1099,9 @@ H_Int:
 	dma68kToVDP Sprite_Table_2,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
 	startZ80
 
--	move.w	(VDP_control_port).l,d0
+-	move.w	(VDP_control_port).l,d0 ; loop start: Wait until we're in the H-blank region
 	andi.w	#4,d0
-	beq.s	-
+	beq.s	-	; loop end
 
 	move.w	(VDP_Reg1_val).w,d0
 	ori.b	#$40,d0
@@ -1240,24 +1251,24 @@ ReadJoypads:
 
 ; sub_112A:
 Joypad_Read:
-	move.b	#0,(a1)
+	move.b	#0,(a1)	; Poll controller data port
 	nop
 	nop
-	move.b	(a1),d0
+	move.b	(a1),d0	; Get controller port data (start/A)
 	lsl.b	#2,d0
 	andi.b	#$C0,d0
-	move.b	#$40,(a1)
+	move.b	#$40,(a1)	; Poll controller data port again
 	nop
 	nop
-	move.b	(a1),d1
+	move.b	(a1),d1	; Get controller port data (B/C/Dpad)
 	andi.b	#$3F,d1
-	or.b	d1,d0
+	or.b	d1,d0	; Fuse them into one controller bit array
 	not.b	d0
-	move.b	(a0),d1
-	eor.b	d0,d1
-	move.b	d0,(a0)+
+	move.b	(a0),d1	; Get button press data
+	eor.b	d0,d1	; Toggle off held buttons
+	move.b	d0,(a0)+	; Store raw controller input for held button data
 	and.b	d0,d1
-	move.b	d1,(a0)+
+	move.b	d1,(a0)+	; Store pressed controller input
 	rts
 ; End of function Joypad_Read
 
@@ -1275,8 +1286,8 @@ VDP_Loop:
 	move.w	(a2)+,(a0)
 	dbf	d7,VDP_Loop	; set the VDP registers
 
-	move.w	(VDPSetupArray+2).l,d0
-	move.w	d0,(VDP_Reg1_val).w
+	move.w	(VDPSetupArray+2).l,d0	; get command for register #1
+	move.w	d0,(VDP_Reg1_val).w	; and store it in RAM (for easy display blanking/enabling)
 	move.w	#$8A00+223,(Hint_counter_reserve).w	; H-INT every 224th scanline
 	moveq	#0,d0
 
@@ -1535,12 +1546,16 @@ Pause_SlowMo:
 PlaneMapToVRAM_H40:
 	lea	(VDP_data_port).l,a6
 	move.l	#vdpCommDelta(planeLocH40(0,1)),d4	; $800000
+
 -	move.l	d0,VDP_control_port-VDP_data_port(a6)	; move d0 to VDP_control_port
 	move.w	d1,d3
+
 -	move.w	(a1)+,(a6)	; from source address to destination in VDP
 	dbf	d3,-		; next tile
+
 	add.l	d4,d0		; increase destination address by $80 (1 line)
 	dbf	d2,--		; next line
+
 	rts
 ; End of function PlaneMapToVRAM_H40
 
@@ -1677,7 +1692,7 @@ NemDec:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ; Nemesis decompression to RAM
-; input: a4 = starting address of destination
+; input: a0 = art address, a4 = starting address of destination
 ; sub_14F0: NemDecB:
 NemDecToRAM:
 	movem.l	d0-a1/a3-a5,-(sp)
@@ -1687,20 +1702,23 @@ NemDecToRAM:
 ; sub_14FA:
 NemDecMain:
 	lea	(Decomp_Buffer).w,a1
-	move.w	(a0)+,d2
+	move.w	(a0)+,d2	; get number of patterns
+
 	lsl.w	#1,d2
 	bcc.s	+
-	adda.w	#NemDec_WriteAndStay_XOR-NemDec_WriteAndStay,a3
-+	lsl.w	#2,d2
-	movea.w	d2,a5
-	moveq	#8,d3
+
+	adda.w	#NemDec_WriteAndStay_XOR-NemDec_WriteAndStay,a3	; file uses XOR mode if sign bit isn't set
+
++	lsl.w	#2,d2	; get number of 8-pixel rows in the uncompressed data
+	movea.w	d2,a5	; (stored in a5 because there are no spare data registers)
+	moveq	#8,d3	; a pattern row contains 8 pixels
 	moveq	#0,d2
 	moveq	#0,d4
 	bsr.w	NemDecPrepare
-	move.b	(a0)+,d5
-	asl.w	#8,d5
-	move.b	(a0)+,d5
-	move.w	#$10,d6
+	move.b	(a0)+,d5	; first byte fetch of compressed data
+	asl.w	#8,d5	; shift up by a byte
+	move.b	(a0)+,d5	; second byte fetch of compressed data
+	move.w	#$10,d6	; set initial shift value
 	bsr.s	NemDecRun
 	movem.l	(sp)+,d0-a1/a3-a5
 	rts
@@ -1713,40 +1731,51 @@ NemDecMain:
 ; sub_1528:
 NemDecRun:
 	move.w	d6,d7
-	subq.w	#8,d7
+	subq.w	#8,d7	; get shift value
 	move.w	d5,d1
-	lsr.w	d7,d1
+	lsr.w	d7,d1	; makes it so high bit of the code is in 7th bit
+
+	; if the high 6 bits are set, this signifies inline data
 	cmpi.b	#$FC,d1
 	bhs.s	loc_1574
+
 	andi.w	#$FF,d1
 	add.w	d1,d1
-	move.b	(a1,d1.w),d0
+	move.b	(a1,d1.w),d0	; get code length in bits
 	ext.w	d0
-	sub.w	d0,d6
+	sub.w	d0,d6	; subtracted from the shift value, such that the next time around the next code is read
+
+	; don't read a new byte if there's no need to
 	cmpi.w	#9,d6
 	bhs.s	+
+
 	addq.w	#8,d6
 	asl.w	#8,d5
-	move.b	(a0)+,d5
+	move.b	(a0)+,d5	; read next byte
+
 +	move.b	1(a1,d1.w),d1
 	move.w	d1,d0
-	andi.w	#$F,d1
+	andi.w	#$F,d1	; get palette index for pixel
 	andi.w	#$F0,d0
 
 loc_155E:
 	lsr.w	#4,d0
 
 loc_1560:
-	lsl.l	#4,d4
-	or.b	d1,d4
+	lsl.l	#4,d4	; shift up by a nibble
+	or.b	d1,d4	; write pixel
+
+	; loops until an entire 8-pixel row has been written
 	subq.w	#1,d3
 	bne.s	NemDec_WriteIter_Part2
+
+	; writes the row to its destination with the appropriately determined function
 	jmp	(a3) ; dynamic jump! to NemDec_WriteAndStay, NemDec_WriteAndAdvance, NemDec_WriteAndStay_XOR, or NemDec_WriteAndAdvance_XOR
 ; ===========================================================================
 ; loc_156A:
 NemDec_WriteIter:
-	moveq	#0,d4
-	moveq	#8,d3
+	moveq	#0,d4	; reset row
+	moveq	#8,d3	; reset nibble counter
 ; loc_156E:
 NemDec_WriteIter_Part2:
 	dbf	d0,loc_1560
@@ -1754,19 +1783,19 @@ NemDec_WriteIter_Part2:
 ; ===========================================================================
 
 loc_1574:
-	subq.w	#6,d6
+	subq.w	#6,d6	; 6 bits needed to signal inline data
 	cmpi.w	#9,d6
 	bhs.s	+
 	addq.w	#8,d6
 	asl.w	#8,d5
 	move.b	(a0)+,d5
 +
-	subq.w	#7,d6
+	subq.w	#7,d6	; and 7 bits needed for the inline data itself
 	move.w	d5,d1
-	lsr.w	d6,d1
+	lsr.w	d6,d1	; the shift makes it so that the low bit of the code is in position 0
 	move.w	d1,d0
-	andi.w	#$F,d1
-	andi.w	#$70,d0
+	andi.w	#$F,d1	; get pixel palette index
+	andi.w	#$70,d0	; high nibble is the repeat count for the pixel
 	cmpi.w	#9,d6
 	bhs.s	loc_155E
 	addq.w	#8,d6
@@ -1778,15 +1807,17 @@ loc_1574:
 ; ===========================================================================
 ; loc_15A0:
 NemDec_WriteAndStay:
-	move.l	d4,(a4)
+	move.l	d4,(a4)	; write 8-pixel row
 	subq.w	#1,a5
+
+	; don't return until all 8-pixel rows have been written
 	move.w	a5,d4
 	bne.s	NemDec_WriteIter
 	rts
 ; ---------------------------------------------------------------------------
 ; loc_15AA:
 NemDec_WriteAndStay_XOR:
-	eor.l	d4,d2
+	eor.l	d4,d2	; XOR the previous row with the current one
 	move.l	d2,(a4)
 	subq.w	#1,a5
 	move.w	a5,d4
@@ -1823,6 +1854,7 @@ NemDec_WriteAndAdvance_XOR:
 NemDecPrepare:
 	move.b	(a0)+,d0
 
+	; don't return until the end of the code table description has been reached
 -	cmpi.b	#$FF,d0
 	bne.s	+
 	rts
@@ -1830,34 +1862,45 @@ NemDecPrepare:
 +	move.w	d0,d7
 
 loc_15D8:
-	move.b	(a0)+,d0
-	cmpi.b	#$80,d0
-	bhs.s	-
+	move.b	(a0)+,d0	; read next byte
+	cmpi.b	#$80,d0	; sign bit being set means a new palette index
+	bhs.s	-	; (note: a bmi could have been used instead of a cmpi+bhs)
 
 	move.b	d0,d1
-	andi.w	#$F,d7
-	andi.w	#$70,d1
-	or.w	d1,d7
-	andi.w	#$F,d0
+	andi.w	#$F,d7	; get palette index
+	andi.w	#$70,d1	; get palette index repeat count
+	or.w	d1,d7	; combine the two
+	andi.w	#$F,d0	; get the length of the code in bits
 	move.b	d0,d1
 	lsl.w	#8,d1
-	or.w	d1,d7
+	or.w	d1,d7	; combine with palette index and repeat count to form code table entry
 	moveq	#8,d1
+
+	; extra processing is needed if the code isn't 8 bits long
 	sub.w	d0,d1
 	bne.s	loc_1606
-	move.b	(a0)+,d0
-	add.w	d0,d0
-	move.w	d7,(a1,d0.w)
-	bra.s	loc_15D8
+
+	move.b	(a0)+,d0	; get code
+	add.w	d0,d0	; each code gets a word-sized entry in the table
+	move.w	d7,(a1,d0.w)	; store the entry for the code
+	bra.s	loc_15D8	; repeat
 ; ---------------------------------------------------------------------------
+
+; the Nemesis decompressor uses prefix-free codes (no valid code is a prefix of a longer code)
+; e.g. if 10 is a valid 2-bit code, 110 is a valid 3-bit code but 100 isn't
+; also, when the actual compressed data is processed the high bit of each code is in bit position 7
+; so the code needs to be bit-shifted appropriately over here before being used as a code table index
+; additionally, the code needs multiple entries in the table because no masking is done during compressed data processing
+; so if 11000 is a valid code then all indices of the form 11000XXX need to have the same entry
 loc_1606:
-	move.b	(a0)+,d0
-	lsl.w	d1,d0
-	add.w	d0,d0
+	move.b	(a0)+,d0	; get code
+	lsl.w	d1,d0	; shift so that the high bit is in the 7th bit
+	add.w	d0,d0	; get index into code table
 	moveq	#1,d5
 	lsl.w	d1,d5
-	subq.w	#1,d5
+	subq.w	#1,d5	; d5 = 2^d1 - 1
 
+	; store the required number of entries
 -	move.w	d7,(a1,d0.w)
 	addq.w	#2,d0
 	dbf	d5,-
@@ -1891,20 +1934,23 @@ LoadPLC:
 	lea	(ArtLoadCues).l,a1
 	add.w	d0,d0
 	move.w	(a1,d0.w),d0
-	lea	(a1,d0.w),a1
+	lea	(a1,d0.w),a1	; jump to relevant PLC
 	lea	(Plc_Buffer).w,a2
 
--	tst.l	(a2)
+	; exit this loop when we find space available in RAM
+-	tst.l	(a2)	; is space available in RAM ?
 	beq.s	+ ; if it's zero, exit this loop
-	addq.w	#6,a2
+	addq.w	#6,a2	; try next space
 	bra.s	-
+
+	; the PLC is only copied to RAM if it has a positive length
 +
-	move.w	(a1)+,d0
+	move.w	(a1)+,d0	; get PLC length
 	bmi.s	+ ; if it's negative, skip the next loop
 
 -	move.l	(a1)+,(a2)+
-	move.w	(a1)+,(a2)+
-	dbf	d0,-
+	move.w	(a1)+,(a2)+	; copy PLC to RAM
+	dbf	d0,-	; repeat for the whole length of the PLC
 +
 	movem.l	(sp)+,a1-a2 ; a1=object
 	rts
@@ -1928,10 +1974,12 @@ LoadPLC2:
 	lea	(ArtLoadCues).l,a1
 	add.w	d0,d0
 	move.w	(a1,d0.w),d0
-	lea	(a1,d0.w),a1
-	bsr.s	ClearPLC
+	lea	(a1,d0.w),a1	; jump to relevant PLC
+	bsr.s	ClearPLC	; erase any data in PLC buffer space
 	lea	(Plc_Buffer).w,a2
-	move.w	(a1)+,d0
+
+	; the PLC is only copied to RAM if it has a positive length
+	move.w	(a1)+,d0	; get PLC length
 	bmi.s	+ ; if it's negative, skip the next loop
 
 -	move.l	(a1)+,(a2)+
@@ -1965,10 +2013,12 @@ ClearPLC:
 
 ; sub_168A:
 RunPLC_RAM:
+	; Immediately returns if the queue is empty or processing of a previous piece is still ongoing
 	tst.l	(Plc_Buffer).w
 	beq.s	.return
 	tst.w	(Plc_Buffer_Reg18).w
 	bne.s	.return
+
 	movea.l	(Plc_Buffer).w,a0
 	lea_	NemDec_WriteAndStay,a3
 	nop
@@ -2019,10 +2069,10 @@ RunPLC_RAM:
 ProcessDPLC:
 	tst.w	(Plc_Buffer_Reg18).w
 	beq.w	+	; rts
-	move.w	#6,(Plc_Buffer_Reg1A).w
+	move.w	#6,(Plc_Buffer_Reg1A).w	; 6 patterns are decompressed every frame
 	moveq	#0,d0
 	move.w	(Plc_Buffer+4).w,d0
-	addi.w	#$C0,(Plc_Buffer+4).w
+	addi.w	#6*$20,(Plc_Buffer+4).w	; increment by 6 patterns's worth of data
 	bra.s	ProcessDPLC_Main
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -2100,13 +2150,13 @@ RunPLC_ROM:
 	lea	(a1,d0.w),a1
 
 	move.w	(a1)+,d1
--	movea.l	(a1)+,a0
+-	movea.l	(a1)+,a0	; get source address
 	moveq	#0,d0
-	move.w	(a1)+,d0
+	move.w	(a1)+,d0	; get destination VRAM address
 	lsl.l	#2,d0
 	lsr.w	#2,d0
 	ori.w	#vdpComm($0000,VRAM,WRITE)>>16,d0
-	swap	d0
+	swap	d0	; d0 = VDP command to write to destination
 	move.l	d0,(VDP_control_port).l
 	bsr.w	NemDec
 	dbf	d1,-
@@ -2184,6 +2234,7 @@ EniDec_Sub4:
 EniDec_Sub8:
 	bsr.w	EniDec_GetInlineCopyVal
 
+	; copy inline value
 .loop:
 	move.w	d1,(a1)+
 	dbf	d2,.loop
@@ -2194,6 +2245,7 @@ EniDec_Sub8:
 EniDec_SubA:
 	bsr.w	EniDec_GetInlineCopyVal
 
+	; copy progressively incrementing inline value
 .loop:
 	move.w	d1,(a1)+
 	addq.w	#1,d1
@@ -2205,6 +2257,7 @@ EniDec_SubA:
 EniDec_SubC:
 	bsr.w	EniDec_GetInlineCopyVal
 
+	; copy progressively decrementing inline value
 .loop:
 	move.w	d1,(a1)+
 	subq.w	#1,d1
@@ -2217,6 +2270,7 @@ EniDec_SubE:
 	cmpi.w	#$F,d2
 	beq.s	EniDec_End
 
+	; copy a series of inline values
 .loop:
 	bsr.w	EniDec_GetInlineCopyVal
 	move.w	d1,(a1)+
@@ -2237,10 +2291,10 @@ EniDec_JmpTable:
 ; ===========================================================================
 
 EniDec_End:
-	subq.w	#1,a0
+	subq.w	#1,a0	; go back by a byte
 	cmpi.w	#16,d6		; were we going to start on a completely new byte?
 	bne.s	.notnewbyte	; if not, branch
-	subq.w	#1,a0
+	subq.w	#1,a0	; go back by a byte
 
 .notnewbyte:
 	move.w	a0,d0
@@ -2258,16 +2312,16 @@ EniDec_End:
 EniDec_GetInlineCopyVal:
 	move.w	a3,d3		; store starting art tile
 	move.b	d4,d1		; store PCCVH bitfield
-	add.b	d1,d1
+	add.b	d1,d1		; priority bit set ?
 	bcc.s	.skippriority	; if d4 was < $80
 	subq.w	#1,d6		; get next bit number
-	btst	d6,d5		; is the bit set?
+	btst	d6,d5		; is the priority bit set in the inline render flags?
 	beq.s	.skippriority	; if not, branch
-	ori.w	#high_priority,d3	; set high priority bit
+	ori.w	#high_priority,d3	; set high priority bit in art tile
 
 .skippriority:
 	add.b	d1,d1
-	bcc.s	.skiphighpal	; if d4 was < $40
+	bcc.s	.skiphighpal	; if d4 was < $40 (high palette line bit was not set)
 	subq.w	#1,d6		; get next bit number
 	btst	d6,d5
 	beq.s	.skiphighpal
@@ -2275,7 +2329,7 @@ EniDec_GetInlineCopyVal:
 
 .skiphighpal:
 	add.b	d1,d1
-	bcc.s	.skiplowpal	; if d4 was < $20
+	bcc.s	.skiplowpal	; if d4 was < $20 (low palette line bit not set)
 	subq.w	#1,d6		; get next bit number
 	btst	d6,d5
 	beq.s	.skiplowpal
@@ -2283,7 +2337,7 @@ EniDec_GetInlineCopyVal:
 
 .skiplowpal:
 	add.b	d1,d1
-	bcc.s	.skipyflip	; if d4 was < $10
+	bcc.s	.skipyflip	; if d4 was < $10 (vertical flip flag not set)
 	subq.w	#1,d6		; get next bit number
 	btst	d6,d5
 	beq.s	.skipyflip
@@ -2291,7 +2345,7 @@ EniDec_GetInlineCopyVal:
 
 .skipyflip:
 	add.b	d1,d1
-	bcc.s	.skipxflip	; if d4 was < 8
+	bcc.s	.skipxflip	; if d4 was < 8 (horizontal flip flag not set)
 	subq.w	#1,d6
 	btst	d6,d5
 	beq.s	.skipxflip
@@ -2313,7 +2367,7 @@ EniDec_GetInlineCopyVal:
 	add.w	d5,d1		; compensate for the bit deficit
 
 .maskvalue:
-	move.w	a5,d0
+	move.w	a5,d0	; get length in bits of inline copy value
 	add.w	d0,d0
 	and.w	EniDec_AndVals-2(pc,d0.w),d1	; only keep as many bits as required
 	add.w	d3,d1		; add starting art tile
@@ -2324,7 +2378,7 @@ EniDec_GetInlineCopyVal:
 ; ===========================================================================
 .enoughbits:
 	beq.s	.justenough	; if the exact number of bits are leftover, branch
-	lsr.w	d7,d1		; remove unneeded bits
+	lsr.w	d7,d1		; remove unneeded bits to get inline copy value
 	move.w	a5,d0
 	add.w	d0,d0
 	and.w	EniDec_AndVals-2(pc,d0.w),d1	; only keep as many bits as required
@@ -2333,7 +2387,7 @@ EniDec_GetInlineCopyVal:
 	bra.s	EniDec_ChkGetNextByte	; move onto next byte
 ; ===========================================================================
 .justenough:
-	moveq	#16,d6	; 16 bits = 2 bytes
+	moveq	#16,d6	; shift value = 16 bits = 2 bytes
 	bra.s	.maskvalue
 ; End of function EniDec_GetInlineCopyVal
 
@@ -2344,12 +2398,19 @@ EniDec_AndVals:
 	dc.w   $1F,  $3F,  $7F,  $FF
 	dc.w  $1FF, $3FF, $7FF, $FFF
 	dc.w $1FFF,$3FFF,$7FFF,$FFFF
+
+; ---------------------------------------------------------------------------
+; Part of the Enigma decompressor, fetches the next byte if needed
+; ---------------------------------------------------------------------------
 ; ===========================================================================
 
 EniDec_ChkGetNextByte:
-	sub.w	d0,d6
+	sub.w	d0,d6	; subtract length of current entry from shift value so that next entry is read next time around
+
 	cmpi.w	#9,d6
 	bhs.s	.return
+
+	; a new byte needs to be read
 	addq.w	#8,d6	; 8 bits = 1 byte
 	asl.w	#8,d5	; shift up by a byte
 	move.b	(a0)+,d5	; store next byte in lower register byte
@@ -2375,27 +2436,29 @@ KosDec:
 	subq.l	#2,sp
 	move.b	(a0)+,1(sp)
 	move.b	(a0)+,(sp)
-	move.w	(sp),d5
-	moveq	#$F,d4
+	move.w	(sp),d5	; copy first description field
+	moveq	#$F,d4	; 16 bits in a byte
 
 Kos_Loop:
-	lsr.w	#1,d5
+	lsr.w	#1,d5	; bit which is shifted out goes into C flag
 	move	sr,d6
 	dbf	d4,.chkbit
 	move.b	(a0)+,1(sp)
 	move.b	(a0)+,(sp)
-	move.w	(sp),d5
-	moveq	#$F,d4
+	move.w	(sp),d5	; get next description field if needed
+	moveq	#$F,d4	; reset bit counter
 
 .chkbit:
 	move	d6,ccr
 	bcc.s	Kos_RLE
+
+	; bit was set - copy byte as-is
 	move.b	(a0)+,(a1)+
 	bra.s	Kos_Loop
 ; ---------------------------------------------------------------------------
 Kos_RLE:
 	moveq	#0,d3
-	lsr.w	#1,d5
+	lsr.w	#1,d5	; get next bit
 	move	sr,d6
 	dbf	d4,.chkbit
 	move.b	(a0)+,1(sp)
@@ -2404,9 +2467,9 @@ Kos_RLE:
 	moveq	#$F,d4
 
 .chkbit:
-	move	d6,ccr
-	bcs.s	Kos_SeparateRLE
-	lsr.w	#1,d5
+	move	d6,ccr	; was bit set ?
+	bcs.s	Kos_SeparateRLE	; if it was, branch
+	lsr.w	#1,d5	; bit which is shifted out goes into X flag
 	dbf	d4,.loop1
 	move.b	(a0)+,1(sp)
 	move.b	(a0)+,(sp)
@@ -2414,7 +2477,7 @@ Kos_RLE:
 	moveq	#$F,d4
 
 .loop1:
-	roxl.w	#1,d3
+	roxl.w	#1,d3	; get high repeat count bit by shifting X flag in
 	lsr.w	#1,d5
 	dbf	d4,.loop2
 	move.b	(a0)+,1(sp)
@@ -2423,40 +2486,40 @@ Kos_RLE:
 	moveq	#$F,d4
 
 .loop2:
-	roxl.w	#1,d3
-	addq.w	#1,d3
+	roxl.w	#1,d3	; get low repeat count bit
+	addq.w	#1,d3	; increment repeat count
 	moveq	#-1,d2
-	move.b	(a0)+,d2
+	move.b	(a0)+,d2	; calculate offset
 	bra.s	Kos_RLELoop
 ; ---------------------------------------------------------------------------
 Kos_SeparateRLE:
-	move.b	(a0)+,d0
-	move.b	(a0)+,d1
+	move.b	(a0)+,d0	; get first byte
+	move.b	(a0)+,d1	; get second byte
 	moveq	#-1,d2
 	move.b	d1,d2
 	lsl.w	#5,d2
-	move.b	d0,d2
-	andi.w	#7,d1
-	beq.s	Kos_SeparateRLE2
-	move.b	d1,d3
-	addq.w	#1,d3
+	move.b	d0,d2	; calculate offset
+	andi.w	#7,d1	; does a third byte need to be read ?
+	beq.s	Kos_SeparateRLE2	; if so, branch
+	move.b	d1,d3	; copy repeat count
+	addq.w	#1,d3	; and increment it
 
 Kos_RLELoop:
 	move.b	(a1,d2.w),d0
-	move.b	d0,(a1)+
+	move.b	d0,(a1)+	; copy appropriate byte as many times as needed
 	dbf	d3,Kos_RLELoop
 	bra.s	Kos_Loop
 ; ---------------------------------------------------------------------------
 Kos_SeparateRLE2:
 	move.b	(a0)+,d1
-	beq.s	Kos_Done
+	beq.s	Kos_Done	; 0 indicates end of compressed data
 	cmpi.b	#1,d1
-	beq.w	Kos_Loop
-	move.b	d1,d3
+	beq.w	Kos_Loop	; 1 indicates a new description needs to be read
+	move.b	d1,d3	; otherwise, copy repeat count
 	bra.s	Kos_RLELoop
 ; ---------------------------------------------------------------------------
 Kos_Done:
-	addq.l	#2,sp
+	addq.l	#2,sp	; restore stack pointer
 	rts
 ; End of function KosDec
 
@@ -3799,7 +3862,7 @@ RandomNumber:
 CalcSine:
 	andi.w	#$FF,d0
 	add.w	d0,d0
-	addi.w	#$80,d0
+	addi.w	#$80,d0	; $40 = 90 degrees, sin(x+90) = cos(x)
 	move.w	Sine_Data(pc,d0.w),d1 ; cos
 	subi.w	#$80,d0
 	move.w	Sine_Data(pc,d0.w),d0 ; sin
@@ -3834,7 +3897,8 @@ CalcAngle:
 	absw.w	d3	; calculate absolute value of x
 	absw.w	d4	; calculate absolute value of y
 	cmp.w	d3,d4
-	bhs.w	+
+	bhs.w	+	; if abs(y) >= abs(x)
+
 	lsl.l	#8,d4
 	divu.w	d3,d4
 	moveq	#0,d0
@@ -3844,24 +3908,24 @@ CalcAngle:
 	lsl.l	#8,d3
 	divu.w	d4,d3
 	moveq	#$40,d0
-	sub.b	Angle_Data(pc,d3.w),d0
+	sub.b	Angle_Data(pc,d3.w),d0	; atan(y/x) = 90 - atan(x/y)
 +
 	tst.w	d1
 	bpl.w	+
 	neg.w	d0
-	addi.w	#$80,d0
+	addi.w	#$80,d0	; place angle in appropriate quadrant
 +
 	tst.w	d2
 	bpl.w	+
 	neg.w	d0
-	addi.w	#$100,d0
+	addi.w	#$100,d0	; place angle in appropriate quadrant
 +
 	movem.l	(sp)+,d3-d4
 	rts
 ; ===========================================================================
 ; loc_36AA:
 CalcAngle_Zero:
-	move.w	#$40,d0
+	move.w	#$40,d0	; angle = 90 degrees
 	movem.l	(sp)+,d3-d4
 	rts
 ; End of function CalcAngle
