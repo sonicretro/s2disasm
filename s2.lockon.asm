@@ -24,10 +24,11 @@ MapRUnc_Knuckles	= $14BD0A
 ; Sonic the Hedgehog 2
 
 ColCurveMap			= $242D50
-ColArray			= $242E50
-ColArray2			= $243E50
+ColArrayVertical		= $242E50
+ColArrayHorizontal		= $243E50
 ColP_EHZHTZ			= $244E50
 ColS_EHZHTZ			= $244F40
+ColP_WZ                         = $245040
 ColP_MTZ			= $245040
 ColP_HPZ			= $245100
 ColS_HPZ			= $245100
@@ -112,11 +113,11 @@ ArtNem_LevelSelectPics		= $27DA10
 ArtNem_ResultsText		= $27E86A
 ArtNem_SpecialStageResults	= $27EB58
 ArtNem_Perfect			= $27EEBE
-ArtNem_Bird			= $27EF60
+ArtNem_Flicky			= $27EF60
 ArtNem_Squirrel			= $27F0A2
 ArtNem_Mouse			= $27F206
 ArtNem_Chicken			= $27F340
-ArtNem_Beaver			= $27F4A2
+ArtNem_Monkey			= $27F4A2
 ArtNem_Eagle			= $27F5E2
 ArtNem_Pig			= $27F710
 ArtNem_Seal			= $27F846

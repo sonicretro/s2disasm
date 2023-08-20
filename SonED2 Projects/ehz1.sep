@@ -51,8 +51,8 @@ Palettes-
    File:              ..\art\palettes\EHZ.bin
 
 Collision Map Format:    0
-Collision Array:         ..\collision\Collision array 1.bin
-Rotated Collision Array: ..\collision\Collision array 2.bin
+Collision Array:         ..\collision\Collision array - Vertical.bin
+Rotated Collision Array: ..\collision\Collision array - Horizontal.bin
 Angle Array:             ..\collision\Curve and resistance mapping.bin
 
 Collision Index Format:      1
