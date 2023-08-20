@@ -18676,46 +18676,53 @@ Draw_BG2:
 ; Each entry is an index into BGCameraLookup; used to decide the camera to use
 ; for given block for reloading BG. A entry of 0 means assume X = 0 for section,
 ; but otherwise loads camera Y for selected camera.
+; Note that this list is 32 blocks long, which is enough to span the entire
+; two-chunk-tall background.
 ;byte_DCD6
 SBZ_CameraSections:
 	; BG1 (draw whole row)
-	dc.b   0
-	dc.b   0	; 1
-	dc.b   0	; 2
-	dc.b   0	; 3
-	dc.b   0	; 4
+	dc.b 0	; 0
+	dc.b 0	; 1
+	dc.b 0	; 2
+	dc.b 0	; 3
+	dc.b 0	; 4
 	; BG3
-	dc.b   6	; 5
-	dc.b   6	; 6
-	dc.b   6	; 7
-	dc.b   6	; 8
-	dc.b   6	; 9
-	dc.b   6	; 10
-	dc.b   6	; 11
-	dc.b   6	; 12
-	dc.b   6	; 13
-	dc.b   6	; 14
+	dc.b 6	; 5
+	dc.b 6	; 6
+	dc.b 6	; 7
+	dc.b 6	; 8
+	dc.b 6	; 9
+	dc.b 6	; 10
+	dc.b 6	; 11
+	dc.b 6	; 12
+	dc.b 6	; 13
+	dc.b 6	; 14
 	; BG2
-	dc.b   4	; 15
-	dc.b   4	; 16
-	dc.b   4	; 17
-	dc.b   4	; 18
-	dc.b   4	; 19
-	dc.b   4	; 20
-	dc.b   4	; 21
+	dc.b 4	; 15
+	dc.b 4	; 16
+	dc.b 4	; 17
+	dc.b 4	; 18
+	dc.b 4	; 19
+	dc.b 4	; 20
+	dc.b 4	; 21
 	; BG1
-	dc.b   2	; 22
-	dc.b   2	; 23
-	dc.b   2	; 24
-	dc.b   2	; 25
-	dc.b   2	; 26
-	dc.b   2	; 27
-	dc.b   2	; 28
-	dc.b   2	; 29
-	dc.b   2	; 30
-	dc.b   2	; 31
-	dc.b   2	; 32
+	dc.b 2	; 22
+	dc.b 2	; 23
+	dc.b 2	; 24
+	dc.b 2	; 25
+	dc.b 2	; 26
+	dc.b 2	; 27
+	dc.b 2	; 28
+	dc.b 2	; 29
+	dc.b 2	; 30
+	dc.b 2	; 31
+	dc.b 2	; 32
+
+	; Total height: 2 256x256 chunks.
+	; This matches the height of the background.
+
 	even
+
 ; ===========================================================================
 	; Scrap Brain Zone 1 drawing code -- Sonic 1 left-over.
 
@@ -18732,7 +18739,7 @@ SBZ_CameraSections:
 	; clouds disappear. Using this would have avoided that.
 
 	; Handle loading the rows as the camera moves up and down.
-	moveq	#-16,d4	; X offset (relative to camera)
+	moveq	#-16,d4	; Y offset (relative to camera)
 	bclr	#scroll_flag_advanced_bg_up,(a2)
 	bne.s	.doUpOrDown
 	bclr	#scroll_flag_advanced_bg_down,(a2)
@@ -18743,7 +18750,7 @@ SBZ_CameraSections:
 	lea_	SBZ_CameraSections+1,a0
 	move.w	(Camera_BG_Y_pos).w,d0
 	add.w	d4,d0
-	andi.w	#$1F0,d0
+	andi.w	#$1F0,d0	; After right-shifting, the is a mask of $1F. Since SBZ_CameraSections is $20 items long, this is correct.
 	lsr.w	#4,d0
 	move.b	(a0,d0.w),d0
 	lea	(BGCameraLookup).l,a3
@@ -18789,7 +18796,7 @@ SBZ_CameraSections:
 	; drawing the column.
 	lea_	SBZ_CameraSections,a0
 	move.w	(Camera_BG_Y_pos).w,d0
-	andi.w	#$1F0,d0
+	andi.w	#$1F0,d0	; After right-shifting, the is a mask of $1F. Since SBZ_CameraSections is $20 items long, this is correct.
 	lsr.w	#4,d0
 	lea	(a0,d0.w),a0
 	bra.w	DrawBlockColumn_Advanced
@@ -18839,73 +18846,79 @@ Draw_BG3:
 ;byte_DDD0
 CPZ_CameraSections:
 	; BG1
-	dc.b   2
-	dc.b   2	; 1
-	dc.b   2	; 2
-	dc.b   2	; 3
-	dc.b   2	; 4
-	dc.b   2	; 5
-	dc.b   2	; 6
-	dc.b   2	; 7
-	dc.b   2	; 8
-	dc.b   2	; 9
-	dc.b   2	; 10
-	dc.b   2	; 11
-	dc.b   2	; 12
-	dc.b   2	; 13
-	dc.b   2	; 14
-	dc.b   2	; 15
-	dc.b   2	; 16
-	dc.b   2	; 17
-	dc.b   2	; 18
-	dc.b   2	; 19
+	dc.b 2	; 0
+	dc.b 2	; 1
+	dc.b 2	; 2
+	dc.b 2	; 3
+	dc.b 2	; 4
+	dc.b 2	; 5
+	dc.b 2	; 6
+	dc.b 2	; 7
+	dc.b 2	; 8
+	dc.b 2	; 9
+	dc.b 2	; 10
+	dc.b 2	; 11
+	dc.b 2	; 12
+	dc.b 2	; 13
+	dc.b 2	; 14
+	dc.b 2	; 15
+	dc.b 2	; 16
+	dc.b 2	; 17
+	dc.b 2	; 18
+	dc.b 2	; 19
 	; BG2
-	dc.b   4	; 20
-	dc.b   4	; 21
-	dc.b   4	; 22
-	dc.b   4	; 23
-	dc.b   4	; 24
-	dc.b   4	; 25
-	dc.b   4	; 26
-	dc.b   4	; 27
-	dc.b   4	; 28
-	dc.b   4	; 29
-	dc.b   4	; 30
-	dc.b   4	; 31
-	dc.b   4	; 32
-	dc.b   4	; 33
-	dc.b   4	; 34
-	dc.b   4	; 35
-	dc.b   4	; 36
-	dc.b   4	; 37
-	dc.b   4	; 38
-	dc.b   4	; 39
-	dc.b   4	; 40
-	dc.b   4	; 41
-	dc.b   4	; 42
-	dc.b   4	; 43
-	dc.b   4	; 44
-	dc.b   4	; 45
-	dc.b   4	; 46
-	dc.b   4	; 47
-	dc.b   4	; 48
-	dc.b   4	; 49
-	dc.b   4	; 50
-	dc.b   4	; 51
-	dc.b   4	; 52
-	dc.b   4	; 53
-	dc.b   4	; 54
-	dc.b   4	; 55
-	dc.b   4	; 56
-	dc.b   4	; 57
-	dc.b   4	; 58
-	dc.b   4	; 59
-	dc.b   4	; 60
-	dc.b   4	; 61
-	dc.b   4	; 62
-	dc.b   4	; 63
-	dc.b   4	; 64
+	dc.b 4	; 20
+	dc.b 4	; 21
+	dc.b 4	; 22
+	dc.b 4	; 23
+	dc.b 4	; 24
+	dc.b 4	; 25
+	dc.b 4	; 26
+	dc.b 4	; 27
+	dc.b 4	; 28
+	dc.b 4	; 29
+	dc.b 4	; 30
+	dc.b 4	; 31
+	dc.b 4	; 32
+	dc.b 4	; 33
+	dc.b 4	; 34
+	dc.b 4	; 35
+	dc.b 4	; 36
+	dc.b 4	; 37
+	dc.b 4	; 38
+	dc.b 4	; 39
+	dc.b 4	; 40
+	dc.b 4	; 41
+	dc.b 4	; 42
+	dc.b 4	; 43
+	dc.b 4	; 44
+	dc.b 4	; 45
+	dc.b 4	; 46
+	dc.b 4	; 47
+	dc.b 4	; 48
+	dc.b 4	; 49
+	dc.b 4	; 50
+	dc.b 4	; 51
+	dc.b 4	; 52
+	dc.b 4	; 53
+	dc.b 4	; 54
+	dc.b 4	; 55
+	dc.b 4	; 56
+	dc.b 4	; 57
+	dc.b 4	; 58
+	dc.b 4	; 59
+	dc.b 4	; 60
+	dc.b 4	; 61
+	dc.b 4	; 62
+	dc.b 4	; 63
+	dc.b 4	; 64
+
+	; Total height: 8 128x128 chunks.
+	; CPZ's background is only 7 chunks tall, but extending to
+	; 8 is necessary for wrapping to be achieved using bitmasks.
+
 	even
+
 ; ===========================================================================
 ; loc_DE12:
 Draw_BG3_CPZ:
@@ -18939,7 +18952,7 @@ Draw_BG3_CPZ:
 	lea_	CPZ_CameraSections+1,a0
 	move.w	(Camera_BG_Y_pos).w,d0
 	add.w	d4,d0
-	andi.w	#$3F0,d0
+	andi.w	#$3F0,d0	; After right-shifting, the is a mask of $3F. Since CPZ_CameraSections is $40 items long, this is correct.
 	lsr.w	#4,d0
 	move.b	(a0,d0.w),d0
 	movea.w	BGCameraLookup(pc,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
@@ -18973,7 +18986,14 @@ Draw_BG3_CPZ:
 	; drawing the column.
 	lea_	CPZ_CameraSections,a0
 	move.w	(Camera_BG_Y_pos).w,d0
-	andi.w	#$7F0,d0	; Curiously, this bitmask differs from the one used earlier. Perhaps this is a bug?
+    if fixBugs
+	andi.w	#$3F0,d0	; After right-shifting, the is a mask of $3F. Since CPZ_CameraSections is $40 items long, this is correct.
+    endif
+	; After right-shifting, the is a mask of $7F. Since CPZ_CameraSections
+	; is $40 items long, this is incorrect, and will cause accesses to
+	; exceed the bounds of CPZ_CameraSections and read invalid data. This
+	; is most notably a problem in Marble Zone's version of this code.
+	andi.w	#$7F0,d0
 	lsr.w	#4,d0
 	lea	(a0,d0.w),a0
 	bra.w	DrawBlockColumn_Advanced
@@ -19068,41 +19088,47 @@ DrawBlockColumn_Advanced:
 
 OOZ_CameraSections:
 	; BG1 (draw whole row) for the sky.
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
+	dc.b 0	; 0
+	dc.b 0	; 1
+	dc.b 0	; 2
+	dc.b 0	; 3
+	dc.b 0	; 4
+	dc.b 0	; 5
+	dc.b 0	; 6
+	dc.b 0	; 7
+	dc.b 0	; 8
+	dc.b 0	; 9
+	dc.b 0	; 10
+	dc.b 0	; 11
+	dc.b 0	; 12
+	dc.b 0	; 13
+	dc.b 0	; 14
+	dc.b 0	; 15
+	dc.b 0	; 16
 	; BG1 for the factory.
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
+	dc.b 2	; 17
+	dc.b 2	; 18
+	dc.b 2	; 19
+	dc.b 2	; 20
+	dc.b 2	; 21
+	dc.b 2	; 22
+	dc.b 2	; 23
+	dc.b 2	; 24
+	dc.b 2	; 25
+	dc.b 2	; 26
+	dc.b 2	; 27
+	dc.b 2	; 28
+	dc.b 2	; 29
+	dc.b 2	; 30
+	dc.b 2	; 31
+	dc.b 2	; 32
+
+	; Total height: 4 128x128 chunks.
+	; This matches the height of the background.
+
 	even
+
+; ===========================================================================
 
 Draw_BG3_OOZ:
 	; This is a lighty-modified duplicate of Scrap Brain Zone's drawing
@@ -19112,14 +19138,6 @@ Draw_BG3_OOZ:
 	; kind of. There are only three possible 'cameras' that each row can
 	; align itself with. Still, each row is free to decide which camera
 	; it aligns with.
-	; This could have really benefitted Oil Ocean Zone's background,
-	; which has a section that goes unseen because the regular background
-	; drawer is too primitive to display it without making the sun and
-	; clouds disappear. Using this would have avoided that.
-	; This code differs from the Scrap Brain Zone version by being
-	; hardcoded to a different table ('CPZ_CameraSections' instead of
-	; 'SBZ_CameraSections'), and lacking support for redrawing the whole
-	; row when it uses "camera 0".
 
 	; Handle loading the rows as the camera moves up and down.
 	moveq	#-16,d4	; Y offset
@@ -19135,7 +19153,7 @@ Draw_BG3_OOZ:
 	lea_	OOZ_CameraSections+1,a0
 	move.w	(Camera_BG_Y_pos).w,d0
 	add.w	d4,d0
-	andi.w	#$3F0,d0
+	andi.w	#$1F0,d0	; After right-shifting, the is a mask of $1F. Since OOZ_CameraSections is $20 items long, this is correct.
 	lsr.w	#4,d0
 	move.b	(a0,d0.w),d0
 	lea	BGCameraLookup(pc),a3
@@ -19181,7 +19199,7 @@ Draw_BG3_OOZ:
 	; drawing the column.
 	lea_	OOZ_CameraSections,a0
 	move.w	(Camera_BG_Y_pos).w,d0
-	andi.w	#$7F0,d0	; Curiously, this bitmask differs from the one used earlier. Perhaps this is a bug?
+	andi.w	#$1F0,d0	; After right-shifting, the is a mask of $1F. Since OOZ_CameraSections is $20 items long, this is correct.
 	lsr.w	#4,d0
 	lea	(a0,d0.w),a0
 	bra.w	DrawBlockColumn_Advanced
