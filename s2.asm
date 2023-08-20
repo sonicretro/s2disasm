@@ -42732,9 +42732,9 @@ loc_1E7F0:	; block has some solidity
 	subi.b	#$40,(a4)
 +
 	andi.w	#$F,d1	; x_pos (mod 16)
-	add.w	d0,d1	; d0 = 16*blockID -> offset in ColArray to look up
-	lea	(ColArray).l,a2
-	move.b	(a2,d1.w),d0	; heigth from ColArray
+	add.w	d0,d1	; d0 = 16*blockID -> offset in ColArrayVertical to look up
+	lea	(ColArrayVertical).l,a2
+	move.b	(a2,d1.w),d0	; heigth from ColArrayVertical
 	ext.w	d0
 	eor.w	d6,d4
 	btst	#$B,d4	; Y flipping
@@ -42821,7 +42821,7 @@ loc_1E898:
 +
 	andi.w	#$F,d1
 	add.w	d0,d1
-	lea	(ColArray).l,a2
+	lea	(ColArrayVertical).l,a2
 	move.b	(a2,d1.w),d0
 	ext.w	d0
 	eor.w	d6,d4
@@ -42897,7 +42897,7 @@ loc_1E928:
 +
 	andi.w	#$F,d1
 	add.w	d0,d1
-	lea	(ColArray).l,a2
+	lea	(ColArrayVertical).l,a2
 	move.b	(a2,d1.w),d0
 	ext.w	d0
 	eor.w	d6,d4
@@ -42985,7 +42985,7 @@ loc_1E9D0:
 +
 	andi.w	#$F,d1	; y
 	add.w	d0,d1	; line to look up
-	lea	(ColArray2).l,a2	; rotated collision array
+	lea	(ColArrayHorizontal).l,a2	; rotated collision array
 	move.b	(a2,d1.w),d0	; collision value
 	ext.w	d0
 	eor.w	d6,d4	; set x-flip flag if from the right
@@ -43073,7 +43073,7 @@ loc_1EA78:
 +
 	andi.w	#$F,d1
 	add.w	d0,d1
-	lea	(ColArray2).l,a2
+	lea	(ColArrayHorizontal).l,a2
 	move.b	(a2,d1.w),d0
 	ext.w	d0
 	eor.w	d6,d4
@@ -43103,7 +43103,8 @@ loc_1EAE0:
 
 ; ---------------------------------------------------------------------------
 ; This subroutine takes 'raw' bitmap-like collision block data as input and
-; converts it into the proper collision arrays (ColArray and ColArray2).
+; converts it into the proper collision arrays (ColArrayVertical and
+; ColArrayHorizontal).
 ; Pointers to said raw data are dummied out.
 ; Curiously, an example of the original 'raw' data that this was intended
 ; to process can be found in the J2ME version of Sonic 1, in a file called
@@ -43113,8 +43114,8 @@ loc_1EAE0:
 ; instead (though it too is dummied out, hence collision being broken).
 ; ---------------------------------------------------------------------------
 
-RawColBlocks		= ColArray
-ConvRowColBlocks	= ColArray
+RawColBlocks		= ColArrayVertical
+ConvRowColBlocks	= ColArrayVertical
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -43152,10 +43153,10 @@ ConvertCollisionArray:
 
 	; This then converts the collision data into the final collision arrays
 	lea	(ConvRowColBlocks).l,a1
-	lea	(ColArray2).l,a2	; Convert the row-converted collision block data into final rotated collision array
+	lea	(ColArrayHorizontal).l,a2	; Convert the row-converted collision block data into final rotated collision array
 	bsr.s	.convertArrayToStandardFormat
 	lea	(RawColBlocks).l,a1
-	lea	(ColArray).l,a2		; Convert the raw collision block data into final normal collision array
+	lea	(ColArrayVertical).l,a2		; Convert the raw collision block data into final normal collision array
 
 ; loc_1EB46: FloorLog_Unk2:
 .convertArrayToStandardFormat:
@@ -90083,10 +90084,10 @@ PlrList_ResultsTails_Dup_End
 ;---------------------------------------------------------------------------------------
 ; Collision Data
 ;---------------------------------------------------------------------------------------
-ColCurveMap:	BINCLUDE	"collision/Curve and resistance mapping.bin"
+ColCurveMap:		BINCLUDE	"collision/Curve and resistance mapping.bin"
 	even
-ColArray:	BINCLUDE	"collision/Collision array 1.bin" ; Vertical
-ColArray2:	BINCLUDE	"collision/Collision array 2.bin" ; Horizontal
+ColArrayVertical:	BINCLUDE	"collision/Collision array - Vertical.bin"
+ColArrayHorizontal:	BINCLUDE	"collision/Collision array - Horizontal.bin"
 	even
 
 ; These are all compressed in the Kosinski format.
