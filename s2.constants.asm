@@ -1194,15 +1194,16 @@ Screen_Shaking_Flag_HTZ:	ds.b	1	; activates screen shaking code in HTZ's layer d
 Screen_Shaking_Flag:		ds.b	1	; activates screen shaking code (if existent) in layer deformation routine
 Scroll_lock:			ds.b	1	; set to 1 to stop all scrolling for P1
 Scroll_lock_P2:			ds.b	1	; set to 1 to stop all scrolling for P2
-unk_EEC0:			ds.l	1	; unused, except on write in LevelSizeLoad...
-unk_EEC4:			ds.w	1	; same as above. The write being a long also overwrites the address below
-Camera_Max_Y_pos:		ds.w	1
+Camera_Min_X_pos_target:	ds.w	1	; unused, except on write in LevelSizeLoad...
+Camera_Max_X_pos_target:	ds.w	1	; unused
+Camera_Min_Y_pos_target:	ds.w	1	; same as above. The write being a long also overwrites the address below
+Camera_Max_Y_pos_target:	ds.w	1
 
 Camera_Boundaries:
 Camera_Min_X_pos:		ds.w	1
 Camera_Max_X_pos:		ds.w	1
 Camera_Min_Y_pos:		ds.w	1
-Camera_Max_Y_pos_now:		ds.w	1	; was "Camera_max_scroll_spd"...
+Camera_Max_Y_pos:		ds.w	1
 Camera_Boundaries_End:
 
 Camera_Delay:
