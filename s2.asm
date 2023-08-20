@@ -90081,82 +90081,47 @@ PlrList_ResultsTails_Dup_End
 
 
 ;---------------------------------------------------------------------------------------
-; Curve and resistance mapping
+; Collision Data
 ;---------------------------------------------------------------------------------------
 ColCurveMap:	BINCLUDE	"collision/Curve and resistance mapping.bin"
 	even
-;--------------------------------------------------------------------------------------
-; Collision arrays
-;--------------------------------------------------------------------------------------
-ColArray:	BINCLUDE	"collision/Collision array 1.bin"
-ColArray2:	BINCLUDE	"collision/Collision array 2.bin"
+ColArray:	BINCLUDE	"collision/Collision array 1.bin" ; Vertical
+ColArray2:	BINCLUDE	"collision/Collision array 2.bin" ; Horizontal
 	even
-;---------------------------------------------------------------------------------------
-; EHZ and HTZ primary 16x16 collision index (Kosinski compression)
+
+; These are all compressed in the Kosinski format.
 ColP_EHZHTZ:	BINCLUDE	"collision/EHZ and HTZ primary 16x16 collision index.bin"
 	even
-;---------------------------------------------------------------------------------------
-; EHZ and HTZ secondary 16x16 collision index (Kosinski compression)
 ColS_EHZHTZ:	BINCLUDE	"collision/EHZ and HTZ secondary 16x16 collision index.bin"
 	even
-;---------------------------------------------------------------------------------------
-; WZ primary 16x16 collision index (Kosinski compression)
 ColP_WZ:	;BINCLUDE	"collision/WZ primary 16x16 collision index.bin"
 	;even
-;---------------------------------------------------------------------------------------
-; MTZ primary 16x16 collision index (Kosinski compression)
 ColP_MTZ:	BINCLUDE	"collision/MTZ primary 16x16 collision index.bin"
 	even
-;---------------------------------------------------------------------------------------
-; HPZ primary 16x16 collision index (Kosinski compression)
 ColP_HPZ:	;BINCLUDE	"collision/HPZ primary 16x16 collision index.bin"
 	;even
-;---------------------------------------------------------------------------------------
-; HPZ secondary 16x16 collision index (Kosinski compression)
 ColS_HPZ:	;BINCLUDE	"collision/HPZ secondary 16x16 collision index.bin"
 	;even
-;---------------------------------------------------------------------------------------
-; OOZ primary 16x16 collision index (Kosinski compression)
 ColP_OOZ:	BINCLUDE	"collision/OOZ primary 16x16 collision index.bin"
 	even
-;---------------------------------------------------------------------------------------
-; MCZ primary 16x16 collision index (Kosinski compression)
 ColP_MCZ:	BINCLUDE	"collision/MCZ primary 16x16 collision index.bin"
 	even
-;---------------------------------------------------------------------------------------
-; CNZ primary 16x16 collision index (Kosinski compression)
 ColP_CNZ:	BINCLUDE	"collision/CNZ primary 16x16 collision index.bin"
 	even
-;---------------------------------------------------------------------------------------
-; CNZ secondary 16x16 collision index (Kosinski compression)
 ColS_CNZ:	BINCLUDE	"collision/CNZ secondary 16x16 collision index.bin"
 	even
-;---------------------------------------------------------------------------------------
-; CPZ and DEZ primary 16x16 collision index (Kosinski compression)
 ColP_CPZDEZ:	BINCLUDE	"collision/CPZ and DEZ primary 16x16 collision index.bin"
 	even
-;---------------------------------------------------------------------------------------
-; CPZ and DEZ secondary 16x16 collision index (Kosinski compression)
 ColS_CPZDEZ:	BINCLUDE	"collision/CPZ and DEZ secondary 16x16 collision index.bin"
 	even
-;---------------------------------------------------------------------------------------
-; ARZ primary 16x16 collision index (Kosinski compression)
 ColP_ARZ:	BINCLUDE	"collision/ARZ primary 16x16 collision index.bin"
 	even
-;---------------------------------------------------------------------------------------
-; ARZ secondary 16x16 collision index (Kosinski compression)
 ColS_ARZ:	BINCLUDE	"collision/ARZ secondary 16x16 collision index.bin"
 	even
-;---------------------------------------------------------------------------------------
-; WFZ/SCZ primary 16x16 collision index (Kosinski compression)
 ColP_WFZSCZ:	BINCLUDE	"collision/WFZ and SCZ primary 16x16 collision index.bin"
 	even
-;---------------------------------------------------------------------------------------
-; WFZ/SCZ secondary 16x16 collision index (Kosinski compression)
 ColS_WFZSCZ:	BINCLUDE	"collision/WFZ and SCZ secondary 16x16 collision index.bin"
 	even
-;---------------------------------------------------------------------------------------
-
 ColP_Invalid:
 
 
@@ -90220,91 +90185,49 @@ Off_Level: zoneOrderedOffsetTable 2,2
 	zoneOffsetTableEntry.w Level_SCZ	; Act 1
 	zoneOffsetTableEntry.w Level_SCZ	; Act 2
     zoneTableEnd
-;---------------------------------------------------------------------------------------
-Level_Invalid: ; Falls-through to EHZ Act 1's layout.
-;---------------------------------------------------------------------------------------
-; EHZ act 1 level layout (Kosinski compression)
+
+; These are all compressed in the Kosinski format.
+Level_Invalid:
 Level_EHZ1:	BINCLUDE	"level/layout/EHZ_1.bin"
 	even
-;---------------------------------------------------------------------------------------
-; EHZ act 2 level layout (Kosinski compression)
 Level_EHZ2:	BINCLUDE	"level/layout/EHZ_2.bin"
 	even
-;---------------------------------------------------------------------------------------
-; MTZ act 1 level layout (Kosinski compression)
 Level_MTZ1:	BINCLUDE	"level/layout/MTZ_1.bin"
 	even
-;---------------------------------------------------------------------------------------
-; MTZ act 2 level layout (Kosinski compression)
 Level_MTZ2:	BINCLUDE	"level/layout/MTZ_2.bin"
 	even
-;---------------------------------------------------------------------------------------
-; MTZ act 3 level layout (Kosinski compression)
 Level_MTZ3:	BINCLUDE	"level/layout/MTZ_3.bin"
 	even
-;---------------------------------------------------------------------------------------
-; WFZ level layout (Kosinski compression)
 Level_WFZ:	BINCLUDE	"level/layout/WFZ.bin"
 	even
-;---------------------------------------------------------------------------------------
-; HTZ act 1 level layout (Kosinski compression)
 Level_HTZ1:	BINCLUDE	"level/layout/HTZ_1.bin"
 	even
-;---------------------------------------------------------------------------------------
-; HTZ act 2 level layout (Kosinski compression)
 Level_HTZ2:	BINCLUDE	"level/layout/HTZ_2.bin"
 	even
-;---------------------------------------------------------------------------------------
-; HPZ act 1 level layout (Kosinski compression)
 Level_HPZ1:	;BINCLUDE	"level/layout/HPZ_1.bin"
 	;even
-;---------------------------------------------------------------------------------------
-; OOZ act 1 level layout (Kosinski compression)
 Level_OOZ1:	BINCLUDE	"level/layout/OOZ_1.bin"
 	even
-;---------------------------------------------------------------------------------------
-; OOZ act 2 level layout (Kosinski compression)
 Level_OOZ2:	BINCLUDE	"level/layout/OOZ_2.bin"
 	even
-;---------------------------------------------------------------------------------------
-; MCZ act 1 level layout (Kosinski compression)
 Level_MCZ1:	BINCLUDE	"level/layout/MCZ_1.bin"
 	even
-;---------------------------------------------------------------------------------------
-; MCZ act 2 level layout (Kosinski compression)
 Level_MCZ2:	BINCLUDE	"level/layout/MCZ_2.bin"
 	even
-;---------------------------------------------------------------------------------------
-; CNZ act 1 level layout (Kosinski compression)
 Level_CNZ1:	BINCLUDE	"level/layout/CNZ_1.bin"
 	even
-;---------------------------------------------------------------------------------------
-; CNZ act 2 level layout (Kosinski compression)
 Level_CNZ2:	BINCLUDE	"level/layout/CNZ_2.bin"
 	even
-;---------------------------------------------------------------------------------------
-; CPZ act 1 level layout (Kosinski compression)
 Level_CPZ1:	BINCLUDE	"level/layout/CPZ_1.bin"
 	even
-;---------------------------------------------------------------------------------------
-; CPZ act 2 level layout (Kosinski compression)
 Level_CPZ2:	BINCLUDE	"level/layout/CPZ_2.bin"
 	even
-;---------------------------------------------------------------------------------------
-; DEZ level layout (Kosinski compression)
 Level_DEZ:	BINCLUDE	"level/layout/DEZ.bin"
 	even
-;---------------------------------------------------------------------------------------
-; ARZ act 1 level layout (Kosinski compression)
 Level_ARZ1:	BINCLUDE	"level/layout/ARZ_1.bin"
 	even
-
-;---------------------------------------------------------------------------------------
-; ARZ act 2 level layout (Kosinski compression)
 Level_ARZ2:	BINCLUDE	"level/layout/ARZ_2.bin"
 	even
-;---------------------------------------------------------------------------------------
-; SCZ level layout (Kosinski compression)
 Level_SCZ:	BINCLUDE	"level/layout/SCZ.bin"
 	even
 
@@ -90312,1001 +90235,530 @@ Level_SCZ:	BINCLUDE	"level/layout/SCZ.bin"
 
 
 ;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Animated flowers in EHZ and HTZ ; ArtUnc_49714: ArtUnc_49794: ArtUnc_49814: ArtUnc_49894:
+; Animated Level Art
 ;---------------------------------------------------------------------------------------
+; EHZ and HTZ
 ArtUnc_Flowers1:	BINCLUDE	"art/uncompressed/EHZ and HTZ flowers - 1.bin"
 ArtUnc_Flowers2:	BINCLUDE	"art/uncompressed/EHZ and HTZ flowers - 2.bin"
 ArtUnc_Flowers3:	BINCLUDE	"art/uncompressed/EHZ and HTZ flowers - 3.bin"
 ArtUnc_Flowers4:	BINCLUDE	"art/uncompressed/EHZ and HTZ flowers - 4.bin"
-;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Pulsing thing against checkered backing from EHZ ; ArtUnc_49914:
 ArtUnc_EHZPulseBall:	BINCLUDE	"art/uncompressed/Pulsing ball against checkered background (EHZ).bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (192 blocks)
-; Dynamically reloaded cliffs in background from HTZ ; ArtNem_49A14: ArtUnc_HTZCliffs:
 ArtNem_HTZCliffs:	BINCLUDE	"art/nemesis/Dynamically reloaded cliffs in HTZ background.bin"
 	even
-;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Dynamically reloaded clouds in background from HTZ ; ArtUnc_4A33E:
 ArtUnc_HTZClouds:	BINCLUDE	"art/uncompressed/Background clouds (HTZ).bin"
-;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Spinning metal cylinder patterns in MTZ ; ArtUnc_4A73E:
+
+; MTZ
 ArtUnc_MTZCylinder:	BINCLUDE	"art/uncompressed/Spinning metal cylinder (MTZ).bin"
-;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Lava patterns in MTZ and HTZ  ; ArtUnc_4B73E:
-ArtUnc_Lava:	BINCLUDE	"art/uncompressed/Lava.bin"
-;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Animated section of MTZ background ; ArtUnc_4BD3E:
+ArtUnc_Lava:		BINCLUDE	"art/uncompressed/Lava.bin"
 ArtUnc_MTZAnimBack:	BINCLUDE	"art/uncompressed/Animated section of MTZ background.bin"
-;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Pulsing orb in HPZ
+
+; HPZ
 ArtUnc_HPZPulseOrb:	;BINCLUDE	"art/uncompressed/Pulsing orb (HPZ).bin"
-;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Pulsing ball in OOZ   ; ArtUnc_4BF7E:
+
+; OOZ
 ArtUnc_OOZPulseBall:	BINCLUDE	"art/uncompressed/Pulsing ball (OOZ).bin"
-;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Square rotating around ball in OOZ ; ArtUnc_4C0FE: ArtUnc_4C2FE:
 ArtUnc_OOZSquareBall1:	BINCLUDE	"art/uncompressed/Square rotating around ball in OOZ - 1.bin"
 ArtUnc_OOZSquareBall2:	BINCLUDE	"art/uncompressed/Square rotating around ball in OOZ - 2.bin"
-;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Oil in OOZ    ; ArtUnc_4C4FE: ArtUnc_4CCFE:
-ArtUnc_Oil1:	BINCLUDE	"art/uncompressed/Oil - 1.bin"
-ArtUnc_Oil2:	BINCLUDE	"art/uncompressed/Oil - 2.bin"
-;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Flipping foreground section in CNZ ; ArtUnc_4D4FE:
+ArtUnc_Oil1:		BINCLUDE	"art/uncompressed/Oil - 1.bin"
+ArtUnc_Oil2:		BINCLUDE	"art/uncompressed/Oil - 2.bin"
+
+; CNZ
 ArtUnc_CNZFlipTiles:	BINCLUDE	"art/uncompressed/Flipping foreground section (CNZ).bin"
-;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Bonus pictures for slots in CNZ ; ArtUnc_4EEFE:
 ArtUnc_CNZSlotPics:	BINCLUDE	"art/uncompressed/Slot pictures.bin"
-;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Animated background section in CPZ and DEZ ; ArtUnc_4FAFE:
 ArtUnc_CPZAnimBack:	BINCLUDE	"art/uncompressed/Animated background section (CPZ and DEZ).bin"
-;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Waterfall patterns from ARZ   ; ArtUnc_4FCFE: ArtUnc_4FDFE: ArtUnc_4FEFE:
+
+; ARZ
 ArtUnc_Waterfall1:	BINCLUDE	"art/uncompressed/ARZ waterfall patterns - 1.bin"
 ArtUnc_Waterfall2:	BINCLUDE	"art/uncompressed/ARZ waterfall patterns - 2.bin"
 ArtUnc_Waterfall3:	BINCLUDE	"art/uncompressed/ARZ waterfall patterns - 3.bin"
+
 ;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Patterns for Sonic  ; ArtUnc_50000:
-;---------------------------------------------------------------------------------------
-	align $20
-ArtUnc_Sonic:	BINCLUDE	"art/uncompressed/Sonic's art.bin"
-;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Patterns for Tails  ; ArtUnc_64320:
+; Player Assets
 ;---------------------------------------------------------------------------------------
 	align $20
-ArtUnc_Tails:	BINCLUDE	"art/uncompressed/Tails's art.bin"
-;--------------------------------------------------------------------------------------
-; Sprite Mappings
-; Sonic			; MapUnc_6FBE0: SprTbl_Sonic:
-;--------------------------------------------------------------------------------------
-MapUnc_Sonic:	BINCLUDE	"mappings/sprite/Sonic.bin"
-;--------------------------------------------------------------------------------------
-; Sprite Dynamic Pattern Reloading
-; Sonic DPLCs   		; MapRUnc_714E0:
-;--------------------------------------------------------------------------------------
+ArtUnc_Sonic:			BINCLUDE	"art/uncompressed/Sonic's art.bin"
+	align $20
+ArtUnc_Tails:			BINCLUDE	"art/uncompressed/Tails's art.bin"
+
+MapUnc_Sonic:			BINCLUDE	"mappings/sprite/Sonic.bin"
 ; WARNING: the build script needs editing if you rename this label
 ;          or if you move Sonic's running frame to somewhere else than frame $2D
-MapRUnc_Sonic:	BINCLUDE	"mappings/spriteDPLC/Sonic.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (32 blocks)
-; Shield			; ArtNem_71D8E:
-ArtNem_Shield:	BINCLUDE	"art/nemesis/Shield.bin"
+MapRUnc_Sonic:			BINCLUDE	"mappings/spriteDPLC/Sonic.bin"
+
+ArtNem_Shield:			BINCLUDE	"art/nemesis/Shield.bin"
 	even
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (34 blocks)
-; Invincibility stars		; ArtNem_71F14:
 ArtNem_Invincible_stars:	BINCLUDE	"art/nemesis/Invincibility stars.bin"
 	even
-;--------------------------------------------------------------------------------------
-; Uncompressed art
-; Splash in water and dust from skidding	; ArtUnc_71FFC:
-ArtUnc_SplashAndDust:	BINCLUDE	"art/uncompressed/Splash and skid dust.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (14 blocks)
-; Super Sonic stars		; ArtNem_7393C:
+ArtUnc_SplashAndDust:		BINCLUDE	"art/uncompressed/Splash and skid dust.bin"
+
 ArtNem_SuperSonic_stars:	BINCLUDE	"art/nemesis/Super Sonic stars.bin"
 	even
-;--------------------------------------------------------------------------------------
-; Sprite Mappings
-; Tails			; MapUnc_739E2:
-;--------------------------------------------------------------------------------------
-MapUnc_Tails:	BINCLUDE	"mappings/sprite/Tails.bin"
-;--------------------------------------------------------------------------------------
-; Sprite Dynamic Pattern Reloading
-; Tails DPLCs	; MapRUnc_7446C:
-;--------------------------------------------------------------------------------------
-MapRUnc_Tails:	BINCLUDE	"mappings/spriteDPLC/Tails.bin"
-;-------------------------------------------------------------------------------------
-; Nemesis compressed art (127 blocks)
-; "SEGA" Patterns	; ArtNem_74876:
-	even
-ArtNem_SEGA:	BINCLUDE	"art/nemesis/SEGA.bin"
-;-------------------------------------------------------------------------------------
-; Nemesis compressed art (9 blocks)
-; Shaded blocks from intro	; ArtNem_74CF6:
-	even
-ArtNem_IntroTrails:	BINCLUDE	"art/nemesis/Shaded blocks from intro.bin"
+MapUnc_Tails:			BINCLUDE	"mappings/sprite/Tails.bin"
+
+MapRUnc_Tails:			BINCLUDE	"mappings/spriteDPLC/Tails.bin"
+
 ;---------------------------------------------------------------------------------------
-; Enigma compressed art mappings
-; "SEGA" mappings		; MapEng_74D0E:
-	even
-MapEng_SEGA:	BINCLUDE	"mappings/misc/SEGA mappings.bin"
+; Sega Screen Assets
 ;---------------------------------------------------------------------------------------
-; Enigma compressed art mappings
-; Mappings for title screen background	; ArtNem_74DC6:
+ArtNem_SEGA:			BINCLUDE	"art/nemesis/SEGA.bin"
 	even
-MapEng_TitleScreen:	BINCLUDE	"mappings/misc/Mappings for title screen background.bin"
-;--------------------------------------------------------------------------------------
-; Enigma compressed art mappings
-; Mappings for title screen background (smaller part, water/horizon)	; MapEng_74E3A:
+ArtNem_IntroTrails:		BINCLUDE	"art/nemesis/Shaded blocks from intro.bin"
 	even
-MapEng_TitleBack:	BINCLUDE	"mappings/misc/Mappings for title screen background 2.bin"
+MapEng_SEGA:			BINCLUDE	"mappings/misc/SEGA mappings.bin"
+	even
+
 ;---------------------------------------------------------------------------------------
-; Enigma compressed art mappings
-; "Sonic the Hedgehog 2" title screen logo mappings	; MapEng_74E86:
-	even
-MapEng_TitleLogo:	BINCLUDE	"mappings/misc/Sonic the Hedgehog 2 title screen logo mappings.bin"
+; Title Screen Assets
 ;---------------------------------------------------------------------------------------
-; Nemesis compressed art (336 blocks)
-; Main patterns from title screen	; ArtNem_74F6C:
+MapEng_TitleScreen:		BINCLUDE	"mappings/misc/Mappings for title screen background.bin"
 	even
-ArtNem_Title:	BINCLUDE	"art/nemesis/Main patterns from title screen.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (674 blocks)
-; Sonic and Tails from title screen	; ArtNem_7667A:
+MapEng_TitleBack:		BINCLUDE	"mappings/misc/Mappings for title screen background 2.bin" ; title screen background (smaller part, water/horizon)
 	even
-ArtNem_TitleSprites:	BINCLUDE	"art/nemesis/Sonic and Tails from title screen.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (10 blocks)
-; A few menu patterns	; ArtNem_78CBC:
+MapEng_TitleLogo:		BINCLUDE	"mappings/misc/Sonic the Hedgehog 2 title screen logo mappings.bin"
 	even
-ArtNem_MenuJunk:	BINCLUDE	"art/nemesis/A few menu blocks.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (16 blocks)
-; Button			ArtNem_78DAC:
+ArtNem_Title:			BINCLUDE	"art/nemesis/Main patterns from title screen.bin"
 	even
-ArtNem_Button:	BINCLUDE	"art/nemesis/Button.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (20 blocks)
-; Vertical Spring		ArtNem_78E84:
+ArtNem_TitleSprites:		BINCLUDE	"art/nemesis/Sonic and Tails from title screen.bin"
 	even
-ArtNem_VrtclSprng:	BINCLUDE	"art/nemesis/Vertical spring.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (12 blocks)
-; Horizontal spring		ArtNem_78FA0:
+ArtNem_MenuJunk:		BINCLUDE	"art/nemesis/A few menu blocks.bin"
 	even
-ArtNem_HrzntlSprng:	BINCLUDE	"art/nemesis/Horizontal spring.bin"
+
 ;---------------------------------------------------------------------------------------
-; Nemesis compressed art (32 blocks)
-; Diagonal spring		ArtNem_7906A:
+; General Level Assets
+;---------------------------------------------------------------------------------------
+ArtNem_Button:			BINCLUDE	"art/nemesis/Button.bin"
 	even
-ArtNem_DignlSprng:	BINCLUDE	"art/nemesis/Diagonal spring.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (24 blocks)
-; Score, Rings, Time patterns	ArtNem_7923E:
+ArtNem_VrtclSprng:		BINCLUDE	"art/nemesis/Vertical spring.bin"
 	even
-ArtNem_HUD:	BINCLUDE	"art/nemesis/HUD.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (12 blocks)
-; Sonic lives counter		ArtNem_79346:
+ArtNem_HrzntlSprng:		BINCLUDE	"art/nemesis/Horizontal spring.bin"
+	even
+ArtNem_DignlSprng:		BINCLUDE	"art/nemesis/Diagonal spring.bin"
+	even
+ArtNem_HUD:			BINCLUDE	"art/nemesis/HUD.bin" ; Score, Rings, Time
 	even
 ArtNem_Sonic_life_counter:	BINCLUDE	"art/nemesis/Sonic lives counter.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (14 blocks)
-; Ring				ArtNem_7945C:
 	even
-ArtNem_Ring:	BINCLUDE	"art/nemesis/Ring.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (60 blocks)
-; Monitors and contents		ArtNem_79550:
+ArtNem_Ring:			BINCLUDE	"art/nemesis/Ring.bin"
 	even
-ArtNem_Powerups:	BINCLUDE	"art/nemesis/Monitor and contents.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (8 blocks)
-; Spikes			7995C:
+ArtNem_Powerups:		BINCLUDE	"art/nemesis/Monitor and contents.bin"
 	even
-ArtNem_Spikes:	BINCLUDE	"art/nemesis/Spikes.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (18 blocks)
-; Numbers			799AC:
+ArtNem_Spikes:			BINCLUDE	"art/nemesis/Spikes.bin"
 	even
-ArtNem_Numbers:	BINCLUDE	"art/nemesis/Numbers.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (16 blocks)
-; Star pole			79A86:
+ArtNem_Numbers:			BINCLUDE	"art/nemesis/Numbers.bin"
 	even
-ArtNem_Checkpoint:	BINCLUDE	"art/nemesis/Star pole.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (78 blocks)
-; Signpost		; ArtNem_79BDE:
+ArtNem_Checkpoint:		BINCLUDE	"art/nemesis/Star pole.bin"
 	even
-ArtNem_Signpost:	BINCLUDE	"art/nemesis/Signpost.bin"
-;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Signpost		; ArtUnc_7A18A:
-; Yep, it's in the ROM twice: once compressed and once uncompressed
+ArtNem_Signpost:		BINCLUDE	"art/nemesis/Signpost.bin" ; For one-player mode.
 	even
-ArtUnc_Signpost:	BINCLUDE	"art/uncompressed/Signpost.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (28 blocks)
-; Lever spring		; ArtNem_7AB4A:
+ArtUnc_Signpost:		BINCLUDE	"art/uncompressed/Signpost.bin" ; For two-player mode.
 	even
-ArtNem_LeverSpring:	BINCLUDE	"art/nemesis/Lever spring.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (8 blocks)
-; Long horizontal spike		; ArtNem_7AC9A:
+ArtNem_LeverSpring:		BINCLUDE	"art/nemesis/Lever spring.bin"
 	even
-ArtNem_HorizSpike:	BINCLUDE	"art/nemesis/Long horizontal spike.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (24 blocks)
-; Bubble thing from underwater	; ArtNem_7AD16:
+ArtNem_HorizSpike:		BINCLUDE	"art/nemesis/Long horizontal spike.bin"
 	even
-ArtNem_BigBubbles:	BINCLUDE	"art/nemesis/Bubble generator.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (10 blocks)
-; Bubbles from character	7AEE2:
+ArtNem_BigBubbles:		BINCLUDE	"art/nemesis/Bubble generator.bin" ; Bubble from underwater
 	even
-ArtNem_Bubbles:	BINCLUDE	"art/nemesis/Bubbles.bin"
-;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Countdown text for drowning	; ArtUnc_7AF80:
+ArtNem_Bubbles:			BINCLUDE	"art/nemesis/Bubbles.bin" ; Bubbles from character
 	even
-ArtUnc_Countdown:	BINCLUDE	"art/uncompressed/Numbers for drowning countdown.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (34 blocks)
-; Game/Time over text		7B400:
+ArtUnc_Countdown:		BINCLUDE	"art/uncompressed/Numbers for drowning countdown.bin"
 	even
-ArtNem_Game_Over:	BINCLUDE	"art/nemesis/Game and Time Over text.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (68 blocks)
-; Explosion			7B592:
+ArtNem_Game_Over:		BINCLUDE	"art/nemesis/Game and Time Over text.bin"
 	even
-ArtNem_Explosion:	BINCLUDE	"art/nemesis/Explosion.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (12 blocks)
-; Miles life counter	; ArtNem_7B946:
+ArtNem_Explosion:		BINCLUDE	"art/nemesis/Explosion.bin"
 	even
-; ArtUnc_MilesLife:
-ArtNem_MilesLife:	BINCLUDE	"art/nemesis/Miles life counter.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (49 blocks)
-; Egg prison		; ArtNem_7BA32:
+ArtNem_MilesLife:		BINCLUDE	"art/nemesis/Miles life counter.bin"
 	even
-ArtNem_Capsule:	BINCLUDE	"art/nemesis/Egg Prison.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (36 blocks)
-; Tails on the continue screen (nagging Sonic)	; ArtNem_7BDBE:
+ArtNem_Capsule:			BINCLUDE	"art/nemesis/Egg Prison.bin"
 	even
-ArtNem_ContinueTails:	BINCLUDE	"art/nemesis/Tails on continue screen.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (12 blocks)
-; Sonic extra continue icon	; ArtNem_7C0AA:
+ArtNem_ContinueTails:		BINCLUDE	"art/nemesis/Tails on continue screen.bin"
 	even
-ArtNem_MiniSonic:	BINCLUDE	"art/nemesis/Sonic continue.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (12 blocks)
-; Tails life counter		; ArtNem_7C20C:
+ArtNem_MiniSonic:		BINCLUDE	"art/nemesis/Sonic continue.bin"
 	even
-ArtNem_TailsLife:	BINCLUDE	"art/nemesis/Tails life counter.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (12 blocks)
-; Tails extra continue icon	; ArtNem_7C2F2:
+ArtNem_TailsLife:		BINCLUDE	"art/nemesis/Tails life counter.bin"
 	even
-ArtNem_MiniTails:	BINCLUDE	"art/nemesis/Tails continue.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (88 blocks)
-; Standard font		; ArtNem_7C43A:
+ArtNem_MiniTails:		BINCLUDE	"art/nemesis/Tails continue.bin"
 	even
-ArtNem_FontStuff:	BINCLUDE	"art/nemesis/Standard font.bin"
+
 ;---------------------------------------------------------------------------------------
-; Nemesis compressed art (38 blocks)
-; 1P/2P wins text from 2P mode		; ArtNem_7C9AE:
-	even
-ArtNem_1P2PWins:	BINCLUDE	"art/nemesis/1P and 2P wins text from 2P mode.bin"
+; Menu Assets
 ;---------------------------------------------------------------------------------------
-; Enigma compressed art mappings
-; Sonic/Miles animated background mappings	; MapEng_7CB80:
+ArtNem_FontStuff:		BINCLUDE	"art/nemesis/Standard font.bin"
 	even
-MapEng_MenuBack:	BINCLUDE	"mappings/misc/Sonic and Miles animated background.bin"
-;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Sonic/Miles animated background patterns	; ArtUnc_7CD2C:
+ArtNem_1P2PWins:		BINCLUDE	"art/nemesis/1P and 2P wins text from 2P mode.bin"
 	even
-ArtUnc_MenuBack:	BINCLUDE	"art/uncompressed/Sonic and Miles animated background.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (94 blocks)
-; Title card patterns		; ArtNem_7D22C:
+MapEng_MenuBack:		BINCLUDE	"mappings/misc/Sonic and Miles animated background.bin"
 	even
-ArtNem_TitleCard:	BINCLUDE	"art/nemesis/Title card.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (92 blocks)
-; Alphabet for font using large broken letters	; ArtNem_7D58A:
+ArtUnc_MenuBack:		BINCLUDE	"art/uncompressed/Sonic and Miles animated background.bin"
 	even
-ArtNem_TitleCard2:	BINCLUDE	"art/nemesis/Font using large broken letters.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (21 blocks)
-; A menu box with a shadow	; ArtNem_7D990:
+ArtNem_TitleCard:		BINCLUDE	"art/nemesis/Title card.bin"
 	even
-ArtNem_MenuBox:	BINCLUDE	"art/nemesis/A menu box with a shadow.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (170 blocks)
-; Pictures in level preview box in level select		; ArtNem_7DA10:
+ArtNem_TitleCard2:		BINCLUDE	"art/nemesis/Font using large broken letters.bin"
 	even
-ArtNem_LevelSelectPics:	BINCLUDE	"art/nemesis/Pictures in level preview box from level select.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (68 blocks)
-; Text for Sonic or Tails Got Through Act and Bonus/Perfect	; ArtNem_7E86A:
+ArtNem_MenuBox:			BINCLUDE	"art/nemesis/A menu box with a shadow.bin"
 	even
-ArtNem_ResultsText:	BINCLUDE	"art/nemesis/End of level results text.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (72 blocks)
-; Text for end of special stage, along with patterns for 3 emeralds.	; ArtNem_7EB58:
+ArtNem_LevelSelectPics:		BINCLUDE	"art/nemesis/Pictures in level preview box from level select.bin"
+	even
+ArtNem_ResultsText:		BINCLUDE	"art/nemesis/End of level results text.bin" ; Text for Sonic or Tails Got Through Act and Bonus/Perfect
 	even
 ArtNem_SpecialStageResults:	BINCLUDE	"art/nemesis/Special stage results screen art and some emeralds.bin"
+	even
+ArtNem_Perfect:			BINCLUDE	"art/nemesis/Perfect text.bin"
+	even
+
 ;---------------------------------------------------------------------------------------
-; Nemesis compressed art (14 blocks)
-; "Perfect" text	; ArtNem_7EEBE:
-	even
-ArtNem_Perfect:	BINCLUDE	"art/nemesis/Perfect text.bin"
+; Small Animal Assets
 ;---------------------------------------------------------------------------------------
-; Nemesis compressed art (16 blocks)
-; Flicky		; ArtNem_7EF60:
+ArtNem_Bird:			BINCLUDE	"art/nemesis/Flicky.bin"
 	even
-ArtNem_Bird:	BINCLUDE	"art/nemesis/Flicky.bin"
+ArtNem_Squirrel:		BINCLUDE	"art/nemesis/Squirrel.bin"
+	even
+ArtNem_Mouse:			BINCLUDE	"art/nemesis/Mouse.bin"
+	even
+ArtNem_Chicken:			BINCLUDE	"art/nemesis/Chicken.bin"
+	even
+ArtNem_Beaver:			BINCLUDE	"art/nemesis/Beaver.bin"
+	even
+ArtNem_Eagle:			BINCLUDE	"art/nemesis/Penguin.bin"
+	even
+ArtNem_Pig:			BINCLUDE	"art/nemesis/Pig.bin"
+	even
+ArtNem_Seal:			BINCLUDE	"art/nemesis/Seal.bin"
+	even
+ArtNem_Penguin:			BINCLUDE	"art/nemesis/Penguin 2.bin"
+	even
+ArtNem_Turtle:			BINCLUDE	"art/nemesis/Turtle.bin"
+	even
+ArtNem_Bear:			BINCLUDE	"art/nemesis/Bear.bin"
+	even
+ArtNem_Rabbit:			BINCLUDE	"art/nemesis/Rabbit.bin"
+	even
+
 ;---------------------------------------------------------------------------------------
-; Nemesis compressed art (20 blocks)
-; Squirrel		; ArtNem_7F0A2:
-	even
-ArtNem_Squirrel:	BINCLUDE	"art/nemesis/Squirrel.bin"
+; WFZ Assets
 ;---------------------------------------------------------------------------------------
-; Nemesis compressed art (16 blocks)
-; Mouse			; ArtNem_7F206:
+ArtNem_WfzSwitch:		BINCLUDE	"art/nemesis/WFZ boss chamber switch.bin" ; Rivet thing that you bust to get inside the ship
 	even
-ArtNem_Mouse:	BINCLUDE	"art/nemesis/Mouse.bin"
+ArtNem_BreakPanels:		BINCLUDE	"art/nemesis/Breakaway panels from WFZ.bin"
+	even
+
 ;---------------------------------------------------------------------------------------
-; Nemesis compressed art (16 blocks)
-; Chicken		; ArtNem_7F340:
-	even
-ArtNem_Chicken:	BINCLUDE	"art/nemesis/Chicken.bin"
+; OOZ Assets
 ;---------------------------------------------------------------------------------------
-; Nemesis compressed art (20 blocks)
-; Beaver		; ArtNem_7F4A2:
+ArtNem_SpikyThing:		BINCLUDE	"art/nemesis/Spiked ball from OOZ.bin"
 	even
-ArtNem_Beaver:	BINCLUDE	"art/nemesis/Beaver.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (16 blocks)
-; Some bird		; ArtNem_7F5E2:
-	even
-ArtNem_Eagle:	BINCLUDE	"art/nemesis/Penguin.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (10 blocks)
-; Pig			; ArtNem_7F710:
-	even
-ArtNem_Pig:	BINCLUDE	"art/nemesis/Pig.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (14 blocks)
-; Seal			; ArtNem_7F846:
-	even
-ArtNem_Seal:	BINCLUDE	"art/nemesis/Seal.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (18 blocks)
-; Penguin		; ArtNem_7F962:
-	even
-ArtNem_Penguin:	BINCLUDE	"art/nemesis/Penguin 2.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (20 blocks)
-; Turtle		; ArtNem_7FADE:
-	even
-ArtNem_Turtle:	BINCLUDE	"art/nemesis/Turtle.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (20 blocks)
-; Bear			; ArtNem_7FC90:
-	even
-ArtNem_Bear:	BINCLUDE	"art/nemesis/Bear.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (18 blocks)
-; Splats		; ArtNem_7FDD2:
-	even
-ArtNem_Rabbit:	BINCLUDE	"art/nemesis/Rabbit.bin"
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art (4 blocks)
-; Rivet thing that you bust to get inside ship at the end of WFZ	; ArtNem_7FF2A:
-	even
-ArtNem_WfzSwitch:	BINCLUDE	"art/nemesis/WFZ boss chamber switch.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (15 blocks)
-; Breakaway panels in WFZ	; ArtNem_7FF98:
-	even
-ArtNem_BreakPanels:	BINCLUDE	"art/nemesis/Breakaway panels from WFZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (32 blocks)
-; Spiked thing from OOZ		; ArtNem_8007C:
-	even
-ArtNem_SpikyThing:	BINCLUDE	"art/nemesis/Spiked ball from OOZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (6 blocks)
-; Green platform over the burners in OOZ	; ArtNem_80274:
-	even
-ArtNem_BurnerLid:	BINCLUDE	"art/nemesis/Burner Platform from OOZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (4 blocks)
-; Striped blocks from OOZ	; ArtNem_8030A:
+ArtNem_BurnerLid:		BINCLUDE	"art/nemesis/Burner Platform from OOZ.bin"
 	even
 ArtNem_StripedBlocksVert:	BINCLUDE	"art/nemesis/Striped blocks from CPZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (16 blocks)
-; Oil splashing into oil in OOZ	; ArtNem_80376:
 	even
-ArtNem_Oilfall:	BINCLUDE	"art/nemesis/Cascading oil hitting oil from OOZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (13 blocks)
-; Cascading oil from OOZ	; ArtNem_804F2:
+ArtNem_Oilfall:			BINCLUDE	"art/nemesis/Cascading oil hitting oil from OOZ.bin"
 	even
-ArtNem_Oilfall2:	BINCLUDE	"art/nemesis/Cascading oil from OOZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (20 blocks)
-; Ball thing (unused?) from OOZ	; ArtNem_805C0:
+ArtNem_Oilfall2:		BINCLUDE	"art/nemesis/Cascading oil from OOZ.bin"
 	even
-ArtNem_BallThing:	BINCLUDE	"art/nemesis/Ball on spring from OOZ (beta holdovers).bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (53 blocks)
-; Spinball from OOZ	; ArtNem_806E0:
+ArtNem_BallThing:		BINCLUDE	"art/nemesis/Ball on spring from OOZ (beta holdovers).bin"
 	even
-ArtNem_LaunchBall:	BINCLUDE	"art/nemesis/Transporter ball from OOZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (40 blocks)
-; Collapsing platform from OOZ	; ArtNem_809D0:
+ArtNem_LaunchBall:		BINCLUDE	"art/nemesis/Transporter ball from OOZ.bin"
 	even
-ArtNem_OOZPlatform:	BINCLUDE	"art/nemesis/OOZ collapsing platform.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (30 blocks)
-; Diagonal and vertical weird spring from OOZ	; ArtNem_80C64:
+ArtNem_OOZPlatform:		BINCLUDE	"art/nemesis/OOZ collapsing platform.bin"
 	even
-ArtNem_PushSpring:	BINCLUDE	"art/nemesis/Push spring from OOZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (28 blocks)
-; Swinging platform from OOZ	; ArtNem_80E26:
+ArtNem_PushSpring:		BINCLUDE	"art/nemesis/Push spring from OOZ.bin"
 	even
-ArtNem_OOZSwingPlat:	BINCLUDE	"art/nemesis/Swinging platform from OOZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (4 blocks)
-; 4 stripy blocks from OOZ	; ArtNem_81048:
+ArtNem_OOZSwingPlat:		BINCLUDE	"art/nemesis/Swinging platform from OOZ.bin"
 	even
 ArtNem_StripedBlocksHoriz:	BINCLUDE	"art/nemesis/4 stripy blocks from OOZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (24 blocks)
-; Raising platform from OOZ	; ArtNem_810B8:
 	even
-ArtNem_OOZElevator:	BINCLUDE	"art/nemesis/Rising platform from OOZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (30 blocks)
-; Fan in OOZ		; ArtNem_81254:
+ArtNem_OOZElevator:		BINCLUDE	"art/nemesis/Rising platform from OOZ.bin"
 	even
-ArtNem_OOZFanHoriz:	BINCLUDE	"art/nemesis/Fan from OOZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (18 blocks)
-; Green flame thing that shoots platform up in OOZ	; ArtNem_81514:
+ArtNem_OOZFanHoriz:		BINCLUDE	"art/nemesis/Fan from OOZ.bin"
 	even
-ArtNem_OOZBurn:	BINCLUDE	"art/nemesis/Green flame from OOZ burners.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (4 blocks)
-; Patterns for appearing and disappearing string of platforms in CNZ	; ArtNem_81600:
+ArtNem_OOZBurn:			BINCLUDE	"art/nemesis/Green flame from OOZ burners.bin"
 	even
-ArtNem_CNZSnake:	BINCLUDE	"art/nemesis/Caterpiller platforms from CNZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (4 blocks)
-; Spikey ball from pokie in CNZ		; ArtNem_81668:
+
+;---------------------------------------------------------------------------------------
+; CNZ Assets
+;---------------------------------------------------------------------------------------
+ArtNem_CNZSnake:		BINCLUDE	"art/nemesis/Caterpiller platforms from CNZ.bin" ; Patterns for appearing and disappearing string of platforms
 	even
-ArtNem_CNZBonusSpike:	BINCLUDE	"art/nemesis/Spikey ball from CNZ slots.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (16 blocks)
-; Moving cube from either CNZ or CPZ	; ArtNem_816C8:
+ArtNem_CNZBonusSpike:		BINCLUDE	"art/nemesis/Spikey ball from CNZ slots.bin"
 	even
-ArtNem_BigMovingBlock:	BINCLUDE	"art/nemesis/Moving block from CNZ and CPZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (4 blocks)
-; Elevator in CNZ		; ArtNem_817B4:
+ArtNem_BigMovingBlock:		BINCLUDE	"art/nemesis/Moving block from CNZ and CPZ.bin"
 	even
-ArtNem_CNZElevator:	BINCLUDE	"art/nemesis/CNZ elevator.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (12 blocks)
-; Bars from pokies in CNZ	; ArtNem_81826:
+ArtNem_CNZElevator:		BINCLUDE	"art/nemesis/CNZ elevator.bin"
 	even
-ArtNem_CNZCage:	BINCLUDE	"art/nemesis/CNZ slot machine bars.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (6 blocks)
-; Hexagonal bumper in CNZ	; ArtNem_81894:
+ArtNem_CNZCage:			BINCLUDE	"art/nemesis/CNZ slot machine bars.bin"
 	even
-ArtNem_CNZHexBumper:	BINCLUDE	"art/nemesis/Hexagonal bumper from CNZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (24 blocks)
-; Normal round bumper from CNZ	; ArtNem_8191E:
+ArtNem_CNZHexBumper:		BINCLUDE	"art/nemesis/Hexagonal bumper from CNZ.bin"
 	even
-ArtNem_CNZRoundBumper:	BINCLUDE	"art/nemesis/Round bumper from CNZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (32 blocks)
-; Diagonal spring from CNZ that you charge up	; ArtNem_81AB0:
+ArtNem_CNZRoundBumper:		BINCLUDE	"art/nemesis/Round bumper from CNZ.bin"
 	even
-ArtNem_CNZDiagPlunger:	BINCLUDE	"art/nemesis/Diagonal impulse spring from CNZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (18 blocks)
-; Vertical red spring		; ArtNem_81C96:
+ArtNem_CNZDiagPlunger:		BINCLUDE	"art/nemesis/Diagonal impulse spring from CNZ.bin"
 	even
-ArtNem_CNZVertPlunger:	BINCLUDE	"art/nemesis/Vertical impulse spring.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (28 blocks)
-; Weird blocks from CNZ that you hit 3 times to get rid of	; ArtNem_81DCC:
+ArtNem_CNZVertPlunger:		BINCLUDE	"art/nemesis/Vertical impulse spring.bin"
 	even
-ArtNem_CNZMiniBumper:	BINCLUDE	"art/nemesis/Drop target from CNZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (52 blocks)
-; Flippers from CNZ	; ArtNem_81EF2:
+ArtNem_CNZMiniBumper:		BINCLUDE	"art/nemesis/Drop target from CNZ.bin" ; Weird blocks that you hit 3 times to get rid of
 	even
-ArtNem_CNZFlipper:	BINCLUDE	"art/nemesis/Flippers.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (16 blocks)
-; Large moving platform from CPZ	; ArtNem_82216:
+ArtNem_CNZFlipper:		BINCLUDE	"art/nemesis/Flippers.bin"
 	even
-ArtNem_CPZElevator:	BINCLUDE	"art/nemesis/Large moving platform from CNZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (24 blocks)
-; Top of water in HPZ and CPZ	; ArtNem_82364:
+ArtNem_CPZElevator:		BINCLUDE	"art/nemesis/Large moving platform from CNZ.bin"
 	even
-ArtNem_WaterSurface:	BINCLUDE	"art/nemesis/Top of water in HPZ and CNZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (4 blocks)
-; Booster things in CPZ		; ArtNem_824D4:
+
+;---------------------------------------------------------------------------------------
+; CPZ Assets
+;---------------------------------------------------------------------------------------
+ArtNem_WaterSurface:		BINCLUDE	"art/nemesis/Top of water in HPZ and CNZ.bin"
 	even
-ArtNem_CPZBooster:	BINCLUDE	"art/nemesis/Speed booster from CPZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (4 blocks)
-; CPZ droplet chain enemy	; ArtNem_8253C:
+ArtNem_CPZBooster:		BINCLUDE	"art/nemesis/Speed booster from CPZ.bin"
 	even
-ArtNem_CPZDroplet:	BINCLUDE	"art/nemesis/CPZ worm enemy.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (33 blocks)
-; CPZ metal things (girder, cylinders)	; ArtNem_825AE:
+ArtNem_CPZDroplet:		BINCLUDE	"art/nemesis/CPZ worm enemy.bin"
 	even
-ArtNem_CPZMetalThings:	BINCLUDE	"art/nemesis/CPZ metal things.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (4 blocks)
-; CPZ metal block		; ArtNem_827B8:
+ArtNem_CPZMetalThings:		BINCLUDE	"art/nemesis/CPZ metal things.bin" ; Girder, cylinders
 	even
-ArtNem_CPZMetalBlock:	BINCLUDE	"art/nemesis/CPZ large moving platform blocks.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (8 blocks)
-; Yellow and black stripy tiles from DEZ	; ArtNem_827F8:
+ArtNem_CPZMetalBlock:		BINCLUDE	"art/nemesis/CPZ large moving platform blocks.bin"
 	even
 ArtNem_ConstructionStripes:	BINCLUDE	"art/nemesis/Stripy blocks from CPZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (48 blocks)
-; Yellow flipping platforms and stuff CPZ	; ArtNem_82864:
 	even
-ArtNem_CPZAnimatedBits:	BINCLUDE	"art/nemesis/Small yellow moving platform from CPZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (24 blocks)
-; Moving block from CPZ		; ArtNem_82A46:
+ArtNem_CPZAnimatedBits:		BINCLUDE	"art/nemesis/Small yellow moving platform from CPZ.bin"
 	even
-ArtNem_CPZStairBlock:	BINCLUDE	"art/nemesis/Moving block from CPZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (32 blocks)
-; Spring that covers tube in CPZ	; ArtNem_82C06:
+ArtNem_CPZStairBlock:		BINCLUDE	"art/nemesis/Moving block from CPZ.bin"
 	even
-ArtNem_CPZTubeSpring:	BINCLUDE	"art/nemesis/CPZ spintube exit cover.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (16 blocks)
-; Top of water in ARZ		; ArtNem_82E02:
+ArtNem_CPZTubeSpring:		BINCLUDE	"art/nemesis/CPZ spintube exit cover.bin"
 	even
-ArtNem_WaterSurface2:	BINCLUDE	"art/nemesis/Top of water in ARZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (7 blocks)
-; Leaves from ARZ	; ArtNem_82EE8:
+
+;---------------------------------------------------------------------------------------
+; ARZ Assets
+;---------------------------------------------------------------------------------------
+ArtNem_WaterSurface2:		BINCLUDE	"art/nemesis/Top of water in ARZ.bin"
 	even
-ArtNem_Leaves:	BINCLUDE	"art/nemesis/Leaves in ARZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (17 blocks)
-; Arrow shooter and arrow from ARZ	; ArtNem_82F74:
+ArtNem_Leaves:			BINCLUDE	"art/nemesis/Leaves in ARZ.bin"
 	even
-ArtNem_ArrowAndShooter:	BINCLUDE	"art/nemesis/Arrow shooter and arrow from ARZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (8 blocks)
-; One way barrier from ARZ (unused?)	; ArtNem_830D2:
+ArtNem_ArrowAndShooter:		BINCLUDE	"art/nemesis/Arrow shooter and arrow from ARZ.bin"
 	even
-ArtNem_ARZBarrierThing:	BINCLUDE	"art/nemesis/One way barrier from ARZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (28 blocks)
-; Buzz bomber			; ArtNem_8316A:
+ArtNem_ARZBarrierThing:		BINCLUDE	"art/nemesis/One way barrier from ARZ.bin" ; Unused
 	even
-ArtNem_Buzzer:	BINCLUDE	"art/nemesis/Buzzer enemy.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (58 blocks)
-; Octopus badnik from OOZ	; ArtNem_8336A:
+
+;---------------------------------------------------------------------------------------
+; EHZ Badnik Assets (Part 1) (Why is this split?)
+;---------------------------------------------------------------------------------------
+ArtNem_Buzzer:			BINCLUDE	"art/nemesis/Buzzer enemy.bin"
 	even
-ArtNem_Octus:	BINCLUDE	"art/nemesis/Octopus badnik from OOZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (56 blocks)
-; Flying badnik from OOZ	; ArtNem_8368A:
+
+;---------------------------------------------------------------------------------------
+; OOZ Badnik Assets
+;---------------------------------------------------------------------------------------
+ArtNem_Octus:			BINCLUDE	"art/nemesis/Octopus badnik from OOZ.bin"
 	even
-ArtNem_Aquis:	BINCLUDE	"art/nemesis/Seahorse from OOZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (22 blocks)
-; Fish badnik from EHZ		; ArtNem_839EA:	ArtNem_Pirahna:
+ArtNem_Aquis:			BINCLUDE	"art/nemesis/Seahorse from OOZ.bin"
 	even
-ArtNem_Masher:	BINCLUDE	"art/nemesis/EHZ Pirahna badnik.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (96 blocks)
-; Robotnik's main ship		; ArtNem_83BF6:
+
+;---------------------------------------------------------------------------------------
+; EHZ Badnik Assets (Part 2) (Why?)
+;---------------------------------------------------------------------------------------
+ArtNem_Masher:			BINCLUDE	"art/nemesis/EHZ Pirahna badnik.bin"
 	even
-ArtNem_Eggpod:	BINCLUDE	"art/nemesis/Eggpod.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (111 blocks)
-; CPZ Boss			; ArtNem_84332:
+
+;---------------------------------------------------------------------------------------
+; Boss Assets
+;---------------------------------------------------------------------------------------
+ArtNem_Eggpod:			BINCLUDE	"art/nemesis/Eggpod.bin" ; Robotnik's main ship
 	even
-ArtNem_CPZBoss:	BINCLUDE	"art/nemesis/CPZ boss.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (100 blocks)
-; Large explosion		; ArtNem_84890:
+ArtNem_CPZBoss:			BINCLUDE	"art/nemesis/CPZ boss.bin"
 	even
-ArtNem_FieryExplosion:	BINCLUDE	"art/nemesis/Large explosion.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (8 blocks)
-; Horizontal jet		; ArtNem_84F18:
+ArtNem_FieryExplosion:		BINCLUDE	"art/nemesis/Large explosion.bin"
 	even
-ArtNem_EggpodJets:	BINCLUDE	"art/nemesis/Horizontal jet.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (16 blocks)
-; Smoke trail from CPZ and HTZ bosses	; ArtNem_84F96:
+ArtNem_EggpodJets:		BINCLUDE	"art/nemesis/Horizontal jet.bin"
 	even
-ArtNem_BossSmoke:	BINCLUDE	"art/nemesis/Smoke trail from CPZ and HTZ bosses.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (128 blocks)
-; EHZ Boss	; ArtNem_8507C:
+ArtNem_BossSmoke:		BINCLUDE	"art/nemesis/Smoke trail from CPZ and HTZ bosses.bin"
 	even
-ArtNem_EHZBoss:	BINCLUDE	"art/nemesis/EHZ boss.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (20 blocks)
-; Helicopter blades for EHZ boss	; ArtNem_85868:
+ArtNem_EHZBoss:			BINCLUDE	"art/nemesis/EHZ boss.bin"
 	even
-ArtNem_EggChoppers:	BINCLUDE	"art/nemesis/Chopper blades for EHZ boss.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (107 blocks)
-; HTZ boss			; ArtNem_8595C:
+ArtNem_EggChoppers:		BINCLUDE	"art/nemesis/Chopper blades for EHZ boss.bin"
 	even
-ArtNem_HTZBoss:	BINCLUDE	"art/nemesis/HTZ boss.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (166 blocks)
-; ARZ boss			; ArtNem_86128:
+ArtNem_HTZBoss:			BINCLUDE	"art/nemesis/HTZ boss.bin"
 	even
-ArtNem_ARZBoss:	BINCLUDE	"art/nemesis/ARZ boss.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (204 blocks)
-; MCZ boss			; ArtNem_86B6E:
+ArtNem_ARZBoss:			BINCLUDE	"art/nemesis/ARZ boss.bin"
 	even
-ArtNem_MCZBoss:	BINCLUDE	"art/nemesis/MCZ boss.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (133 blocks)
-; CNZ boss			; ArtNem_87AAC:
+ArtNem_MCZBoss:			BINCLUDE	"art/nemesis/MCZ boss.bin"
 	even
-ArtNem_CNZBoss:	BINCLUDE	"art/nemesis/CNZ boss.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (181 blocks)
-; OOZ boss			; ArtNem_882D6:
+ArtNem_CNZBoss:			BINCLUDE	"art/nemesis/CNZ boss.bin"
 	even
-ArtNem_OOZBoss:	BINCLUDE	"art/nemesis/OOZ boss.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (124 blocks)
-; MTZ boss			; ArtNem_88DA6:
+ArtNem_OOZBoss:			BINCLUDE	"art/nemesis/OOZ boss.bin"
 	even
-ArtNem_MTZBoss:	BINCLUDE	"art/nemesis/MTZ boss.bin"
-;--------------------------------------------------------------------------------------
-; Uncompressed art (8 blocks)
-; Falling rocks and stalactites from MCZ	; ArtUnc_894E4:
+ArtNem_MTZBoss:			BINCLUDE	"art/nemesis/MTZ boss.bin"
 	even
-ArtUnc_FallingRocks:	BINCLUDE	"art/uncompressed/Falling rocks and stalactites from MCZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (9 blocks)
-; Blowfly from ARZ	; ArtNem_895E4:
+ArtUnc_FallingRocks:		BINCLUDE	"art/uncompressed/Falling rocks and stalactites from MCZ.bin"
 	even
-ArtNem_Whisp:	BINCLUDE	"art/nemesis/Blowfly from ARZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (50 blocks)
-; Grounder from ARZ	; ArtNem_8970E:
+
+;---------------------------------------------------------------------------------------
+; ARZ Badnik Assets
+;---------------------------------------------------------------------------------------
+ArtNem_Whisp:			BINCLUDE	"art/nemesis/Blowfly from ARZ.bin"
 	even
-ArtNem_Grounder:	BINCLUDE	"art/nemesis/Grounder from ARZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (24 blocks)
-; Fish from ARZ		; ArtNem_89B9A:
+ArtNem_Grounder:		BINCLUDE	"art/nemesis/Grounder from ARZ.bin"
 	even
-ArtNem_ChopChop:	BINCLUDE	"art/nemesis/Shark from ARZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (19 blocks)
-; Lava snake from HTZ		89DEC: ArtNem_HtzRexxon:
+ArtNem_ChopChop:		BINCLUDE	"art/nemesis/Shark from ARZ.bin"
 	even
-ArtNem_Rexon:	BINCLUDE	"art/nemesis/Rexxon (lava snake) from HTZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (20 blocks)
-; Enemy with spike cone on top from HTZ		89FAA:	ArtNem_HtzDriller:
+
+;---------------------------------------------------------------------------------------
+; HTZ Badnik Assets
+;---------------------------------------------------------------------------------------
+ArtNem_Rexon:			BINCLUDE	"art/nemesis/Rexxon (lava snake) from HTZ.bin"
 	even
-ArtNem_Spiker:	BINCLUDE	"art/nemesis/Driller badnik from HTZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (28 blocks)
-; Bomber badnik from SCZ	; ArtNem_8A142:
+ArtNem_Spiker:			BINCLUDE	"art/nemesis/Driller badnik from HTZ.bin"
 	even
-ArtNem_Nebula:	BINCLUDE	"art/nemesis/Bomber badnik from SCZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (57 blocks)
-; Turtle badnik from SCZ	; ArtNem_8A362:
+
+;---------------------------------------------------------------------------------------
+; SCZ Badnik Assets
+;---------------------------------------------------------------------------------------
+ArtNem_Nebula:			BINCLUDE	"art/nemesis/Bomber badnik from SCZ.bin"
 	even
-ArtNem_Turtloid:	BINCLUDE	"art/nemesis/Turtle badnik from SCZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (38 blocks)
-; Coconuts monkey badnik from EHZ
+ArtNem_Turtloid:		BINCLUDE	"art/nemesis/Turtle badnik from SCZ.bin"
 	even
-ArtNem_Coconuts:	BINCLUDE	"art/nemesis/Coconuts badnik from EHZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (10 blocks)
-; Snake badnik from MCZ		; ArtNem_8AB36:
+
+;---------------------------------------------------------------------------------------
+; EHZ Badnik Assets (Part 3) (WTF???)
+;---------------------------------------------------------------------------------------
+ArtNem_Coconuts:		BINCLUDE	"art/nemesis/Coconuts badnik from EHZ.bin"
 	even
-ArtNem_Crawlton:	BINCLUDE	"art/nemesis/Snake badnik from MCZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (20 blocks)
-; Firefly from MCZ		; ArtNem_8AC5E:
+
+;---------------------------------------------------------------------------------------
+; MCZ Badnik Assets
+;---------------------------------------------------------------------------------------
+ArtNem_Crawlton:		BINCLUDE	"art/nemesis/Snake badnik from MCZ.bin"
 	even
-ArtNem_Flasher:	BINCLUDE	"art/nemesis/Firefly from MCZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (32 blocks)
-; Praying mantis badnik from MTZ	8AD80:
+ArtNem_Flasher:			BINCLUDE	"art/nemesis/Firefly from MCZ.bin"
 	even
-ArtNem_MtzMantis:	BINCLUDE	"art/nemesis/Praying mantis badnik from MTZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (36 blocks)
-; Crab badnik from MTZ			8B058:
+
+;---------------------------------------------------------------------------------------
+; MTZ Badnik Assets
+;---------------------------------------------------------------------------------------
+ArtNem_MtzMantis:		BINCLUDE	"art/nemesis/Praying mantis badnik from MTZ.bin"
 	even
-ArtNem_Shellcracker:	BINCLUDE	"art/nemesis/Shellcracker badnik from MTZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (15 blocks)
-; Exploding star badnik from MTZ	8B300:
+ArtNem_Shellcracker:		BINCLUDE	"art/nemesis/Shellcracker badnik from MTZ.bin"
 	even
-ArtNem_MtzSupernova:	BINCLUDE	"art/nemesis/Exploding star badnik from MTZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (32 blocks)
-; Weird crawling badnik from CPZ	; ArtNem_8B430:
+ArtNem_MtzSupernova:		BINCLUDE	"art/nemesis/Exploding star badnik from MTZ.bin"
 	even
-ArtNem_Spiny:	BINCLUDE	"art/nemesis/Weird crawling badnik from CPZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (45 blocks)
-; Spider badnik from CPZ 	ArtNem_8B6B4:
+
+;---------------------------------------------------------------------------------------
+; CPZ Badnik Assets
+;---------------------------------------------------------------------------------------
+ArtNem_Spiny:			BINCLUDE	"art/nemesis/Weird crawling badnik from CPZ.bin"
 	even
-ArtNem_Grabber:	BINCLUDE	"art/nemesis/Spider badnik from CPZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (26 blocks)
-; Chicken badnik from WFZ		8B9DC:
+ArtNem_Grabber:			BINCLUDE	"art/nemesis/Spider badnik from CPZ.bin"
 	even
-ArtNem_WfzScratch:	BINCLUDE	"art/nemesis/Scratch from WFZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (25 blocks)
-; Jet like badnik from SCZ		8BC16:
+
+;---------------------------------------------------------------------------------------
+; WFZ Badnik Assets
+;---------------------------------------------------------------------------------------
+ArtNem_WfzScratch:		BINCLUDE	"art/nemesis/Scratch from WFZ.bin" ; Chicken badnik
 	even
-ArtNem_Balkrie:	BINCLUDE	"art/nemesis/Balkrie (jet badnik) from SCZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (217 blocks)
-; Silver Sonic			; ArtNem_8BE12:
+ArtNem_Balkrie:			BINCLUDE	"art/nemesis/Balkrie (jet badnik) from SCZ.bin" ; This SCZ badnik is here for some reason.
 	even
-ArtNem_SilverSonic:	BINCLUDE	"art/nemesis/Silver Sonic.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (79 blocks)
-; The Tornado			8CC44:
+
+;---------------------------------------------------------------------------------------
+; WFZ/DEZ Assets
+; It seems that these were haphazardly thrown together instead of neatly-split like the
+; other zones' assets.
+;---------------------------------------------------------------------------------------
+ArtNem_SilverSonic:		BINCLUDE	"art/nemesis/Silver Sonic.bin"
 	even
-ArtNem_Tornado:	BINCLUDE	"art/nemesis/The Tornado.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (24 blocks)
-; Wall turret from WFZ		8D1A0:
+ArtNem_Tornado:			BINCLUDE	"art/nemesis/The Tornado.bin" ; Sonic's plane.
 	even
-ArtNem_WfzWallTurret:	BINCLUDE	"art/nemesis/Wall turret from WFZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (20 blocks)
-; Hook on chain in WFZ		8D388:
+ArtNem_WfzWallTurret:		BINCLUDE	"art/nemesis/Wall turret from WFZ.bin"
 	even
-ArtNem_WfzHook:	BINCLUDE	"art/nemesis/Hook on chain from WFZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (54 blocks)
-; Retracting platform from WFZ		8D540:
+ArtNem_WfzHook:			BINCLUDE	"art/nemesis/Hook on chain from WFZ.bin"
 	even
-ArtNem_WfzGunPlatform:	BINCLUDE	"art/nemesis/Retracting platform from WFZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (16 blocks)
-; Wheel for belt in WFZ		8D7D8:
+ArtNem_WfzGunPlatform:		BINCLUDE	"art/nemesis/Retracting platform from WFZ.bin"
 	even
 ArtNem_WfzConveyorBeltWheel:	BINCLUDE	"art/nemesis/Wheel for belt in WFZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (12 blocks)
-; Moving platform in WFZ	8D96E:
 	even
 ArtNem_WfzFloatingPlatform:	BINCLUDE	"art/nemesis/Moving platform from WFZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (12 blocks)
-; Giant unused vertical red laser in WFZ	8DA6E:
 	even
-ArtNem_WfzVrtclLazer:	BINCLUDE	"art/nemesis/Unused vertical laser in WFZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (18 blocks)
-; Clouds			8DAFC:
+ArtNem_WfzVrtclLazer:		BINCLUDE	"art/nemesis/Unused vertical laser in WFZ.bin"
 	even
-ArtNem_Clouds:	BINCLUDE	"art/nemesis/Clouds.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (10 blocks)
-; Red horizontal laser in WFZ		8DC42:
+ArtNem_Clouds:			BINCLUDE	"art/nemesis/Clouds.bin"
 	even
-ArtNem_WfzHrzntlLazer:	BINCLUDE	"art/nemesis/Red horizontal laser from WFZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (5 blocks)
-; Catapult that shoots Sonic across quickly in WFZ	8DCA2:
+ArtNem_WfzHrzntlLazer:		BINCLUDE	"art/nemesis/Red horizontal laser from WFZ.bin"
 	even
 ArtNem_WfzLaunchCatapult:	BINCLUDE	"art/nemesis/Catapult that shoots Sonic to the side from WFZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (12 blocks)
-; Rising platforms on belt from WFZ	8DD0C:
 	even
-ArtNem_WfzBeltPlatform:	BINCLUDE	"art/nemesis/Platform on belt in WFZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (12 blocks)
-; Unused badnik in WFZ		8DDF6:
+ArtNem_WfzBeltPlatform:		BINCLUDE	"art/nemesis/Platform on belt in WFZ.bin"
 	even
-ArtNem_WfzUnusedBadnik:	BINCLUDE	"art/nemesis/Unused badnik from WFZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (4 blocks)
-; Vertical spinning blades from WFZ	8DEB8:
+ArtNem_WfzUnusedBadnik:		BINCLUDE	"art/nemesis/Unused badnik from WFZ.bin"
 	even
-ArtNem_WfzVrtclPrpllr:	BINCLUDE	"art/nemesis/Vertical spinning blades in WFZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (29 blocks)
-; Horizontal spinning blades from WFZ		8DEE8:
+ArtNem_WfzVrtclPrpllr:		BINCLUDE	"art/nemesis/Vertical spinning blades in WFZ.bin"
 	even
-ArtNem_WfzHrzntlPrpllr:	BINCLUDE	"art/nemesis/Horizontal spinning blades in WFZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (12 blocks)
-; Platforms that tilt in WFZ		8E010:
+ArtNem_WfzHrzntlPrpllr:		BINCLUDE	"art/nemesis/Horizontal spinning blades in WFZ.bin"
 	even
 ArtNem_WfzTiltPlatforms:	BINCLUDE	"art/nemesis/Tilting plaforms in WFZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (8 blocks)
-; Thrust from Robotnic's getaway ship in WFZ		8E0C4:
 	even
-ArtNem_WfzThrust:	BINCLUDE	"art/nemesis/Thrust from Robotnik's getaway ship in WFZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (117 blocks)
-; Laser boss from WFZ	; ArtNem_8E138:
+ArtNem_WfzThrust:		BINCLUDE	"art/nemesis/Thrust from Robotnik's getaway ship in WFZ.bin"
 	even
-ArtNem_WFZBoss:	BINCLUDE	"art/nemesis/WFZ boss.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (24 blocks)
-; Robotnik's head	; ArtNem_8E886:
+ArtNem_WFZBoss:			BINCLUDE	"art/nemesis/WFZ boss.bin"
 	even
-ArtNem_RobotnikUpper:	BINCLUDE	"art/nemesis/Robotnik's head.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (76 blocks)
-; Robotnik		; ArtNem_8EA5A:
+ArtNem_RobotnikUpper:		BINCLUDE	"art/nemesis/Robotnik's head.bin"
 	even
-ArtNem_RobotnikRunning:	BINCLUDE	"art/nemesis/Robotnik.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (28 blocks)
-; Robotnik's lower half	; ArtNem_8EE52:
+ArtNem_RobotnikRunning:		BINCLUDE	"art/nemesis/Robotnik.bin"
 	even
-ArtNem_RobotnikLower:	BINCLUDE	"art/nemesis/Robotnik's lover half.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (8 blocks)
-; Window in back that Robotnic looks through in DEZ	; ArtNem_8EF96:
+ArtNem_RobotnikLower:		BINCLUDE	"art/nemesis/Robotnik's lover half.bin" ; The dumb typo really needs addressing at some point.
 	even
-ArtNem_DEZWindow:	BINCLUDE	"art/nemesis/Window in back that Robotnik looks through in DEZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (327 blocks)
-; Eggrobo		; ArtNem_8F024:
+ArtNem_DEZWindow:		BINCLUDE	"art/nemesis/Window in back that Robotnik looks through in DEZ.bin"
 	even
-ArtNem_DEZBoss:	BINCLUDE	"art/nemesis/Eggrobo.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (42 blocks)
-; Bouncer badnik from CNZ	; ArtNem_901A4:
+ArtNem_DEZBoss:			BINCLUDE	"art/nemesis/Eggrobo.bin"
 	even
-ArtNem_Crawl:	BINCLUDE	"art/nemesis/Bouncer badnik from CNZ.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (26 blocks)
-; Rocket thruster for Tornado	; ArtNem_90520:
+; This last-minute badnik addition was mistakenly included with the WFZ/DEZ assets instead of in its own 'CNZ Badnik Assets' section.
+ArtNem_Crawl:			BINCLUDE	"art/nemesis/Bouncer badnik from CNZ.bin"
 	even
-ArtNem_TornadoThruster:	BINCLUDE	"art/nemesis/Rocket thruster for Tornado.bin"
-;--------------------------------------------------------------------------------------
-; Enigma compressed sprite mappings
-; Frame 1 of end of game sequence	; MapEng_906E0:
+ArtNem_TornadoThruster:		BINCLUDE	"art/nemesis/Rocket thruster for Tornado.bin"
 	even
-MapEng_Ending1:	BINCLUDE	"mappings/misc/End of game sequence frame 1.bin"
-;--------------------------------------------------------------------------------------
-; Enigma compressed sprite mappings
-; Frame 2 of end of game sequence	; MapEng_906F8:
+
+;---------------------------------------------------------------------------------------
+; Ending Assets
+;---------------------------------------------------------------------------------------
+MapEng_Ending1:			BINCLUDE	"mappings/misc/End of game sequence frame 1.bin"
 	even
-MapEng_Ending2:	BINCLUDE	"mappings/misc/End of game sequence frame 2.bin"
-;--------------------------------------------------------------------------------------
-; Enigma compressed sprite mappings
-; Frame 3 of end of game sequence	; MapEng_90722:
+MapEng_Ending2:			BINCLUDE	"mappings/misc/End of game sequence frame 2.bin"
 	even
-MapEng_Ending3:	BINCLUDE	"mappings/misc/End of game sequence frame 3.bin"
-;--------------------------------------------------------------------------------------
-; Enigma compressed sprite mappings
-; Frame 4 of end of game sequence	; MapEng_9073C:
+MapEng_Ending3:			BINCLUDE	"mappings/misc/End of game sequence frame 3.bin"
 	even
-MapEng_Ending4:	BINCLUDE	"mappings/misc/End of game sequence frame 4.bin"
-;--------------------------------------------------------------------------------------
-; Enigma compressed sprite mappings
-; Closeup of Tails flying plane in ending sequence	; MapEng_9076E:
+MapEng_Ending4:			BINCLUDE	"mappings/misc/End of game sequence frame 4.bin"
 	even
 MapEng_EndingTailsPlane:	BINCLUDE	"mappings/misc/Closeup of Tails flying plane in ending sequence.bin"
-;--------------------------------------------------------------------------------------
-; Enigma compressed sprite mappings
-; Closeup of Sonic flying plane in ending sequence	; MapEng_907C0:
 	even
 MapEng_EndingSonicPlane:	BINCLUDE	"mappings/misc/Closeup of Sonic flying plane in ending sequence.bin"
-;--------------------------------------------------------------------------------------
-; Enigma compressed sprite mappings
-; Strange unused mappings (duplicates of MapEng_EndGameLogo)
-	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
-	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
-	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
-	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
-	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
-	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
-	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
-	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
-	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (363 blocks)
-; Movie sequence at end of game		; ArtNem_90992:
 	even
-ArtNem_EndingPics:	BINCLUDE	"art/nemesis/Movie sequence at end of game.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (127 blocks)
-; Final image of Tornado with it and Sonic facing screen	; ArtNem_91F3C:
+; Strange unused mappings (duplicates of MapEng_EndGameLogo)
+				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+	even
+				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+	even
+				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+	even
+				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+	even
+				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+	even
+				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+	even
+				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+	even
+				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+	even
+				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+	even
+
+ArtNem_EndingPics:		BINCLUDE	"art/nemesis/Movie sequence at end of game.bin"
 	even
 ArtNem_EndingFinalTornado:	BINCLUDE	"art/nemesis/Final image of Tornado with it and Sonic facing screen.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (109 blocks)
-; Mini pictures of Tornado in final ending sequence	; ArtNem_927E0:
 	even
 ArtNem_EndingMiniTornado:	BINCLUDE	"art/nemesis/Small pictures of Tornado in final ending sequence.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (135 blocks)
-; Mini pictures of Sonic and final image of Sonic
 	even
-ArtNem_EndingSonic:	BINCLUDE	"art/nemesis/Small pictures of Sonic and final image of Sonic.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (117 blocks)
-; Mini pictures of Sonic and final image of Sonic in Super Sonic mode	; ArtNem_93848:
+ArtNem_EndingSonic:		BINCLUDE	"art/nemesis/Small pictures of Sonic and final image of Sonic.bin"
 	even
 ArtNem_EndingSuperSonic:	BINCLUDE	"art/nemesis/Small pictures of Sonic and final image of Sonic in Super Sonic mode.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (181 blocks)
-; Final image of Tails		; ArtNem_93F3C:
 	even
-ArtNem_EndingTails:	BINCLUDE	"art/nemesis/Final image of Tails.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (72 blocks)
-; Sonic the Hedgehog 2 image at end of credits	; ArtNem_94B28:
+ArtNem_EndingTails:		BINCLUDE	"art/nemesis/Final image of Tails.bin"
 	even
-ArtNem_EndingTitle:	BINCLUDE	"art/nemesis/Sonic the Hedgehog 2 image at end of credits.bin"
+ArtNem_EndingTitle:		BINCLUDE	"art/nemesis/Sonic the Hedgehog 2 image at end of credits.bin"
+	even
 
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -91357,418 +90809,184 @@ ArtNem_EndingTitle:	BINCLUDE	"art/nemesis/Sonic the Hedgehog 2 image at end of c
 ; As noted earlier, each element of the table provides 'i' for blockMapTable[i][j].
 ; */
 
-;----------------------------------------------------------------------------------
-; EHZ 16x16 block mappings (Kosinski compression) ; was: (Kozinski compression)
+; All of these are compressed in the Kosinski format.
+
 BM16_EHZ:	BINCLUDE	"mappings/16x16/EHZ.bin"
-;-----------------------------------------------------------------------------------
-; EHZ/HTZ main level patterns (Kosinski compression)
-; ArtKoz_95C24:
 ArtKos_EHZ:	BINCLUDE	"art/kosinski/EHZ_HTZ.bin"
-;-----------------------------------------------------------------------------------
-; HTZ 16x16 block mappings (Kosinski compression)
 BM16_HTZ:	BINCLUDE	"mappings/16x16/HTZ.bin"
-;-----------------------------------------------------------------------------------
-; HTZ pattern suppliment to EHZ level patterns (Kosinski compression)
-; ArtKoz_98AB4:
-ArtKos_HTZ:	BINCLUDE	"art/kosinski/HTZ_Supp.bin"
-;-----------------------------------------------------------------------------------
-; EHZ/HTZ 128x128 block mappings (Kosinski compression)
+ArtKos_HTZ:	BINCLUDE	"art/kosinski/HTZ_Supp.bin" ; HTZ pattern suppliment to EHZ level patterns
 BM128_EHZ:	BINCLUDE	"mappings/128x128/EHZ_HTZ.bin"
-;-----------------------------------------------------------------------------------
-; MTZ 16x16 block mappings (Kosinski compression)
+
 BM16_MTZ:	BINCLUDE	"mappings/16x16/MTZ.bin"
-;-----------------------------------------------------------------------------------
-; MTZ main level patterns (Kosinski compression)
-; ArtKoz_9DB64:
 ArtKos_MTZ:	BINCLUDE	"art/kosinski/MTZ.bin"
-;-----------------------------------------------------------------------------------
-; MTZ 128x128 block mappings (Kosinski compression)
 BM128_MTZ:	BINCLUDE	"mappings/128x128/MTZ.bin"
-;-----------------------------------------------------------------------------------
-; HPZ 16x16 block mappings (Kosinski compression)
+
 BM16_HPZ:	;BINCLUDE	"mappings/16x16/HPZ.bin"
-;-----------------------------------------------------------------------------------
-; HPZ main level patterns (Kosinski compression)
 ArtKos_HPZ:	;BINCLUDE	"art/kosinski/HPZ.bin"
-;-----------------------------------------------------------------------------------
-; HPZ 128x128 block mappings (Kosinski compression)
 BM128_HPZ:	;BINCLUDE	"mappings/128x128/HPZ.bin"
-;-----------------------------------------------------------------------------------
-; OOZ 16x16 block mappings (Kosinski compression)
+
 BM16_OOZ:	BINCLUDE	"mappings/16x16/OOZ.bin"
-;-----------------------------------------------------------------------------------
-; OOZ main level patterns (Kosinski compression)
-; ArtKoz_A4204:
 ArtKos_OOZ:	BINCLUDE	"art/kosinski/OOZ.bin"
-;-----------------------------------------------------------------------------------
-; OOZ 128x128 block mappings (Kosinski compression)
 BM128_OOZ:	BINCLUDE	"mappings/128x128/OOZ.bin"
-;-----------------------------------------------------------------------------------
-; MCZ 16x16 block mappings (Kosinski compression)
+
 BM16_MCZ:	BINCLUDE	"mappings/16x16/MCZ.bin"
-;-----------------------------------------------------------------------------------
-; MCZ main level patterns (Kosinski compression)
-; ArtKoz_A9D74:
 ArtKos_MCZ:	BINCLUDE	"art/kosinski/MCZ.bin"
-;-----------------------------------------------------------------------------------
-; MCZ 128x128 block mappings (Kosinski compression)
 BM128_MCZ:	BINCLUDE	"mappings/128x128/MCZ.bin"
-;-----------------------------------------------------------------------------------
-; CNZ 16x16 block mappings (Kosinski compression)
+
 BM16_CNZ:	BINCLUDE	"mappings/16x16/CNZ.bin"
-;-----------------------------------------------------------------------------------
-; CNZ main level patterns (Kosinski compression)
-; ArtKoz_B0894:
 ArtKos_CNZ:	BINCLUDE	"art/kosinski/CNZ.bin"
-;-----------------------------------------------------------------------------------
-; CNZ 128x128 block mappings (Kosinski compression)
 BM128_CNZ:	BINCLUDE	"mappings/128x128/CNZ.bin"
-;-----------------------------------------------------------------------------------
-; CPZ/DEZ 16x16 block mappings (Kosinski compression)
+
 BM16_CPZ:	BINCLUDE	"mappings/16x16/CPZ_DEZ.bin"
-;-----------------------------------------------------------------------------------
-; CPZ/DEZ main level patterns (Kosinski compression)
-; ArtKoz_B6174:
 ArtKos_CPZ:	BINCLUDE	"art/kosinski/CPZ_DEZ.bin"
-;-----------------------------------------------------------------------------------
-; CPZ/DEZ 128x128 block mappings (Kosinski compression)
 BM128_CPZ:	BINCLUDE	"mappings/128x128/CPZ_DEZ.bin"
-;-----------------------------------------------------------------------------------
-; ARZ 16x16 block mappings (Kosinski compression)
+
 ; This file contains $320 blocks, overflowing the 'Block_table' buffer. This causes
 ; 'TempArray_LayerDef' to be overwritten with (empty) block data.
 ; If only 'fixBugs' could fix this...
 BM16_ARZ:	BINCLUDE	"mappings/16x16/ARZ.bin"
-;-----------------------------------------------------------------------------------
-; ARZ main level patterns (Kosinski compression)
-; ArtKoz_BCC24:
 ArtKos_ARZ:	BINCLUDE	"art/kosinski/ARZ.bin"
-;-----------------------------------------------------------------------------------
-; ARZ 128x128 block mappings (Kosinski compression)
 BM128_ARZ:	BINCLUDE	"mappings/128x128/ARZ.bin"
-;-----------------------------------------------------------------------------------
-; WFZ/SCZ 16x16 block mappings (Kosinski compression)
+
 BM16_WFZ:	BINCLUDE	"mappings/16x16/WFZ_SCZ.bin"
-;-----------------------------------------------------------------------------------
-; WFZ/SCZ main level patterns (Kosinski compression)
-; ArtKoz_C5004:
 ArtKos_SCZ:	BINCLUDE	"art/kosinski/WFZ_SCZ.bin"
-;-----------------------------------------------------------------------------------
-; WFZ pattern suppliment to SCZ tiles (Kosinski compression)
-; ArtKoz_C7EC4:
-ArtKos_WFZ:	BINCLUDE	"art/kosinski/WFZ_Supp.bin"
-;-----------------------------------------------------------------------------------
-; WFZ/SCZ 128x128 block mappings (Kosinski compression)
+ArtKos_WFZ:	BINCLUDE	"art/kosinski/WFZ_Supp.bin" ; WFZ pattern suppliment to SCZ tiles
 BM128_WFZ:	BINCLUDE	"mappings/128x128/WFZ_SCZ.bin"
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;-----------------------------------------------------------------------------------
+; Special Stage Assets
+;-----------------------------------------------------------------------------------
+
+;-----------------------------------------------------------------------------------
 ; Exit curve + slope up
 ;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_CA904:
-MapSpec_Rise1:	BINCLUDE	"mappings/special stage/Slope up - Frame 1.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_CADA8:
-MapSpec_Rise2:	BINCLUDE	"mappings/special stage/Slope up - Frame 2.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_CB376:
-MapSpec_Rise3:	BINCLUDE	"mappings/special stage/Slope up - Frame 3.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_CB92E:
-MapSpec_Rise4:	BINCLUDE	"mappings/special stage/Slope up - Frame 4.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_CBF92:
-MapSpec_Rise5:	BINCLUDE	"mappings/special stage/Slope up - Frame 5.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_CC5BE:
-MapSpec_Rise6:	BINCLUDE	"mappings/special stage/Slope up - Frame 6.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_CCC7A:
-MapSpec_Rise7:	BINCLUDE	"mappings/special stage/Slope up - Frame 7.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_CD282:
-MapSpec_Rise8:	BINCLUDE	"mappings/special stage/Slope up - Frame 8.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_CD7C0:
-MapSpec_Rise9:	BINCLUDE	"mappings/special stage/Slope up - Frame 9.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_CDD44:
-MapSpec_Rise10:	BINCLUDE	"mappings/special stage/Slope up - Frame 10.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_CE2BE:
-MapSpec_Rise11:	BINCLUDE	"mappings/special stage/Slope up - Frame 11.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_CE7DE:
-MapSpec_Rise12:	BINCLUDE	"mappings/special stage/Slope up - Frame 12.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_CEC52:
-MapSpec_Rise13:	BINCLUDE	"mappings/special stage/Slope up - Frame 13.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_CF0BC:
-MapSpec_Rise14:	BINCLUDE	"mappings/special stage/Slope up - Frame 14.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_CF580:
-MapSpec_Rise15:	BINCLUDE	"mappings/special stage/Slope up - Frame 15.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_CFA00:
-MapSpec_Rise16:	BINCLUDE	"mappings/special stage/Slope up - Frame 16.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_CFE4A:
-MapSpec_Rise17:	BINCLUDE	"mappings/special stage/Slope up - Frame 17.bin"
+MapSpec_Rise1:		BINCLUDE	"mappings/special stage/Slope up - Frame 1.bin"
+MapSpec_Rise2:		BINCLUDE	"mappings/special stage/Slope up - Frame 2.bin"
+MapSpec_Rise3:		BINCLUDE	"mappings/special stage/Slope up - Frame 3.bin"
+MapSpec_Rise4:		BINCLUDE	"mappings/special stage/Slope up - Frame 4.bin"
+MapSpec_Rise5:		BINCLUDE	"mappings/special stage/Slope up - Frame 5.bin"
+MapSpec_Rise6:		BINCLUDE	"mappings/special stage/Slope up - Frame 6.bin"
+MapSpec_Rise7:		BINCLUDE	"mappings/special stage/Slope up - Frame 7.bin"
+MapSpec_Rise8:		BINCLUDE	"mappings/special stage/Slope up - Frame 8.bin"
+MapSpec_Rise9:		BINCLUDE	"mappings/special stage/Slope up - Frame 9.bin"
+MapSpec_Rise10:		BINCLUDE	"mappings/special stage/Slope up - Frame 10.bin"
+MapSpec_Rise11:		BINCLUDE	"mappings/special stage/Slope up - Frame 11.bin"
+MapSpec_Rise12:		BINCLUDE	"mappings/special stage/Slope up - Frame 12.bin"
+MapSpec_Rise13:		BINCLUDE	"mappings/special stage/Slope up - Frame 13.bin"
+MapSpec_Rise14:		BINCLUDE	"mappings/special stage/Slope up - Frame 14.bin"
+MapSpec_Rise15:		BINCLUDE	"mappings/special stage/Slope up - Frame 15.bin"
+MapSpec_Rise16:		BINCLUDE	"mappings/special stage/Slope up - Frame 16.bin"
+MapSpec_Rise17:		BINCLUDE	"mappings/special stage/Slope up - Frame 17.bin"
 
 ;-----------------------------------------------------------------------------------
 ; Straight path
 ;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D028C:
 MapSpec_Straight1:	BINCLUDE	"mappings/special stage/Straight path - Frame 1.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D090A:
 MapSpec_Straight2:	BINCLUDE	"mappings/special stage/Straight path - Frame 2.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D0EA6:
 MapSpec_Straight3:	BINCLUDE	"mappings/special stage/Straight path - Frame 3.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D1400:
 MapSpec_Straight4:	BINCLUDE	"mappings/special stage/Straight path - Frame 4.bin"
 
 ;-----------------------------------------------------------------------------------
 ; Exit curve + slope down
 ;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D19FC:
-MapSpec_Drop1:	BINCLUDE	"mappings/special stage/Slope down - Frame 1.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D1EAC:
-MapSpec_Drop2:	BINCLUDE	"mappings/special stage/Slope down - Frame 2.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D23AE:
-MapSpec_Drop3:	BINCLUDE	"mappings/special stage/Slope down - Frame 3.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D27C6:
-MapSpec_Drop4:	BINCLUDE	"mappings/special stage/Slope down - Frame 4.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D2C14:
-MapSpec_Drop5:	BINCLUDE	"mappings/special stage/Slope down - Frame 5.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D3092:
-MapSpec_Drop6:	BINCLUDE	"mappings/special stage/Slope down - Frame 6.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D3522:
-MapSpec_Drop7:	BINCLUDE	"mappings/special stage/Slope down - Frame 7.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D39EC:
-MapSpec_Drop8:	BINCLUDE	"mappings/special stage/Slope down - Frame 8.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D3F78:
-MapSpec_Drop9:	BINCLUDE	"mappings/special stage/Slope down - Frame 9.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D4660:
-MapSpec_Drop10:	BINCLUDE	"mappings/special stage/Slope down - Frame 10.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D4DA6:
-MapSpec_Drop11:	BINCLUDE	"mappings/special stage/Slope down - Frame 11.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D53FC:
-MapSpec_Drop12:	BINCLUDE	"mappings/special stage/Slope down - Frame 12.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D5958:
-MapSpec_Drop13:	BINCLUDE	"mappings/special stage/Slope down - Frame 13.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D5F02:
-MapSpec_Drop14:	BINCLUDE	"mappings/special stage/Slope down - Frame 14.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D6596:
-MapSpec_Drop15:	BINCLUDE	"mappings/special stage/Slope down - Frame 15.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D6BAA:
-MapSpec_Drop16:	BINCLUDE	"mappings/special stage/Slope down - Frame 16.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D702E:
-MapSpec_Drop17:	BINCLUDE	"mappings/special stage/Slope down - Frame 17.bin"
+MapSpec_Drop1:		BINCLUDE	"mappings/special stage/Slope down - Frame 1.bin"
+MapSpec_Drop2:		BINCLUDE	"mappings/special stage/Slope down - Frame 2.bin"
+MapSpec_Drop3:		BINCLUDE	"mappings/special stage/Slope down - Frame 3.bin"
+MapSpec_Drop4:		BINCLUDE	"mappings/special stage/Slope down - Frame 4.bin"
+MapSpec_Drop5:		BINCLUDE	"mappings/special stage/Slope down - Frame 5.bin"
+MapSpec_Drop6:		BINCLUDE	"mappings/special stage/Slope down - Frame 6.bin"
+MapSpec_Drop7:		BINCLUDE	"mappings/special stage/Slope down - Frame 7.bin"
+MapSpec_Drop8:		BINCLUDE	"mappings/special stage/Slope down - Frame 8.bin"
+MapSpec_Drop9:		BINCLUDE	"mappings/special stage/Slope down - Frame 9.bin"
+MapSpec_Drop10:		BINCLUDE	"mappings/special stage/Slope down - Frame 10.bin"
+MapSpec_Drop11:		BINCLUDE	"mappings/special stage/Slope down - Frame 11.bin"
+MapSpec_Drop12:		BINCLUDE	"mappings/special stage/Slope down - Frame 12.bin"
+MapSpec_Drop13:		BINCLUDE	"mappings/special stage/Slope down - Frame 13.bin"
+MapSpec_Drop14:		BINCLUDE	"mappings/special stage/Slope down - Frame 14.bin"
+MapSpec_Drop15:		BINCLUDE	"mappings/special stage/Slope down - Frame 15.bin"
+MapSpec_Drop16:		BINCLUDE	"mappings/special stage/Slope down - Frame 16.bin"
+MapSpec_Drop17:		BINCLUDE	"mappings/special stage/Slope down - Frame 17.bin"
 
 ;-----------------------------------------------------------------------------------
 ; Curved path
 ;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D749C:
 MapSpec_Turning1:	BINCLUDE	"mappings/special stage/Curve right - Frame 1.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D7912:
 MapSpec_Turning2:	BINCLUDE	"mappings/special stage/Curve right - Frame 2.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D7DAA:
 MapSpec_Turning3:	BINCLUDE	"mappings/special stage/Curve right - Frame 3.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D8250:
 MapSpec_Turning4:	BINCLUDE	"mappings/special stage/Curve right - Frame 4.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D85F8:
 MapSpec_Turning5:	BINCLUDE	"mappings/special stage/Curve right - Frame 5.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings ; MapSpec_D89EC:
 MapSpec_Turning6:	BINCLUDE	"mappings/special stage/Curve right - Frame 6.bin"
 
 ;-----------------------------------------------------------------------------------
 ; Exit curve
 ;-----------------------------------------------------------------------------------
-; Special stage tube mappings
-; Exit curve  ; MapSpec_D8E24:
 MapSpec_Unturn1:	BINCLUDE	"mappings/special stage/Curve right - Frame 7.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings
-; Exit curve  ; MapSpec_D92B6:
 MapSpec_Unturn2:	BINCLUDE	"mappings/special stage/Curve right - Frame 8.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings
-; Exit curve  ; MapSpec_D9778:
 MapSpec_Unturn3:	BINCLUDE	"mappings/special stage/Curve right - Frame 9.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings
-; Exit curve  ; MapSpec_D9B80:
 MapSpec_Unturn4:	BINCLUDE	"mappings/special stage/Curve right - Frame 10.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings
-; Exit curve  ; MapSpec_DA016:
 MapSpec_Unturn5:	BINCLUDE	"mappings/special stage/Curve right - Frame 11.bin"
 
 ;-----------------------------------------------------------------------------------
 ; Enter curve
 ;-----------------------------------------------------------------------------------
-; Special stage tube mappings
-; Begin curve right ; MapSpec_DA4CE:
-MapSpec_Turn1:	BINCLUDE	"mappings/special stage/Begin curve right - Frame 1.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings
-; Begin curve right ; MapSpec_DAB20:
-MapSpec_Turn2:	BINCLUDE	"mappings/special stage/Begin curve right - Frame 2.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings
-; Begin curve right ; MapSpec_DB086:
-MapSpec_Turn3:	BINCLUDE	"mappings/special stage/Begin curve right - Frame 3.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings
-; Begin curve right ; MapSpec_DB5AE:
-MapSpec_Turn4:	BINCLUDE	"mappings/special stage/Begin curve right - Frame 4.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings
-; Begin curve right ; MapSpec_DBB62:
-MapSpec_Turn5:	BINCLUDE	"mappings/special stage/Begin curve right - Frame 5.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings
-; Begin curve right ; MapSpec_DC154:
-MapSpec_Turn6:	BINCLUDE	"mappings/special stage/Begin curve right - Frame 6.bin"
-;-----------------------------------------------------------------------------------
-; Special stage tube mappings
-; Begin curve right ; MapSpec_DC5E8:
-MapSpec_Turn7:	BINCLUDE	"mappings/special stage/Begin curve right - Frame 7.bin"
+MapSpec_Turn1:		BINCLUDE	"mappings/special stage/Begin curve right - Frame 1.bin"
+MapSpec_Turn2:		BINCLUDE	"mappings/special stage/Begin curve right - Frame 2.bin"
+MapSpec_Turn3:		BINCLUDE	"mappings/special stage/Begin curve right - Frame 3.bin"
+MapSpec_Turn4:		BINCLUDE	"mappings/special stage/Begin curve right - Frame 4.bin"
+MapSpec_Turn5:		BINCLUDE	"mappings/special stage/Begin curve right - Frame 5.bin"
+MapSpec_Turn6:		BINCLUDE	"mappings/special stage/Begin curve right - Frame 6.bin"
+MapSpec_Turn7:		BINCLUDE	"mappings/special stage/Begin curve right - Frame 7.bin"
 
 ;--------------------------------------------------------------------------------------
-; Kosinski compressed art
 ; Special stage level patterns
 ; Note: Only one line of each tile is stored in this archive. The other 7 lines are
 ;  the same as this one line, so to get the full tiles, each line needs to be
 ;  duplicated 7 times over.					; ArtKoz_DCA38:
 ;--------------------------------------------------------------------------------------
-ArtKos_Special:	BINCLUDE	"art/kosinski/SpecStag.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (127 blocks)
-; Background patterns for special stage		; ArtNem_DCD68:
+ArtKos_Special:			BINCLUDE	"art/kosinski/SpecStag.bin"
 	even
-ArtNem_SpecialBack:	BINCLUDE	"art/nemesis/Background art for special stage.bin"
-;--------------------------------------------------------------------------------------
-; Enigma compressed tile mappings
-; Main background mappings for special stage	; MapEng_DD1DE:
+
+ArtNem_SpecialBack:		BINCLUDE	"art/nemesis/Background art for special stage.bin"
 	even
-MapEng_SpecialBack:	BINCLUDE	"mappings/misc/Main background mappings for special stage.bin"
-;--------------------------------------------------------------------------------------
-; Enigma compressed tile mappings
-; Lower background mappings for special stage	; MapEng_DD30C:
+MapEng_SpecialBack:		BINCLUDE	"mappings/misc/Main background mappings for special stage.bin"
 	even
 MapEng_SpecialBackBottom:	BINCLUDE	"mappings/misc/Lower background mappings for special stage.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (62 blocks)
-; Sonic/Miles and number text from special stage	; ArtNem_DD48A:
 	even
-ArtNem_SpecialHUD:	BINCLUDE	"art/nemesis/Sonic and Miles number text from special stage.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (48 blocks)
-; "Start" and checkered flag patterns in special stage	; ArtNem_DD790:
+ArtNem_SpecialHUD:		BINCLUDE	"art/nemesis/Sonic and Miles number text from special stage.bin"
 	even
-ArtNem_SpecialStart:	BINCLUDE	"art/nemesis/Start text from special stage.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (37 blocks)
-; Stars in special stage	; ArtNem_DD8CE:
+ArtNem_SpecialStart:		BINCLUDE	"art/nemesis/Start text from special stage.bin" ; Also includes checkered flag
 	even
-ArtNem_SpecialStars:	BINCLUDE	"art/nemesis/Stars in special stage.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (13 blocks)
-; Text for most of the "Player VS Player" message in 2P special stage	; ArtNem_DD9C8:
+ArtNem_SpecialStars:		BINCLUDE	"art/nemesis/Stars in special stage.bin"
 	even
 ArtNem_SpecialPlayerVSPlayer:	BINCLUDE	"art/nemesis/Special stage Player VS Player text.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (104 blocks)
-; Ring patterns in special stage	; ArtNem_DDA7E:
 	even
-ArtNem_SpecialRings:	BINCLUDE	"art/nemesis/Special stage ring art.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (38 blocks)
-; Horizontal shadow patterns in special stage	; ArtNem_DDFA4:
+ArtNem_SpecialRings:		BINCLUDE	"art/nemesis/Special stage ring art.bin"
 	even
 ArtNem_SpecialFlatShadow:	BINCLUDE	"art/nemesis/Horizontal shadow from special stage.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (58 blocks)
-; Diagonal shadow patterns in special stage	; ArtNem_DE05A:
 	even
 ArtNem_SpecialDiagShadow:	BINCLUDE	"art/nemesis/Diagonal shadow from special stage.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (25 blocks)
-; Vertical shadow patterns in special stage	; ArtNem_DE120:
 	even
 ArtNem_SpecialSideShadow:	BINCLUDE	"art/nemesis/Vertical shadow from special stage.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (48 blocks)
-; Explosion patterns in special stage	; ArtNem_DE188:
 	even
 ArtNem_SpecialExplosion:	BINCLUDE	"art/nemesis/Explosion from special stage.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (80 blocks)
-; Bomb patterns in special stage	; ArtNem_DE4BC:
 	even
-ArtNem_SpecialBomb:	BINCLUDE	"art/nemesis/Bomb from special stage.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (46 blocks)
-; Emerald patterns in special stage	; ArtNem_DE8AC:
+ArtNem_SpecialBomb:		BINCLUDE	"art/nemesis/Bomb from special stage.bin"
 	even
-ArtNem_SpecialEmerald:	BINCLUDE	"art/nemesis/Emerald from special stage.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (99 blocks)
-; Text for the messages and thumbs up/down icon in special stage	; ArtNem_DEAF4:
+ArtNem_SpecialEmerald:		BINCLUDE	"art/nemesis/Emerald from special stage.bin"
 	even
-ArtNem_SpecialMessages:	BINCLUDE	"art/nemesis/Special stage messages and icons.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (851 blocks)
-; Sonic and Tails animation frames from special stage
-; [fixBugs] In this file, Tails' arms are tan instead of orange.
-; Art for Obj09 and Obj10 and Obj88	; ArtNem_DEEAE:
+ArtNem_SpecialMessages:		BINCLUDE	"art/nemesis/Special stage messages and icons.bin"
 	even
-ArtNem_SpecialSonicAndTails:	BINCLUDE	"art/nemesis/Sonic and Tails animation frames in special stage.bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art (5 blocks)
-; "Tails" patterns from special stage	; ArtNem_E247E:
+ArtNem_SpecialSonicAndTails:	BINCLUDE	"art/nemesis/Sonic and Tails animation frames in special stage.bin" ; [fixBugs] In this file, Tails' arms are tan instead of orange.
 	even
 ArtNem_SpecialTailsText:	BINCLUDE	"art/nemesis/Tails text patterns from special stage.bin"
-
-;--------------------------------------------------------------------------------------
-; Special stage object perspective data (Kosinski compression)	; MiscKoz_E24FE:
-;--------------------------------------------------------------------------------------
+	even
 MiscKoz_SpecialPerspective:	BINCLUDE	"misc/Special stage object perspective data (Kosinski compression).bin"
-;--------------------------------------------------------------------------------------
-; Special stage level layout (Nemesis compression)	; MiscNem_E34EE: MiscKoz_SpecialLevelLayout:
-;--------------------------------------------------------------------------------------
 	even
 MiscNem_SpecialLevelLayout:	BINCLUDE	"misc/Special stage level layouts (Nemesis compression).bin"
-;--------------------------------------------------------------------------------------
-; Special stage object location list (Kosinski compression)	; MiscKoz_E35F2:
-;--------------------------------------------------------------------------------------
+	even
 MiscKoz_SpecialObjectLocations:	BINCLUDE	"misc/Special stage object location lists (Kosinski compression).bin"
+	even
 
 ;--------------------------------------------------------------------------------------
 ; Filler (free space) (unnecessary; could be replaced with "even")
@@ -92246,137 +91464,70 @@ Mus_Continue:   BINCLUDE	"sound/music/compressed/9C - Continue.bin"
 	finishBank
 
 	align $20
-; --------------------------------------------------------------------
-; Nemesis compressed art (20 blocks)
-; HTZ boss lava ball / Sol fireball
+
+; --------------------------------------------------------------------------------------
+; EHZ/HTZ Assets
+; --------------------------------------------------------------------------------------
+ArtNem_HtzFireball1:		BINCLUDE	"art/nemesis/Fireball 1.bin"
 	even
-ArtNem_HtzFireball1:	BINCLUDE	"art/nemesis/Fireball 1.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (24 blocks)
-; Waterfall tiles
+ArtNem_Waterfall:		BINCLUDE	"art/nemesis/Waterfall tiles.bin"
 	even
-ArtNem_Waterfall:	BINCLUDE	"art/nemesis/Waterfall tiles.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (16 blocks)
-; Another fireball
+ArtNem_HtzFireball2:		BINCLUDE	"art/nemesis/Fireball 2.bin"
 	even
-ArtNem_HtzFireball2:	BINCLUDE	"art/nemesis/Fireball 2.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (8 blocks)
-; Bridge in EHZ
+ArtNem_EHZ_Bridge:		BINCLUDE	"art/nemesis/EHZ bridge.bin"
 	even
-ArtNem_EHZ_Bridge:	BINCLUDE	"art/nemesis/EHZ bridge.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (48 blocks)
-; Diagonally moving lift in HTZ
+ArtNem_HtzZipline:		BINCLUDE	"art/nemesis/HTZ zip-line platform.bin"
 	even
-ArtNem_HtzZipline:	BINCLUDE	"art/nemesis/HTZ zip-line platform.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (4 blocks)
-; One way barrier from HTZ
+ArtNem_HtzValveBarrier:		BINCLUDE	"art/nemesis/One way barrier from HTZ.bin"
 	even
-ArtNem_HtzValveBarrier:	BINCLUDE	"art/nemesis/One way barrier from HTZ.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (24 blocks)
-; See-saw in HTZ
+ArtNem_HtzSeeSaw:		BINCLUDE	"art/nemesis/See-saw in HTZ.bin"
 	even
-ArtNem_HtzSeeSaw:	BINCLUDE	"art/nemesis/See-saw in HTZ.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (24 blocks)
-; Unused Fireball
+				BINCLUDE	"art/nemesis/Fireball 3.bin" ; Unused
 	even
-;ArtNem_F0B06:
-	BINCLUDE	"art/nemesis/Fireball 3.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (20 blocks)
-; Rock from HTZ
+ArtNem_HtzRock:			BINCLUDE	"art/nemesis/Rock from HTZ.bin"
 	even
-ArtNem_HtzRock:	BINCLUDE	"art/nemesis/Rock from HTZ.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (4 blocks)
-; Orbit badnik from HTZ		; ArtNem_HtzSol:
+ArtNem_Sol:			BINCLUDE	"art/nemesis/Sol badnik from HTZ.bin" ; Not grouped with the other badniks for some reason...
 	even
-ArtNem_Sol:	BINCLUDE	"art/nemesis/Sol badnik from HTZ.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (120 blocks)
-; Large spinning wheel from MTZ
+
+; --------------------------------------------------------------------------------------
+; MTZ Assets
+; --------------------------------------------------------------------------------------
+ArtNem_MtzWheel:		BINCLUDE	"art/nemesis/Large spinning wheel from MTZ.bin"
 	even
-ArtNem_MtzWheel:	BINCLUDE	"art/nemesis/Large spinning wheel from MTZ.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (9 blocks)
-; Indent in large spinning wheel from MTZ
+ArtNem_MtzWheelIndent:		BINCLUDE	"art/nemesis/Large spinning wheel from MTZ - indent.bin"
 	even
-ArtNem_MtzWheelIndent:	BINCLUDE	"art/nemesis/Large spinning wheel from MTZ - indent.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (8 blocks)
-; Spike block from MTZ
+ArtNem_MtzSpikeBlock:		BINCLUDE	"art/nemesis/MTZ spike block.bin"
 	even
-ArtNem_MtzSpikeBlock:	BINCLUDE	"art/nemesis/MTZ spike block.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (15 blocks)
-; Steam from MTZ
+ArtNem_MtzSteam:		BINCLUDE	"art/nemesis/Steam from MTZ.bin"
 	even
-ArtNem_MtzSteam:	BINCLUDE	"art/nemesis/Steam from MTZ.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (8 blocks)
-; Spike from MTZ
+ArtNem_MtzSpike:		BINCLUDE	"art/nemesis/Spike from MTZ.bin"
 	even
-ArtNem_MtzSpike:	BINCLUDE	"art/nemesis/Spike from MTZ.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (54 blocks)
-; Similarly shaded blocks from MTZ
+ArtNem_MtzAsstBlocks:		BINCLUDE	"art/nemesis/Similarly shaded blocks from MTZ.bin"
 	even
-ArtNem_MtzAsstBlocks:	BINCLUDE	"art/nemesis/Similarly shaded blocks from MTZ.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (9 blocks)
-; Lava bubble from MTZ
+ArtNem_MtzLavaBubble:		BINCLUDE	"art/nemesis/Lava bubble from MTZ.bin"
 	even
-ArtNem_MtzLavaBubble:	BINCLUDE	"art/nemesis/Lava bubble from MTZ.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (4 blocks)
-; Lava cup
+ArtNem_LavaCup:			BINCLUDE	"art/nemesis/Lava cup from MTZ.bin"
 	even
-ArtNem_LavaCup:	BINCLUDE	"art/nemesis/Lava cup from MTZ.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (8 blocks)
-; End of a bolt and rope from MTZ
-	even
-ArtNem_BoltEnd_Rope:	BINCLUDE	"art/nemesis/Bolt end and rope from MTZ.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (12 blocks)
-; Small cog from MTZ
-	even
-ArtNem_MtzCog:	BINCLUDE	"art/nemesis/Small cog from MTZ.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (4 blocks)
-; Flash inside spin tube from MTZ
+ArtNem_BoltEnd_Rope:		BINCLUDE	"art/nemesis/Bolt end and rope from MTZ.bin"
+	even	
+ArtNem_MtzCog:			BINCLUDE	"art/nemesis/Small cog from MTZ.bin"
 	even
 ArtNem_MtzSpinTubeFlash:	BINCLUDE	"art/nemesis/Spin tube flash from MTZ.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (32 blocks)
-; Large wooden box from MCZ	; ArtNem_F187C:
 	even
-ArtNem_Crate:	BINCLUDE	"art/nemesis/Large wooden box from MCZ.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (26 blocks)
-; Collapsing platform from MCZ	; ArtNem_F1ABA:
+
+; --------------------------------------------------------------------------------------
+; MCZ Assets
+; --------------------------------------------------------------------------------------
+ArtNem_Crate:			BINCLUDE	"art/nemesis/Large wooden box from MCZ.bin"
 	even
-ArtNem_MCZCollapsePlat:	BINCLUDE	"art/nemesis/Collapsing platform from MCZ.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (16 blocks)
-; Switch that you pull on from MCZ	; ArtNem_F1C64:
+ArtNem_MCZCollapsePlat:		BINCLUDE	"art/nemesis/Collapsing platform from MCZ.bin"
 	even
-ArtNem_VineSwitch:	BINCLUDE	"art/nemesis/Pull switch from MCZ.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (10 blocks)
-; Vine that lowers in MCZ	; ArtNem_F1D5C:
+ArtNem_VineSwitch:		BINCLUDE	"art/nemesis/Pull switch from MCZ.bin"
 	even
-ArtNem_VinePulley:	BINCLUDE	"art/nemesis/Vine that lowers from MCZ.bin"
-; --------------------------------------------------------------------
-; Nemesis compressed art (20 blocks)
-; Log viewed from the end for folding gates in MCZ (start of MCZ2)	; ArtNem_F1E06:
+ArtNem_VinePulley:		BINCLUDE	"art/nemesis/Vine that lowers from MCZ.bin"
 	even
-ArtNem_MCZGateLog:	BINCLUDE	"art/nemesis/Drawbridge logs from MCZ.bin"
+ArtNem_MCZGateLog:		BINCLUDE	"art/nemesis/Drawbridge logs from MCZ.bin"
+	even
 
 ; ----------------------------------------------------------------------------------
 ; Filler (free space)
