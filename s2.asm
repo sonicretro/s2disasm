@@ -14153,14 +14153,14 @@ EndingSequence_LoadFlickyArt:
 
 ; ===========================================================================
 EndingSequence_LoadFlickyArt_Flickies: offsetTable
-	offsetTableEntry.w EndingSequence_LoadFlickyArt_Bird	; 0
+	offsetTableEntry.w EndingSequence_LoadFlickyArt_Flicky	; 0
 	offsetTableEntry.w EndingSequence_LoadFlickyArt_Eagle	; 2
 	offsetTableEntry.w EndingSequence_LoadFlickyArt_Chicken	; 4
 ; ===========================================================================
 ; loc_AC42:
-EndingSequence_LoadFlickyArt_Bird:
+EndingSequence_LoadFlickyArt_Flicky:
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_Animal_2),VRAM,WRITE),(VDP_control_port).l
-	lea	(ArtNem_Bird).l,a0
+	lea	(ArtNem_Flicky).l,a0
 	jmpto	NemDec, JmpTo_NemDec
 ; ===========================================================================
 ; loc_AC56:
@@ -24235,22 +24235,22 @@ zoneAnimals macro first,second
 	; This table declares what animals will appear in the zone.
 	; When an enemy is destroyed, a random animal is chosen from the 2 selected animals.
 	; Note: you must also load the corresponding art in the PLCs.
-	zoneAnimals.b Squirrel,	Bird	; EHZ
-	zoneAnimals.b Squirrel,	Bird	; Zone 1
-	zoneAnimals.b Squirrel,	Bird	; WZ
-	zoneAnimals.b Squirrel,	Bird	; Zone 3
-	zoneAnimals.b Beaver,	Eagle	; MTZ1,2
-	zoneAnimals.b Beaver,	Eagle	; MTZ3
-	zoneAnimals.b Beaver,	Eagle	; WFZ
-	zoneAnimals.b Beaver,	Eagle	; HTZ
+	zoneAnimals.b Squirrel,	Flicky	; EHZ
+	zoneAnimals.b Squirrel,	Flicky	; Zone 1
+	zoneAnimals.b Squirrel,	Flicky	; WZ
+	zoneAnimals.b Squirrel,	Flicky	; Zone 3
+	zoneAnimals.b Monkey,	Eagle	; MTZ1,2
+	zoneAnimals.b Monkey,	Eagle	; MTZ3
+	zoneAnimals.b Monkey,	Eagle	; WFZ
+	zoneAnimals.b Monkey,	Eagle	; HTZ
 	zoneAnimals.b Mouse,	Seal	; HPZ
 	zoneAnimals.b Mouse,	Seal	; Zone 9
 	zoneAnimals.b Penguin,	Seal	; OOZ
 	zoneAnimals.b Mouse,	Chicken	; MCZ
-	zoneAnimals.b Bear,	Bird	; CNZ
+	zoneAnimals.b Bear,	Flicky	; CNZ
 	zoneAnimals.b Rabbit,	Eagle	; CPZ
 	zoneAnimals.b Pig,	Chicken	; DEZ
-	zoneAnimals.b Penguin,	Bird	; ARZ
+	zoneAnimals.b Penguin,	Flicky	; ARZ
 	zoneAnimals.b Turtle,	Chicken	; SCZ
     zoneTableEnd
 
@@ -24269,11 +24269,11 @@ Chicken:	obj28decl -$200,-$300,Obj28_MapUnc_11E1C
 Penguin:	obj28decl -$180,-$300,Obj28_MapUnc_11EAC
 Seal:		obj28decl -$140,-$180,Obj28_MapUnc_11E88
 Pig:		obj28decl -$1C0,-$300,Obj28_MapUnc_11E64
-Bird:		obj28decl -$300,-$400,Obj28_MapUnc_11E1C
+Flicky:		obj28decl -$300,-$400,Obj28_MapUnc_11E1C
 Squirrel:	obj28decl -$280,-$380,Obj28_MapUnc_11E40
 Eagle:		obj28decl -$280,-$300,Obj28_MapUnc_11E1C
 Mouse:		obj28decl -$200,-$380,Obj28_MapUnc_11E40
-Beaver:		obj28decl -$2C0,-$300,Obj28_MapUnc_11E40
+Monkey:		obj28decl -$2C0,-$300,Obj28_MapUnc_11E40
 Turtle:		obj28decl -$140,-$200,Obj28_MapUnc_11E40
 Bear:		obj28decl -$200,-$300,Obj28_MapUnc_11E40
 
@@ -89626,7 +89626,7 @@ PlrList_DezBoss_End
 ;---------------------------------------------------------------------------------------
 PlrList_EhzAnimals: plrlistheader
 	plreq ArtTile_ArtNem_Animal_1, ArtNem_Squirrel
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Bird
+	plreq ArtTile_ArtNem_Animal_2, ArtNem_Flicky
 PlrList_EhzAnimals_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
@@ -89643,7 +89643,7 @@ PlrList_MczAnimals_End
 PlrList_HtzAnimals:
 PlrList_MtzAnimals:
 PlrList_WfzAnimals: plrlistheader
-	plreq ArtTile_ArtNem_Animal_1, ArtNem_Beaver
+	plreq ArtTile_ArtNem_Animal_1, ArtNem_Monkey
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Eagle
 PlrList_HtzAnimals_End
 PlrList_MtzAnimals_End
@@ -89686,7 +89686,7 @@ PlrList_SczAnimals_End
 ;---------------------------------------------------------------------------------------
 PlrList_CnzAnimals: plrlistheader
 	plreq ArtTile_ArtNem_Animal_1, ArtNem_Bear
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Bird
+	plreq ArtTile_ArtNem_Animal_2, ArtNem_Flicky
 PlrList_CnzAnimals_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
@@ -89702,7 +89702,7 @@ PlrList_CpzAnimals_End
 ;---------------------------------------------------------------------------------------
 PlrList_ArzAnimals: plrlistheader
 	plreq ArtTile_ArtNem_Animal_1, ArtNem_Penguin
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Bird
+	plreq ArtTile_ArtNem_Animal_2, ArtNem_Flicky
 PlrList_ArzAnimals_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
@@ -89928,7 +89928,7 @@ PlrList_DezBoss_Dup_End
 ;---------------------------------------------------------------------------------------
 PlrList_EhzAnimals_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Animal_1, ArtNem_Squirrel
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Bird
+	plreq ArtTile_ArtNem_Animal_2, ArtNem_Flicky
 PlrList_EhzAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue (duplicate)
@@ -89945,7 +89945,7 @@ PlrList_MczAnimals_Dup_End
 PlrList_HtzAnimals_Dup:
 PlrList_MtzAnimals_Dup:
 PlrList_WfzAnimals_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Animal_1, ArtNem_Beaver
+	plreq ArtTile_ArtNem_Animal_1, ArtNem_Monkey
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Eagle
 PlrList_HtzAnimals_Dup_End
 PlrList_MtzAnimals_Dup_End
@@ -89988,7 +89988,7 @@ PlrList_SczAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
 PlrList_CnzAnimals_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Animal_1, ArtNem_Bear
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Bird
+	plreq ArtTile_ArtNem_Animal_2, ArtNem_Flicky
 PlrList_CnzAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue (duplicate)
@@ -90004,7 +90004,7 @@ PlrList_CpzAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
 PlrList_ArzAnimals_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Animal_1, ArtNem_Penguin
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Bird
+	plreq ArtTile_ArtNem_Animal_2, ArtNem_Flicky
 PlrList_ArzAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue (duplicate)
@@ -90408,29 +90408,29 @@ ArtNem_Perfect:			BINCLUDE	"art/nemesis/Perfect text.bin"
 ;---------------------------------------------------------------------------------------
 ; Small Animal Assets
 ;---------------------------------------------------------------------------------------
-ArtNem_Bird:			BINCLUDE	"art/nemesis/Flicky.bin"
+ArtNem_Flicky:			BINCLUDE	"art/nemesis/Flicky.bin"
 	even
-ArtNem_Squirrel:		BINCLUDE	"art/nemesis/Squirrel.bin"
+ArtNem_Squirrel:		BINCLUDE	"art/nemesis/Squirrel.bin" ; Ricky
 	even
-ArtNem_Mouse:			BINCLUDE	"art/nemesis/Mouse.bin"
+ArtNem_Mouse:			BINCLUDE	"art/nemesis/Mouse.bin"    ; Micky
 	even
-ArtNem_Chicken:			BINCLUDE	"art/nemesis/Chicken.bin"
+ArtNem_Chicken:			BINCLUDE	"art/nemesis/Chicken.bin"  ; Cucky
 	even
-ArtNem_Beaver:			BINCLUDE	"art/nemesis/Beaver.bin"
+ArtNem_Monkey:			BINCLUDE	"art/nemesis/Monkey.bin"   ; Wocky
 	even
-ArtNem_Eagle:			BINCLUDE	"art/nemesis/Penguin.bin"
+ArtNem_Eagle:			BINCLUDE	"art/nemesis/Eagle.bin"    ; Locky
 	even
-ArtNem_Pig:			BINCLUDE	"art/nemesis/Pig.bin"
+ArtNem_Pig:			BINCLUDE	"art/nemesis/Pig.bin"      ; Picky
 	even
-ArtNem_Seal:			BINCLUDE	"art/nemesis/Seal.bin"
+ArtNem_Seal:			BINCLUDE	"art/nemesis/Seal.bin"     ; Rocky
 	even
-ArtNem_Penguin:			BINCLUDE	"art/nemesis/Penguin 2.bin"
+ArtNem_Penguin:			BINCLUDE	"art/nemesis/Penguin.bin"  ; Pecky
 	even
-ArtNem_Turtle:			BINCLUDE	"art/nemesis/Turtle.bin"
+ArtNem_Turtle:			BINCLUDE	"art/nemesis/Turtle.bin"   ; Tocky
 	even
-ArtNem_Bear:			BINCLUDE	"art/nemesis/Bear.bin"
+ArtNem_Bear:			BINCLUDE	"art/nemesis/Bear.bin"     ; Becky
 	even
-ArtNem_Rabbit:			BINCLUDE	"art/nemesis/Rabbit.bin"
+ArtNem_Rabbit:			BINCLUDE	"art/nemesis/Rabbit.bin"   ; Pocky
 	even
 
 ;---------------------------------------------------------------------------------------
@@ -90682,7 +90682,7 @@ ArtNem_WfzLaunchCatapult:	BINCLUDE	"art/nemesis/Catapult that shoots Sonic to th
 	even
 ArtNem_WfzBeltPlatform:		BINCLUDE	"art/nemesis/Platform on belt in WFZ.bin"
 	even
-ArtNem_WfzUnusedBadnik:		BINCLUDE	"art/nemesis/Unused badnik from WFZ.bin"
+ArtNem_WfzUnusedBadnik:		BINCLUDE	"art/nemesis/Unused badnik from WFZ.bin" ; This is not grouped with the zone's badniks, suggesting that it's not a badnik at all.
 	even
 ArtNem_WfzVrtclPrpllr:		BINCLUDE	"art/nemesis/Vertical spinning blades in WFZ.bin"
 	even
@@ -90698,7 +90698,7 @@ ArtNem_RobotnikUpper:		BINCLUDE	"art/nemesis/Robotnik's head.bin"
 	even
 ArtNem_RobotnikRunning:		BINCLUDE	"art/nemesis/Robotnik.bin"
 	even
-ArtNem_RobotnikLower:		BINCLUDE	"art/nemesis/Robotnik's lover half.bin" ; The dumb typo really needs addressing at some point.
+ArtNem_RobotnikLower:		BINCLUDE	"art/nemesis/Robotnik's lower half.bin"
 	even
 ArtNem_DEZWindow:		BINCLUDE	"art/nemesis/Window in back that Robotnik looks through in DEZ.bin"
 	even
