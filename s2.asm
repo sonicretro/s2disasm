@@ -15221,13 +15221,11 @@ LevelSizeLoad:
 	lea	LevelSize(pc,d0.w),a0
 	move.l	(a0)+,d0
 	move.l	d0,(Camera_Min_X_pos).w
-	move.l	d0,(unk_EEC0).w	; unused besides this one write...
+	move.l	d0,(Camera_Min_X_pos_target).w
 	move.l	d0,(Tails_Min_X_pos).w
 	move.l	(a0)+,d0
 	move.l	d0,(Camera_Min_Y_pos).w
-	; Warning: unk_EEC4 is only a word long, this line also writes to Camera_Max_Y_pos
-	; If you remove this instruction, the camera will scroll up until it kills Sonic
-	move.l	d0,(unk_EEC4).w	; unused besides this one write...
+	move.l	d0,(Camera_Min_Y_pos_target).w
 	move.l	d0,(Tails_Min_Y_pos).w
 	move.w	#$1010,(Horiz_block_crossed_flag).w
 	move.w	#(224/2)-16,(Camera_Y_pos_bias).w
@@ -15330,9 +15328,9 @@ LevelSize: zoneOrderedTable 2,8	; WrdArr_LvlSize
 	bcc.s	+
 	moveq	#0,d0
 +
-	cmp.w	(Camera_Max_Y_pos_now).w,d0
+	cmp.w	(Camera_Max_Y_pos).w,d0
 	blt.s	+
-	move.w	(Camera_Max_Y_pos_now).w,d0
+	move.w	(Camera_Max_Y_pos).w,d0
 +
 	move.w	d0,(Camera_Y_pos).w
 	move.w	d0,(Camera_Y_pos_P2).w
@@ -18778,7 +18776,7 @@ ScrollVerti:
 	swap	d1		; actual Y-coordinate is now the low word
 ; loc_D852:
 .scrollDown:
-	cmp.w	Camera_Max_Y_pos_now-Camera_Boundaries(a2),d1	; is the new position greater than the maximum Y pos?
+	cmp.w	Camera_Max_Y_pos-Camera_Boundaries(a2),d1	; is the new position greater than the maximum Y pos?
 	blt.s	.doScroll	; if not, branch
 	subi.w	#$800,d1
 	bcs.s	.maxYPosReached
@@ -18787,7 +18785,7 @@ ScrollVerti:
 ; ===========================================================================
 ; loc_D864:
 .maxYPosReached:
-	move.w	Camera_Max_Y_pos_now-Camera_Boundaries(a2),d1	; prevent camera from going any further down
+	move.w	Camera_Max_Y_pos-Camera_Boundaries(a2),d1	; prevent camera from going any further down
 ; loc_D868:
 .doScroll:
 	move.w	(a1),d4		; get old pos (used by SetVertiScrollFlags)
@@ -20890,18 +20888,18 @@ RunDynamicLevelEvents:
 	move.w	DynamicLevelEventIndex(pc,d0.w),d0
 	jsr	DynamicLevelEventIndex(pc,d0.w)
 	moveq	#2,d1
-	move.w	(Camera_Max_Y_pos).w,d0
-	sub.w	(Camera_Max_Y_pos_now).w,d0
+	move.w	(Camera_Max_Y_pos_target).w,d0
+	sub.w	(Camera_Max_Y_pos).w,d0
 	beq.s	++	; rts
 	bcc.s	+++
 	neg.w	d1
 	move.w	(Camera_Y_pos).w,d0
-	cmp.w	(Camera_Max_Y_pos).w,d0
+	cmp.w	(Camera_Max_Y_pos_target).w,d0
 	bls.s	+
-	move.w	d0,(Camera_Max_Y_pos_now).w
-	andi.w	#$FFFE,(Camera_Max_Y_pos_now).w
+	move.w	d0,(Camera_Max_Y_pos).w
+	andi.w	#$FFFE,(Camera_Max_Y_pos).w
 +
-	add.w	d1,(Camera_Max_Y_pos_now).w
+	add.w	d1,(Camera_Max_Y_pos).w
 	move.b	#1,(Camera_Max_Y_Pos_Changing).w
 +
 	rts
@@ -20909,14 +20907,14 @@ RunDynamicLevelEvents:
 +
 	move.w	(Camera_Y_pos).w,d0
 	addi_.w	#8,d0
-	cmp.w	(Camera_Max_Y_pos_now).w,d0
+	cmp.w	(Camera_Max_Y_pos).w,d0
 	blo.s	+
 	btst	#1,(MainCharacter+status).w
 	beq.s	+
 	add.w	d1,d1
 	add.w	d1,d1
 +
-	add.w	d1,(Camera_Max_Y_pos_now).w
+	add.w	d1,(Camera_Max_Y_pos).w
 	move.b	#1,(Camera_Max_Y_Pos_Changing).w
 	rts
 ; End of function RunDynamicLevelEvents
@@ -20970,7 +20968,7 @@ LevEvents_EHZ2_Routine1:
 	blo.s	+	; rts
 	move.w	(Camera_X_pos).w,(Camera_Min_X_pos).w
 	move.w	(Camera_X_pos).w,(Tails_Min_X_pos).w
-	move.w	#$390,(Camera_Max_Y_pos).w
+	move.w	#$390,(Camera_Max_Y_pos_target).w
 	move.w	#$390,(Tails_Max_Y_pos).w
 	addq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_EHZ2_Routine2
 +
@@ -21070,8 +21068,8 @@ LevEvents_MTZ3_Index: offsetTable
 LevEvents_MTZ3_Routine1:
 	cmpi.w	#$2530,(Camera_X_pos).w
 	blo.s	+
-	move.w	#$500,(Camera_Max_Y_pos_now).w
-	move.w	#$450,(Camera_Max_Y_pos).w
+	move.w	#$500,(Camera_Max_Y_pos).w
+	move.w	#$450,(Camera_Max_Y_pos_target).w
 	move.w	#$450,(Tails_Max_Y_pos).w
 	addq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_MTZ3_Routine2
 +
@@ -21083,7 +21081,7 @@ LevEvents_MTZ3_Routine2:
 	blo.s	+
 	move.w	(Camera_X_pos).w,(Camera_Min_X_pos).w
 	move.w	(Camera_X_pos).w,(Tails_Min_X_pos).w
-	move.w	#$400,(Camera_Max_Y_pos).w
+	move.w	#$400,(Camera_Max_Y_pos_target).w
 	move.w	#$400,(Tails_Max_Y_pos).w
 	addq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_MTZ3_Routine3
 +
@@ -21801,7 +21799,7 @@ LevEvents_HTZ2_Routine6:
 	blo.s	+	; rts
 	move.w	(Camera_X_pos).w,(Camera_Min_X_pos).w
 	move.w	(Camera_X_pos).w,(Tails_Min_X_pos).w
-	move.w	#$480,(Camera_Max_Y_pos).w
+	move.w	#$480,(Camera_Max_Y_pos_target).w
 	move.w	#$480,(Tails_Max_Y_pos).w
 	addq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_HTZ2_Routine7
 +
@@ -21859,9 +21857,9 @@ LevEvents_HTZ2_Routine9:
 	blo.s	+
 	subq.w	#2,(Camera_Min_Y_pos).w
 +
-	cmpi.w	#$430,(Camera_Max_Y_pos).w
+	cmpi.w	#$430,(Camera_Max_Y_pos_target).w
 	blo.s	+
-	subq.w	#2,(Camera_Max_Y_pos).w
+	subq.w	#2,(Camera_Max_Y_pos_target).w
 +
 	rts
 
@@ -21903,7 +21901,7 @@ LevEvents_OOZ2_Routine1:
 	move.w	(Camera_X_pos).w,(Camera_Min_X_pos).w
 	move.w	(Camera_X_pos).w,(Tails_Min_X_pos).w
 	move.w	#$2D8,(Oil+y_pos).w
-	move.w	#$1E0,(Camera_Max_Y_pos).w
+	move.w	#$1E0,(Camera_Max_Y_pos_target).w
 	move.w	#$1E0,(Tails_Max_Y_pos).w
 	addq.b	#2,(Dynamic_Resize_Routine).w
 +
@@ -21987,7 +21985,7 @@ LevEvents_MCZ2_Routine1:
 	blo.s	+	; rts
 	move.w	(Camera_X_pos).w,(Camera_Min_X_pos).w
 	move.w	(Camera_X_pos).w,(Tails_Min_X_pos).w
-	move.w	#$5D0,(Camera_Max_Y_pos).w
+	move.w	#$5D0,(Camera_Max_Y_pos_target).w
 	move.w	#$5D0,(Tails_Max_Y_pos).w
 	addq.b	#2,(Dynamic_Resize_Routine).w
 +
@@ -22093,7 +22091,7 @@ LevEvents_CNZ2_Routine1:
 	blo.s	+	; rts
 	move.w	(Camera_X_pos).w,(Camera_Min_X_pos).w
 	move.w	(Camera_X_pos).w,(Tails_Min_X_pos).w
-	move.w	#$62E,(Camera_Max_Y_pos).w
+	move.w	#$62E,(Camera_Max_Y_pos_target).w
 	move.w	#$62E,(Tails_Max_Y_pos).w
 	move.b	#$F9,(Level_Layout+$C54).w
 	addq.b	#2,(Dynamic_Resize_Routine).w
@@ -22150,7 +22148,7 @@ LevEvents_CNZ2_Routine3:
 LevEvents_CNZ2_Routine4:
 	cmpi.w	#$2A00,(Camera_X_pos).w
 	blo.s	+	; rts
-	move.w	#$5D0,(Camera_Max_Y_pos).w
+	move.w	#$5D0,(Camera_Max_Y_pos_target).w
 	move.w	#$5D0,(Tails_Max_Y_pos).w
 	move.w	(Camera_X_pos).w,(Camera_Min_X_pos).w
 	move.w	(Camera_Max_X_pos).w,(Tails_Max_X_pos).w
@@ -22184,7 +22182,7 @@ LevEvents_CPZ2_Routine1:
 	blo.s	+	; rts
 	move.w	(Camera_X_pos).w,(Camera_Min_X_pos).w
 	move.w	(Camera_X_pos).w,(Tails_Min_X_pos).w
-	move.w	#$450,(Camera_Max_Y_pos).w
+	move.w	#$450,(Camera_Max_Y_pos_target).w
 	move.w	#$450,(Tails_Max_Y_pos).w
 	addq.b	#2,(Dynamic_Resize_Routine).w
 +
@@ -22328,7 +22326,7 @@ LevEvents_ARZ2_Routine1:
 	blo.s	+	; rts
 	move.w	(Camera_X_pos).w,(Camera_Min_X_pos).w
 	move.w	(Camera_X_pos).w,(Tails_Min_X_pos).w
-	move.w	#$400,(Camera_Max_Y_pos).w
+	move.w	#$400,(Camera_Max_Y_pos_target).w
 	move.w	#$400,(Tails_Max_Y_pos).w
 	addq.b	#2,(Dynamic_Resize_Routine).w
 	move.b	#4,(Current_Boss_ID).w
@@ -22408,7 +22406,7 @@ LevEvents_SCZ_Routine2:
 	blo.s	+
 	move.w	#-1,(Tornado_Velocity_X).w
 	move.w	#1,(Tornado_Velocity_Y).w
-	move.w	#$500,(Camera_Max_Y_pos).w
+	move.w	#$500,(Camera_Max_Y_pos_target).w
 	addq.b	#2,(Dynamic_Resize_Routine).w
 +
 	rts
@@ -24019,7 +24017,7 @@ loc_10730:
 	add.l	d0,d3
 	move.l	d3,objoff_2C(a0)
 	addi.w	#$38,y_vel(a0)
-	move.w	(Camera_Max_Y_pos_now).w,d0
+	move.w	(Camera_Max_Y_pos).w,d0
 	addi.w	#$120,d0
 	cmp.w	objoff_2C(a0),d0
 	bhs.s	+	; rts
@@ -25744,7 +25742,7 @@ loc_121B8:
 
 	tst.b	(Ring_spill_anim_counter).w
 	beq.s	Obj37_Delete
-	move.w	(Camera_Max_Y_pos_now).w,d0
+	move.w	(Camera_Max_Y_pos).w,d0
 	addi.w	#$E0,d0
 	cmp.w	y_pos(a0),d0
 	blo.s	Obj37_Delete
@@ -39979,7 +39977,7 @@ Sonic_LevelBound:
 
 ; loc_1A9A6:
 Sonic_Boundary_CheckBottom:
-	move.w	(Camera_Max_Y_pos_now).w,d0
+	move.w	(Camera_Max_Y_pos).w,d0
 	addi.w	#$E0,d0
 	cmp.w	y_pos(a0),d0		; has Sonic touched the bottom boundary?
 	blt.s	Sonic_Boundary_Bottom	; if yes, branch
@@ -41158,7 +41156,7 @@ Obj01_Hurt_Normal:
 ; ===========================================================================
 ; loc_1B184:
 Sonic_HurtStop:
-	move.w	(Camera_Max_Y_pos_now).w,d0
+	move.w	(Camera_Max_Y_pos).w,d0
 	addi.w	#$E0,d0
 	cmp.w	y_pos(a0),d0
 	blt.w	JmpTo_KillCharacter
@@ -41224,7 +41222,7 @@ Obj01_Dead:
 CheckGameOver:
 	move.b	#1,(Scroll_lock).w
 	move.b	#0,spindash_flag(a0)
-	move.w	(Camera_Max_Y_pos_now).w,d0
+	move.w	(Camera_Max_Y_pos).w,d0
 	addi.w	#$100,d0
 	cmp.w	y_pos(a0),d0
 	bge.w	return_1B31A
@@ -42136,7 +42134,7 @@ Obj02:
 	bne.s	+
 	move.w	(Camera_Min_X_pos).w,(Tails_Min_X_pos).w
 	move.w	(Camera_Max_X_pos).w,(Tails_Max_X_pos).w
-	move.w	(Camera_Max_Y_pos_now).w,(Tails_Max_Y_pos).w
+	move.w	(Camera_Max_Y_pos).w,(Tails_Max_Y_pos).w
 +
 	moveq	#0,d0
 	move.b	routine(a0),d0
@@ -48000,7 +47998,7 @@ Obj79_SaveData:
 	move.b	(Extra_life_flags).w,(Saved_Extra_life_flags).w
 	move.l	(Timer).w,(Saved_Timer).w
 	move.b	(Dynamic_Resize_Routine).w,(Saved_Dynamic_Resize_Routine).w
-	move.w	(Camera_Max_Y_pos_now).w,(Saved_Camera_Max_Y_pos).w
+	move.w	(Camera_Max_Y_pos).w,(Saved_Camera_Max_Y_pos).w
 	move.w	(Camera_X_pos).w,(Saved_Camera_X_pos).w
 	move.w	(Camera_Y_pos).w,(Saved_Camera_Y_pos).w
 	move.w	(Camera_BG_X_pos).w,(Saved_Camera_BG_X_pos).w
@@ -48049,8 +48047,8 @@ Obj79_LoadData:
 	move.w	(Saved_Solid_bits).w,(MainCharacter+top_solid_bit).w
 	move.b	(Saved_Dynamic_Resize_Routine).w,(Dynamic_Resize_Routine).w
 	move.b	(Saved_Water_routine).w,(Water_routine).w
-	move.w	(Saved_Camera_Max_Y_pos).w,(Camera_Max_Y_pos_now).w
 	move.w	(Saved_Camera_Max_Y_pos).w,(Camera_Max_Y_pos).w
+	move.w	(Saved_Camera_Max_Y_pos).w,(Camera_Max_Y_pos_target).w
 	move.w	(Saved_Camera_X_pos).w,(Camera_X_pos).w
 	move.w	(Saved_Camera_Y_pos).w,(Camera_Y_pos).w
 	move.w	(Saved_Camera_BG_X_pos).w,(Camera_BG_X_pos).w
@@ -51365,7 +51363,7 @@ Obj16_Slide:
 Obj16_Fall:
 	jsrto	ObjectMove, JmpTo4_ObjectMove
 	addi.w	#$38,y_vel(a0)
-	move.w	(Camera_Max_Y_pos_now).w,d0
+	move.w	(Camera_Max_Y_pos).w,d0
 	addi.w	#$E0,d0
 	cmp.w	y_pos(a0),d0
 	bhs.s	+++	; rts
@@ -52536,7 +52534,7 @@ loc_23144:
 loc_2315A:
 	jsrto	ObjectMove, JmpTo7_ObjectMove
 	addi.w	#$18,y_vel(a0)
-	move.w	(Camera_Max_Y_pos_now).w,d0
+	move.w	(Camera_Max_Y_pos).w,d0
 	addi.w	#$E0,d0
 	cmp.w	y_pos(a0),d0
 	bhs.s	loc_23176
@@ -54430,7 +54428,7 @@ Obj46_Moving:
 	beq.s	loc_24B8C
 	addi.w	#$18,y_vel(a0)
 	bmi.s	+
-	move.w	(Camera_Max_Y_pos_now).w,d0
+	move.w	(Camera_Max_Y_pos).w,d0
 	addi.w	#$E0,d0
 	cmp.w	y_pos(a0),d0
 	blo.s	loc_24BC4
@@ -58463,7 +58461,7 @@ loc_27EE2:
 	add.l	d0,d3
 	move.l	d3,y_pos(a0)
 	addi_.w	#8,y_vel(a0)
-	move.w	(Camera_Max_Y_pos_now).w,d0
+	move.w	(Camera_Max_Y_pos).w,d0
 	addi.w	#$E0,d0
 	cmp.w	y_pos(a0),d0
 	bhs.s	return_27F0E
@@ -79033,7 +79031,7 @@ loc_374D8:
 
 ; loc_374F4:
 Obj97_DeathDrop:
-	move.w	(Camera_Max_Y_pos_now).w,d0
+	move.w	(Camera_Max_Y_pos).w,d0
 	addi.w	#$E0,d0
 	cmp.w	y_pos(a0),d0
 	blo.w	JmpTo65_DeleteObject
@@ -85980,8 +85978,8 @@ ObjC5_CaseBoundary:
 	move.b	#0,collision_flags(a0)
 	move.b	#8,collision_property(a0)	; Hit points
 	move.w	#$442,d0
-	move.w	d0,(Camera_Max_Y_pos_now).w
 	move.w	d0,(Camera_Max_Y_pos).w
+	move.w	d0,(Camera_Max_Y_pos_target).w
 	move.w	x_pos(a0),d0
 	subi.w	#$60,d0			; Max Left position
 	move.w	d0,objoff_34(a0)
@@ -86226,8 +86224,8 @@ ObjC5_End:	; play music and change camera speed
 	moveq	#signextendB(MusID_WFZ),d0
 	jsrto	PlayMusic, JmpTo5_PlayMusic
 	move.w	#$720,d0
-	move.w	d0,(Camera_Max_Y_pos_now).w
 	move.w	d0,(Camera_Max_Y_pos).w
+	move.w	d0,(Camera_Max_Y_pos_target).w
     if gameRevision=3
 	; KiS2 (JmpTo cleanup): This inefficient branch to a JmpTo is replaced by
 	; a jump directly to the intended destination.
@@ -93402,7 +93400,7 @@ Debug_Index:	offsetTable
 Debug_Init:
 	addq.b	#2,(Debug_placement_mode).w
 	move.w	(Camera_Min_Y_pos).w,(Camera_Min_Y_pos_Debug_Copy).w
-	move.w	(Camera_Max_Y_pos).w,(Camera_Max_Y_pos_Debug_Copy).w
+	move.w	(Camera_Max_Y_pos_target).w,(Camera_Max_Y_pos_Debug_Copy).w
 	cmpi.b	#sky_chase_zone,(Current_Zone).w
 	bne.s	+
 	move.w	#0,(Camera_Min_X_pos).w
@@ -93517,7 +93515,7 @@ Debug_TimerNotOver:
 	beq.s	.downNotHeld
 	add.l	d1,d2
 	moveq	#0,d0
-	move.w	(Camera_Max_Y_pos).w,d0
+	move.w	(Camera_Max_Y_pos_target).w,d0
 	addi.w	#224-1,d0
 	swap	d0
 	cmp.l	d0,d2
@@ -93619,7 +93617,7 @@ Debug_ExitDebugMode:
 	move.b	#$13,y_radius(a1)
 	move.b	#9,x_radius(a1)
 	move.w	(Camera_Min_Y_pos_Debug_Copy).w,(Camera_Min_Y_pos).w
-	move.w	(Camera_Max_Y_pos_Debug_Copy).w,(Camera_Max_Y_pos).w
+	move.w	(Camera_Max_Y_pos_Debug_Copy).w,(Camera_Max_Y_pos_target).w
 	; useless leftover; this is for S1's special stage
 	cmpi.b	#GameModeID_SpecialStage,(Game_Mode).w	; special stage mode?
 	bne.s	return_41CB6		; if not, branch
