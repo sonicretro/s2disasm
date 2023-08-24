@@ -561,8 +561,13 @@ loc_54A:
 
 Vint0_noWater:
 	move.w	(VDP_control_port).l,d0
+    if ~~fixBugs
+	; As with the sprite table upload, this only needs to be done in two-player mode.
+
+	; Update V-Scroll.
 	move.l	#vdpComm($0000,VSRAM,WRITE),(VDP_control_port).l
 	move.l	(Vscroll_Factor).w,(VDP_data_port).l
+    endif
 	btst	#6,(Graphics_Flags).w
 	beq.s	+
 
@@ -572,10 +577,39 @@ Vint0_noWater:
 	move.w	#1,(Hint_flag).w
 	move.w	(Hint_counter_reserve).w,(VDP_control_port).l
 	move.w	#$8200|(VRAM_Plane_A_Name_Table/$400),(VDP_control_port).l	; Set scroll A PNT base to $C000
+    if ~~fixBugs
+	; Does not need to be done on lag frames.
 	move.l	(Vscroll_Factor_P2).w,(Vscroll_Factor_P2_HInt).w
+    endif
 
 	stopZ80
+    if fixBugs
+	; In two-player mode, we have to update the sprite table
+	; even during a lag frame so that the top half of the screen
+	; shows the correct sprites.
+	tst.w	(Two_player_mode).w
+	beq.s	++
+
+	; Update V-Scroll.
+	move.l	#vdpComm($0000,VSRAM,WRITE),(VDP_control_port).l
+	move.l	(Vscroll_Factor).w,(VDP_data_port).l
+
+	; Like in Sonic 3, the sprite tables are page-flipped in two-player mode.
+	; This fixes a race-condition where incomplete sprite tables can be uploaded
+	; to the VDP on lag frames, causing corrupted sprites to appear.
+
+	; Upload the front buffer.
+	tst.b	(Current_sprite_table_page).w
+	beq.s	+
 	dma68kToVDP Sprite_Table,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
+	bra.s	++
++
+	dma68kToVDP Sprite_Table_Page_2,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
++
+    else
+	; In the original game, the sprite table is needlessly updated on lag frames.
+	dma68kToVDP Sprite_Table,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
+    endif
 	bsr.w	sndDriverInput
 	startZ80
 
@@ -687,7 +721,29 @@ loc_748:
 	move.w	#$8200|(VRAM_Plane_A_Name_Table/$400),(VDP_control_port).l	; Set scroll A PNT base to $C000
 
 	dma68kToVDP Horiz_Scroll_Buf,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
+
+    if fixBugs
+	tst.w	(Two_player_mode).w
+	beq.s	++
+	; Like in Sonic 3, the sprite tables are page-flipped in two-player mode.
+	; This fixes a race-condition where incomplete sprite tables can be uploaded
+	; to the VDP on lag frames, causing corrupted sprites to appear.
+
+	; Perform page-flipping.
+	tst.b	(Sprite_table_page_flip_pending).w
+	beq.s	+
+	sf.b	(Sprite_table_page_flip_pending).w
+	not.b	(Current_sprite_table_page).w
++
+	; Upload the front buffer.
+	tst.b	(Current_sprite_table_page).w
+	bne.s	+
+	dma68kToVDP Sprite_Table_Page_2,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
+	bra.s	++
++
+    endif
 	dma68kToVDP Sprite_Table,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
++
 
 	bsr.w	ProcessDMAQueue
 	bsr.w	sndDriverInput
@@ -931,8 +987,29 @@ loc_BD6:
 	move.w	(Hint_counter_reserve).w,(a5)
 
 	dma68kToVDP Horiz_Scroll_Buf,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
-	dma68kToVDP Sprite_Table,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
 
+    if fixBugs
+	tst.w	(Two_player_mode).w
+	beq.s	++
+	; Like in Sonic 3, the sprite tables are page-flipped in two-player mode.
+	; This fixes a race-condition where incomplete sprite tables can be uploaded
+	; to the VDP on lag frames, causing corrupted sprites to appear.
+
+	; Perform page-flipping.
+	tst.b	(Sprite_table_page_flip_pending).w
+	beq.s	+
+	sf.b	(Sprite_table_page_flip_pending).w
+	not.b	(Current_sprite_table_page).w
++
+	; Upload the front buffer.
+	tst.b	(Current_sprite_table_page).w
+	bne.s	+
+	dma68kToVDP Sprite_Table_Page_2,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
+	bra.s	++
++
+    endif
+	dma68kToVDP Sprite_Table,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
++
 	bsr.w	ProcessDMAQueue
 	jsr	(DrawLevelTitleCard).l
 	jsr	(sndDriverInput).l
@@ -1066,7 +1143,7 @@ loc_EFE:
 ; Start of H-INT code
 H_Int:
 	tst.w	(Hint_flag).w
-	beq.w	+
+	beq.w	H_Int_Done
 	tst.w	(Two_player_mode).w
 	beq.w	PalToCRAM
 	move.w	#0,(Hint_flag).w
@@ -1080,12 +1157,30 @@ H_Int:
 	move.w	(VDP_Reg1_val).w,d0
 	andi.b	#$BF,d0
 	move.w	d0,(VDP_control_port).l		; Display disable
+
 	move.w	#$8200|(VRAM_Plane_A_Name_Table_2P/$400),(VDP_control_port).l	; PNT A base: $A000
+
+	; Update V-Scroll.
 	move.l	#vdpComm($0000,VSRAM,WRITE),(VDP_control_port).l
 	move.l	(Vscroll_Factor_P2_HInt).w,(VDP_data_port).l
 
 	stopZ80
+    if fixBugs
+	; Like in Sonic 3, the sprite tables are page-flipped in two-player mode.
+	; This fixes a race-condition where incomplete sprite tables can be uploaded
+	; to the VDP on lag frames.
+
+	; Upload the front buffer.
+	tst.b	(Current_sprite_table_page).w
+	beq.s	+
 	dma68kToVDP Sprite_Table_2,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
+	bra.s	++
++
+	dma68kToVDP Sprite_Table_2_Page_2,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
++
+    else
+	dma68kToVDP Sprite_Table_2,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
+    endif
 	startZ80
 
 -	move.w	(VDP_control_port).l,d0
@@ -1097,7 +1192,8 @@ H_Int:
 	move.w	d0,(VDP_control_port).l		; Display enable
 	move.l	(sp)+,d0
 	movea.l	(sp)+,a5
-+
+
+H_Int_Done:
 	rte
 
 
@@ -30568,7 +30664,20 @@ CellOffsets_XFlip2:
 
 ; loc_1694E:
 BuildSprites_2P:
+    if fixBugs
+	; Like in Sonic 3, the sprite tables are page-flipped in two-player mode.
+	; This fixes a race-condition where incomplete sprite tables can be uploaded
+	; to the VDP on lag frames, causing corrupted sprites to appear.
+
+	; Modify the back buffer.
 	lea	(Sprite_Table).w,a2
+	tst.b	(Current_sprite_table_page).w
+	beq.s	+
+	lea	(Sprite_Table_Page_2).w,a2
++
+    else
+	lea	(Sprite_Table).w,a2
+    endif
 	moveq	#2,d5
 	moveq	#0,d4
 	move.l	#$1D80F01,(a2)+	; mask all sprites
@@ -30695,9 +30804,22 @@ BuildSprites_P1_NextLevel:
 
 ; loc_16A7A:
 BuildSprites_P2:
+    if fixBugs
+	; Like in Sonic 3, the sprite tables are page-flipped in two-player mode.
+	; This fixes a race-condition where incomplete sprite tables can be uploaded
+	; to the VDP on lag frames, causing corrupted sprites to appear.
+
+	; Modify the back buffer.
+	lea	(Sprite_Table_2).w,a2
+	tst.b	(Current_sprite_table_page).w
+	beq.s	+
+	lea	(Sprite_Table_2_Page_2).w,a2
++
+    else
 	tst.w	(Hint_flag).w	; has H-int occured yet?
 	bne.s	BuildSprites_P2	; if not, wait
 	lea	(Sprite_Table_2).w,a2
+    endif
 	moveq	#0,d5
 	moveq	#0,d4
 	tst.b	(Level_started_flag).w
@@ -30804,6 +30926,13 @@ BuildSprites_P2_NextObj:
 BuildSprites_P2_NextLevel:
 	lea	$80(a4),a4
 	dbf	d7,BuildSprites_P2_LevelLoop
+
+    if fixBugs
+	; The new sprite tables are complete: signal a page flip to
+	; allow them to be uploaded to the VDP!
+	st.b	(Sprite_table_page_flip_pending).w
+    endif
+
 	move.b	d5,(Sprite_count).w
 	; Terminate the sprite list.
 	; If the sprite list is full, then set the link field of the last
