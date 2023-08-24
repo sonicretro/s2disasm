@@ -604,7 +604,7 @@ Vint0_noWater:
 	dma68kToVDP Sprite_Table,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
 	bra.s	++
 +
-	dma68kToVDP Sprite_Table_Page_2,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
+	dma68kToVDP Sprite_Table_Alternate,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
 +
     else
 	; In the original game, the sprite table is needlessly updated on lag frames.
@@ -738,7 +738,7 @@ loc_748:
 	; Upload the front buffer.
 	tst.b	(Current_sprite_table_page).w
 	bne.s	+
-	dma68kToVDP Sprite_Table_Page_2,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
+	dma68kToVDP Sprite_Table_Alternate,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
 	bra.s	++
 +
     endif
@@ -1004,7 +1004,7 @@ loc_BD6:
 	; Upload the front buffer.
 	tst.b	(Current_sprite_table_page).w
 	bne.s	+
-	dma68kToVDP Sprite_Table_Page_2,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
+	dma68kToVDP Sprite_Table_Alternate,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
 	bra.s	++
 +
     endif
@@ -1173,13 +1173,13 @@ H_Int:
 	; Upload the front buffer.
 	tst.b	(Current_sprite_table_page).w
 	beq.s	+
-	dma68kToVDP Sprite_Table_2,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
+	dma68kToVDP Sprite_Table_P2,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
 	bra.s	++
 +
-	dma68kToVDP Sprite_Table_2_Page_2,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
+	dma68kToVDP Sprite_Table_P2_Alternate,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
 +
     else
-	dma68kToVDP Sprite_Table_2,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
+	dma68kToVDP Sprite_Table_P2,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
     endif
 	startZ80
 
@@ -30673,7 +30673,7 @@ BuildSprites_2P:
 	lea	(Sprite_Table).w,a2
 	tst.b	(Current_sprite_table_page).w
 	beq.s	+
-	lea	(Sprite_Table_Page_2).w,a2
+	lea	(Sprite_Table_Alternate).w,a2
 +
     else
 	lea	(Sprite_Table).w,a2
@@ -30810,15 +30810,15 @@ BuildSprites_P2:
 	; to the VDP on lag frames, causing corrupted sprites to appear.
 
 	; Modify the back buffer.
-	lea	(Sprite_Table_2).w,a2
+	lea	(Sprite_Table_P2).w,a2
 	tst.b	(Current_sprite_table_page).w
 	beq.s	+
-	lea	(Sprite_Table_2_Page_2).w,a2
+	lea	(Sprite_Table_P2_Alternate).w,a2
 +
     else
 	tst.w	(Hint_flag).w	; has H-int occured yet?
 	bne.s	BuildSprites_P2	; if not, wait
-	lea	(Sprite_Table_2).w,a2
+	lea	(Sprite_Table_P2).w,a2
     endif
 	moveq	#0,d5
 	moveq	#0,d4

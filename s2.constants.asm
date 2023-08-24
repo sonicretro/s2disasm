@@ -980,7 +980,7 @@ Block_Table_End:
 
 TempArray_LayerDef:		ds.b	$200	; used by some layer deformation routines
 Decomp_Buffer:			ds.b	$200
-Sprite_Table_Input:		ds.b	$400	; in custom format before being converted and stored in Sprite_Table/Sprite_Table_2
+Sprite_Table_Input:		ds.b	$400	; in custom format before being converted and stored in Sprite_Table/Sprite_Table_P2
 Sprite_Table_Input_End:
 
 Object_RAM:			; The various objects in the game are loaded in this area.
@@ -1075,7 +1075,7 @@ SS_Shared_RAM_End:
 VDP_Command_Buffer:		ds.w	7*$12	; stores 18 ($12) VDP commands to issue the next time ProcessDMAQueue is called
 VDP_Command_Buffer_Slot:	ds.l	1	; stores the address of the next open slot for a queued VDP command
 
-Sprite_Table_2:			ds.b	$280	; Sprite attribute table buffer for the bottom split screen in 2-player mode
+Sprite_Table_P2:			ds.b	$280	; Sprite attribute table buffer for the bottom split screen in 2-player mode
 				ds.b	$80	; unused, but SAT buffer can spill over into this area when there are too many sprites on-screen
 
 Horiz_Scroll_Buf:		ds.l	224
@@ -1260,8 +1260,8 @@ Underwater_palette_line3:	ds.b palette_line_size
 Underwater_palette_line4:	ds.b palette_line_size
 
     if fixBugs
-Sprite_Table_Page_2:		ds.b	$280
-Sprite_Table_2_Page_2:		ds.b	$280
+Sprite_Table_Alternate:		ds.b	$280
+Sprite_Table_P2_Alternate:	ds.b	$280
     else
 				ds.b	$500	; $FFFFF100-$FFFFF5FF ; unused, leftover from the Sonic 1 sound driver (and used by it when you port it to Sonic 2)
     endif
