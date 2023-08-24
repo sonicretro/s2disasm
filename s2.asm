@@ -11726,8 +11726,8 @@ MenuScreen:
 	bsr.w	EniDec
 	lea	(Chunk_Table+$498).l,a2
 
-	moveq	#$F,d1
--	move.w	#$207B,(a2)+
+	moveq	#bytesToWcnt($20),d1
+-	move.w	#make_art_tile(ArtTile_ArtNem_MenuBox+11,1,0),(a2)+
 	dbf	d1,-
 
 	bsr.w	Update2PLevSelSelection
