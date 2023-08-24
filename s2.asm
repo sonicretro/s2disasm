@@ -692,7 +692,7 @@ Vint0_noWater:
     endif
 
 	stopZ80
-    if fixBugs && (gameRevision<>3)
+    if fixBugs
 	; In two-player mode, we have to update the sprite table
 	; even during a lag frame so that the top half of the screen
 	; shows the correct sprites.
@@ -831,7 +831,7 @@ loc_748:
 
 	dma68kToVDP Horiz_Scroll_Buf,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
 
-    if fixBugs && (gameRevision<>3)
+    if fixBugs
 	tst.w	(Two_player_mode).w
 	beq.s	++
 	; Like in Sonic 3, the sprite tables are page-flipped in two-player mode.
@@ -1097,7 +1097,7 @@ loc_BD6:
 
 	dma68kToVDP Horiz_Scroll_Buf,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
 
-    if fixBugs && (gameRevision<>3)
+    if fixBugs
 	tst.w	(Two_player_mode).w
 	beq.s	++
 	; Like in Sonic 3, the sprite tables are page-flipped in two-player mode.
@@ -1274,7 +1274,7 @@ H_Int:
 	move.l	(Vscroll_Factor_P2_HInt).w,(VDP_data_port).l
 
 	stopZ80
-    if fixBugs && (gameRevision<>3)
+    if fixBugs
 	; Like in Sonic 3, the sprite tables are page-flipped in two-player mode.
 	; This fixes a race-condition where incomplete sprite tables can be uploaded
 	; to the VDP on lag frames.

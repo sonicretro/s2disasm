@@ -1288,8 +1288,8 @@ Underwater_palette_line4:	ds.b palette_line_size
 
     if (gameRevision=3) && ~~standaloneKiS2
 Knuckles_Art_Conversion_Buffer:
-				ds.b	$500
-    elseif fixBugs && (gameRevision<>3)
+    endif
+    if fixBugs
 Sprite_Table_Alternate:		ds.b	$280
 Sprite_Table_P2_Alternate:	ds.b	$280
     else
