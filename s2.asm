@@ -670,8 +670,13 @@ loc_54A:
 
 Vint0_noWater:
 	move.w	(VDP_control_port).l,d0
+    if ~~fixBugs
+	; As with the sprite table upload, this only needs to be done in two-player mode.
+
+	; Update V-Scroll.
 	move.l	#vdpComm($0000,VSRAM,WRITE),(VDP_control_port).l
 	move.l	(Vscroll_Factor).w,(VDP_data_port).l
+    endif
 	btst	#6,(Graphics_Flags).w
 	beq.s	+
 
@@ -681,10 +686,39 @@ Vint0_noWater:
 	move.w	#1,(Hint_flag).w
 	move.w	(Hint_counter_reserve).w,(VDP_control_port).l
 	move.w	#$8200|(VRAM_Plane_A_Name_Table/$400),(VDP_control_port).l	; Set scroll A PNT base to $C000
+    if ~~fixBugs
+	; Does not need to be done on lag frames.
 	move.l	(Vscroll_Factor_P2).w,(Vscroll_Factor_P2_HInt).w
+    endif
 
 	stopZ80
+    if fixBugs && (gameRevision<>3)
+	; In two-player mode, we have to update the sprite table
+	; even during a lag frame so that the top half of the screen
+	; shows the correct sprites.
+	tst.w	(Two_player_mode).w
+	beq.s	++
+
+	; Update V-Scroll.
+	move.l	#vdpComm($0000,VSRAM,WRITE),(VDP_control_port).l
+	move.l	(Vscroll_Factor).w,(VDP_data_port).l
+
+	; Like in Sonic 3, the sprite tables are page-flipped in two-player mode.
+	; This fixes a race-condition where incomplete sprite tables can be uploaded
+	; to the VDP on lag frames, causing corrupted sprites to appear.
+
+	; Upload the front buffer.
+	tst.b	(Current_sprite_table_page).w
+	beq.s	+
 	dma68kToVDP Sprite_Table,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
+	bra.s	++
++
+	dma68kToVDP Sprite_Table_Alternate,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
++
+    else
+	; In the original game, the sprite table is needlessly updated on lag frames.
+	dma68kToVDP Sprite_Table,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
+    endif
 	bsr.w	sndDriverInput
 	startZ80
 
@@ -796,7 +830,29 @@ loc_748:
 	move.w	#$8200|(VRAM_Plane_A_Name_Table/$400),(VDP_control_port).l	; Set scroll A PNT base to $C000
 
 	dma68kToVDP Horiz_Scroll_Buf,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
+
+    if fixBugs && (gameRevision<>3)
+	tst.w	(Two_player_mode).w
+	beq.s	++
+	; Like in Sonic 3, the sprite tables are page-flipped in two-player mode.
+	; This fixes a race-condition where incomplete sprite tables can be uploaded
+	; to the VDP on lag frames, causing corrupted sprites to appear.
+
+	; Perform page-flipping.
+	tst.b	(Sprite_table_page_flip_pending).w
+	beq.s	+
+	sf.b	(Sprite_table_page_flip_pending).w
+	not.b	(Current_sprite_table_page).w
++
+	; Upload the front buffer.
+	tst.b	(Current_sprite_table_page).w
+	bne.s	+
+	dma68kToVDP Sprite_Table_Alternate,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
+	bra.s	++
++
+    endif
 	dma68kToVDP Sprite_Table,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
++
 
 	bsr.w	ProcessDMAQueue
 	bsr.w	sndDriverInput
@@ -1040,8 +1096,29 @@ loc_BD6:
 	move.w	(Hint_counter_reserve).w,(a5)
 
 	dma68kToVDP Horiz_Scroll_Buf,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
-	dma68kToVDP Sprite_Table,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
 
+    if fixBugs && (gameRevision<>3)
+	tst.w	(Two_player_mode).w
+	beq.s	++
+	; Like in Sonic 3, the sprite tables are page-flipped in two-player mode.
+	; This fixes a race-condition where incomplete sprite tables can be uploaded
+	; to the VDP on lag frames, causing corrupted sprites to appear.
+
+	; Perform page-flipping.
+	tst.b	(Sprite_table_page_flip_pending).w
+	beq.s	+
+	sf.b	(Sprite_table_page_flip_pending).w
+	not.b	(Current_sprite_table_page).w
++
+	; Upload the front buffer.
+	tst.b	(Current_sprite_table_page).w
+	bne.s	+
+	dma68kToVDP Sprite_Table_Alternate,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
+	bra.s	++
++
+    endif
+	dma68kToVDP Sprite_Table,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
++
 	bsr.w	ProcessDMAQueue
 	jsr	(DrawLevelTitleCard).l
 	jsr	(sndDriverInput).l
@@ -1175,7 +1252,7 @@ loc_EFE:
 ; Start of H-INT code
 H_Int:
 	tst.w	(Hint_flag).w
-	beq.w	+
+	beq.w	H_Int_Done
 	tst.w	(Two_player_mode).w
 	beq.w	PalToCRAM
 	move.w	#0,(Hint_flag).w
@@ -1189,12 +1266,30 @@ H_Int:
 	move.w	(VDP_Reg1_val).w,d0
 	andi.b	#$BF,d0
 	move.w	d0,(VDP_control_port).l		; Display disable
+
 	move.w	#$8200|(VRAM_Plane_A_Name_Table_2P/$400),(VDP_control_port).l	; PNT A base: $A000
+
+	; Update V-Scroll.
 	move.l	#vdpComm($0000,VSRAM,WRITE),(VDP_control_port).l
 	move.l	(Vscroll_Factor_P2_HInt).w,(VDP_data_port).l
 
 	stopZ80
-	dma68kToVDP Sprite_Table_2,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
+    if fixBugs && (gameRevision<>3)
+	; Like in Sonic 3, the sprite tables are page-flipped in two-player mode.
+	; This fixes a race-condition where incomplete sprite tables can be uploaded
+	; to the VDP on lag frames.
+
+	; Upload the front buffer.
+	tst.b	(Current_sprite_table_page).w
+	beq.s	+
+	dma68kToVDP Sprite_Table_P2,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
+	bra.s	++
++
+	dma68kToVDP Sprite_Table_P2_Alternate,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
++
+    else
+	dma68kToVDP Sprite_Table_P2,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
+    endif
 	startZ80
 
 -	move.w	(VDP_control_port).l,d0
@@ -1206,7 +1301,8 @@ H_Int:
 	move.w	d0,(VDP_control_port).l		; Display enable
 	move.l	(sp)+,d0
 	movea.l	(sp)+,a5
-+
+
+H_Int_Done:
 	rte
 
 
@@ -19347,46 +19443,53 @@ Draw_BG2:
 ; Each entry is an index into BGCameraLookup; used to decide the camera to use
 ; for given block for reloading BG. A entry of 0 means assume X = 0 for section,
 ; but otherwise loads camera Y for selected camera.
+; Note that this list is 32 blocks long, which is enough to span the entire
+; two-chunk-tall background.
 ;byte_DCD6
 SBZ_CameraSections:
 	; BG1 (draw whole row)
-	dc.b   0
-	dc.b   0	; 1
-	dc.b   0	; 2
-	dc.b   0	; 3
-	dc.b   0	; 4
+	dc.b 0	; 0
+	dc.b 0	; 1
+	dc.b 0	; 2
+	dc.b 0	; 3
+	dc.b 0	; 4
 	; BG3
-	dc.b   6	; 5
-	dc.b   6	; 6
-	dc.b   6	; 7
-	dc.b   6	; 8
-	dc.b   6	; 9
-	dc.b   6	; 10
-	dc.b   6	; 11
-	dc.b   6	; 12
-	dc.b   6	; 13
-	dc.b   6	; 14
+	dc.b 6	; 5
+	dc.b 6	; 6
+	dc.b 6	; 7
+	dc.b 6	; 8
+	dc.b 6	; 9
+	dc.b 6	; 10
+	dc.b 6	; 11
+	dc.b 6	; 12
+	dc.b 6	; 13
+	dc.b 6	; 14
 	; BG2
-	dc.b   4	; 15
-	dc.b   4	; 16
-	dc.b   4	; 17
-	dc.b   4	; 18
-	dc.b   4	; 19
-	dc.b   4	; 20
-	dc.b   4	; 21
+	dc.b 4	; 15
+	dc.b 4	; 16
+	dc.b 4	; 17
+	dc.b 4	; 18
+	dc.b 4	; 19
+	dc.b 4	; 20
+	dc.b 4	; 21
 	; BG1
-	dc.b   2	; 22
-	dc.b   2	; 23
-	dc.b   2	; 24
-	dc.b   2	; 25
-	dc.b   2	; 26
-	dc.b   2	; 27
-	dc.b   2	; 28
-	dc.b   2	; 29
-	dc.b   2	; 30
-	dc.b   2	; 31
-	dc.b   2	; 32
+	dc.b 2	; 22
+	dc.b 2	; 23
+	dc.b 2	; 24
+	dc.b 2	; 25
+	dc.b 2	; 26
+	dc.b 2	; 27
+	dc.b 2	; 28
+	dc.b 2	; 29
+	dc.b 2	; 30
+	dc.b 2	; 31
+	dc.b 2	; 32
+
+	; Total height: 2 256x256 chunks.
+	; This matches the height of the background.
+
 	even
+
 ; ===========================================================================
 	; Scrap Brain Zone 1 drawing code -- Sonic 1 left-over.
 
@@ -19403,7 +19506,7 @@ SBZ_CameraSections:
 	; clouds disappear. Using this would have avoided that.
 
 	; Handle loading the rows as the camera moves up and down.
-	moveq	#-16,d4	; X offset (relative to camera)
+	moveq	#-16,d4	; Y offset (relative to camera)
 	bclr	#scroll_flag_advanced_bg_up,(a2)
 	bne.s	.doUpOrDown
 	bclr	#scroll_flag_advanced_bg_down,(a2)
@@ -19414,7 +19517,7 @@ SBZ_CameraSections:
 	lea_	SBZ_CameraSections+1,a0
 	move.w	(Camera_BG_Y_pos).w,d0
 	add.w	d4,d0
-	andi.w	#$1F0,d0
+	andi.w	#$1F0,d0	; After right-shifting, the is a mask of $1F. Since SBZ_CameraSections is $20 items long, this is correct.
 	lsr.w	#4,d0
 	move.b	(a0,d0.w),d0
 	lea	(BGCameraLookup).l,a3
@@ -19460,7 +19563,7 @@ SBZ_CameraSections:
 	; drawing the column.
 	lea_	SBZ_CameraSections,a0
 	move.w	(Camera_BG_Y_pos).w,d0
-	andi.w	#$1F0,d0
+	andi.w	#$1F0,d0	; After right-shifting, the is a mask of $1F. Since SBZ_CameraSections is $20 items long, this is correct.
 	lsr.w	#4,d0
 	lea	(a0,d0.w),a0
 	bra.w	DrawBlockColumn_Advanced
@@ -19510,73 +19613,79 @@ Draw_BG3:
 ;byte_DDD0
 CPZ_CameraSections:
 	; BG1
-	dc.b   2
-	dc.b   2	; 1
-	dc.b   2	; 2
-	dc.b   2	; 3
-	dc.b   2	; 4
-	dc.b   2	; 5
-	dc.b   2	; 6
-	dc.b   2	; 7
-	dc.b   2	; 8
-	dc.b   2	; 9
-	dc.b   2	; 10
-	dc.b   2	; 11
-	dc.b   2	; 12
-	dc.b   2	; 13
-	dc.b   2	; 14
-	dc.b   2	; 15
-	dc.b   2	; 16
-	dc.b   2	; 17
-	dc.b   2	; 18
-	dc.b   2	; 19
+	dc.b 2	; 0
+	dc.b 2	; 1
+	dc.b 2	; 2
+	dc.b 2	; 3
+	dc.b 2	; 4
+	dc.b 2	; 5
+	dc.b 2	; 6
+	dc.b 2	; 7
+	dc.b 2	; 8
+	dc.b 2	; 9
+	dc.b 2	; 10
+	dc.b 2	; 11
+	dc.b 2	; 12
+	dc.b 2	; 13
+	dc.b 2	; 14
+	dc.b 2	; 15
+	dc.b 2	; 16
+	dc.b 2	; 17
+	dc.b 2	; 18
+	dc.b 2	; 19
 	; BG2
-	dc.b   4	; 20
-	dc.b   4	; 21
-	dc.b   4	; 22
-	dc.b   4	; 23
-	dc.b   4	; 24
-	dc.b   4	; 25
-	dc.b   4	; 26
-	dc.b   4	; 27
-	dc.b   4	; 28
-	dc.b   4	; 29
-	dc.b   4	; 30
-	dc.b   4	; 31
-	dc.b   4	; 32
-	dc.b   4	; 33
-	dc.b   4	; 34
-	dc.b   4	; 35
-	dc.b   4	; 36
-	dc.b   4	; 37
-	dc.b   4	; 38
-	dc.b   4	; 39
-	dc.b   4	; 40
-	dc.b   4	; 41
-	dc.b   4	; 42
-	dc.b   4	; 43
-	dc.b   4	; 44
-	dc.b   4	; 45
-	dc.b   4	; 46
-	dc.b   4	; 47
-	dc.b   4	; 48
-	dc.b   4	; 49
-	dc.b   4	; 50
-	dc.b   4	; 51
-	dc.b   4	; 52
-	dc.b   4	; 53
-	dc.b   4	; 54
-	dc.b   4	; 55
-	dc.b   4	; 56
-	dc.b   4	; 57
-	dc.b   4	; 58
-	dc.b   4	; 59
-	dc.b   4	; 60
-	dc.b   4	; 61
-	dc.b   4	; 62
-	dc.b   4	; 63
-	dc.b   4	; 64
+	dc.b 4	; 20
+	dc.b 4	; 21
+	dc.b 4	; 22
+	dc.b 4	; 23
+	dc.b 4	; 24
+	dc.b 4	; 25
+	dc.b 4	; 26
+	dc.b 4	; 27
+	dc.b 4	; 28
+	dc.b 4	; 29
+	dc.b 4	; 30
+	dc.b 4	; 31
+	dc.b 4	; 32
+	dc.b 4	; 33
+	dc.b 4	; 34
+	dc.b 4	; 35
+	dc.b 4	; 36
+	dc.b 4	; 37
+	dc.b 4	; 38
+	dc.b 4	; 39
+	dc.b 4	; 40
+	dc.b 4	; 41
+	dc.b 4	; 42
+	dc.b 4	; 43
+	dc.b 4	; 44
+	dc.b 4	; 45
+	dc.b 4	; 46
+	dc.b 4	; 47
+	dc.b 4	; 48
+	dc.b 4	; 49
+	dc.b 4	; 50
+	dc.b 4	; 51
+	dc.b 4	; 52
+	dc.b 4	; 53
+	dc.b 4	; 54
+	dc.b 4	; 55
+	dc.b 4	; 56
+	dc.b 4	; 57
+	dc.b 4	; 58
+	dc.b 4	; 59
+	dc.b 4	; 60
+	dc.b 4	; 61
+	dc.b 4	; 62
+	dc.b 4	; 63
+	dc.b 4	; 64
+
+	; Total height: 8 128x128 chunks.
+	; CPZ's background is only 7 chunks tall, but extending to
+	; 8 is necessary for wrapping to be achieved using bitmasks.
+
 	even
+
 ; ===========================================================================
 ; loc_DE12:
 Draw_BG3_CPZ:
@@ -19610,7 +19719,7 @@ Draw_BG3_CPZ:
 	lea_	CPZ_CameraSections+1,a0
 	move.w	(Camera_BG_Y_pos).w,d0
 	add.w	d4,d0
-	andi.w	#$3F0,d0
+	andi.w	#$3F0,d0	; After right-shifting, the is a mask of $3F. Since CPZ_CameraSections is $40 items long, this is correct.
 	lsr.w	#4,d0
 	move.b	(a0,d0.w),d0
 	movea.w	BGCameraLookup(pc,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
@@ -19644,7 +19753,14 @@ Draw_BG3_CPZ:
 	; drawing the column.
 	lea_	CPZ_CameraSections,a0
 	move.w	(Camera_BG_Y_pos).w,d0
-	andi.w	#$7F0,d0	; Curiously, this bitmask differs from the one used earlier. Perhaps this is a bug?
+    if fixBugs
+	andi.w	#$3F0,d0	; After right-shifting, the is a mask of $3F. Since CPZ_CameraSections is $40 items long, this is correct.
+    endif
+	; After right-shifting, the is a mask of $7F. Since CPZ_CameraSections
+	; is $40 items long, this is incorrect, and will cause accesses to
+	; exceed the bounds of CPZ_CameraSections and read invalid data. This
+	; is most notably a problem in Marble Zone's version of this code.
+	andi.w	#$7F0,d0
 	lsr.w	#4,d0
 	lea	(a0,d0.w),a0
 	bra.w	DrawBlockColumn_Advanced
@@ -19745,41 +19861,47 @@ DrawBlockColumn_Advanced:
 
 OOZ_CameraSections:
 	; BG1 (draw whole row) for the sky.
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
-	dc.b   0
+	dc.b 0	; 0
+	dc.b 0	; 1
+	dc.b 0	; 2
+	dc.b 0	; 3
+	dc.b 0	; 4
+	dc.b 0	; 5
+	dc.b 0	; 6
+	dc.b 0	; 7
+	dc.b 0	; 8
+	dc.b 0	; 9
+	dc.b 0	; 10
+	dc.b 0	; 11
+	dc.b 0	; 12
+	dc.b 0	; 13
+	dc.b 0	; 14
+	dc.b 0	; 15
+	dc.b 0	; 16
 	; BG1 for the factory.
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
-	dc.b   2
+	dc.b 2	; 17
+	dc.b 2	; 18
+	dc.b 2	; 19
+	dc.b 2	; 20
+	dc.b 2	; 21
+	dc.b 2	; 22
+	dc.b 2	; 23
+	dc.b 2	; 24
+	dc.b 2	; 25
+	dc.b 2	; 26
+	dc.b 2	; 27
+	dc.b 2	; 28
+	dc.b 2	; 29
+	dc.b 2	; 30
+	dc.b 2	; 31
+	dc.b 2	; 32
+
+	; Total height: 4 128x128 chunks.
+	; This matches the height of the background.
+
 	even
+
+; ===========================================================================
 
 Draw_BG3_OOZ:
 	; This is a lighty-modified duplicate of Scrap Brain Zone's drawing
@@ -19789,14 +19911,6 @@ Draw_BG3_OOZ:
 	; kind of. There are only three possible 'cameras' that each row can
 	; align itself with. Still, each row is free to decide which camera
 	; it aligns with.
-	; This could have really benefitted Oil Ocean Zone's background,
-	; which has a section that goes unseen because the regular background
-	; drawer is too primitive to display it without making the sun and
-	; clouds disappear. Using this would have avoided that.
-	; This code differs from the Scrap Brain Zone version by being
-	; hardcoded to a different table ('CPZ_CameraSections' instead of
-	; 'SBZ_CameraSections'), and lacking support for redrawing the whole
-	; row when it uses "camera 0".
 
 	; Handle loading the rows as the camera moves up and down.
 	moveq	#-16,d4	; Y offset
@@ -19812,7 +19926,7 @@ Draw_BG3_OOZ:
 	lea_	OOZ_CameraSections+1,a0
 	move.w	(Camera_BG_Y_pos).w,d0
 	add.w	d4,d0
-	andi.w	#$3F0,d0
+	andi.w	#$1F0,d0	; After right-shifting, the is a mask of $1F. Since OOZ_CameraSections is $20 items long, this is correct.
 	lsr.w	#4,d0
 	move.b	(a0,d0.w),d0
 	lea	BGCameraLookup(pc),a3
@@ -19858,7 +19972,7 @@ Draw_BG3_OOZ:
 	; drawing the column.
 	lea_	OOZ_CameraSections,a0
 	move.w	(Camera_BG_Y_pos).w,d0
-	andi.w	#$7F0,d0	; Curiously, this bitmask differs from the one used earlier. Perhaps this is a bug?
+	andi.w	#$1F0,d0	; After right-shifting, the is a mask of $1F. Since OOZ_CameraSections is $20 items long, this is correct.
 	lsr.w	#4,d0
 	lea	(a0,d0.w),a0
 	bra.w	DrawBlockColumn_Advanced
@@ -32539,7 +32653,20 @@ CellOffsets_XFlip2:
 
 ; loc_1694E:
 BuildSprites_2P:
+    if fixBugs
+	; Like in Sonic 3, the sprite tables are page-flipped in two-player mode.
+	; This fixes a race-condition where incomplete sprite tables can be uploaded
+	; to the VDP on lag frames, causing corrupted sprites to appear.
+
+	; Modify the back buffer.
 	lea	(Sprite_Table).w,a2
+	tst.b	(Current_sprite_table_page).w
+	beq.s	+
+	lea	(Sprite_Table_Alternate).w,a2
++
+    else
+	lea	(Sprite_Table).w,a2
+    endif
 	moveq	#2,d5
 	moveq	#0,d4
 	move.l	#$1D80F01,(a2)+	; mask all sprites
@@ -32666,9 +32793,22 @@ BuildSprites_P1_NextLevel:
 
 ; loc_16A7A:
 BuildSprites_P2:
+    if fixBugs
+	; Like in Sonic 3, the sprite tables are page-flipped in two-player mode.
+	; This fixes a race-condition where incomplete sprite tables can be uploaded
+	; to the VDP on lag frames, causing corrupted sprites to appear.
+
+	; Modify the back buffer.
+	lea	(Sprite_Table_P2).w,a2
+	tst.b	(Current_sprite_table_page).w
+	beq.s	+
+	lea	(Sprite_Table_P2_Alternate).w,a2
++
+    else
 	tst.w	(Hint_flag).w	; has H-int occured yet?
 	bne.s	BuildSprites_P2	; if not, wait
-	lea	(Sprite_Table_2).w,a2
+	lea	(Sprite_Table_P2).w,a2
+    endif
 	moveq	#0,d5
 	moveq	#0,d4
 	tst.b	(Level_started_flag).w
@@ -32775,6 +32915,13 @@ BuildSprites_P2_NextObj:
 BuildSprites_P2_NextLevel:
 	lea	$80(a4),a4
 	dbf	d7,BuildSprites_P2_LevelLoop
+
+    if fixBugs
+	; The new sprite tables are complete: signal a page flip to
+	; allow them to be uploaded to the VDP!
+	st.b	(Sprite_table_page_flip_pending).w
+    endif
+
 	move.b	d5,(Sprite_count).w
 	; Terminate the sprite list.
 	; If the sprite list is full, then set the link field of the last
