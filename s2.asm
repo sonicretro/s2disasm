@@ -30218,9 +30218,6 @@ BuildSprites_LevelLoop:
 BuildSprites_ObjLoop:
 	movea.w	(a4,d6.w),a0 ; a0=object
 
-	; These is a sanity check, to detect invalid objects which should not
-	; have been queued for display. S3K gets rids of this, since it
-	; should not be needed and it just slows this code down.
 	; These are sanity checks, to detect invalid objects which should not
 	; have been queued for display. S3K gets rids of them compeletely,
 	; since they should not be needed and they just slow this code down.
