@@ -4705,7 +4705,7 @@ TitleScreen_CheckIfChose2P:
 	move.l	d0,(Got_Emeralds_array+4).w
 
 	move.b	#GameModeID_2PLevelSelect,(Game_Mode).w ; => LevelSelectMenu2P
-	move.b	#emerald_hill_zone,(Current_Zone_2P).w
+	move.b	#0,(Current_Zone_2P).w
 	rts
 ; ---------------------------------------------------------------------------
 ; loc_3D20:
@@ -12144,8 +12144,8 @@ MenuScreen:
 	bsr.w	EniDec
 	lea	(Chunk_Table+$498).l,a2
 
-	moveq	#$F,d1
--	move.w	#$207B,(a2)+
+	moveq	#bytesToWcnt($20),d1
+-	move.w	#make_art_tile(ArtTile_ArtNem_MenuBox+11,1,0),(a2)+
 	dbf	d1,-
 
 	bsr.w	Update2PLevSelSelection
