@@ -73,67 +73,68 @@ lrb_solid_bit =		$3F ; the bit to check for left/right/bottom solidity (either $
 ; conventions followed by several objects but NOT Sonic/Tails:
 y_pixel =		2+x_pos ; and 3+x_pos ; y coordinate for objects using screen-space coordinate system
 x_pixel =		x_pos ; and 1+x_pos ; x coordinate for objects using screen-space coordinate system
-parent =		$3E ; and $3F ; address of object that owns or spawned this one, if applicable
+parent =		objoff_3E ; and $3F ; address of object that owns or spawned this one, if applicable
 ; TODO: $2C is often parent instead (see LoadChildObject); consider defining parent2 = $2C and changing some objoff_2Cs to that
 ; ---------------------------------------------------------------------------
 ; conventions followed by some/most bosses:
-boss_subtype		= $A
-boss_invulnerable_time	= $14
-boss_sine_count		= $1A	;mapping_frame
-boss_routine		= $26	;angle
-boss_defeated		= $2C
-boss_hitcount2		= $32
-boss_hurt_sonic		= $38	; flag set by collision response routine when Sonic has just been hurt (by boss?)
+boss_subtype		= objoff_A
+boss_invulnerable_time	= objoff_14
+boss_sine_count		= mapping_frame
+boss_routine		= angle
+boss_defeated		= objoff_2C
+boss_hitcount2		= objoff_32
+boss_hurt_sonic		= objoff_38	; flag set by collision response routine when Sonic has just been hurt (by boss?)
 ; ---------------------------------------------------------------------------
 ; when childsprites are activated (i.e. bit #6 of render_flags set)
-mainspr_mapframe	= $B
-mainspr_width		= $E
-mainspr_childsprites 	= $F	; amount of child sprites
-mainspr_height		= $14
-sub2_x_pos		= $10	;x_vel
-sub2_y_pos		= $12	;y_vel
-sub2_mapframe		= $15
-sub3_x_pos		= $16	;y_radius
-sub3_y_pos		= $18	;priority
-sub3_mapframe		= $1B	;anim_frame
-sub4_x_pos		= $1C	;anim
-sub4_y_pos		= $1E	;anim_frame_duration
-sub4_mapframe		= $21	;collision_property
-sub5_x_pos		= $22	;status
-sub5_y_pos		= $24	;routine
-sub5_mapframe		= $27
-sub6_x_pos		= $28	;subtype
-sub6_y_pos		= $2A
-sub6_mapframe		= $2D
-sub7_x_pos		= $2E
-sub7_y_pos		= $30
-sub7_mapframe		= $33
-sub8_x_pos		= $34
-sub8_y_pos		= $36
-sub8_mapframe		= $39
-sub9_x_pos		= $3A
-sub9_y_pos		= $3C
-sub9_mapframe		= $3F
 next_subspr		= $6
+mainspr_mapframe	= objoff_B
+mainspr_width		= objoff_E
+mainspr_childsprites 	= objoff_F	; amount of child sprites
+mainspr_height		= objoff_14
+subspr_data		= $10
+sub2_x_pos		= subspr_data+next_subspr*0+0	;x_vel
+sub2_y_pos		= subspr_data+next_subspr*0+2	;y_vel
+sub2_mapframe		= subspr_data+next_subspr*0+5
+sub3_x_pos		= subspr_data+next_subspr*1+0	;y_radius
+sub3_y_pos		= subspr_data+next_subspr*1+2	;priority
+sub3_mapframe		= subspr_data+next_subspr*1+5	;anim_frame
+sub4_x_pos		= subspr_data+next_subspr*2+0	;anim
+sub4_y_pos		= subspr_data+next_subspr*2+2	;anim_frame_duration
+sub4_mapframe		= subspr_data+next_subspr*2+5	;collision_property
+sub5_x_pos		= subspr_data+next_subspr*3+0	;status
+sub5_y_pos		= subspr_data+next_subspr*3+2	;routine
+sub5_mapframe		= subspr_data+next_subspr*3+5
+sub6_x_pos		= subspr_data+next_subspr*4+0	;subtype
+sub6_y_pos		= subspr_data+next_subspr*4+2
+sub6_mapframe		= subspr_data+next_subspr*4+5
+sub7_x_pos		= subspr_data+next_subspr*5+0
+sub7_y_pos		= subspr_data+next_subspr*5+2
+sub7_mapframe		= subspr_data+next_subspr*5+5
+sub8_x_pos		= subspr_data+next_subspr*6+0
+sub8_y_pos		= subspr_data+next_subspr*6+2
+sub8_mapframe		= subspr_data+next_subspr*6+5
+sub9_x_pos		= subspr_data+next_subspr*7+0
+sub9_y_pos		= subspr_data+next_subspr*7+2
+sub9_mapframe		= subspr_data+next_subspr*7+5
 ; ---------------------------------------------------------------------------
 ; unknown or inconsistently used offsets that are not applicable to Sonic/Tails:
 ; (provided because rearrangement of the above values sometimes requires making space in here too)
-objoff_A =		2+x_pos ; note: x_pos can be 4 bytes, but sometimes the last 2 bytes of x_pos are used for other unrelated things
-objoff_B =		3+x_pos ; unused
-objoff_E =		2+y_pos	; unused
-objoff_F =		3+y_pos ; unused
-objoff_10 =		$10
-objoff_14 =		$14
-objoff_15 =		$15
-objoff_1F =		$1F
+objoff_A =		x_sub+0 ; note: x_pos can be 4 bytes, but sometimes the last 2 bytes of x_pos are used for other unrelated things
+objoff_B =		x_sub+1 ; unused
+objoff_E =		y_sub+0	; unused
+objoff_F =		y_sub+1 ; unused
+objoff_10 =		x_vel
+objoff_14 =		inertia+0
+objoff_15 =		inertia+1
+objoff_1F =		anim_frame_duration+1
 objoff_27 =		$27
-objoff_28 =		$28 ; overlaps subtype, but a few objects use it for other things anyway
+objoff_28 =		subtype ; overlaps subtype, but a few objects use it for other things anyway
  enum               objoff_29=$29,objoff_2A=$2A,objoff_2B=$2B,objoff_2C=$2C,objoff_2D=$2D,objoff_2E=$2E,objoff_2F=$2F
  enum objoff_30=$30,objoff_31=$31,objoff_32=$32,objoff_33=$33,objoff_34=$34,objoff_35=$35,objoff_36=$36,objoff_37=$37
  enum objoff_38=$38,objoff_39=$39,objoff_3A=$3A,objoff_3B=$3B,objoff_3C=$3C,objoff_3D=$3D,objoff_3E=$3E,objoff_3F=$3F
 ; ---------------------------------------------------------------------------
 ; Special Stage object properties:
-ss_dplc_timer = $23
+ss_dplc_timer = respawn_index
 ss_x_pos = objoff_2A
 ss_x_sub = objoff_2C
 ss_y_pos = objoff_2E

@@ -9456,7 +9456,7 @@ Obj5E:
 	moveq	#0,d2
 	moveq	#0,d3
 	lea	(SSHUDLayout).l,a1
-	lea	sub2_x_pos(a0),a2
+	lea	subspr_data(a0),a2
 	adda.w	(a1,d1.w),a1
 	move.b	(a1)+,d3
 	move.b	d3,mainspr_childsprites(a0)
@@ -9711,23 +9711,23 @@ Obj87_Init:
 	move.b	#2,mainspr_childsprites(a0)
 	move.w	#$20,d0
 	moveq	#0,d1
-	lea	sub2_x_pos(a0),a1
-	move.w	#$48,(a1)			; sub2_x_pos
-	move.w	d0,sub2_y_pos-sub2_x_pos(a1)	; sub2_y_pos
-	move.w	d1,mainspr_height-sub2_x_pos(a1) ; mainspr_height and sub2_mapframe
-	move.w	#$E0,sub3_x_pos-sub2_x_pos(a1)	; sub3_x_pos
-	move.w	d0,sub3_y_pos-sub2_x_pos(a1)	; sub3_y_pos
-	move.w	d1,mapping_frame-sub2_x_pos(a1)	; mapping_frame	and sub3_mapframe
-	move.w	d0,sub4_y_pos-sub2_x_pos(a1)	; sub4_y_pos
-	move.w	d0,sub5_y_pos-sub2_x_pos(a1)	; sub5_y_pos
-	move.w	d0,sub6_y_pos-sub2_x_pos(a1)	; sub6_y_pos
-	move.w	d0,sub7_y_pos-sub2_x_pos(a1)	; sub7_y_pos
+	lea	subspr_data(a0),a1
+	move.w	#$48,sub2_x_pos-subspr_data(a1)	; sub2_x_pos
+	move.w	d0,sub2_y_pos-subspr_data(a1)	; sub2_y_pos
+	move.w	d1,mainspr_height-subspr_data(a1) ; mainspr_height and sub2_mapframe
+	move.w	#$E0,sub3_x_pos-subspr_data(a1)	; sub3_x_pos
+	move.w	d0,sub3_y_pos-subspr_data(a1)	; sub3_y_pos
+	move.w	d1,mapping_frame-subspr_data(a1)	; mapping_frame	and sub3_mapframe
+	move.w	d0,sub4_y_pos-subspr_data(a1)	; sub4_y_pos
+	move.w	d0,sub5_y_pos-subspr_data(a1)	; sub5_y_pos
+	move.w	d0,sub6_y_pos-subspr_data(a1)	; sub6_y_pos
+	move.w	d0,sub7_y_pos-subspr_data(a1)	; sub7_y_pos
 	tst.b	(SS_2p_Flag).w
 	bne.s	+++
 	cmpi.w	#0,(Player_mode).w
 	beq.s	+
 	subi_.b	#1,mainspr_childsprites(a0)
-	move.w	#$94,(a1)			; sub2_x_pos
+	move.w	#$94,sub2_x_pos-subspr_data(a1)	; sub2_x_pos
 	rts
 ; ===========================================================================
 +
@@ -9740,12 +9740,12 @@ Obj87_Init:
 	move.b	#4,render_flags(a1)
 	bset	#6,render_flags(a1)
 	move.b	#1,mainspr_childsprites(a1)
-	lea	sub2_x_pos(a1),a2
-	move.w	#$80,(a2)			; sub2_x_pos
-	move.w	d0,sub2_y_pos-sub2_x_pos(a2)	; sub2_y_pos
-	move.w	d1,mainspr_height-sub2_x_pos(a2) ; mainspr_height and sub2_mapframe
-	move.w	d0,sub3_y_pos-sub2_x_pos(a2)	; sub3_y_pos
-	move.w	d0,sub4_y_pos-sub2_x_pos(a2)	; sub4_y_pos
+	lea	subspr_data(a1),a2
+	move.w	#$80,sub2_x_pos-subspr_data(a2)	; sub2_x_pos
+	move.w	d0,sub2_y_pos-subspr_data(a2)	; sub2_y_pos
+	move.w	d1,mainspr_height-subspr_data(a2) ; mainspr_height and sub2_mapframe
+	move.w	d0,sub3_y_pos-subspr_data(a2)	; sub3_y_pos
+	move.w	d0,sub4_y_pos-subspr_data(a2)	; sub4_y_pos
 /	rts
 ; ===========================================================================
 +
@@ -9758,15 +9758,15 @@ Obj87_Init:
 	move.b	#4,render_flags(a1)
 	bset	#6,render_flags(a1)
 	move.b	#0,mainspr_childsprites(a1)
-	lea	sub2_x_pos(a1),a2
+	lea	subspr_data(a1),a2
 	move.w	#$2C,d0
 	move.w	#$A,d1
-	move.w	d0,sub2_y_pos-sub2_x_pos(a2)	; sub2_y_pos
-	move.w	d1,mainspr_height-sub2_x_pos(a2) ; mainspr_height and sub2_mapframe
-	move.w	d0,sub3_y_pos-sub2_x_pos(a2)	; sub3_y_pos
-	move.w	d1,mapping_frame-sub2_x_pos(a2)	; mapping_frame	and sub3_mapframe
-	move.w	d0,sub4_y_pos-sub2_x_pos(a2)	; sub4_y_pos
-	move.w	d1,sub4_mapframe-1-sub2_x_pos(a2) ; something and sub4_mapframe
+	move.w	d0,sub2_y_pos-subspr_data(a2)	; sub2_y_pos
+	move.w	d1,mainspr_height-subspr_data(a2) ; mainspr_height and sub2_mapframe
+	move.w	d0,sub3_y_pos-subspr_data(a2)	; sub3_y_pos
+	move.w	d1,mapping_frame-subspr_data(a2)	; mapping_frame	and sub3_mapframe
+	move.w	d0,sub4_y_pos-subspr_data(a2)	; sub4_y_pos
+	move.w	d1,sub4_mapframe-1-subspr_data(a2) ; something and sub4_mapframe
 	rts
 ; ===========================================================================
 
@@ -9776,7 +9776,7 @@ loc_7480:
 	moveq	#0,d5
 	lea	sub2_x_pos(a0),a1
 	movea.l	a1,a2
-	addq.w	#5,a2	; a2 = sub2_mapframe(a0)
+	addq.w	#sub2_mapframe-sub2_x_pos,a2	; a2 = sub2_mapframe(a0)
 	cmpi.w	#2,(Player_mode).w
 	beq.s	loc_74EA
 	move.b	(MainCharacter+ss_rings_hundreds).w,d0
@@ -9886,17 +9886,17 @@ loc_753E:
 	beq.s	+
 	addq.w	#2,d3
 +
-	lea	sub2_x_pos(a0),a1
+	lea	subspr_data(a0),a1
 	move.b	d3,mainspr_childsprites(a0)
 	cmpi.b	#2,d3
 	blt.s	+
 	beq.s	++
-	move.w	#$78,(a1)			; sub2_x_pos
-	move.b	d2,sub2_mapframe-sub2_x_pos(a1)	; sub2_mapframe
-	move.w	#$80,sub3_x_pos-sub2_x_pos(a1)	; sub3_x_pos
-	move.b	d1,sub3_mapframe-sub2_x_pos(a1)	; sub3_mapframe
-	move.w	#$88,sub4_x_pos-sub2_x_pos(a1)	; sub4_x_pos
-	move.b	d0,sub4_mapframe-sub2_x_pos(a1)	; sub4_mapframe
+	move.w	#$78,sub2_x_pos-subspr_data(a1)		; sub2_x_pos
+	move.b	d2,sub2_mapframe-subspr_data(a1)	; sub2_mapframe
+	move.w	#$80,sub3_x_pos-subspr_data(a1)		; sub3_x_pos
+	move.b	d1,sub3_mapframe-subspr_data(a1)	; sub3_mapframe
+	move.w	#$88,sub4_x_pos-subspr_data(a1)		; sub4_x_pos
+	move.b	d0,sub4_mapframe-subspr_data(a1)	; sub4_mapframe
     if fixBugs
 	; Multi-sprite objects cannot use the 'priority' SST value, so they
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
@@ -9909,8 +9909,8 @@ loc_753E:
     endif
 ; ===========================================================================
 +
-	move.w	#$80,(a1)			; sub2_x_pos
-	move.b	d0,sub2_mapframe-sub2_x_pos(a1)	; sub2_mapframe
+	move.w	#$80,sub2_x_pos-subspr_data(a1)	; sub2_x_pos
+	move.b	d0,sub2_mapframe-subspr_data(a1)	; sub2_mapframe
     if fixBugs
 	; Multi-sprite objects cannot use the 'priority' SST value, so they
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
@@ -9923,10 +9923,10 @@ loc_753E:
     endif
 ; ===========================================================================
 +
-	move.w	#$7C,(a1)			; sub2_x_pos
-	move.b	d1,sub2_mapframe-sub2_x_pos(a1)	; sub2_mapframe
-	move.w	#$84,sub3_x_pos-sub2_x_pos(a1)	; sub3_x_pos
-	move.b	d0,sub3_mapframe-sub2_x_pos(a1)	; sub3_mapframe
+	move.w	#$7C,sub2_x_pos-subspr_data(a1)		; sub2_x_pos
+	move.b	d1,sub2_mapframe-subspr_data(a1)	; sub2_mapframe
+	move.w	#$84,sub3_x_pos-subspr_data(a1)		; sub3_x_pos
+	move.b	d0,sub3_mapframe-subspr_data(a1)	; sub3_mapframe
     if fixBugs
 	; Multi-sprite objects cannot use the 'priority' SST value, so they
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
@@ -21961,7 +21961,7 @@ Obj11_MakeBdgSegment:
 	move.b	#$40,mainspr_width(a1)
 	move.b	d1,mainspr_childsprites(a1)
 	subq.b	#1,d1
-	lea	sub2_x_pos(a1),a2 ; starting address for subsprite data
+	lea	subspr_data(a1),a2 ; starting address for subsprite data
 
 -	move.w	d3,(a2)+	; sub?_x_pos
 	move.w	d2,(a2)+	; sub?_y_pos
@@ -22485,7 +22485,7 @@ Obj15_Init:
 	move.b	#$48,mainspr_width(a1)
 	move.b	d1,mainspr_childsprites(a1)
 	subq.b	#1,d1
-	lea	sub2_x_pos(a1),a2
+	lea	subspr_data(a1),a2
 
 -	move.w	d2,(a2)+	; sub?_x_pos
 	move.w	d3,(a2)+	; sub?_y_pos
@@ -22594,7 +22594,7 @@ loc_FEC2:
 	asr.l	#4,d1
 	moveq	#0,d4
 	moveq	#0,d5
-	lea	sub2_x_pos(a1),a2
+	lea	subspr_data(a1),a2
 
 -	movem.l	d4-d5,-(sp)
 	swap	d4
@@ -30403,7 +30403,7 @@ BuildSprites_MultiDraw:
 	move.w	(sp)+,d4
 +
 	ori.b	#$80,render_flags(a0)	; set onscreen flag
-	lea	sub2_x_pos(a0),a6
+	lea	subspr_data(a0),a6
 	moveq	#0,d0
 	move.b	mainspr_childsprites(a0),d0	; get child sprite count
 	subq.w	#1,d0		; if there are 0, go to next object
@@ -31008,7 +31008,7 @@ BuildSprites_P1_MultiDraw:
 	move.w	(sp)+,d4
 +
 	ori.b	#$80,render_flags(a0)
-	lea	sub2_x_pos(a0),a6
+	lea	subspr_data(a0),a6
 	moveq	#0,d0
 	move.b	mainspr_childsprites(a0),d0
 	subq.w	#1,d0
@@ -31098,7 +31098,7 @@ BuildSprites_P2_MultiDraw:
 	move.w	(sp)+,d4
 +
 	ori.b	#$80,render_flags(a0)
-	lea	sub2_x_pos(a0),a6
+	lea	subspr_data(a0),a6
 	moveq	#0,d0
 	move.b	mainspr_childsprites(a0),d0
 	subq.w	#1,d0
@@ -41976,7 +41976,7 @@ loc_1DA0C:
 	move.w	d0,x_pos(a0)
 	move.w	y_pos(a1),d1
 	move.w	d1,y_pos(a0)
-	lea	sub2_x_pos(a0),a2
+	lea	subspr_data(a0),a2
 	lea	byte_1DB82(pc),a3
 	moveq	#0,d5
 
@@ -42046,7 +42046,7 @@ loc_1DAAC:
 	move.w	(a2)+,d1
 	move.w	d0,x_pos(a0)
 	move.w	d1,y_pos(a0)
-	lea	sub2_x_pos(a0),a2
+	lea	subspr_data(a0),a2
 	movea.l	objoff_30(a0),a3
 
 loc_1DAD4:
@@ -55523,7 +55523,7 @@ Obj75_Init:
 	move.w	y_pos(a0),d3
 	move.b	d1,mainspr_childsprites(a1)
 	subq.w	#1,d1
-	lea	sub2_x_pos(a1),a2
+	lea	subspr_data(a1),a2
 
 -	move.w	d2,(a2)+	; sub?_x_pos
 	move.w	d3,(a2)+	; sub?_y_pos
@@ -55557,7 +55557,7 @@ Obj75_Main:
 	asr.l	#4,d1
 	moveq	#0,d4
 	moveq	#0,d5
-	lea	sub2_x_pos(a1),a2
+	lea	subspr_data(a1),a2
 
 -	movem.l	d4-d5,-(sp)
 	swap	d4
@@ -57016,7 +57016,7 @@ Obj81_Init:
 	moveq	#8,d1
 	move.b	d1,mainspr_childsprites(a1)
 	subq.w	#1,d1
-	lea	sub2_x_pos(a1),a2
+	lea	subspr_data(a1),a2
 
 -	add.w	d4,d3
 	move.w	d2,(a2)+	; sub?_x_pos
@@ -57131,7 +57131,7 @@ loc_2A1EA:
 	asr.l	#4,d1
 	move.l	d0,d4
 	move.l	d1,d5
-	lea	sub2_x_pos(a1),a2
+	lea	subspr_data(a1),a2
 
 -	movem.l	d4-d5,-(sp)
 	swap	d4
@@ -57512,7 +57512,7 @@ Obj83_Init:
 	moveq	#8,d1
 	move.b	d1,mainspr_childsprites(a1)
 	subq.w	#1,d1
-	lea	sub2_x_pos(a1),a2
+	lea	subspr_data(a1),a2
 
 .nextChildSprite:
 	addq.w	#next_subspr-2,a2
@@ -57562,7 +57562,7 @@ Obj83_Main:
 	move.w	Obj83_initial_x_pos(a0),d3
 	moveq	#0,d6
 	movea.l	Obj83_childobjptr_chains(a0),a1 ; a1=object
-	lea	sub2_x_pos(a1),a2
+	lea	subspr_data(a1),a2
 
 	; Update first row of chains
 	move.b	angle(a0),d0
@@ -58027,7 +58027,7 @@ Obj85_Init:
 	move.w	y_pos(a0),d3
 	addi.w	#0,d3
 	move.b	#1,mainspr_childsprites(a0)
-	lea	sub2_x_pos(a0),a2
+	lea	subspr_data(a0),a2
 	move.w	d2,(a2)+	; sub2_x_pos
 	move.w	d3,(a2)+	; sub2_y_pos
 	move.w	#2,(a2)+	; sub2_mapframe
@@ -58042,7 +58042,7 @@ Obj85_Init_Up:
 	move.w	y_pos(a0),d3
 	addi.w	#$20,d3
 	move.b	#1,mainspr_childsprites(a0)
-	lea	sub2_x_pos(a0),a2
+	lea	subspr_data(a0),a2
 	move.w	d2,(a2)+	; sub2_x_pos
 	move.w	d3,(a2)+	; sub2_y_pos
 	move.w	#2,(a2)+	; sub2_mapframe
@@ -71461,7 +71461,7 @@ Obj5A_CreateRingsToGoText:
 	bset	#6,render_flags(a1)
 	move.b	#0,mainspr_childsprites(a1)
 	move.b	#$E,routine(a1)	; => Obj5A_RingsNeeded
-	lea	sub2_x_pos(a1),a2
+	lea	subspr_data(a1),a2
 	move.w	#$5A,d1
 	move.w	#$38,d2
 	moveq	#0,d0
@@ -71592,7 +71592,7 @@ Obj5A_RingsNeeded:
 
 loc_3577A:
 	moveq	#1,d2
-	lea	sub2_x_pos(a0),a1
+	lea	subspr_data(a0),a1
 	move.w	d0,(SS_RingsToGoBCD).w
 	move.w	d0,d1
 	andi.w	#$F,d1
@@ -75380,7 +75380,7 @@ loc_37EFC:
 	asr.w	#8,d2
 	move.w	y_vel(a1),d3
 	asr.w	#8,d3
-	lea	sub2_x_pos(a0),a2
+	lea	subspr_data(a0),a2
 	move.b	objoff_3A(a1),d0
 	moveq	#$18,d1
 
@@ -75423,7 +75423,7 @@ loc_37F74:
 	move.w	d3,y_pos(a1)
 	move.b	#$80,objoff_14(a1)
 	bset	#4,render_flags(a1)
-	lea	sub2_x_pos(a1),a2
+	lea	subspr_data(a1),a2
 
 	moveq	#6,d6
 -	move.w	d2,(a2)+	; sub?_x_pos
