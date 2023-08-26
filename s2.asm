@@ -89357,28 +89357,28 @@ PlrList_Ehz2: plrlistheader
 	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
 PlrList_Ehz2_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Miles 1up patch
 ;---------------------------------------------------------------------------------------
 PlrList_MilesLife2P: plrlistheader
 	plreq ArtTile_ArtNem_2p_life_counter, ArtNem_MilesLife
 PlrList_MilesLife2P_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Miles life counter
 ;---------------------------------------------------------------------------------------
 PlrList_MilesLife: plrlistheader
 	plreq ArtTile_ArtNem_life_counter, ArtNem_MilesLife
 PlrList_MilesLife_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Tails 1up patch
 ;---------------------------------------------------------------------------------------
 PlrList_TailsLife2P: plrlistheader
 	plreq ArtTile_ArtNem_2p_life_counter, ArtNem_TailsLife
 PlrList_TailsLife2P_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Tails life counter
 ;---------------------------------------------------------------------------------------
 PlrList_TailsLife: plrlistheader
@@ -89477,20 +89477,20 @@ PlrList_Htz2: plrlistheader
 	plreq ArtTile_ArtNem_HtzValveBarrier, ArtNem_HtzValveBarrier
 PlrList_Htz2_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; HPZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Hpz1: ;plrlistheader
 ;	plreq ArtTile_ArtNem_WaterSurface, ArtNem_WaterSurface
 ;PlrList_Hpz1_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; HPZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Hpz2: ;plrlistheader
 ;PlrList_Hpz2_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; OOZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Ooz1: plrlistheader
@@ -89505,7 +89505,7 @@ PlrList_Ooz1: plrlistheader
 	plreq ArtTile_ArtNem_LaunchBall, ArtNem_LaunchBall
 PlrList_Ooz1_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; OOZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Ooz2: plrlistheader
@@ -89523,7 +89523,7 @@ PlrList_Ooz2: plrlistheader
 	plreq ArtTile_ArtNem_Octus, ArtNem_Octus
 PlrList_Ooz2_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; MCZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Mcz1: plrlistheader
@@ -89535,7 +89535,7 @@ PlrList_Mcz1: plrlistheader
 	plreq ArtTile_ArtNem_Crawlton, ArtNem_Crawlton
 PlrList_Mcz1_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; MCZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Mcz2: plrlistheader
@@ -89547,7 +89547,7 @@ PlrList_Mcz2: plrlistheader
 	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
 PlrList_Mcz2_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; CNZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Cnz1: plrlistheader
@@ -89563,7 +89563,7 @@ PlrList_Cnz1: plrlistheader
 	plreq ArtTile_ArtNem_CNZMiniBumper, ArtNem_CNZMiniBumper
 PlrList_Cnz1_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; CNZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Cnz2: plrlistheader
@@ -89575,7 +89575,7 @@ PlrList_Cnz2: plrlistheader
 	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
 PlrList_Cnz2_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; CPZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Cpz1: plrlistheader
@@ -89590,7 +89590,7 @@ PlrList_Cpz1: plrlistheader
 	plreq ArtTile_ArtNem_CPZMetalBlock, ArtNem_CPZMetalBlock
 PlrList_Cpz1_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; CPZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Cpz2: plrlistheader
@@ -89603,14 +89603,14 @@ PlrList_Cpz2: plrlistheader
 	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
 PlrList_Cpz2_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; DEZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Dez1: plrlistheader
 	plreq ArtTile_ArtNem_ConstructionStripes_1, ArtNem_ConstructionStripes
 PlrList_Dez1_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; DEZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Dez2: plrlistheader
@@ -89621,7 +89621,7 @@ PlrList_Dez2: plrlistheader
 	plreq ArtTile_ArtNem_RobotnikLower, ArtNem_RobotnikLower
 PlrList_Dez2_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; ARZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Arz1: plrlistheader
@@ -89631,7 +89631,7 @@ PlrList_Arz1: plrlistheader
 	plreq ArtTile_ArtNem_ArrowAndShooter, ArtNem_ArrowAndShooter
 PlrList_Arz1_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; ARZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Arz2: plrlistheader
@@ -89645,14 +89645,14 @@ PlrList_Arz2: plrlistheader
 	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
 PlrList_Arz2_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; SCZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Scz1: plrlistheader
 	plreq ArtTile_ArtNem_Tornado, ArtNem_Tornado
 PlrList_Scz1_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; SCZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Scz2: plrlistheader
@@ -89664,7 +89664,7 @@ PlrList_Scz2: plrlistheader
 	plreq ArtTile_ArtNem_Nebula, ArtNem_Nebula
 PlrList_Scz2_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Sonic end of level results screen
 ;---------------------------------------------------------------------------------------
 PlrList_Results: plrlistheader
@@ -89674,14 +89674,14 @@ PlrList_Results: plrlistheader
 	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
 PlrList_Results_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; End of level signpost
 ;---------------------------------------------------------------------------------------
 PlrList_Signpost: plrlistheader
 	plreq ArtTile_ArtNem_Signpost, ArtNem_Signpost
 PlrList_Signpost_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; CPZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_CpzBoss: plrlistheader
@@ -89692,7 +89692,7 @@ PlrList_CpzBoss: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_CpzBoss_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; EHZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_EhzBoss: plrlistheader
@@ -89702,7 +89702,7 @@ PlrList_EhzBoss: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_EhzBoss_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; HTZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_HtzBoss: plrlistheader
@@ -89712,7 +89712,7 @@ PlrList_HtzBoss: plrlistheader
 	plreq ArtTile_ArtNem_BossSmoke_2, ArtNem_BossSmoke
 PlrList_HtzBoss_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; ARZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_ArzBoss: plrlistheader
@@ -89721,7 +89721,7 @@ PlrList_ArzBoss: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_ArzBoss_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; MCZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_MczBoss: plrlistheader
@@ -89730,7 +89730,7 @@ PlrList_MczBoss: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_MczBoss_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; CNZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_CnzBoss: plrlistheader
@@ -89739,7 +89739,7 @@ PlrList_CnzBoss: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_CnzBoss_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; MTZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_MtzBoss: plrlistheader
@@ -89749,7 +89749,7 @@ PlrList_MtzBoss: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_MtzBoss_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; OOZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_OozBoss: plrlistheader
@@ -89757,21 +89757,21 @@ PlrList_OozBoss: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_OozBoss_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Fiery Explosion
 ;---------------------------------------------------------------------------------------
 PlrList_FieryExplosion: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_FieryExplosion_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Death Egg
 ;---------------------------------------------------------------------------------------
 PlrList_DezBoss: plrlistheader
 	plreq ArtTile_ArtNem_DEZBoss, ArtNem_DEZBoss
 PlrList_DezBoss_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; EHZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_EhzAnimals: plrlistheader
@@ -89779,7 +89779,7 @@ PlrList_EhzAnimals: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Flicky
 PlrList_EhzAnimals_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; MCZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_MczAnimals: plrlistheader
@@ -89787,7 +89787,7 @@ PlrList_MczAnimals: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Chicken
 PlrList_MczAnimals_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; HTZ/MTZ/WFZ animals
 ;---------------------------------------------------------------------------------------
 PlrList_HtzAnimals:
@@ -89799,7 +89799,7 @@ PlrList_HtzAnimals_End
 PlrList_MtzAnimals_End
 PlrList_WfzAnimals_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; DEZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_DezAnimals: plrlistheader
@@ -89807,7 +89807,7 @@ PlrList_DezAnimals: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Chicken
 PlrList_DezAnimals_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; HPZ animals
 ;---------------------------------------------------------------------------------------
 PlrList_HpzAnimals: plrlistheader
@@ -89815,7 +89815,7 @@ PlrList_HpzAnimals: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Seal
 PlrList_HpzAnimals_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; OOZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_OozAnimals: plrlistheader
@@ -89823,7 +89823,7 @@ PlrList_OozAnimals: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Seal
 PlrList_OozAnimals_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; SCZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_SczAnimals: plrlistheader
@@ -89831,7 +89831,7 @@ PlrList_SczAnimals: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Chicken
 PlrList_SczAnimals_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; CNZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_CnzAnimals: plrlistheader
@@ -89839,7 +89839,7 @@ PlrList_CnzAnimals: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Flicky
 PlrList_CnzAnimals_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; CPZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_CpzAnimals: plrlistheader
@@ -89847,7 +89847,7 @@ PlrList_CpzAnimals: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Eagle
 PlrList_CpzAnimals_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; ARZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_ArzAnimals: plrlistheader
@@ -89855,7 +89855,7 @@ PlrList_ArzAnimals: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Flicky
 PlrList_ArzAnimals_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Special Stage
 ;---------------------------------------------------------------------------------------
 PlrList_SpecialStage: plrlistheader
@@ -89874,14 +89874,14 @@ PlrList_SpecialStage: plrlistheader
 	plreq ArtTile_ArtNem_SpecialTailsText, ArtNem_SpecialTailsText
 PlrList_SpecialStage_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Special Stage Bombs
 ;---------------------------------------------------------------------------------------
 PlrList_SpecStageBombs: plrlistheader
 	plreq ArtTile_ArtNem_SpecialBomb, ArtNem_SpecialBomb
 PlrList_SpecStageBombs_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; WFZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_WfzBoss: plrlistheader
@@ -89892,7 +89892,7 @@ PlrList_WfzBoss: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_WfzBoss_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Tornado
 ;---------------------------------------------------------------------------------------
 PlrList_Tornado: plrlistheader
@@ -89901,21 +89901,21 @@ PlrList_Tornado: plrlistheader
 	plreq ArtTile_ArtNem_Clouds, ArtNem_Clouds
 PlrList_Tornado_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Capsule/Egg Prison
 ;---------------------------------------------------------------------------------------
 PlrList_Capsule: plrlistheader
 	plreq ArtTile_ArtNem_Capsule, ArtNem_Capsule
 PlrList_Capsule_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Normal explosion
 ;---------------------------------------------------------------------------------------
 PlrList_Explosion: plrlistheader
 	plreq ArtTile_ArtNem_Explosion, ArtNem_Explosion
 PlrList_Explosion_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Tails end of level results screen
 ;---------------------------------------------------------------------------------------
 PlrList_ResultsTails: plrlistheader
@@ -89947,14 +89947,14 @@ PlrList_ResultsTails_Dup_End
 	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
 PlrList_Arz2_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; SCZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Scz1_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Tornado, ArtNem_Tornado
 PlrList_Scz1_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; SCZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Scz2_Dup: plrlistheader
@@ -89966,7 +89966,7 @@ PlrList_Scz2_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Nebula, ArtNem_Nebula
 PlrList_Scz2_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; Sonic end of level results screen
 ;---------------------------------------------------------------------------------------
 PlrList_Results_Dup: plrlistheader
@@ -89976,14 +89976,14 @@ PlrList_Results_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
 PlrList_Results_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; End of level signpost
 ;---------------------------------------------------------------------------------------
 PlrList_Signpost_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Signpost, ArtNem_Signpost
 PlrList_Signpost_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; CPZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_CpzBoss_Dup: plrlistheader
@@ -89994,7 +89994,7 @@ PlrList_CpzBoss_Dup: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_CpzBoss_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; EHZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_EhzBoss_Dup: plrlistheader
@@ -90004,7 +90004,7 @@ PlrList_EhzBoss_Dup: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_EhzBoss_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; HTZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_HtzBoss_Dup: plrlistheader
@@ -90014,7 +90014,7 @@ PlrList_HtzBoss_Dup: plrlistheader
 	plreq ArtTile_ArtNem_BossSmoke_2, ArtNem_BossSmoke
 PlrList_HtzBoss_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; ARZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_ArzBoss_Dup: plrlistheader
@@ -90023,7 +90023,7 @@ PlrList_ArzBoss_Dup: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_ArzBoss_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; MCZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_MczBoss_Dup: plrlistheader
@@ -90032,7 +90032,7 @@ PlrList_MczBoss_Dup: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_MczBoss_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; CNZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_CnzBoss_Dup: plrlistheader
@@ -90041,7 +90041,7 @@ PlrList_CnzBoss_Dup: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_CnzBoss_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; MTZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_MtzBoss_Dup: plrlistheader
@@ -90051,7 +90051,7 @@ PlrList_MtzBoss_Dup: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_MtzBoss_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; OOZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_OozBoss_Dup: plrlistheader
@@ -90059,21 +90059,21 @@ PlrList_OozBoss_Dup: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_OozBoss_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; Fiery Explosion
 ;---------------------------------------------------------------------------------------
 PlrList_FieryExplosion_Dup: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_FieryExplosion_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; Death Egg
 ;---------------------------------------------------------------------------------------
 PlrList_DezBoss_Dup: plrlistheader
 	plreq ArtTile_ArtNem_DEZBoss, ArtNem_DEZBoss
 PlrList_DezBoss_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; EHZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_EhzAnimals_Dup: plrlistheader
@@ -90081,7 +90081,7 @@ PlrList_EhzAnimals_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Flicky
 PlrList_EhzAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; MCZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_MczAnimals_Dup: plrlistheader
@@ -90089,7 +90089,7 @@ PlrList_MczAnimals_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Chicken
 PlrList_MczAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; HTZ/MTZ/WFZ animals
 ;---------------------------------------------------------------------------------------
 PlrList_HtzAnimals_Dup:
@@ -90101,7 +90101,7 @@ PlrList_HtzAnimals_Dup_End
 PlrList_MtzAnimals_Dup_End
 PlrList_WfzAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; DEZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_DezAnimals_Dup: plrlistheader
@@ -90109,7 +90109,7 @@ PlrList_DezAnimals_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Chicken
 PlrList_DezAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; HPZ animals
 ;---------------------------------------------------------------------------------------
 PlrList_HpzAnimals_Dup: plrlistheader
@@ -90117,7 +90117,7 @@ PlrList_HpzAnimals_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Seal
 PlrList_HpzAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; OOZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_OozAnimals_Dup: plrlistheader
@@ -90125,7 +90125,7 @@ PlrList_OozAnimals_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Seal
 PlrList_OozAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; SCZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_SczAnimals_Dup: plrlistheader
@@ -90133,7 +90133,7 @@ PlrList_SczAnimals_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Chicken
 PlrList_SczAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; CNZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_CnzAnimals_Dup: plrlistheader
@@ -90141,7 +90141,7 @@ PlrList_CnzAnimals_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Flicky
 PlrList_CnzAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; CPZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_CpzAnimals_Dup: plrlistheader
@@ -90149,7 +90149,7 @@ PlrList_CpzAnimals_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Eagle
 PlrList_CpzAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; ARZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_ArzAnimals_Dup: plrlistheader
@@ -90157,7 +90157,7 @@ PlrList_ArzAnimals_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Flicky
 PlrList_ArzAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; Special Stage
 ;---------------------------------------------------------------------------------------
 PlrList_SpecialStage_Dup: plrlistheader
@@ -90176,14 +90176,14 @@ PlrList_SpecialStage_Dup: plrlistheader
 	plreq ArtTile_ArtNem_SpecialTailsText, ArtNem_SpecialTailsText
 PlrList_SpecialStage_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; Special Stage Bombs
 ;---------------------------------------------------------------------------------------
 PlrList_SpecStageBombs_Dup: plrlistheader
 	plreq ArtTile_ArtNem_SpecialBomb, ArtNem_SpecialBomb
 PlrList_SpecStageBombs_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; WFZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_WfzBoss_Dup: plrlistheader
@@ -90194,7 +90194,7 @@ PlrList_WfzBoss_Dup: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_WfzBoss_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; Tornado
 ;---------------------------------------------------------------------------------------
 PlrList_Tornado_Dup: plrlistheader
@@ -90203,21 +90203,21 @@ PlrList_Tornado_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Clouds, ArtNem_Clouds
 PlrList_Tornado_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; Capsule/Egg Prison
 ;---------------------------------------------------------------------------------------
 PlrList_Capsule_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Capsule, ArtNem_Capsule
 PlrList_Capsule_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; Normal explosion
 ;---------------------------------------------------------------------------------------
 PlrList_Explosion_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Explosion, ArtNem_Explosion
 PlrList_Explosion_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; Tails end of level results screen
 ;---------------------------------------------------------------------------------------
 PlrList_ResultsTails_Dup: plrlistheader
