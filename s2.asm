@@ -29316,6 +29316,12 @@ Obj3B_Main:
 	move.w	#$10,d3
 	move.w	x_pos(a0),d4
 	bsr.w	SolidObject
+	; This code contains a bugfix that Sonic 1 lacks: in Sonic 1,
+	; DisplaySprite is called right here, resulting in a
+	; display-after-delete bug when DeleteObject is called.
+	; This, combined with leftover debugging code in REV00's BuildSprites
+	; function, show that an effort was made to eliminate
+	; display-after-delete bugs during Sonic 2's development.
 	move.w	x_pos(a0),d0
 	andi.w	#$FF80,d0
 	sub.w	(Camera_X_pos_coarse).w,d0
