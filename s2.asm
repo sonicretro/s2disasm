@@ -13605,7 +13605,7 @@ loc_A53A:
 -
 	move.w	d0,y_pos(a1)
 	move.w	x_pos(a0),x_pos(a1)
-	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|AniIDSonAni_Wait,mapping_frame(a1)
+	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|(AniIDSonAni_Wait<<0),mapping_frame(a1)
 	move.w	#$100,anim_frame_duration(a1)
 	rts
 ; ===========================================================================
@@ -33652,7 +33652,7 @@ loc_189C0:
 ; ===========================================================================
 
 loc_189CA:
-	move.w	#$100,anim(a0)
+	move.w	#(1<<8)|(0<<0),anim(a0)
 	addq.w	#8,y_pos(a1)
 	move.w	objoff_30(a0),y_vel(a1)
 	bset	#1,status(a1)
@@ -33746,7 +33746,7 @@ loc_18AE0:
 ; ===========================================================================
 
 loc_18AEE:
-	move.w	#$300,anim(a0)
+	move.w	#(3<<8)|(0<<0),anim(a0)
 	move.w	objoff_30(a0),x_vel(a1)
 	addq.w	#8,x_pos(a1)
 	bset	#0,status(a1)
@@ -33904,7 +33904,7 @@ loc_18CBC:
 ; ===========================================================================
 
 loc_18CC6:
-	move.w	#$100,anim(a0)
+	move.w	#(1<<8)|(0<<0),anim(a0)
 	subq.w	#8,y_pos(a1)
 	move.w	objoff_30(a0),y_vel(a1)
 	neg.w	y_vel(a1)
@@ -33997,7 +33997,7 @@ loc_18DCA:
 ; ===========================================================================
 
 loc_18DD8:
-	move.w	#$500,anim(a0)
+	move.w	#(5<<8)|(0<<0),anim(a0)
 	move.w	objoff_30(a0),y_vel(a1)
 	move.w	objoff_30(a0),x_vel(a1)
 	addq.w	#6,y_pos(a1)
@@ -34080,7 +34080,7 @@ loc_18EDA:
 ; ===========================================================================
 
 loc_18EE6:
-	move.w	#$500,anim(a0)
+	move.w	#(5<<8)|(0<<0),anim(a0)
 	move.w	objoff_30(a0),y_vel(a1)
 	neg.w	y_vel(a1)
 	move.w	objoff_30(a0),x_vel(a1)
@@ -34393,7 +34393,7 @@ Obj0D_Main:
 	move.w	#SndID_Signpost,d0
 	jsr	(PlayMusic).l	; play spinning sound
 	clr.b	(Update_HUD_timer).w
-	move.w	#1,anim(a0)
+	move.w	#(0<<8)|(1<<0),anim(a0)
 	move.w	#0,obj0D_spinframe(a0)
 	move.w	(Camera_Max_X_pos).w,(Camera_Min_X_pos).w	; lock screen
 	move.b	#2,routine_secondary(a0) ; => Obj0D_Main_State2
@@ -34433,7 +34433,7 @@ loc_192D6:
 	move.w	#SndID_Signpost,d0
 	jsr	(PlayMusic).l
 	clr.b	(Update_HUD_timer_2P).w
-	move.w	#1,anim(a0)
+	move.w	#(0<<8)|(1<<0),anim(a0)
 	move.w	#0,obj0D_spinframe(a0)
 	move.w	(Tails_Max_X_pos).w,(Tails_Min_X_pos).w
 	move.b	#2,routine_secondary(a0) ; => Obj0D_Main_State2
@@ -35192,7 +35192,7 @@ SolidObject_TestClearPush:
 	cmpi.b	#AniIDSonAni_Drown,anim(a1)
 	beq.s	Solid_NotPushing
     endif
-	move.w	#AniIDSonAni_Run,anim(a1) ; use running animation
+	move.w	#(AniIDSonAni_Walk<<8)|(AniIDSonAni_Run<<0),anim(a1) ; use walking animation (and force it to restart)
 ; loc_19ADC:
 Solid_NotPushing:
 	move.l	d6,d4
@@ -36001,7 +36001,7 @@ Obj01_InWater:
 	asr.w	y_vel(a0)	; memory operands can only be shifted one bit at a time
 	asr.w	y_vel(a0)
 	beq.s	return_1A18C
-	move.w	#$100,(Sonic_Dust+anim).w	; splash animation
+	move.w	#(1<<8)|(0<<0),(Sonic_Dust+anim).w	; splash animation
 	move.w	#SndID_Splash,d0	; splash sound
 	jmp	(PlaySound).l
 ; ---------------------------------------------------------------------------
@@ -36027,7 +36027,7 @@ Obj01_OutWater:
 +
 	tst.w	y_vel(a0)
 	beq.w	return_1A18C
-	move.w	#$100,(Sonic_Dust+anim).w	; splash animation
+	move.w	#(1<<8)|(0<<0),(Sonic_Dust+anim).w	; splash animation
 	movea.l	a0,a1
 	bsr.w	ResumeMusic
 	cmpi.w	#-$1000,y_vel(a0)
@@ -37253,7 +37253,7 @@ Sonic_ChargingSpindash:			; If still charging the dash...
 	move.b	(Ctrl_1_Press_Logical).w,d0
 	andi.b	#button_B_mask|button_C_mask|button_A_mask,d0
 	beq.w	Obj01_Spindash_ResetScr
-	move.w	#(AniIDSonAni_Spindash<<8),anim(a0)
+	move.w	#(AniIDSonAni_Spindash<<8)|(AniIDSonAni_Walk<<0),anim(a0)
 	move.w	#SndID_SpindashRev,d0
 	jsr	(PlaySound).l
 	addi.w	#$200,spindash_counter(a0)
@@ -39096,7 +39096,7 @@ Obj02_InWater:
 	asr	y_vel(a0)
 	asr	y_vel(a0)
 	beq.s	return_1BF58
-	move.w	#$100,(Tails_Dust+anim).w	; splash animation
+	move.w	#(1<<8)|(0<<0),(Tails_Dust+anim).w	; splash animation
 	move.w	#SndID_Splash,d0	; splash sound
 	jmp	(PlaySound).l
 ; ---------------------------------------------------------------------------
@@ -39117,7 +39117,7 @@ Obj02_OutWater:
 +
 	tst.w	y_vel(a0)
 	beq.w	return_1BF58
-	move.w	#$100,(Tails_Dust+anim).w	; splash animation
+	move.w	#(1<<8)|(0<<0),(Tails_Dust+anim).w	; splash animation
 	movea.l	a0,a1
 	bsr.w	ResumeMusic
 	cmpi.w	#-$1000,y_vel(a0)
@@ -40097,7 +40097,7 @@ loc_1C7F8:
 	move.b	(Ctrl_2_Press_Logical).w,d0
 	andi.b	#button_B_mask|button_C_mask|button_A_mask,d0
 	beq.w	loc_1C828
-	move.w	#(AniIDSonAni_Spindash<<8),anim(a0)
+	move.w	#(AniIDSonAni_Spindash<<8)|(AniIDSonAni_Walk<<0),anim(a0)
 	move.w	#SndID_SpindashRev,d0
 	jsr	(PlaySound).l
 	addi.w	#$200,spindash_counter(a0)
@@ -46859,7 +46859,7 @@ Obj06_Cylinder:
 	move.w	d2,y_pos(a1)
 	move.b	#1,flip_turned(a1) ; face the other way
 	bsr.w	RideObject_SetRide
-	move.w	#AniIDSonAni_Run,anim(a1)
+	move.w	#(AniIDSonAni_Walk<<8)|(AniIDSonAni_Run<<0),anim(a1)
 	move.b	#0,(a2)
 	tst.w	inertia(a1)
 	bne.s	return_2188A
@@ -48547,7 +48547,7 @@ loc_2311E:
 	bpl.s	loc_23136
 	move.w	objoff_34(a0),objoff_32(a0)
 	move.b	#2,routine(a0)
-	move.w	#1,anim(a0)
+	move.w	#(0<<8)|(1<<0),anim(a0)
 
 loc_23136:
 	lea	(Ani_obj20).l,a1
@@ -48617,7 +48617,7 @@ loc_231F0:
     endif
 
 	move.w	#9,objoff_32(a1)
-	move.w	#$200,anim(a1)
+	move.w	#(2<<8)|(0<<0),anim(a1)
 	move.w	#$E,d0
 	tst.w	x_vel(a1)
 	bpl.s	loc_23214
@@ -52094,7 +52094,7 @@ loc_26436:
 loc_26446:
 	cmpi.b	#1,anim(a0)
 	beq.s	loc_26456
-	move.w	#$100,anim(a0)
+	move.w	#(1<<8)|(0<<0),anim(a0)
 	rts
 ; ===========================================================================
 
@@ -53303,7 +53303,7 @@ loc_271D0:
 	clr.b	1(a4)
 	move.w	#SndID_Roll,d0
 	jsr	(PlaySound).l
-	move.w	#$100,anim(a0)
+	move.w	#(1<<8)|(0<<0),anim(a0)
 
 return_2725E:
 	rts
@@ -56445,7 +56445,7 @@ loc_296B6:
 ; ===========================================================================
 
 loc_296C2:
-	move.w	#$100,anim(a0)
+	move.w	#(1<<8)|(0<<0),anim(a0)
 	addq.w	#4,y_pos(a1)
 	move.w	objoff_30(a0),y_vel(a1)
 	bset	#1,status(a1)
@@ -58593,7 +58593,7 @@ loc_2B352:
 ; ===========================================================================
 
 loc_2B35C:
-	move.w	#$300,anim(a0)
+	move.w	#(3<<8)|(0<<0),anim(a0)
 	move.w	#-$1000,x_vel(a1)
 	addq.w	#8,x_pos(a1)
 	bset	#0,status(a1)
@@ -58603,7 +58603,7 @@ loc_2B35C:
 	bclr	#0,status(a1)
 	subi.w	#$10,x_pos(a1)
 	neg.w	x_vel(a1)
-	move.w	#$400,anim(a0)
+	move.w	#(4<<8)|(0<<0),anim(a0)
 
 loc_2B392:
 	move.w	#$F,move_lock(a1)
@@ -69297,7 +69297,7 @@ Obj55_Wave:
     endif
 
 	move.w	#5,Obj55_Wave_delay(a1)
-	move.w	#$200,anim(a1)
+	move.w	#(2<<8)|(0<<0),anim(a1)
 	move.w	#$10,d0		; place new wave object 16 pixels next to current one
 	tst.w	x_vel(a1)	; is object going left?
 	bpl.s	+		; if not, branch
@@ -76178,7 +76178,7 @@ loc_38832:
 ; ===========================================================================
 
 loc_3884A:
-	clr.l	mapping_frame(a0)
+	clr.l	mapping_frame(a0) ; Clear mapping_frame, anim_frame, anim, and prev_anim.
 	clr.w	anim_frame_duration(a0)
 	move.b	#3,mapping_frame(a0)
 	jmpto	MarkObjGone, JmpTo39_MarkObjGone
@@ -76194,7 +76194,7 @@ loc_3885C:
 
 loc_38870:
 	addq.b	#2,routine(a0)
-	clr.l	mapping_frame(a0)
+	clr.l	mapping_frame(a0) ; Clear mapping_frame, anim_frame, anim, and prev_anim.
 	clr.w	anim_frame_duration(a0)
 	jmpto	MarkObjGone_P1, JmpTo2_MarkObjGone_P1
 ; ===========================================================================
@@ -76209,7 +76209,7 @@ loc_3888E:
 	move.b	#4,routine(a0)
 	move.w	#$80,objoff_30(a0)
 	andi.b	#$7F,collision_flags(a0)
-	clr.l	mapping_frame(a0)
+	clr.l	mapping_frame(a0) ; Clear mapping_frame, anim_frame, anim, and prev_anim.
 	clr.w	anim_frame_duration(a0)
 	jmpto	MarkObjGone_P1, JmpTo2_MarkObjGone_P1
 ; ===========================================================================
@@ -77325,7 +77325,7 @@ loc_394A2:
 ; ===========================================================================
 +
 	lea	mapping_frame(a0),a1
-	clr.l	(a1)
+	clr.l	(a1) ; Clear mapping_frame, anim_frame, anim, and prev_anim.
 	clr.w	anim_frame_duration-mapping_frame(a1)
 	move.b	#8,(a1)
 	move.b	#6,collision_flags(a0)
@@ -77347,7 +77347,7 @@ loc_394E0:
 +
 	addq.b	#2,routine(a0)
 	lea	mapping_frame(a0),a1
-	clr.l	(a1)
+	clr.l	(a1) ; Clear mapping_frame, anim_frame, anim, and prev_anim.
 	clr.w	anim_frame_duration-mapping_frame(a1)
 	move.b	#$B,(a1)
 	bsr.w	loc_39526
@@ -79010,7 +79010,7 @@ loc_3AB18:
 	clr.w	inertia(a1)
 	bclr	#1,status(a1)
 	bclr	#2,status(a1)
-	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|AniIDSonAni_Wait,mapping_frame(a1)
+	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|(AniIDSonAni_Wait<<0),mapping_frame(a1)
 	move.w	#$100,anim_frame_duration(a1)
 	move.b	#$13,y_radius(a1)
 	cmpi.w	#2,(Player_mode).w
@@ -79120,7 +79120,7 @@ ObjB2_Deactivate_level:
 ; loc_3AC56:
 ObjB2_Waiting_animation:
 	lea	(MainCharacter).w,a1 ; a1=character
-	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|AniIDSonAni_Wait,mapping_frame(a1)
+	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|(AniIDSonAni_Wait<<0),mapping_frame(a1)
 	move.w	#$100,anim_frame_duration(a1)
 	rts
 ; ===========================================================================
