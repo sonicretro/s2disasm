@@ -40530,7 +40530,14 @@ Tails_ResetOnFloor_Part3:
 	bclr	#5,status(a0)
 	bclr	#4,status(a0)
 	move.b	#0,jumping(a0)
+    if fixBugs
+	; Without this check, AI Tails will ruin the player's
+	; combo when he touches the floor.
+	cmpi.w	#2,(Player_mode).w
+	bne.s	+
+    endif
 	move.w	#0,(Chain_Bonus_counter).w
++
 	move.b	#0,flip_angle(a0)
 	move.b	#0,flip_turned(a0)
 	move.b	#0,flips_remaining(a0)
