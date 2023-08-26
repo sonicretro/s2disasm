@@ -11865,7 +11865,7 @@ Update2PLevSelSelection:
 	lsl.w	#4,d0	; 16 bytes per entry
 	lea	(LevSel2PIconData).l,a3
 	lea	(a3,d0.w),a3
-	move.w	#$6000,d0	; highlight text
+	move.w	#palette_line_3,d0	; highlight text
 	lea	(Chunk_Table+$48).l,a2
 	movea.l	(a3)+,a1
 	bsr.w	MenuScreenTextToRAM
@@ -11938,7 +11938,7 @@ ClearOld2PLevSelSelection:
 	lsl.w	#4,d0
 	lea	(LevSel2PIconData).l,a3
 	lea	(a3,d0.w),a3
-	moveq	#0,d0
+	moveq	#palette_line_0,d0
 	lea	(Chunk_Table+$1E0).l,a2
 	movea.l	(a3)+,a1
 	bsr.w	MenuScreenTextToRAM
@@ -11972,13 +11972,13 @@ LevSel2PIconData:
 iconData macro txtlabel,txtlabel2,vramAddr,iconPal,iconAddr
 	dc.l txtlabel, txtlabel2	; text locations
 	dc.l vdpComm(vramAddr,VRAM,WRITE)	; VRAM location to place data
-	dc.l iconPal<<24|iconAddr	; icon palette and plane data location
+	dc.l iconPal<<24|((iconAddr)&$FFFFFF)	; icon palette and plane data location
     endm
 
-	iconData	Text2P_EmeraldHill,Text2P_Zone,VRAM_Plane_A_Name_Table+planeLocH40(2,2),0,$FF0330
-	iconData	Text2P_MysticCave,Text2P_Zone,VRAM_Plane_A_Name_Table+planeLocH40(22,2),5,$FF03A8
-	iconData	Text2P_CasinoNight,Text2P_Zone,VRAM_Plane_A_Name_Table+planeLocH40(2,15),6,$FF03C0
-	iconData	Text2P_Special,Text2P_Stage,VRAM_Plane_A_Name_Table+planeLocH40(22,15),$C,$FF0450
+	iconData	Text2P_EmeraldHill,Text2P_Zone, VRAM_Plane_A_Name_Table+planeLocH40(2,2),   0,Chunk_Table+$330
+	iconData	Text2P_MysticCave, Text2P_Zone, VRAM_Plane_A_Name_Table+planeLocH40(22,2),  5,Chunk_Table+$3A8
+	iconData	Text2P_CasinoNight,Text2P_Zone, VRAM_Plane_A_Name_Table+planeLocH40(2,15),  6,Chunk_Table+$3C0
+	iconData	Text2P_Special,    Text2P_Stage,VRAM_Plane_A_Name_Table+planeLocH40(22,15),$C,Chunk_Table+$450
 
 ; ---------------------------------------------------------------------------
 ; Common menu screen subroutine for transferring text to RAM
