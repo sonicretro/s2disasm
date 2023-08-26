@@ -29064,7 +29064,7 @@ Obj36_Init:
 	addq.b	#2,routine(a0)	; => Obj36_Sideways
 	move.w	#make_art_tile(ArtTile_ArtNem_HorizSpike,1,0),art_tile(a0)
 +
-	btst	#1,status(a0)		; are spikes upsiede-down?
+	btst	#1,status(a0)		; are spikes upside-down?
 	beq.s	+			; if not, branch
 	move.b	#6,routine(a0)	; => Obj36_Upsidedown
 +
