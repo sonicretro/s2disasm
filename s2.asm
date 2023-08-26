@@ -9794,7 +9794,7 @@ Obj5E:
 	moveq	#0,d2
 	moveq	#0,d3
 	lea	(SSHUDLayout).l,a1
-	lea	sub2_x_pos(a0),a2
+	lea	subspr_data(a0),a2
 	adda.w	(a1,d1.w),a1
 	move.b	(a1)+,d3
 	move.b	d3,mainspr_childsprites(a0)
@@ -10071,23 +10071,23 @@ Obj87_Init:
 	move.b	#2,mainspr_childsprites(a0)
 	move.w	#$20,d0
 	moveq	#0,d1
-	lea	sub2_x_pos(a0),a1
-	move.w	#$48,(a1)			; sub2_x_pos
-	move.w	d0,sub2_y_pos-sub2_x_pos(a1)	; sub2_y_pos
-	move.w	d1,mainspr_height-sub2_x_pos(a1) ; mainspr_height and sub2_mapframe
-	move.w	#$E0,sub3_x_pos-sub2_x_pos(a1)	; sub3_x_pos
-	move.w	d0,sub3_y_pos-sub2_x_pos(a1)	; sub3_y_pos
-	move.w	d1,mapping_frame-sub2_x_pos(a1)	; mapping_frame	and sub3_mapframe
-	move.w	d0,sub4_y_pos-sub2_x_pos(a1)	; sub4_y_pos
-	move.w	d0,sub5_y_pos-sub2_x_pos(a1)	; sub5_y_pos
-	move.w	d0,sub6_y_pos-sub2_x_pos(a1)	; sub6_y_pos
-	move.w	d0,sub7_y_pos-sub2_x_pos(a1)	; sub7_y_pos
+	lea	subspr_data(a0),a1
+	move.w	#$48,sub2_x_pos-subspr_data(a1)	; sub2_x_pos
+	move.w	d0,sub2_y_pos-subspr_data(a1)	; sub2_y_pos
+	move.w	d1,mainspr_height-subspr_data(a1) ; mainspr_height and sub2_mapframe
+	move.w	#$E0,sub3_x_pos-subspr_data(a1)	; sub3_x_pos
+	move.w	d0,sub3_y_pos-subspr_data(a1)	; sub3_y_pos
+	move.w	d1,mapping_frame-subspr_data(a1)	; mapping_frame	and sub3_mapframe
+	move.w	d0,sub4_y_pos-subspr_data(a1)	; sub4_y_pos
+	move.w	d0,sub5_y_pos-subspr_data(a1)	; sub5_y_pos
+	move.w	d0,sub6_y_pos-subspr_data(a1)	; sub6_y_pos
+	move.w	d0,sub7_y_pos-subspr_data(a1)	; sub7_y_pos
 	tst.b	(SS_2p_Flag).w
 	bne.s	+++
 	cmpi.w	#0,(Player_mode).w
 	beq.s	+
 	subi_.b	#1,mainspr_childsprites(a0)
-	move.w	#$94,(a1)			; sub2_x_pos
+	move.w	#$94,sub2_x_pos-subspr_data(a1)	; sub2_x_pos
 	rts
 ; ===========================================================================
 +
@@ -10100,12 +10100,12 @@ Obj87_Init:
 	move.b	#4,render_flags(a1)
 	bset	#6,render_flags(a1)
 	move.b	#1,mainspr_childsprites(a1)
-	lea	sub2_x_pos(a1),a2
-	move.w	#$80,(a2)			; sub2_x_pos
-	move.w	d0,sub2_y_pos-sub2_x_pos(a2)	; sub2_y_pos
-	move.w	d1,mainspr_height-sub2_x_pos(a2) ; mainspr_height and sub2_mapframe
-	move.w	d0,sub3_y_pos-sub2_x_pos(a2)	; sub3_y_pos
-	move.w	d0,sub4_y_pos-sub2_x_pos(a2)	; sub4_y_pos
+	lea	subspr_data(a1),a2
+	move.w	#$80,sub2_x_pos-subspr_data(a2)	; sub2_x_pos
+	move.w	d0,sub2_y_pos-subspr_data(a2)	; sub2_y_pos
+	move.w	d1,mainspr_height-subspr_data(a2) ; mainspr_height and sub2_mapframe
+	move.w	d0,sub3_y_pos-subspr_data(a2)	; sub3_y_pos
+	move.w	d0,sub4_y_pos-subspr_data(a2)	; sub4_y_pos
 /	rts
 ; ===========================================================================
 +
@@ -10118,15 +10118,15 @@ Obj87_Init:
 	move.b	#4,render_flags(a1)
 	bset	#6,render_flags(a1)
 	move.b	#0,mainspr_childsprites(a1)
-	lea	sub2_x_pos(a1),a2
+	lea	subspr_data(a1),a2
 	move.w	#$2C,d0
 	move.w	#$A,d1
-	move.w	d0,sub2_y_pos-sub2_x_pos(a2)	; sub2_y_pos
-	move.w	d1,mainspr_height-sub2_x_pos(a2) ; mainspr_height and sub2_mapframe
-	move.w	d0,sub3_y_pos-sub2_x_pos(a2)	; sub3_y_pos
-	move.w	d1,mapping_frame-sub2_x_pos(a2)	; mapping_frame	and sub3_mapframe
-	move.w	d0,sub4_y_pos-sub2_x_pos(a2)	; sub4_y_pos
-	move.w	d1,sub4_mapframe-1-sub2_x_pos(a2) ; something and sub4_mapframe
+	move.w	d0,sub2_y_pos-subspr_data(a2)	; sub2_y_pos
+	move.w	d1,mainspr_height-subspr_data(a2) ; mainspr_height and sub2_mapframe
+	move.w	d0,sub3_y_pos-subspr_data(a2)	; sub3_y_pos
+	move.w	d1,mapping_frame-subspr_data(a2)	; mapping_frame	and sub3_mapframe
+	move.w	d0,sub4_y_pos-subspr_data(a2)	; sub4_y_pos
+	move.w	d1,sub4_mapframe-1-subspr_data(a2) ; something and sub4_mapframe
 	rts
 ; ===========================================================================
 
@@ -10136,7 +10136,7 @@ loc_7480:
 	moveq	#0,d5
 	lea	sub2_x_pos(a0),a1
 	movea.l	a1,a2
-	addq.w	#5,a2	; a2 = sub2_mapframe(a0)
+	addq.w	#sub2_mapframe-sub2_x_pos,a2	; a2 = sub2_mapframe(a0)
 	cmpi.w	#2,(Player_mode).w
 	beq.s	loc_74EA
 	move.b	(MainCharacter+ss_rings_hundreds).w,d0
@@ -10246,17 +10246,17 @@ loc_753E:
 	beq.s	+
 	addq.w	#2,d3
 +
-	lea	sub2_x_pos(a0),a1
+	lea	subspr_data(a0),a1
 	move.b	d3,mainspr_childsprites(a0)
 	cmpi.b	#2,d3
 	blt.s	+
 	beq.s	++
-	move.w	#$78,(a1)			; sub2_x_pos
-	move.b	d2,sub2_mapframe-sub2_x_pos(a1)	; sub2_mapframe
-	move.w	#$80,sub3_x_pos-sub2_x_pos(a1)	; sub3_x_pos
-	move.b	d1,sub3_mapframe-sub2_x_pos(a1)	; sub3_mapframe
-	move.w	#$88,sub4_x_pos-sub2_x_pos(a1)	; sub4_x_pos
-	move.b	d0,sub4_mapframe-sub2_x_pos(a1)	; sub4_mapframe
+	move.w	#$78,sub2_x_pos-subspr_data(a1)		; sub2_x_pos
+	move.b	d2,sub2_mapframe-subspr_data(a1)	; sub2_mapframe
+	move.w	#$80,sub3_x_pos-subspr_data(a1)		; sub3_x_pos
+	move.b	d1,sub3_mapframe-subspr_data(a1)	; sub3_mapframe
+	move.w	#$88,sub4_x_pos-subspr_data(a1)		; sub4_x_pos
+	move.b	d0,sub4_mapframe-subspr_data(a1)	; sub4_mapframe
     if fixBugs
 	; Multi-sprite objects cannot use the 'priority' SST value, so they
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
@@ -10269,8 +10269,8 @@ loc_753E:
     endif
 ; ===========================================================================
 +
-	move.w	#$80,(a1)			; sub2_x_pos
-	move.b	d0,sub2_mapframe-sub2_x_pos(a1)	; sub2_mapframe
+	move.w	#$80,sub2_x_pos-subspr_data(a1)	; sub2_x_pos
+	move.b	d0,sub2_mapframe-subspr_data(a1)	; sub2_mapframe
     if fixBugs
 	; Multi-sprite objects cannot use the 'priority' SST value, so they
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
@@ -10283,10 +10283,10 @@ loc_753E:
     endif
 ; ===========================================================================
 +
-	move.w	#$7C,(a1)			; sub2_x_pos
-	move.b	d1,sub2_mapframe-sub2_x_pos(a1)	; sub2_mapframe
-	move.w	#$84,sub3_x_pos-sub2_x_pos(a1)	; sub3_x_pos
-	move.b	d0,sub3_mapframe-sub2_x_pos(a1)	; sub3_mapframe
+	move.w	#$7C,sub2_x_pos-subspr_data(a1)		; sub2_x_pos
+	move.b	d1,sub2_mapframe-subspr_data(a1)	; sub2_mapframe
+	move.w	#$84,sub3_x_pos-subspr_data(a1)		; sub3_x_pos
+	move.b	d0,sub3_mapframe-subspr_data(a1)	; sub3_mapframe
     if fixBugs
 	; Multi-sprite objects cannot use the 'priority' SST value, so they
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
@@ -11193,7 +11193,7 @@ TwoPlayerResults:
 	addq.b	#1,d0
 	move.b	d0,(Current_Special_Stage).w
 	move.w	#VsRSID_SS,(Results_Screen_2P).w
-	move.b	#1,(SpecialStage_flag_2P).w
+	move.b	#1,(f_bigring).w
 	move.b	#GameModeID_SpecialStage,(Game_Mode).w ; => SpecialStage
 	moveq	#1,d0
 	move.w	d0,(Two_player_mode).w
@@ -11300,7 +11300,7 @@ TwoPlayerResultsDone_SpecialStage:
 	addq.b	#1,(Current_Act_2P).w
 	addq.b	#1,(Current_Special_Stage).w
 	move.w	#VsRSID_SS,(Results_Screen_2P).w
-	move.b	#1,(SpecialStage_flag_2P).w
+	move.b	#1,(f_bigring).w
 	move.b	#GameModeID_SpecialStage,(Game_Mode).w ; => SpecialStage
 	move.w	#1,(Two_player_mode).w
 	move.w	#0,(Level_Music).w
@@ -12283,7 +12283,7 @@ Update2PLevSelSelection:
 	lsl.w	#4,d0	; 16 bytes per entry
 	lea	(LevSel2PIconData).l,a3
 	lea	(a3,d0.w),a3
-	move.w	#$6000,d0	; highlight text
+	move.w	#palette_line_3,d0	; highlight text
 	lea	(Chunk_Table+$48).l,a2
 	movea.l	(a3)+,a1
 	bsr.w	MenuScreenTextToRAM
@@ -12356,7 +12356,7 @@ ClearOld2PLevSelSelection:
 	lsl.w	#4,d0
 	lea	(LevSel2PIconData).l,a3
 	lea	(a3,d0.w),a3
-	moveq	#0,d0
+	moveq	#palette_line_0,d0
 	lea	(Chunk_Table+$1E0).l,a2
 	movea.l	(a3)+,a1
 	bsr.w	MenuScreenTextToRAM
@@ -12390,13 +12390,13 @@ LevSel2PIconData:
 iconData macro txtlabel,txtlabel2,vramAddr,iconPal,iconAddr
 	dc.l txtlabel, txtlabel2	; text locations
 	dc.l vdpComm(vramAddr,VRAM,WRITE)	; VRAM location to place data
-	dc.l iconPal<<24|iconAddr	; icon palette and plane data location
+	dc.l iconPal<<24|((iconAddr)&$FFFFFF)	; icon palette and plane data location
     endm
 
-	iconData	Text2P_EmeraldHill,Text2P_Zone,VRAM_Plane_A_Name_Table+planeLocH40(2,2),0,$FF0330
-	iconData	Text2P_MysticCave,Text2P_Zone,VRAM_Plane_A_Name_Table+planeLocH40(22,2),5,$FF03A8
-	iconData	Text2P_CasinoNight,Text2P_Zone,VRAM_Plane_A_Name_Table+planeLocH40(2,15),6,$FF03C0
-	iconData	Text2P_Special,Text2P_Stage,VRAM_Plane_A_Name_Table+planeLocH40(22,15),$C,$FF0450
+	iconData	Text2P_EmeraldHill,Text2P_Zone, VRAM_Plane_A_Name_Table+planeLocH40(2,2),   0,Chunk_Table+$330
+	iconData	Text2P_MysticCave, Text2P_Zone, VRAM_Plane_A_Name_Table+planeLocH40(22,2),  5,Chunk_Table+$3A8
+	iconData	Text2P_CasinoNight,Text2P_Zone, VRAM_Plane_A_Name_Table+planeLocH40(2,15),  6,Chunk_Table+$3C0
+	iconData	Text2P_Special,    Text2P_Stage,VRAM_Plane_A_Name_Table+planeLocH40(22,15),$C,Chunk_Table+$450
 
 ; ---------------------------------------------------------------------------
 ; Common menu screen subroutine for transferring text to RAM
@@ -12835,10 +12835,10 @@ LevelSelect_Main:	; routine running during level select
 
 	move	#$2700,sr
 
-	moveq	#palette_line_0-palette_line_0,d3	; palette line << 13
+	moveq	#palette_line_0,d3
 	bsr.w	LevelSelect_MarkFields	; unmark fields
-	bsr.w	LevSelControls	; possible change selected fields
-	move.w	#palette_line_3-palette_line_0,d3	; palette line << 13
+	bsr.w	LevSelControls		; possible change selected fields
+	move.w	#palette_line_3,d3
 	bsr.w	LevelSelect_MarkFields	; mark fields
 
 	bsr.w	LevelSelect_DrawIcon
@@ -14198,9 +14198,9 @@ loc_A53A:
 	; KiS2 (bugfix): 'mapping_frame' and 'anim_frame' are no longer set here.
 	; By setting 'prev_anim' to 0, the animation is forced to reset and
 	; automatically update 'mapping_frame' and 'anim_frame' anyway.
-	move.w	#AniIDSonAni_Wait<<8,anim(a1)
+	move.w	#(AniIDSonAni_Wait<<8)|(AniIDSonAni_Walk<<0),anim(a1)
     else
-	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|AniIDSonAni_Wait,mapping_frame(a1)
+	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|(AniIDSonAni_Wait<<0),mapping_frame(a1)
     endif
 	move.w	#$100,anim_frame_duration(a1)
 	rts
@@ -22684,7 +22684,7 @@ Obj11_MakeBdgSegment:
 	move.b	#$40,mainspr_width(a1)
 	move.b	d1,mainspr_childsprites(a1)
 	subq.b	#1,d1
-	lea	sub2_x_pos(a1),a2 ; starting address for subsprite data
+	lea	subspr_data(a1),a2 ; starting address for subsprite data
 
 -	move.w	d3,(a2)+	; sub?_x_pos
 	move.w	d2,(a2)+	; sub?_y_pos
@@ -23208,7 +23208,7 @@ Obj15_Init:
 	move.b	#$48,mainspr_width(a1)
 	move.b	d1,mainspr_childsprites(a1)
 	subq.b	#1,d1
-	lea	sub2_x_pos(a1),a2
+	lea	subspr_data(a1),a2
 
 -	move.w	d2,(a2)+	; sub?_x_pos
 	move.w	d3,(a2)+	; sub?_y_pos
@@ -23317,7 +23317,7 @@ loc_FEC2:
 	asr.l	#4,d1
 	moveq	#0,d4
 	moveq	#0,d5
-	lea	sub2_x_pos(a1),a2
+	lea	subspr_data(a1),a2
 
 -	movem.l	d4-d5,-(sp)
 	swap	d4
@@ -26007,7 +26007,7 @@ BigRingFlash_Animate:
 	movea.l	objoff_3C(a0),a1 ; a1=object	; get the parent big ring object
 	move.b	#6,routine(a1)			; set its routine to "delete"
 	move.b	#AniIDSonAni_Blank,(MainCharacter+anim).w	; change the character's animation
-	move.b	#1,(SpecialStage_flag_2P).w
+	move.b	#1,(f_bigring).w
 	lea	(MainCharacter).w,a1 ; a1=character
 	bclr	#status_sec_isInvincible,status_secondary(a1)
 	bclr	#status_sec_hasShield,status_secondary(a1)
@@ -30984,7 +30984,7 @@ Obj36_Init:
 	addq.b	#2,routine(a0)	; => Obj36_Sideways
 	move.w	#make_art_tile(ArtTile_ArtNem_HorizSpike,1,0),art_tile(a0)
 +
-	btst	#1,status(a0)		; are spikes upsiede-down?
+	btst	#1,status(a0)		; are spikes upside-down?
 	beq.s	+			; if not, branch
 	move.b	#6,routine(a0)	; => Obj36_Upsidedown
 +
@@ -31236,6 +31236,12 @@ Obj3B_Main:
 	move.w	#$10,d3
 	move.w	x_pos(a0),d4
 	bsr.w	SolidObject
+	; This code contains a bugfix that Sonic 1 lacks: in Sonic 1,
+	; DisplaySprite is called right here, resulting in a
+	; display-after-delete bug when DeleteObject is called.
+	; This, combined with leftover debugging code in REV00's BuildSprites
+	; function, show that an effort was made to eliminate
+	; display-after-delete bugs during Sonic 2's development.
 	move.w	x_pos(a0),d0
 	andi.w	#$FF80,d0
 	sub.w	(Camera_X_pos_coarse).w,d0
@@ -32185,9 +32191,6 @@ BuildSprites_LevelLoop:
 BuildSprites_ObjLoop:
 	movea.w	(a4,d6.w),a0 ; a0=object
 
-	; These is a sanity check, to detect invalid objects which should not
-	; have been queued for display. S3K gets rids of this, since it
-	; should not be needed and it just slows this code down.
 	; These are sanity checks, to detect invalid objects which should not
 	; have been queued for display. S3K gets rids of them compeletely,
 	; since they should not be needed and they just slow this code down.
@@ -32367,7 +32370,7 @@ BuildSprites_MultiDraw:
 	move.w	(sp)+,d4
 +
 	ori.b	#$80,render_flags(a0)	; set onscreen flag
-	lea	sub2_x_pos(a0),a6
+	lea	subspr_data(a0),a6
 	moveq	#0,d0
 	move.b	mainspr_childsprites(a0),d0	; get child sprite count
 	subq.w	#1,d0		; if there are 0, go to next object
@@ -32994,7 +32997,7 @@ BuildSprites_P1_MultiDraw:
 	move.w	(sp)+,d4
 +
 	ori.b	#$80,render_flags(a0)
-	lea	sub2_x_pos(a0),a6
+	lea	subspr_data(a0),a6
 	moveq	#0,d0
 	move.b	mainspr_childsprites(a0),d0
 	subq.w	#1,d0
@@ -33084,7 +33087,7 @@ BuildSprites_P2_MultiDraw:
 	move.w	(sp)+,d4
 +
 	ori.b	#$80,render_flags(a0)
-	lea	sub2_x_pos(a0),a6
+	lea	subspr_data(a0),a6
 	moveq	#0,d0
 	move.b	mainspr_childsprites(a0),d0
 	subq.w	#1,d0
@@ -35758,7 +35761,7 @@ loc_189C0:
 ; ===========================================================================
 
 loc_189CA:
-	move.w	#$100,anim(a0)
+	move.w	#(1<<8)|(0<<0),anim(a0)
 	addq.w	#8,y_pos(a1)
 	move.w	objoff_30(a0),y_vel(a1)
 	bset	#1,status(a1)
@@ -35852,7 +35855,7 @@ loc_18AE0:
 ; ===========================================================================
 
 loc_18AEE:
-	move.w	#$300,anim(a0)
+	move.w	#(3<<8)|(0<<0),anim(a0)
 	move.w	objoff_30(a0),x_vel(a1)
 	addq.w	#8,x_pos(a1)
 	bset	#0,status(a1)
@@ -36010,7 +36013,7 @@ loc_18CBC:
 ; ===========================================================================
 
 loc_18CC6:
-	move.w	#$100,anim(a0)
+	move.w	#(1<<8)|(0<<0),anim(a0)
 	subq.w	#8,y_pos(a1)
 	move.w	objoff_30(a0),y_vel(a1)
 	neg.w	y_vel(a1)
@@ -36103,7 +36106,7 @@ loc_18DCA:
 ; ===========================================================================
 
 loc_18DD8:
-	move.w	#$500,anim(a0)
+	move.w	#(5<<8)|(0<<0),anim(a0)
 	move.w	objoff_30(a0),y_vel(a1)
 	move.w	objoff_30(a0),x_vel(a1)
 	addq.w	#6,y_pos(a1)
@@ -36186,7 +36189,7 @@ loc_18EDA:
 ; ===========================================================================
 
 loc_18EE6:
-	move.w	#$500,anim(a0)
+	move.w	#(5<<8)|(0<<0),anim(a0)
 	move.w	objoff_30(a0),y_vel(a1)
 	neg.w	y_vel(a1)
 	move.w	objoff_30(a0),x_vel(a1)
@@ -36575,7 +36578,7 @@ Obj0D_Main:
 	move.w	#SndID_Signpost,d0
 	jsr	(PlayMusic).l	; play spinning sound
 	clr.b	(Update_HUD_timer).w
-	move.w	#1,anim(a0)
+	move.w	#(0<<8)|(1<<0),anim(a0)
 	move.w	#0,obj0D_spinframe(a0)
 	move.w	(Camera_Max_X_pos).w,(Camera_Min_X_pos).w	; lock screen
 	move.b	#2,routine_secondary(a0) ; => Obj0D_Main_State2
@@ -36615,7 +36618,7 @@ loc_192D6:
 	move.w	#SndID_Signpost,d0
 	jsr	(PlayMusic).l
 	clr.b	(Update_HUD_timer_2P).w
-	move.w	#1,anim(a0)
+	move.w	#(0<<8)|(1<<0),anim(a0)
 	move.w	#0,obj0D_spinframe(a0)
 	move.w	(Tails_Max_X_pos).w,(Tails_Min_X_pos).w
 	move.b	#2,routine_secondary(a0) ; => Obj0D_Main_State2
@@ -37401,7 +37404,7 @@ SolidObject_TestClearPush:
 	cmpi.b	#AniIDSonAni_Drown,anim(a1)
 	beq.s	Solid_NotPushing
     endif
-	move.w	#AniIDSonAni_Run,anim(a1) ; use running animation
+	move.w	#(AniIDSonAni_Walk<<8)|(AniIDSonAni_Run<<0),anim(a1) ; use walking animation (and force it to restart)
 ; loc_19ADC:
 Solid_NotPushing:
 	move.l	d6,d4
@@ -38275,7 +38278,7 @@ Obj01_InWater:
 	asr.w	y_vel(a0)	; memory operands can only be shifted one bit at a time
 	asr.w	y_vel(a0)
 	beq.s	return_1A18C
-	move.w	#$100,(Sonic_Dust+anim).w	; splash animation
+	move.w	#(1<<8)|(0<<0),(Sonic_Dust+anim).w	; splash animation
 	move.w	#SndID_Splash,d0	; splash sound
 	jmp	(PlaySound).l
 ; ---------------------------------------------------------------------------
@@ -38308,7 +38311,7 @@ Obj01_OutWater:
 +
 	tst.w	y_vel(a0)
 	beq.w	return_1A18C
-	move.w	#$100,(Sonic_Dust+anim).w	; splash animation
+	move.w	#(1<<8)|(0<<0),(Sonic_Dust+anim).w	; splash animation
 	movea.l	a0,a1
 	bsr.w	ResumeMusic
 	cmpi.w	#-$1000,y_vel(a0)
@@ -40619,7 +40622,7 @@ Sonic_ChargingSpindash:			; If still charging the dash...
 	move.b	(Ctrl_1_Press_Logical).w,d0
 	andi.b	#button_B_mask|button_C_mask|button_A_mask,d0
 	beq.w	Obj01_Spindash_ResetScr
-	move.w	#(AniIDSonAni_Spindash<<8),anim(a0)
+	move.w	#(AniIDSonAni_Spindash<<8)|(AniIDSonAni_Walk<<0),anim(a0)
 	move.w	#SndID_SpindashRev,d0
 	jsr	(PlaySound).l
 	addi.w	#$200,spindash_counter(a0)
@@ -42961,7 +42964,7 @@ Obj02_InWater:
 	asr	y_vel(a0)
 	asr	y_vel(a0)
 	beq.s	return_1BF58
-	move.w	#$100,(Tails_Dust+anim).w	; splash animation
+	move.w	#(1<<8)|(0<<0),(Tails_Dust+anim).w	; splash animation
 	move.w	#SndID_Splash,d0	; splash sound
 	jmp	(PlaySound).l
 ; ---------------------------------------------------------------------------
@@ -42982,7 +42985,7 @@ Obj02_OutWater:
 +
 	tst.w	y_vel(a0)
 	beq.w	return_1BF58
-	move.w	#$100,(Tails_Dust+anim).w	; splash animation
+	move.w	#(1<<8)|(0<<0),(Tails_Dust+anim).w	; splash animation
 	movea.l	a0,a1
 	bsr.w	ResumeMusic
 	cmpi.w	#-$1000,y_vel(a0)
@@ -43962,7 +43965,7 @@ loc_1C7F8:
 	move.b	(Ctrl_2_Press_Logical).w,d0
 	andi.b	#button_B_mask|button_C_mask|button_A_mask,d0
 	beq.w	loc_1C828
-	move.w	#(AniIDSonAni_Spindash<<8),anim(a0)
+	move.w	#(AniIDSonAni_Spindash<<8)|(AniIDSonAni_Walk<<0),anim(a0)
 	move.w	#SndID_SpindashRev,d0
 	jsr	(PlaySound).l
 	addi.w	#$200,spindash_counter(a0)
@@ -44395,7 +44398,14 @@ Tails_ResetOnFloor_Part3:
 	bclr	#5,status(a0)
 	bclr	#4,status(a0)
 	move.b	#0,jumping(a0)
+    if fixBugs
+	; Without this check, AI Tails will ruin the player's
+	; combo when he touches the floor.
+	cmpi.w	#2,(Player_mode).w
+	bne.s	+
+    endif
 	move.w	#0,(Chain_Bonus_counter).w
++
 	move.b	#0,flip_angle(a0)
 	move.b	#0,flip_turned(a0)
 	move.b	#0,flips_remaining(a0)
@@ -45832,7 +45842,7 @@ loc_1DA0C:
 	move.w	d0,x_pos(a0)
 	move.w	y_pos(a1),d1
 	move.w	d1,y_pos(a0)
-	lea	sub2_x_pos(a0),a2
+	lea	subspr_data(a0),a2
 	lea	byte_1DB82(pc),a3
 	moveq	#0,d5
 
@@ -45902,7 +45912,7 @@ loc_1DAAC:
 	move.w	(a2)+,d1
 	move.w	d0,x_pos(a0)
 	move.w	d1,y_pos(a0)
-	lea	sub2_x_pos(a0),a2
+	lea	subspr_data(a0),a2
 	movea.l	objoff_30(a0),a3
 
 loc_1DAD4:
@@ -48280,7 +48290,7 @@ Obj79_Star:
 	beq.w	loc_1F554
 	andi.b	#1,d0
 	beq.s	+
-	move.b	#1,(SpecialStage_flag_2P).w
+	move.b	#1,(f_bigring).w
 	move.b	#GameModeID_SpecialStage,(Game_Mode).w ; => SpecialStage
 +
 	clr.b	collision_property(a0)
@@ -48419,7 +48429,7 @@ Obj7D_Init:
 	bhs.s	Obj7D_NoAdd
 	tst.w	(Debug_placement_mode).w
 	bne.s	Obj7D_NoAdd
-	tst.b	(SpecialStage_flag_2P).w
+	tst.b	(f_bigring).w
 	bne.s	Obj7D_NoAdd
 	addq.b	#2,routine(a0)
 	move.l	#Obj7D_MapUnc_1F6FE,mappings(a0)
@@ -48452,9 +48462,14 @@ JmpTo11_DeleteObject ; JmpTo
 ; ===========================================================================
 word_1F6D2:
 	dc.w	 0
-	dc.w  1000	; 1
-	dc.w   100	; 2
-	dc.w	 1	; 3
+	dc.w  1000
+	dc.w   100
+    if fixBugs
+	dc.w	10
+    else
+	; This should give 100 points, not 10.
+	dc.w	 1
+    endif
 ; ===========================================================================
 ; loc_1F6DA:
 Obj7D_Main:
@@ -50956,7 +50971,7 @@ Obj06_Cylinder:
     else
 	bsr.w	RideObject_SetRide
     endif
-	move.w	#AniIDSonAni_Run,anim(a1)
+	move.w	#(AniIDSonAni_Walk<<8)|(AniIDSonAni_Run<<0),anim(a1)
 	move.b	#0,(a2)
 	tst.w	inertia(a1)
 	bne.s	return_2188A
@@ -52663,7 +52678,7 @@ loc_2311E:
 	bpl.s	loc_23136
 	move.w	objoff_34(a0),objoff_32(a0)
 	move.b	#2,routine(a0)
-	move.w	#1,anim(a0)
+	move.w	#(0<<8)|(1<<0),anim(a0)
 
 loc_23136:
 	lea	(Ani_obj20).l,a1
@@ -52733,7 +52748,7 @@ loc_231F0:
     endif
 
 	move.w	#9,objoff_32(a1)
-	move.w	#$200,anim(a1)
+	move.w	#(2<<8)|(0<<0),anim(a1)
 	move.w	#$E,d0
 	tst.w	x_vel(a1)
 	bpl.s	loc_23214
@@ -56312,7 +56327,7 @@ loc_26436:
 loc_26446:
 	cmpi.b	#1,anim(a0)
 	beq.s	loc_26456
-	move.w	#$100,anim(a0)
+	move.w	#(1<<8)|(0<<0),anim(a0)
 	rts
 ; ===========================================================================
 
@@ -57531,7 +57546,7 @@ loc_271D0:
 	clr.b	1(a4)
 	move.w	#SndID_Roll,d0
 	jsr	(PlaySound).l
-	move.w	#$100,anim(a0)
+	move.w	#(1<<8)|(0<<0),anim(a0)
 
 return_2725E:
 	rts
@@ -59743,7 +59758,7 @@ Obj75_Init:
 	move.w	y_pos(a0),d3
 	move.b	d1,mainspr_childsprites(a1)
 	subq.w	#1,d1
-	lea	sub2_x_pos(a1),a2
+	lea	subspr_data(a1),a2
 
 -	move.w	d2,(a2)+	; sub?_x_pos
 	move.w	d3,(a2)+	; sub?_y_pos
@@ -59777,7 +59792,7 @@ Obj75_Main:
 	asr.l	#4,d1
 	moveq	#0,d4
 	moveq	#0,d5
-	lea	sub2_x_pos(a1),a2
+	lea	subspr_data(a1),a2
 
 -	movem.l	d4-d5,-(sp)
 	swap	d4
@@ -60676,7 +60691,7 @@ loc_296B6:
 ; ===========================================================================
 
 loc_296C2:
-	move.w	#$100,anim(a0)
+	move.w	#(1<<8)|(0<<0),anim(a0)
 	addq.w	#4,y_pos(a1)
 	move.w	objoff_30(a0),y_vel(a1)
 	bset	#1,status(a1)
@@ -61252,7 +61267,7 @@ Obj81_Init:
 	moveq	#8,d1
 	move.b	d1,mainspr_childsprites(a1)
 	subq.w	#1,d1
-	lea	sub2_x_pos(a1),a2
+	lea	subspr_data(a1),a2
 
 -	add.w	d4,d3
 	move.w	d2,(a2)+	; sub?_x_pos
@@ -61367,7 +61382,7 @@ loc_2A1EA:
 	asr.l	#4,d1
 	move.l	d0,d4
 	move.l	d1,d5
-	lea	sub2_x_pos(a1),a2
+	lea	subspr_data(a1),a2
 
 -	movem.l	d4-d5,-(sp)
 	swap	d4
@@ -61748,7 +61763,7 @@ Obj83_Init:
 	moveq	#8,d1
 	move.b	d1,mainspr_childsprites(a1)
 	subq.w	#1,d1
-	lea	sub2_x_pos(a1),a2
+	lea	subspr_data(a1),a2
 
 .nextChildSprite:
 	addq.w	#next_subspr-2,a2
@@ -61798,7 +61813,7 @@ Obj83_Main:
 	move.w	Obj83_initial_x_pos(a0),d3
 	moveq	#0,d6
 	movea.l	Obj83_childobjptr_chains(a0),a1 ; a1=object
-	lea	sub2_x_pos(a1),a2
+	lea	subspr_data(a1),a2
 
 	; Update first row of chains
 	move.b	angle(a0),d0
@@ -62267,7 +62282,7 @@ Obj85_Init:
 	move.w	y_pos(a0),d3
 	addi.w	#0,d3
 	move.b	#1,mainspr_childsprites(a0)
-	lea	sub2_x_pos(a0),a2
+	lea	subspr_data(a0),a2
 	move.w	d2,(a2)+	; sub2_x_pos
 	move.w	d3,(a2)+	; sub2_y_pos
 	move.w	#2,(a2)+	; sub2_mapframe
@@ -62282,7 +62297,7 @@ Obj85_Init_Up:
 	move.w	y_pos(a0),d3
 	addi.w	#$20,d3
 	move.b	#1,mainspr_childsprites(a0)
-	lea	sub2_x_pos(a0),a2
+	lea	subspr_data(a0),a2
 	move.w	d2,(a2)+	; sub2_x_pos
 	move.w	d3,(a2)+	; sub2_y_pos
 	move.w	#2,(a2)+	; sub2_mapframe
@@ -62844,7 +62859,7 @@ loc_2B352:
 ; ===========================================================================
 
 loc_2B35C:
-	move.w	#$300,anim(a0)
+	move.w	#(3<<8)|(0<<0),anim(a0)
 	move.w	#-$1000,x_vel(a1)
 	addq.w	#8,x_pos(a1)
 	bset	#0,status(a1)
@@ -62854,7 +62869,7 @@ loc_2B35C:
 	bclr	#0,status(a1)
 	subi.w	#$10,x_pos(a1)
 	neg.w	x_vel(a1)
-	move.w	#$400,anim(a0)
+	move.w	#(4<<8)|(0<<0),anim(a0)
 
 loc_2B392:
 	move.w	#$F,move_lock(a1)
@@ -73855,7 +73870,7 @@ Obj55_Wave:
     endif
 
 	move.w	#5,Obj55_Wave_delay(a1)
-	move.w	#$200,anim(a1)
+	move.w	#(2<<8)|(0<<0),anim(a1)
 	move.w	#$10,d0		; place new wave object 16 pixels next to current one
 	tst.w	x_vel(a1)	; is object going left?
 	bpl.s	+		; if not, branch
@@ -76112,7 +76127,7 @@ Obj5A_CreateRingsToGoText:
 	bset	#6,render_flags(a1)
 	move.b	#0,mainspr_childsprites(a1)
 	move.b	#$E,routine(a1)	; => Obj5A_RingsNeeded
-	lea	sub2_x_pos(a1),a2
+	lea	subspr_data(a1),a2
 	move.w	#$5A,d1
 	move.w	#$38,d2
 	moveq	#0,d0
@@ -76243,7 +76258,7 @@ Obj5A_RingsNeeded:
 
 loc_3577A:
 	moveq	#1,d2
-	lea	sub2_x_pos(a0),a1
+	lea	subspr_data(a0),a1
 	move.w	d0,(SS_RingsToGoBCD).w
 	move.w	d0,d1
 	andi.w	#$F,d1
@@ -80140,7 +80155,7 @@ loc_37EFC:
 	asr.w	#8,d2
 	move.w	y_vel(a1),d3
 	asr.w	#8,d3
-	lea	sub2_x_pos(a0),a2
+	lea	subspr_data(a0),a2
 	move.b	objoff_3A(a1),d0
 	moveq	#$18,d1
 
@@ -80183,7 +80198,7 @@ loc_37F74:
 	move.w	d3,y_pos(a1)
 	move.b	#$80,objoff_14(a1)
 	bset	#4,render_flags(a1)
-	lea	sub2_x_pos(a1),a2
+	lea	subspr_data(a1),a2
 
 	moveq	#6,d6
 -	move.w	d2,(a2)+	; sub?_x_pos
@@ -80955,7 +80970,7 @@ loc_38832:
 ; ===========================================================================
 
 loc_3884A:
-	clr.l	mapping_frame(a0)
+	clr.l	mapping_frame(a0) ; Clear mapping_frame, anim_frame, anim, and prev_anim.
 	clr.w	anim_frame_duration(a0)
 	move.b	#3,mapping_frame(a0)
 	jmpto	MarkObjGone, JmpTo39_MarkObjGone
@@ -80971,7 +80986,7 @@ loc_3885C:
 
 loc_38870:
 	addq.b	#2,routine(a0)
-	clr.l	mapping_frame(a0)
+	clr.l	mapping_frame(a0) ; Clear mapping_frame, anim_frame, anim, and prev_anim.
 	clr.w	anim_frame_duration(a0)
 	jmpto	MarkObjGone_P1, JmpTo2_MarkObjGone_P1
 ; ===========================================================================
@@ -80986,7 +81001,7 @@ loc_3888E:
 	move.b	#4,routine(a0)
 	move.w	#$80,objoff_30(a0)
 	andi.b	#$7F,collision_flags(a0)
-	clr.l	mapping_frame(a0)
+	clr.l	mapping_frame(a0) ; Clear mapping_frame, anim_frame, anim, and prev_anim.
 	clr.w	anim_frame_duration(a0)
 	jmpto	MarkObjGone_P1, JmpTo2_MarkObjGone_P1
 ; ===========================================================================
@@ -82185,7 +82200,7 @@ loc_394A2:
 ; ===========================================================================
 +
 	lea	mapping_frame(a0),a1
-	clr.l	(a1)
+	clr.l	(a1) ; Clear mapping_frame, anim_frame, anim, and prev_anim.
 	clr.w	anim_frame_duration-mapping_frame(a1)
 	move.b	#8,(a1)
 	move.b	#6,collision_flags(a0)
@@ -82207,7 +82222,7 @@ loc_394E0:
 +
 	addq.b	#2,routine(a0)
 	lea	mapping_frame(a0),a1
-	clr.l	(a1)
+	clr.l	(a1) ; Clear mapping_frame, anim_frame, anim, and prev_anim.
 	clr.w	anim_frame_duration-mapping_frame(a1)
 	move.b	#$B,(a1)
 	bsr.w	loc_39526
@@ -83909,9 +83924,9 @@ loc_3AB18:
 	; KiS2 (bugfix): 'mapping_frame' and 'anim_frame' are no longer set here.
 	; By setting 'prev_anim' to 0, the animation is forced to reset and
 	; automatically update 'mapping_frame' and 'anim_frame' anyway.
-	move.w	#AniIDSonAni_Wait<<8,anim(a1)
+	move.w	#(AniIDSonAni_Wait<<8)|(AniIDSonAni_Walk<<0),anim(a1)
     else
-	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|AniIDSonAni_Wait,mapping_frame(a1)
+	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|(AniIDSonAni_Wait<<0),mapping_frame(a1)
     endif
 	move.w	#$100,anim_frame_duration(a1)
 	move.b	#$13,y_radius(a1)
@@ -84036,9 +84051,9 @@ ObjB2_Waiting_animation:
 	; KiS2 (bugfix): 'mapping_frame' and 'anim_frame' are no longer set here.
 	; By setting 'prev_anim' to 0, the animation is forced to reset and
 	; automatically update 'mapping_frame' and 'anim_frame' anyway.
-	move.w	#AniIDSonAni_Wait<<8,anim(a1)
+	move.w	#(AniIDSonAni_Wait<<8)|(AniIDSonAni_Walk<<0),anim(a1)
     else
-	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|AniIDSonAni_Wait,mapping_frame(a1)
+	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|(AniIDSonAni_Wait<<0),mapping_frame(a1)
     endif
 	move.w	#$100,anim_frame_duration(a1)
     if gameRevision=3
@@ -90559,7 +90574,7 @@ Hurt_ChkSpikes:
 	move.b	#AniIDSonAni_Hurt2,anim(a0)
 	move.w	#$78,invulnerable_time(a0)
 	move.w	#SndID_Hurt,d0	; load normal damage sound
-	cmpi.b	#ObjID_Spikes,(a2)	; was damage caused by spikes?
+	cmpi.b	#ObjID_Spikes,id(a2)	; was damage caused by spikes?
 	bne.s	Hurt_Sound	; if not, branch
 	move.w	#SndID_HurtBySpikes,d0	; load spikes damage sound
 
@@ -94512,28 +94527,28 @@ PlrList_Ehz2: plrlistheader
 	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
 PlrList_Ehz2_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Miles 1up patch
 ;---------------------------------------------------------------------------------------
 PlrList_MilesLife2P: plrlistheader
 	plreq ArtTile_ArtNem_2p_life_counter, ArtNem_MilesLife
 PlrList_MilesLife2P_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Miles life counter
 ;---------------------------------------------------------------------------------------
 PlrList_MilesLife: plrlistheader
 	plreq ArtTile_ArtNem_life_counter, ArtNem_MilesLife
 PlrList_MilesLife_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Tails 1up patch
 ;---------------------------------------------------------------------------------------
 PlrList_TailsLife2P: plrlistheader
 	plreq ArtTile_ArtNem_2p_life_counter, ArtNem_TailsLife
 PlrList_TailsLife2P_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Tails life counter
 ;---------------------------------------------------------------------------------------
 PlrList_TailsLife: plrlistheader
@@ -94632,20 +94647,20 @@ PlrList_Htz2: plrlistheader
 	plreq ArtTile_ArtNem_HtzValveBarrier, ArtNem_HtzValveBarrier
 PlrList_Htz2_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; HPZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Hpz1: ;plrlistheader
 ;	plreq ArtTile_ArtNem_WaterSurface, ArtNem_WaterSurface
 ;PlrList_Hpz1_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; HPZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Hpz2: ;plrlistheader
 ;PlrList_Hpz2_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; OOZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Ooz1: plrlistheader
@@ -94660,7 +94675,7 @@ PlrList_Ooz1: plrlistheader
 	plreq ArtTile_ArtNem_LaunchBall, ArtNem_LaunchBall
 PlrList_Ooz1_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; OOZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Ooz2: plrlistheader
@@ -94678,7 +94693,7 @@ PlrList_Ooz2: plrlistheader
 	plreq ArtTile_ArtNem_Octus, ArtNem_Octus
 PlrList_Ooz2_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; MCZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Mcz1: plrlistheader
@@ -94690,7 +94705,7 @@ PlrList_Mcz1: plrlistheader
 	plreq ArtTile_ArtNem_Crawlton, ArtNem_Crawlton
 PlrList_Mcz1_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; MCZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Mcz2: plrlistheader
@@ -94702,7 +94717,7 @@ PlrList_Mcz2: plrlistheader
 	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
 PlrList_Mcz2_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; CNZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Cnz1: plrlistheader
@@ -94718,7 +94733,7 @@ PlrList_Cnz1: plrlistheader
 	plreq ArtTile_ArtNem_CNZMiniBumper, ArtNem_CNZMiniBumper
 PlrList_Cnz1_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; CNZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Cnz2: plrlistheader
@@ -94730,7 +94745,7 @@ PlrList_Cnz2: plrlistheader
 	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
 PlrList_Cnz2_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; CPZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Cpz1: plrlistheader
@@ -94745,7 +94760,7 @@ PlrList_Cpz1: plrlistheader
 	plreq ArtTile_ArtNem_CPZMetalBlock, ArtNem_CPZMetalBlock
 PlrList_Cpz1_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; CPZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Cpz2: plrlistheader
@@ -94758,14 +94773,14 @@ PlrList_Cpz2: plrlistheader
 	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
 PlrList_Cpz2_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; DEZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Dez1: plrlistheader
 	plreq ArtTile_ArtNem_ConstructionStripes_1, ArtNem_ConstructionStripes
 PlrList_Dez1_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; DEZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Dez2: plrlistheader
@@ -94776,7 +94791,7 @@ PlrList_Dez2: plrlistheader
 	plreq ArtTile_ArtNem_RobotnikLower, ArtNem_RobotnikLower
 PlrList_Dez2_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; ARZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Arz1: plrlistheader
@@ -94786,7 +94801,7 @@ PlrList_Arz1: plrlistheader
 	plreq ArtTile_ArtNem_ArrowAndShooter, ArtNem_ArrowAndShooter
 PlrList_Arz1_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; ARZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Arz2: plrlistheader
@@ -94800,14 +94815,14 @@ PlrList_Arz2: plrlistheader
 	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
 PlrList_Arz2_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; SCZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Scz1: plrlistheader
 	plreq ArtTile_ArtNem_Tornado, ArtNem_Tornado
 PlrList_Scz1_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; SCZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Scz2: plrlistheader
@@ -94819,7 +94834,7 @@ PlrList_Scz2: plrlistheader
 	plreq ArtTile_ArtNem_Nebula, ArtNem_Nebula
 PlrList_Scz2_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Sonic end of level results screen
 ;---------------------------------------------------------------------------------------
 PlrList_Results: plrlistheader
@@ -94829,7 +94844,7 @@ PlrList_Results: plrlistheader
 	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
 PlrList_Results_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; End of level signpost
 ;---------------------------------------------------------------------------------------
 PlrList_Signpost: plrlistheader
@@ -94840,7 +94855,7 @@ PlrList_Signpost: plrlistheader
     endif
 PlrList_Signpost_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; CPZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_CpzBoss: plrlistheader
@@ -94851,7 +94866,7 @@ PlrList_CpzBoss: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_CpzBoss_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; EHZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_EhzBoss: plrlistheader
@@ -94861,7 +94876,7 @@ PlrList_EhzBoss: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_EhzBoss_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; HTZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_HtzBoss: plrlistheader
@@ -94871,7 +94886,7 @@ PlrList_HtzBoss: plrlistheader
 	plreq ArtTile_ArtNem_BossSmoke_2, ArtNem_BossSmoke
 PlrList_HtzBoss_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; ARZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_ArzBoss: plrlistheader
@@ -94880,7 +94895,7 @@ PlrList_ArzBoss: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_ArzBoss_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; MCZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_MczBoss: plrlistheader
@@ -94889,7 +94904,7 @@ PlrList_MczBoss: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_MczBoss_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; CNZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_CnzBoss: plrlistheader
@@ -94898,7 +94913,7 @@ PlrList_CnzBoss: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_CnzBoss_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; MTZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_MtzBoss: plrlistheader
@@ -94908,7 +94923,7 @@ PlrList_MtzBoss: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_MtzBoss_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; OOZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_OozBoss: plrlistheader
@@ -94916,21 +94931,21 @@ PlrList_OozBoss: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_OozBoss_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Fiery Explosion
 ;---------------------------------------------------------------------------------------
 PlrList_FieryExplosion: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_FieryExplosion_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Death Egg
 ;---------------------------------------------------------------------------------------
 PlrList_DezBoss: plrlistheader
 	plreq ArtTile_ArtNem_DEZBoss, ArtNem_DEZBoss
 PlrList_DezBoss_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; EHZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_EhzAnimals: plrlistheader
@@ -94938,7 +94953,7 @@ PlrList_EhzAnimals: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Flicky
 PlrList_EhzAnimals_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; MCZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_MczAnimals: plrlistheader
@@ -94946,7 +94961,7 @@ PlrList_MczAnimals: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Chicken
 PlrList_MczAnimals_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; HTZ/MTZ/WFZ animals
 ;---------------------------------------------------------------------------------------
 PlrList_HtzAnimals:
@@ -94958,7 +94973,7 @@ PlrList_HtzAnimals_End
 PlrList_MtzAnimals_End
 PlrList_WfzAnimals_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; DEZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_DezAnimals: plrlistheader
@@ -94966,7 +94981,7 @@ PlrList_DezAnimals: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Chicken
 PlrList_DezAnimals_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; HPZ animals
 ;---------------------------------------------------------------------------------------
 PlrList_HpzAnimals: plrlistheader
@@ -94974,7 +94989,7 @@ PlrList_HpzAnimals: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Seal
 PlrList_HpzAnimals_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; OOZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_OozAnimals: plrlistheader
@@ -94982,7 +94997,7 @@ PlrList_OozAnimals: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Seal
 PlrList_OozAnimals_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; SCZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_SczAnimals: plrlistheader
@@ -94990,7 +95005,7 @@ PlrList_SczAnimals: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Chicken
 PlrList_SczAnimals_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; CNZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_CnzAnimals: plrlistheader
@@ -94998,7 +95013,7 @@ PlrList_CnzAnimals: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Flicky
 PlrList_CnzAnimals_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; CPZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_CpzAnimals: plrlistheader
@@ -95006,7 +95021,7 @@ PlrList_CpzAnimals: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Eagle
 PlrList_CpzAnimals_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; ARZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_ArzAnimals: plrlistheader
@@ -95014,7 +95029,7 @@ PlrList_ArzAnimals: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Flicky
 PlrList_ArzAnimals_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Special Stage
 ;---------------------------------------------------------------------------------------
 PlrList_SpecialStage: plrlistheader
@@ -95033,14 +95048,14 @@ PlrList_SpecialStage: plrlistheader
 	plreq ArtTile_ArtNem_SpecialTailsText, ArtNem_SpecialTailsText
 PlrList_SpecialStage_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Special Stage Bombs
 ;---------------------------------------------------------------------------------------
 PlrList_SpecStageBombs: plrlistheader
 	plreq ArtTile_ArtNem_SpecialBomb, ArtNem_SpecialBomb
 PlrList_SpecStageBombs_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; WFZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_WfzBoss: plrlistheader
@@ -95051,7 +95066,7 @@ PlrList_WfzBoss: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_WfzBoss_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Tornado
 ;---------------------------------------------------------------------------------------
 PlrList_Tornado: plrlistheader
@@ -95060,21 +95075,21 @@ PlrList_Tornado: plrlistheader
 	plreq ArtTile_ArtNem_Clouds, ArtNem_Clouds
 PlrList_Tornado_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Capsule/Egg Prison
 ;---------------------------------------------------------------------------------------
 PlrList_Capsule: plrlistheader
 	plreq ArtTile_ArtNem_Capsule, ArtNem_Capsule
 PlrList_Capsule_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Normal explosion
 ;---------------------------------------------------------------------------------------
 PlrList_Explosion: plrlistheader
 	plreq ArtTile_ArtNem_Explosion, ArtNem_Explosion
 PlrList_Explosion_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue
+; PATTERN LOAD REQUEST LIST
 ; Tails end of level results screen
 ;---------------------------------------------------------------------------------------
 PlrList_ResultsTails: plrlistheader
@@ -95106,14 +95121,14 @@ PlrList_ResultsTails_Dup_End
 	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
 PlrList_Arz2_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; SCZ Primary
 ;---------------------------------------------------------------------------------------
 PlrList_Scz1_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Tornado, ArtNem_Tornado
 PlrList_Scz1_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; SCZ Secondary
 ;---------------------------------------------------------------------------------------
 PlrList_Scz2_Dup: plrlistheader
@@ -95125,7 +95140,7 @@ PlrList_Scz2_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Nebula, ArtNem_Nebula
 PlrList_Scz2_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; Sonic end of level results screen
 ;---------------------------------------------------------------------------------------
 PlrList_Results_Dup: plrlistheader
@@ -95135,14 +95150,14 @@ PlrList_Results_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
 PlrList_Results_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; End of level signpost
 ;---------------------------------------------------------------------------------------
 PlrList_Signpost_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Signpost, ArtNem_Signpost
 PlrList_Signpost_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; CPZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_CpzBoss_Dup: plrlistheader
@@ -95153,7 +95168,7 @@ PlrList_CpzBoss_Dup: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_CpzBoss_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; EHZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_EhzBoss_Dup: plrlistheader
@@ -95163,7 +95178,7 @@ PlrList_EhzBoss_Dup: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_EhzBoss_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; HTZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_HtzBoss_Dup: plrlistheader
@@ -95173,7 +95188,7 @@ PlrList_HtzBoss_Dup: plrlistheader
 	plreq ArtTile_ArtNem_BossSmoke_2, ArtNem_BossSmoke
 PlrList_HtzBoss_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; ARZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_ArzBoss_Dup: plrlistheader
@@ -95182,7 +95197,7 @@ PlrList_ArzBoss_Dup: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_ArzBoss_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; MCZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_MczBoss_Dup: plrlistheader
@@ -95191,7 +95206,7 @@ PlrList_MczBoss_Dup: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_MczBoss_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; CNZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_CnzBoss_Dup: plrlistheader
@@ -95200,7 +95215,7 @@ PlrList_CnzBoss_Dup: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_CnzBoss_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; MTZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_MtzBoss_Dup: plrlistheader
@@ -95210,7 +95225,7 @@ PlrList_MtzBoss_Dup: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_MtzBoss_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; OOZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_OozBoss_Dup: plrlistheader
@@ -95218,21 +95233,21 @@ PlrList_OozBoss_Dup: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_OozBoss_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; Fiery Explosion
 ;---------------------------------------------------------------------------------------
 PlrList_FieryExplosion_Dup: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_FieryExplosion_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; Death Egg
 ;---------------------------------------------------------------------------------------
 PlrList_DezBoss_Dup: plrlistheader
 	plreq ArtTile_ArtNem_DEZBoss, ArtNem_DEZBoss
 PlrList_DezBoss_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; EHZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_EhzAnimals_Dup: plrlistheader
@@ -95240,7 +95255,7 @@ PlrList_EhzAnimals_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Flicky
 PlrList_EhzAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; MCZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_MczAnimals_Dup: plrlistheader
@@ -95248,7 +95263,7 @@ PlrList_MczAnimals_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Chicken
 PlrList_MczAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; HTZ/MTZ/WFZ animals
 ;---------------------------------------------------------------------------------------
 PlrList_HtzAnimals_Dup:
@@ -95260,7 +95275,7 @@ PlrList_HtzAnimals_Dup_End
 PlrList_MtzAnimals_Dup_End
 PlrList_WfzAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; DEZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_DezAnimals_Dup: plrlistheader
@@ -95268,7 +95283,7 @@ PlrList_DezAnimals_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Chicken
 PlrList_DezAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; HPZ animals
 ;---------------------------------------------------------------------------------------
 PlrList_HpzAnimals_Dup: plrlistheader
@@ -95276,7 +95291,7 @@ PlrList_HpzAnimals_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Seal
 PlrList_HpzAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; OOZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_OozAnimals_Dup: plrlistheader
@@ -95284,7 +95299,7 @@ PlrList_OozAnimals_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Seal
 PlrList_OozAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; SCZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_SczAnimals_Dup: plrlistheader
@@ -95292,7 +95307,7 @@ PlrList_SczAnimals_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Chicken
 PlrList_SczAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; CNZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_CnzAnimals_Dup: plrlistheader
@@ -95300,7 +95315,7 @@ PlrList_CnzAnimals_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Flicky
 PlrList_CnzAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; CPZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_CpzAnimals_Dup: plrlistheader
@@ -95308,7 +95323,7 @@ PlrList_CpzAnimals_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Eagle
 PlrList_CpzAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; ARZ Animals
 ;---------------------------------------------------------------------------------------
 PlrList_ArzAnimals_Dup: plrlistheader
@@ -95316,7 +95331,7 @@ PlrList_ArzAnimals_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Animal_2, ArtNem_Flicky
 PlrList_ArzAnimals_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; Special Stage
 ;---------------------------------------------------------------------------------------
 PlrList_SpecialStage_Dup: plrlistheader
@@ -95335,14 +95350,14 @@ PlrList_SpecialStage_Dup: plrlistheader
 	plreq ArtTile_ArtNem_SpecialTailsText, ArtNem_SpecialTailsText
 PlrList_SpecialStage_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; Special Stage Bombs
 ;---------------------------------------------------------------------------------------
 PlrList_SpecStageBombs_Dup: plrlistheader
 	plreq ArtTile_ArtNem_SpecialBomb, ArtNem_SpecialBomb
 PlrList_SpecStageBombs_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; WFZ Boss
 ;---------------------------------------------------------------------------------------
 PlrList_WfzBoss_Dup: plrlistheader
@@ -95353,7 +95368,7 @@ PlrList_WfzBoss_Dup: plrlistheader
 	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
 PlrList_WfzBoss_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; Tornado
 ;---------------------------------------------------------------------------------------
 PlrList_Tornado_Dup: plrlistheader
@@ -95362,21 +95377,21 @@ PlrList_Tornado_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Clouds, ArtNem_Clouds
 PlrList_Tornado_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; Capsule/Egg Prison
 ;---------------------------------------------------------------------------------------
 PlrList_Capsule_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Capsule, ArtNem_Capsule
 PlrList_Capsule_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; Normal explosion
 ;---------------------------------------------------------------------------------------
 PlrList_Explosion_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Explosion, ArtNem_Explosion
 PlrList_Explosion_Dup_End
 ;---------------------------------------------------------------------------------------
-; Pattern load queue (duplicate)
+; PATTERN LOAD REQUEST LIST (duplicate)
 ; Tails end of level results screen
 ;---------------------------------------------------------------------------------------
 PlrList_ResultsTails_Dup: plrlistheader
