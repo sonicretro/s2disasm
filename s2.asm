@@ -12404,10 +12404,10 @@ LevelSelect_Main:	; routine running during level select
 
 	move	#$2700,sr
 
-	moveq	#palette_line_0-palette_line_0,d3	; palette line << 13
+	moveq	#palette_line_0,d3
 	bsr.w	LevelSelect_MarkFields	; unmark fields
-	bsr.w	LevSelControls	; possible change selected fields
-	move.w	#palette_line_3-palette_line_0,d3	; palette line << 13
+	bsr.w	LevSelControls		; possible change selected fields
+	move.w	#palette_line_3,d3
 	bsr.w	LevelSelect_MarkFields	; mark fields
 
 	bsr.w	LevelSelect_DrawIcon
