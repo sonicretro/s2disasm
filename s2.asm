@@ -10780,7 +10780,7 @@ TwoPlayerResults:
 	addq.b	#1,d0
 	move.b	d0,(Current_Special_Stage).w
 	move.w	#VsRSID_SS,(Results_Screen_2P).w
-	move.b	#1,(SpecialStage_flag_2P).w
+	move.b	#1,(f_bigring).w
 	move.b	#GameModeID_SpecialStage,(Game_Mode).w ; => SpecialStage
 	moveq	#1,d0
 	move.w	d0,(Two_player_mode).w
@@ -10887,7 +10887,7 @@ TwoPlayerResultsDone_SpecialStage:
 	addq.b	#1,(Current_Act_2P).w
 	addq.b	#1,(Current_Special_Stage).w
 	move.w	#VsRSID_SS,(Results_Screen_2P).w
-	move.b	#1,(SpecialStage_flag_2P).w
+	move.b	#1,(f_bigring).w
 	move.b	#GameModeID_SpecialStage,(Game_Mode).w ; => SpecialStage
 	move.w	#1,(Two_player_mode).w
 	move.w	#0,(Level_Music).w
@@ -25229,7 +25229,7 @@ BigRingFlash_Animate:
 	movea.l	objoff_3C(a0),a1 ; a1=object	; get the parent big ring object
 	move.b	#6,routine(a1)			; set its routine to "delete"
 	move.b	#AniIDSonAni_Blank,(MainCharacter+anim).w	; change the character's animation
-	move.b	#1,(SpecialStage_flag_2P).w
+	move.b	#1,(f_bigring).w
 	lea	(MainCharacter).w,a1 ; a1=character
 	bclr	#status_sec_isInvincible,status_secondary(a1)
 	bclr	#status_sec_hasShield,status_secondary(a1)
@@ -44314,7 +44314,7 @@ Obj79_Star:
 	beq.w	loc_1F554
 	andi.b	#1,d0
 	beq.s	+
-	move.b	#1,(SpecialStage_flag_2P).w
+	move.b	#1,(f_bigring).w
 	move.b	#GameModeID_SpecialStage,(Game_Mode).w ; => SpecialStage
 +
 	clr.b	collision_property(a0)
@@ -44453,7 +44453,7 @@ Obj7D_Init:
 	bhs.s	Obj7D_NoAdd
 	tst.w	(Debug_placement_mode).w
 	bne.s	Obj7D_NoAdd
-	tst.b	(SpecialStage_flag_2P).w
+	tst.b	(f_bigring).w
 	bne.s	Obj7D_NoAdd
 	addq.b	#2,routine(a0)
 	move.l	#Obj7D_MapUnc_1F6FE,mappings(a0)
