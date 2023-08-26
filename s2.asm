@@ -44486,9 +44486,14 @@ JmpTo11_DeleteObject ; JmpTo
 ; ===========================================================================
 word_1F6D2:
 	dc.w	 0
-	dc.w  1000	; 1
-	dc.w   100	; 2
-	dc.w	 1	; 3
+	dc.w  1000
+	dc.w   100
+    if fixBugs
+	dc.w	10
+    else
+	; This should give 100 points, not 10.
+	dc.w	 1
+    endif
 ; ===========================================================================
 ; loc_1F6DA:
 Obj7D_Main:
