@@ -9377,7 +9377,7 @@ SSAllocateObjectAfterCurrent:
 	sub.w	a0,d5
 
     if object_size=$40
-	lsr.w	#6,d5
+	lsr.w	#object_size_bits,d5
 	subq.w	#1,d5
 	bcs.s	+	; rts
     else
@@ -22745,7 +22745,7 @@ Obj15_State4:
 	move.w	a0,d0
 	subi.w	#Object_RAM,d0
     if object_size=$40
-	lsr.w	#6,d0
+	lsr.w	#object_size_bits,d0
     else
 	divu.w	#object_size,d0
     endif
@@ -22753,7 +22753,7 @@ Obj15_State4:
 	move.w	a1,d1
 	subi.w	#Object_RAM,d1
     if object_size=$40
-	lsr.w	#6,d1
+	lsr.w	#object_size_bits,d1
     else
 	divu.w	#object_size,d1
     endif
@@ -22977,7 +22977,7 @@ Obj17_MakeHelix:
 	move.w	a1,d5
 	subi.w	#Object_RAM,d5
     if object_size=$40
-	lsr.w	#6,d5
+	lsr.w	#object_size_bits,d5
     else
 	divu.w	#object_size,d5
     endif
@@ -23028,7 +23028,7 @@ Obj17_DelLoop:
 	moveq	#0,d0
 	move.b	(a2)+,d0
     if object_size=$40
-	lsl.w	#6,d0
+	lsl.w	#object_size_bits,d0
     else
 	mulu.w	#object_size,d0
     endif
@@ -25934,7 +25934,7 @@ swap_loop_objects:
 	moveq	#0,d0
 	move.b	interact(a1),d0
     if object_size=$40
-	lsl.w	#6,d0
+	lsl.w	#object_size_bits,d0
     else
 	mulu.w	#object_size,d0
     endif
@@ -25960,7 +25960,7 @@ swap_loop_objects:
 	moveq	#0,d0
 	move.b	interact(a1),d0
     if object_size=$40
-	lsl.w	#6,d0
+	lsl.w	#object_size_bits,d0
     else
 	mulu.w	#object_size,d0
     endif
@@ -33431,7 +33431,7 @@ AllocateObjectAfterCurrent:
 	move.w	#Dynamic_Object_RAM_End,d0	; $D000
 	sub.w	a0,d0	; subtract current object location
     if object_size=$40
-	lsr.w	#6,d0	; divide by $40
+	lsr.w	#object_size_bits,d0	; divide by $40
 	subq.w	#1,d0	; keep from going over the object zone
 	bcs.s	return_18014
     else
@@ -35616,7 +35616,7 @@ RideObject_SetRide:
 	moveq	#0,d0
 	move.b	interact(a1),d0
     if object_size=$40
-	lsl.w	#6,d0
+	lsl.w	#object_size_bits,d0
     else
 	mulu.w	#object_size,d0
     endif
@@ -35628,7 +35628,7 @@ loc_19E30:
 	move.w	a0,d0
 	subi.w	#Object_RAM,d0
     if object_size=$40
-	lsr.w	#6,d0
+	lsr.w	#object_size_bits,d0
     else
 	divu.w	#object_size,d0
     endif
@@ -36174,7 +36174,7 @@ Obj01_NotRight:
 	moveq	#0,d0
 	move.b	interact(a0),d0
     if object_size=$40
-	lsl.w	#6,d0
+	lsl.w	#object_size_bits,d0
     else
 	mulu.w	#object_size,d0
     endif
@@ -38945,7 +38945,7 @@ TailsCPU_CheckDespawn:
 	moveq	#0,d0
 	move.b	interact(a0),d0
     if object_size=$40
-	lsl.w	#6,d0
+	lsl.w	#object_size_bits,d0
     else
 	mulu.w	#object_size,d0
     endif
@@ -38972,7 +38972,7 @@ TailsCPU_UpdateObjInteract:
 	moveq	#0,d0
 	move.b	interact(a0),d0
     if object_size=$40
-	lsl.w	#6,d0
+	lsl.w	#object_size_bits,d0
     else
 	mulu.w	#object_size,d0
     endif
@@ -39236,7 +39236,7 @@ Obj02_NotRight:
 	moveq	#0,d0
 	move.b	interact(a0),d0
     if object_size=$40
-	lsl.w	#6,d0
+	lsl.w	#object_size_bits,d0
     else
 	mulu.w	#object_size,d0
     endif
@@ -50831,7 +50831,7 @@ loc_25002:
 	move.w	a0,d0
 	subi.w	#Object_RAM,d0
     if object_size=$40
-	lsr.w	#6,d0
+	lsr.w	#object_size_bits,d0
     else
 	divu.w	#object_size,d0
     endif
@@ -51042,7 +51042,7 @@ loc_252F0:
 	moveq	#0,d0
 	move.b	interact(a1),d0
     if object_size=$40
-	lsl.w	#6,d0
+	lsl.w	#object_size_bits,d0
     else
 	mulu.w	#object_size,d0
     endif
@@ -51053,7 +51053,7 @@ loc_252F0:
 	move.w	a0,d0
 	subi.w	#Object_RAM,d0
     if object_size=$40
-	lsr.w	#6,d0
+	lsr.w	#object_size_bits,d0
     else
 	divu.w	#object_size,d0
     endif
@@ -55304,7 +55304,7 @@ Obj73_LoadSubObject:
 	move.w	a1,d5
 	subi.w	#Object_RAM,d5
     if object_size=$40
-	lsr.w	#6,d5
+	lsr.w	#object_size_bits,d5
     else
 	divu.w	#object_size,d5
     endif
@@ -55328,7 +55328,7 @@ Obj73_LoadSubObject_End:
 	move.w	a0,d5
 	subi.w	#Object_RAM,d5
     if object_size=$40
-	lsr.w	#6,d5
+	lsr.w	#object_size_bits,d5
     else
 	divu.w	#object_size,d5
     endif
@@ -55362,7 +55362,7 @@ loc_28B16:
 	moveq	#0,d4
 	move.b	(a2)+,d4
     if object_size=$40
-	lsl.w	#6,d4
+	lsl.w	#object_size_bits,d4
     else
 	mulu.w	#object_size,d4
     endif
@@ -55399,7 +55399,7 @@ loc_28B46:
 -	moveq	#0,d0
 	move.b	(a2)+,d0
     if object_size=$40
-	lsl.w	#6,d0
+	lsl.w	#object_size_bits,d0
     else
 	mulu.w	#object_size,d0
     endif
@@ -74026,7 +74026,7 @@ Obj95_NextFireball:
 	move.w	a1,d5
 	subi.w	#MainCharacter,d5
     if object_size=$40
-	lsr.w	#6,d5
+	lsr.w	#object_size_bits,d5
     else
 	divu.w	#object_size,d5
     endif

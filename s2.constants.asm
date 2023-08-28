@@ -152,7 +152,8 @@ ss_rings_units = objoff_3E
 ss_last_angle_index = objoff_3F
 ; ---------------------------------------------------------------------------
 ; property of all objects:
-object_size =		$40 ; the size of an object
+object_size_bits =	6
+object_size =		1<<object_size_bits ; the size of an object
 next_object =		object_size
 
 ; ---------------------------------------------------------------------------
