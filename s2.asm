@@ -88446,7 +88446,7 @@ Debug_Init:
 	move.b	(Current_Zone).w,d0
 
 .selectlist:
-	lea	(JmpTbl_DbgObjLists).l,a2
+	lea	(DebugObjectLists).l,a2
 	add.w	d0,d0
 	adda.w	(a2,d0.w),a2
 	move.w	(a2)+,d6
@@ -88468,7 +88468,7 @@ Debug_Main:
 	move.b	(Current_Zone).w,d0
 
 .isntlevel:
-	lea	(JmpTbl_DbgObjLists).l,a2
+	lea	(DebugObjectLists).l,a2
 	add.w	d0,d0
 	adda.w	(a2,d0.w),a2
 	move.w	(a2)+,d6
@@ -88689,7 +88689,8 @@ LoadDebugObjectSprite:
 ; The jump table goes by level ID, so Metropolis Zone's list is repeated to
 ; account for its third act. Hidden Palace Zone uses Oil Ocean Zone's list.
 ; ---------------------------------------------------------------------------
-JmpTbl_DbgObjLists: zoneOrderedOffsetTable 2,1
+; JmpTbl_DbgObjLists:
+DebugObjectLists: zoneOrderedOffsetTable 2,1
 	zoneOffsetTableEntry.w DbgObjList_EHZ	; EHZ
 	zoneOffsetTableEntry.w DbgObjList_Def	; Zone 1
 	zoneOffsetTableEntry.w DbgObjList_Def	; WZ
