@@ -9393,21 +9393,14 @@ SSAllocateObjectAfterCurrent:
 
 +	rts
 
-
     if object_size<>$40
-+	dc.b -1
-.a :=	1		; .a is the object slot we are currently processing
-.b :=	1		; .b is used to calculate when there will be a conversion error due to object_size being > $40
-
-	rept (SS_Dynamic_Object_RAM_End-Object_RAM)/object_size-1
-		if (object_size * (.a-1)) / $40 > .b+1	; this line checks, if there would be a conversion error
-			dc.b .a-1, .a-1			; and if is, it generates 2 entries to correct for the error
-		else
-			dc.b .a-1
-		endif
-
-.b :=		(object_size * (.a-1)) / $40		; this line adjusts .b based on the iteration count to check
-.a :=		.a+1					; run interation counter
++
+.a	set	Object_RAM
+.b	set	SS_Dynamic_Object_RAM_End
+.c	set	.b			; begin from bottom of array and decrease backwards
+	rept	(.b-.a+$40-1)/$40	; repeat for all slots, minus exception
+.c	set	.c-$40			; address for previous $40 (also skip last part)
+	dc.b	(.b-.c-1)/object_size-1	; write possible slots according to object_size division + hack + dbf hack
 	endm
 	even
     endif
@@ -33457,19 +33450,13 @@ return_18014:
 	rts
 
     if object_size<>$40
-+	dc.b -1
-.a :=	1		; .a is the object slot we are currently processing
-.b :=	1		; .b is used to calculate when there will be a conversion error due to object_size being > $40
-
-	rept (Dynamic_Object_RAM_End-Dynamic_Object_RAM)/object_size-1
-		if (object_size * (.a-1)) / $40 > .b+1	; this line checks, if there would be a conversion error
-			dc.b .a-1, .a-1			; and if is, it generates 2 entries to correct for the error
-		else
-			dc.b .a-1
-		endif
-
-.b :=		(object_size * (.a-1)) / $40		; this line adjusts .b based on the iteration count to check
-.a :=		.a+1					; run interation counter
++
+.a	set	Dynamic_Object_RAM
+.b	set	Dynamic_Object_RAM_End
+.c	set	.b			; begin from bottom of array and decrease backwards
+	rept	(.b-.a+$40-1)/$40	; repeat for all slots, minus exception
+.c	set	.c-$40			; address for previous $40 (also skip last part)
+	dc.b	(.b-.c-1)/object_size-1	; write possible slots according to object_size division + hack + dbf hack
 	endm
 	even
     endif
