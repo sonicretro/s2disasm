@@ -71234,7 +71234,7 @@ loc_35440:
 loc_35458:
 	lea_	byte_353EA,a2
 loc_3545C:
-	cmpi.b	#ObjID_SonicSS,(a3)
+	cmpi.b	#ObjID_SonicSS,id(a3)
 	bne.s	loc_35468
 	sub.w	d1,(Ring_count).w
 	bra.s	loc_3546C
@@ -74401,7 +74401,7 @@ Obj97_DeathDrop:
 ; loc_3750C:
 Obj97_CheckHeadIsAlive:
 	movea.w	objoff_32(a0),a1 ; a1=object
-	cmpi.b	#ObjID_RexonHead,(a1)
+	cmpi.b	#ObjID_RexonHead,id(a1)
 	beq.s	+	; rts
 	move.b	#8,routine(a0)
 	move.w	objoff_2E(a0),d0
@@ -75919,7 +75919,7 @@ ObjA2_Main:
 	subq.w	#1,objoff_2A(a0)
 	bmi.s	loc_3851A
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	cmpi.b	#ObjID_Slicer,(a1)
+	cmpi.b	#ObjID_Slicer,id(a1)
 	bne.s	loc_3851A
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
