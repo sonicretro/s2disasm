@@ -13451,7 +13451,7 @@ loc_A38E:
 +
 	subq.w	#1,objoff_3C(a0)
 	bne.s	+
-	lea	(word_AD62).l,a2
+	lea	(ChildObject_AD62).l,a2
 	jsrto	LoadChildObject, JmpTo_LoadChildObject
 +
 	bra.w	loc_AB9C
@@ -13728,11 +13728,11 @@ loc_A720:
 	addq.b	#2,routine_secondary(a0)
 	clr.w	objoff_3C(a0)
 	clr.w	objoff_32(a0)
-	lea	(word_AD6E).l,a2
+	lea	(ChildObject_AD6E).l,a2
 	jsrto	LoadChildObject, JmpTo_LoadChildObject
 	tst.b	(Super_Sonic_flag).w
 	bne.w	return_A38C
-	lea	(word_AD6A).l,a2
+	lea	(ChildObject_AD6A).l,a2
 	jmpto	LoadChildObject, JmpTo_LoadChildObject
 ; ===========================================================================
 byte_A748:
@@ -14173,7 +14173,7 @@ loc_AB9C:
 	move.l	(RNG_seed).w,d0
 	andi.w	#$1F,d0
 	move.w	d0,objoff_30(a0)
-	lea	(word_AD5E).l,a2
+	lea	(ChildObject_AD5E).l,a2
 	jsrto	LoadChildObject, JmpTo_LoadChildObject
 +
 	rts
@@ -14190,7 +14190,7 @@ sub_ABBA:
 	move.l	(RNG_seed).w,d0
 	andi.w	#$F,d0
 	move.w	d0,objoff_30(a0)
-	lea	(word_AD66).l,a2
+	lea	(ChildObject_AD66).l,a2
 	jsrto	LoadChildObject, JmpTo_LoadChildObject
 +	rts
 ; End of function sub_ABBA
@@ -14270,26 +14270,11 @@ Pal_ACDE:	BINCLUDE	"art/palettes/Ending Background.bin"
 Pal_AD1E:	BINCLUDE	"art/palettes/Ending Photos.bin"
 Pal_AD3E:	BINCLUDE	"art/palettes/Ending Super Sonic.bin"
 
-word_AD5E:
-	dc.w objoff_3E
-	dc.b ObjID_EndingSeqClouds
-	dc.b $00
-word_AD62:
-	dc.w objoff_3E
-	dc.b ObjID_EndingSeqTrigger
-	dc.b $00
-word_AD66:
-	dc.w objoff_3E
-	dc.b ObjID_EndingSeqBird
-	dc.b $00
-word_AD6A:
-	dc.w objoff_3E
-	dc.b ObjID_EndingSeqSonic
-	dc.b $00
-word_AD6E:
-	dc.w objoff_3E
-	dc.b ObjID_TornadoHelixes
-	dc.b $00
+ChildObject_AD5E:	childObjectData objoff_3E, ObjID_EndingSeqClouds, $00
+ChildObject_AD62:	childObjectData objoff_3E, ObjID_EndingSeqTrigger, $00
+ChildObject_AD66:	childObjectData objoff_3E, ObjID_EndingSeqBird, $00
+ChildObject_AD6A:	childObjectData objoff_3E, ObjID_EndingSeqSonic, $00
+ChildObject_AD6E:	childObjectData objoff_3E, ObjID_TornadoHelixes, $00
 
 ; off_AD72:
 Obj28_SubObjData:
@@ -76608,11 +76593,11 @@ ObjA7_Init:
 	move.w	d0,x_vel(a0)
 	move.w	#$FF,objoff_2A(a0)
 	move.b	#2,objoff_2D(a0)
-	lea	(word_391E0).l,a2
+	lea	(ChildObject_391E0).l,a2
 	bsr.w	LoadChildObject
-	lea	(word_391E4).l,a2
+	lea	(ChildObject_391E4).l,a2
 	bsr.w	LoadChildObject
-	lea	(word_391E8).l,a2
+	lea	(ChildObject_391E8).l,a2
 	bra.w	LoadChildObject
 ; ===========================================================================
 ; loc_38E0C:
@@ -77064,18 +77049,9 @@ loc_39182:
 ; End of subroutine loc_39182
 
 ; ===========================================================================
-word_391E0:
-	dc.w objoff_3E
-	dc.b ObjID_GrabberBox
-	dc.b $3A
-word_391E4:
-	dc.w objoff_3C
-	dc.b ObjID_GrabberLegs
-	dc.b $38
-word_391E8:
-	dc.w objoff_3A
-	dc.b ObjID_GrabberString
-	dc.b $3C
+ChildObject_391E0:	childObjectData objoff_3E, ObjID_GrabberBox, $3A
+ChildObject_391E4:	childObjectData objoff_3C, ObjID_GrabberLegs, $38
+ChildObject_391E8:	childObjectData objoff_3A, ObjID_GrabberString, $3C
 ; off_391EC:
 ObjA7_SubObjData:
 	subObjData ObjA7_ObjA8_ObjA9_Obj98_MapUnc_3921A,make_art_tile(ArtTile_ArtNem_Grabber,1,1),4,4,$10,$B
@@ -77468,13 +77444,13 @@ ObjAF_Init:
 	move.b	#$10,x_radius(a0)
 	move.b	#0,collision_flags(a0)
 	move.b	#8,collision_property(a0)
-	lea	(word_39DC2).l,a2
+	lea	(ChildObject_39DC2).l,a2
 	bsr.w	LoadChildObject
 	move.b	#$E,routine(a1)
-	lea	(word_39DC6).l,a2
+	lea	(ChildObject_39DC6).l,a2
 	bsr.w	LoadChildObject
 	move.b	#$14,routine(a1)
-	lea	(word_39DCA).l,a2
+	lea	(ChildObject_39DCA).l,a2
 	bsr.w	LoadChildObject
 	move.b	#$1A,routine(a1)
 	rts
@@ -78102,18 +78078,9 @@ byte_39D92:
 	dc.b $11,  0,$F0,$10,$FE,  2,$12,  0,  0,$18,  0,  3,$13,  0,$10,$10; 16
 	dc.b   2,  2,$14,  0,$18,  0,  3,  0,$15,  0,$10,$F0,  2,$FE,$16,  0; 32
 	even
-word_39DC2:
-	dc.w objoff_3E
-	dc.b ObjID_MechaSonic
-	dc.b $48
-word_39DC6:
-	dc.w objoff_3C
-	dc.b ObjID_MechaSonic
-	dc.b $48
-word_39DCA:
-	dc.w objoff_3A
-	dc.b ObjID_MechaSonic
-	dc.b $A4
+ChildObject_39DC2:	childObjectData objoff_3E, ObjID_MechaSonic, $48
+ChildObject_39DC6:	childObjectData objoff_3C, ObjID_MechaSonic, $48
+ChildObject_39DCA:	childObjectData objoff_3A, ObjID_MechaSonic, $A4
 ; off_39DCE:
 ObjAF_SubObjData2:
 	subObjData ObjAF_Obj98_MapUnc_39E68,make_art_tile(ArtTile_ArtNem_SilverSonic,1,0),4,4,$10,$1A
@@ -78899,19 +78866,19 @@ ObjB2_Wait_Leader_position:
 	move.w	#$66C,y_pos(a0)
 	lea	(MainCharacter).w,a1 ; a1=character
 	bsr.w	ObjB2_Waiting_animation
-	lea	(word_3AFBC).l,a2
+	lea	(ChildObject_3AFBC).l,a2
 	bsr.w	LoadChildObject
 	move.w	#$3118,x_pos(a1)
 	move.w	#$3F0,y_pos(a1)
-	lea	(word_3AFB8).l,a2
+	lea	(ChildObject_3AFB8).l,a2
 	bsr.w	LoadChildObject
 	move.w	#$3070,x_pos(a1)
 	move.w	#$3B0,y_pos(a1)
-	lea	(word_3AFB8).l,a2
+	lea	(ChildObject_3AFB8).l,a2
 	bsr.w	LoadChildObject
 	move.w	#$3070,x_pos(a1)
 	move.w	#$430,y_pos(a1)
-	lea	(word_3AFC0).l,a2
+	lea	(ChildObject_3AFC0).l,a2
 	bsr.w	LoadChildObject
 	clr.w	x_pos(a1)
 	clr.w	y_pos(a1)
@@ -79036,15 +79003,15 @@ loc_3AB8A:
 	blo.s	ObjB2_Dock_on_DEZ
 	move.b	#6,(Dynamic_Resize_Routine).w ; => LevEvents_WFZ_Routine4
 	addq.b	#2,routine_secondary(a0)
-	lea	(word_3AFB8).l,a2
+	lea	(ChildObject_3AFB8).l,a2
 	bsr.w	LoadChildObject
 	move.w	#$3090,x_pos(a1)
 	move.w	#$3D0,y_pos(a1)
-	lea	(word_3AFB8).l,a2
+	lea	(ChildObject_3AFB8).l,a2
 	bsr.w	LoadChildObject
 	move.w	#$30C0,x_pos(a1)
 	move.w	#$3F0,y_pos(a1)
-	lea	(word_3AFB8).l,a2
+	lea	(ChildObject_3AFB8).l,a2
 	bsr.w	LoadChildObject
 	move.w	#$3090,x_pos(a1)
 	move.w	#$410,y_pos(a1)
@@ -79512,22 +79479,10 @@ Tails_pilot_frames:
 Tails_pilot_frames_end:
 	even
 
-word_3AFB8:
-	dc.w objoff_3E
-	dc.b ObjID_Tornado
-	dc.b $58
-word_3AFBC:
-	dc.w objoff_3C
-	dc.b ObjID_Tornado
-	dc.b $56
-word_3AFC0:
-	dc.w objoff_3A
-	dc.b ObjID_Tornado
-	dc.b $5C
-; seems unused
-	dc.w objoff_3E
-	dc.b ObjID_Tornado
-	dc.b $5A
+ChildObject_3AFB8:	childObjectData objoff_3E, ObjID_Tornado, $58
+ChildObject_3AFBC:	childObjectData objoff_3C, ObjID_Tornado, $56
+ChildObject_3AFC0:	childObjectData objoff_3A, ObjID_Tornado, $5C
+			childObjectData objoff_3E, ObjID_Tornado, $5A	; seems unused
 ; off_3AFC8:
 ObjB2_SubObjData:
 	subObjData ObjB2_MapUnc_3AFF2,make_art_tile(ArtTile_ArtNem_Tornado,0,1),4,4,$60,0
@@ -81200,19 +81155,19 @@ ObjC5_CaseWaitStart:
 ObjC5_CaseStart:
 	addq.b	#2,routine_secondary(a0)
 	move.w	#$40,y_vel(a0)		; Speed at which the laser carrier goes down
-	lea	(ObjC5_LaserWallData).l,a2
+	lea	(ChildObject_ObjC5LaserWall).l,a2
 	bsr.w	LoadChildObject
 	subi.w	#$88,x_pos(a1)		; where to load the left laser wall (x)
 	addi.w	#$60,y_pos(a1)		; left laser wall (y)
-	lea	(ObjC5_LaserWallData).l,a2
+	lea	(ChildObject_ObjC5LaserWall).l,a2
 	bsr.w	LoadChildObject
 	addi.w	#$88,x_pos(a1)		; right laser wall (x)
 	addi.w	#$60,y_pos(a1)		; right laser wall (y)
-	lea	(ObjC5_LaserShooterData).l,a2
+	lea	(ChildObject_ObjC5LaserShooter).l,a2
 	bsr.w	LoadChildObject
-	lea	(ObjC5_PlatformReleaserData).l,a2
+	lea	(ChildObject_ObjC5PlatformReleaser).l,a2
 	bsr.w	LoadChildObject
-	lea	(ObjC5_RobotnikData).l,a2
+	lea	(ChildObject_ObjC5Robotnik).l,a2
 	bsr.w	LoadChildObject
 	move.w	#$5A,objoff_2A(a0)	; How long for the boss music to start playing and the boss to start
 	moveq	#signextendB(MusID_FadeOut),d0
@@ -81330,7 +81285,7 @@ ObjC5_CaseWaitLoadLaser:
 
 ObjC5_CaseLoadLaser:
 	addq.b	#2,routine_secondary(a0)
-	lea	(ObjC5_LaserData).l,a2
+	lea	(ChildObject_ObjC5Laser).l,a2
 	bsr.w	LoadChildObject		; loads laser
 	jmpto	DisplaySprite, JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -81563,7 +81518,7 @@ ObjC5_PlatformReleaserLoadP:	; P=Platforms
 	tst.b	objoff_30(a0,d0.w)
 	bne.s	BranchTo8_JmpTo45_DisplaySprite
 	st.b	objoff_30(a0,d0.w)
-	lea	(ObjC5_PlatformData).l,a2
+	lea	(ChildObject_ObjC5Platform).l,a2
 	bsr.w	LoadChildObject
 	move.b	objoff_2E(a0),objoff_2E(a1)
 
@@ -81608,7 +81563,7 @@ ObjC5_PlatformInit:
 	move.b	#7,mapping_frame(a0)
 	move.w	#$100,y_vel(a0)			; Y speed
 	move.w	#$60,objoff_2A(a0)
-	lea	(ObjC5_PlatformHurtData).l,a2	; loads the invisible object that hurts Sonic
+	lea	(ChildObject_ObjC5PlatformHurt).l,a2	; loads the invisible object that hurts Sonic
 	bra.w	LoadChildObject
 ; ===========================================================================
 
@@ -81865,7 +81820,7 @@ ObjC5_RobotnikInit:
 	move.b	#1,anim(a0)
 	move.w	#$2C60,x_pos(a0)
 	move.w	#$4E6,y_pos(a0)
-	lea	(ObjC5_RobotnikPlatformData).l,a2
+	lea	(ChildObject_ObjC5RobotnikPlatform).l,a2
 	bsr.w	LoadChildObject
 	jmpto	DisplaySprite, JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -81957,38 +81912,14 @@ ObjC5_NoHitPointsLeft:	; when the boss is defeated this tells it what to do
 	bclr	#6,status(a0)
 	rts
 ; ===========================================================================
-ObjC5_LaserWallData:
-	dc.w objoff_2A
-	dc.b ObjID_WFZBoss
-	dc.b $94
-ObjC5_PlatformData:
-	dc.w objoff_3E
-	dc.b ObjID_WFZBoss
-	dc.b $98
-ObjC5_PlatformHurtData:
-	dc.w objoff_3C
-	dc.b ObjID_WFZBoss
-	dc.b $9A
-ObjC5_LaserShooterData:
-	dc.w objoff_3C
-	dc.b ObjID_WFZBoss
-	dc.b $9C
-ObjC5_PlatformReleaserData:
-	dc.w objoff_3A
-	dc.b ObjID_WFZBoss
-	dc.b $96
-ObjC5_LaserData:
-	dc.w objoff_3E
-	dc.b ObjID_WFZBoss
-	dc.b $9E
-ObjC5_RobotnikData:
-	dc.w objoff_38
-	dc.b ObjID_WFZBoss
-	dc.b $A0
-ObjC5_RobotnikPlatformData:
-	dc.w objoff_3E
-	dc.b ObjID_WFZBoss
-	dc.b $A2
+ChildObject_ObjC5LaserWall:		childObjectData objoff_2A, ObjID_WFZBoss, $94
+ChildObject_ObjC5Platform:		childObjectData objoff_3E, ObjID_WFZBoss, $98
+ChildObject_ObjC5PlatformHurt:		childObjectData objoff_3C, ObjID_WFZBoss, $9A
+ChildObject_ObjC5LaserShooter:		childObjectData objoff_3C, ObjID_WFZBoss, $9C
+ChildObject_ObjC5PlatformReleaser:	childObjectData objoff_3A, ObjID_WFZBoss, $96
+ChildObject_ObjC5Laser:			childObjectData objoff_3E, ObjID_WFZBoss, $9E
+ChildObject_ObjC5Robotnik:		childObjectData objoff_38, ObjID_WFZBoss, $A0
+ChildObject_ObjC5RobotnikPlatform:	childObjectData objoff_3E, ObjID_WFZBoss, $A2
 
 ; off_3CC80:
 ObjC5_SubObjData:		; Laser Case
@@ -82074,7 +82005,7 @@ ObjC6_State2_States: offsetTable
 ; loc_3CF10:
 ObjC6_State2_State1: ; a1=object (set in loc_3D94C)
 	addq.b	#2,routine_secondary(a0) ; => ObjC6_State2_State2
-	lea	(word_3D0D0).l,a2
+	lea	(ChildObject_3D0D0).l,a2
 	bsr.w	LoadChildObject
 	move.w	#$3F8,x_pos(a1)
 	move.w	#$160,y_pos(a1)
@@ -82155,7 +82086,7 @@ ObjC6_State2_State5:
 ; ===========================================================================
 
 loc_3D00C:
-	lea	(word_3D0D4).l,a2
+	lea	(ChildObject_3D0D4).l,a2
 	bsr.w	LoadChildObject
 	move.b	#$AA,subtype(a1) ; <== ObjC6_SubObjData
 	move.b	#5,mapping_frame(a1)
@@ -82228,14 +82159,8 @@ ObjC6_SubObjData4:
 ; off_3D0C6:
 ObjC6_SubObjData:
 	subObjData ObjC6_MapUnc_3D0EE,make_art_tile(ArtTile_ArtKos_LevelArt,0,0),4,5,4,0
-word_3D0D0:
-	dc.w objoff_3E
-	dc.b ObjID_Eggman
-	dc.b $A8
-word_3D0D4:
-	dc.w objoff_3C
-	dc.b ObjID_Eggman
-	dc.b $AA
+ChildObject_3D0D0:	childObjectData objoff_3E, ObjID_Eggman, $A8
+ChildObject_3D0D4:	childObjectData objoff_3C, ObjID_Eggman, $AA
 ; animation script
 ; off_3D0D8:
 Ani_objC5_objC6:offsetTable
