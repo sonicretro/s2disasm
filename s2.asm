@@ -2177,6 +2177,22 @@ ProcessDPLC_Pop:
 	moveq	#bytesToLcnt(Plc_Buffer_Only_End-Plc_Buffer-6),d0
 -	move.l	6(a0),(a0)+
 	dbf	d0,-
+
+    if fixBugs
+	; The above code does not properly 'pop' the 16th PLC entry.
+	; Because of this, occupying the 16th slot will cause it to
+	; be repeatedly decompressed infinitely.
+	; Granted, this could be conisdered more of an optimisation
+	; than a bug: treating the 16th entry as a dummy that
+	; should never be occupied makes this code unnecessary.
+	; Still, the overhead of this code is minimal.
+    if (Plc_Buffer_Only_End-Plc_Buffer-6)&2
+	move.w	6(a0),(a0)
+    endif
+
+	clr.l	(Plc_Buffer_Only_End-6).w
+    endif
+
 	rts
 
 ; End of function ProcessDPLC
