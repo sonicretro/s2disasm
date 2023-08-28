@@ -88714,7 +88714,7 @@ DebugObjectLists: zoneOrderedOffsetTable 2,1
 ; must be on the same line as a label that has a corresponding _End label later
 dbglistheader macro {INTLABEL}
 __LABEL__ label *
-	dc.w ((__LABEL___End - __LABEL__ - 2) >> 3)
+	dc.w ((__LABEL___End - __LABEL__ - 2) / 8)
     endm
 
 ; macro to define debug list object data
