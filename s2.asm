@@ -38991,7 +38991,7 @@ TailsCPU_CheckDespawn:
 	addi.l	#Object_RAM,d0
 	movea.l	d0,a3	; a3=object
 	move.b	(Tails_interact_ID).w,d0
-	cmp.b	(a3),d0
+	cmp.b	id(a3),d0
 	bne.s	BranchTo_TailsCPU_Despawn
 
 ; loc_1BE8C:
@@ -39017,7 +39017,7 @@ TailsCPU_UpdateObjInteract:
     endif
 	addi.l	#Object_RAM,d0
 	movea.l	d0,a3	; a3=object
-	move.b	(a3),(Tails_interact_ID).w
+	move.b	id(a3),(Tails_interact_ID).w
 	rts
 
 ; ===========================================================================
