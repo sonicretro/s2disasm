@@ -77104,8 +77104,8 @@ loc_39182:
 	tst.b	objoff_30(a0)
 	beq.s	+
 	movea.w	objoff_32(a0),a3
-	move.b	#0,$2A(a3)
-	bset	#1,$22(a3)
+	move.b	#0,obj_control(a3)
+	bset	#1,status(a3)
 +
 	moveq	#0,d6
 	move.b	objoff_2D(a0),d6
@@ -83264,7 +83264,7 @@ loc_3DBF6:
 
 loc_3DC02:
 	movea.w	(DEZ_Eggman).w,a1
-	btst	#3,$22(a1)
+	btst	#3,status(a1)
 	bne.s	+
 	rts
 ; ---------------------------------------------------------------------------
