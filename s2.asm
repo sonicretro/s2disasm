@@ -12444,7 +12444,11 @@ LevelSelect_PressStart:
 
 ;LevelSelect_SpecialStage:
 	move.b	#GameModeID_SpecialStage,(Game_Mode).w ; => SpecialStage
-	clr.w	(Current_ZoneAndAct).w
+    if emerald_hill_zone_act_1=0
+	clr.w	(Current_ZoneAndAct).w ; emerald_hill_zone_act_1
+    else
+	move.w	#emerald_hill_zone_act_1,(Current_ZoneAndAct).w
+    endif
 	move.b	#3,(Life_count).w
 	move.b	#3,(Life_count_2P).w
 	moveq	#0,d0
