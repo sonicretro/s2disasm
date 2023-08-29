@@ -23475,6 +23475,9 @@ Obj15_State4:
 	neg.w	x_vel(a1)
 +
 	bset	#1,status(a1)
+    if object_size<>$40
+	moveq	#0,d0 ; Clear the high word for the coming division.
+    endif
 	move.w	a0,d0
 	subi.w	#Object_RAM,d0
     if object_size=$40
@@ -23483,6 +23486,9 @@ Obj15_State4:
 	divu.w	#object_size,d0
     endif
 	andi.w	#$7F,d0
+    if object_size<>$40
+	moveq	#0,d1 ; Clear the high word for the coming division.
+    endif
 	move.w	a1,d1
 	subi.w	#Object_RAM,d1
     if object_size=$40
@@ -23738,6 +23744,9 @@ Obj17_MakeHelix:
 	bsr.w	AllocateObjectAfterCurrent
 	bne.s	Obj17_Main
 	addq.b	#1,subtype(a0)
+    if object_size<>$40
+	moveq	#0,d5 ; Clear the high word for the coming division.
+    endif
 	move.w	a1,d5
 	subi.w	#Object_RAM,d5
     if object_size=$40
@@ -37866,6 +37875,9 @@ RideObject_SetRide:
 	bclr	d6,status(a3)
 
 loc_19E30:
+    if object_size<>$40
+	moveq	#0,d0 ; Clear the high word for the coming division.
+    endif
 	move.w	a0,d0
 	subi.w	#Object_RAM,d0
     if object_size=$40
@@ -55059,6 +55071,9 @@ loc_25002:
 	bclr	#5,status(a1)
 	bset	#1,status(a1)
 	bset	#3,status(a1)
+    if object_size<>$40
+	moveq	#0,d0 ; Clear the high word for the coming division.
+    endif
 	move.w	a0,d0
 	subi.w	#Object_RAM,d0
     if object_size=$40
@@ -55284,6 +55299,9 @@ loc_252F0:
 	movea.l	d0,a3	; a3=object
 	move.b	#0,(a3,d2.w)
 +
+    if object_size<>$40
+	moveq	#0,d0 ; Clear the high word for the coming division.
+    endif
 	move.w	a0,d0
 	subi.w	#Object_RAM,d0
     if object_size=$40
@@ -59563,6 +59581,9 @@ Obj73_LoadSubObject:
 	jsrto	AllocateObject, JmpTo9_AllocateObject
 	bne.s	Obj73_LoadSubObject_End
 	addq.b	#1,objoff_29(a0)
+    if object_size<>$40
+	moveq	#0,d5 ; Clear the high word for the coming division.
+    endif
 	move.w	a1,d5
 	subi.w	#Object_RAM,d5
     if object_size=$40
@@ -59587,6 +59608,9 @@ Obj73_LoadSubObject:
 ; loc_28AC8:
 Obj73_LoadSubObject_End:
 
+    if object_size<>$40
+	moveq	#0,d5 ; Clear the high word for the coming division.
+    endif
 	move.w	a0,d5
 	subi.w	#Object_RAM,d5
     if object_size=$40
@@ -78825,6 +78849,9 @@ Obj95_NextFireball:
 	jsrto	AllocateObjectAfterCurrent, JmpTo25_AllocateObjectAfterCurrent
 	bne.s	loc_371AE
 	addq.b	#1,(a3)
+    if object_size<>$40
+	moveq	#0,d5 ; Clear the high word for the coming division.
+    endif
 	move.w	a1,d5
 	subi.w	#MainCharacter,d5
     if object_size=$40
