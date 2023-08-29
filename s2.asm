@@ -40125,7 +40125,7 @@ Sonic_Boundary_CheckBottom:
 	; may be in the middle of lowering itself, which is why going
 	; down the S-tunnel in Green Hill Zone Act 1 fast enough can
 	; kill Sonic.
-	move.w	(Camera_Max_Y_pos_Target).w,d1
+	move.w	(Camera_Max_Y_pos_target).w,d1
 	cmp.w	d0,d1
 	blo.s	.skip
 	move.w	d1,d0
@@ -41315,7 +41315,7 @@ Sonic_HurtStop:
 	; may be in the middle of lowering itself, which is why going
 	; down the S-tunnel in Green Hill Zone Act 1 fast enough can
 	; kill Sonic.
-	move.w	(Camera_Max_Y_pos_Target).w,d1
+	move.w	(Camera_Max_Y_pos_target).w,d1
 	cmp.w	d0,d1
 	blo.s	.skip
 	move.w	d1,d0
