@@ -27991,10 +27991,10 @@ Obj0E_Banner_Init_Part2:
 	move.b	#1,priority(a1)
 	move.w	#128+320/2,d0
 	move.w	d0,x_pixel(a1)
-	move.w	d0,$2A(a1)
+	move.w	d0,objoff_2A(a1)
 	move.w	#128-24,d0
 	move.w	d0,y_pixel(a1)
-	move.w	d0,$2E(a1)
+	move.w	d0,objoff_2E(a1)
 	rts
 ; End of function Obj0E_Banner_Init
 
@@ -28003,8 +28003,8 @@ Obj0E_Banner_Init_Part2:
 
 ; sub_3104CC:
 Obj0E_Banner_Move:
-	move.l	$2A(a0),d2
-	move.l	$2E(a0),d3
+	move.l	objoff_2A(a0),d2
+	move.l	objoff_2E(a0),d3
 
 	; Apply X velocity.
 	move.w	x_vel(a0),d0
@@ -28019,8 +28019,8 @@ Obj0E_Banner_Move:
 	asl.l	#8,d0
 	add.l	d0,d3
 
-	move.l	d2,$2A(a0)
-	move.l	d3,$2E(a0)
+	move.l	d2,objoff_2A(a0)
+	move.l	d3,objoff_2E(a0)
 
 	swap	d2
 	swap	d3
