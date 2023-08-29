@@ -25079,7 +25079,7 @@ loc_121B8:
 	tst.b	(Ring_spill_anim_counter).w
 	beq.s	Obj37_Delete
 	move.w	(Camera_Max_Y_pos).w,d0
-	addi.w	#$E0,d0
+	addi.w	#224,d0
 	cmp.w	y_pos(a0),d0
 	blo.s	Obj37_Delete
 	bra.w	DisplaySprite
@@ -36846,7 +36846,18 @@ Sonic_LevelBound:
 ; loc_1A9A6:
 Sonic_Boundary_CheckBottom:
 	move.w	(Camera_Max_Y_pos).w,d0
-	addi.w	#$E0,d0
+    if fixBugs
+	; The original code does not consider that the camera boundary
+	; may be in the middle of lowering itself, which is why going
+	; down the S-tunnel in Green Hill Zone Act 1 fast enough can
+	; kill Sonic.
+	move.w	(Camera_Max_Y_pos_Target).w,d1
+	cmp.w	d0,d1
+	blo.s	.skip
+	move.w	d1,d0
+.skip:
+    endif
+	addi.w	#224,d0
 	cmp.w	y_pos(a0),d0		; has Sonic touched the bottom boundary?
 	blt.s	Sonic_Boundary_Bottom	; if yes, branch
 	rts
@@ -37740,7 +37751,18 @@ Obj01_Hurt_Normal:
 ; loc_1B184:
 Sonic_HurtStop:
 	move.w	(Camera_Max_Y_pos).w,d0
-	addi.w	#$E0,d0
+    if fixBugs
+	; The original code does not consider that the camera boundary
+	; may be in the middle of lowering itself, which is why going
+	; down the S-tunnel in Green Hill Zone Act 1 fast enough can
+	; kill Sonic.
+	move.w	(Camera_Max_Y_pos_Target).w,d1
+	cmp.w	d0,d1
+	blo.s	.skip
+	move.w	d1,d0
+.skip:
+    endif
+	addi.w	#224,d0
 	cmp.w	y_pos(a0),d0
 	blt.w	JmpTo_KillCharacter
 	bsr.w	Sonic_DoLevelCollision
@@ -47412,7 +47434,7 @@ Obj16_Fall:
 	jsrto	ObjectMove, JmpTo4_ObjectMove
 	addi.w	#$38,y_vel(a0)
 	move.w	(Camera_Max_Y_pos).w,d0
-	addi.w	#$E0,d0
+	addi.w	#224,d0
 	cmp.w	y_pos(a0),d0
 	bhs.s	+++	; rts
 	move.b	status(a0),d0
@@ -48569,7 +48591,7 @@ loc_2315A:
 	jsrto	ObjectMove, JmpTo7_ObjectMove
 	addi.w	#$18,y_vel(a0)
 	move.w	(Camera_Max_Y_pos).w,d0
-	addi.w	#$E0,d0
+	addi.w	#224,d0
 	cmp.w	y_pos(a0),d0
 	bhs.s	loc_23176
 	jmpto	DeleteObject, JmpTo21_DeleteObject
@@ -50387,7 +50409,7 @@ Obj46_Moving:
 	addi.w	#$18,y_vel(a0)
 	bmi.s	+
 	move.w	(Camera_Max_Y_pos).w,d0
-	addi.w	#$E0,d0
+	addi.w	#224,d0
 	cmp.w	y_pos(a0),d0
 	blo.s	loc_24BC4
 	jsr	(ObjCheckFloorDist).l
@@ -54381,7 +54403,7 @@ loc_27EE2:
 	move.l	d3,y_pos(a0)
 	addi_.w	#8,y_vel(a0)
 	move.w	(Camera_Max_Y_pos).w,d0
-	addi.w	#$E0,d0
+	addi.w	#224,d0
 	cmp.w	y_pos(a0),d0
 	bhs.s	return_27F0E
 	move.b	#0,subtype(a0)
@@ -74411,7 +74433,7 @@ loc_374D8:
 ; loc_374F4:
 Obj97_DeathDrop:
 	move.w	(Camera_Max_Y_pos).w,d0
-	addi.w	#$E0,d0
+	addi.w	#224,d0
 	cmp.w	y_pos(a0),d0
 	blo.w	JmpTo65_DeleteObject
 	jsrto	ObjectMoveAndFall, JmpTo8_ObjectMoveAndFall
