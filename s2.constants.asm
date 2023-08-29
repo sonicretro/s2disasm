@@ -157,7 +157,8 @@ ss_rings_units = objoff_3E
 ss_last_angle_index = objoff_3F
 ; ---------------------------------------------------------------------------
 ; property of all objects:
-object_size =		$40 ; the size of an object
+object_size_bits =	6
+object_size =		1<<object_size_bits ; the size of an object
 next_object =		object_size
 
 ; ---------------------------------------------------------------------------
@@ -1395,7 +1396,7 @@ Camera_ARZ_BG_X_pos:		ds.l	1
 				ds.b	$A	; $FFFFF676-$FFFFF67F ; seems unused
 MiscLevelVariables_End
 
-Plc_Buffer:			ds.b	$60	; Pattern load queue (each entry is 6 bytes)
+Plc_Buffer:			ds.b	6*16	; Pattern load queue (each entry is 6 bytes)
 Plc_Buffer_Only_End:
 				; these seem to store nemesis decompression state so PLC processing can be spread out across frames
 Plc_Buffer_Reg0:		ds.l	1	
