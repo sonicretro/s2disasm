@@ -39847,6 +39847,17 @@ Tails_LevelBound:
 ; loc_1C58C:
 Tails_Boundary_CheckBottom:
 	move.w	(Tails_Max_Y_pos).w,d0
+    if fixBugs
+	; The original code does not consider that the camera boundary
+	; may be in the middle of lowering itself, which is why going
+	; down the S-tunnel in Green Hill Zone Act 1 fast enough can
+	; kill Sonic.
+	move.w	(Camera_Max_Y_pos_target).w,d1
+	cmp.w	d0,d1
+	blo.s	.skip
+	move.w	d1,d0
+.skip:
+    endif
 	addi.w	#224,d0
 	cmp.w	y_pos(a0),d0		; has Tails touched the bottom boundary?
 	blt.s	Tails_Boundary_Bottom	; if yes, branch
@@ -40608,6 +40619,17 @@ Obj02_Hurt:
 ; loc_1CC08:
 Tails_HurtStop:
 	move.w	(Tails_Max_Y_pos).w,d0
+    if fixBugs
+	; The original code does not consider that the camera boundary
+	; may be in the middle of lowering itself, which is why going
+	; down the S-tunnel in Green Hill Zone Act 1 fast enough can
+	; kill Sonic.
+	move.w	(Camera_Max_Y_pos_target).w,d1
+	cmp.w	d0,d1
+	blo.s	.skip
+	move.w	d1,d0
+.skip:
+    endif
 	addi.w	#224,d0
 	cmp.w	y_pos(a0),d0
 	blt.w	JmpTo2_KillCharacter
