@@ -9236,7 +9236,7 @@ off_6E54:	offsetTable
 	lea	(SS_Horiz_Scroll_Buf_2 + 2).w,a1			; Load alternate horizontal scroll buffer for PNT B
 	neg.w	d2							; Change the sign of the background offset
 +
-	move.w	#bytesToLcnt(HorizontalScrollBuffer.len),d0						; 256 lines ; TODO: THIS FUCKER
+	move.w	#bytesToLcnt(HorizontalScrollBuffer.len),d0		; 256 lines
 -	sub.w	d2,(a1)+						; Change current line's offset
 	adda_.l	#2,a1							; Skip PNTA entry
 	dbf	d0,-
