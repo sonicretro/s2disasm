@@ -1442,7 +1442,7 @@ ClearScreen:
 
 	; These '+4's shouldn't be here; clearRAM accidentally clears an additional 4 bytes
 	clearRAM Sprite_Table,Sprite_Table_End+4
-	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+4
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len+4
 
 	startZ80
 	rts
@@ -4831,7 +4831,7 @@ Level_TtlCard:
 	clr.w	(Vscroll_Factor_FG).w
 	move.w	#-$E0,(Vscroll_Factor_P2_FG).w
 
-	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len
 
 	bsr.w	LoadZoneTiles
 	jsrto	loadZoneBlockMaps, JmpTo_loadZoneBlockMaps
@@ -6509,12 +6509,12 @@ SpecialStage:
 ; \------------------------------------------------------------------------/
     if fixBugs
 	clearRAM Sprite_Table,Sprite_Table_End
-	clearRAM SS_Horiz_Scroll_Buf_1,SS_Horiz_Scroll_Buf_1_End
+	clearRAM SS_Horiz_Scroll_Buf_1,SS_Horiz_Scroll_Buf_1+HorizontalScrollBuffer.len
 	clearRAM SS_Shared_RAM,SS_Shared_RAM_End
     else
 	; These '+4's shouldn't be here; 'clearRAM' accidentally clears an additional 4 bytes.
 	clearRAM Sprite_Table,Sprite_Table_End+4
-	clearRAM SS_Horiz_Scroll_Buf_1,SS_Horiz_Scroll_Buf_1_End+4
+	clearRAM SS_Horiz_Scroll_Buf_1,SS_Horiz_Scroll_Buf_1+HorizontalScrollBuffer.len+4
 	clearRAM SS_Shared_RAM,SS_Shared_RAM_End+4
     endif
 	clearRAM Sprite_Table_Input,Sprite_Table_Input_End
@@ -9018,7 +9018,7 @@ ssInitTableBuffers:
 	swap	d1
 	swap	d2
 	swap	d3
-	moveq	#$1F,d4
+	moveq	#bytesToXcnt(HorizontalScrollBuffer.len,4*8),d4
 
 -	move.l	d0,(a1)+
 	move.l	d0,(a1)+
@@ -9231,7 +9231,7 @@ off_6E54:	offsetTable
 	lea	(SS_Horiz_Scroll_Buf_2 + 2).w,a1			; Load alternate horizontal scroll buffer for PNT B
 	neg.w	d2							; Change the sign of the background offset
 +
-	move.w	#$FF,d0							; 256 lines
+	move.w	#bytesToLcnt(HorizontalScrollBuffer.len),d0						; 256 lines ; TODO: THIS FUCKER
 -	sub.w	d2,(a1)+						; Change current line's offset
 	adda_.l	#2,a1							; Skip PNTA entry
 	dbf	d0,-
@@ -13057,10 +13057,10 @@ EndingSequence:
 	move.w	d0,(Credits_Trigger).w
 
     if fixBugs
-	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len
     else
 	; The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
-	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+4
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len+4
     endif
 
 	move.w	#$7FFF,(PalCycle_Timer).w
@@ -13137,10 +13137,10 @@ EndgameCredits:
 	move.w	d0,(Credits_Trigger).w
 
     if fixBugs
-	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len
     else
 	; The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
-	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+4
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len+4
     endif
 
 	moveq	#signextendB(MusID_Credits),d0
@@ -27164,7 +27164,7 @@ Obj34_Init:
 	clr.w	(Vscroll_Factor_FG).w
 	move.w	#-$E0,(Vscroll_Factor_P2_FG).w
 
-	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len
 
 	rts
 ; ===========================================================================
@@ -78390,11 +78390,11 @@ loc_3A346:
 	bchg	#0,status(a0)
 
     if fixBugs
-	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len
     else
 	; This clears a lot more than the horizontal scroll buffer, which is $400 bytes.
 	; This is because the loop counter is erroneously set to $400, instead of ($400/4)-1.
-	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+$C04
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+(HorizontalScrollBuffer.len*4+4)
     endif
 
 	; Initialize streak horizontal offsets for Sonic going right.

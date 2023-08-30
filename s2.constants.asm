@@ -1080,10 +1080,13 @@ VDP_Command_Buffer_Slot:	ds.l	1	; stores the address of the next open slot for a
 Sprite_Table_P2:		ds.b	$280	; Sprite attribute table buffer for the bottom split screen in 2-player mode
 				ds.b	$80	; unused, but SAT buffer can spill over into this area when there are too many sprites on-screen
 
-Horiz_Scroll_Buf:		ds.l	224
-				ds.l	16 	; A bug/optimisation in 'Swscrl_CPZ' causes 'Horiz_Scroll_Buf' to overflow into this.
-				ds.b	$40	; unused
-Horiz_Scroll_Buf_End:
+HorizontalScrollBuffer struct dots
+	ds.l	224	; Total lines on the screen.
+	ds.l	16	; A bug/optimisation in 'Swscrl_CPZ' causes these values to be overflowed into.
+	ds.b	$40	; These are just unused.
+HorizontalScrollBuffer endstruct
+
+Horiz_Scroll_Buf:		HorizontalScrollBuffer
 
 Sonic_Stat_Record_Buf:		ds.b	$100
 
@@ -1892,7 +1895,7 @@ SS_Dynamic_Object_RAM_End:
 					; different purposes.
 PNT_Buffer:				ds.b	$700
 PNT_Buffer_End:
-SS_Horiz_Scroll_Buf_2:			ds.b	$400
+SS_Horiz_Scroll_Buf_2:			HorizontalScrollBuffer
 
 SSTrack_mappings_bitflags:		ds.l	1
 SSTrack_mappings_uncompressed:		ds.l	1
@@ -1962,8 +1965,7 @@ SS_TriggerRingsToGo:			ds.b	1
 	dephase
 
 	phase	ramaddr(Horiz_Scroll_Buf)	; Still in SS RAM
-SS_Horiz_Scroll_Buf_1:		ds.b	$400
-SS_Horiz_Scroll_Buf_1_End:
+SS_Horiz_Scroll_Buf_1:		HorizontalScrollBuffer
 	dephase
 
 	phase	ramaddr(Boss_variables)	; Still in SS RAM
