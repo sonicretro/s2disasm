@@ -2092,7 +2092,7 @@ VRAM_Plane_Table_Size                    = $1000	; 64 cells x 32 cells x 2 bytes
 VRAM_Sprite_Attribute_Table              = $F800	; Extends until $FA7F
 VRAM_Sprite_Attribute_Table_Size         = $0280	; 640 bytes
 VRAM_Horiz_Scroll_Table                  = $FC00	; Extends until $FF7F
-VRAM_Horiz_Scroll_Table_Size             = $0380	; 224 lines * 2 bytes per entry * 2 PNTs
+VRAM_Horiz_Scroll_Table_Size             = 224*2*2	; 224 lines * 2 bytes per entry * 2 PNTs
 
 ; VRAM Reserved regions, Sega screen.
 VRAM_SegaScr_Plane_A_Name_Table          = $C000	; Extends until $DFFF

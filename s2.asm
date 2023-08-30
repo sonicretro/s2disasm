@@ -4829,7 +4829,7 @@ Level_TtlCard:
 	bsr.w	LevelSizeLoad
 	jsrto	DeformBgLayer, JmpTo_DeformBgLayer
 	clr.w	(Vscroll_Factor_FG).w
-	move.w	#-$E0,(Vscroll_Factor_P2_FG).w
+	move.w	#-224,(Vscroll_Factor_P2_FG).w
 
 	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len
 
@@ -15433,11 +15433,11 @@ SwScrl_EHZ_2P:
 	; Update the background's vertical scrolling.
 	moveq	#0,d0
 	move.w	d0,(Vscroll_Factor_P2_BG).w
-	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
+	subi.w	#224,(Vscroll_Factor_P2_BG).w
 
 	; Update the foregrounds's vertical scrolling.
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
-	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
+	subi.w	#224,(Vscroll_Factor_P2_FG).w
 
 	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
@@ -16044,11 +16044,11 @@ SwScrl_HTZ_2P:
 	; Update the background's vertical scrolling.
 	moveq	#0,d0
 	move.w	d0,(Vscroll_Factor_P2_BG).w
-	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
+	subi.w	#224,(Vscroll_Factor_P2_BG).w
 
 	; Update the foreground's vertical scrolling.
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
-	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
+	subi.w	#224,(Vscroll_Factor_P2_FG).w
 
 	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
@@ -16773,11 +16773,11 @@ SwScrl_MCZ2P_RowHeights:
 
 	; Update the background's vertical scrolling.
 	move.w	d0,(Vscroll_Factor_P2_BG).w
-	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
+	subi.w	#224,(Vscroll_Factor_P2_BG).w
 
 	; Update the foreground's vertical scrolling.
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
-	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
+	subi.w	#224,(Vscroll_Factor_P2_FG).w
 
 	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
@@ -17079,11 +17079,11 @@ SwScrl_CNZ_2P:
 
 	; Update the background's vertical scrolling.
 	move.w	d0,(Vscroll_Factor_P2_BG).w
-	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
+	subi.w	#224,(Vscroll_Factor_P2_BG).w
 
 	; Update the foreground's vertical scrolling.
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
-	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
+	subi.w	#224,(Vscroll_Factor_P2_FG).w
 
 	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
@@ -27162,7 +27162,7 @@ Obj34_Init:
 
 	move.w	#$26,(TitleCard_Bottom+titlecard_location).w
 	clr.w	(Vscroll_Factor_FG).w
-	move.w	#-$E0,(Vscroll_Factor_P2_FG).w
+	move.w	#-224,(Vscroll_Factor_P2_FG).w
 
 	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len
 
@@ -39847,7 +39847,7 @@ Tails_LevelBound:
 ; loc_1C58C:
 Tails_Boundary_CheckBottom:
 	move.w	(Tails_Max_Y_pos).w,d0
-	addi.w	#$E0,d0
+	addi.w	#224,d0
 	cmp.w	y_pos(a0),d0		; has Tails touched the bottom boundary?
 	blt.s	Tails_Boundary_Bottom	; if yes, branch
 	rts
@@ -40608,7 +40608,7 @@ Obj02_Hurt:
 ; loc_1CC08:
 Tails_HurtStop:
 	move.w	(Tails_Max_Y_pos).w,d0
-	addi.w	#$E0,d0
+	addi.w	#224,d0
 	cmp.w	y_pos(a0),d0
 	blt.w	JmpTo2_KillCharacter
 	bsr.w	Tails_DoLevelCollision
@@ -71354,9 +71354,9 @@ Obj5B_Main:
 	bsr.w	loc_3551C
 	tst.w	x_pos(a0)
 	bmi.w	JmpTo63_DeleteObject
-	cmpi.w	#$100,x_pos(a0)
+	cmpi.w	#256,x_pos(a0) ; Screen width
 	bhs.w	JmpTo63_DeleteObject
-	cmpi.w	#$E0,y_pos(a0)
+	cmpi.w	#224,y_pos(a0) ; Screen height
 	bgt.w	JmpTo63_DeleteObject
 	lea	(Ani_obj5B_obj60).l,a1
 	jsrto	AnimateSprite, JmpTo24_AnimateSprite
@@ -78255,7 +78255,7 @@ ObjB0_Init:
 	lea	(Horiz_Scroll_Buf + 2 * 2 * (9 * 8 + 6)).w,a1
 	lea	Streak_Horizontal_offsets(pc),a2
 	moveq	#0,d0
-	moveq	#$22,d6	; Number of streaks-1
+	moveq	#35-1,d6	; Number of streaks-1
 -	move.b	(a2)+,d0
 	add.w	d0,(a1)
 	addq.w	#2 * 2 * 2,a1	; Advance to next streak 2 pixels down
@@ -78402,7 +78402,7 @@ loc_3A346:
 	lea	(Horiz_Scroll_Buf + 2 * 2 * (9 * 8 + 7)).w,a1
 	lea	Streak_Horizontal_offsets(pc),a2
 	moveq	#0,d0
-	moveq	#$22,d6	; Number of streaks-1
+	moveq	#35-1,d6	; Number of streaks-1
 
 loc_3A38A:
 	move.b	(a2)+,d0
@@ -78484,7 +78484,7 @@ ObjB0_Move_Streaks_Left:
 	; 9 full lines (8 pixels) + 6 pixels, 2-byte interleaved entries for PNT A and PNT B
 	lea	(Horiz_Scroll_Buf + 2 * 2 * (9 * 8 + 6)).w,a1
 
-	move.w	#$22,d6	; Number of streaks-1
+	move.w	#35-1,d6	; Number of streaks-1
 -	subi.w	#$20,(a1)
 	addq.w	#2 * 2 * 2,a1	; Advance to next streak 2 pixels down
 	dbf	d6,-
@@ -78495,7 +78495,7 @@ ObjB0_Move_Streaks_Right:
 	; 9 full lines (8 pixels) + 7 pixels, 2-byte interleaved entries for PNT A and PNT B
 	lea	(Horiz_Scroll_Buf + 2 * 2 * (9 * 8 + 7)).w,a1
 
-	move.w	#$22,d6	; Number of streaks-1
+	move.w	#35-1,d6	; Number of streaks-1
 -	addi.w	#$20,(a1)
 	addq.w	#2 * 2 * 2,a1	; Advance to next streak 2 pixels down
 	dbf	d6,-
