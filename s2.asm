@@ -1440,9 +1440,14 @@ ClearScreen:
 	clr.l	(Vscroll_Factor).w
 	clr.l	(unk_F61A).w
 
+    if fixBugs
+	clearRAM Sprite_Table,Sprite_Table_End
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len
+    else
 	; These '+4's shouldn't be here; clearRAM accidentally clears an additional 4 bytes
 	clearRAM Sprite_Table,Sprite_Table_End+4
 	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len+4
+    endif
 
 	startZ80
 	rts
