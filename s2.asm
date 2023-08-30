@@ -75,12 +75,12 @@ standaloneKiS2 = 0
 	include "s2.macrosetup.asm"
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-; Equates section - Names for variables.
-	include "s2.constants.asm"
-
-; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; Simplifying macros and functions
 	include "s2.macros.asm"
+
+; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+; Equates section - Names for variables.
+	include "s2.constants.asm"
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; Expressing SMPS bytecode in a portable and human-readable form
@@ -1549,9 +1549,14 @@ ClearScreen:
 	clr.l	(Vscroll_Factor).w
 	clr.l	(unk_F61A).w
 
+    if fixBugs
+	clearRAM Sprite_Table,Sprite_Table_End
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len
+    else
 	; These '+4's shouldn't be here; clearRAM accidentally clears an additional 4 bytes
 	clearRAM Sprite_Table,Sprite_Table_End+4
-	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+4
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len+4
+    endif
 
 	startZ80
 	rts
@@ -5123,9 +5128,9 @@ Level_TtlCard:
 	bsr.w	LevelSizeLoad
 	jsrto	DeformBgLayer, JmpTo_DeformBgLayer
 	clr.w	(Vscroll_Factor_FG).w
-	move.w	#-$E0,(Vscroll_Factor_P2_FG).w
+	move.w	#-224,(Vscroll_Factor_P2_FG).w
 
-	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len
 
 	bsr.w	LoadZoneTiles
 	jsrto	loadZoneBlockMaps, JmpTo_loadZoneBlockMaps
@@ -6847,12 +6852,12 @@ SpecialStage:
 ; \------------------------------------------------------------------------/
     if fixBugs
 	clearRAM Sprite_Table,Sprite_Table_End
-	clearRAM SS_Horiz_Scroll_Buf_1,SS_Horiz_Scroll_Buf_1_End
+	clearRAM SS_Horiz_Scroll_Buf_1,SS_Horiz_Scroll_Buf_1+HorizontalScrollBuffer.len
 	clearRAM SS_Shared_RAM,SS_Shared_RAM_End
     else
 	; These '+4's shouldn't be here; 'clearRAM' accidentally clears an additional 4 bytes.
 	clearRAM Sprite_Table,Sprite_Table_End+4
-	clearRAM SS_Horiz_Scroll_Buf_1,SS_Horiz_Scroll_Buf_1_End+4
+	clearRAM SS_Horiz_Scroll_Buf_1,SS_Horiz_Scroll_Buf_1+HorizontalScrollBuffer.len+4
 	clearRAM SS_Shared_RAM,SS_Shared_RAM_End+4
     endif
 	clearRAM Sprite_Table_Input,Sprite_Table_Input_End
@@ -9356,7 +9361,7 @@ ssInitTableBuffers:
 	swap	d1
 	swap	d2
 	swap	d3
-	moveq	#$1F,d4
+	moveq	#bytesToXcnt(HorizontalScrollBuffer.len,4*8),d4
 
 -	move.l	d0,(a1)+
 	move.l	d0,(a1)+
@@ -9569,7 +9574,7 @@ off_6E54:	offsetTable
 	lea	(SS_Horiz_Scroll_Buf_2 + 2).w,a1			; Load alternate horizontal scroll buffer for PNT B
 	neg.w	d2							; Change the sign of the background offset
 +
-	move.w	#$FF,d0							; 256 lines
+	move.w	#bytesToLcnt(HorizontalScrollBuffer.len),d0						; 256 lines ; TODO: THIS FUCKER
 -	sub.w	d2,(a1)+						; Change current line's offset
 	adda_.l	#2,a1							; Skip PNTA entry
 	dbf	d0,-
@@ -13562,10 +13567,10 @@ EndingSequence:
 	move.w	d0,(Credits_Trigger).w
 
     if fixBugs
-	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len
     else
 	; The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
-	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+4
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len+4
     endif
 
 	move.w	#$7FFF,(PalCycle_Timer).w
@@ -13642,10 +13647,10 @@ EndgameCredits:
 	move.w	d0,(Credits_Trigger).w
 
     if fixBugs
-	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len
     else
 	; The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
-	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+4
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len+4
     endif
 
 	moveq	#signextendB(MusID_Credits),d0
@@ -16079,11 +16084,11 @@ SwScrl_EHZ_2P:
 	; Update the background's vertical scrolling.
 	moveq	#0,d0
 	move.w	d0,(Vscroll_Factor_P2_BG).w
-	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
+	subi.w	#224,(Vscroll_Factor_P2_BG).w
 
 	; Update the foregrounds's vertical scrolling.
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
-	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
+	subi.w	#224,(Vscroll_Factor_P2_FG).w
 
 	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
@@ -16696,11 +16701,11 @@ SwScrl_HTZ_2P:
 	; Update the background's vertical scrolling.
 	moveq	#0,d0
 	move.w	d0,(Vscroll_Factor_P2_BG).w
-	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
+	subi.w	#224,(Vscroll_Factor_P2_BG).w
 
 	; Update the foreground's vertical scrolling.
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
-	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
+	subi.w	#224,(Vscroll_Factor_P2_FG).w
 
 	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
@@ -17431,11 +17436,11 @@ SwScrl_MCZ2P_RowHeights:
 
 	; Update the background's vertical scrolling.
 	move.w	d0,(Vscroll_Factor_P2_BG).w
-	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
+	subi.w	#224,(Vscroll_Factor_P2_BG).w
 
 	; Update the foreground's vertical scrolling.
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
-	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
+	subi.w	#224,(Vscroll_Factor_P2_FG).w
 
 	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
@@ -17743,11 +17748,11 @@ SwScrl_CNZ_2P:
 
 	; Update the background's vertical scrolling.
 	move.w	d0,(Vscroll_Factor_P2_BG).w
-	subi.w	#$E0,(Vscroll_Factor_P2_BG).w
+	subi.w	#224,(Vscroll_Factor_P2_BG).w
 
 	; Update the foreground's vertical scrolling.
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
-	subi.w	#$E0,(Vscroll_Factor_P2_FG).w
+	subi.w	#224,(Vscroll_Factor_P2_FG).w
 
 	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
@@ -28706,9 +28711,9 @@ Obj34_Init:
 
 	move.w	#$26,(TitleCard_Bottom+titlecard_location).w
 	clr.w	(Vscroll_Factor_FG).w
-	move.w	#-$E0,(Vscroll_Factor_P2_FG).w
+	move.w	#-224,(Vscroll_Factor_P2_FG).w
 
-	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len
 
 	rts
 ; ===========================================================================
@@ -43698,7 +43703,7 @@ Tails_LevelBound:
 	cmp.w	d1,d0			; has Tails touched the left boundary?
 	bhi.s	Tails_Boundary_Sides	; if yes, branch
 	move.w	(Tails_Max_X_pos).w,d0
-	addi.w	#$128,d0
+	addi.w	#320-24,d0		; screen width - Tails's width_pixels
 	tst.b	(Current_Boss_ID).w
 	bne.s	+
 	addi.w	#$40,d0
@@ -43709,7 +43714,18 @@ Tails_LevelBound:
 ; loc_1C58C:
 Tails_Boundary_CheckBottom:
 	move.w	(Tails_Max_Y_pos).w,d0
-	addi.w	#$E0,d0
+    if fixBugs
+	; The original code does not consider that the camera boundary
+	; may be in the middle of lowering itself, which is why going
+	; down the S-tunnel in Green Hill Zone Act 1 fast enough can
+	; kill Sonic.
+	move.w	(Camera_Max_Y_pos_target).w,d1
+	cmp.w	d0,d1
+	blo.s	.skip
+	move.w	d1,d0
+.skip:
+    endif
+	addi.w	#224,d0
 	cmp.w	y_pos(a0),d0		; has Tails touched the bottom boundary?
 	blt.s	Tails_Boundary_Bottom	; if yes, branch
 	rts
@@ -44470,7 +44486,18 @@ Obj02_Hurt:
 ; loc_1CC08:
 Tails_HurtStop:
 	move.w	(Tails_Max_Y_pos).w,d0
-	addi.w	#$E0,d0
+    if fixBugs
+	; The original code does not consider that the camera boundary
+	; may be in the middle of lowering itself, which is why going
+	; down the S-tunnel in Green Hill Zone Act 1 fast enough can
+	; kill Sonic.
+	move.w	(Camera_Max_Y_pos_target).w,d1
+	cmp.w	d0,d1
+	blo.s	.skip
+	move.w	d1,d0
+.skip:
+    endif
+	addi.w	#224,d0
 	cmp.w	y_pos(a0),d0
 	blt.w	JmpTo2_KillCharacter
 	bsr.w	Tails_DoLevelCollision
@@ -76002,9 +76029,9 @@ Obj5B_Main:
 	bsr.w	loc_3551C
 	tst.w	x_pos(a0)
 	bmi.w	JmpTo63_DeleteObject
-	cmpi.w	#$100,x_pos(a0)
+	cmpi.w	#256,x_pos(a0) ; Screen width
 	bhs.w	JmpTo63_DeleteObject
-	cmpi.w	#$E0,y_pos(a0)
+	cmpi.w	#224,y_pos(a0) ; Screen height
 	bgt.w	JmpTo63_DeleteObject
 	lea	(Ani_obj5B_obj60).l,a1
 	jsrto	AnimateSprite, JmpTo24_AnimateSprite
@@ -83125,7 +83152,7 @@ ObjB0_Init:
 	lea	(Horiz_Scroll_Buf + 2 * 2 * (9 * 8 + 6)).w,a1
 	lea	Streak_Horizontal_offsets(pc),a2
 	moveq	#0,d0
-	moveq	#$22,d6	; Number of streaks-1
+	moveq	#35-1,d6	; Number of streaks-1
 -	move.b	(a2)+,d0
 	add.w	d0,(a1)
 	addq.w	#2 * 2 * 2,a1	; Advance to next streak 2 pixels down
@@ -83260,11 +83287,11 @@ loc_3A346:
 	bchg	#0,status(a0)
 
     if fixBugs
-	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len
     else
 	; This clears a lot more than the horizontal scroll buffer, which is $400 bytes.
 	; This is because the loop counter is erroneously set to $400, instead of ($400/4)-1.
-	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+$C04
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+(HorizontalScrollBuffer.len*4+4)
     endif
 
 	; Initialize streak horizontal offsets for Sonic going right.
@@ -83272,7 +83299,7 @@ loc_3A346:
 	lea	(Horiz_Scroll_Buf + 2 * 2 * (9 * 8 + 7)).w,a1
 	lea	Streak_Horizontal_offsets(pc),a2
 	moveq	#0,d0
-	moveq	#$22,d6	; Number of streaks-1
+	moveq	#35-1,d6	; Number of streaks-1
 
 loc_3A38A:
 	move.b	(a2)+,d0
@@ -83354,7 +83381,7 @@ ObjB0_Move_Streaks_Left:
 	; 9 full lines (8 pixels) + 6 pixels, 2-byte interleaved entries for PNT A and PNT B
 	lea	(Horiz_Scroll_Buf + 2 * 2 * (9 * 8 + 6)).w,a1
 
-	move.w	#$22,d6	; Number of streaks-1
+	move.w	#35-1,d6	; Number of streaks-1
 -	subi.w	#$20,(a1)
 	addq.w	#2 * 2 * 2,a1	; Advance to next streak 2 pixels down
 	dbf	d6,-
@@ -83365,7 +83392,7 @@ ObjB0_Move_Streaks_Right:
 	; 9 full lines (8 pixels) + 7 pixels, 2-byte interleaved entries for PNT A and PNT B
 	lea	(Horiz_Scroll_Buf + 2 * 2 * (9 * 8 + 7)).w,a1
 
-	move.w	#$22,d6	; Number of streaks-1
+	move.w	#35-1,d6	; Number of streaks-1
 -	addi.w	#$20,(a1)
 	addq.w	#2 * 2 * 2,a1	; Advance to next streak 2 pixels down
 	dbf	d6,-

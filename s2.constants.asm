@@ -1104,13 +1104,16 @@ SS_Shared_RAM_End:
 VDP_Command_Buffer:		ds.w	7*$12	; stores 18 ($12) VDP commands to issue the next time ProcessDMAQueue is called
 VDP_Command_Buffer_Slot:	ds.l	1	; stores the address of the next open slot for a queued VDP command
 
-Sprite_Table_P2:			ds.b	$280	; Sprite attribute table buffer for the bottom split screen in 2-player mode
+Sprite_Table_P2:		ds.b	$280	; Sprite attribute table buffer for the bottom split screen in 2-player mode
 				ds.b	$80	; unused, but SAT buffer can spill over into this area when there are too many sprites on-screen
 
-Horiz_Scroll_Buf:		ds.l	224
-				ds.l	16 	; A bug/optimisation in 'Swscrl_CPZ' causes 'Horiz_Scroll_Buf' to overflow into this.
-				ds.b	$40	; unused
-Horiz_Scroll_Buf_End:
+HorizontalScrollBuffer struct dots
+	ds.l	224	; Total lines on the screen.
+	ds.l	16	; A bug/optimisation in 'Swscrl_CPZ' causes these values to be overflowed into.
+	ds.b	$40	; These are just unused.
+HorizontalScrollBuffer endstruct
+
+Horiz_Scroll_Buf:		HorizontalScrollBuffer
 
 Sonic_Stat_Record_Buf:		ds.b	$100
 
@@ -1261,7 +1264,7 @@ Camera_BG_Y_offset:		ds.w	1	; Used to control background scrolling in Y in WFZ e
 HTZ_Terrain_Delay:		ds.w	1	; During HTZ screen shake, this is a delay between rising and sinking terrain during which there is no shaking
 HTZ_Terrain_Direction:		ds.b	1	; During HTZ screen shake, 0 if terrain/lava is rising, 1 if lowering
 				ds.b	3	; $FFFFEEE9-$FFFFEEEB ; seems unused
-Vscroll_Factor_P2_HInt:	ds.l	1
+Vscroll_Factor_P2_HInt:		ds.l	1
 Camera_X_pos_copy:		ds.l	1
 Camera_Y_pos_copy:		ds.l	1
 
@@ -1969,7 +1972,7 @@ IntroBanner:
 ; RAM variables - Special stage
 	phase	RAM_Start	; Move back to start of RAM
 SSRAM_ArtNem_SpecialSonicAndTails:
-				ds.b	$353*$20	; $353 art blocks
+				ds.b	tiles_to_bytes($353)	; $353 art blocks
 SSRAM_MiscKoz_SpecialPerspective:
 				ds.b	$1AFC
 SSRAM_MiscNem_SpecialLevelLayout:
@@ -2023,7 +2026,7 @@ SS_Dynamic_Object_RAM_End:
 					; different purposes.
 PNT_Buffer:				ds.b	$700
 PNT_Buffer_End:
-SS_Horiz_Scroll_Buf_2:			ds.b	$400
+SS_Horiz_Scroll_Buf_2:			HorizontalScrollBuffer
 
 SSTrack_mappings_bitflags:		ds.l	1
 SSTrack_mappings_uncompressed:		ds.l	1
@@ -2093,15 +2096,14 @@ SS_TriggerRingsToGo:			ds.b	1
 	dephase
 
 	phase	ramaddr(Horiz_Scroll_Buf)	; Still in SS RAM
-SS_Horiz_Scroll_Buf_1:		ds.b	$400
-SS_Horiz_Scroll_Buf_1_End:
+SS_Horiz_Scroll_Buf_1:		HorizontalScrollBuffer
 	dephase
 
 	phase	ramaddr(Boss_variables)	; Still in SS RAM
 				ds.b	4 ; unused
 SS_Offset_X:			ds.w	1
 SS_Offset_Y:			ds.w	1
-SS_Swap_Positions_Flag:	ds.b	1
+SS_Swap_Positions_Flag:		ds.b	1
 
     if * > Boss_variables_end
 	fatal "Special stage variables exceed size of boss variables."
@@ -2221,7 +2223,7 @@ VRAM_Plane_Table_Size                    = $1000	; 64 cells x 32 cells x 2 bytes
 VRAM_Sprite_Attribute_Table              = $F800	; Extends until $FA7F
 VRAM_Sprite_Attribute_Table_Size         = $0280	; 640 bytes
 VRAM_Horiz_Scroll_Table                  = $FC00	; Extends until $FF7F
-VRAM_Horiz_Scroll_Table_Size             = $0380	; 224 lines * 2 bytes per entry * 2 PNTs
+VRAM_Horiz_Scroll_Table_Size             = 224*2*2	; 224 lines * 2 bytes per entry * 2 PNTs
 
 ; VRAM Reserved regions, Sega screen.
 VRAM_SegaScr_Plane_A_Name_Table          = $C000	; Extends until $DFFF
