@@ -39836,7 +39836,7 @@ Tails_LevelBound:
 	cmp.w	d1,d0			; has Tails touched the left boundary?
 	bhi.s	Tails_Boundary_Sides	; if yes, branch
 	move.w	(Tails_Max_X_pos).w,d0
-	addi.w	#$128,d0
+	addi.w	#320-24,d0		; screen width - Tails's width_pixels
 	tst.b	(Current_Boss_ID).w
 	bne.s	+
 	addi.w	#$40,d0
