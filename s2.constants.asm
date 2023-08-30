@@ -1077,7 +1077,7 @@ SS_Shared_RAM_End:
 VDP_Command_Buffer:		ds.w	7*$12	; stores 18 ($12) VDP commands to issue the next time ProcessDMAQueue is called
 VDP_Command_Buffer_Slot:	ds.l	1	; stores the address of the next open slot for a queued VDP command
 
-Sprite_Table_P2:			ds.b	$280	; Sprite attribute table buffer for the bottom split screen in 2-player mode
+Sprite_Table_P2:		ds.b	$280	; Sprite attribute table buffer for the bottom split screen in 2-player mode
 				ds.b	$80	; unused, but SAT buffer can spill over into this area when there are too many sprites on-screen
 
 Horiz_Scroll_Buf:		ds.l	224
@@ -1234,7 +1234,7 @@ Camera_BG_Y_offset:		ds.w	1	; Used to control background scrolling in Y in WFZ e
 HTZ_Terrain_Delay:		ds.w	1	; During HTZ screen shake, this is a delay between rising and sinking terrain during which there is no shaking
 HTZ_Terrain_Direction:		ds.b	1	; During HTZ screen shake, 0 if terrain/lava is rising, 1 if lowering
 				ds.b	3	; $FFFFEEE9-$FFFFEEEB ; seems unused
-Vscroll_Factor_P2_HInt:	ds.l	1
+Vscroll_Factor_P2_HInt:		ds.l	1
 Camera_X_pos_copy:		ds.l	1
 Camera_Y_pos_copy:		ds.l	1
 
@@ -1848,7 +1848,7 @@ IntroFallingStar:
 ; RAM variables - Special stage
 	phase	RAM_Start	; Move back to start of RAM
 SSRAM_ArtNem_SpecialSonicAndTails:
-				ds.b	$353*$20	; $353 art blocks
+				ds.b	tiles_to_bytes($353)	; $353 art blocks
 SSRAM_MiscKoz_SpecialPerspective:
 				ds.b	$1AFC
 SSRAM_MiscNem_SpecialLevelLayout:
@@ -1970,7 +1970,7 @@ SS_Horiz_Scroll_Buf_1_End:
 				ds.b	4 ; unused
 SS_Offset_X:			ds.w	1
 SS_Offset_Y:			ds.w	1
-SS_Swap_Positions_Flag:	ds.b	1
+SS_Swap_Positions_Flag:		ds.b	1
 
     if * > Boss_variables_end
 	fatal "Special stage variables exceed size of boss variables."
