@@ -9574,7 +9574,7 @@ off_6E54:	offsetTable
 	lea	(SS_Horiz_Scroll_Buf_2 + 2).w,a1			; Load alternate horizontal scroll buffer for PNT B
 	neg.w	d2							; Change the sign of the background offset
 +
-	move.w	#bytesToLcnt(HorizontalScrollBuffer.len),d0						; 256 lines ; TODO: THIS FUCKER
+	move.w	#bytesToLcnt(HorizontalScrollBuffer.len),d0		; 256 lines
 -	sub.w	d2,(a1)+						; Change current line's offset
 	adda_.l	#2,a1							; Skip PNTA entry
 	dbf	d0,-
@@ -37497,6 +37497,11 @@ SolidObject_Squash:
 	blo.w	SolidObject_LeftRight
 
 	move.l	a0,-(sp)
+    if fixBugs
+	; a2 needs to be set here, otherwise KillCharacter
+	; will access a dangling pointer!
+	movea.l	a0,a2
+    endif
 	movea.l	a1,a0
 	jsr	(KillCharacter).l
 	movea.l	(sp)+,a0 ; load 0bj address
@@ -40154,6 +40159,11 @@ Sonic_Boundary_CheckBottom:
 	rts
 ; ---------------------------------------------------------------------------
 Sonic_Boundary_Bottom: ;;
+    if fixBugs
+	; a2 needs to be set here, otherwise KillCharacter
+	; will access a dangling pointer!
+	movea.l	a0,a2
+    endif
 	jmpto	KillCharacter, JmpTo_KillCharacter
 ; ===========================================================================
 
@@ -41326,6 +41336,11 @@ Obj01_Hurt_Normal:
 ; ===========================================================================
 ; loc_1B184:
 Sonic_HurtStop:
+    if fixBugs
+	; a2 needs to be set here, otherwise KillCharacter
+	; will access a dangling pointer!
+	movea.l	a0,a2
+    endif
 	move.w	(Camera_Max_Y_pos).w,d0
     if fixBugs
 	; The original code does not consider that the camera boundary
@@ -43731,6 +43746,11 @@ Tails_Boundary_CheckBottom:
 	rts
 ; ---------------------------------------------------------------------------
 Tails_Boundary_Bottom: ;;
+    if fixBugs
+	; a2 needs to be set here, otherwise KillCharacter
+	; will access a dangling pointer!
+	movea.l	a0,a2
+    endif
 	jmpto	KillCharacter, JmpTo2_KillCharacter
 ; ===========================================================================
 
@@ -44485,6 +44505,11 @@ Obj02_Hurt:
 ; ===========================================================================
 ; loc_1CC08:
 Tails_HurtStop:
+    if fixBugs
+	; a2 needs to be set here, otherwise KillCharacter
+	; will access a dangling pointer!
+	movea.l	a0,a2
+    endif
 	move.w	(Tails_Max_Y_pos).w,d0
     if fixBugs
 	; The original code does not consider that the camera boundary
