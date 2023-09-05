@@ -1664,7 +1664,6 @@ Timer_minute_word_2P:				; 2 bytes
 				ds.b	1	; filler
 Timer_minute_2P:		ds.b	1	; 1 byte
 Timer_second_2P:		ds.b	1	; 1 byte
-Timer_centisecond_2P:				; inaccurate name (the seconds increase when this reaches 60)
 Timer_frame_2P:			ds.b	1	; 1 byte
 Score_2P:			ds.l	1
 				ds.b	6	; $FFFFFEDA-$FFFFFEDF ; seems unused

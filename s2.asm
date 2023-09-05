@@ -11044,7 +11044,7 @@ Setup2PResults_Act:
 	bsr.w	sub_86B0
 	move.w	#$3FA,d2
 	moveq	#0,d1
-	move.b	(Timer_centisecond_2P).w,d1
+	move.b	(Timer_frame_2P).w,d1
 	mulu.w	#$1B0,d1
 	lsr.l	#8,d1
 	bsr.w	sub_86B0
