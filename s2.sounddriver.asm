@@ -3200,14 +3200,17 @@ zSetVoice:
 	; 'hl' is set to the address of the voice table pointer (can be substituted, probably mainly for SFX)
 
     if OptimiseDriver
-	ld	e,a
-	ld	d,0
+	or	a
+	jr	z,.havevoiceptr
+	ld	de,25
 
-	ld	b,25
+	ld	b,a
 
 .voicemultiply:
 	add	hl,de
 	djnz	.voicemultiply
+
+.havevoiceptr:
     else
 	push	hl	; push 'hl' for the end of the following block...
 
