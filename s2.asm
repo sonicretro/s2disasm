@@ -30055,7 +30055,7 @@ DisplaySprite:
 	lea	(Object_Display_Lists).w,a1
 	move.w	priority(a0),d0
 	lsr.w	#8-object_display_list_size_bits,d0
-	andi.w	#(object_display_list_count-1)<<object_display_list_size_bits,d0
+	andi.w	#(1<<total_object_display_lists_bits-1)<<object_display_list_size_bits,d0
 	adda.w	d0,a1
 	cmpi.w	#object_display_list_size-2,(a1)
 	bhs.s	.return
@@ -30078,7 +30078,7 @@ DisplaySprite2:
 	lea	(Object_Display_Lists).w,a2
 	move.w	priority(a1),d0
 	lsr.w	#8-object_display_list_size_bits,d0
-	andi.w	#(object_display_list_count-1)<<object_display_list_size_bits,d0
+	andi.w	#(1<<total_object_display_lists_bits-1)<<object_display_list_size_bits,d0
 	adda.w	d0,a2
 	cmpi.w	#object_display_list_size-2,(a2)
 	bhs.s	.return
@@ -30226,7 +30226,7 @@ BuildSprites:
 	bsr.w	BuildRings
 +
 	lea	(Object_Display_Lists).w,a4
-	moveq	#object_display_list_count-1,d7	; 8 priority levels
+	moveq	#total_object_display_lists-1,d7	; 8 priority levels
 ; loc_16628:
 BuildSprites_LevelLoop:
 	tst.w	(a4)	; does this level have any objects?
@@ -30705,7 +30705,7 @@ BuildSprites_2P:
 	bsr.w	BuildRings_P1
 +
 	lea	(Object_Display_Lists).w,a4
-	moveq	#object_display_list_count-1,d7
+	moveq	#total_object_display_lists-1,d7
 ; loc_16982:
 BuildSprites_P1_LevelLoop:
 	move.w	(a4),d0	; does this priority level have any objects?
@@ -30843,7 +30843,7 @@ BuildSprites_P2:
 	bsr.w	BuildRings_P2
 +
 	lea	(Object_Display_Lists).w,a4
-	moveq	#object_display_list_count-1,d7
+	moveq	#total_object_display_lists-1,d7
 ; loc_16A9C:
 BuildSprites_P2_LevelLoop:
 	move.w	(a4),d0

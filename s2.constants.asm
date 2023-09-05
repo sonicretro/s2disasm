@@ -964,8 +964,8 @@ palette_line_size =		$10*2	; 16 word entries
 ; Sprite queue
 object_display_list_size_bits =		7
 object_display_list_size =		1<<object_display_list_size_bits ; How big a list is
-object_display_list_count_bits =	3
-object_display_list_count =		1<<object_display_list_count_bits ; How many lists there are
+total_object_display_lists_bits =	3
+total_object_display_lists =		1<<total_object_display_lists_bits ; How many lists there are
 
 ; ---------------------------------------------------------------------------
 ; I run the main 68k RAM addresses through this function
@@ -988,7 +988,7 @@ Block_Table_End:
 
 TempArray_LayerDef:		ds.b	$200	; used by some layer deformation routines
 Decomp_Buffer:			ds.b	$200
-Object_Display_Lists:		ds.b	object_display_list_size*object_display_list_count	; in custom format before being converted and stored in Sprite_Table/Sprite_Table_P2
+Object_Display_Lists:		ds.b	object_display_list_size*total_object_display_lists	; in custom format before being converted and stored in Sprite_Table/Sprite_Table_P2
 Object_Display_Lists_End:
 
 Object_RAM:			; The various objects in the game are loaded in this area.
