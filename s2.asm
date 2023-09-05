@@ -30092,7 +30092,7 @@ DisplaySprite2:
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to display a sprite/object, when a0 is the object RAM
-; and d0 is already (priority/2)&$380
+; and d0 is already priority*$80
 ; ---------------------------------------------------------------------------
 
 ; loc_16530:
