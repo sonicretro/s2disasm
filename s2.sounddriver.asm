@@ -226,6 +226,10 @@ zSaveSongPSG2:		zTrack
 zSaveSongPSG3:		zTrack
 zTracksSaveEnd:
 ; See the very end for another set of variables
+
+	if *>$2000
+		fatal "Z80 variables are \{*-$2000}h bytes past the end of Z80 RAM!"
+	endif
 	dephase
 
 MUSIC_TRACK_COUNT = (zTracksEnd-zTracksStart)/zTrack.len
