@@ -5182,12 +5182,12 @@ MoveWater:
 	bhs.s	+
 	tst.w	d0
 	bpl.s	+
-	move.b	#$DF,(Hint_counter_reserve+1).w	; H-INT every 224th scanline
+	move.b	#224-1,(Hint_counter_reserve+1).w	; H-INT every 224th scanline
 	move.b	#1,(Water_fullscreen_flag).w
 +
-	cmpi.w	#$DF,d0
+	cmpi.w	#224-1,d0
 	blo.s	+
-	move.w	#$DF,d0
+	move.w	#224-1,d0
 +
 	move.b	d0,(Hint_counter_reserve+1).w	; H-INT every d0 scanlines
 ; loc_456A:
@@ -10455,9 +10455,9 @@ ObjDA_Init:
 	move.w	#make_art_tile(ArtTile_ArtNem_ContinueText,0,1),art_tile(a0)
 	jsrto	Adjust2PArtPointer, JmpTo_Adjust2PArtPointer
 	move.b	#0,render_flags(a0)
-	move.b	#$3C,width_pixels(a0)
-	move.w	#$120,x_pixel(a0)
-	move.w	#$C0,y_pixel(a0)
+	move.b	#60,width_pixels(a0)
+	move.w	#$80+320/2,x_pixel(a0)
+	move.w	#$80+64,y_pixel(a0)
 
 JmpTo2_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
@@ -22669,7 +22669,7 @@ loc_FF6E:
 	move.w	#0,objoff_3E(a0)
 	move.w	#$8000,angle(a0)
 	move.b	#0,objoff_3D(a0)
-	move.w	#$3C,objoff_36(a0)
+	move.w	#60,objoff_36(a0)
 	bra.s	loc_10006
 ; ===========================================================================
 +
@@ -22683,7 +22683,7 @@ loc_FF6E:
 	move.w	#$4000,angle(a0)
 	move.b	#1,objoff_3D(a0)
 ; loc_10000:
-	move.w	#$3C,objoff_36(a0)
+	move.w	#60,objoff_36(a0)
 
 loc_10006:
 	move.b	angle(a0),d0
@@ -23414,7 +23414,7 @@ loc_10778:
 	lsr.w	#4,d0
 	tst.b	(a2,d0.w)
 	beq.s	+	; rts
-	move.w	#$3C,objoff_3A(a0)
+	move.w	#60,objoff_3A(a0)
 /
 	rts
 ; ===========================================================================
@@ -27771,7 +27771,7 @@ loc_14220:
 	move.l	#Obj3A_MapUnc_14CBC,mappings(a1)
 	bsr.w	Adjust2PArtPointer2
 	move.b	#0,render_flags(a1)
-	move.w	#$3C,anim_frame_duration(a1)
+	move.w	#60,anim_frame_duration(a1)
 	addq.b	#1,(Continue_count).w
 
 return_14254:
@@ -29272,7 +29272,7 @@ MoveSpikes_ChkDir:
 	bhs.s	+	; rts			; branch, if offset is not yet 0
 	move.w	#0,spikes_retract_offset(a0)
 	move.w	#0,spikes_retract_state(a0)	; switch state
-	move.w	#$3C,spikes_retract_timer(a0)	; reset timer
+	move.w	#60,spikes_retract_timer(a0)	; reset timer
 	bra.s	+	; rts
 ; ===========================================================================
 ; loc_15B46:
@@ -29282,7 +29282,7 @@ MoveSpikes_Retract:
 	blo.s	+	; rts				; if not, branch
 	move.w	#$2000,spikes_retract_offset(a0)
 	move.w	#1,spikes_retract_state(a0)	; switch state
-	move.w	#$3C,spikes_retract_timer(a0)	; reset timer
+	move.w	#60,spikes_retract_timer(a0)	; reset timer
 +
 	rts
 ; End of function MoveSpikes_Delay
@@ -34484,7 +34484,7 @@ Obj0D_Main_StateNull:
 Obj0D_Main_State2:
 	subq.w	#1,obj0D_spinframe(a0)
 	bpl.s	loc_19398
-	move.w	#$3C,obj0D_spinframe(a0)
+	move.w	#60,obj0D_spinframe(a0)
 	addq.b	#1,anim(a0)
 	cmpi.b	#3,anim(a0)
 	bne.s	loc_19398
@@ -34587,12 +34587,12 @@ Load_EndOfAct:
 	move.b	#1,(Update_Bonus_score).w
 	moveq	#0,d0
 	move.b	(Timer_minute).w,d0
-	mulu.w	#$3C,d0
+	mulu.w	#60,d0
 	moveq	#0,d1
 	move.b	(Timer_second).w,d1
 	add.w	d1,d0
-	divu.w	#$F,d0
-	moveq	#$14,d1
+	divu.w	#15,d0
+	moveq	#(TimeBonuses_End-TimeBonuses)/2-1,d1
 	cmp.w	d1,d0
 	blo.s	+
 	move.w	d1,d0
@@ -34619,6 +34619,7 @@ TimeBonuses:
 	dc.w 5000, 5000, 1000, 500, 400, 400, 300, 300
 	dc.w  200,  200,  200, 200, 100, 100, 100, 100
 	dc.w   50,   50,   50,  50,   0
+TimeBonuses_End:
 ; ===========================================================================
 ; loc_194FC:
 Obj0D_Main_State4:
@@ -46931,7 +46932,7 @@ Obj06_Cylinder:
 	cmpi.w	#$C0,d0
 	bge.s	return_2188A
 	move.w	y_pos(a0),d0
-	addi.w	#$3C,d0
+	addi.w	#60,d0
 	move.w	y_pos(a1),d2
 	move.b	y_radius(a1),d1
 	ext.w	d1
@@ -56120,7 +56121,7 @@ loc_292EC:
 	move.b	objoff_2E(a0),d0
 	andi.b	#touch_bottom_mask,d0
 	beq.s	return_29302
-	move.w	#$3C,objoff_2C(a0)
+	move.w	#60,objoff_2C(a0)
 
 return_29302:
 	rts
@@ -56674,10 +56675,10 @@ Obj7F_Action:
 	beq.w	return_29936
 	clr.b	obj_control(a1)
 	clr.b	(a2)
-	move.b	#$12,2(a2)
+	move.b	#18,2(a2)
 	andi.w	#(button_up_mask|button_down_mask|button_left_mask|button_right_mask)<<8,d0
 	beq.s	+
-	move.b	#$3C,2(a2)
+	move.b	#60,2(a2)
 +
 	move.w	#-$300,y_vel(a1)
 	move.b	subtype(a0),d0
@@ -56890,10 +56891,10 @@ Obj80_Action:
 	beq.w	loc_29B50
 	clr.b	obj_control(a1)
 	clr.b	(a2)
-	move.b	#$12,2(a2)
+	move.b	#18,2(a2)
 	andi.w	#(button_up_mask|button_down_mask|button_left_mask|button_right_mask)<<8,d0
 	beq.w	+
-	move.b	#$3C,2(a2)
+	move.b	#60,2(a2)
 +
 	btst	#(button_left+8),d0
 	beq.s	+
@@ -56919,7 +56920,7 @@ Obj80_Action:
 loc_29B42:
 	clr.b	obj_control(a1)
 	clr.b	(a2)
-	move.b	#$3C,2(a2)
+	move.b	#60,2(a2)
 	rts
 ; ===========================================================================
 
@@ -60589,10 +60590,10 @@ ObjD9_CheckCharacter:
 	beq.w	ObjD9_CheckCharacter_End
 	clr.b	obj_control(a1)
 	clr.b	(a2)
-	move.b	#$12,2(a2)
+	move.b	#18,2(a2)
 	andi.w	#(button_up_mask|button_down_mask|button_left_mask|button_right_mask)<<8,d0
 	beq.s	+
-	move.b	#$3C,2(a2)
+	move.b	#60,2(a2)
 +
 	move.w	#-$300,y_vel(a1)
 	bra.w	ObjD9_CheckCharacter_End
@@ -60764,7 +60765,7 @@ Obj4A_MoveUp:
 ; ===========================================================================
 +
 	addq.b	#2,routine_secondary(a0)
-	move.w	#$3C,objoff_2C(a0)
+	move.w	#60,objoff_2C(a0)
 	bra.w	Obj4A_FireBullet
 ; ===========================================================================
 ; loc_2CB3A:
@@ -63880,7 +63881,7 @@ loc_2F2BA:	; Obj56_VehicleMain_Sub2_0:
 loc_2F2CC:
 	addq.b	#2,objoff_2C(a0)	; tertiary routine
 	bset	#0,objoff_2D(a0)	; Robotnik on ground (relevant for propeller)
-	move.w	#$3C,objoff_2A(a0)	; timer for standing still
+	move.w	#60,objoff_2A(a0)	; timer for standing still
 	bra.w	JmpTo35_DisplaySprite
 ; ---------------------------------------------------------------------------
 
@@ -67397,7 +67398,7 @@ loc_31EAE:
 	move.w	#0,objoff_2E(a0)
 
 loc_31EE8:
-	cmpi.w	#$3C,(Boss_Countdown).w
+	cmpi.w	#60,(Boss_Countdown).w
 	bgt.s	return_31F22
 	addi_.w	#1,sub2_x_pos(a0)
 	move.l	objoff_34(a0),d0
@@ -68084,7 +68085,7 @@ Obj54_AnimateFace:
 ;loc_32802
 Obj54_MainSub10:
 	subq.w	#1,(Boss_Countdown).w
-	cmpi.w	#$3C,(Boss_Countdown).w
+	cmpi.w	#60,(Boss_Countdown).w
 	blo.s	++
 	bmi.s	+
 	bsr.w	Boss_LoadExplosion
@@ -77586,7 +77587,7 @@ loc_397AC:
 
 loc_397BA:
 	addq.b	#2,routine(a0)
-	move.w	#$3C,objoff_2A(a0)
+	move.w	#60,objoff_2A(a0)
 	move.w	#$100,y_vel(a0)
 	move.w	#$224,d0
 	move.w	d0,(Camera_Min_X_pos).w
@@ -77892,7 +77893,7 @@ loc_39ABC:
 
 loc_39ACE:
 	subq.b	#1,objoff_2A(a0)
-	cmpi.b	#$3C,objoff_2A(a0)
+	cmpi.b	#60,objoff_2A(a0)
 	bne.s	loc_39ADE
 	bsr.w	loc_39AE8
 
@@ -80925,7 +80926,7 @@ ObjC1_Init:
 	bsr.w	LoadSubObject_Part2
 	moveq	#0,d0
 	move.b	subtype(a0),d0
-	mulu.w	#$3C,d0
+	mulu.w	#60,d0
 	move.w	d0,objoff_30(a0)
 
 ObjC1_Main:
@@ -82603,7 +82604,7 @@ loc_3D5A8:
 ; ---------------------------------------------------------------------------
 +
 	addq.b	#2,routine_secondary(a0)
-	move.b	#$3C,anim_frame_duration(a0)
+	move.b	#60,anim_frame_duration(a0)
 	moveq	#signextendB(MusID_FadeOut),d0
 	jmpto	PlaySound, JmpTo12_PlaySound
 ; ===========================================================================
@@ -83720,7 +83721,7 @@ ObjC7_CheckHit:
 	subq.b	#1,collision_property(a0)
 	beq.s	ObjC7_Beaten
 +
-	move.b	#$3C,objoff_2A(a0)
+	move.b	#60,objoff_2A(a0)
 	move.w	#SndID_BossHit,d0
 	jsr	(PlaySound).l
 ;loc_3E02E
@@ -87828,7 +87829,7 @@ Hud_ChkTime:
 	tst.w	(Game_paused).w	; is the game paused?
 	bne.s	Hud_ChkLives	; if yes, branch
 	lea	(Timer).w,a1
-	cmpi.l	#$93B3B,(a1)+	; is the time 9.59?
+	cmpi.l	#(9<<(8*2))|(59<<(8*1))|(59<<(8*0)),(a1)+	; is the time 9.59?
 	beq.w	loc_40E84	; if yes, branch
 	addq.b	#1,-(a1)
 	cmpi.b	#60,(a1)
@@ -87936,14 +87937,14 @@ loc_40F18:
 	tst.w	(Game_paused).w
 	bne.s	return_40F4E
 	lea	(Timer).w,a1
-	cmpi.l	#$93B3B,(a1)+
+	cmpi.l	#(9<<(8*2))|(59<<(8*1))|(59<<(8*0)),(a1)+
 	nop			; You can't get a Time Over in Debug Mode, so this branch is dummied-out
 	addq.b	#1,-(a1)
-	cmpi.b	#$3C,(a1)
+	cmpi.b	#60,(a1)
 	blo.s	return_40F4E
 	move.b	#0,(a1)
 	addq.b	#1,-(a1)
-	cmpi.b	#$3C,(a1)
+	cmpi.b	#60,(a1)
 	blo.s	return_40F4E
 	move.b	#0,(a1)
 	addq.b	#1,-(a1)
@@ -87961,14 +87962,14 @@ loc_40F50:
 	tst.b	(Update_HUD_timer).w
 	beq.s	loc_40F90
 	lea	(Timer).w,a1
-	cmpi.l	#$93B3B,(a1)+
+	cmpi.l	#(9<<(8*2))|(59<<(8*1))|(59<<(8*0)),(a1)+
 	beq.w	TimeOver
 	addq.b	#1,-(a1)
-	cmpi.b	#$3C,(a1)
+	cmpi.b	#60,(a1)
 	blo.s	loc_40F90
 	move.b	#0,(a1)
 	addq.b	#1,-(a1)
-	cmpi.b	#$3C,(a1)
+	cmpi.b	#60,(a1)
 	blo.s	loc_40F90
 	move.b	#0,(a1)
 	addq.b	#1,-(a1)
@@ -87980,14 +87981,14 @@ loc_40F90:
 	tst.b	(Update_HUD_timer_2P).w
 	beq.s	loc_40FC8
 	lea	(Timer_2P).w,a1
-	cmpi.l	#$93B3B,(a1)+
+	cmpi.l	#(9<<(8*2))|(59<<(8*1))|(59<<(8*0)),(a1)+
 	beq.w	TimeOver2
 	addq.b	#1,-(a1)
-	cmpi.b	#$3C,(a1)
+	cmpi.b	#60,(a1)
 	blo.s	loc_40FC8
 	move.b	#0,(a1)
 	addq.b	#1,-(a1)
-	cmpi.b	#$3C,(a1)
+	cmpi.b	#60,(a1)
 	blo.s	loc_40FC8
 	move.b	#0,(a1)
 	addq.b	#1,-(a1)
@@ -88016,8 +88017,8 @@ loc_40FE4:
 	beq.s	return_4101A
 	subq.b	#1,-(a1)
 	bhi.s	return_4101A
-	move.b	#$3C,(a1)
-	cmpi.b	#$C,-1(a1)
+	move.b	#60,(a1)
+	cmpi.b	#12,-1(a1)
 	bne.s	loc_41010
 	move.w	#MusID_Countdown,d0
 	jsr	(PlayMusic).l
