@@ -226,6 +226,10 @@ zSaveSongPSG2:		zTrack
 zSaveSongPSG3:		zTrack
 zTracksSaveEnd:
 ; See the very end for another set of variables
+
+	if *>$2000
+		fatal "Z80 variables are \{*-$2000}h bytes past the end of Z80 RAM!"
+	endif
 	dephase
 
 MUSIC_TRACK_COUNT = (zTracksEnd-zTracksStart)/zTrack.len
@@ -253,21 +257,21 @@ bankswitch macro addr68k
     if OptimiseDriver=1
 	; Because why use a and e when you can use h and l?
 	ld	hl,zBankRegister+1	; +1 so that 6000h becomes 6001h, which is still a valid bankswitch port
-cnt	:= 0
+.cnt	:= 0
 	rept 9
 		; this is either ld (hl),h or ld (hl),l
-		db (74h|(((addr68k)&(1<<(15+cnt)))<>0))
-cnt		:= (cnt+1)
+		db (74h|(((addr68k)&(1<<(15+.cnt)))<>0))
+.cnt		:= (.cnt+1)
 	endm
     else
 	xor	a	; a = 0
 	ld	e,1	; e = 1
 	ld	hl,zBankRegister
-cnt	:= 0
+.cnt	:= 0
 	rept 9
 		; this is either ld (hl),a or ld (hl),e
-		db (73h|((((addr68k)&(1<<(15+cnt)))==0)<<2))
-cnt		:= (cnt+1)
+		db (73h|((((addr68k)&(1<<(15+.cnt)))==0)<<2))
+.cnt		:= (.cnt+1)
 	endm
     endif
     endm
@@ -3200,14 +3204,17 @@ zSetVoice:
 	; 'hl' is set to the address of the voice table pointer (can be substituted, probably mainly for SFX)
 
     if OptimiseDriver
-	ld	e,a
-	ld	d,0
+	or	a
+	jr	z,.havevoiceptr
+	ld	de,25
 
-	ld	b,25
+	ld	b,a
 
 .voicemultiply:
 	add	hl,de
 	djnz	.voicemultiply
+
+.havevoiceptr:
     else
 	push	hl	; push 'hl' for the end of the following block...
 
