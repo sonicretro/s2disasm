@@ -962,10 +962,10 @@ AniIDTailsAni_Fly		= id(TailsAni_Fly_ptr)		; 32 ; $20
 palette_line_size =		$10*2	; 16 word entries
 
 ; Sprite queue
-sprite_queue_size_bits =	7
-sprite_queue_size =		1<<sprite_queue_size_bits
-sprite_queue_count_bits =	3
-sprite_queue_count =		1<<sprite_queue_count_bits
+object_display_list_size_bits =		7
+object_display_list_size =		1<<object_display_list_size_bits ; How big a list is
+object_display_list_count_bits =	3
+object_display_list_count =		1<<object_display_list_count_bits ; How many lists there are
 
 ; ---------------------------------------------------------------------------
 ; I run the main 68k RAM addresses through this function
@@ -988,8 +988,8 @@ Block_Table_End:
 
 TempArray_LayerDef:		ds.b	$200	; used by some layer deformation routines
 Decomp_Buffer:			ds.b	$200
-Sprite_Table_Input:		ds.b	sprite_queue_size*sprite_queue_count	; in custom format before being converted and stored in Sprite_Table/Sprite_Table_P2
-Sprite_Table_Input_End:
+Object_Display_Lists:		ds.b	object_display_list_size*object_display_list_count	; in custom format before being converted and stored in Sprite_Table/Sprite_Table_P2
+Object_Display_Lists_End:
 
 Object_RAM:			; The various objects in the game are loaded in this area.
 				; Each game mode uses different objects, so some slots are reused.

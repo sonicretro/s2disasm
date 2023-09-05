@@ -4182,7 +4182,7 @@ TitleScreen:
 	bsr.w	ClearScreen
 
 	; Reset a bunch of engine state.
-	clearRAM Sprite_Table_Input,Sprite_Table_Input_End ; fill $AC00-$AFFF with $0
+	clearRAM Object_Display_Lists,Object_Display_Lists_End ; fill $AC00-$AFFF with $0
 	clearRAM Object_RAM,Object_RAM_End ; fill object RAM ($B000-$D5FF) with $0
 	clearRAM Misc_Variables,Misc_Variables_End ; clear CPU player RAM and following variables
 	clearRAM Camera_RAM,Camera_RAM_End ; clear camera RAM and following variables
@@ -4707,7 +4707,7 @@ Level:
 	bsr.w	LoadPLC
 ; loc_3F48:
 Level_ClrRam:
-	clearRAM Sprite_Table_Input,Sprite_Table_Input_End
+	clearRAM Object_Display_Lists,Object_Display_Lists_End
 	clearRAM Object_RAM,LevelOnly_Object_RAM_End ; clear object RAM and level-only object RAM
 	clearRAM MiscLevelVariables,MiscLevelVariables_End
 	clearRAM Misc_Variables,Misc_Variables_End
@@ -6522,7 +6522,7 @@ SpecialStage:
 	clearRAM SS_Horiz_Scroll_Buf_1,SS_Horiz_Scroll_Buf_1+HorizontalScrollBuffer.len+4
 	clearRAM SS_Shared_RAM,SS_Shared_RAM_End+4
     endif
-	clearRAM Sprite_Table_Input,Sprite_Table_Input_End
+	clearRAM Object_Display_Lists,Object_Display_Lists_End
 	clearRAM Object_RAM,Object_RAM_End
 
     if fixBugs
@@ -6715,7 +6715,7 @@ SpecialStage:
 	move.w	#MusID_EndLevel,d0
 	jsr	(PlaySound).l
 
-	clearRAM Sprite_Table_Input,Sprite_Table_Input_End
+	clearRAM Object_Display_Lists,Object_Display_Lists_End
 	clearRAM Object_RAM,Object_RAM_End
 
 	move.b	#ObjID_SSResults,(SpecialStageResults+id).w ; load Obj6F (special stage results) at $FFFFB800
@@ -9435,7 +9435,7 @@ Obj5E:
     if fixBugs
 	; See below.
 	beq.s	+
-	move.w	#sprite_queue_size*0,d0
+	move.w	#object_display_list_size*0,d0
 	jmp	(DisplaySprite3).l
 +
     else
@@ -9859,7 +9859,7 @@ loc_7536:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*0,d0
+	move.w	#object_display_list_size*0,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo_DisplaySprite
@@ -9916,7 +9916,7 @@ loc_753E:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*0,d0
+	move.w	#object_display_list_size*0,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo_DisplaySprite
@@ -9930,7 +9930,7 @@ loc_753E:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*0,d0
+	move.w	#object_display_list_size*0,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo_DisplaySprite
@@ -9946,7 +9946,7 @@ loc_753E:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*0,d0
+	move.w	#object_display_list_size*0,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo_DisplaySprite
@@ -10000,7 +10000,7 @@ loc_75DE:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*0,d0
+	move.w	#object_display_list_size*0,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo_DisplaySprite
@@ -10676,7 +10676,7 @@ TwoPlayerResults:
 	move.w	#$8C81,(a6)		; H res 40 cells, no interlace, S/H disabled
 	move.w	#$9001,(a6)		; Scroll table size: 64x32
 
-	clearRAM Sprite_Table_Input,Sprite_Table_Input_End
+	clearRAM Object_Display_Lists,Object_Display_Lists_End
 	clearRAM Object_RAM,Object_RAM_End
 
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_FontStuff),VRAM,WRITE),(VDP_control_port).l
@@ -11694,7 +11694,7 @@ MenuScreen:
 	move.w	#$8C81,(a6)		; H res 40 cells, no interlace, S/H disabled
 	move.w	#$9001,(a6)		; Scroll table size: 64x32
 
-	clearRAM Sprite_Table_Input,Sprite_Table_Input_End
+	clearRAM Object_Display_Lists,Object_Display_Lists_End
 	clearRAM Object_RAM,Object_RAM_End
 
 	; load background + graphics of font/LevSelPics
@@ -13120,7 +13120,7 @@ EndgameCredits:
 	move.w	#$8C81,(a6)		; H res 40 cells, no interlace, S/H disabled
 	jsrto	ClearScreen, JmpTo_ClearScreen
 
-	clearRAM Sprite_Table_Input,Sprite_Table_Input_End
+	clearRAM Object_Display_Lists,Object_Display_Lists_End
 	clearRAM Object_RAM,Object_RAM_End
 	clearRAM Misc_Variables,Misc_Variables_End
 	clearRAM Camera_RAM,Camera_RAM_End
@@ -21891,7 +21891,7 @@ Obj11:
 	jmp	Obj11_Index(pc,d1.w)
 ; ===========================================================================
 +	; child sprite objects only need to be drawn
-	move.w	#sprite_queue_size*3,d0
+	move.w	#object_display_list_size*3,d0
 	bra.w	DisplaySprite3
 ; ===========================================================================
 ; off_F68C:
@@ -22413,7 +22413,7 @@ Obj15:
 	jmp	Obj15_Index(pc,d1.w)
 ; ---------------------------------------------------------------------------
 +
-	move.w	#sprite_queue_size*4,d0
+	move.w	#object_display_list_size*4,d0
 	bra.w	DisplaySprite3
 ; ===========================================================================
 ; off_FCBC: Obj15_States:
@@ -29570,7 +29570,7 @@ RunObjectDisplayOnly:
 	; If this is a multi-sprite object, then we cannot use its 'priority'
 	; value to display it as it's being used for coordinate data.
 	; In theory, this means that calls to 'DisplaySprite' here could
-	; overflow the 'Sprite_Table_Input' buffer and write to 'Object_RAM'
+	; overflow the 'Object_Display_Lists' buffer and write to 'Object_RAM'
 	; instead, which could be quite disasterous. However, I don't think
 	; it's possible for an object to have a Y coordinate higher than
 	; $7FF, so, in practice, the overflow never occurs. Still, it can
@@ -29584,7 +29584,7 @@ RunObjectDisplayOnly:
 	pea	+(pc)	; This is an optimisation to avoid the need for extra branches: it makes it so '+' will be executed after 'DisplaySprite' or 'DisplaySprite3' return.
 	btst	#6,render_flags(a0)	; Is this a multi-sprite object?
 	beq.w	DisplaySprite		; If not, display using the object's 'priority' value.
-	move.w	#sprite_queue_size*4,d0		; If not, display using a hardcoded priority of 4.
+	move.w	#object_display_list_size*4,d0		; If not, display using a hardcoded priority of 4.
 	bra.w	DisplaySprite3
     else
 	bsr.w	DisplaySprite
@@ -30052,12 +30052,12 @@ DeleteObject2:
 
 ; sub_164F4:
 DisplaySprite:
-	lea	(Sprite_Table_Input).w,a1
+	lea	(Object_Display_Lists).w,a1
 	move.w	priority(a0),d0
-	lsr.w	#8-sprite_queue_size_bits,d0
-	andi.w	#(sprite_queue_count-1)<<sprite_queue_size_bits,d0
+	lsr.w	#8-object_display_list_size_bits,d0
+	andi.w	#(object_display_list_count-1)<<object_display_list_size_bits,d0
 	adda.w	d0,a1
-	cmpi.w	#sprite_queue_size-2,(a1)
+	cmpi.w	#object_display_list_size-2,(a1)
 	bhs.s	.return
 	addq.w	#2,(a1)
 	adda.w	(a1),a1
@@ -30075,12 +30075,12 @@ DisplaySprite:
 
 ; sub_16512:
 DisplaySprite2:
-	lea	(Sprite_Table_Input).w,a2
+	lea	(Object_Display_Lists).w,a2
 	move.w	priority(a1),d0
-	lsr.w	#8-sprite_queue_size_bits,d0
-	andi.w	#(sprite_queue_count-1)<<sprite_queue_size_bits,d0
+	lsr.w	#8-object_display_list_size_bits,d0
+	andi.w	#(object_display_list_count-1)<<object_display_list_size_bits,d0
 	adda.w	d0,a2
-	cmpi.w	#sprite_queue_size-2,(a2)
+	cmpi.w	#object_display_list_size-2,(a2)
 	bhs.s	.return
 	addq.w	#2,(a2)
 	adda.w	(a2),a2
@@ -30097,9 +30097,9 @@ DisplaySprite2:
 
 ; loc_16530:
 DisplaySprite3:
-	lea	(Sprite_Table_Input).w,a1
+	lea	(Object_Display_Lists).w,a1
 	adda.w	d0,a1
-	cmpi.w	#sprite_queue_size-2,(a1)
+	cmpi.w	#object_display_list_size-2,(a1)
 	bhs.s	.return
 	addq.w	#2,(a1)
 	adda.w	(a1),a1
@@ -30225,8 +30225,8 @@ BuildSprites:
 	jsrto	BuildHUD, JmpTo_BuildHUD
 	bsr.w	BuildRings
 +
-	lea	(Sprite_Table_Input).w,a4
-	moveq	#sprite_queue_count-1,d7	; 8 priority levels
+	lea	(Object_Display_Lists).w,a4
+	moveq	#object_display_list_count-1,d7	; 8 priority levels
 ; loc_16628:
 BuildSprites_LevelLoop:
 	tst.w	(a4)	; does this level have any objects?
@@ -30326,7 +30326,7 @@ BuildSprites_NextObj:
 	bne.w	BuildSprites_ObjLoop	; if there are objects left, repeat
 ; loc_166FA:
 BuildSprites_NextLevel:
-	lea	sprite_queue_size(a4),a4	; load next priority level
+	lea	object_display_list_size(a4),a4	; load next priority level
 	dbf	d7,BuildSprites_LevelLoop	; loop
 	move.b	d5,(Sprite_count).w
 	; Terminate the sprite list.
@@ -30704,8 +30704,8 @@ BuildSprites_2P:
 	jsrto	BuildHUD_P1, JmpTo_BuildHUD_P1
 	bsr.w	BuildRings_P1
 +
-	lea	(Sprite_Table_Input).w,a4
-	moveq	#sprite_queue_count-1,d7
+	lea	(Object_Display_Lists).w,a4
+	moveq	#object_display_list_count-1,d7
 ; loc_16982:
 BuildSprites_P1_LevelLoop:
 	move.w	(a4),d0	; does this priority level have any objects?
@@ -30799,7 +30799,7 @@ BuildSprites_P1_NextObj:
 	addq.w	#2,sp
 ; loc_16A5A:
 BuildSprites_P1_NextLevel:
-	lea	sprite_queue_size(a4),a4
+	lea	object_display_list_size(a4),a4
 	dbf	d7,BuildSprites_P1_LevelLoop
 	move.b	d5,(Sprite_count).w
 	; Terminate the sprite list.
@@ -30842,8 +30842,8 @@ BuildSprites_P2:
 	jsrto	BuildHUD_P2, JmpTo_BuildHUD_P2
 	bsr.w	BuildRings_P2
 +
-	lea	(Sprite_Table_Input).w,a4
-	moveq	#sprite_queue_count-1,d7
+	lea	(Object_Display_Lists).w,a4
+	moveq	#object_display_list_count-1,d7
 ; loc_16A9C:
 BuildSprites_P2_LevelLoop:
 	move.w	(a4),d0
@@ -30939,7 +30939,7 @@ BuildSprites_P2_NextObj:
 	move.w	#0,(a4)
 ; loc_16B78:
 BuildSprites_P2_NextLevel:
-	lea	sprite_queue_size(a4),a4
+	lea	object_display_list_size(a4),a4
 	dbf	d7,BuildSprites_P2_LevelLoop
 
     if fixBugs
@@ -42087,7 +42087,7 @@ loc_1DA44:
 
 loc_1DA74:
 	add.b	d0,objoff_34(a0)
-	move.w	#sprite_queue_size*1,d0
+	move.w	#object_display_list_size*1,d0
 	bra.w	DisplaySprite3
 ; ===========================================================================
 
@@ -42160,7 +42160,7 @@ loc_1DAE4:
 
 loc_1DB20:
 	add.b	d0,objoff_34(a0)
-	move.w	#sprite_queue_size*1,d0
+	move.w	#object_display_list_size*1,d0
 	bra.w	DisplaySprite3
 ; ===========================================================================
 
@@ -55562,7 +55562,7 @@ Obj75:
 	jmp	Obj75_Index(pc,d1.w)
 ; ===========================================================================
 +
-	move.w	#sprite_queue_size*5,d0
+	move.w	#object_display_list_size*5,d0
 	jmpto	DisplaySprite3, JmpTo_DisplaySprite3
 ; ===========================================================================
 ; off_28BE8:
@@ -57058,7 +57058,7 @@ Obj81:
 	jmp	Obj81_Index(pc,d1.w)
 ; ===========================================================================
 +
-	move.w	#sprite_queue_size*5,d0
+	move.w	#object_display_list_size*5,d0
 	jmpto	DisplaySprite3, JmpTo2_DisplaySprite3
 ; ===========================================================================
 ; off_2A020:
@@ -57554,7 +57554,7 @@ Obj83:
 	jmp	Obj83_Index(pc,d1.w)
 ; ===========================================================================
 .isMultispriteObject:
-	move.w	#sprite_queue_size*5,d0
+	move.w	#object_display_list_size*5,d0
 	jmpto	DisplaySprite3, JmpTo3_DisplaySprite3
 ; ===========================================================================
 ; off_2A51C:
@@ -58064,7 +58064,7 @@ Obj85:
 	move.b	routine(a0),d0
 	move.w	Obj85_Index(pc,d0.w),d1
 	jsr	Obj85_Index(pc,d1.w)
-	move.w	#sprite_queue_size*4,d0
+	move.w	#object_display_list_size*4,d0
 	tst.w	(Two_player_mode).w
 	beq.s	+
 	jmpto	DisplaySprite3, JmpTo4_DisplaySprite3
@@ -65396,7 +65396,7 @@ Obj89_Main_Sub0_Standard:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*2,d0
+	move.w	#object_display_list_size*2,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo37_DisplaySprite
@@ -65432,7 +65432,7 @@ Obj89_Main_Sub2_Standard:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*2,d0
+	move.w	#object_display_list_size*2,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo37_DisplaySprite
@@ -65464,7 +65464,7 @@ Obj89_Main_Sub4_Standard:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*2,d0
+	move.w	#object_display_list_size*2,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo37_DisplaySprite
@@ -65502,7 +65502,7 @@ Obj89_Main_Sub6_Standard:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*2,d0
+	move.w	#object_display_list_size*2,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo37_DisplaySprite
@@ -65651,7 +65651,7 @@ Obj89_Main_Sub8_Standard:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*2,d0
+	move.w	#object_display_list_size*2,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo37_DisplaySprite
@@ -65705,7 +65705,7 @@ Obj89_Main_SubA_Standard:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*2,d0
+	move.w	#object_display_list_size*2,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo37_DisplaySprite
@@ -65739,7 +65739,7 @@ Obj89_Main_SubC_Standard:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*2,d0
+	move.w	#object_display_list_size*2,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo37_DisplaySprite
@@ -66338,7 +66338,7 @@ Obj57_Main_Sub0_Standard:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*3,d0
+	move.w	#object_display_list_size*3,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo38_DisplaySprite
@@ -66365,7 +66365,7 @@ Obj57_Main_Sub2_Standard:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*3,d0
+	move.w	#object_display_list_size*3,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo38_DisplaySprite
@@ -66412,7 +66412,7 @@ Obj57_Main_Sub4_Standard:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*3,d0
+	move.w	#object_display_list_size*3,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo38_DisplaySprite
@@ -66475,7 +66475,7 @@ Obj57_Main_Sub6_Standard:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*3,d0
+	move.w	#object_display_list_size*3,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo38_DisplaySprite
@@ -66660,7 +66660,7 @@ Obj57_Main_Sub8_Standard:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*3,d0
+	move.w	#object_display_list_size*3,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo38_DisplaySprite
@@ -66721,7 +66721,7 @@ Obj57_Main_SubA_Standard:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*3,d0
+	move.w	#object_display_list_size*3,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo38_DisplaySprite
@@ -66753,7 +66753,7 @@ Obj57_Main_SubC_Standard:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*3,d0
+	move.w	#object_display_list_size*3,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo38_DisplaySprite
@@ -67118,7 +67118,7 @@ JmpTo39_DisplaySprite ; JmpTo
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*3,d0
+	move.w	#object_display_list_size*3,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo39_DisplaySprite
@@ -67264,7 +67264,7 @@ loc_31DB8:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*3,d0
+	move.w	#object_display_list_size*3,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo39_DisplaySprite
@@ -67315,7 +67315,7 @@ loc_31E0E:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*3,d0
+	move.w	#object_display_list_size*3,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo39_DisplaySprite
@@ -67348,7 +67348,7 @@ loc_31E4A:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*3,d0
+	move.w	#object_display_list_size*3,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo39_DisplaySprite
@@ -67740,7 +67740,7 @@ Obj54_MainSub0:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*3,d0
+	move.w	#object_display_list_size*3,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo40_DisplaySprite
@@ -67797,7 +67797,7 @@ Obj54_Display:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*3,d0
+	move.w	#object_display_list_size*3,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo40_DisplaySprite
@@ -68113,7 +68113,7 @@ Obj54_MainSub10:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*3,d0
+	move.w	#object_display_list_size*3,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo40_DisplaySprite
@@ -68149,7 +68149,7 @@ Obj54_MainSub12:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*3,d0
+	move.w	#object_display_list_size*3,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo40_DisplaySprite
@@ -68826,7 +68826,7 @@ Obj55_Main_End:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*3,d0
+	move.w	#object_display_list_size*3,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo41_DisplaySprite
@@ -68866,7 +68866,7 @@ Obj55_Main_Defeated:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*3,d0
+	move.w	#object_display_list_size*3,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo41_DisplaySprite
@@ -68880,7 +68880,7 @@ Obj55_Explode:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*3,d0
+	move.w	#object_display_list_size*3,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo41_DisplaySprite
@@ -68916,7 +68916,7 @@ Obj55_Defeated_Sink:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*3,d0
+	move.w	#object_display_list_size*3,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo41_DisplaySprite
@@ -69083,7 +69083,7 @@ Obj55_LaserShooter_End:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*3,d0
+	move.w	#object_display_list_size*3,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo41_DisplaySprite
@@ -69213,7 +69213,7 @@ Obj55_SpikeChain_End:
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
-	move.w	#sprite_queue_size*3,d0
+	move.w	#object_display_list_size*3,d0
 	jmp	(DisplaySprite3).l
     else
 	jmpto	DisplaySprite, JmpTo41_DisplaySprite
@@ -71718,7 +71718,7 @@ Obj5A_FlashMessage:
 	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
 	; to display on the wrong layer.
 	bhs.s	+
-	move.w	#sprite_queue_size*1,d0
+	move.w	#object_display_list_size*1,d0
 	jmp	(DisplaySprite3).l
     else
 	blo.w	JmpTo44_DisplaySprite
@@ -75494,7 +75494,7 @@ loc_37EFC:
 	dbf	d6,-
 
 loc_37F6C:
-	move.w	#sprite_queue_size*5,d0
+	move.w	#object_display_list_size*5,d0
 	jmpto	DisplaySprite3, JmpTo5_DisplaySprite3
 ; ===========================================================================
 
