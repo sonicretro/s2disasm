@@ -1623,7 +1623,6 @@ Oscillating_Numbers:
 Oscillation_Control:		ds.w	1
 Oscillating_variables:
 Oscillating_Data:		ds.w	$20
-Oscillating_Numbers_End
 
 Logspike_anim_counter:		ds.b	1
 Logspike_anim_frame:		ds.b	1
