@@ -18129,12 +18129,12 @@ ScrollVerti:
 	bne.s	.scrollUpOrDown_maxYPosChanging	; if it is, branch
 ; loc_D7C0:
 .doNotScroll:
-	clr.w	(a4)		; clear Y position difference (Camera_Y_pos_bias)
+	clr.w	(a4)		; clear Y position difference (Camera_Y_pos_diff)
 	rts
 ; ===========================================================================
 ; loc_D7C4:
 .decideScrollType:
-	cmpi.w	#(224/2)-16,d3		; is the camera bias normal?
+	cmpi.w	#(224/2)-16,d3	; is the camera bias normal?
 	bne.s	.doScroll_slow	; if not, branch
 	mvabs.w	inertia(a0),d1	; get player ground velocity, force it to be positive
 	cmpi.w	#$800,d1	; is the player travelling very fast?
