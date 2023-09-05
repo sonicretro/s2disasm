@@ -3626,69 +3626,69 @@ zPSG_EnvTbl:
 	; Remember on PSG that the higher the value, the quieter it gets (it's attenuation, not volume);
 	; 0 is thus loudest, and increasing values decay, until level $F (silent)
 
-	dw	PSG_EV1, PSG_EV2, PSG_EV3, PSG_EV4
-	dw	PSG_EV5, PSG_EV6, PSG_EV7, PSG_EV8
-	dw	PSG_EV9, PSG_EV10, PSG_EV11, PSG_EV12
-	dw	PSG_EV13
+	dw	zPSG_Env1, zPSG_Env2, zPSG_Env3, zPSG_Env4
+	dw	zPSG_Env5, zPSG_Env6, zPSG_Env7, zPSG_Env8
+	dw	zPSG_Env9, zPSG_Env10, zPSG_Env11, zPSG_Env12
+	dw	zPSG_Env13
 
 ; byte_1043
-PSG_EV1:
+zPSG_Env1:
 	db	0,0,0,1,1,1,2,2,2,3,3,3,4,4,4,5
 	db	5,5,6,6,6,7,80h
 
 ; byte_105A
-PSG_EV2:
+zPSG_Env2:
 	db	0,2,4,6,8,10h,80h
 
 ; byte_1061
-PSG_EV3:
+zPSG_Env3:
 	db	0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,80h
 
 ; byte_1072
-PSG_EV4:
+zPSG_Env4:
 	db	0,0,2,3,4,4,5,5,5,6,80h
 
 ; The next two envelopes appear in a different order than in the list above.
 
 ; byte_107D
-PSG_EV6:
+zPSG_Env6:
 	db	3,3,3,2,2,2,2,1,1,1,0,0,0,0,80h
 
 ; byte_108C
-PSG_EV5:
+zPSG_Env5:
 	db	0,0,0,0,0,0,0,0,0,0,1,1
 	db	1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2
 	db	2,2,2,2,3,3,3,3,3,3,3,3,4,80h
 
 ; byte_10B6
-PSG_EV7:
+zPSG_Env7:
 	db	0,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2
 	db	3,3,3,4,4,4,5,5,5,6,7,80h
 
 ; byte_10D2
-PSG_EV8:
+zPSG_Env8:
 	db	0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,2
 	db	3,3,3,3,3,4,4,4,4,4,5,5,5,5,5,6
 	db	6,6,6,6,7,7,7,80h
 
 ; byte_10FA
-PSG_EV9:
+zPSG_Env9:
 	db	0,1,2,3,4,5,6,7,8,9,0Ah,0Bh,0Ch,0Dh,0Eh,0Fh,80h
 
 ; byte_110B
-PSG_EV10:
+zPSG_Env10:
 	db	0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1
 	db	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 	db	1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2
 	db	2,2,3,3,3,3,3,3,3,3,3,3,4,80h
 
 ; byte_1149
-PSG_EV11:
+zPSG_Env11:
 	db	4,4,4,3,3,3,2,2,2,1,1,1,1,1,1,1
 	db	2,2,2,2,2,3,3,3,3,3,4,80h
 
 ; byte_1165
-PSG_EV12:
+zPSG_Env12:
 	db	4,4,3,3,2,2,1,1,1,1,1,1,1,1,1,1
 	db	1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2
 	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3
@@ -3699,7 +3699,7 @@ PSG_EV12:
 	db	6,6,6,6,6,6,6,6,6,6,6,6,6,6,7,80h
 
 ; byte_11E5
-PSG_EV13:
+zPSG_Env13:
 	db	0Eh,0Dh,0Ch,0Bh,0Ah,9,8,7,6,5,4,3,2,1,0,80h
 
 ;	END of zPSG_EnvTbl -------------------------------
