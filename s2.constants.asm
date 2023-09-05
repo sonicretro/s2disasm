@@ -959,7 +959,13 @@ AniIDTailsAni_Fly		= id(TailsAni_Fly_ptr)		; 32 ; $20
 
 
 ; Other sizes
-palette_line_size =	$10*2	; 16 word entries
+palette_line_size =		$10*2	; 16 word entries
+
+; Sprite queue
+sprite_queue_size_bits =	7
+sprite_queue_size =		1<<sprite_queue_size_bits
+sprite_queue_count_bits =	3
+sprite_queue_count =		1<<sprite_queue_count_bits
 
 ; ---------------------------------------------------------------------------
 ; I run the main 68k RAM addresses through this function
@@ -982,7 +988,7 @@ Block_Table_End:
 
 TempArray_LayerDef:		ds.b	$200	; used by some layer deformation routines
 Decomp_Buffer:			ds.b	$200
-Sprite_Table_Input:		ds.b	$400	; in custom format before being converted and stored in Sprite_Table/Sprite_Table_P2
+Sprite_Table_Input:		ds.b	sprite_queue_size*sprite_queue_count	; in custom format before being converted and stored in Sprite_Table/Sprite_Table_P2
 Sprite_Table_Input_End:
 
 Object_RAM:			; The various objects in the game are loaded in this area.
