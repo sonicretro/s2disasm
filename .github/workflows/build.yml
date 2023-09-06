@@ -10,9 +10,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Install Lua
+      run: sudo apt -y install lua
+
     - name: Build
-      run: | 
-        lua build.lua
+      run: lua build.lua
   
     - name: Upload
       uses: actions/upload-artifact@v3
