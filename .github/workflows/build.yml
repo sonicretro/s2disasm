@@ -11,7 +11,11 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Install Lua
-      run: sudo apt -y install lua
+      uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: lua5.4
+        version: 1.0
+        execute_install_scripts: true
 
     - name: Build
       run: lua build.lua
