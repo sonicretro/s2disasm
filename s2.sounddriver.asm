@@ -3626,69 +3626,69 @@ zPSG_EnvTbl:
 	; Remember on PSG that the higher the value, the quieter it gets (it's attenuation, not volume);
 	; 0 is thus loudest, and increasing values decay, until level $F (silent)
 
-	dw	PSG_EV1, PSG_EV2, PSG_EV3, PSG_EV4
-	dw	PSG_EV5, PSG_EV6, PSG_EV7, PSG_EV8
-	dw	PSG_EV9, PSG_EV10, PSG_EV11, PSG_EV12
-	dw	PSG_EV13
+	dw	zPSG_Env1, zPSG_Env2, zPSG_Env3, zPSG_Env4
+	dw	zPSG_Env5, zPSG_Env6, zPSG_Env7, zPSG_Env8
+	dw	zPSG_Env9, zPSG_Env10, zPSG_Env11, zPSG_Env12
+	dw	zPSG_Env13
 
 ; byte_1043
-PSG_EV1:
+zPSG_Env1:
 	db	0,0,0,1,1,1,2,2,2,3,3,3,4,4,4,5
 	db	5,5,6,6,6,7,80h
 
 ; byte_105A
-PSG_EV2:
+zPSG_Env2:
 	db	0,2,4,6,8,10h,80h
 
 ; byte_1061
-PSG_EV3:
+zPSG_Env3:
 	db	0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,80h
 
 ; byte_1072
-PSG_EV4:
+zPSG_Env4:
 	db	0,0,2,3,4,4,5,5,5,6,80h
 
 ; The next two envelopes appear in a different order than in the list above.
 
 ; byte_107D
-PSG_EV6:
+zPSG_Env6:
 	db	3,3,3,2,2,2,2,1,1,1,0,0,0,0,80h
 
 ; byte_108C
-PSG_EV5:
+zPSG_Env5:
 	db	0,0,0,0,0,0,0,0,0,0,1,1
 	db	1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2
 	db	2,2,2,2,3,3,3,3,3,3,3,3,4,80h
 
 ; byte_10B6
-PSG_EV7:
+zPSG_Env7:
 	db	0,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2
 	db	3,3,3,4,4,4,5,5,5,6,7,80h
 
 ; byte_10D2
-PSG_EV8:
+zPSG_Env8:
 	db	0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,2
 	db	3,3,3,3,3,4,4,4,4,4,5,5,5,5,5,6
 	db	6,6,6,6,7,7,7,80h
 
 ; byte_10FA
-PSG_EV9:
+zPSG_Env9:
 	db	0,1,2,3,4,5,6,7,8,9,0Ah,0Bh,0Ch,0Dh,0Eh,0Fh,80h
 
 ; byte_110B
-PSG_EV10:
+zPSG_Env10:
 	db	0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1
 	db	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 	db	1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2
 	db	2,2,3,3,3,3,3,3,3,3,3,3,4,80h
 
 ; byte_1149
-PSG_EV11:
+zPSG_Env11:
 	db	4,4,4,3,3,3,2,2,2,1,1,1,1,1,1,1
 	db	2,2,2,2,2,3,3,3,3,3,4,80h
 
 ; byte_1165
-PSG_EV12:
+zPSG_Env12:
 	db	4,4,3,3,2,2,1,1,1,1,1,1,1,1,1,1
 	db	1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2
 	db	2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3
@@ -3699,7 +3699,7 @@ PSG_EV12:
 	db	6,6,6,6,6,6,6,6,6,6,6,6,6,6,7,80h
 
 ; byte_11E5
-PSG_EV13:
+zPSG_Env13:
 	db	0Eh,0Dh,0Ch,0Bh,0Ah,9,8,7,6,5,4,3,2,1,0,80h
 
 ;	END of zPSG_EnvTbl -------------------------------
@@ -3708,43 +3708,50 @@ PSG_EV13:
 zMasterPlaylist:
 
 ; Music IDs
-offset :=	MusicPoint2
-ptrsize :=	2
-idstart :=	80h
-; note: +20h means uncompressed, here
-; +40h is a flag that forces PAL mode off when set
+; bank         - Which bank that the song is in.
+; pal          - Whether the song should play slower on PAL consoles.
+; uncompressed - Whether the song data is uncompressed or not.
+; label        - The location of the song data's pointer.
+music_metadata macro bank,pal,uncompressed,label
+    if bank
+.base = MusicPoint2
+    else
+.base = MusicPoint1
+    endif
+	db	(bank<<7)|(pal<<6)|(uncompressed<<5)|((label-.base)/2)
+    endm
 
-zMusIDPtr_2PResult:	db	id(MusPtr_2PResult)	; 92
-zMusIDPtr_EHZ:		db	id(MusPtr_EHZ)		; 81
-zMusIDPtr_MCZ_2P:	db	id(MusPtr_MCZ_2P)	; 85
-zMusIDPtr_OOZ:		db	id(MusPtr_OOZ)		; 8F
-zMusIDPtr_MTZ:		db	id(MusPtr_MTZ)		; 82
-zMusIDPtr_HTZ:		db	id(MusPtr_HTZ)		; 94
-zMusIDPtr_ARZ:		db	id(MusPtr_ARZ)		; 86
-zMusIDPtr_CNZ_2P:	db	id(MusPtr_CNZ_2P)	; 80
-zMusIDPtr_CNZ:		db	id(MusPtr_CNZ)		; 83
-zMusIDPtr_DEZ:		db	id(MusPtr_DEZ)		; 87
-zMusIDPtr_MCZ:		db	id(MusPtr_MCZ)		; 84
-zMusIDPtr_EHZ_2P:	db	id(MusPtr_EHZ_2P)	; 91
-zMusIDPtr_SCZ:		db	id(MusPtr_SCZ)		; 8E
-zMusIDPtr_CPZ:		db	id(MusPtr_CPZ)		; 8C
-zMusIDPtr_WFZ:		db	id(MusPtr_WFZ)		; 90
-zMusIDPtr_HPZ:		db	id(MusPtr_HPZ)		; 9B
-zMusIDPtr_Options:	db	id(MusPtr_Options)	; 89
-zMusIDPtr_SpecStage:	db	id(MusPtr_SpecStage)	; 88
-zMusIDPtr_Boss:		db	id(MusPtr_Boss)		; 8D
-zMusIDPtr_EndBoss:	db	id(MusPtr_EndBoss)	; 8B
-zMusIDPtr_Ending:	db	id(MusPtr_Ending)	; 8A
-zMusIDPtr_SuperSonic:	db	id(MusPtr_SuperSonic)	; 93
-zMusIDPtr_Invincible:	db	id(MusPtr_Invincible)	; 99
-zMusIDPtr_ExtraLife:	db	id(MusPtr_ExtraLife)+20h; B5
-zMusIDPtr_Title:	db	id(MusPtr_Title)	; 96
-zMusIDPtr_EndLevel:	db	id(MusPtr_EndLevel)	; 97
-zMusIDPtr_GameOver:	db	id(MusPtr_GameOver)+20h	; B8
-zMusIDPtr_Continue:	db	(MusPtr_Continue-MusicPoint1)/ptrsize	; 0
-zMusIDPtr_Emerald:	db	id(MusPtr_Emerald)+20h	; BA
-zMusIDPtr_Credits:	db	id(MusPtr_Credits)+20h	; BD
-zMusIDPtr_Countdown:	db	id(MusPtr_Drowning)+40h	; DC
+zMusIDPtr_2PResult:	music_metadata 1,0,0,MusPtr_2PResult
+zMusIDPtr_EHZ:		music_metadata 1,0,0,MusPtr_EHZ
+zMusIDPtr_MCZ_2P:	music_metadata 1,0,0,MusPtr_MCZ_2P
+zMusIDPtr_OOZ:		music_metadata 1,0,0,MusPtr_OOZ
+zMusIDPtr_MTZ:		music_metadata 1,0,0,MusPtr_MTZ
+zMusIDPtr_HTZ:		music_metadata 1,0,0,MusPtr_HTZ
+zMusIDPtr_ARZ:		music_metadata 1,0,0,MusPtr_ARZ
+zMusIDPtr_CNZ_2P:	music_metadata 1,0,0,MusPtr_CNZ_2P
+zMusIDPtr_CNZ:		music_metadata 1,0,0,MusPtr_CNZ
+zMusIDPtr_DEZ:		music_metadata 1,0,0,MusPtr_DEZ
+zMusIDPtr_MCZ:		music_metadata 1,0,0,MusPtr_MCZ
+zMusIDPtr_EHZ_2P:	music_metadata 1,0,0,MusPtr_EHZ_2P
+zMusIDPtr_SCZ:		music_metadata 1,0,0,MusPtr_SCZ
+zMusIDPtr_CPZ:		music_metadata 1,0,0,MusPtr_CPZ
+zMusIDPtr_WFZ:		music_metadata 1,0,0,MusPtr_WFZ
+zMusIDPtr_HPZ:		music_metadata 1,0,0,MusPtr_HPZ
+zMusIDPtr_Options:	music_metadata 1,0,0,MusPtr_Options
+zMusIDPtr_SpecStage:	music_metadata 1,0,0,MusPtr_SpecStage
+zMusIDPtr_Boss:		music_metadata 1,0,0,MusPtr_Boss
+zMusIDPtr_EndBoss:	music_metadata 1,0,0,MusPtr_EndBoss
+zMusIDPtr_Ending:	music_metadata 1,0,0,MusPtr_Ending
+zMusIDPtr_SuperSonic:	music_metadata 1,0,0,MusPtr_SuperSonic
+zMusIDPtr_Invincible:	music_metadata 1,0,0,MusPtr_Invincible
+zMusIDPtr_ExtraLife:	music_metadata 1,0,1,MusPtr_ExtraLife
+zMusIDPtr_Title:	music_metadata 1,0,0,MusPtr_Title
+zMusIDPtr_EndLevel:	music_metadata 1,0,0,MusPtr_EndLevel
+zMusIDPtr_GameOver:	music_metadata 1,0,1,MusPtr_GameOver
+zMusIDPtr_Continue:	music_metadata 0,0,0,MusPtr_Continue
+zMusIDPtr_Emerald:	music_metadata 1,0,1,MusPtr_Emerald
+zMusIDPtr_Credits:	music_metadata 1,0,1,MusPtr_Credits
+zMusIDPtr_Countdown:	music_metadata 1,1,0,MusPtr_Drowning
 zMusIDPtr__End:
 
 ; Tempo with speed shoe tempo for each song
