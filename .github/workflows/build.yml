@@ -1,0 +1,21 @@
+name: Build ROM
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build the ROM
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build
+      run: | 
+        lua build.lua
+  
+    - name: Upload
+      uses: actions/upload-artifact@v3
+      with: 
+        name: ROM
+        path: s2built.bin
