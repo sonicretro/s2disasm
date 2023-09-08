@@ -9624,7 +9624,7 @@ loc_71B4:
     endif
 	moveq	#6,d6
 
-	lea	(Map_obj5F_a_004C).l,a2
+	lea	(Obj5F_MapUnc_7240.frame2).l,a2
 
 	moveq	#2,d3
 	move.w	#8,objoff_14(a0)

@@ -1,15 +1,15 @@
-Map_obj5F_a:	mappingsTable
-	mappingsTableEntry.w	Map_obj5F_a_0012
-	mappingsTableEntry.w	Map_obj5F_a_004C
-	mappingsTableEntry.w	Map_obj5F_a_004C
-	mappingsTableEntry.w	Map_obj5F_a_0056
-	mappingsTableEntry.w	Map_obj5F_a_0060
-	mappingsTableEntry.w	Map_obj5F_a_006A
-	mappingsTableEntry.w	Map_obj5F_a_0074
-	mappingsTableEntry.w	Map_obj5F_a_007E
-	mappingsTableEntry.w	Map_obj5F_a_0088
+.offsets:	mappingsTable
+	mappingsTableEntry.w	.frame0
+	mappingsTableEntry.w	.frame1
+	mappingsTableEntry.w	.frame2
+	mappingsTableEntry.w	.frame3
+	mappingsTableEntry.w	.frame4
+	mappingsTableEntry.w	.frame5
+	mappingsTableEntry.w	.frame6
+	mappingsTableEntry.w	.frame7
+	mappingsTableEntry.w	.frame8
 
-Map_obj5F_a_0012:	spriteHeader
+.frame0:	spriteHeader
 	spritePiece	-$48, 0, 4, 4, 0, 0, 0, 1, 1
 	spritePiece	-$28, 0, 2, 4, $10, 0, 0, 1, 1
 	spritePiece	-$18, 0, 2, 4, $18, 0, 0, 1, 1
@@ -17,34 +17,35 @@ Map_obj5F_a_0012:	spriteHeader
 	spritePiece	8, 0, 2, 4, $28, 0, 0, 1, 1
 	spritePiece	$18, 0, 2, 4, $18, 0, 0, 1, 1
 	spritePiece	$28, 0, 4, 4, 0, 1, 0, 1, 1
-Map_obj5F_a_0012_End
+.frame0_End
 
-Map_obj5F_a_004C:	spriteHeader
+.frame2:
+.frame1:	spriteHeader
 	spritePiece	-$48, 0, 4, 4, 0, 0, 0, 1, 1
-Map_obj5F_a_004C_End
+.frame1_End
 
-Map_obj5F_a_0056:	spriteHeader
+.frame3:	spriteHeader
 	spritePiece	-$28, 0, 2, 4, $10, 0, 0, 1, 1
-Map_obj5F_a_0056_End
+.frame3_End
 
-Map_obj5F_a_0060:	spriteHeader
+.frame4:	spriteHeader
 	spritePiece	-$18, 0, 2, 4, $18, 0, 0, 1, 1
-Map_obj5F_a_0060_End
+.frame4_End
 
-Map_obj5F_a_006A:	spriteHeader
+.frame5:	spriteHeader
 	spritePiece	-8, 0, 2, 4, $20, 0, 0, 1, 1
-Map_obj5F_a_006A_End
+.frame5_End
 
-Map_obj5F_a_0074:	spriteHeader
+.frame6:	spriteHeader
 	spritePiece	8, 0, 2, 4, $28, 0, 0, 1, 1
-Map_obj5F_a_0074_End
+.frame6_End
 
-Map_obj5F_a_007E:	spriteHeader
+.frame7:	spriteHeader
 	spritePiece	$18, 0, 2, 4, $18, 0, 0, 1, 1
-Map_obj5F_a_007E_End
+.frame7_End
 
-Map_obj5F_a_0088:	spriteHeader
+.frame8:	spriteHeader
 	spritePiece	$28, 0, 4, 4, 0, 1, 0, 1, 1
-Map_obj5F_a_0088_End
+.frame8_End
 
 	even
