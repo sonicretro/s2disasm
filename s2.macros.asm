@@ -282,6 +282,3 @@ childObjectData macro objoff, objectID, subtype
 	dc.w	objoff
 	dc.b	objectID, subtype
 	endm
-
-SonicMappingsVer = 2
-	include "MapMacros.asm"
