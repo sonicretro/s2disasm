@@ -263,4 +263,4 @@ planeLocH40 function col,line,(($80 * line) + (2 * col))
 planeLocH80 function col,line,(($100 * line) + (2 * col))
 
 SonicMappingsVer = 2
-	include "SpritePiece.asm"
+	include "MapMacros.asm"
