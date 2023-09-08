@@ -3,7 +3,7 @@
   <Images>
     <ImageFromMappings id="seesaw">
       <ArtFile filename="../art/nemesis/See-saw in HTZ.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj14_a.bin" frame="0" startpal="0" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj14_a.asm" frame="0" startpal="0" />
     </ImageFromMappings>
   </Images>
   <Subtypes>

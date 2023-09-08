@@ -3,11 +3,11 @@
   <Images>
     <ImageFromMappings id="spikeball">
       <ArtFile filename="LevelArt" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj75.bin" frame="0" startpal="1" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj75.asm" frame="0" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="brick">
       <ArtFile filename="LevelArt" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj75.bin" frame="2" startpal="1" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj75.asm" frame="2" startpal="1" />
     </ImageFromMappings>
   </Images>
   <Subtypes>

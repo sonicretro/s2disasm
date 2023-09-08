@@ -155,7 +155,7 @@ hashes_file:close()
 message_abort_wrapper(common.build_rom("s2", "s2built", "", "-p=0 -z=0," .. (improved_sound_driver_compression and "saxman-optimised" or "saxman-bugged") .. ",Size_of_Snd_driver_guess,after", true, repository))
 
 -- Correct some pointers and other data that we couldn't until after the ROM had been assembled.
-os.execute(tools.fixpointer .. " s2.h s2built.bin   off_3A294 MapRUnc_Sonic 0x2D 0 4   word_728C_user Obj5F_MapUnc_7240 2 2 1")
+os.execute(tools.fixpointer .. " s2.h s2built.bin")
 
 -- Remove the header file, since we no longer need it.
 os.remove("s2.h")

@@ -3,19 +3,19 @@
   <Images>
     <ImageFromMappings id="img1">
       <ArtFile filename="../art/nemesis/Stripy blocks from CPZ.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj2D.bin" frame="0" startpal="1" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj2D.asm" frame="0" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="img2">
       <ArtFile filename="../art/nemesis/Stripy blocks from CPZ.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj2D.bin" frame="1" startpal="3" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj2D.asm" frame="1" startpal="3" />
     </ImageFromMappings>
     <ImageFromMappings id="img3">
       <ArtFile filename="../art/nemesis/Stripy blocks from CPZ.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj2D.bin" frame="2" startpal="1" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj2D.asm" frame="2" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="img4">
       <ArtFile filename="../art/nemesis/Stripy blocks from CPZ.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj2D.bin" frame="3" startpal="1" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj2D.asm" frame="3" startpal="1" />
     </ImageFromMappings>
   </Images>
   <Subtypes>

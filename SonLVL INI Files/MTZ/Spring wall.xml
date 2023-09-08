@@ -3,11 +3,11 @@
   <Images>
     <ImageFromMappings id="small">
       <ArtFile filename="../art/nemesis/Monitor and contents.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj66.bin" frame="0" startpal="0" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj66.asm" frame="0" startpal="0" />
     </ImageFromMappings>
     <ImageFromMappings id="large">
       <ArtFile filename="../art/nemesis/Monitor and contents.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj66.bin" frame="1" startpal="0" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj66.asm" frame="1" startpal="0" />
     </ImageFromMappings>
   </Images>
   <Subtypes>

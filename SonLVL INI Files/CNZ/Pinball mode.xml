@@ -3,35 +3,35 @@
   <Images>
     <ImageFromMappings id="img1">
       <ArtFile filename="../art/nemesis/Ring.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj03.bin" frame="0" startpal="1" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj03.asm" frame="0" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="img2">
       <ArtFile filename="../art/nemesis/Ring.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj03.bin" frame="1" startpal="1" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj03.asm" frame="1" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="img3">
       <ArtFile filename="../art/nemesis/Ring.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj03.bin" frame="2" startpal="1" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj03.asm" frame="2" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="img4">
       <ArtFile filename="../art/nemesis/Ring.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj03.bin" frame="3" startpal="1" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj03.asm" frame="3" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="img5">
       <ArtFile filename="../art/nemesis/Ring.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj03.bin" frame="4" startpal="1" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj03.asm" frame="4" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="img6">
       <ArtFile filename="../art/nemesis/Ring.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj03.bin" frame="5" startpal="1" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj03.asm" frame="5" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="img7">
       <ArtFile filename="../art/nemesis/Ring.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj03.bin" frame="6" startpal="1" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj03.asm" frame="6" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="img8">
       <ArtFile filename="../art/nemesis/Ring.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj03.bin" frame="7" startpal="1" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj03.asm" frame="7" startpal="1" />
     </ImageFromMappings>
   </Images>
   <Subtypes>

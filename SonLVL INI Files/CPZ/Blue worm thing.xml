@@ -3,7 +3,7 @@
   <Images>
     <ImageFromMappings id="segment">
       <ArtFile filename="../art/nemesis/CPZ worm enemy.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj1D.bin" frame="0" startpal="3" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj1D.asm" frame="0" startpal="3" />
     </ImageFromMappings>
   </Images>
   <Subtypes>

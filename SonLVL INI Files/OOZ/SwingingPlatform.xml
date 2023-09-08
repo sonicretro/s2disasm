@@ -3,15 +3,15 @@
   <Images>
     <ImageFromMappings id="platform">
       <ArtFile filename="../art/nemesis/Swinging platform from OOZ.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj15_a.bin" frame="0" startpal="2" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj15_a.asm" frame="0" startpal="2" />
     </ImageFromMappings>
     <ImageFromMappings id="link">
       <ArtFile filename="../art/nemesis/Swinging platform from OOZ.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj15_a.bin" frame="1" startpal="2" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj15_a.asm" frame="1" startpal="2" />
     </ImageFromMappings>
     <ImageFromMappings id="base">
       <ArtFile filename="../art/nemesis/Swinging platform from OOZ.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj15_a.bin" frame="2" startpal="2" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj15_a.asm" frame="2" startpal="2" />
     </ImageFromMappings>
   </Images>
   <Properties>

@@ -3,7 +3,7 @@
   <Images>
     <ImageFromMappings id="log">
       <ArtFile filename="../art/nemesis/Drawbridge logs from MCZ.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj81.bin" frame="1" startpal="3" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj81.asm" frame="1" startpal="3" />
     </ImageFromMappings>
   </Images>
   <Properties>

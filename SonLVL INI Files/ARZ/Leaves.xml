@@ -3,15 +3,15 @@
   <Images>
     <ImageFromMappings id="imgsmall">
       <ArtFile filename="../art/nemesis/Monitor and contents.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj31_b.bin" frame="0" startpal="0" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj31_b.asm" frame="0" startpal="0" />
     </ImageFromMappings>
     <ImageFromMappings id="imgmedium">
       <ArtFile filename="../art/nemesis/Monitor and contents.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj31_b.bin" frame="1" startpal="0" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj31_b.asm" frame="1" startpal="0" />
     </ImageFromMappings>
     <ImageFromMappings id="imglarge">
       <ArtFile filename="../art/nemesis/Monitor and contents.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj31_b.bin" frame="2" startpal="0" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj31_b.asm" frame="2" startpal="0" />
     </ImageFromMappings>
   </Images>
   <Subtypes>
