@@ -1,1538 +1,1540 @@
-DPLC_Sonic:	mappingsTable
-	mappingsTableEntry.w	DPLC_Sonic_01AC
-	mappingsTableEntry.w	DPLC_Sonic_01AE
-	mappingsTableEntry.w	DPLC_Sonic_01B8
-	mappingsTableEntry.w	DPLC_Sonic_01BE
-	mappingsTableEntry.w	DPLC_Sonic_01C8
-	mappingsTableEntry.w	DPLC_Sonic_01D2
-	mappingsTableEntry.w	DPLC_Sonic_01DE
-	mappingsTableEntry.w	DPLC_Sonic_01E6
-	mappingsTableEntry.w	DPLC_Sonic_01EC
-	mappingsTableEntry.w	DPLC_Sonic_01F2
-	mappingsTableEntry.w	DPLC_Sonic_01F8
-	mappingsTableEntry.w	DPLC_Sonic_01FE
-	mappingsTableEntry.w	DPLC_Sonic_0208
-	mappingsTableEntry.w	DPLC_Sonic_0212
-	mappingsTableEntry.w	DPLC_Sonic_021A
-	mappingsTableEntry.w	DPLC_Sonic_0224
-	mappingsTableEntry.w	DPLC_Sonic_022C
-	mappingsTableEntry.w	DPLC_Sonic_0232
-	mappingsTableEntry.w	DPLC_Sonic_023A
-	mappingsTableEntry.w	DPLC_Sonic_0244
-	mappingsTableEntry.w	DPLC_Sonic_024C
-	mappingsTableEntry.w	DPLC_Sonic_0252
-	mappingsTableEntry.w	DPLC_Sonic_025C
-	mappingsTableEntry.w	DPLC_Sonic_0268
-	mappingsTableEntry.w	DPLC_Sonic_0272
-	mappingsTableEntry.w	DPLC_Sonic_027C
-	mappingsTableEntry.w	DPLC_Sonic_0288
-	mappingsTableEntry.w	DPLC_Sonic_0294
-	mappingsTableEntry.w	DPLC_Sonic_029E
-	mappingsTableEntry.w	DPLC_Sonic_02AA
-	mappingsTableEntry.w	DPLC_Sonic_02B2
-	mappingsTableEntry.w	DPLC_Sonic_02BA
-	mappingsTableEntry.w	DPLC_Sonic_02C2
-	mappingsTableEntry.w	DPLC_Sonic_02C8
-	mappingsTableEntry.w	DPLC_Sonic_02D0
-	mappingsTableEntry.w	DPLC_Sonic_02D8
-	mappingsTableEntry.w	DPLC_Sonic_02E0
-	mappingsTableEntry.w	DPLC_Sonic_02E6
-	mappingsTableEntry.w	DPLC_Sonic_02F0
-	mappingsTableEntry.w	DPLC_Sonic_02FC
-	mappingsTableEntry.w	DPLC_Sonic_0306
-	mappingsTableEntry.w	DPLC_Sonic_0310
-	mappingsTableEntry.w	DPLC_Sonic_031A
-	mappingsTableEntry.w	DPLC_Sonic_0326
-	mappingsTableEntry.w	DPLC_Sonic_0330
-	mappingsTableEntry.w	DPLC_Sonic_033A
-	mappingsTableEntry.w	DPLC_Sonic_0340
-	mappingsTableEntry.w	DPLC_Sonic_0346
-	mappingsTableEntry.w	DPLC_Sonic_034C
-	mappingsTableEntry.w	DPLC_Sonic_0352
-	mappingsTableEntry.w	DPLC_Sonic_035C
-	mappingsTableEntry.w	DPLC_Sonic_0364
-	mappingsTableEntry.w	DPLC_Sonic_036E
-	mappingsTableEntry.w	DPLC_Sonic_0376
-	mappingsTableEntry.w	DPLC_Sonic_037C
-	mappingsTableEntry.w	DPLC_Sonic_0382
-	mappingsTableEntry.w	DPLC_Sonic_0388
-	mappingsTableEntry.w	DPLC_Sonic_038E
-	mappingsTableEntry.w	DPLC_Sonic_0396
-	mappingsTableEntry.w	DPLC_Sonic_039C
-	mappingsTableEntry.w	DPLC_Sonic_03A4
-	mappingsTableEntry.w	DPLC_Sonic_03AA
-	mappingsTableEntry.w	DPLC_Sonic_03AE
-	mappingsTableEntry.w	DPLC_Sonic_03B2
-	mappingsTableEntry.w	DPLC_Sonic_03B6
-	mappingsTableEntry.w	DPLC_Sonic_03BA
-	mappingsTableEntry.w	DPLC_Sonic_03BE
-	mappingsTableEntry.w	DPLC_Sonic_03C2
-	mappingsTableEntry.w	DPLC_Sonic_03C6
-	mappingsTableEntry.w	DPLC_Sonic_03CA
-	mappingsTableEntry.w	DPLC_Sonic_03CE
-	mappingsTableEntry.w	DPLC_Sonic_03D2
-	mappingsTableEntry.w	DPLC_Sonic_03D6
-	mappingsTableEntry.w	DPLC_Sonic_03DE
-	mappingsTableEntry.w	DPLC_Sonic_03E6
-	mappingsTableEntry.w	DPLC_Sonic_03EE
-	mappingsTableEntry.w	DPLC_Sonic_03F6
-	mappingsTableEntry.w	DPLC_Sonic_03FA
-	mappingsTableEntry.w	DPLC_Sonic_03FE
-	mappingsTableEntry.w	DPLC_Sonic_0404
-	mappingsTableEntry.w	DPLC_Sonic_040A
-	mappingsTableEntry.w	DPLC_Sonic_0412
-	mappingsTableEntry.w	DPLC_Sonic_041A
-	mappingsTableEntry.w	DPLC_Sonic_0420
-	mappingsTableEntry.w	DPLC_Sonic_0426
-	mappingsTableEntry.w	DPLC_Sonic_042E
-	mappingsTableEntry.w	DPLC_Sonic_0426
-	mappingsTableEntry.w	DPLC_Sonic_0434
-	mappingsTableEntry.w	DPLC_Sonic_0434
-	mappingsTableEntry.w	DPLC_Sonic_043C
-	mappingsTableEntry.w	DPLC_Sonic_0444
-	mappingsTableEntry.w	DPLC_Sonic_044C
-	mappingsTableEntry.w	DPLC_Sonic_0452
-	mappingsTableEntry.w	DPLC_Sonic_045C
-	mappingsTableEntry.w	DPLC_Sonic_0466
-	mappingsTableEntry.w	DPLC_Sonic_046E
-	mappingsTableEntry.w	DPLC_Sonic_0476
-	mappingsTableEntry.w	DPLC_Sonic_047E
-	mappingsTableEntry.w	DPLC_Sonic_0484
-	mappingsTableEntry.w	DPLC_Sonic_0488
-	mappingsTableEntry.w	DPLC_Sonic_048E
-	mappingsTableEntry.w	DPLC_Sonic_0496
-	mappingsTableEntry.w	DPLC_Sonic_049E
-	mappingsTableEntry.w	DPLC_Sonic_04A6
-	mappingsTableEntry.w	DPLC_Sonic_04AC
-	mappingsTableEntry.w	DPLC_Sonic_04B2
-	mappingsTableEntry.w	DPLC_Sonic_04BA
-	mappingsTableEntry.w	DPLC_Sonic_04C0
-	mappingsTableEntry.w	DPLC_Sonic_04C8
-	mappingsTableEntry.w	DPLC_Sonic_04D0
-	mappingsTableEntry.w	DPLC_Sonic_04D4
-	mappingsTableEntry.w	DPLC_Sonic_04DC
-	mappingsTableEntry.w	DPLC_Sonic_04E4
-	mappingsTableEntry.w	DPLC_Sonic_04F0
-	mappingsTableEntry.w	DPLC_Sonic_04FC
-	mappingsTableEntry.w	DPLC_Sonic_0502
-	mappingsTableEntry.w	DPLC_Sonic_0508
-	mappingsTableEntry.w	DPLC_Sonic_050E
-	mappingsTableEntry.w	DPLC_Sonic_0516
-	mappingsTableEntry.w	DPLC_Sonic_0520
-	mappingsTableEntry.w	DPLC_Sonic_0528
-	mappingsTableEntry.w	DPLC_Sonic_052E
-	mappingsTableEntry.w	DPLC_Sonic_0536
-	mappingsTableEntry.w	DPLC_Sonic_0540
-	mappingsTableEntry.w	DPLC_Sonic_0548
-	mappingsTableEntry.w	DPLC_Sonic_054E
-	mappingsTableEntry.w	DPLC_Sonic_0558
-	mappingsTableEntry.w	DPLC_Sonic_0564
-	mappingsTableEntry.w	DPLC_Sonic_0570
-	mappingsTableEntry.w	DPLC_Sonic_057C
-	mappingsTableEntry.w	DPLC_Sonic_058A
-	mappingsTableEntry.w	DPLC_Sonic_0598
-	mappingsTableEntry.w	DPLC_Sonic_05A4
-	mappingsTableEntry.w	DPLC_Sonic_05B0
-	mappingsTableEntry.w	DPLC_Sonic_05B8
-	mappingsTableEntry.w	DPLC_Sonic_05C0
-	mappingsTableEntry.w	DPLC_Sonic_05C8
-	mappingsTableEntry.w	DPLC_Sonic_05CE
-	mappingsTableEntry.w	DPLC_Sonic_05D6
-	mappingsTableEntry.w	DPLC_Sonic_05DE
-	mappingsTableEntry.w	DPLC_Sonic_05E6
-	mappingsTableEntry.w	DPLC_Sonic_05EC
-	mappingsTableEntry.w	DPLC_Sonic_05F6
-	mappingsTableEntry.w	DPLC_Sonic_0602
-	mappingsTableEntry.w	DPLC_Sonic_060C
-	mappingsTableEntry.w	DPLC_Sonic_0616
-	mappingsTableEntry.w	DPLC_Sonic_0620
-	mappingsTableEntry.w	DPLC_Sonic_062C
-	mappingsTableEntry.w	DPLC_Sonic_0636
-	mappingsTableEntry.w	DPLC_Sonic_0640
-	mappingsTableEntry.w	DPLC_Sonic_0648
-	mappingsTableEntry.w	DPLC_Sonic_0652
-	mappingsTableEntry.w	DPLC_Sonic_065A
-	mappingsTableEntry.w	DPLC_Sonic_0660
-	mappingsTableEntry.w	DPLC_Sonic_0668
-	mappingsTableEntry.w	DPLC_Sonic_0672
-	mappingsTableEntry.w	DPLC_Sonic_067A
-	mappingsTableEntry.w	DPLC_Sonic_0680
-	mappingsTableEntry.w	DPLC_Sonic_068C
-	mappingsTableEntry.w	DPLC_Sonic_069A
-	mappingsTableEntry.w	DPLC_Sonic_06A6
-	mappingsTableEntry.w	DPLC_Sonic_06B2
-	mappingsTableEntry.w	DPLC_Sonic_06C0
-	mappingsTableEntry.w	DPLC_Sonic_06CE
-	mappingsTableEntry.w	DPLC_Sonic_06DA
-	mappingsTableEntry.w	DPLC_Sonic_06E8
-	mappingsTableEntry.w	DPLC_Sonic_06F0
-	mappingsTableEntry.w	DPLC_Sonic_06F8
-	mappingsTableEntry.w	DPLC_Sonic_0700
-	mappingsTableEntry.w	DPLC_Sonic_0706
-	mappingsTableEntry.w	DPLC_Sonic_070E
-	mappingsTableEntry.w	DPLC_Sonic_0716
-	mappingsTableEntry.w	DPLC_Sonic_071E
-	mappingsTableEntry.w	DPLC_Sonic_0724
-	mappingsTableEntry.w	DPLC_Sonic_072E
-	mappingsTableEntry.w	DPLC_Sonic_073A
-	mappingsTableEntry.w	DPLC_Sonic_0746
-	mappingsTableEntry.w	DPLC_Sonic_0750
-	mappingsTableEntry.w	DPLC_Sonic_075A
-	mappingsTableEntry.w	DPLC_Sonic_0766
-	mappingsTableEntry.w	DPLC_Sonic_0772
-	mappingsTableEntry.w	DPLC_Sonic_077E
-	mappingsTableEntry.w	DPLC_Sonic_0788
-	mappingsTableEntry.w	DPLC_Sonic_0792
-	mappingsTableEntry.w	DPLC_Sonic_079C
-	mappingsTableEntry.w	DPLC_Sonic_07A8
-	mappingsTableEntry.w	DPLC_Sonic_07B2
-	mappingsTableEntry.w	DPLC_Sonic_07BC
-	mappingsTableEntry.w	DPLC_Sonic_07C6
-	mappingsTableEntry.w	DPLC_Sonic_07D2
-	mappingsTableEntry.w	DPLC_Sonic_07DC
-	mappingsTableEntry.w	DPLC_Sonic_07E6
-	mappingsTableEntry.w	DPLC_Sonic_07F0
-	mappingsTableEntry.w	DPLC_Sonic_07FA
-	mappingsTableEntry.w	DPLC_Sonic_0800
-	mappingsTableEntry.w	DPLC_Sonic_0808
-	mappingsTableEntry.w	DPLC_Sonic_0810
-	mappingsTableEntry.w	DPLC_Sonic_0818
-	mappingsTableEntry.w	DPLC_Sonic_0820
-	mappingsTableEntry.w	DPLC_Sonic_0828
-	mappingsTableEntry.w	DPLC_Sonic_0830
-	mappingsTableEntry.w	DPLC_Sonic_0838
-	mappingsTableEntry.w	DPLC_Sonic_0840
-	mappingsTableEntry.w	DPLC_Sonic_0848
-	mappingsTableEntry.w	DPLC_Sonic_0854
-	mappingsTableEntry.w	DPLC_Sonic_085E
-	mappingsTableEntry.w	DPLC_Sonic_0868
-	mappingsTableEntry.w	DPLC_Sonic_0872
-	mappingsTableEntry.w	DPLC_Sonic_087A
-	mappingsTableEntry.w	DPLC_Sonic_0882
-	mappingsTableEntry.w	DPLC_Sonic_088A
-	mappingsTableEntry.w	DPLC_Sonic_0894
-	mappingsTableEntry.w	DPLC_Sonic_089E
-	mappingsTableEntry.w	DPLC_Sonic_08A8
+.offsets:	mappingsTable
+	mappingsTableEntry.w	.frame0
+	mappingsTableEntry.w	.frame1
+	mappingsTableEntry.w	.frame2
+	mappingsTableEntry.w	.frame3
+	mappingsTableEntry.w	.frame4
+	mappingsTableEntry.w	.frame5
+	mappingsTableEntry.w	.frame6
+	mappingsTableEntry.w	.frame7
+	mappingsTableEntry.w	.frame8
+	mappingsTableEntry.w	.frame9
+	mappingsTableEntry.w	.frame10
+	mappingsTableEntry.w	.frame11
+	mappingsTableEntry.w	.frame12
+	mappingsTableEntry.w	.frame13
+	mappingsTableEntry.w	.frame14
+	mappingsTableEntry.w	.frame15
+	mappingsTableEntry.w	.frame16
+	mappingsTableEntry.w	.frame17
+	mappingsTableEntry.w	.frame18
+	mappingsTableEntry.w	.frame19
+	mappingsTableEntry.w	.frame20
+	mappingsTableEntry.w	.frame21
+	mappingsTableEntry.w	.frame22
+	mappingsTableEntry.w	.frame23
+	mappingsTableEntry.w	.frame24
+	mappingsTableEntry.w	.frame25
+	mappingsTableEntry.w	.frame26
+	mappingsTableEntry.w	.frame27
+	mappingsTableEntry.w	.frame28
+	mappingsTableEntry.w	.frame29
+	mappingsTableEntry.w	.frame30
+	mappingsTableEntry.w	.frame31
+	mappingsTableEntry.w	.frame32
+	mappingsTableEntry.w	.frame33
+	mappingsTableEntry.w	.frame34
+	mappingsTableEntry.w	.frame35
+	mappingsTableEntry.w	.frame36
+	mappingsTableEntry.w	.frame37
+	mappingsTableEntry.w	.frame38
+	mappingsTableEntry.w	.frame39
+	mappingsTableEntry.w	.frame40
+	mappingsTableEntry.w	.frame41
+	mappingsTableEntry.w	.frame42
+	mappingsTableEntry.w	.frame43
+	mappingsTableEntry.w	.frame44
+	mappingsTableEntry.w	.frame45
+	mappingsTableEntry.w	.frame46
+	mappingsTableEntry.w	.frame47
+	mappingsTableEntry.w	.frame48
+	mappingsTableEntry.w	.frame49
+	mappingsTableEntry.w	.frame50
+	mappingsTableEntry.w	.frame51
+	mappingsTableEntry.w	.frame52
+	mappingsTableEntry.w	.frame53
+	mappingsTableEntry.w	.frame54
+	mappingsTableEntry.w	.frame55
+	mappingsTableEntry.w	.frame56
+	mappingsTableEntry.w	.frame57
+	mappingsTableEntry.w	.frame58
+	mappingsTableEntry.w	.frame59
+	mappingsTableEntry.w	.frame60
+	mappingsTableEntry.w	.frame61
+	mappingsTableEntry.w	.frame62
+	mappingsTableEntry.w	.frame63
+	mappingsTableEntry.w	.frame64
+	mappingsTableEntry.w	.frame65
+	mappingsTableEntry.w	.frame66
+	mappingsTableEntry.w	.frame67
+	mappingsTableEntry.w	.frame68
+	mappingsTableEntry.w	.frame69
+	mappingsTableEntry.w	.frame70
+	mappingsTableEntry.w	.frame71
+	mappingsTableEntry.w	.frame72
+	mappingsTableEntry.w	.frame73
+	mappingsTableEntry.w	.frame74
+	mappingsTableEntry.w	.frame75
+	mappingsTableEntry.w	.frame76
+	mappingsTableEntry.w	.frame77
+	mappingsTableEntry.w	.frame78
+	mappingsTableEntry.w	.frame79
+	mappingsTableEntry.w	.frame80
+	mappingsTableEntry.w	.frame81
+	mappingsTableEntry.w	.frame82
+	mappingsTableEntry.w	.frame83
+	mappingsTableEntry.w	.frame84
+	mappingsTableEntry.w	.frame85
+	mappingsTableEntry.w	.frame86
+	mappingsTableEntry.w	.frame87
+	mappingsTableEntry.w	.frame88
+	mappingsTableEntry.w	.frame89
+	mappingsTableEntry.w	.frame90
+	mappingsTableEntry.w	.frame91
+	mappingsTableEntry.w	.frame92
+	mappingsTableEntry.w	.frame93
+	mappingsTableEntry.w	.frame94
+	mappingsTableEntry.w	.frame95
+	mappingsTableEntry.w	.frame96
+	mappingsTableEntry.w	.frame97
+	mappingsTableEntry.w	.frame98
+	mappingsTableEntry.w	.frame99
+	mappingsTableEntry.w	.frame100
+	mappingsTableEntry.w	.frame101
+	mappingsTableEntry.w	.frame102
+	mappingsTableEntry.w	.frame103
+	mappingsTableEntry.w	.frame104
+	mappingsTableEntry.w	.frame105
+	mappingsTableEntry.w	.frame106
+	mappingsTableEntry.w	.frame107
+	mappingsTableEntry.w	.frame108
+	mappingsTableEntry.w	.frame109
+	mappingsTableEntry.w	.frame110
+	mappingsTableEntry.w	.frame111
+	mappingsTableEntry.w	.frame112
+	mappingsTableEntry.w	.frame113
+	mappingsTableEntry.w	.frame114
+	mappingsTableEntry.w	.frame115
+	mappingsTableEntry.w	.frame116
+	mappingsTableEntry.w	.frame117
+	mappingsTableEntry.w	.frame118
+	mappingsTableEntry.w	.frame119
+	mappingsTableEntry.w	.frame120
+	mappingsTableEntry.w	.frame121
+	mappingsTableEntry.w	.frame122
+	mappingsTableEntry.w	.frame123
+	mappingsTableEntry.w	.frame124
+	mappingsTableEntry.w	.frame125
+	mappingsTableEntry.w	.frame126
+	mappingsTableEntry.w	.frame127
+	mappingsTableEntry.w	.frame128
+	mappingsTableEntry.w	.frame129
+	mappingsTableEntry.w	.frame130
+	mappingsTableEntry.w	.frame131
+	mappingsTableEntry.w	.frame132
+	mappingsTableEntry.w	.frame133
+	mappingsTableEntry.w	.frame134
+	mappingsTableEntry.w	.frame135
+	mappingsTableEntry.w	.frame136
+	mappingsTableEntry.w	.frame137
+	mappingsTableEntry.w	.frame138
+	mappingsTableEntry.w	.frame139
+	mappingsTableEntry.w	.frame140
+	mappingsTableEntry.w	.frame141
+	mappingsTableEntry.w	.frame142
+	mappingsTableEntry.w	.frame143
+	mappingsTableEntry.w	.frame144
+	mappingsTableEntry.w	.frame145
+	mappingsTableEntry.w	.frame146
+	mappingsTableEntry.w	.frame147
+	mappingsTableEntry.w	.frame148
+	mappingsTableEntry.w	.frame149
+	mappingsTableEntry.w	.frame150
+	mappingsTableEntry.w	.frame151
+	mappingsTableEntry.w	.frame152
+	mappingsTableEntry.w	.frame153
+	mappingsTableEntry.w	.frame154
+	mappingsTableEntry.w	.frame155
+	mappingsTableEntry.w	.frame156
+	mappingsTableEntry.w	.frame157
+	mappingsTableEntry.w	.frame158
+	mappingsTableEntry.w	.frame159
+	mappingsTableEntry.w	.frame160
+	mappingsTableEntry.w	.frame161
+	mappingsTableEntry.w	.frame162
+	mappingsTableEntry.w	.frame163
+	mappingsTableEntry.w	.frame164
+	mappingsTableEntry.w	.frame165
+	mappingsTableEntry.w	.frame166
+	mappingsTableEntry.w	.frame167
+	mappingsTableEntry.w	.frame168
+	mappingsTableEntry.w	.frame169
+	mappingsTableEntry.w	.frame170
+	mappingsTableEntry.w	.frame171
+	mappingsTableEntry.w	.frame172
+	mappingsTableEntry.w	.frame173
+	mappingsTableEntry.w	.frame174
+	mappingsTableEntry.w	.frame175
+	mappingsTableEntry.w	.frame176
+	mappingsTableEntry.w	.frame177
+	mappingsTableEntry.w	.frame178
+	mappingsTableEntry.w	.frame179
+	mappingsTableEntry.w	.frame180
+	mappingsTableEntry.w	.frame181
+	mappingsTableEntry.w	.frame182
+	mappingsTableEntry.w	.frame183
+	mappingsTableEntry.w	.frame184
+	mappingsTableEntry.w	.frame185
+	mappingsTableEntry.w	.frame186
+	mappingsTableEntry.w	.frame187
+	mappingsTableEntry.w	.frame188
+	mappingsTableEntry.w	.frame189
+	mappingsTableEntry.w	.frame190
+	mappingsTableEntry.w	.frame191
+	mappingsTableEntry.w	.frame192
+	mappingsTableEntry.w	.frame193
+	mappingsTableEntry.w	.frame194
+	mappingsTableEntry.w	.frame195
+	mappingsTableEntry.w	.frame196
+	mappingsTableEntry.w	.frame197
+	mappingsTableEntry.w	.frame198
+	mappingsTableEntry.w	.frame199
+	mappingsTableEntry.w	.frame200
+	mappingsTableEntry.w	.frame201
+	mappingsTableEntry.w	.frame202
+	mappingsTableEntry.w	.frame203
+	mappingsTableEntry.w	.frame204
+	mappingsTableEntry.w	.frame205
+	mappingsTableEntry.w	.frame206
+	mappingsTableEntry.w	.frame207
+	mappingsTableEntry.w	.frame208
+	mappingsTableEntry.w	.frame209
+	mappingsTableEntry.w	.frame210
+	mappingsTableEntry.w	.frame211
+	mappingsTableEntry.w	.frame212
+	mappingsTableEntry.w	.frame213
 
-DPLC_Sonic_01AC:	dplcHeader
-DPLC_Sonic_01AC_End
+.frame0:	dplcHeader
+.frame0_End
 
-DPLC_Sonic_01AE:	dplcHeader
+.frame1:	dplcHeader
 	dplcEntry	4, 0
 	dplcEntry	4, 4
 	dplcEntry	6, 8
 	dplcEntry	6, $E
-DPLC_Sonic_01AE_End
+.frame1_End
 
-DPLC_Sonic_01B8:	dplcHeader
+.frame2:	dplcHeader
 	dplcEntry	$C, $14
 	dplcEntry	6, $20
-DPLC_Sonic_01B8_End
+.frame2_End
 
-DPLC_Sonic_01BE:	dplcHeader
+.frame3:	dplcHeader
 	dplcEntry	4, $26
 	dplcEntry	4, $2A
 	dplcEntry	4, $2E
 	dplcEntry	6, $32
-DPLC_Sonic_01BE_End
+.frame3_End
 
-DPLC_Sonic_01C8:	dplcHeader
+.frame4:	dplcHeader
 	dplcEntry	4, $26
 	dplcEntry	4, $38
 	dplcEntry	4, $2E
 	dplcEntry	6, $32
-DPLC_Sonic_01C8_End
+.frame4_End
 
-DPLC_Sonic_01D2:	dplcHeader
+.frame5:	dplcHeader
 	dplcEntry	4, $26
 	dplcEntry	4, $38
 	dplcEntry	4, $2E
 	dplcEntry	2, $32
 	dplcEntry	4, $3C
-DPLC_Sonic_01D2_End
+.frame5_End
 
-DPLC_Sonic_01DE:	dplcHeader
+.frame6:	dplcHeader
 	dplcEntry	4, $26
 	dplcEntry	8, $40
 	dplcEntry	6, $32
-DPLC_Sonic_01DE_End
+.frame6_End
 
-DPLC_Sonic_01E6:	dplcHeader
+.frame7:	dplcHeader
 	dplcEntry	$C, $48
 	dplcEntry	2, $54
-DPLC_Sonic_01E6_End
+.frame7_End
 
-DPLC_Sonic_01EC:	dplcHeader
+.frame8:	dplcHeader
 	dplcEntry	$C, $56
 	dplcEntry	4, $62
-DPLC_Sonic_01EC_End
+.frame8_End
 
-DPLC_Sonic_01F2:	dplcHeader
+.frame9:	dplcHeader
 	dplcEntry	$C, $56
 	dplcEntry	4, $66
-DPLC_Sonic_01F2_End
+.frame9_End
 
-DPLC_Sonic_01F8:	dplcHeader
+.frame10:	dplcHeader
 	dplcEntry	$C, $6A
 	dplcEntry	8, $76
-DPLC_Sonic_01F8_End
+.frame10_End
 
-DPLC_Sonic_01FE:	dplcHeader
+.frame11:	dplcHeader
 	dplcEntry	4, $7E
 	dplcEntry	4, $82
 	dplcEntry	6, $86
 	dplcEntry	6, $E
-DPLC_Sonic_01FE_End
+.frame11_End
 
-DPLC_Sonic_0208:	dplcHeader
+.frame12:	dplcHeader
 	dplcEntry	4, $8C
 	dplcEntry	4, $90
 	dplcEntry	4, $94
 	dplcEntry	6, $E
-DPLC_Sonic_0208_End
+.frame12_End
 
-DPLC_Sonic_0212:	dplcHeader
+.frame13:	dplcHeader
 	dplcEntry	8, $98
 	dplcEntry	2, $A0
 	dplcEntry	$10, $A2
-DPLC_Sonic_0212_End
+.frame13_End
 
-DPLC_Sonic_021A:	dplcHeader
+.frame14:	dplcHeader
 	dplcEntry	8, $98
 	dplcEntry	2, $B2
 	dplcEntry	$C, $B4
 	dplcEntry	2, $C0
-DPLC_Sonic_021A_End
+.frame14_End
 
-DPLC_Sonic_0224:	dplcHeader
+.frame15:	dplcHeader
 	dplcEntry	8, $C2
 	dplcEntry	6, $CA
 	dplcEntry	4, $D0
-DPLC_Sonic_0224_End
+.frame15_End
 
-DPLC_Sonic_022C:	dplcHeader
+.frame16:	dplcHeader
 	dplcEntry	6, $D4
 	dplcEntry	$10, $DA
-DPLC_Sonic_022C_End
+.frame16_End
 
-DPLC_Sonic_0232:	dplcHeader
+.frame17:	dplcHeader
 	dplcEntry	6, $D4
 	dplcEntry	$10, $EA
 	dplcEntry	2, $FA
-DPLC_Sonic_0232_End
+.frame17_End
 
-DPLC_Sonic_023A:	dplcHeader
+.frame18:	dplcHeader
 	dplcEntry	6, $D4
 	dplcEntry	2, $FC
 	dplcEntry	$C, $FE
 	dplcEntry	2, $10A
-DPLC_Sonic_023A_End
+.frame18_End
 
-DPLC_Sonic_0244:	dplcHeader
+.frame19:	dplcHeader
 	dplcEntry	8, $C2
 	dplcEntry	6, $10C
 	dplcEntry	4, $112
-DPLC_Sonic_0244_End
+.frame19_End
 
-DPLC_Sonic_024C:	dplcHeader
+.frame20:	dplcHeader
 	dplcEntry	8, $98
 	dplcEntry	$C, $116
-DPLC_Sonic_024C_End
+.frame20_End
 
-DPLC_Sonic_0252:	dplcHeader
+.frame21:	dplcHeader
 	dplcEntry	6, $122
 	dplcEntry	6, $128
 	dplcEntry	4, $12E
 	dplcEntry	2, $132
-DPLC_Sonic_0252_End
+.frame21_End
 
-DPLC_Sonic_025C:	dplcHeader
+.frame22:	dplcHeader
 	dplcEntry	6, $122
 	dplcEntry	2, $134
 	dplcEntry	8, $136
 	dplcEntry	4, $13E
 	dplcEntry	2, $142
-DPLC_Sonic_025C_End
+.frame22_End
 
-DPLC_Sonic_0268:	dplcHeader
+.frame23:	dplcHeader
 	dplcEntry	8, $144
 	dplcEntry	4, $14C
 	dplcEntry	2, $150
 	dplcEntry	4, $152
-DPLC_Sonic_0268_End
+.frame23_End
 
-DPLC_Sonic_0272:	dplcHeader
+.frame24:	dplcHeader
 	dplcEntry	6, $156
 	dplcEntry	2, $15C
 	dplcEntry	4, $15E
 	dplcEntry	$C, $162
-DPLC_Sonic_0272_End
+.frame24_End
 
-DPLC_Sonic_027C:	dplcHeader
+.frame25:	dplcHeader
 	dplcEntry	6, $156
 	dplcEntry	2, $16E
 	dplcEntry	8, $170
 	dplcEntry	2, $178
 	dplcEntry	4, $17A
-DPLC_Sonic_027C_End
+.frame25_End
 
-DPLC_Sonic_0288:	dplcHeader
+.frame26:	dplcHeader
 	dplcEntry	6, $156
 	dplcEntry	2, $17E
 	dplcEntry	8, $180
 	dplcEntry	4, $188
 	dplcEntry	2, $18C
-DPLC_Sonic_0288_End
+.frame26_End
 
-DPLC_Sonic_0294:	dplcHeader
+.frame27:	dplcHeader
 	dplcEntry	8, $144
 	dplcEntry	4, $18E
 	dplcEntry	2, $192
 	dplcEntry	4, $194
-DPLC_Sonic_0294_End
+.frame27_End
 
-DPLC_Sonic_029E:	dplcHeader
+.frame28:	dplcHeader
 	dplcEntry	6, $122
 	dplcEntry	6, $198
 	dplcEntry	2, $19E
 	dplcEntry	2, $1A0
 	dplcEntry	4, $1A2
-DPLC_Sonic_029E_End
+.frame28_End
 
-DPLC_Sonic_02AA:	dplcHeader
+.frame29:	dplcHeader
 	dplcEntry	8, $1A6
 	dplcEntry	$C, $1AE
 	dplcEntry	4, $1BA
-DPLC_Sonic_02AA_End
+.frame29_End
 
-DPLC_Sonic_02B2:	dplcHeader
+.frame30:	dplcHeader
 	dplcEntry	8, $1A6
 	dplcEntry	$C, $1BE
 	dplcEntry	4, $1CA
-DPLC_Sonic_02B2_End
+.frame30_End
 
-DPLC_Sonic_02BA:	dplcHeader
+.frame31:	dplcHeader
 	dplcEntry	8, $1CE
 	dplcEntry	4, $1D6
 	dplcEntry	4, $1DA
-DPLC_Sonic_02BA_End
+.frame31_End
 
-DPLC_Sonic_02C2:	dplcHeader
+.frame32:	dplcHeader
 	dplcEntry	8, $1DE
 	dplcEntry	$C, $1E6
-DPLC_Sonic_02C2_End
+.frame32_End
 
-DPLC_Sonic_02C8:	dplcHeader
+.frame33:	dplcHeader
 	dplcEntry	8, $1DE
 	dplcEntry	4, $1F2
 	dplcEntry	$C, $1F6
-DPLC_Sonic_02C8_End
+.frame33_End
 
-DPLC_Sonic_02D0:	dplcHeader
+.frame34:	dplcHeader
 	dplcEntry	8, $1DE
 	dplcEntry	$C, $202
 	dplcEntry	4, $20E
-DPLC_Sonic_02D0_End
+.frame34_End
 
-DPLC_Sonic_02D8:	dplcHeader
+.frame35:	dplcHeader
 	dplcEntry	8, $1CE
 	dplcEntry	4, $212
 	dplcEntry	4, $216
-DPLC_Sonic_02D8_End
+.frame35_End
 
-DPLC_Sonic_02E0:	dplcHeader
+.frame36:	dplcHeader
 	dplcEntry	8, $1A6
 	dplcEntry	$C, $21A
-DPLC_Sonic_02E0_End
+.frame36_End
 
-DPLC_Sonic_02E6:	dplcHeader
+.frame37:	dplcHeader
 	dplcEntry	4, $226
 	dplcEntry	8, $22A
 	dplcEntry	8, $232
 	dplcEntry	2, $23A
-DPLC_Sonic_02E6_End
+.frame37_End
 
-DPLC_Sonic_02F0:	dplcHeader
+.frame38:	dplcHeader
 	dplcEntry	4, $23C
 	dplcEntry	6, $240
 	dplcEntry	8, $22A
 	dplcEntry	8, $246
 	dplcEntry	2, $23A
-DPLC_Sonic_02F0_End
+.frame38_End
 
-DPLC_Sonic_02FC:	dplcHeader
+.frame39:	dplcHeader
 	dplcEntry	8, $24E
 	dplcEntry	8, $256
 	dplcEntry	4, $25E
 	dplcEntry	2, $262
-DPLC_Sonic_02FC_End
+.frame39_End
 
-DPLC_Sonic_0306:	dplcHeader
+.frame40:	dplcHeader
 	dplcEntry	8, $264
 	dplcEntry	8, $26C
 	dplcEntry	6, $274
 	dplcEntry	2, $27A
-DPLC_Sonic_0306_End
+.frame40_End
 
-DPLC_Sonic_0310:	dplcHeader
+.frame41:	dplcHeader
 	dplcEntry	6, $27C
 	dplcEntry	8, $26C
 	dplcEntry	8, $282
 	dplcEntry	2, $27A
-DPLC_Sonic_0310_End
+.frame41_End
 
-DPLC_Sonic_031A:	dplcHeader
+.frame42:	dplcHeader
 	dplcEntry	4, $28A
 	dplcEntry	6, $28E
 	dplcEntry	8, $26C
 	dplcEntry	8, $294
 	dplcEntry	2, $27A
-DPLC_Sonic_031A_End
+.frame42_End
 
-DPLC_Sonic_0326:	dplcHeader
+.frame43:	dplcHeader
 	dplcEntry	8, $29C
 	dplcEntry	8, $256
 	dplcEntry	4, $2A4
 	dplcEntry	2, $262
-DPLC_Sonic_0326_End
+.frame43_End
 
-DPLC_Sonic_0330:	dplcHeader
+.frame44:	dplcHeader
 	dplcEntry	8, $2A8
 	dplcEntry	8, $22A
 	dplcEntry	6, $2B0
 	dplcEntry	2, $23A
-DPLC_Sonic_0330_End
+.frame44_End
 
-DPLC_Sonic_033A:	dplcHeader
+.frame45:	dplcHeader
 	dplcEntry	6, $2B6
 	dplcEntry	$10, $2BC
-DPLC_Sonic_033A_End
+.frame45_End
 
-DPLC_Sonic_0340:	dplcHeader
+.frame46:	dplcHeader
 	dplcEntry	6, $2CC
 	dplcEntry	$10, $2D2
-DPLC_Sonic_0340_End
+.frame46_End
 
-DPLC_Sonic_0346:	dplcHeader
+.frame47:	dplcHeader
 	dplcEntry	6, $2B6
 	dplcEntry	$10, $2E2
-DPLC_Sonic_0346_End
+.frame47_End
 
-DPLC_Sonic_034C:	dplcHeader
+.frame48:	dplcHeader
 	dplcEntry	6, $2CC
 	dplcEntry	$10, $2F2
-DPLC_Sonic_034C_End
+.frame48_End
 
-DPLC_Sonic_0352:	dplcHeader
+.frame49:	dplcHeader
 	dplcEntry	6, $302
 	dplcEntry	2, $308
 	dplcEntry	8, $30A
 	dplcEntry	6, $312
-DPLC_Sonic_0352_End
+.frame49_End
 
-DPLC_Sonic_035C:	dplcHeader
+.frame50:	dplcHeader
 	dplcEntry	8, $318
 	dplcEntry	8, $320
 	dplcEntry	6, $328
-DPLC_Sonic_035C_End
+.frame50_End
 
-DPLC_Sonic_0364:	dplcHeader
+.frame51:	dplcHeader
 	dplcEntry	6, $302
 	dplcEntry	2, $32E
 	dplcEntry	8, $330
 	dplcEntry	6, $338
-DPLC_Sonic_0364_End
+.frame51_End
 
-DPLC_Sonic_036E:	dplcHeader
+.frame52:	dplcHeader
 	dplcEntry	8, $318
 	dplcEntry	8, $33E
 	dplcEntry	6, $346
-DPLC_Sonic_036E_End
+.frame52_End
 
-DPLC_Sonic_0376:	dplcHeader
+.frame53:	dplcHeader
 	dplcEntry	8, $34C
 	dplcEntry	$C, $354
-DPLC_Sonic_0376_End
+.frame53_End
 
-DPLC_Sonic_037C:	dplcHeader
+.frame54:	dplcHeader
 	dplcEntry	8, $360
 	dplcEntry	$C, $368
-DPLC_Sonic_037C_End
+.frame54_End
 
-DPLC_Sonic_0382:	dplcHeader
+.frame55:	dplcHeader
 	dplcEntry	8, $34C
 	dplcEntry	$C, $374
-DPLC_Sonic_0382_End
+.frame55_End
 
-DPLC_Sonic_0388:	dplcHeader
+.frame56:	dplcHeader
 	dplcEntry	8, $360
 	dplcEntry	$C, $380
-DPLC_Sonic_0388_End
+.frame56_End
 
-DPLC_Sonic_038E:	dplcHeader
+.frame57:	dplcHeader
 	dplcEntry	2, $38C
 	dplcEntry	8, $38E
 	dplcEntry	$C, $396
-DPLC_Sonic_038E_End
+.frame57_End
 
-DPLC_Sonic_0396:	dplcHeader
+.frame58:	dplcHeader
 	dplcEntry	8, $3A2
 	dplcEntry	$C, $3AA
-DPLC_Sonic_0396_End
+.frame58_End
 
-DPLC_Sonic_039C:	dplcHeader
+.frame59:	dplcHeader
 	dplcEntry	2, $3B6
 	dplcEntry	8, $38E
 	dplcEntry	$C, $3C0
-DPLC_Sonic_039C_End
+.frame59_End
 
-DPLC_Sonic_03A4:	dplcHeader
+.frame60:	dplcHeader
 	dplcEntry	8, $3A2
 	dplcEntry	$C, $3CC
-DPLC_Sonic_03A4_End
+.frame60_End
 
-DPLC_Sonic_03AA:	dplcHeader
+.frame61:	dplcHeader
 	dplcEntry	$10, $400
-DPLC_Sonic_03AA_End
+.frame61_End
 
-DPLC_Sonic_03AE:	dplcHeader
+.frame62:	dplcHeader
 	dplcEntry	$10, $410
-DPLC_Sonic_03AE_End
+.frame62_End
 
-DPLC_Sonic_03B2:	dplcHeader
+.frame63:	dplcHeader
 	dplcEntry	$10, $420
-DPLC_Sonic_03B2_End
+.frame63_End
 
-DPLC_Sonic_03B6:	dplcHeader
+.frame64:	dplcHeader
 	dplcEntry	$10, $430
-DPLC_Sonic_03B6_End
+.frame64_End
 
-DPLC_Sonic_03BA:	dplcHeader
+.frame65:	dplcHeader
 	dplcEntry	$10, $440
-DPLC_Sonic_03BA_End
+.frame65_End
 
-DPLC_Sonic_03BE:	dplcHeader
+.frame66:	dplcHeader
 	dplcEntry	$10, $450
-DPLC_Sonic_03BE_End
+.frame66_End
 
-DPLC_Sonic_03C2:	dplcHeader
+.frame67:	dplcHeader
 	dplcEntry	$10, $460
-DPLC_Sonic_03C2_End
+.frame67_End
 
-DPLC_Sonic_03C6:	dplcHeader
+.frame68:	dplcHeader
 	dplcEntry	$10, $470
-DPLC_Sonic_03C6_End
+.frame68_End
 
-DPLC_Sonic_03CA:	dplcHeader
+.frame69:	dplcHeader
 	dplcEntry	$10, $480
-DPLC_Sonic_03CA_End
+.frame69_End
 
-DPLC_Sonic_03CE:	dplcHeader
+.frame70:	dplcHeader
 	dplcEntry	$10, $490
-DPLC_Sonic_03CE_End
+.frame70_End
 
-DPLC_Sonic_03D2:	dplcHeader
+.frame71:	dplcHeader
 	dplcEntry	$10, $4A0
-DPLC_Sonic_03D2_End
+.frame71_End
 
-DPLC_Sonic_03D6:	dplcHeader
+.frame72:	dplcHeader
 	dplcEntry	6, $3D8
 	dplcEntry	6, $3DE
 	dplcEntry	8, $3E4
-DPLC_Sonic_03D6_End
+.frame72_End
 
-DPLC_Sonic_03DE:	dplcHeader
+.frame73:	dplcHeader
 	dplcEntry	6, $3D8
 	dplcEntry	6, $3EC
 	dplcEntry	6, $3F2
-DPLC_Sonic_03DE_End
+.frame73_End
 
-DPLC_Sonic_03E6:	dplcHeader
+.frame74:	dplcHeader
 	dplcEntry	6, $3D8
 	dplcEntry	6, $3DE
 	dplcEntry	8, $3B8
-DPLC_Sonic_03E6_End
+.frame74_End
 
-DPLC_Sonic_03EE:	dplcHeader
+.frame75:	dplcHeader
 	dplcEntry	6, $3D8
 	dplcEntry	6, $3EC
 	dplcEntry	6, $4B0
-DPLC_Sonic_03EE_End
+.frame75_End
 
-DPLC_Sonic_03F6:	dplcHeader
+.frame76:	dplcHeader
 	dplcEntry	$C, $4B6
-DPLC_Sonic_03F6_End
+.frame76_End
 
-DPLC_Sonic_03FA:	dplcHeader
+.frame77:	dplcHeader
 	dplcEntry	$10, $4C2
-DPLC_Sonic_03FA_End
+.frame77_End
 
-DPLC_Sonic_03FE:	dplcHeader
+.frame78:	dplcHeader
 	dplcEntry	2, $4D2
 	dplcEntry	$10, $4D4
-DPLC_Sonic_03FE_End
+.frame78_End
 
-DPLC_Sonic_0404:	dplcHeader
+.frame79:	dplcHeader
 	dplcEntry	4, $4E4
 	dplcEntry	$10, $4E8
-DPLC_Sonic_0404_End
+.frame79_End
 
-DPLC_Sonic_040A:	dplcHeader
+.frame80:	dplcHeader
 	dplcEntry	$10, $4F8
 	dplcEntry	2, $508
 	dplcEntry	4, $50A
-DPLC_Sonic_040A_End
+.frame80_End
 
-DPLC_Sonic_0412:	dplcHeader
+.frame81:	dplcHeader
 	dplcEntry	$10, $50E
 	dplcEntry	2, $51E
 	dplcEntry	4, $520
-DPLC_Sonic_0412_End
+.frame81_End
 
-DPLC_Sonic_041A:	dplcHeader
+.frame82:	dplcHeader
 	dplcEntry	$C, $524
 	dplcEntry	6, $530
-DPLC_Sonic_041A_End
+.frame82_End
 
-DPLC_Sonic_0420:	dplcHeader
+.frame83:	dplcHeader
 	dplcEntry	$C, $536
 	dplcEntry	6, $542
-DPLC_Sonic_0420_End
+.frame83_End
 
-DPLC_Sonic_0426:	dplcHeader
+.frame86:
+.frame84:	dplcHeader
 	dplcEntry	4, $548
 	dplcEntry	$C, $54C
 	dplcEntry	2, $558
-DPLC_Sonic_0426_End
+.frame84_End
 
-DPLC_Sonic_042E:	dplcHeader
+.frame85:	dplcHeader
 	dplcEntry	2, $55A
 	dplcEntry	8, $55C
-DPLC_Sonic_042E_End
+.frame85_End
 
-DPLC_Sonic_0434:	dplcHeader
+.frame88:
+.frame87:	dplcHeader
 	dplcEntry	2, $564
 	dplcEntry	$C, $566
 	dplcEntry	2, $572
-DPLC_Sonic_0434_End
+.frame87_End
 
-DPLC_Sonic_043C:	dplcHeader
+.frame89:	dplcHeader
 	dplcEntry	4, $574
 	dplcEntry	$C, $578
 	dplcEntry	2, $584
-DPLC_Sonic_043C_End
+.frame89_End
 
-DPLC_Sonic_0444:	dplcHeader
+.frame90:	dplcHeader
 	dplcEntry	6, $586
 	dplcEntry	$10, $58C
 	dplcEntry	2, $59C
-DPLC_Sonic_0444_End
+.frame90_End
 
-DPLC_Sonic_044C:	dplcHeader
+.frame91:	dplcHeader
 	dplcEntry	$C, $59E
 	dplcEntry	4, $5AA
-DPLC_Sonic_044C_End
+.frame91_End
 
-DPLC_Sonic_0452:	dplcHeader
+.frame92:	dplcHeader
 	dplcEntry	2, $5AE
 	dplcEntry	$C, $5B0
 	dplcEntry	2, $5BC
 	dplcEntry	8, $5BE
-DPLC_Sonic_0452_End
+.frame92_End
 
-DPLC_Sonic_045C:	dplcHeader
+.frame93:	dplcHeader
 	dplcEntry	2, $5AE
 	dplcEntry	$C, $5C6
 	dplcEntry	2, $5BC
 	dplcEntry	8, $5BE
-DPLC_Sonic_045C_End
+.frame93_End
 
-DPLC_Sonic_0466:	dplcHeader
+.frame94:	dplcHeader
 	dplcEntry	8, $5D2
 	dplcEntry	2, $5DA
 	dplcEntry	$C, $5DC
-DPLC_Sonic_0466_End
+.frame94_End
 
-DPLC_Sonic_046E:	dplcHeader
+.frame95:	dplcHeader
 	dplcEntry	6, $5E8
 	dplcEntry	$C, $5EE
 	dplcEntry	2, $5FA
-DPLC_Sonic_046E_End
+.frame95_End
 
-DPLC_Sonic_0476:	dplcHeader
+.frame96:	dplcHeader
 	dplcEntry	$C, $5FC
 	dplcEntry	2, $608
 	dplcEntry	4, $60A
-DPLC_Sonic_0476_End
+.frame96_End
 
-DPLC_Sonic_047E:	dplcHeader
+.frame97:	dplcHeader
 	dplcEntry	$C, $60E
 	dplcEntry	2, $61A
-DPLC_Sonic_047E_End
+.frame97_End
 
-DPLC_Sonic_0484:	dplcHeader
+.frame98:	dplcHeader
 	dplcEntry	$10, $61C
-DPLC_Sonic_0484_End
+.frame98_End
 
-DPLC_Sonic_0488:	dplcHeader
+.frame99:	dplcHeader
 	dplcEntry	$C, $62C
 	dplcEntry	2, $638
-DPLC_Sonic_0488_End
+.frame99_End
 
-DPLC_Sonic_048E:	dplcHeader
+.frame100:	dplcHeader
 	dplcEntry	2, $63A
 	dplcEntry	$C, $63C
 	dplcEntry	2, $648
-DPLC_Sonic_048E_End
+.frame100_End
 
-DPLC_Sonic_0496:	dplcHeader
+.frame101:	dplcHeader
 	dplcEntry	6, $64A
 	dplcEntry	$C, $650
 	dplcEntry	4, $65C
-DPLC_Sonic_0496_End
+.frame101_End
 
-DPLC_Sonic_049E:	dplcHeader
+.frame102:	dplcHeader
 	dplcEntry	4, $660
 	dplcEntry	$C, $664
 	dplcEntry	2, $670
-DPLC_Sonic_049E_End
+.frame102_End
 
-DPLC_Sonic_04A6:	dplcHeader
+.frame103:	dplcHeader
 	dplcEntry	$C, $672
 	dplcEntry	2, $67E
-DPLC_Sonic_04A6_End
+.frame103_End
 
-DPLC_Sonic_04AC:	dplcHeader
+.frame104:	dplcHeader
 	dplcEntry	2, $680
 	dplcEntry	$C, $682
-DPLC_Sonic_04AC_End
+.frame104_End
 
-DPLC_Sonic_04B2:	dplcHeader
+.frame105:	dplcHeader
 	dplcEntry	4, $68E
 	dplcEntry	$C, $692
 	dplcEntry	2, $69E
-DPLC_Sonic_04B2_End
+.frame105_End
 
-DPLC_Sonic_04BA:	dplcHeader
+.frame106:	dplcHeader
 	dplcEntry	4, $6A0
 	dplcEntry	$10, $6A4
-DPLC_Sonic_04BA_End
+.frame106_End
 
-DPLC_Sonic_04C0:	dplcHeader
+.frame107:	dplcHeader
 	dplcEntry	8, $6B4
 	dplcEntry	4, $6BC
 	dplcEntry	6, $6C0
-DPLC_Sonic_04C0_End
+.frame107_End
 
-DPLC_Sonic_04C8:	dplcHeader
+.frame108:	dplcHeader
 	dplcEntry	8, $6C6
 	dplcEntry	4, $6BC
 	dplcEntry	6, $6CE
-DPLC_Sonic_04C8_End
+.frame108_End
 
-DPLC_Sonic_04D0:	dplcHeader
+.frame109:	dplcHeader
 	dplcEntry	$C, $7D6
-DPLC_Sonic_04D0_End
+.frame109_End
 
-DPLC_Sonic_04D4:	dplcHeader
+.frame110:	dplcHeader
 	dplcEntry	$C, $7E2
 	dplcEntry	2, $7EE
 	dplcEntry	6, $7F0
-DPLC_Sonic_04D4_End
+.frame110_End
 
-DPLC_Sonic_04DC:	dplcHeader
+.frame111:	dplcHeader
 	dplcEntry	9, $7F6
 	dplcEntry	1, $A18
 	dplcEntry	9, $800
-DPLC_Sonic_04DC_End
+.frame111_End
 
-DPLC_Sonic_04E4:	dplcHeader
+.frame112:	dplcHeader
 	dplcEntry	3, $809
 	dplcEntry	2, $80C
 	dplcEntry	4, $80E
 	dplcEntry	9, $812
 	dplcEntry	1, $81B
-DPLC_Sonic_04E4_End
+.frame112_End
 
-DPLC_Sonic_04F0:	dplcHeader
+.frame113:	dplcHeader
 	dplcEntry	3, $81C
 	dplcEntry	2, $81F
 	dplcEntry	4, $80E
 	dplcEntry	9, $812
 	dplcEntry	1, $81B
-DPLC_Sonic_04F0_End
+.frame113_End
 
-DPLC_Sonic_04FC:	dplcHeader
+.frame114:	dplcHeader
 	dplcEntry	9, $821
 	dplcEntry	9, $82A
-DPLC_Sonic_04FC_End
+.frame114_End
 
-DPLC_Sonic_0502:	dplcHeader
+.frame115:	dplcHeader
 	dplcEntry	9, $833
 	dplcEntry	9, $82A
-DPLC_Sonic_0502_End
+.frame115_End
 
-DPLC_Sonic_0508:	dplcHeader
+.frame116:	dplcHeader
 	dplcEntry	9, $83C
 	dplcEntry	9, $82A
-DPLC_Sonic_0508_End
+.frame116_End
 
-DPLC_Sonic_050E:	dplcHeader
+.frame117:	dplcHeader
 	dplcEntry	$C, $6D4
 	dplcEntry	2, $A0
 	dplcEntry	$10, $A2
-DPLC_Sonic_050E_End
+.frame117_End
 
-DPLC_Sonic_0516:	dplcHeader
+.frame118:	dplcHeader
 	dplcEntry	$C, $6D4
 	dplcEntry	2, $B2
 	dplcEntry	$C, $B4
 	dplcEntry	2, $C0
-DPLC_Sonic_0516_End
+.frame118_End
 
-DPLC_Sonic_0520:	dplcHeader
+.frame119:	dplcHeader
 	dplcEntry	$C, $6E0
 	dplcEntry	6, $CA
 	dplcEntry	4, $D0
-DPLC_Sonic_0520_End
+.frame119_End
 
-DPLC_Sonic_0528:	dplcHeader
+.frame120:	dplcHeader
 	dplcEntry	9, $6EC
 	dplcEntry	$10, $DA
-DPLC_Sonic_0528_End
+.frame120_End
 
-DPLC_Sonic_052E:	dplcHeader
+.frame121:	dplcHeader
 	dplcEntry	9, $6EC
 	dplcEntry	$10, $EA
 	dplcEntry	2, $FA
-DPLC_Sonic_052E_End
+.frame121_End
 
-DPLC_Sonic_0536:	dplcHeader
+.frame122:	dplcHeader
 	dplcEntry	9, $6EC
 	dplcEntry	2, $FC
 	dplcEntry	$C, $FE
 	dplcEntry	2, $10A
-DPLC_Sonic_0536_End
+.frame122_End
 
-DPLC_Sonic_0540:	dplcHeader
+.frame123:	dplcHeader
 	dplcEntry	$C, $6E0
 	dplcEntry	6, $10C
 	dplcEntry	4, $112
-DPLC_Sonic_0540_End
+.frame123_End
 
-DPLC_Sonic_0548:	dplcHeader
+.frame124:	dplcHeader
 	dplcEntry	$C, $6D4
 	dplcEntry	$C, $116
-DPLC_Sonic_0548_End
+.frame124_End
 
-DPLC_Sonic_054E:	dplcHeader
+.frame125:	dplcHeader
 	dplcEntry	8, $6F5
 	dplcEntry	4, $12E
 	dplcEntry	6, $128
 	dplcEntry	2, $132
-DPLC_Sonic_054E_End
+.frame125_End
 
-DPLC_Sonic_0558:	dplcHeader
+.frame126:	dplcHeader
 	dplcEntry	8, $6F5
 	dplcEntry	2, $134
 	dplcEntry	8, $136
 	dplcEntry	4, $13E
 	dplcEntry	2, $142
-DPLC_Sonic_0558_End
+.frame126_End
 
-DPLC_Sonic_0564:	dplcHeader
+.frame127:	dplcHeader
 	dplcEntry	9, $6FD
 	dplcEntry	4, $14C
 	dplcEntry	1, $706
 	dplcEntry	2, $150
 	dplcEntry	4, $152
-DPLC_Sonic_0564_End
+.frame127_End
 
-DPLC_Sonic_0570:	dplcHeader
+.frame128:	dplcHeader
 	dplcEntry	1, $707
 	dplcEntry	8, $708
 	dplcEntry	2, $15C
 	dplcEntry	4, $15E
 	dplcEntry	$C, $162
-DPLC_Sonic_0570_End
+.frame128_End
 
-DPLC_Sonic_057C:	dplcHeader
+.frame129:	dplcHeader
 	dplcEntry	1, $707
 	dplcEntry	8, $708
 	dplcEntry	2, $16E
 	dplcEntry	2, $178
 	dplcEntry	8, $170
 	dplcEntry	4, $17A
-DPLC_Sonic_057C_End
+.frame129_End
 
-DPLC_Sonic_058A:	dplcHeader
+.frame130:	dplcHeader
 	dplcEntry	1, $707
 	dplcEntry	8, $708
 	dplcEntry	2, $17E
 	dplcEntry	8, $180
 	dplcEntry	4, $188
 	dplcEntry	2, $18C
-DPLC_Sonic_058A_End
+.frame130_End
 
-DPLC_Sonic_0598:	dplcHeader
+.frame131:	dplcHeader
 	dplcEntry	9, $6FD
 	dplcEntry	4, $18E
 	dplcEntry	1, $706
 	dplcEntry	2, $192
 	dplcEntry	4, $194
-DPLC_Sonic_0598_End
+.frame131_End
 
-DPLC_Sonic_05A4:	dplcHeader
+.frame132:	dplcHeader
 	dplcEntry	8, $6F5
 	dplcEntry	2, $19E
 	dplcEntry	6, $198
 	dplcEntry	1, $1A0
 	dplcEntry	4, $1A2
-DPLC_Sonic_05A4_End
+.frame132_End
 
-DPLC_Sonic_05B0:	dplcHeader
+.frame133:	dplcHeader
 	dplcEntry	$C, $710
 	dplcEntry	$C, $1AE
 	dplcEntry	4, $1BA
-DPLC_Sonic_05B0_End
+.frame133_End
 
-DPLC_Sonic_05B8:	dplcHeader
+.frame134:	dplcHeader
 	dplcEntry	$C, $710
 	dplcEntry	$C, $1BE
 	dplcEntry	4, $1CA
-DPLC_Sonic_05B8_End
+.frame134_End
 
-DPLC_Sonic_05C0:	dplcHeader
+.frame135:	dplcHeader
 	dplcEntry	$C, $71C
 	dplcEntry	4, $1D6
 	dplcEntry	4, $1DA
-DPLC_Sonic_05C0_End
+.frame135_End
 
-DPLC_Sonic_05C8:	dplcHeader
+.frame136:	dplcHeader
 	dplcEntry	9, $728
 	dplcEntry	$C, $1E6
-DPLC_Sonic_05C8_End
+.frame136_End
 
-DPLC_Sonic_05CE:	dplcHeader
+.frame137:	dplcHeader
 	dplcEntry	9, $728
 	dplcEntry	4, $1F2
 	dplcEntry	$C, $1F6
-DPLC_Sonic_05CE_End
+.frame137_End
 
-DPLC_Sonic_05D6:	dplcHeader
+.frame138:	dplcHeader
 	dplcEntry	9, $728
 	dplcEntry	$C, $202
 	dplcEntry	4, $20E
-DPLC_Sonic_05D6_End
+.frame138_End
 
-DPLC_Sonic_05DE:	dplcHeader
+.frame139:	dplcHeader
 	dplcEntry	$C, $71C
 	dplcEntry	4, $212
 	dplcEntry	4, $216
-DPLC_Sonic_05DE_End
+.frame139_End
 
-DPLC_Sonic_05E6:	dplcHeader
+.frame140:	dplcHeader
 	dplcEntry	$C, $710
 	dplcEntry	$C, $21A
-DPLC_Sonic_05E6_End
+.frame140_End
 
-DPLC_Sonic_05EC:	dplcHeader
+.frame141:	dplcHeader
 	dplcEntry	4, $226
 	dplcEntry	8, $731
 	dplcEntry	8, $232
 	dplcEntry	1, $739
-DPLC_Sonic_05EC_End
+.frame141_End
 
-DPLC_Sonic_05F6:	dplcHeader
+.frame142:	dplcHeader
 	dplcEntry	4, $23C
 	dplcEntry	6, $240
 	dplcEntry	8, $731
 	dplcEntry	8, $246
 	dplcEntry	1, $739
-DPLC_Sonic_05F6_End
+.frame142_End
 
-DPLC_Sonic_0602:	dplcHeader
+.frame143:	dplcHeader
 	dplcEntry	8, $24E
 	dplcEntry	8, $73A
 	dplcEntry	4, $25E
 	dplcEntry	2, $742
-DPLC_Sonic_0602_End
+.frame143_End
 
-DPLC_Sonic_060C:	dplcHeader
+.frame144:	dplcHeader
 	dplcEntry	8, $264
 	dplcEntry	$C, $744
 	dplcEntry	6, $274
 	dplcEntry	1, $750
-DPLC_Sonic_060C_End
+.frame144_End
 
-DPLC_Sonic_0616:	dplcHeader
+.frame145:	dplcHeader
 	dplcEntry	6, $27C
 	dplcEntry	$C, $744
 	dplcEntry	8, $282
 	dplcEntry	1, $750
-DPLC_Sonic_0616_End
+.frame145_End
 
-DPLC_Sonic_0620:	dplcHeader
+.frame146:	dplcHeader
 	dplcEntry	4, $28A
 	dplcEntry	6, $28E
 	dplcEntry	$C, $744
 	dplcEntry	8, $294
 	dplcEntry	1, $750
-DPLC_Sonic_0620_End
+.frame146_End
 
-DPLC_Sonic_062C:	dplcHeader
+.frame147:	dplcHeader
 	dplcEntry	8, $29C
 	dplcEntry	8, $73A
 	dplcEntry	4, $2A4
 	dplcEntry	2, $742
-DPLC_Sonic_062C_End
+.frame147_End
 
-DPLC_Sonic_0636:	dplcHeader
+.frame148:	dplcHeader
 	dplcEntry	8, $2A8
 	dplcEntry	8, $731
 	dplcEntry	6, $2B0
 	dplcEntry	1, $739
-DPLC_Sonic_0636_End
+.frame148_End
 
-DPLC_Sonic_0640:	dplcHeader
+.frame149:	dplcHeader
 	dplcEntry	$C, $751
 	dplcEntry	2, $A0
 	dplcEntry	$10, $A2
-DPLC_Sonic_0640_End
+.frame149_End
 
-DPLC_Sonic_0648:	dplcHeader
+.frame150:	dplcHeader
 	dplcEntry	$C, $751
 	dplcEntry	2, $B2
 	dplcEntry	$C, $B4
 	dplcEntry	2, $C0
-DPLC_Sonic_0648_End
+.frame150_End
 
-DPLC_Sonic_0652:	dplcHeader
+.frame151:	dplcHeader
 	dplcEntry	$C, $75D
 	dplcEntry	6, $CA
 	dplcEntry	4, $D0
-DPLC_Sonic_0652_End
+.frame151_End
 
-DPLC_Sonic_065A:	dplcHeader
+.frame152:	dplcHeader
 	dplcEntry	9, $769
 	dplcEntry	$10, $DA
-DPLC_Sonic_065A_End
+.frame152_End
 
-DPLC_Sonic_0660:	dplcHeader
+.frame153:	dplcHeader
 	dplcEntry	9, $769
 	dplcEntry	$10, $EA
 	dplcEntry	2, $FA
-DPLC_Sonic_0660_End
+.frame153_End
 
-DPLC_Sonic_0668:	dplcHeader
+.frame154:	dplcHeader
 	dplcEntry	9, $769
 	dplcEntry	2, $FC
 	dplcEntry	$C, $FE
 	dplcEntry	2, $10A
-DPLC_Sonic_0668_End
+.frame154_End
 
-DPLC_Sonic_0672:	dplcHeader
+.frame155:	dplcHeader
 	dplcEntry	$C, $75D
 	dplcEntry	6, $10C
 	dplcEntry	4, $112
-DPLC_Sonic_0672_End
+.frame155_End
 
-DPLC_Sonic_067A:	dplcHeader
+.frame156:	dplcHeader
 	dplcEntry	$C, $751
 	dplcEntry	$C, $116
-DPLC_Sonic_067A_End
+.frame156_End
 
-DPLC_Sonic_0680:	dplcHeader
+.frame157:	dplcHeader
 	dplcEntry	2, $772
 	dplcEntry	8, $774
 	dplcEntry	6, $128
 	dplcEntry	4, $12E
 	dplcEntry	2, $132
-DPLC_Sonic_0680_End
+.frame157_End
 
-DPLC_Sonic_068C:	dplcHeader
+.frame158:	dplcHeader
 	dplcEntry	2, $772
 	dplcEntry	8, $774
 	dplcEntry	2, $134
 	dplcEntry	8, $136
 	dplcEntry	4, $13E
 	dplcEntry	2, $142
-DPLC_Sonic_068C_End
+.frame158_End
 
-DPLC_Sonic_069A:	dplcHeader
+.frame159:	dplcHeader
 	dplcEntry	6, $77C
 	dplcEntry	4, $782
 	dplcEntry	4, $14C
 	dplcEntry	2, $150
 	dplcEntry	4, $152
-DPLC_Sonic_069A_End
+.frame159_End
 
-DPLC_Sonic_06A6:	dplcHeader
+.frame160:	dplcHeader
 	dplcEntry	2, $786
 	dplcEntry	8, $788
 	dplcEntry	2, $15C
 	dplcEntry	4, $15E
 	dplcEntry	$C, $162
-DPLC_Sonic_06A6_End
+.frame160_End
 
-DPLC_Sonic_06B2:	dplcHeader
+.frame161:	dplcHeader
 	dplcEntry	2, $786
 	dplcEntry	8, $788
 	dplcEntry	2, $16E
 	dplcEntry	2, $178
 	dplcEntry	8, $170
 	dplcEntry	4, $17A
-DPLC_Sonic_06B2_End
+.frame161_End
 
-DPLC_Sonic_06C0:	dplcHeader
+.frame162:	dplcHeader
 	dplcEntry	2, $786
 	dplcEntry	8, $788
 	dplcEntry	2, $17E
 	dplcEntry	8, $180
 	dplcEntry	4, $188
 	dplcEntry	2, $18C
-DPLC_Sonic_06C0_End
+.frame162_End
 
-DPLC_Sonic_06CE:	dplcHeader
+.frame163:	dplcHeader
 	dplcEntry	6, $77C
 	dplcEntry	4, $782
 	dplcEntry	4, $18E
 	dplcEntry	2, $192
 	dplcEntry	4, $194
-DPLC_Sonic_06CE_End
+.frame163_End
 
-DPLC_Sonic_06DA:	dplcHeader
+.frame164:	dplcHeader
 	dplcEntry	2, $772
 	dplcEntry	8, $774
 	dplcEntry	6, $198
 	dplcEntry	2, $19E
 	dplcEntry	4, $1A2
 	dplcEntry	2, $1A0
-DPLC_Sonic_06DA_End
+.frame164_End
 
-DPLC_Sonic_06E8:	dplcHeader
+.frame165:	dplcHeader
 	dplcEntry	$C, $790
 	dplcEntry	$C, $1AE
 	dplcEntry	4, $1BA
-DPLC_Sonic_06E8_End
+.frame165_End
 
-DPLC_Sonic_06F0:	dplcHeader
+.frame166:	dplcHeader
 	dplcEntry	$C, $790
 	dplcEntry	$C, $1BE
 	dplcEntry	4, $1CA
-DPLC_Sonic_06F0_End
+.frame166_End
 
-DPLC_Sonic_06F8:	dplcHeader
+.frame167:	dplcHeader
 	dplcEntry	$C, $79C
 	dplcEntry	4, $1D6
 	dplcEntry	4, $1DA
-DPLC_Sonic_06F8_End
+.frame167_End
 
-DPLC_Sonic_0700:	dplcHeader
+.frame168:	dplcHeader
 	dplcEntry	9, $7A8
 	dplcEntry	$C, $1E6
-DPLC_Sonic_0700_End
+.frame168_End
 
-DPLC_Sonic_0706:	dplcHeader
+.frame169:	dplcHeader
 	dplcEntry	9, $7A8
 	dplcEntry	4, $1F2
 	dplcEntry	$C, $1F6
-DPLC_Sonic_0706_End
+.frame169_End
 
-DPLC_Sonic_070E:	dplcHeader
+.frame170:	dplcHeader
 	dplcEntry	9, $7A8
 	dplcEntry	$C, $202
 	dplcEntry	4, $20E
-DPLC_Sonic_070E_End
+.frame170_End
 
-DPLC_Sonic_0716:	dplcHeader
+.frame171:	dplcHeader
 	dplcEntry	$C, $79C
 	dplcEntry	4, $212
 	dplcEntry	4, $216
-DPLC_Sonic_0716_End
+.frame171_End
 
-DPLC_Sonic_071E:	dplcHeader
+.frame172:	dplcHeader
 	dplcEntry	$C, $790
 	dplcEntry	$C, $21A
-DPLC_Sonic_071E_End
+.frame172_End
 
-DPLC_Sonic_0724:	dplcHeader
+.frame173:	dplcHeader
 	dplcEntry	4, $226
 	dplcEntry	$C, $7B1
 	dplcEntry	8, $232
 	dplcEntry	1, $7BD
-DPLC_Sonic_0724_End
+.frame173_End
 
-DPLC_Sonic_072E:	dplcHeader
+.frame174:	dplcHeader
 	dplcEntry	4, $23C
 	dplcEntry	6, $240
 	dplcEntry	$C, $7B1
 	dplcEntry	8, $246
 	dplcEntry	1, $7BD
-DPLC_Sonic_072E_End
+.frame174_End
 
-DPLC_Sonic_073A:	dplcHeader
+.frame175:	dplcHeader
 	dplcEntry	8, $24E
 	dplcEntry	2, $7BE
 	dplcEntry	8, $7C0
 	dplcEntry	4, $25E
 	dplcEntry	1, $7C8
-DPLC_Sonic_073A_End
+.frame175_End
 
-DPLC_Sonic_0746:	dplcHeader
+.frame176:	dplcHeader
 	dplcEntry	8, $264
 	dplcEntry	$C, $7C9
 	dplcEntry	6, $274
 	dplcEntry	1, $7D5
-DPLC_Sonic_0746_End
+.frame176_End
 
-DPLC_Sonic_0750:	dplcHeader
+.frame177:	dplcHeader
 	dplcEntry	6, $27C
 	dplcEntry	$C, $7C9
 	dplcEntry	8, $282
 	dplcEntry	1, $7D5
-DPLC_Sonic_0750_End
+.frame177_End
 
-DPLC_Sonic_075A:	dplcHeader
+.frame178:	dplcHeader
 	dplcEntry	4, $28A
 	dplcEntry	6, $28E
 	dplcEntry	$C, $7C9
 	dplcEntry	8, $294
 	dplcEntry	1, $7D5
-DPLC_Sonic_075A_End
+.frame178_End
 
-DPLC_Sonic_0766:	dplcHeader
+.frame179:	dplcHeader
 	dplcEntry	8, $29C
 	dplcEntry	2, $7BE
 	dplcEntry	8, $7C0
 	dplcEntry	4, $2A4
 	dplcEntry	1, $7C8
-DPLC_Sonic_0766_End
+.frame179_End
 
-DPLC_Sonic_0772:	dplcHeader
+.frame180:	dplcHeader
 	dplcEntry	8, $2A8
 	dplcEntry	2, $7B2
 	dplcEntry	8, $7B5
 	dplcEntry	6, $2B0
 	dplcEntry	1, $7BD
-DPLC_Sonic_0772_End
+.frame180_End
 
-DPLC_Sonic_077E:	dplcHeader
+.frame181:	dplcHeader
 	dplcEntry	3, $845
 	dplcEntry	1, $848
 	dplcEntry	4, $849
 	dplcEntry	6, $84D
-DPLC_Sonic_077E_End
+.frame181_End
 
-DPLC_Sonic_0788:	dplcHeader
+.frame182:	dplcHeader
 	dplcEntry	2, $853
 	dplcEntry	$C, $855
 	dplcEntry	3, $861
 	dplcEntry	2, $864
-DPLC_Sonic_0788_End
+.frame182_End
 
-DPLC_Sonic_0792:	dplcHeader
+.frame183:	dplcHeader
 	dplcEntry	3, $866
 	dplcEntry	4, $869
 	dplcEntry	3, $86D
 	dplcEntry	4, $870
-DPLC_Sonic_0792_End
+.frame183_End
 
-DPLC_Sonic_079C:	dplcHeader
+.frame184:	dplcHeader
 	dplcEntry	3, $874
 	dplcEntry	8, $877
 	dplcEntry	4, $87F
 	dplcEntry	2, $883
 	dplcEntry	1, $885
-DPLC_Sonic_079C_End
+.frame184_End
 
-DPLC_Sonic_07A8:	dplcHeader
+.frame185:	dplcHeader
 	dplcEntry	6, $886
 	dplcEntry	1, $88C
 	dplcEntry	4, $849
 	dplcEntry	6, $88D
-DPLC_Sonic_07A8_End
+.frame185_End
 
-DPLC_Sonic_07B2:	dplcHeader
+.frame186:	dplcHeader
 	dplcEntry	2, $893
 	dplcEntry	$C, $895
 	dplcEntry	3, $861
 	dplcEntry	1, $8A1
-DPLC_Sonic_07B2_End
+.frame186_End
 
-DPLC_Sonic_07BC:	dplcHeader
+.frame187:	dplcHeader
 	dplcEntry	6, $8A2
 	dplcEntry	4, $869
 	dplcEntry	1, $8A8
 	dplcEntry	6, $8A9
-DPLC_Sonic_07BC_End
+.frame187_End
 
-DPLC_Sonic_07C6:	dplcHeader
+.frame188:	dplcHeader
 	dplcEntry	3, $874
 	dplcEntry	8, $8AF
 	dplcEntry	4, $8B7
 	dplcEntry	2, $8BB
 	dplcEntry	1, $885
-DPLC_Sonic_07C6_End
+.frame188_End
 
-DPLC_Sonic_07D2:	dplcHeader
+.frame189:	dplcHeader
 	dplcEntry	6, $8BD
 	dplcEntry	4, $8C3
 	dplcEntry	4, $8C7
 	dplcEntry	8, $8CB
-DPLC_Sonic_07D2_End
+.frame189_End
 
-DPLC_Sonic_07DC:	dplcHeader
+.frame190:	dplcHeader
 	dplcEntry	6, $8D3
 	dplcEntry	4, $8D9
 	dplcEntry	4, $8C7
 	dplcEntry	8, $8DD
-DPLC_Sonic_07DC_End
+.frame190_End
 
-DPLC_Sonic_07E6:	dplcHeader
+.frame191:	dplcHeader
 	dplcEntry	6, $8BD
 	dplcEntry	4, $8C3
 	dplcEntry	4, $8C7
 	dplcEntry	8, $8E5
-DPLC_Sonic_07E6_End
+.frame191_End
 
-DPLC_Sonic_07F0:	dplcHeader
+.frame192:	dplcHeader
 	dplcEntry	6, $8D3
 	dplcEntry	4, $8D9
 	dplcEntry	4, $8C7
 	dplcEntry	8, $8ED
-DPLC_Sonic_07F0_End
+.frame192_End
 
-DPLC_Sonic_07FA:	dplcHeader
+.frame193:	dplcHeader
 	dplcEntry	3, $8F5
 	dplcEntry	$C, $8F8
-DPLC_Sonic_07FA_End
+.frame193_End
 
-DPLC_Sonic_0800:	dplcHeader
+.frame194:	dplcHeader
 	dplcEntry	9, $904
 	dplcEntry	3, $90D
 	dplcEntry	4, $910
-DPLC_Sonic_0800_End
+.frame194_End
 
-DPLC_Sonic_0808:	dplcHeader
+.frame195:	dplcHeader
 	dplcEntry	9, $833
 	dplcEntry	3, $90D
 	dplcEntry	4, $910
-DPLC_Sonic_0808_End
+.frame195_End
 
-DPLC_Sonic_0810:	dplcHeader
+.frame196:	dplcHeader
 	dplcEntry	9, $83C
 	dplcEntry	3, $90D
 	dplcEntry	4, $910
-DPLC_Sonic_0810_End
+.frame196_End
 
-DPLC_Sonic_0818:	dplcHeader
+.frame197:	dplcHeader
 	dplcEntry	9, $904
 	dplcEntry	3, $90D
 	dplcEntry	4, $914
-DPLC_Sonic_0818_End
+.frame197_End
 
-DPLC_Sonic_0820:	dplcHeader
+.frame198:	dplcHeader
 	dplcEntry	9, $833
 	dplcEntry	3, $90D
 	dplcEntry	4, $914
-DPLC_Sonic_0820_End
+.frame198_End
 
-DPLC_Sonic_0828:	dplcHeader
+.frame199:	dplcHeader
 	dplcEntry	9, $83C
 	dplcEntry	3, $90D
 	dplcEntry	4, $914
-DPLC_Sonic_0828_End
+.frame199_End
 
-DPLC_Sonic_0830:	dplcHeader
+.frame200:	dplcHeader
 	dplcEntry	$C, $918
 	dplcEntry	4, $924
 	dplcEntry	4, $928
-DPLC_Sonic_0830_End
+.frame200_End
 
-DPLC_Sonic_0838:	dplcHeader
+.frame201:	dplcHeader
 	dplcEntry	$C, $92C
 	dplcEntry	4, $938
 	dplcEntry	4, $928
-DPLC_Sonic_0838_End
+.frame201_End
 
-DPLC_Sonic_0840:	dplcHeader
+.frame202:	dplcHeader
 	dplcEntry	$C, $93C
 	dplcEntry	4, $948
 	dplcEntry	4, $928
-DPLC_Sonic_0840_End
+.frame202_End
 
-DPLC_Sonic_0848:	dplcHeader
+.frame203:	dplcHeader
 	dplcEntry	$C, $94C
 	dplcEntry	2, $924
 	dplcEntry	2, $958
 	dplcEntry	2, $93A
 	dplcEntry	4, $928
-DPLC_Sonic_0848_End
+.frame203_End
 
-DPLC_Sonic_0854:	dplcHeader
+.frame204:	dplcHeader
 	dplcEntry	8, $95A
 	dplcEntry	6, $962
 	dplcEntry	4, $968
 	dplcEntry	6, $96C
-DPLC_Sonic_0854_End
+.frame204_End
 
-DPLC_Sonic_085E:	dplcHeader
+.frame205:	dplcHeader
 	dplcEntry	8, $972
 	dplcEntry	6, $962
 	dplcEntry	4, $97A
 	dplcEntry	6, $97E
-DPLC_Sonic_085E_End
+.frame205_End
 
-DPLC_Sonic_0868:	dplcHeader
+.frame206:	dplcHeader
 	dplcEntry	8, $984
 	dplcEntry	6, $962
 	dplcEntry	6, $98C
 	dplcEntry	6, $992
-DPLC_Sonic_0868_End
+.frame206_End
 
-DPLC_Sonic_0872:	dplcHeader
+.frame207:	dplcHeader
 	dplcEntry	4, $998
 	dplcEntry	$C, $99C
 	dplcEntry	4, $9A8
-DPLC_Sonic_0872_End
+.frame207_End
 
-DPLC_Sonic_087A:	dplcHeader
+.frame208:	dplcHeader
 	dplcEntry	4, $9AC
 	dplcEntry	$C, $9B0
 	dplcEntry	4, $9BC
-DPLC_Sonic_087A_End
+.frame208_End
 
-DPLC_Sonic_0882:	dplcHeader
+.frame209:	dplcHeader
 	dplcEntry	4, $9C0
 	dplcEntry	$C, $9C4
 	dplcEntry	4, $9BC
-DPLC_Sonic_0882_End
+.frame209_End
 
-DPLC_Sonic_088A:	dplcHeader
+.frame210:	dplcHeader
 	dplcEntry	8, $9D0
 	dplcEntry	8, $9D8
 	dplcEntry	2, $9E0
 	dplcEntry	4, $9E2
-DPLC_Sonic_088A_End
+.frame210_End
 
-DPLC_Sonic_0894:	dplcHeader
+.frame211:	dplcHeader
 	dplcEntry	8, $9E6
 	dplcEntry	8, $9EE
 	dplcEntry	2, $9E0
 	dplcEntry	4, $9E2
-DPLC_Sonic_0894_End
+.frame211_End
 
-DPLC_Sonic_089E:	dplcHeader
+.frame212:	dplcHeader
 	dplcEntry	8, $9F6
 	dplcEntry	8, $9FE
 	dplcEntry	2, $9E0
 	dplcEntry	4, $9E2
-DPLC_Sonic_089E_End
+.frame212_End
 
-DPLC_Sonic_08A8:	dplcHeader
+.frame213:	dplcHeader
 	dplcEntry	6, $A06
 	dplcEntry	$C, $A0C
-DPLC_Sonic_08A8_End
+.frame213_End
 
 	even

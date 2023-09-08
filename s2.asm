@@ -74680,10 +74680,10 @@ ObjB0_Init:
 	rts
 ; ===========================================================================
 off_3A294:
-	dc.l DPLC_Sonic_033A
-	dc.l DPLC_Sonic_0340
-	dc.l DPLC_Sonic_0346
-	dc.l DPLC_Sonic_034C
+	dc.l MapRUnc_Sonic.frame45
+	dc.l MapRUnc_Sonic.frame46
+	dc.l MapRUnc_Sonic.frame47
+	dc.l MapRUnc_Sonic.frame48
 
 map_piece macro width,height
 	dc.l copysrc,copydst
