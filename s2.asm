@@ -5439,7 +5439,9 @@ UpdateWaterSurface:
 	; the water surface sprite to the right every frame. To fix this,
 	; just avoid pushing the sprite to the right when the game is about
 	; to be paused.
-	btst	#button_start,(Ctrl_1_Press).w
+	move.b	(Ctrl_1_Press).w,d0 ; is Start button pressed?
+	or.b	(Ctrl_2_Press).w,d0 ; (either player)
+	andi.b	#button_start_mask,d0
 	bne.s	+
     endif
 	btst	#0,(Timer_frames+1).w
@@ -49678,7 +49680,15 @@ Obj04_Action:
 	move.w	d1,y_pos(a0)
 	tst.b	objoff_32(a0)
 	bne.s	Obj04_Animate
+    if fixBugs
+	move.b	(Ctrl_1_Press).w,d0 ; is Start button pressed?
+	or.b	(Ctrl_2_Press).w,d0 ; (either player)
+	andi.b	#button_start_mask,d0
+    else
+	; This only checks player 1, causing the water to look weird if
+	; player 2 pauses the game instead.
 	btst	#button_start,(Ctrl_1_Press).w	; is Start button pressed?
+    endif
 	beq.s	loc_20962		; if not, branch
 	addq.b	#3,mapping_frame(a0)	; use different frames
 	move.b	#1,objoff_32(a0)	; stop animation
@@ -49725,7 +49735,15 @@ Obj04_Action2:
 	move.w	d1,y_pos(a0)
 	tst.b	objoff_32(a0)
 	bne.s	Obj04_Animate2
+    if fixBugs
+	move.b	(Ctrl_1_Press).w,d0 ; is Start button pressed?
+	or.b	(Ctrl_2_Press).w,d0 ; (either player)
+	andi.b	#button_start_mask,d0
+    else
+	; This only checks player 1, causing the water to look weird if
+	; player 2 pauses the game instead.
 	btst	#button_start,(Ctrl_1_Press).w	; is Start button pressed?
+    endif
 	beq.s	loc_209F4		; if not, branch
 	addq.b	#2,mapping_frame(a0)    ; use different frames
 	move.b	#1,objoff_32(a0)		; stop animation
