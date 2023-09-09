@@ -29,7 +29,7 @@ local function message_abort_wrapper(message, abort)
 end
 
 -- Obtain the paths to the native build tools for the current platform.
-local tools, platform_directory = common.find_tools("build tool bundle", "build_tools/source_code/", repository, "fixpointer", "saxman")
+local tools, platform_directory = common.find_tools("build tool bundle", "build_tools/source_code/", repository, "saxman")
 
 -- Present an error message to the user if the build tools for their platform do not exist.
 if tools == nil then
@@ -154,8 +154,31 @@ hashes_file:close()
 
 message_abort_wrapper(common.build_rom("s2", "s2built", "", "-p=0 -z=0," .. (improved_sound_driver_compression and "saxman-optimised" or "saxman-bugged") .. ",Size_of_Snd_driver_guess,after", true, repository))
 
--- Correct some pointers and other data that we couldn't until after the ROM had been assembled.
-os.execute(tools.fixpointer .. " s2.h s2built.bin")
+-- Correct the compressed sound driver size, which we couldn't do until p2bin had been ran.
+local comp_z80_size, movewZ80CompSize
+
+for line in io.lines("s2.h") do
+	local match_begin, match_end = string.find(line, "comp_z80_size")
+
+	if match_begin ~= nil then
+		comp_z80_size = tonumber(line:match("0x%x+", match_end))
+	end
+
+	local match_begin, match_end = string.find(line, "movewZ80CompSize")
+
+	if match_begin ~= nil then
+		movewZ80CompSize = tonumber(line:match("0x%x+", match_end))
+	end
+end
+
+if comp_z80_size ~= nil and movewZ80CompSize ~= nil then
+	local rom = io.open("s2built.bin", "r+b")
+
+	rom:seek("set", movewZ80CompSize + 2)
+	rom:write(string.pack(">I2", comp_z80_size))
+
+	rom:close()
+end
 
 -- Remove the header file, since we no longer need it.
 os.remove("s2.h")

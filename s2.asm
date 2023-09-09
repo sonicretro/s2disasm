@@ -91580,7 +91580,7 @@ SoundDriverLoad:
 DecompressSoundDriver:
 	lea	Snd_Driver(pc),a6
 ; WARNING: the build script needs editing if you rename this label
-movewZ80CompSize:	move.w	#Snd_Driver_End-Snd_Driver,d7 ; patched (by fixpointer.exe) after compression since the exact size can't be known beforehand
+movewZ80CompSize:	move.w	#Snd_Driver_End-Snd_Driver,d7 ; patched (by build.lua) after compression since the exact size can't be known beforehand
 	moveq	#0,d6	; The decompressor knows it's run out of descriptor bits when it starts reading 0's in bit 8
 	lea	(Z80_RAM).l,a5
 	moveq	#0,d5
