@@ -101,7 +101,7 @@ zTrack STRUCT DOTS
 	Volume:			ds.b 1	; Channel volume (only applied at voice changes)
 	AMSFMSPan:		ds.b 1	; Panning / AMS / FMS settings
 	VoiceIndex:		ds.b 1	; Current voice in use OR current PSG tone
-	VolFlutter:		ds.b 1	; PSG flutter (dynamically effects PSG volume for decay effects)
+	VolFlutter:		ds.b 1	; PSG flutter (dynamically affects PSG volume for decay effects)
 	StackPointer:		ds.b 1	; "Gosub" stack position offset (starts at 2Ah, i.e. end of track, and each jump decrements by 2)
 	DurationTimeout:	ds.b 1	; Current duration timeout; counting down to zero
 	SavedDuration:		ds.b 1	; Last set duration (if a note follows a note, this is reapplied to 0Bh)
@@ -1440,7 +1440,7 @@ zResumeTrack:
 	bit	7,(ix+zTrack.PlaybackControl)	; Is track playing?
 	jr	z,.nexttrack			; If not, jump
 	bit	2,(ix+zTrack.PlaybackControl)	; Is SFX overriding track?
-	jr	nz,.nexttrack			; If not, jump
+	jr	nz,.nexttrack			; If yes, jump
     if OptimiseDriver=0
 	; cfSetVoiceCont already does this
 	ld	c,(ix+zTrack.AMSFMSPan)		; AMS/FMS/panning flags

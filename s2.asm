@@ -1434,7 +1434,7 @@ VDPSetupArray_End:
 ClearScreen:
 	stopZ80
 
-	dmaFillVRAM 0,$0000,$40		; Fill first $40 bytes of VRAM with 0
+	dmaFillVRAM 0,$0000,tiles_to_bytes(2)				; Fill first $40 bytes of VRAM with 0
 	dmaFillVRAM 0,VRAM_Plane_A_Name_Table,VRAM_Plane_Table_Size	; Clear Plane A pattern name table
 	dmaFillVRAM 0,VRAM_Plane_B_Name_Table,VRAM_Plane_Table_Size	; Clear Plane B pattern name table
 
@@ -30799,7 +30799,7 @@ BuildSprites_P1_ObjLoop:
 	movea.w	(a4,d6.w),a0 ; a0=object
 
 	; These is a sanity check, to detect invalid objects which should not
-	; have been queued for display. S3K gets rids of this, since it
+	; have been queued for display. S3K gets rid of this, since it
 	; should not be needed and it just slows this code down.
 	tst.b	id(a0)
 	beq.w	BuildSprites_P1_NextObj
@@ -30937,7 +30937,7 @@ BuildSprites_P2_ObjLoop:
 	movea.w	(a4,d6.w),a0 ; a0=object
 
 	; These is a sanity check, to detect invalid objects which should not
-	; have been queued for display. S3K gets rids of this, since it
+	; have been queued for display. S3K gets rid of this, since it
 	; should not be needed and it just slows this code down.
 	tst.b	id(a0)
 	beq.w	BuildSprites_P2_NextObj
