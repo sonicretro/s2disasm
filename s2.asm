@@ -12112,6 +12112,7 @@ OptionScreen_Select_Not1P:
 	; for the player to play two player mode with all emeralds collected,
 	; allowing them to use Super Sonic. This code is borrowed from
 	; similar logic in the title screen, which doesn't make this mistake.
+	moveq	#0,d0
 	move.w	d0,(Got_Emerald).w
 	move.l	d0,(Got_Emeralds_array).w
 	move.l	d0,(Got_Emeralds_array+4).w
