@@ -92107,33 +92107,33 @@ Snd_Driver_End:
 ; loc_ED100:
 SndDAC_Start:
 
-SndDAC_Sample1:
-	BINCLUDE	"sound/DAC/Sample 1.bin"
-SndDAC_Sample1_End
+SndDAC_Kick:
+	BINCLUDE	"sound/DAC/Kick.dpcm"
+SndDAC_Kick_End
 
-SndDAC_Sample2:
-	BINCLUDE	"sound/DAC/Sample 2.bin"
-SndDAC_Sample2_End
+SndDAC_Snare:
+	BINCLUDE	"sound/DAC/Snare.dpcm"
+SndDAC_Snare_End
 
-SndDAC_Sample5:
-	BINCLUDE	"sound/DAC/Sample 5.bin"
-SndDAC_Sample5_End
+SndDAC_Timpani:
+	BINCLUDE	"sound/DAC/Timpani.dpcm"
+SndDAC_Timpani_End
 
-SndDAC_Sample6:
-	BINCLUDE	"sound/DAC/Sample 6.bin"
-SndDAC_Sample6_End
+SndDAC_Tom:
+	BINCLUDE	"sound/DAC/Tom.dpcm"
+SndDAC_Tom_End
 
-SndDAC_Sample3:
-	BINCLUDE	"sound/DAC/Sample 3.bin"
-SndDAC_Sample3_End
+SndDAC_Clap:
+	BINCLUDE	"sound/DAC/Clap.dpcm"
+SndDAC_Clap_End
 
-SndDAC_Sample4:
-	BINCLUDE	"sound/DAC/Sample 4.bin"
-SndDAC_Sample4_End
+SndDAC_Scratch:
+	BINCLUDE	"sound/DAC/Scratch.dpcm"
+SndDAC_Scratch_End
 
-SndDAC_Sample7:
-	BINCLUDE	"sound/DAC/Sample 7.bin"
-SndDAC_Sample7_End
+SndDAC_Bongo:
+	BINCLUDE	"sound/DAC/Bongo.dpcm"
+SndDAC_Bongo_End
 
 SndDAC_End
 
@@ -92233,7 +92233,7 @@ ArtNem_MCZGateLog:		BINCLUDE	"art/nemesis/Drawbridge logs from MCZ.nem"
 ; 8-bit unsigned raw audio at 16Khz
 ; -------------------------------------------------------------------------------
 ; loc_F1E8C:
-Snd_Sega:	BINCLUDE	"sound/PCM/SEGA.bin"
+Snd_Sega:	BINCLUDE	"sound/PCM/SEGA.pcm"
 Snd_Sega_End:
 
 	if Snd_Sega_End - Snd_Sega > $8000
