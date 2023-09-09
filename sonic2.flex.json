@@ -21,12 +21,12 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/Sonic.bin",
+                        "path": "mappings/sprite/Sonic.asm",
                         "label": ""
                     },
                     "dplcs": {
                         "enabled": true,
-                        "path": "mappings/spriteDPLC/Sonic.bin",
+                        "path": "mappings/spriteDPLC/Sonic.asm",
                         "label": ""
                     },
                     "uuid": "dad6e825-1660-4429-93f6-dd09b880aa01"
@@ -42,12 +42,12 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj09.bin",
+                        "path": "mappings/sprite/obj09.asm",
                         "label": ""
                     },
                     "dplcs": {
                         "enabled": true,
-                        "path": "mappings/spriteDPLC/obj09.bin",
+                        "path": "mappings/spriteDPLC/obj09.asm",
                         "label": ""
                     },
                     "expanded": true
@@ -67,13 +67,13 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/Tails.bin",
+                        "path": "mappings/sprite/Tails.asm",
                         "format": "Sonic 2",
                         "customDefinition": ""
                     },
                     "dplcs": {
                         "enabled": true,
-                        "path": "mappings/spriteDPLC/Tails.bin",
+                        "path": "mappings/spriteDPLC/Tails.asm",
                         "format": "Sonic 2/3&K",
                         "customDefinition": ""
                     },
@@ -98,7 +98,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj37_a.bin",
+                        "path": "mappings/sprite/obj37_a.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -123,7 +123,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj03.bin",
+                        "path": "mappings/sprite/obj03.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -148,7 +148,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj0D_a.bin",
+                        "path": "mappings/sprite/obj0D_a.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -173,7 +173,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj26.bin",
+                        "path": "mappings/sprite/obj26.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -198,7 +198,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj31_b.bin",
+                        "path": "mappings/sprite/obj31_b.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -223,7 +223,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj36.bin",
+                        "path": "mappings/sprite/obj36.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -248,7 +248,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj3E.bin",
+                        "path": "mappings/sprite/obj3E.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -298,7 +298,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj74.bin",
+                        "path": "mappings/sprite/obj74.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -323,7 +323,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj79_a.bin",
+                        "path": "mappings/sprite/obj79_a.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -360,7 +360,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj83.bin",
+                        "path": "mappings/sprite/obj83.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -389,7 +389,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj18_b.bin",
+                        "path": "mappings/sprite/obj18_b.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -418,7 +418,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj1F_d.bin",
+                        "path": "mappings/sprite/obj1F_d.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -447,7 +447,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj22.bin",
+                        "path": "mappings/sprite/obj22.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -476,7 +476,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj23.bin",
+                        "path": "mappings/sprite/obj23.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -534,7 +534,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj2B.bin",
+                        "path": "mappings/sprite/obj2B.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -563,7 +563,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj31_b.bin",
+                        "path": "mappings/sprite/obj31_b.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -592,7 +592,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj2D.bin",
+                        "path": "mappings/sprite/obj2D.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -621,7 +621,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj40.bin",
+                        "path": "mappings/sprite/obj40.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -650,7 +650,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj82.bin",
+                        "path": "mappings/sprite/obj82.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -679,7 +679,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj83.bin",
+                        "path": "mappings/sprite/obj83.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -708,7 +708,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj8C.bin",
+                        "path": "mappings/sprite/obj8C.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -795,7 +795,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj91.bin",
+                        "path": "mappings/sprite/obj91.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -832,7 +832,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj1F_c.bin",
+                        "path": "mappings/sprite/obj1F_c.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -861,7 +861,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj2A.bin",
+                        "path": "mappings/sprite/obj2A.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -890,7 +890,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj40.bin",
+                        "path": "mappings/sprite/obj40.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -919,7 +919,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj6A.bin",
+                        "path": "mappings/sprite/obj6A.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -948,7 +948,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj75.bin",
+                        "path": "mappings/sprite/obj75.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -977,7 +977,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj76.bin",
+                        "path": "mappings/sprite/obj76.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1006,7 +1006,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj77.bin",
+                        "path": "mappings/sprite/obj77.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1035,7 +1035,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj7F.bin",
+                        "path": "mappings/sprite/obj7F.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1064,7 +1064,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj80_a.bin",
+                        "path": "mappings/sprite/obj80_a.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1093,7 +1093,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj81.bin",
+                        "path": "mappings/sprite/obj81.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1122,7 +1122,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj9E.bin",
+                        "path": "mappings/sprite/obj9E.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1151,7 +1151,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objA3.bin",
+                        "path": "mappings/sprite/objA3.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1188,7 +1188,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj44.bin",
+                        "path": "mappings/sprite/obj44.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1217,7 +1217,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj03.bin",
+                        "path": "mappings/sprite/obj03.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1246,7 +1246,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj85_a.bin",
+                        "path": "mappings/sprite/obj85_a.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1275,7 +1275,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj86.bin",
+                        "path": "mappings/sprite/obj86.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1304,7 +1304,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objC8.bin",
+                        "path": "mappings/sprite/objC8.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1333,7 +1333,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objD2.bin",
+                        "path": "mappings/sprite/objD2.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1362,7 +1362,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objD4.bin",
+                        "path": "mappings/sprite/objD4.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1391,7 +1391,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objD5.bin",
+                        "path": "mappings/sprite/objD5.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1420,7 +1420,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objD6_b.bin",
+                        "path": "mappings/sprite/objD6_b.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1449,7 +1449,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objD7.bin",
+                        "path": "mappings/sprite/objD7.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1478,7 +1478,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objD8.bin",
+                        "path": "mappings/sprite/objD8.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1515,7 +1515,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj1C_e.bin",
+                        "path": "mappings/sprite/obj1C_e.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1544,7 +1544,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj2D.bin",
+                        "path": "mappings/sprite/obj2D.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1573,7 +1573,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj42.bin",
+                        "path": "mappings/sprite/obj42.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1602,7 +1602,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj47.bin",
+                        "path": "mappings/sprite/obj47.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1631,7 +1631,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj64.bin",
+                        "path": "mappings/sprite/obj64.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1660,7 +1660,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj65_a.bin",
+                        "path": "mappings/sprite/obj65_a.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1689,7 +1689,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj66.bin",
+                        "path": "mappings/sprite/obj66.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1718,7 +1718,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj68.bin",
+                        "path": "mappings/sprite/obj68.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1747,7 +1747,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj69.bin",
+                        "path": "mappings/sprite/obj69.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1776,7 +1776,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj65_a.bin",
+                        "path": "mappings/sprite/obj65_a.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1805,7 +1805,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj6C.bin",
+                        "path": "mappings/sprite/obj6C.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1834,7 +1834,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj68.bin",
+                        "path": "mappings/sprite/obj68.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1863,7 +1863,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj6E.bin",
+                        "path": "mappings/sprite/obj6E.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1892,7 +1892,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj70.bin",
+                        "path": "mappings/sprite/obj70.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1921,7 +1921,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj71_b.bin",
+                        "path": "mappings/sprite/obj71_b.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1950,7 +1950,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objA0.bin",
+                        "path": "mappings/sprite/objA0.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1979,7 +1979,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objA2.bin",
+                        "path": "mappings/sprite/objA2.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2008,7 +2008,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objA4.bin",
+                        "path": "mappings/sprite/objA4.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2045,7 +2045,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj0B.bin",
+                        "path": "mappings/sprite/obj0B.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2074,7 +2074,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj19.bin",
+                        "path": "mappings/sprite/obj19.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2103,7 +2103,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj1B.bin",
+                        "path": "mappings/sprite/obj1B.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2132,7 +2132,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj1D.bin",
+                        "path": "mappings/sprite/obj1D.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2161,7 +2161,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj2D.bin",
+                        "path": "mappings/sprite/obj2D.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2190,7 +2190,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj32_b.bin",
+                        "path": "mappings/sprite/obj32_b.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2219,7 +2219,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj40.bin",
+                        "path": "mappings/sprite/obj40.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2248,7 +2248,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj6B.bin",
+                        "path": "mappings/sprite/obj6B.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2277,7 +2277,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj7A.bin",
+                        "path": "mappings/sprite/obj7A.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2306,7 +2306,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj7B.bin",
+                        "path": "mappings/sprite/obj7B.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2335,7 +2335,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objA6.bin",
+                        "path": "mappings/sprite/objA6.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2364,7 +2364,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objA6.bin",
+                        "path": "mappings/sprite/objA6.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2430,7 +2430,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj15_a.bin",
+                        "path": "mappings/sprite/obj15_a.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2459,7 +2459,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj19.bin",
+                        "path": "mappings/sprite/obj19.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2488,7 +2488,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj1C_c.bin",
+                        "path": "mappings/sprite/obj1C_c.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2517,7 +2517,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj1F_b.bin",
+                        "path": "mappings/sprite/obj1F_b.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2546,7 +2546,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj33_a.bin",
+                        "path": "mappings/sprite/obj33_a.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2575,7 +2575,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj3D.bin",
+                        "path": "mappings/sprite/obj3D.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2604,7 +2604,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj3F_a.bin",
+                        "path": "mappings/sprite/obj3F_a.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2633,7 +2633,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj43.bin",
+                        "path": "mappings/sprite/obj43.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2662,7 +2662,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj45.bin",
+                        "path": "mappings/sprite/obj45.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2691,7 +2691,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj48.bin",
+                        "path": "mappings/sprite/obj48.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2720,7 +2720,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj4A.bin",
+                        "path": "mappings/sprite/obj4A.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2749,7 +2749,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj50.bin",
+                        "path": "mappings/sprite/obj50.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2786,7 +2786,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj2D.bin",
+                        "path": "mappings/sprite/obj2D.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2815,7 +2815,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objC6_a.bin",
+                        "path": "mappings/sprite/objC6_a.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2844,7 +2844,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objC7.bin",
+                        "path": "mappings/sprite/objC7.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2881,7 +2881,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj99.bin",
+                        "path": "mappings/sprite/obj99.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2910,7 +2910,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj9C.bin",
+                        "path": "mappings/sprite/obj9C.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2939,7 +2939,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objAC.bin",
+                        "path": "mappings/sprite/objAC.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2968,7 +2968,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objB2_a.bin",
+                        "path": "mappings/sprite/objB2_a.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2997,7 +2997,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objB3.bin",
+                        "path": "mappings/sprite/objB3.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3026,7 +3026,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objB4.bin",
+                        "path": "mappings/sprite/objB4.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3055,7 +3055,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objB5.bin",
+                        "path": "mappings/sprite/objB5.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3092,7 +3092,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj11_b.bin",
+                        "path": "mappings/sprite/obj11_b.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3121,7 +3121,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj18_a.bin",
+                        "path": "mappings/sprite/obj18_a.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3150,7 +3150,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj11_b.bin",
+                        "path": "mappings/sprite/obj11_b.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3179,7 +3179,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj49.bin",
+                        "path": "mappings/sprite/obj49.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3208,7 +3208,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj4B.bin",
+                        "path": "mappings/sprite/obj4B.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3237,7 +3237,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj5C.bin",
+                        "path": "mappings/sprite/obj5C.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3266,7 +3266,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj9D.bin",
+                        "path": "mappings/sprite/obj9D.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3303,7 +3303,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj19.bin",
+                        "path": "mappings/sprite/obj19.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3332,7 +3332,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj80_b.bin",
+                        "path": "mappings/sprite/obj80_b.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3361,7 +3361,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj03.bin",
+                        "path": "mappings/sprite/obj03.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3390,7 +3390,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objAE.bin",
+                        "path": "mappings/sprite/objAE.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3419,7 +3419,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objB2_a.bin",
+                        "path": "mappings/sprite/objB2_a.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3448,7 +3448,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objB4.bin",
+                        "path": "mappings/sprite/objB4.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3477,7 +3477,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objB5.bin",
+                        "path": "mappings/sprite/objB5.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3506,7 +3506,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objB6.bin",
+                        "path": "mappings/sprite/objB6.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3535,7 +3535,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objB8.bin",
+                        "path": "mappings/sprite/objB8.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3564,7 +3564,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objB9.bin",
+                        "path": "mappings/sprite/objB9.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3593,7 +3593,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objBA.bin",
+                        "path": "mappings/sprite/objBA.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3622,7 +3622,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objBC.bin",
+                        "path": "mappings/sprite/objBC.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3651,7 +3651,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objBD.bin",
+                        "path": "mappings/sprite/objBD.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3680,7 +3680,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objBE.bin",
+                        "path": "mappings/sprite/objBE.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3709,7 +3709,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objC0.bin",
+                        "path": "mappings/sprite/objC0.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3738,7 +3738,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objC1.bin",
+                        "path": "mappings/sprite/objC1.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3767,7 +3767,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objC2.bin",
+                        "path": "mappings/sprite/objC2.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3796,7 +3796,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objC5_a.bin",
+                        "path": "mappings/sprite/objC5_a.asm",
                         "label": ""
                     },
                     "dplcs": {
