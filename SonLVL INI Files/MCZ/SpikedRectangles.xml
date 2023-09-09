@@ -4,7 +4,7 @@
     <ImageFromMappings id="rectangle">
       <ArtFile filename="LevelArt" />
       <ArtFile filename="../art/nemesis/Long horizontal spike.bin" offset="34176" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj76.bin" frame="0" startpal="0" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj76.asm" frame="0" startpal="0" />
     </ImageFromMappings>
   </Images>
   <Properties>

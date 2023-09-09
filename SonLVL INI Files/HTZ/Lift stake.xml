@@ -3,19 +3,19 @@
   <Images>
     <ImageFromMappings id="stakeleft">
       <ArtFile filename="../art/nemesis/HTZ zip-line platform.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj16.bin" frame="3" startpal="2" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj16.asm" frame="3" startpal="2" />
     </ImageFromMappings>
     <ImageFromMappings id="stakeright">
       <ArtFile filename="../art/nemesis/HTZ zip-line platform.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj16.bin" frame="4" startpal="2" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj16.asm" frame="4" startpal="2" />
     </ImageFromMappings>
     <ImageFromMappings id="groundleft">
       <ArtFile filename="LevelArt" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj1C_a.bin" frame="0" startpal="2" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj1C_a.asm" frame="0" startpal="2" />
     </ImageFromMappings>
     <ImageFromMappings id="groundright">
       <ArtFile filename="LevelArt" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj1C_a.bin" frame="1" startpal="2" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj1C_a.asm" frame="1" startpal="2" />
     </ImageFromMappings>
   </Images>
   <Subtypes>

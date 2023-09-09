@@ -3,7 +3,7 @@
   <Images>
     <ImageFromMappings id="booster">
       <ArtFile filename="../art/nemesis/Speed booster from CPZ.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj1B.bin" frame="0" startpal="3" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj1B.asm" frame="0" startpal="3" />
     </ImageFromMappings>
   </Images>
   <Subtypes>

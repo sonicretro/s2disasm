@@ -3,11 +3,11 @@
   <Images>
     <ImageFromMappings id="Vertical">
       <ArtFile filename="../art/nemesis/Push spring from OOZ.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj45.bin" frame="0" startpal="2" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj45.asm" frame="0" startpal="2" />
     </ImageFromMappings>
     <ImageFromMappings id="Horizontal">
       <ArtFile filename="../art/nemesis/Push spring from OOZ.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj45.bin" frame="10" startpal="2" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj45.asm" frame="10" startpal="2" />
     </ImageFromMappings>
   </Images>
   <Properties>

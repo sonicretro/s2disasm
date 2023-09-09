@@ -3,11 +3,11 @@
   <Images>
     <ImageFromMappings id="small">
       <ArtFile filename="LevelArt" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj18_b.bin" frame="0" startpal="2" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj18_b.asm" frame="0" startpal="2" />
     </ImageFromMappings>
     <ImageFromMappings id="large">
       <ArtFile filename="LevelArt" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj18_b.bin" frame="1" startpal="2" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj18_b.asm" frame="1" startpal="2" />
     </ImageFromMappings>
   </Images>
   <Subtypes>

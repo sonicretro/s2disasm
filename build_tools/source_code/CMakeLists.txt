@@ -2,10 +2,6 @@ cmake_minimum_required(VERSION 3.0)
 
 project(build_tools LANGUAGES C)
 
-add_executable(fixpointer
-	"fixpointer.c"
-)
-
 add_executable(saxman
 	"saxman.c"
 	"lz_comp2/LZSS.c"

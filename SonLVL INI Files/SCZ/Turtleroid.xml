@@ -3,11 +3,11 @@
   <Images>
     <ImageFromMappings id="img1">
       <ArtFile filename="../art/nemesis/Turtle badnik from SCZ.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj9C.bin" frame="0" startpal="0" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj9C.asm" frame="0" startpal="0" />
     </ImageFromMappings>
     <ImageFromMappings id="img2">
       <ArtFile filename="../art/nemesis/Turtle badnik from SCZ.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj9C.bin" frame="2" startpal="0" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj9C.asm" frame="2" startpal="0" />
     </ImageFromMappings>
   </Images>
   <ImageSets>

@@ -3,7 +3,7 @@
   <Images>
     <ImageFromMappings id="block">
       <ArtFile filename="../art/nemesis/Large wooden box from MCZ.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj6A.bin" frame="0" startpal="2" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj6A.asm" frame="0" startpal="2" />
     </ImageFromMappings>
   </Images>
   <Display>

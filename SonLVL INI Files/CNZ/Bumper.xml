@@ -3,7 +3,7 @@
   <Images>
     <ImageFromMappings id="bumper">
       <ArtFile filename="../art/nemesis/Hexagonal bumper from CNZ.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/objD7.bin" frame="0" startpal="2" />
+      <MapFile type="ASM" filename="../mappings/sprite/objD7.asm" frame="0" startpal="2" />
     </ImageFromMappings>
   </Images>
   <Subtypes>

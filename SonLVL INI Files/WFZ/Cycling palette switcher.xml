@@ -3,19 +3,19 @@
   <Images>
     <ImageFromMappings id="imgsmall">
       <ArtFile filename="../art/nemesis/Ring.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj03.bin" frame="0" startpal="1" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj03.asm" frame="0" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="imgmedium">
       <ArtFile filename="../art/nemesis/Ring.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj03.bin" frame="1" startpal="1" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj03.asm" frame="1" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="imglarge">
       <ArtFile filename="../art/nemesis/Ring.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj03.bin" frame="2" startpal="1" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj03.asm" frame="2" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="imgxlarge">
       <ArtFile filename="../art/nemesis/Ring.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj03.bin" frame="3" startpal="1" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj03.asm" frame="3" startpal="1" />
     </ImageFromMappings>
   </Images>
   <Subtypes>

@@ -3,7 +3,7 @@
   <Images>
     <ImageFromMappings id="piston">
       <ArtFile filename="LevelArt" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj42.bin" frame="7" startpal="3" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj42.asm" frame="7" startpal="3" />
     </ImageFromMappings>
   </Images>
   <Properties>
