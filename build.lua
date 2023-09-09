@@ -77,7 +77,7 @@ for song_name in io.lines("sound/music/compressed/list of compressed songs.txt")
 	-- If it doesn't match, then the song has been modified and needs to be reassembled.
 	-- Alternatively, the song will need reassembling if the user has changed the compression.
 	-- Or reassemble the song if the assembled version is missing.
-	if current_hash ~= previous_hashes[song_name] or improved_sound_driver_compression ~= previous_hashes.improved_sound_driver_compression or not common.file_exists("sound/music/compressed/" .. song_name .. ".bin") then
+	if current_hash ~= previous_hashes[song_name] or improved_sound_driver_compression ~= previous_hashes.improved_sound_driver_compression or not common.file_exists("sound/music/compressed/" .. song_name .. ".sax") then
 		print("Reassembling song '" .. song_name .. ".asm'...")
 
 		-- To begin with, we'll create a wrapper ASM file to set the environment
@@ -114,7 +114,7 @@ SonicDriverVer = 2
 		message_abort_wrapper(message, abort)
 
 		-- Now that we have an assembled song binary, compress it.
-		os.execute(tools.saxman .. " " .. (improved_sound_driver_compression and "" or "-a") .. " song.bin \"sound/music/compressed/" .. song_name .. ".bin\"")
+		os.execute(tools.saxman .. " " .. (improved_sound_driver_compression and "" or "-a") .. " song.bin \"sound/music/compressed/" .. song_name .. ".sax\"")
 
 		-- Remove junk files from the assembly process.
 		os.remove("song.lst")
