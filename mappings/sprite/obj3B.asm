@@ -6,5 +6,4 @@ Map_obj3B_0002:	spriteHeader
 	spritePiece	0, -$10, 3, 4, $C, 0, 0, 0, 0
 Map_obj3B_0002_End
 
-	dc.w 0
 	even

@@ -45,6 +45,4 @@ Map_obj4A_009A:	spriteHeader
 	spritePiece	-$10, -$E, 1, 2, $38, 0, 0, 0, 0
 Map_obj4A_009A_End
 
-	dc.w 0
-
 	even

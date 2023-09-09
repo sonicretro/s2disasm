@@ -122,6 +122,4 @@ Map_obj54_0162:	spriteHeader
 	spritePiece	0, 0, 3, 3, $66, 1, 1, 0, 0
 Map_obj54_0162_End
 
-	dc.w 0
-
 	even

@@ -14,6 +14,4 @@ Map_obj5C_001E:	spriteHeader
 	spritePiece	-$C, 0, 3, 2, $10, 0, 0, 0, 0
 Map_obj5C_001E_End
 
-	dc.w 0
-
 	even
