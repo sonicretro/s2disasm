@@ -2,7 +2,7 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Pressure Spring" Image="spring">
   <Images>
     <ImageFromMappings id="spring">
-      <ArtFile filename="../art/nemesis/Lever spring.bin" />
+      <ArtFile filename="../art/nemesis/Lever spring.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj40.asm" frame="0" startpal="0" />
     </ImageFromMappings>
   </Images>

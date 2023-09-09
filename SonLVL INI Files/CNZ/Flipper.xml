@@ -2,11 +2,11 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Flipper" Image="horizontal">
   <Images>
     <ImageFromMappings id="horizontal">
-      <ArtFile filename="../art/nemesis/Flippers.bin" />
+      <ArtFile filename="../art/nemesis/Flippers.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj86.asm" frame="0" startpal="2" />
     </ImageFromMappings>
     <ImageFromMappings id="vertial">
-      <ArtFile filename="../art/nemesis/Flippers.bin" />
+      <ArtFile filename="../art/nemesis/Flippers.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj86.asm" frame="4" startpal="2" />
     </ImageFromMappings>
   </Images>

@@ -37,7 +37,7 @@
                     "name": "Sonic (special)",
                     "palettes": [],
                     "art": {
-                        "path": "art/nemesis/Sonic and Tails animation frames in special stage.bin",
+                        "path": "art/nemesis/Sonic and Tails animation frames in special stage.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -93,7 +93,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Ring.bin",
+                        "path": "art/nemesis/Ring.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -143,7 +143,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Signpost.bin",
+                        "path": "art/nemesis/Signpost.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -168,7 +168,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Monitor and contents.bin",
+                        "path": "art/nemesis/Monitor and contents.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -193,7 +193,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Monitor and contents.bin",
+                        "path": "art/nemesis/Monitor and contents.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -218,7 +218,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Spikes.bin",
+                        "path": "art/nemesis/Spikes.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -243,7 +243,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Egg Prison.bin",
+                        "path": "art/nemesis/Egg Prison.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -268,7 +268,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Vertical spring.bin",
+                        "path": "art/nemesis/Vertical spring.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -293,7 +293,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Monitor and contents.bin",
+                        "path": "art/nemesis/Monitor and contents.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -318,7 +318,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Star pole.bin",
+                        "path": "art/nemesis/Star pole.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -355,7 +355,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/kosinski/ARZ.bin",
+                        "path": "art/kosinski/ARZ.kos",
                         "compression": "Kosinski",
                         "offset": 0
                     },
@@ -384,7 +384,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/kosinski/ARZ.bin",
+                        "path": "art/kosinski/ARZ.kos",
                         "compression": "Kosinski",
                         "offset": 0
                     },
@@ -442,7 +442,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Arrow shooter and arrow from ARZ.bin",
+                        "path": "art/nemesis/Arrow shooter and arrow from ARZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -471,7 +471,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/kosinski/ARZ.bin",
+                        "path": "art/kosinski/ARZ.kos",
                         "compression": "Kosinski",
                         "offset": 0
                     },
@@ -500,7 +500,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Bubble generator.bin",
+                        "path": "art/nemesis/Bubble generator.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -529,7 +529,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/kosinski/ARZ.bin",
+                        "path": "art/kosinski/ARZ.kos",
                         "compression": "Kosinski",
                         "offset": 0
                     },
@@ -558,7 +558,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Monitor and contents.bin",
+                        "path": "art/nemesis/Monitor and contents.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -587,7 +587,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/One way barrier from ARZ.bin",
+                        "path": "art/nemesis/One way barrier from ARZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -616,7 +616,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Lever spring.bin",
+                        "path": "art/nemesis/Lever spring.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -645,7 +645,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/kosinski/ARZ.bin",
+                        "path": "art/kosinski/ARZ.kos",
                         "compression": "Kosinski",
                         "offset": 0
                     },
@@ -674,7 +674,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/kosinski/ARZ.bin",
+                        "path": "art/kosinski/ARZ.kos",
                         "compression": "Kosinski",
                         "offset": 0
                     },
@@ -703,7 +703,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Blowfly from ARZ.bin",
+                        "path": "art/nemesis/Blowfly from ARZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -732,7 +732,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Grounder from ARZ.bin",
+                        "path": "art/nemesis/Grounder from ARZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -761,7 +761,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Grounder from ARZ.bin",
+                        "path": "art/nemesis/Grounder from ARZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -790,7 +790,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Shark from ARZ.bin",
+                        "path": "art/nemesis/Shark from ARZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -827,7 +827,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Collapsing platform from MCZ.bin",
+                        "path": "art/nemesis/Collapsing platform from MCZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -856,7 +856,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/kosinski/MCZ.bin",
+                        "path": "art/kosinski/MCZ.kos",
                         "compression": "Kosinski",
                         "offset": 0
                     },
@@ -885,7 +885,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Lever spring.bin",
+                        "path": "art/nemesis/Lever spring.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -914,7 +914,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Large wooden box from MCZ.bin",
+                        "path": "art/nemesis/Large wooden box from MCZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -943,7 +943,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/kosinski/MCZ.bin",
+                        "path": "art/kosinski/MCZ.kos",
                         "compression": "Kosinski",
                         "offset": 0
                     },
@@ -972,7 +972,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/kosinski/MCZ.bin",
+                        "path": "art/kosinski/MCZ.kos",
                         "compression": "Kosinski",
                         "offset": 0
                     },
@@ -1001,7 +1001,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Drawbridge logs from MCZ.bin",
+                        "path": "art/nemesis/Drawbridge logs from MCZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1030,7 +1030,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Pull switch from MCZ.bin",
+                        "path": "art/nemesis/Pull switch from MCZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1059,7 +1059,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Vine that lowers from MCZ.bin",
+                        "path": "art/nemesis/Vine that lowers from MCZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1088,7 +1088,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Drawbridge logs from MCZ.bin",
+                        "path": "art/nemesis/Drawbridge logs from MCZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1117,7 +1117,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Snake badnik from MCZ.bin",
+                        "path": "art/nemesis/Snake badnik from MCZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1146,7 +1146,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Firefly from MCZ.bin",
+                        "path": "art/nemesis/Firefly from MCZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1183,7 +1183,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Round bumper from CNZ.bin",
+                        "path": "art/nemesis/Round bumper from CNZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1212,7 +1212,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Ring.bin",
+                        "path": "art/nemesis/Ring.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1241,7 +1241,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Vertical impulse spring.bin",
+                        "path": "art/nemesis/Vertical impulse spring.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1270,7 +1270,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Flippers.bin",
+                        "path": "art/nemesis/Flippers.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1299,7 +1299,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Bouncer badnik from CNZ.bin",
+                        "path": "art/nemesis/Bouncer badnik from CNZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1328,7 +1328,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Caterpiller platforms from CNZ.bin",
+                        "path": "art/nemesis/Caterpiller platforms from CNZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1357,7 +1357,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Moving block from CNZ and CPZ.bin",
+                        "path": "art/nemesis/Moving block from CNZ and CPZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1386,7 +1386,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/CNZ elevator.bin",
+                        "path": "art/nemesis/CNZ elevator.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1415,7 +1415,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/CNZ slot machine bars.bin",
+                        "path": "art/nemesis/CNZ slot machine bars.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1444,7 +1444,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Hexagonal bumper from CNZ.bin",
+                        "path": "art/nemesis/Hexagonal bumper from CNZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1473,7 +1473,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Drop target from CNZ.bin",
+                        "path": "art/nemesis/Drop target from CNZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1510,7 +1510,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Bolt end and rope from MTZ.bin",
+                        "path": "art/nemesis/Bolt end and rope from MTZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1539,7 +1539,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/kosinski/MTZ.bin",
+                        "path": "art/kosinski/MTZ.kos",
                         "compression": "Kosinski",
                         "offset": 0
                     },
@@ -1568,7 +1568,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/kosinski/MTZ.bin",
+                        "path": "art/kosinski/MTZ.kos",
                         "compression": "Kosinski",
                         "offset": 0
                     },
@@ -1597,7 +1597,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Button.bin",
+                        "path": "art/nemesis/Button.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1626,7 +1626,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/kosinski/MTZ.bin",
+                        "path": "art/kosinski/MTZ.kos",
                         "compression": "Kosinski",
                         "offset": 0
                     },
@@ -1655,7 +1655,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/kosinski/MTZ.bin",
+                        "path": "art/kosinski/MTZ.kos",
                         "compression": "Kosinski",
                         "offset": 0
                     },
@@ -1684,7 +1684,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Monitor and contents.bin",
+                        "path": "art/nemesis/Monitor and contents.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1713,7 +1713,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/MTZ spike block.bin",
+                        "path": "art/nemesis/MTZ spike block.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1742,7 +1742,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Similarly shaded blocks from MTZ.bin",
+                        "path": "art/nemesis/Similarly shaded blocks from MTZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1771,7 +1771,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/kosinski/MTZ.bin",
+                        "path": "art/kosinski/MTZ.kos",
                         "compression": "Kosinski",
                         "offset": 0
                     },
@@ -1800,7 +1800,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Lava cup from MTZ.bin",
+                        "path": "art/nemesis/Lava cup from MTZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1829,7 +1829,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Spike from MTZ.bin",
+                        "path": "art/nemesis/Spike from MTZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1858,7 +1858,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/kosinski/MTZ.bin",
+                        "path": "art/kosinski/MTZ.kos",
                         "compression": "Kosinski",
                         "offset": 0
                     },
@@ -1887,7 +1887,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Large spinning wheel from MTZ.bin",
+                        "path": "art/nemesis/Large spinning wheel from MTZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1916,7 +1916,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Lava bubble from MTZ.bin",
+                        "path": "art/nemesis/Lava bubble from MTZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1945,7 +1945,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Shellcracker badnik from MTZ.bin",
+                        "path": "art/nemesis/Shellcracker badnik from MTZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -1974,7 +1974,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Praying mantis badnik from MTZ.bin",
+                        "path": "art/nemesis/Praying mantis badnik from MTZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2003,7 +2003,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Exploding star badnik from MTZ.bin",
+                        "path": "art/nemesis/Exploding star badnik from MTZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2040,7 +2040,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Small yellow moving platform from CPZ.bin",
+                        "path": "art/nemesis/Small yellow moving platform from CPZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2069,7 +2069,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Large moving platform from CNZ.bin",
+                        "path": "art/nemesis/Large moving platform from CNZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2098,7 +2098,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Speed booster from CPZ.bin",
+                        "path": "art/nemesis/Speed booster from CPZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2127,7 +2127,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/CPZ worm enemy.bin",
+                        "path": "art/nemesis/CPZ worm enemy.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2156,7 +2156,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Stripy blocks from CPZ.bin",
+                        "path": "art/nemesis/Stripy blocks from CPZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2185,7 +2185,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/CPZ large moving platform blocks.bin",
+                        "path": "art/nemesis/CPZ large moving platform blocks.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2214,7 +2214,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Lever spring.bin",
+                        "path": "art/nemesis/Lever spring.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2243,7 +2243,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Moving block from CPZ.bin",
+                        "path": "art/nemesis/Moving block from CPZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2272,7 +2272,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Moving block from CPZ.bin",
+                        "path": "art/nemesis/Moving block from CPZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2301,7 +2301,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/CPZ spintube exit cover.bin",
+                        "path": "art/nemesis/CPZ spintube exit cover.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2330,7 +2330,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Weird crawling badnik from CPZ.bin",
+                        "path": "art/nemesis/Weird crawling badnik from CPZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2359,7 +2359,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Weird crawling badnik from CPZ.bin",
+                        "path": "art/nemesis/Weird crawling badnik from CPZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2388,7 +2388,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Spider badnik from CPZ.bin",
+                        "path": "art/nemesis/Spider badnik from CPZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2425,7 +2425,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Swinging platform from OOZ.bin",
+                        "path": "art/nemesis/Swinging platform from OOZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2454,7 +2454,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Rising platform from OOZ.bin",
+                        "path": "art/nemesis/Rising platform from OOZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2483,7 +2483,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Cascading oil from OOZ.bin",
+                        "path": "art/nemesis/Cascading oil from OOZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2512,7 +2512,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/OOZ collapsing platform.bin",
+                        "path": "art/nemesis/OOZ collapsing platform.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2541,7 +2541,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Burner Platform from OOZ.bin",
+                        "path": "art/nemesis/Burner Platform from OOZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2570,7 +2570,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Striped blocks from CPZ.bin",
+                        "path": "art/nemesis/Striped blocks from CPZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2599,7 +2599,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Fan from OOZ.bin",
+                        "path": "art/nemesis/Fan from OOZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2628,7 +2628,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Spiked ball from OOZ.bin",
+                        "path": "art/nemesis/Spiked ball from OOZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2657,7 +2657,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Push spring from OOZ.bin",
+                        "path": "art/nemesis/Push spring from OOZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2686,7 +2686,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Transporter ball from OOZ.bin",
+                        "path": "art/nemesis/Transporter ball from OOZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2715,7 +2715,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Octopus badnik from OOZ.bin",
+                        "path": "art/nemesis/Octopus badnik from OOZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2744,7 +2744,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Seahorse from OOZ.bin",
+                        "path": "art/nemesis/Seahorse from OOZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2781,7 +2781,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Stripy blocks from CPZ.bin",
+                        "path": "art/nemesis/Stripy blocks from CPZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2810,7 +2810,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Robotnik's head.bin:40960",
+                        "path": "art/nemesis/Robotnik's head.nem:40960",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2839,7 +2839,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Eggrobo.bin",
+                        "path": "art/nemesis/Eggrobo.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2876,7 +2876,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Bomber badnik from SCZ.bin",
+                        "path": "art/nemesis/Bomber badnik from SCZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2905,7 +2905,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Turtle badnik from SCZ.bin",
+                        "path": "art/nemesis/Turtle badnik from SCZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2934,7 +2934,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Balkrie (jet badnik) from SCZ.bin",
+                        "path": "art/nemesis/Balkrie (jet badnik) from SCZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2963,7 +2963,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/The Tornado.bin",
+                        "path": "art/nemesis/The Tornado.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -2992,7 +2992,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Clouds.bin",
+                        "path": "art/nemesis/Clouds.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3021,7 +3021,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Vertical spinning blades in WFZ.bin",
+                        "path": "art/nemesis/Vertical spinning blades in WFZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3050,7 +3050,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Horizontal spinning blades in WFZ.bin",
+                        "path": "art/nemesis/Horizontal spinning blades in WFZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3087,7 +3087,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/EHZ bridge.bin",
+                        "path": "art/nemesis/EHZ bridge.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3116,7 +3116,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/kosinski/EHZ_HTZ.bin",
+                        "path": "art/kosinski/EHZ_HTZ.kos",
                         "compression": "Kosinski",
                         "offset": 0
                     },
@@ -3145,7 +3145,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/EHZ bridge.bin",
+                        "path": "art/nemesis/EHZ bridge.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3174,7 +3174,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Waterfall tiles.bin",
+                        "path": "art/nemesis/Waterfall tiles.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3203,7 +3203,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Buzzer enemy.bin",
+                        "path": "art/nemesis/Buzzer enemy.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3232,7 +3232,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/EHZ Pirahna badnik.bin",
+                        "path": "art/nemesis/EHZ Pirahna badnik.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3261,7 +3261,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Coconuts badnik from EHZ.bin",
+                        "path": "art/nemesis/Coconuts badnik from EHZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3298,7 +3298,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Moving platform from WFZ.bin",
+                        "path": "art/nemesis/Moving platform from WFZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3327,7 +3327,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Hook on chain from WFZ.bin",
+                        "path": "art/nemesis/Hook on chain from WFZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3356,7 +3356,7 @@
                         }
                     ],
                     "art": {
-                        "path": "art/nemesis/Ring.bin",
+                        "path": "art/nemesis/Ring.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3385,7 +3385,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Scratch from WFZ.bin",
+                        "path": "art/nemesis/Scratch from WFZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3414,7 +3414,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/The Tornado.bin",
+                        "path": "art/nemesis/The Tornado.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3443,7 +3443,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Vertical spinning blades in WFZ.bin",
+                        "path": "art/nemesis/Vertical spinning blades in WFZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3472,7 +3472,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Horizontal spinning blades in WFZ.bin",
+                        "path": "art/nemesis/Horizontal spinning blades in WFZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3501,7 +3501,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Tilting plaforms in WFZ.bin",
+                        "path": "art/nemesis/Tilting plaforms in WFZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3530,7 +3530,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Wall turret from WFZ.bin",
+                        "path": "art/nemesis/Wall turret from WFZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3559,7 +3559,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Red horizontal laser from WFZ.bin",
+                        "path": "art/nemesis/Red horizontal laser from WFZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3588,7 +3588,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Wheel for belt in WFZ.bin",
+                        "path": "art/nemesis/Wheel for belt in WFZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3617,7 +3617,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Thrust from Robotnik's getaway ship in WFZ.bin",
+                        "path": "art/nemesis/Thrust from Robotnik's getaway ship in WFZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3646,7 +3646,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Platform on belt in WFZ.bin",
+                        "path": "art/nemesis/Platform on belt in WFZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3675,7 +3675,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Retracting platform from WFZ.bin",
+                        "path": "art/nemesis/Retracting platform from WFZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3704,7 +3704,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Catapult that shoots Sonic to the side from WFZ.bin",
+                        "path": "art/nemesis/Catapult that shoots Sonic to the side from WFZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3733,7 +3733,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/Breakaway panels from WFZ.bin",
+                        "path": "art/nemesis/Breakaway panels from WFZ.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3762,7 +3762,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/WFZ boss chamber switch.bin",
+                        "path": "art/nemesis/WFZ boss chamber switch.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },
@@ -3791,7 +3791,7 @@
                     ],
                     "format": "Sonic 2.js",
                     "art": {
-                        "path": "art/nemesis/WFZ boss.bin",
+                        "path": "art/nemesis/WFZ boss.nem",
                         "compression": "Nemesis",
                         "offset": 0
                     },

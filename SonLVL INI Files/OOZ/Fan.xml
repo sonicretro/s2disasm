@@ -2,11 +2,11 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Fan" Image="up">
   <Images>
     <ImageFromMappings id="up">
-      <ArtFile filename="../art/nemesis/Fan from OOZ.bin" />
+      <ArtFile filename="../art/nemesis/Fan from OOZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj3F_a.asm" frame="0" startpal="3" />
     </ImageFromMappings>
     <ImageFromMappings id="side">
-      <ArtFile filename="../art/nemesis/Fan from OOZ.bin" />
+      <ArtFile filename="../art/nemesis/Fan from OOZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj3F_b.asm" frame="0" startpal="3" />
     </ImageFromMappings>
   </Images>

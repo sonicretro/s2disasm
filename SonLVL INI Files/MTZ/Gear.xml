@@ -2,35 +2,35 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Gear">
   <Images>
     <ImageFromMappings id="geartooth1">
-      <ArtFile filename="../art/nemesis/Large spinning wheel from MTZ.bin" />
+      <ArtFile filename="../art/nemesis/Large spinning wheel from MTZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj70.asm" frame="0" startpal="3" />
     </ImageFromMappings>
     <ImageFromMappings id="geartooth2">
-      <ArtFile filename="../art/nemesis/Large spinning wheel from MTZ.bin" />
+      <ArtFile filename="../art/nemesis/Large spinning wheel from MTZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj70.asm" frame="4" startpal="3" />
     </ImageFromMappings>
     <ImageFromMappings id="geartooth3">
-      <ArtFile filename="../art/nemesis/Large spinning wheel from MTZ.bin" />
+      <ArtFile filename="../art/nemesis/Large spinning wheel from MTZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj70.asm" frame="8" startpal="3" />
     </ImageFromMappings>
     <ImageFromMappings id="geartooth4">
-      <ArtFile filename="../art/nemesis/Large spinning wheel from MTZ.bin" />
+      <ArtFile filename="../art/nemesis/Large spinning wheel from MTZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj70.asm" frame="12" startpal="3" />
     </ImageFromMappings>
     <ImageFromMappings id="geartooth5">
-      <ArtFile filename="../art/nemesis/Large spinning wheel from MTZ.bin" />
+      <ArtFile filename="../art/nemesis/Large spinning wheel from MTZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj70.asm" frame="16" startpal="3" />
     </ImageFromMappings>
     <ImageFromMappings id="geartooth6">
-      <ArtFile filename="../art/nemesis/Large spinning wheel from MTZ.bin" />
+      <ArtFile filename="../art/nemesis/Large spinning wheel from MTZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj70.asm" frame="20" startpal="3" />
     </ImageFromMappings>
     <ImageFromMappings id="geartooth7">
-      <ArtFile filename="../art/nemesis/Large spinning wheel from MTZ.bin" />
+      <ArtFile filename="../art/nemesis/Large spinning wheel from MTZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj70.asm" frame="24" startpal="3" />
     </ImageFromMappings>
     <ImageFromMappings id="geartooth8">
-      <ArtFile filename="../art/nemesis/Large spinning wheel from MTZ.bin" />
+      <ArtFile filename="../art/nemesis/Large spinning wheel from MTZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj70.asm" frame="28" startpal="3" />
     </ImageFromMappings>
   </Images>

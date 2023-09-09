@@ -2,35 +2,35 @@
 <ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.Common" TypeName="Spikes" Language="cs" Name="Spikes" Image="horiz1">
   <Images>
     <ImageFromMappings id="horiz1">
-      <ArtFile filename="../art/nemesis/Spikes.bin" />
+      <ArtFile filename="../art/nemesis/Spikes.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj36.asm" frame="0" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="horiz2">
-      <ArtFile filename="../art/nemesis/Spikes.bin" />
+      <ArtFile filename="../art/nemesis/Spikes.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj36.asm" frame="1" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="horiz3">
-      <ArtFile filename="../art/nemesis/Spikes.bin" />
+      <ArtFile filename="../art/nemesis/Spikes.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj36.asm" frame="2" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="horiz4">
-      <ArtFile filename="../art/nemesis/Spikes.bin" />
+      <ArtFile filename="../art/nemesis/Spikes.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj36.asm" frame="3" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="vert1">
-      <ArtFile filename="../art/nemesis/Long horizontal spike.bin" />
+      <ArtFile filename="../art/nemesis/Long horizontal spike.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj36.asm" frame="4" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="vert2">
-      <ArtFile filename="../art/nemesis/Long horizontal spike.bin" />
+      <ArtFile filename="../art/nemesis/Long horizontal spike.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj36.asm" frame="5" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="vert3">
-      <ArtFile filename="../art/nemesis/Long horizontal spike.bin" />
+      <ArtFile filename="../art/nemesis/Long horizontal spike.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj36.asm" frame="6" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="vert4">
-      <ArtFile filename="../art/nemesis/Long horizontal spike.bin" />
+      <ArtFile filename="../art/nemesis/Long horizontal spike.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj36.asm" frame="7" startpal="1" />
     </ImageFromMappings>
   </Images>

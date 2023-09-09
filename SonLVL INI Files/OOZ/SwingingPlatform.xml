@@ -2,15 +2,15 @@
 <ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.OOZ" TypeName="SwingingPlatform" Language="cs" Name="Swinging Platform" Image="platform">
   <Images>
     <ImageFromMappings id="platform">
-      <ArtFile filename="../art/nemesis/Swinging platform from OOZ.bin" />
+      <ArtFile filename="../art/nemesis/Swinging platform from OOZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj15_a.asm" frame="0" startpal="2" />
     </ImageFromMappings>
     <ImageFromMappings id="link">
-      <ArtFile filename="../art/nemesis/Swinging platform from OOZ.bin" />
+      <ArtFile filename="../art/nemesis/Swinging platform from OOZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj15_a.asm" frame="1" startpal="2" />
     </ImageFromMappings>
     <ImageFromMappings id="base">
-      <ArtFile filename="../art/nemesis/Swinging platform from OOZ.bin" />
+      <ArtFile filename="../art/nemesis/Swinging platform from OOZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj15_a.asm" frame="2" startpal="2" />
     </ImageFromMappings>
   </Images>

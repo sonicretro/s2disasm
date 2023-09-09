@@ -2,7 +2,7 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Wooden Blocks" Image="block" DefaultSubtype="18">
   <Images>
     <ImageFromMappings id="block">
-      <ArtFile filename="../art/nemesis/Large wooden box from MCZ.bin" />
+      <ArtFile filename="../art/nemesis/Large wooden box from MCZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj6A.asm" frame="0" startpal="2" />
     </ImageFromMappings>
   </Images>

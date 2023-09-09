@@ -2,15 +2,15 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Egg Prison" RememberState="true">
   <Images>
     <ImageFromMappings id="body">
-      <ArtFile filename="../art/nemesis/Egg Prison.bin" />
+      <ArtFile filename="../art/nemesis/Egg Prison.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj3E.asm" frame="0" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="switch">
-      <ArtFile filename="../art/nemesis/Egg Prison.bin" />
+      <ArtFile filename="../art/nemesis/Egg Prison.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj3E.asm" frame="4" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="lock">
-      <ArtFile filename="../art/nemesis/Egg Prison.bin" />
+      <ArtFile filename="../art/nemesis/Egg Prison.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj3E.asm" frame="5" startpal="1" />
     </ImageFromMappings>
   </Images>

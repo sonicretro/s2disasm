@@ -2,7 +2,7 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Stairs" Image="segment">
   <Images>
     <ImageFromMappings id="segment">
-      <ArtFile filename="../art/nemesis/Moving block from CPZ.bin" />
+      <ArtFile filename="../art/nemesis/Moving block from CPZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj6B.asm" frame="0" startpal="3" />
     </ImageFromMappings>
   </Images>

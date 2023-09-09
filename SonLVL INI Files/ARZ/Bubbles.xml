@@ -2,7 +2,7 @@
 <ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.ARZ" TypeName="Bubbles" Language="cs" Name="Bubbles" Image="bubblegenerator" DefaultSubtype="80">
   <Images>
     <ImageFromMappings id="bubblegenerator">
-      <ArtFile filename="../art/nemesis/Bubble generator.bin"/>
+      <ArtFile filename="../art/nemesis/Bubble generator.nem"/>
       <MapFile type="ASM" filename="../s2.asm" label="word_1FCA2" startpal="0" />
     </ImageFromMappings>
   </Images>

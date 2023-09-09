@@ -8,23 +8,23 @@ Object Palette: objdef\s2obj1.pcx
 
 8x8 Compression:       1
 Num 8x8 Pages:         1
-8x8 Tiles Page 0:      ..\art\kosinski\MTZ.bin
+8x8 Tiles Page 0:      ..\art\kosinski\MTZ.kos
 
 16x16 Compression:     1
 Num 16x16 Pages:       1
 Page0 8x8 Page:        0
-16x16 Tiles Page 0:    ..\mappings\16x16\MTZ.bin
+16x16 Tiles Page 0:    ..\mappings\16x16\MTZ.kos
 
 Metatile Size:         128
 Metatile Compression:  1
 Num Metatile Pages:    1
 Page0 16x16 Page:      0
-Metatile Tiles Page 0: ..\mappings\128x128\MTZ.bin
+Metatile Tiles Page 0: ..\mappings\128x128\MTZ.kos
 
 Layout Format:         1
 Layout Compression:    1
 BG 128x128 Page:       0
-Level Layout:          ..\level\layout\MTZ_1.bin
+Level Layout:          ..\level\layout\MTZ_1.kos
 
 Objects Format:        3
 Objects:               ..\level\objects\MTZ_1.bin
@@ -57,8 +57,8 @@ Angle Array:             ..\collision\Curve and resistance mapping.bin
 
 Collision Index Format:      1
 Collision Index Compression: 1
-Collision Index 1: ..\collision\MTZ primary 16x16 collision index.bin
-Collision Index 2: ..\collision\MTZ primary 16x16 collision index.bin
+Collision Index 1: ..\collision\MTZ primary 16x16 collision index.kos
+Collision Index 2: ..\collision\MTZ primary 16x16 collision index.kos
 
 Game Name: Sonic 2
 

@@ -4574,7 +4574,7 @@ TailsNameCheat_Buttons:
 ; Player 1 2 VS Text
 ; ---------------------------------------------------------------------------------
 ; ArtNem_3DF4:
-ArtNem_Player1VS2:	BINCLUDE	"art/nemesis/1Player2VS.bin"
+ArtNem_Player1VS2:	BINCLUDE	"art/nemesis/1Player2VS.nem"
 	even
 
 	charset '0','9',0 ; Add character set for numbers
@@ -11649,23 +11649,23 @@ VsResultsScreen_SSZone:	dc.l Map_2PSpecialStageZoneResults, Setup2PResults_Speci
 
 ; 2P single act results screen (enigma compressed)
 ; byte_8804:
-Map_2PActResults:	BINCLUDE "mappings/misc/2P Act Results.bin"
+Map_2PActResults:	BINCLUDE "mappings/misc/2P Act Results.eni"
 
 ; 2P zone results screen (enigma compressed)
 ; byte_88CE:
-Map_2PZoneResults:	BINCLUDE "mappings/misc/2P Zone Results.bin"
+Map_2PZoneResults:	BINCLUDE "mappings/misc/2P Zone Results.eni"
 
 ; 2P game results screen (after all 4 zones) (enigma compressed)
 ; byte_8960:
-Map_2PGameResults:	BINCLUDE "mappings/misc/2P Game Results.bin"
+Map_2PGameResults:	BINCLUDE "mappings/misc/2P Game Results.eni"
 
 ; 2P special stage act results screen (enigma compressed)
 ; byte_8AA4:
-Map_2PSpecialStageActResults:	BINCLUDE "mappings/misc/2P Special Stage Act Results.bin"
+Map_2PSpecialStageActResults:	BINCLUDE "mappings/misc/2P Special Stage Act Results.eni"
 
 ; 2P special stage zone results screen (enigma compressed)
 ; byte_8B30:
-Map_2PSpecialStageZoneResults:	BINCLUDE "mappings/misc/2P Special Stage Zone Results.bin"
+Map_2PSpecialStageZoneResults:	BINCLUDE "mappings/misc/2P Special Stage Zone Results.eni"
 
 	even
 
@@ -12928,22 +12928,22 @@ Pal_LevelIcons:	BINCLUDE "art/palettes/Level Select Icons.bin"
 ; 2-player level select screen mappings (Enigma compressed)
 ; byte_9A60:
 	even
-MapEng_LevSel2P:	BINCLUDE "mappings/misc/Level Select 2P.bin"
+MapEng_LevSel2P:	BINCLUDE "mappings/misc/Level Select 2P.eni"
 
 ; options screen mappings (Enigma compressed)
 ; byte_9AB2:
 	even
-MapEng_Options:	BINCLUDE "mappings/misc/Options Screen.bin"
+MapEng_Options:	BINCLUDE "mappings/misc/Options Screen.eni"
 
 ; level select screen mappings (Enigma compressed)
 ; byte_9ADE:
 	even
-MapEng_LevSel:	BINCLUDE "mappings/misc/Level Select.bin"
+MapEng_LevSel:	BINCLUDE "mappings/misc/Level Select.eni"
 
 ; 1P and 2P level select icon mappings (Enigma compressed)
 ; byte_9C32:
 	even
-MapEng_LevSelIcon:	BINCLUDE "mappings/misc/Level Select Icons.bin"
+MapEng_LevSelIcon:	BINCLUDE "mappings/misc/Level Select Icons.eni"
 	even
 
     if ~~removeJmpTos
@@ -14336,7 +14336,7 @@ ObjCF_MapUnc_ADA2:	include "mappings/sprite/objCF.asm"
 ; Enigma compressed art mappings
 ; "Sonic the Hedgehog 2" mappings		; MapEng_B23A:
 	even
-MapEng_EndGameLogo:	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+MapEng_EndGameLogo:	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.eni"
 	even
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -14606,7 +14606,7 @@ byte_BD1A:	creditText   0,"SONIC"
 ; Standard font used in credits
 ; -------------------------------------------------------------------------------
 ; ArtNem_BD26:
-ArtNem_CreditText:	BINCLUDE	"art/nemesis/Credit Text.bin"
+ArtNem_CreditText:	BINCLUDE	"art/nemesis/Credit Text.nem"
 	even
 ; ===========================================================================
 
@@ -90784,37 +90784,37 @@ ColArrayHorizontal:	BINCLUDE	"collision/Collision array - Horizontal.bin"
 	even
 
 ; These are all compressed in the Kosinski format.
-ColP_EHZHTZ:	BINCLUDE	"collision/EHZ and HTZ primary 16x16 collision index.bin"
+ColP_EHZHTZ:	BINCLUDE	"collision/EHZ and HTZ primary 16x16 collision index.kos"
 	even
-ColS_EHZHTZ:	BINCLUDE	"collision/EHZ and HTZ secondary 16x16 collision index.bin"
+ColS_EHZHTZ:	BINCLUDE	"collision/EHZ and HTZ secondary 16x16 collision index.kos"
 	even
-ColP_WZ:	;BINCLUDE	"collision/WZ primary 16x16 collision index.bin"
+ColP_WZ:	;BINCLUDE	"collision/WZ primary 16x16 collision index.kos"
 	;even
-ColP_MTZ:	BINCLUDE	"collision/MTZ primary 16x16 collision index.bin"
+ColP_MTZ:	BINCLUDE	"collision/MTZ primary 16x16 collision index.kos"
 	even
-ColP_HPZ:	;BINCLUDE	"collision/HPZ primary 16x16 collision index.bin"
+ColP_HPZ:	;BINCLUDE	"collision/HPZ primary 16x16 collision index.kos"
 	;even
-ColS_HPZ:	;BINCLUDE	"collision/HPZ secondary 16x16 collision index.bin"
+ColS_HPZ:	;BINCLUDE	"collision/HPZ secondary 16x16 collision index.kos"
 	;even
-ColP_OOZ:	BINCLUDE	"collision/OOZ primary 16x16 collision index.bin"
+ColP_OOZ:	BINCLUDE	"collision/OOZ primary 16x16 collision index.kos"
 	even
-ColP_MCZ:	BINCLUDE	"collision/MCZ primary 16x16 collision index.bin"
+ColP_MCZ:	BINCLUDE	"collision/MCZ primary 16x16 collision index.kos"
 	even
-ColP_CNZ:	BINCLUDE	"collision/CNZ primary 16x16 collision index.bin"
+ColP_CNZ:	BINCLUDE	"collision/CNZ primary 16x16 collision index.kos"
 	even
-ColS_CNZ:	BINCLUDE	"collision/CNZ secondary 16x16 collision index.bin"
+ColS_CNZ:	BINCLUDE	"collision/CNZ secondary 16x16 collision index.kos"
 	even
-ColP_CPZDEZ:	BINCLUDE	"collision/CPZ and DEZ primary 16x16 collision index.bin"
+ColP_CPZDEZ:	BINCLUDE	"collision/CPZ and DEZ primary 16x16 collision index.kos"
 	even
-ColS_CPZDEZ:	BINCLUDE	"collision/CPZ and DEZ secondary 16x16 collision index.bin"
+ColS_CPZDEZ:	BINCLUDE	"collision/CPZ and DEZ secondary 16x16 collision index.kos"
 	even
-ColP_ARZ:	BINCLUDE	"collision/ARZ primary 16x16 collision index.bin"
+ColP_ARZ:	BINCLUDE	"collision/ARZ primary 16x16 collision index.kos"
 	even
-ColS_ARZ:	BINCLUDE	"collision/ARZ secondary 16x16 collision index.bin"
+ColS_ARZ:	BINCLUDE	"collision/ARZ secondary 16x16 collision index.kos"
 	even
-ColP_WFZSCZ:	BINCLUDE	"collision/WFZ and SCZ primary 16x16 collision index.bin"
+ColP_WFZSCZ:	BINCLUDE	"collision/WFZ and SCZ primary 16x16 collision index.kos"
 	even
-ColS_WFZSCZ:	BINCLUDE	"collision/WFZ and SCZ secondary 16x16 collision index.bin"
+ColS_WFZSCZ:	BINCLUDE	"collision/WFZ and SCZ secondary 16x16 collision index.kos"
 	even
 ColP_Invalid:
 
@@ -90882,47 +90882,47 @@ Off_Level: zoneOrderedOffsetTable 2,2
 
 ; These are all compressed in the Kosinski format.
 Level_Invalid:
-Level_EHZ1:	BINCLUDE	"level/layout/EHZ_1.bin"
+Level_EHZ1:	BINCLUDE	"level/layout/EHZ_1.kos"
 	even
-Level_EHZ2:	BINCLUDE	"level/layout/EHZ_2.bin"
+Level_EHZ2:	BINCLUDE	"level/layout/EHZ_2.kos"
 	even
-Level_MTZ1:	BINCLUDE	"level/layout/MTZ_1.bin"
+Level_MTZ1:	BINCLUDE	"level/layout/MTZ_1.kos"
 	even
-Level_MTZ2:	BINCLUDE	"level/layout/MTZ_2.bin"
+Level_MTZ2:	BINCLUDE	"level/layout/MTZ_2.kos"
 	even
-Level_MTZ3:	BINCLUDE	"level/layout/MTZ_3.bin"
+Level_MTZ3:	BINCLUDE	"level/layout/MTZ_3.kos"
 	even
-Level_WFZ:	BINCLUDE	"level/layout/WFZ.bin"
+Level_WFZ:	BINCLUDE	"level/layout/WFZ.kos"
 	even
-Level_HTZ1:	BINCLUDE	"level/layout/HTZ_1.bin"
+Level_HTZ1:	BINCLUDE	"level/layout/HTZ_1.kos"
 	even
-Level_HTZ2:	BINCLUDE	"level/layout/HTZ_2.bin"
+Level_HTZ2:	BINCLUDE	"level/layout/HTZ_2.kos"
 	even
-Level_HPZ1:	;BINCLUDE	"level/layout/HPZ_1.bin"
+Level_HPZ1:	;BINCLUDE	"level/layout/HPZ_1.kos"
 	;even
-Level_OOZ1:	BINCLUDE	"level/layout/OOZ_1.bin"
+Level_OOZ1:	BINCLUDE	"level/layout/OOZ_1.kos"
 	even
-Level_OOZ2:	BINCLUDE	"level/layout/OOZ_2.bin"
+Level_OOZ2:	BINCLUDE	"level/layout/OOZ_2.kos"
 	even
-Level_MCZ1:	BINCLUDE	"level/layout/MCZ_1.bin"
+Level_MCZ1:	BINCLUDE	"level/layout/MCZ_1.kos"
 	even
-Level_MCZ2:	BINCLUDE	"level/layout/MCZ_2.bin"
+Level_MCZ2:	BINCLUDE	"level/layout/MCZ_2.kos"
 	even
-Level_CNZ1:	BINCLUDE	"level/layout/CNZ_1.bin"
+Level_CNZ1:	BINCLUDE	"level/layout/CNZ_1.kos"
 	even
-Level_CNZ2:	BINCLUDE	"level/layout/CNZ_2.bin"
+Level_CNZ2:	BINCLUDE	"level/layout/CNZ_2.kos"
 	even
-Level_CPZ1:	BINCLUDE	"level/layout/CPZ_1.bin"
+Level_CPZ1:	BINCLUDE	"level/layout/CPZ_1.kos"
 	even
-Level_CPZ2:	BINCLUDE	"level/layout/CPZ_2.bin"
+Level_CPZ2:	BINCLUDE	"level/layout/CPZ_2.kos"
 	even
-Level_DEZ:	BINCLUDE	"level/layout/DEZ.bin"
+Level_DEZ:	BINCLUDE	"level/layout/DEZ.kos"
 	even
-Level_ARZ1:	BINCLUDE	"level/layout/ARZ_1.bin"
+Level_ARZ1:	BINCLUDE	"level/layout/ARZ_1.kos"
 	even
-Level_ARZ2:	BINCLUDE	"level/layout/ARZ_2.bin"
+Level_ARZ2:	BINCLUDE	"level/layout/ARZ_2.kos"
 	even
-Level_SCZ:	BINCLUDE	"level/layout/SCZ.bin"
+Level_SCZ:	BINCLUDE	"level/layout/SCZ.kos"
 	even
 
 
@@ -90937,7 +90937,7 @@ ArtUnc_Flowers2:	BINCLUDE	"art/uncompressed/EHZ and HTZ flowers - 2.bin"
 ArtUnc_Flowers3:	BINCLUDE	"art/uncompressed/EHZ and HTZ flowers - 3.bin"
 ArtUnc_Flowers4:	BINCLUDE	"art/uncompressed/EHZ and HTZ flowers - 4.bin"
 ArtUnc_EHZPulseBall:	BINCLUDE	"art/uncompressed/Pulsing ball against checkered background (EHZ).bin"
-ArtNem_HTZCliffs:	BINCLUDE	"art/nemesis/Dynamically reloaded cliffs in HTZ background.bin"
+ArtNem_HTZCliffs:	BINCLUDE	"art/nemesis/Dynamically reloaded cliffs in HTZ background.nem"
 	even
 ArtUnc_HTZClouds:	BINCLUDE	"art/uncompressed/Background clouds (HTZ).bin"
 
@@ -90978,13 +90978,13 @@ MapUnc_Sonic:			include		"mappings/sprite/Sonic.asm"
 
 MapRUnc_Sonic:			include		"mappings/spriteDPLC/Sonic.asm"
 
-ArtNem_Shield:			BINCLUDE	"art/nemesis/Shield.bin"
+ArtNem_Shield:			BINCLUDE	"art/nemesis/Shield.nem"
 	even
-ArtNem_Invincible_stars:	BINCLUDE	"art/nemesis/Invincibility stars.bin"
+ArtNem_Invincible_stars:	BINCLUDE	"art/nemesis/Invincibility stars.nem"
 	even
 ArtUnc_SplashAndDust:		BINCLUDE	"art/uncompressed/Splash and skid dust.bin"
 
-ArtNem_SuperSonic_stars:	BINCLUDE	"art/nemesis/Super Sonic stars.bin"
+ArtNem_SuperSonic_stars:	BINCLUDE	"art/nemesis/Super Sonic stars.nem"
 	even
 MapUnc_Tails:			include		"mappings/sprite/Tails.asm"
 
@@ -90993,289 +90993,289 @@ MapRUnc_Tails:			include		"mappings/spriteDPLC/Tails.asm"
 ;---------------------------------------------------------------------------------------
 ; Sega Screen Assets
 ;---------------------------------------------------------------------------------------
-ArtNem_SEGA:			BINCLUDE	"art/nemesis/SEGA.bin"
+ArtNem_SEGA:			BINCLUDE	"art/nemesis/SEGA.nem"
 	even
-ArtNem_IntroTrails:		BINCLUDE	"art/nemesis/Shaded blocks from intro.bin"
+ArtNem_IntroTrails:		BINCLUDE	"art/nemesis/Shaded blocks from intro.nem"
 	even
-MapEng_SEGA:			BINCLUDE	"mappings/misc/SEGA mappings.bin"
+MapEng_SEGA:			BINCLUDE	"mappings/misc/SEGA mappings.eni"
 	even
 
 ;---------------------------------------------------------------------------------------
 ; Title Screen Assets
 ;---------------------------------------------------------------------------------------
-MapEng_TitleScreen:		BINCLUDE	"mappings/misc/Mappings for title screen background.bin"
+MapEng_TitleScreen:		BINCLUDE	"mappings/misc/Mappings for title screen background.eni"
 	even
-MapEng_TitleBack:		BINCLUDE	"mappings/misc/Mappings for title screen background 2.bin" ; title screen background (smaller part, water/horizon)
+MapEng_TitleBack:		BINCLUDE	"mappings/misc/Mappings for title screen background 2.eni" ; title screen background (smaller part, water/horizon)
 	even
-MapEng_TitleLogo:		BINCLUDE	"mappings/misc/Sonic the Hedgehog 2 title screen logo mappings.bin"
+MapEng_TitleLogo:		BINCLUDE	"mappings/misc/Sonic the Hedgehog 2 title screen logo mappings.eni"
 	even
-ArtNem_Title:			BINCLUDE	"art/nemesis/Main patterns from title screen.bin"
+ArtNem_Title:			BINCLUDE	"art/nemesis/Main patterns from title screen.nem"
 	even
-ArtNem_TitleSprites:		BINCLUDE	"art/nemesis/Sonic and Tails from title screen.bin"
+ArtNem_TitleSprites:		BINCLUDE	"art/nemesis/Sonic and Tails from title screen.nem"
 	even
-ArtNem_MenuJunk:		BINCLUDE	"art/nemesis/A few menu blocks.bin"
+ArtNem_MenuJunk:		BINCLUDE	"art/nemesis/A few menu blocks.nem"
 	even
 
 ;---------------------------------------------------------------------------------------
 ; General Level Assets
 ;---------------------------------------------------------------------------------------
-ArtNem_Button:			BINCLUDE	"art/nemesis/Button.bin"
+ArtNem_Button:			BINCLUDE	"art/nemesis/Button.nem"
 	even
-ArtNem_VrtclSprng:		BINCLUDE	"art/nemesis/Vertical spring.bin"
+ArtNem_VrtclSprng:		BINCLUDE	"art/nemesis/Vertical spring.nem"
 	even
-ArtNem_HrzntlSprng:		BINCLUDE	"art/nemesis/Horizontal spring.bin"
+ArtNem_HrzntlSprng:		BINCLUDE	"art/nemesis/Horizontal spring.nem"
 	even
-ArtNem_DignlSprng:		BINCLUDE	"art/nemesis/Diagonal spring.bin"
+ArtNem_DignlSprng:		BINCLUDE	"art/nemesis/Diagonal spring.nem"
 	even
-ArtNem_HUD:			BINCLUDE	"art/nemesis/HUD.bin" ; Score, Rings, Time
+ArtNem_HUD:			BINCLUDE	"art/nemesis/HUD.nem" ; Score, Rings, Time
 	even
-ArtNem_Sonic_life_counter:	BINCLUDE	"art/nemesis/Sonic lives counter.bin"
+ArtNem_Sonic_life_counter:	BINCLUDE	"art/nemesis/Sonic lives counter.nem"
 	even
-ArtNem_Ring:			BINCLUDE	"art/nemesis/Ring.bin"
+ArtNem_Ring:			BINCLUDE	"art/nemesis/Ring.nem"
 	even
-ArtNem_Powerups:		BINCLUDE	"art/nemesis/Monitor and contents.bin"
+ArtNem_Powerups:		BINCLUDE	"art/nemesis/Monitor and contents.nem"
 	even
-ArtNem_Spikes:			BINCLUDE	"art/nemesis/Spikes.bin"
+ArtNem_Spikes:			BINCLUDE	"art/nemesis/Spikes.nem"
 	even
-ArtNem_Numbers:			BINCLUDE	"art/nemesis/Numbers.bin"
+ArtNem_Numbers:			BINCLUDE	"art/nemesis/Numbers.nem"
 	even
-ArtNem_Checkpoint:		BINCLUDE	"art/nemesis/Star pole.bin"
+ArtNem_Checkpoint:		BINCLUDE	"art/nemesis/Star pole.nem"
 	even
-ArtNem_Signpost:		BINCLUDE	"art/nemesis/Signpost.bin" ; For one-player mode.
+ArtNem_Signpost:		BINCLUDE	"art/nemesis/Signpost.nem" ; For one-player mode.
 	even
 ArtUnc_Signpost:		BINCLUDE	"art/uncompressed/Signpost.bin" ; For two-player mode.
 	even
-ArtNem_LeverSpring:		BINCLUDE	"art/nemesis/Lever spring.bin"
+ArtNem_LeverSpring:		BINCLUDE	"art/nemesis/Lever spring.nem"
 	even
-ArtNem_HorizSpike:		BINCLUDE	"art/nemesis/Long horizontal spike.bin"
+ArtNem_HorizSpike:		BINCLUDE	"art/nemesis/Long horizontal spike.nem"
 	even
-ArtNem_BigBubbles:		BINCLUDE	"art/nemesis/Bubble generator.bin" ; Bubble from underwater
+ArtNem_BigBubbles:		BINCLUDE	"art/nemesis/Bubble generator.nem" ; Bubble from underwater
 	even
-ArtNem_Bubbles:			BINCLUDE	"art/nemesis/Bubbles.bin" ; Bubbles from character
+ArtNem_Bubbles:			BINCLUDE	"art/nemesis/Bubbles.nem" ; Bubbles from character
 	even
 ArtUnc_Countdown:		BINCLUDE	"art/uncompressed/Numbers for drowning countdown.bin"
 	even
-ArtNem_Game_Over:		BINCLUDE	"art/nemesis/Game and Time Over text.bin"
+ArtNem_Game_Over:		BINCLUDE	"art/nemesis/Game and Time Over text.nem"
 	even
-ArtNem_Explosion:		BINCLUDE	"art/nemesis/Explosion.bin"
+ArtNem_Explosion:		BINCLUDE	"art/nemesis/Explosion.nem"
 	even
-ArtNem_MilesLife:		BINCLUDE	"art/nemesis/Miles life counter.bin"
+ArtNem_MilesLife:		BINCLUDE	"art/nemesis/Miles life counter.nem"
 	even
-ArtNem_Capsule:			BINCLUDE	"art/nemesis/Egg Prison.bin"
+ArtNem_Capsule:			BINCLUDE	"art/nemesis/Egg Prison.nem"
 	even
-ArtNem_ContinueTails:		BINCLUDE	"art/nemesis/Tails on continue screen.bin"
+ArtNem_ContinueTails:		BINCLUDE	"art/nemesis/Tails on continue screen.nem"
 	even
-ArtNem_MiniSonic:		BINCLUDE	"art/nemesis/Sonic continue.bin"
+ArtNem_MiniSonic:		BINCLUDE	"art/nemesis/Sonic continue.nem"
 	even
-ArtNem_TailsLife:		BINCLUDE	"art/nemesis/Tails life counter.bin"
+ArtNem_TailsLife:		BINCLUDE	"art/nemesis/Tails life counter.nem"
 	even
-ArtNem_MiniTails:		BINCLUDE	"art/nemesis/Tails continue.bin"
+ArtNem_MiniTails:		BINCLUDE	"art/nemesis/Tails continue.nem"
 	even
 
 ;---------------------------------------------------------------------------------------
 ; Menu Assets
 ;---------------------------------------------------------------------------------------
-ArtNem_FontStuff:		BINCLUDE	"art/nemesis/Standard font.bin"
+ArtNem_FontStuff:		BINCLUDE	"art/nemesis/Standard font.nem"
 	even
-ArtNem_1P2PWins:		BINCLUDE	"art/nemesis/1P and 2P wins text from 2P mode.bin"
+ArtNem_1P2PWins:		BINCLUDE	"art/nemesis/1P and 2P wins text from 2P mode.nem"
 	even
-MapEng_MenuBack:		BINCLUDE	"mappings/misc/Sonic and Miles animated background.bin"
+MapEng_MenuBack:		BINCLUDE	"mappings/misc/Sonic and Miles animated background.eni"
 	even
 ArtUnc_MenuBack:		BINCLUDE	"art/uncompressed/Sonic and Miles animated background.bin"
 	even
-ArtNem_TitleCard:		BINCLUDE	"art/nemesis/Title card.bin"
+ArtNem_TitleCard:		BINCLUDE	"art/nemesis/Title card.nem"
 	even
-ArtNem_TitleCard2:		BINCLUDE	"art/nemesis/Font using large broken letters.bin"
+ArtNem_TitleCard2:		BINCLUDE	"art/nemesis/Font using large broken letters.nem"
 	even
-ArtNem_MenuBox:			BINCLUDE	"art/nemesis/A menu box with a shadow.bin"
+ArtNem_MenuBox:			BINCLUDE	"art/nemesis/A menu box with a shadow.nem"
 	even
-ArtNem_LevelSelectPics:		BINCLUDE	"art/nemesis/Pictures in level preview box from level select.bin"
+ArtNem_LevelSelectPics:		BINCLUDE	"art/nemesis/Pictures in level preview box from level select.nem"
 	even
-ArtNem_ResultsText:		BINCLUDE	"art/nemesis/End of level results text.bin" ; Text for Sonic or Tails Got Through Act and Bonus/Perfect
+ArtNem_ResultsText:		BINCLUDE	"art/nemesis/End of level results text.nem" ; Text for Sonic or Tails Got Through Act and Bonus/Perfect
 	even
-ArtNem_SpecialStageResults:	BINCLUDE	"art/nemesis/Special stage results screen art and some emeralds.bin"
+ArtNem_SpecialStageResults:	BINCLUDE	"art/nemesis/Special stage results screen art and some emeralds.nem"
 	even
-ArtNem_Perfect:			BINCLUDE	"art/nemesis/Perfect text.bin"
+ArtNem_Perfect:			BINCLUDE	"art/nemesis/Perfect text.nem"
 	even
 
 ;---------------------------------------------------------------------------------------
 ; Small Animal Assets
 ;---------------------------------------------------------------------------------------
-ArtNem_Flicky:			BINCLUDE	"art/nemesis/Flicky.bin"
+ArtNem_Flicky:			BINCLUDE	"art/nemesis/Flicky.nem"
 	even
-ArtNem_Squirrel:		BINCLUDE	"art/nemesis/Squirrel.bin" ; Ricky
+ArtNem_Squirrel:		BINCLUDE	"art/nemesis/Squirrel.nem" ; Ricky
 	even
-ArtNem_Mouse:			BINCLUDE	"art/nemesis/Mouse.bin"    ; Micky
+ArtNem_Mouse:			BINCLUDE	"art/nemesis/Mouse.nem"    ; Micky
 	even
-ArtNem_Chicken:			BINCLUDE	"art/nemesis/Chicken.bin"  ; Cucky
+ArtNem_Chicken:			BINCLUDE	"art/nemesis/Chicken.nem"  ; Cucky
 	even
-ArtNem_Monkey:			BINCLUDE	"art/nemesis/Monkey.bin"   ; Wocky
+ArtNem_Monkey:			BINCLUDE	"art/nemesis/Monkey.nem"   ; Wocky
 	even
-ArtNem_Eagle:			BINCLUDE	"art/nemesis/Eagle.bin"    ; Locky
+ArtNem_Eagle:			BINCLUDE	"art/nemesis/Eagle.nem"    ; Locky
 	even
-ArtNem_Pig:			BINCLUDE	"art/nemesis/Pig.bin"      ; Picky
+ArtNem_Pig:			BINCLUDE	"art/nemesis/Pig.nem"      ; Picky
 	even
-ArtNem_Seal:			BINCLUDE	"art/nemesis/Seal.bin"     ; Rocky
+ArtNem_Seal:			BINCLUDE	"art/nemesis/Seal.nem"     ; Rocky
 	even
-ArtNem_Penguin:			BINCLUDE	"art/nemesis/Penguin.bin"  ; Pecky
+ArtNem_Penguin:			BINCLUDE	"art/nemesis/Penguin.nem"  ; Pecky
 	even
-ArtNem_Turtle:			BINCLUDE	"art/nemesis/Turtle.bin"   ; Tocky
+ArtNem_Turtle:			BINCLUDE	"art/nemesis/Turtle.nem"   ; Tocky
 	even
-ArtNem_Bear:			BINCLUDE	"art/nemesis/Bear.bin"     ; Becky
+ArtNem_Bear:			BINCLUDE	"art/nemesis/Bear.nem"     ; Becky
 	even
-ArtNem_Rabbit:			BINCLUDE	"art/nemesis/Rabbit.bin"   ; Pocky
+ArtNem_Rabbit:			BINCLUDE	"art/nemesis/Rabbit.nem"   ; Pocky
 	even
 
 ;---------------------------------------------------------------------------------------
 ; WFZ Assets
 ;---------------------------------------------------------------------------------------
-ArtNem_WfzSwitch:		BINCLUDE	"art/nemesis/WFZ boss chamber switch.bin" ; Rivet thing that you bust to get inside the ship
+ArtNem_WfzSwitch:		BINCLUDE	"art/nemesis/WFZ boss chamber switch.nem" ; Rivet thing that you bust to get inside the ship
 	even
-ArtNem_BreakPanels:		BINCLUDE	"art/nemesis/Breakaway panels from WFZ.bin"
+ArtNem_BreakPanels:		BINCLUDE	"art/nemesis/Breakaway panels from WFZ.nem"
 	even
 
 ;---------------------------------------------------------------------------------------
 ; OOZ Assets
 ;---------------------------------------------------------------------------------------
-ArtNem_SpikyThing:		BINCLUDE	"art/nemesis/Spiked ball from OOZ.bin"
+ArtNem_SpikyThing:		BINCLUDE	"art/nemesis/Spiked ball from OOZ.nem"
 	even
-ArtNem_BurnerLid:		BINCLUDE	"art/nemesis/Burner Platform from OOZ.bin"
+ArtNem_BurnerLid:		BINCLUDE	"art/nemesis/Burner Platform from OOZ.nem"
 	even
-ArtNem_StripedBlocksVert:	BINCLUDE	"art/nemesis/Striped blocks from CPZ.bin"
+ArtNem_StripedBlocksVert:	BINCLUDE	"art/nemesis/Striped blocks from CPZ.nem"
 	even
-ArtNem_Oilfall:			BINCLUDE	"art/nemesis/Cascading oil hitting oil from OOZ.bin"
+ArtNem_Oilfall:			BINCLUDE	"art/nemesis/Cascading oil hitting oil from OOZ.nem"
 	even
-ArtNem_Oilfall2:		BINCLUDE	"art/nemesis/Cascading oil from OOZ.bin"
+ArtNem_Oilfall2:		BINCLUDE	"art/nemesis/Cascading oil from OOZ.nem"
 	even
-ArtNem_BallThing:		BINCLUDE	"art/nemesis/Ball on spring from OOZ (beta holdovers).bin"
+ArtNem_BallThing:		BINCLUDE	"art/nemesis/Ball on spring from OOZ (beta holdovers).nem"
 	even
-ArtNem_LaunchBall:		BINCLUDE	"art/nemesis/Transporter ball from OOZ.bin"
+ArtNem_LaunchBall:		BINCLUDE	"art/nemesis/Transporter ball from OOZ.nem"
 	even
-ArtNem_OOZPlatform:		BINCLUDE	"art/nemesis/OOZ collapsing platform.bin"
+ArtNem_OOZPlatform:		BINCLUDE	"art/nemesis/OOZ collapsing platform.nem"
 	even
-ArtNem_PushSpring:		BINCLUDE	"art/nemesis/Push spring from OOZ.bin"
+ArtNem_PushSpring:		BINCLUDE	"art/nemesis/Push spring from OOZ.nem"
 	even
-ArtNem_OOZSwingPlat:		BINCLUDE	"art/nemesis/Swinging platform from OOZ.bin"
+ArtNem_OOZSwingPlat:		BINCLUDE	"art/nemesis/Swinging platform from OOZ.nem"
 	even
-ArtNem_StripedBlocksHoriz:	BINCLUDE	"art/nemesis/4 stripy blocks from OOZ.bin"
+ArtNem_StripedBlocksHoriz:	BINCLUDE	"art/nemesis/4 stripy blocks from OOZ.nem"
 	even
-ArtNem_OOZElevator:		BINCLUDE	"art/nemesis/Rising platform from OOZ.bin"
+ArtNem_OOZElevator:		BINCLUDE	"art/nemesis/Rising platform from OOZ.nem"
 	even
-ArtNem_OOZFanHoriz:		BINCLUDE	"art/nemesis/Fan from OOZ.bin"
+ArtNem_OOZFanHoriz:		BINCLUDE	"art/nemesis/Fan from OOZ.nem"
 	even
-ArtNem_OOZBurn:			BINCLUDE	"art/nemesis/Green flame from OOZ burners.bin"
+ArtNem_OOZBurn:			BINCLUDE	"art/nemesis/Green flame from OOZ burners.nem"
 	even
 
 ;---------------------------------------------------------------------------------------
 ; CNZ Assets
 ;---------------------------------------------------------------------------------------
-ArtNem_CNZSnake:		BINCLUDE	"art/nemesis/Caterpiller platforms from CNZ.bin" ; Patterns for appearing and disappearing string of platforms
+ArtNem_CNZSnake:		BINCLUDE	"art/nemesis/Caterpiller platforms from CNZ.nem" ; Patterns for appearing and disappearing string of platforms
 	even
-ArtNem_CNZBonusSpike:		BINCLUDE	"art/nemesis/Spikey ball from CNZ slots.bin"
+ArtNem_CNZBonusSpike:		BINCLUDE	"art/nemesis/Spikey ball from CNZ slots.nem"
 	even
-ArtNem_BigMovingBlock:		BINCLUDE	"art/nemesis/Moving block from CNZ and CPZ.bin"
+ArtNem_BigMovingBlock:		BINCLUDE	"art/nemesis/Moving block from CNZ and CPZ.nem"
 	even
-ArtNem_CNZElevator:		BINCLUDE	"art/nemesis/CNZ elevator.bin"
+ArtNem_CNZElevator:		BINCLUDE	"art/nemesis/CNZ elevator.nem"
 	even
-ArtNem_CNZCage:			BINCLUDE	"art/nemesis/CNZ slot machine bars.bin"
+ArtNem_CNZCage:			BINCLUDE	"art/nemesis/CNZ slot machine bars.nem"
 	even
-ArtNem_CNZHexBumper:		BINCLUDE	"art/nemesis/Hexagonal bumper from CNZ.bin"
+ArtNem_CNZHexBumper:		BINCLUDE	"art/nemesis/Hexagonal bumper from CNZ.nem"
 	even
-ArtNem_CNZRoundBumper:		BINCLUDE	"art/nemesis/Round bumper from CNZ.bin"
+ArtNem_CNZRoundBumper:		BINCLUDE	"art/nemesis/Round bumper from CNZ.nem"
 	even
-ArtNem_CNZDiagPlunger:		BINCLUDE	"art/nemesis/Diagonal impulse spring from CNZ.bin"
+ArtNem_CNZDiagPlunger:		BINCLUDE	"art/nemesis/Diagonal impulse spring from CNZ.nem"
 	even
-ArtNem_CNZVertPlunger:		BINCLUDE	"art/nemesis/Vertical impulse spring.bin"
+ArtNem_CNZVertPlunger:		BINCLUDE	"art/nemesis/Vertical impulse spring.nem"
 	even
-ArtNem_CNZMiniBumper:		BINCLUDE	"art/nemesis/Drop target from CNZ.bin" ; Weird blocks that you hit 3 times to get rid of
+ArtNem_CNZMiniBumper:		BINCLUDE	"art/nemesis/Drop target from CNZ.nem" ; Weird blocks that you hit 3 times to get rid of
 	even
-ArtNem_CNZFlipper:		BINCLUDE	"art/nemesis/Flippers.bin"
+ArtNem_CNZFlipper:		BINCLUDE	"art/nemesis/Flippers.nem"
 	even
-ArtNem_CPZElevator:		BINCLUDE	"art/nemesis/Large moving platform from CNZ.bin"
+ArtNem_CPZElevator:		BINCLUDE	"art/nemesis/Large moving platform from CNZ.nem"
 	even
 
 ;---------------------------------------------------------------------------------------
 ; CPZ Assets
 ;---------------------------------------------------------------------------------------
-ArtNem_WaterSurface:		BINCLUDE	"art/nemesis/Top of water in HPZ and CNZ.bin"
+ArtNem_WaterSurface:		BINCLUDE	"art/nemesis/Top of water in HPZ and CNZ.nem"
 	even
-ArtNem_CPZBooster:		BINCLUDE	"art/nemesis/Speed booster from CPZ.bin"
+ArtNem_CPZBooster:		BINCLUDE	"art/nemesis/Speed booster from CPZ.nem"
 	even
-ArtNem_CPZDroplet:		BINCLUDE	"art/nemesis/CPZ worm enemy.bin"
+ArtNem_CPZDroplet:		BINCLUDE	"art/nemesis/CPZ worm enemy.nem"
 	even
-ArtNem_CPZMetalThings:		BINCLUDE	"art/nemesis/CPZ metal things.bin" ; Girder, cylinders
+ArtNem_CPZMetalThings:		BINCLUDE	"art/nemesis/CPZ metal things.nem" ; Girder, cylinders
 	even
-ArtNem_CPZMetalBlock:		BINCLUDE	"art/nemesis/CPZ large moving platform blocks.bin"
+ArtNem_CPZMetalBlock:		BINCLUDE	"art/nemesis/CPZ large moving platform blocks.nem"
 	even
-ArtNem_ConstructionStripes:	BINCLUDE	"art/nemesis/Stripy blocks from CPZ.bin"
+ArtNem_ConstructionStripes:	BINCLUDE	"art/nemesis/Stripy blocks from CPZ.nem"
 	even
-ArtNem_CPZAnimatedBits:		BINCLUDE	"art/nemesis/Small yellow moving platform from CPZ.bin"
+ArtNem_CPZAnimatedBits:		BINCLUDE	"art/nemesis/Small yellow moving platform from CPZ.nem"
 	even
-ArtNem_CPZStairBlock:		BINCLUDE	"art/nemesis/Moving block from CPZ.bin"
+ArtNem_CPZStairBlock:		BINCLUDE	"art/nemesis/Moving block from CPZ.nem"
 	even
-ArtNem_CPZTubeSpring:		BINCLUDE	"art/nemesis/CPZ spintube exit cover.bin"
+ArtNem_CPZTubeSpring:		BINCLUDE	"art/nemesis/CPZ spintube exit cover.nem"
 	even
 
 ;---------------------------------------------------------------------------------------
 ; ARZ Assets
 ;---------------------------------------------------------------------------------------
-ArtNem_WaterSurface2:		BINCLUDE	"art/nemesis/Top of water in ARZ.bin"
+ArtNem_WaterSurface2:		BINCLUDE	"art/nemesis/Top of water in ARZ.nem"
 	even
-ArtNem_Leaves:			BINCLUDE	"art/nemesis/Leaves in ARZ.bin"
+ArtNem_Leaves:			BINCLUDE	"art/nemesis/Leaves in ARZ.nem"
 	even
-ArtNem_ArrowAndShooter:		BINCLUDE	"art/nemesis/Arrow shooter and arrow from ARZ.bin"
+ArtNem_ArrowAndShooter:		BINCLUDE	"art/nemesis/Arrow shooter and arrow from ARZ.nem"
 	even
-ArtNem_ARZBarrierThing:		BINCLUDE	"art/nemesis/One way barrier from ARZ.bin" ; Unused
+ArtNem_ARZBarrierThing:		BINCLUDE	"art/nemesis/One way barrier from ARZ.nem" ; Unused
 	even
 
 ;---------------------------------------------------------------------------------------
 ; EHZ Badnik Assets (Part 1) (Why is this split?)
 ;---------------------------------------------------------------------------------------
-ArtNem_Buzzer:			BINCLUDE	"art/nemesis/Buzzer enemy.bin"
+ArtNem_Buzzer:			BINCLUDE	"art/nemesis/Buzzer enemy.nem"
 	even
 
 ;---------------------------------------------------------------------------------------
 ; OOZ Badnik Assets
 ;---------------------------------------------------------------------------------------
-ArtNem_Octus:			BINCLUDE	"art/nemesis/Octopus badnik from OOZ.bin"
+ArtNem_Octus:			BINCLUDE	"art/nemesis/Octopus badnik from OOZ.nem"
 	even
-ArtNem_Aquis:			BINCLUDE	"art/nemesis/Seahorse from OOZ.bin"
+ArtNem_Aquis:			BINCLUDE	"art/nemesis/Seahorse from OOZ.nem"
 	even
 
 ;---------------------------------------------------------------------------------------
 ; EHZ Badnik Assets (Part 2) (Why?)
 ;---------------------------------------------------------------------------------------
-ArtNem_Masher:			BINCLUDE	"art/nemesis/EHZ Pirahna badnik.bin"
+ArtNem_Masher:			BINCLUDE	"art/nemesis/EHZ Pirahna badnik.nem"
 	even
 
 ;---------------------------------------------------------------------------------------
 ; Boss Assets
 ;---------------------------------------------------------------------------------------
-ArtNem_Eggpod:			BINCLUDE	"art/nemesis/Eggpod.bin" ; Robotnik's main ship
+ArtNem_Eggpod:			BINCLUDE	"art/nemesis/Eggpod.nem" ; Robotnik's main ship
 	even
-ArtNem_CPZBoss:			BINCLUDE	"art/nemesis/CPZ boss.bin"
+ArtNem_CPZBoss:			BINCLUDE	"art/nemesis/CPZ boss.nem"
 	even
-ArtNem_FieryExplosion:		BINCLUDE	"art/nemesis/Large explosion.bin"
+ArtNem_FieryExplosion:		BINCLUDE	"art/nemesis/Large explosion.nem"
 	even
-ArtNem_EggpodJets:		BINCLUDE	"art/nemesis/Horizontal jet.bin"
+ArtNem_EggpodJets:		BINCLUDE	"art/nemesis/Horizontal jet.nem"
 	even
-ArtNem_BossSmoke:		BINCLUDE	"art/nemesis/Smoke trail from CPZ and HTZ bosses.bin"
+ArtNem_BossSmoke:		BINCLUDE	"art/nemesis/Smoke trail from CPZ and HTZ bosses.nem"
 	even
-ArtNem_EHZBoss:			BINCLUDE	"art/nemesis/EHZ boss.bin"
+ArtNem_EHZBoss:			BINCLUDE	"art/nemesis/EHZ boss.nem"
 	even
-ArtNem_EggChoppers:		BINCLUDE	"art/nemesis/Chopper blades for EHZ boss.bin"
+ArtNem_EggChoppers:		BINCLUDE	"art/nemesis/Chopper blades for EHZ boss.nem"
 	even
-ArtNem_HTZBoss:			BINCLUDE	"art/nemesis/HTZ boss.bin"
+ArtNem_HTZBoss:			BINCLUDE	"art/nemesis/HTZ boss.nem"
 	even
-ArtNem_ARZBoss:			BINCLUDE	"art/nemesis/ARZ boss.bin"
+ArtNem_ARZBoss:			BINCLUDE	"art/nemesis/ARZ boss.nem"
 	even
-ArtNem_MCZBoss:			BINCLUDE	"art/nemesis/MCZ boss.bin"
+ArtNem_MCZBoss:			BINCLUDE	"art/nemesis/MCZ boss.nem"
 	even
-ArtNem_CNZBoss:			BINCLUDE	"art/nemesis/CNZ boss.bin"
+ArtNem_CNZBoss:			BINCLUDE	"art/nemesis/CNZ boss.nem"
 	even
-ArtNem_OOZBoss:			BINCLUDE	"art/nemesis/OOZ boss.bin"
+ArtNem_OOZBoss:			BINCLUDE	"art/nemesis/OOZ boss.nem"
 	even
-ArtNem_MTZBoss:			BINCLUDE	"art/nemesis/MTZ boss.bin"
+ArtNem_MTZBoss:			BINCLUDE	"art/nemesis/MTZ boss.nem"
 	even
 ArtUnc_FallingRocks:		BINCLUDE	"art/uncompressed/Falling rocks and stalactites from MCZ.bin"
 	even
@@ -91283,67 +91283,67 @@ ArtUnc_FallingRocks:		BINCLUDE	"art/uncompressed/Falling rocks and stalactites f
 ;---------------------------------------------------------------------------------------
 ; ARZ Badnik Assets
 ;---------------------------------------------------------------------------------------
-ArtNem_Whisp:			BINCLUDE	"art/nemesis/Blowfly from ARZ.bin"
+ArtNem_Whisp:			BINCLUDE	"art/nemesis/Blowfly from ARZ.nem"
 	even
-ArtNem_Grounder:		BINCLUDE	"art/nemesis/Grounder from ARZ.bin"
+ArtNem_Grounder:		BINCLUDE	"art/nemesis/Grounder from ARZ.nem"
 	even
-ArtNem_ChopChop:		BINCLUDE	"art/nemesis/Shark from ARZ.bin"
+ArtNem_ChopChop:		BINCLUDE	"art/nemesis/Shark from ARZ.nem"
 	even
 
 ;---------------------------------------------------------------------------------------
 ; HTZ Badnik Assets
 ;---------------------------------------------------------------------------------------
-ArtNem_Rexon:			BINCLUDE	"art/nemesis/Rexxon (lava snake) from HTZ.bin"
+ArtNem_Rexon:			BINCLUDE	"art/nemesis/Rexxon (lava snake) from HTZ.nem"
 	even
-ArtNem_Spiker:			BINCLUDE	"art/nemesis/Driller badnik from HTZ.bin"
+ArtNem_Spiker:			BINCLUDE	"art/nemesis/Driller badnik from HTZ.nem"
 	even
 
 ;---------------------------------------------------------------------------------------
 ; SCZ Badnik Assets
 ;---------------------------------------------------------------------------------------
-ArtNem_Nebula:			BINCLUDE	"art/nemesis/Bomber badnik from SCZ.bin"
+ArtNem_Nebula:			BINCLUDE	"art/nemesis/Bomber badnik from SCZ.nem"
 	even
-ArtNem_Turtloid:		BINCLUDE	"art/nemesis/Turtle badnik from SCZ.bin"
+ArtNem_Turtloid:		BINCLUDE	"art/nemesis/Turtle badnik from SCZ.nem"
 	even
 
 ;---------------------------------------------------------------------------------------
 ; EHZ Badnik Assets (Part 3) (WTF???)
 ;---------------------------------------------------------------------------------------
-ArtNem_Coconuts:		BINCLUDE	"art/nemesis/Coconuts badnik from EHZ.bin"
+ArtNem_Coconuts:		BINCLUDE	"art/nemesis/Coconuts badnik from EHZ.nem"
 	even
 
 ;---------------------------------------------------------------------------------------
 ; MCZ Badnik Assets
 ;---------------------------------------------------------------------------------------
-ArtNem_Crawlton:		BINCLUDE	"art/nemesis/Snake badnik from MCZ.bin"
+ArtNem_Crawlton:		BINCLUDE	"art/nemesis/Snake badnik from MCZ.nem"
 	even
-ArtNem_Flasher:			BINCLUDE	"art/nemesis/Firefly from MCZ.bin"
+ArtNem_Flasher:			BINCLUDE	"art/nemesis/Firefly from MCZ.nem"
 	even
 
 ;---------------------------------------------------------------------------------------
 ; MTZ Badnik Assets
 ;---------------------------------------------------------------------------------------
-ArtNem_MtzMantis:		BINCLUDE	"art/nemesis/Praying mantis badnik from MTZ.bin"
+ArtNem_MtzMantis:		BINCLUDE	"art/nemesis/Praying mantis badnik from MTZ.nem"
 	even
-ArtNem_Shellcracker:		BINCLUDE	"art/nemesis/Shellcracker badnik from MTZ.bin"
+ArtNem_Shellcracker:		BINCLUDE	"art/nemesis/Shellcracker badnik from MTZ.nem"
 	even
-ArtNem_MtzSupernova:		BINCLUDE	"art/nemesis/Exploding star badnik from MTZ.bin"
+ArtNem_MtzSupernova:		BINCLUDE	"art/nemesis/Exploding star badnik from MTZ.nem"
 	even
 
 ;---------------------------------------------------------------------------------------
 ; CPZ Badnik Assets
 ;---------------------------------------------------------------------------------------
-ArtNem_Spiny:			BINCLUDE	"art/nemesis/Weird crawling badnik from CPZ.bin"
+ArtNem_Spiny:			BINCLUDE	"art/nemesis/Weird crawling badnik from CPZ.nem"
 	even
-ArtNem_Grabber:			BINCLUDE	"art/nemesis/Spider badnik from CPZ.bin"
+ArtNem_Grabber:			BINCLUDE	"art/nemesis/Spider badnik from CPZ.nem"
 	even
 
 ;---------------------------------------------------------------------------------------
 ; WFZ Badnik Assets
 ;---------------------------------------------------------------------------------------
-ArtNem_WfzScratch:		BINCLUDE	"art/nemesis/Scratch from WFZ.bin" ; Chicken badnik
+ArtNem_WfzScratch:		BINCLUDE	"art/nemesis/Scratch from WFZ.nem" ; Chicken badnik
 	even
-ArtNem_Balkrie:			BINCLUDE	"art/nemesis/Balkrie (jet badnik) from SCZ.bin" ; This SCZ badnik is here for some reason.
+ArtNem_Balkrie:			BINCLUDE	"art/nemesis/Balkrie (jet badnik) from SCZ.nem" ; This SCZ badnik is here for some reason.
 	even
 
 ;---------------------------------------------------------------------------------------
@@ -91351,106 +91351,106 @@ ArtNem_Balkrie:			BINCLUDE	"art/nemesis/Balkrie (jet badnik) from SCZ.bin" ; Thi
 ; It seems that these were haphazardly thrown together instead of neatly-split like the
 ; other zones' assets.
 ;---------------------------------------------------------------------------------------
-ArtNem_SilverSonic:		BINCLUDE	"art/nemesis/Silver Sonic.bin"
+ArtNem_SilverSonic:		BINCLUDE	"art/nemesis/Silver Sonic.nem"
 	even
-ArtNem_Tornado:			BINCLUDE	"art/nemesis/The Tornado.bin" ; Sonic's plane.
+ArtNem_Tornado:			BINCLUDE	"art/nemesis/The Tornado.nem" ; Sonic's plane.
 	even
-ArtNem_WfzWallTurret:		BINCLUDE	"art/nemesis/Wall turret from WFZ.bin"
+ArtNem_WfzWallTurret:		BINCLUDE	"art/nemesis/Wall turret from WFZ.nem"
 	even
-ArtNem_WfzHook:			BINCLUDE	"art/nemesis/Hook on chain from WFZ.bin"
+ArtNem_WfzHook:			BINCLUDE	"art/nemesis/Hook on chain from WFZ.nem"
 	even
-ArtNem_WfzGunPlatform:		BINCLUDE	"art/nemesis/Retracting platform from WFZ.bin"
+ArtNem_WfzGunPlatform:		BINCLUDE	"art/nemesis/Retracting platform from WFZ.nem"
 	even
-ArtNem_WfzConveyorBeltWheel:	BINCLUDE	"art/nemesis/Wheel for belt in WFZ.bin"
+ArtNem_WfzConveyorBeltWheel:	BINCLUDE	"art/nemesis/Wheel for belt in WFZ.nem"
 	even
-ArtNem_WfzFloatingPlatform:	BINCLUDE	"art/nemesis/Moving platform from WFZ.bin"
+ArtNem_WfzFloatingPlatform:	BINCLUDE	"art/nemesis/Moving platform from WFZ.nem"
 	even
-ArtNem_WfzVrtclLazer:		BINCLUDE	"art/nemesis/Unused vertical laser in WFZ.bin"
+ArtNem_WfzVrtclLazer:		BINCLUDE	"art/nemesis/Unused vertical laser in WFZ.nem"
 	even
-ArtNem_Clouds:			BINCLUDE	"art/nemesis/Clouds.bin"
+ArtNem_Clouds:			BINCLUDE	"art/nemesis/Clouds.nem"
 	even
-ArtNem_WfzHrzntlLazer:		BINCLUDE	"art/nemesis/Red horizontal laser from WFZ.bin"
+ArtNem_WfzHrzntlLazer:		BINCLUDE	"art/nemesis/Red horizontal laser from WFZ.nem"
 	even
-ArtNem_WfzLaunchCatapult:	BINCLUDE	"art/nemesis/Catapult that shoots Sonic to the side from WFZ.bin"
+ArtNem_WfzLaunchCatapult:	BINCLUDE	"art/nemesis/Catapult that shoots Sonic to the side from WFZ.nem"
 	even
-ArtNem_WfzBeltPlatform:		BINCLUDE	"art/nemesis/Platform on belt in WFZ.bin"
+ArtNem_WfzBeltPlatform:		BINCLUDE	"art/nemesis/Platform on belt in WFZ.nem"
 	even
-ArtNem_WfzUnusedBadnik:		BINCLUDE	"art/nemesis/Unused badnik from WFZ.bin" ; This is not grouped with the zone's badniks, suggesting that it's not a badnik at all.
+ArtNem_WfzUnusedBadnik:		BINCLUDE	"art/nemesis/Unused badnik from WFZ.nem" ; This is not grouped with the zone's badniks, suggesting that it's not a badnik at all.
 	even
-ArtNem_WfzVrtclPrpllr:		BINCLUDE	"art/nemesis/Vertical spinning blades in WFZ.bin"
+ArtNem_WfzVrtclPrpllr:		BINCLUDE	"art/nemesis/Vertical spinning blades in WFZ.nem"
 	even
-ArtNem_WfzHrzntlPrpllr:		BINCLUDE	"art/nemesis/Horizontal spinning blades in WFZ.bin"
+ArtNem_WfzHrzntlPrpllr:		BINCLUDE	"art/nemesis/Horizontal spinning blades in WFZ.nem"
 	even
-ArtNem_WfzTiltPlatforms:	BINCLUDE	"art/nemesis/Tilting plaforms in WFZ.bin"
+ArtNem_WfzTiltPlatforms:	BINCLUDE	"art/nemesis/Tilting plaforms in WFZ.nem"
 	even
-ArtNem_WfzThrust:		BINCLUDE	"art/nemesis/Thrust from Robotnik's getaway ship in WFZ.bin"
+ArtNem_WfzThrust:		BINCLUDE	"art/nemesis/Thrust from Robotnik's getaway ship in WFZ.nem"
 	even
-ArtNem_WFZBoss:			BINCLUDE	"art/nemesis/WFZ boss.bin"
+ArtNem_WFZBoss:			BINCLUDE	"art/nemesis/WFZ boss.nem"
 	even
-ArtNem_RobotnikUpper:		BINCLUDE	"art/nemesis/Robotnik's head.bin"
+ArtNem_RobotnikUpper:		BINCLUDE	"art/nemesis/Robotnik's head.nem"
 	even
-ArtNem_RobotnikRunning:		BINCLUDE	"art/nemesis/Robotnik.bin"
+ArtNem_RobotnikRunning:		BINCLUDE	"art/nemesis/Robotnik.nem"
 	even
-ArtNem_RobotnikLower:		BINCLUDE	"art/nemesis/Robotnik's lower half.bin"
+ArtNem_RobotnikLower:		BINCLUDE	"art/nemesis/Robotnik's lower half.nem"
 	even
-ArtNem_DEZWindow:		BINCLUDE	"art/nemesis/Window in back that Robotnik looks through in DEZ.bin"
+ArtNem_DEZWindow:		BINCLUDE	"art/nemesis/Window in back that Robotnik looks through in DEZ.nem"
 	even
-ArtNem_DEZBoss:			BINCLUDE	"art/nemesis/Eggrobo.bin"
+ArtNem_DEZBoss:			BINCLUDE	"art/nemesis/Eggrobo.nem"
 	even
 ; This last-minute badnik addition was mistakenly included with the WFZ/DEZ assets instead of in its own 'CNZ Badnik Assets' section.
-ArtNem_Crawl:			BINCLUDE	"art/nemesis/Bouncer badnik from CNZ.bin"
+ArtNem_Crawl:			BINCLUDE	"art/nemesis/Bouncer badnik from CNZ.nem"
 	even
-ArtNem_TornadoThruster:		BINCLUDE	"art/nemesis/Rocket thruster for Tornado.bin"
+ArtNem_TornadoThruster:		BINCLUDE	"art/nemesis/Rocket thruster for Tornado.nem"
 	even
 
 ;---------------------------------------------------------------------------------------
 ; Ending Assets
 ;---------------------------------------------------------------------------------------
-MapEng_Ending1:			BINCLUDE	"mappings/misc/End of game sequence frame 1.bin"
+MapEng_Ending1:			BINCLUDE	"mappings/misc/End of game sequence frame 1.eni"
 	even
-MapEng_Ending2:			BINCLUDE	"mappings/misc/End of game sequence frame 2.bin"
+MapEng_Ending2:			BINCLUDE	"mappings/misc/End of game sequence frame 2.eni"
 	even
-MapEng_Ending3:			BINCLUDE	"mappings/misc/End of game sequence frame 3.bin"
+MapEng_Ending3:			BINCLUDE	"mappings/misc/End of game sequence frame 3.eni"
 	even
-MapEng_Ending4:			BINCLUDE	"mappings/misc/End of game sequence frame 4.bin"
+MapEng_Ending4:			BINCLUDE	"mappings/misc/End of game sequence frame 4.eni"
 	even
-MapEng_EndingTailsPlane:	BINCLUDE	"mappings/misc/Closeup of Tails flying plane in ending sequence.bin"
+MapEng_EndingTailsPlane:	BINCLUDE	"mappings/misc/Closeup of Tails flying plane in ending sequence.eni"
 	even
-MapEng_EndingSonicPlane:	BINCLUDE	"mappings/misc/Closeup of Sonic flying plane in ending sequence.bin"
+MapEng_EndingSonicPlane:	BINCLUDE	"mappings/misc/Closeup of Sonic flying plane in ending sequence.eni"
 	even
 ; Strange unused mappings (duplicates of MapEng_EndGameLogo)
-				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.eni"
 	even
-				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.eni"
 	even
-				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.eni"
 	even
-				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.eni"
 	even
-				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.eni"
 	even
-				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.eni"
 	even
-				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.eni"
 	even
-				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.eni"
 	even
-				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.bin"
+				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.eni"
 	even
 
-ArtNem_EndingPics:		BINCLUDE	"art/nemesis/Movie sequence at end of game.bin"
+ArtNem_EndingPics:		BINCLUDE	"art/nemesis/Movie sequence at end of game.nem"
 	even
-ArtNem_EndingFinalTornado:	BINCLUDE	"art/nemesis/Final image of Tornado with it and Sonic facing screen.bin"
+ArtNem_EndingFinalTornado:	BINCLUDE	"art/nemesis/Final image of Tornado with it and Sonic facing screen.nem"
 	even
-ArtNem_EndingMiniTornado:	BINCLUDE	"art/nemesis/Small pictures of Tornado in final ending sequence.bin"
+ArtNem_EndingMiniTornado:	BINCLUDE	"art/nemesis/Small pictures of Tornado in final ending sequence.nem"
 	even
-ArtNem_EndingSonic:		BINCLUDE	"art/nemesis/Small pictures of Sonic and final image of Sonic.bin"
+ArtNem_EndingSonic:		BINCLUDE	"art/nemesis/Small pictures of Sonic and final image of Sonic.nem"
 	even
-ArtNem_EndingSuperSonic:	BINCLUDE	"art/nemesis/Small pictures of Sonic and final image of Sonic in Super Sonic mode.bin"
+ArtNem_EndingSuperSonic:	BINCLUDE	"art/nemesis/Small pictures of Sonic and final image of Sonic in Super Sonic mode.nem"
 	even
-ArtNem_EndingTails:		BINCLUDE	"art/nemesis/Final image of Tails.bin"
+ArtNem_EndingTails:		BINCLUDE	"art/nemesis/Final image of Tails.nem"
 	even
-ArtNem_EndingTitle:		BINCLUDE	"art/nemesis/Sonic the Hedgehog 2 image at end of credits.bin"
+ArtNem_EndingTitle:		BINCLUDE	"art/nemesis/Sonic the Hedgehog 2 image at end of credits.nem"
 	even
 
 
@@ -91504,47 +91504,47 @@ ArtNem_EndingTitle:		BINCLUDE	"art/nemesis/Sonic the Hedgehog 2 image at end of 
 
 ; All of these are compressed in the Kosinski format.
 
-BM16_EHZ:	BINCLUDE	"mappings/16x16/EHZ.bin"
-ArtKos_EHZ:	BINCLUDE	"art/kosinski/EHZ_HTZ.bin"
-BM16_HTZ:	BINCLUDE	"mappings/16x16/HTZ.bin"
-ArtKos_HTZ:	BINCLUDE	"art/kosinski/HTZ_Supp.bin" ; HTZ pattern suppliment to EHZ level patterns
-BM128_EHZ:	BINCLUDE	"mappings/128x128/EHZ_HTZ.bin"
+BM16_EHZ:	BINCLUDE	"mappings/16x16/EHZ.kos"
+ArtKos_EHZ:	BINCLUDE	"art/kosinski/EHZ_HTZ.kos"
+BM16_HTZ:	BINCLUDE	"mappings/16x16/HTZ.kos"
+ArtKos_HTZ:	BINCLUDE	"art/kosinski/HTZ_Supp.kos" ; HTZ pattern suppliment to EHZ level patterns
+BM128_EHZ:	BINCLUDE	"mappings/128x128/EHZ_HTZ.kos"
 
-BM16_MTZ:	BINCLUDE	"mappings/16x16/MTZ.bin"
-ArtKos_MTZ:	BINCLUDE	"art/kosinski/MTZ.bin"
-BM128_MTZ:	BINCLUDE	"mappings/128x128/MTZ.bin"
+BM16_MTZ:	BINCLUDE	"mappings/16x16/MTZ.kos"
+ArtKos_MTZ:	BINCLUDE	"art/kosinski/MTZ.kos"
+BM128_MTZ:	BINCLUDE	"mappings/128x128/MTZ.kos"
 
-BM16_HPZ:	;BINCLUDE	"mappings/16x16/HPZ.bin"
-ArtKos_HPZ:	;BINCLUDE	"art/kosinski/HPZ.bin"
-BM128_HPZ:	;BINCLUDE	"mappings/128x128/HPZ.bin"
+BM16_HPZ:	;BINCLUDE	"mappings/16x16/HPZ.kos"
+ArtKos_HPZ:	;BINCLUDE	"art/kosinski/HPZ.kos"
+BM128_HPZ:	;BINCLUDE	"mappings/128x128/HPZ.kos"
 
-BM16_OOZ:	BINCLUDE	"mappings/16x16/OOZ.bin"
-ArtKos_OOZ:	BINCLUDE	"art/kosinski/OOZ.bin"
-BM128_OOZ:	BINCLUDE	"mappings/128x128/OOZ.bin"
+BM16_OOZ:	BINCLUDE	"mappings/16x16/OOZ.kos"
+ArtKos_OOZ:	BINCLUDE	"art/kosinski/OOZ.kos"
+BM128_OOZ:	BINCLUDE	"mappings/128x128/OOZ.kos"
 
-BM16_MCZ:	BINCLUDE	"mappings/16x16/MCZ.bin"
-ArtKos_MCZ:	BINCLUDE	"art/kosinski/MCZ.bin"
-BM128_MCZ:	BINCLUDE	"mappings/128x128/MCZ.bin"
+BM16_MCZ:	BINCLUDE	"mappings/16x16/MCZ.kos"
+ArtKos_MCZ:	BINCLUDE	"art/kosinski/MCZ.kos"
+BM128_MCZ:	BINCLUDE	"mappings/128x128/MCZ.kos"
 
-BM16_CNZ:	BINCLUDE	"mappings/16x16/CNZ.bin"
-ArtKos_CNZ:	BINCLUDE	"art/kosinski/CNZ.bin"
-BM128_CNZ:	BINCLUDE	"mappings/128x128/CNZ.bin"
+BM16_CNZ:	BINCLUDE	"mappings/16x16/CNZ.kos"
+ArtKos_CNZ:	BINCLUDE	"art/kosinski/CNZ.kos"
+BM128_CNZ:	BINCLUDE	"mappings/128x128/CNZ.kos"
 
-BM16_CPZ:	BINCLUDE	"mappings/16x16/CPZ_DEZ.bin"
-ArtKos_CPZ:	BINCLUDE	"art/kosinski/CPZ_DEZ.bin"
-BM128_CPZ:	BINCLUDE	"mappings/128x128/CPZ_DEZ.bin"
+BM16_CPZ:	BINCLUDE	"mappings/16x16/CPZ_DEZ.kos"
+ArtKos_CPZ:	BINCLUDE	"art/kosinski/CPZ_DEZ.kos"
+BM128_CPZ:	BINCLUDE	"mappings/128x128/CPZ_DEZ.kos"
 
 ; This file contains $320 blocks, overflowing the 'Block_table' buffer. This causes
 ; 'TempArray_LayerDef' to be overwritten with (empty) block data.
 ; If only 'fixBugs' could fix this...
-BM16_ARZ:	BINCLUDE	"mappings/16x16/ARZ.bin"
-ArtKos_ARZ:	BINCLUDE	"art/kosinski/ARZ.bin"
-BM128_ARZ:	BINCLUDE	"mappings/128x128/ARZ.bin"
+BM16_ARZ:	BINCLUDE	"mappings/16x16/ARZ.kos"
+ArtKos_ARZ:	BINCLUDE	"art/kosinski/ARZ.kos"
+BM128_ARZ:	BINCLUDE	"mappings/128x128/ARZ.kos"
 
-BM16_WFZ:	BINCLUDE	"mappings/16x16/WFZ_SCZ.bin"
-ArtKos_SCZ:	BINCLUDE	"art/kosinski/WFZ_SCZ.bin"
-ArtKos_WFZ:	BINCLUDE	"art/kosinski/WFZ_Supp.bin" ; WFZ pattern suppliment to SCZ tiles
-BM128_WFZ:	BINCLUDE	"mappings/128x128/WFZ_SCZ.bin"
+BM16_WFZ:	BINCLUDE	"mappings/16x16/WFZ_SCZ.kos"
+ArtKos_SCZ:	BINCLUDE	"art/kosinski/WFZ_SCZ.kos"
+ArtKos_WFZ:	BINCLUDE	"art/kosinski/WFZ_Supp.kos" ; WFZ pattern suppliment to SCZ tiles
+BM128_WFZ:	BINCLUDE	"mappings/128x128/WFZ_SCZ.kos"
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;-----------------------------------------------------------------------------------
@@ -91637,48 +91637,48 @@ MapSpec_Turn7:		BINCLUDE	"mappings/special stage/Begin curve right - Frame 7.bin
 ;  the same as this one line, so to get the full tiles, each line needs to be
 ;  duplicated 7 times over.					; ArtKoz_DCA38:
 ;--------------------------------------------------------------------------------------
-ArtKos_Special:			BINCLUDE	"art/kosinski/SpecStag.bin"
+ArtKos_Special:			BINCLUDE	"art/kosinski/SpecStag.kos"
 	even
 
-ArtNem_SpecialBack:		BINCLUDE	"art/nemesis/Background art for special stage.bin"
+ArtNem_SpecialBack:		BINCLUDE	"art/nemesis/Background art for special stage.nem"
 	even
-MapEng_SpecialBack:		BINCLUDE	"mappings/misc/Main background mappings for special stage.bin"
+MapEng_SpecialBack:		BINCLUDE	"mappings/misc/Main background mappings for special stage.eni"
 	even
-MapEng_SpecialBackBottom:	BINCLUDE	"mappings/misc/Lower background mappings for special stage.bin"
+MapEng_SpecialBackBottom:	BINCLUDE	"mappings/misc/Lower background mappings for special stage.eni"
 	even
-ArtNem_SpecialHUD:		BINCLUDE	"art/nemesis/Sonic and Miles number text from special stage.bin"
+ArtNem_SpecialHUD:		BINCLUDE	"art/nemesis/Sonic and Miles number text from special stage.nem"
 	even
-ArtNem_SpecialStart:		BINCLUDE	"art/nemesis/Start text from special stage.bin" ; Also includes checkered flag
+ArtNem_SpecialStart:		BINCLUDE	"art/nemesis/Start text from special stage.nem" ; Also includes checkered flag
 	even
-ArtNem_SpecialStars:		BINCLUDE	"art/nemesis/Stars in special stage.bin"
+ArtNem_SpecialStars:		BINCLUDE	"art/nemesis/Stars in special stage.nem"
 	even
-ArtNem_SpecialPlayerVSPlayer:	BINCLUDE	"art/nemesis/Special stage Player VS Player text.bin"
+ArtNem_SpecialPlayerVSPlayer:	BINCLUDE	"art/nemesis/Special stage Player VS Player text.nem"
 	even
-ArtNem_SpecialRings:		BINCLUDE	"art/nemesis/Special stage ring art.bin"
+ArtNem_SpecialRings:		BINCLUDE	"art/nemesis/Special stage ring art.nem"
 	even
-ArtNem_SpecialFlatShadow:	BINCLUDE	"art/nemesis/Horizontal shadow from special stage.bin"
+ArtNem_SpecialFlatShadow:	BINCLUDE	"art/nemesis/Horizontal shadow from special stage.nem"
 	even
-ArtNem_SpecialDiagShadow:	BINCLUDE	"art/nemesis/Diagonal shadow from special stage.bin"
+ArtNem_SpecialDiagShadow:	BINCLUDE	"art/nemesis/Diagonal shadow from special stage.nem"
 	even
-ArtNem_SpecialSideShadow:	BINCLUDE	"art/nemesis/Vertical shadow from special stage.bin"
+ArtNem_SpecialSideShadow:	BINCLUDE	"art/nemesis/Vertical shadow from special stage.nem"
 	even
-ArtNem_SpecialExplosion:	BINCLUDE	"art/nemesis/Explosion from special stage.bin"
+ArtNem_SpecialExplosion:	BINCLUDE	"art/nemesis/Explosion from special stage.nem"
 	even
-ArtNem_SpecialBomb:		BINCLUDE	"art/nemesis/Bomb from special stage.bin"
+ArtNem_SpecialBomb:		BINCLUDE	"art/nemesis/Bomb from special stage.nem"
 	even
-ArtNem_SpecialEmerald:		BINCLUDE	"art/nemesis/Emerald from special stage.bin"
+ArtNem_SpecialEmerald:		BINCLUDE	"art/nemesis/Emerald from special stage.nem"
 	even
-ArtNem_SpecialMessages:		BINCLUDE	"art/nemesis/Special stage messages and icons.bin"
+ArtNem_SpecialMessages:		BINCLUDE	"art/nemesis/Special stage messages and icons.nem"
 	even
-ArtNem_SpecialSonicAndTails:	BINCLUDE	"art/nemesis/Sonic and Tails animation frames in special stage.bin" ; [fixBugs] In this file, Tails' arms are tan instead of orange.
+ArtNem_SpecialSonicAndTails:	BINCLUDE	"art/nemesis/Sonic and Tails animation frames in special stage.nem" ; [fixBugs] In this file, Tails' arms are tan instead of orange.
 	even
-ArtNem_SpecialTailsText:	BINCLUDE	"art/nemesis/Tails text patterns from special stage.bin"
+ArtNem_SpecialTailsText:	BINCLUDE	"art/nemesis/Tails text patterns from special stage.nem"
 	even
-MiscKoz_SpecialPerspective:	BINCLUDE	"misc/Special stage object perspective data (Kosinski compression).bin"
+MiscKoz_SpecialPerspective:	BINCLUDE	"misc/Special stage object perspective data.kos"
 	even
-MiscNem_SpecialLevelLayout:	BINCLUDE	"misc/Special stage level layouts (Nemesis compression).bin"
+MiscNem_SpecialLevelLayout:	BINCLUDE	"misc/Special stage level layouts.nem"
 	even
-MiscKoz_SpecialObjectLocations:	BINCLUDE	"misc/Special stage object location lists (Kosinski compression).bin"
+MiscKoz_SpecialObjectLocations:	BINCLUDE	"misc/Special stage object location lists.kos"
 	even
 
 ;--------------------------------------------------------------------------------------
@@ -92161,65 +92161,65 @@ Mus_Continue:   BINCLUDE	"sound/music/compressed/9C - Continue.bin"
 ; --------------------------------------------------------------------------------------
 ; EHZ/HTZ Assets
 ; --------------------------------------------------------------------------------------
-ArtNem_HtzFireball1:		BINCLUDE	"art/nemesis/Fireball 1.bin"
+ArtNem_HtzFireball1:		BINCLUDE	"art/nemesis/Fireball 1.nem"
 	even
-ArtNem_Waterfall:		BINCLUDE	"art/nemesis/Waterfall tiles.bin"
+ArtNem_Waterfall:		BINCLUDE	"art/nemesis/Waterfall tiles.nem"
 	even
-ArtNem_HtzFireball2:		BINCLUDE	"art/nemesis/Fireball 2.bin"
+ArtNem_HtzFireball2:		BINCLUDE	"art/nemesis/Fireball 2.nem"
 	even
-ArtNem_EHZ_Bridge:		BINCLUDE	"art/nemesis/EHZ bridge.bin"
+ArtNem_EHZ_Bridge:		BINCLUDE	"art/nemesis/EHZ bridge.nem"
 	even
-ArtNem_HtzZipline:		BINCLUDE	"art/nemesis/HTZ zip-line platform.bin"
+ArtNem_HtzZipline:		BINCLUDE	"art/nemesis/HTZ zip-line platform.nem"
 	even
-ArtNem_HtzValveBarrier:		BINCLUDE	"art/nemesis/One way barrier from HTZ.bin"
+ArtNem_HtzValveBarrier:		BINCLUDE	"art/nemesis/One way barrier from HTZ.nem"
 	even
-ArtNem_HtzSeeSaw:		BINCLUDE	"art/nemesis/See-saw in HTZ.bin"
+ArtNem_HtzSeeSaw:		BINCLUDE	"art/nemesis/See-saw in HTZ.nem"
 	even
-				BINCLUDE	"art/nemesis/Fireball 3.bin" ; Unused
+				BINCLUDE	"art/nemesis/Fireball 3.nem" ; Unused
 	even
-ArtNem_HtzRock:			BINCLUDE	"art/nemesis/Rock from HTZ.bin"
+ArtNem_HtzRock:			BINCLUDE	"art/nemesis/Rock from HTZ.nem"
 	even
-ArtNem_Sol:			BINCLUDE	"art/nemesis/Sol badnik from HTZ.bin" ; Not grouped with the other badniks for some reason...
+ArtNem_Sol:			BINCLUDE	"art/nemesis/Sol badnik from HTZ.nem" ; Not grouped with the other badniks for some reason...
 	even
 
 ; --------------------------------------------------------------------------------------
 ; MTZ Assets
 ; --------------------------------------------------------------------------------------
-ArtNem_MtzWheel:		BINCLUDE	"art/nemesis/Large spinning wheel from MTZ.bin"
+ArtNem_MtzWheel:		BINCLUDE	"art/nemesis/Large spinning wheel from MTZ.nem"
 	even
-ArtNem_MtzWheelIndent:		BINCLUDE	"art/nemesis/Large spinning wheel from MTZ - indent.bin"
+ArtNem_MtzWheelIndent:		BINCLUDE	"art/nemesis/Large spinning wheel from MTZ - indent.nem"
 	even
-ArtNem_MtzSpikeBlock:		BINCLUDE	"art/nemesis/MTZ spike block.bin"
+ArtNem_MtzSpikeBlock:		BINCLUDE	"art/nemesis/MTZ spike block.nem"
 	even
-ArtNem_MtzSteam:		BINCLUDE	"art/nemesis/Steam from MTZ.bin"
+ArtNem_MtzSteam:		BINCLUDE	"art/nemesis/Steam from MTZ.nem"
 	even
-ArtNem_MtzSpike:		BINCLUDE	"art/nemesis/Spike from MTZ.bin"
+ArtNem_MtzSpike:		BINCLUDE	"art/nemesis/Spike from MTZ.nem"
 	even
-ArtNem_MtzAsstBlocks:		BINCLUDE	"art/nemesis/Similarly shaded blocks from MTZ.bin"
+ArtNem_MtzAsstBlocks:		BINCLUDE	"art/nemesis/Similarly shaded blocks from MTZ.nem"
 	even
-ArtNem_MtzLavaBubble:		BINCLUDE	"art/nemesis/Lava bubble from MTZ.bin"
+ArtNem_MtzLavaBubble:		BINCLUDE	"art/nemesis/Lava bubble from MTZ.nem"
 	even
-ArtNem_LavaCup:			BINCLUDE	"art/nemesis/Lava cup from MTZ.bin"
+ArtNem_LavaCup:			BINCLUDE	"art/nemesis/Lava cup from MTZ.nem"
 	even
-ArtNem_BoltEnd_Rope:		BINCLUDE	"art/nemesis/Bolt end and rope from MTZ.bin"
+ArtNem_BoltEnd_Rope:		BINCLUDE	"art/nemesis/Bolt end and rope from MTZ.nem"
 	even	
-ArtNem_MtzCog:			BINCLUDE	"art/nemesis/Small cog from MTZ.bin"
+ArtNem_MtzCog:			BINCLUDE	"art/nemesis/Small cog from MTZ.nem"
 	even
-ArtNem_MtzSpinTubeFlash:	BINCLUDE	"art/nemesis/Spin tube flash from MTZ.bin"
+ArtNem_MtzSpinTubeFlash:	BINCLUDE	"art/nemesis/Spin tube flash from MTZ.nem"
 	even
 
 ; --------------------------------------------------------------------------------------
 ; MCZ Assets
 ; --------------------------------------------------------------------------------------
-ArtNem_Crate:			BINCLUDE	"art/nemesis/Large wooden box from MCZ.bin"
+ArtNem_Crate:			BINCLUDE	"art/nemesis/Large wooden box from MCZ.nem"
 	even
-ArtNem_MCZCollapsePlat:		BINCLUDE	"art/nemesis/Collapsing platform from MCZ.bin"
+ArtNem_MCZCollapsePlat:		BINCLUDE	"art/nemesis/Collapsing platform from MCZ.nem"
 	even
-ArtNem_VineSwitch:		BINCLUDE	"art/nemesis/Pull switch from MCZ.bin"
+ArtNem_VineSwitch:		BINCLUDE	"art/nemesis/Pull switch from MCZ.nem"
 	even
-ArtNem_VinePulley:		BINCLUDE	"art/nemesis/Vine that lowers from MCZ.bin"
+ArtNem_VinePulley:		BINCLUDE	"art/nemesis/Vine that lowers from MCZ.nem"
 	even
-ArtNem_MCZGateLog:		BINCLUDE	"art/nemesis/Drawbridge logs from MCZ.bin"
+ArtNem_MCZGateLog:		BINCLUDE	"art/nemesis/Drawbridge logs from MCZ.nem"
 	even
 
 ; ----------------------------------------------------------------------------------

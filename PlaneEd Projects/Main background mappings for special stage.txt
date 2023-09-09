@@ -1,6 +1,6 @@
 Palette File: ../art/palettes/Special Stage Main.bin
-Mapping File: ../mappings/misc/Main background mappings for special stage.bin
-Art File: ../art/nemesis/Background art for special stage.bin
+Mapping File: ../mappings/misc/Main background mappings for special stage.eni
+Art File: ../art/nemesis/Background art for special stage.nem
 Mapping Compression: Enigma
 Art Compression: Nemesis
 x-Size: 0x20

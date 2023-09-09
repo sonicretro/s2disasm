@@ -2,7 +2,7 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Vine Switch - Open Logs and Move Down" Image="vineswitch">
   <Images>
     <ImageFromMappings id="vineswitch">
-      <ArtFile filename="../art/nemesis/Vine that lowers from MCZ.bin"/>
+      <ArtFile filename="../art/nemesis/Vine that lowers from MCZ.nem"/>
       <MapFile type="ASM" filename="../mappings/sprite/obj80_a.asm" frame="0" startpal="3"/>
     </ImageFromMappings>
   </Images>

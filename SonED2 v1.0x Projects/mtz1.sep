@@ -5,13 +5,13 @@ Act ID:     0
 
 Object Def: objdef\s2obj
 
-8x8 Tiles:     ..\art\kosinski\MTZ.bin
+8x8 Tiles:     ..\art\kosinski\MTZ.kos
 
-16x16 Tiles:   ..\mappings\16x16\MTZ.bin
+16x16 Tiles:   ..\mappings\16x16\MTZ.kos
 
-128x128 Tiles: ..\mappings\128x128\MTZ.bin
+128x128 Tiles: ..\mappings\128x128\MTZ.kos
 
-Level Layout:  ..\level\layout\MTZ_1.bin
+Level Layout:  ..\level\layout\MTZ_1.kos
 
 Objects:       ..\level\objects\MTZ_1.bin
 Rings:         ..\level\rings\MTZ_1.bin
@@ -37,7 +37,7 @@ Angle Array:             ..\collision\Curve and resistance mapping.bin
 Collision Array:         ..\collision\Collision array - Vertical.bin
 Rotated Collision Array: ..\collision\Collision array - Horizontal.bin
 
-Collision Index 1: ..\collision\MTZ primary 16x16 collision index.bin
-Collision Index 2: ..\collision\MTZ primary 16x16 collision index.bin
+Collision Index 1: ..\collision\MTZ primary 16x16 collision index.kos
+Collision Index 2: ..\collision\MTZ primary 16x16 collision index.kos
 
 -EOF-

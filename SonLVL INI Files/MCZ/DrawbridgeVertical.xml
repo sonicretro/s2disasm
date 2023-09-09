@@ -2,7 +2,7 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Drawbridge">
   <Images>
     <ImageFromMappings id="log">
-      <ArtFile filename="../art/nemesis/Drawbridge logs from MCZ.bin" />
+      <ArtFile filename="../art/nemesis/Drawbridge logs from MCZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj81.asm" frame="1" startpal="3" />
     </ImageFromMappings>
   </Images>

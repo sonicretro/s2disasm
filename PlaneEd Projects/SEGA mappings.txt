@@ -1,6 +1,6 @@
 Palette File: ../art/palettes/Sega screen.bin
-Mapping File: ../mappings/misc/SEGA mappings.bin
-Art File: ../art/nemesis/SEGA.bin
+Mapping File: ../mappings/misc/SEGA mappings.eni
+Art File: ../art/nemesis/SEGA.nem
 Mapping Compression: Enigma
 Art Compression: Nemesis
 x-Size: 0x28
