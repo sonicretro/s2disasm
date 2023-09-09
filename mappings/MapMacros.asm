@@ -63,10 +63,10 @@ dplcHeader macro {INTLABEL}
 __LABEL__ label *
 	if SonicDplcVer=1
 	dc.b ((__LABEL___End - __LABEL___Begin) / 2)
-	elseif SonicDplcVer=2
-	dc.w ((__LABEL___End - __LABEL___Begin) / 2)
-	else
+	elseif SonicDplcVer=3
 	dc.w (((__LABEL___End - __LABEL___Begin) / 2)-1)
+	else
+	dc.w ((__LABEL___End - __LABEL___Begin) / 2)
 	endif
 __LABEL___Begin label *
     endm
@@ -74,6 +74,8 @@ __LABEL___Begin label *
 dplcEntry macro tiles,offset
 	if SonicDplcVer=3
 	dc.w	((offset&$FFF)<<4)|((tiles-1)&$F)
+	elseif SonicDplcVer=4
+	dc.w	(((tiles-1)&$F)<<12)|((offset&$FFF)<<4)
 	else
 	dc.w	(((tiles-1)&$F)<<12)|(offset&$FFF)
 	endif
