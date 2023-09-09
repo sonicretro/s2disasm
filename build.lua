@@ -69,7 +69,7 @@ hashes_file:write("improved_sound_driver_compression = " .. tostring(improved_so
 
 -- Compress the songs.
 -- The songs to compress are listed in 'list of compressed songs.txt'.
-for song_name in io.lines("sound/music/compressed/list of compressed songs.txt") do
+for song_name in io.lines("sound/music/list of compressed songs.txt") do
 	-- Determine the hash of the current song.
 	local current_hash = clownmd5.HashFile("sound/music/" .. song_name .. ".asm")
 
