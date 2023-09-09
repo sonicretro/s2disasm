@@ -30269,7 +30269,7 @@ Obj3A_MapUnc_14CBC:	mappingsTable
 
     if gameRevision=3
 	; KiS2 (Knuckles): The 'Tails' and 'Miles' sprites were removed,
-	; and 'Sonic' was replace with 'Knuckles'.
+	; and 'Sonic' was replaced with 'Knuckles'.
 word_14CDA:	spriteHeader
 	spritePiece	-$78, 0, 2, 2, $5C6, 0, 0, 0, 1
 	spritePiece	-$68, 0, 2, 2, $584, 0, 0, 0, 1
