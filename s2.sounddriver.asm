@@ -1648,16 +1648,32 @@ zPlayMusic:
 	add	ix,de				; Next track
 	djnz	.cleartrackplayloop
 
+    if FixDriverBugs
+	; This was in Sonic 1's driver, but this driver foolishly removed it.
+	xor	a
+	ld	(zAbsVar.SFXPriorityVal),a	; Clears SFX priority
+    endif
+
 	; This performs a "massive" backup of all of the current track positions
 	; for restoration after 1-up BGM completes
 	ld	de,zTracksSaveStart		; Backup memory address
 	ld	hl,zAbsVar			; Starts from zComRange
 	ld	bc,zTracksSaveEnd-zTracksSaveStart	; for this many bytes
 	ldir					; Go!
+
 	ld	a,80h
 	ld	(zAbsVar.1upPlaying),a		; Set 1-up song playing flag
+
+    if ~~FixDriverBugs
+	; This is done in the wrong place: it should have been done before
+	; the variables are backed-up. Because of this, SFXPriorityVal will
+	; be set back to a non-zero value when the 1-up jingle is over,
+	; preventing lower-priority sounds from being able to play until a
+	; high-priority sound is played.
 	xor	a
 	ld	(zAbsVar.SFXPriorityVal),a	; Clears SFX priority
+    endif
+
 	jr	zBGMLoad			; Now load 1-up BGM
 ; ---------------------------------------------------------------------------
 
