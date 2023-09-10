@@ -2,11 +2,11 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Pressure Spring" Image="up">
   <Images>
     <ImageFromMappings id="up">
-      <ArtFile filename="../art/nemesis/Vertical impulse spring.bin" />
+      <ArtFile filename="../art/nemesis/Vertical impulse spring.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj85_a.asm" frame="0" startpal="0" />
     </ImageFromMappings>
     <ImageFromMappings id="diagonal">
-      <ArtFile filename="../art/nemesis/Diagonal impulse spring from CNZ.bin" />
+      <ArtFile filename="../art/nemesis/Diagonal impulse spring from CNZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj85_b.asm" frame="0" startpal="0" />
     </ImageFromMappings>
   </Images>

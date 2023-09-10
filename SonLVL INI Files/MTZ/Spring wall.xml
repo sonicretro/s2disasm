@@ -2,11 +2,11 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Spring Wall" Image="small" DefaultSubtype="01" Debug="true">
   <Images>
     <ImageFromMappings id="small">
-      <ArtFile filename="../art/nemesis/Monitor and contents.bin" />
+      <ArtFile filename="../art/nemesis/Monitor and contents.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj66.asm" frame="0" startpal="0" />
     </ImageFromMappings>
     <ImageFromMappings id="large">
-      <ArtFile filename="../art/nemesis/Monitor and contents.bin" />
+      <ArtFile filename="../art/nemesis/Monitor and contents.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj66.asm" frame="1" startpal="0" />
     </ImageFromMappings>
   </Images>

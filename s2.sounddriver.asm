@@ -3771,28 +3771,28 @@ zSpedUpTempoTable:
 
 ; zDACPtr_Index zbyte_1233
 zDACPtrTbl:
-zDACPtr_Sample1:	dw	zmake68kPtr(SndDAC_Sample1)
+zDACPtr_Kick:		dw	zmake68kPtr(SndDAC_Kick)
 ; zbyte_1235
 zDACLenTbl:
-			dw	SndDAC_Sample1_End-SndDAC_Sample1
+			dw	SndDAC_Kick_End-SndDAC_Kick
 
-zDACPtr_Sample2:	dw	zmake68kPtr(SndDAC_Sample2)
-			dw	SndDAC_Sample2_End-SndDAC_Sample2
+zDACPtr_Snare:		dw	zmake68kPtr(SndDAC_Snare)
+			dw	SndDAC_Snare_End-SndDAC_Snare
 
-zDACPtr_Sample3:	dw	zmake68kPtr(SndDAC_Sample3)
-			dw	SndDAC_Sample3_End-SndDAC_Sample3
+zDACPtr_Clap:		dw	zmake68kPtr(SndDAC_Clap)
+			dw	SndDAC_Clap_End-SndDAC_Clap
 
-zDACPtr_Sample4:	dw	zmake68kPtr(SndDAC_Sample4)
-			dw	SndDAC_Sample4_End-SndDAC_Sample4
+zDACPtr_Scratch:	dw	zmake68kPtr(SndDAC_Scratch)
+			dw	SndDAC_Scratch_End-SndDAC_Scratch
 
-zDACPtr_Sample5:	dw	zmake68kPtr(SndDAC_Sample5)
-			dw	SndDAC_Sample5_End-SndDAC_Sample5
+zDACPtr_Timpani:	dw	zmake68kPtr(SndDAC_Timpani)
+			dw	SndDAC_Timpani_End-SndDAC_Timpani
 
-zDACPtr_Sample6:	dw	zmake68kPtr(SndDAC_Sample6)
-			dw	SndDAC_Sample6_End-SndDAC_Sample6
+zDACPtr_Tom:		dw	zmake68kPtr(SndDAC_Tom)
+			dw	SndDAC_Tom_End-SndDAC_Tom
 
-zDACPtr_Sample7:	dw	zmake68kPtr(SndDAC_Sample7)
-			dw	SndDAC_Sample7_End-SndDAC_Sample7
+zDACPtr_Bongo:		dw	zmake68kPtr(SndDAC_Bongo)
+			dw	SndDAC_Bongo_End-SndDAC_Bongo
 
 	; something else for DAC sounds
 	; First byte selects one of the DAC samples. The number that
@@ -3807,23 +3807,23 @@ offset :=	zDACPtrTbl
 ptrsize :=	2+2
 idstart :=	81h
 
-	db	id(zDACPtr_Sample1),17h		; 81h
-	db	id(zDACPtr_Sample2),1		; 82h
-	db	id(zDACPtr_Sample3),6		; 83h
-	db	id(zDACPtr_Sample4),8		; 84h
-	db	id(zDACPtr_Sample5),1Bh		; 85h
-	db	id(zDACPtr_Sample6),0Ah		; 86h
-	db	id(zDACPtr_Sample7),1Bh		; 87h
-	db	id(zDACPtr_Sample5),12h		; 88h
-	db	id(zDACPtr_Sample5),15h		; 89h
-	db	id(zDACPtr_Sample5),1Ch		; 8Ah
-	db	id(zDACPtr_Sample5),1Dh		; 8Bh
-	db	id(zDACPtr_Sample6),2		; 8Ch
-	db	id(zDACPtr_Sample6),5		; 8Dh
-	db	id(zDACPtr_Sample6),8		; 8Eh
-	db	id(zDACPtr_Sample7),8		; 8Fh
-	db	id(zDACPtr_Sample7),0Bh		; 90h
-	db	id(zDACPtr_Sample7),12h		; 91h
+	db	id(zDACPtr_Kick),17h		; 81h
+	db	id(zDACPtr_Snare),1		; 82h
+	db	id(zDACPtr_Clap),6		; 83h
+	db	id(zDACPtr_Scratch),8		; 84h
+	db	id(zDACPtr_Timpani),1Bh		; 85h
+	db	id(zDACPtr_Tom),0Ah		; 86h
+	db	id(zDACPtr_Bongo),1Bh		; 87h
+	db	id(zDACPtr_Timpani),12h		; 88h
+	db	id(zDACPtr_Timpani),15h		; 89h
+	db	id(zDACPtr_Timpani),1Ch		; 8Ah
+	db	id(zDACPtr_Timpani),1Dh		; 8Bh
+	db	id(zDACPtr_Tom),2		; 8Ch
+	db	id(zDACPtr_Tom),5		; 8Dh
+	db	id(zDACPtr_Tom),8		; 8Eh
+	db	id(zDACPtr_Bongo),8		; 8Fh
+	db	id(zDACPtr_Bongo),0Bh		; 90h
+	db	id(zDACPtr_Bongo),12h		; 91h
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 

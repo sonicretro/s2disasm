@@ -2,7 +2,7 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Exit Spring" Image="spring" DefaultSubtype="02">
   <Images>
     <ImageFromMappings id="spring">
-      <ArtFile filename="../art/nemesis/CPZ spintube exit cover.bin" />
+      <ArtFile filename="../art/nemesis/CPZ spintube exit cover.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj7B.asm" frame="0" startpal="0" />
     </ImageFromMappings>
   </Images>

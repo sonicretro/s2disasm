@@ -5,13 +5,13 @@ Act ID:     2
 
 Object Def: objdef\s2obj
 
-8x8 Tiles:     ..\art\kosinski\CPZ_DEZ.bin
+8x8 Tiles:     ..\art\kosinski\CPZ_DEZ.kos
 
-16x16 Tiles:   ..\mappings\16x16\CPZ_DEZ.bin
+16x16 Tiles:   ..\mappings\16x16\CPZ_DEZ.kos
 
-128x128 Tiles: ..\mappings\128x128\CPZ_DEZ.bin
+128x128 Tiles: ..\mappings\128x128\CPZ_DEZ.kos
 
-Level Layout:  ..\level\layout\CPZ_2.bin
+Level Layout:  ..\level\layout\CPZ_2.kos
 
 Objects:       ..\level\objects\CPZ_2.bin
 Rings:         ..\level\rings\CPZ_2.bin
@@ -43,7 +43,7 @@ Angle Array:             ..\collision\Curve and resistance mapping.bin
 Collision Array:         ..\collision\Collision array - Vertical.bin
 Rotated Collision Array: ..\collision\Collision array - Horizontal.bin
 
-Collision Index 1: ..\collision\CPZ and DEZ primary 16x16 collision index.bin
-Collision Index 2: ..\collision\CPZ and DEZ secondary 16x16 collision index.bin
+Collision Index 1: ..\collision\CPZ and DEZ primary 16x16 collision index.kos
+Collision Index 2: ..\collision\CPZ and DEZ secondary 16x16 collision index.kos
 
 -EOF-

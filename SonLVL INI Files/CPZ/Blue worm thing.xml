@@ -2,7 +2,7 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Blue Worm Thing" Image="segment" DefaultSubtype="15">
   <Images>
     <ImageFromMappings id="segment">
-      <ArtFile filename="../art/nemesis/CPZ worm enemy.bin" />
+      <ArtFile filename="../art/nemesis/CPZ worm enemy.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj1D.asm" frame="0" startpal="3" />
     </ImageFromMappings>
   </Images>

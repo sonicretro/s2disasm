@@ -1,6 +1,6 @@
 Palette File: ../art/palettes/Menu.bin
-Mapping File: ../mappings/misc/2P Special Stage Act Results.bin
-Art File: ../art/nemesis/Standard font.bin
+Mapping File: ../mappings/misc/2P Special Stage Act Results.eni
+Art File: ../art/nemesis/Standard font.nem
 Mapping Compression: Enigma
 Art Compression: Nemesis
 x-Size: 0x28

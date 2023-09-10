@@ -5,13 +5,13 @@ Act ID:     2
 
 Object Def: objdef\s2obj
 
-8x8 Tiles:     ..\art\kosinski\ARZ.bin
+8x8 Tiles:     ..\art\kosinski\ARZ.kos
 
-16x16 Tiles:   ..\mappings\16x16\ARZ.bin
+16x16 Tiles:   ..\mappings\16x16\ARZ.kos
 
-128x128 Tiles: ..\mappings\128x128\ARZ.bin
+128x128 Tiles: ..\mappings\128x128\ARZ.kos
 
-Level Layout:  ..\level\layout\ARZ_2.bin
+Level Layout:  ..\level\layout\ARZ_2.kos
 
 Objects:       ..\level\objects\ARZ_2.bin
 Rings:         ..\level\rings\ARZ_2.bin
@@ -43,7 +43,7 @@ Angle Array:             ..\collision\Curve and resistance mapping.bin
 Collision Array:         ..\collision\Collision array - Vertical.bin
 Rotated Collision Array: ..\collision\Collision array - Horizontal.bin
 
-Collision Index 1: ..\collision\ARZ primary 16x16 collision index.bin
-Collision Index 2: ..\collision\ARZ secondary 16x16 collision index.bin
+Collision Index 1: ..\collision\ARZ primary 16x16 collision index.kos
+Collision Index 2: ..\collision\ARZ secondary 16x16 collision index.kos
 
 -EOF-

@@ -14,7 +14,7 @@
       <MapFile type="ASM" filename="../mappings/sprite/obj6E.asm" frame="2" startpal="3" />
     </ImageFromMappings>
     <ImageFromMappings id="indent">
-      <ArtFile filename="../art/nemesis/Large spinning wheel from MTZ - indent.bin" />
+      <ArtFile filename="../art/nemesis/Large spinning wheel from MTZ - indent.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj6E.asm" frame="3" startpal="3" />
     </ImageFromMappings>
   </Images>

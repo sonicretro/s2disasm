@@ -2,7 +2,7 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Balkrie" DefaultSubtype="40" Image="img">
   <Images>
     <ImageFromMappings id="img">
-      <ArtFile filename="../art/nemesis/Balkrie (jet badnik) from SCZ.bin" />
+      <ArtFile filename="../art/nemesis/Balkrie (jet badnik) from SCZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/objAC.asm" frame="1" startpal="0" />
     </ImageFromMappings>
   </Images>

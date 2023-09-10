@@ -2,7 +2,7 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Bumper" Image="bumper" RememberState="true">
   <Images>
     <ImageFromMappings id="bumper">
-      <ArtFile filename="../art/nemesis/Hexagonal bumper from CNZ.bin" />
+      <ArtFile filename="../art/nemesis/Hexagonal bumper from CNZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/objD7.asm" frame="0" startpal="2" />
     </ImageFromMappings>
   </Images>

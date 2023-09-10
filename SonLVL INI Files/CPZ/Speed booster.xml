@@ -2,7 +2,7 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Speed Booster" Image="booster">
   <Images>
     <ImageFromMappings id="booster">
-      <ArtFile filename="../art/nemesis/Speed booster from CPZ.bin" />
+      <ArtFile filename="../art/nemesis/Speed booster from CPZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj1B.asm" frame="0" startpal="3" />
     </ImageFromMappings>
   </Images>

@@ -2,11 +2,11 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Sol" RememberState="true">
   <Images>
     <ImageFromMappings id="fireball">
-      <ArtFile filename="../art/nemesis/Fireball 1.bin" offset="29632" />
+      <ArtFile filename="../art/nemesis/Fireball 1.nem" offset="29632" />
       <MapFile type="ASM" filename="../mappings/sprite/obj95.asm" frame="3" startpal="0" />
     </ImageFromMappings>
     <ImageFromMappings id="body">
-      <ArtFile filename="../art/nemesis/Sol badnik from HTZ.bin" offset="31680" />
+      <ArtFile filename="../art/nemesis/Sol badnik from HTZ.nem" offset="31680" />
       <MapFile type="ASM" filename="../mappings/sprite/obj95.asm" frame="0" startpal="0" />
     </ImageFromMappings>
   </Images>

@@ -2,7 +2,7 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Section of Pipe" Image="section">
   <Images>
     <ImageFromMappings id="section">
-      <ArtFile filename="../art/nemesis/Small yellow moving platform from CPZ.bin" />
+      <ArtFile filename="../art/nemesis/Small yellow moving platform from CPZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj0B.asm" frame="0" startpal="3" />
     </ImageFromMappings>
   </Images>

@@ -14,7 +14,7 @@ s2built.bin
 s2built.prev.bin
 
 # Automatically-generated music compression data.
-sound/music/compressed/*.bin
+sound/music/compressed/*.sax
 sound/music/compressed/hashes.lua
 
 # Typical CMake build directory.

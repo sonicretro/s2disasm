@@ -2,48 +2,48 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Monitor" Image="static" RememberState="true">
   <Images>
     <ImageFromMappings id="static">
-      <ArtFile filename="../art/nemesis/Monitor and contents.bin" />
+      <ArtFile filename="../art/nemesis/Monitor and contents.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj26.asm" frame="1" startpal="0" />
     </ImageFromMappings>
     <ImageFromMappings id="sonic">
-      <ArtFile filename="../art/nemesis/Monitor and contents.bin" />
-      <ArtFile filename="../art/nemesis/Sonic lives counter.bin" offset="10880" />
+      <ArtFile filename="../art/nemesis/Monitor and contents.nem" />
+      <ArtFile filename="../art/nemesis/Sonic lives counter.nem" offset="10880" />
       <MapFile type="ASM" filename="../mappings/sprite/obj26.asm" frame="2" startpal="0" />
     </ImageFromMappings>
     <ImageFromMappings id="tails">
-      <ArtFile filename="../art/nemesis/Monitor and contents.bin" />
+      <ArtFile filename="../art/nemesis/Monitor and contents.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj26.asm" frame="3" startpal="0" />
     </ImageFromMappings>
     <ImageFromMappings id="eggman">
-      <ArtFile filename="../art/nemesis/Monitor and contents.bin" />
+      <ArtFile filename="../art/nemesis/Monitor and contents.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj26.asm" frame="4" startpal="0" />
     </ImageFromMappings>
     <ImageFromMappings id="rings">
-      <ArtFile filename="../art/nemesis/Monitor and contents.bin" />
+      <ArtFile filename="../art/nemesis/Monitor and contents.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj26.asm" frame="5" startpal="0" />
     </ImageFromMappings>
     <ImageFromMappings id="shoes">
-      <ArtFile filename="../art/nemesis/Monitor and contents.bin" />
+      <ArtFile filename="../art/nemesis/Monitor and contents.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj26.asm" frame="6" startpal="0" />
     </ImageFromMappings>
     <ImageFromMappings id="shield">
-      <ArtFile filename="../art/nemesis/Monitor and contents.bin" />
+      <ArtFile filename="../art/nemesis/Monitor and contents.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj26.asm" frame="7" startpal="0" />
     </ImageFromMappings>
     <ImageFromMappings id="invincibility">
-      <ArtFile filename="../art/nemesis/Monitor and contents.bin" />
+      <ArtFile filename="../art/nemesis/Monitor and contents.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj26.asm" frame="8" startpal="0" />
     </ImageFromMappings>
     <ImageFromMappings id="teleport">
-      <ArtFile filename="../art/nemesis/Monitor and contents.bin" />
+      <ArtFile filename="../art/nemesis/Monitor and contents.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj26.asm" frame="9" startpal="0" />
     </ImageFromMappings>
     <ImageFromMappings id="random">
-      <ArtFile filename="../art/nemesis/Monitor and contents.bin" />
+      <ArtFile filename="../art/nemesis/Monitor and contents.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj26.asm" frame="10" startpal="0" />
     </ImageFromMappings>
     <ImageFromMappings id="broken">
-      <ArtFile filename="../art/nemesis/Monitor and contents.bin" />
+      <ArtFile filename="../art/nemesis/Monitor and contents.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj26.asm" frame="11" startpal="0" />
     </ImageFromMappings>
   </Images>

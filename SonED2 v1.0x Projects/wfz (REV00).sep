@@ -5,13 +5,13 @@ Act ID:     0
 
 Object Def: objdef\s2obj
 
-8x8 Tiles:     ..\art\kosinski\WFZ_SCZ.bin
+8x8 Tiles:     ..\art\kosinski\WFZ_SCZ.kos
 
-16x16 Tiles:   ..\mappings\16x16\WFZ_SCZ.bin
+16x16 Tiles:   ..\mappings\16x16\WFZ_SCZ.kos
 
-128x128 Tiles: ..\mappings\128x128\WFZ_SCZ.bin
+128x128 Tiles: ..\mappings\128x128\WFZ_SCZ.kos
 
-Level Layout:  ..\level\layout\WFZ.bin
+Level Layout:  ..\level\layout\WFZ.kos
 
 Objects:       ..\level\objects\WFZ_1 (REV00).bin
 Rings:         ..\level\rings\WFZ_1.bin
@@ -37,7 +37,7 @@ Angle Array:             ..\collision\Curve and resistance mapping.bin
 Collision Array:         ..\collision\Collision array - Vertical.bin
 Rotated Collision Array: ..\collision\Collision array - Horizontal.bin
 
-Collision Index 1: ..\collision\WFZ and SCZ primary 16x16 collision index.bin
-Collision Index 2: ..\collision\WFZ and SCZ secondary 16x16 collision index.bin
+Collision Index 1: ..\collision\WFZ and SCZ primary 16x16 collision index.kos
+Collision Index 2: ..\collision\WFZ and SCZ secondary 16x16 collision index.kos
 
 -EOF-
