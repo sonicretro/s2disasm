@@ -95456,71 +95456,35 @@ PlrList_ResultsTails_Dup_End
     if gameRevision=3
 	; KiS2 (Knuckles): KiS2 (title): Assets unique to this game go here.
 ;---------------------------------------------------------------------------------------
-; Nemesis compressed art
-; Knuckles extra continue icon
-ArtNem_MiniSonic:	BINCLUDE	"art/nemesis/Knuckles continue.nem"
-	even
+; Knuckles in Sonic 2 Assets
 ;---------------------------------------------------------------------------------------
-; Nemesis compressed art
-; Knuckles lives counter
-ArtNem_Sonic_life_counter:	BINCLUDE	"art/nemesis/Knuckles lives counter.nem"
+ArtNem_MiniSonic:			BINCLUDE	"art/nemesis/Knuckles continue.nem"
 	even
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art
-; Shield and invincibility stars
+ArtNem_Sonic_life_counter:		BINCLUDE	"art/nemesis/Knuckles lives counter.nem"
+	even
 ArtNem_Shield_and_invincible_stars:	BINCLUDE	"art/nemesis/Shield and invincibility stars.nem"
 	even
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art
-; Signpost (Knuckles patch)
-ArtNem_SignpostKnucklesPatch:	BINCLUDE	"art/nemesis/Signpost (Knuckles patch).nem"
+ArtNem_SignpostKnucklesPatch:		BINCLUDE	"art/nemesis/Signpost (Knuckles patch).nem"
 	even
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art
-; Monitors and contents (Knuckles patch)
-ArtNem_PowerupsKnucklesPatch:	BINCLUDE	"art/nemesis/Monitor and contents (Knuckles patch).nem"
+ArtNem_PowerupsKnucklesPatch:		BINCLUDE	"art/nemesis/Monitor and contents (Knuckles patch).nem"
 	even
-;--------------------------------------------------------------------------------------
-; Uncompressed art
-; Bonus pictures for slots in CNZ (Knuckles patch)
 ArtUnc_CNZSlotPicsKnucklesPatch:	BINCLUDE	"art/uncompressed/Slot pictures (Knuckles patch).bin"
-;--------------------------------------------------------------------------------------
-; Nemesis compressed art
-; Knuckles animation frames from special stage
-; Art for Obj09 and Obj10 and Obj88
-ArtNem_SpecialSonicAndTails:	BINCLUDE	"art/nemesis/Knuckles animation frames in special stage.nem"
+
+ArtNem_SpecialSonicAndTails:		BINCLUDE	"art/nemesis/Knuckles animation frames in special stage.nem"
 	even
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art
-; Knuckles from title screen
-ArtNem_TitleSprites_Knuckles:	BINCLUDE	"art/nemesis/Knuckles from title screen.nem"
+ArtNem_TitleSprites_Knuckles:		BINCLUDE	"art/nemesis/Knuckles from title screen.nem"
 	even
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art
-; Stars from title screen
-ArtNem_TitleStars:	BINCLUDE	"art/nemesis/Stars from title screen.nem"
+ArtNem_TitleStars:			BINCLUDE	"art/nemesis/Stars from title screen.nem"
 	even
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art
-; Top of emblem from title screen
-ArtNem_TitleEmblemTop:	BINCLUDE	"art/nemesis/Top of emblem from title screen.nem"
+ArtNem_TitleEmblemTop:			BINCLUDE	"art/nemesis/Top of emblem from title screen.nem"
 	even
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art
-; Knuckles from title screen (part 4)
-ArtNem_TitleOtherText:	BINCLUDE	"art/nemesis/Other text from title screen.nem"
+ArtNem_TitleOtherText:			BINCLUDE	"art/nemesis/Other text from title screen.nem"
 	even
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art
-; Knuckles from title screen (part 5)
-ArtNem_TitleBanner:	BINCLUDE	"art/nemesis/Giant banner from title screen.nem"
+ArtNem_TitleBanner:			BINCLUDE	"art/nemesis/Giant banner from title screen.nem"
 	even
-;---------------------------------------------------------------------------------------
-; Nemesis compressed art
-; Knuckles from title screen (part 6)
-ArtNem_TitleTheEchidnaIn:	BINCLUDE	"art/nemesis/'THE ECHIDNA IN' from title screen.nem"
+ArtNem_TitleTheEchidnaIn:		BINCLUDE	"art/nemesis/'THE ECHIDNA IN' from title screen.nem"
 	even
-;--------------------------------------------------------------------------------------
+
         if ~~standaloneKiS2
 ; Casino Night Zone's object layouts. Bizarrely, only CNZ's object layouts are here: the others are in the Sonic & Knuckles ROM.
 Objects_CNZ_1:	BINCLUDE	"level/objects/CNZ_1.bin"
