@@ -3198,7 +3198,7 @@ cfSetVoice:
 
 ; zsub_E12
 cfSetVoiceCont:
-	ld	a,(zDoSFXFlag)			; Check SFX flag 0 = updating music, 80h means busy, FFh set means updating SFX (use custom voice table)
+	ld	a,(zDoSFXFlag)			; Check SFX flag 0 = updating music, anything else means updating SFX (use custom voice table)
 	or	a				; Test
 	ld	a,c				; c -> a (restored 'a')
 	jr	z,zSetVoiceMusic		; If not busy, jump to zSetVoiceMusic (set 'hl' to VoiceTblPtr)
@@ -4006,7 +4006,7 @@ zDecEnd:
 zPALUpdTick:	db 0 ; zbyte_12FE ; This counts from 0 to 5 to periodically "double update" for PAL systems (basically every 6 frames you need to update twice to keep up)
 zCurDAC:	db 0 ; zbyte_12FF ; seems to indicate DAC sample playing status
 zCurSong:	db 0 ; zbyte_1300 ; currently playing song index
-zDoSFXFlag:	db 0 ; zbyte_1301 ; flag to indicate we're updating SFX (and thus use custom voice table); set to FFh while doing SFX, 0 when not.
+zDoSFXFlag:	db 0 ; zbyte_1301 ; flag to indicate we're updating SFX (and thus use custom voice table); set to anything but 0 while doing SFX, 0 when not.
 zRingSpeaker:	db 0 ; zbyte_1302 ; stereo alternation flag. 0 = next one plays on left, -1 = next one plays on right
 zGloopFlag:	db 0 ; zbyte_1303 ; if -1, don't play the gloop sound next time
 zSpindashPlayingCounter:	db 0 ; zbyte_1304
