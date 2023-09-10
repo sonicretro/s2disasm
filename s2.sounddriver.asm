@@ -1998,7 +1998,7 @@ zSFXFinishSetup:
 	djnz	zInitSFXLoop		; Loop for all tracks
 	; End of SFX tracks init...
 
-	ld	ix,zSongFM1		; 'ix' points to first FM music track
+	ld	ix,zSongFMStart		; 'ix' points to first FM music track
 	ld	b,MUSIC_FM_TRACK_COUNT	; For all 6 of those...
 
 .fmnoteoffloop:
@@ -2396,7 +2396,7 @@ zUpdateFadeout:
 	jp	z,zClearTrackPlaybackMem	; If it hits zero, clear everything!
 	ld	(ix+zVar.FadeOutDelay),3	; Otherwise, reload tick count with 3
 	push	ix
-	ld	ix,zSongFM1			; 'ix' points to first FM music track
+	ld	ix,zSongFMStart			; 'ix' points to first FM music track
 	ld	b,MUSIC_FM_TRACK_COUNT		; 6 FM tracks to follow...
 
 ; zloc_AED
@@ -2658,7 +2658,7 @@ zUpdateFadeIn:
 	dec	(ix+zVar.FadeInCounter)		; Otherwise, we decrement fadein!
 	ld	(ix+zVar.FadeInDelay),2		; Otherwise, reload tick count with 2 (little faster than fadeout)
 	push	ix
-	ld	ix,zSongFM1			; 'ix' points to first FM music track
+	ld	ix,zSongFMStart			; 'ix' points to first FM music track
 	ld	b,MUSIC_FM_TRACK_COUNT		; 6 FM tracks to follow...
 
 .fmloop:
@@ -3011,7 +3011,7 @@ cfFadeInToPrevious:
 	sub	c				; a = 28h - c (don't overlap fade-ins?)
 	ld	c,a				; 'a' -> 'c'
 	ld	b,MUSIC_FM_TRACK_COUNT		; 6 FM tracks to follow...
-	ld	ix,zSongFM1			; 'ix' points to first FM music track
+	ld	ix,zSongFMStart			; 'ix' points to first FM music track
 
 .fmloop:
 	bit	7,(ix+zTrack.PlaybackControl)	; Is this track playing?
@@ -3057,7 +3057,7 @@ cfFadeInToPrevious:
 .nextpsg:
 	ld	de,zTrack.len
 	add	ix,de				; Next track
-	djnz	.psgloop			; Keep going for all FM tracks...
+	djnz	.psgloop			; Keep going for all PSG tracks...
 
 	ld	a,80h
 	ld	(zAbsVar.FadeInFlag),a		; Stop any SFX during fade-in
