@@ -54,7 +54,7 @@ OptimiseDriver = 0
 	; 	+16h	-- value of which music bank to use (0 for MusicPoint1, $80 for MusicPoint2)
 	; 	+17h	-- Pal mode flag
 	;
-	; ** zTracksStart starts @ +18h
+	; ** zTracksSongStart starts @ +18h
 	;
 	; 	1B98 base
 	; 	Track 1 = DAC
@@ -180,7 +180,7 @@ zStack =	zMusicData+$800	; 1B80h
 	phase zStack
 zAbsVar:		zVar
 
-zTracksStart:		; This is the beginning of all BGM track memory
+zTracksSongStart:	; This is the beginning of all BGM track memory
 zSongDACFMStart:
 zSongDAC:		zTrack
 zSongFMStart:
@@ -197,7 +197,7 @@ zSongPSG1:		zTrack
 zSongPSG2:		zTrack
 zSongPSG3:		zTrack
 zSongPSGEnd:
-zTracksEnd:
+zTracksSongEnd:
 
 zTracksSFXStart:
 zSFX_FMStart:
@@ -232,7 +232,7 @@ zTracksSaveEnd:
 	endif
 	dephase
 
-MUSIC_TRACK_COUNT = (zTracksEnd-zTracksStart)/zTrack.len
+MUSIC_TRACK_COUNT = (zTracksSongEnd-zTracksSongStart)/zTrack.len
 MUSIC_DAC_FM_TRACK_COUNT = (zSongDACFMEnd-zSongDACFMStart)/zTrack.len
 MUSIC_FM_TRACK_COUNT = (zSongFMEnd-zSongFMStart)/zTrack.len
 MUSIC_PSG_TRACK_COUNT = (zSongPSGEnd-zSongPSGStart)/zTrack.len
@@ -550,7 +550,7 @@ zUpdateMusic:
 	; DAC updates
 	ld	a,0FFh
 	ld	(zAbsVar.DACUpdating),a		; Store FFh to DACUpdating
-	ld	ix,zTracksStart			; Point "ix" to zTracksStart
+	ld	ix,zTracksSongStart			; Point "ix" to zTracksSongStart
 	bit	7,(ix+zTrack.PlaybackControl)	; Is bit 7 (80h) set on playback control byte? (means "is playing")
 	call	nz,zDACUpdateTrack		; If so, zDACUpdateTrack
 	xor	a				; Clear a
@@ -602,7 +602,7 @@ TempoWait:
 	ret	c				; If addition overflowed (answer greater than FFh), return
 
 	; So if adding tempo value did NOT overflow, then we add 1 to all durations
-	ld	hl,zTracksStart+zTrack.DurationTimeout	; Start at first track's delay counter (counting up to delay)
+	ld	hl,zTracksSongStart+zTrack.DurationTimeout	; Start at first track's delay counter (counting up to delay)
 	ld	de,zTrack.len				; Offset between tracks
 	ld	b,MUSIC_TRACK_COUNT			; Loop for all tracks
 
@@ -751,10 +751,10 @@ zSFXTrackOffs:
 	dw	zSFX_PSG1, zSFX_PSG2, zSFX_PSG3, zSFX_PSG3	; PSG1, PSG2, PSG3, PSG3 (noise alternate)
 ; ---------------------------------------------------------------------------
 zDACUpdateTrack:
-	dec	(ix+zTrack.DurationTimeout)	; Subtract 1 from (zTracksStart+0Bh) [Track 1's delay start]
-	ret	nz				; Return if not zero yet
-	ld	l,(ix+zTrack.DataPointerLow)	; Low byte of DAC track current address (zTracksStart+3)
-	ld	h,(ix+zTrack.DataPointerHigh)	; High byte of DAC track current address (zTracksStart+4)
+	dec	(ix+zTrack.DurationTimeout)
+	ret	nz
+	ld	l,(ix+zTrack.DataPointerLow)
+	ld	h,(ix+zTrack.DataPointerHigh)
 
 .sampleloop:
 	ld	a,(hl)		; Get next byte from DAC Track
@@ -1634,7 +1634,7 @@ zPlayMusic:
 	ld	a,(zAbsVar.1upPlaying)	; Check if 1-up sound is already playing
 	or	a			; Test it
 	jr	nz,zBGMLoad		; If it is, then just reload it! Otherwise, the track would play over and over again...
-	ld	ix,zTracksStart		; Starting at beginning of all tracks...
+	ld	ix,zTracksSongStart		; Starting at beginning of all tracks...
 	ld	de,zTrack.len		; Each track size
 	ld	b,MUSIC_TRACK_COUNT	; All 10 (DAC, 6FM, 3PSG) tracks
 
@@ -1784,7 +1784,7 @@ zBGMLoad:
 	jp	z,zInitBGMPSG			; If zero, then don't init any
 	ld	b,a				; 'a' -> 'b' (num FM+DAC channels this song, for loop)
 	push	iy				; Save 'iy'
-	ld	iy,zTracksStart			; 'iy' points to start of track memory
+	ld	iy,zTracksSongStart			; 'iy' points to start of track memory
 	ld	c,(ix+4)			; Get tempo divider -> 'c'
     if FixDriverBugs=0
 	; The bugfix in zInitMusicPlayback does this, already
@@ -2552,7 +2552,7 @@ zInitMusicPlayback:
 	ld	hl,zAbsVar
 	ld	de,zAbsVar+1
 	ld	(hl),0
-	ld	bc,(zTracksEnd-zAbsVar)-1	; This many bytes (from start of zComRange to just short of end of PSG3 music track)
+	ld	bc,(zTracksSongEnd-zAbsVar)-1	; This many bytes (from start of zComRange to just short of end of PSG3 music track)
 	ldir
 	; Restore those queue/flags:
 	pop	bc
@@ -2577,7 +2577,7 @@ zInitMusicPlayback:
 	; won't be silenced by zSFXFinishSetup, because their tracks aren't properly
 	; initialised. This can cause hanging notes. So, we'll set them up
 	; properly here.
-	ld	ix,zTracksStart			; Start at the first music track...
+	ld	ix,zTracksSongStart			; Start at the first music track...
 	ld	b,MUSIC_TRACK_COUNT		; ...and continue to the last
 	ld	de,zTrack.len
 	ld	hl,zFMDACInitBytes		; This continues into zPSGInitBytes
@@ -3128,7 +3128,7 @@ cfSetTempo:
 ; zloc_DDC
 cfSetTempoMod:
 	push	ix			; Save 'ix'
-	ld	ix,zTracksStart		; Start at beginning of track memory
+	ld	ix,zTracksSongStart		; Start at beginning of track memory
 	ld	de,zTrack.len		; Track size
 	ld	b,MUSIC_TRACK_COUNT	; All 10 tracks
 
