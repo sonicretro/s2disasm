@@ -1423,14 +1423,17 @@ zPauseMusic:
 	ld	(zDoSFXFlag),a		; Set flag to say we are updating SFX
 	ld	ix,zSFX_FMStart		; ix = pointer to SFX track RAM
 	ld	b,SFX_FM_TRACK_COUNT	; 3 FM
+    if OptimiseDriver
+	; Fall-through to zResumeTrack...
+    else
 	call	zResumeTrack
+	; None of this is necessary...
 	xor	a			; a = 0
 	ld	(zDoSFXFlag),a		; Clear SFX updating flag
-    if OptimiseDriver=0
 	call	zBankSwitchToMusic	; Back to music (Pointless: music isn't updated until the next frame)
 	pop	ix			; Restore ix (nothing uses this, beyond this point...)
-    endif
 	ret
+    endif
 ; End of function zPauseMusic
 
 
