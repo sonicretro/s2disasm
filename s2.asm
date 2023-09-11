@@ -24,7 +24,7 @@
 ; 'KiS2 (no 2P):'           - Removal of two-player mode.
 ; 'KiS2 (no Tails):'        - Removal of Tails.
 ; 'KiS2 (no options):'      - Removal of the options menu.
-; 'KiS2 (unused):'          - Removal of unused code, seemingly to save space in the limited 128KiB ROM.
+; 'KiS2 (unused):'          - Removal of unused code, seemingly to save space in the limited 256 KiB ROM.
 ; 'KiS2 (mappings format):' - The switch from Sonic 2's mappings format to Sonic 3's.
 ; 'KiS2 (JmpTo cleanup):'   - The JmpTos appears to have been cleaned-up in KiS2.
 ; 'KiS2 (branch):'          - Minor adjustments to branches.
