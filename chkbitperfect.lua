@@ -20,7 +20,7 @@ if not abort then
 	-- Verify the hash against known builds.
 	print "-------------------------------------------------------------"
 
-	if hash == "\x3E\x5E\x4B\x18\xD0\x35\x77\x5B\x91\x6A\x06\xF2\xB3\xDC\x50\x31" then
+	if hash == "\xB4\xE7\x6E\x41\x6B\x88\x7F\x4E\x74\x13\xBA\x76\xFA\x73\x5F\x16" then
 		print "ROM is bit-perfect."
 	else
 		print "ROM is not bit-perfect."

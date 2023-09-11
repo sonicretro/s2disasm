@@ -102,11 +102,7 @@ SonicDplcVer := 2
 ; start of ROM
 
     if (gameRevision=3) && ~~standaloneKiS2
-	; Include the base ROMs here.
-	; TODO: This is temporary, until AS can do 'phase $300000' without
-	; resulting in a ton of bugs.
-	BINCLUDE "Sonic & Knuckles.bin"
-	BINCLUDE "Sonic the Hedgehog 2.bin"
+	phase $300000
 
 StartOfRom:
 	; KiS2 (lock-on): The header and much of the initialisation code are gone.
