@@ -82,7 +82,8 @@ StartOfRom:
     endif
 
 	; According to Sonic Jam, this is the 'AC' segment.
-	include "code/Header, EntryPoint, & V-Int.asm"
+	include "code/Header, EntryPoint.asm"
+	include "code/Int.asm" ; Likely the actual filename in the original source code, according to the Yuji Naka footage
 
 	; General
 	include "code/Utilities.asm"
@@ -116,7 +117,9 @@ StartOfRom:
 	include "code/objects/Monitor.asm"
 	include "code/objects/Title Screen.asm"
 	include "code/objects/Title Card, Game Over, Results.asm"
-	include "code/objects/Spikes, Green Hill Zone Purple Rock.asm"
+	include "code/objects/Spikes.asm"
+	include "code/objects/GHZ Purple Rock.asm"
+	include "code/objects/GHZ Breakable Wall.asm"
 
 	; Subsystems
 	include "code/subsystems/Objects.asm"
@@ -131,8 +134,9 @@ StartOfRom:
 	include "code/objects/Drowning Bubbles, Shield, Splash, Super Sonic Stars.asm"
 
 	include "code/subsystems/collision.asm"
-	include "code/subsystems/floor and wall distance checking, lamppost object.asm"
+	include "code/subsystems/floor and wall distance checking.asm"
 
+	include "code/objects/Lamppost.asm"
 	include "code/objects/Hidden Points.asm"
 	include "code/objects/Bumper.asm"
 	include "code/objects/Bubbles.asm"
