@@ -12173,12 +12173,27 @@ OptionScreen_Controls:
 	moveq	#0,d2
 
 +
+    if fixBugs
+	; Based on code from the Level Select.
+	cmpi.b	#2,(Options_menu_box).w
+	bne.s	+
+	btst	#button_A,d0
+	beq.s	+
+	addi.b	#$10,d2
+	andi.b	#$7F,d2
+    else
+	; This code appears to have been carelessly created from a copy of the
+	; above block of code. It makes no sense to advance by $10 on options
+	; that have only 2 or 3 values. Likewise, the logic for setting the
+	; value to 0 when exceeding the maximum bound only makes sense for
+	; incrementing by 1, not $10.
 	btst	#button_A,d0
 	beq.s	+
 	addi.b	#$10,d2
 	cmp.b	d3,d2
 	bls.s	+
 	moveq	#0,d2
+    endif
 
 +
 	move.w	d2,(a1)
