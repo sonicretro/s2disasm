@@ -33346,7 +33346,7 @@ ObjectsManager_2P_UnloadObjectBlock:
 
 ;loc_17F0A: ObjMan2P_UnkSub3_DeleteBlockLoop:
 .deleteBlockLoop:
-	tst.b	(a3)
+	tst.b	id(a3)
 	beq.s	.skipObject	; branch if slot is empty
 	movea.l	a3,a1
 	moveq	#0,d0
