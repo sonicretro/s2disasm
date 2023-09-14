@@ -2108,10 +2108,6 @@ VRAM_SS_Plane_A_Name_Table1              = $C000	; Extends until $DFFF
 VRAM_SS_Plane_A_Name_Table2              = $8000	; Extends until $9FFF
 VRAM_SS_Plane_B_Name_Table               = $A000	; Extends until $BFFF
 VRAM_SS_Plane_Table_Size                 = $2000	; 128 cells x 32 cells x 2 bytes per cell
-VRAM_SS_Sprite_Attribute_Table           = $F800	; Extends until $FA7F
-VRAM_SS_Sprite_Attribute_Table_Size      = $0280	; 640 bytes
-VRAM_SS_Horiz_Scroll_Table               = $FC00	; Extends until $FF7F
-VRAM_SS_Horiz_Scroll_Table_Size          = $0380	; 224 lines * 2 bytes per entry * 2 PNTs
 
 ; VRAM Reserved regions, Title screen.
 VRAM_TtlScr_Plane_A_Name_Table           = $C000	; Extends until $CFFF
