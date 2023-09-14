@@ -27,6 +27,6 @@ if not abort then
 	elseif hash == "\x11\xD8\xD0\xD1\xD1\x19\xD9\xC7\x31\xBB\xF1\xF3\x03\x2F\xF0\x32" then
 		print "ROM is bit-perfect with REV02 (speculative)."
 	else
-		print "ROM is not bit-perfect with REV00, REV01, or REV02."
+		print "ROM is NOT bit-perfect with REV00, REV01, or REV02!"
 	end
 end
