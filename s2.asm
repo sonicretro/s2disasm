@@ -411,8 +411,9 @@ CheckSumCheck:
 	btst	#6,(HW_Expansion_Control).l
 	beq.s	ChecksumTest
     if gameRevision=3
-	; KiS2: This code was changed from 'init' to 's2md'. Cute. This is
-	; presumably short for 'Sonic 2 Mega Drive'.
+	; KiS2: This code was changed from 'init' to 's2md'.
+	; In the original source code, 'md' was seemingly used as shorthand for
+	; 'mode' (such as in 'gamemd'), so this presumably means 'Sonic 2 mode'.
 	cmpi.l	#'s2md',(Checksum_fourcc).w ; has checksum routine already run?
     else
 	cmpi.l	#'init',(Checksum_fourcc).w ; has checksum routine already run?
