@@ -309,7 +309,7 @@ endpad := $
 zmake68kPtr function addr,zROMWindow+(addr&7FFFh)
 
 ; Function to turn a sample rate into a djnz loop counter
-pcmLoopCounter function sampleRate,baseCycles, (53693175/15/(sampleRate)-(baseCycles)+(13/2))/13
+pcmLoopCounter function sampleRate,baseCycles, 1+(53693175/15/(sampleRate)-(baseCycles)+(13/2))/13
 
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -1596,7 +1596,7 @@ zPlaySegaSound:
 	ld	(zYM2612_D0),a			; 13	; Send to DAC
 	inc	hl				; 6	; Advance pointer
 	nop					; 4
-	ld	b,pcmLoopCounter(16000,146/2)	; 7	; Sega PCM pitch
+	ld	b,pcmLoopCounter(16500,146/2)	; 7	; Sega PCM pitch
 	djnz	$				; 8	; Delay loop
 
 	nop					; 4
@@ -1607,7 +1607,7 @@ zPlaySegaSound:
 	ld	(zYM2612_D0),a			; 13	; Send to DAC
 	inc	hl				; 6	; Advance pointer
 	nop					; 4
-	ld	b,pcmLoopCounter(16000,146/2)	; 7	; Sega PCM pitch
+	ld	b,pcmLoopCounter(16500,146/2)	; 7	; Sega PCM pitch
 	djnz	$				; 8	; Delay loop
 
 	nop					; 4
@@ -3837,24 +3837,24 @@ idstart :=	81h
 dac_sample_metadata macro label,sampleRate
 	db	id(label),pcmLoopCounter(sampleRate,289/2)	; See zWriteToDAC for an explanation of this magic number.
     endm
+	dac_sample_metadata zDACPtr_Kick,    8250	; 81h
+	dac_sample_metadata zDACPtr_Snare,  24000	; 82h
+	dac_sample_metadata zDACPtr_Clap,   17000	; 83h
+	dac_sample_metadata zDACPtr_Scratch,15000	; 84h
+	dac_sample_metadata zDACPtr_Timpani, 7500	; 85h
+	dac_sample_metadata zDACPtr_Tom,    14000	; 86h
+	dac_sample_metadata zDACPtr_Bongo,   7500	; 87h
+	dac_sample_metadata zDACPtr_Timpani, 9750	; 88h
+	dac_sample_metadata zDACPtr_Timpani, 8750	; 89h
+	dac_sample_metadata zDACPtr_Timpani, 7250	; 8Ah
+	dac_sample_metadata zDACPtr_Timpani, 7000	; 8Bh
+	dac_sample_metadata zDACPtr_Tom,    23000	; 8Ch
+	dac_sample_metadata zDACPtr_Tom,    18000	; 8Dh
+	dac_sample_metadata zDACPtr_Tom,    15000	; 8Eh
+	dac_sample_metadata zDACPtr_Bongo,  15000	; 8Fh
+	dac_sample_metadata zDACPtr_Bongo,  13000	; 90h
+	dac_sample_metadata zDACPtr_Bongo,   9750	; 91h
 
-	dac_sample_metadata zDACPtr_Kick,    8000	; 81h
-	dac_sample_metadata zDACPtr_Snare,  22000	; 82h
-	dac_sample_metadata zDACPtr_Clap,   16000	; 83h
-	dac_sample_metadata zDACPtr_Scratch,14500	; 84h
-	dac_sample_metadata zDACPtr_Timpani, 7200	; 85h
-	dac_sample_metadata zDACPtr_Tom,    13000	; 86h
-	dac_sample_metadata zDACPtr_Bongo,   7200	; 87h
-	dac_sample_metadata zDACPtr_Timpani, 9500	; 88h
-	dac_sample_metadata zDACPtr_Timpani, 8500	; 89h
-	dac_sample_metadata zDACPtr_Timpani, 7000	; 8Ah
-	dac_sample_metadata zDACPtr_Timpani, 6800	; 8Bh
-	dac_sample_metadata zDACPtr_Tom,    21000	; 8Ch
-	dac_sample_metadata zDACPtr_Tom,    17000	; 8Dh
-	dac_sample_metadata zDACPtr_Tom,    14500	; 8Eh
-	dac_sample_metadata zDACPtr_Bongo,  14500	; 8Fh
-	dac_sample_metadata zDACPtr_Bongo,  12500	; 90h
-	dac_sample_metadata zDACPtr_Bongo,   9500	; 91h
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
