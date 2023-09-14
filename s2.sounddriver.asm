@@ -1693,7 +1693,10 @@ zPlayMusic:
 	xor	a
 	ld	(zAbsVar.1upPlaying),a		; clear 1-up is playing flag (it isn't)
 	ld	(zAbsVar.FadeInCounter),a	; clear fade-in frame count
+    if OptimiseDriver=0
+	; zInitMusicPlayback already does this.
 	ld	(zAbsVar.FadeOutCounter),a	; clear fade-out frame count
+    endif
 
 ; zloc_78E
 zBGMLoad:
