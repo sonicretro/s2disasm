@@ -36,7 +36,7 @@
 gameRevision = 3
 ;	| If 0, a REV00 ROM is built
 ;	| If 1, a REV01 ROM is built, which contains some fixes
-;	| If 2, a (probable) REV02 ROM is built, which contains even more fixes
+;	| If 2, a (theoretical) REV02 ROM is built, which contains even more fixes
 ;	| If 3, a 'Knuckles in Sonic 2' ROM is built
 padToPowerOfTwo = 1
 ;	| If 1, pads the end of the ROM to the next power of two bytes (for real hardware)
@@ -902,11 +902,11 @@ Vint_Pause_specialStage:
 	tst.b	(SS_Last_Alternate_HorizScroll_Buf).w
 	beq.s	loc_84A
 
-	dma68kToVDP SS_Horiz_Scroll_Buf_2,VRAM_SS_Horiz_Scroll_Table,VRAM_SS_Horiz_Scroll_Table_Size,VRAM
+	dma68kToVDP SS_Horiz_Scroll_Buf_2,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
 	bra.s	loc_86E
 ; ---------------------------------------------------------------------------
 loc_84A:
-	dma68kToVDP SS_Horiz_Scroll_Buf_1,VRAM_SS_Horiz_Scroll_Table,VRAM_SS_Horiz_Scroll_Table_Size,VRAM
+	dma68kToVDP SS_Horiz_Scroll_Buf_1,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
 
 loc_86E:
 	startZ80
@@ -920,17 +920,17 @@ Vint_S2SS:
 	bsr.w	SSSet_VScroll
 
 	dma68kToVDP Normal_palette,$0000,palette_line_size*4,CRAM
-	dma68kToVDP Sprite_Table,VRAM_SS_Sprite_Attribute_Table,VRAM_SS_Sprite_Attribute_Table_Size,VRAM
+	dma68kToVDP Sprite_Table,VRAM_Sprite_Attribute_Table,VRAM_Sprite_Attribute_Table_Size,VRAM
 
 	tst.b	(SS_Alternate_HorizScroll_Buf).w
 	beq.s	loc_906
 
-	dma68kToVDP SS_Horiz_Scroll_Buf_2,VRAM_SS_Horiz_Scroll_Table,VRAM_SS_Horiz_Scroll_Table_Size,VRAM
+	dma68kToVDP SS_Horiz_Scroll_Buf_2,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
 	bra.s	loc_92A
 ; ---------------------------------------------------------------------------
 
 loc_906:
-	dma68kToVDP SS_Horiz_Scroll_Buf_1,VRAM_SS_Horiz_Scroll_Table,VRAM_SS_Horiz_Scroll_Table_Size,VRAM
+	dma68kToVDP SS_Horiz_Scroll_Buf_1,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
 
 loc_92A:
 	tst.b	(SSTrack_Orientation).w			; Is the current track frame flipped?
@@ -6831,8 +6831,8 @@ SpecialStage:
 	move.w	#$8C08,(a6)		; H res 32 cells, no interlace, S/H enabled
 	move.w	#$9003,(a6)		; Scroll table size: 128x32
 	move.w	#$8700,(a6)		; Background palette/color: 0/0
-	move.w	#$8D00|(VRAM_SS_Horiz_Scroll_Table/$400),(a6)		; H scroll table base: $FC00
-	move.w	#$8500|(VRAM_SS_Sprite_Attribute_Table/$200),(a6)	; Sprite attribute table base: $F800
+	move.w	#$8D00|(VRAM_Horiz_Scroll_Table/$400),(a6)		; H scroll table base: $FC00
+	move.w	#$8500|(VRAM_Sprite_Attribute_Table/$200),(a6)	; Sprite attribute table base: $F800
 	move.w	(VDP_Reg1_val).w,d0
 	andi.b	#$BF,d0
 	move.w	d0,(VDP_control_port).l
@@ -6845,7 +6845,7 @@ SpecialStage:
 	dmaFillVRAM 0,VRAM_SS_Plane_A_Name_Table2,VRAM_SS_Plane_Table_Size ; clear Plane A pattern name table 1
 	dmaFillVRAM 0,VRAM_SS_Plane_A_Name_Table1,VRAM_SS_Plane_Table_Size ; clear Plane A pattern name table 2
 	dmaFillVRAM 0,VRAM_SS_Plane_B_Name_Table,VRAM_SS_Plane_Table_Size ; clear Plane B pattern name table
-	dmaFillVRAM 0,VRAM_SS_Horiz_Scroll_Table,VRAM_SS_Horiz_Scroll_Table_Size  ; clear Horizontal scroll table
+	dmaFillVRAM 0,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size  ; clear Horizontal scroll table
 
 	clr.l	(Vscroll_Factor).w
 	clr.l	(unk_F61A).w
@@ -12588,12 +12588,27 @@ OptionScreen_Controls:
 	moveq	#0,d2
 
 +
+    if fixBugs
+	; Based on code from the Level Select.
+	cmpi.b	#2,(Options_menu_box).w
+	bne.s	+
+	btst	#button_A,d0
+	beq.s	+
+	addi.b	#$10,d2
+	andi.b	#$7F,d2
+    else
+	; This code appears to have been carelessly created from a copy of the
+	; above block of code. It makes no sense to advance by $10 on options
+	; that have only 2 or 3 values. Likewise, the logic for setting the
+	; value to 0 when exceeding the maximum bound only makes sense for
+	; incrementing by 1, not $10.
 	btst	#button_A,d0
 	beq.s	+
 	addi.b	#$10,d2
 	cmp.b	d3,d2
 	bls.s	+
 	moveq	#0,d2
+    endif
 
 +
 	move.w	d2,(a1)
@@ -35174,7 +35189,7 @@ ObjectsManager_2P_UnloadObjectBlock:
 
 ;loc_17F0A: ObjMan2P_UnkSub3_DeleteBlockLoop:
 .deleteBlockLoop:
-	tst.b	(a3)
+	tst.b	id(a3)
 	beq.s	.skipObject	; branch if slot is empty
 	movea.l	a3,a1
 	moveq	#0,d0

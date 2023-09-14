@@ -23,6 +23,6 @@ if not abort then
 	if hash == "\xB4\xE7\x6E\x41\x6B\x88\x7F\x4E\x74\x13\xBA\x76\xFA\x73\x5F\x16" then
 		print "ROM is bit-perfect."
 	else
-		print "ROM is not bit-perfect."
+		print "ROM is NOT bit-perfect!"
 	end
 end
