@@ -308,6 +308,9 @@ endpad := $
 ; assuming the correct bank has been switched to first
 zmake68kPtr function addr,zROMWindow+(addr&7FFFh)
 
+; Function to turn a sample rate into a djnz loop counter
+pcmLoopCounter function sampleRate,baseCycles, (53693175/15/(sampleRate)-(baseCycles)+(13/2))/13
+
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; Z80 'ROM' start:
@@ -641,9 +644,9 @@ zStartDAC:
 
 ; zloc_174:
 zWaitLoop:
-	ld	a,d
-	or	e
-	jr	z,zWaitLoop	; As long as 'de' (length of sample) = 0, wait...
+	ld	a,d			; 4
+	or	e			; 4
+	jr	z,zWaitLoop		; 7	; As long as 'de' (length of sample) = 0, wait...
 
 	; 'hl' is the pointer to the sample, 'de' is the length of the sample,
 	; and 'iy' points to the translation table; let's go...
@@ -674,51 +677,53 @@ zWaitLoop:
 	; In our case, the so-called 'd' value is shadow register 'a'
 
 zWriteToDAC:
-	djnz	$		; Busy wait for specific amount of time in 'b'
+	djnz	$			; 8	; Busy wait for specific amount of time in 'b'
 
-	di			; disable interrupts (while updating DAC)
-	ld	a,2Ah		; DAC port
-	ld	(zYM2612_A0),a	; Set DAC port register
-	ld	a,(hl)		; Get next DAC byte
-	rlca
-	rlca
-	rlca
-	rlca
-	and	0Fh		; UPPER 4-bit offset into zDACDecodeTbl
-	ld	(.highnybble+2),a	; store into the instruction after .highnybble (self-modifying code)
-	ex	af,af'		; shadow register 'a' is the 'd' value for 'jman2050' encoding
+	di				; 4	; disable interrupts (while updating DAC)
+	ld	a,2Ah			; 7	; DAC port
+	ld	(zYM2612_A0),a		; 13	; Set DAC port register
+	ld	a,(hl)			; 7	; Get next DAC byte
+	rlca				; 4
+	rlca				; 4
+	rlca				; 4
+	rlca				; 4
+	and	0Fh			; 7	; UPPER 4-bit offset into zDACDecodeTbl
+	ld	(.highnybble+2),a	; 13	; store into the instruction after .highnybble (self-modifying code)
+	ex	af,af'			; 4	; shadow register 'a' is the 'd' value for 'jman2050' encoding
 
 ; zloc_18B
 .highnybble:
-	add	a,(iy+0)	; Get byte from zDACDecodeTbl (self-modified to proper index)
-	ld	(zYM2612_D0),a	; Write this byte to the DAC
-	ex	af,af'		; back to regular registers
-	ld	b,c		; reload 'b' with wait value
-	ei			; enable interrupts (done updating DAC, busy waiting for next update)
+	add	a,(iy+0)		; 19	; Get byte from zDACDecodeTbl (self-modified to proper index)
+	ld	(zYM2612_D0),a		; 13	; Write this byte to the DAC
+	ex	af,af'			; 4	; back to regular registers
+	ld	b,c			; 4	; reload 'b' with wait value
+	ei				; 4	; enable interrupts (done updating DAC, busy waiting for next update)
 
-	djnz	$		; Busy wait for specific amount of time in 'b'
+	djnz	$			; 8	; Busy wait for specific amount of time in 'b'
 
-	di			; disable interrupts (while updating DAC)
-	push	af
-	pop	af
-	ld	a,2Ah		; DAC port
-	ld	(zYM2612_A0),a	; Set DAC port register
-	ld	b,c		; reload 'b' with wait value
-	ld	a,(hl)		; Get next DAC byte
-	inc	hl		; Next byte in DAC stream...
-	dec	de		; One less byte
-	and	0Fh		; LOWER 4-bit offset into zDACDecodeTbl
-	ld	(.lownybble+2),a	; store into the instruction after .lownybble (self-modifying code)
-	ex	af,af'		; shadow register 'a' is the 'd' value for 'jman2050' encoding
+	di				; 4	; disable interrupts (while updating DAC)
+	push	af			; 11
+	pop	af			; 11
+	ld	a,2Ah			; 7	; DAC port
+	ld	(zYM2612_A0),a		; 13	; Set DAC port register
+	ld	b,c			; 4	; reload 'b' with wait value
+	ld	a,(hl)			; 7	; Get next DAC byte
+	inc	hl			; 6	; Next byte in DAC stream...
+	dec	de			; 6	; One less byte
+	and	0Fh			; 7	; LOWER 4-bit offset into zDACDecodeTbl
+	ld	(.lownybble+2),a	; 13	; store into the instruction after .lownybble (self-modifying code)
+	ex	af,af'			; 4	; shadow register 'a' is the 'd' value for 'jman2050' encoding
 
 ; zloc_1A8
 .lownybble:
-	add	a,(iy+0)	; Get byte from zDACDecodeTbl (self-modified to proper index)
-	ld	(zYM2612_D0),a	; Write this byte to the DAC
-	ex	af,af'		; back to regular registers
-	ei			; enable interrupts (done updating DAC, busy waiting for next update)
-	jp	zWaitLoop	; Back to the wait loop; if there's more DAC to write, we come back down again!
-
+	add	a,(iy+0)		; 19	; Get byte from zDACDecodeTbl (self-modified to proper index)
+	ld	(zYM2612_D0),a		; 13	; Write this byte to the DAC
+	ex	af,af'			; 4	; back to regular registers
+	ei				; 4	; enable interrupts (done updating DAC, busy waiting for next update)
+	jp	zWaitLoop		; 10	; Back to the wait loop; if there's more DAC to write, we come back down again!
+					; 289
+	; 289 cycles for two samples. zDACMasterPlaylist should use 289
+	; divided by 2 as the second parameter to pcmLoopCounter.
 ; ---------------------------------------------------------------------------
 ; 'jman2050' DAC decode lookup table
 ; zbyte_1B3
@@ -1587,29 +1592,32 @@ zPlaySegaSound:
 	ld	c,80h			; If QueueToPlay is not this, stops Sega PCM
 
 .loop:
-	ld	a,(hl)			; Get next PCM byte
-	ld	(zYM2612_D0),a		; Send to DAC
-	inc	hl			; Advance pointer
-	nop
-	ld	b,0Ch			; Sega PCM pitch
-	djnz	$			; Delay loop
+	ld	a,(hl)				; 7	; Get next PCM byte
+	ld	(zYM2612_D0),a			; 13	; Send to DAC
+	inc	hl				; 6	; Advance pointer
+	nop					; 4
+	ld	b,pcmLoopCounter(16000,146/2)	; 7	; Sega PCM pitch
+	djnz	$				; 8	; Delay loop
 
-	nop
-	ld	a,(zAbsVar.QueueToPlay)	; Get next item to play
-	cp	c			; Is it 80h?
-	jr	nz,.stop		; If not, stop Sega PCM
-	ld	a,(hl)			; Get next PCM byte
-	ld	(zYM2612_D0),a		; Send to DAC
-	inc	hl			; Advance pointer
-	nop
-	ld	b,0Ch			; Sega PCM pitch
-	djnz	$			; Delay loop
+	nop					; 4
+	ld	a,(zAbsVar.QueueToPlay)		; 13	; Get next item to play
+	cp	c				; 4	; Is it 80h?
+	jr	nz,.stop			; 7	; If not, stop Sega PCM
+	ld	a,(hl)				; 7	; Get next PCM byte
+	ld	(zYM2612_D0),a			; 13	; Send to DAC
+	inc	hl				; 6	; Advance pointer
+	nop					; 4
+	ld	b,pcmLoopCounter(16000,146/2)	; 7	; Sega PCM pitch
+	djnz	$				; 8	; Delay loop
 
-	nop
-	dec	de			; 2 less bytes to play
-	ld	a,d			; a = d
-	or	e			; Is de zero?
-	jp	nz,.loop		; If not, loop
+	nop					; 4
+	dec	de				; 6	; 2 less bytes to play
+	ld	a,d				; 4	; a = d
+	or	e				; 4	; Is de zero?
+	jp	nz,.loop			; 10	; If not, loop
+						; 146
+	; Two samples per 146 cycles, meaning that the second parameter
+	; to pcmLoopCounter should be 146 divided by 2.
 
 .stop:
 	call	zBankSwitchToMusic
@@ -3826,23 +3834,27 @@ offset :=	zDACPtrTbl
 ptrsize :=	2+2
 idstart :=	81h
 
-	db	id(zDACPtr_Kick),17h		; 81h
-	db	id(zDACPtr_Snare),1		; 82h
-	db	id(zDACPtr_Clap),6		; 83h
-	db	id(zDACPtr_Scratch),8		; 84h
-	db	id(zDACPtr_Timpani),1Bh		; 85h
-	db	id(zDACPtr_Tom),0Ah		; 86h
-	db	id(zDACPtr_Bongo),1Bh		; 87h
-	db	id(zDACPtr_Timpani),12h		; 88h
-	db	id(zDACPtr_Timpani),15h		; 89h
-	db	id(zDACPtr_Timpani),1Ch		; 8Ah
-	db	id(zDACPtr_Timpani),1Dh		; 8Bh
-	db	id(zDACPtr_Tom),2		; 8Ch
-	db	id(zDACPtr_Tom),5		; 8Dh
-	db	id(zDACPtr_Tom),8		; 8Eh
-	db	id(zDACPtr_Bongo),8		; 8Fh
-	db	id(zDACPtr_Bongo),0Bh		; 90h
-	db	id(zDACPtr_Bongo),12h		; 91h
+dac_sample_metadata macro label,sampleRate
+	db	id(label),pcmLoopCounter(sampleRate,289/2)	; See zWriteToDAC for an explanation of this magic number.
+    endm
+
+	dac_sample_metadata zDACPtr_Kick,    8000	; 81h
+	dac_sample_metadata zDACPtr_Snare,  22000	; 82h
+	dac_sample_metadata zDACPtr_Clap,   16000	; 83h
+	dac_sample_metadata zDACPtr_Scratch,14500	; 84h
+	dac_sample_metadata zDACPtr_Timpani, 7200	; 85h
+	dac_sample_metadata zDACPtr_Tom,    13000	; 86h
+	dac_sample_metadata zDACPtr_Bongo,   7200	; 87h
+	dac_sample_metadata zDACPtr_Timpani, 9500	; 88h
+	dac_sample_metadata zDACPtr_Timpani, 8500	; 89h
+	dac_sample_metadata zDACPtr_Timpani, 7000	; 8Ah
+	dac_sample_metadata zDACPtr_Timpani, 6800	; 8Bh
+	dac_sample_metadata zDACPtr_Tom,    21000	; 8Ch
+	dac_sample_metadata zDACPtr_Tom,    17000	; 8Dh
+	dac_sample_metadata zDACPtr_Tom,    14500	; 8Eh
+	dac_sample_metadata zDACPtr_Bongo,  14500	; 8Fh
+	dac_sample_metadata zDACPtr_Bongo,  12500	; 90h
+	dac_sample_metadata zDACPtr_Bongo,   9500	; 91h
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
