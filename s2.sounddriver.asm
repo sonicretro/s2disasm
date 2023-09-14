@@ -3837,6 +3837,7 @@ idstart :=	81h
 dac_sample_metadata macro label,sampleRate
 	db	id(label),pcmLoopCounter(sampleRate,289/2)	; See zWriteToDAC for an explanation of this magic number.
     endm
+
 	dac_sample_metadata zDACPtr_Kick,    8250	; 81h
 	dac_sample_metadata zDACPtr_Snare,  24000	; 82h
 	dac_sample_metadata zDACPtr_Clap,   17000	; 83h
@@ -3854,7 +3855,6 @@ dac_sample_metadata macro label,sampleRate
 	dac_sample_metadata zDACPtr_Bongo,  15000	; 8Fh
 	dac_sample_metadata zDACPtr_Bongo,  13000	; 90h
 	dac_sample_metadata zDACPtr_Bongo,   9750	; 91h
-
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
