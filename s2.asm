@@ -92339,7 +92339,7 @@ SndPtr_Checkpoint:	rom_ptr_z80	Sound21	; checkpoint ding-dong sound
 SndPtr_SpikeSwitch:	rom_ptr_z80	Sound22	; spike switch sound
 SndPtr_Hurt:		rom_ptr_z80	Sound23	; hurt sound
 SndPtr_Skidding:	rom_ptr_z80	Sound24	; skidding sound
-SndPtr_BlockPush:	rom_ptr_z80	Sound25	; block push sound
+SndPtr_MissileDissolve:	rom_ptr_z80	Sound25	; missile dissolve sound from Sonic 1 (unused)
 SndPtr_HurtBySpikes:	rom_ptr_z80	Sound26	; spiky impalement sound
 SndPtr_Sparkle:		rom_ptr_z80	Sound27	; sparkling sound
 SndPtr_Beep:		rom_ptr_z80	Sound28	; short beep
