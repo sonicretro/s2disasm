@@ -96645,7 +96645,6 @@ Objects_WFZ_1:	BINCLUDE	"level/objects/WFZ_1.bin"
     endif
 
 	ObjectLayoutBoundary
-; KiS2 (Knuckles): This was modified.
 Objects_WFZ_2:	BINCLUDE	"level/objects/WFZ_2.bin"
 	ObjectLayoutBoundary
 ; KiS2 (Knuckles): This was modified.
