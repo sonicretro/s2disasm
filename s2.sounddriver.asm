@@ -2628,8 +2628,12 @@ zSlowDownMusic:
 	ld	a,(zAbsVar.1upPlaying)
 	or	a
 	ld	a,(zAbsVar.TempoMod)
+    if OptimiseDriver
+	jr	nz,zSetTempo_1up
+    else
 	jr	z,zSetTempo
 	jr	zSetTempo_1up
+    endif
 
 ; ===========================================================================
 ; helper routines for changing the tempo
