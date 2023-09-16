@@ -2613,6 +2613,32 @@ zInitMusicPlayback:
     endif
 ; End of function zInitMusicPlayback
 
+    if OptimiseDriver
+; ---------------------------------------------------------------------------
+; zloc_BBE
+; increases the tempo of the music
+zSpeedUpMusic:
+	ld	b,80h
+	ld	c,(ix+zVar.TempoTurbo)
+	jr	+
+
+; ===========================================================================
+; zloc_BCB
+; returns the music tempo to normal
+zSlowDownMusic:
+	ld	b,0
+	ld	c,(ix+zVar.TempoMod)
+	;jr	+
++
+	ld	a,(ix+zVar.1upPlaying)
+	or	a
+	jr	z,+
+	ld	ix,zSaveVar
++
+	ld	(ix+zVar.CurrentTempo),c	; Store new tempo value
+	ld	(ix+zVar.SpeedUpFlag),b
+	ret
+    else
 ; ---------------------------------------------------------------------------
 ; zloc_BBE
 ; increases the tempo of the music
@@ -2632,12 +2658,8 @@ zSlowDownMusic:
 	ld	a,(zAbsVar.1upPlaying)
 	or	a
 	ld	a,(zAbsVar.TempoMod)
-    if OptimiseDriver
-	jr	nz,zSetTempo_1up
-    else
 	jr	z,zSetTempo
 	jr	zSetTempo_1up
-    endif
 
 ; ===========================================================================
 ; helper routines for changing the tempo
@@ -2653,6 +2675,7 @@ zSetTempo_1up:
 	ld	a,b
 	ld	(zSaveVar.SpeedUpFlag),a
 	ret
+    endif
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
