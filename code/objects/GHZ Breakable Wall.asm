@@ -135,3 +135,5 @@ Obj3C_FragmentSpeeds_RightToLeft:
 ; -------------------------------------------------------------------------------
 Obj3C_MapUnc_15ECC:	include "mappings/sprite/obj3C.asm"
 ; ===========================================================================
+
+; There was linker data here in the Nick Arcade prototype.

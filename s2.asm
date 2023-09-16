@@ -127,8 +127,10 @@ StartOfRom:
 	include "code/subsystems/Bumpers.asm"
 	include "code/subsystems/Object Loader.asm"
 
-	; Objects
 	include "code/objects/Signpost.asm"
+
+	include "code/subsystems/player solid object collision.asm"
+
 	include "code/objects/Sonic.asm"
 	include "code/objects/Tails.asm"
 	include "code/objects/Drowning Bubbles, Shield, Splash, Super Sonic Stars.asm"
@@ -236,7 +238,7 @@ StartOfRom:
 	include "code/objects/3E.asm"
 
 	; Subsystems again
-	include "code/subsystems/player object collision.asm"
+	include "code/subsystems/player enemy collision.asm"
 	include "code/subsystems/animated level artwork.asm"
 	include "code/subsystems/hud.asm"
 	include "code/subsystems/edit.asm" ; Likely the actual filename in the original source code, according to the Yuji Naka footage

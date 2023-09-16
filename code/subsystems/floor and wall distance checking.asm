@@ -618,3 +618,5 @@ ObjCheckLeftWallDist:
 	move.b	#$40,d3
 +
 	rts
+
+; There was linker data here in the Nick Arcade prototype.

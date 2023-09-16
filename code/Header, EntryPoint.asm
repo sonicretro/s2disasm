@@ -209,3 +209,5 @@ OptionsMenu: ;;
 LevelSelectMenu: ;;
 	jmp	(MenuScreen).l
 ; ===========================================================================
+
+; There was linker data here in the CENSOR prototype.

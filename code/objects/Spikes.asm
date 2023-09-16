@@ -273,3 +273,5 @@ MoveSpikes_Retract:
 ; sprite mappings
 ; -------------------------------------------------------------------------------
 Obj36_MapUnc_15B68:	include "mappings/sprite/obj36.asm"
+
+; There was linker data here in the CENSOR and Beta 4 prototypes.
