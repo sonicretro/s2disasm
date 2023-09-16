@@ -5,7 +5,7 @@
 ; RAS' work merged into SVN by Flamewing
 ; ---------------------------------------------------------------------------
 
-FixDriverBugs = 0
+FixDriverBugs = fixBugs
 OptimiseDriver = 0
 
 ; ---------------------------------------------------------------------------
