@@ -1194,9 +1194,9 @@ off_D3C:	offsetTable
 	move.w	#$8400|(VRAM_EndSeq_Plane_B_Name_Table2/$2000),(a6)	; PNT B base: $4000
 	move.w	#$9011,(a6)		; Scroll table size: 64x64
 	lea	(Chunk_Table).l,a1
-	move.l	#vdpComm(VRAM_EndSeq_Plane_A_Name_Table + planeLocH40($16,$21),VRAM,WRITE),d0	;$50AC0003
-	moveq	#$16,d1
-	moveq	#$E,d2
+	move.l	#vdpComm(VRAM_EndSeq_Plane_A_Name_Table + planeLoc(64,22,33),VRAM,WRITE),d0	;$50AC0003
+	moveq	#23-1,d1
+	moveq	#15-1,d2
 	jsrto	PlaneMapToVRAM_H40, PlaneMapToVRAM_H40
 	rts
 ; ===========================================================================
@@ -1772,7 +1772,7 @@ Pause_SlowMo:
 ; sub_140E: ShowVDPGraphics: PlaneMapToVRAM:
 PlaneMapToVRAM_H40:
 	lea	(VDP_data_port).l,a6
-	move.l	#vdpCommDelta(planeLocH40(0,1)),d4	; $800000
+	move.l	#vdpCommDelta(planeLoc(64,0,1)),d4	; $800000
 -	move.l	d0,VDP_control_port-VDP_data_port(a6)	; move d0 to VDP_control_port
 	move.w	d1,d3
 -	move.w	(a1)+,(a6)	; from source address to destination in VDP
@@ -1792,7 +1792,7 @@ PlaneMapToVRAM_H40:
 ; sub_142E: ShowVDPGraphics2: PlaneMapToVRAM2:
 PlaneMapToVRAM_H80_SpecialStage:
 	lea	(VDP_data_port).l,a6
-	move.l	#vdpCommDelta(planeLocH80(0,1)),d4	; $1000000
+	move.l	#vdpCommDelta(planeLoc(128,0,1)),d4	; $1000000
 -	move.l	d0,VDP_control_port-VDP_data_port(a6)
 	move.w	d1,d3
 -	move.w	(a1)+,(a6)
@@ -4324,7 +4324,7 @@ Sega_GotoTitle:
 ; sub_396E: ShowVDPGraphics3: PlaneMapToVRAM3:
 PlaneMapToVRAM_H80_Sega:
 	lea	(VDP_data_port).l,a6
-	move.l	#vdpCommDelta(planeLocH80(0,1)),d4	; $1000000
+	move.l	#vdpCommDelta(planeLoc(128,0,1)),d4	; $1000000
 -	move.l	d0,VDP_control_port-VDP_data_port(a6)
 	move.w	d1,d3
 -	move.w	(a1)+,(a6)
@@ -4508,7 +4508,7 @@ TitleScreen:
 
 	; ...and send it to VRAM.
 	lea	(Chunk_Table).l,a1
-	move.l	#vdpComm(VRAM_TtlScr_Plane_B_Name_Table+planeLocH40(40,0),VRAM,WRITE),d0
+	move.l	#vdpComm(VRAM_TtlScr_Plane_B_Name_Table+planeLoc(64,40,0),VRAM,WRITE),d0
 	moveq	#24-1,d1 ; Width
 	moveq	#28-1,d2 ; Height
 	jsrto	PlaneMapToVRAM_H40, PlaneMapToVRAM_H40
@@ -4522,7 +4522,7 @@ TitleScreen:
     if gameRevision<>3
 	; KiS2 (title): No copyright string processing here.
 	; ...add the copyright text to it...
-	lea	(Chunk_Table+planeLocH40(44,16)).l,a1
+	lea	(Chunk_Table+planeLoc(40,28,26)).l,a1
 	lea	(CopyrightText).l,a2
 	moveq	#bytesToWcnt(CopyrightText_End-CopyrightText),d6
 -	move.w	(a2)+,(a1)+
@@ -9428,34 +9428,27 @@ ssLdComprsdData:
 ;sub_6D52
 SSPlaneB_Background:
 	move	#$2700,sr
-	movea.l	#Chunk_Table,a1
+
+	movea.l	#Chunk_Table+planeLoc(32,0,0),a1
 	lea	(MapEng_SpecialBackBottom).l,a0
 	move.w	#make_art_tile(ArtTile_ArtNem_SpecialBack,0,0),d0
 	bsr.w	EniDec
-	movea.l	#Chunk_Table+$400,a1
+
+	movea.l	#Chunk_Table+planeLoc(32,0,16),a1
 	lea	(MapEng_SpecialBack).l,a0
 	move.w	#make_art_tile(ArtTile_ArtNem_SpecialBack,0,0),d0
 	bsr.w	EniDec
+
+.c := 0
+    rept 128/32
 	lea	(Chunk_Table).l,a1
-	move.l	#vdpComm(VRAM_SS_Plane_B_Name_Table + $0000,VRAM,WRITE),d0
-	moveq	#$1F,d1
-	moveq	#$1F,d2
+	move.l	#vdpComm(VRAM_SS_Plane_B_Name_Table + planeLoc(128,32*.c,0),VRAM,WRITE),d0
+	moveq	#32-1,d1
+	moveq	#32-1,d2
 	jsrto	PlaneMapToVRAM_H80_SpecialStage, PlaneMapToVRAM_H80_SpecialStage
-	lea	(Chunk_Table).l,a1
-	move.l	#vdpComm(VRAM_SS_Plane_B_Name_Table + $0040,VRAM,WRITE),d0
-	moveq	#$1F,d1
-	moveq	#$1F,d2
-	jsrto	PlaneMapToVRAM_H80_SpecialStage, PlaneMapToVRAM_H80_SpecialStage
-	lea	(Chunk_Table).l,a1
-	move.l	#vdpComm(VRAM_SS_Plane_B_Name_Table + $0080,VRAM,WRITE),d0
-	moveq	#$1F,d1
-	moveq	#$1F,d2
-	jsrto	PlaneMapToVRAM_H80_SpecialStage, PlaneMapToVRAM_H80_SpecialStage
-	lea	(Chunk_Table).l,a1
-	move.l	#vdpComm(VRAM_SS_Plane_B_Name_Table + $00C0,VRAM,WRITE),d0
-	moveq	#$1F,d1
-	moveq	#$1F,d2
-	jsrto	PlaneMapToVRAM_H80_SpecialStage, PlaneMapToVRAM_H80_SpecialStage
+.c := .c+1
+    endm
+
 	move	#$2300,sr
 	rts
 ; End of function SSPlaneB_Background
@@ -11106,8 +11099,8 @@ TwoPlayerResults:
 	bsr.w	EniDec
 	lea	(Chunk_Table).l,a1
 	move.l	#vdpComm(VRAM_Plane_B_Name_Table,VRAM,WRITE),d0
-	moveq	#$27,d1
-	moveq	#$1B,d2
+	moveq	#40-1,d1
+	moveq	#28-1,d2
 	jsrto	PlaneMapToVRAM_H40, PlaneMapToVRAM_H40
 	move.w	(Results_Screen_2P).w,d0
 	add.w	d0,d0
@@ -11122,8 +11115,8 @@ TwoPlayerResults:
 	jsr	(a2)	; dynamic call! to Setup2PResults_Act, Setup2PResults_Zone, Setup2PResults_Game, Setup2PResults_SpecialAct, or Setup2PResults_SpecialZone, assuming the pointers in TwoPlayerResultsPointers have not been changed
 	lea	(Chunk_Table).l,a1
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_TwoPlayerResults),VRAM,WRITE),d0
-	moveq	#$27,d1
-	moveq	#$1B,d2
+	moveq	#40-1,d1
+	moveq	#28-1,d2
 	jsrto	PlaneMapToVRAM_H40, PlaneMapToVRAM_H40
 	clr.w	(VDP_Command_Buffer).w
 	move.l	#VDP_Command_Buffer,(VDP_Command_Buffer_Slot).w
@@ -12131,8 +12124,8 @@ MenuScreen:
 	bsr.w	EniDec
 	lea	(Chunk_Table).l,a1
 	move.l	#vdpComm(VRAM_Plane_B_Name_Table,VRAM,WRITE),d0
-	moveq	#$27,d1
-	moveq	#$1B,d2
+	moveq	#40-1,d1
+	moveq	#28-1,d2
 	jsrto	PlaneMapToVRAM_H40, JmpTo_PlaneMapToVRAM_H40	; fullscreen background
 
     if gameRevision=3
@@ -12160,7 +12153,7 @@ MenuScreen:
 	bsr.w	EniDec
 	lea	(Chunk_Table+$498).l,a2
 
-	moveq	#bytesToWcnt($20),d1
+	moveq	#bytesToWcnt(tiles_to_bytes(1)),d1
 -	move.w	#make_art_tile(ArtTile_ArtNem_MenuBox+11,1,0),(a2)+
 	dbf	d1,-
 
@@ -12189,7 +12182,7 @@ MenuScreen:
 	lea	(Normal_palette_line3).w,a1
 	lea	(Target_palette_line3).w,a2
 
-	moveq	#bytesToLcnt($20),d1
+	moveq	#bytesToLcnt(tiles_to_bytes(1)),d1
 -	move.l	(a1),(a2)+
 	clr.l	(a1)+
 	dbf	d1,-
@@ -12320,8 +12313,8 @@ Update2PLevSelSelection:
 
 	lea	(Chunk_Table).l,a1
 	move.l	(a3)+,d0
-	moveq	#$10,d1
-	moveq	#$B,d2
+	moveq	#17-1,d1
+	moveq	#12-1,d2
 	jsrto	PlaneMapToVRAM_H40, JmpTo_PlaneMapToVRAM_H40
 	lea	(Pal_LevelIcons).l,a1
 	moveq	#0,d0
@@ -12393,8 +12386,8 @@ ClearOld2PLevSelSelection:
 
 	lea	(Chunk_Table+$198).l,a1
 	move.l	(a3)+,d0
-	moveq	#$10,d1
-	moveq	#$B,d2
+	moveq	#17-1,d1
+	moveq	#12-1,d2
 	jmpto	PlaneMapToVRAM_H40, JmpTo_PlaneMapToVRAM_H40
 ; End of function ClearOld2PLevSelSelection
 
@@ -12409,10 +12402,10 @@ iconData macro txtlabel,txtlabel2,vramAddr,iconPal,iconAddr
 	dc.l iconPal<<24|((iconAddr)&$FFFFFF)	; icon palette and plane data location
     endm
 
-	iconData	Text2P_EmeraldHill,Text2P_Zone, VRAM_Plane_A_Name_Table+planeLocH40(2,2),   0,Chunk_Table+$330
-	iconData	Text2P_MysticCave, Text2P_Zone, VRAM_Plane_A_Name_Table+planeLocH40(22,2),  5,Chunk_Table+$3A8
-	iconData	Text2P_CasinoNight,Text2P_Zone, VRAM_Plane_A_Name_Table+planeLocH40(2,15),  6,Chunk_Table+$3C0
-	iconData	Text2P_Special,    Text2P_Stage,VRAM_Plane_A_Name_Table+planeLocH40(22,15),$C,Chunk_Table+$450
+	iconData	Text2P_EmeraldHill,Text2P_Zone, VRAM_Plane_A_Name_Table+planeLoc(64,2,2),   0,Chunk_Table+$330
+	iconData	Text2P_MysticCave, Text2P_Zone, VRAM_Plane_A_Name_Table+planeLoc(64,22,2),  5,Chunk_Table+$3A8
+	iconData	Text2P_CasinoNight,Text2P_Zone, VRAM_Plane_A_Name_Table+planeLoc(64,2,15),  6,Chunk_Table+$3C0
+	iconData	Text2P_Special,    Text2P_Stage,VRAM_Plane_A_Name_Table+planeLoc(64,22,15),12,Chunk_Table+$450
 
 ; ---------------------------------------------------------------------------
 ; Common menu screen subroutine for transferring text to RAM
@@ -12671,8 +12664,8 @@ OptionScreen_DrawSelected:
 +
 	lea	(Chunk_Table).l,a1
 	move.l	(a3)+,d0
-	moveq	#$15,d1
-	moveq	#7,d2
+	moveq	#22-1,d1
+	moveq	#8-1,d2
 	jmpto	PlaneMapToVRAM_H40, JmpTo_PlaneMapToVRAM_H40
 ; ===========================================================================
 
@@ -12710,8 +12703,8 @@ OptionScreen_DrawUnselected:
 +
 	lea	(Chunk_Table+$160).l,a1
 	move.l	(a3)+,d0
-	moveq	#$15,d1
-	moveq	#7,d2
+	moveq	#22-1,d1
+	moveq	#8-1,d2
 	jmpto	PlaneMapToVRAM_H40, JmpTo_PlaneMapToVRAM_H40
 ; ===========================================================================
 
@@ -12764,9 +12757,9 @@ boxData macro txtlabel,vramAddr
 	dc.l txtlabel, vdpComm(vramAddr,VRAM,WRITE)
     endm
 
-	boxData	TextOptScr_PlayerSelect,VRAM_Plane_A_Name_Table+planeLocH40(9,3)
-	boxData	TextOptScr_VsModeItems,VRAM_Plane_A_Name_Table+planeLocH40(9,11)
-	boxData	TextOptScr_SoundTest,VRAM_Plane_A_Name_Table+planeLocH40(9,19)
+	boxData	TextOptScr_PlayerSelect,VRAM_Plane_A_Name_Table+planeLoc(64,9,3)
+	boxData	TextOptScr_VsModeItems,VRAM_Plane_A_Name_Table+planeLoc(64,9,11)
+	boxData	TextOptScr_SoundTest,VRAM_Plane_A_Name_Table+planeLoc(64,9,19)
 
 off_92D2:
 	dc.l TextOptScr_SonicAndMiles
@@ -12793,8 +12786,8 @@ MenuScreen_LevelSelect:
 
 	lea	(Chunk_Table).l,a1
 	move.l	#vdpComm(VRAM_Plane_A_Name_Table,VRAM,WRITE),d0
-	moveq	#$27,d1
-	moveq	#$1B,d2	; 40x28 = whole screen
+	moveq	#40-1,d1
+	moveq	#28-1,d2	; 40x28 = whole screen
 	jsrto	PlaneMapToVRAM_H40, JmpTo_PlaneMapToVRAM_H40	; display patterns
 
 	; Draw sound test number
@@ -12802,7 +12795,7 @@ MenuScreen_LevelSelect:
 	bsr.w	LevelSelect_DrawSoundNumber
 
 	; Load zone icon
-	lea	(Chunk_Table+$8C0).l,a1
+	lea	(Chunk_Table+planeLoc(40,0,28)).l,a1
 	lea	(MapEng_LevSelIcon).l,a0
 	move.w	#make_art_tile(ArtTile_ArtNem_LevelSelectPics,0,0),d0
 	bsr.w	EniDec
@@ -13166,7 +13159,7 @@ LevelSelect_MarkFields:
 ; ===========================================================================
 ;loc_965A:
 LevelSelect_DrawSoundNumber:
-	move.l	#vdpComm(VRAM_Plane_A_Name_Table+planeLocH40(34,18),VRAM,WRITE),(VDP_control_port).l
+	move.l	#vdpComm(VRAM_Plane_A_Name_Table+planeLoc(64,34,18),VRAM,WRITE),(VDP_control_port).l
 	move.w	(Sound_test_sound).w,d0
 	move.b	d0,d2
 	lsr.b	#4,d0
@@ -13191,7 +13184,7 @@ LevelSelect_DrawIcon:
 	move.w	(Level_select_zone).w,d0
 	lea	(LevSel_IconTable).l,a3
 	lea	(a3,d0.w),a3
-	lea	(Chunk_Table+$8C0).l,a1
+	lea	(Chunk_Table+planeLoc(40,0,28)).l,a1
 	moveq	#0,d0
 	move.b	(a3),d0
 	lsl.w	#3,d0
@@ -13199,9 +13192,9 @@ LevelSelect_DrawIcon:
 	add.w	d0,d0
 	add.w	d1,d0
 	lea	(a1,d0.w),a1
-	move.l	#vdpComm(VRAM_Plane_A_Name_Table+planeLocH40(27,22),VRAM,WRITE),d0
-	moveq	#3,d1
-	moveq	#2,d2
+	move.l	#vdpComm(VRAM_Plane_A_Name_Table+planeLoc(64,27,22),VRAM,WRITE),d0
+	moveq	#4-1,d1
+	moveq	#3-1,d2
 	jsrto	PlaneMapToVRAM_H40, JmpTo_PlaneMapToVRAM_H40
 	lea	(Pal_LevelIcons).l,a1
 	moveq	#0,d0
@@ -13738,12 +13731,12 @@ EndgameCredits:
 	lea	(Chunk_Table).l,a1
     if gameRevision=3
 	; KiS2 (ending): Sonic 2's logo was moved down to make room for the 'KNUCKLES IN' banner.
-	move.l	#vdpComm(VRAM_Plane_A_Name_Table+planeLocH40(12,15),VRAM,WRITE),d0
+	move.l	#vdpComm(VRAM_Plane_A_Name_Table+planeLoc(64,12,15),VRAM,WRITE),d0
     else
-	move.l	#vdpComm(VRAM_Plane_A_Name_Table+planeLocH40(12,11),VRAM,WRITE),d0
+	move.l	#vdpComm(VRAM_Plane_A_Name_Table+planeLoc(64,12,11),VRAM,WRITE),d0
     endif
-	moveq	#$F,d1
-	moveq	#5,d2
+	moveq	#16-1,d1
+	moveq	#6-1,d2
 	jsrto	PlaneMapToVRAM_H40, JmpTo2_PlaneMapToVRAM_H40
 
     if gameRevision=3
@@ -13972,9 +13965,9 @@ loc_A256:
 	jsrto	EniDec, JmpTo_EniDec
 	move	#$2700,sr
 	lea	(Chunk_Table).l,a1
-	move.l	#vdpComm(VRAM_Plane_A_Name_Table + planeLocH40(14,8),VRAM,WRITE),d0
-	moveq	#$B,d1
-	moveq	#8,d2
+	move.l	#vdpComm(VRAM_Plane_A_Name_Table + planeLoc(64,14,8),VRAM,WRITE),d0
+	moveq	#12-1,d1
+	moveq	#9-1,d2
 	jsrto	PlaneMapToVRAM_H40, JmpTo2_PlaneMapToVRAM_H40
 	move	#$2300,sr
 	movea.l	(sp)+,a0 ; load 0bj address
@@ -15279,7 +15272,6 @@ JmpTo2_PlayMusic ; JmpTo
 	jmp	(PlayMusic).l
 JmpTo_LoadChildObject ; JmpTo
 	jmp	(LoadChildObject).l
-; JmpTo2_PlaneMapToVRAM_H40
 JmpTo2_PlaneMapToVRAM_H40 ; JmpTo
 	jmp	(PlaneMapToVRAM_H40).l
 JmpTo2_ObjectMove ; JmpTo
@@ -83578,7 +83570,7 @@ loc_3A6A2:
 
 	lea	ObjB1_Streak_fade_to_right(pc),a1
 	; 9 full lines ($100 bytes each) plus $28 8-pixel cells
-	move.l	#vdpComm(VRAM_SegaScr_Plane_A_Name_Table + planeLocH80($28,9),VRAM,WRITE),d0	; $49500003
+	move.l	#vdpComm(VRAM_SegaScr_Plane_A_Name_Table + planeLoc(128,40,9),VRAM,WRITE),d0	; $49500003
 	bra.w	loc_3A710
 ; ===========================================================================
 
@@ -83587,13 +83579,13 @@ loc_3A6D4:
 
 	lea	ObjB1_Streak_fade_to_left(pc),a1
 	; $49A00003; 9 full lines ($100 bytes each) plus $50 8-pixel cells
-	move.l	#vdpComm(VRAM_SegaScr_Plane_A_Name_Table + planeLocH80($50,9),VRAM,WRITE),d0
+	move.l	#vdpComm(VRAM_SegaScr_Plane_A_Name_Table + planeLoc(128,80,9),VRAM,WRITE),d0
 	bra.w	loc_3A710
 loc_3A710:
 	lea	(VDP_data_port).l,a6
 	; This is the line delta; for each line, the code below
 	; writes $30 entries, leaving $50 untouched.
-	move.l	#vdpCommDelta(planeLocH80(0,1)),d6	; $1000000
+	move.l	#vdpCommDelta(planeLoc(128,0,1)),d6	; $1000000
 	moveq	#7,d1	; Inner loop: repeat 8 times
 	moveq	#9,d2	; Outer loop: repeat $A times
 -
@@ -91804,11 +91796,11 @@ Animated_Null:
 	bpl.s	-	; rts	; do it every 8th frame
 	move.b	#7,(CPZ_UnkScroll_Timer).w
 	move.b	#1,(Screen_redraw_flag).w
-	lea	(Chunk_Table+$7500).l,a1 ; chunks $EA-$ED, $FFFF7500 - $FFFF7700
+	lea	(Chunk_Table+$EA*$80).l,a1 ; chunks $EA-$ED, $FFFF7500 - $FFFF7700
 	bsr.s	+
-	lea	(Chunk_Table+$7D00).l,a1 ; chunks $FA-$FD, $FFFF7D00 - $FFFF7F00
+	lea	(Chunk_Table+$FA*$80).l,a1 ; chunks $FA-$FD, $FFFF7D00 - $FFFF7F00
 +
-	move.w	#7,d1
+	move.w	#8-1,d1
 
 -	move.w	(a1),d0
     rept 3			; do this for 3 chunks
@@ -97116,7 +97108,7 @@ SndPtr_Checkpoint:	rom_ptr_z80	Sound21	; checkpoint ding-dong sound
 SndPtr_SpikeSwitch:	rom_ptr_z80	Sound22	; spike switch sound
 SndPtr_Hurt:		rom_ptr_z80	Sound23	; hurt sound
 SndPtr_Skidding:	rom_ptr_z80	Sound24	; skidding sound
-SndPtr_BlockPush:	rom_ptr_z80	Sound25	; block push sound
+SndPtr_MissileDissolve:	rom_ptr_z80	Sound25	; missile dissolve sound from Sonic 1 (unused)
 SndPtr_HurtBySpikes:	rom_ptr_z80	Sound26	; spiky impalement sound
 SndPtr_Sparkle:		rom_ptr_z80	Sound27	; sparkling sound
 SndPtr_Beep:		rom_ptr_z80	Sound28	; short beep
