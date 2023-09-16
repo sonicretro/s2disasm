@@ -3367,16 +3367,15 @@ zSetFMTLs:
 	; the ones which are "slots" (output operators)
 	push	af				; Save 'a'
     if FixDriverBugs
-	res	7,c
+	set	7,c
     endif
 	ld	a,d		; Channel volume -> d
 	add	a,c		; Add it to the TL value
     if FixDriverBugs
 	; Prevent attenuation overflow (volume underflow)
-	jp	p,.belowmax
-	ld	a,7Fh
-
-.belowmax:
+	ld	c,a
+	sbc	a,a
+	or	c
     endif
 	ld	c,a		; Modified value -> c
 	pop	af		; Restore 'a'
