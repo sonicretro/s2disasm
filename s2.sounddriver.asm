@@ -1477,8 +1477,12 @@ zCycleQueue:
 	cp	80h				; Is queue slot equal to 80h?
 	ret	nz				; If not, return
 	ld	hl,zAbsVar.Queue0		; Get address of next sound
+    if OptimiseDriver
+	ld	c,(ix+zVar.SFXPriorityVal)	; Get current SFX priority
+    else
 	ld	a,(zAbsVar.SFXPriorityVal)	; Get current SFX priority
 	ld	c,a				; a -> c
+    endif
 	ld	b,3				; 3, for Queue0, Queue1, and Queue2
 
 zInputLoop:
@@ -1515,8 +1519,12 @@ zQueueNext:
 	ret
 ; ---------------------------------------------------------------------------
 zQueueItem:
+    if OptimiseDriver
+	ld	(ix+zVar.QueueToPlay),e	; Put it as the next item to play
+    else
 	ld	a,e			; restore a to be the last queue item read
 	ld	(zAbsVar.QueueToPlay),a	; Put it as the next item to play
+    endif
 	ret
 ; End of function zCycleQueue
 
@@ -2389,10 +2397,15 @@ zStopSoundEffects:
 ; ---------------------------------------------------------------------------
 ; zloc_ABF
 zFadeOutMusic:
+    if OptimiseDriver
+	ld	(ix+zVar.FadeOutDelay),3	; Set delay ticker to 3
+	ld	(ix+zVar.FadeOutCounter),28h	; Set total frames to decrease volume over
+    else
 	ld	a,3
 	ld	(zAbsVar.FadeOutDelay),a	; Set delay ticker to 3
 	ld	a,28h
 	ld	(zAbsVar.FadeOutCounter),a	; Set total frames to decrease volume over
+    endif
 	xor	a
 	ld	(zSongDAC.PlaybackControl),a	; Stop DAC track (can't fade it)
 	ld	(zAbsVar.SpeedUpFlag),a		; No speed shoe tempo?
@@ -2584,8 +2597,12 @@ zInitMusicPlayback:
 	pop	bc
 	ld	(ix+zVar.SFXPriorityVal),b
 	ld	(ix+zVar.1upPlaying),c		; 1-up playing flag
+    if OptimiseDriver
+	ld	(ix+zVar.QueueToPlay),80h
+    else
 	ld	a,80h
 	ld	(zAbsVar.QueueToPlay),a
+    endif
 
     if FixDriverBugs
 	; If a music file's header doesn't define each and every channel, they
@@ -2630,7 +2647,7 @@ zSlowDownMusic:
 	ld	c,(ix+zVar.TempoMod)
 	;jr	+
 +
-	ld	a,(ix+zVar.1upPlaying)
+	ld	a,(zAbsVar.1upPlaying)
 	or	a
 	jr	z,+
 	ld	ix,zSaveVar
