@@ -1621,8 +1621,12 @@ zPlaySegaSound:
 
 .stop:
 	call	zBankSwitchToMusic
+    if OptimiseDriver
+	ld	c,(ix+zVar.DACEnabled)
+    else
 	ld	a,(zAbsVar.DACEnabled)	; DAC status
 	ld	c,a			; c = DAC status
+    endif
 	ld	a,2Bh			; DAC enable/disable register
 	rst	zWriteFMI
 	ret
