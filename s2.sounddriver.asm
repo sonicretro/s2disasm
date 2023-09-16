@@ -5,7 +5,7 @@
 ; RAS' work merged into SVN by Flamewing
 ; ---------------------------------------------------------------------------
 
-FixDriverBugs = 0
+FixDriverBugs = fixBugs
 OptimiseDriver = 0
 
 ; ---------------------------------------------------------------------------
@@ -1477,8 +1477,12 @@ zCycleQueue:
 	cp	80h				; Is queue slot equal to 80h?
 	ret	nz				; If not, return
 	ld	hl,zAbsVar.Queue0		; Get address of next sound
+    if OptimiseDriver
+	ld	c,(ix+zVar.SFXPriorityVal)	; Get current SFX priority
+    else
 	ld	a,(zAbsVar.SFXPriorityVal)	; Get current SFX priority
 	ld	c,a				; a -> c
+    endif
 	ld	b,3				; 3, for Queue0, Queue1, and Queue2
 
 zInputLoop:
@@ -1515,8 +1519,12 @@ zQueueNext:
 	ret
 ; ---------------------------------------------------------------------------
 zQueueItem:
+    if OptimiseDriver
+	ld	(ix+zVar.QueueToPlay),e	; Put it as the next item to play
+    else
 	ld	a,e			; restore a to be the last queue item read
 	ld	(zAbsVar.QueueToPlay),a	; Put it as the next item to play
+    endif
 	ret
 ; End of function zCycleQueue
 
@@ -1621,8 +1629,12 @@ zPlaySegaSound:
 
 .stop:
 	call	zBankSwitchToMusic
+    if OptimiseDriver
+	ld	c,(ix+zVar.DACEnabled)
+    else
 	ld	a,(zAbsVar.DACEnabled)	; DAC status
 	ld	c,a			; c = DAC status
+    endif
 	ld	a,2Bh			; DAC enable/disable register
 	rst	zWriteFMI
 	ret
@@ -2385,10 +2397,15 @@ zStopSoundEffects:
 ; ---------------------------------------------------------------------------
 ; zloc_ABF
 zFadeOutMusic:
+    if OptimiseDriver
+	ld	(ix+zVar.FadeOutDelay),3	; Set delay ticker to 3
+	ld	(ix+zVar.FadeOutCounter),28h	; Set total frames to decrease volume over
+    else
 	ld	a,3
 	ld	(zAbsVar.FadeOutDelay),a	; Set delay ticker to 3
 	ld	a,28h
 	ld	(zAbsVar.FadeOutCounter),a	; Set total frames to decrease volume over
+    endif
 	xor	a
 	ld	(zSongDAC.PlaybackControl),a	; Stop DAC track (can't fade it)
 	ld	(zAbsVar.SpeedUpFlag),a		; No speed shoe tempo?
@@ -2580,8 +2597,12 @@ zInitMusicPlayback:
 	pop	bc
 	ld	(ix+zVar.SFXPriorityVal),b
 	ld	(ix+zVar.1upPlaying),c		; 1-up playing flag
+    if OptimiseDriver
+	ld	(ix+zVar.QueueToPlay),80h
+    else
 	ld	a,80h
 	ld	(zAbsVar.QueueToPlay),a
+    endif
 
     if FixDriverBugs
 	; If a music file's header doesn't define each and every channel, they
@@ -2609,6 +2630,32 @@ zInitMusicPlayback:
     endif
 ; End of function zInitMusicPlayback
 
+    if OptimiseDriver
+; ---------------------------------------------------------------------------
+; zloc_BBE
+; increases the tempo of the music
+zSpeedUpMusic:
+	ld	b,80h
+	ld	c,(ix+zVar.TempoTurbo)
+	jr	+
+
+; ===========================================================================
+; zloc_BCB
+; returns the music tempo to normal
+zSlowDownMusic:
+	ld	b,0
+	ld	c,(ix+zVar.TempoMod)
+	;jr	+
++
+	ld	a,(zAbsVar.1upPlaying)
+	or	a
+	jr	z,+
+	ld	ix,zSaveVar
++
+	ld	(ix+zVar.CurrentTempo),c	; Store new tempo value
+	ld	(ix+zVar.SpeedUpFlag),b
+	ret
+    else
 ; ---------------------------------------------------------------------------
 ; zloc_BBE
 ; increases the tempo of the music
@@ -2628,12 +2675,8 @@ zSlowDownMusic:
 	ld	a,(zAbsVar.1upPlaying)
 	or	a
 	ld	a,(zAbsVar.TempoMod)
-    if OptimiseDriver
-	jr	nz,zSetTempo_1up
-    else
 	jr	z,zSetTempo
 	jr	zSetTempo_1up
-    endif
 
 ; ===========================================================================
 ; helper routines for changing the tempo
@@ -2649,6 +2692,7 @@ zSetTempo_1up:
 	ld	a,b
 	ld	(zSaveVar.SpeedUpFlag),a
 	ret
+    endif
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -3340,16 +3384,15 @@ zSetFMTLs:
 	; the ones which are "slots" (output operators)
 	push	af				; Save 'a'
     if FixDriverBugs
-	res	7,c
+	set	7,c
     endif
 	ld	a,d		; Channel volume -> d
 	add	a,c		; Add it to the TL value
     if FixDriverBugs
 	; Prevent attenuation overflow (volume underflow)
-	jp	p,.belowmax
-	ld	a,7Fh
-
-.belowmax:
+	ld	c,a
+	sbc	a,a
+	or	c
     endif
 	ld	c,a		; Modified value -> c
 	pop	af		; Restore 'a'
