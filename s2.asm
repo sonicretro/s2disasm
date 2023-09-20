@@ -1814,6 +1814,29 @@ PlaneMapToVRAM_H80_SpecialStage:
 
 ; sub_144E: DMA_68KtoVRAM: QueueCopyToVRAM: QueueVDPCommand: Add_To_DMA_Queue:
 QueueDMATransfer:
+    if standaloneKiS2
+	; Detect if transfer crosses 128KB boundary
+	lsr.l	#1,d1
+	move.w	d3,d0
+	neg.w	d0
+	sub.w	d1,d0
+	bcc.s	.transfer
+	; Do first transfer
+	movem.l	d1-d3,-(sp)
+	add.w	d0,d3		; d3 = words remaining in 128KB "bank"
+	bsr.s	.transfer
+	movem.l	(sp)+,d1-d3
+	; Get second transfer's source, destination, and length
+	moveq	#0,d0
+	sub.w	d1,d0
+	sub.w	d0,d3
+	add.l	d0,d1
+	add.w	d0,d2
+	add.w	d0,d2
+	; Do second transfer
+.transfer:
+    endif
+
 	movea.l	(VDP_Command_Buffer_Slot).w,a1
 	cmpa.w	#VDP_Command_Buffer_Slot,a1
 	beq.s	QueueDMATransfer_Done ; return if there's no more room in the buffer
@@ -1829,7 +1852,9 @@ QueueDMATransfer:
 	move.w	d0,(a1)+ ; store command
 
 	move.w	#$9500,d0 ; command to specify source address & $0001FE
+    if ~~standaloneKiS2
 	lsr.l	#1,d1
+    endif
 	move.b	d1,d0
 	move.w	d0,(a1)+ ; store command
 
