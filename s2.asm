@@ -19100,12 +19100,13 @@ Draw_BG3_CPZ:
 	move.w	(Camera_BG_Y_pos).w,d0
     if fixBugs
 	andi.w	#$3F0,d0	; After right-shifting, the is a mask of $3F. Since CPZ_CameraSections is $40 items long, this is correct.
-    endif
+    else
 	; After right-shifting, the is a mask of $7F. Since CPZ_CameraSections
 	; is $40 items long, this is incorrect, and will cause accesses to
 	; exceed the bounds of CPZ_CameraSections and read invalid data. This
 	; is most notably a problem in Marble Zone's version of this code.
 	andi.w	#$7F0,d0
+    endif
 	lsr.w	#4,d0
 	lea	(a0,d0.w),a0
 	bra.w	DrawBlockColumn_Advanced
