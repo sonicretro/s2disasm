@@ -52114,10 +52114,15 @@ loc_261EC:
 	move.b	#8,width_pixels(a1)
 	move.b	#1,priority(a1)
 	move.b	#4,objoff_38(a1)
-	; This line makes no sense: d1 is never set to anything, the object
-	; being written to is the parent, not the child, and angle isn't used
-	; by the parent at all.
+	; d1 is set to a random number by the above call to RandomNumber
+    if fixBugs
+	move.b	d1,angle(a1)
+    else
+	; This line makes no sense: the object being written to is the parent,
+	; not the child, and angle isn't used by the parent at all. The child,
+	; however, does use angle, so it would appear that this is a typo.
 	move.b	d1,angle(a0)		; ???
+    endif
 
 loc_26278:
 	dbf	d6,loc_261EC
