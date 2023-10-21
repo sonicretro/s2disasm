@@ -39804,12 +39804,12 @@ Sonic_ChgJumpDir:
 	; It is enabled during demos, however, to prevent them from
 	; desynchonising.
 	tst.w	(Demo_mode_flag).w
-	bne.w	loc_31630C
+	bne.w	.demo
 	add.w	d5,d0
 	cmp.w	d1,d0
 	ble.s	+
 
-loc_31630C:
+.demo:
     endif
 	move.w	d1,d0	; limit speed in air going left, even if Sonic was already going faster (speed limit/cap)
 +
@@ -39825,12 +39825,12 @@ loc_31630C:
 	; It is enabled during demos, however, to prevent them from
 	; desynchonising.
 	tst.w	(Demo_mode_flag).w
-	bne.w	loc_316330
+	bne.w	.demo2
 	sub.w	d5,d0
 	cmp.w	d6,d0
 	bge.s	+
 
-loc_316330:
+.demo2:
     endif
 	move.w	d6,d0	; limit speed in air going right, even if Sonic was already going faster (speed limit/cap)
 ; Obj01_JumpMove:
@@ -43410,6 +43410,18 @@ Tails_ChgJumpDir:
 	neg.w	d1
 	cmp.w	d1,d0	; compare new speed with top speed
 	bgt.s	+	; if new speed is less than the maximum, branch
+    if gameRevision=3
+	; KiS2 (bugfix): The leftover air speed cap from Sonic 1 is removed.
+	; It is enabled during demos, however, to prevent them from
+	; desynchonising.
+	tst.w	(Demo_mode_flag).w
+	bne.w	.demo
+	add.w	d5,d0
+	cmp.w	d1,d0
+	ble.s	+
+
+.demo:
+    endif
 	move.w	d1,d0	; limit speed in air going left, even if Tails was already going faster (speed limit/cap)
 +
 	btst	#button_right,(Ctrl_2_Held_Logical).w
@@ -43419,6 +43431,18 @@ Tails_ChgJumpDir:
 	add.w	d5,d0	; accelerate right in the air
 	cmp.w	d6,d0	; compare new speed with top speed
 	blt.s	+	; if new speed is less than the maximum, branch
+    if gameRevision=3
+	; KiS2 (bugfix): The leftover air speed cap from Sonic 1 is removed.
+	; It is enabled during demos, however, to prevent them from
+	; desynchonising.
+	tst.w	(Demo_mode_flag).w
+	bne.w	.demo2
+	sub.w	d5,d0
+	cmp.w	d6,d0
+	bge.s	+
+
+.demo2:
+    endif
 	move.w	d6,d0	; limit speed in air going right, even if Tails was already going faster (speed limit/cap)
 ; Obj02_JumpMove:
 +	move.w	d0,x_vel(a0)
