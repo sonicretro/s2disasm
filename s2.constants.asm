@@ -1127,9 +1127,9 @@ Camera_Y_pos_P2:		ds.l	1
 Camera_BG_X_pos_P2:		ds.l	1	; only used sometimes as the layer deformation makes it sort of redundant
 Camera_BG_Y_pos_P2:		ds.l	1
 Camera_BG2_X_pos_P2:		ds.l	1	; unused (only initialised at beginning of level)?
-Camera_BG2_Y_pos_P2:		ds.l	1
+Camera_BG2_Y_pos_P2:		ds.l	1	; unused (only initialised at beginning of level)?
 Camera_BG3_X_pos_P2:		ds.l	1	; unused (only initialised at beginning of level)?
-Camera_BG3_Y_pos_P2:		ds.l	1
+Camera_BG3_Y_pos_P2:		ds.l	1	; unused (only initialised at beginning of level)?
 Camera_Positions_P2_End:
 
 Block_Crossed_Flags:
