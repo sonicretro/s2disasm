@@ -1595,7 +1595,6 @@ Timer_minute_word:				; 2 bytes
 				ds.b	1	; filler
 Timer_minute:			ds.b	1	; 1 byte
 Timer_second:			ds.b	1	; 1 byte
-Timer_centisecond:				; inaccurate name (the seconds increase when this reaches 60)
 Timer_frame:			ds.b	1	; 1 byte
 
 Score:				ds.l	1	; 4 bytes
