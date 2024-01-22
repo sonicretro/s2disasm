@@ -15823,36 +15823,44 @@ SwScrl_HTZ:
 -	move.l	d0,(a1)+
 	dbf	d1,-
 
-	; The remaining lines compose the animating clouds.
+	; The remaining lines of code in this function compose the animating clouds.
 	move.l	d0,d4
 	move.w	(TempArray_LayerDef+$22).w,d0
 	addq.w	#4,(TempArray_LayerDef+$22).w
+
+	; Get delta between camera X and the cloud scroll value.
 	sub.w	d0,d2
+
+	; This big block of code divides and then multiplies the delta by roughly 2.28,
+	; effectively subtracting 'delta modulo 2.28' from the delta.
+	; I have no idea why this is necessary.
+
+	; Start by reducing to 44% (100% divided by 2.28)...
 	move.w	d2,d0
 	move.w	d0,d1
-	asr.w	#1,d0
-	asr.w	#4,d1
-	sub.w	d1,d0
+	asr.w	#1,d0 ; Divide d0 by 2
+	asr.w	#4,d1 ; Divide d1 by 16
+	sub.w	d1,d0 ; 100 / 2 - 100 / 16 = 44
 	ext.l	d0
-	asl.l	#8,d0
-	divs.w	#$70,d0
+	; ...then increase the result to 228%, effectively undoing the reduction to 44% from earlier (0.44 x 2.28 = 1).
+	asl.l	#8,d0 ; Multiply by 256
+	divs.w	#256*44/100,d0 ; Divide by 112, which is 44% of 256
 	ext.l	d0
+
+	; We are done subtracting 'delta modulo 2.28' from the delta.
+
+	; Multiply the delta by 256.
 	asl.l	#8,d0
+
 	lea	(TempArray_LayerDef).w,a2	; See 'loc_3FE5C'.
 	moveq	#0,d3
-	move.w	d1,d3
+	move.w	d1,d3 ; d1 holds the original, pre-modulo delta divided by 16.
+    rept 3
 	swap	d3
 	add.l	d0,d3
 	swap	d3
 	move.w	d3,(a2)+
-	swap	d3
-	add.l	d0,d3
-	swap	d3
-	move.w	d3,(a2)+
-	swap	d3
-	add.l	d0,d3
-	swap	d3
-	move.w	d3,(a2)+
+    endm
 	move.w	d3,(a2)+
 	swap	d3
 	add.l	d0,d3
