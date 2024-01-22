@@ -1560,7 +1560,7 @@ CrossResetRAM:	; RAM in this region will not be cleared after a soft reset.
 
 SS_2p_Flag:			ds.w	1	; $FFFFFE00-$FFFFFE01 ; seems unused
 Level_Inactive_flag:		ds.w	1	; (2 bytes)
-Timer_frames:			ds.w	1	; (2 bytes)
+Level_frame_counter:			ds.w	1	; (2 bytes) (previously known as Timer_frames)
 Debug_object:			ds.b	1
 				ds.b	1	; $FFFFFE07 ; seems unused
 Debug_placement_mode:		ds.b	1

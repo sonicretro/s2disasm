@@ -4679,7 +4679,7 @@ Level:
 	jsr	(LoadTitleCard).l ; load title card patterns
 	move	#$2300,sr
 	moveq	#0,d0
-	move.w	d0,(Timer_frames).w
+	move.w	d0,(Level_frame_counter).w
 	move.b	(Current_Zone).w,d0
 
 	; multiply d0 by 12, the size of a level art load block
@@ -4993,7 +4993,7 @@ Level_MainLoop:
 	bsr.w	PauseGame
 	move.b	#VintID_Level,(Vint_routine).w
 	bsr.w	WaitForVint
-	addq.w	#1,(Timer_frames).w ; add 1 to level timer
+	addq.w	#1,(Level_frame_counter).w ; add 1 to level timer
 	bsr.w	MoveSonicInDemo
 	bsr.w	WaterEffects
 	jsr	(RunObjects).l
@@ -5145,7 +5145,7 @@ UpdateWaterSurface:
 	andi.b	#button_start_mask,d0
 	bne.s	+
     endif
-	btst	#0,(Timer_frames+1).w
+	btst	#0,(Level_frame_counter+1).w
 	beq.s	+
 	addi.w	#$20,d1
 +		; match obj x-position to screen position
@@ -13062,7 +13062,7 @@ EndingSequence:
 	moveq	#0,d0
 	move.w	d0,(Debug_placement_mode).w
 	move.w	d0,(Level_Inactive_flag).w
-	move.w	d0,(Timer_frames).w
+	move.w	d0,(Level_frame_counter).w
 	move.w	d0,(Camera_X_pos).w
 	move.w	d0,(Camera_Y_pos).w
 	move.w	d0,(Camera_X_pos_copy).w
@@ -13101,7 +13101,7 @@ EndingSequence:
 -
 	move.b	#VintID_Ending,(Vint_routine).w
 	bsr.w	WaitForVint
-	addq.w	#1,(Timer_frames).w
+	addq.w	#1,(Level_frame_counter).w
 	jsr	(RandomNumber).l
 	jsr	(RunObjects).l
 	jsr	(BuildSprites).l
@@ -13142,7 +13142,7 @@ EndgameCredits:
 	clr.b	(Screen_Shaking_Flag).w
 	moveq	#0,d0
 	move.w	d0,(Level_Inactive_flag).w
-	move.w	d0,(Timer_frames).w
+	move.w	d0,(Level_frame_counter).w
 	move.w	d0,(Camera_X_pos).w
 	move.w	d0,(Camera_Y_pos).w
 	move.w	d0,(Camera_X_pos_copy).w
@@ -15796,9 +15796,11 @@ SwScrl_WFZ_Normal_Array:
 ; ===========================================================================
 ; loc_C964:
 SwScrl_HTZ:
-	; Use different background scrolling code for two player mode.
+	; Use different background scrolling code for two player mode...
+	; despite the fact that Hill Top Zone is not normally playable in
+	; two-player mode.
 	tst.w	(Two_player_mode).w
-	bne.w	SwScrl_HTZ_2P	; never used in normal gameplay
+	bne.w	SwScrl_HTZ_2P
 
 	tst.b	(Screen_Shaking_Flag_HTZ).w
 	bne.w	HTZ_Screen_Shake
@@ -15985,7 +15987,7 @@ HTZ_Screen_Shake:
 	beq.s	+
 
 	; Make the screen shake.
-	move.w	(Timer_frames).w,d0
+	move.w	(Level_frame_counter).w,d0
 	andi.w	#$3F,d0
 	lea_	SwScrl_RippleData,a1
 	lea	(a1,d0.w),a1
@@ -16434,7 +16436,7 @@ SwScrl_MCZ:
 	tst.b	(Screen_Shaking_Flag).w
 	beq.s	+
 
-	move.w	(Timer_frames).w,d0
+	move.w	(Level_frame_counter).w,d0
 	andi.w	#$3F,d0
 	lea_	SwScrl_RippleData,a1
 	lea	(a1,d0.w),a1
@@ -17418,7 +17420,7 @@ SwScrl_DEZ:
 	bpl.s	+
 	clr.b	(Screen_Shaking_Flag).w
 +
-	move.w	(Timer_frames).w,d0
+	move.w	(Level_frame_counter).w,d0
 	andi.w	#$3F,d0
 	lea_	SwScrl_RippleData,a1
 	lea	(a1,d0.w),a1
@@ -17566,7 +17568,7 @@ SwScrl_DEZ:
 	bpl.s	+
 	clr.b	(Screen_Shaking_Flag).w
 +
-	move.w	(Timer_frames).w,d0
+	move.w	(Level_frame_counter).w,d0
 	andi.w	#$3F,d0
 	lea_	SwScrl_RippleData,a1
 	lea	(a1,d0.w),a1
@@ -17663,7 +17665,7 @@ SwScrl_ARZ:
 	tst.b	(Screen_Shaking_Flag).w
 	beq.s	.screenNotShaking
 
-	move.w	(Timer_frames).w,d0
+	move.w	(Level_frame_counter).w,d0
 	andi.w	#$3F,d0
 	lea_	SwScrl_RippleData,a1
 	lea	(a1,d0.w),a1
@@ -20732,7 +20734,7 @@ LevEvents_HTZ_Routine2:
 	bne.s	.sinking
 	cmpi.w	#320,(Camera_BG_Y_offset).w
 	beq.s	.flip_delay
-	move.w	(Timer_frames).w,d0
+	move.w	(Level_frame_counter).w,d0
 	move.w	d0,d1
 	andi.w	#3,d0
 	bne.s	LevEvents_HTZ_Routine2_Continue
@@ -20746,7 +20748,7 @@ LevEvents_HTZ_Routine2:
 .sinking:
 	cmpi.w	#224,(Camera_BG_Y_offset).w
 	beq.s	.flip_delay
-	move.w	(Timer_frames).w,d0
+	move.w	(Level_frame_counter).w,d0
 	move.w	d0,d1
 	andi.w	#3,d0
 	bne.s	LevEvents_HTZ_Routine2_Continue
@@ -20976,7 +20978,7 @@ LevEvents_HTZ2_Routine2:
 	bne.s	.sinking
 	cmpi.w	#$2C0,(Camera_BG_Y_offset).w
 	beq.s	.flip_delay
-	move.w	(Timer_frames).w,d0
+	move.w	(Level_frame_counter).w,d0
 	move.w	d0,d1
 	andi.w	#3,d0
 	bne.s	LevEvents_HTZ2_Routine2_Continue
@@ -20990,7 +20992,7 @@ LevEvents_HTZ2_Routine2:
 .sinking:
 	cmpi.w	#0,(Camera_BG_Y_offset).w
 	beq.s	.flip_delay
-	move.w	(Timer_frames).w,d0
+	move.w	(Level_frame_counter).w,d0
 	move.w	d0,d1
 	andi.w	#3,d0
 	bne.s	LevEvents_HTZ2_Routine2_Continue
@@ -21085,7 +21087,7 @@ LevEvents_HTZ2_Routine4:
 	bne.s	.sinking
 	cmpi.w	#$300,(Camera_BG_Y_offset).w
 	beq.s	.flip_delay
-	move.w	(Timer_frames).w,d0
+	move.w	(Level_frame_counter).w,d0
 	move.w	d0,d1
 	andi.w	#3,d0
 	bne.s	LevEvents_HTZ2_Routine4_Continue
@@ -21099,7 +21101,7 @@ LevEvents_HTZ2_Routine4:
 .sinking:
 	cmpi.w	#0,(Camera_BG_Y_offset).w
 	beq.s	.flip_delay
-	move.w	(Timer_frames).w,d0
+	move.w	(Level_frame_counter).w,d0
 	move.w	d0,d1
 	andi.w	#3,d0
 	bne.s	LevEvents_HTZ2_Routine4_Continue
@@ -21458,7 +21460,7 @@ LevEvents_MCZ2_Routine3:
 LevEvents_MCZ2_Routine4:
 	tst.b	(Screen_Shaking_Flag).w
 	beq.s	+
-	move.w	(Timer_frames).w,d0
+	move.w	(Level_frame_counter).w,d0
 	andi.w	#$1F,d0
 	bne.s	+
 	move.w	#SndID_Rumbling2,d0
@@ -25641,7 +25643,7 @@ Obj2E_Init:
 	tst.w	(Two_player_mode).w	; is it two player mode?
 	beq.s	loc_128C6		; if not, branch
 	; give 'random' item in two player mode
-	move.w	(Timer_frames).w,d0	; use the timer to determine which item
+	move.w	(Level_frame_counter).w,d0	; use the timer to determine which item
 	andi.w	#7,d0	; and 7 means there are 8 different items
 	addq.w	#1,d0	; add 1 to prevent getting the static monitor
 	tst.w	(Two_player_items).w	; are monitors set to 'teleport only'?
@@ -27881,7 +27883,7 @@ loc_142E2:
 	moveq	#$C,d0
 	add.b	anim_frame(a0),d0
 	move.b	d0,mapping_frame(a0)
-	btst	#4,(Timer_frames+1).w
+	btst	#4,(Level_frame_counter+1).w
 	bne.w	DisplaySprite
 	rts
 ; ===========================================================================
@@ -38217,7 +38219,7 @@ SAnim_SuperWalk:
 +
 	move.b	d0,mapping_frame(a0)
 	add.b	d3,mapping_frame(a0)
-	move.b	(Timer_frames+1).w,d1
+	move.b	(Level_frame_counter+1).w,d1
 	andi.b	#3,d1
 	bne.s	+
 	cmpi.b	#$B5,mapping_frame(a0)
@@ -38793,7 +38795,7 @@ TailsCPU_Spawning:
 	move.b	(Ctrl_2_Held_Logical).w,d0
 	andi.b	#button_B_mask|button_C_mask|button_A_mask|button_start_mask,d0
 	bne.s	TailsCPU_Respawn
-	move.w	(Timer_frames).w,d0
+	move.w	(Level_frame_counter).w,d0
 	andi.w	#$3F,d0
 	bne.s	return_1BB88
 	tst.b	obj_control(a1)
@@ -39036,7 +39038,7 @@ TailsCPU_Normal_FilterAction:
 	bne.s	TailsCPU_Normal_SendAction
 	move.b	#0,(Tails_CPU_jumping).w
 +
-	move.w	(Timer_frames).w,d0
+	move.w	(Level_frame_counter).w,d0
 	andi.w	#$FF,d0
 	beq.s	+
 	cmpi.w	#$40,d2
@@ -39050,7 +39052,7 @@ TailsCPU_Normal_FilterAction:
 	blo.s	TailsCPU_Normal_SendAction
 ; loc_1BE06:
 TailsCPU_Normal_FilterAction_Part2:
-	move.b	(Timer_frames+1).w,d0
+	move.b	(Level_frame_counter+1).w,d0
 	andi.b	#$3F,d0
 	bne.s	TailsCPU_Normal_SendAction
 	cmpi.b	#AniIDSonAni_Duck,anim(a0)
@@ -39156,7 +39158,7 @@ TailsCPU_Panic:
 	bset	#0,status(a0)
 +
 	move.w	#(button_down_mask<<8)|button_down_mask,(Ctrl_2_Logical).w
-	move.b	(Timer_frames+1).w,d0
+	move.b	(Level_frame_counter+1).w,d0
 	andi.b	#$7F,d0
 	beq.s	TailsCPU_Panic_ReleaseDash
 
@@ -39168,7 +39170,7 @@ TailsCPU_Panic:
 ; loc_1BF0C:
 TailsCPU_Panic_ChargingDash:
 	move.w	#(button_down_mask<<8)|button_down_mask,(Ctrl_2_Logical).w
-	move.b	(Timer_frames+1).w,d0
+	move.b	(Level_frame_counter+1).w,d0
 	andi.b	#$7F,d0
 	bne.s	TailsCPU_Panic_RevDash
 
@@ -41896,7 +41898,7 @@ Obj0A_MakeBubbleNow:
 	jsr	(RandomNumber).l
 	move.b	d0,angle(a1)
 
-	move.w	(Timer_frames).w,d0
+	move.w	(Level_frame_counter).w,d0
 	andi.b	#3,d0
 	bne.s	Obj0A_DoneCreatingBubble
 
@@ -44753,7 +44755,7 @@ Obj44_BumpCharacter:
 	sub.w	x_pos(a1),d1
 	sub.w	y_pos(a1),d2
 	jsr	(CalcAngle).l
-	move.b	(Timer_frames).w,d1
+	move.b	(Level_frame_counter).w,d1
 	andi.w	#3,d1
 	add.w	d1,d0
 	jsr	(CalcSine).l
@@ -47467,7 +47469,7 @@ Obj14_YOffsets:
 
 ; loc_21C66:
 Obj14_Animate:
-	move.b	(Timer_frames+1).w,d0
+	move.b	(Level_frame_counter+1).w,d0
 	andi.b	#3,d0
 	bne.s	Obj14_SetSolToFaceMainCharacter
 	bchg	#palette_bit_0,art_tile(a0)
@@ -47596,7 +47598,7 @@ Obj16_Wait:
 ; ===========================================================================
 ; loc_21E68:
 Obj16_Slide:
-	move.w	(Timer_frames).w,d0
+	move.w	(Level_frame_counter).w,d0
 	andi.w	#$F,d0	; play the sound only every 16 frames
 	bne.s	+
 	move.w	#SndID_HTZLiftClick,d0
@@ -47979,7 +47981,7 @@ Obj1B_Init:
 
 ; loc_222F8:
 Obj1B_Main:
-	move.b	(Timer_frames+1).w,d0
+	move.b	(Level_frame_counter+1).w,d0
 	andi.b	#2,d0
 	move.b	d0,mapping_frame(a0)
 	move.w	x_pos(a0),d0
@@ -52049,7 +52051,7 @@ Obj2C_Main:
 	beq.s	loc_261C2
 	move.w	objoff_2E(a0),d0
 	beq.s	+
-	add.b	(Timer_frames+1).w,d0
+	add.b	(Level_frame_counter+1).w,d0
 	andi.w	#$F,d0
 	bne.s	loc_26198
 +
@@ -52059,7 +52061,7 @@ Obj2C_Main:
 	bsr.s	Obj2C_CreateLeaves
 	tst.w	objoff_2E(a0)
 	bne.s	Obj2C_RemoveCollision
-	move.w	(Timer_frames).w,objoff_2E(a0)
+	move.w	(Level_frame_counter).w,objoff_2E(a0)
 	bra.s	Obj2C_RemoveCollision
 ; ===========================================================================
 
@@ -52073,7 +52075,7 @@ loc_26198:
 	bsr.s	Obj2C_CreateLeaves
 	tst.w	objoff_2E(a0)
 	bne.s	Obj2C_RemoveCollision
-	move.w	(Timer_frames).w,objoff_2E(a0)
+	move.w	(Level_frame_counter).w,objoff_2E(a0)
 ; loc_261BC:
 Obj2C_RemoveCollision:
 	clr.b	collision_property(a0)
@@ -53781,7 +53783,7 @@ Obj68_Init:
 	ori.b	#4,render_flags(a1)
 	move.b	#$10,width_pixels(a1)
 	move.b	#4,priority(a1)
-	move.w	(Timer_frames).w,d0
+	move.w	(Level_frame_counter).w,d0
 	lsr.w	#6,d0
 	move.w	d0,d1
 	andi.w	#1,d0
@@ -53862,7 +53864,7 @@ Obj68_Spike_Left:
 Obj68_Spike_Action:
 	tst.w	spikearoundblock_waiting(a0)
 	beq.s	+
-	move.b	(Timer_frames+1).w,d0
+	move.b	(Level_frame_counter+1).w,d0
 	andi.b	#$3F,d0
 	bne.s	Obj68_Spike_Action_End
 	clr.w	spikearoundblock_waiting(a0)
@@ -53965,7 +53967,7 @@ Obj6D_Action:
 +
 	tst.w	floorspike_waiting(a0)
 	beq.s	+
-	move.b	(Timer_frames+1).w,d0
+	move.b	(Level_frame_counter+1).w,d0
 	sub.b	subtype(a0),d0
 	andi.b	#$7F,d0
 	bne.s	Obj6D_Action_End
@@ -55254,7 +55256,7 @@ Obj70_LoadSubObject:
 ; loc_28652:
 Obj70_Main:
 	move.w	x_pos(a0),-(sp)
-	move.b	(Timer_frames+1).w,d0
+	move.b	(Level_frame_counter+1).w,d0
 	move.b	d0,d1
 	andi.w	#$F,d0
 	bne.s	loc_286CA
@@ -59495,7 +59497,7 @@ loc_2BC86:
 +
 	tst.w	objoff_2A(a0)
 	beq.w	+
-	btst	#0,(Timer_frames+1).w
+	btst	#0,(Level_frame_counter+1).w
 	beq.w	loc_2BD48
 	cmpi.w	#$10,objoff_2C(a0)
 	bhs.w	loc_2BD48
@@ -59539,7 +59541,7 @@ loc_2BD48:
 
 loc_2BD4E:
 	beq.w	+
-	btst	#0,(Timer_frames+1).w
+	btst	#0,(Level_frame_counter+1).w
 	beq.w	return_2BDF6
 	cmpi.w	#$10,objoff_2C(a0)
 	bhs.w	return_2BDF6
@@ -82996,7 +82998,7 @@ loc_3D3A4:
 	sub.w	x_pos(a1),d1
 	sub.w	y_pos(a1),d2
 	jsr	(CalcAngle).l
-	move.b	(Timer_frames).w,d1
+	move.b	(Level_frame_counter).w,d1
 	andi.w	#3,d1
 	add.w	d1,d0
 	jsr	(CalcSine).l
@@ -87970,7 +87972,7 @@ BuildHUD:
 	tst.w	(Ring_count).w
 	beq.s	++	; blink ring count if it's 0
 	moveq	#0,d1
-	btst	#3,(Timer_frames+1).w
+	btst	#3,(Level_frame_counter+1).w
 	bne.s	+	; only blink on certain frames
 	cmpi.b	#9,(Timer_minute).w	; should the minutes counter blink?
 	bne.s	+	; if not, branch
@@ -87979,7 +87981,7 @@ BuildHUD:
 	bra.s	++
 +
 	moveq	#0,d1
-	btst	#3,(Timer_frames+1).w
+	btst	#3,(Level_frame_counter+1).w
 	bne.s	+	; only blink on certain frames
 	addq.w	#1,d1	; set mapping frame for ring count blink
 	cmpi.b	#9,(Timer_minute).w
@@ -88006,7 +88008,7 @@ BuildHUD_P1:
 	tst.w	(Ring_count).w
 	beq.s	BuildHUD_P1_NoRings
 	moveq	#0,d1
-	btst	#3,(Timer_frames+1).w
+	btst	#3,(Level_frame_counter+1).w
 	bne.s	+
 	cmpi.b	#9,(Timer_minute).w
 	bne.s	+
@@ -88017,7 +88019,7 @@ BuildHUD_P1:
 ; loc_40876:
 BuildHUD_P1_NoRings:
 	moveq	#0,d1
-	btst	#3,(Timer_frames+1).w
+	btst	#3,(Level_frame_counter+1).w
 	bne.s	BuildHUD_P1_Continued
 	addq.w	#1,d1	; make RINGS flash
 	cmpi.b	#9,(Timer_minute).w
@@ -88183,7 +88185,7 @@ BuildHUD_P2:
 	tst.w	(Ring_count_2P).w
 	beq.s	BuildHUD_P2_NoRings
 	moveq	#0,d1
-	btst	#3,(Timer_frames+1).w
+	btst	#3,(Level_frame_counter+1).w
 	bne.s	+
 	cmpi.b	#9,(Timer_minute_2P).w
 	bne.s	+
@@ -88194,7 +88196,7 @@ BuildHUD_P2:
 ; loc_409E2:
 BuildHUD_P2_NoRings:
 	moveq	#0,d1
-	btst	#3,(Timer_frames+1).w
+	btst	#3,(Level_frame_counter+1).w
 	bne.s	BuildHUD_P2_Continued
 	addq.w	#1,d1
 	cmpi.b	#9,(Timer_minute_2P).w
