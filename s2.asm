@@ -15837,9 +15837,20 @@ SwScrl_HTZ:
 
 	; Start by reducing to 44% (100% divided by 2.28)...
 	move.w	d2,d0
+    if fixBugs
+	; See below.
+	moveq	#0,d1
+    endif
 	move.w	d0,d1
 	asr.w	#1,d0 ; Divide d0 by 2
-	asr.w	#4,d1 ; Divide d1 by 16
+    if fixBugs
+	; See below.
+	swap	d1
+	asr.l	#4,d1 ; Divide d1 by 16, preserving the remainder in the lower 16 bits
+	swap	d1
+    else
+	asr.w	#4,d1 ; Divide d1 by 16, discarding the remainder
+    endif
 	sub.w	d1,d0 ; 100 / 2 - 100 / 16 = 44
 	ext.l	d0
 	; ...then increase the result to 228%, effectively undoing the reduction to 44% from earlier (0.44 x 2.28 = 1).
@@ -15853,8 +15864,20 @@ SwScrl_HTZ:
 	asl.l	#8,d0
 
 	lea	(TempArray_LayerDef).w,a2	; See 'Dynamic_HTZ.doCloudArt'.
+
+    if fixBugs
+	move.l	d1,d3 ; d1 holds the original, pre-modulo delta divided by 16.
+    else
+	; d3 is used as a fixed-point accumulator here, with the upper 16 bits
+	; holding the integer part, and the lower 16 bits holding the decimal
+	; part. This accumulator is initialised to the value of the delta
+	; divided by 16, however, the decimal part of this division was not
+	; preserved. This loss of precision causes the clouds to scroll with a
+	; visible jerkiness.
 	moveq	#0,d3
 	move.w	d1,d3 ; d1 holds the original, pre-modulo delta divided by 16.
+    endif
+
     rept 3
 	swap	d3
 	add.l	d0,d3
