@@ -1154,9 +1154,9 @@ Camera_Y_pos_P2:		ds.l	1
 Camera_BG_X_pos_P2:		ds.l	1	; only used sometimes as the layer deformation makes it sort of redundant
 Camera_BG_Y_pos_P2:		ds.l	1
 Camera_BG2_X_pos_P2:		ds.l	1	; unused (only initialised at beginning of level)?
-Camera_BG2_Y_pos_P2:		ds.l	1
+Camera_BG2_Y_pos_P2:		ds.l	1	; unused (only initialised at beginning of level)?
 Camera_BG3_X_pos_P2:		ds.l	1	; unused (only initialised at beginning of level)?
-Camera_BG3_Y_pos_P2:		ds.l	1
+Camera_BG3_Y_pos_P2:		ds.l	1	; unused (only initialised at beginning of level)?
 Camera_Positions_P2_End:
 
 Block_Crossed_Flags:
@@ -1616,7 +1616,7 @@ CrossResetRAM:	; RAM in this region will not be cleared after a soft reset.
 
 SS_2p_Flag:			ds.w	1	; $FFFFFE00-$FFFFFE01 ; seems unused
 Level_Inactive_flag:		ds.w	1	; (2 bytes)
-Timer_frames:			ds.w	1	; (2 bytes)
+Level_frame_counter:			ds.w	1	; (2 bytes) (previously known as Timer_frames)
 Debug_object:			ds.b	1
 				ds.b	1	; $FFFFFE07 ; seems unused
 Debug_placement_mode:		ds.b	1
@@ -1651,7 +1651,6 @@ Timer_minute_word:				; 2 bytes
 				ds.b	1	; filler
 Timer_minute:			ds.b	1	; 1 byte
 Timer_second:			ds.b	1	; 1 byte
-Timer_centisecond:				; inaccurate name (the seconds increase when this reaches 60)
 Timer_frame:			ds.b	1	; 1 byte
 
 Score:				ds.l	1	; 4 bytes
