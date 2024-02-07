@@ -33490,11 +33490,11 @@ ChkLoadObj_2P:
 ; ---------------------------------------------------------------------------
 
 +
-	btst	#4,2(a0)	; the bit that's being tested for here should always be zero,
-	beq.s	+		; but assuming it weren't and this branch isn't taken,
-	bsr.w	AllocateObject	; then this object would not be loaded into one of the 12
-	bne.s	return_17FD8	; byte blocks after Dynamic_Object_RAM_2P_End and would most
-	bra.s	ChkLoadObj_2P_LoadData	; likely end up somwhere before this in Dynamic_Object_RAM
+	btst	#4,2(a0)
+	beq.s	+			; if this branch isn't taken, then this object would
+	bsr.w	AllocateObject		; not be loaded into one of the 12 byte blocks after
+	bne.s	return_17FD8		; Dynamic_Object_RAM_2P_End and would most likely end
+	bra.s	ChkLoadObj_2P_LoadData	; up somewhere before this in Dynamic_Object_RAM
 ; ---------------------------------------------------------------------------
 
 +
