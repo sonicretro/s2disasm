@@ -119,6 +119,12 @@ SCZ_Jump01:
 	dc.b	nB4, $0C, nG4, nA4, nG4, $06, nA4
 	smpsCall            SCZ_Call04
 	dc.b	nB4, $30
+    if defined(fixBugs)
+    if fixBugs
+	; This voice is set at SCZ_FM1, but never again.
+	smpsSetvoice        $06
+    endif
+    endif
 	smpsJump            SCZ_Jump01
 
 SCZ_Call04:
