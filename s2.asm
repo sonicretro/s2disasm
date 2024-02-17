@@ -91316,22 +91316,14 @@ ArtNem_ARZBarrierThing:		BINCLUDE	"art/nemesis/One way barrier from ARZ.nem" ; U
 	even
 
 ;---------------------------------------------------------------------------------------
-; EHZ Badnik Assets (Part 1) (Why is this split?)
+; EHZ/OOZ Badnik Assets
 ;---------------------------------------------------------------------------------------
 ArtNem_Buzzer:			BINCLUDE	"art/nemesis/Buzzer enemy.nem"
 	even
-
-;---------------------------------------------------------------------------------------
-; OOZ Badnik Assets
-;---------------------------------------------------------------------------------------
 ArtNem_Octus:			BINCLUDE	"art/nemesis/Octopus badnik from OOZ.nem"
 	even
 ArtNem_Aquis:			BINCLUDE	"art/nemesis/Seahorse from OOZ.nem"
 	even
-
-;---------------------------------------------------------------------------------------
-; EHZ Badnik Assets (Part 2) (Why?)
-;---------------------------------------------------------------------------------------
 ArtNem_Masher:			BINCLUDE	"art/nemesis/EHZ Pirahna badnik.nem"
 	even
 
@@ -91406,7 +91398,7 @@ ArtNem_Turtloid:		BINCLUDE	"art/nemesis/Turtle badnik from SCZ.nem"
 	even
 
 ;---------------------------------------------------------------------------------------
-; EHZ Badnik Assets (Part 3) (WTF???)
+; EHZ Badnik Assets (again)
 ;---------------------------------------------------------------------------------------
 ArtNem_Coconuts:		BINCLUDE	"art/nemesis/Coconuts badnik from EHZ.nem"
 	even
