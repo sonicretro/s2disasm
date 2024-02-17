@@ -91276,12 +91276,12 @@ ArtNem_CNZFlipper:		BINCLUDE	"art/nemesis/Flippers.nem"
 	even
 				BINCLUDE	"art/nemesis/Empty file.nem"
 	even
-ArtNem_CPZElevator:		BINCLUDE	"art/nemesis/Large moving platform from CNZ.nem"
-	even
 
 ;---------------------------------------------------------------------------------------
 ; CPZ Assets
 ;---------------------------------------------------------------------------------------
+ArtNem_CPZElevator:		BINCLUDE	"art/nemesis/Large moving platform from CPZ.nem"
+	even
 ArtNem_WaterSurface:		BINCLUDE	"art/nemesis/Top of water in HPZ and CNZ.nem"
 	even
 				BINCLUDE	"art/nemesis/Empty file.nem"
