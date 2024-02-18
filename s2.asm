@@ -91318,6 +91318,9 @@ ArtNem_ARZBarrierThing:		BINCLUDE	"art/nemesis/One way barrier from ARZ.nem" ; U
 ;---------------------------------------------------------------------------------------
 ; EHZ/OOZ Badnik Assets
 ;---------------------------------------------------------------------------------------
+; These Badniks being grouped together here is unusual, but can be explained by two things:
+; 1. This is where all Badnik tiles were kept in the earliest prototypes.
+; 2. These are the only Badniks left from those prototypes.
 ArtNem_Buzzer:			BINCLUDE	"art/nemesis/Buzzer enemy.nem"
 	even
 ArtNem_Octus:			BINCLUDE	"art/nemesis/Octopus badnik from OOZ.nem"
@@ -91326,12 +91329,12 @@ ArtNem_Aquis:			BINCLUDE	"art/nemesis/Seahorse from OOZ.nem"
 	even
 ArtNem_Masher:			BINCLUDE	"art/nemesis/EHZ Pirahna badnik.nem"
 	even
+				BINCLUDE	"art/nemesis/Empty file.nem"
+	even
 
 ;---------------------------------------------------------------------------------------
 ; Boss Assets
 ;---------------------------------------------------------------------------------------
-				BINCLUDE	"art/nemesis/Empty file.nem"
-	even
 ArtNem_Eggpod:			BINCLUDE	"art/nemesis/Eggpod.nem" ; Robotnik's main ship
 	even
 ArtNem_CPZBoss:			BINCLUDE	"art/nemesis/CPZ boss.nem"
