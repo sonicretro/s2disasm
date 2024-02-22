@@ -27,6 +27,7 @@ padToPowerOfTwo = 1
 fixBugs = 0
 ;	| If 1, enables all bug-fixes
 ;	| See also the 'FixDriverBugs' flag in 's2.sounddriver.asm'
+;	| See also the 'FixMusicAndSFXDataBugs' flag in 'build.lua'
 allOptimizations = 0
 ;	| If 1, enables all optimizations
 ;
@@ -64,6 +65,7 @@ useFullWaterTables = 0
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; Expressing SMPS bytecode in a portable and human-readable form
+FixMusicAndSFXDataBugs = fixBugs
 SonicDriverVer = 2 ; Tell SMPS2ASM that we are targetting Sonic 2's sound driver
 	include "sound/_smps2asm_inc.asm"
 
