@@ -297,7 +297,7 @@ ARZ_Loop08:
 	dc.b	$06, nA5, nRst, nG5, nA5, nRst, nG5, nRst, nA5, $0C, nG5, $06
 	dc.b	nA5, $12, nG5, $02, nF5, nE5, nD5, nC5, nB4
 	smpsPSGvoice        fTone_01
-	smpsAlterVol        $FE
+	smpsPSGAlterVolS2   $FE
 	dc.b	nD5, $0C, nG5, $06, nBb4, $0C, nD5, nD5, $06, nRst, nF5, nRst
 	dc.b	nG4, nD5, $0C, nD5, $06, nRst, nC5, $0C, nF5, $06, nA4, $0C
 	dc.b	nC5, nC5, $06, nRst, nF5, nRst, nA4, nC5, $0C, nC5, $06, nRst
@@ -310,7 +310,7 @@ ARZ_Loop08:
 	dc.b	nE5, $06, nA4, $0C, nBb4, nCs5, nE5, $06, nRst, nA4, nA4, $0C
 	dc.b	nA4, $06, nRst, nE5, nE5, nE5, nRst, $12, nE5, $06, nE5, nE5
 	dc.b	nRst, $2A
-	smpsAlterVol        $02
+	smpsPSGAlterVolS2   $02
 	smpsJump            ARZ_Loop08
 
 ; PSG3 Data

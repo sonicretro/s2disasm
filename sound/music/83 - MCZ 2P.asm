@@ -96,14 +96,14 @@ MCZ_2p_Jump07:
 	dc.b	nRst, $30, nRst, nRst, nRst, nRst, nRst, nRst, nRst
 	smpsCall            MCZ_2p_Call03
 	dc.b	$24, nB4, nD5, $18, smpsNoAttack, $30, smpsNoAttack, $30
-	smpsAlterVol        $FE
+	smpsPSGAlterVolS2   $FE
 	dc.b	nG5, $24, nF5, nE5, $18, nF5, $24, nE5, nC5, $18, nC5, nD5
 	dc.b	$0C, nB4, $30, smpsNoAttack, $0C, smpsNoAttack, $30, smpsNoAttack, $24, nRst, $0C, nRst
 	dc.b	$30, nRst, nRst, nRst, nA4, $24, nC5, nE5, $18, nD5, $24, nB4
 	dc.b	nG4, $18, nF4, nD4, $0C, nG4, $30, smpsNoAttack, $0C, smpsNoAttack, $30, smpsNoAttack
 	dc.b	$18, nRst, $18, nA4, $24, nC5, nE5, $18, nD5, $24, nB4, nG4
 	dc.b	$18, nG5, $30, smpsNoAttack, $30, smpsNoAttack, $30, smpsNoAttack, $0C, nRst, $24
-	smpsAlterVol        $02
+	smpsPSGAlterVolS2   $02
 	smpsJump            MCZ_2p_Jump07
 
 ; FM4 Data

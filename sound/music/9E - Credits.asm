@@ -954,7 +954,7 @@ Credits_Loop3E:
 	smpsLoop            $00, $0A, Credits_Loop3E
 	dc.b	nRst, $60
 	smpsAlterPitch      $F4
-	smpsAlterVol        $FE
+	smpsPSGAlterVolS2   $FE
 	smpsPSGvoice        fTone_01
 	smpsCall            Credits_Call28
 	dc.b	nA3, nD4, $06, nG3, $0C, nA3, nA3, nD4, $06, nRst, nD4, nFs3
