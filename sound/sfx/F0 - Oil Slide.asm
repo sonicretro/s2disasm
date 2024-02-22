@@ -13,12 +13,6 @@ Sound70_OilSlide_PSG3:
 
 Sound70_OilSlide_Loop00:
 	dc.b	smpsNoAttack, $03
-    if FixMusicAndSFXDataBugs
-	smpsPSGAlterVol     $01
-    else
-	; This command is for FM, not PSG!
-	; This works fine in Sonic 2's driver, but not other drivers!
-	smpsAlterVol        $01
-    endif
+	smpsPSGAlterVolS2   $01
 	smpsLoop            $00, $08, Sound70_OilSlide_Loop00
 	smpsStop

@@ -26,13 +26,7 @@ Sound5C_Fire_PSG3:
 
 Sound5C_Fire_Loop01:
 	dc.b	smpsNoAttack, $08
-    if FixMusicAndSFXDataBugs
-	smpsPSGAlterVol     $01
-    else
-	; This command is for FM, not PSG!
-	; This works fine in Sonic 2's driver, but not other drivers!
-	smpsAlterVol        $01
-    endif
+	smpsPSGAlterVolS2   $01
 	smpsLoop            $00, $05, Sound5C_Fire_Loop01
 	smpsStop
 
