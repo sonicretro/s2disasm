@@ -25,17 +25,17 @@ spritePiece macro xpos,ypos,width,height,tile,xflip,yflip,pal,pri
 	if SonicMappingsVer=1
 	dc.b	ypos
 	dc.b	(((width-1)&3)<<2)|((height-1)&3)
-	dc.b	((pri&1)<<7)|((pal&3)<<5)|((yflip&1)<<4)|((xflip&1)<<3)|((tile&$700)>>8)
+	dc.b	((((pri&1)<<15)|((pal&3)<<13)|((yflip&1)<<12)|((xflip&1)<<11))+(tile))>>8
 	dc.b	tile&$FF
 	dc.b	xpos
 	elseif SonicMappingsVer=2
 	dc.w	((ypos&$FF)<<8)|(((width-1)&3)<<2)|((height-1)&3)
-	dc.w	((pri&1)<<15)|((pal&3)<<13)|((yflip&1)<<12)|((xflip&1)<<11)|(tile&$7FF)
-	dc.w	((pri&1)<<15)|((pal&3)<<13)|((yflip&1)<<12)|((xflip&1)<<11)|((tile>>1)&$7FF)
+	dc.w	(((pri&1)<<15)|((pal&3)<<13)|((yflip&1)<<12)|((xflip&1)<<11))+(tile)
+	dc.w	(((pri&1)<<15)|((pal&3)<<13)|((yflip&1)<<12)|((xflip&1)<<11))+(((tile)>>1)|((tile)&$8000))
 	dc.w	xpos
 	else
 	dc.w	((ypos&$FF)<<8)|(((width-1)&3)<<2)|((height-1)&3)
-	dc.w	((pri&1)<<15)|((pal&3)<<13)|((yflip&1)<<12)|((xflip&1)<<11)|(tile&$7FF)
+	dc.w	(((pri&1)<<15)|((pal&3)<<13)|((yflip&1)<<12)|((xflip&1)<<11))+(tile)
 	dc.w	xpos
 	endif
 	endm
@@ -44,17 +44,17 @@ spritePiece2P macro xpos,ypos,width,height,tile,xflip,yflip,pal,pri,tile2,xflip2
 	if SonicMappingsVer=1
 	dc.b	ypos
 	dc.b	(((width-1)&3)<<2)|((height-1)&3)
-	dc.b	((pri&1)<<7)|((pal&3)<<5)|((yflip&1)<<4)|((xflip&1)<<3)|((tile&$700)>>8)
+	dc.b	((((pri&1)<<15)|((pal&3)<<13)|((yflip&1)<<12)|((xflip&1)<<11))+(tile))>>8
 	dc.b	tile&$FF
 	dc.b	xpos
 	elseif SonicMappingsVer=2
 	dc.w	((ypos&$FF)<<8)|(((width-1)&3)<<2)|((height-1)&3)
-	dc.w	((pri&1)<<15)|((pal&3)<<13)|((yflip&1)<<12)|((xflip&1)<<11)|(tile&$7FF)
-	dc.w	((pri2&1)<<15)|((pal2&3)<<13)|((yflip2&1)<<12)|((xflip2&1)<<11)|(tile2&$7FF)
+	dc.w	(((pri&1)<<15)|((pal&3)<<13)|((yflip&1)<<12)|((xflip&1)<<11))+(tile)
+	dc.w	(((pri2&1)<<15)|((pal2&3)<<13)|((yflip2&1)<<12)|((xflip2&1)<<11))+(tile2)
 	dc.w	xpos
 	else
 	dc.w	((ypos&$FF)<<8)|(((width-1)&3)<<2)|((height-1)&3)
-	dc.w	((pri&1)<<15)|((pal&3)<<13)|((yflip&1)<<12)|((xflip&1)<<11)|(tile&$7FF)
+	dc.w	(((pri&1)<<15)|((pal&3)<<13)|((yflip&1)<<12)|((xflip&1)<<11))+(tile)
 	dc.w	xpos
 	endif
 	endm
