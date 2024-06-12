@@ -224,10 +224,8 @@ CheckedChannelPointer macro loc
 	if SonicDriverVer<>1
 		dc.w	z80_ptr(loc)
 	else
-		if MOMPASS>1
-			if loc<songStart
-				fatal "Tracks for Sonic 1 songs must come after the start of the song"
-			endif
+		if (MOMPASS=1)&&(DEFINED(loc))
+			fatal "Tracks for Sonic 1 songs must come after the start of the song"
 		endif
 		dc.w	loc-songStart
 	endif
@@ -246,7 +244,7 @@ SourceDriver set ver
 
 songStart set *
 
-	if MOMPASS>1
+	if MOMPASS=1
 		if SMPS2ASMVer < SourceSMPS2ASM
 			message "Song at 0x\{songStart} was made for a newer version of SMPS2ASM (this is version \{SMPS2ASMVer}, but song wants at least version \{SourceSMPS2ASM})."
 		endif
@@ -270,10 +268,8 @@ smpsHeaderVoice macro loc
 	if SonicDriverVer<>1
 		dc.w	z80_ptr(loc)
 	else
-		if MOMPASS>1
-			if loc<songStart
-				fatal "Voice banks for Sonic 1 songs must come after the song"
-			endif
+		if (MOMPASS=1)&&(DEFINED(loc))
+			fatal "Voice banks for Sonic 1 songs must come after the start of the song"
 		endif
 		dc.w	loc-songStart
 	endif
@@ -339,7 +335,7 @@ smpsHeaderPSG macro loc,pitch,vol,mod,voice
 		; other drivers may try to process as valid data, so manually force it to 0 here.
 		dc.b	0
 	else
-		if (MOMPASS==2) && (SonicDriverVer<3) && (SourceDriver>=3) && (mod<>0)
+		if (MOMPASS==1) && (SonicDriverVer<3) && (SourceDriver>=3) && (mod<>0)
 			message "This track header specifies a frequency envelope, but this driver does not support them."			
 		endif
 		dc.b	mod
@@ -918,7 +914,7 @@ smpsVcTotalLevel macro op1,op2,op3,op4
 		set vcTL3,vcTL3&$7F
 		set vcTL4,vcTL4&$7F
 	elseif (SonicDriverVer<3)&&(SourceDriver>=3)&&((((vcTL1|vcTLMask1)&$80)<>$80)||(((vcTL2|vcTLMask2)&$80)<>((vcAlgorithm>=5)<<7))||(((vcTL3|vcTLMask3)&$80)<>((vcAlgorithm>=4)<<7))||(((vcTL4|vcTLMask4)&$80)<>((vcAlgorithm==7)<<7)))
-		if MOMPASS>1
+		if MOMPASS=1
 			message "Voice at 0x\{*} has TL bits that do not match its algorithm setting. This voice will not work in S1/S2 drivers."
 		endif
 	endif
