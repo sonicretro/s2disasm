@@ -309,8 +309,9 @@ endpad := $
 zmake68kPtr function addr,zROMWindow+(addr&7FFFh)
 
 ; Function to turn a sample rate into a djnz loop counter
-pcmLoopCounter function sampleRate,baseCycles, 1+(53693175/15/(sampleRate)-(baseCycles)+(13/2))/13
-
+pcmLoopCounterBase function sampleRate,baseCycles, 1+(53693175/15/(sampleRate)-(baseCycles)+(13/2))/13
+pcmLoopCounter function sampleRate, pcmLoopCounterBase(sampleRate,146/2) ; 146 is the number of cycles zPlaySegaSound takes to deliver two samples.
+dpcmLoopCounter function sampleRate, pcmLoopCounterBase(sampleRate,289/2) ; 289 is the number of cycles zWriteToDAC takes to deliver two samples.
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; Z80 'ROM' start:
@@ -722,8 +723,7 @@ zWriteToDAC:
 	ei				; 4	; enable interrupts (done updating DAC, busy waiting for next update)
 	jp	zWaitLoop		; 10	; Back to the wait loop; if there's more DAC to write, we come back down again!
 					; 289
-	; 289 cycles for two samples. zDACMasterPlaylist should use 289
-	; divided by 2 as the second parameter to pcmLoopCounter.
+	; 289 cycles for two samples. dpcmLoopCounter should use 289 divided by 2.
 ; ---------------------------------------------------------------------------
 ; 'jman2050' DAC decode lookup table
 ; zbyte_1B3
@@ -1604,7 +1604,7 @@ zPlaySegaSound:
 	ld	(zYM2612_D0),a			; 13	; Send to DAC
 	inc	hl				; 6	; Advance pointer
 	nop					; 4
-	ld	b,pcmLoopCounter(16500,146/2)	; 7	; Sega PCM pitch
+	ld	b,pcmLoopCounter(16500)	; 7	; Sega PCM pitch
 	djnz	$				; 8	; Delay loop
 
 	nop					; 4
@@ -1615,7 +1615,7 @@ zPlaySegaSound:
 	ld	(zYM2612_D0),a			; 13	; Send to DAC
 	inc	hl				; 6	; Advance pointer
 	nop					; 4
-	ld	b,pcmLoopCounter(16500,146/2)	; 7	; Sega PCM pitch
+	ld	b,pcmLoopCounter(16500)	; 7	; Sega PCM pitch
 	djnz	$				; 8	; Delay loop
 
 	nop					; 4
@@ -1624,8 +1624,7 @@ zPlaySegaSound:
 	or	e				; 4	; Is de zero?
 	jp	nz,.loop			; 10	; If not, loop
 						; 146
-	; Two samples per 146 cycles, meaning that the second parameter
-	; to pcmLoopCounter should be 146 divided by 2.
+	; Two samples per 146 cycles, meaning that pcmLoopCounter should used 146 divided by 2.
 
 .stop:
 	call	zBankSwitchToMusic
@@ -3885,7 +3884,7 @@ ptrsize :=	2+2
 idstart :=	81h
 
 dac_sample_metadata macro label,sampleRate
-	db	id(label),pcmLoopCounter(sampleRate,289/2)	; See zWriteToDAC for an explanation of this magic number.
+	db	id(label),dpcmLoopCounter(sampleRate)
     endm
 
 	dac_sample_metadata zDACPtr_Kick,    8250	; 81h
