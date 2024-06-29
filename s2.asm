@@ -111,9 +111,9 @@ Vectors:
 	dc.l ErrorTrap		; IRQ level 1
 	dc.l ErrorTrap		; IRQ level 2
 	dc.l ErrorTrap		; IRQ level 3 (28)
-	dc.l H_Int			; IRQ level 4 (horizontal retrace interrupt)
+	dc.l H_Int		; IRQ level 4 (horizontal retrace interrupt)
 	dc.l ErrorTrap		; IRQ level 5
-	dc.l V_Int			; IRQ level 6 (vertical retrace interrupt)
+	dc.l V_Int		; IRQ level 6 (vertical retrace interrupt)
 	dc.l ErrorTrap		; IRQ level 7 (32)
 	dc.l ErrorTrap		; TRAP #00 exception
 	dc.l ErrorTrap		; TRAP #01 exception
@@ -151,8 +151,12 @@ Vectors:
 Header:
 	dc.b "SEGA GENESIS    " ; Console name
 	dc.b "(C)SEGA 1992.SEP" ; Copyright holder and release date (generally year)
-	dc.b "SONIC THE             HEDGEHOG 2                " ; Domestic name
-	dc.b "SONIC THE             HEDGEHOG 2                " ; International name
+	dc.b "SONIC THE       " ; Domestic name
+	dc.b "      HEDGEHOG 2"
+	dc.b "                "
+	dc.b "SONIC THE       " ; International name
+	dc.b "      HEDGEHOG 2"
+	dc.b "                "
     if gameRevision=0
 	dc.b "GM 00001051-00"   ; Version (REV00)
     elseif gameRevision=1
@@ -169,7 +173,7 @@ Checksum:
 ROMEndLoc:
 	dc.l EndOfRom-1		; End address of ROM
 	dc.l RAM_Start&$FFFFFF		; Start address of RAM
-	dc.l (RAM_End-1)&$FFFFFF		; End address of RAM
+	dc.l (RAM_End-1)&$FFFFFF	; End address of RAM
 	dc.b "    "		; Backup RAM ID
 	dc.l $20202020		; Backup RAM start address
 	dc.l $20202020		; Backup RAM end address
@@ -189,18 +193,22 @@ ErrorTrap:
 ; ===========================================================================
 ; loc_206:
 EntryPoint:
-	tst.l	(HW_Port_1_Control-1).l	; test ports A and B control
-	bne.s	PortA_Ok	; If so, branch.
+	; Everything from here to just past CheckSumCheck is the standard
+	; "MEGA DRIVE hard initial program", distributed by Sega as a file
+	; called 'ICD_BLK4.PRG'.
+	; http://techdocs.exodusemulator.com/Console/SegaMegaDrive/Software.html#original-development-tools
+	tst.l	(HW_Port_1_Control-1).l		; test ports A and B control
+	bne.s	PortA_Ok			; If so, branch.
 	tst.w	(HW_Expansion_Control-1).l	; test port C control
 ; loc_214:
 PortA_Ok:
-	bne.s	PortC_OK ; Skip the VDP and Z80 setup code if port A, B or C is ok...?
+	bne.s	PortC_OK ; Skip the VDP and Z80 setup code if this is a soft-reset.
 	lea	SetupValues(pc),a5	; Load setup values array address.
 	movem.w	(a5)+,d5-d7
 	movem.l	(a5)+,a0-a4
 	move.b	HW_Version-Z80_Bus_Request(a1),d0	; Get hardware version
-	andi.b	#$F,d0	; Compare
-	beq.s	SkipSecurity	; If the console has no TMSS, skip the security stuff.
+	andi.b	#$F,d0					; Compare
+	beq.s	SkipSecurity				; If the console has no TMSS, skip the security stuff.
 	move.l	#'SEGA',Security_Addr-Z80_Bus_Request(a1) ; Satisfy the TMSS
 ; loc_234:
 SkipSecurity:
@@ -213,17 +221,17 @@ SkipSecurity:
 ; loc_23E:
 VDPInitLoop:
 	move.b	(a5)+,d5	; add $8000 to value
-	move.w	d5,(a4)	; move value to VDP register
-	add.w	d7,d5	; next register
+	move.w	d5,(a4)		; move value to VDP register
+	add.w	d7,d5		; next register
 	dbf	d1,VDPInitLoop
 
 	move.l	(a5)+,(a4)	; set VRAM write mode
-	move.w	d0,(a3)	; clear the screen
-	move.w	d7,(a1)	; stop the Z80
-	move.w	d7,(a2)	; reset the Z80
+	move.w	d0,(a3)		; clear the screen
+	move.w	d7,(a1)		; stop the Z80
+	move.w	d7,(a2)		; reset the Z80
 ; loc_250:
 WaitForZ80:
-	btst	d0,(a1)	; has the Z80 stopped?
+	btst	d0,(a1)		; has the Z80 stopped?
 	bne.s	WaitForZ80	; if not, branch
 
 	moveq	#Z80StartupCodeEnd-Z80StartupCodeBegin-1,d2
@@ -246,7 +254,7 @@ ClrRAMLoop:
 	moveq	#bytesToLcnt($80),d3	; set repeat times
 ; loc_26E:
 ClrCRAMLoop:
-	move.l	d0,(a3)	; clear 2 palettes
+	move.l	d0,(a3)		; clear 2 palettes
 	dbf	d3,ClrCRAMLoop	; repeat until the entire CRAM is clear
 	move.l	(a5)+,(a4)	; set VDP to VSRAM write
 
@@ -362,6 +370,7 @@ CheckSumCheck:
 	btst	#1,d1
 	bne.s	CheckSumCheck	; wait until DMA is completed
     endif
+	; "MEGA DRIVE hard initial program" ends here.
 	btst	#6,(HW_Expansion_Control).l
 	beq.s	ChecksumTest
 	cmpi.l	#'init',(Checksum_fourcc).w ; has checksum routine already run?
@@ -380,7 +389,7 @@ ChecksumLoop:
 	cmp.l	a0,d0
 	bhs.s	ChecksumLoop
 	movea.l	#Checksum,a1	; read the checksum
-	cmp.w	(a1),d1	; compare correct checksum to the one in ROM
+	cmp.w	(a1),d1		; compare correct checksum to the one in ROM
 	bne.w	ChecksumError	; if they don't match, branch
     endif
 ;checksum_good:
@@ -413,10 +422,10 @@ GameClrRAM:
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; set Game Mode to Sega Screen
 ; loc_394:
 MainGameLoop:
-	move.b	(Game_Mode).w,d0 ; load Game Mode
-	andi.w	#$3C,d0	; limit Game Mode value to $3C max (change to a maximum of 7C to add more game modes)
+	move.b	(Game_Mode).w,d0	; load Game Mode
+	andi.w	#$3C,d0			; limit Game Mode value to $3C max (change to a maximum of $7C to add more game modes)
 	jsr	GameModesArray(pc,d0.w)	; jump to apt location in ROM
-	bra.s	MainGameLoop	; loop indefinitely
+	bra.s	MainGameLoop		; loop indefinitely
 ; ===========================================================================
 ; loc_3A2:
 GameModesArray: ;;
@@ -439,11 +448,11 @@ ChecksumError:
 	bsr.w	VDPSetupGame
 	move.l	(sp)+,d1
 	move.l	#vdpComm($0000,CRAM,WRITE),(VDP_control_port).l ; set VDP to CRAM write
-	moveq	#$3F,d7
+	moveq	#16*4-1,d7 ; all colours of all palette lines
 ; loc_3E2:
 Checksum_Red:
-	move.w	#$E,(VDP_data_port).l ; fill palette with red
-	dbf	d7,Checksum_Red	; repeat $3F more times
+	move.w	#$00E,(VDP_data_port).l	; fill palette with red
+	dbf	d7,Checksum_Red		; repeat $3F more times
 ; loc_3EE:
 ChecksumFailed_Loop:
 	bra.s	ChecksumFailed_Loop
@@ -480,8 +489,8 @@ V_Int:
 
 	move.l	#vdpComm($0000,VSRAM,WRITE),(VDP_control_port).l
 	move.l	(Vscroll_Factor).w,(VDP_data_port).l ; send screen y-axis pos. to VSRAM
-	btst	#6,(Graphics_Flags).w ; is Megadrive PAL?
-	beq.s	+		; if not, branch
+	btst	#6,(Graphics_Flags).w	; is Megadrive PAL?
+	beq.s	+			; if not, branch
 
 	move.w	#$700,d0
 -	dbf	d0,- ; wait here in a loop doing nothing for a while...
@@ -499,7 +508,7 @@ VintRet:
 	rte
 ; ===========================================================================
 Vint_SwitchTbl: offsetTable
-Vint_Lag_ptr		offsetTableEntry.w Vint_Lag			;   0
+Vint_Lag_ptr		offsetTableEntry.w Vint_Lag		;   0
 Vint_SEGA_ptr:		offsetTableEntry.w Vint_SEGA		;   2
 Vint_Title_ptr:		offsetTableEntry.w Vint_Title		;   4
 Vint_Unused6_ptr:	offsetTableEntry.w Vint_Unused6		;   6
@@ -509,7 +518,7 @@ Vint_TitleCard_ptr:	offsetTableEntry.w Vint_TitleCard	;  $C
 Vint_UnusedE_ptr:	offsetTableEntry.w Vint_UnusedE		;  $E
 Vint_Pause_ptr:		offsetTableEntry.w Vint_Pause		; $10
 Vint_Fade_ptr:		offsetTableEntry.w Vint_Fade		; $12
-Vint_PCM_ptr:		offsetTableEntry.w Vint_PCM			; $14
+Vint_PCM_ptr:		offsetTableEntry.w Vint_PCM		; $14
 Vint_Menu_ptr:		offsetTableEntry.w Vint_Menu		; $16
 Vint_Ending_ptr:	offsetTableEntry.w Vint_Ending		; $18
 Vint_CtrlDMA_ptr:	offsetTableEntry.w Vint_CtrlDMA		; $1A
@@ -633,7 +642,7 @@ Vint_SEGA:
 	dma68kToVDP Horiz_Scroll_Buf,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
 	jsrto	SegaScr_VInt, JmpTo_SegaScr_VInt
 	tst.w	(Demo_Time_left).w	; is there time left on the demo?
-	beq.w	+	; if not, return
+	beq.w	+			; if not, return
 	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left in demo
 +
 	rts
@@ -649,7 +658,7 @@ Vint_PCM:
 	startZ80
 +
 	tst.w	(Demo_Time_left).w	; is there time left on the demo?
-	beq.w	+	; if not, return
+	beq.w	+			; if not, return
 	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left in demo
 +
 	rts
@@ -659,7 +668,7 @@ Vint_Title:
 	bsr.w	Do_ControllerPal
 	bsr.w	ProcessDPLC
 	tst.w	(Demo_Time_left).w	; is there time left on the demo?
-	beq.w	+	; if not, return
+	beq.w	+			; if not, return
 	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left in demo
 +
 	rts
@@ -682,7 +691,7 @@ Vint_Level:
 	beq.s	loc_6F8
 	lea	(VDP_control_port).l,a5
 	tst.w	(Game_paused).w	; is the game paused?
-	bne.w	loc_748	; if yes, branch
+	bne.w	loc_748		; if yes, branch
 	subq.b	#1,(Teleport_timer).w
 	bne.s	+
 	move.b	#0,(Teleport_flag).w
@@ -693,13 +702,15 @@ Vint_Level:
 	move.l	#vdpComm($0000,CRAM,WRITE),(VDP_control_port).l
 	move.w	#$EEE,d0 ; White.
 
-	move.w	#32-1,d1
+	; Do two palette lines.
+	move.w	#16*2-1,d1
 -	move.w	d0,(a6)
 	dbf	d1,-
 
 	; Skip a colour.
 	move.l	#vdpComm($0042,CRAM,WRITE),(VDP_control_port).l
 
+	; Do the remaining two palette lines.
     if fixBugs
 	move.w	#31-1,d1
     else
@@ -782,7 +793,7 @@ Do_Updates:
 	jsr	(HudUpdate).l
 	bsr.w	ProcessDPLC2
 	tst.w	(Demo_Time_left).w	; is there time left on the demo?
-	beq.w	+		; if not, branch
+	beq.w	+			; if not, branch
 	subq.w	#1,(Demo_Time_left).w	; subtract 1 from time left in demo
 +
 	rts
@@ -829,16 +840,16 @@ loc_906:
 	dma68kToVDP SS_Horiz_Scroll_Buf_1,VRAM_Horiz_Scroll_Table,VRAM_Horiz_Scroll_Table_Size,VRAM
 
 loc_92A:
-	tst.b	(SSTrack_Orientation).w			; Is the current track frame flipped?
-	beq.s	++								; Branch if not
+	tst.b	(SSTrack_Orientation).w		; Is the current track frame flipped?
+	beq.s	++				; Branch if not
 	moveq	#0,d0
 	move.b	(SSTrack_drawing_index).w,d0	; Get drawing position
-	cmpi.b	#4,d0							; Have we finished drawing and streaming track frame?
-	bge.s	++								; Branch if yes (nothing to draw)
-	add.b	d0,d0							; Convert to index
-	tst.b	(SS_Alternate_PNT).w			; [(SSTrack_drawing_index) * 2] = subroutine
-	beq.s	+								; Branch if not using the alternate Plane A name table
-	addi_.w	#8,d0							; ([(SSTrack_drawing_index) * 2] + 8) = subroutine
+	cmpi.b	#4,d0				; Have we finished drawing and streaming track frame?
+	bge.s	++				; Branch if yes (nothing to draw)
+	add.b	d0,d0				; Convert to index
+	tst.b	(SS_Alternate_PNT).w		; [(SSTrack_drawing_index) * 2] = subroutine
+	beq.s	+				; Branch if not using the alternate Plane A name table
+	addi_.w	#8,d0				; ([(SSTrack_drawing_index) * 2] + 8) = subroutine
 +
 	move.w	SS_PNTA_Transfer_Table(pc,d0.w),d0
 	jsr	SS_PNTA_Transfer_Table(pc,d0.w)
@@ -846,12 +857,12 @@ loc_92A:
 	bsr.w	SSRun_Animation_Timers
 	addi_.b	#1,(SSTrack_drawing_index).w	; Run track timer
 	move.b	(SSTrack_drawing_index).w,d0	; Get new timer value
-	cmp.b	d1,d0							; Is it less than the player animation timer?
-	blt.s	+++								; Branch if so
+	cmp.b	d1,d0				; Is it less than the player animation timer?
+	blt.s	+++				; Branch if so
 	move.b	#0,(SSTrack_drawing_index).w	; Start drawing new frame
 	lea	(VDP_control_port).l,a6
-	tst.b	(SS_Alternate_PNT).w			; Are we using the alternate address for plane A?
-	beq.s	+								; Branch if not
+	tst.b	(SS_Alternate_PNT).w		; Are we using the alternate address for plane A?
+	beq.s	+				; Branch if not
 	move.w	#$8200|(VRAM_SS_Plane_A_Name_Table1/$400),(a6)	; Set PNT A base to $C000
 	bra.s	++
 ; ===========================================================================
@@ -869,7 +880,7 @@ SS_PNTA_Transfer_Table:	offsetTable
 +
 	move.w	#$8200|(VRAM_SS_Plane_A_Name_Table2/$400),(a6)	; Set PNT A base to $8000
 +
-	eori.b	#1,(SS_Alternate_PNT).w			; Toggle flag
+	eori.b	#1,(SS_Alternate_PNT).w	; Toggle flag
 +
 	bsr.w	ProcessDMAQueue
 	jsr	(sndDriverInput).l
@@ -935,12 +946,12 @@ SSSet_VScroll:
 SSRun_Animation_Timers:
 	move.w	(SS_Cur_Speed_Factor).w,d0		; Get current speed factor
 	cmp.w	(SS_New_Speed_Factor).w,d0		; Has the speed factor changed?
-	beq.s	+								; Branch if yes
+	beq.s	+					; Branch if yes
 	move.l	(SS_New_Speed_Factor).w,(SS_Cur_Speed_Factor).w	; Save new speed factor
-	move.b	#0,(SSTrack_duration_timer).w	; Reset timer
+	move.b	#0,(SSTrack_duration_timer).w		; Reset timer
 +
-	subi_.b	#1,(SSTrack_duration_timer).w	; Run track timer
-	bgt.s	+								; Branch if not expired yet
+	subi_.b	#1,(SSTrack_duration_timer).w		; Run track timer
+	bgt.s	+					; Branch if not expired yet
 	lea	(SSAnim_Base_Duration).l,a0
 	move.w	(SS_Cur_Speed_Factor).w,d0		; The current speed factor is an index
 	lsr.w	#1,d0
@@ -951,8 +962,8 @@ SSRun_Animation_Timers:
 	rts
 ; ---------------------------------------------------------------------------
 +
-	move.b	(SS_player_anim_frame_timer).w,d1	; Get current player animatino length
-	addq.b	#1,d1		; Increase it
+	move.b	(SS_player_anim_frame_timer).w,d1	; Get current player animation length
+	addq.b	#1,d1					; Increase it
 	rts
 ; End of function SSRun_Animation_Timers
 
@@ -1215,12 +1226,12 @@ PalToCRAM:
 	move.w	#0,(Hint_flag).w
 	movem.l	a0-a1,-(sp)
 	lea	(VDP_data_port).l,a1
-	lea	(Underwater_palette).w,a0 	; load palette from RAM
-	move.l	#vdpComm($0000,CRAM,WRITE),4(a1)	; set VDP to write to CRAM address $00
+	lea	(Underwater_palette).w,a0 ; load palette from RAM
+	move.l	#vdpComm($0000,CRAM,WRITE),VDP_control_port-VDP_data_port(a1)	; set VDP to write to CRAM address $00
     rept 32
 	move.l	(a0)+,(a1)	; move palette to CRAM (all 64 colors at once)
     endm
-	move.w	#$8ADF,4(a1)	; Write %1101 %1111 to register 10 (interrupt every 224th line)
+	move.w	#$8A00|223,VDP_control_port-VDP_data_port(a1)	; Write %1101 %1111 to register 10 (interrupt every 224th line)
 	movem.l	(sp)+,a0-a1
 	tst.b	(Do_Updates_in_H_int).w
 	bne.s	loc_1072
@@ -1381,7 +1392,7 @@ VDP_Loop:
 
 	move.w	(VDPSetupArray+2).l,d0
 	move.w	d0,(VDP_Reg1_val).w
-	move.w	#$8A00+223,(Hint_counter_reserve).w	; H-INT every 224th scanline
+	move.w	#$8A00|223,(Hint_counter_reserve).w	; H-INT every 224th scanline
 	moveq	#0,d0
 
 	move.l	#vdpComm($0000,VSRAM,WRITE),(VDP_control_port).l
