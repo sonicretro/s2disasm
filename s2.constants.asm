@@ -2033,6 +2033,14 @@ CutScene:
 
 
 ; ---------------------------------------------------------------------------
+; Clocks
+Master_Clock    = 53693175
+M68000_Clock    = Master_Clock/7
+Z80_Clock       = Master_Clock/15
+FM_Sample_Rate  = M68000_Clock/(6*6*4)
+PSG_Sample_Rate = Z80_Clock/16
+
+; ---------------------------------------------------------------------------
 ; VDP addressses
 VDP_data_port =			$C00000 ; (8=r/w, 16=r/w)
 VDP_control_port =		$C00004 ; (8=r/w, 16=r/w)
