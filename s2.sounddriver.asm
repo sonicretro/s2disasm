@@ -309,7 +309,7 @@ endpad := $
 zmake68kPtr function addr,zROMWindow+(addr&7FFFh)
 
 ; Function to turn a sample rate into a djnz loop counter
-pcmLoopCounterBase function sampleRate,baseCycles, 1+(53693175/15/(sampleRate)-(baseCycles)+(13/2))/13
+pcmLoopCounterBase function sampleRate,baseCycles, 1+(Z80_Clock/(sampleRate)-(baseCycles)+(13/2))/13
 pcmLoopCounter function sampleRate, pcmLoopCounterBase(sampleRate,146/2) ; 146 is the number of cycles zPlaySegaSound takes to deliver two samples.
 dpcmLoopCounter function sampleRate, pcmLoopCounterBase(sampleRate,289/2) ; 289 is the number of cycles zWriteToDAC takes to deliver two samples.
 
