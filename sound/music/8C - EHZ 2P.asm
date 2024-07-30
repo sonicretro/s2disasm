@@ -316,10 +316,10 @@ EHZ_2p_Loop00:
 EHZ_2p_PSG1:
 	dc.b	nRst, $02
 	smpsPSGvoice        fTone_08
-	smpsAlterVol        $04
+	smpsPSGAlterVolS2   $04
 	dc.b	nG6, $03, nF6, nE6, nD6, nF6, nE6, nD6, nC6, nE6, nD6, nC6
 	dc.b	nB5, nC6, nB5, nA5, nG5, $01
-	smpsAlterVol        $FC
+	smpsPSGAlterVolS2   $FC
 	smpsAlterPitch      $04
 	smpsJump            EHZ_2p_Loop06
 

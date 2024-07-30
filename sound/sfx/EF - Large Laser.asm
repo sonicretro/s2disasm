@@ -32,10 +32,10 @@ Sound6F_LargeLaser_FM5:
 Sound6F_LargeLaser_PSG3:
 	smpsPSGform         $E7
 	dc.b	nMaxPSG, $04, nEb5, nA4, nEb4, nA3
-	smpsAlterVol        $01
+	smpsPSGAlterVolS2   $01
 	dc.b	nA3
-	smpsAlterVol        $01
+	smpsPSGAlterVolS2   $01
 	dc.b	nA3
-	smpsAlterVol        $01
+	smpsPSGAlterVolS2   $01
 	dc.b	nA3
 	smpsStop

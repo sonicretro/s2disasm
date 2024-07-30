@@ -796,11 +796,6 @@ MusID_Emerald =		id(zMusIDPtr_Emerald)	; 9D
 MusID_Credits =		id(zMusIDPtr_Credits)	; 9E
 MusID_Countdown =	id(zMusIDPtr_Countdown)	; 9F
 MusID__End =		id(zMusIDPtr__End)	; A0
-    if MOMPASS == 2
-	if MusID__End > SndID__First
-		fatal "You have too many SndPtrs. MusID__End ($\{MusID__End}) can't exceed SndID__First ($\{SndID__First})."
-	endif
-    endif
 
 ; Sound IDs
 offset :=	SoundIndex
@@ -890,11 +885,6 @@ SndID_MechaSonicBuzz =	id(SndPtr_MechaSonicBuzz)	; EE
 SndID_LargeLaser =	id(SndPtr_LargeLaser)		; EF
 SndID_OilSlide =	id(SndPtr_OilSlide)		; F0
 SndID__End =		id(SndPtr__End)			; F1
-    if MOMPASS == 2
-	if SndID__End > CmdID__First
-		fatal "You have too many SndPtrs. SndID__End ($\{SndID__End}) can't exceed CmdID__First ($\{CmdID__First})."
-	endif
-    endif
 
 ; Sound command IDs
 offset :=	zCommandIndex
@@ -912,6 +902,15 @@ CmdID__End =		id(CmdPtr__End)		; FE
 
 MusID_Pause =		$7E+$80			; FE
 MusID_Unpause =		$7F+$80			; FF
+
+    if MOMPASS > 1 ; Avoid undefined symbol errors by checking only after the first pass.
+        if MusID__End > SndID__First
+            fatal "You have too many SndPtrs. MusID__End ($\{MusID__End}) can't exceed SndID__First ($\{SndID__First})."
+        endif
+        if SndID__End > CmdID__First
+            fatal "You have too many SndPtrs. SndID__End ($\{SndID__End}) can't exceed CmdID__First ($\{CmdID__First})."
+        endif
+    endif
 
 ; 2P VS results screens
 offset := TwoPlayerResultsPointers
@@ -2163,6 +2162,14 @@ CutScene:
 
 	!org	0	; Reset the program counter
 
+
+; ---------------------------------------------------------------------------
+; Clocks
+Master_Clock    = 53693175
+M68000_Clock    = Master_Clock/7
+Z80_Clock       = Master_Clock/15
+FM_Sample_Rate  = M68000_Clock/(6*6*4)
+PSG_Sample_Rate = Z80_Clock/16
 
 ; ---------------------------------------------------------------------------
 ; VDP addressses

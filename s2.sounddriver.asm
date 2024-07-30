@@ -309,8 +309,9 @@ endpad := $
 zmake68kPtr function addr,zROMWindow+(addr&7FFFh)
 
 ; Function to turn a sample rate into a djnz loop counter
-pcmLoopCounter function sampleRate,baseCycles, 1+(53693175/15/(sampleRate)-(baseCycles)+(13/2))/13
-
+pcmLoopCounterBase function sampleRate,baseCycles, 1+(Z80_Clock/(sampleRate)-(baseCycles)+(13/2))/13
+pcmLoopCounter function sampleRate, pcmLoopCounterBase(sampleRate,146/2) ; 146 is the number of cycles zPlaySegaSound takes to deliver two samples.
+dpcmLoopCounter function sampleRate, pcmLoopCounterBase(sampleRate,289/2) ; 289 is the number of cycles zWriteToDAC takes to deliver two samples.
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; Z80 'ROM' start:
@@ -722,8 +723,7 @@ zWriteToDAC:
 	ei				; 4	; enable interrupts (done updating DAC, busy waiting for next update)
 	jp	zWaitLoop		; 10	; Back to the wait loop; if there's more DAC to write, we come back down again!
 					; 289
-	; 289 cycles for two samples. zDACMasterPlaylist should use 289
-	; divided by 2 as the second parameter to pcmLoopCounter.
+	; 289 cycles for two samples. dpcmLoopCounter should use 289 divided by 2.
 ; ---------------------------------------------------------------------------
 ; 'jman2050' DAC decode lookup table
 ; zbyte_1B3
@@ -1049,17 +1049,29 @@ zDoModulation:
 ; End of function zDoModulation
 
 ; ---------------------------------------------------------------------------
+zMakePSGFrequency function frequency,min(3FFh,roundFloatToInteger(PSG_Sample_Rate/(frequency*2)))
+zMakePSGFrequencies macro
+		irp op,ALLARGS
+			dw zMakePSGFrequency(op)
+		endm
+	endm
+
 ; This the note -> frequency setting lookup
 ; the same array is found at $729CE in Sonic 1, and at $C9C44 in Ristar
 ; zword_359:
 	ensure1byteoffset 8Ch
 zPSGFrequencies:
-	dw	356h, 326h, 2F9h, 2CEh, 2A5h, 280h, 25Ch, 23Ah, 21Ah, 1FBh, 1DFh, 1C4h
-	dw	1ABh, 193h, 17Dh, 167h, 153h, 140h, 12Eh, 11Dh, 10Dh, 0FEh, 0EFh, 0E2h
-	dw	0D6h, 0C9h, 0BEh, 0B4h, 0A9h, 0A0h,  97h,  8Fh,  87h,  7Fh,  78h,  71h
-	dw	 6Bh,  65h,  5Fh,  5Ah,  55h,  50h,  4Bh,  47h,  43h,  40h,  3Ch,  39h
-	dw	 36h,  33h,  30h,  2Dh,  2Bh,  28h,  26h,  24h,  22h,  20h,  1Fh,  1Dh
-	dw	 1Bh,  1Ah,  18h,  17h,  16h,  15h,  13h,  12h,  11h,    0
+	; 6 octaves, each one begins with C and ends with B, with
+	; the exception of the final octave, which ends at A-flat.
+	; The last octave's final note is set to the PSG's maximum
+	; frequency. This is typically used by the noise channel to
+	; create a sound that is similar to a hi-hat.
+	zMakePSGFrequencies  130.98,    138.78,    146.99,    155.79,    165.22,    174.78,    185.19,    196.24,    207.91,    220.63,    233.52,    247.47
+	zMakePSGFrequencies  261.96,    277.56,    293.59,    311.58,    329.97,    349.56,    370.39,    392.49,    415.83,    440.39,    468.03,    494.95
+	zMakePSGFrequencies  522.71,    556.51,    588.73,    621.44,    661.89,    699.12,    740.79,    782.24,    828.59,    880.79,    932.17,    989.91
+	zMakePSGFrequencies 1045.42,   1107.52,   1177.47,   1242.89,   1316.00,   1398.25,   1491.47,   1575.50,   1669.55,   1747.82,   1864.34,   1962.46
+	zMakePSGFrequencies 2071.49,   2193.34,   2330.42,   2485.78,   2601.40,   2796.51,   2943.69,   3107.23,   3290.01,   3495.64,   3608.40,   3857.25
+	zMakePSGFrequencies 4142.98,   4302.32,   4660.85,   4863.50,   5084.56,   5326.69,   5887.39,   6214.47,   6580.02, 223721.56
 ; ---------------------------------------------------------------------------
 
 ; zloc_3E5
@@ -1368,6 +1380,14 @@ zPSGNoteOff:
 ; End of function zPSGNoteOff
 
 ; ---------------------------------------------------------------------------
+zMakeFMFrequency function frequency,roundFloatToInteger(frequency*1024*1024*2/FM_Sample_Rate)
+zMakeFMFrequenciesOctave macro octave
+		; Frequencies for the base octave. The first frequency is B, the last frequency is B-flat.
+		irp op, 15.39, 16.35, 17.34, 18.36, 19.45, 20.64, 21.84, 23.13, 24.51, 25.98, 27.53, 29.15
+			dw zMakeFMFrequency(op)+octave*800h
+		endm
+	endm
+
 ; lookup table of FM note frequencies for instruments and sound effects
     if OptimiseDriver
 	ensure1byteoffset 18h
@@ -1376,15 +1396,15 @@ zPSGNoteOff:
     endif
 ; zbyte_534
 zFrequencies:
-	dw 025Eh,0284h,02ABh,02D3h,02FEh,032Dh,035Ch,038Fh,03C5h,03FFh,043Ch,047Ch
+	zMakeFMFrequenciesOctave 0
     if ~~OptimiseDriver	; We will calculate these, instead, which will save space
-	dw 0A5Eh,0A84h,0AABh,0AD3h,0AFEh,0B2Dh,0B5Ch,0B8Fh,0BC5h,0BFFh,0C3Ch,0C7Ch
-	dw 125Eh,1284h,12ABh,12D3h,12FEh,132Dh,135Ch,138Fh,13C5h,13FFh,143Ch,147Ch
-	dw 1A5Eh,1A84h,1AABh,1AD3h,1AFEh,1B2Dh,1B5Ch,1B8Fh,1BC5h,1BFFh,1C3Ch,1C7Ch
-	dw 225Eh,2284h,22ABh,22D3h,22FEh,232Dh,235Ch,238Fh,23C5h,23FFh,243Ch,247Ch
-	dw 2A5Eh,2A84h,2AABh,2AD3h,2AFEh,2B2Dh,2B5Ch,2B8Fh,2BC5h,2BFFh,2C3Ch,2C7Ch
-	dw 325Eh,3284h,32ABh,32D3h,32FEh,332Dh,335Ch,338Fh,33C5h,33FFh,343Ch,347Ch
-	dw 3A5Eh,3A84h,3AABh,3AD3h,3AFEh,3B2Dh,3B5Ch,3B8Fh,3BC5h,3BFFh,3C3Ch,3C7Ch ; 96 entries
+	zMakeFMFrequenciesOctave 1
+	zMakeFMFrequenciesOctave 2
+	zMakeFMFrequenciesOctave 3
+	zMakeFMFrequenciesOctave 4
+	zMakeFMFrequenciesOctave 5
+	zMakeFMFrequenciesOctave 6
+	zMakeFMFrequenciesOctave 7
     endif
 
 ; zloc_5F4
@@ -1604,7 +1624,7 @@ zPlaySegaSound:
 	ld	(zYM2612_D0),a			; 13	; Send to DAC
 	inc	hl				; 6	; Advance pointer
 	nop					; 4
-	ld	b,pcmLoopCounter(16500,146/2)	; 7	; Sega PCM pitch
+	ld	b,pcmLoopCounter(16500)	; 7	; Sega PCM pitch
 	djnz	$				; 8	; Delay loop
 
 	nop					; 4
@@ -1615,7 +1635,7 @@ zPlaySegaSound:
 	ld	(zYM2612_D0),a			; 13	; Send to DAC
 	inc	hl				; 6	; Advance pointer
 	nop					; 4
-	ld	b,pcmLoopCounter(16500,146/2)	; 7	; Sega PCM pitch
+	ld	b,pcmLoopCounter(16500)	; 7	; Sega PCM pitch
 	djnz	$				; 8	; Delay loop
 
 	nop					; 4
@@ -1624,8 +1644,7 @@ zPlaySegaSound:
 	or	e				; 4	; Is de zero?
 	jp	nz,.loop			; 10	; If not, loop
 						; 146
-	; Two samples per 146 cycles, meaning that the second parameter
-	; to pcmLoopCounter should be 146 divided by 2.
+	; Two samples per 146 cycles, meaning that pcmLoopCounter should used 146 divided by 2.
 
 .stop:
 	call	zBankSwitchToMusic
@@ -3885,7 +3904,7 @@ ptrsize :=	2+2
 idstart :=	81h
 
 dac_sample_metadata macro label,sampleRate
-	db	id(label),pcmLoopCounter(sampleRate,289/2)	; See zWriteToDAC for an explanation of this magic number.
+	db	id(label),dpcmLoopCounter(sampleRate)
     endm
 
 	dac_sample_metadata zDACPtr_Kick,    8250	; 81h

@@ -26,7 +26,7 @@ Sound5C_Fire_PSG3:
 
 Sound5C_Fire_Loop01:
 	dc.b	smpsNoAttack, $08
-	smpsAlterVol        $01
+	smpsPSGAlterVolS2   $01
 	smpsLoop            $00, $05, Sound5C_Fire_Loop01
 	smpsStop
 

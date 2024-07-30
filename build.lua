@@ -135,6 +135,7 @@ for song_name in io.lines("sound/music/list of compressed songs.txt") do
 
 z80_ptr function x,(x)<<8&$FF00|(x)>>8&$00FF
 
+FixMusicAndSFXDataBugs = 0
 SonicDriverVer = 2
 	include "sound/_smps2asm_inc.asm"
 

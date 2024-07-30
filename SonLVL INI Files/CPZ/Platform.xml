@@ -2,11 +2,11 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Platform" Image="large">
   <Images>
     <ImageFromMappings id="large">
-      <ArtFile filename="../art/nemesis/Large moving platform from CNZ.nem" />
+      <ArtFile filename="../art/nemesis/Large moving platform from CPZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj19.asm" frame="0" startpal="3" />
     </ImageFromMappings>
     <ImageFromMappings id="small">
-      <ArtFile filename="../art/nemesis/Large moving platform from CNZ.nem" />
+      <ArtFile filename="../art/nemesis/Large moving platform from CPZ.nem" />
       <MapFile type="ASM" filename="../mappings/sprite/obj19.asm" frame="1" startpal="3" />
     </ImageFromMappings>
   </Images>
