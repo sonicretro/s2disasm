@@ -17,7 +17,7 @@
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; ASSEMBLY OPTIONS:
 ;
-gameRevision = 1
+gameRevision = 0
 ;	| If 0, a REV00 ROM is built
 ;	| If 1, a REV01 ROM is built, which contains some fixes
 ;	| If 2, a (theoretical) REV02 ROM is built, which contains even more fixes
@@ -85,29 +85,29 @@ StartOfRom:
 Vectors:
 	dc.l System_Stack	; Initial stack pointer value
 	dc.l EntryPoint		; Start of program
-	dc.l ErrorTrap		; Bus error
-	dc.l ErrorTrap		; Address error (4)
-	dc.l ErrorTrap		; Illegal instruction
-	dc.l ErrorTrap		; Division by zero
-	dc.l ErrorTrap		; CHK exception
-	dc.l ErrorTrap		; TRAPV exception (8)
-	dc.l ErrorTrap		; Privilege violation
-	dc.l ErrorTrap		; TRACE exception
-	dc.l ErrorTrap		; Line-A emulator
-	dc.l ErrorTrap		; Line-F emulator (12)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved) (16)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved) (20)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved)
-	dc.l ErrorTrap		; Unused (reserved) (24)
-	dc.l ErrorTrap		; Spurious exception
+	dc.l BusError		; Bus error
+	dc.l AddressError	; Address error (4)
+	dc.l IllegalInstr	; Illegal instruction
+	dc.l ZeroDivide		; Division by zero
+	dc.l ChkInstr		; CHK exception
+	dc.l TrapvInstr		; TRAPV exception (8)
+	dc.l PrivilegeViol	; Privilege violation
+	dc.l Trace		; TRACE exception
+	dc.l Line1010Emu	; Line-A emulator
+	dc.l Line1111Emu	; Line-F emulator (12)
+	dc.l ErrorExcept	; Unused (reserved)
+	dc.l ErrorExcept	; Unused (reserved)
+	dc.l ErrorExcept	; Unused (reserved)
+	dc.l ErrorExcept	; Unused (reserved) (16)
+	dc.l ErrorExcept	; Unused (reserved)
+	dc.l ErrorExcept	; Unused (reserved)
+	dc.l ErrorExcept	; Unused (reserved)
+	dc.l ErrorExcept	; Unused (reserved) (20)
+	dc.l ErrorExcept	; Unused (reserved)
+	dc.l ErrorExcept	; Unused (reserved)
+	dc.l ErrorExcept	; Unused (reserved)
+	dc.l ErrorExcept	; Unused (reserved) (24)
+	dc.l ErrorExcept	; Spurious exception
 	dc.l ErrorTrap		; IRQ level 1
 	dc.l ErrorTrap		; IRQ level 2
 	dc.l ErrorTrap		; IRQ level 3 (28)
@@ -382,6 +382,9 @@ ChecksumTest:
 	movea.l	#EndOfHeader,a0	; start checking bytes after the header ($200)
 	movea.l	#ROMEndLoc,a1	; stop at end of ROM
 	move.l	(a1),d0
+	; This line is a hack, presumably to account for the ROM header not being correct.
+	; Curiously, this value reflects a 512KiB ROM, like Sonic 1, instead of a 1MiB ROM, like Sonic 2.
+	move.l	#$7FFFF,d0
 	moveq	#0,d1
 ; loc_338:
 ChecksumLoop:
@@ -390,7 +393,10 @@ ChecksumLoop:
 	bhs.s	ChecksumLoop
 	movea.l	#Checksum,a1	; read the checksum
 	cmp.w	(a1),d1		; compare correct checksum to the one in ROM
-	bne.w	ChecksumError	; if they don't match, branch
+	; These 'nop's replace the following branch.
+	nop
+	nop
+	;bne.w	ChecksumError	; if they don't match, branch
     endif
 ;checksum_good:
 	; Clear some RAM only on a coldboot.
@@ -434,8 +440,8 @@ GameMode_TitleScreen:	bra.w	TitleScreen		; Title screen mode
 GameMode_Demo:		bra.w	Level			; Demo mode
 GameMode_Level:		bra.w	Level			; Zone play mode
 GameMode_SpecialStage:	bra.w	SpecialStage		; Special stage play mode
-GameMode_ContinueScreen:bra.w	ContinueScreen		; Continue mode
-GameMode_2PResults:	bra.w	TwoPlayerResults	; 2P results mode
+GameMode_ContinueScreen:bra.w	JmpTo_ContinueScreen	; Continue mode
+GameMode_2PResults:	bra.w	JmpTo_TwoPlayerResults	; 2P results mode
 GameMode_2PLevelSelect:	bra.w	LevelSelectMenu2P	; 2P level select mode
 GameMode_EndingSequence:bra.w	JmpTo_EndingSequence	; End sequence mode
 GameMode_OptionsMenu:	bra.w	OptionsMenu		; Options mode
@@ -444,9 +450,7 @@ GameMode_LevelSelect:	bra.w	LevelSelectMenu		; Level select mode
     if skipChecksumCheck=0	; checksum error code
 ; loc_3CE:
 ChecksumError:
-	move.l	d1,-(sp)
 	bsr.w	VDPSetupGame
-	move.l	(sp)+,d1
 	move.l	#vdpComm($0000,CRAM,WRITE),(VDP_control_port).l ; set VDP to CRAM write
 	moveq	#16*4-1,d7 ; all colours of all palette lines
 ; loc_3E2:
@@ -457,6 +461,186 @@ Checksum_Red:
 ChecksumFailed_Loop:
 	bra.s	ChecksumFailed_Loop
     endif
+; ===========================================================================
+
+BusError:
+	move.b	#2,(v_errortype).w
+	bra.s	loc_43A
+
+AddressError:
+	move.b	#4,(v_errortype).w
+	bra.s	loc_43A
+
+IllegalInstr:
+	move.b	#6,(v_errortype).w
+	addq.l	#2,2(sp)
+	bra.s	loc_462
+
+ZeroDivide:
+	move.b	#8,(v_errortype).w
+	bra.s	loc_462
+
+ChkInstr:
+	move.b	#10,(v_errortype).w
+	bra.s	loc_462
+
+TrapvInstr:
+	move.b	#12,(v_errortype).w
+	bra.s	loc_462
+
+PrivilegeViol:
+	move.b	#14,(v_errortype).w
+	bra.s	loc_462
+
+Trace:
+	move.b	#16,(v_errortype).w
+	bra.s	loc_462
+
+Line1010Emu:
+	move.b	#18,(v_errortype).w
+	addq.l	#2,2(sp)
+	bra.s	loc_462
+
+Line1111Emu:
+	move.b	#20,(v_errortype).w
+	addq.l	#2,2(sp)
+	bra.s	loc_462
+
+ErrorExcept:
+	move.b	#0,(v_errortype).w
+	bra.s	loc_462
+; ===========================================================================
+
+loc_43A:
+	move	#$2700,sr
+	addq.w	#2,sp
+	move.l	(sp)+,(v_spbuffer).w
+	addq.w	#2,sp
+	movem.l	d0-a7,(v_regbuffer).w
+	bsr.w	ShowErrorMessage
+	move.l	2(sp),d0
+	bsr.w	ShowErrorValue
+	move.l	(v_spbuffer).w,d0
+	bsr.w	ShowErrorValue
+	bra.s	loc_478
+; ===========================================================================
+
+loc_462:
+	move	#$2700,sr
+	movem.l	d0-a7,(v_regbuffer).w
+	bsr.w	ShowErrorMessage
+	move.l	2(sp),d0
+	bsr.w	ShowErrorValue
+
+loc_478:
+	bsr.w	ErrorWaitForC
+	movem.l	(v_regbuffer).w,d0-a7
+	move	#$2300,sr
+	rte
+
+; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
+
+
+ShowErrorMessage:
+	lea	(VDP_data_port).l,a6
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_Error_Handler_Font),VRAM,WRITE),(VDP_control_port).l
+	lea	(ErrorHandlerFont).l,a0
+	move.w	#(ErrorHandlerFont_End-ErrorHandlerFont-$20)/2-1,d1 ; strangely, this does not load the final tile
+.loadgfx:
+	move.w	(a0)+,(a6)
+	dbf	d1,.loadgfx
+
+	moveq	#0,d0		; clear	d0
+	move.b	(v_errortype).w,d0 ; load error code
+	move.w	ErrorText(pc,d0.w),d0
+	lea	ErrorText(pc,d0.w),a0
+	move.l	#vdpComm(VRAM_Plane_A_Name_Table+$604,VRAM,WRITE),(VDP_control_port).l
+	moveq	#19-1,d1		; number of characters (minus 1)
+
+.showchars:
+	moveq	#0,d0
+	move.b	(a0)+,d0
+	addi.w	#-'0'+ArtTile_Error_Handler_Font,d0 ; rebase from ASCII to a VRAM index
+	move.w	d0,(a6)
+	dbf	d1,.showchars	; repeat for number of characters
+	rts
+; End of function ShowErrorMessage
+
+; ===========================================================================
+ErrorText: offsetTable
+	offsetTableEntry.w .exception
+	offsetTableEntry.w .bus
+	offsetTableEntry.w .address
+	offsetTableEntry.w .illinstruct
+	offsetTableEntry.w .zerodivide
+	offsetTableEntry.w .chkinstruct
+	offsetTableEntry.w .trapv
+	offsetTableEntry.w .privilege
+	offsetTableEntry.w .trace
+	offsetTableEntry.w .line1010
+	offsetTableEntry.w .line1111
+
+.exception:	dc.b "ERROR EXCEPTION    "
+.bus:		dc.b "BUS ERROR          "
+.address:	dc.b "ADDRESS ERROR      "
+.illinstruct:	dc.b "ILLEGAL INSTRUCTION"
+.zerodivide:	dc.b "@ERO DIVIDE        "
+.chkinstruct:	dc.b "CHK INSTRUCTION    "
+.trapv:		dc.b "TRAPV INSTRUCTION  "
+.privilege:	dc.b "PRIVILEGE VIOLATION"
+.trace:		dc.b "TRACE              "
+.line1010:	dc.b "LINE 1010 EMULATOR "
+.line1111:	dc.b "LINE 1111 EMULATOR "
+	even
+
+; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
+
+
+ShowErrorValue:
+	move.w	#ArtTile_Error_Handler_Font+10,(a6)	; display "$" symbol
+	moveq	#8-1,d2
+
+.loop:
+	rol.l	#4,d0
+	bsr.s	.shownumber	; display 8 numbers
+	dbf	d2,.loop
+	rts
+; End of function ShowErrorValue
+
+
+; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
+
+
+.shownumber:
+	move.w	d0,d1
+	andi.w	#$F,d1
+	cmpi.w	#$A,d1
+	blo.s	.chars0to9
+	addq.w	#7,d1		; add 7 for characters A-F
+
+.chars0to9:
+	addi.w	#ArtTile_Error_Handler_Font,d1
+	move.w	d1,(a6)
+	rts
+; End of function sub_5CA
+
+
+; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
+
+
+ErrorWaitForC:
+	bsr.w	ReadJoypads
+	cmpi.b	#button_C_mask,(Ctrl_1_Press).w ; is button C pressed?
+	bne.w	ErrorWaitForC	; if not, branch
+	rts
+; End of function ErrorWaitForC
+
+; ===========================================================================
+
+ErrorHandlerFont:
+	BINCLUDE	"art/uncompressed/Error handler font.bin"
+ErrorHandlerFont_End:
+
 ; ===========================================================================
 ; loc_3F0:
 LevelSelectMenu2P: ;;
@@ -470,9 +654,17 @@ JmpTo_EndingSequence ; JmpTo
 OptionsMenu: ;;
 	jmp	(MenuScreen).l
 ; ===========================================================================
+
+JmpTo_TwoPlayerResults: ;;
+	jmp	(TwoPlayerResults).l
+; ===========================================================================
 ; loc_402:
 LevelSelectMenu: ;;
 	jmp	(MenuScreen).l
+; ===========================================================================
+
+JmpTo_ContinueScreen: ;;
+	jmp	(ContinueScreen).l
 ; ===========================================================================
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -3035,7 +3227,7 @@ CyclingPal_WFZ2:
 PalCycle_SuperSonic:
 	move.b	(Super_Sonic_palette).w,d0
 	beq.s	.return	; return, if Sonic isn't super
-	bmi.w	.normal	; branch, if fade-in is done
+	bmi.s	.normal	; branch, if fade-in is done
 	subq.b	#1,d0
 	bne.s	.revert	; branch for values greater than 1
 
@@ -3100,16 +3292,6 @@ PalCycle_SuperSonic:
 	lea	(Normal_palette+4).w,a1
 	move.l	(a0,d0.w),(a1)+
 	move.l	4(a0,d0.w),(a1)
-	; underwater palettes
-	lea	(CyclingPal_CPZUWTransformation).l,a0
-	cmpi.b	#chemical_plant_zone,(Current_Zone).w
-	beq.s	+
-	cmpi.b	#aquatic_ruin_zone,(Current_Zone).w
-	bne.s	.return
-	lea	(CyclingPal_ARZUWTransformation).l,a0
-+	lea	(Underwater_palette+4).w,a1
-	move.l	(a0,d0.w),(a1)+
-	move.l	4(a0,d0.w),(a1)
 	rts
 ; ===========================================================================
 ; loc_21E6: PalCycle_SuperSonic_normal:
@@ -3133,16 +3315,6 @@ PalCycle_SuperSonic:
 	move.w	#$30,(Palette_frame).w	; reset frame counter (Super Sonic's normal palette cycle starts at $30. Everything before that is for the palette fade)
 +
 	lea	(Normal_palette+4).w,a1
-	move.l	(a0,d0.w),(a1)+
-	move.l	4(a0,d0.w),(a1)
-	; underwater palettes
-	lea	(CyclingPal_CPZUWTransformation).l,a0
-	cmpi.b	#chemical_plant_zone,(Current_Zone).w
-	beq.s	+
-	cmpi.b	#aquatic_ruin_zone,(Current_Zone).w
-	bne.w	.return
-	lea	(CyclingPal_ARZUWTransformation).l,a0
-+	lea	(Underwater_palette+4).w,a1
 	move.l	(a0,d0.w),(a1)+
 	move.l	4(a0,d0.w),(a1)
 	rts
@@ -3724,7 +3896,7 @@ PalLoad_Water_Now:
 	adda.w	d0,a1
 	movea.l	(a1)+,a2
 	movea.w	(a1)+,a3
-	suba.l	#Normal_palette-Underwater_palette,a3
+	suba.w	#Normal_palette-Underwater_palette,a3
 
 	move.w	(a1)+,d7
 -	move.l	(a2)+,(a3)+
@@ -3743,7 +3915,7 @@ PalLoad_Water_ForFade:
 	adda.w	d0,a1
 	movea.l	(a1)+,a2
 	movea.w	(a1)+,a3
-	suba.l	#Normal_palette-Underwater_target_palette,a3
+	suba.w	#Normal_palette-Underwater_target_palette,a3
 
 	move.w	(a1)+,d7
 -	move.l	(a2)+,(a3)+
@@ -4109,9 +4281,7 @@ Sega_WaitEnd:
 	bsr.w	WaitForVint
 	tst.w	(Demo_Time_left).w
 	beq.s	Sega_GotoTitle
-	move.b	(Ctrl_1_Press).w,d0	; is Start button pressed?
-	or.b	(Ctrl_2_Press).w,d0	; (either player)
-	andi.b	#button_start_mask,d0
+	andi.b	#button_start_mask,(Ctrl_1_Press).w	; is Start button pressed?
 	beq.s	Sega_WaitEnd		; if not, branch
 ; loc_395E:
 Sega_GotoTitle:
@@ -4186,14 +4356,37 @@ TitleScreen:
 	clearRAM Misc_Variables,Misc_Variables_End ; clear CPU player RAM and following variables
 	clearRAM Camera_RAM,Camera_RAM_End ; clear camera RAM and following variables
 
-	; Load the credit font for the following text.
+	; Load the intro font for the following text.
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_CreditText),VRAM,WRITE),(VDP_control_port).l
-	lea	(ArtNem_CreditText).l,a0
+	lea	ArtNem_IntroFont(pc),a0
 	bsr.w	NemDec
 
+	move	#$2700,sr
+
 	; Load the 'Sonic and Miles 'Tails' Prower in' text.
-	lea	(off_B2B0).l,a1
-	jsr	(loc_B272).l
+	lea	(MapUnc_IntroText_IN).l,a1
+	move.l	#vdpComm(VRAM_TtlScr_Plane_A_Name_Table+planeLoc(64, 19, 16),VRAM,WRITE),d0
+	moveq	#3-1,d1 ; Width
+	moveq	#1-1,d2 ; Height
+    if gameRevision>=2
+	jsr	(PlaneMapToVRAM_H40).l
+    else
+	bsr.w	PlaneMapToVRAM_H40
+    endif
+
+	lea	MapUnc_IntroText_SONIC_AND_MILES(pc),a1
+	btst	#7,(Graphics_Flags).w
+	beq.s	+
+	lea	MapUnc_IntroText_SONIC_AND_TAILS(pc),a1
++
+	move.l	#vdpComm(VRAM_TtlScr_Plane_A_Name_Table+planeLoc(64, 5, 12),VRAM,WRITE),d0
+	moveq	#31-1,d1 ; Width
+	moveq	#1-1,d2 ; Height
+    if gameRevision>=2
+	jsr	(PlaneMapToVRAM_H40).l
+    else
+	bsr.w	PlaneMapToVRAM_H40
+    endif
 
 	; Fade-in, showing the text that was just loaded.
 	clearRAM Target_palette,Target_palette_End	; fill palette with 0 (black)
@@ -4226,6 +4419,15 @@ TitleScreen:
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_FontStuff_TtlScr),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_FontStuff).l,a0
 	bsr.w	NemDec
+
+	lea	(VDP_data_port).l,a6
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_ErrorFont),VRAM,WRITE),VDP_control_port-VDP_data_port(a6)
+	lea	(ErrorHandlerFont).l,a5
+	move.w	#bytesToWcnt(ErrorHandlerFont_End-ErrorHandlerFont),d1
+-	move.w	(a5)+,(a6)
+	dbf	d1,-
+
+	nop
 
 	; Clear some variables.
 	move.b	#0,(Last_star_pole_hit).w
@@ -4336,14 +4538,6 @@ TitleScreen:
 	; Reset the cheat input state.
 	move.w	#0,(Correct_cheat_entries).w
 	move.w	#0,(Correct_cheat_entries_2).w
-
-	; I do not know why these are here.
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
 
 	; Reset Sonic's position record buffer.
 	move.w	#4,(Sonic_Pos_Record_Index).w
@@ -4470,8 +4664,9 @@ TitleScreen_CheckIfChose2P:
 	bne.s	TitleScreen_ChoseOptions
 
 	moveq	#1,d1
-	move.w	d1,(Two_player_mode_copy).w
-	move.w	d1,(Two_player_mode).w
+	; These two are using the wrong register. Oops.
+	move.w	d0,(Two_player_mode_copy).w
+	move.w	d0,(Two_player_mode).w
 
 	moveq	#0,d0
 	move.w	d0,(Got_Emerald).w
@@ -4506,7 +4701,7 @@ TitleScreen_Demo:
 +
 	move.w	#1,(Demo_mode_flag).w
 	move.b	#GameModeID_Demo,(Game_Mode).w ; => Level (Demo mode)
-	cmpi.w	#emerald_hill_zone_act_1,(Current_ZoneAndAct).w
+	cmpi.w	#emerald_hill_zone_act_1,d0
 	bne.s	+
 	move.w	#1,(Two_player_mode).w
 +
@@ -4528,50 +4723,84 @@ TitleScreen_Demo:
 ; ===========================================================================
 ; word_3DAC:
 DemoLevels:
-	dc.w	emerald_hill_zone_act_1		; EHZ (2P)
 	dc.w	chemical_plant_zone_act_1	; CPZ
-	dc.w	aquatic_ruin_zone_act_1		; ARZ
+	dc.w	emerald_hill_zone_act_1		; EHZ (2P)
 	dc.w	casino_night_zone_act_1		; CNZ
+	dc.w	hill_top_zone_act_1		; HTZ
 DemoLevels_End:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ; sub_3DB4:
-TailsNameCheat:
-	lea	(TailsNameCheat_Buttons).l,a0
+TailsNameCheat: ; Misnomer: this function handles many different cheat codes in this prototype.
+	tst.b	(Graphics_Flags).w
+	bpl.s	+
+	lea	(TailsNameCheat_Buttons_International).l,a0
+	bra.s	++
++
+	lea	(TailsNameCheat_Buttons_Japanese).l,a0
++
 	move.w	(Correct_cheat_entries).w,d0
 	adda.w	d0,a0
 	move.b	(Ctrl_1_Press).w,d0
 	andi.b	#button_up_mask|button_down_mask|button_left_mask|button_right_mask,d0
-	beq.s	++	; rts
 	cmp.b	(a0),d0
-	bne.s	+
+	bne.s	++
 	addq.w	#1,(Correct_cheat_entries).w
-	tst.b	1(a0)		; read the next entry
-	bne.s	++		; if it's not zero, return
 
-	; Switch the detected console's region between Japanese and
-	; international. This affects the presence of trademark symbols, and
-	; causes Tails' name to swap between 'Tails' and 'Miles'.
-	bchg	#7,(Graphics_Flags).w
+	tst.b	d0
+	bne.s	+++
+	lea	(Level_select_flag).w,a0
+	move.w	(Correct_cheat_entries_2).w,d1
+	lsr.w	#1,d1
+	andi.w	#3,d1
+	beq.s	+
+	tst.b	(Graphics_Flags).w
+	bpl.s	+
+	moveq	#1,d1
+	move.b	d1,1(a0,d1.w)
++
+	move.b	#1,(a0,d1.w)
 
 	move.b	#SndID_Ring,d0 ; play the ring sound for a successfully entered cheat
 	bsr.w	PlaySound
+
+	bra.s	++
+; ---------------------------------------------------------------------------------
 +
+	tst.b	d0
+	beq.s	+
+	cmpi.w	#9,(Correct_cheat_entries).w
+	beq.s	+
 	move.w	#0,(Correct_cheat_entries).w
++
+	move.b	(Ctrl_1_Press).w,d0
+	andi.b	#button_C_mask,d0
+	beq.s	+
+	addq.w	#1,(Correct_cheat_entries_2).w
 +
 	rts
 ; End of function TailsNameCheat
-
 ; ===========================================================================
 ; byte_3DEE:
-TailsNameCheat_Buttons:
+TailsNameCheat_Buttons_Japanese:
 	dc.b	button_up_mask
+	dc.b	button_down_mask
 	dc.b	button_down_mask
 	dc.b	button_down_mask
 	dc.b	button_down_mask
 	dc.b	button_up_mask
 	dc.b	0	; end
+	dc.b	$FF
+TailsNameCheat_Buttons_International:
+	dc.b	button_up_mask
+	dc.b	button_down_mask
+	dc.b	button_down_mask
+	dc.b	button_down_mask
+	dc.b	button_down_mask
+	dc.b	button_up_mask
+	dc.b	0	; end
+	dc.b	$FF
 	even
 ; ---------------------------------------------------------------------------------
 ; Nemesis compressed art
@@ -4601,6 +4830,18 @@ CopyrightText:
 CopyrightText_End:
 
     charset ; Revert character set
+
+; ===========================================================================
+MapUnc_IntroText_IN:
+	binclude "mappings/misc/Intro text 'IN'.unc"
+MapUnc_IntroText_SONIC_AND_MILES:
+	binclude "mappings/misc/Intro text 'SONIC AND MILES'.unc"
+MapUnc_IntroText_SONIC_AND_TAILS:
+	binclude "mappings/misc/Intro text 'SONIC AND TAILS'.unc"
+; ===========================================================================
+ArtNem_IntroFont:
+	binclude "art/nemesis/Intro font.nem"
+; ===========================================================================
 
 	jmpTos JmpTo_SwScrl_Title
 
@@ -4762,7 +5003,6 @@ Level_InitWater:
 	move.w	#$8C87,(a6)			; H res 40 cells, double res interlace
 +
 	move.w	(Hint_counter_reserve).w,(a6)
-	clr.w	(VDP_Command_Buffer).w
 	move.l	#VDP_Command_Buffer,(VDP_Command_Buffer_Slot).w
 	tst.b	(Water_flag).w	; does level have water?
 	beq.s	Level_LoadPal	; if not, branch
@@ -4927,6 +5167,7 @@ Level_FromCheckpoint:
 	movea.l	(a1,d0.w),a1
 +
 	move.b	1(a1),(Demo_press_counter).w
+	subq.b	#1,(Demo_press_counter).w
     if emerald_hill_zone<>0
 	cmpi.b	#emerald_hill_zone,(Current_Zone).w
     else
@@ -4935,6 +5176,7 @@ Level_FromCheckpoint:
 	bne.s	+
 	lea	(Demo_EHZ_Tails).l,a1
 	move.b	1(a1),(Demo_press_counter_2P).w
+	subq.b	#1,(Demo_press_counter_2P).w
 +
 	move.w	#$668,(Demo_Time_left).w
 	tst.w	(Demo_mode_flag).w
@@ -5626,10 +5868,8 @@ MoveDemo_Record_P2:
 
 ; loc_48AA:
 MoveDemo_On:
-	move.b	(Ctrl_1_Press).w,d0
-	or.b	(Ctrl_2_Press).w,d0
-	andi.b	#button_start_mask,d0
-	beq.s	+
+	tst.b	(Ctrl_1_Held).w
+	bpl.s	+
 	tst.w	(Demo_mode_flag).w
 	bmi.s	+
 	move.b	#GameModeID_TitleScreen,(Game_Mode).w ; => TitleScreen
@@ -5749,15 +5989,15 @@ DemoScriptPointers: zoneOrderedTable 4,1
 	zoneTableEntry.l Demo_EHZ	; MTZ1,2
 	zoneTableEntry.l Demo_EHZ	; MTZ3
 	zoneTableEntry.l Demo_EHZ	; WFZ
-	zoneTableEntry.l Demo_EHZ	; HTZ
-	zoneTableEntry.l Demo_EHZ	; HPZ
+	zoneTableEntry.l Demo_HTZ	; HTZ
+	zoneTableEntry.l Demo_CNZ	; HPZ
 	zoneTableEntry.l Demo_EHZ	; Zone 9
 	zoneTableEntry.l Demo_EHZ	; OOZ
 	zoneTableEntry.l Demo_EHZ	; MCZ
 	zoneTableEntry.l Demo_CNZ	; CNZ
 	zoneTableEntry.l Demo_CPZ	; CPZ
 	zoneTableEntry.l Demo_EHZ	; DEZ
-	zoneTableEntry.l Demo_ARZ	; ARZ
+	zoneTableEntry.l Demo_EHZ	; ARZ
 	zoneTableEntry.l Demo_EHZ	; SCZ
     zoneTableEnd
 ; ---------------------------------------------------------------------------
@@ -6113,271 +6353,668 @@ btns_mask := btns_mask|button_start_mask
 ; ---------------------------------------------------------------------------
 ; byte_4CA8: Demo_Def:
 Demo_EHZ:
-	demoinput ,	$4C
+	demoinput ,	$45
+	demoinput R,	1
+	demoinput CR,	6
+	demoinput R,	$5A
+	demoinput CR,	5
+	demoinput R,	$36
+	demoinput CR,	7
 	demoinput R,	$43
-	demoinput RC,	9
-	demoinput R,	$3F
-	demoinput RC,	6
-	demoinput R,	$B0
-	demoinput RC,	$A
-	demoinput R,	$46
-	demoinput ,	$1E
-	demoinput L,	$F
-	demoinput ,	5
-	demoinput L,	5
-	demoinput ,	9
-	demoinput L,	$3F
-	demoinput ,	5
-	demoinput R,	$67
-	demoinput ,	$62
-	demoinput R,	$12
-	demoinput ,	$22
-	demoinput D,	8
-	demoinput DC,	7
-	demoinput D,	$E
-	demoinput ,	$3C
-	demoinput R,	$A
-	demoinput ,	$1E
-	demoinput D,	7
-	demoinput DC,	7
-	demoinput D,	2
-	demoinput ,	$F
-	demoinput R,	$100
-	demoinput R,	$2F
-	demoinput ,	$23
-	demoinput C,	8
-	demoinput RC,	$10
-	demoinput R,	3
-	demoinput ,	$30
-	demoinput RC,	$24
-	demoinput R,	$BE
-	demoinput ,	$C
-	demoinput L,	$14
-	demoinput ,	$17
-	demoinput D,	3
-	demoinput DC,	7
-	demoinput D,	3
-	demoinput ,	$64
-	demoinput S,	1
-	demoinput A,	1
+	demoinput CR,	5
+	demoinput R,	$1A
+	demoinput ,	$10
+	demoinput R,	$B
+	demoinput CR,	$A
+	demoinput R,	$4B
+	demoinput CR,	$A
+	demoinput R,	$11
+	demoinput ,	6
+	demoinput L,	$1C
+	demoinput D,	1
+	demoinput R,	$4C
+	demoinput CR,	$2E
+	demoinput R,	$56
+	demoinput CR,	$A
+	demoinput R,	$27
+	demoinput CR,	$1D
+	demoinput R,	$1A
+	demoinput CR,	9
+	demoinput R,	0
+	demoinput R,	$97
+	demoinput CR,	$14
+	demoinput R,	$1E
+	demoinput CR,	$1A
+	demoinput R,	$2B
+	demoinput CR,	8
+	demoinput UR,	1
+	demoinput U,	1
+	demoinput UL,	$21
+	demoinput L,	3
+	demoinput UL,	2
 	demoinput ,	1
+	demoinput R,	$3B
+	demoinput ,	$26
+	demoinput L,	$B
+	demoinput LC,	$A
+	demoinput L,	$1D
+	demoinput ,	4
+	demoinput R,	$3B
+	demoinput CR,	7
+	demoinput R,	$D
+	demoinput ,	$17
+	demoinput R,	1
+	demoinput CR,	$10
+	demoinput R,	$34
+	demoinput CR,	8
+	demoinput R,	5
+	demoinput ,	$47
+	demoinput R,	$6B
+	demoinput ,	$2A
+	demoinput S,	1
+	demoinput SA,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+
 ; ---------------------------------------------------------------------------
 ; EHZ Demo Script (Tails)
 ; ---------------------------------------------------------------------------
 ; byte_4D08:
 Demo_EHZ_Tails:
-	demoinput ,	$3C
+
+	demoinput ,	$47
+	demoinput R,	$1F
+	demoinput RC,	$B
+	demoinput R,	$5F
+	demoinput RC,	$31
+	demoinput R,	$67
+	demoinput ,	$10
 	demoinput R,	$10
-	demoinput UR,	$44
-	demoinput URC,	$7
-	demoinput UR,	$7
-	demoinput R,	$CA
-	demoinput ,	$12
-	demoinput R,	$2
-	demoinput RC,	$9
-	demoinput R,	$53
-	demoinput ,	$12
+	demoinput RC,	$2F
+	demoinput R,	1
+	demoinput ,	$20
+	demoinput R,	$13
+	demoinput ,	$14
 	demoinput R,	$B
-	demoinput RC,	$F
-	demoinput R,	$24
-	demoinput ,	$B
-	demoinput C,	$5
-	demoinput ,	$E
-	demoinput R,	$56
-	demoinput ,	$1F
-	demoinput R,	$5B
-	demoinput ,	$11
-	demoinput R,	$100
-	demoinput R,	$C1
-	demoinput ,	$21
+	demoinput ,	$17
 	demoinput L,	$E
-	demoinput ,	$E
-	demoinput C,	$5
-	demoinput RC,	$10
-	demoinput C,	$6
-	demoinput ,	$D
-	demoinput L,	$6
-	demoinput ,	$5F
-	demoinput R,	$74
+	demoinput ,	9
+	demoinput L,	$11
+	demoinput ,	$31
+	demoinput R,	$6C
+	demoinput RC,	$15
+	demoinput R,	$81
+	demoinput RD,	3
+	demoinput D,	$24
+	demoinput ,	8
+	demoinput R,	$14
+	demoinput RC,	$18
+	demoinput R,	1
+	demoinput ,	4
+	demoinput L,	4
+	demoinput UL,	1
+	demoinput U,	1
+	demoinput UR,	2
+	demoinput R,	$3D
+	demoinput RC,	8
 	demoinput ,	$19
-	demoinput L,	$45
-	demoinput ,	$9
-	demoinput D,	$31
-	demoinput ,	$9
+	demoinput R,	$4E
+	demoinput RC,	$13
+	demoinput R,	2
+	demoinput ,	5
+	demoinput R,	$C
+	demoinput ,	8
+	demoinput R,	$1C
+	demoinput ,	$A
+	demoinput C,	6
+	demoinput RC,	$14
+	demoinput R,	5
+	demoinput ,	$22
+	demoinput R,	$12
+	demoinput ,	$21
+	demoinput R,	$52
+	demoinput ,	$C
+	demoinput L,	$58
+	demoinput ,	$E
+	demoinput D,	$28
+	demoinput RD,	1
+	demoinput ,	3
+	demoinput UR,	2
+	demoinput R,	$2B
+	demoinput RC,	$16
+	demoinput R,	4
+	demoinput RC,	$1A
+	demoinput R,	$B
+	demoinput ,	$B
+	demoinput R,	3
+	demoinput RC,	$1C
+	demoinput R,	$34
+	demoinput ,	$28
+	demoinput R,	$3B
+	demoinput UR,	$13
+	demoinput U,	8
+	demoinput ,	$14
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+
+; ---------------------------------------------------------------------------
+; HTZ Demo Script
+; ---------------------------------------------------------------------------
+Demo_HTZ:
+	demoinput ,	6
+	demoinput U,	$1E
+	demoinput UR,	4
+	demoinput URC,	6
+	demoinput UR,	$11
+	demoinput U,	1
+	demoinput ,	$14
+	demoinput L,	1
+	demoinput UL,	$B
+	demoinput ULC,	8
+	demoinput UL,	$11
+	demoinput L,	2
+	demoinput ,	$D
+	demoinput R,	5
+	demoinput UR,	$D
+	demoinput URC,	$B
+	demoinput UR,	$11
+	demoinput R,	4
+	demoinput ,	$1D
+	demoinput C,	8
+	demoinput ,	$C
+	demoinput L,	7
+	demoinput ,	$26
+	demoinput C,	7
+	demoinput ,	$23
+	demoinput R,	6
+	demoinput ,	$26
+	demoinput L,	$F
+	demoinput ,	$34
+	demoinput R,	8
+	demoinput ,	$3A
+	demoinput R,	$B
+	demoinput RC,	9
+	demoinput R,	$17
+	demoinput ,	$25
+	demoinput R,	$75
+	demoinput RC,	3
+	demoinput URC,	8
+	demoinput UR,	4
+	demoinput ,	$10
 	demoinput R,	$E
-	demoinput ,	$24
-	demoinput R,	$28
-	demoinput ,	$5
-	demoinput R,	$1
-	demoinput ,	$1
-	demoinput ,	$1
-	demoinput ,	$1
-	demoinput ,	$1
-	demoinput ,	$1
+	demoinput ,	6
+	demoinput L,	$D
+	demoinput ,	2
+	demoinput C,	3
+	demoinput RC,	1
+	demoinput DRC,	9
+	demoinput RC,	3
+	demoinput R,	$1F
+	demoinput ,	5
+	demoinput L,	$14
+	demoinput ,	$13
+	demoinput R,	$19
+	demoinput RC,	$C
+	demoinput R,	$12
+	demoinput ,	$2D
+	demoinput R,	$D
+	demoinput ,	$E
+	demoinput C,	5
+	demoinput RC,	4
+	demoinput R,	6
+	demoinput ,	$23
+	demoinput L,	$13
+	demoinput ,	5
+	demoinput R,	$1B
+	demoinput ,	$E
+	demoinput L,	7
+	demoinput ,	$38
+	demoinput R,	$D
+	demoinput ,	$1A
+	demoinput R,	$E
+	demoinput ,	$D
+	demoinput L,	$A
+	demoinput ,	4
+	demoinput R,	$21
+	demoinput ,	$1B
+	demoinput L,	7
+	demoinput ,	$23
+	demoinput R,	$A
+	demoinput ,	$A
+	demoinput R,	$17
+	demoinput ,	$30
+	demoinput R,	$F
+	demoinput RC,	5
+	demoinput C,	3
+	demoinput ,	9
+	demoinput L,	$1A
+	demoinput ,	6
+	demoinput R,	7
+	demoinput RC,	9
+	demoinput R,	9
+	demoinput ,	$25
+	demoinput R,	$73
+	demoinput RD,	$A
+	demoinput D,	$F
+	demoinput RD,	$6C
+	demoinput DRS,	1
+	demoinput A,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+
 ; ---------------------------------------------------------------------------
 ; CNZ Demo Script
 ; ---------------------------------------------------------------------------
 Demo_CNZ:
-	demoinput ,	$49
-	demoinput R,	$11
-	demoinput UR,	1
-	demoinput R,	2
-	demoinput UR,	7
-	demoinput R,	$61
+	demoinput ,	$41
+	demoinput R,	$34
+	demoinput RC,	7
+	demoinput R,	$3A
 	demoinput RC,	6
-	demoinput C,	2
-	demoinput ,	9
-	demoinput L,	3
-	demoinput DL,	4
-	demoinput L,	2
-	demoinput ,	$1A
-	demoinput R,	$12
-	demoinput RC,	$1A
-	demoinput C,	5
-	demoinput RC,	$24
-	demoinput R,	$1B
-	demoinput ,	8
-	demoinput L,	$11
-	demoinput ,	$F
-	demoinput R,	$78
-	demoinput RC,	$17
-	demoinput C,	1
-	demoinput ,	$10
-	demoinput L,	$12
-	demoinput ,	8
-	demoinput R,	$53
-	demoinput ,	$70
-	demoinput R,	$75
-	demoinput ,	$38
-	demoinput R,	$17
-	demoinput ,	5
-	demoinput L,	$27
-	demoinput ,	$D
-	demoinput L,	$13
-	demoinput ,	$6A
-	demoinput C,	$11
-	demoinput RC,	3
-	demoinput DRC,	6
-	demoinput DR,	$15
-	demoinput R,	6
+	demoinput R,	$E
+	demoinput ,	$26
+	demoinput R,	$11
+	demoinput RC,	$2B
+	demoinput R,	$1D
+	demoinput D,	1
+	demoinput DLC,	4
+	demoinput DC,	1
+	demoinput DRC,	1
+	demoinput RC,	7
+	demoinput R,	$23
+	demoinput D,	1
+	demoinput DL,	$10
+	demoinput L,	9
+	demoinput DL,	1
+	demoinput D,	$F
+	demoinput DL,	$30
+	demoinput D,	$7A
+	demoinput DL,	2
+	demoinput L,	$44
+	demoinput LC,	$10
+	demoinput L,	$18
+	demoinput ,	$A
+	demoinput R,	$1D
+	demoinput RC,	4
+	demoinput R,	$46
 	demoinput ,	6
-	demoinput L,	$D
-	demoinput ,	$49
-	demoinput L,	$A
-	demoinput ,	$1F
-	demoinput R,	7
-	demoinput ,	$30
+	demoinput R,	$1B
+	demoinput RC,	$34
+	demoinput R,	$73
+	demoinput ,	$10
+	demoinput L,	$16
+	demoinput LC,	$11
+	demoinput L,	$C
+	demoinput ,	$25
 	demoinput L,	2
-	demoinput ,	$100
-	demoinput ,	$50
-	demoinput R,	1
-	demoinput RC,	$C
-	demoinput R,	$2B
-	demoinput ,	$5F
+	demoinput LC,	9
+	demoinput L,	8
+	demoinput ,	7
+	demoinput L,	5
+	demoinput ,	$1F
+	demoinput LC,	$F
+	demoinput L,	$16
+	demoinput ,	$1F
+	demoinput C,	4
+	demoinput LC,	$10
+	demoinput L,	1
+	demoinput ,	8
+	demoinput R,	$13
+	demoinput L,	$A
+	demoinput LC,	$10
+	demoinput L,	7
+	demoinput ,	$B
+	demoinput L,	$63
+	demoinput LC,	$13
+	demoinput C,	5
+	demoinput ,	$22
+	demoinput RC,	$F
+	demoinput R,	$17
+	demoinput ,	$1A
+	demoinput R,	$2A
+	demoinput ,	$64
+	demoinput L,	$16
+	demoinput LC,	$A
+	demoinput L,	$3A
+	demoinput ,	$32
+	demoinput R,	$26
+	demoinput RC,	3
+	demoinput R,	$13
+	demoinput ,	$94
+	demoinput S,	1
+	demoinput SA,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+
 ; ---------------------------------------------------------------------------
 ; CPZ Demo Script
 ; ---------------------------------------------------------------------------
 Demo_CPZ:
-	demoinput ,	$47
-	demoinput R,	$1C
-	demoinput RC,	8
-	demoinput R,	$A
 	demoinput ,	$1C
-	demoinput R,	$E
-	demoinput RC,	$29
-	demoinput R,	$100
-	demoinput R,	$E8
-	demoinput DR,	5
-	demoinput D,	2
-	demoinput L,	$34
-	demoinput DL,	$68
+	demoinput U,	$31
+	demoinput ,	$1A
+	demoinput R,	$2A
+	demoinput RC,	$14
+	demoinput R,	4
+	demoinput ,	$1E
+	demoinput C,	4
+	demoinput RC,	$1F
+	demoinput R,	3
+	demoinput ,	$A
+	demoinput L,	6
+	demoinput ,	$2F
+	demoinput R,	$1F
+	demoinput RC,	6
+	demoinput C,	4
+	demoinput ,	$C
+	demoinput L,	2
+	demoinput UL,	8
 	demoinput L,	1
-	demoinput ,	$16
-	demoinput C,	1
-	demoinput LC,	8
-	demoinput L,	$F
-	demoinput ,	$18
-	demoinput R,	2
-	demoinput DR,	2
-	demoinput R,	$D
-	demoinput ,	$20
-	demoinput RC,	7
-	demoinput R,	$B
-	demoinput ,	$1C
-	demoinput L,	$E
-	demoinput ,	$1D
-	demoinput L,	7
-	demoinput ,	$100
-	demoinput ,	$E0
-	demoinput R,	$F
-	demoinput ,	$1D
-	demoinput L,	3
-	demoinput ,	$26
+	demoinput ,	$30
+	demoinput RC,	4
+	demoinput DRC,	5
+	demoinput RD,	1
 	demoinput R,	7
-	demoinput ,	7
-	demoinput C,	5
-	demoinput ,	$29
-	demoinput L,	$12
-	demoinput ,	$18
+	demoinput ,	$25
+	demoinput R,	3
+	demoinput RC,	7
+	demoinput R,	2
+	demoinput ,	$27
+	demoinput R,	0
+	demoinput R,	$15
+	demoinput RC,	$B
+	demoinput R,	4
+	demoinput ,	$61
+	demoinput R,	$F
+	demoinput RC,	8
+	demoinput R,	$D
+	demoinput ,	9
+	demoinput L,	$C
+	demoinput ,	$24
+	demoinput R,	6
+	demoinput ,	$94
 	demoinput R,	$1A
-	demoinput ,	$11
-	demoinput L,	$2E
-	demoinput ,	$14
+	demoinput RC,	$12
+	demoinput R,	$79
+	demoinput RC,	$10
+	demoinput R,	0
+	demoinput R,	$84
+	demoinput RC,	$E
+	demoinput R,	$83
+	demoinput ,	$20
 	demoinput S,	1
 	demoinput A,	1
 	demoinput ,	1
-; ---------------------------------------------------------------------------
-; ARZ Demo Script
-; ---------------------------------------------------------------------------
-Demo_ARZ:
-	demoinput ,	$43
-	demoinput R,	$4B
-	demoinput RC,	9
-	demoinput R,	$50
-	demoinput RC,	$C
-	demoinput R,	6
-	demoinput ,	$1B
-	demoinput R,	$61
-	demoinput RC,	$15
-	demoinput R,	$55
-	demoinput ,	$41
-	demoinput R,	5
-	demoinput UR,	1
-	demoinput R,	$5C
-	demoinput ,	$47
-	demoinput R,	$3C
-	demoinput RC,	9
-	demoinput R,	$28
-	demoinput ,	$B
-	demoinput R,	$93
-	demoinput RC,	$33
-	demoinput R,	$23
-	demoinput ,	$23
-	demoinput R,	$4D
-	demoinput ,	$1F
-	demoinput L,	2
-	demoinput UL,	3
-	demoinput L,	1
-	demoinput ,	$B
-	demoinput L,	$D
-	demoinput ,	$11
-	demoinput R,	6
-	demoinput ,	$62
-	demoinput R,	4
-	demoinput RC,	6
-	demoinput R,	$17
-	demoinput ,	$1C
-	demoinput R,	$57
-	demoinput RC,	$B
-	demoinput R,	$17
-	demoinput ,	$16
-	demoinput R,	$D
-	demoinput ,	$2C
-	demoinput C,	2
-	demoinput RC,	$1B
-	demoinput R,	$83
-	demoinput ,	$C
-	demoinput S,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -6573,7 +7210,6 @@ SpecialStage:
 	subq.w	#1,d0
 	bne.s	-
 
-	jsr	(Obj5A_CreateRingsToGoText).l
 	bsr.w	SS_ScrollBG
 	jsr	(RunObjects).l
 	jsr	(BuildSprites).l
@@ -6588,8 +7224,6 @@ SpecialStage:
 	bsr.w	Pal_FadeFromWhite
 
 -	bsr.w	PauseGame
-	move.w	(Ctrl_1).w,(Ctrl_1_Logical).w
-	move.w	(Ctrl_2).w,(Ctrl_2_Logical).w
 	cmpi.b	#GameModeID_SpecialStage,(Game_Mode).w ; special stage mode?
 	bne.w	SpecialStage_Unpause		; if not, branch
 	move.b	#VintID_S2SS,(Vint_routine).w
@@ -6599,6 +7233,8 @@ SpecialStage:
 	bsr.w	SSLoadCurrentPerspective
 	bsr.w	SSObjectsManager
 	bsr.w	SS_ScrollBG
+	move.w	(Ctrl_1).w,(Ctrl_1_Logical).w
+	move.w	(Ctrl_2).w,(Ctrl_2_Logical).w
 	jsr	(RunObjects).l
 	jsr	(BuildSprites).l
 	bsr.w	RunPLC_RAM
@@ -6672,8 +7308,6 @@ SpecialStage:
 	move.w	#$8C81,(a6)		; H res 40 cells, no interlace, S/H disabled
 	bsr.w	ClearScreen
 	jsrto	JmpTo_Hud_Base
-	clr.w	(VDP_Command_Buffer).w
-	move.l	#VDP_Command_Buffer,(VDP_Command_Buffer_Slot).w
 	move	#$2300,sr
 	moveq	#PalID_Result,d0
 	bsr.w	PalLoad_Now
@@ -10111,9 +10745,9 @@ SpecialStage_RingReq_Team:
 	dc.b  50,100,140,150	; 8
 	dc.b  60,110,160,170	; 12
 	dc.b  40,100,150,160	; 16
-	dc.b  55,110,200,200	; 20
-	dc.b  80,140,220,220	; 24
-	dc.b 100,190,210,210	; 28
+	dc.b  55,100,160,170	; 20
+	dc.b  50, 90,140,140	; 24
+	dc.b 100,150,190,190	; 28
 	even
 ; ----------------------------------------------------------------------------
 ; Ring requirement values for Sonic or Tails alone games
@@ -10126,11 +10760,11 @@ SpecialStage_RingReq_Team:
 SpecialStage_RingReq_Alone:
 	dc.b  30, 70,130,110	; 4
 	dc.b  50,100,140,140	; 8
-	dc.b  50,110,160,160	; 12
-	dc.b  40,110,150,150	; 16
-	dc.b  50, 90,160,160	; 20
-	dc.b  80,140,210,210	; 24
-	dc.b 100,150,190,190	; 28
+	dc.b  50,100,150,160	; 12
+	dc.b  30, 95,145,150	; 16
+	dc.b  45, 80,145,150	; 20
+	dc.b  45, 85,135,130	; 24
+	dc.b  90,140,180,180	; 28
 	even
 
 ; special stage palette table
@@ -10675,8 +11309,6 @@ TwoPlayerResults:
     else
 	bsr.w	PlaneMapToVRAM_H40
     endif
-	clr.w	(VDP_Command_Buffer).w
-	move.l	#VDP_Command_Buffer,(VDP_Command_Buffer_Slot).w
 	clr.b	(Level_started_flag).w
 	clr.w	(Anim_Counters).w
 	lea	(Anim_SonicMilesBG).l,a2
@@ -10696,9 +11328,6 @@ TwoPlayerResults:
 	clr.w	(Two_player_mode).w
 	clr.l	(Camera_X_pos).w
 	clr.l	(Camera_Y_pos).w
-	clr.l	(Vscroll_Factor).w
-	clr.l	(Vscroll_Factor_P2).w
-	clr.l	(Vscroll_Factor_P2_HInt).w
 	move.b	#ObjID_2PResults,(VSResults_HUD+id).w
 	move.b	#VintID_Menu,(Vint_routine).w
 	bsr.w	WaitForVint
@@ -10730,14 +11359,7 @@ TwoPlayerResults:
 	move.b	#GameModeID_Level,(Game_Mode).w ; => Level (Zone play mode)
 	move.b	#0,(Last_star_pole_hit).w
 	move.b	#0,(Last_star_pole_hit_2P).w
-	moveq	#1,d0
-	move.w	d0,(Two_player_mode).w
-	move.w	d0,(Two_player_mode_copy).w
-	moveq	#0,d0
-	move.l	d0,(Score).w
-	move.l	d0,(Score_2P).w
-	move.l	#5000,(Next_Extra_life_score).w
-	move.l	#5000,(Next_Extra_life_score_2P).w
+	move.w	#1,(Two_player_mode).w
 	rts
 ; ===========================================================================
 +	; Displays results for the zone
@@ -10761,11 +11383,7 @@ TwoPlayerResults:
 	move.w	#VsRSID_SS,(Results_Screen_2P).w
 	move.b	#1,(f_bigring).w
 	move.b	#GameModeID_SpecialStage,(Game_Mode).w ; => SpecialStage
-	moveq	#1,d0
-	move.w	d0,(Two_player_mode).w
-	move.w	d0,(Two_player_mode_copy).w
-	move.b	#0,(Last_star_pole_hit).w
-	move.b	#0,(Last_star_pole_hit_2P).w
+	move.w	#1,(Two_player_mode).w
 	rts
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -10810,6 +11428,8 @@ TwoPlayerResultsDone_ZoneOrSpecialStages:
 	add.l	d0,d1
 	move.w	(a4)+,d0
 	add.l	d0,d1
+	move.w	(a4)+,d0
+	add.l	d0,d1
 	swap	d1
 	tst.w	d1	; have all levels been completed?
 	bne.s	+	; if not, branch
@@ -10817,17 +11437,6 @@ TwoPlayerResultsDone_ZoneOrSpecialStages:
 	move.b	#GameModeID_2PResults,(Game_Mode).w ; => TwoPlayerResults
 	rts
 ; ===========================================================================
-+
-	tst.w	(Game_Over_2P).w
-	beq.s	+		; if there's a Game Over, clear the results
-	lea	(Results_Data_2P).w,a1
-
-	moveq	#bytesToWcnt(Results_Data_2P_End-Results_Data_2P),d0
--	move.w	#-1,(a1)+
-	dbf	d0,-
-
-	move.b	#3,(Life_count).w
-	move.b	#3,(Life_count_2P).w
 +
 	move.b	#GameModeID_2PLevelSelect,(Game_Mode).w ; => LevelSelectMenu2P
 	rts
@@ -10842,7 +11451,7 @@ TwoPlayerResultsDone_Game:
 ; loc_802C:
 TwoPlayerResultsDone_SpecialStage:
 	subq.w	#1,d0			; were we at the special stage results screen? (VsRSID_SS)
-	bne.w	TwoPlayerResultsDone_SpecialStages ; if not, branch
+	bne.s	TwoPlayerResultsDone_SpecialStages ; if not, branch
 	cmpi.b	#3,(Current_Zone_2P).w	; do we come from the special stage "zone"?
 	beq.s	+			; if yes, branch
 	move.w	#VsRSID_Zone,(Results_Screen_2P).w ; show zone results after tiebreaker special stage
@@ -10850,18 +11459,8 @@ TwoPlayerResultsDone_SpecialStage:
 	rts
 ; ===========================================================================
 +
-	tst.b	(Current_Act_2P).w
-	beq.s	+
 	cmpi.b	#2,(Current_Act_2P).w
 	beq.s	loc_80AC
-	bsr.w	sub_84A4
-	lea	(SS_Total_Won).w,a4
-	clr.w	(a4)
-	bsr.s	sub_8094
-	bsr.s	sub_8094
-	move.b	(a4),d1
-	sub.b	1(a4),d1
-	bne.s	loc_80AC
 +
 	addq.b	#1,(Current_Act_2P).w
 	addq.b	#1,(Current_Special_Stage).w
@@ -10871,25 +11470,6 @@ TwoPlayerResultsDone_SpecialStage:
 	move.w	#1,(Two_player_mode).w
 	move.w	#0,(Level_Music).w
 	rts
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
-
-sub_8094:
-	moveq	#0,d1
-	move.b	(a5),d1
-	sub.b	1(a5),d1
-	beq.s	++
-	bcs.s	+
-	addq.b	#1,(a4)
-	bra.s	++
-; ===========================================================================
-+
-	addq.b	#1,1(a4)
-+
-	addq.w	#2,a5
-	rts
-; End of function sub_8094
 
 ; ===========================================================================
 
@@ -11377,7 +11957,6 @@ sub_85CE:
 	bne.s	loc_862C
 	lea	(Text2P_NoGame).l,a1
 	move.w	d6,d2
-	addq.w	#4,d2
 	bsr.w	loc_8698
 	addi.w	#$14,d6
 	move.w	d6,d2
@@ -11652,12 +12231,12 @@ MenuScreen:
 	move.w	#$8C81,(a6)		; H res 40 cells, no interlace, S/H disabled
 	move.w	#$9001,(a6)		; Scroll table size: 64x32
 
+	move.l	#VDP_Command_Buffer,(VDP_Command_Buffer_Slot).w
+
 	clearRAM Object_Display_Lists,Object_Display_Lists_End
 	clearRAM Object_RAM,Object_RAM_End
 
 	; load background + graphics of font/LevSelPics
-	clr.w	(VDP_Command_Buffer).w
-	move.l	#VDP_Command_Buffer,(VDP_Command_Buffer_Slot).w
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_FontStuff),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_FontStuff).l,a0
 	bsr.w	NemDec
@@ -11719,7 +12298,6 @@ MenuScreen:
 	clr.w	(Results_Screen_2P).w	; VsRSID_Act
 	clr.b	(Level_started_flag).w
 	clr.w	(Anim_Counters).w
-	clr.w	(Game_Over_2P).w
 	lea	(Anim_SonicMilesBG).l,a2
 	jsrto	JmpTo2_Dynamic_Normal
 	moveq	#PalID_Menu,d0
@@ -11782,11 +12360,6 @@ loc_8DF4:
 	move.b	#GameModeID_Level,(Game_Mode).w ; => Level (Zone play mode)
 	move.b	#0,(Last_star_pole_hit).w
 	move.b	#0,(Last_star_pole_hit_2P).w
-	moveq	#0,d0
-	move.l	d0,(Score).w
-	move.l	d0,(Score_2P).w
-	move.l	#5000,(Next_Extra_life_score).w
-	move.l	#5000,(Next_Extra_life_score_2P).w
 	rts
 ; ===========================================================================
 
@@ -12830,13 +13403,13 @@ CheckCheats:	; This is called from 2 places: the options screen and the level se
 	; Remove "&$7F" to fix the bug.
 	move.b	#SndID_ContinueJingle&$7F,d0	; Play the continue jingle
     endif
-	jsrto	JmpTo_PlayMusic
+	jsrto	JmpTo_PlaySound
 	bra.s	++
 ; ===========================================================================
 +
 	move.w	#7,(Got_Emerald).w		; Give 7 emeralds to the player
 	move.b	#MusID_Emerald,d0		; Play the emerald jingle
-	jsrto	JmpTo_PlayMusic
+	jsrto	JmpTo_PlaySound
 +
 	move.w	#0,(Correct_cheat_entries_2).w	; Clear the number of correct entries
 +
@@ -12850,19 +13423,16 @@ level_select_cheat:
 ; byte_97B7
 continues_cheat:
 	; November 24th, which was Sonic 2's release date in the EU and US.
-	dc.b   1,   1,   2,   4,   0
+	dc.b $11, $24,   0
 	rev02even
 debug_cheat:
-	; 24th November 1992 (also known as "Sonic 2sday"), which was
-	; Sonic 2's release date in the EU and US.
-	dc.b   1,   9,   9,   2,   1,   1,   2,   4,   0
+	; See above.
+	dc.b $19, $65,   9, $17,   0
 	rev02even
 ; byte_97C5
 super_sonic_cheat:
-	; Book of Genesis, 41:26, which makes frequent reference to the
-	; number 7. 7 happens to be the number of Chaos Emeralds.
-	; The Mega Drive is known as the Genesis in the US.
-	dc.b   4,   1,   2,   6,   0
+	; See above.
+	dc.b $11, $24,   0
 	rev02even
 
 	; set the character set for menu text
@@ -12878,9 +13448,9 @@ super_sonic_cheat:
 TextOptScr_PlayerSelect:	menutxt	"* PLAYER SELECT *"	; byte_97CA:
 TextOptScr_SonicAndMiles:	menutxt	"SONIC AND MILES"	; byte_97DC:
 TextOptScr_SonicAndTails:	menutxt	"SONIC AND TAILS"	; byte_97EC:
-TextOptScr_SonicAlone:		menutxt	"SONIC ALONE    "	; byte_97FC:
-TextOptScr_MilesAlone:		menutxt	"MILES ALONE    "	; byte_980C:
-TextOptScr_TailsAlone:		menutxt	"TAILS ALONE    "	; byte_981C:
+TextOptScr_SonicAlone:		menutxt	"SONIC ONLY     "	; byte_97FC:
+TextOptScr_MilesAlone:		menutxt	"MILES ONLY     "	; byte_980C:
+TextOptScr_TailsAlone:		menutxt	"TAILS ONLY     "	; byte_981C:
 TextOptScr_VsModeItems:		menutxt	"* VS MODE ITEMS *"	; byte_982C:
 TextOptScr_AllKindsItems:	menutxt	"ALL KINDS ITEMS"	; byte_983E:
 TextOptScr_TeleportOnly:	menutxt	"TELEPORT ONLY  "	; byte_984E:
@@ -12955,7 +13525,6 @@ EndingSequence:
 	st.b	(Super_Sonic_flag).w
 	move.b	#-1,(Super_Sonic_palette).w
 	move.b	#$F,(Palette_timer).w
-	move.w	#$30,(Palette_frame).w
 +
 	moveq	#0,d0
 	cmpi.w	#2,(Player_mode).w
@@ -13077,7 +13646,7 @@ EndgameCredits:
 	move.w	#$9001,(a6)		; Scroll table size: 64x32
 	move.w	#$9200,(a6)		; Disable window
 	move.w	#$8B03,(a6)		; EXT-INT disabled, V scroll by screen, H scroll by line
-	move.w	#$8700,(a6)		; Background palette/color: 0/0
+	move.w	#$8720,(a6)		; Background palette/color: 2/0
 	clr.b	(Water_fullscreen_flag).w
 	move.w	#$8C81,(a6)		; H res 40 cells, no interlace, S/H disabled
 	jsrto	JmpTo_ClearScreen
@@ -13110,9 +13679,6 @@ EndgameCredits:
 	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len+4
     endif
 
-	moveq	#signextendB(MusID_Credits),d0
-	jsrto	JmpTo2_PlaySound
-	clr.w	(Target_palette).w
 	move.w	#$EEE,(Target_palette+$C).w
 	move.w	#$EE,(Target_palette_line2+$C).w
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_CreditText_CredScr),VRAM,WRITE),(VDP_control_port).l
@@ -13122,7 +13688,7 @@ EndgameCredits:
 -
 	jsrto	JmpTo_ClearScreen
 	bsr.w	ShowCreditsScreen
-	bsr.w	Pal_FadeFromBlack
+	bsr.w	JmpTo_Pal_FadeFromBlack
 
 	; Here's how to calculate new duration values for the below instructions.
 	; Each slide of the credits is displayed for $18E frames at 60 FPS, or $144 frames at 50 FPS.
@@ -13135,12 +13701,9 @@ EndgameCredits:
 	; Now that we have the time it should take for the credits to end, we can adjust the calculation to account
 	; for any slides we may have added. For example, if you added a slide, bringing the total to 22,
 	; performing '((154.7*60)/22)-($16+$16)' will give you the new value to put in the 'move.w' instruction below.
-	move.w	#$18E,d0
-	btst	#6,(Graphics_Flags).w
-	beq.s	+
-	move.w	#$144,d0
-
-/	move.b	#VintID_Ending,(Vint_routine).w
+	move.w	#$1A3,d0
+-
+	move.b	#VintID_Ending,(Vint_routine).w
 	bsr.w	WaitForVint
 	dbf	d0,-
 
@@ -13151,40 +13714,7 @@ EndgameCredits:
 	lsl.w	#2,d0
 	move.l	(a1,d0.w),d0
 	bpl.s	--
-	bsr.w	Pal_FadeToBlack
-	jsrto	JmpTo_ClearScreen
-	move.l	#vdpComm($0000,VRAM,WRITE),(VDP_control_port).l
-	lea	(ArtNem_EndingTitle).l,a0
-	jsrto	JmpTo_NemDec
-	lea	(MapEng_EndGameLogo).l,a0
-	lea	(Chunk_Table).l,a1
-	move.w	#0,d0
-	jsrto	JmpTo_EniDec
-	lea	(Chunk_Table).l,a1
-	move.l	#vdpComm(VRAM_Plane_A_Name_Table+planeLoc(64,12,11),VRAM,WRITE),d0
-	moveq	#16-1,d1
-	moveq	#6-1,d2
-	jsrto	JmpTo2_PlaneMapToVRAM_H40
-	clr.w	(CreditsScreenIndex).w
-	bsr.w	EndgameLogoFlash
 
-	move.w	#$3B,d0
--	move.b	#VintID_Ending,(Vint_routine).w
-	bsr.w	WaitForVint
-	dbf	d0,-
-
-	move.w	#$257,d6
--	move.b	#VintID_Ending,(Vint_routine).w
-	bsr.w	WaitForVint
-	addq.w	#1,(CreditsScreenIndex).w
-	bsr.w	EndgameLogoFlash
-	cmpi.w	#$5E,(CreditsScreenIndex).w
-	blo.s	-
-	move.b	(Ctrl_1_Press).w,d1
-	andi.b	#button_B_mask|button_C_mask|button_A_mask|button_start_mask,d1
-	bne.s	+
-	dbf	d6,-
-+
 	st.b	(Level_Inactive_flag).w
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
 
@@ -13193,54 +13723,6 @@ EndgameCredits:
 ; End of function EndgameCredits
 
 
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
-
-;sub_A0C0
-EndgameLogoFlash:
-	lea	(Normal_palette+2).w,a2
-	move.w	(CreditsScreenIndex).w,d0
-	cmpi.w	#$24,d0
-	bhs.s	EndgameCredits.return
-	btst	#0,d0
-	bne.s	EndgameCredits.return
-	lsr.w	#1,d0
-	move.b	byte_A0EC(pc,d0.w),d0
-	mulu.w	#$18,d0
-	lea	pal_A0FE(pc,d0.w),a1
-
-	moveq	#5,d0
--	move.l	(a1)+,(a2)+
-	dbf	d0,-
-
-	rts
-; End of function EndgameLogoFlash
-
-; ===========================================================================
-byte_A0EC:
-	dc.b   0
-	dc.b   1	; 1
-	dc.b   2	; 2
-	dc.b   3	; 3
-	dc.b   4	; 4
-	dc.b   3	; 5
-	dc.b   2	; 6
-	dc.b   1	; 7
-	dc.b   0	; 8
-	dc.b   5	; 9
-	dc.b   6	; 10
-	dc.b   7	; 11
-	dc.b   8	; 12
-	dc.b   7	; 13
-	dc.b   6	; 14
-	dc.b   5	; 15
-	dc.b   0	; 16
-	dc.b   0	; 17
-	even
-
-; palette cycle for the end-of-game logo
-pal_A0FE:	BINCLUDE	"art/palettes/Ending Cycle.bin"
-
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object CA - Cut scene at end of game
@@ -13248,17 +13730,6 @@ pal_A0FE:	BINCLUDE	"art/palettes/Ending Cycle.bin"
 ; Sprite_A1D6:
 ObjCA:
 	addq.w	#1,objoff_32(a0)
-	; Branch if Tails...
-	cmpi.w	#4,(Ending_Routine).w
-	beq.s	+
-	; ...and branch if not Super Sonic, making the first check redundant.
-	; Was Sonic's ending originally *always* going to feature Super Sonic?
-	cmpi.w	#2,(Ending_Routine).w
-	bne.s	+
-	st.b	(Super_Sonic_flag).w
-	move.w	#$100,(Ring_count).w
-	move.b	#-1,(Super_Sonic_palette).w
-+
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	ObjCA_Index(pc,d0.w),d1
@@ -13279,9 +13750,6 @@ ObjCA_Index:	offsetTable
 ObjCA_Init:
 	moveq	#4,d0
 	move.w	#$180,d1
-	btst	#6,(Graphics_Flags).w
-	beq.s	sub_A22A
-	move.w	#$100,d1
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -13377,12 +13845,17 @@ loc_A2F2:
 	moveq	#$E,d0
 	move.b	#ObjID_Tails,id(a1) ; load Tails object
 	move.b	#$81,obj_control(a1)
-	move.b	#ObjID_TailsTails,(Tails_Tails_Cutscene+id).w ; load Obj05 (Tails' tails) at $FFFFB080
-	move.w	a1,(Tails_Tails_Cutscene+parent).w
 	rts
 ; ===========================================================================
 
 loc_A30A:
+	cmpi.w	#2,(Ending_Routine).w
+	bne.s	+
+	st.b	(Super_Sonic_flag).w
+	move.b	#-1,(Super_Sonic_palette).w
+	move.b	#$F,(Palette_timer).w
+	move.w	#$30,(Palette_frame).w
++
 	subq.w	#1,objoff_3C(a0)
 	bpl.s	+
 	moveq	#$A,d0
@@ -13417,22 +13890,12 @@ loc_A34C:
 	cmpi.w	#4,(Ending_Routine).w
 	bne.s	return_A38C
 	move.w	#$880,objoff_3C(a0)
-	btst	#6,(Graphics_Flags).w
-	beq.s	return_A38C
-	move.w	#$660,objoff_3C(a0)
 
 return_A38C:
 	rts
 ; ===========================================================================
 
 loc_A38E:
-	btst	#6,(Graphics_Flags).w
-	beq.s	+
-	cmpi.w	#$E40,objoff_32(a0)
-	beq.s	loc_A3BE
-	bra.w	++
-; ===========================================================================
-+
 	cmpi.w	#$1140,objoff_32(a0)
 	beq.s	loc_A3BE
 +
@@ -13447,7 +13910,8 @@ loc_A38E:
 loc_A3BE:
 	addq.b	#2,routine(a0)
 	st.b	(Credits_Trigger).w
-	rts
+	moveq	#signextendB(MusID_Credits),d0
+	bra.w	JmpTo2_PlaySound
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object CC - Trigger for rescue plane and birds from ending sequence
@@ -13522,10 +13986,6 @@ loc_A474:
 +
 	addq.b	#2,routine_secondary(a0)
 	move.w	#$480,objoff_3C(a0)
-	btst	#6,(Graphics_Flags).w
-	beq.s	+
-	move.w	#$3D0,objoff_3C(a0)
-+
 	move.w	#$40,objoff_32(a0)
 	st.b	(CutScene+objoff_34).w
 	clr.w	x_vel(a0)
@@ -13989,7 +14449,6 @@ ObjCB_Init:
 	andi.w	#$1FFF,d0
 	ori.w	#palette_mask,d0
 	move.w	d0,art_tile(a0)
-	move.b	#$30,width_pixels(a0)
 	move.l	(RNG_seed).w,d0
 	ror.l	#1,d0
 	move.l	d0,(RNG_seed).w
@@ -14292,14 +14751,13 @@ ObjCF_MapUnc_ADA2:	include "mappings/sprite/objCF.asm"
 ; Enigma compressed art mappings
 ; "Sonic the Hedgehog 2" mappings		; MapEng_B23A:
 	even
-MapEng_EndGameLogo:	BINCLUDE	"mappings/misc/Sonic 2 end of game logo.eni"
-	even
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
 ;sub_B262
 ShowCreditsScreen:
+	lea	(VDP_data_port).l,a6
 	lea	off_B2CA(pc),a1
 	move.w	(CreditsScreenIndex).w,d0
 	lsl.w	#2,d0
@@ -14308,7 +14766,6 @@ ShowCreditsScreen:
 
 loc_B272:
 	move	#$2700,sr
-	lea	(VDP_data_port).l,a6
 -
 	move.l	(a1)+,d0
 	bmi.s	++
@@ -14370,11 +14827,6 @@ creditsPtrs macro addr,pos
 
 textLoc function col,line,(($80 * line) + (2 * col))
 
-; intro text pointers (one intro screen)
-vram_pnt := VRAM_TtlScr_Plane_A_Name_Table
-off_B2B0: creditsPtrs	byte_BD1A,textLoc($0F,$09), byte_BCEE,textLoc($11,$0C), \
-			byte_BCF6,textLoc($03,$0F), byte_BCE9,textLoc($12,$12)
-
 ; credits screen pointer table
 off_B2CA:
 	dc.l off_B322, off_B336, off_B34A, off_B358	; 3
@@ -14422,8 +14874,8 @@ off_B548: creditsPtrs	byte_BC7B,textLoc($0B,$09), byte_BC8F,textLoc($12,$0D), by
  ; macro for defining credit text in conjunction with the remapped character set
 vram_src := ArtTile_ArtNem_CreditText_CredScr
 creditText macro pal,ss
-	if ((vram_src & $FF) <> $0) && ((vram_src & $FF) <> $1)
-		fatal "The low byte of vram_src was $\{vram_src & $FF}, but it must be $00 or $01."
+	if ((vram_src & $FF) <> $0) && ((vram_src & $FF) <> $2)
+		fatal "The low byte of vram_src was $\{vram_src & $FF}, but it must be $00 or $02."
 	endif
 	dc.b (make_art_tile(vram_src,pal,0) & $FF00) >> 8
 	irpc char,ss
@@ -14545,13 +14997,6 @@ byte_BCD9:	creditText 0,"LOCKY  P"
  charset '.',"\x39"
  charset ' ',0
 
-; intro text
-vram_src := ArtTile_ArtNem_CreditText
-byte_BCE9:	creditText   0,"IN"
-byte_BCEE:	creditText   0,"AND"
-byte_BCF6:	creditText   0,"MILES 'TAILS' PROWER"
-byte_BD1A:	creditText   0,"SONIC"
-
  charset ; revert character set
 
 	even
@@ -14566,7 +15011,7 @@ ArtNem_CreditText:	BINCLUDE	"art/nemesis/Credit Text.nem"
 	even
 ; ===========================================================================
 
-	jmpTos JmpTo5_DisplaySprite,JmpTo3_DeleteObject,JmpTo2_PlaySound,JmpTo_ObjB2_Animate_Pilot,JmpTo_AnimateSprite,JmpTo_NemDec,JmpTo_EniDec,JmpTo_ClearScreen,JmpTo2_PlayMusic,JmpTo_LoadChildObject,JmpTo2_PlaneMapToVRAM_H40,JmpTo2_ObjectMove,JmpTo_PalCycle_Load,JmpTo_LoadSubObject_Part3
+	jmpTos JmpTo5_DisplaySprite,JmpTo3_DeleteObject,JmpTo2_PlaySound,JmpTo_ObjB2_Animate_Pilot,JmpTo_AnimateSprite,JmpTo_NemDec,JmpTo_EniDec,JmpTo_ClearScreen,JmpTo2_PlayMusic,JmpTo_LoadChildObject,JmpTo2_PlaneMapToVRAM_H40,JmpTo2_ObjectMove,JmpTo_PalCycle_Load,JmpTo_LoadSubObject_Part3,JmpTo_Pal_FadeFromBlack
 
 
 
@@ -15575,11 +16020,6 @@ SwScrl_WFZ:
 	addi.l	#$4000,(a2)+			; Medium clouds
 	addi.l	#$2000,(a2)+			; Small clouds
 	lea	(SwScrl_WFZ_Transition_Array).l,a3
-	cmpi.w	#$2700,(Camera_X_pos).w
-	bhs.s	.got_array
-	lea	(SwScrl_WFZ_Normal_Array).l,a3
-
-.got_array:
 	lea	(TempArray_LayerDef).w,a2
 	lea	(Horiz_Scroll_Buf).w,a1
 	move.w	(Camera_BG_Y_pos).w,d1
@@ -15661,55 +16101,6 @@ SwScrl_WFZ_Transition_Array:
 	dc.b $C0,  0
 	dc.b $C0,  0
 	dc.b $80,  0
-;byte_C916
-SwScrl_WFZ_Normal_Array:
-	dc.b $C0,  0
-	dc.b $C0,  0
-	dc.b $80,  0
-	dc.b $20,  8
-	dc.b $30, $C
-	dc.b $30,$10
-	dc.b $20,  8
-	dc.b $30, $C
-	dc.b $30,$10
-	dc.b $20,  8
-	dc.b $30, $C
-	dc.b $30,$10
-	dc.b $20,  8
-	dc.b $30, $C
-	dc.b $30,$10
-	dc.b $20,  8
-	dc.b $30, $C
-	dc.b $30,$10
-	dc.b $20,  8
-	dc.b $30, $C
-	dc.b $30,$10
-	dc.b $20,  8
-	dc.b $30, $C
-	dc.b $30,$10
-	dc.b $20,  8
-	dc.b $30, $C
-	dc.b $30,$10
-	dc.b $20,  8
-	dc.b $30, $C
-	dc.b $30,$10
-	dc.b $20,  8
-	dc.b $30, $C
-	dc.b $30,$10
-	dc.b $20,  8
-	dc.b $30, $C
-	dc.b $30,$10
-	dc.b $C0,  0
-	dc.b $C0,  0
-	dc.b $80,  0
-; This array is missing data for the last $80 lines compared to the transition array.
-; This causes the lower clouds to read data from the start of SwScrl_HTZ.
-; These are the missing entries:
-    if fixBugs
-	dc.b $20,  8
-	dc.b $30, $C
-	dc.b $30,$10
-    endif
 ; ===========================================================================
 ; loc_C964:
 SwScrl_HTZ:
@@ -17584,7 +17975,7 @@ SwScrl_ARZ:
 	ext.l	d4
 	muls.w	#281,d4
 	moveq	#scroll_flag_bg1_left,d6
-	bsr.w	SetHorizScrollFlagsBG_ARZ
+	bsr.w	SetHorizScrollFlagsBG
 
 	; Ditto.
 	move.w	(Camera_Y_pos_diff).w,d5
@@ -18338,13 +18729,13 @@ SetVertiScrollFlagsBG2:
 
 ;sub_D96C: ;ARZ_Bg_Deformation:
 SetHorizScrollFlagsBG_ARZ:	; only used by ARZ
-	move.l	(Camera_ARZ_BG_X_pos).w,d0
+	move.l	(Camera_ARZ_BG_X_pos).w,d2
+	move.l	d2,d0
 	add.l	d4,d0
 	move.l	d0,(Camera_ARZ_BG_X_pos).w
 	lea	(Camera_BG_X_pos).w,a1
-	move.w	(a1),d2
 	move.w	(Camera_ARZ_BG_X_pos).w,d0
-	sub.w	d2,d0
+	sub.w	(a1),d0
 	blo.s	+	; Background has moved to the right
 	bhi.s	++	; Background has moved to the left
 	rts
@@ -18370,6 +18761,7 @@ SetHorizScrollFlagsBG_ARZ:	; only used by ARZ
 	eor.b	d3,d1
 	bne.s	++	; rts
 	eori.b	#$10,(Horiz_block_crossed_flag_BG).w
+	swap	d2
 	sub.w	d2,d0
 	bpl.s	+
 	bset	d6,(Scroll_flags_BG).w
@@ -20412,7 +20804,6 @@ LevEvents_MTZ3_Index: offsetTable
 LevEvents_MTZ3_Routine1:
 	cmpi.w	#$2530,(Camera_X_pos).w
 	blo.s	+
-	move.w	#$500,(Camera_Max_Y_pos).w
 	move.w	#$450,(Camera_Max_Y_pos_target).w
 	move.w	#$450,(Tails_Max_Y_pos).w
 	addq.b	#2,(Dynamic_Resize_Routine).w ; => LevEvents_MTZ3_Routine2
@@ -20591,7 +20982,7 @@ LevEvents_WFZ_Routine5:
 ; ===========================================================================
 ; loc_E96C:
 LevEvents_WFZ_Routine6:
-	cmpi.w	#$500,(Camera_Y_pos).w
+	cmpi.w	#$4E0,(Camera_Y_pos).w
 	blo.s	+	; rts
 	addq.w	#2,(WFZ_LevEvent_Subrout).w ; => LevEvents_WFZ_RoutineNull
 	st.b	(Control_Locked).w
@@ -24045,7 +24436,7 @@ Obj2A_Main:
 	move.w	d2,d3
 	addq.w	#1,d3
 	move.w	x_pos(a0),d4
-	jsrto	JmpTo2_SolidObject
+	bsr.w	SolidObject
 	bra.w	MarkObjGone
 ; ===========================================================================
 ; -------------------------------------------------------------------------------
@@ -24164,7 +24555,7 @@ Obj2D_Main:
 	move.w	d2,d3
 	addq.w	#1,d3
 	move.w	x_pos(a0),d4
-	jsrto	JmpTo2_SolidObject
+	bsr.w	SolidObject
 	bra.w	MarkObjGone                          ; delete object if off screen
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -24198,7 +24589,7 @@ return_11820:
 Obj2D_MapUnc_11822:	include "mappings/sprite/obj2D.asm"
 ; ===========================================================================
 
-	jmpTos JmpTo2_SolidObject
+	jmpTos ; Empty
 
 
 
@@ -24694,7 +25085,7 @@ Obj29_Index:	offsetTable
 Obj29_Init:
 	addq.b	#2,routine(a0)
 	move.l	#Obj29_MapUnc_11ED0,mappings(a0)
-	move.w	#make_art_tile(ArtTile_ArtNem_Numbers,0,1),art_tile(a0)
+	move.w	#make_art_tile(ArtTile_ArtNem_Numbers,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	move.b	#4,render_flags(a0)
 	move.b	#1,priority(a0)
@@ -25194,10 +25585,30 @@ ObjDC:
 ; ===========================================================================
 ; off_125F4:
 ObjDC_Index:	offsetTable
-		offsetTableEntry.w ObjDC_Main		; 0
-		offsetTableEntry.w ObjDC_Animate	; 2
-		offsetTableEntry.w ObjDC_Delete		; 4
+		offsetTableEntry.w ObjDC_Init		; 0
+		offsetTableEntry.w ObjDC_Main		; 2
+		offsetTableEntry.w ObjDC_Animate	; 4
+		offsetTableEntry.w ObjDC_Delete		; 6
 ; ===========================================================================
+ObjDC_Init:
+	addq.b	#2,routine(a0)
+	move.l	#Obj25_MapUnc_12382,mappings(a0)
+	move.w	#make_art_tile(ArtTile_ArtNem_Ring,1,0),art_tile(a0)
+	bsr.w	Adjust2PArtPointer
+	move.b	#4,render_flags(a0)
+	move.b	#3,priority(a0)
+	move.b	#8,width_pixels(a0)
+	move.w	#26,casino_prize_display_delay(a0)
+	move.w	objoff_2E(a0),d0
+	bsr.w	JmpTo4_CalcSine
+	asr.w	#1,d1
+	add.w	casino_prize_machine_x_pos(a0),d1
+	move.w	d1,casino_prize_x_pos(a0)
+	move.w	d1,x_pos(a0)
+	asr.w	#1,d0
+	add.w	casino_prize_machine_y_pos(a0),d0
+	move.w	d0,casino_prize_y_pos(a0)
+	move.w	d0,y_pos(a0)
 ; loc_125FA:
 ObjDC_Main:
 	moveq	#0,d1
@@ -25728,12 +26139,6 @@ invincible_monitor:
 ;loc_12AA6:
 teleport_monitor:
 	addq.w	#1,(a2)
-	cmpi.b	#6,(MainCharacter+routine).w	; is player 1 dead or respawning?
-	bhs.s	+				; if yes, branch
-	cmpi.b	#6,(Sidekick+routine).w		; is player 2 dead or respawning?
-	blo.s	swap_players			; if not, branch
-+	; can't teleport if either player is dead
-	rts
 
 ; ---------------------------------------------------------------------------
 ; Routine to make both players swap positions
@@ -25774,8 +26179,8 @@ process_swap_table:
 	move.b	d0,(a2)+
 	dbf	d1,-
 
-	subi.w	#$180,(Camera_Y_pos).w
-	subi.w	#$180,(Camera_Y_pos_P2).w
+	subi.w	#$100,(Camera_Y_pos).w
+	subi.w	#$100,(Camera_Y_pos_P2).w
 	move.w	(MainCharacter+art_tile).w,d0
 	andi.w	#drawing_mask,(MainCharacter+art_tile).w
 	tst.w	(Sidekick+art_tile).w
@@ -25809,13 +26214,6 @@ swap_loop_objects:
 	move.l	objoff_30(a1),d0
 	move.l	objoff_34(a1),objoff_30(a1)
 	move.l	d0,objoff_34(a1)
-
-+
-	cmpi.b	#ObjID_LauncherSpring,id(a1) ; is it obj85 (CNZ pressure spring)?
-	bne.s	+ ; if not, branch
-	move.b	objoff_36(a1),d0
-	move.b	objoff_37(a1),objoff_36(a1)
-	move.b	d0,objoff_37(a1)
 
 +
 	lea	next_object(a1),a1 ; look at next object ; a1=object
@@ -25873,7 +26271,7 @@ swap_loop_objects:
 	bset	#4,status(a2)
 
 +
-	move.b	#$40,(Teleport_timer).w
+	move.b	#$30,(Teleport_timer).w
 	move.b	#1,(Teleport_flag).w
 	move.w	#SndID_Teleport,d0
 	jmp	(PlayMusic).l
@@ -26214,15 +26612,6 @@ Obj0E_Sonic_FlashBackground:
 ; ===========================================================================
 ; loc_12FD6:
 Obj0E_Sonic_SpawnFallingStar:
-	; Wait a different amount of time on PAL consoles so that it's timed
-	; right with the music.
-	btst	#6,(Graphics_Flags).w
-	beq.s	+
-	cmpi.w	#400,obj0e_current_frame(a0)
-	beq.s	++
-	bra.w	DisplaySprite
-; ===========================================================================
-+
 	cmpi.w	#464,obj0e_current_frame(a0)
 	beq.s	+
 	bra.w	DisplaySprite
@@ -26765,11 +27154,7 @@ TitleScreen_SetFinalState:
 	tst.b	obj0e_intro_complete(a0)
 	bne.w	+	; rts
 
-	move.b	(Ctrl_1_Press).w,d0
-	or.b	(Ctrl_2_Press).w,d0
-	andi.b	#button_up_mask|button_down_mask|button_left_mask|button_right_mask|button_B_mask|button_C_mask|button_A_mask,(Ctrl_1_Press).w
-	andi.b	#button_up_mask|button_down_mask|button_left_mask|button_right_mask|button_B_mask|button_C_mask|button_A_mask,(Ctrl_2_Press).w
-	andi.b	#button_start_mask,d0
+	bclr	#button_start,(Ctrl_1_Press).w
 	beq.w	+	; rts
 
 	; Initialise Sonic object.
@@ -27408,12 +27793,12 @@ Obj39_SetTimer:
 ; ===========================================================================
 ; loc_13FEE:
 Obj39_Wait:
-	btst	#0,mapping_frame(a0)
-	bne.w	Obj39_Display
 	move.b	(Ctrl_1_Press).w,d0
 	or.b	(Ctrl_2_Press).w,d0
 	andi.b	#button_B_mask|button_C_mask|button_A_mask,d0
 	bne.s	Obj39_Dismiss
+	btst	#0,mapping_frame(a0)
+	bne.s	Obj39_Display
 	tst.w	anim_frame_duration(a0)
 	beq.s	Obj39_Dismiss
 	subq.w	#1,anim_frame_duration(a0)
@@ -27447,7 +27832,6 @@ Obj39_Check2PMode:
 	bne.s	Obj39_Display
 	tst.b	(Time_Over_flag_2P).w
 	bne.s	Obj39_Display
-	move.w	#1,(Game_Over_2P).w
 	move.w	#VsRSID_Zone,(Results_Screen_2P).w
 	jsrto	JmpTo_sub_8476
 	move.w	#-1,(a4)
@@ -27483,7 +27867,6 @@ Obj3A_Index:	offsetTable
 		offsetTableEntry.w loc_14270					; $10
 		offsetTableEntry.w loc_142B0					; $12
 		offsetTableEntry.w loc_142CC					; $14
-		offsetTableEntry.w loc_1413A					; $16
 ; ===========================================================================
 
 loc_140AC:
@@ -27541,10 +27924,6 @@ loc_14118:
 return_14138:
 	rts
 ; ===========================================================================
-
-loc_1413A:
-	tst.w	(Perfect_rings_left).w
-	bne.w	DeleteObject
 
 BranchTo_Obj34_MoveTowardsTargetPosition ; BranchTo
 	bra.w	Obj34_MoveTowardsTargetPosition
@@ -27613,12 +27992,6 @@ loc_141C6:
 	subi.w	#10,(Bonus_Countdown_2).w
 
 loc_141D6:
-	tst.w	(Bonus_Countdown_3).w
-	beq.s	loc_141E6
-	addi.w	#10,d0
-	subi.w	#10,(Bonus_Countdown_3).w
-
-loc_141E6:
 	add.w	d0,(Total_Bonus_Countdown).w
 	tst.w	d0
 	bne.s	loc_14256
@@ -27642,7 +28015,7 @@ loc_14220:
 	_move.b	#ObjID_Results,id(a1) ; load obj3A (uses screen-space)
 	move.b	#$12,routine(a1)
 	move.w	#$188,x_pixel(a1)
-	move.w	#$118,y_pixel(a1)
+	move.w	#$10C,y_pixel(a1)
 	move.l	#Obj3A_MapUnc_14CBC,mappings(a1)
 	bsr.w	Adjust2PArtPointer2
 	move.b	#0,render_flags(a1)
@@ -27847,10 +28220,9 @@ Obj3A_SubObjectMetadata:
 	results_screen_object   320+64, 320/2-32,      74,       4,         3
 	results_screen_object  320+128, 320/2+32,      74,       6,         4
 	results_screen_object  320+184, 320/2+88,      62,       8,         6
-	results_screen_object  320+400,    320/2,     160,       4,         9
-	results_screen_object  320+352,    320/2,     112,       4,        $A
-	results_screen_object  320+368,    320/2,     128,       4,        $B
-	results_screen_object  320+384,    320/2,     144,     $16,        $E
+	results_screen_object  320+352,    320/2,     148,       4,         9
+	results_screen_object  320+368,    320/2,     112,       4,        $A
+	results_screen_object  320+384,    320/2,     128,       4,        $B
 Obj3A_SubObjectMetadata_End:
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -28478,7 +28850,6 @@ Obj3A_MapUnc_14CBC:	mappingsTable
 	mappingsTableEntry.w	word_14E50
 	mappingsTableEntry.w	word_14E82
 	mappingsTableEntry.w	word_14E8C
-	mappingsTableEntry.w	word_14E96
 
 word_14CDA:	spriteHeader
 	spritePiece	-$40, 0, 2, 2, $5D0, 0, 0, 0, 1
@@ -28562,16 +28933,6 @@ word_14E82_End
 word_14E8C:	spriteHeader
 	spritePiece	0, 0, 2, 3, $5FA, 0, 0, 0, 1
 word_14E8C_End
-
-word_14E96:	spriteHeader
-	spritePiece	-$68, 0, 4, 2, $540, 0, 0, 1, 1
-	spritePiece	-$48, 0, 3, 2, $548, 0, 0, 1, 1
-	spritePiece	-$28, 0, 4, 2, $5DE, 0, 0, 1, 1
-	spritePiece	-8, 0, 1, 2, $6CA, 0, 0, 1, 1
-	spritePiece	-$C, 0, 2, 2, $5F0, 0, 0, 0, 1
-	spritePiece	$38, 0, 4, 2, $538, 0, 0, 0, 1
-	spritePiece	$58, 0, 1, 2, $6F0, 0, 0, 0, 1
-word_14E96_End
 
 	even
 
@@ -31627,7 +31988,6 @@ Touch_Rings_Done:
 ; ===========================================================================
 ; loc_17168:
 Touch_ConsumeRing:
-	subq.w	#1,(Perfect_rings_left).w
 	cmpa.w	#MainCharacter,a0	; who collected the ring?
 	beq.w	CollectRing_Sonic	; if it was Sonic, branch here
 	bra.w	CollectRing_Tails	; if it was Tails, branch here
@@ -32558,15 +32918,7 @@ ObjectsManager_Init:
 	lea	(Off_Objects).l,a0	; Next, we load the first pointer in the object layout list pointer index,
 	movea.l	a0,a1			; then copy it for quicker use later.
 	adda.w	(a0,d0.w),a0		; (Point1 * 2) + $003E
-	tst.w	(Two_player_mode).w	; skip if not in 2-player vs mode
-	beq.s	+
-	cmpi.b	#casino_night_zone,(Current_Zone).w	; skip if not Casino Night Zone
-	bne.s	+
-	lea	(Objects_CNZ1_2P).l,a0	; CNZ 1 2-player object layout
-	tst.b	(Current_Act).w		; skip if not past act 1
-	beq.s	+
-	lea	(Objects_CNZ2_2P).l,a0	; CNZ 2 2-player object layout
-+
+
 	; initialize each object load address with the first object in the layout
 	move.l	a0,(Obj_load_addr_right).w
 	move.l	a0,(Obj_load_addr_left).w
@@ -33377,43 +33729,12 @@ return_18028:
 	rts
 ; ===========================================================================
 
-;---------------------------------------------------------------------------------------
-; CNZ object layouts for 2-player mode (various objects were deleted)
-;---------------------------------------------------------------------------------------
-
 ; Macro for marking the boundaries of an object layout file
 ObjectLayoutBoundary macro
 	dc.w	$FFFF, $0000, $0000
     endm
 
-    if fixBugs
-	; Sonic Team forgot to put a boundary marker here, meaning the game
-	; could potentially read past the start of the file and load random
-	; objects.
-	ObjectLayoutBoundary
-    endif
-
-; byte_1802A;
-    if gameRevision=0
-Objects_CNZ1_2P:	BINCLUDE	"level/objects/CNZ_1_2P (REV00).bin"
-    else
-    ; a Crawl badnik was moved slightly further away from a ledge
-    ; 2 flippers were moved closer to a wall
-Objects_CNZ1_2P:	BINCLUDE	"level/objects/CNZ_1_2P.bin"
-    endif
-
-	ObjectLayoutBoundary
-
-; byte_18492:
-    if gameRevision=0
-Objects_CNZ2_2P:	BINCLUDE	"level/objects/CNZ_2_2P (REV00).bin"
-    else
-    ; 4 Crawl badniks were slightly moved, placing them closer/farther away from ledges
-    ; 2 flippers were moved away from a wall to keep players from getting stuck behind them
-Objects_CNZ2_2P:	BINCLUDE	"level/objects/CNZ_2_2P.bin"
-    endif
-
-	ObjectLayoutBoundary
+	jmpTos ; Empty
 
 	jmpTos ; Empty
 
@@ -34283,12 +34604,11 @@ loc_1922C:
 	move.b	#4,render_flags(a0)
 	move.b	#$18,width_pixels(a0)
 	move.b	#4,priority(a0)
-	move.w	#$3C3C,(Loser_Time_Left).w
 
 ; loc_1924C: Obj_0D_sub_2:
 Obj0D_Main:
 	tst.b	(Update_HUD_timer).w
-	beq.w	loc_192D6
+	beq.s	loc_192D6
 	lea	(MainCharacter).w,a1 ; a1=character
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
@@ -34302,12 +34622,6 @@ Obj0D_Main:
 	move.w	#0,obj0D_spinframe(a0)
 	move.w	(Camera_Max_X_pos).w,(Camera_Min_X_pos).w	; lock screen
 	move.b	#2,routine_secondary(a0) ; => Obj0D_Main_State2
-	cmpi.b	#$C,(Loser_Time_Left).w
-	bhi.s	loc_192A0
-	move.w	(Level_Music).w,d0
-	jsr	(PlayMusic).l	; play zone music
-
-loc_192A0:
 	tst.b	obj0D_finalanim(a0)
 	bne.w	loc_19350
 	move.b	#3,obj0D_finalanim(a0)
@@ -34342,12 +34656,6 @@ loc_192D6:
 	move.w	#0,obj0D_spinframe(a0)
 	move.w	(Tails_Max_X_pos).w,(Tails_Min_X_pos).w
 	move.b	#2,routine_secondary(a0) ; => Obj0D_Main_State2
-	cmpi.b	#$C,(Loser_Time_Left).w
-	bhi.s	loc_1932E
-	move.w	(Level_Music).w,d0
-	jsr	(PlayMusic).l
-
-loc_1932E:
 	tst.b	obj0D_finalanim(a0)
 	bne.s	loc_19350
 	move.b	#4,obj0D_finalanim(a0)
@@ -34458,7 +34766,7 @@ loc_19434:
 	move.w	(Camera_Max_X_pos).w,d1
 	addi.w	#$128,d1
 	cmp.w	d1,d0
-	blo.w	return_194D0
+	blo.s	return_194D0
 
 loc_1944C:
 	move.b	#0,routine_secondary(a0) ; => Obj0D_Main_StateNull
@@ -34496,11 +34804,6 @@ Load_EndOfAct:
 	mulu.w	#$A,d0
 	move.w	d0,(Bonus_Countdown_2).w
 	clr.w	(Total_Bonus_Countdown).w
-	clr.w	(Bonus_Countdown_3).w
-	tst.w	(Perfect_rings_left).w
-	bne.s	+
-	move.w	#5000,(Bonus_Countdown_3).w
-+
 	move.w	#MusID_EndLevel,d0
 	jsr	(PlayMusic).l
 
@@ -35696,6 +35999,8 @@ Obj01_Init:
 	move.b	#$13,y_radius(a0) ; this sets Sonic's collision height (2*pixels)
 	move.b	#9,x_radius(a0)
 	move.l	#MapUnc_Sonic,mappings(a0)
+	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a0)
+	bsr.w	Adjust2PArtPointer
 	move.b	#2,priority(a0)
 	move.b	#$18,width_pixels(a0)
 	move.b	#4,render_flags(a0)
@@ -35705,8 +36010,6 @@ Obj01_Init:
 	tst.b	(Last_star_pole_hit).w
 	bne.s	Obj01_Init_Continued
 	; only happens when not starting at a checkpoint:
-	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a0)
-	bsr.w	Adjust2PArtPointer
 	move.b	#$C,top_solid_bit(a0)
 	move.b	#$D,lrb_solid_bit(a0)
 	move.w	x_pos(a0),(Saved_x_pos).w
@@ -37012,8 +37315,6 @@ return_1ABA4:
 Sonic_Super:
 	tst.b	(Super_Sonic_flag).w	; Ignore all this code if not Super Sonic
 	beq.w	return_1AC3C
-	tst.b	(Update_HUD_timer).w
-	beq.s	Sonic_RevertToNormal ; ?
 	subq.w	#1,(Super_Sonic_frame_count).w
 	bpl.w	return_1AC3C
 	move.w	#60,(Super_Sonic_frame_count).w	; Reset frame counter to 60
@@ -37077,7 +37378,6 @@ Sonic_CheckSpindash:
 	move.b	#2,(Sonic_Dust+anim).w
 +
 	bsr.w	Sonic_LevelBound
-	bsr.w	AnglePos
 
 return_1AC8C:
 	rts
@@ -37200,7 +37500,6 @@ Obj01_Spindash_ResetScr:
 
 loc_1AD8C:
 	bsr.w	Sonic_LevelBound
-	bsr.w	AnglePos
 	rts
 ; End of subroutine Sonic_UpdateSpindash
 
@@ -37798,6 +38097,11 @@ Obj01_ResetLevel_Part2:
 	move.w	(Saved_Solid_bits).w,top_solid_bit(a0)
 	clr.w	(Ring_count).w
 	clr.b	(Extra_life_flags).w
+	tst.b	(Last_star_pole_hit).w
+	beq.s	+
+	move.w	(Saved_Ring_count).w,(Ring_count).w
+	move.b	(Saved_Extra_life_flags).w,(Extra_life_flags).w
++
 	move.b	#0,obj_control(a0)
 	move.b	#5,anim(a0)
 	move.w	#0,x_vel(a0)
@@ -38380,37 +38684,17 @@ Obj02_Init:
 	move.b	#$F,y_radius(a0) ; this sets Tails' collision height (2*pixels) to less than Sonic's height
 	move.b	#9,x_radius(a0)
 	move.l	#MapUnc_Tails,mappings(a0)
+	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
+	bsr.w	Adjust2PArtPointer
 	move.b	#2,priority(a0)
 	move.b	#$18,width_pixels(a0)
 	move.b	#$84,render_flags(a0) ; render_flags(Tails) = $80 | initial render_flags(Sonic)
 	move.w	#$600,(Tails_top_speed).w	; set Tails' top speed
 	move.w	#$C,(Tails_acceleration).w	; set Tails' acceleration
 	move.w	#$80,(Tails_deceleration).w	; set Tails' deceleration
-	cmpi.w	#2,(Player_mode).w
-	bne.s	Obj02_Init_2Pmode
-	tst.b	(Last_star_pole_hit).w
-	bne.s	Obj02_Init_Continued
 	; only happens when not starting at a checkpoint:
-	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
-	bsr.w	Adjust2PArtPointer
 	move.b	#$C,top_solid_bit(a0)
 	move.b	#$D,lrb_solid_bit(a0)
-	move.w	x_pos(a0),(Saved_x_pos).w
-	move.w	y_pos(a0),(Saved_y_pos).w
-	move.w	art_tile(a0),(Saved_art_tile).w
-	move.w	top_solid_bit(a0),(Saved_Solid_bits).w
-	bra.s	Obj02_Init_Continued
-; ===========================================================================
-; loc_1B952:
-Obj02_Init_2Pmode:
-	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
-	bsr.w	Adjust2PArtPointer
-	move.w	(MainCharacter+top_solid_bit).w,top_solid_bit(a0)
-	tst.w	(MainCharacter+art_tile).w
-	bpl.s	Obj02_Init_Continued
-	ori.w	#high_priority,art_tile(a0)
-; loc_1B96E:
-Obj02_Init_Continued:
 	move.w	x_pos(a0),(Saved_x_pos_2P).w
 	move.w	y_pos(a0),(Saved_y_pos_2P).w
 	move.w	art_tile(a0),(Saved_art_tile_2P).w
@@ -38722,12 +39006,6 @@ loc_1BC68:
 +
 	move.b	top_solid_bit(a1),top_solid_bit(a0)
 	move.b	lrb_solid_bit(a1),lrb_solid_bit(a0)
-	cmpi.b	#AniIDSonAni_Spindash,anim(a1)
-	beq.s	return_1BCDE
-	move.b	spindash_flag(a0),d0
-	beq.s	return_1BCDE
-	move.b	d0,spindash_flag(a1)
-	bsr.w	loc_212C4
 
 return_1BCDE:
 	rts
@@ -38737,19 +39015,6 @@ return_1BCDE:
 ; ---------------------------------------------------------------------------
 ; loc_1BCE0:
 TailsCPU_Normal:
-	cmpi.b	#6,(MainCharacter+routine).w	; is Sonic dead?
-	blo.s	TailsCPU_Normal_SonicOK		; if not, branch
-	; Sonic's dead; fly down to his corpse
-	move.w	#4,(Tails_CPU_routine).w	; => TailsCPU_Flying
-	move.b	#0,spindash_flag(a0)
-	move.w	#0,spindash_counter(a0)
-	move.b	#$81,obj_control(a0)
-	move.b	#2,status(a0)
-	move.b	#AniIDTailsAni_Fly,anim(a0)
-	rts
-; ---------------------------------------------------------------------------
-; loc_1BD0E:
-TailsCPU_Normal_SonicOK:
 	bsr.w	TailsCPU_CheckDespawn
 	tst.w	(Tails_control_counter).w	; if CPU has control
 	bne.w	TailsCPU_Normal_HumanControl		; (if not, branch)
@@ -39964,7 +40229,6 @@ Tails_CheckSpindash:
 
 loc_1C754:
 	bsr.w	Tails_LevelBound
-	bsr.w	AnglePos
 
 return_1C75C:
 	rts
@@ -40073,7 +40337,6 @@ loc_1C828:
 
 loc_1C83C:
 	bsr.w	Tails_LevelBound
-	bsr.w	AnglePos
 	rts
 ; End of subroutine Tails_UpdateSpindash
 
@@ -40665,6 +40928,11 @@ Obj02_ResetLevel_Part3:
 	move.w	(Saved_Solid_bits_2P).w,top_solid_bit(a0)
 	clr.w	(Ring_count_2P).w
 	clr.b	(Extra_life_flags_2P).w
+	tst.b	(Last_star_pole_hit_2P).w
+	beq.s	+
+	move.w	(Saved_Ring_count_2P).w,(Ring_count_2P).w
+	move.b	(Saved_Extra_life_flags_2P).w,(Extra_life_flags_2P).w
++
 	move.b	#0,obj_control(a0)
 	move.b	#5,anim(a0)
 	move.w	#0,x_vel(a0)
@@ -41712,8 +41980,6 @@ Obj0A_MakeNumberBubbleMaybe:
 
 	moveq	#0,d2
 	move.b	air_left(a2),d2
-	cmpi.b	#12,d2
-	bhs.s	Obj0A_DoneCreatingBubble
 
 	; This player is about to drown.
 	lsr.w	#1,d2
@@ -43988,7 +44254,7 @@ Obj79_Init:
 	addq.b	#2,routine(a0) ; => Obj79_Main
 	move.l	#Obj79_MapUnc_1F424,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Checkpoint,0,0),art_tile(a0)
-	jsrto	JmpTo3_Adjust2PArtPointer
+	bsr.w	Adjust2PArtPointer
 	move.b	#4,render_flags(a0)
 	move.b	#8,width_pixels(a0)
 	move.b	#5,priority(a0)
@@ -44368,7 +44634,7 @@ JmpTo10_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
 ; ===========================================================================
 
-	jmpTos JmpTo_MarkObjGone,JmpTo2_AnimateSprite,JmpTo3_Adjust2PArtPointer
+	jmpTos JmpTo_MarkObjGone,JmpTo2_AnimateSprite
 
 
 
@@ -44412,7 +44678,7 @@ Obj7D_Init:
 	addq.b	#2,routine(a0)
 	move.l	#Obj7D_MapUnc_1F6FE,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_EndPoints,0,1),art_tile(a0)
-	jsrto	JmpTo4_Adjust2PArtPointer
+	bsr.w	Adjust2PArtPointer
 	ori.b	#4,render_flags(a0)
 	move.b	#0,priority(a0)
 	move.b	#$10,width_pixels(a0)
@@ -44470,7 +44736,7 @@ JmpTo12_DeleteObject ; JmpTo
 Obj7D_MapUnc_1F6FE:	include "mappings/sprite/obj7D.asm"
 ; ===========================================================================
 
-	jmpTos JmpTo4_Adjust2PArtPointer
+	jmpTos ; Empty
 
 
 
@@ -45018,7 +45284,9 @@ Obj03:
 	move.b	routine(a0),d0
 	move.w	Obj03_Index(pc,d0.w),d1
 	jsr	Obj03_Index(pc,d1.w)
-	jmp	(MarkObjGone3).l
+	tst.w	(Debug_mode_flag).w
+	beq.w	JmpTo10_MarkObjGone3
+	jmp	(MarkObjGone).l
 ; ===========================================================================
 ; off_1FCF0:
 Obj03_Index:	offsetTable
@@ -45252,7 +45520,7 @@ return_1FFB6:
 Obj03_MapUnc_1FFB8:	include "mappings/sprite/obj03.asm"
 ; ===========================================================================
 
-	jmpTos JmpTo7_Adjust2PArtPointer
+	jmpTos JmpTo10_MarkObjGone3,JmpTo7_Adjust2PArtPointer
 
 
 
@@ -45334,18 +45602,11 @@ loc_2013C:
 	jmpto	JmpTo3_MarkObjGone
 ; ---------------------------------------------------------------------------
 +
-	move.b	status(a0),d0
-	andi.b	#standing_mask,d0
+	btst	#p1_standing_bit,status(a0)
 	beq.s	BranchTo_JmpTo3_MarkObjGone
-	bclr	#p1_standing_bit,status(a0)
-	beq.s	+
-	bclr	#3,(MainCharacter+status).w
-	bset	#1,(MainCharacter+status).w
-+
-	bclr	#p2_standing_bit,status(a0)
-	beq.s	BranchTo_JmpTo3_MarkObjGone
-	bclr	#3,(Sidekick+status).w
-	bset	#1,(Sidekick+status).w
+	lea	(MainCharacter).w,a1
+	bclr	#3,status(a1)
+	bclr	#3,status(a0)
 
 BranchTo_JmpTo3_MarkObjGone ; BranchTo
 	jmpto	JmpTo3_MarkObjGone
@@ -46157,7 +46418,9 @@ Obj84:
 	move.b	routine(a0),d0
 	move.w	Obj84_Index(pc,d0.w),d1
 	jsr	Obj84_Index(pc,d1.w)
-	jmp	(MarkObjGone3).l
+	tst.w	(Debug_mode_flag).w
+	beq.w	JmpTo9_MarkObjGone3
+	jmp	(MarkObjGone).l
 ; ===========================================================================
 ; off_21170: Obj84_States:
 Obj84_Index:	offsetTable
@@ -46229,8 +46492,6 @@ Obj84_MainX:
 	lea	(MainCharacter).w,a1 ; a1=character
 	bsr.s	+
 	lea	(Sidekick).w,a1 ; a1=character
-	cmpi.w	#4,(Tails_CPU_routine).w	; TailsCPU_Flying
-	beq.s	return_21284
 
 +	tst.b	(a2)+
 	bne.s	Obj84_MainX_Alt
@@ -46368,7 +46629,9 @@ Obj8B:
 	move.b	routine(a0),d0
 	move.w	Obj8B_Index(pc,d0.w),d1
 	jsr	Obj8B_Index(pc,d1.w)
-	jmp	(MarkObjGone3).l
+	tst.w	(Debug_mode_flag).w
+	beq.w	JmpTo9_MarkObjGone3
+	jmp	(MarkObjGone).l
 ; ===========================================================================
 ; off_213A6:
 Obj8B_Index:	offsetTable
@@ -46466,7 +46729,7 @@ loc_2146C:
 	rts
 ; ===========================================================================
 
-	jmpTos JmpTo10_DisplaySprite,JmpTo18_DeleteObject,JmpTo2_AllocateObject,JmpTo12_Adjust2PArtPointer
+	jmpTos JmpTo10_DisplaySprite,JmpTo18_DeleteObject,JmpTo2_AllocateObject,JmpTo9_MarkObjGone3,JmpTo12_Adjust2PArtPointer
 
     if removeJmpTos
 JmpTo18_DeleteObject ; JmpTo
@@ -50490,7 +50753,7 @@ loc_24F74:
 ; ===========================================================================
 off_24F80:	offsetTable
 		offsetTableEntry.w loc_24F84	; 0
-		offsetTableEntry.w loc_25036	; 2
+		offsetTableEntry.w Obj3D_MoveCharacter	; 2
 ; ===========================================================================
 
 loc_24F84:
@@ -50508,12 +50771,6 @@ loc_24F84:
 loc_24FAA:
 	cmpi.w	#$10,d1
 	bhs.w	return_25034
-	cmpa.w	#Sidekick,a1
-	bne.s	loc_24FC2
-	cmpi.w	#4,(Tails_CPU_routine).w ; TailsCPU_Flying
-	beq.w	return_25034
-
-loc_24FC2:
 	addq.b	#2,(a4)
 	move.b	#$81,obj_control(a1)
 	move.b	#AniIDSonAni_Roll,anim(a1)
@@ -50552,16 +50809,6 @@ loc_25002:
 	jsr	(PlaySound).l
 
 return_25034:
-	rts
-; ===========================================================================
-
-loc_25036:
-	tst.b	render_flags(a1)
-	bmi.s	Obj3D_MoveCharacter
-	move.b	#0,obj_control(a1)
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
-	move.b	#0,(a4)
 	rts
 ; ===========================================================================
 ; update the position of Sonic/Tails from the block thing to the launcher
@@ -50698,7 +50945,7 @@ loc_252DC:
 Obj48_Modes:	offsetTable
 		offsetTableEntry.w loc_252F0	; 0
 		offsetTableEntry.w loc_253C6	; 2
-		offsetTableEntry.w loc_25474	; 4
+		offsetTableEntry.w loc_25492	; 4
 		offsetTableEntry.w loc_254F2	; 6
 ; ===========================================================================
 
@@ -50715,11 +50962,6 @@ loc_252F0:
 	addi.w	#$10,d1
 	cmpi.w	#$20,d1
 	bhs.w	return_253C4
-	cmpa.w	#Sidekick,a1
-	bne.s	+
-	cmpi.w	#4,(Tails_CPU_routine).w	; TailsCPU_Flying
-	beq.w	return_253C4
-+
 	cmpi.b	#6,routine(a1)
 	bhs.w	return_253C4
 	tst.w	(Debug_placement_mode).w
@@ -50828,16 +51070,6 @@ word_25464:
 	dc.w  $1000,     0	; 2
 	dc.w	  0, $1000	; 4
 	dc.w -$1000,     0	; 6
-; ===========================================================================
-
-loc_25474:
-	tst.b	render_flags(a1)
-	bmi.s	loc_25492
-	move.b	#0,obj_control(a1)
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
-	move.b	#0,(a4)
-	rts
 ; ===========================================================================
 
 loc_25492:
@@ -51457,14 +51689,10 @@ Obj2C_Main:
 	sub.w	(Camera_X_pos_coarse).w,d0
 	cmpi.w	#$280,d0
 	bhi.w	JmpTo29_DeleteObject
-    if fixBugs
-	; This object never actually displays itself, even in Debug Mode.
-	; This code exists in Beta 8.
 	tst.w	(Debug_placement_mode).w
 	beq.s	+
-	jsr	(DisplaySprite).l
+	bsr.w	JmpTo17_DisplaySprite
 +
-    endif
 	move.b	collision_property(a0),d0
 	beq.s	loc_261C2
 	move.w	objoff_2E(a0),d0
@@ -52305,13 +52533,11 @@ loc_26C16:
 	andi.b	#$F,subtype(a0)
 
 loc_26C1C:
-	move.w	x_pos(a0),objoff_2E(a0)
 	moveq	#0,d0
 	move.b	subtype(a0),d0
 	add.w	d0,d0
 	move.w	off_26C7E(pc,d0.w),d1
 	jsr	off_26C7E(pc,d1.w)
-	move.w	objoff_2E(a0),d4
 	moveq	#0,d1
 	move.b	width_pixels(a0),d1
 	addi_.w	#5,d1
@@ -52319,6 +52545,7 @@ loc_26C1C:
 	move.b	y_radius(a0),d2
 	move.w	d2,d3
 	addq.w	#1,d3
+	move.w	x_pos(a0),d4
 	jsrto	JmpTo10_SolidObject
 	move.w	objoff_34(a0),d0
 	andi.w	#$FF80,d0
@@ -52389,7 +52616,6 @@ loc_26CD0:
 	move.w	objoff_34(a0),d1
 	sub.w	d0,d1
 	move.w	d1,x_pos(a0)
-	move.w	d1,objoff_2E(a0)
 	rts
 ; ===========================================================================
 
@@ -52440,7 +52666,6 @@ loc_26D50:
 	move.w	objoff_34(a0),d1
 	sub.w	d0,d1
 	move.w	d1,x_pos(a0)
-	move.w	d1,objoff_2E(a0)
 	rts
 ; ===========================================================================
 
@@ -52524,7 +52749,6 @@ loc_26E1A:
 	move.w	objoff_34(a0),d1
 	sub.w	d0,d1
 	move.w	d1,x_pos(a0)
-	move.w	d1,objoff_2E(a0)
 
 return_26E3A:
 	rts
@@ -53775,7 +53999,6 @@ Obj6B_Init:
 	move.b	(a2)+,mapping_frame(a0)
 	move.w	x_pos(a0),objoff_34(a0)
 	move.w	y_pos(a0),objoff_30(a0)
-	move.b	status(a0),objoff_2E(a0)
 	moveq	#0,d0
 	move.b	subtype(a0),d0
 	andi.w	#$F,d0
@@ -53786,7 +54009,7 @@ Obj6B_Init:
 	lea	(a2,d0.w),a2
 	tst.w	(a2)
 	bpl.s	Obj6B_Main
-	bchg	#0,objoff_2E(a0)
+	bchg	#0,status(a0)
 ; loc_27E0E:
 Obj6B_Main:
 	move.w	x_pos(a0),-(sp)
@@ -53971,11 +54194,11 @@ loc_27F80:
 loc_27F8E:
 	tst.w	d3
 	bne.s	loc_27F9C
-	addq.b	#1,objoff_2E(a0)
-	andi.b	#3,objoff_2E(a0)
+	addq.b	#1,status(a0)
+	andi.b	#3,status(a0)
 
 loc_27F9C:
-	move.b	objoff_2E(a0),d2
+	move.b	status(a0),d2
 	andi.b	#3,d2
 	bne.s	loc_27FBC
 	sub.w	d1,d0
@@ -55816,8 +56039,6 @@ loc_29686:
 	blo.s	loc_296B6
 	cmp.w	d3,d0
 	bhs.s	loc_296B6
-	cmpi.w	#4,(Tails_CPU_routine).w	; TailsCPU_Flying
-	beq.w	loc_296B6
 	cmpi.b	#3,prev_anim(a0)
 	beq.s	loc_296B6
 	move.b	#3,anim(a0)
@@ -57399,19 +57620,7 @@ loc_2AD7A:
 	bhs.s	return_2AD78
     endif
 	subq.b	#1,d0
-	bne.w	loc_2AE0C
-	tst.b	render_flags(a1)
-	bmi.s	loc_2ADB0
-	bclr	d6,status(a0)
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
-	move.b	#2,routine(a1)
-	move.b	#0,obj_control(a1)
-	move.b	#0,(a2)
-	rts
-; ===========================================================================
-
-loc_2ADB0:
+	bne.s	loc_2AE0C
 	andi.w	#(button_B_mask|button_C_mask|button_A_mask)<<8,d5
 	beq.s	loc_2ADFE
 	tst.b	objoff_3A(a0)
@@ -57566,19 +57775,7 @@ loc_2AF7A:
 	bhs.s	return_2AF78
     endif
 	subq.b	#1,d0
-	bne.w	loc_2B018
-	tst.b	render_flags(a1)
-	bmi.s	loc_2AFB0
-	bclr	d6,status(a0)
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
-	move.b	#2,routine(a1)
-	move.b	#0,obj_control(a1)
-	move.b	#0,(a2)
-	rts
-; ===========================================================================
-
-loc_2AFB0:
+	bne.s	loc_2B018
 	andi.w	#(button_B_mask|button_C_mask|button_A_mask)<<8,d5
 	beq.s	loc_2AFFE
 	tst.b	objoff_3A(a0)
@@ -58062,6 +58259,36 @@ ObjD2_MapUnc_2B694:	include "mappings/sprite/objD2.asm"
 
 ; Sprite_2B84C:
 ObjD3:
+	moveq	#0,d0
+	move.b	routine(a0),d0
+	move.w	ObjD3_Index(pc,d0.w),d1
+	jmp	ObjD3_Index(pc,d1.w)
+; ===========================================================================
+ObjD3_Index:	offsetTable
+		offsetTableEntry.w ObjD3_Init	; 0
+		offsetTableEntry.w ObjD3_Main	; 2
+; ===========================================================================
+ObjD3_Init:
+	addq.b	#2,routine(a0)
+	move.l	#ObjD3_MapUnc_2B8D4,mappings(a0)
+	move.w	#make_art_tile(ArtTile_ArtNem_CNZBonusSpike,0,0),art_tile(a0)
+	bsr.w	JmpTo67_Adjust2PArtPointer
+	move.b	#4,render_flags(a0)
+	move.b	#16,width_pixels(a0)
+	move.b	#4,priority(a0)
+	move.w	#30,casino_prize_display_delay(a0)
+	move.w	objoff_2E(a0),d0
+	bsr.w	JmpTo12_CalcSine
+	asr.w	#1,d1
+	add.w	casino_prize_machine_x_pos(a0),d1
+	move.w	d1,casino_prize_x_pos(a0)
+	move.w	d1,x_pos(a0)
+	asr.w	#1,d0
+	add.w	casino_prize_machine_y_pos(a0),d0
+	move.w	d0,casino_prize_y_pos(a0)
+	move.w	d0,y_pos(a0)
+
+ObjD3_Main:
 	moveq	#0,d1
 	move.w	casino_prize_machine_x_pos(a0),d1
 	swap	d1
@@ -58082,9 +58309,9 @@ ObjD3:
 	bne.w	JmpTo28_DisplaySprite
 	movea.l	objoff_2A(a0),a1
 	subq.w	#1,(a1)
-	cmpi.w	#5,(Bonus_Countdown_3).w
-	blo.s	+
-	clr.w	(Bonus_Countdown_3).w
+	move.b	(Level_frame_counter+1).w,d0
+	andi.w	#3,d0
+	bne.s	+
 	move.w	#SndID_HurtBySpikes,d0
 	jsr	(PlaySound2).l
 +
@@ -58117,7 +58344,7 @@ JmpTo28_DisplaySprite ; JmpTo
 ObjD3_MapUnc_2B8D4:	include "mappings/sprite/objD6_a.asm"
 ; ===========================================================================
 
-	jmpTos JmpTo28_DisplaySprite,JmpTo44_DeleteObject
+	jmpTos JmpTo28_DisplaySprite,JmpTo44_DeleteObject,JmpTo67_Adjust2PArtPointer,JmpTo12_CalcSine
 
 
 
@@ -58412,8 +58639,6 @@ off_2BBF2:	offsetTable
 ; ===========================================================================
 
 loc_2BBF8:
-	tst.b	obj_control(a1)
-	bne.w	return_2BC84
 	tst.b	subtype(a0)
 	beq.s	loc_2BC0C
 	tst.w	(SlotMachineInUse).w
@@ -58452,43 +58677,26 @@ return_2BC84:
 
 loc_2BC86:
 	move.w	(SlotMachine_Reward).w,d0
-	bpl.w	loc_2BD4E
+	bpl.s	loc_2BD4E
 	tst.w	objoff_2A(a0)
 	bpl.s	+
 	move.w	#$64,objoff_2A(a0)
 +
 	tst.w	objoff_2A(a0)
-	beq.w	+
+	beq.s	+
 	btst	#0,(Level_frame_counter+1).w
-	beq.w	loc_2BD48
+	beq.s	loc_2BD48
 	cmpi.w	#$10,objoff_2C(a0)
-	bhs.w	loc_2BD48
+	bhs.s	loc_2BD48
 	jsrto	JmpTo10_AllocateObject
-	bne.w	loc_2BD48
+	bne.s	loc_2BD48
 	_move.b	#ObjID_BombPrize,id(a1) ; load objD3
-	move.l	#ObjD3_MapUnc_2B8D4,mappings(a1)
-	move.w	#make_art_tile(ArtTile_ArtNem_CNZBonusSpike,0,0),art_tile(a1)
-	jsrto	JmpTo6_Adjust2PArtPointer2
-	move.b	#4,render_flags(a1)
-	move.b	#$10,width_pixels(a1)
-	move.b	#4,priority(a1)
-	move.w	#$1E,casino_prize_display_delay(a1)
-	move.w	objoff_2E(a0),objoff_2E(a1)
-	addi.w	#$90,objoff_2E(a0)
 	move.w	x_pos(a0),casino_prize_machine_x_pos(a1)
 	move.w	y_pos(a0),casino_prize_machine_y_pos(a1)
-	move.w	objoff_2E(a1),d0
-	jsrto	JmpTo12_CalcSine
-	asr.w	#1,d1
-	add.w	casino_prize_machine_x_pos(a1),d1
-	move.w	d1,casino_prize_x_pos(a1)
-	move.w	d1,x_pos(a1)
-	asr.w	#1,d0
-	add.w	casino_prize_machine_y_pos(a1),d0
-	move.w	d0,casino_prize_y_pos(a1)
-	move.w	d0,y_pos(a1)
 	lea	objoff_2C(a0),a2
 	move.l	a2,objoff_2A(a1)
+	move.w	objoff_2E(a0),objoff_2E(a1)
+	addi.w	#$90,objoff_2E(a0)
 	move.w	parent(a0),parent(a1)
 	addq.w	#1,objoff_2C(a0)
 	subq.w	#1,objoff_2A(a0)
@@ -58497,42 +58705,24 @@ loc_2BC86:
 	beq.w	loc_2BE2E
 
 loc_2BD48:
-	addq.w	#1,(Bonus_Countdown_3).w
 	rts
 ; ===========================================================================
 
 loc_2BD4E:
-	beq.w	+
+	beq.s	+
 	btst	#0,(Level_frame_counter+1).w
-	beq.w	return_2BDF6
+	beq.s	return_2BDF6
 	cmpi.w	#$10,objoff_2C(a0)
-	bhs.w	return_2BDF6
+	bhs.s	return_2BDF6
 	jsrto	JmpTo10_AllocateObject
-	bne.w	return_2BDF6
+	bne.s	return_2BDF6
 	_move.b	#ObjID_RingPrize,id(a1) ; load objDC
-	move.l	#Obj25_MapUnc_12382,mappings(a1)
-	move.w	#make_art_tile(ArtTile_ArtNem_Ring,1,0),art_tile(a1)
-	jsrto	JmpTo6_Adjust2PArtPointer2
-	move.b	#4,render_flags(a1)
-	move.b	#3,priority(a1)
-	move.b	#8,width_pixels(a1)
-	move.w	#$1A,casino_prize_display_delay(a1)
-	move.w	objoff_2E(a0),objoff_2E(a1)
-	addi.w	#$89,objoff_2E(a0)
 	move.w	x_pos(a0),casino_prize_machine_x_pos(a1)
 	move.w	y_pos(a0),casino_prize_machine_y_pos(a1)
-	move.w	objoff_2E(a1),d0
-	jsrto	JmpTo12_CalcSine
-	asr.w	#1,d1
-	add.w	casino_prize_machine_x_pos(a1),d1
-	move.w	d1,casino_prize_x_pos(a1)
-	move.w	d1,x_pos(a1)
-	asr.w	#1,d0
-	add.w	casino_prize_machine_y_pos(a1),d0
-	move.w	d0,casino_prize_y_pos(a1)
-	move.w	d0,y_pos(a1)
 	lea	objoff_2C(a0),a2
 	move.l	a2,objoff_2A(a1)
+	move.w	objoff_2E(a0),objoff_2E(a1)
+	addi.w	#$89,objoff_2E(a0)
 	move.w	parent(a0),parent(a1)
 	addq.w	#1,objoff_2C(a0)
 	subq.w	#1,(SlotMachine_Reward).w
@@ -58545,11 +58735,8 @@ return_2BDF6:
 ; ===========================================================================
 
 loc_2BDF8:
-	tst.b	render_flags(a0)
-	bpl.s	loc_2BE2E
 	tst.b	subtype(a0)
 	beq.s	loc_2BE28
-	move.w	a1,objoff_3E(a0)
 	cmpi.b	#$18,(SlotMachine_Routine).w	; Is it the null routine?
 	beq.w	loc_2BC86						; Branch if yes
 	move.b	(Vint_runcount+3).w,d0
@@ -58566,7 +58753,6 @@ loc_2BE28:
 	bpl.s	loc_2BE5E
 
 loc_2BE2E:
-	move.w	#0,objoff_2C(a0)
 	move.b	#0,anim(a0)
 	move.b	#0,objoff_2A(a1)
 	bclr	d6,status(a0)
@@ -59167,7 +59353,7 @@ SlotSequence3:	dc.b   3,  0,  1,  4,  2,  5,  4,  1
 	even
 ; ===========================================================================
 
-	jmpTos JmpTo10_AllocateObject,JmpTo29_MarkObjGone,JmpTo10_AnimateSprite,JmpTo6_Adjust2PArtPointer2,JmpTo54_Adjust2PArtPointer,JmpTo12_CalcSine,JmpTo7_SolidObject_Always_SingleCharacter
+	jmpTos JmpTo10_AllocateObject,JmpTo29_MarkObjGone,JmpTo10_AnimateSprite,JmpTo54_Adjust2PArtPointer,JmpTo7_SolidObject_Always_SingleCharacter
 
 
 
@@ -70553,10 +70739,7 @@ Obj5A_Index:	offsetTable
 		offsetTableEntry.w Obj5A_TextFlyout         ;   8
 		offsetTableEntry.w Obj5A_MostRingsWin       ;  $A
 		offsetTableEntry.w Obj5A_RingCheckTrigger   ;  $C
-		offsetTableEntry.w Obj5A_RingsNeeded        ;  $E
-		offsetTableEntry.w Obj5A_FlashMessage       ; $10
-		offsetTableEntry.w Obj5A_MoveAndFlash       ; $12
-		offsetTableEntry.w Obj5A_FlashOnly          ; $14
+		offsetTableEntry.w loc_352D8                ;  $E
 ; ===========================================================================
 ; loc_35578:
 Obj5A_Init:
@@ -70575,7 +70758,7 @@ Obj5A_Init:
 	jsrto	JmpTo2_SSAllocateObject
 	bne.s	+
 	move.b	#ObjID_SSMessage,id(a1) ; load obj5A
-	move.b	#2,routine(a1)	; => Obj5A_CheckpointRainbow
+	addq.b	#2,routine(a1)	; => Obj5A_CheckpointRainbow
 	move.l	#Obj5A_Obj5B_Obj60_MapUnc_3632A,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_SpecialRings,3,0),art_tile(a1)
 	move.b	#4,render_flags(a1)
@@ -70596,47 +70779,47 @@ Obj5A_RingsMessageInit:
 	tst.b	(SS_2p_Flag).w
 	bne.w	JmpTo63_DeleteObject
 	sf.b	(SS_HideRingsToGo).w
-	sf.b	(SS_TriggerRingsToGo).w
 	move.w	#0,(SS_NoRingsTogoLifetime).w
 	move.b	#0,objoff_3A(a0)
+	move.w	#$16,d0
+	bsr.w	Obj5A_PrintPhrase2
+	bsr.w	Obj5A_CreateRingsToGoText
 	bra.w	JmpTo63_DeleteObject
 ; ===========================================================================
- ; temporarily remap characters to title card letter format
- ; Characters are encoded as Aa, Bb, Cc, etc. through a macro
- charset 'a','z','A'	; Convert to uppercase
- charset 'A',"\xD\x11\7\x11\1\x11"
- charset 'G',0	; can't have an embedded 0 in a string
- charset 'H',"\xB\4\x11\x11\9\xF\5\8\xC\x11\3\6\2\xA\x11\x10\x11\xE\x11"
- charset '!',"\x11"
- charset '.',"\x12"
 
+loc_352D8:
+	tst.b	(SS_NoCheckpointMsg_flag).w
+	bne.w	JmpTo63_DeleteObject
+	tst.b	(SS_HideRingsToGo).w
+	bne.s	+++
+	subi.w	#1,objoff_2A(a0)
+	beq.s	++
+	tst.b	objoff_3B(a0)
+	beq.s	+
+	bsr.w	Obj5A_RingsNeeded
++
+	eori.b	#1,objoff_3A(a0)
+	beq.w	JmpTo44_DisplaySprite
+/
+	rts
+; ===========================================================================
++
+	move.b	#1,objoff_2A(a0)
+	tst.b	objoff_3B(a0)
+	beq.s	-
+	subi.b	#1,objoff_2A(a0)
+	bsr.w	Obj5A_RingsNeeded
+	rts
+; ===========================================================================
 specialText macro letters
 	dc.b letters
 	dc.b $FF	; output string terminator
     endm
-
-Obj5A_RingsToGoText:
-	specialText "RING"
-	specialText "!OGOT"
-	specialText "S"
-	even
-
-Obj5A_ToGoOffsets:
-	dc.w   $C0	; 0
-	dc.w   $B8	; 1
-	dc.w   $B0	; 2
-	dc.w   $A0	; 3
-	dc.w   $98	; 4
-	dc.w   $88	; 5
-
- charset ; revert character set
-
 ; ===========================================================================
 ;loc_3561E
 Obj5A_CreateRingsToGoText:
-	st.b	(SS_TriggerRingsToGo).w
-	jsrto	JmpTo2_SSAllocateObject
-	bne.w	return_356E4
+	lea	(SpecialStageStartBanner).w,a1
+	st.b	objoff_3B(a1)
 	move.l	#Obj5F_MapUnc_72D2,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_SpecialHUD,2,0),art_tile(a1)
 	move.b	#ObjID_SSMessage,id(a1) ; load obj5A
@@ -70652,83 +70835,19 @@ Obj5A_CreateRingsToGoText:
 	lea	subspr_data(a1),a2
 	move.w	#$5A,d1
 	move.w	#$38,d2
-	moveq	#0,d0
-	moveq	#2,d3
-
--	move.w	d1,(a2)+	; sub?_x_pos
-	move.w	d2,(a2)+	; sub?_y_pos
-	move.w	d0,(a2)+	; sub?_mapframe
+	move.w	d1,sub2_x_pos-subspr_data(a2)
+	move.w	d2,sub2_y_pos-subspr_data(a2)
 	subq.w	#8,d1
-	dbf	d3,-
-	lea	Obj5A_RingsToGoText(pc),a3
-	move.w	#$68,d1
-	move.w	#$38,d2
-
--	move.b	(a3)+,d0
-	bmi.s	+
-	jsrto	JmpTo2_SSAllocateObject
-	bne.s	return_356E4
-	bsr.s	Init_Obj5A
-	move.b	#$10,routine(a1)
-	move.w	d1,x_pos(a1)
-	move.w	d2,y_pos(a1)
-	move.b	d0,mapping_frame(a1)
-	addq.w	#8,d1
-	bra.s	-
-; ===========================================================================
-+
-	lea	Obj5A_ToGoOffsets(pc),a2
-
--	move.b	(a3)+,d0
-	bmi.s	+
-	jsrto	JmpTo2_SSAllocateObject
-	bne.s	return_356E4
-	bsr.s	Init_Obj5A
-	move.b	#$12,routine(a1)	; => Obj5A_MoveAndFlash
-	move.w	(a2)+,objoff_2A(a1)
-	move.w	d2,y_pos(a1)
-	move.b	d0,mapping_frame(a1)
-	bra.s	-
-; ===========================================================================
-+
-	move.b	(a3)+,d0
-	jsrto	JmpTo2_SSAllocateObject
-	bne.s	return_356E4
-	bsr.s	Init_Obj5A
-	move.b	#$14,routine(a1)	; => Obj5A_FlashOnly
-	move.w	(a2)+,x_pos(a1)
-	move.w	d2,y_pos(a1)
-	move.b	d0,mapping_frame(a1)
-
-return_356E4:
-	rts
-; ===========================================================================
-;loc_356E6
-Init_Obj5A:
-	move.b	#ObjID_SSMessage,id(a1) ; load obj5A
-	move.l	#Obj5A_MapUnc_35E1E,mappings(a1)
-	move.w	#make_art_tile(ArtTile_ArtNem_SpecialMessages,2,0),art_tile(a1)
-	move.b	#4,render_flags(a1)
-    if ~~fixBugs
-	; Multi-sprite objects cannot use the 'priority' SST as it is
-	; overwritten by 'sub3_y_pos'. This object doesn't use the
-	; multi-sprite system, but it does share display code with one, so
-	; this might as well be removed since it won't be used.
-	move.b	#1,priority(a1)
-    endif
+	move.w	d1,sub3_x_pos-subspr_data(a2)
+	move.w	d2,sub3_y_pos-subspr_data(a2)
+	subq.w	#8,d1
+	move.w	d1,sub4_x_pos-subspr_data(a2)
+	move.w	d2,sub4_y_pos-subspr_data(a2)
 	rts
 ; ===========================================================================
 ;loc_35706
 Obj5A_RingsNeeded:
-	move.b	(SS_TriggerRingsToGo).w,(SS_HideRingsToGo).w
-	bne.s	+
-	bsr.s	++
-	bra.w	Obj5A_FlashMessage
-; ===========================================================================
-+
-	rts
-; ===========================================================================
-+
+	moveq	#0,d1
 	move.w	(Ring_count).w,d0
 	cmpi.w	#1,(Player_mode).w
 	blt.s	+
@@ -70744,6 +70863,8 @@ Obj5A_RingsNeeded:
 	bgt.s	+
 	moveq	#0,d0
 	moveq	#1,d2
+	tst.w	d0
+	bne.s	loc_353E0
 	addi_.w	#1,(SS_NoRingsTogoLifetime).w
 	cmpi.w	#$C,(SS_NoRingsTogoLifetime).w
 	blo.s	loc_3577A
@@ -70752,7 +70873,7 @@ Obj5A_RingsNeeded:
 ; ===========================================================================
 +
 	; This code converts the remaining rings into binary coded decimal format.
-	moveq	#0,d1
+	moveq	#1,d2
 	move.w	d0,d1
 	moveq	#0,d0
 	cmpi.w	#100,d1
@@ -70764,81 +70885,44 @@ Obj5A_RingsNeeded:
 	cmpi.w	#100,d1
 	bge.s	-
     else
-	; This code (the original) breaks when 101+ rings are needed:
--	addi.w	#$100,d0
+	addq.w	#1,d2
 	subi.w	#100,d1
-	bgt.s	-
+	move.w	#$100,d0
     endif
 +
 	divu.w	#10,d1
+	beq.s	+
+	addq.w	#1,d2
++
 	lsl.w	#4,d1
 	or.b	d1,d0
 	swap	d1
 	or.b	d1,d0
+
+loc_353E0:
 	move.w	#0,(SS_NoRingsTogoLifetime).w
 	sf.b	(SS_HideRingsToGo).w
 
 loc_3577A:
-	moveq	#1,d2
 	lea	subspr_data(a0),a1
-	move.w	d0,(SS_RingsToGoBCD).w
-	move.w	d0,d1
-	andi.w	#$F,d1
-	move.b	d1,sub2_mapframe-sub2_x_pos(a1)
-	lsr.w	#4,d0
-	beq.s	+
-	addq.w	#1,d2
-	move.w	d0,d1
-	andi.w	#$F,d1
-	move.b	d1,sub3_mapframe-sub2_x_pos(a1)
-	lsr.w	#4,d0
-	beq.s	+
-	addq.w	#1,d2
-	andi.w	#$F,d0
-	move.b	d0,sub4_mapframe-sub2_x_pos(a1)
-+
 	move.b	d2,mainspr_childsprites(a0)
-	rts
-; ===========================================================================
-;loc_357B2
-Obj5A_FlashMessage:
-	tst.b	(SS_NoCheckpointMsg_flag).w
-	bne.w	+		; rts
-	tst.b	(SS_HideRingsToGo).w
-	bne.s	+		; rts
-	move.b	(Vint_runcount+3).w,d0
-	andi.b	#7,d0
-	cmpi.b	#6,d0
-    if fixBugs
-	; Multi-sprite objects cannot use the 'priority' SST value, so they
-	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
-	; This object's 'priority' is overwritten by 'sub3_y_pos', causing it
-	; to display on the wrong layer.
-	bhs.s	+
-	move.w	#object_display_list_size*1,d0
-	jmp	(DisplaySprite3).l
-    else
-	blo.w	JmpTo44_DisplaySprite
-    endif
+	move.w	d0,d6
+	lsr.w	#4,d0
+	andi.w	#$F,d6
+	move.b	d6,sub2_mapframe-sub2_x_pos(a1)
+	subq.w	#1,d2
+	beq.s	+
+	move.w	d0,d6
+	lsr.w	#4,d0
+	andi.w	#$F,d6
+	move.b	d6,sub3_mapframe-sub2_x_pos(a1)
+	subq.w	#1,d2
+	beq.s	+
+	move.w	d0,d6
+	lsr.w	#4,d0
+	andi.w	#$F,d6
+	move.b	d6,sub4_mapframe-sub2_x_pos(a1)
 +
-	rts
-; ===========================================================================
-;loc_357D2
-Obj5A_MoveAndFlash:
-	moveq	#0,d0
-	cmpi.w	#2,(SS_RingsToGoBCD).w
-	bhs.s	+
-	moveq	#-8,d0
-+
-	add.w	objoff_2A(a0),d0
-	move.w	d0,x_pos(a0)
-	bra.s	Obj5A_FlashMessage
-; ===========================================================================
-;loc_357E8
-Obj5A_FlashOnly:
-	moveq	#0,d0
-	cmpi.w	#2,(SS_RingsToGoBCD).w
-	bhs.s	Obj5A_FlashMessage
 	rts
 ; ===========================================================================
 Obj5A_Rainbow_Frames:
@@ -71225,6 +71309,30 @@ Obj5A_PrintWord:
 +
 	rts
 ; ===========================================================================
+Obj5A_PrintWord2:
+	lea	SSMessage_TextFrames(pc),a3
+	adda.w	(a3,d0.w),a3
+
+-	move.b	(a3)+,d0
+	bmi.s	+		; rts
+	jsrto	JmpTo_SSAllocateObjectAfterCurrent
+	bne.s	+		; rts
+	move.b	d0,mapping_frame(a1)
+	move.l	#Obj5A_MapUnc_35E1E,mappings(a1)
+	move.w	#make_art_tile(ArtTile_ArtNem_SpecialMessages,2,0),art_tile(a1)
+	move.b	#ObjID_SSMessage,id(a1) ; load obj5A
+	move.b	#$E,routine(a1)	; => Obj5A_RingsNeeded
+	move.b	#4,render_flags(a1)
+	move.b	#1,priority(a1)
+	move.w	d1,x_pos(a1)
+	move.w	d2,y_pos(a1)
+	addq.w	#8,d1
+	move.w	#1,objoff_2A(a1)
+	bra.s	-
+; ===========================================================================
++
+	rts
+; ===========================================================================
  ; temporarily remap characters to title card letter format
  ; Characters are encoded as Aa, Bb, Cc, etc. through a macro
  charset 'a','z','A'	; Convert to uppercase
@@ -71255,6 +71363,8 @@ SSMessage_TextFrames:	offsetTable
 		offsetTableEntry.w byte_35CD5	;$1E
 		offsetTableEntry.w byte_35CD9	;$20
 		offsetTableEntry.w byte_35CDB	;$22
+		offsetTableEntry.w byte_35CDF	;$24
+		offsetTableEntry.w byte_35CE1	;$26
 byte_35C86:	specialText "GET"
 	rev02even
 byte_35C8A:	specialText "RINGS"
@@ -71290,6 +71400,10 @@ byte_35CD5:	specialText "..."
 byte_35CD9:	dc.b $13,$FF						; VS
 	rev02even
 byte_35CDB:	specialText "TAILS"
+	rev02even
+byte_35CDF:	specialText "TO"
+	rev02even
+byte_35CE1:	specialText "GO"
 	even
 
  charset ; revert character set
@@ -71402,7 +71516,30 @@ byte_35DD6:
 	dc.b $74	; 4
 	dc.b $3C	; 5
 	dc.b $58	; 6
+	dc.b $68	; 7
 	even
+; ===========================================================================
+Obj5A_PrintPhrase2:
+	move.w	d0,d3
+	subq.w	#8,d3
+	lsr.w	#1,d3
+	moveq	#0,d1
+	move.b	byte_35DD6(pc,d3.w),d1
+	move.w	#$38,d2
+	lea	(SSMessage_TextPhrases).l,a2
+	adda.w	(a2,d0.w),a2
+
+-	moveq	#0,d0
+	move.b	(a2)+,d0
+	bmi.s	+			; rts
+	bsr.w	Obj5A_PrintWord2
+	addi_.w	#8,d1
+	bra.s	-
+; ===========================================================================
++
+	subi_.w	#8,x_pos(a1)
+	rts
+; ===========================================================================
 
 ; Text phrases
 ;off_35DDE
@@ -71501,7 +71638,6 @@ loc_36022:
 ; ===========================================================================
 
 loc_3603C:
-	move.w	d7,-(sp)
 	moveq	#0,d2
 	moveq	#0,d3
 	moveq	#0,d4
@@ -71571,7 +71707,6 @@ loc_36088:
 	add.w	d3,d0
 	move.w	d1,x_pos(a1)
 	move.w	d0,y_pos(a1)
-	move.w	(sp)+,d7
 	rts
 ; ===========================================================================
 
@@ -74471,7 +74606,6 @@ Obj9E_Index:	offsetTable
 ; loc_37E30:
 Obj9E_Init:
 	bsr.w	LoadSubObject
-	move.b	#$80,y_radius(a0)
 	addq.b	#2,objoff_3B(a0)
 	bra.w	loc_37F74
 ; ===========================================================================
@@ -74498,11 +74632,9 @@ loc_37E62:
 	beq.s	+
 	bset	#0,render_flags(a0)
 +
-	neg.w	d4
 	lsl.w	#3,d4
 	andi.w	#$FF00,d4
 	move.w	d4,x_vel(a0)
-	neg.w	d5
 	lsl.w	#3,d5
 	andi.w	#$FF00,d5
 	move.w	d5,y_vel(a0)
@@ -74551,12 +74683,6 @@ loc_37EFC:
 	movea.w	parent(a0),a1 ; a1=object
 	cmpi.b	#ObjID_Crawlton,id(a1)
 	bne.w	JmpTo65_DeleteObject
-	bclr	#0,render_flags(a0)
-	btst	#0,render_flags(a1)
-	beq.s	+
-	bset	#0,render_flags(a0)
-+
-	move.b	#$80,objoff_14(a0)
 	move.w	x_pos(a1),x_pos(a0)
 	move.w	y_pos(a1),y_pos(a0)
 	cmpi.b	#6,objoff_3B(a1)
@@ -74930,13 +75056,10 @@ loc_38258:
 
 loc_38266:
 	tst.w	objoff_2E(a0)
-	bne.s	loc_3827A
+	bne.w	JmpTo65_DeleteObject
 	movea.w	objoff_2C(a0),a1 ; a1=object
 	move.b	#0,mapping_frame(a1)
 	st.b	objoff_2C(a1)
-
-loc_3827A:
-	addq.w	#4,sp
 	bra.w	JmpTo65_DeleteObject
 ; ===========================================================================
 
@@ -75032,14 +75155,7 @@ loc_383DE:
 ; ===========================================================================
 
 ObjA1_Main:
-	tst.b	render_flags(a0)
-	bpl.s	loc_3841C
 	bsr.w	Obj_GetOrientationToPlayer
-	btst	#0,render_flags(a0)
-	beq.s	loc_38404
-	subq.w	#2,d0
-
-loc_38404:
 	tst.w	d0
 	bne.s	loc_3841C
 	addi.w	#$80,d2
@@ -75123,30 +75239,29 @@ ObjA2_Index:	offsetTable
 ; loc_384B6:
 ObjA2_Init:
 	bsr.w	LoadSubObject
-	jmpto	JmpTo39_MarkObjGone
+	move.w	#-$200,x_vel(a0)
+	move.w	#$200,objoff_2A(a0)
+	move.w	objoff_2E(a0),d0
+	lea	ObjA1_Pincer_Offsets(pc,d0.w),a2
+	move.b	(a2)+,d0
+	ext.w	d0
+	add.w	d0,x_pos(a0)
+	move.b	(a2)+,d0
+	ext.w	d0
+	add.w	d0,y_pos(a0)
+	rts
+; ===========================================================================
+ObjA1_Pincer_Offsets:
+	dc.b    6,    0	; 0
+	dc.b -$10,    0	; 3
 ; ===========================================================================
 
 ObjA2_Main:
-	tst.b	render_flags(a0)
-	bpl.w	JmpTo65_DeleteObject
 	subq.w	#1,objoff_2A(a0)
 	bmi.s	loc_3851A
 	movea.w	objoff_2C(a0),a1 ; a1=object
 	cmpi.b	#ObjID_Slicer,id(a1)
 	bne.s	loc_3851A
-	moveq	#0,d0
-	move.b	routine_secondary(a0),d0
-	move.w	off_384F6(pc,d0.w),d1
-	jsr	off_384F6(pc,d1.w)
-	jsrto	JmpTo26_ObjectMove
-	lea	(Ani_objA2).l,a1
-	jsrto	JmpTo25_AnimateSprite
-	jmpto	JmpTo39_MarkObjGone
-; ===========================================================================
-off_384F6:	offsetTable
-		offsetTableEntry.w +
-; ===========================================================================
-+
 	bsr.w	Obj_GetOrientationToPlayer
 	move.w	ObjA2_acceleration(pc,d0.w),d2
 	add.w	d2,x_vel(a0)
@@ -75154,14 +75269,18 @@ off_384F6:	offsetTable
 	add.w	d2,y_vel(a0)
 	move.w	#$200,d0
 	move.w	d0,d1
-	bra.w	Obj_CapSpeed
+	jsrto	Obj_CapSpeed
+	jsrto	JmpTo26_ObjectMove
+	lea	(Ani_objA2).l,a1
+	jsrto	JmpTo25_AnimateSprite
+	bra.w	JmpTo39_MarkObjGone
 ; ===========================================================================
 ObjA2_acceleration:	dc.w -$10, $10
 ; ===========================================================================
 
 loc_3851A:
 	addq.b	#2,routine(a0)
-	move.w	#$60,objoff_2A(a0)
+	move.w	#$80,objoff_2A(a0)
 
 ObjA2_Main2:
 	subq.w	#1,objoff_2A(a0)
@@ -75173,7 +75292,6 @@ ObjA2_Main2:
 ; ===========================================================================
 
 ObjA1_LoadPincers:
-	lea	objoff_3C(a0),a2 ; a2=object
 	moveq	#0,d1
 	moveq	#1,d6
 
@@ -75182,43 +75300,18 @@ loc_38546:
 	bne.s	return_385BA
 	_move.b	#ObjID_SlicerPincers,id(a1) ; load objA2
 	move.b	#$2A,subtype(a1) ; <== ObjA2_SubObjData
-	move.b	render_flags(a0),render_flags(a1)
 	move.b	#5,mapping_frame(a1)
 	move.b	#4,priority(a1)
-	move.w	#$78,objoff_2A(a1)
 	move.w	a0,objoff_2C(a1)
-	move.w	a1,(a2)+
-	move.w	#-$200,d0
-	btst	#0,render_flags(a1)
-	beq.s	loc_3858A
-	neg.w	d0
-	bset	#0,status(a1)
-
-loc_3858A:
-	move.w	d0,x_vel(a1)
-	lea	ObjA1_Pincer_Offsets(pc,d1.w),a3
-	move.b	(a3)+,d0
-	ext.w	d0
-	btst	#0,render_flags(a1)
-	beq.s	loc_385A0
-	neg.w	d0
-
-loc_385A0:
-	add.w	x_pos(a0),d0
-	move.w	d0,x_pos(a1)
-	move.b	(a3)+,d0
-	ext.w	d0
-	add.w	y_pos(a0),d0
-	move.w	d0,y_pos(a1)
+	move.w	d1,objoff_2E(a1)
+	move.w	x_pos(a0),x_pos(a1)
+	move.w	y_pos(a0),y_pos(a1)
 	addq.w	#2,d1
 	dbf	d6,loc_38546
 
 return_385BA:
 	rts
 ; ===========================================================================
-ObjA1_Pincer_Offsets:
-	dc.b    6,    0	; 0
-	dc.b -$10,    0	; 3
 ; off_385C0
 ObjA1_SubObjData:
 	subObjData ObjA1_MapUnc_385E2,make_art_tile(ArtTile_ArtNem_MtzMantis,1,0),4,5,$10,6
@@ -79420,7 +79513,8 @@ ObjB9_Index:	offsetTable
 ; ===========================================================================
 ; BranchTo6_LoadSubObject
 ObjB9_Init:
-	bra.w	LoadSubObject
+	bsr.w	LoadSubObject
+	rts
 ; ===========================================================================
 
 loc_3BAD2:
@@ -79861,9 +79955,7 @@ ObjC0_Init:
 	bne.s	+
 	neg.w	d0
 +
-	move.w	x_pos(a0),d1
-	move.w	d1,objoff_34(a0)
-	add.w	d1,d0
+	add.w	x_pos(a0),d0
 	move.w	d0,objoff_32(a0)
 ; loc_3BF3E:
 ObjC0_Main:
@@ -79979,24 +80071,6 @@ loc_3C056:
 	bsr.s	loc_3C020
 
 loc_3C062:
-	move.w	x_pos(a0),d0
-	moveq	#4,d1
-	tst.w	objoff_30(a0)	; if objoff_30(a0) is positive,
-	spl	d2		; then set d2 to $FF, else set d2 to $00
-	bmi.s	+
-	neg.w	d1
-+
-	add.w	d1,d0
-	cmp.w	objoff_34(a0),d0
-	bhs.s	+
-	not.b	d2
-+
-	tst.b	d2
-	bne.s	+
-	clr.b	routine_secondary(a0)
-	move.w	objoff_34(a0),d0
-+
-	move.w	d0,x_pos(a0)
 	rts
 ; ===========================================================================
 ; off_3C08E:
@@ -80358,7 +80432,7 @@ ObjC5_CaseIndex:offsetTable
 ObjC5_CaseBoundary:
 	addq.b	#2,routine_secondary(a0)
 	move.b	#0,collision_flags(a0)
-	move.b	#8,collision_property(a0)	; Hit points
+	move.b	#1,collision_property(a0)	; Hit points
 	move.w	#$442,d0
 	move.w	d0,(Camera_Max_Y_pos).w
 	move.w	d0,(Camera_Max_Y_pos_target).w
@@ -81267,7 +81341,7 @@ loc_3CF62:
 ; ===========================================================================
 ; loc_3CF7C:
 ObjC6_State2_State4:
-	cmpi.w	#$810,x_pos(a0)
+	cmpi.w	#$790,x_pos(a0)
 	bhs.s	loc_3CFC0
 	bsr.w	Obj_GetOrientationToPlayer
 	addi.w	#$50,d2
@@ -81447,10 +81521,16 @@ ObjC8_Init:
 ; ===========================================================================
 
 loc_3D27C:
+	bsr.w	loc_3D416
 	subq.w	#1,objoff_2A(a0)
 	beq.s	+
-	jsrto	JmpTo26_ObjectMove
-	bsr.w	loc_3D416
+	bsr.w	JmpTo26_ObjectMove
+	jsr	(ObjCheckFloorDist).l
+	cmpi.w	#-1,d1
+	blt.s	+
+	cmpi.w	#$C,d1
+	bge.s	+
+	add.w	d1,y_pos(a0)
 	lea	(Ani_objC8).l,a1
 	jsrto	JmpTo25_AnimateSprite
 	jmpto	JmpTo39_MarkObjGone
@@ -81462,9 +81542,9 @@ loc_3D27C:
 ; ===========================================================================
 
 loc_3D2A6:
+	bsr.w	loc_3D416
 	subq.w	#1,objoff_2A(a0)
 	bmi.s	+
-	bsr.w	loc_3D416
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
 +
@@ -86892,9 +86972,6 @@ Hud_ChkBonus:
 	moveq	#0,d1
 	move.w	(Bonus_Countdown_2).w,d1	 ; load ring bonus
 	bsr.w	Hud_TimeRingBonus
-	moveq	#0,d1
-	move.w	(Bonus_Countdown_3).w,d1	 ; load perfect bonus
-	bsr.w	Hud_TimeRingBonus
 ; return_40E82:
 Hud_End:
 	rts
@@ -86947,9 +87024,6 @@ loc_40EDC:
 	bsr.w	Hud_TimeRingBonus
 	moveq	#0,d1
 	move.w	(Bonus_Countdown_2).w,d1
-	bsr.w	Hud_TimeRingBonus
-	moveq	#0,d1
-	move.w	(Bonus_Countdown_3).w,d1
 	bsr.w	Hud_TimeRingBonus
 
 loc_40F18:
@@ -88712,7 +88786,6 @@ PlrList_Results: plrlistheader
 	plreq ArtTile_ArtNem_TitleCard, ArtNem_TitleCard
 	plreq ArtTile_ArtNem_ResultsText, ArtNem_ResultsText
 	plreq ArtTile_ArtNem_MiniCharacter, ArtNem_MiniSonic
-	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
 PlrList_Results_End
 ;---------------------------------------------------------------------------------------
 ; PATTERN LOAD REQUEST LIST
@@ -88963,7 +89036,6 @@ PlrList_ResultsTails: plrlistheader
 	plreq ArtTile_ArtNem_TitleCard, ArtNem_TitleCard
 	plreq ArtTile_ArtNem_ResultsText, ArtNem_ResultsText
 	plreq ArtTile_ArtNem_MiniCharacter, ArtNem_MiniTails
-	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
 PlrList_ResultsTails_End
 
 
@@ -88972,302 +89044,69 @@ PlrList_ResultsTails_End
 ;---------------------------------------------------------------------------------------
 ; Weird revision-specific duplicates of portions of the PLR lists (unused)
 ;---------------------------------------------------------------------------------------
-    if gameRevision=0
-	; half of PlrList_ResultsTails
-	plreq ArtTile_ArtNem_MiniCharacter, ArtNem_MiniTails
-	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
-PlrList_ResultsTails_Dup_End
-	dc.l	0
-    elseif gameRevision=2
-	; half of the second ARZ PLR list
-	plreq ArtTile_ArtNem_Grounder, ArtNem_Grounder
-	plreq ArtTile_ArtNem_BigBubbles, ArtNem_BigBubbles
-	plreq ArtTile_ArtNem_Spikes, ArtNem_Spikes
-	plreq ArtTile_ArtNem_LeverSpring, ArtNem_LeverSpring
-	plreq ArtTile_ArtNem_VrtclSprng, ArtNem_VrtclSprng
-	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
-PlrList_Arz2_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; SCZ Primary
-;---------------------------------------------------------------------------------------
-PlrList_Scz1_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Tornado, ArtNem_Tornado
-PlrList_Scz1_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; SCZ Secondary
-;---------------------------------------------------------------------------------------
-PlrList_Scz2_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Clouds, ArtNem_Clouds
-	plreq ArtTile_ArtNem_WfzVrtclPrpllr, ArtNem_WfzVrtclPrpllr
-	plreq ArtTile_ArtNem_WfzHrzntlPrpllr, ArtNem_WfzHrzntlPrpllr
-	plreq ArtTile_ArtNem_Balkrie, ArtNem_Balkrie
-	plreq ArtTile_ArtNem_Turtloid, ArtNem_Turtloid
-	plreq ArtTile_ArtNem_Nebula, ArtNem_Nebula
-PlrList_Scz2_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; Sonic end of level results screen
-;---------------------------------------------------------------------------------------
-PlrList_Results_Dup: plrlistheader
-	plreq ArtTile_ArtNem_TitleCard, ArtNem_TitleCard
-	plreq ArtTile_ArtNem_ResultsText, ArtNem_ResultsText
-	plreq ArtTile_ArtNem_MiniCharacter, ArtNem_MiniSonic
-	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
-PlrList_Results_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; End of level signpost
-;---------------------------------------------------------------------------------------
-PlrList_Signpost_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Signpost, ArtNem_Signpost
-PlrList_Signpost_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; CPZ Boss
-;---------------------------------------------------------------------------------------
-PlrList_CpzBoss_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Eggpod_3, ArtNem_Eggpod
-	plreq ArtTile_ArtNem_CPZBoss, ArtNem_CPZBoss
-	plreq ArtTile_ArtNem_EggpodJets_1, ArtNem_EggpodJets
-	plreq ArtTile_ArtNem_BossSmoke_1, ArtNem_BossSmoke
-	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
-PlrList_CpzBoss_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; EHZ Boss
-;---------------------------------------------------------------------------------------
-PlrList_EhzBoss_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Eggpod_1, ArtNem_Eggpod
-	plreq ArtTile_ArtNem_EHZBoss, ArtNem_EHZBoss
-	plreq ArtTile_ArtNem_EggChoppers, ArtNem_EggChoppers
-	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
-PlrList_EhzBoss_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; HTZ Boss
-;---------------------------------------------------------------------------------------
-PlrList_HtzBoss_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Eggpod_2, ArtNem_Eggpod
-	plreq ArtTile_ArtNem_HTZBoss, ArtNem_HTZBoss
-	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
-	plreq ArtTile_ArtNem_BossSmoke_2, ArtNem_BossSmoke
-PlrList_HtzBoss_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; ARZ Boss
-;---------------------------------------------------------------------------------------
-PlrList_ArzBoss_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Eggpod_4, ArtNem_Eggpod
-	plreq ArtTile_ArtNem_ARZBoss, ArtNem_ARZBoss
-	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
-PlrList_ArzBoss_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; MCZ Boss
-;---------------------------------------------------------------------------------------
-PlrList_MczBoss_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Eggpod_4, ArtNem_Eggpod
-	plreq ArtTile_ArtNem_MCZBoss, ArtNem_MCZBoss
-	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
-PlrList_MczBoss_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; CNZ Boss
-;---------------------------------------------------------------------------------------
-PlrList_CnzBoss_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Eggpod_4, ArtNem_Eggpod
-	plreq ArtTile_ArtNem_CNZBoss, ArtNem_CNZBoss
-	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
-PlrList_CnzBoss_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; MTZ Boss
-;---------------------------------------------------------------------------------------
-PlrList_MtzBoss_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Eggpod_4, ArtNem_Eggpod
-	plreq ArtTile_ArtNem_MTZBoss, ArtNem_MTZBoss
-	plreq ArtTile_ArtNem_EggpodJets_2, ArtNem_EggpodJets
-	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
-PlrList_MtzBoss_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; OOZ Boss
-;---------------------------------------------------------------------------------------
-PlrList_OozBoss_Dup: plrlistheader
-	plreq ArtTile_ArtNem_OOZBoss, ArtNem_OOZBoss
-	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
-PlrList_OozBoss_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; Fiery Explosion
-;---------------------------------------------------------------------------------------
-PlrList_FieryExplosion_Dup: plrlistheader
-	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
-PlrList_FieryExplosion_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; Death Egg
-;---------------------------------------------------------------------------------------
-PlrList_DezBoss_Dup: plrlistheader
-	plreq ArtTile_ArtNem_DEZBoss, ArtNem_DEZBoss
-PlrList_DezBoss_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; EHZ Animals
-;---------------------------------------------------------------------------------------
-PlrList_EhzAnimals_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Animal_1, ArtNem_Squirrel
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Flicky
-PlrList_EhzAnimals_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; MCZ Animals
-;---------------------------------------------------------------------------------------
-PlrList_MczAnimals_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Animal_1, ArtNem_Mouse
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Chicken
-PlrList_MczAnimals_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; HTZ/MTZ/WFZ animals
-;---------------------------------------------------------------------------------------
-PlrList_HtzAnimals_Dup:
-PlrList_MtzAnimals_Dup:
-PlrList_WfzAnimals_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Animal_1, ArtNem_Monkey
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Eagle
-PlrList_HtzAnimals_Dup_End
-PlrList_MtzAnimals_Dup_End
-PlrList_WfzAnimals_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; DEZ Animals
-;---------------------------------------------------------------------------------------
-PlrList_DezAnimals_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Animal_1, ArtNem_Pig
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Chicken
-PlrList_DezAnimals_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; HPZ animals
-;---------------------------------------------------------------------------------------
-PlrList_HpzAnimals_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Animal_1, ArtNem_Mouse
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Seal
-PlrList_HpzAnimals_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; OOZ Animals
-;---------------------------------------------------------------------------------------
-PlrList_OozAnimals_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Animal_1, ArtNem_Penguin
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Seal
-PlrList_OozAnimals_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; SCZ Animals
-;---------------------------------------------------------------------------------------
-PlrList_SczAnimals_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Animal_1, ArtNem_Turtle
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Chicken
-PlrList_SczAnimals_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; CNZ Animals
-;---------------------------------------------------------------------------------------
-PlrList_CnzAnimals_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Animal_1, ArtNem_Bear
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Flicky
-PlrList_CnzAnimals_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; CPZ Animals
-;---------------------------------------------------------------------------------------
-PlrList_CpzAnimals_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Animal_1, ArtNem_Rabbit
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Eagle
-PlrList_CpzAnimals_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; ARZ Animals
-;---------------------------------------------------------------------------------------
-PlrList_ArzAnimals_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Animal_1, ArtNem_Penguin
-	plreq ArtTile_ArtNem_Animal_2, ArtNem_Flicky
-PlrList_ArzAnimals_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; Special Stage
-;---------------------------------------------------------------------------------------
-PlrList_SpecialStage_Dup: plrlistheader
-	plreq ArtTile_ArtNem_SpecialEmerald, ArtNem_SpecialEmerald
-	plreq ArtTile_ArtNem_SpecialMessages, ArtNem_SpecialMessages
-	plreq ArtTile_ArtNem_SpecialHUD, ArtNem_SpecialHUD
-	plreq ArtTile_ArtNem_SpecialFlatShadow, ArtNem_SpecialFlatShadow
-	plreq ArtTile_ArtNem_SpecialDiagShadow, ArtNem_SpecialDiagShadow
-	plreq ArtTile_ArtNem_SpecialSideShadow, ArtNem_SpecialSideShadow
-	plreq ArtTile_ArtNem_SpecialExplosion, ArtNem_SpecialExplosion
-	plreq ArtTile_ArtNem_SpecialRings, ArtNem_SpecialRings
-	plreq ArtTile_ArtNem_SpecialStart, ArtNem_SpecialStart
-	plreq ArtTile_ArtNem_SpecialPlayerVSPlayer, ArtNem_SpecialPlayerVSPlayer
-	plreq ArtTile_ArtNem_SpecialBack, ArtNem_SpecialBack
-	plreq ArtTile_ArtNem_SpecialStars, ArtNem_SpecialStars
-	plreq ArtTile_ArtNem_SpecialTailsText, ArtNem_SpecialTailsText
-PlrList_SpecialStage_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; Special Stage Bombs
-;---------------------------------------------------------------------------------------
-PlrList_SpecStageBombs_Dup: plrlistheader
-	plreq ArtTile_ArtNem_SpecialBomb, ArtNem_SpecialBomb
-PlrList_SpecStageBombs_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; WFZ Boss
-;---------------------------------------------------------------------------------------
-PlrList_WfzBoss_Dup: plrlistheader
-	plreq ArtTile_ArtNem_WFZBoss, ArtNem_WFZBoss
-	plreq ArtTile_ArtNem_RobotnikRunning, ArtNem_RobotnikRunning
-	plreq ArtTile_ArtNem_RobotnikUpper, ArtNem_RobotnikUpper
-	plreq ArtTile_ArtNem_RobotnikLower, ArtNem_RobotnikLower
-	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
-PlrList_WfzBoss_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; Tornado
-;---------------------------------------------------------------------------------------
-PlrList_Tornado_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Tornado, ArtNem_Tornado
-	plreq ArtTile_ArtNem_TornadoThruster, ArtNem_TornadoThruster
-	plreq ArtTile_ArtNem_Clouds, ArtNem_Clouds
-PlrList_Tornado_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; Capsule/Egg Prison
-;---------------------------------------------------------------------------------------
-PlrList_Capsule_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Capsule, ArtNem_Capsule
-PlrList_Capsule_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; Normal explosion
-;---------------------------------------------------------------------------------------
-PlrList_Explosion_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Explosion, ArtNem_Explosion
-PlrList_Explosion_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; Tails end of level results screen
-;---------------------------------------------------------------------------------------
-PlrList_ResultsTails_Dup: plrlistheader
-	plreq ArtTile_ArtNem_TitleCard, ArtNem_TitleCard
-	plreq ArtTile_ArtNem_ResultsText, ArtNem_ResultsText
-	plreq ArtTile_ArtNem_MiniCharacter, ArtNem_MiniTails
-	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
-PlrList_ResultsTails_Dup_End
-    endif
+	dc.b	$B6, $00, $00, $07, $C2, $F2, $BE, $80, $A3, $00, $00, $08, $E7, $E4, $A0, $00
+	dc.b	$00, $08, $ED, $B0, $AC, $80, $00, $08, $47, $EE, $B0, $00, $00, $02, $00, $08
+	dc.b	$CB, $A2, $A0, $00, $00, $09, $04, $7E, $AC, $20, $00, $08, $DA, $5A, $A9, $E0
+	dc.b	$00, $00, $00, $07, $BA, $32, $D0, $00, $00, $00, $00, $07, $B5, $92, $B4, $80
+	dc.b	$00, $02, $00, $07, $D2, $2C, $B0, $00, $00, $07, $E8, $6A, $B6, $00, $00, $07
+	dc.b	$C2, $F2, $BE, $80, $C2, $F2, $BE, $80, $AB, $72, $03, $00, $00, $00, $82, $02
+	dc.b	$AB, $72, $11, $01, $00, $00, $83, $01, $10, $C6, $10, $01, $00, $00, $24, $02
+	dc.b	$03, $4A, $81, $0E, $85, $5B, $91, $03, $74, $FA, $08, $00, $25, $3B, $8C, $03
+	dc.b	$70, $52, $00, $00, $A5, $00, $8D, $03, $72, $F4, $02, $00, $A5, $09, $8E, $03
+	dc.b	$72, $F4, $02, $00, $A5, $09, $3E, $03, $F9, $2A, $00, $00, $26, $80, $00, $0D
+	dc.b	$25, $01, $32, $22, $00, $00, $26, $BC, $26, $01, $3B, $D8, $08, $00, $06, $80
+	dc.b	$8B, $02, $07, $14, $00, $00, $06, $BC, $B3, $03, $B8, $62, $5E, $00, $45, $4F
+	dc.b	$B3, $03, $B8, $62, $60, $01, $45, $4F, $B3, $03, $B8, $62, $62, $02, $45, $4F
+	dc.b	$B4, $03, $B8, $F4, $64, $00, $A5, $61, $B5, $03, $BA, $7E, $66, $00, $A3, $CD
+	dc.b	$B5, $03, $BA, $7E, $68, $00, $A3, $CD, $9A, $03, $81, $62, $16, $00, $03, $8A
+	dc.b	$AC, $03, $99, $5E, $40, $00, $05, $65, $99, $03, $7E, $9A, $12, $00, $A3, $6E
+	dc.b	$3E, $03, $F9, $2A, $00, $00, $26, $80, $4E, $F9, $00, $01, $7B, $88, $00, $00
+	dc.b	$04, $09, $68, $CE, $05, $09, $5B, $1E, $04, $09, $A9, $DE, $06, $09, $68, $CE
+	dc.b	$07, $09, $5B, $1E, $05, $09, $A9, $DE, $08, $09, $68, $CE, $09, $09, $5B, $1E
+	dc.b	$06, $09, $A9, $DE, $0A, $09, $68, $CE, $0B, $09, $5B, $1E, $07, $09, $A9, $DE
+	dc.b	$0C, $09, $E8, $0E, $0D, $09, $DC, $7E, $08, $0A, $13, $6E, $0C, $09, $E8, $0E
+	dc.b	$0D, $09, $DC, $7E, $08, $0A, $13, $6E, $10, $0C, $5C, $8E, $11, $0C, $4C, $FE
+	dc.b	$0A, $0C, $92, $6E, $12, $09, $68, $CE, $13, $09, $5B, $1E, $0B, $09, $A9, $DE
+	dc.b	$14, $0A, $40, $0E, $15, $0A, $40, $0E, $0C, $0A, $40, $0E, $16, $09, $68, $CE
+	dc.b	$17, $09, $5B, $1E, $0D, $09, $A9, $DE, $18, $0A, $4E, $AE, $19, $0A, $40, $0E
+	dc.b	$0E, $0A, $74, $DE, $1A, $0A, $AA, $1E, $1B, $0A, $99, $AE, $0F, $0A, $E0, $FE
+	dc.b	$1C, $0B, $15, $3E, $1D, $0B, $0C, $6E, $10, $0B, $39, $9E, $1E, $0B, $6D, $FE
+	dc.b	$1F, $0B, $5E, $BE, $11, $0B, $9D, $7E, $20, $0B, $6D, $FE, $21, $0B, $5E, $BE
+	dc.b	$12, $0B, $9D, $7E, $22, $0B, $D8, $AE, $23, $0B, $C5, $CE, $13, $0C, $20, $BE
+	dc.b	$24, $0C, $5C, $8E, $25, $0C, $4C, $FE, $14, $0C, $92, $6E, $00, $86, $00, $A0
+	dc.b	$00, $BA, $00, $CE, $00, $D6, $00, $FC, $01, $16, $01, $1E, $01, $26, $01, $2E
+	dc.b	$01, $36, $01, $36, $01, $36, $01, $6E, $01, $A6, $01, $A6, $01, $A6, $01, $E4
+	dc.b	$02, $3A, $02, $78, $02, $8C, $02, $8C, $02, $8C, $02, $8C, $02, $8C, $02, $C4
+	dc.b	$03, $0E, $03, $34, $03, $5A, $03, $98, $03, $BE, $03, $F6, $04, $22, $04, $2A
+	dc.b	$04, $4A, $04, $64, $04, $96, $04, $9E, $04, $C4, $04, $D8, $04, $E0, $05, $00
+	dc.b	$05, $1A, $05, $34, $05, $48, $05, $5C, $05, $70, $05, $8A, $05, $98, $05, $A0
+	dc.b	$05, $A8, $05, $B6, $05, $C4, $05, $D2, $05, $E0, $05, $EE, $05, $FC, $06, $0A
+	dc.b	$06, $18, $06, $26, $06, $34, $06, $84, $06, $8C, $06, $AC, $06, $C0, $06, $C8
+	dc.b	$06, $D0, $00, $03, $00, $07, $92, $3E, $D9, $40, $00, $07, $93, $46, $FA, $80
+	dc.b	$00, $07, $94, $5C, $D7, $80, $00, $07, $99, $AC, $95, $80, $00, $03, $00, $07
+	dc.b	$9A, $86, $8F, $80, $00, $07, $95, $50, $D0, $00, $00, $07, $1D, $8E, $97, $C0
+	dc.b	$00, $07, $1F, $14, $9B, $C0, $00, $02, $00, $07, $B5, $92, $B4, $80, $00, $07
+	dc.b	$39, $3C, $BE, $40, $00, $07, $AE, $E2, $BD, $00, $00, $00, $00, $07, $B4, $00
+	dc.b	$9B, $C0, $00, $05, $00, $07, $F0, $34, $73, $C0, $00, $07, $F2, $88, $76, $C0
+	dc.b	$00, $07, $EE, $BE, $77, $C0, $00, $08, $3E, $14, $7A, $40, $00, $08, $B5, $24
+	dc.b	$7D, $C0, $00, $08, $46, $94, $82, $80, $00, $03, $00, $07, $99, $5C, $86, $80
+	dc.b	$00, $07, $90, $6A, $87, $80, $00, $07, $8E, $84, $8B, $80, $00, $07, $8F, $A0
+	dc.b	$8E, $00, $00, $00, $00, $07, $B9, $46, $DE, $80, $00, $00, $00, $07, $B9, $46
+	dc.b	$FA, $80, $00, $00, $00, $07, $C2, $0C, $DE, $80, $00, $00, $00, $07, $C2, $0C
+	dc.b	$FA, $80, $00, $08, $00, $07, $FB, $14, $6F, $00, $00, $07, $FF, $6C, $7E, $00
+	dc.b	$00, $08, $03, $DA, $7F, $20, $00, $08, $04, $4A, $7F, $A0, $00, $08, $00, $E2
+	dc.b	$80, $A0, $00, $08, $00, $14, $82, $80, $00, $08, $01, $EC, $83, $80, $00, $08
+	dc.b	$BD, $02, $63, $80, $00, $08, $BF, $AA, $6D, $00, $00, $08, $00, $07, $8D, $AC
+	dc.b	$84, $80, $00, $07, $99, $5C, $86, $80, $00, $08, $BA, $2A, $87, $80, $00, $07
+	dc.b	$8E, $84, $8B, $80, $00, $07, $8F, $A0, $8E, $00, $00, $08, $02, $AE, $A0, $00
+	dc.b	$00, $08, $03, $24, $A6, $C0, $00, $08, $04, $EC, $AB, $E0, $00, $08, $05, $CE
+	dc.b	$AD, $60, $00, $09, $00, $08, $D8, $EE, $A0, $00, $00, $08, $E7, $A6, $A9, $E0
+	dc.b	$00, $08, $EB, $62, $AC, $20, $00, $08, $EB, $92, $79, $A0, $00, $08, $C8, $C0
+	dc.b	$AC, $A0, $00, $08, $06, $48, $91, $80, $00, $08, $C6, $86, $6F, $20, $00, $08
+	dc.b	$EC, $BA, $72, $60, $00, $08, $D8, $EE, $A0, $00, $00, $08, $E7, $A6, $A9, $E0
+	dc.b	$00, $0D, $00, $08, $EB, $62, $AC, $20, $00, $08, $EB, $92, $79, $A0, $00, $08
+	dc.b	$E7, $18, $73, $E0, $00, $08, $DE, $4A, $75, $60, $00, $08, $E8, $EC, $78, $60
+	dc.b	$00, $08, $E4, $82, $7D, $40, $00, $08, $E0, $32, $7F, $40
 
 
 
@@ -89591,8 +89430,6 @@ ArtNem_LevelSelectPics:		BINCLUDE	"art/nemesis/Pictures in level preview box fro
 ArtNem_ResultsText:		BINCLUDE	"art/nemesis/End of level results text.nem" ; Text for Sonic or Tails Got Through Act and Bonus/Perfect
 	even
 ArtNem_SpecialStageResults:	BINCLUDE	"art/nemesis/Special stage results screen art and some emeralds.nem"
-	even
-ArtNem_Perfect:			BINCLUDE	"art/nemesis/Perfect text.nem"
 	even
 
 ;---------------------------------------------------------------------------------------
@@ -90176,7 +90013,17 @@ MiscKoz_SpecialObjectLocations:	BINCLUDE	"misc/Special stage object location lis
 ;--------------------------------------------------------------------------------------
 ; Filler (free space) (unnecessary; could be replaced with "even")
 ;--------------------------------------------------------------------------------------
-	align $100
+; Duplicate data from MiscNem_SpecialLevelLayout.
+	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $0C, $80, $01
+	dc.b	$00, $17, $7C, $28, $FA, $38, $FB, $81, $05, $1E, $82, $04, $0E, $83, $02, $02
+	dc.b	$84, $04, $0D, $88, $04, $0C, $FF, $FA, $FC, $77, $CB, $F1, $9F, $3F, $0D, $9F
+	dc.b	$3F, $13, $BF, $3F, $39, $F3, $F1, $F8, $F5, $F8, $64, $93, $5C, $92, $49, $35
+	dc.b	$C9, $24, $DF, $AE, $49, $B9, $E7, $24, $D7, $26, $B9, $66, $B9, $35, $D9, $66
+	dc.b	$B9, $24, $BE, $A4, $9A, $E4, $9B, $F3, $3F, $A1, $C9, $24, $92, $4D, $79, $CB
+	dc.b	$24, $93, $5C, $9A, $F7, $CC, $67, $9C, $92, $49, $2C, $B2, $CD, $72, $49, $24
+	dc.b	$93, $73, $D8, $CF, $39, $24, $DC, $FB, $F6, $7D, $67, $9C, $92, $CB, $37, $19
+	dc.b	$E7, $B3, $EF, $92, $49, $24, $93, $73, $E7, $26, $BC, $E4, $D7, $24, $92, $6B
+	dc.b	$CE, $CB, $35, $C9
 
 
 
@@ -90278,7 +90125,29 @@ Rings_SCZ_2:	BINCLUDE	"level/rings/SCZ_2.bin"
 ; --------------------------------------------------------------------------------------
 ; Filler (free space) (unnecessary; could be replaced with "even")
 ; --------------------------------------------------------------------------------------
-	align $200
+; Duplicate data from just before address $E8000.
+	dc.b	$A4, $2E, $24, $30, $84, $E0, $A4, $2E, $24, $40, $05, $6C, $74, $71, $24, $40
+	dc.b	$07, $68, $69, $82, $24, $40, $07, $84, $1C, $03, $24, $70, $84, $60, $A4, $2E
+	dc.b	$24, $A0, $85, $D0, $A4, $2E, $24, $A0, $86, $50, $A4, $2E, $24, $A0, $86, $D0
+	dc.b	$A4, $2E, $24, $A0, $87, $50, $A4, $2E, $25, $C0, $84, $A8, $79, $04, $26, $0C
+	dc.b	$04, $E0, $65, $20, $26, $40, $84, $CC, $65, $04, $26, $4C, $04, $E0, $65, $20
+	dc.b	$26, $8C, $04, $E0, $65, $20, $26, $CC, $04, $E0, $65, $20, $27, $0C, $04, $E0
+	dc.b	$65, $20, $27, $4C, $04, $E0, $65, $20, $27, $8C, $04, $E0, $65, $20, $27, $CC
+	dc.b	$04, $E0, $65, $20, $28, $0C, $04, $E0, $65, $20, $28, $4C, $04, $E0, $65, $20
+	dc.b	$28, $8C, $04, $E0, $65, $20, $28, $CC, $04, $E0, $65, $20, $29, $0C, $04, $E0
+	dc.b	$65, $20, $29, $4C, $04, $E0, $65, $20, $2C, $90, $84, $A0, $3E, $00, $FF, $FF
+	dc.b	$00, $00, $00, $00, $00, $60, $84, $E4, $B2, $52, $01, $A0, $84, $90, $B9, $76
+	dc.b	$01, $A8, $84, $70, $B9, $76, $01, $E0, $85, $20, $B9, $76, $01, $E8, $85, $40
+	dc.b	$B9, $76, $02, $00, $84, $F0, $B9, $76, $02, $08, $84, $90, $B9, $76, $02, $2B
+	dc.b	$24, $EF, $C0, $16, $05, $C6, $01, $B8, $8B, $02, $05, $C6, $04, $38, $8B, $03
+	dc.b	$05, $D8, $02, $40, $B4, $64, $05, $D8, $02, $C0, $B4, $64, $05, $D8, $03, $40
+	dc.b	$B4, $64, $05, $D8, $03, $C0, $B4, $64, $06, $58, $23, $E3, $BD, $7E, $06, $7B
+	dc.b	$81, $71, $26, $01, $06, $98, $83, $F1, $26, $05, $06, $B0, $01, $F0, $B6, $04
+	dc.b	$06, $B0, $84, $D1, $26, $05, $06, $CE, $84, $D1, $26, $04, $07, $5C, $21, $90
+	dc.b	$8B, $02, $07, $5C, $23, $10, $8B, $03, $07, $C0, $05, $E4, $B5, $66, $07, $C0
+	dc.b	$05, $F4, $B5, $66, $07, $F8, $05, $E0, $74, $03, $08, $20, $04, $67, $B6, $50
+	dc.b	$08, $40, $06, $24, $B5, $66, $08, $40, $06, $34, $B5, $66, $08, $60, $04, $C8
+	dc.b	$B6, $10, $08, $78, $06, $20, $74, $03, $08, $90, $04, $58
 
 ; --------------------------------------------------------------------------------------
 ; Offset index of object locations
@@ -90416,17 +90285,56 @@ Objects_SCZ_2:	BINCLUDE	"level/objects/SCZ_2.bin"
 	ObjectLayoutBoundary
 Objects_Null:
 	ObjectLayoutBoundary
-	; Another strange space for a layout
-	ObjectLayoutBoundary
-	; And another
-	ObjectLayoutBoundary
-	; And another
-	ObjectLayoutBoundary
 
 ; --------------------------------------------------------------------------------------
 ; Filler (free space) (unnecessary; could be replaced with "even")
 ; --------------------------------------------------------------------------------------
-	align $1000
+	; Junk data.
+	dc.b	$00, $00, $48, $00, $49, $41, $FA, $72, $30, $00, $42, $24, $40, $F9, $01, $00
+	dc.b	$30, $00, $82, $78, $02, $D8, $02, $42, $6E, $1C, $42, $1C, $4A, $42, $26, $30
+	dc.b	$01, $81, $78, $02, $D8, $02, $41, $6E, $1E, $41, $1E, $49, $41, $20, $03, $6E
+	dc.b	$10, $16, $2E, $26, $2E, $20, $F8, $00, $B9, $03, $1A, $02, $56, $F9, $05, $7E
+	dc.b	$AC, $A8, $A4, $A0, $9C, $A0, $A4, $A8, $AC, $A8, $A4, $A0, $9C, $A0, $A4, $A8
+	dc.b	$2E, $01, $01, $3C, $56, $02, $B9, $03, $58, $7C, $FF, $80, $40, $18, $B9, $03
+	dc.b	$58, $7C, $7F, $40, $40, $40, $40, $1A, $3C, $60, $43, $30, $43, $43, $32, $7C
+	dc.b	$98, $24, $6E, $1A, $1C, $2E, $24, $7C, $FF, $B9, $03, $58, $7C, $03, $58, $40
+	dc.b	$41, $24, $1C, $6E, $18, $7C, $00, $22, $EE, $30, $03, $6E, $10, $02, $49, $51
+	dc.b	$24, $07, $6E, $10, $1E, $2E, $26, $2E, $20, $F8, $00, $B9, $03, $1A, $0A, $BC
+	dc.b	$29, $7C, $0F, $02, $B9, $05, $E0, $F9, $05, $7E, $2E, $01, $01, $78, $56, $02
+	dc.b	$3C, $D8, $3C, $D4, $3C, $B8, $78, $1A, $0C, $7C, $00, $7C, $00, $7C, $00, $43
+	dc.b	$24, $7C, $00, $22, $6E, $20, $43, $10, $6E, $2E, $43, $24, $7C, $00, $22, $69
+	dc.b	$26, $69, $20, $69, $2E, $42, $24, $69, $2E, $42, $24, $69, $2E, $42, $24, $69
+	dc.b	$2E, $42, $24, $69, $2E, $40, $24, $7C, $20, $5E, $6E, $5E, $06, $F9, $03, $00
+	dc.b	$2E, $5E, $40, $1F, $40, $FA, $6C, $FC, $05, $C0, $04, $6E, $2E, $69, $2E, $00
+	dc.b	$1A, $2E, $26, $40, $46, $26, $CF, $EC, $6E, $00, $24, $6E, $2E, $69, $00, $24
+	dc.b	$69, $2E, $69, $00, $24, $69, $2E, $69, $00, $24, $69, $2E, $69, $00, $24, $69
+	dc.b	$2E, $69, $00, $24, $69, $2E, $69, $00, $24, $F9, $05, $7E, $00, $00, $00, $00
+	dc.b	$1C, $00, $00, $00, $00, $24, $00, $18, $00, $00, $30, $00, $18, $00, $00, $40
+	dc.b	$00, $28, $00, $20, $50, $00, $38, $00, $40, $60, $20, $50, $00, $40, $80, $30
+	dc.b	$70, $20, $60, $A0, $48, $88, $28, $68, $A8, $48, $88, $28, $68, $A8, $40, $80
+	dc.b	$20, $50, $90, $20, $60, $00, $30, $70, $00, $40, $00, $20, $50, $00, $20, $00
+	dc.b	$00, $38, $00, $10, $00, $00, $28, $00, $00, $00, $00, $18, $56, $14, $00, $2E
+	dc.b	$26, $2E, $20, $01, $F9, $03, $34, $3C, $00, $00, $39, $FF, $34, $7C, $A0, $06
+	dc.b	$3C, $00, $FF, $FC, $FF, $6E, $C1, $70, $C2, $1A, $56, $75, $F8, $26, $4C, $F8
+	dc.b	$2A, $4E, $78, $26, $78, $2A, $F8, $3C, $50, $F8, $2C, $52, $FC, $FF, $18, $56
+	dc.b	$75, $16, $7C, $02, $0A, $2E, $0E, $00, $96, $75, $2E, $18, $10, $08, $40, $02
+	dc.b	$00, $06, $40, $02, $00, $2E, $1A, $41, $40, $18, $41, $1A, $6E, $1C, $6E, $1E
+	dc.b	$2E, $1C, $2E, $1E, $48, $49, $40, $26, $41, $20, $7C, $64, $28, $6E, $0C, $0C
+	dc.b	$56, $6E, $2A, $69, $0E, $75, $6E, $0E, $56, $02, $7C, $10, $26, $7C, $10, $20
+	dc.b	$75, $2E, $10, $6E, $0C, $7C, $03, $14, $0F, $00, $2E, $26, $2E, $20, $FF, $F9
+	dc.b	$03, $34, $75, $F8, $4C, $26, $F8, $4E, $2A, $F8, $50, $3C, $F8, $52, $2C, $78
+	dc.b	$18, $56, $7C, $18, $68, $02, $18, $7C, $2C, $7C, $AC, $E8, $40, $E8, $40, $A8
+	dc.b	$44, $A8, $44, $75, $3C, $30, $00, $6E, $04, $41, $04, $40, $54, $00, $2E, $16
+	dc.b	$00, $DA, $40, $40, $FB, $02, $00, $2A, $00, $10, $00, $B0, $00, $62, $00, $0E
+	dc.b	$00, $18, $00, $22, $00, $BE, $00, $AA, $00, $DE, $00, $8E, $FA, $D0, $3C, $00
+	dc.b	$0E, $3C, $80, $08, $00, $06, $47, $43, $30, $43, $34, $43, $38, $43, $3C, $43
+	dc.b	$40, $43, $44, $43, $48, $43, $4C, $43, $50, $43, $54, $43, $58, $43, $5C, $1C
+	dc.b	$41, $24, $46, $0C, $44, $0E, $5C, $22, $45, $5E, $46, $28, $2E, $B0, $48, $46
+	dc.b	$38, $1C, $48, $7C, $FF, $40, $3C, $40, $5C, $6E, $2E, $68, $2E, $49, $40, $7C
+	dc.b	$18, $0A, $69, $2E, $7C, $18, $0A, $E9, $04, $24, $69, $2E, $49, $42, $45, $06
+	dc.b	$7C, $18, $68, $02, $1A, $7C, $2C, $7C, $AC, $52, $40, $6A, $04, $44, $D4, $DC
+	dc.b	$94, $94, $6E, $16, $75, $0F, $0F, $0E, $0E, $0F, $0F, $0F, $0F, $26, $4A, $8E
+	dc.b	$CE, $78, $18, $16, $38, $96
 
 
 

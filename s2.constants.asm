@@ -1259,15 +1259,13 @@ Block_cache:			ds.w	512/16*2	; Width of plane in blocks, with each block getting
 Ring_consumption_table:		ds.b	$80	; contains RAM addresses of rings currently being consumed
 Ring_consumption_table_End:
 
-Underwater_target_palette:		ds.b palette_line_size	; This is used by the screen-fading subroutines.
-Underwater_target_palette_line2:	ds.b palette_line_size	; While Underwater_palette contains the blacked-out palette caused by the fading,
-Underwater_target_palette_line3:	ds.b palette_line_size	; Underwater_target_palette will contain the palette the screen will ultimately fade in to.
-Underwater_target_palette_line4:	ds.b palette_line_size
-
-Underwater_palette:		ds.b palette_line_size	; main palette for underwater parts of the screen
-Underwater_palette_line2:	ds.b palette_line_size
-Underwater_palette_line3:	ds.b palette_line_size
-Underwater_palette_line4:	ds.b palette_line_size
+    if fixBugs
+Current_sprite_table_page:	ds.b	1
+Sprite_table_page_flip_pending:	ds.b	1
+				ds.b	$FE	; unused
+    else
+				ds.b	$100	; unused
+    endif
 
     if fixBugs
 Sprite_Table_Alternate:		ds.b	$280
@@ -1525,15 +1523,19 @@ ButtonVine_Trigger:		ds.b	$10	; 16 bytes flag array, #subtype byte set when butt
 Anim_Counters:			ds.b	$10	; $FFFFF7F0-$FFFFF7FF
 Misc_Variables_End:
 
-Sprite_Table:			ds.b	$280	; Sprite attribute table buffer
+Sprite_Table:			ds.b	$200	; Sprite attribute table buffer
+; This overwrites the last $80 bytes of the sprite table.
+Underwater_target_palette:		ds.b palette_line_size	; This is used by the screen-fading subroutines.
+Underwater_target_palette_line2:	ds.b palette_line_size	; While Underwater_palette contains the blacked-out palette caused by the fading,
+Underwater_target_palette_line3:	ds.b palette_line_size	; Underwater_target_palette will contain the palette the screen will ultimately fade in to.
+Underwater_target_palette_line4:	ds.b palette_line_size
 Sprite_Table_End:
-    if fixBugs
-Current_sprite_table_page:	ds.b	1
-Sprite_table_page_flip_pending:	ds.b	1
-				ds.b	$7E	; unused
-    else
-				ds.b	$80	; unused, but SAT buffer can spill over into this area when there are too many sprites on-screen
-    endif
+
+; SAT buffer can spill over into this area when there are too many sprites on-screen
+Underwater_palette:		ds.b palette_line_size	; main palette for underwater parts of the screen
+Underwater_palette_line2:	ds.b palette_line_size
+Underwater_palette_line3:	ds.b palette_line_size
+Underwater_palette_line4:	ds.b palette_line_size
 
 Normal_palette:			ds.b	palette_line_size	; main palette for non-underwater parts of the screen
 Normal_palette_line2:		ds.b	palette_line_size
@@ -1737,8 +1739,7 @@ Options_menu_box:		ds.b	1
 Total_Bonus_Countdown:		ds.w	1
 				
 Level_Music:			ds.w	1
-Bonus_Countdown_3:		ds.w	1
-				ds.b	4	; $FFFFFF94-$FFFFFF97 ; seems unused
+				ds.b	6	; $FFFFFF94-$FFFFFF97 ; seems unused
 Game_Over_2P:			ds.w	1
 
 				ds.b	6	; $FFFFFF9A-$FFFFFF9F ; seems unused
@@ -1800,6 +1801,13 @@ RAM_End
     if * > 0	; Don't declare more space than the RAM can contain!
 	fatal "The RAM variable declarations are too large by $\{*} bytes."
     endif
+	dephase
+
+; Error handler
+	phase Object_Respawn_Table
+v_regbuffer:	ds.b	$40	; stores registers d0-a7 during an error event
+v_spbuffer:	ds.l	1	; stores most recent sp address
+v_errortype:	ds.b	1	; error type
 	dephase
 
 ; RAM variables - SEGA screen
@@ -1956,10 +1964,8 @@ SS_Star_color_2:			ds.b	1
 SS_NoCheckpointMsg_flag:		ds.b	1
 					ds.b	1
 SS_NoRingsTogoLifetime:			ds.w	1
-SS_RingsToGoBCD:			ds.w	1
 SS_HideRingsToGo:			ds.b	1
-SS_TriggerRingsToGo:			ds.b	1
-					ds.b	$58	; unused
+					ds.b	$5B	; unused
 
     if * > SS_Shared_RAM_End
 	fatal "Special stage variables exceed size of shared RAM."
@@ -2134,6 +2140,9 @@ VRAM_Menu_Plane_Table_Size               = $1000	; 64 cells x 32 cells x 2 bytes
 ; From here on, art tiles are used; VRAM address is art tile * $20.
 ArtTile_VRAM_Start                    = $0000
 
+; Error Handler
+ArtTile_Error_Handler_Font            = $07C0
+
 ; Common to 1p and 2p menus.
 ArtTile_ArtNem_FontStuff              = $0010
 
@@ -2148,10 +2157,11 @@ ArtTile_ArtNem_TitleSprites           = $0150
 ArtTile_ArtNem_MenuJunk               = $03F2
 ArtTile_ArtNem_Player1VS2             = $0402
 ArtTile_ArtNem_CreditText             = $0500
+ArtTile_ArtNem_ErrorFont              = $0540
 ArtTile_ArtNem_FontStuff_TtlScr       = $0680
 
 ; Credits screen
-ArtTile_ArtNem_CreditText_CredScr     = $0001
+ArtTile_ArtNem_CreditText_CredScr     = $0002
 
 ; Menu background.
 ArtTile_ArtNem_MenuBox                = $0070
@@ -2160,7 +2170,7 @@ ArtTile_ArtNem_MenuBox                = $0070
 ArtTile_ArtNem_LevelSelectPics        = $0090
 
 ; 2p results screen.
-ArtTile_ArtNem_1P2PWins               = $0070
+ArtTile_ArtNem_1P2PWins               = $0060
 ArtTile_ArtNem_SpecialPlayerVSPlayer  = $03DF
 ArtTile_ArtNem_2p_Signpost            = $05E8
 ArtTile_TwoPlayerResults              = $0600

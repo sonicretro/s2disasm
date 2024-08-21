@@ -1724,10 +1724,6 @@ zPlayMusic:
 	xor	a
 	ld	(zAbsVar.1upPlaying),a		; clear 1-up is playing flag (it isn't)
 	ld	(zAbsVar.FadeInCounter),a	; clear fade-in frame count
-    if ~~OptimiseDriver
-	; zInitMusicPlayback already does this.
-	ld	(zAbsVar.FadeOutCounter),a	; clear fade-out frame count
-    endif
 
 ; zloc_78E
 zBGMLoad:
@@ -3218,18 +3214,6 @@ cfSetTempoMod:
 	pop	ix	; Restore 'ix'
 	ret
 ; ---------------------------------------------------------------------------
-; This controls which TL registers are set for a particular
-; algorithm; it actually makes more sense to look at a zVolTLMaskTbl entry as a bitfield.
-; Bit 0-4 set which TL operators are actually effected for setting a volume;
-; this table helps implement the following from the Sega Tech reference:
-; "To make a note softer, only change the TL of the slots (the output operators).
-; Changing the other operators will affect the flavor of the note."
-; zloc_DF1
-	ensure1byteoffset 8
-zVolTLMaskTbl:
-	db	  8,  8,  8,  8
-	db	0Ch,0Eh,0Eh,0Fh
-; ---------------------------------------------------------------------------
 
 ; Alters a channel's volume by xx. This is only meant to be used by PSG channels. 
 ; zloc_DF9 cfChangeVolume
@@ -3245,10 +3229,23 @@ cfChangePSGVolume:
 ; This broken code is all that's left of it.
 ; zlocret_E00 cfUnused cfUnused1
 cfClearPush:
-    if (~~OptimiseDriver)&&(~~FixDriverBugs)
+    if FixDriverBugs
+	dec	hl	; Put back byte; does nothing
+    endif
 	; Dangerous!  It doesn't put back the byte read, meaning one gets skipped!
 	ret
-    endif
+; ---------------------------------------------------------------------------
+; This controls which TL registers are set for a particular
+; algorithm; it actually makes more sense to look at a zVolTLMaskTbl entry as a bitfield.
+; Bit 0-4 set which TL operators are actually effected for setting a volume;
+; this table helps implement the following from the Sega Tech reference:
+; "To make a note softer, only change the TL of the slots (the output operators).
+; Changing the other operators will affect the flavor of the note."
+; zloc_DF1
+	ensure1byteoffset 8
+zVolTLMaskTbl:
+	db	  8,  8,  8,  8
+	db	0Ch,0Eh,0Eh,0Fh
 ; ---------------------------------------------------------------------------
 
 ; Unused command EEh

@@ -26,13 +26,12 @@ Map_obj0F_0048:	spriteHeader
 Map_obj0F_0048_End
 
 Map_obj0F_008A:	spriteHeader
-	spritePiece	-$24, -8, 1, 1, $69C, 0, 0, 3, 0
-	spritePiece	-$1C, -8, 1, 1, $69D, 0, 0, 3, 0
-	spritePiece	-$14, -8, 1, 1, $6A1, 0, 0, 3, 0
-	spritePiece	-$C, -8, 1, 1, $696, 0, 0, 3, 0
-	spritePiece	-4, -8, 1, 1, $69C, 0, 0, 3, 0
-	spritePiece	4, -8, 1, 1, $69B, 0, 0, 3, 0
-	spritePiece	$C, -8, 1, 1, $6A0, 0, 0, 3, 0
+	spritePiece	-$20, -8, 1, 1, $69C, 0, 0, 3, 0
+	spritePiece	-$18, -8, 1, 1, $69D, 0, 0, 3, 0
+	spritePiece	-$10, -8, 1, 1, $6A1, 0, 0, 3, 0
+	spritePiece	-$8, -8, 1, 1, $696, 0, 0, 3, 0
+	spritePiece	0, -8, 1, 1, $69C, 0, 0, 3, 0
+	spritePiece	8, -8, 1, 1, $69B, 0, 0, 3, 0
 	spritePiece	-$44, -8, 2, 1, $3FA, 0, 0, 3, 0
 Map_obj0F_008A_End
 
