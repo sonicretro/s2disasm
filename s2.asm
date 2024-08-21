@@ -10525,6 +10525,13 @@ ObjDB_Sonic_Init:
 	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a0)
 	move.b	#4,render_flags(a0)
 	move.b	#2,priority(a0)
+    if fixBugs
+	; Super Sonic is missing the Lying and LieDown animations. Trying to
+	; display the second one will crash the game. To prevent that, switch
+	; to regular Sonic. (Not to mention the continue screen uses the
+	; regular Sonic palette anyway.)
+	move.b	#0,(Super_Sonic_flag).w
+    endif
 	move.b	#AniIDSonAni_Lying,anim(a0)
 
 ; loc_7BD2:
@@ -38279,6 +38286,8 @@ SuperSonicAniData: offsetTable
 	offsetTableEntry.w SonAni_Balance3	; 29 ; $1D
 	offsetTableEntry.w SonAni_Balance4	; 30 ; $1E
 	offsetTableEntry.w SupSonAni_Transform	; 31 ; $1F
+	; NOTE: Lying and LieDown animations are missing. This causes a crash
+	; on the continue screen. See ObjDB_Sonic_Init for the fix.
 
 SupSonAni_Walk:		dc.b $FF,$77,$78,$79,$7A,$7B,$7C,$75,$76,$FF
 	rev02even
@@ -38417,6 +38426,24 @@ Obj02_Init_Continued:
 	move.w	top_solid_bit(a0),(Saved_Solid_bits_2P).w
 	move.b	#0,flips_remaining(a0)
 	move.b	#4,flip_speed(a0)
+    if fixBugs
+	; The Super Sonic flag can be carried to the title screen by either
+	; watching the Super Sonic ending or resetting/getting a game over
+	; while playing as Super Sonic. If you then start a Tails Alone game,
+	; the flag will stay set throughout the game, as it's only reset by the
+	; Sonic object and the ending sequence.
+	; This causes the following bugs:
+	; - Invincibility monitors don't work (see invincible_monitor)
+	; - WFZ->DEZ cutscene will desync (see ObjB2_Prepare_to_jump)
+	; - The crash that happens with Super Sonic on the continue screen.
+	;   (see ObjDB_Sonic_Init)
+	; To fix this, we make the Tails object clear the flag too.
+	; TODO: figure out if it's safe to do this unconditionally
+	cmpi.w	#2,(Player_mode).w
+	bne.s	+
+	move.b	#0,(Super_Sonic_flag).w
++
+    endif
 	move.b	#30,air_left(a0)
 	move.w	#0,(Tails_CPU_routine).w	; set AI state to TailsCPU_Init
 	move.w	#0,(Tails_control_counter).w
