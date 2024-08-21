@@ -3355,7 +3355,7 @@ zSetVoice:
 	add	a,4		; Next detune/coarse freq register
 	djnz	.detuneloop
 
-	push	af		; Daving 'a' for much later... will be restored when time to "Total Level"
+	push	af		; Saving 'a' for much later... will be restored when time to "Total Level"
 
 	; other regs up to just before "total level", all channels
 	add	a,10h		; We're at 40h+, now at 50h+ (RS/AR of operator 1 register)

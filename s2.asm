@@ -26983,7 +26983,7 @@ Obj0E_MapUnc_136A8:	include "mappings/sprite/obj0E.asm"
 ; -----------------------------------------------------------------------------
 Obj0F_MapUnc_13B70:	include "mappings/sprite/obj0F.asm"
 
-	jmpTos JmpTo4_PlaySound,JmpTo4_PlayMusic
+	jmpTos0 JmpTo4_PlaySound,JmpTo4_PlayMusic
 
 
 
@@ -33414,6 +33414,8 @@ Objects_CNZ2_2P:	BINCLUDE	"level/objects/CNZ_2_2P.bin"
     endif
 
 	ObjectLayoutBoundary
+
+	jmpTos ; Empty
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -51457,6 +51459,7 @@ Obj2C_Main:
 	bhi.w	JmpTo29_DeleteObject
     if fixBugs
 	; This object never actually displays itself, even in Debug Mode.
+	; This code exists in Beta 8.
 	tst.w	(Debug_placement_mode).w
 	beq.s	+
 	jsr	(DisplaySprite).l
@@ -70970,7 +70973,7 @@ Obj5A_Rainbow_Positions:
 	move.w	#$80,d3
 	bsr.w	Obj5A_CreateCheckpointWingedHand
 	add.w	d6,art_tile(a1)
-	add.w	d6,2(a2)
+	add.w	d6,art_tile(a2)
 	bsr.w	Obj5A_PrintPhrase
 	bra.w	JmpTo63_DeleteObject
 ; ===========================================================================
@@ -71399,7 +71402,6 @@ byte_35DD6:
 	dc.b $74	; 4
 	dc.b $3C	; 5
 	dc.b $58	; 6
-	dc.b   0	; 7
 	even
 
 ; Text phrases
@@ -71835,7 +71837,7 @@ byte_36502: dc.b   2, $A, $B, $C,$FF
 Obj61_MapUnc_36508:	include "mappings/sprite/obj61.asm"
 ; ===========================================================================
 
-	jmpTos JmpTo44_DisplaySprite,JmpTo63_DeleteObject,JmpTo24_AnimateSprite,JmpTo_SSStartNewAct,JmpTo_CalcAngle,JmpTo14_CalcSine,JmpTo7_ObjectMoveAndFall,JmpTo_SSAllocateObjectAfterCurrent,JmpTo2_SSAllocateObject
+	jmpTos0 JmpTo44_DisplaySprite,JmpTo63_DeleteObject,JmpTo24_AnimateSprite,JmpTo_SSStartNewAct,JmpTo_CalcAngle,JmpTo14_CalcSine,JmpTo7_ObjectMoveAndFall,JmpTo_SSAllocateObjectAfterCurrent,JmpTo2_SSAllocateObject
 
     if removeJmpTos
 JmpTo44_DisplaySprite ; JmpTo
@@ -83815,7 +83817,7 @@ Scale_2x_RightPixels2:
 
 ; ===========================================================================
 
-	jmpTos JmpTo5_DisplaySprite3,JmpTo45_DisplaySprite,JmpTo65_DeleteObject,JmpTo19_AllocateObject,JmpTo39_MarkObjGone,JmpTo6_DeleteObject2,JmpTo12_PlaySound,JmpTo25_AllocateObjectAfterCurrent,JmpTo25_AnimateSprite,JmpTo_PlaySoundLocal,JmpTo6_RandomNumber,JmpTo2_MarkObjGone_P1,JmpTo_Pal_FadeToWhite.UpdateColour,JmpTo_LoadTailsDynPLC_Part2,JmpTo_LoadSonicDynPLC_Part2,JmpTo8_MarkObjGone3,JmpTo64_Adjust2PArtPointer,JmpTo5_PlayMusic,JmpTo_Boss_LoadExplosion,JmpTo9_PlatformObject,JmpTo27_SolidObject,JmpTo8_ObjectMoveAndFall,JmpTo26_ObjectMove
+	jmpTos0 JmpTo5_DisplaySprite3,JmpTo45_DisplaySprite,JmpTo65_DeleteObject,JmpTo19_AllocateObject,JmpTo39_MarkObjGone,JmpTo6_DeleteObject2,JmpTo12_PlaySound,JmpTo25_AllocateObjectAfterCurrent,JmpTo25_AnimateSprite,JmpTo_PlaySoundLocal,JmpTo6_RandomNumber,JmpTo2_MarkObjGone_P1,JmpTo_Pal_FadeToWhite.UpdateColour,JmpTo_LoadTailsDynPLC_Part2,JmpTo_LoadSonicDynPLC_Part2,JmpTo8_MarkObjGone3,JmpTo64_Adjust2PArtPointer,JmpTo5_PlayMusic,JmpTo_Boss_LoadExplosion,JmpTo9_PlatformObject,JmpTo27_SolidObject,JmpTo8_ObjectMoveAndFall,JmpTo26_ObjectMove
 
 
 
