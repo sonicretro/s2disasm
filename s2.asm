@@ -69873,7 +69873,7 @@ return_34F26:
 
 loc_34F28:
 	move.w	#8,d6
-	bsr.w	loc_350A0
+	bsr.w	Obj61_TestCollision
 	bcc.s	return_34F68
 	move.b	#1,collision_property(a1)
 	move.w	#SndID_SlowSmash,d0
@@ -69966,7 +69966,7 @@ loc_35010:
 
 loc_35036:
 	move.w	#$A,d6
-	bsr.w	loc_350A0
+	bsr.w	Obj61_TestCollision
 	bcc.s	return_3509E
 	cmpa.l	#MainCharacter,a1
 	bne.s	loc_3504E
@@ -70003,8 +70003,8 @@ loc_35094:
 return_3509E:
 	rts
 ; ===========================================================================
-
-loc_350A0:
+; loc_350A0:
+Obj61_TestCollision:
 	cmpi.b	#8,anim(a0)
 	bne.s	loc_350DC
 	tst.b	collision_flags(a0)
