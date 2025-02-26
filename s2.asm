@@ -14613,13 +14613,13 @@ LevelSizeLoad:
 	lsr.w	#4,d0
 	lea	LevelSize(pc,d0.w),a0
 	move.l	(a0)+,d0
-	move.l	d0,(Camera_Min_X_pos).w
-	move.l	d0,(Camera_Min_X_pos_target).w
-	move.l	d0,(Tails_Min_X_pos).w
+	move.l	d0,(Camera_Min_X_pos).w		; Also sets Camera_Max_X_pos.
+	move.l	d0,(Camera_Min_X_pos_target).w	; Also sets Camera_Max_X_pos_target.
+	move.l	d0,(Tails_Min_X_pos).w		; Also sets Tails_Max_X_pos.
 	move.l	(a0)+,d0
-	move.l	d0,(Camera_Min_Y_pos).w
-	move.l	d0,(Camera_Min_Y_pos_target).w
-	move.l	d0,(Tails_Min_Y_pos).w
+	move.l	d0,(Camera_Min_Y_pos).w		; Also sets Camera_Max_Y_pos.
+	move.l	d0,(Camera_Min_Y_pos_target).w	; Also sets Camera_Max_Y_pos_target.
+	move.l	d0,(Tails_Min_Y_pos).w		; Also sets Tails_Max_Y_pos.
 	move.w	#$1010,(Horiz_block_crossed_flag).w
 	move.w	#(224/2)-16,(Camera_Y_pos_bias).w
 	move.w	#(224/2)-16,(Camera_Y_pos_bias_P2).w
