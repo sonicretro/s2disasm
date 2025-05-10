@@ -1,4 +1,4 @@
-CFLAGS := -O2 -s -std=c99 -Wall -Wextra -pedantic -fno-ident
+CFLAGS := -O2 -s -std=c99 -Wall -Wextra -pedantic -fno-ident -DNDEBUG
 
 all: saxman
 
