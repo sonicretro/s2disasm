@@ -279,3 +279,30 @@ childObjectData macro objoff, objectID, subtype
 	dc.w	objoff
 	dc.b	objectID, subtype
 	endm
+
+; macro to simplify editing the demo scripts
+demoinput macro buttons,duration
+btns_mask := 0
+  irpc btn,"buttons"
+    switch "btn"
+    case "U"
+btns_mask := btns_mask|button_up_mask
+    case "D"
+btns_mask := btns_mask|button_down_mask
+    case "L"
+btns_mask := btns_mask|button_left_mask
+    case "R"
+btns_mask := btns_mask|button_right_mask
+    case "A"
+btns_mask := btns_mask|button_A_mask
+    case "B"
+btns_mask := btns_mask|button_B_mask
+    case "C"
+btns_mask := btns_mask|button_C_mask
+    case "S"
+btns_mask := btns_mask|button_start_mask
+    elsecase
+    endcase
+  endm
+	dc.b	btns_mask,duration-1
+ endm
