@@ -90639,12 +90639,17 @@ SndDAC_End
 ; ---------------------------------------------------------------------------
 ; Music pointers
 ; ---------------------------------------------------------------------------
+
+music_ptr macro DATA
+DATA.pointer label *
+	rom_ptr_z80	DATA
+    endm
+
 ; loc_F0000:
 MusicPoint1:	startBank
-MusPtr_Continue:	rom_ptr_z80	Mus_Continue
+		music_ptr	Mus_Continue
 
-
-Mus_Continue:   BINCLUDE	"sound/music/compressed/9C - Continue.sax"
+Mus_Continue:	include	"sound/music/compressed/9C - Continue.inc"
 
 	finishBank
 
@@ -90740,69 +90745,68 @@ Snd_Sega_End:
 ; ------------------------------------------------------------------------------
 ; loc_F8000:
 MusicPoint2:	startBank
-MusPtr_CNZ_2P:		rom_ptr_z80	Mus_CNZ_2P
-MusPtr_EHZ:		rom_ptr_z80	Mus_EHZ
-MusPtr_MTZ:		rom_ptr_z80	Mus_MTZ
-MusPtr_CNZ:		rom_ptr_z80	Mus_CNZ
-MusPtr_MCZ:		rom_ptr_z80	Mus_MCZ
-MusPtr_MCZ_2P:		rom_ptr_z80	Mus_MCZ_2P
-MusPtr_ARZ:		rom_ptr_z80	Mus_ARZ
-MusPtr_DEZ:		rom_ptr_z80	Mus_DEZ
-MusPtr_SpecStage:	rom_ptr_z80	Mus_SpecStage
-MusPtr_Options:		rom_ptr_z80	Mus_Options
-MusPtr_Ending:		rom_ptr_z80	Mus_Ending
-MusPtr_EndBoss:		rom_ptr_z80	Mus_EndBoss
-MusPtr_CPZ:		rom_ptr_z80	Mus_CPZ
-MusPtr_Boss:		rom_ptr_z80	Mus_Boss
-MusPtr_SCZ:		rom_ptr_z80	Mus_SCZ
-MusPtr_OOZ:		rom_ptr_z80	Mus_OOZ
-MusPtr_WFZ:		rom_ptr_z80	Mus_WFZ
-MusPtr_EHZ_2P:		rom_ptr_z80	Mus_EHZ_2P
-MusPtr_2PResult:	rom_ptr_z80	Mus_2PResult
-MusPtr_SuperSonic:	rom_ptr_z80	Mus_SuperSonic
-MusPtr_HTZ:		rom_ptr_z80	Mus_HTZ
-MusPtr_ExtraLife:	rom_ptr_z80	Mus_ExtraLife
-MusPtr_Title:		rom_ptr_z80	Mus_Title
-MusPtr_EndLevel:	rom_ptr_z80	Mus_EndLevel
-MusPtr_GameOver:	rom_ptr_z80	Mus_GameOver
-MusPtr_Invincible:	rom_ptr_z80	Mus_Invincible
-MusPtr_Emerald:		rom_ptr_z80	Mus_Emerald
-MusPtr_HPZ:		rom_ptr_z80	Mus_HPZ
-MusPtr_Drowning:	rom_ptr_z80	Mus_Drowning
-MusPtr_Credits:		rom_ptr_z80	Mus_Credits
+		music_ptr	Mus_CNZ_2P
+		music_ptr	Mus_EHZ
+		music_ptr	Mus_MTZ
+		music_ptr	Mus_CNZ
+		music_ptr	Mus_MCZ
+		music_ptr	Mus_MCZ_2P
+		music_ptr	Mus_ARZ
+		music_ptr	Mus_DEZ
+		music_ptr	Mus_SpecStage
+		music_ptr	Mus_Options
+		music_ptr	Mus_Ending
+		music_ptr	Mus_EndBoss
+		music_ptr	Mus_CPZ
+		music_ptr	Mus_Boss
+		music_ptr	Mus_SCZ
+		music_ptr	Mus_OOZ
+		music_ptr	Mus_WFZ
+		music_ptr	Mus_EHZ_2P
+		music_ptr	Mus_2PResult
+		music_ptr	Mus_SuperSonic
+		music_ptr	Mus_HTZ
+		music_ptr	Mus_ExtraLife
+		music_ptr	Mus_Title
+		music_ptr	Mus_EndLevel
+		music_ptr	Mus_GameOver
+		music_ptr	Mus_Invincible
+		music_ptr	Mus_Emerald
+		music_ptr	Mus_HPZ
+		music_ptr	Mus_Drowning
+		music_ptr	Mus_Credits
 
 ; loc_F803C:
-Mus_HPZ:	BINCLUDE	"sound/music/compressed/90 - HPZ.sax"
-Mus_Drowning:	BINCLUDE	"sound/music/compressed/9F - Drowning.sax"
-Mus_Invincible:	BINCLUDE	"sound/music/compressed/97 - Invincible.sax"
-Mus_CNZ_2P:	BINCLUDE	"sound/music/compressed/88 - CNZ 2P.sax"
-Mus_EHZ:	BINCLUDE	"sound/music/compressed/82 - EHZ.sax"
-Mus_MTZ:	BINCLUDE	"sound/music/compressed/85 - MTZ.sax"
-Mus_CNZ:	BINCLUDE	"sound/music/compressed/89 - CNZ.sax"
-Mus_MCZ:	BINCLUDE	"sound/music/compressed/8B - MCZ.sax"
-Mus_MCZ_2P:	BINCLUDE	"sound/music/compressed/83 - MCZ 2P.sax"
-Mus_ARZ:	BINCLUDE	"sound/music/compressed/87 - ARZ.sax"
-Mus_DEZ:	BINCLUDE	"sound/music/compressed/8A - DEZ.sax"
-Mus_SpecStage:	BINCLUDE	"sound/music/compressed/92 - Special Stage.sax"
-Mus_Options:	BINCLUDE	"sound/music/compressed/91 - Options.sax"
-Mus_Ending:	BINCLUDE	"sound/music/compressed/95 - Ending.sax"
-Mus_EndBoss:	BINCLUDE	"sound/music/compressed/94 - Final Boss.sax"
-Mus_CPZ:	BINCLUDE	"sound/music/compressed/8E - CPZ.sax"
-Mus_Boss:	BINCLUDE	"sound/music/compressed/93 - Boss.sax"
-Mus_SCZ:	BINCLUDE	"sound/music/compressed/8D - SCZ.sax"
-Mus_OOZ:	BINCLUDE	"sound/music/compressed/84 - OOZ.sax"
-Mus_WFZ:	BINCLUDE	"sound/music/compressed/8F - WFZ.sax"
-Mus_EHZ_2P:	BINCLUDE	"sound/music/compressed/8C - EHZ 2P.sax"
-Mus_2PResult:	BINCLUDE	"sound/music/compressed/81 - 2 Player Menu.sax"
-Mus_SuperSonic:	BINCLUDE	"sound/music/compressed/96 - Super Sonic.sax"
-Mus_HTZ:	BINCLUDE	"sound/music/compressed/86 - HTZ.sax"
-Mus_Title:	BINCLUDE	"sound/music/compressed/99 - Title Screen.sax"
-Mus_EndLevel:	BINCLUDE	"sound/music/compressed/9A - End of Act.sax"
-
-Mus_ExtraLife:	include		"sound/music/98 - Extra Life.asm"
-Mus_GameOver:	include		"sound/music/9B - Game Over.asm"
-Mus_Emerald:	include		"sound/music/9D - Got Emerald.asm"
-Mus_Credits:	include		"sound/music/9E - Credits.asm"
+Mus_HPZ:	include	"sound/music/compressed/90 - HPZ.inc"
+Mus_Drowning:	include	"sound/music/compressed/9F - Drowning.inc"
+Mus_Invincible:	include	"sound/music/compressed/97 - Invincible.inc"
+Mus_CNZ_2P:	include	"sound/music/compressed/88 - CNZ 2P.inc"
+Mus_EHZ:	include	"sound/music/compressed/82 - EHZ.inc"
+Mus_MTZ:	include	"sound/music/compressed/85 - MTZ.inc"
+Mus_CNZ:	include	"sound/music/compressed/89 - CNZ.inc"
+Mus_MCZ:	include	"sound/music/compressed/8B - MCZ.inc"
+Mus_MCZ_2P:	include	"sound/music/compressed/83 - MCZ 2P.inc"
+Mus_ARZ:	include	"sound/music/compressed/87 - ARZ.inc"
+Mus_DEZ:	include	"sound/music/compressed/8A - DEZ.inc"
+Mus_SpecStage:	include	"sound/music/compressed/92 - Special Stage.inc"
+Mus_Options:	include	"sound/music/compressed/91 - Options.inc"
+Mus_Ending:	include	"sound/music/compressed/95 - Ending.inc"
+Mus_EndBoss:	include	"sound/music/compressed/94 - Final Boss.inc"
+Mus_CPZ:	include	"sound/music/compressed/8E - CPZ.inc"
+Mus_Boss:	include	"sound/music/compressed/93 - Boss.inc"
+Mus_SCZ:	include	"sound/music/compressed/8D - SCZ.inc"
+Mus_OOZ:	include	"sound/music/compressed/84 - OOZ.inc"
+Mus_WFZ:	include	"sound/music/compressed/8F - WFZ.inc"
+Mus_EHZ_2P:	include	"sound/music/compressed/8C - EHZ 2P.inc"
+Mus_2PResult:	include	"sound/music/compressed/81 - 2 Player Menu.inc"
+Mus_SuperSonic:	include	"sound/music/compressed/96 - Super Sonic.inc"
+Mus_HTZ:	include	"sound/music/compressed/86 - HTZ.inc"
+Mus_Title:	include	"sound/music/compressed/99 - Title Screen.inc"
+Mus_EndLevel:	include	"sound/music/compressed/9A - End of Act.inc"
+Mus_ExtraLife:	include	"sound/music/compressed/98 - Extra Life.inc"
+Mus_GameOver:	include	"sound/music/compressed/9B - Game Over.inc"
+Mus_Emerald:	include	"sound/music/compressed/9D - Got Emerald.inc"
+Mus_Credits:	include	"sound/music/compressed/9E - Credits.inc"
 
 ; ------------------------------------------------------------------------------------------
 ; Sound effect pointers

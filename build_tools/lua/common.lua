@@ -1,3 +1,37 @@
+local os_name, arch_name = require "build_tools.lua.get_os_name".get_os_name()
+
+local function is_windows()
+	return os_name == "Windows"
+end
+
+local function get_directory_contents(path)
+	local listing
+
+	if is_windows() then
+		listing = io.popen("dir /b \"" .. path .. "\"", "r")
+	else
+		-- Assumes POSIX.
+		listing = io.popen("ls -w1 -N " .. path, "r")
+	end
+
+	local contents = {}
+	for entry in listing:lines() do
+		contents[1 + #contents] = entry
+	end
+
+	return contents
+end
+
+local function get_split_filename(filename)
+	local index = filename:find(".", 1, true)
+
+	if index == nil then
+		return filename
+	end
+
+	return filename:sub(1, index - 1), filename:sub(index)
+end
+
 -- Determine if a file exists.
 local function file_exists(path)
 	local file = io.open(path, "rb")
@@ -64,26 +98,23 @@ local function show_flashy_message(message)
 end
 
 local function get_platform_specific_info()
-	local path_separator, executable_suffix, as_filename
+	local path_separator, executable_suffix, as_filename, executable_arch
 
-	local os_name, arch_name = require "build_tools.lua.get_os_name".get_os_name()
-
-	if os_name == "Windows" then
+	if is_windows() then
 		-- 64-bit x86 Windows can run 32-bit x86 executables.
-		if arch_name == "x86_64" then
-			arch_name = "x86"
-		end
+		executable_arch = arch_name == "x86_64" and "x86" or arch_name
 		path_separator = "\\"
 		executable_suffix = ".exe"
 		as_filename = "asw"
 	else
+		executable_arch = arch_name
 		path_separator = "/"
 		executable_suffix = ""
 		as_filename = "asl"
 	end
 
 	-- Determine the platform directory.
-	local platform_directory = "build_tools" .. path_separator .. os_name .. "-" .. arch_name .. path_separator
+	local platform_directory = "build_tools" .. path_separator .. os_name .. "-" .. executable_arch .. path_separator
 
 	-- Return the list of tools.
 	return platform_directory, executable_suffix, as_filename
@@ -286,6 +317,8 @@ local function build_rom(input_filename, output_filename, as_arguments, p2bin_ar
 end
 
 return {
+	get_directory_contents = get_directory_contents,
+	get_split_filename = get_split_filename,
 	file_exists = file_exists,
 	show_flashy_message = show_flashy_message,
 	find_tools = find_tools,

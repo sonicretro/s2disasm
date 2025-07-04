@@ -3806,46 +3806,45 @@ getZ80BankOffset function label, label # z80_bank_size
 getZ80BankBase function label, label - getZ80BankOffset(label)
 withinSameZ80Bank function label1, label2, getZ80BankBase(label1) == getZ80BankBase(label2)
 
-MusFlag_Uncompressed = 1 << 5 ; Song should play slower on PAL consoles.
-MusFlag_PAL          = 1 << 6 ; Song data is uncompressed.
+MusFlag_PAL          = 1 << 6 ; Song should play slower on PAL consoles.
 
-music_metadata macro label,flags
-	db	(withinSameZ80Bank(label, MusicPoint2)<<7)|(flags)|(getZ80BankOffset(label)/2)
+music_metadata macro DATA,FLAGS
+	db	(withinSameZ80Bank(DATA.pointer, MusicPoint2)<<7)|((~~DATA.is_compressed)<<5)|(FLAGS)|(getZ80BankOffset(DATA.pointer)/2)
     endm
 
 ; zbyte_11F5h
 zMasterPlaylist:
-zMusIDPtr_2PResult:	music_metadata MusPtr_2PResult
-zMusIDPtr_EHZ:		music_metadata MusPtr_EHZ
-zMusIDPtr_MCZ_2P:	music_metadata MusPtr_MCZ_2P
-zMusIDPtr_OOZ:		music_metadata MusPtr_OOZ
-zMusIDPtr_MTZ:		music_metadata MusPtr_MTZ
-zMusIDPtr_HTZ:		music_metadata MusPtr_HTZ
-zMusIDPtr_ARZ:		music_metadata MusPtr_ARZ
-zMusIDPtr_CNZ_2P:	music_metadata MusPtr_CNZ_2P
-zMusIDPtr_CNZ:		music_metadata MusPtr_CNZ
-zMusIDPtr_DEZ:		music_metadata MusPtr_DEZ
-zMusIDPtr_MCZ:		music_metadata MusPtr_MCZ
-zMusIDPtr_EHZ_2P:	music_metadata MusPtr_EHZ_2P
-zMusIDPtr_SCZ:		music_metadata MusPtr_SCZ
-zMusIDPtr_CPZ:		music_metadata MusPtr_CPZ
-zMusIDPtr_WFZ:		music_metadata MusPtr_WFZ
-zMusIDPtr_HPZ:		music_metadata MusPtr_HPZ
-zMusIDPtr_Options:	music_metadata MusPtr_Options
-zMusIDPtr_SpecStage:	music_metadata MusPtr_SpecStage
-zMusIDPtr_Boss:		music_metadata MusPtr_Boss
-zMusIDPtr_EndBoss:	music_metadata MusPtr_EndBoss
-zMusIDPtr_Ending:	music_metadata MusPtr_Ending
-zMusIDPtr_SuperSonic:	music_metadata MusPtr_SuperSonic
-zMusIDPtr_Invincible:	music_metadata MusPtr_Invincible
-zMusIDPtr_ExtraLife:	music_metadata MusPtr_ExtraLife,MusFlag_Uncompressed
-zMusIDPtr_Title:	music_metadata MusPtr_Title
-zMusIDPtr_EndLevel:	music_metadata MusPtr_EndLevel
-zMusIDPtr_GameOver:	music_metadata MusPtr_GameOver,MusFlag_Uncompressed
-zMusIDPtr_Continue:	music_metadata MusPtr_Continue
-zMusIDPtr_Emerald:	music_metadata MusPtr_Emerald,MusFlag_Uncompressed
-zMusIDPtr_Credits:	music_metadata MusPtr_Credits,MusFlag_Uncompressed
-zMusIDPtr_Countdown:	music_metadata MusPtr_Drowning,MusFlag_PAL
+zMusIDPtr_2PResult:	music_metadata Mus_2PResult
+zMusIDPtr_EHZ:		music_metadata Mus_EHZ
+zMusIDPtr_MCZ_2P:	music_metadata Mus_MCZ_2P
+zMusIDPtr_OOZ:		music_metadata Mus_OOZ
+zMusIDPtr_MTZ:		music_metadata Mus_MTZ
+zMusIDPtr_HTZ:		music_metadata Mus_HTZ
+zMusIDPtr_ARZ:		music_metadata Mus_ARZ
+zMusIDPtr_CNZ_2P:	music_metadata Mus_CNZ_2P
+zMusIDPtr_CNZ:		music_metadata Mus_CNZ
+zMusIDPtr_DEZ:		music_metadata Mus_DEZ
+zMusIDPtr_MCZ:		music_metadata Mus_MCZ
+zMusIDPtr_EHZ_2P:	music_metadata Mus_EHZ_2P
+zMusIDPtr_SCZ:		music_metadata Mus_SCZ
+zMusIDPtr_CPZ:		music_metadata Mus_CPZ
+zMusIDPtr_WFZ:		music_metadata Mus_WFZ
+zMusIDPtr_HPZ:		music_metadata Mus_HPZ
+zMusIDPtr_Options:	music_metadata Mus_Options
+zMusIDPtr_SpecStage:	music_metadata Mus_SpecStage
+zMusIDPtr_Boss:		music_metadata Mus_Boss
+zMusIDPtr_EndBoss:	music_metadata Mus_EndBoss
+zMusIDPtr_Ending:	music_metadata Mus_Ending
+zMusIDPtr_SuperSonic:	music_metadata Mus_SuperSonic
+zMusIDPtr_Invincible:	music_metadata Mus_Invincible
+zMusIDPtr_ExtraLife:	music_metadata Mus_ExtraLife
+zMusIDPtr_Title:	music_metadata Mus_Title
+zMusIDPtr_EndLevel:	music_metadata Mus_EndLevel
+zMusIDPtr_GameOver:	music_metadata Mus_GameOver
+zMusIDPtr_Continue:	music_metadata Mus_Continue
+zMusIDPtr_Emerald:	music_metadata Mus_Emerald
+zMusIDPtr_Credits:	music_metadata Mus_Credits
+zMusIDPtr_Countdown:	music_metadata Mus_Drowning,MusFlag_PAL
 zMusIDPtr__End:
 
 ; Tempo with speed shoe tempo for each song

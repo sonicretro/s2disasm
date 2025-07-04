@@ -13,7 +13,8 @@ s2.map
 s2built.bin
 s2built.prev.bin
 
-# Automatically-generated music compression data.
+# Automatically-generated music data.
+sound/music/compressed/*.inc
 sound/music/compressed/*.sax
 sound/music/compressed/hashes.lua
 
