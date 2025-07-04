@@ -3806,7 +3806,7 @@ getZ80BankOffset function label, label # z80_bank_size
 getZ80BankBase function label, label - getZ80BankOffset(label)
 withinSameZ80Bank function label1, label2, getZ80BankBase(label1) == getZ80BankBase(label2)
 
-MusFlag_PAL          = 1 << 6 ; Song should play slower on PAL consoles.
+MusFlag_SlowerOnPAL = 1 << 6 ; Song should play slower on PAL consoles.
 
 music_metadata macro DATA,FLAGS
 	db	(withinSameZ80Bank(DATA.pointer, MusicPoint2)<<7)|((~~DATA.is_compressed)<<5)|(FLAGS)|(getZ80BankOffset(DATA.pointer)/2)
@@ -3844,7 +3844,7 @@ zMusIDPtr_GameOver:	music_metadata Mus_GameOver
 zMusIDPtr_Continue:	music_metadata Mus_Continue
 zMusIDPtr_Emerald:	music_metadata Mus_Emerald
 zMusIDPtr_Credits:	music_metadata Mus_Credits
-zMusIDPtr_Countdown:	music_metadata Mus_Drowning,MusFlag_PAL
+zMusIDPtr_Countdown:	music_metadata Mus_Drowning,MusFlag_SlowerOnPAL
 zMusIDPtr__End:
 
 ; Tempo with speed shoe tempo for each song
