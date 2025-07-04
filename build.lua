@@ -50,7 +50,7 @@ local clownmd5 = require "build_tools.lua.clownmd5"
 -- Our first task is to load the hashes contained in this file into a table.
 local hashes_file
 
-hashes_file = io.open("sound/music/compressed/hashes.lua", "r")
+hashes_file = io.open("sound/music/generated/hashes.lua", "r")
 
 local previous_hashes
 
@@ -67,7 +67,7 @@ else
 end
 
 -- Now that that's done, we can begin re-writing 'hashes.lua' with the new hashes that we compute in the next step.
-hashes_file = io.open("sound/music/compressed/hashes.lua", "w")
+hashes_file = io.open("sound/music/generated/hashes.lua", "w")
 
 hashes_file:write("improved_sound_driver_compression = " .. tostring(improved_sound_driver_compression) .. ",\n")
 hashes_file:write("music_buffer_address = " .. tostring(music_buffer_address) .. ",\n")
@@ -121,7 +121,7 @@ for _, filename in ipairs(common.get_directory_contents("sound/music")) do
 	if filename_extension == ".asm" then
 		local is_compressed = compressed_songs[filename_stem] == true
 
-		local inc_file_path = "sound/music/compressed/" .. filename_stem .. ".inc"
+		local inc_file_path = "sound/music/generated/" .. filename_stem .. ".inc"
 
 		-- Generate an '.inc' file for the song, which communicates to the assembler the song's file path as well as whether it is compressed or not.
 		if compressed_song_list_hash ~= previous_hashes.compressed_song_list or not common.file_exists(inc_file_path) then
@@ -131,7 +131,7 @@ for _, filename in ipairs(common.get_directory_contents("sound/music")) do
 			if is_compressed then
 				include_file:write(string.format([[
 .is_compressed = TRUE
-	binclude "sound/music/compressed/%s.sax"
+	binclude "sound/music/generated/%s.sax"
 ]], filename_stem))
 			else
 				include_file:write(string.format([[
@@ -146,7 +146,7 @@ for _, filename in ipairs(common.get_directory_contents("sound/music")) do
 		-- If the song is compressed then compress it!
 		if is_compressed then
 			local asm_file_path = "sound/music/" .. filename_stem .. ".asm"
-			local sax_file_path = "sound/music/compressed/" .. filename_stem .. ".sax"
+			local sax_file_path = "sound/music/generated/" .. filename_stem .. ".sax"
 
 			-- Determine the hash of the current song.
 			local current_hash = record_file_hash(asm_file_path, "['" .. filename_stem .. "']")
