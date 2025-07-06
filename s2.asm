@@ -90600,31 +90600,31 @@ Snd_Driver_End:
 SndDAC_Start:
 
 SndDAC_Kick:
-	BINCLUDE	"sound/DAC/Kick.dpcm"
+	BINCLUDE	"sound/DAC/generated/Kick.dpcm"
 SndDAC_Kick_End
 
 SndDAC_Snare:
-	BINCLUDE	"sound/DAC/Snare.dpcm"
+	BINCLUDE	"sound/DAC/generated/Snare.dpcm"
 SndDAC_Snare_End
 
 SndDAC_Timpani:
-	BINCLUDE	"sound/DAC/Timpani.dpcm"
+	BINCLUDE	"sound/DAC/generated/Timpani.dpcm"
 SndDAC_Timpani_End
 
 SndDAC_Tom:
-	BINCLUDE	"sound/DAC/Tom.dpcm"
+	BINCLUDE	"sound/DAC/generated/Tom.dpcm"
 SndDAC_Tom_End
 
 SndDAC_Clap:
-	BINCLUDE	"sound/DAC/Clap.dpcm"
+	BINCLUDE	"sound/DAC/generated/Clap.dpcm"
 SndDAC_Clap_End
 
 SndDAC_Scratch:
-	BINCLUDE	"sound/DAC/Scratch.dpcm"
+	BINCLUDE	"sound/DAC/generated/Scratch.dpcm"
 SndDAC_Scratch_End
 
 SndDAC_Bongo:
-	BINCLUDE	"sound/DAC/Bongo.dpcm"
+	BINCLUDE	"sound/DAC/generated/Bongo.dpcm"
 SndDAC_Bongo_End
 
 SndDAC_End
@@ -90730,7 +90730,7 @@ ArtNem_MCZGateLog:		BINCLUDE	"art/nemesis/Drawbridge logs from MCZ.nem"
 ; 8-bit unsigned raw audio at 16Khz
 ; -------------------------------------------------------------------------------
 ; loc_F1E8C:
-Snd_Sega:	BINCLUDE	"sound/PCM/SEGA.pcm"
+Snd_Sega:	BINCLUDE	"sound/PCM/generated/SEGA.pcm"
 Snd_Sega_End:
 
 	if Snd_Sega_End - Snd_Sega > $8000

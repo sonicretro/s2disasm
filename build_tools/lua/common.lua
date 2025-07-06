@@ -2,30 +2,16 @@ local common = {}
 
 local os_name, arch_name = require "build_tools.lua.get_os_name".get_os_name()
 
+-----------------------
+-- General Utilities --
+-----------------------
+
 local function is_windows()
 	return os_name == "Windows"
 end
 
 local function exit(release)
 	os.exit(common.exit_code, release)
-end
-
-local function get_directory_contents(path)
-	local listing
-
-	if is_windows() then
-		listing = io.popen("dir /b \"" .. path .. "\"", "r")
-	else
-		-- Assumes POSIX.
-		listing = io.popen("ls -w1 -N " .. path, "r")
-	end
-
-	local contents = {}
-	for entry in listing:lines() do
-		contents[1 + #contents] = entry
-	end
-
-	return contents
 end
 
 local function get_split_filename(filename)
@@ -48,6 +34,45 @@ local function file_exists(path)
 	else
 		return false
 	end
+end
+
+local function get_directory_contents(path)
+	local listing
+
+	if is_windows() then
+		listing = io.popen("dir /b \"" .. path .. "\"", "r")
+	else
+		-- Assumes POSIX.
+		listing = io.popen("ls -w1 -N " .. path, "r")
+	end
+
+	local contents = {}
+	for entry in listing:lines() do
+		contents[1 + #contents] = entry
+	end
+
+	return contents
+end
+
+local function iterate_directory(path, extension)
+	local contents = get_directory_contents(path)
+
+	if extension == nil then
+		return ipairs(contents)
+	end
+
+	-- Collect the entries that match the given file extension.
+	local filtered_contents = {}
+
+	for key, filename in ipairs(contents) do
+		local filename_stem, filename_extension = get_split_filename(filename)
+
+		if filename_extension == extension then
+			filtered_contents[1 + #filtered_contents] = filename_stem
+		end
+	end
+
+	return ipairs(filtered_contents)
 end
 
 local function show_flashy_message(message)
@@ -102,6 +127,10 @@ local function show_flashy_message(message)
 
 	print("\n" .. do_full_line() .. do_empty_line() .. do_message_line() .. do_empty_line() .. do_full_line())
 end
+
+-----------
+-- Tools --
+-----------
 
 local function get_platform_specific_info()
 	local path_separator, executable_suffix, as_filename, executable_arch
@@ -194,6 +223,185 @@ local function find_assembler(repository)
 	return tools[as_filename]
 end
 
+--------------------
+-- PCM Processing --
+--------------------
+
+local function read_wrapper(file, format, bytes)
+	local data = file:read(bytes)
+
+	if data then
+		return string.unpack(format, data)
+	end
+end
+
+local function read_s8(file)
+	return read_wrapper(file, "i1", 1)
+end
+
+local function read_s16le(file)
+	return read_wrapper(file, "<i2", 2)
+end
+
+local function read_s32le(file)
+	return read_wrapper(file, "<i4", 4)
+end
+
+local function read_u8(file)
+	return read_wrapper(file, "I1", 1)
+end
+
+local function read_u16le(file)
+	return read_wrapper(file, "<I2", 2)
+end
+
+local function read_u32le(file)
+	return read_wrapper(file, "<I4", 4)
+end
+
+local function process_wav_file(input_file_path, callback)
+	local input_file = io.open(input_file_path, "rb")
+
+	if input_file == nil then
+		print("Could not open input file '" .. input_file_path .. "'!")
+	else
+		local function read_chunk_header(file)
+			local id = input_file:read(4)
+			local size = read_u32le(input_file)
+
+			if id and size then
+				return id, size
+			end
+		end
+
+		local fourcc, file_size = read_chunk_header(input_file)
+		local format = input_file:read(4)
+
+		if fourcc ~= "RIFF" then
+			print("FOURCC check failed; this is not a WAV file!")
+		elseif format ~= "WAVE" then
+			print("RIFF format check failed; this is not a WAV file!")
+		else
+			local function chunk_size_check(name, size, expected_size)
+				if size < expected_size then
+					print(name .. " chunk was smaller than expected (" .. size .. " instead of " .. expected_size .. ")!")
+				else
+					return true
+				end
+			end
+
+			for chunk_id, chunk_size in function() return read_chunk_header(input_file) end do
+				local starting_position = input_file:seek()
+
+				if chunk_id == "fmt " then
+					if chunk_size_check("Format", chunk_size, 16) then
+						local format = read_u16le(input_file)
+						local channels = read_u16le(input_file)
+						local sample_rate = read_u32le(input_file)
+						local bytes_per_second = read_u32le(input_file)
+						local bytes_per_block = read_u16le(input_file)
+						local bits_per_sample = read_u16le(input_file)
+
+						if format ~= 1 then
+							print("Unsupported sample format " .. format .. " (only 1 is supported)!")
+						end
+
+						-- TODO: We can downsample!
+						if channels ~= 1 then
+							print("Unsupported channel count " .. channels .. " (only mono is supported)!")
+						end
+
+						-- TODO: We can downsample!
+						if bits_per_sample ~= 8 then
+							print("Unsupported bit depth " .. bits_per_sample .. " (only 8 is supported)!")
+						end
+					end
+				elseif chunk_id == "data" then
+					for _ = 1, chunk_size do
+						callback(read_u8(input_file))
+					end
+				end
+
+				-- Advance past the chunk.
+				input_file:seek("set", starting_position + chunk_size)
+			end
+		end
+
+		input_file:close()
+	end
+end
+
+local function convert_pcm_file(input_file_path, output_file_path)
+	local output_file = io.open(output_file_path, "wb")
+
+	if output_file == nil then
+		print("Could not open output file '" .. output_file_path .. "'!")
+	else
+		local function callback(sample)
+			output_file:write(string.pack("I1", sample))
+		end
+
+		process_wav_file(input_file_path, callback)
+		output_file:close()
+	end
+end
+
+local function convert_dpcm_file(input_file_path, output_file_path)
+	local deltas = {
+		0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40,
+		0x80, 0xFF, 0xFE, 0xFC, 0xF8, 0xF0, 0xE0, 0xC0
+	}
+
+	local function find_closet_delta(value)
+		local best_error = math.huge
+		local best_index
+
+		for delta_index, delta in ipairs(deltas) do
+			local error = math.abs(delta - value)
+			if best_error > error then
+				best_error = error
+				best_index = delta_index
+			end
+		end
+
+		return best_index
+	end
+
+	local previous_sample = 0x80
+
+	local output_file = io.open(output_file_path, "wb")
+
+	if output_file == nil then
+		print("Could not open output file '" .. output_file_path .. "'!")
+	else
+		local accumulator = 0
+		local flip_flip = false
+
+		local function callback(sample)
+			local index = find_closet_delta((sample - previous_sample) & 0xFF)
+
+			previous_sample = previous_sample + deltas[index]
+
+			accumulator = accumulator & 0xF
+			accumulator = accumulator << 4
+			accumulator = accumulator | (index - 1)
+
+			if flip_flip == true then
+				output_file:write(string.pack("I1", accumulator))
+			end
+
+			flip_flip = not flip_flip
+		end
+
+		process_wav_file(input_file_path, callback)
+		output_file:close()
+	end
+end
+
+------------------
+-- ROM Patching --
+------------------
+
 -- Correct the ROM's header with a proper checksum and end-of-ROM value.
 local function fix_header(filename)
 	local rom = io.open(filename, "r+b")
@@ -223,6 +431,10 @@ local function fix_header(filename)
 	-- We're done editing the ROM header.
 	rom:close()
 end
+
+----------------
+-- Assembling --
+----------------
 
 local function handle_assembler_failure(message_printed, abort)
 	if message_printed then
@@ -340,12 +552,19 @@ local function build_rom_and_handle_failure(...)
 	handle_assembler_failure(build_rom(...))
 end
 
+------------
+-- Export --
+------------
+
 common.exit = exit
 common.get_directory_contents = get_directory_contents
+common.iterate_directory = iterate_directory
 common.get_split_filename = get_split_filename
 common.file_exists = file_exists
 common.show_flashy_message = show_flashy_message
 common.find_tools = find_tools
+common.convert_pcm_file = convert_pcm_file
+common.convert_dpcm_file = convert_dpcm_file
 common.fix_header = fix_header
 common.handle_assembler_failure = handle_assembler_failure
 common.assemble_file = assemble_file

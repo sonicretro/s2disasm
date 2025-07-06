@@ -114,62 +114,59 @@ local function generate_music_data()
 	end
 
 	-- Iterate over every song.
-	for _, filename in ipairs(common.get_directory_contents("sound/music")) do
-		local filename_stem, filename_extension = common.get_split_filename(filename)
+	for _, filename_stem in common.iterate_directory("sound/music", ".asm") do
+		local is_compressed = compressed_songs[filename_stem] == true
 
-		if filename_extension == ".asm" then
-			local is_compressed = compressed_songs[filename_stem] == true
+		local inc_file_path = "sound/music/generated/" .. filename_stem .. ".inc"
 
-			local inc_file_path = "sound/music/generated/" .. filename_stem .. ".inc"
+		-- Generate an '.inc' file for the song, which communicates to the assembler the song's file path as well as whether it is compressed or not.
+		if compressed_song_list_hash ~= previous_hashes.compressed_song_list or not common.file_exists(inc_file_path) then
 
-			-- Generate an '.inc' file for the song, which communicates to the assembler the song's file path as well as whether it is compressed or not.
-			if compressed_song_list_hash ~= previous_hashes.compressed_song_list or not common.file_exists(inc_file_path) then
+			local include_file = io.open(inc_file_path, "w")
 
-				local include_file = io.open(inc_file_path, "w")
-
-				if is_compressed then
-					include_file:write(string.format([[
+			if is_compressed then
+				include_file:write(string.format([[
 .is_compressed = TRUE
 	binclude "sound/music/generated/%s.sax"
 	]], filename_stem))
-				else
-					include_file:write(string.format([[
+			else
+				include_file:write(string.format([[
 .is_compressed = FALSE
 	include "sound/music/%s.asm"
 	]], filename_stem))
-				end
-
-				include_file:close()
 			end
 
-			-- If the song is compressed then compress it!
-			if is_compressed then
-				local asm_file_path = "sound/music/" .. filename_stem .. ".asm"
-				local sax_file_path = "sound/music/generated/" .. filename_stem .. ".sax"
+			include_file:close()
+		end
 
-				-- Determine the hash of the current song.
-				local current_hash = record_file_hash(asm_file_path, "['" .. filename_stem .. "']")
+		-- If the song is compressed then compress it!
+		if is_compressed then
+			local asm_file_path = "sound/music/" .. filename_stem .. ".asm"
+			local sax_file_path = "sound/music/generated/" .. filename_stem .. ".sax"
 
-				-- Check if the hash matches the one in 'hashes.lua'.
-				-- If it doesn't match, then the song has been modified and needs to be reassembled.
-				-- Alternatively, the song will need reassembling if the user has changed the compression.
-				-- Or reassemble the song if the compressed version is missing.
-				if current_hash ~= previous_hashes[filename_stem]
-					or smps2asm_hash ~= previous_hashes.smps2asm
-					or improved_sound_driver_compression ~= previous_hashes.improved_sound_driver_compression
-					or music_buffer_address ~= previous_hashes.music_buffer_address
-					or music_buffer_size ~= previous_hashes.music_buffer_size
-					or not common.file_exists(sax_file_path)
-				then
-					print("Reassembling song '" .. filename_stem .. ".asm'...")
+			-- Determine the hash of the current song.
+			local current_hash = record_file_hash(asm_file_path, "['" .. filename_stem .. "']")
 
-					-- To begin with, we'll create a wrapper ASM file to set the environment
-					-- in which to assemble the lone song file. Notably, this environment
-					-- includes SMPS2ASM and begins the song at address 0x1380 (the address
-					-- of the Saxman decompression buffer in Z80 RAM).
-					local song_file = io.open("song.asm", "w")
+			-- Check if the hash matches the one in 'hashes.lua'.
+			-- If it doesn't match, then the song has been modified and needs to be reassembled.
+			-- Alternatively, the song will need reassembling if the user has changed the compression.
+			-- Or reassemble the song if the compressed version is missing.
+			if current_hash ~= previous_hashes[filename_stem]
+				or smps2asm_hash ~= previous_hashes.smps2asm
+				or improved_sound_driver_compression ~= previous_hashes.improved_sound_driver_compression
+				or music_buffer_address ~= previous_hashes.music_buffer_address
+				or music_buffer_size ~= previous_hashes.music_buffer_size
+				or not common.file_exists(sax_file_path)
+			then
+				print("Reassembling song '" .. filename_stem .. ".asm'...")
 
-					song_file:write(string.format([[
+				-- To begin with, we'll create a wrapper ASM file to set the environment
+				-- in which to assemble the lone song file. Notably, this environment
+				-- includes SMPS2ASM and begins the song at address 0x1380 (the address
+				-- of the Saxman decompression buffer in Z80 RAM).
+				local song_file = io.open("song.asm", "w")
+
+				song_file:write(string.format([[
 	CPU 68000
 	padding off
 
@@ -187,23 +184,22 @@ SonicDriverVer = 2
 		error "This song is too big and will overflow the decompression buffer! It should be uncompressed instead!"
 	endif]], music_buffer_address, filename_stem, music_buffer_size))
 
-					song_file:close()
+				song_file:close()
 
-					-- Assemble the song to an uncompressed binary.
-					local message_printed, abort = common.assemble_file("song.asm", "song.bin", "", "", false, repository)
+				-- Assemble the song to an uncompressed binary.
+				local message_printed, abort = common.assemble_file("song.asm", "song.bin", "", "", false, repository)
 
-					-- We can get rid of this wrapper ASM file now.
-					os.remove("song.asm")
+				-- We can get rid of this wrapper ASM file now.
+				os.remove("song.asm")
 
-					common.handle_assembler_failure(message_printed, abort)
+				common.handle_assembler_failure(message_printed, abort)
 
-					-- Now that we have an assembled song binary, compress it.
-					os.execute(tools.saxman .. " " .. (improved_sound_driver_compression and "" or "-a") .. " song.bin \"" .. sax_file_path .. "\"")
+				-- Now that we have an assembled song binary, compress it.
+				os.execute(tools.saxman .. " " .. (improved_sound_driver_compression and "" or "-a") .. " song.bin \"" .. sax_file_path .. "\"")
 
-					-- Remove junk files from the assembly process.
-					os.remove("song.lst")
-					os.remove("song.bin")
-				end
+				-- Remove junk files from the assembly process.
+				os.remove("song.lst")
+				os.remove("song.bin")
 			end
 		end
 	end
@@ -243,6 +239,16 @@ local function amend_sound_driver_size()
 	os.remove("s2.h")
 end
 
+local function convert_wav_files()
+	for _, filename_stem in common.iterate_directory("sound/PCM", ".wav") do
+		common.convert_pcm_file("sound/PCM/" .. filename_stem .. ".wav", "sound/PCM/generated/" .. filename_stem .. ".pcm")
+	end
+
+	for _, filename_stem in common.iterate_directory("sound/DAC", ".wav") do
+		common.convert_dpcm_file("sound/DAC/" .. filename_stem .. ".wav", "sound/DAC/generated/" .. filename_stem .. ".dpcm")
+	end
+end
+
 ----------------------
 -- End of utilities --
 ----------------------
@@ -253,6 +259,9 @@ end
 
 -- Compress music data and generate music-related assembler input.
 generate_music_data()
+
+-- Produce PCM and DPCM data.
+convert_wav_files()
 
 -- Build the ROM.
 local compression = improved_sound_driver_compression and "saxman-optimised" or "saxman-bugged"
