@@ -260,10 +260,12 @@ local function read_u32le(file)
 end
 
 local function process_wav_file(input_file_path, callback)
+	local message
+
 	local input_file = io.open(input_file_path, "rb")
 
 	if input_file == nil then
-		print("Could not open input file '" .. input_file_path .. "'!")
+		message = "Could not open input file '" .. input_file_path .. "'!"
 	else
 		local function read_chunk_header(file)
 			local id = input_file:read(4)
@@ -278,17 +280,19 @@ local function process_wav_file(input_file_path, callback)
 		local format = input_file:read(4)
 
 		if fourcc ~= "RIFF" then
-			print("FOURCC check failed; this is not a WAV file!")
+			message = "FOURCC check failed; this is not a WAV file!"
 		elseif format ~= "WAVE" then
-			print("RIFF format check failed; this is not a WAV file!")
+			message = "RIFF format check failed; this is not a WAV file!"
 		else
 			local function chunk_size_check(name, size, expected_size)
 				if size < expected_size then
-					print(name .. " chunk was smaller than expected (" .. size .. " instead of " .. expected_size .. ")!")
+					message = name .. " chunk was smaller than expected (" .. size .. " instead of " .. expected_size .. ")!"
 				else
 					return true
 				end
 			end
+
+			local channels = 1
 
 			for chunk_id, chunk_size in function() return read_chunk_header(input_file) end do
 				local starting_position = input_file:seek()
@@ -296,29 +300,32 @@ local function process_wav_file(input_file_path, callback)
 				if chunk_id == "fmt " then
 					if chunk_size_check("Format", chunk_size, 16) then
 						local format = read_u16le(input_file)
-						local channels = read_u16le(input_file)
+						channels = read_u16le(input_file)
 						local sample_rate = read_u32le(input_file)
 						local bytes_per_second = read_u32le(input_file)
 						local bytes_per_block = read_u16le(input_file)
 						local bits_per_sample = read_u16le(input_file)
 
 						if format ~= 1 then
-							print("Unsupported sample format " .. format .. " (only 1 is supported)!")
-						end
-
-						-- TODO: We can downsample!
-						if channels ~= 1 then
-							print("Unsupported channel count " .. channels .. " (only mono is supported)!")
+							message = "Unsupported sample format '" .. format .. "' (only '1' is supported)!"
 						end
 
 						-- TODO: We can downsample!
 						if bits_per_sample ~= 8 then
-							print("Unsupported bit depth " .. bits_per_sample .. " (only 8 is supported)!")
+							message = "Unsupported bit depth '" .. bits_per_sample .. "' (only '8' is supported)!"
 						end
 					end
 				elseif chunk_id == "data" then
-					for _ = 1, chunk_size do
-						callback(read_u8(input_file))
+					for _ = 1, chunk_size, channels do
+						-- Downsample to mono by averaging the samples.
+						local accumulator = 0
+						for _ = 1, channels do
+							accumulator = accumulator + read_u8(input_file)
+						end
+						accumulator = accumulator // channels
+
+						-- Output the mono sample.
+						callback(accumulator)
 					end
 				end
 
@@ -329,24 +336,32 @@ local function process_wav_file(input_file_path, callback)
 
 		input_file:close()
 	end
+
+	return message
 end
 
 local function convert_pcm_file(input_file_path, output_file_path)
+	local message
+
 	local output_file = io.open(output_file_path, "wb")
 
 	if output_file == nil then
-		print("Could not open output file '" .. output_file_path .. "'!")
+		message = "Could not open output file '" .. output_file_path .. "'!"
 	else
 		local function callback(sample)
 			output_file:write(string.pack("I1", sample))
 		end
 
-		process_wav_file(input_file_path, callback)
+		message = process_wav_file(input_file_path, callback)
 		output_file:close()
 	end
+
+	return message
 end
 
 local function convert_dpcm_file(input_file_path, output_file_path)
+	local message
+
 	local deltas = {
 		0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40,
 		0x80, 0xFF, 0xFE, 0xFC, 0xF8, 0xF0, 0xE0, 0xC0
@@ -372,7 +387,7 @@ local function convert_dpcm_file(input_file_path, output_file_path)
 	local output_file = io.open(output_file_path, "wb")
 
 	if output_file == nil then
-		print("Could not open output file '" .. output_file_path .. "'!")
+		message = "Could not open output file '" .. output_file_path .. "'!"
 	else
 		local accumulator = 0
 		local flip_flip = false
@@ -393,9 +408,11 @@ local function convert_dpcm_file(input_file_path, output_file_path)
 			flip_flip = not flip_flip
 		end
 
-		process_wav_file(input_file_path, callback)
+		message = process_wav_file(input_file_path, callback)
 		output_file:close()
 	end
+
+	return message
 end
 
 ------------------

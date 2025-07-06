@@ -240,13 +240,20 @@ local function amend_sound_driver_size()
 end
 
 local function convert_wav_files()
-	for _, filename_stem in common.iterate_directory("sound/PCM", ".wav") do
-		common.convert_pcm_file("sound/PCM/" .. filename_stem .. ".wav", "sound/PCM/generated/" .. filename_stem .. ".pcm")
+	local function do_directory(directory, extension, callback)
+		for _, filename_stem in common.iterate_directory(directory, ".wav") do
+			local input_file_path = directory .. "/" .. filename_stem .. ".wav"
+			local output_file_path = directory .. "/generated/" .. filename_stem .. extension
+			local message = callback(input_file_path, output_file_path)
+
+			if message then
+				print("Failed to convert '" .. input_file_path .. "' to ''" .. output_file_path .. "'. Error message was:\n\t" .. message)
+			end
+		end
 	end
 
-	for _, filename_stem in common.iterate_directory("sound/DAC", ".wav") do
-		common.convert_dpcm_file("sound/DAC/" .. filename_stem .. ".wav", "sound/DAC/generated/" .. filename_stem .. ".dpcm")
-	end
+	do_directory("sound/PCM", ".pcm", common.convert_pcm_file)
+	do_directory("sound/DAC", ".dpcm", common.convert_dpcm_file)
 end
 
 ----------------------
