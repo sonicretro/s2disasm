@@ -310,8 +310,8 @@ zmake68kPtr function addr,zROMWindow+(addr&7FFFh)
 
 ; Function to turn a sample rate into a djnz loop counter
 pcmLoopCounterBase function sampleRate,baseCycles, 1+(Z80_Clock/(sampleRate)-(baseCycles)+(13/2))/13
-pcmLoopCounter function sampleRate, pcmLoopCounterBase(sampleRate,146/2) ; 146 is the number of cycles zPlaySegaSound takes to deliver two samples.
-dpcmLoopCounter function sampleRate, pcmLoopCounterBase(sampleRate,289/2) ; 289 is the number of cycles zWriteToDAC takes to deliver two samples.
+pcmLoopCounter function sampleRate, pcmLoopCounterBase(sampleRate,152/2) ; 152 is the number of cycles zPlaySegaSound takes to deliver two samples.
+dpcmLoopCounter function sampleRate, pcmLoopCounterBase(sampleRate,295/2) ; 295 is the number of cycles zWriteToDAC takes to deliver two samples.
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; Z80 'ROM' start:
@@ -678,12 +678,14 @@ zWaitLoop:
 	; In our case, the so-called 'd' value is shadow register 'a'
 
 zWriteToDAC:
+	; According to Kabuto, the Z80 suffers a delay of approximately 3.3 cycles for each ROM access.
+	; https://plutiedev.com/mirror/kabuto-hardware-notes#bus-system
 	djnz	$			; 8	; Busy wait for specific amount of time in 'b'
 
 	di				; 4	; disable interrupts (while updating DAC)
 	ld	a,2Ah			; 7	; DAC port
 	ld	(zYM2612_A0),a		; 13	; Set DAC port register
-	ld	a,(hl)			; 7	; Get next DAC byte
+	ld	a,(hl)			; 7+3	; Get next DAC byte
 	rlca				; 4
 	rlca				; 4
 	rlca				; 4
@@ -708,7 +710,7 @@ zWriteToDAC:
 	ld	a,2Ah			; 7	; DAC port
 	ld	(zYM2612_A0),a		; 13	; Set DAC port register
 	ld	b,c			; 4	; reload 'b' with wait value
-	ld	a,(hl)			; 7	; Get next DAC byte
+	ld	a,(hl)			; 7+3	; Get next DAC byte
 	inc	hl			; 6	; Next byte in DAC stream...
 	dec	de			; 6	; One less byte
 	and	0Fh			; 7	; LOWER 4-bit offset into zDACDecodeTbl
@@ -722,8 +724,8 @@ zWriteToDAC:
 	ex	af,af'			; 4	; back to regular registers
 	ei				; 4	; enable interrupts (done updating DAC, busy waiting for next update)
 	jp	zWaitLoop		; 10	; Back to the wait loop; if there's more DAC to write, we come back down again!
-					; 289
-	; 289 cycles for two samples. dpcmLoopCounter should use 289 divided by 2.
+					; 295
+	; 295 cycles for two samples. dpcmLoopCounter should use 295 divided by 2.
 ; ---------------------------------------------------------------------------
 ; 'jman2050' DAC decode lookup table
 ; zbyte_1B3
@@ -1620,22 +1622,24 @@ zPlaySegaSound:
 	ld	c,80h			; If QueueToPlay is not this, stops Sega PCM
 
 .loop:
-	ld	a,(hl)				; 7	; Get next PCM byte
+	; According to Kabuto, the Z80 suffers a delay of approximately 3.3 cycles for each ROM access.
+	; https://plutiedev.com/mirror/kabuto-hardware-notes#bus-system
+	ld	a,(hl)				; 7+3	; Get next PCM byte
 	ld	(zYM2612_D0),a			; 13	; Send to DAC
 	inc	hl				; 6	; Advance pointer
 	nop					; 4
-	ld	b,pcmLoopCounter(16500)	; 7	; Sega PCM pitch
+	ld	b,pcmLoopCounter(16500)		; 7	; Sega PCM pitch
 	djnz	$				; 8	; Delay loop
 
 	nop					; 4
 	ld	a,(zAbsVar.QueueToPlay)		; 13	; Get next item to play
 	cp	c				; 4	; Is it 80h?
 	jr	nz,.stop			; 7	; If not, stop Sega PCM
-	ld	a,(hl)				; 7	; Get next PCM byte
+	ld	a,(hl)				; 7+3	; Get next PCM byte
 	ld	(zYM2612_D0),a			; 13	; Send to DAC
 	inc	hl				; 6	; Advance pointer
 	nop					; 4
-	ld	b,pcmLoopCounter(16500)	; 7	; Sega PCM pitch
+	ld	b,pcmLoopCounter(16500)		; 7	; Sega PCM pitch
 	djnz	$				; 8	; Delay loop
 
 	nop					; 4
@@ -1643,8 +1647,8 @@ zPlaySegaSound:
 	ld	a,d				; 4	; a = d
 	or	e				; 4	; Is de zero?
 	jp	nz,.loop			; 10	; If not, loop
-						; 146
-	; Two samples per 146 cycles, meaning that pcmLoopCounter should used 146 divided by 2.
+						; 152
+	; Two samples per 152 cycles, meaning that pcmLoopCounter should used 152 divided by 2.
 
 .stop:
 	call	zBankSwitchToMusic
@@ -3908,9 +3912,9 @@ dac_sample_metadata macro label,sampleRate
 	dac_sample_metadata zDACPtr_Snare,  24000	; 82h
 	dac_sample_metadata zDACPtr_Clap,   17000	; 83h
 	dac_sample_metadata zDACPtr_Scratch,15000	; 84h
-	dac_sample_metadata zDACPtr_Timpani, 7500	; 85h
-	dac_sample_metadata zDACPtr_Tom,    14000	; 86h
-	dac_sample_metadata zDACPtr_Bongo,   7500	; 87h
+	dac_sample_metadata zDACPtr_Timpani, 7375	; 85h
+	dac_sample_metadata zDACPtr_Tom,    13500	; 86h
+	dac_sample_metadata zDACPtr_Bongo,   7375	; 87h
 	dac_sample_metadata zDACPtr_Timpani, 9750	; 88h
 	dac_sample_metadata zDACPtr_Timpani, 8750	; 89h
 	dac_sample_metadata zDACPtr_Timpani, 7250	; 8Ah
