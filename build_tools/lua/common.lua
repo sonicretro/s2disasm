@@ -1,7 +1,13 @@
+local common = {}
+
 local os_name, arch_name = require "build_tools.lua.get_os_name".get_os_name()
 
 local function is_windows()
 	return os_name == "Windows"
+end
+
+local function exit(release)
+	os.exit(common.exit_code, release)
 end
 
 local function get_directory_contents(path)
@@ -218,6 +224,20 @@ local function fix_header(filename)
 	rom:close()
 end
 
+local function handle_assembler_failure(message_printed, abort)
+	if message_printed then
+		common.exit_code = false
+	end
+
+	if abort then
+		exit(true)
+	end
+end
+
+local function assemble_file_and_handle_failure(...)
+	handle_assembler_failure(assemble_file(...))
+end
+
 -- Produce a binary from an assembly file.
 -- Returns two booleans: the first indicating whether the build was entirely successful,
 -- and the second indicating whether the build process should continue or not.
@@ -316,13 +336,20 @@ local function build_rom(input_filename, output_filename, as_arguments, p2bin_ar
 	return assemble_file(input_filename .. ".asm", output_filename .. ".bin", as_arguments, p2bin_arguments, create_header_file, repository)
 end
 
-return {
-	get_directory_contents = get_directory_contents,
-	get_split_filename = get_split_filename,
-	file_exists = file_exists,
-	show_flashy_message = show_flashy_message,
-	find_tools = find_tools,
-	fix_header = fix_header,
-	assemble_file = assemble_file,
-	build_rom = build_rom,
-}
+local function build_rom_and_handle_failure(...)
+	handle_assembler_failure(build_rom(...))
+end
+
+common.exit = exit
+common.get_directory_contents = get_directory_contents
+common.get_split_filename = get_split_filename
+common.file_exists = file_exists
+common.show_flashy_message = show_flashy_message
+common.find_tools = find_tools
+common.fix_header = fix_header
+common.handle_assembler_failure = handle_assembler_failure
+common.assemble_file = assemble_file
+common.assemble_file_and_handle_failure = assemble_file_and_handle_failure
+common.build_rom = build_rom
+common.build_rom_and_handle_failure = build_rom_and_handle_failure
+return common
