@@ -450,7 +450,7 @@ local function convert_dpcm_file(audio, output_file_path)
 		0x80, 0xFF, 0xFE, 0xFC, 0xF8, 0xF0, 0xE0, 0xC0
 	}
 
-	local function find_closet_delta(value)
+	local function find_closest_delta(value)
 		local best_error = math.huge
 		local best_index
 
@@ -470,7 +470,7 @@ local function convert_dpcm_file(audio, output_file_path)
 	local flip_flop = false
 
 	local function callback(output_file, sample)
-		local index = find_closet_delta((sample - previous_sample) & 0xFF)
+		local index = find_closest_delta((sample - previous_sample) & 0xFF)
 
 		previous_sample = previous_sample + deltas[index]
 
