@@ -301,7 +301,8 @@ end
 -- PCM Processing --
 --------------------
 
-local function process_wav_file(input_file_path, callback)
+local function read_wav_file(input_file_path)
+	local audio = {}
 	local message
 
 	local input_file = io.open(input_file_path, "rb")
@@ -322,9 +323,9 @@ local function process_wav_file(input_file_path, callback)
 		local format = input_file:read(4)
 
 		if fourcc ~= "RIFF" then
-			message = "FOURCC check failed; this is not a WAV file!"
+			message = "FOURCC check failed; this is not a valid WAV file!"
 		elseif format ~= "WAVE" then
-			message = "RIFF format check failed; this is not a WAV file!"
+			message = "RIFF format check failed; this is not a valid WAV file!"
 		else
 			local function chunk_size_check(name, size, expected_size)
 				if size < expected_size then
@@ -334,8 +335,9 @@ local function process_wav_file(input_file_path, callback)
 				end
 			end
 
-			local channels = 1
-			local bits_per_sample = 8
+			audio.channels = 1
+			audio.sample_rate = 8000
+			audio.bytes_per_sample = 1
 
 			for chunk_id, chunk_size in function() return read_chunk_header(input_file) end do
 				local starting_position = input_file:seek()
@@ -343,48 +345,30 @@ local function process_wav_file(input_file_path, callback)
 				if chunk_id == "fmt " then
 					if chunk_size_check("Format", chunk_size, 16) then
 						local format = read_u16le(input_file)
-						channels = read_u16le(input_file)
-						local sample_rate = read_u32le(input_file)
+						audio.channels = read_u16le(input_file)
+						audio.sample_rate = read_u32le(input_file)
 						local bytes_per_second = read_u32le(input_file)
 						local bytes_per_block = read_u16le(input_file)
-						bits_per_sample = read_u16le(input_file)
+						audio.bytes_per_sample = divide_round_up(read_u16le(input_file), 8)
 
 						if format ~= 1 then
 							message = "Unsupported sample format '" .. format .. "' (only '1' is supported)!"
 						end
 					end
 				elseif chunk_id == "data" then
-					local bytes_per_sample = divide_round_up(bits_per_sample, 8)
-
-					local function read_sample()
-						if bytes_per_sample == 1 then
+					local function read_signed_sample()
+						if audio.bytes_per_sample == 1 then
 							-- 8-bit is unsigned.
-							return read_u8(input_file)
+							return read_u8(input_file) - 0x80
 						else
 							-- Everything else is signed.
-							local sample = string.unpack("<i" .. bytes_per_sample, input_file:read(bytes_per_sample))
-
-							-- Downsample to 8-bit.
-							sample = divide_round_half_away_from_zero(sample, 1 << 8 * (bytes_per_sample - 1))
-
-							-- Convert to unsigned.
-							return sample + 0x80
+							return string.unpack("<i" .. audio.bytes_per_sample, input_file:read(audio.bytes_per_sample))
 						end
 					end
 
-					local function read_frame()
-						-- Downsample to mono by averaging the samples.
-						local accumulator = 0
-						for _ = 1, channels do
-							accumulator = accumulator + read_sample()
-						end
-						accumulator = divide_round_half_away_from_zero(accumulator, channels)
-
-						return accumulator
-					end
-
-					for _ = 1, chunk_size, bytes_per_sample * channels do
-						callback(read_frame())
+					audio.samples = {}
+					for _ = 1, chunk_size, audio.bytes_per_sample do
+						audio.samples[1 + #audio.samples] = read_signed_sample()
 					end
 				end
 
@@ -396,31 +380,71 @@ local function process_wav_file(input_file_path, callback)
 		input_file:close()
 	end
 
-	return message
+	if message then
+		return nil, message
+	end
+
+	return audio
 end
 
-local function convert_pcm_file(input_file_path, output_file_path)
-	local message
+local function convert_audio_to_u8(audio)
+	local function read_sample(samples, sample_index)
+		local sample = samples[sample_index]
 
+		-- Downsample to 8-bit.
+		sample = divide_round_half_away_from_zero(sample, 1 << 8 * (audio.bytes_per_sample - 1))
+
+		-- Convert to unsigned.
+		return sample + 0x80
+	end
+
+	local function read_frame(samples, sample_index)
+		-- Downsample to mono by averaging the samples.
+		local accumulator = 0
+		for i = sample_index, sample_index + audio.channels - 1 do
+			accumulator = accumulator + read_sample(samples, i)
+		end
+		accumulator = divide_round_half_away_from_zero(accumulator, audio.channels)
+
+		return accumulator
+	end
+
+	local old_samples = audio.samples
+	audio.samples = {}
+
+	for i = 1, #old_samples, audio.channels do
+		audio.samples[1 + #audio.samples] = read_frame(old_samples, i)
+	end
+
+	audio.channels = 1
+	audio.bytes_per_sample = 1
+end
+
+local function convert_wav_file(audio, output_file_path, callback)
 	local output_file = io.open(output_file_path, "wb")
 
 	if output_file == nil then
 		message = "Could not open output file '" .. output_file_path .. "'!"
 	else
-		local function callback(sample)
-			output_file:write(string.pack("I1", sample))
+		for _, sample in ipairs(audio.samples) do
+			callback(output_file, sample)
 		end
 
-		message = process_wav_file(input_file_path, callback)
 		output_file:close()
 	end
 
 	return message
 end
 
-local function convert_dpcm_file(input_file_path, output_file_path)
-	local message
+local function convert_pcm_file(audio, output_file_path)
+	local function callback(output_file, sample)
+		output_file:write(string.pack("I1", sample))
+	end
 
+	return convert_wav_file(audio, output_file_path, callback)
+end
+
+local function convert_dpcm_file(audio, output_file_path)
 	local deltas = {
 		0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40,
 		0x80, 0xFF, 0xFE, 0xFC, 0xF8, 0xF0, 0xE0, 0xC0
@@ -442,43 +466,57 @@ local function convert_dpcm_file(input_file_path, output_file_path)
 	end
 
 	local previous_sample = 0x80
+	local accumulator = 0
+	local flip_flop = false
 
-	local output_file = io.open(output_file_path, "wb")
+	local function callback(output_file, sample)
+		local index = find_closet_delta((sample - previous_sample) & 0xFF)
 
-	if output_file == nil then
-		message = "Could not open output file '" .. output_file_path .. "'!"
-	else
-		local accumulator = 0
-		local flip_flop = false
+		previous_sample = previous_sample + deltas[index]
 
-		local function callback(sample)
-			local index = find_closet_delta((sample - previous_sample) & 0xFF)
+		accumulator = accumulator & 0xF
+		accumulator = accumulator << 4
+		accumulator = accumulator | (index - 1)
 
-			previous_sample = previous_sample + deltas[index]
-
-			accumulator = accumulator & 0xF
-			accumulator = accumulator << 4
-			accumulator = accumulator | (index - 1)
-
-			if flip_flop == true then
-				output_file:write(string.pack("I1", accumulator))
-			end
-
-			flip_flop = not flip_flop
+		if flip_flop == true then
+			output_file:write(string.pack("I1", accumulator))
 		end
 
-		message = process_wav_file(input_file_path, callback)
-		output_file:close()
+		flip_flop = not flip_flop
 	end
 
-	return message
+	return convert_wav_file(audio, output_file_path, callback)
 end
 
 local function convert_wav_files_in_directory(directory, extension, callback)
 	for _, filename_stem in iterate_directory(directory, ".wav") do
 		local input_file_path = directory .. "/" .. filename_stem .. ".wav"
 		local output_file_path = directory .. "/generated/" .. filename_stem .. extension
-		local message = callback(input_file_path, output_file_path)
+		local inc_file_path = directory .. "/generated/" .. filename_stem .. ".inc"
+
+		local audio, message = read_wav_file(input_file_path)
+
+		if audio ~= nil then
+			convert_audio_to_u8(audio)
+
+			message = callback(audio, output_file_path)
+
+			local inc_file = io.open(inc_file_path, "w")
+
+			if inc_file == nil then
+				message = "Could not open file '" .. inc_file_path .. "'."
+			else
+				inc_file:write(string.format(
+[[
+.sample_rate = %i
+	binclude "%s"
+]]
+					, audio.sample_rate, output_file_path
+				))
+
+				inc_file:close()
+			end
+		end
 
 		if message then
 			print("Failed to convert '" .. input_file_path .. "' to ''" .. output_file_path .. "'. Error message was:\n\t" .. message)
