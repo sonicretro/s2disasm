@@ -28,7 +28,7 @@ local repository = "https://github.com/sonicretro/s2disasm"
 -- Just a shim for backwards-compatibility with things like Vladikcomper's debugger.
 -- TODO: Remove this when nothing uses it any more.
 local function message_abort_wrapper(message_printed, abort)
-	common.handle_assembler_failure(message_printed, abort)
+	common.handle_failure(message_printed, abort)
 end
 
 local function generate_music_data()
@@ -192,7 +192,7 @@ SonicDriverVer = 2
 				-- We can get rid of this wrapper ASM file now.
 				os.remove("song.asm")
 
-				common.handle_assembler_failure(message_printed, abort)
+				common.handle_failure(message_printed, abort)
 
 				-- Now that we have an assembled song binary, compress it.
 				os.execute(tools.saxman .. " " .. (improved_sound_driver_compression and "" or "-a") .. " song.bin \"" .. sax_file_path .. "\"")
@@ -239,23 +239,6 @@ local function amend_sound_driver_size()
 	os.remove("s2.h")
 end
 
-local function convert_wav_files()
-	local function do_directory(directory, extension, callback)
-		for _, filename_stem in common.iterate_directory(directory, ".wav") do
-			local input_file_path = directory .. "/" .. filename_stem .. ".wav"
-			local output_file_path = directory .. "/generated/" .. filename_stem .. extension
-			local message = callback(input_file_path, output_file_path)
-
-			if message then
-				print("Failed to convert '" .. input_file_path .. "' to ''" .. output_file_path .. "'. Error message was:\n\t" .. message)
-			end
-		end
-	end
-
-	do_directory("sound/PCM", ".pcm", common.convert_pcm_file)
-	do_directory("sound/DAC", ".dpcm", common.convert_dpcm_file)
-end
-
 ----------------------
 -- End of utilities --
 ----------------------
@@ -268,7 +251,8 @@ end
 generate_music_data()
 
 -- Produce PCM and DPCM data.
-convert_wav_files()
+common.convert_pcm_files_in_directory("sound/PCM")
+common.convert_dpcm_files_in_directory("sound/DAC")
 
 -- Build the ROM.
 local compression = improved_sound_driver_compression and "saxman-optimised" or "saxman-bugged"

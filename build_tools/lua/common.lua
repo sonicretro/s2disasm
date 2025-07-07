@@ -2,16 +2,90 @@ local common = {}
 
 local os_name, arch_name = require "build_tools.lua.get_os_name".get_os_name()
 
------------------------
--- General Utilities --
------------------------
+------------------------
+-- Internal Utilities --
+------------------------
 
 local function is_windows()
 	return os_name == "Windows"
 end
 
+-- File Reading --
+
+local function read_wrapper(file, format, bytes)
+	local data = file:read(bytes)
+
+	if data then
+		return string.unpack(format, data)
+	end
+end
+
+local function read_s8(file)
+	return read_wrapper(file, "i1", 1)
+end
+
+local function read_s16le(file)
+	return read_wrapper(file, "<i2", 2)
+end
+
+local function read_s32le(file)
+	return read_wrapper(file, "<i4", 4)
+end
+
+local function read_u8(file)
+	return read_wrapper(file, "I1", 1)
+end
+
+local function read_u16le(file)
+	return read_wrapper(file, "<I2", 2)
+end
+
+local function read_u32le(file)
+	return read_wrapper(file, "<I4", 4)
+end
+
+-- Division --
+
+local function divide_round_up(dividend, divisor)
+	return (dividend + (divisor - 1)) // divisor
+end
+
+local function divide_round_down(dividend, divisor)
+	return dividend // divisor
+end
+
+local function divide_round_half_up(dividend, divisor)
+	return divide_round_down(dividend + (divisor // 2), divisor)
+end
+
+local function divide_round_half_down(dividend, divisor)
+	return divide_round_up(dividend - (divisor // 2), divisor)
+end
+
+local function divide_round_half_away_from_zero(dividend, divisor)
+	if dividend < 0 then
+		return divide_round_half_down(dividend, divisor)
+	else
+		return divide_round_half_up(dividend, divisor)
+	end
+end
+
+-----------------------
+-- General Utilities --
+-----------------------
+
 local function exit(release)
 	os.exit(common.exit_code, release)
+end
+
+local function handle_failure(message_printed, abort)
+	if message_printed then
+		common.exit_code = false
+	end
+
+	if abort then
+		exit(true)
+	end
 end
 
 local function get_split_filename(filename)
@@ -227,68 +301,6 @@ end
 -- PCM Processing --
 --------------------
 
--- File reading
-
-local function read_wrapper(file, format, bytes)
-	local data = file:read(bytes)
-
-	if data then
-		return string.unpack(format, data)
-	end
-end
-
-local function read_s8(file)
-	return read_wrapper(file, "i1", 1)
-end
-
-local function read_s16le(file)
-	return read_wrapper(file, "<i2", 2)
-end
-
-local function read_s32le(file)
-	return read_wrapper(file, "<i4", 4)
-end
-
-local function read_u8(file)
-	return read_wrapper(file, "I1", 1)
-end
-
-local function read_u16le(file)
-	return read_wrapper(file, "<I2", 2)
-end
-
-local function read_u32le(file)
-	return read_wrapper(file, "<I4", 4)
-end
-
--- Division
-
-local function divide_round_up(dividend, divisor)
-	return (dividend + (divisor - 1)) // divisor
-end
-
-local function divide_round_down(dividend, divisor)
-	return dividend // divisor
-end
-
-local function divide_round_half_up(dividend, divisor)
-	return divide_round_down(dividend + (divisor // 2), divisor)
-end
-
-local function divide_round_half_down(dividend, divisor)
-	return divide_round_up(dividend - (divisor // 2), divisor)
-end
-
-local function divide_round_half_away_from_zero(dividend, divisor)
-	if dividend < 0 then
-		return divide_round_half_down(dividend, divisor)
-	else
-		return divide_round_half_up(dividend, divisor)
-	end
-end
-
--- PCM processing
-
 local function process_wav_file(input_file_path, callback)
 	local message
 
@@ -437,7 +449,7 @@ local function convert_dpcm_file(input_file_path, output_file_path)
 		message = "Could not open output file '" .. output_file_path .. "'!"
 	else
 		local accumulator = 0
-		local flip_flip = false
+		local flip_flop = false
 
 		local function callback(sample)
 			local index = find_closet_delta((sample - previous_sample) & 0xFF)
@@ -448,11 +460,11 @@ local function convert_dpcm_file(input_file_path, output_file_path)
 			accumulator = accumulator << 4
 			accumulator = accumulator | (index - 1)
 
-			if flip_flip == true then
+			if flip_flop == true then
 				output_file:write(string.pack("I1", accumulator))
 			end
 
-			flip_flip = not flip_flip
+			flip_flop = not flip_flop
 		end
 
 		message = process_wav_file(input_file_path, callback)
@@ -460,6 +472,27 @@ local function convert_dpcm_file(input_file_path, output_file_path)
 	end
 
 	return message
+end
+
+local function convert_wav_files_in_directory(directory, extension, callback)
+	for _, filename_stem in iterate_directory(directory, ".wav") do
+		local input_file_path = directory .. "/" .. filename_stem .. ".wav"
+		local output_file_path = directory .. "/generated/" .. filename_stem .. extension
+		local message = callback(input_file_path, output_file_path)
+
+		if message then
+			print("Failed to convert '" .. input_file_path .. "' to ''" .. output_file_path .. "'. Error message was:\n\t" .. message)
+			handle_failure(true, true)
+		end
+	end
+end
+
+local function convert_pcm_files_in_directory(directory)
+	convert_wav_files_in_directory(directory, ".pcm", convert_pcm_file)
+end
+
+local function convert_dpcm_files_in_directory(directory)
+	convert_wav_files_in_directory(directory, ".dpcm", convert_dpcm_file)
 end
 
 ------------------
@@ -500,18 +533,8 @@ end
 -- Assembling --
 ----------------
 
-local function handle_assembler_failure(message_printed, abort)
-	if message_printed then
-		common.exit_code = false
-	end
-
-	if abort then
-		exit(true)
-	end
-end
-
 local function assemble_file_and_handle_failure(...)
-	handle_assembler_failure(assemble_file(...))
+	handle_failure(assemble_file(...))
 end
 
 -- Produce a binary from an assembly file.
@@ -613,7 +636,7 @@ local function build_rom(input_filename, output_filename, as_arguments, p2bin_ar
 end
 
 local function build_rom_and_handle_failure(...)
-	handle_assembler_failure(build_rom(...))
+	handle_failure(build_rom(...))
 end
 
 ------------
@@ -621,16 +644,16 @@ end
 ------------
 
 common.exit = exit
+common.handle_failure = handle_failure
 common.get_directory_contents = get_directory_contents
 common.iterate_directory = iterate_directory
 common.get_split_filename = get_split_filename
 common.file_exists = file_exists
 common.show_flashy_message = show_flashy_message
 common.find_tools = find_tools
-common.convert_pcm_file = convert_pcm_file
-common.convert_dpcm_file = convert_dpcm_file
+common.convert_pcm_files_in_directory = convert_pcm_files_in_directory
+common.convert_dpcm_files_in_directory = convert_dpcm_files_in_directory
 common.fix_header = fix_header
-common.handle_assembler_failure = handle_assembler_failure
 common.assemble_file = assemble_file
 common.assemble_file_and_handle_failure = assemble_file_and_handle_failure
 common.build_rom = build_rom
