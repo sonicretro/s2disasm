@@ -227,6 +227,8 @@ end
 -- PCM Processing --
 --------------------
 
+-- File reading
+
 local function read_wrapper(file, format, bytes)
 	local data = file:read(bytes)
 
@@ -258,6 +260,34 @@ end
 local function read_u32le(file)
 	return read_wrapper(file, "<I4", 4)
 end
+
+-- Division
+
+local function divide_round_up(dividend, divisor)
+	return (dividend + (divisor - 1)) // divisor
+end
+
+local function divide_round_down(dividend, divisor)
+	return dividend // divisor
+end
+
+local function divide_round_half_up(dividend, divisor)
+	return divide_round_down(dividend + (divisor // 2), divisor)
+end
+
+local function divide_round_half_down(dividend, divisor)
+	return divide_round_up(dividend - (divisor // 2), divisor)
+end
+
+local function divide_round_half_away_from_zero(dividend, divisor)
+	if dividend < 0 then
+		return divide_round_half_down(dividend, divisor)
+	else
+		return divide_round_half_up(dividend, divisor)
+	end
+end
+
+-- PCM processing
 
 local function process_wav_file(input_file_path, callback)
 	local message
@@ -293,6 +323,7 @@ local function process_wav_file(input_file_path, callback)
 			end
 
 			local channels = 1
+			local bits_per_sample = 8
 
 			for chunk_id, chunk_size in function() return read_chunk_header(input_file) end do
 				local starting_position = input_file:seek()
@@ -304,28 +335,44 @@ local function process_wav_file(input_file_path, callback)
 						local sample_rate = read_u32le(input_file)
 						local bytes_per_second = read_u32le(input_file)
 						local bytes_per_block = read_u16le(input_file)
-						local bits_per_sample = read_u16le(input_file)
+						bits_per_sample = read_u16le(input_file)
 
 						if format ~= 1 then
 							message = "Unsupported sample format '" .. format .. "' (only '1' is supported)!"
 						end
-
-						-- TODO: We can downsample!
-						if bits_per_sample ~= 8 then
-							message = "Unsupported bit depth '" .. bits_per_sample .. "' (only '8' is supported)!"
-						end
 					end
 				elseif chunk_id == "data" then
-					for _ = 1, chunk_size, channels do
+					local bytes_per_sample = divide_round_up(bits_per_sample, 8)
+
+					local function read_sample()
+						if bytes_per_sample == 1 then
+							-- 8-bit is unsigned.
+							return read_u8(input_file)
+						else
+							-- Everything else is signed.
+							local sample = string.unpack("<i" .. bytes_per_sample, input_file:read(bytes_per_sample))
+
+							-- Downsample to 8-bit.
+							sample = divide_round_half_away_from_zero(sample, 1 << 8 * (bytes_per_sample - 1))
+
+							-- Convert to unsigned.
+							return sample + 0x80
+						end
+					end
+
+					local function read_frame()
 						-- Downsample to mono by averaging the samples.
 						local accumulator = 0
 						for _ = 1, channels do
-							accumulator = accumulator + read_u8(input_file)
+							accumulator = accumulator + read_sample()
 						end
-						accumulator = accumulator // channels
+						accumulator = divide_round_half_away_from_zero(accumulator, channels)
 
-						-- Output the mono sample.
-						callback(accumulator)
+						return accumulator
+					end
+
+					for _ = 1, chunk_size, bytes_per_sample * channels do
+						callback(read_frame())
 					end
 				end
 
