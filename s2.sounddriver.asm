@@ -1602,6 +1602,8 @@ CmdPtr__End:
 ; ---------------------------------------------------------------------------
 ; zloc_6EF
 zPlaySegaSound:
+.loop_counter = pcmLoopCounter(Snd_Sega.sample_rate)
+
     if FixDriverBugs
 	; reset panning (don't want Sega sound playing on only one speaker)
 	ld	a,0B6h		; Set Panning / AMS / FMS
@@ -1616,7 +1618,7 @@ zPlaySegaSound:
 	bankswitch Snd_Sega	; We want the Sega sound
 
 	ld	hl,zmake68kPtr(Snd_Sega) ; was: 9E8Ch
-	ld	de,(Snd_Sega_End - Snd_Sega)/2	; was: 30BAh
+	ld	de,(Snd_Sega.end - Snd_Sega)/2	; was: 30BAh
 	ld	a,2Ah			; DAC data register
 	ld	(zYM2612_A0),a		; Select it
 	ld	c,80h			; If QueueToPlay is not this, stops Sega PCM
@@ -1628,7 +1630,7 @@ zPlaySegaSound:
 	ld	(zYM2612_D0),a			; 13	; Send to DAC
 	inc	hl				; 6	; Advance pointer
 	nop					; 4
-	ld	b,pcmLoopCounter(16500)		; 7	; Sega PCM pitch
+	ld	b,.loop_counter			; 7	; Sega PCM pitch
 	djnz	$				; 8	; Delay loop
 
 	nop					; 4
@@ -1639,7 +1641,7 @@ zPlaySegaSound:
 	ld	(zYM2612_D0),a			; 13	; Send to DAC
 	inc	hl				; 6	; Advance pointer
 	nop					; 4
-	ld	b,pcmLoopCounter(16500)		; 7	; Sega PCM pitch
+	ld	b,.loop_counter			; 7	; Sega PCM pitch
 	djnz	$				; 8	; Delay loop
 
 	nop					; 4
