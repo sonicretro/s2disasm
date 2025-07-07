@@ -3863,39 +3863,31 @@ zSpedUpTempoTable:
 	db	0CDh,0AAh,0F2h,0DBh
 	db	0D5h,0F0h, 80h
 
+dac_sample_pointer macro label
+label.pointer = $
+	dw	zmake68kPtr(label)
+	dw	label.end-label
+    endm
+
 	; DAC sample pointers and lengths
-	ensure1byteoffset 1Ch
+	ensure1byteoffset 2*2*7
 
 ; zDACPtr_Index zbyte_1233
 zDACPtrTbl:
-zDACPtr_Kick:		dw	zmake68kPtr(SndDAC_Kick)
-; zbyte_1235
-zDACLenTbl:
-			dw	SndDAC_Kick_End-SndDAC_Kick
-
-zDACPtr_Snare:		dw	zmake68kPtr(SndDAC_Snare)
-			dw	SndDAC_Snare_End-SndDAC_Snare
-
-zDACPtr_Clap:		dw	zmake68kPtr(SndDAC_Clap)
-			dw	SndDAC_Clap_End-SndDAC_Clap
-
-zDACPtr_Scratch:	dw	zmake68kPtr(SndDAC_Scratch)
-			dw	SndDAC_Scratch_End-SndDAC_Scratch
-
-zDACPtr_Timpani:	dw	zmake68kPtr(SndDAC_Timpani)
-			dw	SndDAC_Timpani_End-SndDAC_Timpani
-
-zDACPtr_Tom:		dw	zmake68kPtr(SndDAC_Tom)
-			dw	SndDAC_Tom_End-SndDAC_Tom
-
-zDACPtr_Bongo:		dw	zmake68kPtr(SndDAC_Bongo)
-			dw	SndDAC_Bongo_End-SndDAC_Bongo
+zDACLenTbl = zDACPtrTbl + 2
+	dac_sample_pointer SndDAC_Kick
+	dac_sample_pointer SndDAC_Snare
+	dac_sample_pointer SndDAC_Clap
+	dac_sample_pointer SndDAC_Scratch
+	dac_sample_pointer SndDAC_Timpani
+	dac_sample_pointer SndDAC_Tom
+	dac_sample_pointer SndDAC_Bongo
 
 	; something else for DAC sounds
 	; First byte selects one of the DAC samples. The number that
 	; follows it is a wait time between each nibble written to the DAC
 	; (thus higher = slower)
-	ensure1byteoffset 22h
+	ensure1byteoffset 2*11h
 ; zbyte_124F
 zDACMasterPlaylist:
 
@@ -3905,26 +3897,26 @@ ptrsize :=	2+2
 idstart :=	81h
 
 dac_sample_metadata macro label,sampleRate
-	db	id(label),dpcmLoopCounter(sampleRate)
+	db	id(label.pointer),dpcmLoopCounter(sampleRate)
     endm
 
-	dac_sample_metadata zDACPtr_Kick,    8250	; 81h
-	dac_sample_metadata zDACPtr_Snare,  24000	; 82h
-	dac_sample_metadata zDACPtr_Clap,   17000	; 83h
-	dac_sample_metadata zDACPtr_Scratch,15000	; 84h
-	dac_sample_metadata zDACPtr_Timpani, 7375	; 85h
-	dac_sample_metadata zDACPtr_Tom,    13500	; 86h
-	dac_sample_metadata zDACPtr_Bongo,   7375	; 87h
-	dac_sample_metadata zDACPtr_Timpani, 9750	; 88h
-	dac_sample_metadata zDACPtr_Timpani, 8750	; 89h
-	dac_sample_metadata zDACPtr_Timpani, 7250	; 8Ah
-	dac_sample_metadata zDACPtr_Timpani, 7000	; 8Bh
-	dac_sample_metadata zDACPtr_Tom,    23000	; 8Ch
-	dac_sample_metadata zDACPtr_Tom,    18000	; 8Dh
-	dac_sample_metadata zDACPtr_Tom,    15000	; 8Eh
-	dac_sample_metadata zDACPtr_Bongo,  15000	; 8Fh
-	dac_sample_metadata zDACPtr_Bongo,  13000	; 90h
-	dac_sample_metadata zDACPtr_Bongo,   9750	; 91h
+	dac_sample_metadata SndDAC_Kick,    8250	; 81h
+	dac_sample_metadata SndDAC_Snare,  24000	; 82h
+	dac_sample_metadata SndDAC_Clap,   17000	; 83h
+	dac_sample_metadata SndDAC_Scratch,15000	; 84h
+	dac_sample_metadata SndDAC_Timpani, 7375	; 85h
+	dac_sample_metadata SndDAC_Tom,    13500	; 86h
+	dac_sample_metadata SndDAC_Bongo,   7375	; 87h
+	dac_sample_metadata SndDAC_Timpani, 9750	; 88h
+	dac_sample_metadata SndDAC_Timpani, 8750	; 89h
+	dac_sample_metadata SndDAC_Timpani, 7250	; 8Ah
+	dac_sample_metadata SndDAC_Timpani, 7000	; 8Bh
+	dac_sample_metadata SndDAC_Tom,    23000	; 8Ch
+	dac_sample_metadata SndDAC_Tom,    18000	; 8Dh
+	dac_sample_metadata SndDAC_Tom,    15000	; 8Eh
+	dac_sample_metadata SndDAC_Bongo,  15000	; 8Fh
+	dac_sample_metadata SndDAC_Bongo,  13000	; 90h
+	dac_sample_metadata SndDAC_Bongo,   9750	; 91h
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 

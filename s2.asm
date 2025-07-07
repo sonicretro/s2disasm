@@ -90596,36 +90596,23 @@ Snd_Driver_End:
 ; ---------------------------------------------------------------------------
 ; DAC samples
 ; ---------------------------------------------------------------------------
+
+dac_include macro {INTLABEL},path
+__LABEL__ label *
+	binclude path
+__LABEL__.end = *
+    endm
+
 ; loc_ED100:
 SndDAC_Start:
 
-SndDAC_Kick:
-	BINCLUDE	"sound/DAC/generated/Kick.dpcm"
-SndDAC_Kick_End
-
-SndDAC_Snare:
-	BINCLUDE	"sound/DAC/generated/Snare.dpcm"
-SndDAC_Snare_End
-
-SndDAC_Timpani:
-	BINCLUDE	"sound/DAC/generated/Timpani.dpcm"
-SndDAC_Timpani_End
-
-SndDAC_Tom:
-	BINCLUDE	"sound/DAC/generated/Tom.dpcm"
-SndDAC_Tom_End
-
-SndDAC_Clap:
-	BINCLUDE	"sound/DAC/generated/Clap.dpcm"
-SndDAC_Clap_End
-
-SndDAC_Scratch:
-	BINCLUDE	"sound/DAC/generated/Scratch.dpcm"
-SndDAC_Scratch_End
-
-SndDAC_Bongo:
-	BINCLUDE	"sound/DAC/generated/Bongo.dpcm"
-SndDAC_Bongo_End
+SndDAC_Kick:	dac_include	"sound/DAC/generated/Kick.dpcm"
+SndDAC_Snare:	dac_include	"sound/DAC/generated/Snare.dpcm"
+SndDAC_Timpani:	dac_include	"sound/DAC/generated/Timpani.dpcm"
+SndDAC_Tom:	dac_include	"sound/DAC/generated/Tom.dpcm"
+SndDAC_Clap:	dac_include	"sound/DAC/generated/Clap.dpcm"
+SndDAC_Scratch:	dac_include	"sound/DAC/generated/Scratch.dpcm"
+SndDAC_Bongo:	dac_include	"sound/DAC/generated/Bongo.dpcm"
 
 SndDAC_End
 
