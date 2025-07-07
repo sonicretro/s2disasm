@@ -90599,20 +90599,20 @@ Snd_Driver_End:
 
 dac_include macro {INTLABEL},path
 __LABEL__ label *
-	binclude path
+	include path
 __LABEL__.end = *
     endm
 
 ; loc_ED100:
 SndDAC_Start:
 
-SndDAC_Kick:	dac_include	"sound/DAC/generated/Kick.dpcm"
-SndDAC_Snare:	dac_include	"sound/DAC/generated/Snare.dpcm"
-SndDAC_Timpani:	dac_include	"sound/DAC/generated/Timpani.dpcm"
-SndDAC_Tom:	dac_include	"sound/DAC/generated/Tom.dpcm"
-SndDAC_Clap:	dac_include	"sound/DAC/generated/Clap.dpcm"
-SndDAC_Scratch:	dac_include	"sound/DAC/generated/Scratch.dpcm"
-SndDAC_Bongo:	dac_include	"sound/DAC/generated/Bongo.dpcm"
+SndDAC_Kick:	dac_include	"sound/DAC/generated/Kick.inc"
+SndDAC_Snare:	dac_include	"sound/DAC/generated/Snare.inc"
+SndDAC_Timpani:	dac_include	"sound/DAC/generated/Timpani.inc"
+SndDAC_Tom:	dac_include	"sound/DAC/generated/Tom.inc"
+SndDAC_Clap:	dac_include	"sound/DAC/generated/Clap.inc"
+SndDAC_Scratch:	dac_include	"sound/DAC/generated/Scratch.inc"
+SndDAC_Bongo:	dac_include	"sound/DAC/generated/Bongo.inc"
 
 SndDAC_End
 

@@ -3896,27 +3896,31 @@ offset :=	zDACPtrTbl
 ptrsize :=	2+2
 idstart :=	81h
 
-dac_sample_metadata macro label,sampleRate
-	db	id(label.pointer),dpcmLoopCounter(sampleRate)
+dac_sample_metadata macro label,sampleRateScale
+sample_rate_scale := 1.0
+    if "sampleRateScale"<>""
+sample_rate_scale := sampleRateScale
+    endif
+	db	id(label.pointer),dpcmLoopCounter(int(label.sample_rate*sample_rate_scale))
     endm
 
-	dac_sample_metadata SndDAC_Kick,    8250	; 81h
-	dac_sample_metadata SndDAC_Snare,  24000	; 82h
-	dac_sample_metadata SndDAC_Clap,   17000	; 83h
-	dac_sample_metadata SndDAC_Scratch,15000	; 84h
-	dac_sample_metadata SndDAC_Timpani, 7375	; 85h
-	dac_sample_metadata SndDAC_Tom,    13500	; 86h
-	dac_sample_metadata SndDAC_Bongo,   7375	; 87h
-	dac_sample_metadata SndDAC_Timpani, 9750	; 88h
-	dac_sample_metadata SndDAC_Timpani, 8750	; 89h
-	dac_sample_metadata SndDAC_Timpani, 7250	; 8Ah
-	dac_sample_metadata SndDAC_Timpani, 7000	; 8Bh
-	dac_sample_metadata SndDAC_Tom,    23000	; 8Ch
-	dac_sample_metadata SndDAC_Tom,    18000	; 8Dh
-	dac_sample_metadata SndDAC_Tom,    15000	; 8Eh
-	dac_sample_metadata SndDAC_Bongo,  15000	; 8Fh
-	dac_sample_metadata SndDAC_Bongo,  13000	; 90h
-	dac_sample_metadata SndDAC_Bongo,   9750	; 91h
+	dac_sample_metadata SndDAC_Kick			; 81h
+	dac_sample_metadata SndDAC_Snare,		; 82h
+	dac_sample_metadata SndDAC_Clap,		; 83h
+	dac_sample_metadata SndDAC_Scratch,		; 84h
+	dac_sample_metadata SndDAC_Timpani,		; 85h
+	dac_sample_metadata SndDAC_Tom,			; 86h
+	dac_sample_metadata SndDAC_Bongo,		; 87h
+	dac_sample_metadata SndDAC_Timpani, 1.30	; 88h
+	dac_sample_metadata SndDAC_Timpani, 1.20	; 89h
+	dac_sample_metadata SndDAC_Timpani, 0.97	; 8Ah
+	dac_sample_metadata SndDAC_Timpani, 0.95	; 8Bh
+	dac_sample_metadata SndDAC_Tom,     1.70	; 8Ch
+	dac_sample_metadata SndDAC_Tom,     1.30	; 8Dh
+	dac_sample_metadata SndDAC_Tom,     1.10	; 8Eh
+	dac_sample_metadata SndDAC_Bongo,   2.00	; 8Fh
+	dac_sample_metadata SndDAC_Bongo,   1.75	; 90h
+	dac_sample_metadata SndDAC_Bongo,   1.30	; 91h
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
