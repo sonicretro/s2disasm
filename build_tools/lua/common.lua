@@ -112,6 +112,63 @@ local function file_exists(path)
 	end
 end
 
+local function show_flashy_message(message)
+	local width = 70
+
+	local function do_full_line()
+		local line = ""
+
+		for _ = 1, width do
+			line = line .. "*"
+		end
+
+		return line .. "\n"
+	end
+
+	local function do_empty_line()
+		local line = "*"
+
+		for _ = 1 + 1, width - 1 do
+			line = line .. " "
+		end
+
+		return line .. "*\n"
+	end
+
+	local function do_message_line()
+		local left_padding = (width - 2 - #message) // 2
+		local right_padding = width - 2 - #message - left_padding
+
+		if left_padding < 0 then
+			left_padding = 0
+		end
+
+		if right_padding < 0 then
+			right_padding = 0
+		end
+
+		local line = "*"
+
+		for _ = 1, left_padding do
+			line = line .. " "
+		end
+
+		line = line .. message
+
+		for _ = 1, right_padding do
+			line = line .. " "
+		end
+
+		return line .. "*\n"
+	end
+
+	print("\n" .. do_full_line() .. do_empty_line() .. do_message_line() .. do_empty_line() .. do_full_line())
+end
+
+-----------------------
+-- Directory Listing --
+-----------------------
+
 local function get_directory_contents(path, extension)
 	local function get_directory_contents(path)
 		local listing
@@ -266,59 +323,6 @@ local function get_directory_contents_changed(directory, base_extension, replace
 	end
 
 	return filtered_contents
-end
-
-local function show_flashy_message(message)
-	local width = 70
-
-	local function do_full_line()
-		local line = ""
-
-		for _ = 1, width do
-			line = line .. "*"
-		end
-
-		return line .. "\n"
-	end
-
-	local function do_empty_line()
-		local line = "*"
-
-		for _ = 1 + 1, width - 1 do
-			line = line .. " "
-		end
-
-		return line .. "*\n"
-	end
-
-	local function do_message_line()
-		local left_padding = (width - 2 - #message) // 2
-		local right_padding = width - 2 - #message - left_padding
-
-		if left_padding < 0 then
-			left_padding = 0
-		end
-
-		if right_padding < 0 then
-			right_padding = 0
-		end
-
-		local line = "*"
-
-		for _ = 1, left_padding do
-			line = line .. " "
-		end
-
-		line = line .. message
-
-		for _ = 1, right_padding do
-			line = line .. " "
-		end
-
-		return line .. "*\n"
-	end
-
-	print("\n" .. do_full_line() .. do_empty_line() .. do_message_line() .. do_empty_line() .. do_full_line())
 end
 
 -----------
