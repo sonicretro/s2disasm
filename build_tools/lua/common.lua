@@ -647,7 +647,7 @@ local function convert_wav_files_in_directory(directory, extension, callback, cu
 		end
 
 		if message then
-			print("Failed to convert '" .. input_file_path .. "' to ''" .. output_file_path .. "'. Error message was:\n\t" .. message)
+			print("Failed to convert '" .. input_file_path .. "' to '" .. output_file_path .. "'. Error message was:\n\t" .. message)
 			handle_failure(true, true)
 		end
 	end
