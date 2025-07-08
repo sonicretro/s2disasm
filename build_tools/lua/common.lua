@@ -12,6 +12,16 @@ local function is_windows()
 	return os_name == "Windows"
 end
 
+local function open_file_with_warning(path, mode)
+	local file = io.open(path, mode)
+
+	if not file then
+		print("Failed to open file '" .. path .. "'!")
+	end
+
+	return file
+end
+
 -- File Reading --
 
 local function read_wrapper(file, format, bytes)
@@ -303,11 +313,9 @@ local function get_directory_contents_changed(directory, base_extension, replace
 	end
 
 	-- Now that that's done, we can begin re-writing 'hashes.lua' with the new hashes that we compute in the next step.
-	local hashes_file = io.open(lua_file_path, "w")
+	local hashes_file = open_file_with_warning(lua_file_path, "w")
 
-	if hashes_file == nil then
-		print("Failed to open '" .. lua_file_path .. "' for writing.")
-	else
+	if hashes_file then
 		for key, value in pairs(hashes) do
 			hashes_file:write( "['" .. key .. "'] = ")
 
@@ -430,11 +438,9 @@ local function read_wav_file(input_file_path)
 	local audio = {}
 	local message
 
-	local input_file = io.open(input_file_path, "rb")
+	local input_file = open_file_with_warning(input_file_path, "rb")
 
-	if input_file == nil then
-		message = "Could not open input file '" .. input_file_path .. "'!"
-	else
+	if input_file then
 		local function read_chunk_header(file)
 			local id = input_file:read(4)
 			local size = read_u32le(input_file)
@@ -548,7 +554,7 @@ end
 local function convert_wav_file(audio, output_file_path, callback)
 	local output_file = io.open(output_file_path, "wb")
 
-	if output_file == nil then
+	if not output_file then
 		message = "Could not open output file '" .. output_file_path .. "'!"
 	else
 		for _, sample in ipairs(audio.samples) do
@@ -569,17 +575,17 @@ local function convert_pcm_file(audio, output_file_path)
 	return convert_wav_file(audio, output_file_path, callback)
 end
 
-local function convert_dpcm_file(audio, output_file_path)
-	local deltas = {
-		0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40,
-		0x80, 0xFF, 0xFE, 0xFC, 0xF8, 0xF0, 0xE0, 0xC0
-	}
+local dplc_deltas = {
+	0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40,
+	0x80, 0xFF, 0xFE, 0xFC, 0xF8, 0xF0, 0xE0, 0xC0
+}
 
+local function convert_dpcm_file(audio, output_file_path, deltas)
 	local function find_closest_delta(value)
 		local best_error = math.huge
 		local best_index
 
-		for delta_index, delta in ipairs(deltas) do
+		for delta_index, delta in ipairs(dplc_deltas) do
 			local error = math.abs(delta - value)
 			if best_error > error then
 				best_error = error
@@ -597,7 +603,7 @@ local function convert_dpcm_file(audio, output_file_path)
 	local function callback(output_file, sample)
 		local index = find_closest_delta((sample - previous_sample) & 0xFF)
 
-		previous_sample = previous_sample + deltas[index]
+		previous_sample = previous_sample + dplc_deltas[index]
 
 		accumulator = accumulator & 0xF
 		accumulator = accumulator << 4
@@ -613,8 +619,8 @@ local function convert_dpcm_file(audio, output_file_path)
 	return convert_wav_file(audio, output_file_path, callback)
 end
 
-local function convert_wav_files_in_directory(directory, extension, callback)
-	for _, filename_stem in ipairs(get_directory_contents_changed(directory, ".wav", {extension, ".inc"})) do
+local function convert_wav_files_in_directory(directory, extension, callback, custom_hashes, ...)
+	for _, filename_stem in ipairs(get_directory_contents_changed(directory, ".wav", {extension, ".inc"}, custom_hashes)) do
 		local input_file_path = directory .. "/" .. filename_stem .. ".wav"
 		local output_file_path = directory .. "/generated/" .. filename_stem .. extension
 		local inc_file_path = directory .. "/generated/" .. filename_stem .. ".inc"
@@ -626,13 +632,11 @@ local function convert_wav_files_in_directory(directory, extension, callback)
 		if audio ~= nil then
 			convert_audio_to_u8(audio)
 
-			message = callback(audio, output_file_path)
+			message = callback(audio, output_file_path, ...)
 
-			local inc_file = io.open(inc_file_path, "w")
+			local inc_file = open_file_with_warning(inc_file_path, "w")
 
-			if inc_file == nil then
-				message = "Could not open file '" .. inc_file_path .. "'."
-			else
+			if inc_file then
 				inc_file:write(string.format(
 [[
 .sample_rate = %i
@@ -657,7 +661,19 @@ local function convert_pcm_files_in_directory(directory)
 end
 
 local function convert_dpcm_files_in_directory(directory)
-	convert_wav_files_in_directory(directory, ".dpcm", convert_dpcm_file)
+	local deltas_file_path = directory .. "/deltas.bin"
+
+	-- Load deltas file.
+	local deltas_file = open_file_with_warning(deltas_file_path, "rb")
+
+	local deltas = {}
+	repeat
+		deltas[1 + #deltas] = read_u8(deltas_file)
+	until not byte
+
+	deltas_file:close()
+
+	convert_wav_files_in_directory(directory, ".dpcm", convert_dpcm_file, {deltas = clownmd5.HashFile(deltas_file_path)}, deltas)
 end
 
 ------------------
@@ -666,7 +682,7 @@ end
 
 -- Correct the ROM's header with a proper checksum and end-of-ROM value.
 local function fix_header(filename)
-	local rom = io.open(filename, "r+b")
+	local rom = open_file_with_warning(filename, "r+b")
 
 	-- Obtain the end-of-ROM value.
 	local rom_end = rom:seek("end", 0) - 1
