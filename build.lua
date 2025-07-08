@@ -57,7 +57,7 @@ local function generate_music_data()
 		smps2asm = common.clownmd5.HashFile("sound/_smps2asm_inc.asm")
 	}
 
-	for _, filename_stem in common.iterate_cached_directory("sound/music", ".asm", {".sax", ".inc"}, custom_hashes) do
+	for _, filename_stem in ipairs(common.get_directory_contents_changed("sound/music", ".asm", {".sax", ".inc"}, custom_hashes)) do
 		local is_compressed = compressed_songs[filename_stem] == true
 
 		local inc_file_path = "sound/music/generated/" .. filename_stem .. ".inc"

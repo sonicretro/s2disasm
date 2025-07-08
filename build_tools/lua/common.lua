@@ -112,29 +112,29 @@ local function file_exists(path)
 	end
 end
 
-local function get_directory_contents(path)
-	local listing
+local function get_directory_contents(path, extension)
+	local function get_directory_contents(path)
+		local listing
 
-	if is_windows() then
-		listing = io.popen("dir /b \"" .. path .. "\"", "r")
-	else
-		-- Assumes POSIX.
-		listing = io.popen("ls -w1 -N " .. path, "r")
+		if is_windows() then
+			listing = io.popen("dir /b \"" .. path .. "\"", "r")
+		else
+			-- Assumes POSIX.
+			listing = io.popen("ls -w1 -N " .. path, "r")
+		end
+
+		local contents = {}
+		for entry in listing:lines() do
+			contents[1 + #contents] = entry
+		end
+
+		return contents
 	end
 
-	local contents = {}
-	for entry in listing:lines() do
-		contents[1 + #contents] = entry
-	end
-
-	return contents
-end
-
-local function iterate_directory(path, extension)
 	local contents = get_directory_contents(path)
 
-	if extension == nil then
-		return ipairs(contents)
+	if not extension then
+		return contents
 	end
 
 	-- Collect the entries that match the given file extension.
@@ -148,7 +148,7 @@ local function iterate_directory(path, extension)
 		end
 	end
 
-	return ipairs(filtered_contents)
+	return filtered_contents
 end
 
 local function load_hashes(file_path)
@@ -194,7 +194,7 @@ local function hash_to_string_literal(hash)
 	return hash_string
 end
 
-local function iterate_cached_directory(directory, base_extension, replacement_extensions, custom_hashes)
+local function get_directory_contents_changed(directory, base_extension, replacement_extensions, custom_hashes)
 	local lua_file_path = directory .. "/generated/hashes.lua"
 
 	local hashes = load_hashes(lua_file_path)
@@ -225,7 +225,7 @@ local function iterate_cached_directory(directory, base_extension, replacement_e
 	-- 'hashes.lua' contains the hashes of every assembled song. If a song's hash
 	-- matches the one recorded in this file, then there is no need to assemble it again.
 	-- Our first task is to load the hashes contained in this file into a table.
-	for _, filename in iterate_directory(directory, base_extension) do
+	for _, filename in ipairs(get_directory_contents(directory, base_extension)) do
 		local file_differs = update_hash(filename, directory .. "/" .. filename .. base_extension)
 
 		local function output_file_missing()
@@ -265,7 +265,7 @@ local function iterate_cached_directory(directory, base_extension, replacement_e
 		hashes_file:close()
 	end
 
-	return ipairs(filtered_contents)
+	return filtered_contents
 end
 
 local function show_flashy_message(message)
@@ -608,7 +608,7 @@ local function convert_dpcm_file(audio, output_file_path)
 end
 
 local function convert_wav_files_in_directory(directory, extension, callback)
-	for _, filename_stem in iterate_directory(directory, ".wav") do
+	for _, filename_stem in ipairs(get_directory_contents(directory, ".wav")) do
 		local input_file_path = directory .. "/" .. filename_stem .. ".wav"
 		local output_file_path = directory .. "/generated/" .. filename_stem .. extension
 		local inc_file_path = directory .. "/generated/" .. filename_stem .. ".inc"
@@ -804,8 +804,7 @@ common.clownmd5 = clownmd5
 common.exit = exit
 common.handle_failure = handle_failure
 common.get_directory_contents = get_directory_contents
-common.iterate_directory = iterate_directory
-common.iterate_cached_directory = iterate_cached_directory
+common.get_directory_contents_changed = get_directory_contents_changed
 common.get_split_filename = get_split_filename
 common.file_exists = file_exists
 common.show_flashy_message = show_flashy_message
