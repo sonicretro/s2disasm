@@ -270,9 +270,11 @@ local function get_directory_contents_changed(directory, base_extension, replace
 	end
 
 	local function custom_hashes_differs()
-		for key, value in pairs(custom_hashes) do
-			if hashes[key] ~= value then
-				return true
+		if custom_hashes then
+			for key, value in pairs(custom_hashes) do
+				if hashes[key] ~= value then
+					return true
+				end
 			end
 		end
 	end
@@ -612,10 +614,12 @@ local function convert_dpcm_file(audio, output_file_path)
 end
 
 local function convert_wav_files_in_directory(directory, extension, callback)
-	for _, filename_stem in ipairs(get_directory_contents(directory, ".wav")) do
+	for _, filename_stem in ipairs(get_directory_contents_changed(directory, ".wav", {extension, ".inc"})) do
 		local input_file_path = directory .. "/" .. filename_stem .. ".wav"
 		local output_file_path = directory .. "/generated/" .. filename_stem .. extension
 		local inc_file_path = directory .. "/generated/" .. filename_stem .. ".inc"
+
+		print("Converting WAV file '" .. input_file_path .. "'...")
 
 		local audio, message = read_wav_file(input_file_path)
 
