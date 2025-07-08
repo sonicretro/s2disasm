@@ -269,12 +269,12 @@ local function get_directory_contents_changed(directory, base_extension, replace
 		return update_value(key, clownmd5.HashFile(filename))
 	end
 
-	local function custom_hashes_differs()
-		if custom_hashes then
-			for key, value in pairs(custom_hashes) do
-				if hashes[key] ~= value then
-					return true
-				end
+	local custom_hashes_differ = false
+	if custom_hashes then
+		for key, value in pairs(custom_hashes) do
+			if hashes[key] ~= value then
+				hashes[key] = value
+				custom_hashes_differ = true
 			end
 		end
 	end
@@ -297,7 +297,7 @@ local function get_directory_contents_changed(directory, base_extension, replace
 			end
 		end
 
-		if custom_hashes_differs() or file_differs or output_file_missing() then
+		if custom_hashes_differ or file_differs or output_file_missing() then
 			filtered_contents[1 + #filtered_contents] = filename
 		end
 	end
