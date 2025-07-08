@@ -1,5 +1,7 @@
 local common = {}
 
+local clownmd5 = require "build_tools.lua.clownmd5"
+
 local os_name, arch_name = require "build_tools.lua.get_os_name".get_os_name()
 
 ------------------------
@@ -144,6 +146,123 @@ local function iterate_directory(path, extension)
 		if filename_extension == extension then
 			filtered_contents[1 + #filtered_contents] = filename_stem
 		end
+	end
+
+	return ipairs(filtered_contents)
+end
+
+local function load_hashes(file_path)
+	local hashes_file = io.open(file_path, "r")
+
+	local hashes
+
+	if not hashes_file then
+		-- 'hashes.lua' does not exist: create an empty table instead.
+		hashes = {}
+	else
+		-- 'hashes.lua' does exist: turn it into a valid Lua chunk and load its data into the table.
+		local chunk = load("return {" .. hashes_file:read("a") .. "}")
+		hashes_file:close()
+
+		-- If `hash.lua` fails to compile, then ignore it and load an empty table instead.
+		hashes = chunk and chunk() or {}
+	end
+
+	return hashes
+end
+
+local function hash_to_string_literal(hash)
+	local function hash_string_iterator()
+		local position = 1
+
+		return function()
+				if position > hash:len() then
+					return nil
+				end
+
+				local byte
+				byte, position = string.unpack("I1", hash, position)
+
+				return byte
+			end
+	end
+
+	local hash_string = ""
+	for byte in hash_string_iterator() do
+		hash_string = hash_string .. string.format("\\x%02X", byte)
+	end
+	return hash_string
+end
+
+local function iterate_cached_directory(directory, base_extension, replacement_extensions, custom_hashes)
+	local lua_file_path = directory .. "/generated/hashes.lua"
+
+	local hashes = load_hashes(lua_file_path)
+
+	local function update_value(key, value)
+		if hashes[key] ~= value then
+			hashes[key] = value
+			return true
+		else
+			return false
+		end
+	end
+
+	local function update_hash(key, filename)
+		return update_value(key, clownmd5.HashFile(filename))
+	end
+
+	local function custom_hashes_differs()
+		for key, value in pairs(custom_hashes) do
+			if hashes[key] ~= value then
+				return true
+			end
+		end
+	end
+
+	local filtered_contents = {}
+
+	-- 'hashes.lua' contains the hashes of every assembled song. If a song's hash
+	-- matches the one recorded in this file, then there is no need to assemble it again.
+	-- Our first task is to load the hashes contained in this file into a table.
+	for _, filename in iterate_directory(directory, base_extension) do
+		local file_differs = update_hash(filename, directory .. "/" .. filename .. base_extension)
+
+		local function output_file_missing()
+			for _, replacement_extension in ipairs(replacement_extensions) do
+				local output_file_path = directory .. "/generated/" .. filename .. replacement_extension
+
+				if not file_exists(output_file_path) then
+					return true
+				end
+			end
+		end
+
+		if custom_hashes_differs() or file_differs or output_file_missing() then
+			filtered_contents[1 + #filtered_contents] = filename
+		end
+	end
+
+	-- Now that that's done, we can begin re-writing 'hashes.lua' with the new hashes that we compute in the next step.
+	local hashes_file = io.open(lua_file_path, "w")
+
+	if hashes_file == nil then
+		print("Failed to open '" .. lua_file_path .. "' for writing.")
+	else
+		for key, value in pairs(hashes) do
+			hashes_file:write( "['" .. key .. "'] = ")
+
+			if type(value) == "string" then
+				hashes_file:write("'" .. hash_to_string_literal(value) .. "'")
+			else
+				hashes_file:write(tostring(value))
+			end
+
+			hashes_file:write(",\n")
+		end
+
+		-- We've written the last part of the 'hashes.lua' file, so we can close it now.
+		hashes_file:close()
 	end
 
 	return ipairs(filtered_contents)
@@ -681,10 +800,12 @@ end
 -- Export --
 ------------
 
+common.clownmd5 = clownmd5
 common.exit = exit
 common.handle_failure = handle_failure
 common.get_directory_contents = get_directory_contents
 common.iterate_directory = iterate_directory
+common.iterate_cached_directory = iterate_cached_directory
 common.get_split_filename = get_split_filename
 common.file_exists = file_exists
 common.show_flashy_message = show_flashy_message
