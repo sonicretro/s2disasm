@@ -22,6 +22,16 @@ local function open_file_with_warning(path, mode)
 	return file
 end
 
+local function get_file_size(file_path)
+	local file = io.open(file_path, "rb")
+
+	if file then
+		local size = file:seek("end")
+		file:close()
+		return size
+	end
+end
+
 -- File Reading --
 
 local function read_wrapper(file, format, bytes)
@@ -637,9 +647,9 @@ local function convert_wav_files_in_directory(directory, extension, callback, cu
 				inc_file:write(string.format(
 [[
 .sample_rate = %i
+.size = %i
 	binclude "%s"
-]]
-					, audio.sample_rate, output_file_path
+]], audio.sample_rate, get_file_size(output_file_path), output_file_path
 				))
 
 				inc_file:close()

@@ -90597,22 +90597,16 @@ Snd_Driver_End:
 ; DAC samples
 ; ---------------------------------------------------------------------------
 
-dac_include macro {INTLABEL},path
-__LABEL__ label *
-	include path
-__LABEL__.end = *
-    endm
-
 ; loc_ED100:
 SndDAC_Start:
 
-SndDAC_Kick:	dac_include	"sound/DAC/generated/Kick.inc"
-SndDAC_Snare:	dac_include	"sound/DAC/generated/Snare.inc"
-SndDAC_Timpani:	dac_include	"sound/DAC/generated/Timpani.inc"
-SndDAC_Tom:	dac_include	"sound/DAC/generated/Tom.inc"
-SndDAC_Clap:	dac_include	"sound/DAC/generated/Clap.inc"
-SndDAC_Scratch:	dac_include	"sound/DAC/generated/Scratch.inc"
-SndDAC_Bongo:	dac_include	"sound/DAC/generated/Bongo.inc"
+SndDAC_Kick:	include	"sound/DAC/generated/Kick.inc"
+SndDAC_Snare:	include	"sound/DAC/generated/Snare.inc"
+SndDAC_Timpani:	include	"sound/DAC/generated/Timpani.inc"
+SndDAC_Tom:	include	"sound/DAC/generated/Tom.inc"
+SndDAC_Clap:	include	"sound/DAC/generated/Clap.inc"
+SndDAC_Scratch:	include	"sound/DAC/generated/Scratch.inc"
+SndDAC_Bongo:	include	"sound/DAC/generated/Bongo.inc"
 
 SndDAC_End
 
@@ -90717,13 +90711,13 @@ ArtNem_MCZGateLog:		BINCLUDE	"art/nemesis/Drawbridge logs from MCZ.nem"
 ; 8-bit unsigned raw audio at 16Khz
 ; -------------------------------------------------------------------------------
 ; loc_F1E8C:
-Snd_Sega:	dac_include	"sound/PCM/generated/SEGA.inc"
+Snd_Sega:	include	"sound/PCM/generated/SEGA.inc"
 
-	if Snd_Sega.end - Snd_Sega > $8000
-		fatal "Sega sound must fit within $8000 bytes, but you have a $\{Snd_Sega.end-Snd_Sega} byte Sega sound."
+	if Snd_Sega.size > $8000
+		fatal "Sega sound must fit within $8000 bytes, but you have a $\{Snd_Sega.size} byte Sega sound."
 	endif
-	if Snd_Sega.end - Snd_Sega > Size_of_SEGA_sound
-		fatal "Size_of_SEGA_sound = $\{Size_of_SEGA_sound}, but you have a $\{Snd_Sega.end-Snd_Sega} byte Sega sound."
+	if Snd_Sega.size > Size_of_SEGA_sound
+		fatal "Size_of_SEGA_sound = $\{Size_of_SEGA_sound}, but you have a $\{Snd_Sega.size} byte Sega sound."
 	endif
 
 ; ------------------------------------------------------------------------------

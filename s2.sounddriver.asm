@@ -1617,7 +1617,7 @@ zPlaySegaSound:
 	bankswitch Snd_Sega	; We want the Sega sound
 
 	ld	hl,zmake68kPtr(Snd_Sega) ; was: 9E8Ch
-	ld	de,(Snd_Sega.end - Snd_Sega)/2	; was: 30BAh
+	ld	de,Snd_Sega.size/2	; was: 30BAh
 	ld	a,2Ah			; DAC data register
 	ld	(zYM2612_A0),a		; Select it
 	ld	c,80h			; If QueueToPlay is not this, stops Sega PCM
@@ -3867,7 +3867,7 @@ zSpedUpTempoTable:
 dac_sample_pointer macro label
 label.pointer = $
 	dw	zmake68kPtr(label)
-	dw	label.end-label
+	dw	label.size
     endm
 
 	; DAC sample pointers and lengths
