@@ -575,18 +575,15 @@ local function convert_pcm_file(audio, output_file_path)
 	return convert_wav_file(audio, output_file_path, callback)
 end
 
-local dplc_deltas = {
-	0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40,
-	0x80, 0xFF, 0xFE, 0xFC, 0xF8, 0xF0, 0xE0, 0xC0
-}
-
 local function convert_dpcm_file(audio, output_file_path, deltas)
-	local function find_closest_delta(value)
+	local function find_closest_delta(sample, previous_sample)
 		local best_error = math.huge
 		local best_index
 
-		for delta_index, delta in ipairs(dplc_deltas) do
-			local error = math.abs(delta - value)
+		for delta_index, delta in ipairs(deltas) do
+			local approximated_sample = (previous_sample + delta) & 0xFF
+
+			local error = math.abs(sample - approximated_sample)
 			if best_error > error then
 				best_error = error
 				best_index = delta_index
@@ -601,9 +598,9 @@ local function convert_dpcm_file(audio, output_file_path, deltas)
 	local flip_flop = false
 
 	local function callback(output_file, sample)
-		local index = find_closest_delta((sample - previous_sample) & 0xFF)
+		local index = find_closest_delta(sample, previous_sample)
 
-		previous_sample = previous_sample + dplc_deltas[index]
+		previous_sample = previous_sample + deltas[index]
 
 		accumulator = accumulator & 0xF
 		accumulator = accumulator << 4
@@ -668,7 +665,8 @@ local function convert_dpcm_files_in_directory(directory)
 
 	local deltas = {}
 	repeat
-		deltas[1 + #deltas] = read_u8(deltas_file)
+		local byte = read_u8(deltas_file)
+		deltas[1 + #deltas] = byte
 	until not byte
 
 	deltas_file:close()
