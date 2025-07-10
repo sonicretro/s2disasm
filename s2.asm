@@ -87105,7 +87105,7 @@ loc_41090:
 	lea	Art_Hud(pc),a1
 
 loc_41094:
-	move.w	#8*hud_letter_num_tiles-1,d1
+	move.w	#bytesToLcnt(tiles_to_bytes(hud_letter_num_tiles)),d1
 	move.b	(a2)+,d0
 	bmi.s	loc_410B0
 	ext.w	d0
@@ -87182,7 +87182,7 @@ HudDb_XY:
 	move.w	(MainCharacter+y_pos).w,d1
 ; loc_41104:
 HudDb_XY2:
-	moveq	#7,d6
+	moveq	#8-1,d6
 	lea	(Art_Text).l,a1
 ; loc_4110C:
 HudDb_XYLoop:
@@ -87196,7 +87196,7 @@ HudDb_XYLoop:
 loc_4111E:
 	lsl.w	#5,d2
 	lea	(a1,d2.w),a3
-    rept 8
+    rept tiles_to_bytes(1)/4
 	move.l	(a3)+,(a6)
     endm
 	swap	d1
@@ -87255,7 +87255,7 @@ loc_4116A:
 	lsl.w	#6,d2
 	move.l	d0,4(a6)
 	lea	(a1,d2.w),a3
-    rept 8*hud_letter_num_tiles
+    rept tiles_to_bytes(hud_letter_num_tiles)/4
 	move.l	(a3)+,(a6)
     endm
 
@@ -87295,7 +87295,7 @@ loc_411CE:
 	add.l	d3,d1
 	lsl.w	#6,d2
 	lea	(a1,d2.w),a3
-    rept 16
+    rept tiles_to_bytes(hud_letter_num_tiles)/4
 	move.l	(a3)+,(a6)
     endm
 	dbf	d6,ContScr_Loop	; repeat 1 more time
@@ -87361,7 +87361,7 @@ loc_4123E:
 	lsl.w	#6,d2
 	move.l	d0,4(a6)
 	lea	(a1,d2.w),a3
-    rept 8*hud_letter_num_tiles
+    rept tiles_to_bytes(hud_letter_num_tiles)/4
 	move.l	(a3)+,(a6)
     endm
 	addi.l	#hud_letter_vdp_delta,d0
@@ -87403,7 +87403,7 @@ loc_41296:
 	beq.s	Hud_ClrBonus
 	lsl.w	#6,d2
 	lea	(a1,d2.w),a3
-    rept 8*hud_letter_num_tiles
+    rept tiles_to_bytes(hud_letter_num_tiles)/4
 	move.l	(a3)+,(a6)
     endm
 
@@ -87413,7 +87413,7 @@ loc_412C0:
 ; ===========================================================================
 ; loc_412C6:
 Hud_ClrBonus:
-	moveq	#8*hud_letter_num_tiles-1,d5
+	moveq	#bytesToLcnt(tiles_to_bytes(hud_letter_num_tiles)),d5
 ; loc_412C8:
 Hud_ClrBonusLoop:
 	move.l	#0,(a6)
