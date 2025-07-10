@@ -52,6 +52,10 @@ air_left =		$28
 flip_turned =		$29 ; 0 for normal, 1 to invert flipping (it's a 180 degree rotation about the axis of Sonic's spine, so he stays in the same position but looks turned around)
 obj_control =		$2A ; 0 for normal, 1 for hanging or for resting on a flipper, $81 for going through CNZ/OOZ/MTZ tubes or stopped in CNZ cages or stoppers or flying if Tails
 status_secondary =	$2B
+.has_shield =		0
+.is_invincible =	1
+.has_speed_shoes =	2
+.is_sliding =		7
 flips_remaining =	$2C ; number of flip revolutions remaining
 flip_speed =		$2D ; number of flip revolutions per frame / 256
 move_lock =		$2E ; and $2F ; horizontal control lock, counts down to 0
@@ -265,13 +269,13 @@ next_bumper         = 6
 prev_bumper_x       = bumper_x-next_bumper
 
 ; ---------------------------------------------------------------------------
-; status_secondary bitfield variables
-;
+; Ugly old constants, kept for backwards-compatibility.
+
 ; status_secondary variable bit numbers
-status_sec_hasShield:		EQU	0
-status_sec_isInvincible:	EQU	1
-status_sec_hasSpeedShoes:	EQU	2
-status_sec_isSliding:		EQU	7
+status_sec_hasShield:		EQU	status_secondary.has_shield
+status_sec_isInvincible:	EQU	status_secondary.is_invincible
+status_sec_hasSpeedShoes:	EQU	status_secondary.has_speed_shoes
+status_sec_isSliding:		EQU	status_secondary.is_sliding
 ; status_secondary variable masks (1 << x == pow(2, x))
 status_sec_hasShield_mask:	EQU	1<<status_sec_hasShield		; $01
 status_sec_isInvincible_mask:	EQU	1<<status_sec_isInvincible	; $02
