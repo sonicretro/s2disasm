@@ -9052,7 +9052,7 @@ ssLdComprsdData:
 	move.w	(a0)+,d0
 	subq.w	#1,d0
 
--   rept 7
+-   rept tiles_to_longwords(1)-1
 	move.l	(a0),(a1)
     endm
 	move.l	(a0)+,(a1)
@@ -41522,7 +41522,7 @@ Obj0A_LoadCountdownArt:
 	beq.s	+
 	move.w	#tiles_to_bytes(ArtTile_ArtNem_TailsDust),d2
 +
-	move.w	#tiles_to_bytes(6)/2,d3	; DMA transfer length (in words)
+	move.w	#tiles_to_words(6),d3	; DMA transfer length (in words)
 	jsr	(QueueDMATransfer).l
 
 return_1D604:
@@ -58988,7 +58988,7 @@ SlotMachine_Subroutine2:
 	beq.s	+
 	addi.w	#tiles_to_bytes(ArtTile_ArtUnc_CNZSlotPics_1_2p-ArtTile_ArtUnc_CNZSlotPics_1),d2
 +
-	move.w	#tiles_to_bytes(16)/2,d3	; DMA transfer length (in words)
+	move.w	#tiles_to_words(16),d3		; DMA transfer length (in words)
 	jsr	(QueueDMATransfer).l
 	rts
 ; ===========================================================================
@@ -85175,7 +85175,7 @@ Dynamic_HTZ:
 	move.w	(a4)+,d1
 	andi.l	#$FFFFFF,d1
 	move.w	d4,d2
-	moveq	#tiles_to_bytes(4)/2,d3	; DMA transfer length (in words)
+	moveq	#tiles_to_words(4),d3	; DMA transfer length (in words)
 	jsr	(QueueDMATransfer).l
 	addi.w	#$80,d4
 	dbf	d5,.mountainLoop
@@ -85259,7 +85259,7 @@ Dynamic_HTZ:
 .done:
 	move.l	#(Chunk_Table+$7C00) & $FFFFFF,d1
 	move.w	#tiles_to_bytes(ArtTile_ArtUnc_HTZClouds),d2
-	move.w	#tiles_to_bytes(8)/2,d3	; DMA transfer length (in words)
+	move.w	#tiles_to_words(8),d3	; DMA transfer length (in words)
 	jsr	(QueueDMATransfer).l
 	movea.l	(sp)+,a2
 	addq.w	#2,a3
@@ -87133,7 +87133,7 @@ loc_410BC:
 	bsr.w	Hud_Lives2
 	move.l	#Art_Hud,d1 ; source addreses
 	move.w	#tiles_to_bytes(ArtTile_Art_HUD_Numbers_2P),d2 ; destination VRAM address
-	move.w	#tiles_to_bytes(22)/2,d3 ; DMA transfer length (in words)
+	move.w	#tiles_to_words(22),d3 ; DMA transfer length (in words)
 	jmp	(QueueDMATransfer).l
 ; ===========================================================================
 
@@ -87196,7 +87196,7 @@ HudDb_XYLoop:
 loc_4111E:
 	lsl.w	#5,d2
 	lea	(a1,d2.w),a3
-    rept tiles_to_bytes(1)/4
+    rept tiles_to_longwords(1)
 	move.l	(a3)+,(a6)
     endm
 	swap	d1
@@ -87255,7 +87255,7 @@ loc_4116A:
 	lsl.w	#6,d2
 	move.l	d0,4(a6)
 	lea	(a1,d2.w),a3
-    rept tiles_to_bytes(hud_letter_num_tiles)/4
+    rept tiles_to_longwords(hud_letter_num_tiles)
 	move.l	(a3)+,(a6)
     endm
 
@@ -87295,7 +87295,7 @@ loc_411CE:
 	add.l	d3,d1
 	lsl.w	#6,d2
 	lea	(a1,d2.w),a3
-    rept tiles_to_bytes(hud_letter_num_tiles)/4
+    rept tiles_to_longwords(hud_letter_num_tiles)
 	move.l	(a3)+,(a6)
     endm
 	dbf	d6,ContScr_Loop	; repeat 1 more time
@@ -87361,7 +87361,7 @@ loc_4123E:
 	lsl.w	#6,d2
 	move.l	d0,4(a6)
 	lea	(a1,d2.w),a3
-    rept tiles_to_bytes(hud_letter_num_tiles)/4
+    rept tiles_to_longwords(hud_letter_num_tiles)
 	move.l	(a3)+,(a6)
     endm
 	addi.l	#hud_letter_vdp_delta,d0
@@ -87403,7 +87403,7 @@ loc_41296:
 	beq.s	Hud_ClrBonus
 	lsl.w	#6,d2
 	lea	(a1,d2.w),a3
-    rept tiles_to_bytes(hud_letter_num_tiles)/4
+    rept tiles_to_longwords(hud_letter_num_tiles)
 	move.l	(a3)+,(a6)
     endm
 
