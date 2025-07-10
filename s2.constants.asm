@@ -1966,11 +1966,11 @@ SS_TriggerRingsToGo:			ds.b	1
     endif
 	dephase
 
-	phase	ramaddr(Horiz_Scroll_Buf)	; Still in SS RAM
+	phase	Horiz_Scroll_Buf	; Still in SS RAM
 SS_Horiz_Scroll_Buf_1:		HorizontalScrollBuffer
 	dephase
 
-	phase	ramaddr(Boss_variables)	; Still in SS RAM
+	phase	Boss_variables	; Still in SS RAM
 				ds.b	4 ; unused
 SS_Offset_X:			ds.w	1
 SS_Offset_Y:			ds.w	1
