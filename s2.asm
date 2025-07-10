@@ -11552,33 +11552,19 @@ dword_8732:
 
 	; Menu text
 Text2P_EmeraldHill:	menutxt	"EMERALD HILL"	; byte_874A:
-	rev02even
 Text2P_MysticCave:	menutxt	" MYSTIC CAVE"	; byte_8757:
-	rev02even
 Text2P_CasinoNight:	menutxt	"CASINO NIGHT"	; byte_8764:
-	rev02even
 Text2P_SpecialStage:	menutxt	"SPECIAL STAGE"	; byte_8771:
-	rev02even
 Text2P_Special:		menutxt	"   SPECIAL  "	; byte_877F:
-	rev02even
 Text2P_Zone:		menutxt	"ZONE "		; byte_878C:
-	rev02even
 Text2P_Stage:		menutxt	"STAGE"		; byte_8792:
-	rev02even
 Text2P_GameOver:	menutxt	"GAME OVER"	; byte_8798:
-	rev02even
 Text2P_TimeOver:	menutxt	"TIME OVER"
-	rev02even
 Text2P_NoGame:		menutxt	"NO GAME"	; byte_87AC:
-	rev02even
 Text2P_Tied:		menutxt	"TIED"		; byte_87B4:
-	rev02even
 Text2P_1P:		menutxt	" 1P"		; byte_87B9:
-	rev02even
 Text2P_2P:		menutxt	" 2P"		; byte_87BD:
-	rev02even
 Text2P_Blank:		menutxt	"    "		; byte_87C1:
-	rev02even
 
 	charset ; reset character set
 
@@ -89466,9 +89452,9 @@ ArtUnc_Waterfall3:	BINCLUDE	"art/uncompressed/ARZ waterfall patterns - 3.bin"
 ;---------------------------------------------------------------------------------------
 ; Player Assets
 ;---------------------------------------------------------------------------------------
-	align $20
+	align tiles_to_bytes(1)
 ArtUnc_Sonic:			BINCLUDE	"art/uncompressed/Sonic's art.bin"
-	align $20
+	align tiles_to_bytes(1)
 ArtUnc_Tails:			BINCLUDE	"art/uncompressed/Tails's art.bin"
 
 MapUnc_Sonic:			include		"mappings/sprite/Sonic.asm"
@@ -89910,25 +89896,12 @@ MapEng_EndingTailsPlane:	BINCLUDE	"mappings/misc/Closeup of Tails flying plane i
 	even
 MapEng_EndingSonicPlane:	BINCLUDE	"mappings/misc/Closeup of Sonic flying plane in ending sequence.eni"
 	even
+
 ; Strange unused mappings (duplicates of MapEng_EndGameLogo)
+    rept 9
 				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.eni"
 	even
-				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.eni"
-	even
-				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.eni"
-	even
-				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.eni"
-	even
-				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.eni"
-	even
-				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.eni"
-	even
-				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.eni"
-	even
-				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.eni"
-	even
-				BINCLUDE	"mappings/misc/Sonic 2 end of game logo.eni"
-	even
+    endm
 
 ArtNem_EndingPics:		BINCLUDE	"art/nemesis/Movie sequence at end of game.nem"
 	even
