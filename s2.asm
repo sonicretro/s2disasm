@@ -86548,14 +86548,14 @@ BuildHUD_P1_Continued:
 sub_4092E:
 
 	lea	(Hud_1).l,a4
-	moveq	#0,d6
+	moveq	#Hud_1.loop_counter,d6
 	bra.s	loc_40940
 ; ===========================================================================
 
 loc_40938:
 
 	lea	(Hud_10).l,a4
-	moveq	#1,d6
+	moveq	#Hud_10.loop_counter,d6
 
 loc_40940:
 
@@ -86606,7 +86606,7 @@ sub_4096A:
 sub_40984:
 
 	lea	(Hud_100).l,a4
-	moveq	#2,d6
+	moveq	#Hud_100.loop_counter,d6
 
 loc_4098C:
 	moveq	#0,d1
@@ -87213,7 +87213,7 @@ loc_4111E:
 ; sub_4113C:
 Hud_Rings:
 	lea	(Hud_100).l,a2
-	moveq	#2,d6
+	moveq	#Hud_100.loop_counter,d6
 	bra.s	Hud_LoadArt
 ; End of function Hud_Rings
 
@@ -87226,7 +87226,7 @@ Hud_Rings:
 ; sub_41146:
 Hud_Score:
 	lea	(Hud_100000).l,a2
-	moveq	#5,d6
+	moveq	#Hud_100000.loop_counter,d6
 ; loc_4114E:
 Hud_LoadArt:
 	moveq	#0,d4
@@ -87276,7 +87276,7 @@ ContScrCounter:
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ContinueCountdown),VRAM,WRITE),(VDP_control_port).l
 	lea	(VDP_data_port).l,a6
 	lea	(Hud_10).l,a2
-	moveq	#1,d6
+	moveq	#Hud_10.loop_counter,d6
 	moveq	#0,d4
 	lea	Art_Hud(pc),a1
 ; loc_411C2:
@@ -87306,13 +87306,18 @@ loc_411CE:
 ; ---------------------------------------------------------------------------
 ; for HUD counter
 ; ---------------------------------------------------------------------------
-				; byte_411FC:
-Hud_100000:	dc.l 100000	; byte_41200: ; Hud_10000:
-		dc.l 10000	; byte_41204:
-Hud_1000:	dc.l 1000	; byte_41208:
-Hud_100:	dc.l 100	; byte_4120C:
-Hud_10:		dc.l 10		; byte_41210:
-Hud_1:		dc.l 1
+hud_counter macro {INTLABEL},number
+__LABEL__ label *
+.loop_counter = int(log(number)) ; Total digits minus one.
+	dc.l number
+    endm
+					; byte_411FC:
+Hud_100000:	hud_counter 100000	; byte_41200:
+Hud_10000:	hud_counter 10000	; byte_41204:
+Hud_1000:	hud_counter 1000	; byte_41208:
+Hud_100:	hud_counter 100		; byte_4120C:
+Hud_10:		hud_counter 10		; byte_41210:
+Hud_1:		hud_counter 1
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to load time numbers patterns
@@ -87323,13 +87328,13 @@ Hud_1:		dc.l 1
 ; sub_41214:
 Hud_Mins:
 	lea_	Hud_1,a2
-	moveq	#0,d6
+	moveq	#Hud_1.loop_counter,d6
 	bra.s	loc_41222
 ; ===========================================================================
 ; loc_4121C:
 Hud_Secs:
 	lea_	Hud_10,a2
-	moveq	#1,d6
+	moveq	#Hud_10.loop_counter,d6
 
 loc_41222:
 	moveq	#0,d4
@@ -87372,7 +87377,7 @@ loc_4123E:
 ; loc_41274:
 Hud_TimeRingBonus:
 	lea_	Hud_1000,a2
-	moveq	#3,d6
+	moveq	#Hud_1000.loop_counter,d6
 	moveq	#0,d4
 	lea	Art_Hud(pc),a1
 ; loc_41280:
@@ -87443,7 +87448,7 @@ Hud_Lives:
 
 loc_412EE:
 	lea_	Hud_10,a2
-	moveq	#1,d6
+	moveq	#Hud_10.loop_counter,d6
 	moveq	#0,d4
 	lea	Art_LivesNums(pc),a1
 ; loc_412FA:
