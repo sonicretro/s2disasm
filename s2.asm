@@ -5463,15 +5463,15 @@ OilSlides:
 
 	beq.s	loc_4712
 +
-    if status_secondary.is_sliding = 7
+    if status_secondary.sliding = 7
 	tst.b	status_secondary(a1)
 	bpl.s	+	; rts
     else
-	btst	#status_secondary.is_sliding,status_secondary(a1)
+	btst	#status_secondary.sliding,status_secondary(a1)
 	beq.s	+	; rts
     endif
 	move.w	#5,move_lock(a1)
-	andi.b	#~(1<<status_secondary.is_sliding)&$FF,status_secondary(a1)
+	andi.b	#~(1<<status_secondary.sliding)&$FF,status_secondary(a1)
 +	rts
 ; ===========================================================================
 
@@ -5498,7 +5498,7 @@ loc_4712:
 	bset	#status.player.x_flip,status(a1)
 +
 	move.b	#AniIDSonAni_Slide,anim(a1)
-	ori.b	#1<<status_secondary.is_sliding,status_secondary(a1)
+	ori.b	#1<<status_secondary.sliding,status_secondary(a1)
 	move.b	(Vint_runcount+3).w,d0
 	andi.b	#$1F,d0
 	bne.s	+	; rts
@@ -5546,7 +5546,7 @@ loc_476E:
 	move.b	#AniIDSonAni_Wait,anim(a1)
 +
 	move.w	d0,inertia(a1)
-	ori.b	#1<<status_secondary.is_sliding,status_secondary(a1)
+	ori.b	#1<<status_secondary.sliding,status_secondary(a1)
 	rts
 ; End of function OilSlides
 
@@ -25122,8 +25122,8 @@ BigRingFlash_Animate:
 	move.b	#AniIDSonAni_Blank,(MainCharacter+anim).w	; change the character's animation
 	move.b	#1,(f_bigring).w
 	lea	(MainCharacter).w,a1 ; a1=character
-	bclr	#status_secondary.is_invincible,status_secondary(a1)
-	bclr	#status_secondary.has_shield,status_secondary(a1)
+	bclr	#status_secondary.invincible,status_secondary(a1)
+	bclr	#status_secondary.shield,status_secondary(a1)
 +	rts
 ; ===========================================================================
 +
@@ -25638,7 +25638,7 @@ ChkPlayer_1up:
 ; ---------------------------------------------------------------------------
 super_shoes:
 	addq.w	#1,(a2)
-	bset	#status_secondary.has_speed_shoes,status_secondary(a1)	; give super sneakers status
+	bset	#status_secondary.speed_shoes,status_secondary(a1)	; give super sneakers status
 	move.w	#$4B0,speedshoes_time(a1)
 	cmpa.w	#MainCharacter,a1	; did the main character break the monitor?
 	bne.s	super_shoes_Tails	; if not, branch
@@ -25664,7 +25664,7 @@ super_shoes_Tails:
 ; ---------------------------------------------------------------------------
 shield_monitor:
 	addq.w	#1,(a2)
-	bset	#status_secondary.has_shield,status_secondary(a1)	; give shield status
+	bset	#status_secondary.shield,status_secondary(a1)	; give shield status
 	move.w	#SndID_Shield,d0
 	jsr	(PlayMusic).l
 	tst.b	parent+1(a0)
@@ -25686,7 +25686,7 @@ invincible_monitor:
 	addq.w	#1,(a2)
 	tst.b	(Super_Sonic_flag).w	; is Sonic super?
 	bne.s	+++	; rts		; if yes, branch
-	bset	#status_secondary.is_invincible,status_secondary(a1)	; give invincibility status
+	bset	#status_secondary.invincible,status_secondary(a1)	; give invincibility status
 	move.w	#20*60,invincibility_time(a1) ; 20 seconds
 	tst.b	(Current_Boss_ID).w	; don't change music during boss battles
 	bne.s	+
@@ -29098,7 +29098,7 @@ Obj36_UpsidedownEnd:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 Touch_ChkHurt2:
-	btst	#status_secondary.is_invincible,status_secondary(a1)	; is character invincible?
+	btst	#status_secondary.invincible,status_secondary(a1)	; is character invincible?
 	bne.s	+	; rts		; if yes, branch
 	tst.w	invulnerable_time(a1)	; is character invulnerable?
 	bne.s	+	; rts		; if yes, branch
@@ -35790,7 +35790,7 @@ Obj01_Display:
 	jsr	(DisplaySprite).l
 ; loc_1A0DA:
 Obj01_ChkInvin:		; Checks if invincibility has expired and disables it if it has.
-	btst	#status_secondary.is_invincible,status_secondary(a0)
+	btst	#status_secondary.invincible,status_secondary(a0)
 	beq.s	Obj01_ChkShoes
 	tst.w	invincibility_time(a0)
 	beq.s	Obj01_ChkShoes	; If there wasn't any time left, that means we're in Super Sonic mode.
@@ -35804,10 +35804,10 @@ Obj01_ChkInvin:		; Checks if invincibility has expired and disables it if it has
 	jsr	(PlayMusic).l
 ;loc_1A106:
 Obj01_RmvInvin:
-	bclr	#status_secondary.is_invincible,status_secondary(a0)
+	bclr	#status_secondary.invincible,status_secondary(a0)
 ; loc_1A10C:
 Obj01_ChkShoes:		; Checks if Speed Shoes have expired and disables them if they have.
-	btst	#status_secondary.has_speed_shoes,status_secondary(a0)
+	btst	#status_secondary.speed_shoes,status_secondary(a0)
 	beq.s	Obj01_ExitChk
 	tst.w	speedshoes_time(a0)
 	beq.s	Obj01_ExitChk
@@ -35823,7 +35823,7 @@ Obj01_ChkShoes:		; Checks if Speed Shoes have expired and disables them if they 
 	move.w	#$100,(Sonic_deceleration).w
 ; loc_1A14A:
 Obj01_RmvSpeed:
-	bclr	#status_secondary.has_speed_shoes,status_secondary(a0)
+	bclr	#status_secondary.speed_shoes,status_secondary(a0)
 	move.w	#MusID_SlowDown,d0	; Slow down tempo
 	jmp	(PlayMusic).l
 ; ---------------------------------------------------------------------------
@@ -36047,11 +36047,11 @@ Sonic_Move:
 	move.w	(Sonic_top_speed).w,d6
 	move.w	(Sonic_acceleration).w,d5
 	move.w	(Sonic_deceleration).w,d4
-    if status_secondary.is_sliding = 7
+    if status_secondary.sliding = 7
 	tst.b	status_secondary(a0)
 	bmi.w	Obj01_Traction
     else
-	btst	#status_secondary.is_sliding,status_secondary(a0)
+	btst	#status_secondary.sliding,status_secondary(a0)
 	bne.w	Obj01_Traction
     endif
 	tst.w	move_lock(a0)
@@ -36507,11 +36507,11 @@ Sonic_RollSpeed:
 	move.w	#$20,d4	; controlled roll deceleration... interestingly,
 			; this should be Sonic_deceleration/4 according to Tails_RollSpeed,
 			; which means Sonic is much better than Tails at slowing down his rolling when he's underwater
-    if status_secondary.is_sliding = 7
+    if status_secondary.sliding = 7
 	tst.b	status_secondary(a0)
 	bmi.w	Obj01_Roll_ResetScr
     else
-	btst	#status_secondary.is_sliding,status_secondary(a0)
+	btst	#status_secondary.sliding,status_secondary(a0)
 	bne.w	Obj01_Roll_ResetScr
     endif
 	tst.w	move_lock(a0)
@@ -36793,11 +36793,11 @@ Sonic_Boundary_Sides:
 
 ; loc_1A9D2:
 Sonic_Roll:
-    if status_secondary.is_sliding = 7
+    if status_secondary.sliding = 7
 	tst.b	status_secondary(a0)
 	bmi.s	Obj01_NoRoll
     else
-	btst	#status_secondary.is_sliding,status_secondary(a0)
+	btst	#status_secondary.sliding,status_secondary(a0)
 	bne.s	Obj01_NoRoll
     endif
 	mvabs.w	inertia(a0),d0
@@ -36981,7 +36981,7 @@ Sonic_CheckGoSuper:
 	move.w	#$30,(Sonic_acceleration).w
 	move.w	#$100,(Sonic_deceleration).w
 	move.w	#0,invincibility_time(a0)
-	bset	#status_secondary.is_invincible,status_secondary(a0)	; make Sonic invincible
+	bset	#status_secondary.invincible,status_secondary(a0)	; make Sonic invincible
 	move.w	#SndID_SuperTransform,d0
 	jsr	(PlaySound).l	; Play transformation sound effect.
 	move.w	#MusID_SuperSonic,d0
@@ -37937,11 +37937,11 @@ SAnim_WalkRun:
 	lsr.b	#4,d0		; divide angle by 16
 	andi.b	#6,d0		; angle must be 0, 2, 4 or 6
 	mvabs.w	inertia(a0),d2	; get Sonic's "speed" for animation purposes
-    if status_secondary.is_sliding = 7
+    if status_secondary.sliding = 7
 	tst.b	status_secondary(a0)
 	bpl.w	+
     else
-	btst	#status_secondary.is_sliding,status_secondary(a0)
+	btst	#status_secondary.sliding,status_secondary(a0)
 	beq.w	+
     endif
 	add.w	d2,d2
@@ -38494,7 +38494,7 @@ Obj02_Display:
 	jsr	(DisplaySprite).l
 ; loc_1BA6A:
 Obj02_ChkInvinc:	; Checks if invincibility has expired and disables it if it has.
-	btst	#status_secondary.is_invincible,status_secondary(a0)
+	btst	#status_secondary.invincible,status_secondary(a0)
 	beq.s	Obj02_ChkShoes
 	tst.w	invincibility_time(a0)
 	beq.s	Obj02_ChkShoes
@@ -38508,10 +38508,10 @@ Obj02_ChkInvinc:	; Checks if invincibility has expired and disables it if it has
 	jsr	(PlayMusic).l
 ; loc_1BA96:
 Obj02_RmvInvin:
-	bclr	#status_secondary.is_invincible,status_secondary(a0)
+	bclr	#status_secondary.invincible,status_secondary(a0)
 ; loc_1BA9C:
 Obj02_ChkShoes:		; Checks if Speed Shoes have expired and disables them if they have.
-	btst	#status_secondary.has_speed_shoes,status_secondary(a0)
+	btst	#status_secondary.speed_shoes,status_secondary(a0)
 	beq.s	Obj02_ExitChk
 	tst.w	speedshoes_time(a0)
 	beq.s	Obj02_ExitChk
@@ -38521,7 +38521,7 @@ Obj02_ChkShoes:		; Checks if Speed Shoes have expired and disables them if they 
 	move.w	#$C,(Tails_acceleration).w
 	move.w	#$80,(Tails_deceleration).w
 ; Obj02_RmvSpeed:
-	bclr	#status_secondary.has_speed_shoes,status_secondary(a0)
+	bclr	#status_secondary.speed_shoes,status_secondary(a0)
 	move.w	#MusID_SlowDown,d0	; Slow down tempo
 	jmp	(PlayMusic).l
 ; ===========================================================================
@@ -39144,11 +39144,11 @@ Tails_Move:
 	move.w	(Tails_top_speed).w,d6
 	move.w	(Tails_acceleration).w,d5
 	move.w	(Tails_deceleration).w,d4
-    if status_secondary.is_sliding = 7
+    if status_secondary.sliding = 7
 	tst.b	status_secondary(a0)
 	bmi.w	Obj02_Traction
     else
-	btst	#status_secondary.is_sliding,status_secondary(a0)
+	btst	#status_secondary.sliding,status_secondary(a0)
 	bne.w	Obj02_Traction
     endif
 	tst.w	move_lock(a0)
@@ -39509,11 +39509,11 @@ Tails_RollSpeed:
 	asr.w	#2,d4	; controlled roll deceleration...
 			; interestingly, Tails is much worse at this than Sonic when underwater
     endif
-    if status_secondary.is_sliding = 7
+    if status_secondary.sliding = 7
 	tst.b	status_secondary(a0)
 	bmi.w	Obj02_Roll_ResetScr
     else
-	btst	#status_secondary.is_sliding,status_secondary(a0)
+	btst	#status_secondary.sliding,status_secondary(a0)
 	bne.w	Obj02_Roll_ResetScr
     endif
 	tst.w	move_lock(a0)
@@ -39795,11 +39795,11 @@ Tails_Boundary_Sides:
 
 ; loc_1C5B8:
 Tails_Roll:
-    if status_secondary.is_sliding = 7
+    if status_secondary.sliding = 7
 	tst.b	status_secondary(a0)
 	bmi.s	Obj02_NoRoll
     else
-	btst	#status_secondary.is_sliding,status_secondary(a0)
+	btst	#status_secondary.sliding,status_secondary(a0)
 	bne.w	Obj02_NoRoll
     endif
 	mvabs.w	inertia(a0),d0
@@ -40810,11 +40810,11 @@ TAnim_WalkRunZoom: ; a0=character
 	lsr.b	#4,d0		; divide angle by 16
 	andi.b	#6,d0		; angle must be 0, 2, 4 or 6
 	mvabs.w	inertia(a0),d2	; get Tails' "speed" for animation purposes
-    if status_secondary.is_sliding = 7
+    if status_secondary.sliding = 7
 	tst.b	status_secondary(a0)
 	bpl.w	+
     else
-	btst	#status_secondary.is_sliding,status_secondary(a0)
+	btst	#status_secondary.sliding,status_secondary(a0)
 	beq.w	+
     endif
 	add.w	d2,d2
@@ -41754,7 +41754,7 @@ ResumeMusic:
 
 	move.w	(Level_Music).w,d0	; prepare to play current level's music
 
-	btst	#status_secondary.is_invincible,status_secondary(a1)
+	btst	#status_secondary.invincible,status_secondary(a1)
 	beq.s	+		; branch if Sonic is not invincible
 	move.w	#MusID_Invincible,d0	; prepare to play invincibility music
 +
@@ -41853,9 +41853,9 @@ Obj38_Main:
 ; loc_1D92C:
 Obj38_Shield:
 	movea.w	parent(a0),a2 ; a2=character
-	btst	#status_secondary.is_invincible,status_secondary(a2)
+	btst	#status_secondary.invincible,status_secondary(a2)
 	bne.s	return_1D976
-	btst	#status_secondary.has_shield,status_secondary(a2)
+	btst	#status_secondary.shield,status_secondary(a2)
 	beq.s	JmpTo7_DeleteObject
 	move.w	x_pos(a2),x_pos(a0)
 	move.w	y_pos(a2),y_pos(a0)
@@ -41937,7 +41937,7 @@ loc_1DA0C:
 	bne.w	DeleteObject
     endif
 	movea.w	parent(a0),a1 ; a1=character
-	btst	#status_secondary.is_invincible,status_secondary(a1)
+	btst	#status_secondary.invincible,status_secondary(a1)
 	beq.w	DeleteObject
 	move.w	x_pos(a1),d0
 	move.w	d0,x_pos(a0)
@@ -41987,7 +41987,7 @@ loc_1DA80:
 	bne.w	DeleteObject
     endif
 	movea.w	parent(a0),a1 ; a1=character
-	btst	#status_secondary.is_invincible,status_secondary(a1)
+	btst	#status_secondary.invincible,status_secondary(a1)
 	beq.w	DeleteObject
 	cmpi.w	#2,(Player_mode).w
 	beq.s	loc_1DAA4
@@ -81555,7 +81555,7 @@ BranchTo18_JmpTo39_MarkObjGone
 
 loc_3D36C:
 	move.b	#$97,collision_flags(a0)
-	btst	#status_secondary.is_invincible,status_secondary(a1)
+	btst	#status_secondary.invincible,status_secondary(a1)
 	beq.s	+
 	move.b	#$17,collision_flags(a0)
 +
@@ -84452,7 +84452,7 @@ return_3F78A:
 ; ===========================================================================
 ; loc_3F78C:
 Touch_Enemy:
-	btst	#status_secondary.is_invincible,status_secondary(a0)	; is Sonic invincible?
+	btst	#status_secondary.invincible,status_secondary(a0)	; is Sonic invincible?
 	bne.s	+			; if yes, branch
 	cmpi.b	#AniIDSonAni_Spindash,anim(a0)
 	beq.s	+
@@ -84552,7 +84552,7 @@ loc_3F85C:
 
 ; loc_3F862:
 Touch_ChkHurt:
-	btst	#status_secondary.is_invincible,status_secondary(a0)	; is Sonic invincible?
+	btst	#status_secondary.invincible,status_secondary(a0)	; is Sonic invincible?
 	beq.s	Touch_Hurt		; if not, branch
 ; loc_3F86A:
 Touch_NoHurt:
@@ -84585,7 +84585,7 @@ HurtCharacter:
 	move.w	(Ring_count_2P).w,d0
 
 loc_3F88C:
-	btst	#status_secondary.has_shield,status_secondary(a0)
+	btst	#status_secondary.shield,status_secondary(a0)
 	bne.s	Hurt_Shield
 	tst.w	d0
 	beq.w	KillCharacter
@@ -84598,7 +84598,7 @@ loc_3F88C:
 
 ; loc_3F8B8:
 Hurt_Shield:
-	bclr	#status_secondary.has_shield,status_secondary(a0) ; remove shield
+	bclr	#status_secondary.shield,status_secondary(a0) ; remove shield
 
 ; loc_3F8BE:
 Hurt_Sidekick:

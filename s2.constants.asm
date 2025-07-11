@@ -185,18 +185,18 @@ status.npc.no_balancing		= 7 ; Prevents player from performing their balancing a
 ; ---------------------------------------------------------------------------
 ; status_secondary bitfield
 
-status_secondary.has_shield =		0
-status_secondary.is_invincible =	1
-status_secondary.has_speed_shoes =	2
-status_secondary.is_sliding =		7
+status_secondary.shield		= 0
+status_secondary.invincible	= 1
+status_secondary.speed_shoes	= 2
+status_secondary.sliding	= 7
 
 ; Ugly old constants, kept for backwards-compatibility.
 
 ; status_secondary variable bit numbers
-status_sec_hasShield:		EQU	status_secondary.has_shield
-status_sec_isInvincible:	EQU	status_secondary.is_invincible
-status_sec_hasSpeedShoes:	EQU	status_secondary.has_speed_shoes
-status_sec_isSliding:		EQU	status_secondary.is_sliding
+status_sec_hasShield:		EQU	status_secondary.shield
+status_sec_isInvincible:	EQU	status_secondary.invincible
+status_sec_hasSpeedShoes:	EQU	status_secondary.speed_shoes
+status_sec_isSliding:		EQU	status_secondary.sliding
 ; status_secondary variable masks (1 << x == pow(2, x))
 status_sec_hasShield_mask:	EQU	1<<status_sec_hasShield		; $01
 status_sec_isInvincible_mask:	EQU	1<<status_sec_isInvincible	; $02
