@@ -76232,7 +76232,7 @@ ObjA7_Poof:
 	move.w	objoff_32(a0),d0
 	beq.s	+
 	movea.w	d0,a2 ; a2=object
-	move.b	#0,objoff_2A(a2)
+	move.b	#0,obj_control(a2)
 	bset	#status.player.in_air,status(a2)
 	move.b	#$B,collision_flags(a0)
 +
