@@ -34,26 +34,6 @@ anim =			$1C
 prev_anim =		$1D
 anim_frame_duration =	$1E
 status =		$22 ; note: exact meaning depends on the object... for Sonic/Tails: bit 0: left-facing. bit 1: in-air. bit 2: spinning. bit 3: on-object. bit 4: roll-jumping. bit 5: pushing. bit 6: underwater.
-.player.x_flip =		0 ; Facing left.
-.player.in_air =		1 ; Airborne. 
-.player.rolling =		2 ; Spinning, i.e. jumping or rolling.
-.player.on_object =		3 ; Stood on an object rather than the level.
-.player.rolljumping =		4 ; Jumping whilst rolling; locks the player's controls.
-.player.pushing =		5 ; Pressing against an object.
-.player.underwater =		6 ; Submersed.
-.player.prevent_tails_respawn =	7 ; Prevents AI Tails from respawning.
-.player.ss.x_flip =	0 ; Sprite mirrored horizontally.
-.player.ss.y_flip =	1 ; Sprite mirrored vertically.
-.player.ss.jumping =	2 ; Jumping.
-.player.ss.slowing =	6 ; Coming to a stop after moving or landing.
-.npc.x_flip =		0 ; Facing right.
-.npc.y_flip =		1 ; Facing up.
-.npc.misc =		2 ; Used for various purposes by bosses.
-.npc.p1_standing =	3 ; Stood on by player 1.
-.npc.p2_standing =	4 ; Stood on by player 2.
-.npc.p1_pushing =	5 ; Pushed by player 1.
-.npc.p2_pushing =	6 ; Pushed by player 2.
-.npc.no_balancing =	7 ; Prevents player from performing their balancing animation whilst stood upon this object. Also set when the object is destroyed by the player.
 routine =		$24
 routine_secondary =	$25
 angle =			$26 ; angle about the z axis (360 degrees = 256)
@@ -72,10 +52,6 @@ air_left =		$28
 flip_turned =		$29 ; 0 for normal, 1 to invert flipping (it's a 180 degree rotation about the axis of Sonic's spine, so he stays in the same position but looks turned around)
 obj_control =		$2A ; 0 for normal, 1 for hanging or for resting on a flipper, $81 for going through CNZ/OOZ/MTZ tubes or stopped in CNZ cages or stoppers or flying if Tails
 status_secondary =	$2B
-.has_shield =		0
-.is_invincible =	1
-.has_speed_shoes =	2
-.is_sliding =		7
 flips_remaining =	$2C ; number of flip revolutions remaining
 flip_speed =		$2D ; number of flip revolutions per frame / 256
 move_lock =		$2E ; and $2F ; horizontal control lock, counts down to 0
@@ -179,6 +155,53 @@ ss_last_angle_index = objoff_3F
 object_size_bits =	6
 object_size =		1<<object_size_bits ; the size of an object
 next_object =		object_size
+
+; ---------------------------------------------------------------------------
+; status bitfield
+
+status.player.x_flip			= 0 ; Facing left.
+status.player.in_air			= 1 ; Airborne. 
+status.player.rolling			= 2 ; Spinning, i.e. jumping or rolling.
+status.player.on_object			= 3 ; Stood on an object rather than the level.
+status.player.rolljumping		= 4 ; Jumping whilst rolling; locks the player's controls.
+status.player.pushing			= 5 ; Pressing against an object.
+status.player.underwater		= 6 ; Submersed.
+status.player.prevent_tails_respawn	= 7 ; Prevents AI Tails from respawning.
+
+status.player.ss.x_flip		= 0 ; Sprite mirrored horizontally.
+status.player.ss.y_flip		= 1 ; Sprite mirrored vertically.
+status.player.ss.jumping	= 2 ; Jumping.
+status.player.ss.slowing	= 6 ; Coming to a stop after moving or landing.
+
+status.npc.x_flip		= 0 ; Facing right.
+status.npc.y_flip		= 1 ; Facing up.
+status.npc.misc			= 2 ; Used for various purposes by bosses.
+status.npc.p1_standing		= 3 ; Stood on by player 1.
+status.npc.p2_standing		= 4 ; Stood on by player 2.
+status.npc.p1_pushing		= 5 ; Pushed by player 1.
+status.npc.p2_pushing		= 6 ; Pushed by player 2.
+status.npc.no_balancing		= 7 ; Prevents player from performing their balancing animation whilst stood upon this object. Also set when the object is destroyed by the player.
+
+; ---------------------------------------------------------------------------
+; status_secondary bitfield
+
+status_secondary.has_shield =		0
+status_secondary.is_invincible =	1
+status_secondary.has_speed_shoes =	2
+status_secondary.is_sliding =		7
+
+; Ugly old constants, kept for backwards-compatibility.
+
+; status_secondary variable bit numbers
+status_sec_hasShield:		EQU	status_secondary.has_shield
+status_sec_isInvincible:	EQU	status_secondary.is_invincible
+status_sec_hasSpeedShoes:	EQU	status_secondary.has_speed_shoes
+status_sec_isSliding:		EQU	status_secondary.is_sliding
+; status_secondary variable masks (1 << x == pow(2, x))
+status_sec_hasShield_mask:	EQU	1<<status_sec_hasShield		; $01
+status_sec_isInvincible_mask:	EQU	1<<status_sec_isInvincible	; $02
+status_sec_hasSpeedShoes_mask:	EQU	1<<status_sec_hasSpeedShoes	; $04
+status_sec_isSliding_mask:	EQU	1<<status_sec_isSliding		; $80
 
 ; ---------------------------------------------------------------------------
 ; Bits 3-6 of an object's status after a SolidObject call is a
@@ -287,20 +310,6 @@ bumper_x            = 2
 bumper_y            = 4
 next_bumper         = 6
 prev_bumper_x       = bumper_x-next_bumper
-
-; ---------------------------------------------------------------------------
-; Ugly old constants, kept for backwards-compatibility.
-
-; status_secondary variable bit numbers
-status_sec_hasShield:		EQU	status_secondary.has_shield
-status_sec_isInvincible:	EQU	status_secondary.is_invincible
-status_sec_hasSpeedShoes:	EQU	status_secondary.has_speed_shoes
-status_sec_isSliding:		EQU	status_secondary.is_sliding
-; status_secondary variable masks (1 << x == pow(2, x))
-status_sec_hasShield_mask:	EQU	1<<status_sec_hasShield		; $01
-status_sec_isInvincible_mask:	EQU	1<<status_sec_isInvincible	; $02
-status_sec_hasSpeedShoes_mask:	EQU	1<<status_sec_hasSpeedShoes	; $04
-status_sec_isSliding_mask:	EQU	1<<status_sec_isSliding		; $80
 
 ; ---------------------------------------------------------------------------
 ; Constants that can be used instead of hard-coded IDs for various things.
