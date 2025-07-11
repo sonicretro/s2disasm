@@ -5400,7 +5400,7 @@ WindTunnel:
 	move.w	#-$400,x_vel(a1)
 	move.w	#0,y_vel(a1)
 	move.b	#AniIDSonAni_Float2,anim(a1)
-	bset	#1,status(a1)	; set "in-air" bit
+	bset	#status.player.in_air,status(a1)	; set "in-air" bit
 	btst	#button_up,(Ctrl_1_Held).w	; is Up being pressed?
 	beq.s	+				; if not, branch
 	subq.w	#1,y_pos(a1)	; move up
@@ -5444,7 +5444,7 @@ OilSlides:
 	lea	(Sidekick).w,a1 ; a1=character
 	move.b	(Ctrl_2_Held_Logical).w,d2
 +
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.s	+
 	move.w	y_pos(a1),d0
 	add.w	d0,d0
@@ -5471,7 +5471,7 @@ OilSlides:
 	beq.s	+	; rts
     endif
 	move.w	#5,move_lock(a1)
-	andi.b	#$FF!(1<<status_secondary.is_sliding),status_secondary(a1)
+	andi.b	#~(1<<status_secondary.is_sliding)&$FF,status_secondary(a1)
 +	rts
 ; ===========================================================================
 
@@ -5492,10 +5492,10 @@ loc_4712:
 	bge.s	+
 	addi.w	#$40,inertia(a1)
 +
-	bclr	#0,status(a1)
+	bclr	#status.player.x_flip,status(a1)
 	tst.b	d1
 	bpl.s	+
-	bset	#0,status(a1)
+	bset	#status.player.x_flip,status(a1)
 +
 	move.b	#AniIDSonAni_Slide,anim(a1)
 	ori.b	#1<<status_secondary.is_sliding,status_secondary(a1)
@@ -5514,7 +5514,7 @@ loc_476E:
 	btst	#button_left,d2
 	beq.s	+
 	move.b	#AniIDSonAni_Walk,anim(a1)
-	bset	#0,status(a1)
+	bset	#status.player.x_flip,status(a1)
 	sub.w	d1,d0
 	tst.w	d0
 	bpl.s	+
@@ -5523,7 +5523,7 @@ loc_476E:
 	btst	#button_right,d2
 	beq.s	+
 	move.b	#AniIDSonAni_Walk,anim(a1)
-	bclr	#0,status(a1)
+	bclr	#status.player.x_flip,status(a1)
 	add.w	d1,d0
 	tst.w	d0
 	bmi.s	+
@@ -13764,7 +13764,7 @@ loc_A7DE:
 ; ===========================================================================
 +
 	addq.b	#2,routine_secondary(a0)
-	bset	#3,status(a0)
+	bset	#status.npc.p1_standing,status(a0)
 	clr.b	objoff_31(a0)
 	clr.w	objoff_32(a0)
 	rts
@@ -13857,7 +13857,7 @@ ObjCE_Init:
 
 loc_A902:
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	btst	#3,status(a1)
+	btst	#status.npc.p1_standing,status(a1)
 	bne.s	+
 
 loc_A90E:
@@ -18040,7 +18040,7 @@ ScrollVerti:
 	andi.w	#$7FF,d0
 ; loc_D78E:
 .noWrap:
-	btst	#2,status(a0)	; is the player rolling?
+	btst	#status.player.rolling,status(a0)	; is the player rolling?
 	beq.s	.notRolling	; if not, branch
 	subq.w	#5,d0		; subtract difference between standing and rolling heights
     if fixBugs
@@ -18055,7 +18055,7 @@ ScrollVerti:
     endif
 ; loc_D798:
 .notRolling:
-	btst	#1,status(a0)			; is the player in the air?
+	btst	#status.player.in_air,status(a0)			; is the player in the air?
 	beq.s	.checkBoundaryCrossed_onGround	; if not, branch
 ;.checkBoundaryCrossed_inAir:
 	; If Sonic's in the air, he has $20 pixels above and below him to move without disturbing the camera.
@@ -20239,7 +20239,7 @@ RunDynamicLevelEvents:
 	addi_.w	#8,d0
 	cmp.w	(Camera_Max_Y_pos).w,d0
 	blo.s	+
-	btst	#1,(MainCharacter+status).w
+	btst	#status.player.in_air,(MainCharacter+status).w
 	beq.s	+
 	add.w	d1,d1
 	add.w	d1,d1
@@ -22017,12 +22017,12 @@ sub_F872:
 	bsr.s	+
 	movem.l	(sp)+,d1-d4
 	lea	(MainCharacter).w,a1 ; a1=character
-	subq.b	#1,d6
+	subq.b	#p2_standing_bit-p1_standing_bit,d6
 	moveq	#objoff_3F,d5
 +
 	btst	d6,status(a0)
 	beq.s	loc_F8F0
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.s	+
 	moveq	#0,d0
 	move.w	x_pos(a1),d0
@@ -22032,7 +22032,7 @@ sub_F872:
 	cmp.w	d2,d0
 	blo.s	++
 +
-	bclr	#3,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	bclr	d6,status(a0)
 	moveq	#0,d4
 	rts
@@ -22499,7 +22499,7 @@ loc_FEC2:
 	beq.w	++	; rts
 	move.b	d0,objoff_2E(a0)
 	move.w	#$80,d1
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	neg.w	d0
 	add.w	d1,d0
@@ -22668,11 +22668,11 @@ Obj15_State4:
 	addq.b	#2,routine(a1)
 +
 	move.w	#$200,x_vel(a1)
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	neg.w	x_vel(a1)
 +
-	bset	#1,status(a1)
+	bset	#status.npc.y_flip,status(a1)
     if object_size<>$40
 	moveq	#0,d0 ; Clear the high word for the coming division.
     endif
@@ -22708,7 +22708,7 @@ Obj15_State4:
 loc_100E4:
 	move.b	#3,mapping_frame(a0)
 	addq.b	#2,routine(a0)
-	andi.b	#$E7,status(a0)
+	andi.b	#~standing_mask,status(a0)
 
 BranchTo_loc_1000C ; BranchTo
 	bra.w	loc_1000C
@@ -22722,14 +22722,14 @@ Obj15_State5:
 ; loc_10100:
 Obj15_State6:
 	move.w	x_pos(a0),-(sp)
-	btst	#1,status(a0)
+	btst	#status.npc.y_flip,status(a0)
 	beq.s	+
 	bsr.w	ObjectMove
 	addi.w	#$18,y_vel(a0)
 	cmpi.w	#$720,y_pos(a0)
 	blo.s	++
 	move.w	#$720,y_pos(a0)
-	bclr	#1,status(a0)
+	bclr	#status.npc.y_flip,status(a0)
 	move.w	#0,x_vel(a0)
 	move.w	#0,y_vel(a0)
 	move.w	y_pos(a0),objoff_38(a0)
@@ -22756,7 +22756,7 @@ Obj15_State6:
 Obj15_State7:
 	move.w	x_pos(a0),-(sp)
 	bsr.w	ObjectMove
-	btst	#1,status(a0)
+	btst	#status.npc.y_flip,status(a0)
 	beq.s	+
 	addi.w	#$18,y_vel(a0)
 	move.w	(Water_Level_2).w,d0
@@ -22764,7 +22764,7 @@ Obj15_State7:
 	bhi.s	++
 	move.w	d0,y_pos(a0)
 	move.w	d0,objoff_38(a0)
-	bclr	#1,status(a0)
+	bclr	#status.npc.y_flip,status(a0)
 	move.w	#$100,x_vel(a0)
 	move.w	#0,y_vel(a0)
 	bra.s	++
@@ -23315,8 +23315,8 @@ loc_10730:
 
 
 sub_1075E:
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	move.b	#2,routine(a1)
 	move.w	y_vel(a0),y_vel(a1)
 	rts
@@ -23513,10 +23513,10 @@ Obj1A_Fragment:
 	lea	(Sidekick).w,a1 ; a1=character
 
 sub_109DC:
-	btst	#3,status(a1)
+	btst	#status.player.on_object,status(a1)
 	beq.s	+
-	bclr	#3,status(a1)
-	bclr	#5,status(a1)
+	bclr	#status.player.on_object,status(a1)
+	bclr	#status.player.pushing,status(a1)
 	move.b	#AniIDSonAni_Run,prev_anim(a1)	; Force player's animation to restart
 +
 	rts
@@ -23628,10 +23628,10 @@ Obj1F_Fragment:
 	lea	(Sidekick).w,a1 ; a1=character
 
 sub_10B36:
-	btst	#3,status(a1)
+	btst	#status.player.on_object,status(a1)
 	beq.s	+	; rts
-	bclr	#3,status(a1)
-	bclr	#5,status(a1)
+	bclr	#status.player.on_object,status(a1)
+	bclr	#status.player.pushing,status(a1)
 	move.b	#AniIDSonAni_Run,prev_anim(a1)	; Force player's animation to restart
 +
 	rts
@@ -24093,7 +24093,7 @@ Obj2D_Init:
 	move.w	d2,d3
 	subi.w	#$200,d2
 	addi.w	#$18,d3
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	subi.w	#-$1E8,d2
 	addi.w	#$1E8,d3
@@ -24102,7 +24102,7 @@ Obj2D_Init:
 	move.w	d3,objoff_3A(a0)
 ; loc_1175E:
 Obj2D_Main:
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	bne.s	+
 	move.w	objoff_38(a0),d2
 	move.w	x_pos(a0),d3
@@ -25360,7 +25360,7 @@ SolidObject_Monitor_Tails:
 Obj26_ChkOverEdge:
 	move.w	d1,d2
 	add.w	d2,d2
-	btst	#1,status(a1)	; is the character in the air?
+	btst	#status.player.in_air,status(a1)	; is the character in the air?
 	bne.s	+		; if yes, branch
 	; check, if character is standing on
 	move.w	x_pos(a1),d0
@@ -25371,8 +25371,8 @@ Obj26_ChkOverEdge:
 	blo.s	Obj26_CharStandOn	; branch, if character is not beyond the right edge of the monitor
 +
 	; if the character isn't standing on the monitor
-	bclr	#3,status(a1)	; clear 'on object' bit
-	bset	#1,status(a1)	; set 'in air' bit
+	bclr	#status.player.on_object,status(a1)	; clear 'on object' bit
+	bset	#status.player.in_air,status(a1)	; set 'in air' bit
 	bclr	d6,status(a0)	; clear 'standing on' bit for the current character
 	moveq	#0,d4
 	rts
@@ -25392,13 +25392,13 @@ Obj26_Break:
 	move.b	d0,d1
 	andi.b	#p1_standing|p1_pushing,d1	; is it the main character?
 	beq.s	+		; if not, branch
-	andi.b	#$D7,(MainCharacter+status).w
-	ori.b	#2,(MainCharacter+status).w	; prevent Sonic from walking in the air
+	andi.b	#~(1<<status.player.on_object|1<<status.player.pushing),(MainCharacter+status).w
+	ori.b	#1<<status.player.in_air,(MainCharacter+status).w	; prevent Sonic from walking in the air
 +
 	andi.b	#p2_standing|p2_pushing,d0	; is it the sidekick?
 	beq.s	Obj26_SpawnIcon	; if not, branch
-	andi.b	#$D7,(Sidekick+status).w
-	ori.b	#2,(Sidekick+status).w	; prevent Tails from walking in the air
+	andi.b	#~(1<<status.player.on_object|1<<status.player.pushing),(Sidekick+status).w
+	ori.b	#1<<status.player.in_air,(Sidekick+status).w	; prevent Tails from walking in the air
 ;loc_127EC:
 Obj26_SpawnIcon:
 	clr.b	status(a0)
@@ -25813,12 +25813,12 @@ swap_loop_objects:
 	move.w	a1,(Sonic_Shield+parent).w
 	move.b	#ObjID_InvStars,(Sonic_InvincibilityStars+id).w ; load Obj35 (invincibility stars) at $FFFFD200
 	move.w	a1,(Sonic_InvincibilityStars+parent).w
-	btst	#2,status(a1)	; is Sonic spinning?
+	btst	#status.player.rolling,status(a1)	; is Sonic spinning?
 	bne.s	+		; if yes, branch
 	move.b	#$13,y_radius(a1)	; set to standing height
 	move.b	#9,x_radius(a1)
 +
-	btst	#3,status(a1)	; is Sonic on an object?
+	btst	#status.player.on_object,status(a1)	; is Sonic on an object?
 	beq.s	+		; if not, branch
 	moveq	#0,d0
 	move.b	interact(a1),d0
@@ -25829,8 +25829,8 @@ swap_loop_objects:
     endif
 	addi.l	#Object_RAM,d0
 	movea.l	d0,a2	; a2=object
-	bclr	#4,status(a2)
-	bset	#3,status(a2)
+	bclr	#status.npc.p2_standing,status(a2)
+	bset	#status.npc.p1_standing,status(a2)
 
 +
 	lea	(Sidekick).w,a1 ; a1=character
@@ -25838,13 +25838,13 @@ swap_loop_objects:
 	move.w	a1,(Tails_Shield+parent).w
 	move.b	#ObjID_InvStars,(Tails_InvincibilityStars+id).w ; load Obj35 (invincibility) at $FFFFD300
 	move.w	a1,(Tails_InvincibilityStars+parent).w
-	btst	#2,status(a1)	; is Tails spinning?
+	btst	#status.player.rolling,status(a1)	; is Tails spinning?
 	bne.s	+		; if yes, branch
 	move.b	#$F,y_radius(a1)	; set to standing height
 	move.b	#9,x_radius(a1)
 
 +
-	btst	#3,status(a1)	; is Tails on an object?
+	btst	#status.player.on_object,status(a1)	; is Tails on an object?
 	beq.s	+		; if not, branch
 	moveq	#0,d0
 	move.b	interact(a1),d0
@@ -25855,8 +25855,8 @@ swap_loop_objects:
     endif
 	addi.l	#Object_RAM,d0
 	movea.l	d0,a2	; a2=object
-	bclr	#3,status(a2)
-	bset	#4,status(a2)
+	bclr	#status.npc.p1_standing,status(a2)
+	bset	#status.npc.p2_standing,status(a2)
 
 +
 	move.b	#$40,(Teleport_timer).w
@@ -28986,7 +28986,7 @@ Obj36_Init:
 	addq.b	#2,routine(a0)	; => Obj36_Sideways
 	move.w	#make_art_tile(ArtTile_ArtNem_HorizSpike,1,0),art_tile(a0)
 +
-	btst	#1,status(a0)		; are spikes upside-down?
+	btst	#status.npc.y_flip,status(a0)		; are spikes upside-down?
 	beq.s	+			; if not, branch
 	move.b	#6,routine(a0)	; => Obj36_Upsidedown
 +
@@ -29295,7 +29295,7 @@ Obj3C_Main:
 	move.w	#$20,d3
 	move.w	x_pos(a0),d4
 	bsr.w	SolidObject
-	btst	#5,status(a0)
+	btst	#status.npc.p1_pushing,status(a0)
 	bne.s	+
 -	rts
 ; ===========================================================================
@@ -29316,8 +29316,8 @@ Obj3C_Main:
 	lea	(Obj3C_FragmentSpeeds_RightToLeft).l,a4
 +
 	move.w	x_vel(a1),inertia(a1)
-	bclr	#5,status(a0)
-	bclr	#5,status(a1)
+	bclr	#status.npc.p1_pushing,status(a0)
+	bclr	#status.player.pushing,status(a1)
 	bsr.s	BreakObjectToPieces
 ; loc_15E02:
 Obj3C_Fragment:
@@ -30048,8 +30048,8 @@ Anim_Run:
 Anim_Next:
 	andi.b	#$7F,d0			; clear sign bit
 	move.b	d0,mapping_frame(a0)	; load sprite number
-	move.b	status(a0),d1		;* match the orientaion dictated by the object
-	andi.b	#3,d1			;* with the orientation used by the object engine
+	move.b	status(a0),d1		;* match the orientation dictated by the object
+	andi.b	#1<<status.npc.x_flip|1<<status.npc.y_flip,d1			;* with the orientation used by the object engine
 	andi.b	#$FC,render_flags(a0)	;*
 	or.b	d1,render_flags(a0)	;*
 	addq.b	#1,anim_frame(a0)	; next frame number
@@ -32471,9 +32471,9 @@ loc_177F2:
 	bsr.w	loc_175EA
 	bra.w	loc_177FA
 loc_177FA:
-	bset	#1,status(a0)
-	bclr	#4,status(a0)
-	bclr	#5,status(a0)
+	bset	#status.player.in_air,status(a0)
+	bclr	#status.player.rolljumping,status(a0)
+	bclr	#status.player.pushing,status(a0)
 	clr.b	jumping(a0)
 	move.w	#SndID_LargeBumper,d0
 	; This line unintentionally acts as a boundary marker for the below
@@ -33459,7 +33459,7 @@ Obj41_Init_Horizontal:
 Obj41_Init_Down:
 	move.b	#6,routine(a0)
 	move.b	#6,mapping_frame(a0)
-	bset	#1,status(a0)
+	bset	#status.npc.y_flip,status(a0)
 	bra.s	Obj41_Init_Common
 ; ===========================================================================
 ; loc_1891C:
@@ -33476,7 +33476,7 @@ Obj41_Init_DiagonallyDown:
 	move.b	#4,anim(a0)
 	move.b	#$A,mapping_frame(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_DignlSprng,0,0),art_tile(a0)
-	bset	#1,status(a0)
+	bset	#status.npc.y_flip,status(a0)
 ; loc_18954:
 Obj41_Init_Up:
 Obj41_Init_Common:
@@ -33530,8 +33530,8 @@ loc_189CA:
 	move.w	#(1<<8)|(0<<0),anim(a0)
 	addq.w	#8,y_pos(a1)
 	move.w	objoff_30(a0),y_vel(a1)
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	move.b	#AniIDSonAni_Spring,anim(a1)
 	move.b	#2,routine(a1)
 	move.b	subtype(a0),d0
@@ -33551,7 +33551,7 @@ loc_189FE:
 	move.b	#1,flips_remaining(a1)
 
 loc_18A2E:
-	btst	#0,status(a1)
+	btst	#status.player.x_flip,status(a1)
 	beq.s	loc_18A3E
 	neg.b	flip_angle(a1)
 	neg.w	inertia(a1)
@@ -33589,10 +33589,10 @@ Obj41_Horizontal:
 	move.w	x_pos(a0),d0
 	sub.w	x_pos(a1),d0
 	bcs.s	loc_18AA8
-	eori.b	#1,d1
+	eori.b	#1<<status.npc.x_flip,d1
 
 loc_18AA8:
-	andi.b	#1,d1
+	andi.b	#1<<status.npc.x_flip,d1
 	bne.s	loc_18AB0
 	bsr.s	loc_18AEE
 
@@ -33607,10 +33607,10 @@ loc_18AB0:
 	move.w	x_pos(a0),d0
 	sub.w	x_pos(a1),d0
 	bcs.s	loc_18AD8
-	eori.b	#1,d1
+	eori.b	#1<<status.npc.x_flip,d1
 
 loc_18AD8:
-	andi.b	#1,d1
+	andi.b	#1<<status.npc.x_flip,d1
 	bne.s	loc_18AE0
 	bsr.s	loc_18AEE
 
@@ -33624,17 +33624,17 @@ loc_18AEE:
 	move.w	#(3<<8)|(0<<0),anim(a0)
 	move.w	objoff_30(a0),x_vel(a1)
 	addq.w	#8,x_pos(a1)
-	bset	#0,status(a1)
-	btst	#0,status(a0)
+	bset	#status.player.x_flip,status(a1)
+	btst	#status.npc.x_flip,status(a0)
 	bne.s	loc_18B1C
-	bclr	#0,status(a1)
+	bclr	#status.player.x_flip,status(a1)
 	subi.w	#$10,x_pos(a1)
 	neg.w	x_vel(a1)
 
 loc_18B1C:
 	move.w	#$F,move_lock(a1)
 	move.w	x_vel(a1),inertia(a1)
-	btst	#2,status(a1)
+	btst	#status.player.rolling,status(a1)
 	bne.s	loc_18B36
 	move.b	#AniIDSonAni_Walk,anim(a1)
 
@@ -33656,7 +33656,7 @@ loc_18B42:
 	move.b	#3,flips_remaining(a1)
 
 loc_18B72:
-	btst	#0,status(a1)
+	btst	#status.player.x_flip,status(a1)
 	beq.s	loc_18B82
 	neg.b	flip_angle(a1)
 	neg.w	inertia(a1)
@@ -33677,7 +33677,7 @@ loc_18B98:
 loc_18BAA:
 	bclr	#p1_pushing_bit,status(a0)
 	bclr	#p2_pushing_bit,status(a0)
-	bclr	#5,status(a1)
+	bclr	#status.player.pushing,status(a1)
 	move.w	#SndID_Spring,d0
 	jmp	(PlaySound).l
 ; ===========================================================================
@@ -33688,7 +33688,7 @@ loc_18BC6:
 	move.w	x_pos(a0),d0
 	move.w	d0,d1
 	addi.w	#$28,d1
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	loc_18BE8
 	move.w	d0,d1
 	subi.w	#$28,d0
@@ -33699,10 +33699,10 @@ loc_18BE8:
 	subi.w	#$18,d2
 	addi.w	#$18,d3
 	lea	(MainCharacter).w,a1 ; a1=character
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.s	loc_18C3C
 	move.w	inertia(a1),d4
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	loc_18C10
 	neg.w	d4
 
@@ -33725,10 +33725,10 @@ loc_18C10:
 
 loc_18C3C:
 	lea	(Sidekick).w,a1 ; a1=character
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.s	return_18C7E
 	move.w	inertia(a1),d4
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	loc_18C56
 	neg.w	d4
 
@@ -33800,7 +33800,7 @@ loc_18CE6:
 	move.b	#1,flips_remaining(a1)
 
 loc_18D16:
-	btst	#0,status(a1)
+	btst	#status.player.x_flip,status(a1)
 	beq.s	loc_18D26
 	neg.b	flip_angle(a1)
 	neg.w	inertia(a1)
@@ -33819,8 +33819,8 @@ loc_18D3C:
 	move.b	#$F,lrb_solid_bit(a1)
 
 loc_18D4E:
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	move.b	#2,routine(a1)
 	move.w	#SndID_Spring,d0
 	jmp	(PlaySound).l
@@ -33854,7 +33854,7 @@ loc_18DAA:
 ; ===========================================================================
 
 loc_18DB4:
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	bne.s	loc_18DCA
 	move.w	x_pos(a0),d0
 	subq.w	#4,d0
@@ -33877,16 +33877,16 @@ loc_18DD8:
 	move.w	objoff_30(a0),x_vel(a1)
 	addq.w	#6,y_pos(a1)
 	addq.w	#6,x_pos(a1)
-	bset	#0,status(a1)
-	btst	#0,status(a0)
+	bset	#status.player.x_flip,status(a1)
+	btst	#status.npc.x_flip,status(a0)
 	bne.s	loc_18E10
-	bclr	#0,status(a1)
+	bclr	#status.player.x_flip,status(a1)
 	subi.w	#$C,x_pos(a1)
 	neg.w	x_vel(a1)
 
 loc_18E10:
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	move.b	#AniIDSonAni_Spring,anim(a1)
 	move.b	#2,routine(a1)
 	move.b	subtype(a0),d0
@@ -33902,7 +33902,7 @@ loc_18E10:
 	move.b	#3,flips_remaining(a1)
 
 loc_18E5C:
-	btst	#0,status(a1)
+	btst	#status.player.x_flip,status(a1)
 	beq.s	loc_18E6C
 	neg.b	flip_angle(a1)
 	neg.w	inertia(a1)
@@ -33961,16 +33961,16 @@ loc_18EE6:
 	move.w	objoff_30(a0),x_vel(a1)
 	subq.w	#6,y_pos(a1)
 	addq.w	#6,x_pos(a1)
-	bset	#0,status(a1)
-	btst	#0,status(a0)
+	bset	#status.player.x_flip,status(a1)
+	btst	#status.npc.x_flip,status(a0)
 	bne.s	loc_18F22
-	bclr	#0,status(a1)
+	bclr	#status.player.x_flip,status(a1)
 	subi.w	#$C,x_pos(a1)
 	neg.w	x_vel(a1)
 
 loc_18F22:
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	move.b	#2,routine(a1)
 	move.b	subtype(a0),d0
 	btst	#0,d0
@@ -33985,7 +33985,7 @@ loc_18F22:
 	move.b	#3,flips_remaining(a1)
 
 loc_18F68:
-	btst	#0,status(a1)
+	btst	#status.player.x_flip,status(a1)
 	beq.s	loc_18F78
 	neg.b	flip_angle(a1)
 	neg.w	inertia(a1)
@@ -34426,10 +34426,10 @@ Obj0D_Main_State3:
 	; appears.
 	tst.b	(MainCharacter+id).w
 	beq.s	loc_1944C
-	btst	#1,(MainCharacter+status).w
+	btst	#status.player.in_air,(MainCharacter+status).w
 	bne.w	return_194D0
     else
-	btst	#1,(MainCharacter+status).w
+	btst	#status.player.in_air,(MainCharacter+status).w
 	bne.s	loc_19434
     endif
 	move.b	#1,(Control_Locked).w
@@ -34633,7 +34633,7 @@ SolidObject:
 	beq.w	SolidObject_OnScreenTest
 	move.w	d1,d2
 	add.w	d2,d2
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.s	loc_1975A
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
@@ -34643,8 +34643,8 @@ SolidObject:
 	blo.s	loc_1976E
 
 loc_1975A:
-	bclr	#3,status(a1)
-	bset	#1,status(a1)
+	bclr	#status.player.on_object,status(a1)
+	bset	#status.player.in_air,status(a1)
 	bclr	d6,status(a0)
 	moveq	#0,d4
 	rts
@@ -34676,7 +34676,7 @@ SolidObject_Always_SingleCharacter:
 	beq.w	SolidObject_cont
 	move.w	d1,d2
 	add.w	d2,d2
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.s	loc_197B2
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
@@ -34686,8 +34686,8 @@ SolidObject_Always_SingleCharacter:
 	blo.s	loc_197C6
 
 loc_197B2:
-	bclr	#3,status(a1)
-	bset	#1,status(a1)
+	bclr	#status.player.on_object,status(a1)
+	bset	#status.player.in_air,status(a1)
 	bclr	d6,status(a0)
 	moveq	#0,d4
 	rts
@@ -34730,7 +34730,7 @@ SlopedSolid_SingleCharacter:
 	beq.w	SlopedSolid_cont
 	move.w	d1,d2
 	add.w	d2,d2
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.s	loc_1980A
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
@@ -34740,8 +34740,8 @@ SlopedSolid_SingleCharacter:
 	blo.s	loc_1981E
 
 loc_1980A:
-	bclr	#3,status(a1)
-	bset	#1,status(a1)
+	bclr	#status.player.on_object,status(a1)
+	bset	#status.player.in_air,status(a1)
 	bclr	d6,status(a0)
 	moveq	#0,d4
 	rts
@@ -34770,7 +34770,7 @@ loc_1981E:
 	beq.w	DoubleSlopedSolid_cont
 	move.w	d1,d2
 	add.w	d2,d2
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.s	loc_19862
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
@@ -34780,8 +34780,8 @@ loc_1981E:
 	blo.s	loc_19876
 
 loc_19862:
-	bclr	#3,status(a1)
-	bset	#1,status(a1)
+	bclr	#status.player.on_object,status(a1)
+	bset	#status.player.in_air,status(a1)
 	bclr	d6,status(a0)
 	moveq	#0,d4
 	rts
@@ -34806,7 +34806,7 @@ SolidObject45:
 loc_19896:
 	btst	d6,status(a0)
 	beq.w	SolidObject45_cont
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.s	loc_198B8
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
@@ -34817,8 +34817,8 @@ loc_19896:
 	blo.s	loc_198CC
 
 loc_198B8:
-	bclr	#3,status(a1)
-	bset	#1,status(a1)
+	bclr	#status.player.on_object,status(a1)
+	bset	#status.player.in_air,status(a1)
 	bclr	d6,status(a0)
 	moveq	#0,d4
 	rts
@@ -35041,12 +35041,12 @@ SolidObject_StopCharacter:
 ; loc_19A90:
 SolidObject_AtEdge:
 	sub.w	d0,x_pos(a1)		; correct Sonic's position
-	btst	#1,status(a1)		; is Sonic in the air?
+	btst	#status.player.in_air,status(a1)	; is Sonic in the air?
 	bne.s	SolidObject_SideAir	; if yes, branch
 	move.l	d6,d4
 	addq.b	#pushing_bit_delta,d4	; Character is pushing, not standing
 	bset	d4,status(a0)		; make object be pushed
-	bset	#5,status(a1)		; make Sonic push object
+	bset	#status.player.pushing,status(a1)	; make Sonic push object
 	move.w	d6,d4
 	addi.b	#($10-p1_standing_bit+p1_touch_side_bit),d4
 	bset	d4,d6	; This sets bits 0 (Sonic) or 1 (Tails) of high word of d6
@@ -35088,7 +35088,7 @@ Solid_NotPushing:
 	move.l	d6,d4
 	addq.b	#pushing_bit_delta,d4
 	bclr	d4,status(a0)	; clear pushing flag
-	bclr	#5,status(a1)	; clear Sonic's pushing flag
+	bclr	#status.player.pushing,status(a1)	; clear Sonic's pushing flag
 ; loc_19AEA:
 SolidObject_NoCollision:
 	moveq	#0,d4	; return no collision
@@ -35139,7 +35139,7 @@ loc_19B1C:
 ; ===========================================================================
 ; loc_19B28:
 SolidObject_Squash:
-	btst	#1,status(a1)	; is Sonic in the air?
+	btst	#status.player.in_air,status(a1)	; is Sonic in the air?
 	bne.s	loc_19B1C	; if yes, branch
 	mvabs.w	d0,d4
 
@@ -35228,7 +35228,7 @@ return_19BCA:
 ; ===========================================================================
 ;loc_19BCC:
 MvSonicOnSlope:
-	btst	#3,status(a1)
+	btst	#status.player.on_object,status(a1)
 	beq.s	return_19C0C
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
@@ -35257,7 +35257,7 @@ return_19C0C:
 ; unused/dead code.
 ; loc_19C0E:
 MvSonicOnDoubleSlope:
-	btst	#3,status(a1)
+	btst	#status.player.on_object,status(a1)
 	beq.s	return_19C0C
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
@@ -35301,7 +35301,7 @@ PlatformObject_SingleCharacter:
 	beq.w	PlatformObject_cont
 	move.w	d1,d2
 	add.w	d2,d2
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.s	+
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
@@ -35311,8 +35311,8 @@ PlatformObject_SingleCharacter:
 	blo.s	loc_19C80
 +
 
-	bclr	#3,status(a1)
-	bset	#1,status(a1)
+	bclr	#status.player.on_object,status(a1)
+	bset	#status.player.in_air,status(a1)
 	bclr	d6,status(a0)
 	moveq	#0,d4
 	rts
@@ -35354,7 +35354,7 @@ SlopedPlatform_SingleCharacter:
 	beq.w	SlopedPlatform_cont
 	move.w	d1,d2
 	add.w	d2,d2
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.s	loc_19CC4
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
@@ -35364,8 +35364,8 @@ SlopedPlatform_SingleCharacter:
 	blo.s	loc_19CD8
 
 loc_19CC4:
-	bclr	#3,status(a1)
-	bset	#1,status(a1)
+	bclr	#status.player.on_object,status(a1)
+	bset	#status.player.in_air,status(a1)
 	bclr	d6,status(a0)
 	moveq	#0,d4
 	rts
@@ -35392,7 +35392,7 @@ loc_19CF8:
 	beq.w	PlatformObject2_cont
 	move.w	d1,d2
 	add.w	d2,d2
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.s	loc_19D1C
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
@@ -35402,8 +35402,8 @@ loc_19CF8:
 	blo.s	loc_19D30
 
 loc_19D1C:
-	bclr	#3,status(a1)
-	bset	#1,status(a1)
+	bclr	#status.player.on_object,status(a1)
+	bset	#status.player.in_air,status(a1)
 	bclr	d6,status(a0)
 	moveq	#0,d4
 	rts
@@ -35431,7 +35431,7 @@ PlatformObjectD5:
 loc_19D50:
 	btst	d6,status(a0)
 	bne.s	loc_19D62
-	btst	#3,status(a1)
+	btst	#status.player.on_object,status(a1)
 	bne.s	loc_19D8E
 	bra.w	PlatformObject_cont
 ; ===========================================================================
@@ -35439,7 +35439,7 @@ loc_19D50:
 loc_19D62:
 	move.w	d1,d2
 	add.w	d2,d2
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.s	loc_19D7E
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
@@ -35449,8 +35449,8 @@ loc_19D62:
 	blo.s	loc_19D92
 
 loc_19D7E:
-	bclr	#3,status(a1)
-	bset	#1,status(a1)
+	bclr	#status.player.on_object,status(a1)
+	bset	#status.player.in_air,status(a1)
 	bclr	d6,status(a0)
 
 loc_19D8E:
@@ -35513,7 +35513,7 @@ PlatformObject_ChkYRange:
 	move.w	d2,y_pos(a1)
 ;loc_19E14:
 RideObject_SetRide:
-	btst	#3,status(a1)
+	btst	#status.player.on_object,status(a1)
 	beq.s	loc_19E30
 	moveq	#0,d0
 	move.b	interact(a1),d0
@@ -35542,7 +35542,7 @@ loc_19E30:
 	move.b	#0,angle(a1)
 	move.w	#0,y_vel(a1)
 	move.w	x_vel(a1),inertia(a1)
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	beq.s	loc_19E7E
 	move.l	a0,-(sp)
 	movea.l	a1,a0
@@ -35562,8 +35562,8 @@ loc_19E7C:
 	movea.l	(sp)+,a0 ; a0=character
 
 loc_19E7E:
-	bset	#3,status(a1)
-	bclr	#1,status(a1)
+	bset	#status.player.on_object,status(a1)
+	bclr	#status.player.in_air,status(a1)
 	bset	d6,status(a0)
 
 return_19E8E:
@@ -35623,8 +35623,8 @@ DropOnFloor:
 
 loc_19F08:
 	lea	(MainCharacter).w,a1 ; a1=character
-	bclr	#3,status(a1)
-	bset	#1,status(a1)
+	bclr	#status.player.on_object,status(a1)
+	bset	#status.player.in_air,status(a1)
 	bclr	#p1_standing_bit,status(a0)
 
 loc_19F1E:
@@ -35638,8 +35638,8 @@ loc_19F1E:
 
 loc_19F36:
 	lea	(Sidekick).w,a1 ; a1=character
-	bclr	#3,status(a1)
-	bset	#1,status(a1)
+	bclr	#status.player.on_object,status(a1)
+	bset	#status.player.in_air,status(a1)
 	bclr	#p2_standing_bit,status(a0)
 
 loc_19F4C:
@@ -35739,7 +35739,7 @@ Obj01_Control:
 	bne.s	+			; if yes, branch to skip Sonic's control
 	moveq	#0,d0
 	move.b	status(a0),d0
-	andi.w	#6,d0	; %0000 %0110
+	andi.w	#1<<status.player.in_air|1<<status.player.rolling,d0	; %0000 %0110
 	move.w	Obj01_Modes(pc,d0.w),d1
 	jsr	Obj01_Modes(pc,d1.w)	; run Sonic's movement control code
 +
@@ -35851,7 +35851,7 @@ Sonic_RecordPos:
 	lea	(Sonic_Stat_Record_Buf).w,a1
 	lea	(a1,d0.w),a1
 	move.w	(Ctrl_1_Logical).w,(a1)+
-	move.w	status(a0),(a1)+
+	move.w	status(a0),(a1)+ ; Copies `status` AND the byte after it...
 
 	rts
 ; End of subroutine Sonic_RecordPos
@@ -35878,7 +35878,7 @@ Obj01_InWater:
 	cmp.w	y_pos(a0),d0	; is Sonic above the water?
 	bge.s	Obj01_OutWater	; if yes, branch
 
-	bset	#6,status(a0)	; set underwater flag
+	bset	#status.player.underwater,status(a0)	; set underwater flag
 	bne.s	return_1A18C	; if already underwater, branch
 
 	movea.l	a0,a1
@@ -35905,7 +35905,7 @@ Obj01_InWater:
 ; ---------------------------------------------------------------------------
 ; loc_1A1FE:
 Obj01_OutWater:
-	bclr	#6,status(a0) ; unset underwater flag
+	bclr	#status.player.underwater,status(a0) ; unset underwater flag
 	beq.s	return_1A18C ; if already above water, branch
 
 	movea.l	a0,a1
@@ -35991,7 +35991,7 @@ Obj01_MdAir:
 	bsr.w	Sonic_ChgJumpDir
 	bsr.w	Sonic_LevelBound
 	jsr	(ObjectMoveAndFall).l
-	btst	#6,status(a0)	; is Sonic underwater?
+	btst	#status.player.underwater,status(a0)	; is Sonic underwater?
 	beq.s	+		; if not, branch
 	subi.w	#$28,y_vel(a0)	; reduce gravity by $28 ($38-$28=$10)
 +
@@ -36027,7 +36027,7 @@ Obj01_MdJump:
 	bsr.w	Sonic_ChgJumpDir
 	bsr.w	Sonic_LevelBound
 	jsr	(ObjectMoveAndFall).l
-	btst	#6,status(a0)	; is Sonic underwater?
+	btst	#status.player.underwater,status(a0)	; is Sonic underwater?
 	beq.s	+		; if not, branch
 	subi.w	#$28,y_vel(a0)	; reduce gravity by $28 ($38-$28=$10)
 +
@@ -36072,9 +36072,9 @@ Obj01_NotRight:
 	bne.w	Obj01_ResetScr	; if yes, branch
 	tst.w	inertia(a0)	; is Sonic moving?
 	bne.w	Obj01_ResetScr	; if yes, branch
-	bclr	#5,status(a0)
+	bclr	#status.player.pushing,status(a0)
 	move.b	#AniIDSonAni_Wait,anim(a0)	; use "standing" animation
-	btst	#3,status(a0)
+	btst	#status.player.on_object,status(a0)
 	beq.w	Sonic_Balance
 	moveq	#0,d0
 	move.b	interact(a0),d0
@@ -36085,8 +36085,13 @@ Obj01_NotRight:
     endif
 	lea	(Object_RAM).w,a1 ; a1=character
 	lea	(a1,d0.w),a1 ; a1=object
+    if status.npc.unknown = 7
 	tst.b	status(a1)
 	bmi.w	Sonic_Lookup
+    else
+	btst	#status.npc.unknown,status(a1)
+	bne.w	Sonic_Lookup
+    endif
 	moveq	#0,d1
 	move.b	width_pixels(a1),d1
 	move.w	d1,d2
@@ -36113,7 +36118,7 @@ SuperSonic_Balance:
 ; balancing checks for when you're on the right edge of an object
 ; loc_1A410:
 Sonic_BalanceOnObjRight:
-	btst	#0,status(a0)
+	btst	#status.player.x_flip,status(a0)
 	bne.s	+
 	move.b	#AniIDSonAni_Balance,anim(a0)
 	addq.w	#6,d2
@@ -36127,13 +36132,13 @@ Sonic_BalanceOnObjRight:
 	cmp.w	d2,d1
 	blt.w	Obj01_ResetScr
 	move.b	#AniIDSonAni_Balance4,anim(a0)
-	bclr	#0,status(a0)
+	bclr	#status.player.x_flip,status(a0)
 	bra.w	Obj01_ResetScr
 ; ---------------------------------------------------------------------------
 ; balancing checks for when you're on the left edge of an object
 ; loc_1A44E:
 Sonic_BalanceOnObjLeft:
-	btst	#0,status(a0)
+	btst	#status.player.x_flip,status(a0)
 	beq.s	+
 	move.b	#AniIDSonAni_Balance,anim(a0)
 	cmpi.w	#-4,d1
@@ -36145,7 +36150,7 @@ Sonic_BalanceOnObjLeft:
 	cmpi.w	#-4,d1
 	bge.w	Obj01_ResetScr
 	move.b	#AniIDSonAni_Balance4,anim(a0)
-	bset	#0,status(a0)
+	bset	#status.player.x_flip,status(a0)
 	bra.w	Obj01_ResetScr
 ; ---------------------------------------------------------------------------
 ; balancing checks for when you're on the edge of part of the level
@@ -36158,7 +36163,7 @@ Sonic_Balance:
 	bne.w	SuperSonic_Balance2
 	cmpi.b	#3,next_tilt(a0)
 	bne.s	Sonic_BalanceLeft
-	btst	#0,status(a0)
+	btst	#status.player.x_flip,status(a0)
 	bne.s	+
 	move.b	#AniIDSonAni_Balance,anim(a0)
 	move.w	x_pos(a0),d3
@@ -36176,13 +36181,13 @@ Sonic_Balance:
 	cmpi.w	#$C,d1
 	blt.w	Obj01_ResetScr
 	move.b	#AniIDSonAni_Balance4,anim(a0)
-	bclr	#0,status(a0)
+	bclr	#status.player.x_flip,status(a0)
 	bra.w	Obj01_ResetScr
 ; ---------------------------------------------------------------------------
 Sonic_BalanceLeft:
 	cmpi.b	#3,tilt(a0)
 	bne.s	Sonic_Lookup
-	btst	#0,status(a0)
+	btst	#status.player.x_flip,status(a0)
 	beq.s	+
 	move.b	#AniIDSonAni_Balance,anim(a0)
 	move.w	x_pos(a0),d3
@@ -36200,7 +36205,7 @@ Sonic_BalanceLeft:
 	cmpi.w	#$C,d1
 	blt.w	Obj01_ResetScr
 	move.b	#AniIDSonAni_Balance4,anim(a0)
-	bset	#0,status(a0)
+	bset	#status.player.x_flip,status(a0)
 	bra.w	Obj01_ResetScr
 ; ---------------------------------------------------------------------------
 ; loc_1A55E:
@@ -36210,7 +36215,7 @@ SuperSonic_Balance2:
 
 ; loc_1A566:
 SuperSonic_BalanceOnObjRight:
-	bclr	#0,status(a0)
+	bclr	#status.player.x_flip,status(a0)
 	bra.s	loc_1A57C
 ; ---------------------------------------------------------------------------
 loc_1A56E:
@@ -36219,7 +36224,7 @@ loc_1A56E:
 
 ; loc_1A576:
 SuperSonic_BalanceOnObjLeft:
-	bset	#0,status(a0)
+	bset	#status.player.x_flip,status(a0)
 
 loc_1A57C:
 	move.b	#AniIDSonAni_Balance,anim(a0)
@@ -36340,7 +36345,7 @@ Obj01_CheckWallsOnGround:
 	cmpi.b	#$80,d0
 	beq.s	loc_1A6A2
 	add.w	d1,x_vel(a0)
-	bset	#5,status(a0)
+	bset	#status.player.pushing,status(a0)
 	move.w	#0,inertia(a0)
 	rts
 ; ---------------------------------------------------------------------------
@@ -36350,7 +36355,7 @@ loc_1A6A2:
 ; ---------------------------------------------------------------------------
 loc_1A6A8:
 	sub.w	d1,x_vel(a0)
-	bset	#5,status(a0)
+	bset	#status.player.pushing,status(a0)
 	move.w	#0,inertia(a0)
 	rts
 ; ---------------------------------------------------------------------------
@@ -36370,9 +36375,9 @@ Sonic_MoveLeft:
 	beq.s	+
 	bpl.s	Sonic_TurnLeft ; if Sonic is already moving to the right, branch
 +
-	bset	#0,status(a0)
+	bset	#status.player.x_flip,status(a0)
 	bne.s	+
-	bclr	#5,status(a0)
+	bclr	#status.player.pushing,status(a0)
 	move.b	#AniIDSonAni_Run,prev_anim(a0)	; force walking animation to restart if it's already in-progress
 +
 	sub.w	d5,d0	; add acceleration to the left
@@ -36414,7 +36419,7 @@ Sonic_TurnLeft:
 	cmpi.w	#$400,d0
 	blt.s	return_1A744
 	move.b	#AniIDSonAni_Stop,anim(a0)	; use "stopping" animation
-	bclr	#0,status(a0)
+	bclr	#status.player.x_flip,status(a0)
 	move.w	#SndID_Skidding,d0
 	jsr	(PlaySound).l
 	cmpi.b	#12,air_left(a0)
@@ -36433,9 +36438,9 @@ return_1A744:
 Sonic_MoveRight:
 	move.w	inertia(a0),d0
 	bmi.s	Sonic_TurnRight	; if Sonic is already moving to the left, branch
-	bclr	#0,status(a0)
+	bclr	#status.player.x_flip,status(a0)
 	beq.s	+
-	bclr	#5,status(a0)
+	bclr	#status.player.pushing,status(a0)
 	move.b	#AniIDSonAni_Run,prev_anim(a0)	; force walking animation to restart if it's already in-progress
 +
 	add.w	d5,d0	; add acceleration to the right
@@ -36475,7 +36480,7 @@ Sonic_TurnRight:
 	cmpi.w	#-$400,d0
 	bgt.s	return_1A7C4
 	move.b	#AniIDSonAni_Stop,anim(a0)	; use "stopping" animation
-	bset	#0,status(a0)
+	bset	#status.player.x_flip,status(a0)
 	move.w	#SndID_Skidding,d0	; use "stopping" sound
 	jsr	(PlaySound).l
 	cmpi.b	#12,air_left(a0)
@@ -36547,7 +36552,7 @@ Sonic_CheckRollStop:
 	bne.s	Obj01_Roll_ResetScr
 	tst.b	pinball_mode(a0) ; note: the spindash flag has a different meaning when Sonic's already rolling -- it's used to mean he's not allowed to stop rolling
 	bne.s	Sonic_KeepRolling
-	bclr	#2,status(a0)
+	bclr	#status.player.rolling,status(a0)
 	move.b	#$13,y_radius(a0)
 	move.b	#9,x_radius(a0)
 	move.b	#AniIDSonAni_Wait,anim(a0)
@@ -36560,7 +36565,7 @@ Sonic_CheckRollStop:
 ; loc_1A848:
 Sonic_KeepRolling:
 	move.w	#$400,inertia(a0)
-	btst	#0,status(a0)
+	btst	#status.player.x_flip,status(a0)
 	beq.s	Obj01_Roll_ResetScr
 	neg.w	inertia(a0)
 
@@ -36604,7 +36609,7 @@ Sonic_RollLeft:
 	beq.s	+
 	bpl.s	Sonic_BrakeRollingRight
 +
-	bset	#0,status(a0)
+	bset	#status.player.x_flip,status(a0)
 	move.b	#AniIDSonAni_Roll,anim(a0)	; use "rolling" animation
 	rts
 ; ---------------------------------------------------------------------------
@@ -36626,7 +36631,7 @@ Sonic_BrakeRollingRight:
 Sonic_RollRight:
 	move.w	inertia(a0),d0
 	bmi.s	Sonic_BrakeRollingLeft
-	bclr	#0,status(a0)
+	bclr	#status.player.x_flip,status(a0)
 	move.b	#AniIDSonAni_Roll,anim(a0)	; use "rolling" animation
 	rts
 ; ---------------------------------------------------------------------------
@@ -36652,13 +36657,13 @@ Sonic_ChgJumpDir:
 	move.w	(Sonic_top_speed).w,d6
 	move.w	(Sonic_acceleration).w,d5
 	asl.w	#1,d5
-	btst	#4,status(a0)		; did Sonic jump from rolling?
-	bne.s	Obj01_Jump_ResetScr	; if yes, branch to skip midair control
+	btst	#status.player.rolljumping,status(a0)	; did Sonic jump from rolling?
+	bne.s	Obj01_Jump_ResetScr			; if yes, branch to skip midair control
 	move.w	x_vel(a0),d0
 	btst	#button_left,(Ctrl_1_Held_Logical).w
 	beq.s	+	; if not holding left, branch
 
-	bset	#0,status(a0)
+	bset	#status.player.x_flip,status(a0)
 	sub.w	d5,d0	; add acceleration to the left
 	move.w	d6,d1
 	neg.w	d1
@@ -36669,7 +36674,7 @@ Sonic_ChgJumpDir:
 	btst	#button_right,(Ctrl_1_Held_Logical).w
 	beq.s	+	; if not holding right, branch
 
-	bclr	#0,status(a0)
+	bclr	#status.player.x_flip,status(a0)
 	add.w	d5,d0	; accelerate right in the air
 	cmp.w	d6,d0	; compare new speed with top speed
 	blt.s	+	; if new speed is less than the maximum, branch
@@ -36810,14 +36815,14 @@ Obj01_NoRoll:
 ; ---------------------------------------------------------------------------
 ; loc_1A9FA:
 Obj01_ChkRoll:
-	btst	#2,status(a0)	; is Sonic already rolling?
+	btst	#status.player.rolling,status(a0)	; is Sonic already rolling?
 	beq.s	Obj01_DoRoll	; if not, branch
 	rts
 
 ; ---------------------------------------------------------------------------
 ; loc_1AA04:
 Obj01_DoRoll:
-	bset	#2,status(a0)
+	bset	#status.player.rolling,status(a0)
 	move.b	#$E,y_radius(a0)
 	move.b	#7,x_radius(a0)
 	move.b	#AniIDSonAni_Roll,anim(a0)	; use "rolling" animation
@@ -36855,7 +36860,7 @@ Sonic_Jump:
 	beq.s	+
 	move.w	#$800,d2	; set higher jump speed if super
 +
-	btst	#6,status(a0)	; Test if underwater
+	btst	#status.player.underwater,status(a0)	; Test if underwater
 	beq.s	+
 	move.w	#$380,d2	; set lower jump speed if underwater
 +
@@ -36869,8 +36874,8 @@ Sonic_Jump:
 	muls.w	d2,d0
 	asr.l	#8,d0
 	add.w	d0,y_vel(a0)	; make Sonic jump (in Y)
-	bset	#1,status(a0)
-	bclr	#5,status(a0)
+	bset	#status.player.in_air,status(a0)
+	bclr	#status.player.pushing,status(a0)
 	addq.l	#4,sp
 	move.b	#1,jumping(a0)
 	clr.b	stick_to_convex(a0)
@@ -36878,12 +36883,12 @@ Sonic_Jump:
 	jsr	(PlaySound).l	; play jumping sound
 	move.b	#$13,y_radius(a0)
 	move.b	#9,x_radius(a0)
-	btst	#2,status(a0)
+	btst	#status.player.rolling,status(a0)
 	bne.s	Sonic_RollJump
 	move.b	#$E,y_radius(a0)
 	move.b	#7,x_radius(a0)
 	move.b	#AniIDSonAni_Roll,anim(a0)	; use "jumping" animation
-	bset	#2,status(a0)
+	bset	#status.player.rolling,status(a0)
 	addq.w	#5,y_pos(a0)
 
 return_1AAE6:
@@ -36891,7 +36896,7 @@ return_1AAE6:
 ; ---------------------------------------------------------------------------
 ; loc_1AAE8:
 Sonic_RollJump:
-	bset	#4,status(a0)	; set the rolling+jumping flag
+	bset	#status.player.rolljumping,status(a0)	; set the rolling+jumping flag
 	rts
 ; End of function Sonic_Jump
 
@@ -36910,7 +36915,7 @@ Sonic_JumpHeight:
 	beq.s	Sonic_UpVelCap	; if not, branch
 
 	move.w	#-$400,d1
-	btst	#6,status(a0)	; is Sonic underwater?
+	btst	#status.player.underwater,status(a0)	; is Sonic underwater?
 	beq.s	+		; if not, branch
 	move.w	#-$200,d1
 +
@@ -36962,7 +36967,7 @@ Sonic_CheckGoSuper:
 	; If Sonic was executing a roll-jump when he turned Super, then this
 	; will remove him from that state. The original code forgot to do
 	; this.
-	andi.b	#~((1<<2)|(1<<4)),status(a0)	; Clear bits 2 and 4
+	andi.b	#~(1<<status.player.rolling|1<<status.player.rolljumping),status(a0)	; Clear bits 2 and 4
 	move.b	#$13,y_radius(a0)
 	move.b	#9,x_radius(a0)
     endif
@@ -37027,7 +37032,7 @@ Sonic_RevertToNormal:
 	move.w	#$600,(Sonic_top_speed).w
 	move.w	#$C,(Sonic_acceleration).w
 	move.w	#$80,(Sonic_deceleration).w
-	btst	#6,status(a0)	; Check if underwater, return if not
+	btst	#status.player.underwater,status(a0)	; Check if underwater, return if not
 	beq.s	return_1AC3C
 	move.w	#$300,(Sonic_top_speed).w
 	move.w	#6,(Sonic_acceleration).w
@@ -37121,11 +37126,11 @@ Sonic_UpdateSpindash:
 	move.w	d0,(Horiz_scroll_delay_val).w
     endif
 
-	btst	#0,status(a0)
+	btst	#status.player.x_flip,status(a0)
 	beq.s	+
 	neg.w	inertia(a0)
 +
-	bset	#2,status(a0)
+	bset	#status.player.rolling,status(a0)
 	move.b	#0,(Sonic_Dust+anim).w
 	move.w	#SndID_SpindashRelease,d0	; spindash zoom sound
 	jsr	(PlaySound).l
@@ -37284,7 +37289,7 @@ Sonic_SlopeRepel:
 	cmpi.w	#$280,d0
 	bhs.s	return_1AE42
 	clr.w	inertia(a0)
-	bset	#1,status(a0)
+	bset	#status.player.in_air,status(a0)
 	move.w	#$1E,move_lock(a0)
 
 return_1AE42:
@@ -37593,18 +37598,18 @@ Sonic_ResetOnFloor_Part2:
 	_cmpi.b	#ObjID_Sonic,id(a0)	; is this object ID Sonic (obj01)?
 	bne.w	Tails_ResetOnFloor_Part2	; if not, branch to the Tails version of this code
 
-	btst	#2,status(a0)
+	btst	#status.player.rolling,status(a0)
 	beq.s	Sonic_ResetOnFloor_Part3
-	bclr	#2,status(a0)
+	bclr	#status.player.rolling,status(a0)
 	move.b	#$13,y_radius(a0) ; this increases Sonic's collision height to standing
 	move.b	#9,x_radius(a0)
 	move.b	#AniIDSonAni_Walk,anim(a0)	; use running/walking/standing animation
 	subq.w	#5,y_pos(a0)	; move Sonic up 5 pixels so the increased height doesn't push him into the ground
 ; loc_1B0DA:
 Sonic_ResetOnFloor_Part3:
-	bclr	#1,status(a0)
-	bclr	#5,status(a0)
-	bclr	#4,status(a0)
+	bclr	#status.player.in_air,status(a0)
+	bclr	#status.player.pushing,status(a0)
+	bclr	#status.player.rolljumping,status(a0)
 	move.b	#0,jumping(a0)
 	move.w	#0,(Chain_Bonus_counter).w
 	move.b	#0,flip_angle(a0)
@@ -37638,7 +37643,7 @@ Obj01_Hurt_Normal:
 	bmi.w	Sonic_HurtInstantRecover
 	jsr	(ObjectMove).l
 	addi.w	#$30,y_vel(a0)
-	btst	#6,status(a0)
+	btst	#status.player.underwater,status(a0)
 	beq.s	+
 	subi.w	#$20,y_vel(a0)
 +
@@ -37676,7 +37681,7 @@ Sonic_HurtStop:
 	cmp.w	y_pos(a0),d0
 	blt.w	JmpTo_KillCharacter
 	bsr.w	Sonic_DoLevelCollision
-	btst	#1,status(a0)
+	btst	#status.player.in_air,status(a0)
 	bne.s	return_1B1C8
 	moveq	#0,d0
 	move.w	d0,y_vel(a0)
@@ -37789,7 +37794,7 @@ Obj01_ResetLevel_Part2:
 	move.w	#0,x_vel(a0)
 	move.w	#0,y_vel(a0)
 	move.w	#0,inertia(a0)
-	move.b	#2,status(a0)
+	move.b	#1<<status.player.in_air,status(a0)
 	move.w	#0,move_lock(a0)
 	move.w	#0,restart_countdown(a0)
 
@@ -37846,7 +37851,7 @@ Sonic_Animate:
 	move.b	d0,prev_anim(a0)	; set previous animation
 	move.b	#0,anim_frame(a0)	; reset animation frame
 	move.b	#0,anim_frame_duration(a0)	; reset frame duration
-	bclr	#5,status(a0)
+	bclr	#status.player.pushing,status(a0)
 ; loc_1B384:
 SAnim_Do:
 	add.w	d0,d0
@@ -37854,7 +37859,7 @@ SAnim_Do:
 	move.b	(a1),d0
 	bmi.s	SAnim_WalkRun	; if animation is walk/run/roll/jump, branch
 	move.b	status(a0),d1
-	andi.b	#1,d1
+	andi.b	#1<<status.player.x_flip,d1
 	andi.b	#$FC,render_flags(a0)
 	or.b	d1,render_flags(a0)
 	subq.b	#1,anim_frame_duration(a0)	; subtract 1 from frame duration
@@ -37916,9 +37921,9 @@ SAnim_WalkRun:
 	subq.b	#1,d0
 +
 	move.b	status(a0),d2
-	andi.b	#1,d2		; is Sonic mirrored horizontally?
-	bne.s	+		; if yes, branch
-	not.b	d0		; reverse angle
+	andi.b	#1<<status.player.x_flip,d2	; is Sonic mirrored horizontally?
+	bne.s	+				; if yes, branch
+	not.b	d0				; reverse angle
 +
 	addi.b	#$10,d0		; add $10 to angle
 	bpl.s	+		; if angle is $0-$7F, branch
@@ -37927,7 +37932,7 @@ SAnim_WalkRun:
 	andi.b	#$FC,render_flags(a0)
 	eor.b	d1,d2
 	or.b	d2,render_flags(a0)
-	btst	#5,status(a0)
+	btst	#status.player.pushing,status(a0)
 	bne.w	SAnim_Push
 	lsr.b	#4,d0		; divide angle by 16
 	andi.b	#6,d0		; angle must be 0, 2, 4 or 6
@@ -38027,7 +38032,7 @@ SAnim_Tumble:
 	move.b	flip_angle(a0),d0
 	moveq	#0,d1
 	move.b	status(a0),d2
-	andi.b	#1,d2
+	andi.b	#1<<status.player.x_flip,d2
 	bne.s	SAnim_Tumble_Left
 
 	andi.b	#$FC,render_flags(a0)
@@ -38080,7 +38085,7 @@ SAnim_Roll:
 	lsr.w	#8,d2
 	move.b	d2,anim_frame_duration(a0)
 	move.b	status(a0),d1
-	andi.b	#1,d1
+	andi.b	#1<<status.player.x_flip,d1
 	andi.b	#$FC,render_flags(a0)
 	or.b	d1,render_flags(a0)
 	bra.w	SAnim_Do2
@@ -38105,7 +38110,7 @@ SAnim_Push:
 	lea	(SupSonAni_Push).l,a1
 +
 	move.b	status(a0),d1
-	andi.b	#1,d1
+	andi.b	#1<<status.player.x_flip,d1
 	andi.b	#$FC,render_flags(a0)
 	or.b	d1,render_flags(a0)
 	bra.w	SAnim_Do2
@@ -38439,7 +38444,7 @@ Obj02_Control_Part2:
 	bne.s	+			; if yes, branch to skip Tails' control
 	moveq	#0,d0
 	move.b	status(a0),d0
-	andi.w	#6,d0	; %0000 %0110
+	andi.w	#1<<status.player.in_air|1<<status.player.rolling,d0	; %0000 %0110
 	move.w	Obj02_Modes(pc,d0.w),d1
 	jsr	Obj02_Modes(pc,d1.w)	; run Tails' movement control code
 +
@@ -38581,7 +38586,7 @@ TailsCPU_Spawning:
 	tst.b	obj_control(a1)
 	bne.s	return_1BB88
 	move.b	status(a1),d0
-	andi.b	#$D2,d0
+	andi.b	#1<<status.player.in_air|1<<status.player.rolljumping|1<<status.player.underwater|1<<status.player.unknown,d0
 	bne.s	return_1BB88
 ; loc_1BB54:
 TailsCPU_Respawn:
@@ -38613,7 +38618,7 @@ TailsCPU_Flying:
 	move.w	#0,(Tails_respawn_counter).w
 	move.w	#2,(Tails_CPU_routine).w	; => TailsCPU_Spawning
 	move.b	#$81,obj_control(a0)
-	move.b	#2,status(a0)
+	move.b	#1<<status.player.in_air,status(a0)
 	move.w	#0,x_pos(a0)
 	move.w	#0,y_pos(a0)
 	move.b	#AniIDTailsAni_Fly,anim(a0)
@@ -38654,7 +38659,7 @@ TailsCPU_Flying_Part2:
 	addq.w	#1,d2
 	tst.w	d0
 	bmi.s	loc_1BC40
-	bset	#0,status(a0)
+	bset	#status.player.x_flip,status(a0)
 	cmp.w	d0,d2
 	blo.s	+
 	move.w	d0,d2
@@ -38665,7 +38670,7 @@ TailsCPU_Flying_Part2:
 ; ---------------------------------------------------------------------------
 
 loc_1BC40:
-	bclr	#0,status(a0)
+	bclr	#status.player.x_flip,status(a0)
 	neg.w	d0
 	cmp.w	d0,d2
 	blo.s	loc_1BC50
@@ -38699,7 +38704,7 @@ loc_1BC68:
 	move.w	#0,x_vel(a0)
 	move.w	#0,y_vel(a0)
 	move.w	#0,inertia(a0)
-	move.b	#2,status(a0)
+	move.b	#1<<status.player.in_air,status(a0)
 	move.w	#0,move_lock(a0)
 	andi.w	#drawing_mask,art_tile(a0)
 	tst.b	art_tile(a1)
@@ -38730,7 +38735,7 @@ TailsCPU_Normal:
 	move.b	#0,spindash_flag(a0)
 	move.w	#0,spindash_counter(a0)
 	move.b	#$81,obj_control(a0)
-	move.b	#2,status(a0)
+	move.b	#1<<status.player.in_air,status(a0)
 	move.b	#AniIDTailsAni_Fly,anim(a0)
 	rts
 ; ---------------------------------------------------------------------------
@@ -38759,10 +38764,10 @@ TailsCPU_Normal_SonicOK:
 	move.w	(a1,d0.w),d1	; d1 = earlier input of Sonic
 	move.b	2(a1,d0.w),d4	; d4 = earlier status of Sonic
 	move.w	d1,d0
-	btst	#5,status(a0)	; is Tails pushing against something?
-	beq.s	+		; if not, branch
-	btst	#5,d4		; was Sonic pushing against something?
-	beq.w	TailsCPU_Normal_FilterAction_Part2 ; if not, branch elsewhere
+	btst	#status.player.pushing,status(a0)	; is Tails pushing against something?
+	beq.s	+					; if not, branch
+	btst	#status.player.pushing,d4		; was Sonic pushing against something?
+	beq.w	TailsCPU_Normal_FilterAction_Part2	; if not, branch elsewhere
 
 ; either Tails isn't pushing, or Tails and Sonic are both pushing
 +	sub.w	x_pos(a0),d2
@@ -38779,7 +38784,7 @@ TailsCPU_Normal_SonicOK:
 +
 	tst.w	inertia(a0)
 	beq.s	TailsCPU_Normal_FilterAction
-	btst	#0,status(a0)
+	btst	#status.player.x_flip,status(a0)
 	beq.s	TailsCPU_Normal_FilterAction
 	subq.w	#1,x_pos(a0)
 	bra.s	TailsCPU_Normal_FilterAction
@@ -38794,7 +38799,7 @@ TailsCPU_Normal_FollowRight:
 +
 	tst.w	inertia(a0)
 	beq.s	TailsCPU_Normal_FilterAction
-	btst	#0,status(a0)
+	btst	#status.player.x_flip,status(a0)
 	bne.s	TailsCPU_Normal_FilterAction
 	addq.w	#1,x_pos(a0)
 	bra.s	TailsCPU_Normal_FilterAction
@@ -38802,11 +38807,11 @@ TailsCPU_Normal_FollowRight:
 ; Tails is happy where he is
 ; loc_1BDBA:
 TailsCPU_Normal_Stand:
-	bclr	#0,status(a0)
+	bclr	#status.player.x_flip,status(a0)
 	move.b	d4,d0
 	andi.b	#1,d0
 	beq.s	TailsCPU_Normal_FilterAction
-	bset	#0,status(a0)
+	bset	#status.player.x_flip,status(a0)
 
 ; Filter the action we chose depending on a few things
 ; loc_1BDCE:
@@ -38814,7 +38819,7 @@ TailsCPU_Normal_FilterAction:
 	tst.b	(Tails_CPU_jumping).w
 	beq.s	+
 	ori.w	#((button_B_mask|button_C_mask|button_A_mask)<<8),d1
-	btst	#1,status(a0)
+	btst	#status.player.in_air,status(a0)
 	bne.s	TailsCPU_Normal_SendAction
 	move.b	#0,(Tails_CPU_jumping).w
 +
@@ -38864,7 +38869,7 @@ TailsCPU_Despawn:
 	move.w	#0,(Tails_respawn_counter).w
 	move.w	#2,(Tails_CPU_routine).w	; => TailsCPU_Spawning
 	move.b	#$81,obj_control(a0)
-	move.b	#2,status(a0)
+	move.b	#1<<status.player.in_air,status(a0)
 	move.w	#$4000,x_pos(a0)
 	move.w	#0,y_pos(a0)
 	move.b	#AniIDTailsAni_Fly,anim(a0)
@@ -38874,7 +38879,7 @@ TailsCPU_Despawn:
 TailsCPU_CheckDespawn:
 	tst.b	render_flags(a0)
 	bmi.s	TailsCPU_ResetRespawnTimer
-	btst	#3,status(a0)
+	btst	#status.player.on_object,status(a0)
 	beq.s	TailsCPU_TickRespawnTimer
 
 	moveq	#0,d0
@@ -38931,11 +38936,11 @@ TailsCPU_Panic:
 
 	tst.w	inertia(a0)
 	bne.s	return_1BF36
-	bclr	#0,status(a0)
+	bclr	#status.player.x_flip,status(a0)
 	move.w	x_pos(a0),d0
 	sub.w	x_pos(a1),d0
 	bcs.s	+
-	bset	#0,status(a0)
+	bset	#status.player.x_flip,status(a0)
 +
 	move.w	#(button_down_mask<<8)|button_down_mask,(Ctrl_2_Logical).w
 	move.b	(Level_frame_counter+1).w,d0
@@ -39009,7 +39014,7 @@ Obj02_InWater:
 	cmp.w	y_pos(a0),d0	; is Sonic above the water?
 	bge.s	Obj02_OutWater	; if yes, branch
 
-	bset	#6,status(a0)	; set underwater flag
+	bset	#status.player.underwater,status(a0)	; set underwater flag
 	bne.s	return_1BF58	; if already underwater, branch
 
 	movea.l	a0,a1
@@ -39030,7 +39035,7 @@ Obj02_InWater:
 ; ---------------------------------------------------------------------------
 ; loc_1BFB2:
 Obj02_OutWater:
-	bclr	#6,status(a0)	; unset underwater flag
+	bclr	#status.player.underwater,status(a0)	; unset underwater flag
 	beq.s	return_1BF58	; if already above water, branch
 
 	movea.l	a0,a1
@@ -39083,8 +39088,8 @@ Obj02_MdAir:
 	bsr.w	Tails_ChgJumpDir
 	bsr.w	Tails_LevelBound
 	jsr	(ObjectMoveAndFall).l
-	btst	#6,status(a0)	; is Tails underwater?
-	beq.s	+		; if not, branch
+	btst	#status.player.underwater,status(a0)	; is Tails underwater?
+	beq.s	+					; if not, branch
 	subi.w	#$28,y_vel(a0)	; reduce gravity by $28 ($38-$28=$10)
 +
 	bsr.w	Tails_JumpAngle
@@ -39119,8 +39124,8 @@ Obj02_MdJump:
 	bsr.w	Tails_ChgJumpDir
 	bsr.w	Tails_LevelBound
 	jsr	(ObjectMoveAndFall).l
-	btst	#6,status(a0)	; is Tails underwater?
-	beq.s	+		; if not, branch
+	btst	#status.player.underwater,status(a0)	; is Tails underwater?
+	beq.s	+					; if not, branch
 	subi.w	#$28,y_vel(a0)	; reduce gravity by $28 ($38-$28=$10)
 +
 	bsr.w	Tails_JumpAngle
@@ -39164,9 +39169,9 @@ Obj02_NotRight:
 	bne.w	Obj02_ResetScr	; if yes, branch
 	tst.w	inertia(a0)	; is Tails moving?
 	bne.w	Obj02_ResetScr	; if yes, branch
-	bclr	#5,status(a0)
+	bclr	#status.player.pushing,status(a0)
 	move.b	#AniIDSonAni_Wait,anim(a0)	; use "standing" animation
-	btst	#3,status(a0)
+	btst	#status.player.on_object,status(a0)
 	beq.s	Tails_Balance
 	moveq	#0,d0
 	move.b	interact(a0),d0
@@ -39177,8 +39182,13 @@ Obj02_NotRight:
     endif
 	lea	(Object_RAM).w,a1 ; a1=character
 	lea	(a1,d0.w),a1 ; a1=object
+    if status.npc.unknown = 7
 	tst.b	status(a1)
 	bmi.s	Tails_Lookup
+    else
+	btst	#status.npc.unknown,status(a1)
+	bne.s	Tails_Lookup
+    endif
 	moveq	#0,d1
 	move.b	width_pixels(a1),d1
 	move.w	d1,d2
@@ -39202,7 +39212,7 @@ Tails_Balance:
 	bne.s	Tails_BalanceLeft
 ; loc_1C156:
 Tails_BalanceOnObjRight:
-	bclr	#0,status(a0)
+	bclr	#status.player.x_flip,status(a0)
 	bra.s	Tails_BalanceDone
 ; ---------------------------------------------------------------------------
 ; loc_1C15E:
@@ -39211,7 +39221,7 @@ Tails_BalanceLeft:
 	bne.s	Tails_Lookup
 ; loc_1C166:
 Tails_BalanceOnObjLeft:
-	bset	#0,status(a0)
+	bset	#status.player.x_flip,status(a0)
 ; loc_1C16C:
 Tails_BalanceDone:
 	move.b	#AniIDSonAni_Balance,anim(a0)
@@ -39328,7 +39338,7 @@ Obj02_CheckWallsOnGround:
 	cmpi.b	#$80,d0
 	beq.s	loc_1C286
 	add.w	d1,x_vel(a0)
-	bset	#5,status(a0)
+	bset	#status.player.pushing,status(a0)
 	move.w	#0,inertia(a0)
 	rts
 ; ---------------------------------------------------------------------------
@@ -39340,7 +39350,7 @@ loc_1C286:
 
 loc_1C28C:
 	sub.w	d1,x_vel(a0)
-	bset	#5,status(a0)
+	bset	#status.player.pushing,status(a0)
 	move.w	#0,inertia(a0)
 	rts
 ; ---------------------------------------------------------------------------
@@ -39360,9 +39370,9 @@ Tails_MoveLeft:
 	beq.s	+
 	bpl.s	Tails_TurnLeft	; if Tails is already moving to the right, branch
 +
-	bset	#0,status(a0)
+	bset	#status.player.x_flip,status(a0)
 	bne.s	+
-	bclr	#5,status(a0)
+	bclr	#status.player.pushing,status(a0)
 	move.b	#AniIDSonAni_Run,prev_anim(a0)	; force walking animation to restart if it's already in-progress
 +
 	sub.w	d5,d0	; add acceleration to the left
@@ -39404,7 +39414,7 @@ Tails_TurnLeft:
 	cmpi.w	#$400,d0
 	blt.s	return_1C328
 	move.b	#AniIDSonAni_Stop,anim(a0)	; use "stopping" animation
-	bclr	#0,status(a0)
+	bclr	#status.player.x_flip,status(a0)
 	move.w	#SndID_Skidding,d0
 	jsr	(PlaySound).l
 	cmpi.b	#12,air_left(a0)
@@ -39423,9 +39433,9 @@ return_1C328:
 Tails_MoveRight:
 	move.w	inertia(a0),d0
 	bmi.s	Tails_TurnRight
-	bclr	#0,status(a0)
+	bclr	#status.player.x_flip,status(a0)
 	beq.s	+
-	bclr	#5,status(a0)
+	bclr	#status.player.pushing,status(a0)
 	move.b	#AniIDSonAni_Run,prev_anim(a0)	; force walking animation to restart if it's already in-progress
 +
 	add.w	d5,d0	; add acceleration to the right
@@ -39465,7 +39475,7 @@ Tails_TurnRight:
 	cmpi.w	#-$400,d0
 	bgt.s	return_1C3A8
 	move.b	#AniIDSonAni_Stop,anim(a0)	; use "stopping" animation
-	bset	#0,status(a0)
+	bset	#status.player.x_flip,status(a0)
 	move.w	#SndID_Skidding,d0	; use "stopping" sound
 	jsr	(PlaySound).l
 	cmpi.b	#12,air_left(a0)
@@ -39544,7 +39554,7 @@ Tails_CheckRollStop:
 	bne.s	Obj02_Roll_ResetScr
 	tst.b	pinball_mode(a0)  ; note: the spindash flag has a different meaning when Tails is already rolling -- it's used to mean he's not allowed to stop rolling
 	bne.s	Tails_KeepRolling
-	bclr	#2,status(a0)
+	bclr	#status.player.rolling,status(a0)
 	move.b	#$F,y_radius(a0) ; sets standing height to only slightly higher than rolling height, unlike Sonic
 	move.b	#9,x_radius(a0)
 	move.b	#AniIDSonAni_Wait,anim(a0)
@@ -39557,7 +39567,7 @@ Tails_CheckRollStop:
 ; loc_1C42E:
 Tails_KeepRolling:
 	move.w	#$400,inertia(a0)
-	btst	#0,status(a0)
+	btst	#status.player.x_flip,status(a0)
 	beq.s	Obj02_Roll_ResetScr
 	neg.w	inertia(a0)
 
@@ -39601,7 +39611,7 @@ Tails_RollLeft:
 	beq.s	+
 	bpl.s	Tails_BrakeRollingRight
 +
-	bset	#0,status(a0)
+	bset	#status.player.x_flip,status(a0)
 	move.b	#AniIDSonAni_Roll,anim(a0)	; use "rolling" animation
 	rts
 ; ---------------------------------------------------------------------------
@@ -39623,7 +39633,7 @@ Tails_BrakeRollingRight:
 Tails_RollRight:
 	move.w	inertia(a0),d0
 	bmi.s	Tails_BrakeRollingLeft
-	bclr	#0,status(a0)
+	bclr	#status.player.x_flip,status(a0)
 	move.b	#AniIDSonAni_Roll,anim(a0)	; use "rolling" animation
 	rts
 ; ---------------------------------------------------------------------------
@@ -39649,13 +39659,13 @@ Tails_ChgJumpDir:
 	move.w	(Tails_top_speed).w,d6
 	move.w	(Tails_acceleration).w,d5
 	asl.w	#1,d5
-	btst	#4,status(a0)		; did Tails jump from rolling?
+	btst	#status.player.rolljumping,status(a0)		; did Tails jump from rolling?
 	bne.s	Obj02_Jump_ResetScr	; if yes, branch to skip midair control
 	move.w	x_vel(a0),d0
 	btst	#button_left,(Ctrl_2_Held_Logical).w
 	beq.s	+	; if not holding left, branch
 
-	bset	#0,status(a0)
+	bset	#status.player.x_flip,status(a0)
 	sub.w	d5,d0	; add acceleration to the left
 	move.w	d6,d1
 	neg.w	d1
@@ -39666,7 +39676,7 @@ Tails_ChgJumpDir:
 	btst	#button_right,(Ctrl_2_Held_Logical).w
 	beq.s	+	; if not holding right, branch
 
-	bclr	#0,status(a0)
+	bclr	#status.player.x_flip,status(a0)
 	add.w	d5,d0	; accelerate right in the air
 	cmp.w	d6,d0	; compare new speed with top speed
 	blt.s	+	; if new speed is less than the maximum, branch
@@ -39807,14 +39817,14 @@ Obj02_NoRoll:
 ; ---------------------------------------------------------------------------
 ; loc_1C5E0:
 Obj02_ChkRoll:
-	btst	#2,status(a0)	; is Tails already rolling?
-	beq.s	Obj02_DoRoll	; if not, branch
+	btst	#status.player.rolling,status(a0)	; is Tails already rolling?
+	beq.s	Obj02_DoRoll				; if not, branch
 	rts
 
 ; ---------------------------------------------------------------------------
 ; loc_1C5EA:
 Obj02_DoRoll:
-	bset	#2,status(a0)
+	bset	#status.player.rolling,status(a0)
 	move.b	#$E,y_radius(a0)
 	move.b	#7,x_radius(a0)
 	move.b	#AniIDSonAni_Roll,anim(a0)	; use "rolling" animation
@@ -39848,7 +39858,7 @@ Tails_Jump:
 	cmpi.w	#6,d1		; does Tails have enough room to jump?
 	blt.w	return_1C6C2	; if not, branch
 	move.w	#$680,d2
-	btst	#6,status(a0)	; Test if underwater
+	btst	#status.player.underwater,status(a0)	; Test if underwater
 	beq.s	+
 	move.w	#$380,d2	; set lower jump speed if underwater
 +
@@ -39862,8 +39872,8 @@ Tails_Jump:
 	muls.w	d2,d0
 	asr.l	#8,d0
 	add.w	d0,y_vel(a0)	; make Tails jump (in Y)
-	bset	#1,status(a0)
-	bclr	#5,status(a0)
+	bset	#status.player.in_air,status(a0)
+	bclr	#status.player.pushing,status(a0)
 	addq.l	#4,sp
 	move.b	#1,jumping(a0)
 	clr.b	stick_to_convex(a0)
@@ -39871,12 +39881,12 @@ Tails_Jump:
 	jsr	(PlaySound).l	; play jumping sound
 	move.b	#$F,y_radius(a0)
 	move.b	#9,x_radius(a0)
-	btst	#2,status(a0)
+	btst	#status.player.rolling,status(a0)
 	bne.s	Tails_RollJump
 	move.b	#$E,y_radius(a0)
 	move.b	#7,x_radius(a0)
 	move.b	#AniIDSonAni_Roll,anim(a0)	; use "jumping" animation
-	bset	#2,status(a0)
+	bset	#status.player.rolling,status(a0)
 	addq.w	#1,y_pos(a0)
 
 return_1C6C2:
@@ -39884,7 +39894,7 @@ return_1C6C2:
 ; ---------------------------------------------------------------------------
 ; loc_1C6C4:
 Tails_RollJump:
-	bset	#4,status(a0) ; set the rolling+jumping flag
+	bset	#status.player.rolljumping,status(a0) ; set the rolling+jumping flag
 	rts
 ; End of function Tails_Jump
 
@@ -39898,7 +39908,7 @@ Tails_JumpHeight:
 	beq.s	Tails_UpVelCap	; if not, branch
 
 	move.w	#-$400,d1
-	btst	#6,status(a0)	; is Tails underwater?
+	btst	#status.player.underwater,status(a0)	; is Tails underwater?
 	beq.s	+		; if not, branch
 	move.w	#-$200,d1
 +
@@ -40005,11 +40015,11 @@ Tails_UpdateSpindash:
 	move.w	d0,(Horiz_scroll_delay_val_P2).w
     endif
 
-	btst	#0,status(a0)
+	btst	#status.player.x_flip,status(a0)
 	beq.s	+
 	neg.w	inertia(a0)
 +
-	bset	#2,status(a0)
+	bset	#status.player.rolling,status(a0)
 	move.b	#0,(Tails_Dust+anim).w
 	move.w	#SndID_SpindashRelease,d0	; spindash zoom sound
 	jsr	(PlaySound).l
@@ -40157,7 +40167,7 @@ Tails_SlopeRepel:
 	cmpi.w	#$280,d0
 	bhs.s	return_1C8F2
 	clr.w	inertia(a0)
-	bset	#1,status(a0)
+	bset	#status.player.in_air,status(a0)
 	move.w	#$1E,move_lock(a0)
 
 return_1C8F2:
@@ -40461,18 +40471,18 @@ Tails_ResetOnFloor:
 	move.b	#AniIDSonAni_Walk,anim(a0)
 ; loc_1CB5C:
 Tails_ResetOnFloor_Part2:
-	btst	#2,status(a0)
+	btst	#status.player.rolling,status(a0)
 	beq.s	Tails_ResetOnFloor_Part3
-	bclr	#2,status(a0)
+	bclr	#status.player.rolling,status(a0)
 	move.b	#$F,y_radius(a0) ; this slightly increases Tails' collision height to standing
 	move.b	#9,x_radius(a0)
 	move.b	#AniIDSonAni_Walk,anim(a0)	; use running/walking/standing animation
 	subq.w	#1,y_pos(a0)	; move Tails up 1 pixel so the increased height doesn't push him slightly into the ground
 ; loc_1CB80:
 Tails_ResetOnFloor_Part3:
-	bclr	#1,status(a0)
-	bclr	#5,status(a0)
-	bclr	#4,status(a0)
+	bclr	#status.player.in_air,status(a0)
+	bclr	#status.player.pushing,status(a0)
+	bclr	#status.player.rolljumping,status(a0)
 	move.b	#0,jumping(a0)
     if fixBugs
 	; Without this check, AI Tails will ruin the player's
@@ -40502,7 +40512,7 @@ return_1CBC4:
 Obj02_Hurt:
 	jsr	(ObjectMove).l
 	addi.w	#$30,y_vel(a0)
-	btst	#6,status(a0)
+	btst	#status.player.underwater,status(a0)
 	beq.s	+
 	subi.w	#$20,y_vel(a0)
 +
@@ -40540,7 +40550,7 @@ Tails_HurtStop:
 	cmp.w	y_pos(a0),d0
 	blt.w	JmpTo2_KillCharacter
 	bsr.w	Tails_DoLevelCollision
-	btst	#1,status(a0)
+	btst	#status.player.in_air,status(a0)
 	bne.s	return_1CC4E
 	moveq	#0,d0
 	move.w	d0,y_vel(a0)
@@ -40656,7 +40666,7 @@ Obj02_ResetLevel_Part3:
 	move.w	#0,x_vel(a0)
 	move.w	#0,y_vel(a0)
 	move.w	#0,inertia(a0)
-	move.b	#2,status(a0)
+	move.b	#1<<status.player.in_air,status(a0)
 	move.w	#0,move_lock(a0)
 
 return_1CD8E:
@@ -40710,7 +40720,7 @@ Tails_Animate_Part2:
 	move.b	d0,prev_anim(a0)	; set previous animation
 	move.b	#0,anim_frame(a0)	; reset animation frame
 	move.b	#0,anim_frame_duration(a0)	; reset frame duration
-	bclr	#5,status(a0)
+	bclr	#status.player.pushing,status(a0)
 ; loc_1CDEC:
 TAnim_Do:
 	add.w	d0,d0
@@ -40718,7 +40728,7 @@ TAnim_Do:
 	move.b	(a1),d0
 	bmi.s	TAnim_WalkRunZoom	; if animation is walk/run/roll/jump, branch
 	move.b	status(a0),d1
-	andi.b	#1,d1
+	andi.b	#1<<status.player.x_flip,d1
 	andi.b	#$FC,render_flags(a0)
 	or.b	d1,render_flags(a0)
 	subq.b	#1,anim_frame_duration(a0)	; subtract 1 from frame duration
@@ -40784,9 +40794,9 @@ TAnim_WalkRunZoom: ; a0=character
 	subq.b	#1,d0
 +
 	move.b	status(a0),d2
-	andi.b	#1,d2		; is Tails mirrored horizontally?
-	bne.s	+		; if yes, branch
-	not.b	d0		; reverse angle
+	andi.b	#1<<status.player.x_flip,d2	; is Tails mirrored horizontally?
+	bne.s	+				; if yes, branch
+	not.b	d0				; reverse angle
 +
 	addi.b	#$10,d0		; add $10 to angle
 	bpl.s	+		; if angle is $0-$7F, branch
@@ -40795,7 +40805,7 @@ TAnim_WalkRunZoom: ; a0=character
 	andi.b	#$FC,render_flags(a0)
 	eor.b	d1,d2
 	or.b	d2,render_flags(a0)
-	btst	#5,status(a0)
+	btst	#status.player.pushing,status(a0)
 	bne.w	TAnim_Push
 	lsr.b	#4,d0		; divide angle by 16
 	andi.b	#6,d0		; angle must be 0, 2, 4 or 6
@@ -40845,7 +40855,7 @@ TAnim_Tumble:
 	move.b	flip_angle(a0),d0
 	moveq	#0,d1
 	move.b	status(a0),d2
-	andi.b	#1,d2
+	andi.b	#1<<status.player.x_flip,d2
 	bne.s	TAnim_Tumble_Left
 	andi.b	#$FC,render_flags(a0)
 	addi.b	#$B,d0
@@ -40894,7 +40904,7 @@ TAnim_Roll:
 	lsr.w	#8,d2
 	move.b	d2,anim_frame_duration(a0)
 	move.b	status(a0),d1
-	andi.b	#1,d1
+	andi.b	#1<<status.player.x_flip,d1
 	andi.b	#$FC,render_flags(a0)
 	or.b	d1,render_flags(a0)
 	bra.w	TAnim_Do2
@@ -40913,7 +40923,7 @@ TAnim_Push:
 	move.b	d2,anim_frame_duration(a0)
 	lea	(TailsAni_Push).l,a1
 	move.b	status(a0),d1
-	andi.b	#1,d1
+	andi.b	#1<<status.player.x_flip,d1
 	andi.b	#$FC,render_flags(a0)
 	or.b	d1,render_flags(a0)
 	bra.w	TAnim_Do2
@@ -40926,7 +40936,7 @@ TAnim_GetTailFrame:
 	jsr	(CalcAngle).l
 	moveq	#0,d1
 	move.b	status(a0),d2
-	andi.b	#1,d2
+	andi.b	#1<<status.player.x_flip,d2
 	bne.s	loc_1D002
 	not.b	d0
 	bra.s	loc_1D006
@@ -41184,7 +41194,7 @@ Obj05_Main:
 	cmpi.b	#$66,mapping_frame(a2)
 	bhi.s	+
     else
-	btst	#5,status(a2)
+	btst	#status.player.pushing,status(a2)
 	beq.s	+
     endif
 	moveq	#4,d0
@@ -41540,7 +41550,7 @@ Obj0A_Countdown:
 
 	cmpi.b	#6,routine(a2) ; If player is dead, return.
 	bhs.w	return_1D81C
-	btst	#6,status(a2)
+	btst	#status.player.underwater,status(a2)
 	beq.w	return_1D81C
 
 	; Wait a second.
@@ -41604,7 +41614,7 @@ Obj0A_ReduceAir:
 	movea.l	a2,a0
 	bsr.w	Sonic_ResetOnFloor_Part2
 	move.b	#AniIDSonAni_Drown,anim(a0)	; use Sonic's drowning animation
-	bset	#1,status(a0)
+	bset	#status.player.in_air,status(a0)
 	bset	#high_priority_bit,art_tile(a0)
 	move.w	#0,y_vel(a0)
 	move.w	#0,x_vel(a0)
@@ -41655,7 +41665,7 @@ Obj0A_MakeBubbleNow:
 	_move.b	id(a0),id(a1)		; load obj0A
 	move.w	x_pos(a2),x_pos(a1)	; match its X position to Sonic
 	moveq	#6,d0
-	btst	#0,status(a2)
+	btst	#status.player.x_flip,status(a2)
 	beq.s	+
 	neg.w	d0
 	move.b	#$40,angle(a1)
@@ -41959,7 +41969,7 @@ loc_1DA44:
 	move.w	d3,(a2)+	; sub3_y_pos
 	move.w	d5,(a2)+	; sub3_mapframe
 	moveq	#$12,d0
-	btst	#0,status(a1)
+	btst	#status.player.x_flip,status(a1)
 	beq.s	loc_1DA74
 	neg.w	d0
 
@@ -42032,7 +42042,7 @@ loc_1DAE4:
 	move.w	d3,(a2)+	; sub3_y_pos
 	move.w	d5,(a2)+	; sub3_mapframe
 	moveq	#2,d0
-	btst	#0,status(a1)
+	btst	#status.player.x_flip,status(a1)
 	beq.s	loc_1DB20
 	neg.w	d0
 
@@ -42168,7 +42178,7 @@ Obj08_MdSpindashDust:
 	move.w	x_pos(a2),x_pos(a0)
 	move.w	y_pos(a2),y_pos(a0)
 	move.b	status(a2),status(a0)
-	andi.b	#1,status(a0)
+	andi.b	#1<<status.npc.x_flip,status(a0)
 	tst.b	obj08_belongs_to_tails(a0)
 	beq.s	+
 	subi_.w	#4,y_pos(a0);	; Tails is shorter than Sonic
@@ -42403,7 +42413,7 @@ AnglePos:
 	move.l	#Secondary_Collision,(Collision_addr).w
 +
 	move.b	top_solid_bit(a0),d5
-	btst	#3,status(a0)
+	btst	#status.player.on_object,status(a0)
 	beq.s	+
 	moveq	#0,d0
 	move.b	d0,(Primary_Angle).w
@@ -42498,8 +42508,8 @@ loc_1E336:
 loc_1E33C:
 	tst.b	stick_to_convex(a0)
 	bne.s	loc_1E336
-	bset	#1,status(a0)
-	bclr	#5,status(a0)
+	bset	#status.player.in_air,status(a0)
+	bclr	#status.player.pushing,status(a0)
 	move.b	#AniIDSonAni_Run,prev_anim(a0)	; Force character's animation to restart
 	rts
 ; ===========================================================================
@@ -42606,8 +42616,8 @@ loc_1E41A:
 loc_1E420:
 	tst.b	stick_to_convex(a0)
 	bne.s	loc_1E41A
-	bset	#1,status(a0)
-	bclr	#5,status(a0)
+	bset	#status.player.in_air,status(a0)
+	bclr	#status.player.pushing,status(a0)
 	move.b	#AniIDSonAni_Run,prev_anim(a0)	; Force character's animation to restart
 	rts
 ; ===========================================================================
@@ -42673,8 +42683,8 @@ loc_1E4C8:
 loc_1E4CE:
 	tst.b	stick_to_convex(a0)
 	bne.s	loc_1E4C8
-	bset	#1,status(a0)
-	bclr	#5,status(a0)
+	bset	#status.player.in_air,status(a0)
+	bclr	#status.player.pushing,status(a0)
 	move.b	#AniIDSonAni_Run,prev_anim(a0)	; Force character's animation to restart
 	rts
 ; ===========================================================================
@@ -42740,8 +42750,8 @@ loc_1E576:
 loc_1E57C:
 	tst.b	stick_to_convex(a0)
 	bne.s	loc_1E576
-	bset	#1,status(a0)
-	bclr	#5,status(a0)
+	bset	#status.player.in_air,status(a0)
+	bclr	#status.player.pushing,status(a0)
 	move.b	#AniIDSonAni_Run,prev_anim(a0)	; Force character's animation to restart
 	rts
 ; ===========================================================================
@@ -44522,9 +44532,9 @@ Obj44_BumpCharacter:
 	muls.w	#-$700,d0
 	asr.l	#8,d0
 	move.w	d0,y_vel(a1)
-	bset	#1,status(a1)
-	bclr	#4,status(a1)
-	bclr	#5,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.rolljumping,status(a1)
+	bclr	#status.player.pushing,status(a1)
 	clr.b	jumping(a1)
 	move.b	#1,anim(a0)
 	move.w	#SndID_Bumper,d0
@@ -44839,13 +44849,13 @@ loc_1FB0C:
 	move.b	#AniIDSonAni_Bubble,anim(a1)
 	move.w	#$23,move_lock(a1)
 	move.b	#0,jumping(a1)
-	bclr	#5,status(a1)
-	bclr	#4,status(a1)
-	btst	#2,status(a1)
+	bclr	#status.player.pushing,status(a1)
+	bclr	#status.player.rolljumping,status(a1)
+	btst	#status.player.rolling,status(a1)
 	beq.w	loc_1FBB8
 	cmpi.b	#1,(a1)
 	bne.s	loc_1FBA8
-	bclr	#2,status(a1)
+	bclr	#status.player.rolling,status(a1)
 	move.b	#$13,y_radius(a1)
 	move.b	#9,x_radius(a1)
 	subq.w	#5,y_pos(a1)
@@ -45095,7 +45105,7 @@ Obj03_MainX:
 	bge.w	return_1FEAC
 	move.b	subtype(a0),d0
 	bpl.s	+
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.w	return_1FEAC
 +
 	btst	#0,render_flags(a0)
@@ -45130,7 +45140,7 @@ Obj03_MainX_Alt:
 	bge.w	return_1FEAC
 	move.b	subtype(a0),d0
 	bpl.s	+
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.w	return_1FEAC
 +
 	btst	#0,render_flags(a0)
@@ -45177,7 +45187,7 @@ Obj03_MainY:
 	bge.w	return_1FFB6
 	move.b	subtype(a0),d0
 	bpl.s	+
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.w	return_1FFB6
 +
 	btst	#0,render_flags(a0)
@@ -45212,7 +45222,7 @@ Obj03_MainY_Alt:
 	bge.w	return_1FFB6
 	move.b	subtype(a0),d0
 	bpl.s	+
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.w	return_1FFB6
 +
 	btst	#0,render_flags(a0)
@@ -45325,13 +45335,13 @@ loc_2013C:
 	beq.s	BranchTo_JmpTo3_MarkObjGone
 	bclr	#p1_standing_bit,status(a0)
 	beq.s	+
-	bclr	#3,(MainCharacter+status).w
-	bset	#1,(MainCharacter+status).w
+	bclr	#status.player.on_object,(MainCharacter+status).w
+	bset	#status.player.in_air,(MainCharacter+status).w
 +
 	bclr	#p2_standing_bit,status(a0)
 	beq.s	BranchTo_JmpTo3_MarkObjGone
-	bclr	#3,(Sidekick+status).w
-	bset	#1,(Sidekick+status).w
+	bclr	#status.player.on_object,(Sidekick+status).w
+	bset	#status.player.in_air,(Sidekick+status).w
 
 BranchTo_JmpTo3_MarkObjGone ; BranchTo
 	jmpto	JmpTo3_MarkObjGone
@@ -46268,11 +46278,11 @@ Obj84_MainX_Alt:
 ; ===========================================================================
 
 loc_212C4:
-	btst	#2,status(a1)
+	btst	#status.player.rolling,status(a1)
 	beq.s	+
 	rts
 ; ---------------------------------------------------------------------------
-+	bset	#2,status(a1)
++	bset	#status.player.rolling,status(a1)
 	move.b	#$E,y_radius(a1)
 	move.b	#7,x_radius(a1)
 	move.b	#AniIDSonAni_Roll,anim(a1)
@@ -46518,9 +46528,9 @@ Obj06_Spiral:
 +
 	btst	d6,status(a0)
 	bne.w	loc_215C0
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.w	return_215BE
-	btst	#3,status(a1)
+	btst	#status.player.on_object,status(a1)
 	bne.s	loc_21580
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
@@ -46585,7 +46595,7 @@ loc_215C0:
 	mvabs.w	inertia(a1),d0
 	cmpi.w	#$600,d0
 	blo.s	Obj06_Spiral_CharacterFallsOff
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.s	Obj06_Spiral_CharacterFallsOff
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
@@ -46596,7 +46606,7 @@ loc_215C0:
 
 ; loc_215EA:
 Obj06_Spiral_CharacterFallsOff:
-	bclr	#3,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	bclr	d6,status(a0)
 	move.b	#0,flips_remaining(a1)
 	move.b	#4,flip_speed(a1)
@@ -46605,7 +46615,7 @@ Obj06_Spiral_CharacterFallsOff:
 ; ---------------------------------------------------------------------------
 ; loc_21602:
 Obj06_Spiral_MoveCharacter:
-	btst	#3,status(a1)
+	btst	#status.player.on_object,status(a1)
 	beq.s	return_215BE
 	move.b	Obj06_CosineTable(pc,d0.w),d1
 	ext.w	d1
@@ -46716,7 +46726,7 @@ Obj06_Cylinder:
 	bsr.s	+
 	lea	(Sidekick).w,a1 ; a1=character
 	lea	(MTZCylinder_Angle_Tails).w,a2
-	addq.b	#1,d6
+	addq.b	#p2_standing_bit-p1_standing_bit,d6
 +
 	btst	d6,status(a0)
 	bne.w	loc_2188C
@@ -46755,7 +46765,7 @@ return_2188A:
 ; ===========================================================================
 
 loc_2188C:
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.s	loc_218C6
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
@@ -46765,11 +46775,11 @@ loc_2188C:
 	blo.s	loc_218E0
 
 loc_218A8:
-	bclr	#3,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	bclr	d6,status(a0)
 	move.b	#0,flips_remaining(a1)
 	move.b	#4,flip_speed(a1)
-	bset	#1,status(a1)
+	bset	#status.player.in_air,status(a1)
 	rts
 ; ---------------------------------------------------------------------------
 loc_218C6:
@@ -46785,7 +46795,7 @@ loc_218C6:
 ; ===========================================================================
 
 loc_218E0:
-	btst	#3,status(a1)
+	btst	#status.player.on_object,status(a1)
 	beq.s	return_2188A
 	move.b	(a2),d0
 	jsrto	JmpTo6_CalcSine
@@ -46858,7 +46868,7 @@ Obj14_Init:
 	move.l	a0,objoff_3C(a1)
 
 loc_219A4:
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	loc_219B2
 	move.b	#2,mapping_frame(a0)
 
@@ -46983,7 +46993,7 @@ Obj14_Ball_Init:
 	addi.w	#$28,x_pos(a0)
 	addi.w	#$10,y_pos(a0)
 	move.w	y_pos(a0),objoff_34(a0) ; save bottom of seesaw y position
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	Obj14_Ball_Main
 	subi.w	#$50,x_pos(a0)
 	move.b	#2,objoff_3A(a0)
@@ -47111,8 +47121,8 @@ return_21C2A:
 Obj14_LaunchCharacter:
 	move.w	y_vel(a0),y_vel(a2) ; set character y velocity to inverse of sol
 	neg.w	y_vel(a2)           ; y velocity
-	bset	#1,status(a2)       ; set character airborne flag
-	bclr	#3,status(a2)       ; clear character on object flag
+	bset	#status.player.in_air,status(a2)	; set character airborne flag
+	bclr	#status.player.on_object,status(a2)	; clear character on object flag
 	clr.b	jumping(a2)         ; clear character jumping flag
 	move.b	#AniIDSonAni_Spring,anim(a2) ; set character to spring animation
 	move.b	#2,routine(a2)      ; set character to airborne state
@@ -47241,7 +47251,7 @@ Obj16_Wait:
 	beq.s	++		; if not, branch
 	addq.b	#2,routine_secondary(a0)
 	move.w	#$200,x_vel(a0)
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	neg.w	x_vel(a0)
 +
@@ -47286,13 +47296,13 @@ Obj16_Fall:
 	beq.s	++
 	bclr	#p1_standing_bit,status(a0)
 	beq.s	+
-	bclr	#3,(MainCharacter+status).w
-	bset	#1,(MainCharacter+status).w
+	bclr	#status.player.on_object,(MainCharacter+status).w
+	bset	#status.player.in_air,(MainCharacter+status).w
 +
 	bclr	#p2_standing_bit,status(a0)
 	beq.s	+
-	bclr	#3,(Sidekick+status).w
-	bset	#1,(Sidekick+status).w
+	bclr	#status.player.on_object,(Sidekick+status).w
+	bset	#status.player.in_air,(Sidekick+status).w
 +
 	move.w	#$4000,x_pos(a0)
 +
@@ -47364,7 +47374,7 @@ Obj19_Init:
 	andi.b	#$F,subtype(a0)
 	cmpi.b	#3,subtype(a0)
 	bne.s	loc_220AA
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	bne.s	loc_220B2
 
 loc_220AA:
@@ -47433,7 +47443,7 @@ Obj19_MoveRoutine2:
 	move.w	#$60,d1
 ; loc_2212E:
 Obj19_MoveRoutine2_Part2:
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	neg.w	d0
 	add.w	d1,d0
@@ -47448,7 +47458,7 @@ Obj19_MoveRoutine2_Part2:
 Obj19_MoveRoutine3:
 	move.b	(Oscillating_Data+$1C).w,d0
 	move.w	#$80,d1
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	neg.w	d0
 	add.w	d1,d0
@@ -47617,7 +47627,7 @@ Obj1B_Main:
 	addi.w	#$10,d3
 
 	lea	(MainCharacter).w,a1 ; a1=character
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.s	+
 	move.w	x_pos(a1),d4
 	cmp.w	d0,d4
@@ -47634,7 +47644,7 @@ Obj1B_Main:
 	move.w	(sp)+,d0
 +
 	lea	(Sidekick).w,a1 ; a1=character
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.s	+
 	move.w	x_pos(a1),d4
 	cmp.w	d0,d4
@@ -47654,24 +47664,24 @@ Obj1B_Main:
 ; sub_22388:
 Obj1B_GiveBoost:
 	move.w	x_vel(a1),d0
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	neg.w	d0 ; d0 = absolute value of character's x velocity
 +
 	cmpi.w	#$1000,d0		; is the character already going super fast?
 	bge.s	Obj1B_GiveBoost_Done	; if yes, branch to not change the speed
-	move.w	speedbooster_boostspeed(a0),x_vel(a1) ; make the character go super fast
-	bclr	#0,status(a1)	; turn him right
-	btst	#0,status(a0)	; was that the correct direction?
+	move.w	speedbooster_boostspeed(a0),x_vel(a1)	; make the character go super fast
+	bclr	#status.player.x_flip,status(a1)	; turn him right
+	btst	#status.npc.x_flip,status(a0)		; was that the correct direction?
 	beq.s	+		; if yes, branch
-	bset	#0,status(a1)	; turn him left
+	bset	#status.player.x_flip,status(a1)	; turn him left
 	neg.w	x_vel(a1)	; make the boosting direction left
 +
 	move.w	#$F,move_lock(a1)	; don't let him turn around for a few frames
 	move.w	x_vel(a1),inertia(a1)	; update his inertia value
-	bclr	#5,status(a0)
-	bclr	#6,status(a0)
-	bclr	#5,status(a1)
+	bclr	#status.npc.p1_pushing,status(a0)
+	bclr	#status.npc.p2_pushing,status(a0)
+	bclr	#status.player.pushing,status(a1)
 ; loc_223D8:
 Obj1B_GiveBoost_Done:
 	move.w	#SndID_Spring,d0 ; spring boing sound
@@ -47754,7 +47764,7 @@ Obj1D_InitBall:
 	move.b	#8,width_pixels(a1)
 	move.w	#$60,objoff_3A(a1)
 	move.w	#$B,objoff_36(a1)
-	andi.b	#1,d4
+	andi.b	#1<<status.player.x_flip,d4
 	beq.s	+
 	neg.w	objoff_36(a1)
 	neg.w	objoff_3A(a1)
@@ -47980,9 +47990,9 @@ loc_22688:
 	move.w	#$800,inertia(a1)
 	move.w	#0,x_vel(a1)
 	move.w	#0,y_vel(a1)
-	bclr	#5,status(a0)
-	bclr	#5,status(a1)
-	bset	#1,status(a1)
+	bclr	#status.npc.p1_pushing,status(a0)
+	bclr	#status.player.pushing,status(a1)
+	bset	#status.player.in_air,status(a1)
 	move.b	#0,jumping(a1)
 	bclr	#high_priority_bit,art_tile(a1)
 	move.w	#$800,d2
@@ -48603,14 +48613,14 @@ loc_2343E:
 	bne.s	loc_2345C
 
 loc_23444:
-	bset	#2,status(a1)
+	bset	#status.player.rolling,status(a1)
 	move.b	#$E,y_radius(a1)
 	move.b	#7,x_radius(a1)
 	move.b	#AniIDSonAni_Roll,anim(a1)
 
 loc_2345C:
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	move.b	#2,routine(a1)
 	rts
 ; ===========================================================================
@@ -48790,14 +48800,14 @@ Obj32_SetCharacterOffBlock:
 	bne.s	+
 ; loc_23608:
 Obj32_BouncePlayer:
-	bset	#2,status(a1)
+	bset	#status.player.rolling,status(a1)
 	move.b	#$E,y_radius(a1)
 	move.b	#7,x_radius(a1)
 	move.b	#AniIDSonAni_Roll,anim(a1)
 	move.w	#-$300,y_vel(a1)
 +
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	move.b	#2,routine(a1)
 	rts
 ; ===========================================================================
@@ -49179,7 +49189,7 @@ loc_23C26:
 	moveq	#p1_standing_bit,d6
 	bsr.s	+
 	lea	(Sidekick).w,a1 ; a1=character
-	addq.b	#1,d6
+	addq.b	#p2_standing_bit-p1_standing_bit,d6
 +
 	btst	d6,status(a0)
 	beq.s	+	; rts
@@ -49193,7 +49203,7 @@ loc_23C26:
 	move.w	#0,inertia(a1)
 	move.w	#0,x_vel(a1)
 	move.w	#0,y_vel(a1)
-	bclr	#5,status(a1)
+	bclr	#status.player.pushing,status(a1)
 	bclr	#high_priority_bit,art_tile(a1)
 	move.l	#-$96800,objoff_32(a0)
 	addq.b	#2,routine_secondary(a0)
@@ -49221,13 +49231,13 @@ loc_23CA0:
 	move.w	#0,inertia(a1)
 	move.w	#0,x_vel(a1)
 	move.w	#0,y_vel(a1)
-	bclr	#5,status(a1)
+	bclr	#status.player.pushing,status(a1)
 	bclr	#high_priority_bit,art_tile(a1)
 	move.b	#1,obj_control(a2)
 	move.w	#0,inertia(a2)
 	move.w	#0,x_vel(a2)
 	move.w	#0,y_vel(a2)
-	bclr	#5,status(a2)
+	bclr	#status.player.pushing,status(a2)
 	bclr	#high_priority_bit,art_tile(a2)
 	move.l	#-$96800,objoff_32(a0)
 	addq.b	#2,routine_secondary(a0)
@@ -49261,9 +49271,9 @@ loc_23D60:
 	move.w	x_pos(a0),x_pos(a1)
 	move.b	#AniIDSonAni_Roll,anim(a1)
 	move.w	#$800,inertia(a1)
-	bset	#1,status(a1)
+	bset	#status.player.in_air,status(a1)
 	move.w	#-$1000,y_vel(a1)
-	bclr	#3,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	move.b	#0,obj_control(a1)
 	move.w	#SndID_Spring,d0
 	jsr	(PlaySoundLocal).l
@@ -49525,7 +49535,7 @@ Obj07_Init:
 	move.b	#$20,width_pixels(a0)
 	move.w	y_pos(a0),objoff_30(a0)
 	move.b	#$30,oil_char1submersion(a0)
-	bset	#7,status(a0)
+	bset	#status.npc.unknown,status(a0)
 
 ; loc_24054:
 Obj07_Main:
@@ -49724,8 +49734,8 @@ loc_241D4:
 	beq.w	return_24278
 	; Launch the character into the air.
 	move.w	obj45_strength(a0),y_vel(a1)
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	move.b	#AniIDSonAni_Spring,anim(a1)
 	move.b	#2,routine(a1)
 	; Clear the character's X velocity if the high bit of the subtype is set.
@@ -49749,7 +49759,7 @@ loc_24206:
 
 loc_24236:
 	; Correct some details to account for the character's direction.
-	btst	#0,status(a1)
+	btst	#status.player.x_flip,status(a1)
 	beq.s	loc_24246
 	neg.b	flip_angle(a1)
 	neg.w	inertia(a1)
@@ -49793,10 +49803,10 @@ Obj45_Horizontal:
 	move.w	x_pos(a0),d2
 	sub.w	x_pos(a1),d2
 	bcs.s	loc_242B6
-	eori.b	#1,d1
+	eori.b	#1<<status.player.x_flip,d1
 
 loc_242B6:
-	andi.b	#1,d1
+	andi.b	#1<<status.player.x_flip,d1
 	bne.s	loc_242C0
 	bsr.w	loc_2433C
 
@@ -49811,10 +49821,10 @@ loc_242C0:
 	move.w	x_pos(a0),d2
 	sub.w	x_pos(a1),d2
 	bcs.s	loc_242E6
-	eori.b	#1,d1
+	eori.b	#1<<status.player.x_flip,d1
 
 loc_242E6:
-	andi.b	#1,d1
+	andi.b	#1<<status.player.x_flip,d1
 	bne.s	loc_242EE
 	bsr.s	loc_2433C
 
@@ -49850,9 +49860,9 @@ return_2433A:
 ; ===========================================================================
 
 loc_2433C:
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	loc_24378
-	btst	#0,status(a1)
+	btst	#status.player.x_flip,status(a1)
 	bne.w	return_243CE
 	tst.w	d0
 	bne.w	loc_2435E
@@ -49874,7 +49884,7 @@ loc_2435E:
 ; ===========================================================================
 
 loc_24378:
-	btst	#0,status(a1)
+	btst	#status.player.x_flip,status(a1)
 	beq.s	return_243CE
 	tst.w	d0
 	bne.w	loc_2438E
@@ -49936,17 +49946,17 @@ loc_243FE:
 	neg.w	d0
 	move.w	d0,x_vel(a1)
 	subq.w	#4,x_pos(a1)
-	bset	#0,status(a1)
-	btst	#0,status(a0)
+	bset	#status.player.x_flip,status(a1)
+	btst	#status.npc.x_flip,status(a0)
 	bne.s	loc_2442C
-	bclr	#0,status(a1)
+	bclr	#status.player.x_flip,status(a1)
 	addi_.w	#8,x_pos(a1)
 	neg.w	x_vel(a1)
 
 loc_2442C:
 	move.w	#$F,move_lock(a1)
 	move.w	x_vel(a1),inertia(a1)
-	btst	#2,status(a1)
+	btst	#status.player.rolling,status(a1)
 	bne.s	loc_24446
 	move.b	#AniIDSonAni_Walk,anim(a1)
 
@@ -49972,7 +49982,7 @@ loc_24452:
 
 loc_24482:
 	; Correct some details to account for the character's direction.
-	btst	#0,status(a1)
+	btst	#status.player.x_flip,status(a1)
 	beq.s	loc_24492
 	neg.b	flip_angle(a1)
 	neg.w	inertia(a1)
@@ -49992,7 +50002,7 @@ loc_244A8:
 	move.b	#$F,lrb_solid_bit(a1)
 
 loc_244BA:
-	bclr	#5,status(a1)
+	bclr	#status.player.pushing,status(a1)
 	move.b	#AniIDSonAni_Run,prev_anim(a1)	; Force character's animation to restart
 	move.w	#SndID_Spring,d0
 	jmp	(PlaySound).l
@@ -50092,12 +50102,12 @@ Obj46_Inactive:
 	beq.s	++
 +
 	addq.b	#2,routine(a0)
-	bset	#1,status(a0)
+	bset	#status.npc.y_flip,status(a0)
 	move.w	#-$300,y_vel(a0)
 	move.w	#$100,objoff_14(a0)
 	movea.l	objoff_3C(a0),a1 ; a1=object
 	move.b	#1,objoff_30(a1)
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	neg.w	objoff_14(a0)
 +
@@ -50108,7 +50118,7 @@ Obj46_Inactive:
 Obj46_Moving:
 	move.w	x_pos(a0),-(sp)
 	jsrto	JmpTo9_ObjectMove
-	btst	#1,status(a0)
+	btst	#status.npc.y_flip,status(a0)
 	beq.s	loc_24B8C
 	addi.w	#$18,y_vel(a0)
 	bmi.s	+
@@ -50121,9 +50131,9 @@ Obj46_Moving:
 	bpl.w	+
 	add.w	d1,y_pos(a0)
 	clr.w	y_vel(a0)
-	bclr	#1,status(a0)
+	bclr	#status.npc.y_flip,status(a0)
 	move.w	#$100,x_vel(a0)
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	neg.w	x_vel(a0)
 +
@@ -50134,7 +50144,7 @@ loc_24B8C:
 	jsr	(ObjCheckFloorDist).l
 	cmpi.w	#8,d1
 	blt.s	loc_24BA0
-	bset	#1,status(a0)
+	bset	#status.npc.y_flip,status(a0)
 	bra.s	loc_24BA4
 ; ===========================================================================
 
@@ -50343,7 +50353,7 @@ Obj3D_Init:
 	jsrto	JmpTo22_Adjust2PArtPointer
 	move.b	#4,render_flags(a0)
 	move.b	#$10,width_pixels(a0)
-	bset	#7,status(a0)
+	bset	#status.npc.unknown,status(a0)
 	move.b	#4,priority(a0)
 ; loc_24E26:
 Obj3D_Main:
@@ -50401,15 +50411,15 @@ loc_24EB2:
 	bne.s	loc_24ED4
 
 loc_24EB8:
-	bset	#2,status(a1)
+	bset	#status.player.rolling,status(a1)
 	move.b	#$E,y_radius(a1)
 	move.b	#7,x_radius(a1)
 	move.b	#AniIDSonAni_Roll,anim(a1)
 	move.w	d1,y_vel(a1)
 
 loc_24ED4:
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	move.b	#2,routine(a1)
 	rts
 ; ===========================================================================
@@ -50518,10 +50528,10 @@ loc_24FF0:
 	move.w	#0,y_vel(a1)
 
 loc_25002:
-	bclr	#5,status(a0)
-	bclr	#5,status(a1)
-	bset	#1,status(a1)
-	bset	#3,status(a1)
+	bclr	#status.npc.p1_pushing,status(a0)
+	bclr	#status.player.pushing,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bset	#status.player.on_object,status(a1)
     if object_size<>$40
 	moveq	#0,d0 ; Clear the high word for the coming division.
     endif
@@ -50545,8 +50555,8 @@ loc_25036:
 	tst.b	render_flags(a1)
 	bmi.s	Obj3D_MoveCharacter
 	move.b	#0,obj_control(a1)
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	move.b	#0,(a4)
 	rts
 ; ===========================================================================
@@ -50651,7 +50661,7 @@ Obj48_Init:
 	jsrto	JmpTo23_Adjust2PArtPointer
 	move.b	subtype(a0),d0
 	andi.w	#$F,d0
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	addq.w	#4,d0
 +
@@ -50710,7 +50720,7 @@ loc_252F0:
 	bhs.w	return_253C4
 	tst.w	(Debug_placement_mode).w
 	bne.w	return_253C4
-	btst	#3,status(a1)
+	btst	#status.player.on_object,status(a1)
 	beq.s	+
 	moveq	#0,d0
 	move.b	interact(a1),d0
@@ -50743,10 +50753,10 @@ loc_252F0:
 	move.w	#$1000,inertia(a1)
 	move.w	#0,x_vel(a1)
 	move.w	#0,y_vel(a1)
-	bclr	#5,status(a0)
-	bclr	#5,status(a1)
-	bset	#1,status(a1)
-	bset	#3,status(a1)
+	bclr	#status.npc.p1_pushing,status(a0)
+	bclr	#status.player.pushing,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bset	#status.player.on_object,status(a1)
 	move.b	objoff_3F(a0),mapping_frame(a0)
 	move.w	#SndID_Roll,d0
 	jsr	(PlaySound).l
@@ -50786,7 +50796,7 @@ loc_25408:
 	addq.b	#2,(a4)
 	move.b	subtype(a0),d0
 	addq.b	#1,d0
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	subq.b	#2,d0
 +
@@ -50799,8 +50809,8 @@ loc_25408:
 	tst.b	subtype(a0)
 	bpl.s	return_25462
 	move.b	#0,obj_control(a1)
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	move.b	#0,jumping(a1)
 	move.b	#2,routine(a1)
 	move.b	#6,(a4)
@@ -50820,8 +50830,8 @@ loc_25474:
 	tst.b	render_flags(a1)
 	bmi.s	loc_25492
 	move.b	#0,obj_control(a1)
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	move.b	#0,(a4)
 	rts
 ; ===========================================================================
@@ -50978,7 +50988,7 @@ Obj22_Arrow_Init:
 	move.b	#8,width_pixels(a0)
 	move.b	#0,mapping_frame(a0)
 	move.w	#$400,x_vel(a0)
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	neg.w	x_vel(a0)
 +
@@ -50987,7 +50997,7 @@ Obj22_Arrow_Init:
 ; loc_257BE:
 Obj22_Arrow:
 	jsrto	JmpTo11_ObjectMove
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	bne.s	loc_257DE
 	moveq	#-8,d3
 	bsr.w	ObjCheckLeftWallDist
@@ -51233,12 +51243,12 @@ loc_25ACE:
 loc_25AF6:
 	bclr	d6,status(a0)
 	beq.s	return_25B26
-	bset	#2,status(a1)
+	bset	#status.player.rolling,status(a1)
 	move.b	#$E,y_radius(a1)
 	move.b	#7,x_radius(a1)
 	move.b	#AniIDSonAni_Roll,anim(a1)
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	move.b	#2,routine(a1)
 
 return_25B26:
@@ -51520,7 +51530,7 @@ loc_261EC:
 	add.w	d0,y_pos(a1)
 	move.w	(a3)+,x_vel(a1)
 	move.w	(a3)+,y_vel(a1)
-	btst	#0,status(a2)
+	btst	#status.player.x_flip,status(a2)
 	beq.s	+
 	neg.w	x_vel(a1)
 +
@@ -51652,7 +51662,7 @@ Obj40_Init:
 	ori.b	#4,render_flags(a0)
 	move.b	#$1C,width_pixels(a0)
 	move.b	#4,priority(a0)
-	bset	#7,status(a0)
+	bset	#status.npc.unknown,status(a0)
 	move.b	subtype(a0),d0
 	andi.w	#2,d0		; there is enough data for this to be capped at 4
 	move.w	Obj40_Strengths(pc,d0.w),objoff_30(a0)	; this is never read
@@ -51688,7 +51698,7 @@ Obj40_Main:
 ; ===========================================================================
 
 loc_2641E:
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	bne.s	loc_26436
 	move.w	x_pos(a0),d0
 	subi.w	#$10,d0
@@ -51723,7 +51733,7 @@ loc_2645E:
 	subi.w	#$1C,d0
 	sub.w	x_pos(a1),d0
 	neg.w	d0
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	loc_2647A
 	not.w	d0
     if fixBugs
@@ -51745,10 +51755,10 @@ loc_26480:
 	move.b	(a3,d0.w),d0
 	move.w	#-$400,y_vel(a1)
 	sub.b	d0,y_vel(a1)
-	bset	#0,status(a1)
-	btst	#0,status(a0)
+	bset	#status.player.x_flip,status(a1)
+	btst	#status.npc.x_flip,status(a0)
 	bne.s	loc_264AA
-	bclr	#0,status(a1)
+	bclr	#status.player.x_flip,status(a1)
 	neg.b	d0
 
 loc_264AA:
@@ -51758,8 +51768,8 @@ loc_264AA:
 	sub.b	d0,x_vel(a1)
 
 loc_264BC:
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	move.b	#AniIDSonAni_Spring,anim(a1)
 	move.b	#2,routine(a1)
 	move.b	#0,spindash_flag(a1)
@@ -51776,7 +51786,7 @@ loc_264BC:
 	move.b	#3,flips_remaining(a1)
 
 loc_2650E:
-	btst	#0,status(a1)
+	btst	#status.player.x_flip,status(a1)
 	beq.s	loc_2651E
 	neg.b	flip_angle(a1)
 	neg.w	inertia(a1)
@@ -51966,8 +51976,8 @@ loc_2678E:
 
 loc_26798:
 	move.w	#-$A00,y_vel(a1)
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	move.b	#AniIDSonAni_Spring,anim(a1)
 	move.b	#2,routine(a1)
 	move.b	#0,spindash_flag(a1)
@@ -51986,7 +51996,7 @@ loc_26798:
 	bne.s	+
 	move.b	#1,flips_remaining(a1)
 +
-	btst	#0,status(a1)
+	btst	#status.player.x_flip,status(a1)
 	beq.s	loc_26808
 	neg.b	flip_angle(a1)
 	neg.w	inertia(a1)
@@ -52162,7 +52172,7 @@ loc_26A2E:
 
 loc_26A3E:
 	move.w	objoff_3A(a0),d0
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	loc_26A50
 	neg.w	d0
 	addi.w	#$40,d0
@@ -52234,7 +52244,7 @@ Obj65_Init:
 	move.b	d0,mapping_frame(a0)
 	cmpi.b	#1,d0
 	bne.s	+
-	bset	#7,status(a0)
+	bset	#status.npc.unknown,status(a0)
 +
 	cmpi.b	#2,d0
 	bne.s	loc_26B6E
@@ -52268,7 +52278,7 @@ loc_26B6E:
 	move.w	y_pos(a0),y_pos(a1)
 	addi.w	#-$4C,x_pos(a1)
 	addi.w	#$14,y_pos(a1)
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	bne.s	+
 	subi.w	#-$18,x_pos(a1)
 	bset	#0,render_flags(a1)
@@ -52367,7 +52377,7 @@ loc_26CC2:
 
 loc_26CD0:
 	move.w	objoff_3A(a0),d0
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	neg.w	d0
 	addi.w	#$80,d0
@@ -52418,7 +52428,7 @@ loc_26D46:
 
 loc_26D50:
 	move.w	objoff_3A(a0),d0
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	neg.w	d0
 	addi.w	#$80,d0
@@ -52445,7 +52455,7 @@ loc_26D72:
 loc_26D94:
 	move.w	objoff_34(a0),d4
 	move.w	d4,d5
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	bne.s	loc_26DAC
 	subi.w	#$20,d4
 	addi.w	#$60,d5
@@ -52502,7 +52512,7 @@ loc_26E0E:
 
 loc_26E1A:
 	move.w	objoff_3A(a0),d0
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	neg.w	d0
 	addi.w	#$40,d0
@@ -52645,15 +52655,15 @@ Obj66_Main:
 	jsrto	JmpTo3_SolidObject_Always_SingleCharacter
 	cmpi.b	#1,d4
 	bne.s	loc_26FF6
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	beq.s	loc_26FF6
 	move.b	status(a0),d1
 	move.w	x_pos(a0),d0
 	sub.w	x_pos(a1),d0
 	bcs.s	+
-	eori.b	#1,d1
+	eori.b	#1<<status.player.x_flip,d1
 +
-	andi.b	#1,d1
+	andi.b	#1<<status.player.x_flip,d1
 	bne.s	loc_26FF6
 	bsr.s	loc_27042
 
@@ -52664,15 +52674,15 @@ loc_26FF6:
 	jsrto	JmpTo3_SolidObject_Always_SingleCharacter
 	cmpi.b	#1,d4
 	bne.s	loc_2702C
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	beq.s	loc_2702C
 	move.b	status(a0),d1
 	move.w	x_pos(a0),d0
 	sub.w	x_pos(a1),d0
 	bcs.s	+
-	eori.b	#1,d1
+	eori.b	#1<<status.player.x_flip,d1
 +
-	andi.b	#1,d1
+	andi.b	#1<<status.player.x_flip,d1
 	bne.s	loc_2702C
 	bsr.s	loc_27042
 
@@ -52709,15 +52719,15 @@ loc_2704C:
 	move.w	objoff_30(a0),x_vel(a1)
 	move.w	#-$800,x_vel(a1)
 	move.w	#-$800,y_vel(a1)
-	bset	#0,status(a1)
-	btst	#0,status(a0)
+	bset	#status.player.x_flip,status(a1)
+	btst	#status.npc.x_flip,status(a0)
 	bne.s	+
-	bclr	#0,status(a1)
+	bclr	#status.player.x_flip,status(a1)
 	neg.w	x_vel(a1)
 +
 	move.w	#$F,move_lock(a1)
 	move.w	x_vel(a1),inertia(a1)
-	btst	#2,status(a1)
+	btst	#status.player.rolling,status(a1)
 	bne.s	+
 	move.b	#AniIDSonAni_Walk,anim(a1)
 +
@@ -52736,7 +52746,7 @@ loc_2704C:
 	bne.s	+
 	move.b	#3,flips_remaining(a1)
 +
-	btst	#0,status(a1)
+	btst	#status.player.x_flip,status(a1)
 	beq.s	loc_270DC
 	neg.b	flip_angle(a1)
 	neg.w	inertia(a1)
@@ -52758,9 +52768,9 @@ loc_270DC:
     if fixBugs
 	; Clear the player's 'roll-jumping' flag, to unlock their controls
 	; and prevent them from getting stuck.
-	bclr	#4,status(a1)
+	bclr	#status.player.rolljumping,status(a1)
     endif
-	bclr	#5,status(a1)
+	bclr	#status.player.pushing,status(a1)
 	move.w	#SndID_Spring,d0
 	jmp	(PlaySound).l
 ; ===========================================================================
@@ -52835,7 +52845,7 @@ loc_271D0:
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	addq.w	#3,d0
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	addi.w	#$A,d0
 +
@@ -52854,9 +52864,9 @@ loc_271D0:
 	move.w	#$800,inertia(a1)
 	move.w	#0,x_vel(a1)
 	move.w	#0,y_vel(a1)
-	bclr	#5,status(a0)
-	bclr	#5,status(a1)
-	bset	#1,status(a1)
+	bclr	#status.npc.p1_pushing,status(a0)
+	bclr	#status.player.pushing,status(a1)
+	bset	#status.player.in_air,status(a1)
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
 	clr.b	1(a4)
@@ -53541,7 +53551,7 @@ Obj6A_Init:
 	move.b	#$20,width_pixels(a0)
 	move.b	#$20,y_radius(a0)
 	move.l	#byte_27CF4,objoff_2C(a0)
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	move.l	#byte_27D12,objoff_2C(a0)
 +
@@ -53554,7 +53564,7 @@ Obj6A_Init:
 	addi.w	#$40,x_pos(a1)
 	addi.w	#$40,y_pos(a1)
 	move.b	#6,subtype(a1)
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	move.b	#$C,subtype(a1)
 +
@@ -53564,7 +53574,7 @@ Obj6A_Init:
 	subi.w	#$40,x_pos(a1)
 	addi.w	#$40,y_pos(a1)
 	move.b	#$C,subtype(a1)
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	move.b	#6,subtype(a1)
 +
@@ -53772,7 +53782,7 @@ Obj6B_Init:
 	lea	(a2,d0.w),a2
 	tst.w	(a2)
 	bpl.s	Obj6B_Main
-	bchg	#0,objoff_2E(a0)
+	bchg	#status.npc.x_flip,objoff_2E(a0)
 ; loc_27E0E:
 Obj6B_Main:
 	move.w	x_pos(a0),-(sp)
@@ -53829,7 +53839,7 @@ loc_27E74:
 	moveq	#0,d0
 	move.b	(Oscillating_Data+$1C).w,d0
 +
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	neg.w	d0
 	add.w	d1,d0
@@ -53853,7 +53863,7 @@ loc_27EA2:
 	move.b	(Oscillating_Data+$1C).w,d0
 
 loc_27EAC:
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	loc_27EB8
 	neg.w	d0
 	add.w	d1,d0
@@ -53957,12 +53967,12 @@ loc_27F80:
 loc_27F8E:
 	tst.w	d3
 	bne.s	loc_27F9C
-	addq.b	#1,objoff_2E(a0)
-	andi.b	#3,objoff_2E(a0)
+	addq.b	#1<<status.npc.x_flip,objoff_2E(a0)
+	andi.b	#1<<status.npc.x_flip|1<<status.npc.y_flip,objoff_2E(a0)
 
 loc_27F9C:
 	move.b	objoff_2E(a0),d2
-	andi.b	#3,d2
+	andi.b	#1<<status.npc.x_flip|1<<status.npc.y_flip,d2
 	bne.s	loc_27FBC
 	sub.w	d1,d0
 	add.w	objoff_34(a0),d0
@@ -54070,7 +54080,7 @@ Obj6C_Init:
 	lsl.w	#2,d1
 	move.b	d1,objoff_38(a0)
 	move.b	#4,objoff_3A(a0)
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	loc_280F2
 	neg.b	objoff_3A(a0)
 	moveq	#0,d1
@@ -54460,7 +54470,7 @@ Obj70_Init:
 	movea.l	a0,a1
 	move.w	x_pos(a0),d2
 	move.w	y_pos(a0),d3
-	bset	#7,status(a0)
+	bset	#status.npc.unknown,status(a0)
 	bra.s	Obj70_LoadSubObject
 ; ===========================================================================
 ; loc_285EE:
@@ -54501,7 +54511,7 @@ Obj70_Main:
 	andi.w	#$F,d0
 	bne.s	loc_286CA
 	move.w	objoff_36(a0),d1
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	loc_28684
 	subi.w	#$18,d1
 	bcc.s	loc_286A2
@@ -54653,7 +54663,7 @@ Obj72_Init:
 	lsl.b	#4,d0
 	move.b	d0,objoff_38(a0)
 	move.w	#2,objoff_36(a0)
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	Obj72_Main
 	neg.w	objoff_36(a0)
 ; loc_28980:
@@ -54681,7 +54691,7 @@ Obj72_Action:
 	add.w	d0,d1
 	cmp.w	d0,d1
 	bhs.s	+	; rts
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.s	+	; rts
 	move.w	objoff_36(a0),d0
 	add.w	d0,x_pos(a1)
@@ -54724,16 +54734,19 @@ Obj73_Init:
 	move.w	x_pos(a0),objoff_3A(a0)
 	move.w	y_pos(a0),objoff_38(a0)
 	move.b	#0,collision_flags(a0)
-	bset	#7,status(a0)
+	bset	#status.npc.unknown,status(a0)
 	move.b	subtype(a0),d1
 	andi.b	#$F0,d1
 	ext.w	d1
 	asl.w	#3,d1
 	move.w	d1,objoff_3E(a0)
+
+	; This turns the X-flip and Y-flip bits into an angle.
 	move.b	status(a0),d0
-	ror.b	#2,d0
+	ror.b	#status.npc.y_flip+1,d0
 	andi.b	#$C0,d0
 	move.b	d0,angle(a0)
+
 	lea	objoff_29(a0),a2
 	move.b	subtype(a0),d1
 	andi.w	#7,d1
@@ -54929,10 +54942,13 @@ Obj75_Init:
 	ext.w	d0
 	asl.w	#3,d0
 	move.w	d0,objoff_34(a0)
+
+	; This turns the X-flip and Y-flip bits into an angle.
 	move.b	status(a0),d0
-	ror.b	#2,d0
+	ror.b	#status.npc.y_flip+1,d0
 	andi.b	#$C0,d0
 	move.b	d0,angle(a0)
+
 	cmpi.b	#$F,d1
 	bne.s	+
 	addq.b	#2,routine(a0)
@@ -55145,12 +55161,12 @@ Obj76_CheckPlayers:
 	lea	(Sidekick).w,a1 ; a1=character
 ; loc_28ED8:
 Obj76_CheckPlayer:
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.s	++	; rts
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	addi.w	#$C0,d0
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	subi.w	#$100,d0
 +
@@ -55171,7 +55187,7 @@ Obj76_SlideOut:
 	beq.s	++	; rts
 	subq.w	#1,sliding_spikes_remaining_movement(a0)
 	moveq	#-1,d0
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	neg.w	d0
 +	add.w	d0,x_pos(a0)
@@ -55253,12 +55269,12 @@ Obj77_DropCharacters:
 	andi.b	#p1_standing,d0
 	beq.s	+
 	lea	(MainCharacter).w,a1 ; a1=character
-	bclr	#3,status(a1)
+	bclr	#status.player.on_object,status(a1)
 +
 	andi.b	#p2_standing,d1
 	beq.s	+
 	lea	(Sidekick).w,a1 ; a1=character
-	bclr	#3,status(a1)
+	bclr	#status.player.on_object,status(a1)
 +
 	andi.b	#~standing_mask,status(a0)
 +
@@ -55313,7 +55329,7 @@ Obj78_Init:
 	addq.b	#2,routine(a0)
 	moveq	#objoff_34,d3
 	moveq	#2,d4
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	moveq	#objoff_3A,d3
 	moveq	#-2,d4
@@ -55819,8 +55835,8 @@ loc_296C2:
 	move.w	#(1<<8)|(0<<0),anim(a0)
 	addq.w	#4,y_pos(a1)
 	move.w	objoff_30(a0),y_vel(a1)
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	move.b	#AniIDSonAni_Spring,anim(a1)
 	move.b	#2,routine(a1)
 	move.b	subtype(a0),d0
@@ -55838,7 +55854,7 @@ loc_296C2:
 	bne.s	+
 	move.b	#1,flips_remaining(a1)
 +
-	btst	#0,status(a1)
+	btst	#status.player.x_flip,status(a1)
 	beq.s	loc_29736
 	neg.b	flip_angle(a1)
 	neg.w	inertia(a1)
@@ -56150,7 +56166,7 @@ Obj80_Action:
 	move.w	#$200,x_vel(a1)
 +
 	move.w	#-$380,y_vel(a1)
-	bset	#1,status(a1)
+	bset	#status.player.in_air,status(a1)
 	tst.b	objoff_34(a0)
 	beq.s	+	; rts
 	move.b	subtype(a0),d0
@@ -56314,20 +56330,20 @@ Obj81_Init:
 	move.b	#4,render_flags(a0)
 	move.b	#5,priority(a0)
 	move.b	#8,width_pixels(a0)
-	ori.b	#$80,status(a0)
+	ori.b	#1<<status.npc.unknown,status(a0)
 	move.w	x_pos(a0),objoff_30(a0)
 	move.w	y_pos(a0),objoff_32(a0)
 	subi.w	#$48,y_pos(a0)
 	move.b	#-$40,angle(a0)
 	moveq	#-$10,d4
-	btst	#1,status(a0)
+	btst	#status.npc.y_flip,status(a0)
 	beq.s	+
 	addi.w	#$90,y_pos(a0)
 	move.b	#$40,angle(a0)
 	neg.w	d4
 +
 	move.w	#$100,d1
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	neg.w	d1
 +
@@ -56370,7 +56386,7 @@ Obj81_BridgeUp:
 	move.b	#1,objoff_36(a0)
 	move.w	#SndID_DrawbridgeMove,d0
 	jsr	(PlaySound2).l
-	cmpi.b	#$81,status(a0)
+	cmpi.b	#1<<status.npc.unknown|1<<status.npc.x_flip,status(a0)
 	bne.s	+
 	move.w	objoff_30(a0),x_pos(a0)
 	subi.w	#$48,x_pos(a0)
@@ -56781,7 +56797,7 @@ Obj83_Init:
 
 	; Set angle according to X-flip and Y-flip
 	move.b	status(a0),d0
-	ror.b	#2,d0
+	ror.b	#status.npc.y_flip+1,d0
 	andi.b	#$C0,d0
 	move.b	d0,angle(a0)
 
@@ -57070,7 +57086,7 @@ loc_2A894:
 	bne.s	return_2A8FC
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	bne.s	loc_2A8B4
 	neg.w	d0
 
@@ -57091,7 +57107,7 @@ loc_2A8B4:
 
 loc_2A8DC:
 	addi.w	#$60,d0
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	bne.s	loc_2A8EA
 	neg.w	d0
 
@@ -57186,7 +57202,7 @@ loc_2A990:
 	neg.w	d1
 	asr.w	#4,d1
 	add.w	d1,y_pos(a1)
-	bset	#1,status(a1)
+	bset	#status.player.in_air,status(a1)
 	move.w	#0,y_vel(a1)
 	move.w	#1,inertia(a1)
 	tst.b	flip_angle(a1)
@@ -57369,7 +57385,7 @@ loc_2AD2A:
 	move.w	#0,x_vel(a1)
 	move.w	#0,y_vel(a1)
 	move.w	#0,inertia(a1)
-	bset	#2,status(a1)
+	bset	#status.player.rolling,status(a1)
 	move.b	#$E,y_radius(a1)
 	move.b	#7,x_radius(a1)
 	move.b	#AniIDSonAni_Roll,anim(a1)
@@ -57389,8 +57405,8 @@ loc_2AD7A:
 	tst.b	render_flags(a1)
 	bmi.s	loc_2ADB0
 	bclr	d6,status(a0)
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	move.b	#2,routine(a1)
 	move.b	#0,obj_control(a1)
 	move.b	#0,(a2)
@@ -57443,8 +57459,8 @@ loc_2AE0C:
 	move.w	d0,y_vel(a1)
 	move.w	#0,x_vel(a1)
 	move.w	#$800,inertia(a1)
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	move.b	#2,routine(a1)
 	move.b	#0,obj_control(a1)
 	move.w	#SndID_CNZLaunch,d0
@@ -57536,7 +57552,7 @@ loc_2AF2E:
 	move.w	#0,x_vel(a1)
 	move.w	#0,y_vel(a1)
 	move.w	#0,inertia(a1)
-	bset	#2,status(a1)
+	bset	#status.player.rolling,status(a1)
 	move.b	#$E,y_radius(a1)
 	move.b	#7,x_radius(a1)
 	move.b	#AniIDSonAni_Roll,anim(a1)
@@ -57556,8 +57572,8 @@ loc_2AF7A:
 	tst.b	render_flags(a1)
 	bmi.s	loc_2AFB0
 	bclr	d6,status(a0)
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	move.b	#2,routine(a1)
 	move.b	#0,obj_control(a1)
 	move.b	#0,(a2)
@@ -57613,14 +57629,14 @@ loc_2B018:
 	neg.w	d0
 	move.w	d0,y_vel(a1)
 	move.w	#$800,inertia(a1)
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	tst.b	subtype(a0)
 	bpl.s	loc_2B068
 	neg.w	d0
 	move.w	d0,inertia(a1)
-	bclr	#0,status(a1)
-	bclr	#1,status(a1)
+	bclr	#status.player.x_flip,status(a1)
+	bclr	#status.player.in_air,status(a1)
 	move.b	#-$20,angle(a1)
 
 loc_2B068:
@@ -57728,7 +57744,7 @@ loc_2B20A:
 	move.b	#$E,y_radius(a1)
 	move.b	#7,x_radius(a1)
 	move.b	#AniIDSonAni_Roll,anim(a1)
-	bset	#2,status(a1)
+	bset	#status.player.rolling,status(a1)
 	bne.s	loc_2B238
 	addq.w	#5,y_pos(a1)
 
@@ -57751,11 +57767,11 @@ loc_2B254:
 	moveq	#0,d1
 	move.b	mapping_frame(a0),d1
 	subq.w	#1,d1
-	bset	#0,status(a1)
-	btst	#0,status(a0)
+	bset	#status.player.x_flip,status(a1)
+	btst	#status.npc.x_flip,status(a0)
 	bne.s	loc_2B272
 	neg.w	d1
-	bclr	#0,status(a1)
+	bclr	#status.player.x_flip,status(a1)
 
 loc_2B272:
 	add.w	d1,x_pos(a1)
@@ -57776,7 +57792,7 @@ loc_2B290:
 	beq.w	return_2B208
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	loc_2B2AA
 	neg.w	d0
 
@@ -57799,14 +57815,14 @@ loc_2B2BA:
 	asr.l	#8,d0
 	asr.l	#8,d1
 	move.w	d0,y_vel(a1)
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	loc_2B2E2
 	neg.w	d1
 
 loc_2B2E2:
 	move.w	d1,x_vel(a1)
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.on_object,status(a1)
 	move.b	#2,routine(a1)
 	move.b	#0,obj_control(a1)
 	move.b	#1,anim(a0)
@@ -57846,11 +57862,11 @@ loc_2B35C:
 	move.w	#(3<<8)|(0<<0),anim(a0)
 	move.w	#-$1000,x_vel(a1)
 	addq.w	#8,x_pos(a1)
-	bset	#0,status(a1)
+	bset	#status.player.x_flip,status(a1)
 	move.w	x_pos(a0),d0
 	sub.w	x_pos(a1),d0
 	bcc.s	loc_2B392
-	bclr	#0,status(a1)
+	bclr	#status.player.x_flip,status(a1)
 	subi.w	#$10,x_pos(a1)
 	neg.w	x_vel(a1)
 	move.w	#(4<<8)|(0<<0),anim(a0)
@@ -57861,7 +57877,7 @@ loc_2B392:
 	move.b	#$E,y_radius(a1)
 	move.b	#7,x_radius(a1)
 	move.b	#AniIDSonAni_Roll,anim(a1)
-	bset	#2,status(a1)
+	bset	#status.player.rolling,status(a1)
 	bne.s	loc_2B3BC
 	addq.w	#5,y_pos(a1)
 
@@ -57967,13 +57983,13 @@ ObjD2_Main:
 	beq.s	loc_2B5E2
 	bclr	#p1_standing_bit,status(a0)
 	beq.s	+
-	bclr	#3,(MainCharacter+status).w
-	bset	#1,(MainCharacter+status).w
+	bclr	#status.player.on_object,(MainCharacter+status).w
+	bset	#status.player.in_air,(MainCharacter+status).w
 +
 	bclr	#p2_standing_bit,status(a0)
 	beq.s	loc_2B5E2
-	bclr	#3,(Sidekick+status).w
-	bset	#1,(Sidekick+status).w
+	bclr	#status.player.on_object,(Sidekick+status).w
+	bset	#status.player.in_air,(Sidekick+status).w
 
 loc_2B5E2:
 	move.w	objoff_30(a0),x_pos(a0)
@@ -58003,7 +58019,7 @@ loc_2B60C:
 	lea	byte_2B654(pc,d0.w),a1
 	move.b	(a1)+,d0
 	ext.w	d0
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	neg.w	d0
 +
@@ -58140,7 +58156,7 @@ ObjD4_Init:
 	tst.b	subtype(a0)
 	bne.s	loc_2B95A
 	subi.w	#$60,x_pos(a0)
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	ObjD4_Main
 	addi.w	#$C0,x_pos(a0)
 	bra.s	ObjD4_Main
@@ -58148,7 +58164,7 @@ ObjD4_Init:
 
 loc_2B95A:
 	subi.w	#$60,y_pos(a0)
-	btst	#1,status(a0)
+	btst	#status.npc.y_flip,status(a0)
 	beq.s	ObjD4_Main
 	addi.w	#$C0,y_pos(a0)
 ; loc_2B96E:
@@ -58236,7 +58252,7 @@ ObjD5_Init:
 	move.b	subtype(a0),d0
 	lsl.w	#2,d0
 	sub.w	d0,y_pos(a0)
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	ObjD5_Main
 	add.w	d0,d0
 	add.w	d0,y_pos(a0)
@@ -58288,7 +58304,7 @@ loc_2BAB6:
 	move.b	subtype(a0),d0
 	lsl.w	#2,d0
 	sub.w	d0,y_pos(a0)
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	bne.s	+	; rts
 	add.w	d0,d0
 	add.w	d0,y_pos(a0)
@@ -58322,7 +58338,7 @@ loc_2BB08:
 	move.b	subtype(a0),d0
 	lsl.w	#2,d0
 	sub.w	d0,y_pos(a0)
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+	; rts
 	add.w	d0,d0
 	add.w	d0,y_pos(a0)
@@ -58415,7 +58431,7 @@ loc_2BC0C:
 	move.w	#0,y_vel(a1)
 	move.w	#0,inertia(a1)
 	move.b	#$81,obj_control(a1)
-	bset	#2,status(a1)
+	bset	#status.player.rolling,status(a1)
 	move.b	#$E,y_radius(a1)
 	move.b	#7,x_radius(a1)
 	move.b	#AniIDSonAni_Roll,anim(a1)
@@ -58556,8 +58572,8 @@ loc_2BE2E:
 	move.b	#0,anim(a0)
 	move.b	#0,objoff_2A(a1)
 	bclr	d6,status(a0)
-	bclr	#3,status(a1)
-	bset	#1,status(a1)
+	bclr	#status.player.on_object,status(a1)
+	bset	#status.player.in_air,status(a1)
 	move.w	#$400,y_vel(a1)
 	addq.w	#2,(a2)+
 	move.w	#$1E,(a2)
@@ -59184,7 +59200,7 @@ ObjD7_Init:
 	move.b	#$10,width_pixels(a0)
 	move.b	#1,priority(a0)
 	move.b	#$CA,collision_flags(a0)
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	move.b	#1,objoff_34(a0)
 +
@@ -59258,9 +59274,9 @@ ObjD7_BounceUp:
 	move.b	#1,anim(a0)
 ; loc_2C55E:
 ObjD7_BounceEnd:
-	bset	#1,status(a1)
-	bclr	#4,status(a1)
-	bclr	#5,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.rolljumping,status(a1)
+	bclr	#status.player.pushing,status(a1)
 	clr.b	jumping(a1)
 	move.w	#SndID_Bumper,d0
 	jmp	(PlaySound).l
@@ -59449,7 +59465,7 @@ loc_2C77A:
 	bne.s	loc_2C7EC
 	move.b	#4,anim(a0)
 	move.w	#$20,d3
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	bne.s	loc_2C794
 	move.w	#$60,d3
 
@@ -59497,9 +59513,9 @@ loc_2C7EC:
 	neg.w	x_vel(a1)
 
 loc_2C806:
-	bset	#1,status(a1)
-	bclr	#4,status(a1)
-	bclr	#5,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.rolljumping,status(a1)
+	bclr	#status.player.pushing,status(a1)
 	clr.b	jumping(a1)
 	move.w	#SndID_BonusBumper,d0
 	jsr	(PlaySound).l
@@ -59729,7 +59745,7 @@ Obj4A_Init:
 	move.w	x_pos(a0),d0
 	sub.w	(MainCharacter+x_pos).w,d0
 	bpl.s	+
-	bchg	#0,status(a0)
+	bchg	#status.npc.x_flip,status(a0)
 +
 	move.w	y_pos(a0),octus_start_position(a0)
 	rts
@@ -59943,7 +59959,7 @@ Obj50_Init:
 	move.b	#3,anim(a1)
 	move.l	a1,Obj50_child(a0)
 	move.l	a0,Obj50_parent(a1)
-	bset	#6,status(a0)	; set compund sprite flag. This is useless, as the object doesn't define any child spites, nor does it set its child sprite count
+	bset	#status.npc.p2_pushing,status(a0)
 ; loc_2CDA2:
 Obj50_Main:
 	lea	(Ani_obj50).l,a1
@@ -59966,12 +59982,12 @@ Obj50_Main_Index: offsetTable
 Obj50_Wing:
 	movea.l	Obj50_parent(a0),a1 ; a1=object
 	; This check is made redundant by the one after it.
-	tst.b	id(a1)		; is parent object's slot empty?
-	beq.w	JmpTo48_DeleteObject	; if yes, branch
-	cmpi.b	#ObjID_Aquis,id(a1)	; is parent object ObjID_Aquis?
-	bne.w	JmpTo48_DeleteObject	; if not, branch
-	btst	#7,status(a1)		; is parent object marked as destroyed?
-	bne.w	JmpTo48_DeleteObject	; if yes, branch
+	tst.b	id(a1)				; is parent object's slot empty?
+	beq.w	JmpTo48_DeleteObject		; if yes, branch
+	cmpi.b	#ObjID_Aquis,id(a1)		; is parent object ObjID_Aquis?
+	bne.w	JmpTo48_DeleteObject		; if not, branch
+	btst	#status.npc.unknown,status(a1)	; is parent object marked as destroyed?
+	bne.w	JmpTo48_DeleteObject		; if yes, branch
 	lea	(Ani_obj50).l,a1
 	jsrto	JmpTo14_AnimateSprite
 	jmpto	JmpTo32_DisplaySprite
@@ -60032,8 +60048,8 @@ Obj50_ChkIfShoot:
 	move.w	#$A,d0		; set y offset
 	move.w	#$10,d1		; set x offset
 	move.w	#-$300,d2	; set x velocity
-	btst	#0,status(a0)	; is object facing right?
-	beq.s	+		; if yes, branch
+	btst	#status.npc.x_flip,status(a0)	; is object facing right?
+	beq.s	+				; if yes, branch
 	neg.w	d1	; else, align bullet with other side of object...
 	neg.w	d2	; ...and move in the opposite direction
 +
@@ -60051,10 +60067,10 @@ Obj50_FollowPlayer:
 	subq.b	#1,Obj50_timer(a0)
 	bmi.s	Obj50_DoneFollowing	; branch, if counter has expired
 	jsrto	JmpTo_Obj_GetOrientationToPlayer
-	bclr	#0,status(a0)	; face right
+	bclr	#status.npc.x_flip,status(a0)	; face right
 	tst.w	d0
 	beq.s	+		; branch, if player is right from object
-	bset	#0,status(a0)	; otherwise, face left
+	bset	#status.npc.x_flip,status(a0)	; otherwise, face left
 +
 	; make object move towards player; d0 and d1 were set by the GetOrientationToPlayer routine
 	move.w	Obj50_Speeds(pc,d0.w),d2
@@ -60114,7 +60130,7 @@ Obj50_ControlWing:
 	move.b	status(a0),status(a1)
 	move.b	respawn_index(a0),respawn_index(a1)
 	move.b	render_flags(a0),render_flags(a1)
-	btst	#0,status(a1)	; is object facing right?
+	btst	#status.npc.x_flip,status(a1)	; is object facing right?
 	beq.s	+		; if yes, branch
 	neg.w	d0	; else, align wing with other side of object
 +
@@ -60295,7 +60311,7 @@ Obj4B_TurnAround:
 	sf	Obj4B_shooting_flag(a0)	; reenable shooting
 	neg.w	x_vel(a0)		; reverse movement direction
 	bchg	#0,render_flags(a0)
-	bchg	#0,status(a0)
+	bchg	#status.npc.x_flip,status(a0)
 	move.w	#$100,Obj4B_move_timer(a0)
 	rts
 ; ===========================================================================
@@ -60927,7 +60943,7 @@ Obj5D_Main:
 	lea	(Ani_obj5D_b).l,a1
 	jsr	(AnimateSprite).l
 	move.b	status(a0),d0
-	andi.b	#3,d0
+	andi.b	#1<<status.npc.x_flip|1<<status.npc.y_flip,d0
 	andi.b	#$FC,render_flags(a0)
 	or.b	d0,render_flags(a0)
 	jmp	(DisplaySprite).l
@@ -60949,20 +60965,20 @@ Obj5D_LookAtChar:
 	move.w	(MainCharacter+x_pos).w,d0
 	sub.w	x_pos(a0),d0
 	bgt.s	++
-	bclr	#0,status(a0)
+	bclr	#status.npc.x_flip,status(a0)
 +
 	rts
 ; ---------------------------------------------------------------------------
 +
-	bset	#0,status(a0)
+	bset	#status.npc.x_flip,status(a0)
 	rts
 ; ===========================================================================
 ;Obj5D_Main_8:
 Obj5D_Main_Explode:
 	subq.w	#1,Obj5D_defeat_timer(a0)
 	bpl.w	Obj5D_Main_CreateExplosion
-	bset	#0,status(a0)
-	bclr	#7,status(a0)
+	bset	#status.npc.x_flip,status(a0)
+	bclr	#status.npc.unknown,status(a0)
 	clr.w	x_vel(a0)
 	addq.b	#2,routine_secondary(a0)	; => Obj5D_Main_StopExploding
 	move.w	#-$26,Obj5D_defeat_timer(a0)
@@ -61063,8 +61079,13 @@ Obj5D_Main_Pos_and_Collision:
 
 	cmpi.b	#8,routine_secondary(a0)	; exploding or retreating?
 	bhs.s	return_2DAE8			; if yes, branch
+    if status.npc.unknown = 7
 	tst.b	status(a0)
 	bmi.s	Obj5D_Defeated		; branch, if boss is defeated
+    else
+	btst	#status.npc.unknown,status(a0)
+	bne.s	Obj5D_Defeated		; branch, if boss is defeated
+    endif
 	tst.b	collision_flags(a0)
 	bne.s	return_2DAE8		; branch, if collisions are not turned off
 
@@ -61277,7 +61298,7 @@ Obj5D_FallingParts:
 ; ===========================================================================
 
 Obj5D_Pump:
-	btst	#7,status(a0)
+	btst	#status.npc.unknown,status(a0)
 	bne.s	.bossDefeated
 
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
@@ -61487,7 +61508,7 @@ BranchTo_Obj5D_PipeSegment ; BranchTo
 Obj5D_Pipe_Pump_2:
 	movea.l	Obj5D_parent(a0),a1	; parent = pipe segment (control object) ; a1=object
 	movea.l	Obj5D_parent(a1),a2	; parent = main vehicle ; a2=object
-	btst	#7,status(a2)		; has boss been defeated?
+	btst	#status.npc.unknown,status(a2)		; has boss been defeated?
 	bne.w	JmpTo51_DeleteObject	; if yes, branch
 	move.w	x_pos(a1),x_pos(a0)
 	move.w	y_pos(a1),y_pos(a0)
@@ -61598,15 +61619,15 @@ loc_2DFEE:
 	movea.l	a0,a1
 
 loc_2DFF0:
-	bset	#7,status(a1)	; mark segment for deletion
+	bset	#status.npc.unknown,status(a1)	; mark segment for deletion
 	subi_.b	#8,Obj5D_y_offset(a0)	; position of next segment up
 	beq.s	loc_2DFD8
 
 Obj5D_PipeSegment:
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
 	movea.l	Obj5D_parent(a1),a2 ; a2=object
-	btst	#7,status(a2)		; has boss been defeated?
-	bne.s	Obj5D_PipeSegment_End	; if yes, branch
+	btst	#status.npc.unknown,status(a2)	; has boss been defeated?
+	bne.s	Obj5D_PipeSegment_End		; if yes, branch
 
 	move.w	x_pos(a1),x_pos(a0)
 	move.w	y_pos(a1),y_pos(a0)
@@ -61614,7 +61635,7 @@ Obj5D_PipeSegment:
 	bne.s	+
 	addi.w	#$18,y_pos(a0)
 +
-	btst	#7,status(a0)			; is object marked for deletion?
+	btst	#status.npc.unknown,status(a0)	; is object marked for deletion?
 	bne.s	BranchTo_JmpTo51_DeleteObject	; if yes, branch
 	move.w	Obj5D_y_pos_next(a0),d0
 	add.w	d0,y_pos(a0)
@@ -61661,7 +61682,7 @@ Obj5D_PipeSegment_End:
 ; ===========================================================================
 
 Obj5D_Dripper:
-	btst	#7,status(a0)
+	btst	#status.npc.unknown,status(a0)
 	bne.w	JmpTo51_DeleteObject
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
@@ -61791,7 +61812,7 @@ Obj5D_Container_Main:
 	move.w	x_pos(a1),x_pos(a0)
 	move.w	y_pos(a1),y_pos(a0)
 	subi.w	#$38,y_pos(a0)
-	btst	#7,status(a0)
+	btst	#status.npc.unknown,status(a0)
 	bne.s	loc_2E2E0
 	btst	#2,Obj5D_status2(a1)
 	beq.s	+
@@ -62049,7 +62070,7 @@ loc_2E59C:
 ; ===========================================================================
 
 Obj5D_Container_Extend:
-	btst	#7,status(a0)
+	btst	#status.npc.unknown,status(a0)
 	bne.w	JmpTo51_DeleteObject
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
 	move.l	Obj5D_parent(a1),d0
@@ -62083,7 +62104,7 @@ Obj5D_Container_Extend:
 ; ===========================================================================
 
 Obj5D_Container_Floor:
-	btst	#7,status(a0)
+	btst	#status.npc.unknown,status(a0)
 	bne.w	JmpTo51_DeleteObject
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
 	movea.l	Obj5D_parent(a1),a1
@@ -62105,7 +62126,7 @@ Obj5D_Container_Floor_End:
 ; ===========================================================================
 
 Obj5D_Container_Floor2:
-	btst	#7,status(a0)
+	btst	#status.npc.unknown,status(a0)
 	bne.w	JmpTo51_DeleteObject
 	subq.w	#1,Obj5D_timer2(a0)
 	beq.w	JmpTo51_DeleteObject
@@ -62327,7 +62348,7 @@ Obj5D_Flame_Frames:
 ; ===========================================================================
 
 Obj5D_Flame:
-	btst	#7,status(a0)
+	btst	#status.npc.unknown,status(a0)
 	bne.s	loc_2E9A8
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
 	move.l	x_pos(a1),x_pos(a0)
@@ -62556,7 +62577,7 @@ Obj56_Index:	offsetTable
 		offsetTableEntry.w loc_2F8DA	; E - Flying vehicle, top
 ; ===========================================================================
 
-; #7,status(ax) set via collision response routine (Touch_Enemy_Part2)
+; #status.npc.unknown,status(ax) set via collision response routine (Touch_Enemy_Part2)
 ; 	when after a hit collision_property(ax) = hitcount has reached zero
 ; objoff_2A(ax) used as timer (countdown)
 ; objoff_2C(ax) tertiary rountine counter
@@ -62900,7 +62921,7 @@ loc_2F424:	; Obj56_VehicleMain_SubA_2:
 loc_2F442:	; Obj56_VehicleMain_SubA_4:
 	subi_.w	#1,objoff_2A(a0)	; timer
 	bpl.s	loc_2F45C
-	bset	#0,status(a0)
+	bset	#status.npc.x_flip,status(a0)
 	bset	#0,render_flags(a0)
 	addq.w	#6,x_pos(a0)
 	bra.s	loc_2F460
@@ -62937,7 +62958,7 @@ loc_2F484:	; shared routine, checks positions and sets direction
 	blt.s	return_2F4A4	; beyond right boundary?
 
 loc_2F494:	; beyond boundary
-	bchg	#0,status(a0)	; change direction
+	bchg	#status.npc.x_flip,status(a0)	; change direction
 	bchg	#0,render_flags(a0)	; mirror sprite
 	neg.w	x_vel(a0)	; change direction of velocity
 
@@ -62948,8 +62969,13 @@ return_2F4A4:
 loc_2F4A6:	; routine to handle hits
 	cmpi.b	#6,routine_secondary(a0)	; is only called when value is 4?
 	bhs.s	return_2F4EC	; thus unnecessary? (return if greater or equal than 6)
+    if status.npc.unknown = 7
 	tst.b	status(a0)
 	bmi.s	loc_2F4EE	; Sonic has just defeated the boss (i.e. bit 7 set)
+    else
+	btst	#status.npc.unknown,status(a0)
+	bne.s	loc_2F4EE	; Sonic has just defeated the boss (i.e. bit 7 set)
+    endif
 	tst.b	collision_flags(a0)	; set to 0 when boss was hit by Touch_Enemy_Part2
 	bne.s	return_2F4EC	; not 0, i.e. boss not hit
 	tst.b	objoff_3E(a0)
@@ -63189,8 +63215,13 @@ loc_2F746:	; Obj56_Wheel_Sub4:
 	bne.w	JmpTo52_DeleteObject	; if boss non-existant
 	move.b	status(a1),status(a0)
 	move.b	render_flags(a1),render_flags(a0)
+    if status.npc.unknown = 7
 	tst.b	status(a0)
 	bpl.s	loc_2F768	; has Sonic just defeated the boss (i.e. bit 7 set)?
+    else
+	btst	#status.npc.unknown,status(a0)
+	beq.s	loc_2F768	; has Sonic just defeated the boss (i.e. bit 7 set)?
+    endif
 	addq.b	#2,routine_secondary(a0)	; if yes, Sub6
 
 loc_2F768:
@@ -63275,7 +63306,7 @@ loc_2F824:	; Obj56_Spike_Sub2:
 	move.b	render_flags(a1),render_flags(a0)
 	addi.w	#$10,y_pos(a0)	; vertical offset
 	move.w	#-$36,d0
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	loc_2F878
 	neg.w	d0
 
@@ -63288,7 +63319,7 @@ loc_2F878:
 
 loc_2F88A:	; spike separated from vehicle
 	move.w	#-3,d0	; velocity of spike in pixels/frame
-	btst	#0,status(a0)	; check direction
+	btst	#status.npc.x_flip,status(a0)	; check direction
 	beq.s	loc_2F898
 	neg.w	d0
 
@@ -63309,13 +63340,13 @@ loc_2F8B4:
 	move.w	x_pos(a0),d0
 	sub.w	(MainCharacter+x_pos).w,d0
 	bpl.s	loc_2F8C8
-	btst	#0,status(a1)	; Sonic right from spike
+	btst	#status.npc.x_flip,status(a1)	; Sonic right from spike
 	bne.s	loc_2F8D2	; spike facing right
 	rts
 ; ---------------------------------------------------------------------------
 
 loc_2F8C8:
-	btst	#0,status(a1)	; Sonic left from spike
+	btst	#status.npc.x_flip,status(a1)	; Sonic left from spike
 	beq.s	loc_2F8D2	; spike facing left
 	rts
 ; ---------------------------------------------------------------------------
@@ -64832,7 +64863,7 @@ Obj89_Arrow_Init:
 	addi.w	#9,y_pos(a0)
 	tst.b	subtype(a0)			; was arrow fired from right pillar?
 	beq.s	+				; if not, branch
-	bset	#0,status(a0)			; make arrow face left
+	bset	#status.npc.x_flip,status(a0)	; make arrow face left
 	bset	#0,render_flags(a0)
 	move.w	#-3,x_vel(a0)			; move left
 	bra.s	Obj89_Arrow_Init_End
@@ -64847,7 +64878,7 @@ Obj89_Arrow_Init_End:
 ; ===========================================================================
 ; loc_30C36:
 Obj89_Arrow_Sub2:
-	btst	#7,status(a0)
+	btst	#status.npc.unknown,status(a0)
 	beq.s	+
 	move.b	#8,obj89_arrow_routine(a0)	; => BranchTo_JmpTo55_DeleteObject
 +
@@ -64882,7 +64913,7 @@ Obj89_Arrow_Sub2_Move:
 ; loc_30C86:
 Obj89_Arrow_Sub4:
 	move.b	#0,collision_flags(a0)		; make arrow harmless
-	btst	#7,status(a0)
+	btst	#status.npc.unknown,status(a0)
 	beq.s	+
 	addi_.b	#2,obj89_arrow_routine(a0)	; => Obj89_Arrow_Sub6
 +
@@ -64918,9 +64949,9 @@ Obj89_Arrow_Platform:
 	move.w	#2,d3
 	move.w	x_pos(a0),d4
 	jsrto	JmpTo8_PlatformObject
-	btst	#3,status(a0)			; is Sonic standing on the arrow?
-	beq.s	return_30D02			; if not, branch
-	move.w	#$1F,obj89_arrow_timer(a0)	; else, set timer
+	btst	#status.npc.p1_standing,status(a0)	; is Sonic standing on the arrow?
+	beq.s	return_30D02				; if not, branch
+	move.w	#$1F,obj89_arrow_timer(a0)		; else, set timer
 
 ; loc_30CF4:
 Obj89_Arrow_Platform_Decay:
@@ -64944,8 +64975,8 @@ Obj89_Arrow_ChkDropPlayers:
 
 ; loc_30D1E:
 Obj89_Arrow_DropPlayer:
-	bset	#1,status(a1)
-	bclr	#3,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.on_object,status(a1)
 
 return_30D2A:
 	rts
@@ -68253,7 +68284,7 @@ Obj09_Init:
 	move.b	#$40,angle(a0)
 	move.b	#1,(Sonic_LastLoadedDPLC).w
 	clr.b	ss_slide_timer(a0)
-	bclr	#6,status(a0)
+	bclr	#status.player.special.6,status(a0)
 	clr.b	collision_property(a0)
 	clr.b	ss_dplc_timer(a0)
 	movea.l	#SpecialStageShadow_Sonic,a1
@@ -68430,7 +68461,7 @@ SSPlayer_Jump:
 	muls.w	d2,d0
 	asr.l	#7,d0
 	add.w	d0,y_vel(a0)
-	bset	#2,status(a0)
+	bset	#status.player.special.2,status(a0)
 	move.b	#4,routine(a0)
 	move.b	#3,anim(a0)
 	moveq	#0,d0
@@ -68652,13 +68683,13 @@ SSPlayer_DoLevelCollision:
 	cmp.l	d1,d0
 	blo.s	+
 	move.b	#2,routine(a0)
-	bclr	#2,status(a0)
+	bclr	#status.player.special.2,status(a0)
 	moveq	#0,d0
 	move.w	d0,x_vel(a0)
 	move.w	d0,y_vel(a0)
 	move.w	d0,inertia(a0)		; This makes player stop on ground
 	move.b	d0,ss_slide_timer(a0)
-	bset	#6,status(a0)
+	bset	#status.player.special.6,status(a0)
 	bsr.w	SSObjectMove
 	bsr.w	SSAnglePos
 +
@@ -68736,22 +68767,24 @@ loc_33E88:
 return_33E8E:
 	rts
 ; ===========================================================================
+ss_make_direction_bitfield function xFlip,yFlip,xFlip<<status.player.special.0|yFlip<<status.player.special.1
+
 byte_33E90:
-	dc.b   1,  1
-	dc.b   0,  0	; 2
-	dc.b   1,  0	; 4
-	dc.b   2,  0	; 6
-	dc.b   1,  2	; 8
-	dc.b   0,  2	; 10
-	dc.b   1,  3	; 12
-	dc.b   2,  1	; 14
+	dc.b	ss_make_direction_bitfield( TRUE, FALSE), ss_make_direction_bitfield( TRUE, FALSE)	; 0
+	dc.b	ss_make_direction_bitfield(FALSE, FALSE), ss_make_direction_bitfield(FALSE, FALSE)	; 2
+	dc.b	ss_make_direction_bitfield( TRUE, FALSE), ss_make_direction_bitfield(FALSE, FALSE)	; 4
+	dc.b	ss_make_direction_bitfield(FALSE,  TRUE), ss_make_direction_bitfield(FALSE, FALSE)	; 6
+	dc.b	ss_make_direction_bitfield( TRUE, FALSE), ss_make_direction_bitfield(FALSE,  TRUE)	; 8
+	dc.b	ss_make_direction_bitfield(FALSE, FALSE), ss_make_direction_bitfield(FALSE,  TRUE)	; 10
+	dc.b	ss_make_direction_bitfield( TRUE, FALSE), ss_make_direction_bitfield( TRUE,  TRUE)	; 12
+	dc.b	ss_make_direction_bitfield(FALSE,  TRUE), ss_make_direction_bitfield( TRUE, FALSE)	; 14
 ; ===========================================================================
 
 SSPlayer_SetAnimation:
-	btst	#2,status(a0)
+	btst	#status.player.special.2,status(a0)
 	beq.s	+
 	move.b	#3,anim(a0)
-	andi.b	#$FC,status(a0)
+	andi.b	#~(1<<status.player.special.0|1<<status.player.special.1),status(a0)
 	rts
 ; ===========================================================================
 +
@@ -68770,7 +68803,7 @@ SSPlayer_SetAnimation:
 	move.b	d1,ss_last_angle_index(a0)
 	move.b	d2,anim(a0)
 	move.b	byte_33E90+1(pc,d0.w),d0
-	andi.b	#$FC,status(a0)
+	andi.b	#~(1<<status.player.special.0|1<<status.player.special.1),status(a0)
 	or.b	d0,status(a0)
 	cmpi.b	#1,d1
 	beq.s	loc_33EF8
@@ -68805,7 +68838,7 @@ SSAnim_Do:
 	bne.s	+
 	subi_.b	#1,ss_flip_timer(a0)
 	bgt.s	+
-	bchg	#0,status(a0)
+	bchg	#status.player.special.0,status(a0)
 	bchg	#0,render_flags(a0)
 	move.b	ss_init_flip_timer(a0),ss_flip_timer(a0)
 +
@@ -68819,7 +68852,7 @@ SSAnim_Do:
 	andi.b	#$7F,d0
 	move.b	d0,mapping_frame(a0)
 	move.b	status(a0),d1
-	andi.b	#3,d1
+	andi.b	#1<<status.player.special.0|1<<status.player.special.1,d1
 	andi.b	#$FC,render_flags(a0)
 	or.b	d1,render_flags(a0)
 	addq.b	#1,anim_frame(a0)
@@ -68835,7 +68868,7 @@ SSPlayer_Move:
 	bne.s	SSPlayer_MoveLeft
 	btst	#button_right,d0
 	bne.w	SSPlayer_MoveRight
-	bset	#6,status(a0)
+	bset	#status.player.special.6,status(a0)
 	bne.s	+
 	move.b	#$1E,ss_slide_timer(a0)
 +
@@ -68878,7 +68911,7 @@ SSPlayer_MoveRight:
 	move.w	#-$600,d2
 +
 	move.w	d2,inertia(a0)
-	bclr	#6,status(a0)
+	bclr	#status.player.special.6,status(a0)
 	clr.b	ss_slide_timer(a0)
 	rts
 ; ===========================================================================
@@ -69038,8 +69071,8 @@ loc_341BA:
 	cmpi.b	#1,anim(a1)
 	bne.s	return_341E0
 	move.b	status(a1),d1
-	andi.w	#3,d1
-	cmpi.b	#2,d1
+	andi.w	#1<<status.npc.x_flip|1<<status.npc.y_flip,d1
+	cmpi.b	#1<<status.npc.y_flip,d1
 	bhs.s	return_341E0
 	move.b	byte_341E2(pc,d1.w),d0
 	ext.w	d0
@@ -70064,7 +70097,7 @@ loc_35120:
 ; ===========================================================================
 
 loc_3512A:
-	btst	#7,status(a0)
+	btst	#status.player.special.7,status(a0)
 	bne.s	loc_3516C
 	cmpi.b	#4,(SSTrack_drawing_index).w
 	bne.s	loc_35146
@@ -70356,7 +70389,7 @@ loc_353CA:
 	andi.b	#$7F,d0
 	move.b	d0,mapping_frame(a0)
 	move.b	status(a0),d1
-	andi.b	#3,d1
+	andi.b	#1<<status.npc.x_flip|1<<status.npc.y_flip,d1
 	andi.b	#$FC,render_flags(a0)
 	or.b	d1,render_flags(a0)
 	addq.b	#1,anim_frame(a0)
@@ -72139,7 +72172,7 @@ InheritParentXYFlip:
 	move.b	status(a0),d2
 	andi.b	#$FC,d2
 	move.b	render_flags(a1),d1
-	andi.b	#3,d1
+	andi.b	#1<<status.npc.x_flip|1<<status.npc.y_flip,d1
 	or.b	d1,d0
 	or.b	d1,d2
 	move.b	d0,render_flags(a0)
@@ -72164,11 +72197,11 @@ LoadChildObject:
 	; unused/dead code ; a0=object
 	bsr.w	Obj_GetOrientationToPlayer
 	bclr	#0,render_flags(a0)
-	bclr	#0,status(a0)
+	bclr	#status.npc.x_flip,status(a0)
 	tst.w	d0
 	beq.s	return_36818
 	bset	#0,render_flags(a0)
-	bset	#0,status(a0)
+	bset	#status.npc.x_flip,status(a0)
 
 return_36818:
 	rts
@@ -72389,7 +72422,7 @@ loc_36970:
 	subq.b	#1,obj8C_attacks_remaining(a0)
 	bpl.s	loc_36996
 	move.b	#8,routine(a0)
-	bclr	#0,status(a0)
+	bclr	#status.npc.x_flip,status(a0)
 	clr.w	y_vel(a0)
 	move.w	#-$200,x_vel(a0)
 	move.w	#-$200,y_vel(a0)
@@ -72405,10 +72438,10 @@ Obj8C_ChasePlayer:
 	subq.b	#1,obj8C_timer(a0)
 	bmi.s	loc_369F8
 	bsr.w	Obj_GetOrientationToPlayer
-	bclr	#0,status(a0)
+	bclr	#status.npc.x_flip,status(a0)
 	tst.w	d0
 	beq.s	loc_369C2
-	bset	#0,status(a0)
+	bset	#status.npc.x_flip,status(a0)
 
 loc_369C2:
 	move.w	Obj8C_MovementDeltas(pc,d0.w),d2
@@ -72485,7 +72518,7 @@ Obj8D_Init:
 	bsr.w	LoadSubObject
 	bclr	#1,render_flags(a0)
 	beq.s	+
-	bclr	#1,status(a0)
+	bclr	#status.npc.y_flip,status(a0)
 	andi.w	#drawing_mask,art_tile(a0)
 +
 	move.b	#$14,y_radius(a0)
@@ -72527,10 +72560,10 @@ loc_36B0E:
 	addq.b	#2,routine(a0)
 	bsr.w	Obj_GetOrientationToPlayer
 	move.w	Obj8D_Directions(pc,d0.w),x_vel(a0)
-	bclr	#0,status(a0)
+	bclr	#status.npc.x_flip,status(a0)
 	tst.w	d0
 	beq.s	+
-	bset	#0,status(a0)
+	bset	#status.npc.x_flip,status(a0)
 +
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
@@ -72568,7 +72601,7 @@ loc_36B6A:
 loc_36B74:
 	move.b	#8,routine(a0)
 	neg.w	x_vel(a0)
-	bchg	#0,status(a0)
+	bchg	#status.npc.x_flip,status(a0)
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -72849,9 +72882,9 @@ Obj91_Init:
 	move.w	#$200,Obj91_move_timer(a0)
 	move.w	#$50,Obj91_bubble_timer(a0)
 	moveq	#$40,d0		; enemy speed
-	btst	#0,status(a0)	; is enemy facing left?
-	bne.s	+		; if not, branch
-	neg.w	d0		; else reverse movement direction
+	btst	#status.npc.x_flip,status(a0)	; is enemy facing left?
+	bne.s	+				; if not, branch
+	neg.w	d0				; else reverse movement direction
 +
 	move.w	d0,x_vel(a0)	; set speed
 	rts
@@ -72865,7 +72898,7 @@ Obj91_Main:
 	subq.w	#1,Obj91_move_timer(a0)
 	bpl.s	+			; branch, if timer isn't done counting down
 	move.w	#$200,Obj91_move_timer(a0)	; else, reset timer...
-	bchg	#0,status(a0)		; ...change direction...
+	bchg	#status.npc.x_flip,status(a0)		; ...change direction...
 	bchg	#0,render_flags(a0)
 	neg.w	x_vel(a0)		; ...and reverse movement
 +
@@ -73017,7 +73050,7 @@ Obj92_Init:
 	bsr.w	LoadSubObject
 	move.b	#$40,objoff_2A(a0)
 	move.w	#$80,x_vel(a0)
-	bchg	#0,status(a0)
+	bchg	#status.npc.x_flip,status(a0)
 	rts
 ; ===========================================================================
 
@@ -73053,7 +73086,7 @@ loc_36F78:
 	subq.b	#2,routine(a0)
 	move.b	#$40,objoff_2A(a0)
 	neg.w	x_vel(a0)
-	bchg	#0,status(a0)
+	bchg	#status.npc.x_flip,status(a0)
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
 
@@ -73232,7 +73265,7 @@ Obj95_NextFireball:
 
 loc_371AE:
 	moveq	#1,d0
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	loc_371BA
 	neg.w	d0
 
@@ -73241,7 +73274,7 @@ loc_371BA:
 	move.b	subtype(a0),routine(a0)
 	addq.b	#2,routine(a0)
 	move.w	#-$40,x_vel(a0)
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	return_371DA
 	neg.w	x_vel(a0)
 
@@ -73306,7 +73339,7 @@ Obj95_FireballUpdate:
 
 loc_37278:
 	move.w	#-$200,x_vel(a0)
-	btst	#0,status(a1)
+	btst	#status.npc.x_flip,status(a1)
 	beq.s	+
 	neg.w	x_vel(a0)
 +
@@ -74280,11 +74313,11 @@ Obj9D_Init:
 Obj9D_Idle:
 	bsr.w	Obj_GetOrientationToPlayer
 	bclr	#0,render_flags(a0)	; face right
-	bclr	#0,status(a0)
+	bclr	#status.npc.x_flip,status(a0)
 	tst.w	d0		; is player to object's left?
 	beq.s	+		; if not, branch
 	bset	#0,render_flags(a0)	; face left
-	bset	#0,status(a0)
+	bset	#status.npc.x_flip,status(a0)
 +
 	addi.w	#$60,d2
 	cmpi.w	#$C0,d2
@@ -74639,7 +74672,7 @@ Obj9F_Init:
 	bsr.w	LoadSubObject
 	btst	#0,render_flags(a0)
 	beq.s	+
-	bset	#0,status(a0)
+	bset	#status.npc.x_flip,status(a0)
 +
 	move.w	#-$40,x_vel(a0)
 	move.b	#$C,y_radius(a0)
@@ -75070,7 +75103,7 @@ loc_38466:
 loc_38470:
 	subq.b	#2,routine(a0)
 	neg.w	x_vel(a0)
-	bchg	#0,status(a0)
+	bchg	#status.npc.x_flip,status(a0)
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
 
@@ -75178,7 +75211,7 @@ loc_38546:
 	btst	#0,render_flags(a1)
 	beq.s	loc_3858A
 	neg.w	d0
-	bset	#0,status(a1)
+	bset	#status.npc.x_flip,status(a1)
 
 loc_3858A:
 	move.w	d0,x_vel(a1)
@@ -75281,11 +75314,11 @@ loc_38794:
 	move.w	objoff_2A(a0),d0
 	bmi.w	JmpTo65_DeleteObject
 	bclr	#0,render_flags(a0)
-	bclr	#0,status(a0)
+	bclr	#status.npc.x_flip,status(a0)
 	tst.w	x_vel(a0)
 	bmi.s	loc_387C0
 	bset	#0,render_flags(a0)
-	bset	#0,status(a0)
+	bset	#status.npc.x_flip,status(a0)
 
 loc_387C0:
 	addq.w	#1,d0
@@ -75840,7 +75873,7 @@ loc_38E66:
 	move.w	#$FF,objoff_2A(a0)
 	neg.w	x_vel(a0)
 	bchg	#0,render_flags(a0)
-	bchg	#0,status(a0)
+	bchg	#status.npc.x_flip,status(a0)
 
 return_38E82:
 	rts
@@ -76018,7 +76051,7 @@ loc_38FE8:
 
 loc_3900A:
 	move.b	#0,obj_control(a2)
-	bset	#1,status(a2)
+	bset	#status.player.in_air,status(a2)
 	bra.w	JmpTo65_DeleteObject
 ; ===========================================================================
 
@@ -76164,7 +76197,7 @@ loc_390FA:
 	clr.b	collision_flags(a0)
 	movea.w	objoff_32(a0),a2 ; a2=object
 	move.b	#0,obj_control(a2)
-	bset	#1,status(a2)
+	bset	#status.player.in_air,status(a2)
 	move.b	#AniIDSonAni_Walk,anim(a2)
 	clr.w	objoff_32(a0)
 +
@@ -76200,7 +76233,7 @@ ObjA7_Poof:
 	beq.s	+
 	movea.w	d0,a2 ; a2=object
 	move.b	#0,objoff_2A(a2)
-	bset	#1,status(a2)
+	bset	#status.player.in_air,status(a2)
 	move.b	#$B,collision_flags(a0)
 +
 	rts
@@ -76235,7 +76268,7 @@ loc_39182:
 	beq.s	+
 	movea.w	objoff_32(a0),a3
 	move.b	#0,obj_control(a3)
-	bset	#1,status(a3)
+	bset	#status.player.in_air,status(a3)
 +
 	moveq	#0,d6
 	move.b	objoff_2D(a0),d6
@@ -76487,7 +76520,7 @@ ObjAE_Init:
 	move.b	#$15,mapping_frame(a0)
 	btst	#0,render_flags(a0)
 	beq.s	+
-	bset	#0,status(a0)
+	bset	#status.npc.x_flip,status(a0)
 +
 	rts
 ; ===========================================================================
@@ -76728,7 +76761,7 @@ loc_39830:
 	add.w	d1,y_pos(a0)
 	move.w	#0,y_vel(a0)
 	move.b	#$1A,collision_flags(a0)
-	bset	#1,status(a0)
+	bset	#status.npc.y_flip,status(a0)
 	bra.w	loc_399D6
 ; ===========================================================================
 
@@ -77134,7 +77167,7 @@ loc_39C12:
 
 loc_39C2A:
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	bclr	#1,status(a1)
+	bclr	#status.npc.y_flip,status(a1)
 	bne.s	loc_39C3A
 	jmpto	JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -77153,7 +77186,7 @@ loc_39C42:
 loc_39C50:
 	movea.w	objoff_2C(a0),a1 ; a1=object
 	lea	(MainCharacter).w,a2 ; a2=character
-	btst	#2,status(a1)
+	btst	#status.npc.unknown2,status(a1)
 	bne.s	loc_39C92
 	move.b	#2,anim(a0)
 	cmpi.b	#4,routine(a2)
@@ -77220,7 +77253,7 @@ loc_39CF0:
 	move.w	#$FF,objoff_32(a0)
 	move.b	#$C,routine(a0)
 	clr.b	collision_flags(a0)
-	bset	#2,status(a0)
+	bset	#status.npc.unknown2,status(a0)
 	movea.w	objoff_3C(a0),a1 ; a1=object
 	jsrto	JmpTo6_DeleteObject2
 	movea.w	parent(a0),a1 ; a1=object
@@ -77394,7 +77427,7 @@ ObjB0_Init:
 	move.w	#$B,objoff_2A(a0)
 	move.w	#2,(SegaScr_VInt_Subrout).w
 	bset	#0,render_flags(a0)
-	bset	#0,status(a0)
+	bset	#status.npc.x_flip,status(a0)
 
 	; Initialize streak horizontal offsets for Sonic going left.
 	; 9 full lines (8 pixels) + 6 pixels, 2-byte interleaved entries for PNT A and PNT B
@@ -77526,7 +77559,7 @@ loc_3A346:
 	move.w	#4,(SegaScr_VInt_Subrout).w
 	subi.w	#$28,x_pos(a0)
 	bchg	#0,render_flags(a0)
-	bchg	#0,status(a0)
+	bchg	#status.npc.x_flip,status(a0)
 
     if fixBugs
 	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len
@@ -78185,8 +78218,8 @@ loc_3AB18:
 	clr.w	x_vel(a1)
 	clr.w	y_vel(a1)
 	clr.w	inertia(a1)
-	bclr	#1,status(a1)
-	bclr	#2,status(a1)
+	bclr	#status.player.in_air,status(a1)
+	bclr	#status.player.rolling,status(a1)
 	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|(AniIDSonAni_Wait<<0),mapping_frame(a1)
 	move.w	#$100,anim_frame_duration(a1)
 	move.b	#$13,y_radius(a1)
@@ -78324,7 +78357,7 @@ loc_3AC84:
 	clr.b	collision_flags(a0)
 	move.w	#(224/2)+8,(Camera_Y_pos_bias).w
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	bset	#6,status(a1)
+	bset	#status.npc.p2_pushing,status(a1)
 	lea	(MainCharacter).w,a1 ; a1=character
 	clr.w	x_vel(a1)
 	clr.w	y_vel(a1)
@@ -78336,9 +78369,9 @@ loc_3AC84:
 	subi.w	#$10,y_pos(a1)
 
 loc_3ACC8:
-	bset	#0,status(a1)
-	bclr	#1,status(a1)
-	bclr	#2,status(a1)
+	bset	#status.player.x_flip,status(a1)
+	bclr	#status.player.in_air,status(a1)
+	bclr	#status.player.rolling,status(a1)
 	move.b	#AniIDSonAni_Hang,anim(a1)
 	move.b	#1,(MainCharacter+obj_control).w
 	move.b	#1,(WindTunnel_holding_flag).w
@@ -78368,7 +78401,7 @@ off_3AD1A:	offsetTable
 		offsetTableEntry.w +	; 0
 ; ===========================================================================
 + ; loc_3AD1C:
-	bchg	#2,status(a0)
+	bchg	#status.npc.unknown2,status(a0)
 	bne.w	return_37A48
 	jmpto	JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -78434,7 +78467,7 @@ ObjB2_Align_plane:
 ; loc_3ADAA:
 ObjB2_Move_with_player:
 	lea	(MainCharacter).w,a1 ; a1=character
-	btst	#3,status(a1)
+	btst	#status.player.on_object,status(a1)
 	beq.s	ObjB2_Move_below_player
 	bsr.w	ObjB2_Move_vert
 	bsr.w	ObjB2_Vertical_limit
@@ -78499,7 +78532,7 @@ return_3AE38:
 ; loc_3AE3A:
 ObjB2_Move_obbey_player:
 	lea	(MainCharacter).w,a1 ; a1=character
-	btst	#3,status(a1)
+	btst	#status.player.on_object,status(a1)
 	beq.s	ObjB2_Move_vert2
 	tst.b	objoff_2F(a0)
 	bne.s	loc_3AE72
@@ -78905,7 +78938,7 @@ ObjB5_CheckPlayer:
 	neg.w	d1
 	asr.w	#4,d1
 	add.w	d1,y_pos(a1)
-	bset	#1,status(a1)
+	bset	#status.player.in_air,status(a1)
 	move.w	#0,y_vel(a1)
 	move.w	#1,inertia(a1)
 	tst.b	flip_angle(a1)
@@ -79106,10 +79139,10 @@ loc_3B6FE:
 	addq.b	#2,routine_secondary(a0)
 	move.b	#0,anim(a0)
 	bsr.w	Obj_GetOrientationToPlayer
-	bclr	#0,status(a0)
+	bclr	#status.npc.x_flip,status(a0)
 	tst.w	d0
 	bne.s	+
-	bset	#0,status(a0)
+	bset	#status.npc.x_flip,status(a0)
 +
 	bra.w	loc_3B7BC
 ; ===========================================================================
@@ -79190,15 +79223,20 @@ loc_3B7BC:
 	bclr	#p1_standing_bit,status(a0)
 	beq.s	loc_3B7DE
 	lea	(MainCharacter).w,a1 ; a1=character
-	bclr	#3,status(a1)
-	bset	#1,status(a1)
+	bclr	#status.player.on_object,status(a1)
+	bset	#status.player.in_air,status(a1)
 
 loc_3B7DE:
 	bclr	#p2_standing_bit,status(a0)
 	beq.s	return_3B7F6
 	lea	(Sidekick).w,a1 ; a1=character
-	bclr	#4,status(a1)
-	bset	#1,status(a1)
+    if fixBugs
+	bclr	#status.player.on_object,status(a1)
+    else
+	; This is the wrong bit.
+	bclr	#status.player.on_object+1,status(a1)
+    endif
+	bset	#status.player.in_air,status(a1)
 
 return_3B7F6:
 	rts
@@ -79843,7 +79881,7 @@ ObjC0_Init:
 	moveq	#0,d0
 	move.b	subtype(a0),d0
 	lsl.w	#4,d0
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	bne.s	+
 	neg.w	d0
 +
@@ -79876,7 +79914,7 @@ loc_3BF66:
 	addq.b	#2,routine_secondary(a0)
 	move.w	#$C00,x_vel(a0)
 	move.w	#$80,objoff_30(a0)
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	bne.s	+
 	neg.w	x_vel(a0)
 	neg.w	objoff_30(a0)
@@ -79901,10 +79939,10 @@ loc_3BFB4:
 	clr.w	inertia(a1)
 	clr.w	x_vel(a1)
 	move.w	x_pos(a0),x_pos(a1)
-	bclr	#0,status(a1)
-	btst	#0,status(a0)
+	bclr	#status.player.x_flip,status(a1)
+	btst	#status.npc.x_flip,status(a0)
 	bne.s	+
-	bset	#0,status(a1)
+	bset	#status.player.x_flip,status(a1)
 +
 	rts
 ; ===========================================================================
@@ -79915,7 +79953,7 @@ loc_3BFD8:
 	jsrto	JmpTo26_ObjectMove
 	move.w	objoff_32(a0),d0
 	sub.w	x_pos(a0),d0
-	btst	#0,status(a0)
+	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	neg.w	d0
 +
@@ -79942,7 +79980,7 @@ return_3C01E:
 loc_3C020:
 	move.w	x_vel(a0),x_vel(a1)
 	move.w	#-$400,y_vel(a1)
-	bset	#1,status(a1)
+	bset	#status.player.in_air,status(a1)
 	rts
 ; ===========================================================================
 
@@ -80073,7 +80111,7 @@ loc_3C140:
 	move.w	x_pos(a0),d0
 	subi.w	#$14,d0
 	move.w	d0,x_pos(a1)
-	bset	#0,status(a1)
+	bset	#status.player.x_flip,status(a1)
 	move.b	#AniIDSonAni_Hang,anim(a1)
 	move.b	#1,(MainCharacter+obj_control).w
 	move.b	#1,(WindTunnel_holding_flag).w
@@ -80217,8 +80255,8 @@ ObjC2_Bust:
 	bclr	#p1_standing_bit,status(a0)
 	_move.b	#ObjID_Explosion,id(a0) ; load 0bj27 (transform into explosion)
 	move.b	#2,routine(a0)
-	bset	#1,(MainCharacter+status).w
-	bclr	#3,(MainCharacter+status).w
+	bset	#status.player.in_air,(MainCharacter+status).w
+	bclr	#status.player.on_object,(MainCharacter+status).w
 	lea	(Level_Layout+$850).w,a1	; alter the level layout
 	move.l	#$8A707172,(a1)+
 	move.w	#$7374,(a1)+
@@ -80424,7 +80462,7 @@ ObjC5_CaseXSpeed:
 
 ObjC5_CasePMLoader:
 	move.w	d1,x_vel(a0)
-	bset	#2,status(a0)		; makes the platform maker load
+	bset	#status.npc.unknown2,status(a0)		; makes the platform maker load
 	move.w	#$70,objoff_2A(a0)	; how long to go back and forth before letting out laser
 	jmpto	JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -80483,8 +80521,8 @@ ObjC5_CaseLSDown:
 ObjC5_CaseAddCollision:
 	addq.b	#2,routine_secondary(a0)
 	move.w	#$40,objoff_2A(a0)	; Length before shooting laser
-	bset	#4,status(a0)		; makes the hit sound and flashes happen only once when you hit it
-	bset	#6,status(a0)		; makes sure collision gets restored
+	bset	#status.npc.p2_standing,status(a0)		; makes the hit sound and flashes happen only once when you hit it
+	bset	#status.npc.p2_pushing,status(a0)		; makes sure collision gets restored
 	move.b	#6,collision_flags(a0)
 	jmpto	JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -80504,7 +80542,7 @@ ObjC5_CaseLoadLaser:
 
 ObjC5_CaseWaitMove:
 	movea.w	parent(a0),a1 ; a1=object
-	btst	#2,status(a1)		; waits to check if laser fired
+	btst	#status.npc.unknown2,status(a1)		; waits to check if laser fired
 	bne.s	ObjC5_CaseLaserSpeed
 	jmpto	JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -80549,9 +80587,9 @@ ObjC5_CaseLaserMoveDisplay:
 ObjC5_CaseStopLaserDelete:		; stops collision and deletes laser
 	addq.b	#2,routine_secondary(a0)
 	move.w	#$E,objoff_2A(a0)	; time for laser shooter to move back up
-	bclr	#3,status(a0)
-	bclr	#4,status(a0)
-	bclr	#6,status(a0)
+	bclr	#status.npc.p1_standing,status(a0)
+	bclr	#status.npc.p2_standing,status(a0)
+	bclr	#status.npc.p2_pushing,status(a0)
 	clr.b	collision_flags(a0)	; no more collision
 	movea.w	parent(a0),a1 		; a1=object (laser)
 	jsrto	JmpTo6_DeleteObject2	; delete the laser
@@ -80581,7 +80619,7 @@ ObjC5_CaseStartOver:
 ObjC5_CaseDefeated:
 	clr.b	collision_flags(a0)
 	st.b	collision_property(a0)
-	bclr	#6,status(a0)
+	bclr	#status.npc.p2_pushing,status(a0)
 	subq.w	#1,objoff_30(a0)	; timer
 	bmi.s	ObjC5_End
 	jsrto	JmpTo_Boss_LoadExplosion
@@ -80627,7 +80665,7 @@ ObjC5_LaserWallMappings:
 
 ObjC5_LaserWallWaitDelete:
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	btst	#5,status(a1)
+	btst	#status.npc.p1_pushing,status(a1)
 	bne.s	ObjC5_LaserWallTimerSet
 	bchg	#0,objoff_2F(a0)	; makes it "flash" if set it won't flash
 	bne.w	return_37A48
@@ -80685,7 +80723,7 @@ ObjC5_PlatformReleaserInit:
 
 ObjC5_PlatformReleaserWaitDown:
 	movea.w	objoff_2C(a0),a1 ; a1=object laser case
-	btst	#2,status(a1)		; checks if laser case is done moving down (so it starts loading the platforms)
+	btst	#status.npc.unknown2,status(a1)		; checks if laser case is done moving down (so it starts loading the platforms)
 	bne.s	ObjC5_PlatformReleaserSetDown
 	jmpto	JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -80713,7 +80751,7 @@ ObjC5_PlatformReleaserStop:
 
 ObjC5_PlatformReleaserLoadWait:
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	btst	#5,status(a1)
+	btst	#status.npc.p1_pushing,status(a1)
 	bne.s	ObjC5_PlatformReleaserDestroyP
 	subq.w	#1,objoff_2A(a0)
 	bne.s	BranchTo8_JmpTo45_DisplaySprite
@@ -80740,7 +80778,7 @@ BranchTo8_JmpTo45_DisplaySprite
 
 ObjC5_PlatformReleaserDestroyP: 	; P=Platforms
 	addq.b	#2,routine_secondary(a0)
-	bset	#5,status(a0)		; destroy platforms
+	bset	#status.npc.p1_pushing,status(a0)		; destroy platforms
 	jmpto	JmpTo45_DisplaySprite
 ; ===========================================================================
 
@@ -80824,7 +80862,7 @@ ObjC5_PlatformMakeSolid:	; makes into a platform and moves
 
 ObjC5_PlatformCheckExplode:	; checks to see if platforms should explode
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	btst	#5,status(a1)
+	btst	#status.npc.p1_pushing,status(a1)
 	bne.w	ObjC5_PlatformExplode
 	rts
 ; ===========================================================================
@@ -80858,7 +80896,7 @@ ObjC5_PlatformHurtCollision:
 
 ObjC5_PlatformHurtFollowPlatform:
 	movea.w	objoff_2C(a0),a1 ; a1=object (platform)
-	btst	#5,status(a1)
+	btst	#status.npc.p1_pushing,status(a1)
 	bne.w	JmpTo65_DeleteObject
 	move.w	x_pos(a1),x_pos(a0)
 	move.w	y_pos(a1),d0
@@ -80869,7 +80907,7 @@ ObjC5_PlatformHurtFollowPlatform:
 
 ObjC5_LaserShooter:
 	movea.w	objoff_2C(a0),a1 ; a1=object (laser case)
-	btst	#5,status(a1)
+	btst	#status.npc.p1_pushing,status(a1)
 	bne.w	JmpTo65_DeleteObject
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
@@ -80903,7 +80941,7 @@ ObjC5_LaserShooterDown:
 
 ObjC5_Laser:
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	btst	#5,status(a1)
+	btst	#status.npc.p1_pushing,status(a1)
 	bne.w	JmpTo65_DeleteObject
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
@@ -80986,9 +81024,9 @@ ObjC5_LaserShoot:
 ObjC5_LaseShotOut:	; laser is fully shot out and lets the laser case know so it moves
 	addq.b	#2,routine_secondary(a0)
 	move.w	#$80,objoff_2A(a0)
-	bset	#2,status(a0)
+	bset	#status.npc.unknown2,status(a0)
 	movea.w	objoff_2C(a0),a1 ; a1=object (laser case)
-	bset	#3,status(a1)
+	bset	#status.npc.p1_standing,status(a1)
 	rts
 ; ===========================================================================
 ObjC5_LaserMappingsData:
@@ -81039,7 +81077,7 @@ ObjC5_RobotnikInit:
 
 ObjC5_RobotnikAnimate:
 	movea.w	objoff_2C(a0),a1 ; a1=object (laser case)
-	btst	#5,status(a1)
+	btst	#status.npc.p1_pushing,status(a1)
 	bne.s	ObjC5_RobotnikTimer
 	lea	(Ani_objC5_objC6).l,a1
 	jsrto	JmpTo25_AnimateSprite
@@ -81089,7 +81127,7 @@ ObjC5_HandleHits:
 	bne.s	return_3CC3A
 	tst.b	objoff_30(a0)
 	bne.s	ObjC5_FlashSetUp
-	btst	#6,status(a0)
+	btst	#status.npc.p2_pushing,status(a0)
 	beq.s	return_3CC3A
 	move.b	#$20,objoff_30(a0)
 	move.w	#SndID_BossHit,d0
@@ -81106,7 +81144,7 @@ ObjC5_FlashCollisionRestore:
 	move.w	d0,(a1)
 	subq.b	#1,objoff_30(a0)
 	bne.s	return_3CC3A
-	btst	#4,status(a0)	; makes sure the boss doesn't need collision
+	btst	#status.npc.p2_standing,status(a0)	; makes sure the boss doesn't need collision
 	beq.s	return_3CC3A
 	move.b	#6,collision_flags(a0)	; restore collision
 
@@ -81120,8 +81158,8 @@ ObjC5_NoHitPointsLeft:	; when the boss is defeated this tells it what to do
 	clr.b	collision_flags(a0)
 	move.w	#$EF,objoff_30(a0)
 	move.b	#$1E,routine_secondary(a0)
-	bset	#5,status(a0)
-	bclr	#6,status(a0)
+	bset	#status.npc.p1_pushing,status(a0)
+	bclr	#status.npc.p2_pushing,status(a0)
 	rts
 ; ===========================================================================
 ChildObject_ObjC5LaserWall:		childObjectData objoff_2A, ObjID_WFZBoss, $94
@@ -81246,7 +81284,7 @@ ObjC6_State2_State3:
 ; ---------------------------------------------------------------------------
 loc_3CF62:
 	addq.b	#2,routine_secondary(a0) ; => ObjC6_State2_State4
-	bset	#2,status(a0)
+	bset	#status.npc.unknown2,status(a0)
 	move.w	#$200,x_vel(a0)
 	move.w	#$10,objoff_2A(a0)
 	jmpto	JmpTo45_DisplaySprite
@@ -81284,7 +81322,7 @@ loc_3CFC0:
 	move.w	#-$200,y_vel(a0)
 	move.b	#2,mapping_frame(a0)
 	move.w	#$50,objoff_2A(a0)
-	bset	#3,status(a0)
+	bset	#status.npc.p1_standing,status(a0)
 +
 	jmpto	JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -81323,7 +81361,7 @@ ObjC6_State3_States: offsetTable
 ; loc_3D04A:
 ObjC6_State3_State1:
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	btst	#2,status(a1)
+	btst	#status.npc.unknown2,status(a1)
 	bne.s	loc_3D05E
 	bsr.w	loc_3D086
 	jmpto	JmpTo45_DisplaySprite
@@ -81342,7 +81380,7 @@ ObjC6_State3_State2:
 ; loc_3D078:
 ObjC6_State3_State3:
 	lea	(MainCharacter).w,a1 ; a1=character
-	bclr	#5,status(a1)
+	bclr	#status.npc.p1_pushing,status(a1)
 	bra.w	JmpTo65_DeleteObject
 ; ===========================================================================
 
@@ -81458,7 +81496,7 @@ loc_3D2A6:
 	move.w	#$200,objoff_2A(a0)
 	neg.w	x_vel(a0)
 	bchg	#0,render_flags(a0)
-	bchg	#0,status(a0)
+	bchg	#status.npc.x_flip,status(a0)
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
 
@@ -81472,7 +81510,7 @@ loc_3D2D4:
 	addi.w	#$40,d3
 	cmpi.w	#$80,d3
 	bhs.w	loc_3D39A
-	bclr	#3,status(a0)
+	bclr	#status.npc.p1_standing,status(a0)
 	bne.w	loc_3D386
 	move.b	collision_property(a0),d0
 	beq.s	BranchTo18_JmpTo39_MarkObjGone
@@ -81480,7 +81518,7 @@ loc_3D2D4:
 	beq.s	+++
 	cmpi.b	#AniIDSonAni_Roll,anim(a1)
 	bne.s	loc_3D36C
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.s	++
 	bsr.w	Obj_GetOrientationToPlayer
 	btst	#0,render_flags(a0)
@@ -81497,7 +81535,7 @@ loc_3D2D4:
 	beq.s	+++
 	cmpi.b	#AniIDSonAni_Roll,anim(a1)
 	bne.s	loc_3D36C
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	bne.s	++
 	bsr.w	Obj_GetOrientationToPlayer
 	btst	#0,render_flags(a0)
@@ -81521,7 +81559,7 @@ loc_3D36C:
 	beq.s	+
 	move.b	#$17,collision_flags(a0)
 +
-	bset	#3,status(a0)
+	bset	#status.npc.p1_standing,status(a0)
 
 loc_3D386:
 	move.b	#1,mapping_frame(a0)
@@ -81540,7 +81578,7 @@ loc_3D39A:
 
 loc_3D3A4:
 	move.b	#2,mapping_frame(a0)
-	btst	#1,status(a1)
+	btst	#status.player.in_air,status(a1)
 	beq.s	+
 	move.b	#3,mapping_frame(a0)
 +
@@ -81559,9 +81597,9 @@ loc_3D3A4:
 	muls.w	#-$700,d0
 	asr.l	#8,d0
 	move.w	d0,y_vel(a1)
-	bset	#1,status(a1)
-	bclr	#4,status(a1)
-	bclr	#5,status(a1)
+	bset	#status.player.in_air,status(a1)
+	bclr	#status.player.rolljumping,status(a1)
+	bclr	#status.player.pushing,status(a1)
 	clr.b	jumping(a1)
 	move.w	#SndID_Bumper,d0
 	jsr	(PlaySound).l
@@ -81688,7 +81726,7 @@ loc_3D52A:
 ; ===========================================================================
 
 loc_3D5A8:
-	btst	#2,status(a0)
+	btst	#status.npc.unknown2,status(a0)
 	bne.s	+
 	rts
 ; ---------------------------------------------------------------------------
@@ -81983,7 +82021,7 @@ off_3D84A:	offsetTable
 ; ===========================================================================
 
 loc_3D856:
-	bset	#6,status(a0)
+	bset	#status.npc.p2_pushing,status(a0)
 	lea	(off_3E2F6).l,a1
 	bsr.w	loc_3E1AA
 	bne.s	+
@@ -81999,7 +82037,7 @@ loc_3D856:
 	bne.s	+
 	addq.b	#2,prev_anim(a0)
 	move.b	#$40,anim_frame_duration(a0)
-	bset	#4,status(a0)
+	bset	#status.npc.p2_standing,status(a0)
 	rts
 ; ---------------------------------------------------------------------------
 +
@@ -82015,7 +82053,7 @@ loc_3D89E:
 ; ---------------------------------------------------------------------------
 +
 	addq.b	#2,prev_anim(a0)
-	bset	#5,status(a0)
+	bset	#status.npc.p1_pushing,status(a0)
 	move.b	#$40,anim_frame_duration(a0)
 	rts
 ; ===========================================================================
@@ -82028,7 +82066,7 @@ loc_3D8B8:
 ; ---------------------------------------------------------------------------
 +
 	subq.b	#2,routine_secondary(a0)
-	bclr	#6,status(a0)
+	bclr	#status.npc.p2_pushing,status(a0)
 	rts
 ; ===========================================================================
 
@@ -82223,7 +82261,7 @@ ObjC7_FrontForearm:
 	jsr	off_3DA96(pc,d1.w)
 	tst.b	id(a0)
 	beq.w	return_37A48
-	btst	#6,status(a0)
+	btst	#status.npc.p2_pushing,status(a0)
 	bne.w	return_37A48
 	jmpto	JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -82243,7 +82281,7 @@ loc_3DAA0:
 
 loc_3DAAC:
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	bclr	#4,status(a1)
+	bclr	#status.npc.p2_standing,status(a1)
 	bne.s	+
 	rts
 ; ---------------------------------------------------------------------------
@@ -82401,7 +82439,7 @@ loc_3DBF6:
 
 loc_3DC02:
 	movea.w	(DEZ_Eggman).w,a1
-	btst	#3,status(a1)
+	btst	#status.npc.p1_standing,status(a1)
 	bne.s	+
 	rts
 ; ---------------------------------------------------------------------------
@@ -82425,7 +82463,7 @@ loc_3DC2A:
 +
 	addq.b	#2,routine_secondary(a0)
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	bset	#2,status(a1)
+	bset	#status.npc.unknown2,status(a1)
 	jmpto	JmpTo45_DisplaySprite
 ; ===========================================================================
 
@@ -82525,7 +82563,7 @@ loc_3DCEE:
 
 loc_3DD00:
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	bclr	#5,status(a1)
+	bclr	#status.npc.p1_pushing,status(a1)
 	bne.s	+
 	rts
 ; ---------------------------------------------------------------------------
@@ -82719,7 +82757,7 @@ byte_3DF00:
 
 loc_3DF04:
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	btst	#7,status(a1)
+	btst	#status.npc.unknown,status(a1)
 	bne.s	loc_3DF4C
 	jsrto	JmpTo8_ObjectMoveAndFall
 	move.w	y_pos(a0),d0
@@ -82736,7 +82774,7 @@ loc_3DF04:
 
 loc_3DF36:
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	btst	#7,status(a1)
+	btst	#status.npc.unknown,status(a1)
 	bne.s	loc_3DF4C
 	subq.w	#1,objoff_2A(a0)
 	bmi.s	loc_3DF4C
@@ -82838,7 +82876,7 @@ ObjC7_Beaten:
 	bsr.w	AddPoints
 	clr.b	anim_frame_duration(a0)
 	move.b	#$E,routine_secondary(a0)
-	bset	#7,status(a0)
+	bset	#status.npc.unknown,status(a0)
 	clr.b	anim(a0)
 	clr.b	collision_flags(a0)
 	clr.w	x_vel(a0)
@@ -82982,7 +83020,7 @@ loc_3E168:
 	or.b	d0,d2
 	move.b	d2,render_flags(a2)
 	move.b	status(a2),d2
-	andi.b	#$FE,d2
+	andi.b	#~(1<<status.npc.x_flip),d2
 	or.b	d0,d2
 	move.b	d2,status(a2)
 	bra.s	-
@@ -84442,14 +84480,14 @@ Touch_Enemy_Part2:
 	move.b	#0,collision_flags(a1)
 	subq.b	#1,collision_property(a1)
 	bne.s	return_3F7E8
-	bset	#7,status(a1)
+	bset	#status.npc.unknown,status(a1)
 
 return_3F7E8:
 	rts
 ; ===========================================================================
 ; loc_3F7EA:
 Touch_KillEnemy:
-	bset	#7,status(a1)
+	bset	#status.npc.unknown,status(a1)
 	moveq	#0,d0
 	move.w	(Chain_Bonus_counter).w,d0
 	addq.w	#2,(Chain_Bonus_counter).w	; add 2 to chain bonus counter
@@ -84503,7 +84541,7 @@ Enemy_Points:	dc.w 10, 20, 50, 100
 ; ===========================================================================
 
 loc_3F85C:
-	bset	#7,status(a1)
+	bset	#status.npc.unknown,status(a1)
 
 ; ---------------------------------------------------------------------------
 ; Subroutine for checking if Sonic/Tails should be hurt and hurting them if so
@@ -84566,10 +84604,10 @@ Hurt_Shield:
 Hurt_Sidekick:
 	move.b	#4,routine(a0)
 	jsrto	JmpTo_Sonic_ResetOnFloor_Part2
-	bset	#1,status(a0)
+	bset	#status.player.in_air,status(a0)
 	move.w	#-$400,y_vel(a0) ; make Sonic bounce away from the object
 	move.w	#-$200,x_vel(a0)
-	btst	#6,status(a0)	; underwater?
+	btst	#status.player.underwater,status(a0)	; underwater?
 	beq.s	Hurt_Reverse	; if not, branch
 	move.w	#-$200,y_vel(a0) ; bounce slower
 	move.w	#-$100,x_vel(a0)
@@ -84611,7 +84649,7 @@ KillCharacter:
 	clr.b	status_secondary(a0)
 	move.b	#6,routine(a0)
 	jsrto	JmpTo_Sonic_ResetOnFloor_Part2
-	bset	#1,status(a0)
+	bset	#status.player.in_air,status(a0)
 	move.w	#-$700,y_vel(a0)
 	move.w	#0,x_vel(a0)
 	move.w	#0,inertia(a0)
@@ -84668,7 +84706,7 @@ loc_3F9CE:
 	bhs.s	BranchTo_Touch_Enemy
 	move.w	x_pos(a1),d0
 	subq.w	#4,d0
-	btst	#0,status(a1)
+	btst	#status.npc.x_flip,status(a1)
 	beq.s	loc_3F9E8
 	subi.w	#$10,d0
 
@@ -87546,7 +87584,7 @@ Debug_Init:
 	; Debug Mode. This affects the camera's vertical deadzone.
 	; Since 'Debug_ExitDebugMode' explicitly sets the 'in air' bit, it can
 	; be assumed that having it cleared here was intended.
-	bclr #1,(MainCharacter+status).w
+	bclr	#status.player.in_air,(MainCharacter+status).w
     endif
 	; S1 leftover
 	cmpi.b	#GameModeID_SpecialStage,(Game_Mode).w ; special stage mode? (you can't enter debug mode in S2's special stage)
@@ -87715,7 +87753,7 @@ Debug_SpawnObject:
 	andi.b	#$7F,render_flags(a1)
     endif
 	move.b	render_flags(a0),status(a1)
-	andi.b	#$7F,status(a1)
+	andi.b	#~(1<<status.npc.unknown)&$FF,status(a1)
 	moveq	#0,d0
 	move.b	(Debug_object).w,d0
 	lsl.w	#3,d0
@@ -87746,8 +87784,8 @@ Debug_ExitDebugMode:
 	cmpi.b	#GameModeID_SpecialStage,(Game_Mode).w	; special stage mode?
 	bne.s	return_41CB6		; if not, branch
 	move.b	#AniIDSonAni_Roll,(MainCharacter+anim).w
-	bset	#2,(MainCharacter+status).w
-	bset	#1,(MainCharacter+status).w
+	bset	#status.player.rolling,(MainCharacter+status).w
+	bset	#status.player.in_air,(MainCharacter+status).w
 
 return_41CB6:
 	rts
@@ -87767,13 +87805,13 @@ Debug_ResetPlayerStats:
 	move.w	d0,y_vel(a1)
 	move.w	d0,inertia(a1)
     if fixBugs
-	andi.b	#1<<6,status(a1) ; Preserve the 'is underwater' flag, and clear everything else.
-	ori.b	#2,status(a1)    ; Set the 'is rolling' flag.
+	andi.b	#1<<status.player.underwater,status(a1) ; Preserve the 'is underwater' flag, and clear everything else.
+	ori.b	#1<<status.player.in_air,status(a1)    ; Set the 'in air' flag.
     else
 	; This resets the 'is underwater' flag, causing the bug where if you
 	; enter Debug Mode underwater, and exit it above-water, Sonic will
 	; still move as if he's underwater.
-	move.b	#2,status(a1)
+	move.b	#1<<status.player.in_air,status(a1)
     endif
 	move.b	#2,routine(a1)
 	move.b	#0,routine_secondary(a1)

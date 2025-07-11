@@ -34,6 +34,27 @@ anim =			$1C
 prev_anim =		$1D
 anim_frame_duration =	$1E
 status =		$22 ; note: exact meaning depends on the object... for Sonic/Tails: bit 0: left-facing. bit 1: in-air. bit 2: spinning. bit 3: on-object. bit 4: roll-jumping. bit 5: pushing. bit 6: underwater.
+.player.x_flip =	0
+.player.in_air =	1
+.player.rolling =	2
+.player.on_object =	3
+.player.rolljumping =	4
+.player.pushing =	5
+.player.underwater =	6
+.player.unknown =	7
+.player.special.0 =	0
+.player.special.1 =	1
+.player.special.2 =	2
+.player.special.6 =	6
+.player.special.7 =	7
+.npc.x_flip =		0
+.npc.y_flip =		1
+.npc.unknown2 =		2
+.npc.p1_standing =	3
+.npc.p2_standing =	.npc.p1_standing+1
+.npc.p1_pushing =	5
+.npc.p2_pushing =	.npc.p1_pushing+1
+.npc.unknown =		7
 routine =		$24
 routine_secondary =	$25
 angle =			$26 ; angle about the z axis (360 degrees = 256)
@@ -163,13 +184,13 @@ next_object =		object_size
 ; ---------------------------------------------------------------------------
 ; Bits 3-6 of an object's status after a SolidObject call is a
 ; bitfield with the following meaning:
-p1_standing_bit   = 3
+p1_standing_bit   = status.npc.p1_standing
 p2_standing_bit   = p1_standing_bit + 1
 
 p1_standing       = 1<<p1_standing_bit
 p2_standing       = 1<<p2_standing_bit
 
-pushing_bit_delta = 2
+pushing_bit_delta = status.npc.p1_pushing-status.npc.p1_standing
 p1_pushing_bit    = p1_standing_bit + pushing_bit_delta
 p2_pushing_bit    = p1_pushing_bit + 1
 
