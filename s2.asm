@@ -22400,7 +22400,7 @@ Obj15_Init:
 	move.b	#4,priority(a1)
 	move.b	#$10,width_pixels(a1)
 	move.b	#$50,y_radius(a1)
-	bset	#render_flags.unknown4,render_flags(a1)
+	bset	#render_flags.explicit_height,render_flags(a1)
 	move.b	#3,mapping_frame(a1)
 	move.w	d2,x_pos(a1)
 	addi.w	#$40,d3
@@ -22431,7 +22431,7 @@ Obj15_Init:
 	addi_.w	#8,d3
 	move.w	d3,y_pos(a0)
 	move.b	#$50,mainspr_height(a1)
-	bset	#render_flags.unknown4,render_flags(a1)
+	bset	#render_flags.explicit_height,render_flags(a1)
 +
 	move.l	a1,objoff_30(a0)
 +
@@ -23078,7 +23078,7 @@ Obj18_Init:
 	bne.s	+
 	move.b	#$28,y_radius(a0)
 +
-	bset	#render_flags.unknown4,render_flags(a0)
+	bset	#render_flags.explicit_height,render_flags(a0)
 	bra.w	loc_105D4
 ; ===========================================================================
 +
@@ -23473,7 +23473,7 @@ Obj1A_Init:
 	move.b	#$34,width_pixels(a0)
     endif
 	move.b	#$38,y_radius(a0)
-	bset	#render_flags.unknown4,render_flags(a0)
+	bset	#render_flags.explicit_height,render_flags(a0)
 ; loc_1097C:
 Obj1A_Main:
 	tst.b	collapsing_platform_stood_on_flag(a0)
@@ -23677,7 +23677,7 @@ Obj1A_CreateFragments:
 	adda.w	(a3,d0.w),a3
 	move.w	(a3)+,d1
 	subq.w	#1,d1
-	bset	#render_flags.unknown5,render_flags(a0)
+	bset	#render_flags.static_mappings,render_flags(a0)
 	_move.b	id(a0),d4
 	move.b	render_flags(a0),d5
 	movea.l	a0,a1
@@ -23892,7 +23892,7 @@ Obj1C_Init:
 	move.b	(a1,d1.w),d1
 	beq.s	BranchTo_MarkObjGone	; if the radius is zero, branch
 	move.b	d1,y_radius(a0)
-	bset	#render_flags.unknown4,render_flags(a0)
+	bset	#render_flags.explicit_height,render_flags(a0)
 
 BranchTo_MarkObjGone ; BranchTo
 	bra.w	MarkObjGone
@@ -24019,7 +24019,7 @@ Obj2A_Init:
 	move.b	#4,priority(a0)
 	move.w	y_pos(a0),objoff_32(a0)
 	move.b	#$50,y_radius(a0)
-	bset	#render_flags.unknown4,render_flags(a0)
+	bset	#render_flags.explicit_height,render_flags(a0)
 ; loc_11610:
 Obj2A_Main:
 	tst.b	routine_secondary(a0)
@@ -25508,7 +25508,7 @@ Obj2E_Init:
 	addq.b	#2,routine(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Powerups,0,1),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
-	move.b	#1<<render_flags.unknown5|1<<render_flags.level_fg,render_flags(a0)
+	move.b	#1<<render_flags.static_mappings|1<<render_flags.level_fg,render_flags(a0)
 	move.b	#3,priority(a0)
 	move.b	#8,width_pixels(a0)
 	move.w	#-$300,y_vel(a0)
@@ -29398,7 +29398,7 @@ BreakObjectToPieces:	; splits up one object into its current mapping frame piece
 	adda.w	(a3,d0.w),a3	; put address of appropriate frame to a3
 	move.w	(a3)+,d1	; amount of pieces the frame consists of
 	subq.w	#1,d1
-	bset	#render_flags.unknown5,render_flags(a0)
+	bset	#render_flags.static_mappings,render_flags(a0)
 	_move.b	id(a0),d4
 	move.b	render_flags(a0),d5
 	movea.l	a0,a1
@@ -30248,7 +30248,7 @@ BuildSprites_ObjLoop:
 	cmpi.w	#320,d1	; is the object left edge to the right of the screen?
 	bge.w	BuildSprites_NextObj	; if it is, branch
 	addi.w	#128,d3
-	btst	#4,d4		; is the accurate Y check flag set?
+	btst	#render_flags.explicit_height,d4		; is the accurate Y check flag set?
 	beq.s	BuildSprites_ApproxYCheck	; if not, branch
 	moveq	#0,d0
 	move.b	y_radius(a0),d0
@@ -30284,7 +30284,7 @@ BuildSprites_ApproxYCheck:
 BuildSprites_DrawSprite:
 	movea.l	mappings(a0),a1
 	moveq	#0,d1
-	btst	#5,d4	; is the static mappings flag set?
+	btst	#render_flags.static_mappings,d4	; is the static mappings flag set?
 	bne.s	+	; if it is, branch
 	move.b	mapping_frame(a0),d1
 	add.w	d1,d1
@@ -30702,9 +30702,9 @@ BuildSprites_P1_ObjLoop:
 	andi.b	#~(1<<render_flags.on_screen)&$FF,render_flags(a0)
 	move.b	render_flags(a0),d0
 	move.b	d0,d4
-	btst	#6,d0
+	btst	#render_flags.multi_sprite,d0
 	bne.w	BuildSprites_P1_MultiDraw
-	andi.w	#$C,d0
+	andi.w	#1<<render_flags.level_fg|1<<render_flags.level_bg,d0
 	beq.s	BuildSprites_P1_ScreenSpaceObj
 	lea	(Camera_X_pos).w,a1
 	moveq	#0,d0
@@ -30719,7 +30719,7 @@ BuildSprites_P1_ObjLoop:
 	cmpi.w	#320,d1
 	bge.s	BuildSprites_P1_NextObj
 	addi.w	#128,d3
-	btst	#4,d4
+	btst	#render_flags.explicit_height,d4
 	beq.s	BuildSprites_P1_ApproxYCheck
 	moveq	#0,d0
 	move.b	y_radius(a0),d0
@@ -30756,7 +30756,7 @@ BuildSprites_P1_ApproxYCheck:
 BuildSprites_P1_DrawSprite:
 	movea.l	mappings(a0),a1
 	moveq	#0,d1
-	btst	#5,d4
+	btst	#render_flags.static_mappings,d4
 	bne.s	+
 	move.b	mapping_frame(a0),d1
 	add.w	d1,d1
@@ -30856,7 +30856,7 @@ BuildSprites_P2_ObjLoop:
 	cmpi.w	#320,d1
 	bge.s	BuildSprites_P2_NextObj
 	addi.w	#128,d3
-	btst	#4,d4
+	btst	#render_flags.explicit_height,d4
 	beq.s	BuildSprites_P2_ApproxYCheck
 	moveq	#0,d0
 	move.b	y_radius(a0),d0
@@ -30893,7 +30893,7 @@ BuildSprites_P2_ApproxYCheck:
 BuildSprites_P2_DrawSprite:
 	movea.l	mappings(a0),a1
 	moveq	#0,d1
-	btst	#5,d4
+	btst	#render_flags.static_mappings,d4
 	bne.s	+
 	move.b	mapping_frame(a0),d1
 	add.w	d1,d1
@@ -45666,7 +45666,7 @@ Obj13_Init:
 	move.b	#$12,mapping_frame(a0)
 	bsr.s	Obj13_LoadSubObject
 	move.b	#$A0,y_radius(a1)
-	bset	#render_flags.unknown4,render_flags(a1)
+	bset	#render_flags.explicit_height,render_flags(a1)
 	move.l	a1,objoff_38(a0)
 	move.w	y_pos(a0),objoff_34(a0)
 	move.w	y_pos(a0),objoff_36(a0)
@@ -45939,7 +45939,7 @@ Obj49_Init:
 	move.w	x_pos(a0),objoff_30(a0)
 	move.b	#0,priority(a0)
 	move.b	#$80,y_radius(a0)
-	bset	#render_flags.unknown4,render_flags(a0)
+	bset	#render_flags.explicit_height,render_flags(a0)
 ; loc_20BEA:
 Obj49_ChkDel:
 	tst.w	(Two_player_mode).w
@@ -47327,7 +47327,7 @@ Obj16_Init:
 	move.w	x_pos(a0),objoff_30(a0)
 	move.w	y_pos(a0),objoff_32(a0)
 	move.b	#$40,y_radius(a0)
-	bset	#render_flags.unknown4,render_flags(a0)
+	bset	#render_flags.explicit_height,render_flags(a0)
 	moveq	#0,d0
 	move.b	subtype(a0),d0
 	lsl.w	#3,d0
@@ -48639,7 +48639,7 @@ Obj2F_Init:
 	move.b	(a2)+,y_radius(a0)
 	move.b	(a2)+,mapping_frame(a0)
 	move.b	#$20,y_radius(a0)
-	bset	#render_flags.unknown4,render_flags(a0)
+	bset	#render_flags.explicit_height,render_flags(a0)
 ; loc_23368:
 Obj2F_Main:
 	move.w	(Chain_Bonus_counter).w,objoff_38(a0)
@@ -51504,7 +51504,7 @@ loc_25BF6:
 	adda.w	(a3,d0.w),a3
 	move.w	(a3)+,d1
 	subq.w	#1,d1
-	bset	#render_flags.unknown5,render_flags(a0)
+	bset	#render_flags.static_mappings,render_flags(a0)
 	_move.b	id(a0),d4
 	move.b	render_flags(a0),d5
 	movea.l	a0,a1
@@ -52240,7 +52240,7 @@ Obj64_Init:
 	move.b	d0,mapping_frame(a0)
 	bne.s	+
 	move.b	#$6C,y_radius(a0)
-	bset	#render_flags.unknown4,render_flags(a0)
+	bset	#render_flags.explicit_height,render_flags(a0)
 +
 	move.l	#Obj64_MapUnc_26A5C,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,1,0),art_tile(a0)
@@ -55160,7 +55160,7 @@ Obj75_Init:
 	move.b	#0,mainspr_mapframe(a1)
 	move.l	a1,objoff_3C(a0)
 	move.b	#$40,mainspr_height(a1)
-	bset	#render_flags.unknown4,render_flags(a1)
+	bset	#render_flags.explicit_height,render_flags(a1)
 ; loc_28CCA:
 Obj75_Main:
 	moveq	#0,d0
@@ -56230,7 +56230,7 @@ Obj80_Init:
 	move.b	#$10,width_pixels(a0)
 	move.b	#4,priority(a0)
 	move.b	#$80,y_radius(a0)
-	bset	#render_flags.unknown4,render_flags(a0)
+	bset	#render_flags.explicit_height,render_flags(a0)
 	move.w	y_pos(a0),objoff_3C(a0)
 	cmpi.b	#wing_fortress_zone,(Current_Zone).w
 	bne.s	Obj80_MCZ_Init
@@ -56566,7 +56566,7 @@ Obj81_Init:
 	move.w	sub6_y_pos(a1),y_pos(a1)
 	move.l	a1,objoff_3C(a0)
 	move.b	#$40,mainspr_height(a1)
-	bset	#render_flags.unknown4,render_flags(a1)
+	bset	#render_flags.explicit_height,render_flags(a1)
 ; loc_2A0FE:
 Obj81_BridgeUp:
 	lea	(ButtonVine_Trigger).w,a2
@@ -57021,7 +57021,7 @@ Obj83_Init:
 
 	move.b	#1,mainspr_mapframe(a1)
 	move.b	#$40,mainspr_height(a1)
-	bset	#render_flags.unknown4,render_flags(a1)
+	bset	#render_flags.explicit_height,render_flags(a1)
 	move.l	a1,Obj83_childobjptr_chains(a0)
 
 	; Create remaining child objects: platform 2 and 3
@@ -74929,7 +74929,7 @@ loc_37F74:
 	move.w	y_pos(a0),d3
 	move.w	d3,y_pos(a1)
 	move.b	#$80,objoff_14(a1)
-	bset	#render_flags.unknown4,render_flags(a1)
+	bset	#render_flags.explicit_height,render_flags(a1)
 	lea	subspr_data(a1),a2
 
 	moveq	#6,d6

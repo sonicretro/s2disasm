@@ -163,8 +163,8 @@ render_flags.x_flip		= 0 ; Sprite mirrored horizontally.
 render_flags.y_flip		= 1 ; Sprite mirrored vertically.
 render_flags.level_fg		= 2 ; Move with level foreground.
 render_flags.level_bg		= 3 ; Move with level background; leftover from Sonic 1.
-render_flags.unknown4		= 4
-render_flags.unknown5		= 5
+render_flags.explicit_height	= 4 ; Draw culling uses `y_radius` instead of guessing a height.
+render_flags.static_mappings	= 5 ; Mappings pointer points directly to a lone sprite piece instead of a list of sprites.
 render_flags.multi_sprite	= 6 ; Object SST holds metadata for multiple sprites.
 render_flags.on_screen		= 7 ; Object is on-screen and was rendered on the previous frame.
 
