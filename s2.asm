@@ -68284,7 +68284,7 @@ Obj09_Init:
 	move.b	#$40,angle(a0)
 	move.b	#1,(Sonic_LastLoadedDPLC).w
 	clr.b	ss_slide_timer(a0)
-	bclr	#status.player.special.6,status(a0)
+	bclr	#status.player.ss.slowing,status(a0)
 	clr.b	collision_property(a0)
 	clr.b	ss_dplc_timer(a0)
 	movea.l	#SpecialStageShadow_Sonic,a1
@@ -68461,7 +68461,7 @@ SSPlayer_Jump:
 	muls.w	d2,d0
 	asr.l	#7,d0
 	add.w	d0,y_vel(a0)
-	bset	#status.player.special.2,status(a0)
+	bset	#status.player.ss.jumping,status(a0)
 	move.b	#4,routine(a0)
 	move.b	#3,anim(a0)
 	moveq	#0,d0
@@ -68683,13 +68683,13 @@ SSPlayer_DoLevelCollision:
 	cmp.l	d1,d0
 	blo.s	+
 	move.b	#2,routine(a0)
-	bclr	#status.player.special.2,status(a0)
+	bclr	#status.player.ss.jumping,status(a0)
 	moveq	#0,d0
 	move.w	d0,x_vel(a0)
 	move.w	d0,y_vel(a0)
 	move.w	d0,inertia(a0)		; This makes player stop on ground
 	move.b	d0,ss_slide_timer(a0)
-	bset	#status.player.special.6,status(a0)
+	bset	#status.player.ss.slowing,status(a0)
 	bsr.w	SSObjectMove
 	bsr.w	SSAnglePos
 +
@@ -68767,7 +68767,7 @@ loc_33E88:
 return_33E8E:
 	rts
 ; ===========================================================================
-ss_make_direction_bitfield function xFlip,yFlip,xFlip<<status.player.special.0|yFlip<<status.player.special.1
+ss_make_direction_bitfield function xFlip,yFlip,xFlip<<status.player.ss.x_flip|yFlip<<status.player.ss.y_flip
 
 byte_33E90:
 	dc.b	ss_make_direction_bitfield( TRUE, FALSE), ss_make_direction_bitfield( TRUE, FALSE)	; 0
@@ -68781,10 +68781,10 @@ byte_33E90:
 ; ===========================================================================
 
 SSPlayer_SetAnimation:
-	btst	#status.player.special.2,status(a0)
+	btst	#status.player.ss.jumping,status(a0)
 	beq.s	+
 	move.b	#3,anim(a0)
-	andi.b	#~(1<<status.player.special.0|1<<status.player.special.1),status(a0)
+	andi.b	#~(1<<status.player.ss.x_flip|1<<status.player.ss.y_flip),status(a0)
 	rts
 ; ===========================================================================
 +
@@ -68803,7 +68803,7 @@ SSPlayer_SetAnimation:
 	move.b	d1,ss_last_angle_index(a0)
 	move.b	d2,anim(a0)
 	move.b	byte_33E90+1(pc,d0.w),d0
-	andi.b	#~(1<<status.player.special.0|1<<status.player.special.1),status(a0)
+	andi.b	#~(1<<status.player.ss.x_flip|1<<status.player.ss.y_flip),status(a0)
 	or.b	d0,status(a0)
 	cmpi.b	#1,d1
 	beq.s	loc_33EF8
@@ -68838,7 +68838,7 @@ SSAnim_Do:
 	bne.s	+
 	subi_.b	#1,ss_flip_timer(a0)
 	bgt.s	+
-	bchg	#status.player.special.0,status(a0)
+	bchg	#status.player.ss.x_flip,status(a0)
 	bchg	#0,render_flags(a0)
 	move.b	ss_init_flip_timer(a0),ss_flip_timer(a0)
 +
@@ -68852,7 +68852,7 @@ SSAnim_Do:
 	andi.b	#$7F,d0
 	move.b	d0,mapping_frame(a0)
 	move.b	status(a0),d1
-	andi.b	#1<<status.player.special.0|1<<status.player.special.1,d1
+	andi.b	#1<<status.player.ss.x_flip|1<<status.player.ss.y_flip,d1
 	andi.b	#$FC,render_flags(a0)
 	or.b	d1,render_flags(a0)
 	addq.b	#1,anim_frame(a0)
@@ -68868,7 +68868,7 @@ SSPlayer_Move:
 	bne.s	SSPlayer_MoveLeft
 	btst	#button_right,d0
 	bne.w	SSPlayer_MoveRight
-	bset	#status.player.special.6,status(a0)
+	bset	#status.player.ss.slowing,status(a0)
 	bne.s	+
 	move.b	#$1E,ss_slide_timer(a0)
 +
@@ -68911,7 +68911,7 @@ SSPlayer_MoveRight:
 	move.w	#-$600,d2
 +
 	move.w	d2,inertia(a0)
-	bclr	#status.player.special.6,status(a0)
+	bclr	#status.player.ss.slowing,status(a0)
 	clr.b	ss_slide_timer(a0)
 	rts
 ; ===========================================================================
@@ -70097,7 +70097,7 @@ loc_35120:
 ; ===========================================================================
 
 loc_3512A:
-	btst	#status.player.special.7,status(a0)
+	btst	#status.npc.no_balancing,status(a0)
 	bne.s	loc_3516C
 	cmpi.b	#4,(SSTrack_drawing_index).w
 	bne.s	loc_35146
