@@ -157,9 +157,21 @@ object_size =		1<<object_size_bits ; the size of an object
 next_object =		object_size
 
 ; ---------------------------------------------------------------------------
+; render_flags bitfield
+
+render_flags.x_flip		= 0 ; Sprite mirrored horizontally.
+render_flags.y_flip		= 1 ; Sprite mirrored vertically.
+render_flags.level_fg		= 2 ; Move with level foreground.
+render_flags.level_bg		= 3 ; Move with level background; leftover from Sonic 1.
+render_flags.unknown4		= 4
+render_flags.unknown5		= 5
+render_flags.multi_sprite	= 6 ; Object SST holds metadata for multiple sprites.
+render_flags.on_screen		= 7 ; Object is on-screen and was rendered on the previous frame.
+
+; ---------------------------------------------------------------------------
 ; status bitfield
 
-status.player.x_flip			= 0 ; Facing left.
+status.player.x_flip			= render_flags.x_flip ; Facing left.
 status.player.in_air			= 1 ; Airborne. 
 status.player.rolling			= 2 ; Spinning, i.e. jumping or rolling.
 status.player.on_object			= 3 ; Stood on an object rather than the level.
@@ -168,13 +180,13 @@ status.player.pushing			= 5 ; Pressing against an object.
 status.player.underwater		= 6 ; Submersed.
 status.player.prevent_tails_respawn	= 7 ; Prevents AI Tails from respawning.
 
-status.player.ss.x_flip		= 0 ; Sprite mirrored horizontally.
-status.player.ss.y_flip		= 1 ; Sprite mirrored vertically.
+status.player.ss.x_flip		= render_flags.x_flip ; Sprite mirrored horizontally.
+status.player.ss.y_flip		= render_flags.y_flip ; Sprite mirrored vertically.
 status.player.ss.jumping	= 2 ; Jumping.
 status.player.ss.slowing	= 6 ; Coming to a stop after moving or landing.
 
-status.npc.x_flip		= 0 ; Facing right.
-status.npc.y_flip		= 1 ; Facing up.
+status.npc.x_flip		= render_flags.x_flip ; Facing right.
+status.npc.y_flip		= render_flags.y_flip ; Facing up.
 status.npc.misc			= 2 ; Used for various purposes by bosses.
 status.npc.p1_standing		= 3 ; Stood on by player 1.
 status.npc.p2_standing		= 4 ; Stood on by player 2.
