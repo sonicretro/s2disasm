@@ -36085,11 +36085,11 @@ Obj01_NotRight:
     endif
 	lea	(Object_RAM).w,a1 ; a1=character
 	lea	(a1,d0.w),a1 ; a1=object
-    if status.npc.unknown = 7
+    if status.npc.no_balancing = 7
 	tst.b	status(a1)
 	bmi.w	Sonic_Lookup
     else
-	btst	#status.npc.unknown,status(a1)
+	btst	#status.npc.no_balancing,status(a1)
 	bne.w	Sonic_Lookup
     endif
 	moveq	#0,d1
@@ -38586,7 +38586,7 @@ TailsCPU_Spawning:
 	tst.b	obj_control(a1)
 	bne.s	return_1BB88
 	move.b	status(a1),d0
-	andi.b	#1<<status.player.in_air|1<<status.player.rolljumping|1<<status.player.underwater|1<<status.player.unknown,d0
+	andi.b	#1<<status.player.in_air|1<<status.player.rolljumping|1<<status.player.underwater|1<<status.player.prevent_tails_respawn,d0
 	bne.s	return_1BB88
 ; loc_1BB54:
 TailsCPU_Respawn:
@@ -39182,11 +39182,11 @@ Obj02_NotRight:
     endif
 	lea	(Object_RAM).w,a1 ; a1=character
 	lea	(a1,d0.w),a1 ; a1=object
-    if status.npc.unknown = 7
+    if status.npc.no_balancing = 7
 	tst.b	status(a1)
 	bmi.s	Tails_Lookup
     else
-	btst	#status.npc.unknown,status(a1)
+	btst	#status.npc.no_balancing,status(a1)
 	bne.s	Tails_Lookup
     endif
 	moveq	#0,d1
@@ -49535,7 +49535,7 @@ Obj07_Init:
 	move.b	#$20,width_pixels(a0)
 	move.w	y_pos(a0),objoff_30(a0)
 	move.b	#$30,oil_char1submersion(a0)
-	bset	#status.npc.unknown,status(a0)
+	bset	#status.npc.no_balancing,status(a0)
 
 ; loc_24054:
 Obj07_Main:
@@ -50353,7 +50353,7 @@ Obj3D_Init:
 	jsrto	JmpTo22_Adjust2PArtPointer
 	move.b	#4,render_flags(a0)
 	move.b	#$10,width_pixels(a0)
-	bset	#status.npc.unknown,status(a0)
+	bset	#status.npc.no_balancing,status(a0)
 	move.b	#4,priority(a0)
 ; loc_24E26:
 Obj3D_Main:
@@ -51662,7 +51662,7 @@ Obj40_Init:
 	ori.b	#4,render_flags(a0)
 	move.b	#$1C,width_pixels(a0)
 	move.b	#4,priority(a0)
-	bset	#status.npc.unknown,status(a0)
+	bset	#status.npc.no_balancing,status(a0)
 	move.b	subtype(a0),d0
 	andi.w	#2,d0		; there is enough data for this to be capped at 4
 	move.w	Obj40_Strengths(pc,d0.w),objoff_30(a0)	; this is never read
@@ -52244,7 +52244,7 @@ Obj65_Init:
 	move.b	d0,mapping_frame(a0)
 	cmpi.b	#1,d0
 	bne.s	+
-	bset	#status.npc.unknown,status(a0)
+	bset	#status.npc.no_balancing,status(a0)
 +
 	cmpi.b	#2,d0
 	bne.s	loc_26B6E
@@ -54470,7 +54470,7 @@ Obj70_Init:
 	movea.l	a0,a1
 	move.w	x_pos(a0),d2
 	move.w	y_pos(a0),d3
-	bset	#status.npc.unknown,status(a0)
+	bset	#status.npc.no_balancing,status(a0)
 	bra.s	Obj70_LoadSubObject
 ; ===========================================================================
 ; loc_285EE:
@@ -54734,7 +54734,7 @@ Obj73_Init:
 	move.w	x_pos(a0),objoff_3A(a0)
 	move.w	y_pos(a0),objoff_38(a0)
 	move.b	#0,collision_flags(a0)
-	bset	#status.npc.unknown,status(a0)
+	bset	#status.npc.no_balancing,status(a0)
 	move.b	subtype(a0),d1
 	andi.b	#$F0,d1
 	ext.w	d1
@@ -56330,7 +56330,7 @@ Obj81_Init:
 	move.b	#4,render_flags(a0)
 	move.b	#5,priority(a0)
 	move.b	#8,width_pixels(a0)
-	ori.b	#1<<status.npc.unknown,status(a0)
+	ori.b	#1<<status.npc.no_balancing,status(a0)
 	move.w	x_pos(a0),objoff_30(a0)
 	move.w	y_pos(a0),objoff_32(a0)
 	subi.w	#$48,y_pos(a0)
@@ -56386,7 +56386,7 @@ Obj81_BridgeUp:
 	move.b	#1,objoff_36(a0)
 	move.w	#SndID_DrawbridgeMove,d0
 	jsr	(PlaySound2).l
-	cmpi.b	#1<<status.npc.unknown|1<<status.npc.x_flip,status(a0)
+	cmpi.b	#1<<status.npc.no_balancing|1<<status.npc.x_flip,status(a0)
 	bne.s	+
 	move.w	objoff_30(a0),x_pos(a0)
 	subi.w	#$48,x_pos(a0)
@@ -59986,7 +59986,7 @@ Obj50_Wing:
 	beq.w	JmpTo48_DeleteObject		; if yes, branch
 	cmpi.b	#ObjID_Aquis,id(a1)		; is parent object ObjID_Aquis?
 	bne.w	JmpTo48_DeleteObject		; if not, branch
-	btst	#status.npc.unknown,status(a1)	; is parent object marked as destroyed?
+	btst	#status.npc.no_balancing,status(a1)	; is parent object marked as destroyed?
 	bne.w	JmpTo48_DeleteObject		; if yes, branch
 	lea	(Ani_obj50).l,a1
 	jsrto	JmpTo14_AnimateSprite
@@ -60978,7 +60978,7 @@ Obj5D_Main_Explode:
 	subq.w	#1,Obj5D_defeat_timer(a0)
 	bpl.w	Obj5D_Main_CreateExplosion
 	bset	#status.npc.x_flip,status(a0)
-	bclr	#status.npc.unknown,status(a0)
+	bclr	#status.npc.no_balancing,status(a0)
 	clr.w	x_vel(a0)
 	addq.b	#2,routine_secondary(a0)	; => Obj5D_Main_StopExploding
 	move.w	#-$26,Obj5D_defeat_timer(a0)
@@ -61079,11 +61079,11 @@ Obj5D_Main_Pos_and_Collision:
 
 	cmpi.b	#8,routine_secondary(a0)	; exploding or retreating?
 	bhs.s	return_2DAE8			; if yes, branch
-    if status.npc.unknown = 7
+    if status.npc.no_balancing = 7
 	tst.b	status(a0)
 	bmi.s	Obj5D_Defeated		; branch, if boss is defeated
     else
-	btst	#status.npc.unknown,status(a0)
+	btst	#status.npc.no_balancing,status(a0)
 	bne.s	Obj5D_Defeated		; branch, if boss is defeated
     endif
 	tst.b	collision_flags(a0)
@@ -61298,7 +61298,7 @@ Obj5D_FallingParts:
 ; ===========================================================================
 
 Obj5D_Pump:
-	btst	#status.npc.unknown,status(a0)
+	btst	#status.npc.no_balancing,status(a0)
 	bne.s	.bossDefeated
 
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
@@ -61508,7 +61508,7 @@ BranchTo_Obj5D_PipeSegment ; BranchTo
 Obj5D_Pipe_Pump_2:
 	movea.l	Obj5D_parent(a0),a1	; parent = pipe segment (control object) ; a1=object
 	movea.l	Obj5D_parent(a1),a2	; parent = main vehicle ; a2=object
-	btst	#status.npc.unknown,status(a2)		; has boss been defeated?
+	btst	#status.npc.no_balancing,status(a2)		; has boss been defeated?
 	bne.w	JmpTo51_DeleteObject	; if yes, branch
 	move.w	x_pos(a1),x_pos(a0)
 	move.w	y_pos(a1),y_pos(a0)
@@ -61619,14 +61619,14 @@ loc_2DFEE:
 	movea.l	a0,a1
 
 loc_2DFF0:
-	bset	#status.npc.unknown,status(a1)	; mark segment for deletion
+	bset	#status.npc.no_balancing,status(a1)	; mark segment for deletion
 	subi_.b	#8,Obj5D_y_offset(a0)	; position of next segment up
 	beq.s	loc_2DFD8
 
 Obj5D_PipeSegment:
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
 	movea.l	Obj5D_parent(a1),a2 ; a2=object
-	btst	#status.npc.unknown,status(a2)	; has boss been defeated?
+	btst	#status.npc.no_balancing,status(a2)	; has boss been defeated?
 	bne.s	Obj5D_PipeSegment_End		; if yes, branch
 
 	move.w	x_pos(a1),x_pos(a0)
@@ -61635,7 +61635,7 @@ Obj5D_PipeSegment:
 	bne.s	+
 	addi.w	#$18,y_pos(a0)
 +
-	btst	#status.npc.unknown,status(a0)	; is object marked for deletion?
+	btst	#status.npc.no_balancing,status(a0)	; is object marked for deletion?
 	bne.s	BranchTo_JmpTo51_DeleteObject	; if yes, branch
 	move.w	Obj5D_y_pos_next(a0),d0
 	add.w	d0,y_pos(a0)
@@ -61682,7 +61682,7 @@ Obj5D_PipeSegment_End:
 ; ===========================================================================
 
 Obj5D_Dripper:
-	btst	#status.npc.unknown,status(a0)
+	btst	#status.npc.no_balancing,status(a0)
 	bne.w	JmpTo51_DeleteObject
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
@@ -61812,7 +61812,7 @@ Obj5D_Container_Main:
 	move.w	x_pos(a1),x_pos(a0)
 	move.w	y_pos(a1),y_pos(a0)
 	subi.w	#$38,y_pos(a0)
-	btst	#status.npc.unknown,status(a0)
+	btst	#status.npc.no_balancing,status(a0)
 	bne.s	loc_2E2E0
 	btst	#2,Obj5D_status2(a1)
 	beq.s	+
@@ -62070,7 +62070,7 @@ loc_2E59C:
 ; ===========================================================================
 
 Obj5D_Container_Extend:
-	btst	#status.npc.unknown,status(a0)
+	btst	#status.npc.no_balancing,status(a0)
 	bne.w	JmpTo51_DeleteObject
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
 	move.l	Obj5D_parent(a1),d0
@@ -62104,7 +62104,7 @@ Obj5D_Container_Extend:
 ; ===========================================================================
 
 Obj5D_Container_Floor:
-	btst	#status.npc.unknown,status(a0)
+	btst	#status.npc.no_balancing,status(a0)
 	bne.w	JmpTo51_DeleteObject
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
 	movea.l	Obj5D_parent(a1),a1
@@ -62126,7 +62126,7 @@ Obj5D_Container_Floor_End:
 ; ===========================================================================
 
 Obj5D_Container_Floor2:
-	btst	#status.npc.unknown,status(a0)
+	btst	#status.npc.no_balancing,status(a0)
 	bne.w	JmpTo51_DeleteObject
 	subq.w	#1,Obj5D_timer2(a0)
 	beq.w	JmpTo51_DeleteObject
@@ -62348,7 +62348,7 @@ Obj5D_Flame_Frames:
 ; ===========================================================================
 
 Obj5D_Flame:
-	btst	#status.npc.unknown,status(a0)
+	btst	#status.npc.no_balancing,status(a0)
 	bne.s	loc_2E9A8
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
 	move.l	x_pos(a1),x_pos(a0)
@@ -62577,7 +62577,7 @@ Obj56_Index:	offsetTable
 		offsetTableEntry.w loc_2F8DA	; E - Flying vehicle, top
 ; ===========================================================================
 
-; #status.npc.unknown,status(ax) set via collision response routine (Touch_Enemy_Part2)
+; #status.npc.no_balancing,status(ax) set via collision response routine (Touch_Enemy_Part2)
 ; 	when after a hit collision_property(ax) = hitcount has reached zero
 ; objoff_2A(ax) used as timer (countdown)
 ; objoff_2C(ax) tertiary rountine counter
@@ -62969,11 +62969,11 @@ return_2F4A4:
 loc_2F4A6:	; routine to handle hits
 	cmpi.b	#6,routine_secondary(a0)	; is only called when value is 4?
 	bhs.s	return_2F4EC	; thus unnecessary? (return if greater or equal than 6)
-    if status.npc.unknown = 7
+    if status.npc.no_balancing = 7
 	tst.b	status(a0)
 	bmi.s	loc_2F4EE	; Sonic has just defeated the boss (i.e. bit 7 set)
     else
-	btst	#status.npc.unknown,status(a0)
+	btst	#status.npc.no_balancing,status(a0)
 	bne.s	loc_2F4EE	; Sonic has just defeated the boss (i.e. bit 7 set)
     endif
 	tst.b	collision_flags(a0)	; set to 0 when boss was hit by Touch_Enemy_Part2
@@ -63215,11 +63215,11 @@ loc_2F746:	; Obj56_Wheel_Sub4:
 	bne.w	JmpTo52_DeleteObject	; if boss non-existant
 	move.b	status(a1),status(a0)
 	move.b	render_flags(a1),render_flags(a0)
-    if status.npc.unknown = 7
+    if status.npc.no_balancing = 7
 	tst.b	status(a0)
 	bpl.s	loc_2F768	; has Sonic just defeated the boss (i.e. bit 7 set)?
     else
-	btst	#status.npc.unknown,status(a0)
+	btst	#status.npc.no_balancing,status(a0)
 	beq.s	loc_2F768	; has Sonic just defeated the boss (i.e. bit 7 set)?
     endif
 	addq.b	#2,routine_secondary(a0)	; if yes, Sub6
@@ -64878,7 +64878,7 @@ Obj89_Arrow_Init_End:
 ; ===========================================================================
 ; loc_30C36:
 Obj89_Arrow_Sub2:
-	btst	#status.npc.unknown,status(a0)
+	btst	#status.npc.no_balancing,status(a0)
 	beq.s	+
 	move.b	#8,obj89_arrow_routine(a0)	; => BranchTo_JmpTo55_DeleteObject
 +
@@ -64913,7 +64913,7 @@ Obj89_Arrow_Sub2_Move:
 ; loc_30C86:
 Obj89_Arrow_Sub4:
 	move.b	#0,collision_flags(a0)		; make arrow harmless
-	btst	#status.npc.unknown,status(a0)
+	btst	#status.npc.no_balancing,status(a0)
 	beq.s	+
 	addi_.b	#2,obj89_arrow_routine(a0)	; => Obj89_Arrow_Sub6
 +
@@ -77186,7 +77186,7 @@ loc_39C42:
 loc_39C50:
 	movea.w	objoff_2C(a0),a1 ; a1=object
 	lea	(MainCharacter).w,a2 ; a2=character
-	btst	#status.npc.unknown2,status(a1)
+	btst	#status.npc.misc,status(a1)
 	bne.s	loc_39C92
 	move.b	#2,anim(a0)
 	cmpi.b	#4,routine(a2)
@@ -77253,7 +77253,7 @@ loc_39CF0:
 	move.w	#$FF,objoff_32(a0)
 	move.b	#$C,routine(a0)
 	clr.b	collision_flags(a0)
-	bset	#status.npc.unknown2,status(a0)
+	bset	#status.npc.misc,status(a0)
 	movea.w	objoff_3C(a0),a1 ; a1=object
 	jsrto	JmpTo6_DeleteObject2
 	movea.w	parent(a0),a1 ; a1=object
@@ -78401,7 +78401,7 @@ off_3AD1A:	offsetTable
 		offsetTableEntry.w +	; 0
 ; ===========================================================================
 + ; loc_3AD1C:
-	bchg	#status.npc.unknown2,status(a0)
+	bchg	#status.npc.misc,status(a0)
 	bne.w	return_37A48
 	jmpto	JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -80462,7 +80462,7 @@ ObjC5_CaseXSpeed:
 
 ObjC5_CasePMLoader:
 	move.w	d1,x_vel(a0)
-	bset	#status.npc.unknown2,status(a0)		; makes the platform maker load
+	bset	#status.npc.misc,status(a0)		; makes the platform maker load
 	move.w	#$70,objoff_2A(a0)	; how long to go back and forth before letting out laser
 	jmpto	JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -80542,7 +80542,7 @@ ObjC5_CaseLoadLaser:
 
 ObjC5_CaseWaitMove:
 	movea.w	parent(a0),a1 ; a1=object
-	btst	#status.npc.unknown2,status(a1)		; waits to check if laser fired
+	btst	#status.npc.misc,status(a1)		; waits to check if laser fired
 	bne.s	ObjC5_CaseLaserSpeed
 	jmpto	JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -80723,7 +80723,7 @@ ObjC5_PlatformReleaserInit:
 
 ObjC5_PlatformReleaserWaitDown:
 	movea.w	objoff_2C(a0),a1 ; a1=object laser case
-	btst	#status.npc.unknown2,status(a1)		; checks if laser case is done moving down (so it starts loading the platforms)
+	btst	#status.npc.misc,status(a1)		; checks if laser case is done moving down (so it starts loading the platforms)
 	bne.s	ObjC5_PlatformReleaserSetDown
 	jmpto	JmpTo45_DisplaySprite
 ; ===========================================================================
@@ -81024,7 +81024,7 @@ ObjC5_LaserShoot:
 ObjC5_LaseShotOut:	; laser is fully shot out and lets the laser case know so it moves
 	addq.b	#2,routine_secondary(a0)
 	move.w	#$80,objoff_2A(a0)
-	bset	#status.npc.unknown2,status(a0)
+	bset	#status.npc.misc,status(a0)
 	movea.w	objoff_2C(a0),a1 ; a1=object (laser case)
 	bset	#status.npc.p1_standing,status(a1)
 	rts
@@ -81284,7 +81284,7 @@ ObjC6_State2_State3:
 ; ---------------------------------------------------------------------------
 loc_3CF62:
 	addq.b	#2,routine_secondary(a0) ; => ObjC6_State2_State4
-	bset	#status.npc.unknown2,status(a0)
+	bset	#status.npc.misc,status(a0)
 	move.w	#$200,x_vel(a0)
 	move.w	#$10,objoff_2A(a0)
 	jmpto	JmpTo45_DisplaySprite
@@ -81361,7 +81361,7 @@ ObjC6_State3_States: offsetTable
 ; loc_3D04A:
 ObjC6_State3_State1:
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	btst	#status.npc.unknown2,status(a1)
+	btst	#status.npc.misc,status(a1)
 	bne.s	loc_3D05E
 	bsr.w	loc_3D086
 	jmpto	JmpTo45_DisplaySprite
@@ -81726,7 +81726,7 @@ loc_3D52A:
 ; ===========================================================================
 
 loc_3D5A8:
-	btst	#status.npc.unknown2,status(a0)
+	btst	#status.npc.misc,status(a0)
 	bne.s	+
 	rts
 ; ---------------------------------------------------------------------------
@@ -82463,7 +82463,7 @@ loc_3DC2A:
 +
 	addq.b	#2,routine_secondary(a0)
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	bset	#status.npc.unknown2,status(a1)
+	bset	#status.npc.misc,status(a1)
 	jmpto	JmpTo45_DisplaySprite
 ; ===========================================================================
 
@@ -82757,7 +82757,7 @@ byte_3DF00:
 
 loc_3DF04:
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	btst	#status.npc.unknown,status(a1)
+	btst	#status.npc.no_balancing,status(a1)
 	bne.s	loc_3DF4C
 	jsrto	JmpTo8_ObjectMoveAndFall
 	move.w	y_pos(a0),d0
@@ -82774,7 +82774,7 @@ loc_3DF04:
 
 loc_3DF36:
 	movea.w	objoff_2C(a0),a1 ; a1=object
-	btst	#status.npc.unknown,status(a1)
+	btst	#status.npc.no_balancing,status(a1)
 	bne.s	loc_3DF4C
 	subq.w	#1,objoff_2A(a0)
 	bmi.s	loc_3DF4C
@@ -82876,7 +82876,7 @@ ObjC7_Beaten:
 	bsr.w	AddPoints
 	clr.b	anim_frame_duration(a0)
 	move.b	#$E,routine_secondary(a0)
-	bset	#status.npc.unknown,status(a0)
+	bset	#status.npc.no_balancing,status(a0)
 	clr.b	anim(a0)
 	clr.b	collision_flags(a0)
 	clr.w	x_vel(a0)
@@ -84480,14 +84480,14 @@ Touch_Enemy_Part2:
 	move.b	#0,collision_flags(a1)
 	subq.b	#1,collision_property(a1)
 	bne.s	return_3F7E8
-	bset	#status.npc.unknown,status(a1)
+	bset	#status.npc.no_balancing,status(a1)
 
 return_3F7E8:
 	rts
 ; ===========================================================================
 ; loc_3F7EA:
 Touch_KillEnemy:
-	bset	#status.npc.unknown,status(a1)
+	bset	#status.npc.no_balancing,status(a1)
 	moveq	#0,d0
 	move.w	(Chain_Bonus_counter).w,d0
 	addq.w	#2,(Chain_Bonus_counter).w	; add 2 to chain bonus counter
@@ -84541,7 +84541,7 @@ Enemy_Points:	dc.w 10, 20, 50, 100
 ; ===========================================================================
 
 loc_3F85C:
-	bset	#status.npc.unknown,status(a1)
+	bset	#status.npc.no_balancing,status(a1)
 
 ; ---------------------------------------------------------------------------
 ; Subroutine for checking if Sonic/Tails should be hurt and hurting them if so
@@ -87753,7 +87753,7 @@ Debug_SpawnObject:
 	andi.b	#$7F,render_flags(a1)
     endif
 	move.b	render_flags(a0),status(a1)
-	andi.b	#~(1<<status.npc.unknown)&$FF,status(a1)
+	andi.b	#~(1<<status.npc.no_balancing)&$FF,status(a1)
 	moveq	#0,d0
 	move.b	(Debug_object).w,d0
 	lsl.w	#3,d0
