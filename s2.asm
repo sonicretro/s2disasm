@@ -4419,13 +4419,19 @@ TitleScreen:
 	move.w	#0,(Correct_cheat_entries).w
 	move.w	#0,(Correct_cheat_entries_2).w
 
-	; I do not know why these are here.
+    if 0
+	; Sonic 2 Beta 4 reveals that these were the original instructions.
+	; The original source code may have been able to produce debug builds with this enabled.
+	move.w	#$101,(Level_select_flag).w
+	move.w	#$101,(Debug_mode_flag).w
+    else
 	nop
 	nop
 	nop
 	nop
 	nop
 	nop
+    endif
 
 	; Reset Sonic's position record buffer.
 	move.w	#4,(Sonic_Pos_Record_Index).w
