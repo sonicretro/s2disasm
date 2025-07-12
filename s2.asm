@@ -8922,12 +8922,9 @@ SSPNT_RLELUT_Part2:
 	dc.w	make_block_tile($001D,0,0,0,0),$0071,	make_block_tile($001D,0,0,0,0),$007C	; $80
 	dc.w	make_block_tile($004A,0,0,0,0),$000D,	make_block_tile($002C,0,0,0,0),$000C	; $82
 	dc.w	make_block_tile($002C,0,0,0,0),$000F,	make_block_tile($002C,0,0,0,0),$0010	; $84
-
 ;unknown
 ;byte_6BFE:
-	dc.b $FF,$FB,$FF,$FB,$FF,$FA,$FF,$FA; 528
-	dc.b $FF,$FA,$FF,$FA	; 544
-	even
+	dc.w -5,-5,-6,-6,-6,-6
 ; ===========================================================================
 ; (!)
 ;loc_6C0A
