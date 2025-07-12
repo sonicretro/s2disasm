@@ -1538,13 +1538,8 @@ PlaySound2:
 ; Play a sound if the source is on-screen.
 ; sub_137C:
 PlaySoundLocal:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	.return
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	.return
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	.return
 	move.b	d0,(Sound_Queue.SFX0).w
 
 .return:
@@ -5468,13 +5463,8 @@ OilSlides:
 
 	beq.s	loc_4712
 +
-    if status_secondary.sliding = 7
-	tst.b	status_secondary(a1)
-	bpl.s	+	; rts
-    else
-	btst	#status_secondary.sliding,status_secondary(a1)
-	beq.s	+	; rts
-    endif
+	_btst	#status_secondary.sliding,status_secondary(a1)
+	_beq.s	+	; rts
 	move.w	#5,move_lock(a1)
 	andi.b	#~(1<<status_secondary.sliding)&$FF,status_secondary(a1)
 +	rts
@@ -23531,13 +23521,8 @@ sub_109DC:
 ; loc_109F8:
 Obj1A_FragmentFall:
 	bsr.w	ObjectMoveAndFall
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.w	DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.w	DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.w	DeleteObject
 	bra.w	DisplaySprite
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -23651,13 +23636,8 @@ sub_10B36:
 ; loc_10B52:
 Obj1F_FragmentFall:
 	bsr.w	ObjectMoveAndFall
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.w	DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.w	DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.w	DeleteObject
 	bra.w	DisplaySprite
 ; ===========================================================================
 ; loc_10B62:
@@ -24419,13 +24399,8 @@ Obj28_InitRandom:
 ; ===========================================================================
 ;loc_11ADE
 Obj28_Main:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.w	DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.w	DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.w	DeleteObject
 	bsr.w	ObjectMoveAndFall
 	tst.w	y_vel(a0)
 	bmi.s	+
@@ -24464,13 +24439,8 @@ Obj28_Walk:
 +
 	tst.b	subtype(a0)
 	bne.s	Obj28_ChkDel
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.w	DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.w	DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.w	DeleteObject
 	bra.w	DisplaySprite
 ; ===========================================================================
 ;loc_11B74
@@ -24499,13 +24469,8 @@ Obj28_Fly:
 +
 	tst.b	subtype(a0)
 	bne.s	Obj28_ChkDel
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.w	DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.w	DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.w	DeleteObject
 	bra.w	DisplaySprite
 ; ===========================================================================
 ;loc_11BD8
@@ -24515,25 +24480,15 @@ Obj28_ChkDel:
 	bcs.s	+
 	subi.w	#$180,d0
 	bpl.s	+
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.w	DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.w	DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.w	DeleteObject
 +
 	bra.w	DisplaySprite
 ; ===========================================================================
 ;loc_11BF4
 Obj28_Prison:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.w	DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.w	DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.w	DeleteObject
 	subq.w	#1,objoff_36(a0)
 	bne.w	+
 	move.b	#2,routine(a0)
@@ -24996,13 +24951,8 @@ Obj37_Main:
 	add.b	d7,d0
 	andi.b	#7,d0
 	bne.s	loc_121B8
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	loc_121D0
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	loc_121D0
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	loc_121D0
 	jsr	(RingCheckFloorDist).l
 	tst.w	d1
 	bpl.s	loc_121B8
@@ -25066,13 +25016,8 @@ BigRing_Init:
 	bsr.w	Adjust2PArtPointer
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#$40,width_pixels(a0)
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	BigRing_Main
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	BigRing_Main
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	BigRing_Main
 	cmpi.b	#6,(Got_Emerald).w
 	beq.w	BigRing_Delete
 	cmpi.w	#50,(Ring_count).w
@@ -29218,13 +29163,8 @@ MoveSpikes_Delay:
 	beq.s	MoveSpikes_ChkDir		; if yes, branch
 	subq.w	#1,spikes_retract_timer(a0)	; else, decrement timer
 	bne.s	+	; rts			; branch, if timer didn't reach 0
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)		; are spikes on screen?
-	bpl.s	+	; rts			; if not, branch
-    else
-	btst	#render_flags.on_screen,render_flags(a0)	; are spikes on screen?
-	beq.s	+	; rts					; if not, branch
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)	; are spikes on screen?
+	_beq.s	+	; rts					; if not, branch
 	move.w	#SndID_SpikesMove,d0		; play spike movement sount
 	jsr	(PlaySound).l
 	bra.s	+	; rts
@@ -29378,13 +29318,8 @@ Obj3C_Main:
 Obj3C_Fragment:
 	bsr.w	ObjectMove
 	addi.w	#$70,y_vel(a0)
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.w	DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.w	DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.w	DeleteObject
 	bra.w	DisplaySprite
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -29534,13 +29469,8 @@ RunObjectDisplayOnly:
 	move.b	id(a0),d0	; get the object's ID
 	beq.s	+	; if it's obj00, skip it
 	; This check prevents objects that do exist, but haven't been initialised yet, from being displayed.
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)	; was the object displayed on the previous frame?
-	bpl.s	+			; if not, skip it
-    else
-	btst	#render_flags.on_screen,render_flags(a0)	; was the object displayed on the previous frame?
-	beq.s	+						; if not, skip it
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)	; was the object displayed on the previous frame?
+	_beq.s	+						; if not, skip it
     if fixBugs
 	; If this is a multi-sprite object, then we cannot use its 'priority'
 	; value to display it as it's being used for coordinate data.
@@ -34692,13 +34622,8 @@ SolidObject:
 
 	; Collide player 2.
 	lea	(Sidekick).w,a1
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a1)
-	bpl.w	return_19776	; Don't bother if Tails is not on-screen.
-    else
-	btst	#render_flags.on_screen,render_flags(a1)
-	beq.w	return_19776	; Don't bother if Tails is not on-screen.
-    endif
+	_btst	#render_flags.on_screen,render_flags(a1)
+	_beq.w	return_19776	; Don't bother if Tails is not on-screen.
 	addq.b	#p2_standing_bit-p1_standing_bit,d6
 +
 	btst	d6,status(a0)
@@ -35014,13 +34939,8 @@ SolidObject_OnScreenTest:
 	; If the object is not on-screen, then don't try to collide with it.
 	; This is presumably an optimisation, but this means that if Sonic
 	; outruns the screen then he can phase through solid objects.
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.w	SolidObject_TestClearPush
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.w	SolidObject_TestClearPush
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.w	SolidObject_TestClearPush
 ;loc_199F0:
 SolidObject_cont:
 	; We now perform the X portion of a bounding box check. To do this, we assume a
@@ -36124,13 +36044,8 @@ Sonic_Move:
 	move.w	(Sonic_top_speed).w,d6
 	move.w	(Sonic_acceleration).w,d5
 	move.w	(Sonic_deceleration).w,d4
-    if status_secondary.sliding = 7
-	tst.b	status_secondary(a0)
-	bmi.w	Obj01_Traction
-    else
-	btst	#status_secondary.sliding,status_secondary(a0)
-	bne.w	Obj01_Traction
-    endif
+	_btst	#status_secondary.sliding,status_secondary(a0)
+	_bne.w	Obj01_Traction
 	tst.w	move_lock(a0)
 	bne.w	Obj01_ResetScr
 	btst	#button_left,(Ctrl_1_Held_Logical).w	; is left being pressed?
@@ -36162,13 +36077,8 @@ Obj01_NotRight:
     endif
 	lea	(Object_RAM).w,a1 ; a1=character
 	lea	(a1,d0.w),a1 ; a1=object
-    if status.npc.no_balancing = 7
-	tst.b	status(a1)
-	bmi.w	Sonic_Lookup
-    else
-	btst	#status.npc.no_balancing,status(a1)
-	bne.w	Sonic_Lookup
-    endif
+	_btst	#status.npc.no_balancing,status(a1)
+	_bne.w	Sonic_Lookup
 	moveq	#0,d1
 	move.b	width_pixels(a1),d1
 	move.w	d1,d2
@@ -36584,13 +36494,8 @@ Sonic_RollSpeed:
 	move.w	#$20,d4	; controlled roll deceleration... interestingly,
 			; this should be Sonic_deceleration/4 according to Tails_RollSpeed,
 			; which means Sonic is much better than Tails at slowing down his rolling when he's underwater
-    if status_secondary.sliding = 7
-	tst.b	status_secondary(a0)
-	bmi.w	Obj01_Roll_ResetScr
-    else
-	btst	#status_secondary.sliding,status_secondary(a0)
-	bne.w	Obj01_Roll_ResetScr
-    endif
+	_btst	#status_secondary.sliding,status_secondary(a0)
+	_bne.w	Obj01_Roll_ResetScr
 	tst.w	move_lock(a0)
 	bne.s	Sonic_ApplyRollSpeed
 	btst	#button_left,(Ctrl_1_Held_Logical).w	; is left being pressed?
@@ -36870,13 +36775,8 @@ Sonic_Boundary_Sides:
 
 ; loc_1A9D2:
 Sonic_Roll:
-    if status_secondary.sliding = 7
-	tst.b	status_secondary(a0)
-	bmi.s	Obj01_NoRoll
-    else
-	btst	#status_secondary.sliding,status_secondary(a0)
-	bne.s	Obj01_NoRoll
-    endif
+	_btst	#status_secondary.sliding,status_secondary(a0)
+	_bne.s	Obj01_NoRoll
 	mvabs.w	inertia(a0),d0
 	cmpi.w	#$80,d0		; is Sonic moving at $80 speed or faster?
 	blo.s	Obj01_NoRoll	; if not, branch
@@ -38014,13 +37914,8 @@ SAnim_WalkRun:
 	lsr.b	#4,d0		; divide angle by 16
 	andi.b	#6,d0		; angle must be 0, 2, 4 or 6
 	mvabs.w	inertia(a0),d2	; get Sonic's "speed" for animation purposes
-    if status_secondary.sliding = 7
-	tst.b	status_secondary(a0)
-	bpl.w	+
-    else
-	btst	#status_secondary.sliding,status_secondary(a0)
-	beq.w	+
-    endif
+	_btst	#status_secondary.sliding,status_secondary(a0)
+	_beq.w	+
 	add.w	d2,d2
 +
 	tst.b	(Super_Sonic_flag).w
@@ -38687,13 +38582,8 @@ return_1BB88:
 ; ---------------------------------------------------------------------------
 ; loc_1BB8A:
 TailsCPU_Flying:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bmi.s	TailsCPU_FlyingOnscreen
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	bne.s	TailsCPU_FlyingOnscreen
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_bne.s	TailsCPU_FlyingOnscreen
 	addq.w	#1,(Tails_respawn_counter).w
 	cmpi.w	#$12C,(Tails_respawn_counter).w
 	blo.s	TailsCPU_Flying_Part2
@@ -38959,13 +38849,8 @@ TailsCPU_Despawn:
 ; ===========================================================================
 ; sub_1BE66:
 TailsCPU_CheckDespawn:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bmi.s	TailsCPU_ResetRespawnTimer
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	bne.s	TailsCPU_ResetRespawnTimer
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_bne.s	TailsCPU_ResetRespawnTimer
 	btst	#status.player.on_object,status(a0)
 	beq.s	TailsCPU_TickRespawnTimer
 
@@ -39231,13 +39116,8 @@ Tails_Move:
 	move.w	(Tails_top_speed).w,d6
 	move.w	(Tails_acceleration).w,d5
 	move.w	(Tails_deceleration).w,d4
-    if status_secondary.sliding = 7
-	tst.b	status_secondary(a0)
-	bmi.w	Obj02_Traction
-    else
-	btst	#status_secondary.sliding,status_secondary(a0)
-	bne.w	Obj02_Traction
-    endif
+	_btst	#status_secondary.sliding,status_secondary(a0)
+	_bne.w	Obj02_Traction
 	tst.w	move_lock(a0)
 	bne.w	Obj02_ResetScr
 	btst	#button_left,(Ctrl_2_Held_Logical).w	; is left being pressed?
@@ -39269,13 +39149,8 @@ Obj02_NotRight:
     endif
 	lea	(Object_RAM).w,a1 ; a1=character
 	lea	(a1,d0.w),a1 ; a1=object
-    if status.npc.no_balancing = 7
-	tst.b	status(a1)
-	bmi.s	Tails_Lookup
-    else
-	btst	#status.npc.no_balancing,status(a1)
-	bne.s	Tails_Lookup
-    endif
+	_btst	#status.npc.no_balancing,status(a1)
+	_bne.s	Tails_Lookup
 	moveq	#0,d1
 	move.b	width_pixels(a1),d1
 	move.w	d1,d2
@@ -39596,13 +39471,8 @@ Tails_RollSpeed:
 	asr.w	#2,d4	; controlled roll deceleration...
 			; interestingly, Tails is much worse at this than Sonic when underwater
     endif
-    if status_secondary.sliding = 7
-	tst.b	status_secondary(a0)
-	bmi.w	Obj02_Roll_ResetScr
-    else
-	btst	#status_secondary.sliding,status_secondary(a0)
-	bne.w	Obj02_Roll_ResetScr
-    endif
+	_btst	#status_secondary.sliding,status_secondary(a0)
+	_bne.w	Obj02_Roll_ResetScr
 	tst.w	move_lock(a0)
 	bne.s	Tails_ApplyRollSpeed
 	btst	#button_left,(Ctrl_2_Held_Logical).w	; is left being pressed?
@@ -39882,13 +39752,8 @@ Tails_Boundary_Sides:
 
 ; loc_1C5B8:
 Tails_Roll:
-    if status_secondary.sliding = 7
-	tst.b	status_secondary(a0)
-	bmi.s	Obj02_NoRoll
-    else
-	btst	#status_secondary.sliding,status_secondary(a0)
-	bne.w	Obj02_NoRoll
-    endif
+	_btst	#status_secondary.sliding,status_secondary(a0)
+	_bne.s	Obj02_NoRoll
 	mvabs.w	inertia(a0),d0
 	cmpi.w	#$80,d0		; is Tails moving at $80 speed or faster?
 	blo.s	Obj02_NoRoll	; if not, branch
@@ -40897,13 +40762,8 @@ TAnim_WalkRunZoom: ; a0=character
 	lsr.b	#4,d0		; divide angle by 16
 	andi.b	#6,d0		; angle must be 0, 2, 4 or 6
 	mvabs.w	inertia(a0),d2	; get Tails' "speed" for animation purposes
-    if status_secondary.sliding = 7
-	tst.b	status_secondary(a0)
-	bpl.w	+
-    else
-	btst	#status_secondary.sliding,status_secondary(a0)
-	beq.w	+
-    endif
+	_btst	#status_secondary.sliding,status_secondary(a0)
+	_beq.w	+
 	add.w	d2,d2
 +
 	move.b	d0,d3
@@ -41490,13 +41350,8 @@ Obj0A_Wobble:
 	bsr.s	Obj0A_BecomeNumberMaybe
     endif
 	jsr	(ObjectMove).l
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	JmpTo4_DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	JmpTo4_DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	JmpTo4_DeleteObject
 	jmp	(DisplaySprite).l
 ; ===========================================================================
 
@@ -41542,13 +41397,8 @@ Obj0A_Display2:
 	lea	(Ani_obj0A).l,a1
 	jsr	(AnimateSprite).l
 	bsr.w	Obj0A_LoadCountdownArt
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	JmpTo6_DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	JmpTo6_DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	JmpTo6_DeleteObject
 	jmp	(DisplaySprite).l
 ; ===========================================================================
 
@@ -44763,13 +44613,8 @@ loc_1F956:
 
 loc_1F988:
 	jsrto	JmpTo3_ObjectMove
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	JmpTo13_DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	JmpTo13_DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	JmpTo13_DeleteObject
 	jmp	(DisplaySprite).l
 ; ===========================================================================
 
@@ -44781,13 +44626,8 @@ loc_1F99E:
 
 	lea	(Ani_obj24).l,a1
 	jsr	(AnimateSprite).l
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	JmpTo14_DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	JmpTo14_DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	JmpTo14_DeleteObject
 	jmp	(DisplaySprite).l
 ; ===========================================================================
 
@@ -44810,13 +44650,8 @@ loc_1F9C0:
 	move.w	(Water_Level_1).w,d0
 	cmp.w	y_pos(a0),d0
 	bhs.w	loc_1FACE
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.w	loc_1FACE
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.w	loc_1FACE
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.w	loc_1FACE
 	subq.w	#1,objoff_38(a0)
 	bpl.w	loc_1FAC2
 	move.w	#1,objoff_36(a0)
@@ -48775,13 +48610,8 @@ loc_234A4:
 Obj2F_Fragment:
 	jsrto	JmpTo8_ObjectMove
 	addi.w	#$18,y_vel(a0)
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.w	JmpTo22_DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.w	JmpTo22_DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.w	JmpTo22_DeleteObject
 	jmpto	JmpTo12_DisplaySprite
 ; ===========================================================================
 ; byte_234F2:
@@ -48916,13 +48746,8 @@ Obj32_Destroy:
 Obj32_Fragment:
 	jsrto	JmpTo8_ObjectMove
 	addi.w	#$18,y_vel(a0)
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.w	JmpTo22_DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.w	JmpTo22_DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.w	JmpTo22_DeleteObject
 	jmpto	JmpTo12_DisplaySprite
 ; ===========================================================================
 ; velocity array for smashed bits, two words for each fragment
@@ -50364,13 +50189,8 @@ Obj47_Init:
 	addq.w	#4,y_pos(a0)
 ; loc_24D32:
 Obj47_Main:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	BranchTo_JmpTo12_MarkObjGone
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	BranchTo_JmpTo12_MarkObjGone
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	BranchTo_JmpTo12_MarkObjGone
 	move.w	#$1B,d1
 	move.w	#4,d2
 	move.w	#5,d3
@@ -50553,13 +50373,8 @@ loc_24F28:
 Obj3D_Fragment:
 	jsrto	JmpTo10_ObjectMove
 	addi.w	#$18,y_vel(a0)
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.w	JmpTo26_DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.w	JmpTo26_DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.w	JmpTo26_DeleteObject
 	jmpto	JmpTo14_DisplaySprite
 ; ===========================================================================
 ; loc_24F52:
@@ -50650,13 +50465,8 @@ return_25034:
 ; ===========================================================================
 
 loc_25036:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a1)
-	bmi.s	Obj3D_MoveCharacter
-    else
-	btst	#render_flags.on_screen,render_flags(a1)
-	bne.s	Obj3D_MoveCharacter
-    endif
+	_btst	#render_flags.on_screen,render_flags(a1)
+	_bne.s	Obj3D_MoveCharacter
 	move.b	#0,obj_control(a1)
 	bset	#status.player.in_air,status(a1)
 	bclr	#status.player.on_object,status(a1)
@@ -50931,13 +50741,8 @@ word_25464:
 ; ===========================================================================
 
 loc_25474:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a1)
-	bmi.s	loc_25492
-    else
-	btst	#render_flags.on_screen,render_flags(a1)
-	bne.s	loc_25492
-    endif
+	_btst	#render_flags.on_screen,render_flags(a1)
+	_bne.s	loc_25492
 	move.b	#0,obj_control(a1)
 	bset	#status.player.in_air,status(a1)
 	bclr	#status.player.on_object,status(a1)
@@ -51427,13 +51232,8 @@ loc_25B9A:
 	addi.w	#$18,y_vel(a0)
 
 loc_25BA4:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.w	JmpTo28_DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.w	JmpTo28_DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.w	JmpTo28_DeleteObject
 	jmpto	JmpTo16_DisplaySprite
 ; ===========================================================================
 byte_25BB0:
@@ -51721,13 +51521,8 @@ Obj2C_Leaf:
 	move.b	#$B,anim_frame_duration(a0)
 	bchg	#1,mapping_frame(a0)
 +
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.w	JmpTo29_DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.w	JmpTo29_DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.w	JmpTo29_DeleteObject
 	jmpto	JmpTo17_DisplaySprite
 
     if removeJmpTos
@@ -52228,13 +52023,8 @@ Obj64_Main:
 	move.w	Obj64_Modes(pc,d0.w),d1
 	jsr	Obj64_Modes(pc,d1.w)
 	move.w	(sp)+,d4
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	+
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	+
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	+
 	moveq	#0,d1
 	move.b	width_pixels(a0),d1
 	addi.w	#$B,d1
@@ -53327,13 +53117,8 @@ Obj68_Spike_Action:
 	andi.b	#$3F,d0
 	bne.s	Obj68_Spike_Action_End
 	clr.w	spikearoundblock_waiting(a0)
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)	; is the spike on the screen?
-	bpl.s	+			; if not, branch
-    else
-	btst	#render_flags.on_screen,render_flags(a0)	; is the spike on the screen?
-	beq.s	+						; if not, branch
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)	; is the spike on the screen?
+	_beq.s	+						; if not, branch
 	move.w	#SndID_SpikesMove,d0
 	jsr	(PlaySound).l
 +
@@ -53770,13 +53555,8 @@ loc_27C2E:
 
 loc_27C3E:
 	move.w	(sp)+,d4
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	loc_27C5E
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	loc_27C5E
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	loc_27C5E
 	moveq	#0,d1
 	move.b	width_pixels(a0),d1
 	addi.w	#$B,d1
@@ -53800,13 +53580,8 @@ loc_27C66:
 
 loc_27C7A:
 	move.w	(sp)+,d4
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	loc_27C9A
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	loc_27C9A
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	loc_27C9A
 	moveq	#0,d1
 	move.b	width_pixels(a0),d1
 	addi.w	#$B,d1
@@ -53939,13 +53714,8 @@ Obj6B_Main:
 	move.w	Obj6B_Types(pc,d0.w),d1
 	jsr	Obj6B_Types(pc,d1.w)
 	move.w	(sp)+,d4
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	+
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	+
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	+
 	moveq	#0,d1
 	move.b	width_pixels(a0),d1
 	addi.w	#$B,d1
@@ -55270,13 +55040,8 @@ Obj76_Main:
 	move.w	Obj76_Modes(pc,d0.w),d1
 	jsr	Obj76_Modes(pc,d1.w)
 	move.w	(sp)+,d4
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	loc_28EC2
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	loc_28EC2
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	loc_28EC2
 	moveq	#0,d1
 	move.b	width_pixels(a0),d1
 	addi.w	#$B,d1
@@ -55395,13 +55160,8 @@ Obj77_Main:
 	beq.s	+
 	move.b	#1,objoff_34(a0)
 	bchg	#0,anim(a0)
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	+
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	+
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	+
 	move.w	#SndID_DoorSlam,d0
 	jsr	(PlaySound).l
 +
@@ -56292,13 +56052,8 @@ loc_29AAE:
 Obj80_Action:
 	tst.b	(a2)
 	beq.w	loc_29B5E
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a1)
-	bpl.s	loc_29B42
-    else
-	btst	#render_flags.on_screen,render_flags(a1)
-	beq.s	loc_29B42
-    endif
+	_btst	#render_flags.on_screen,render_flags(a1)
+	_beq.s	loc_29B42
 	cmpi.b	#4,routine(a1)
 	bhs.s	loc_29B42
 	andi.b	#button_B_mask|button_C_mask|button_A_mask,d0
@@ -56723,13 +56478,8 @@ Obj82_Main:
 	move.w	Obj82_Types(pc,d0.w),d1
 	jsr	Obj82_Types(pc,d1.w)
 	move.w	(sp)+,d4
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	+
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	+
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	+
 
 	moveq	#0,d1
 	move.b	width_pixels(a0),d1
@@ -57560,13 +57310,8 @@ loc_2AD7A:
     endif
 	subq.b	#1,d0
 	bne.w	loc_2AE0C
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a1)
-	bmi.s	loc_2ADB0
-    else
-	btst	#render_flags.on_screen,render_flags(a1)
-	bne.s	loc_2ADB0
-    endif
+	_btst	#render_flags.on_screen,render_flags(a1)
+	_bne.s	loc_2ADB0
 	bclr	d6,status(a0)
 	bset	#status.player.in_air,status(a1)
 	bclr	#status.player.on_object,status(a1)
@@ -57732,13 +57477,8 @@ loc_2AF7A:
     endif
 	subq.b	#1,d0
 	bne.w	loc_2B018
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a1)
-	bmi.s	loc_2AFB0
-    else
-	btst	#render_flags.on_screen,render_flags(a1)
-	bne.s	loc_2AFB0
-    endif
+	_btst	#render_flags.on_screen,render_flags(a1)
+	_bne.s	loc_2AFB0
 	bclr	d6,status(a0)
 	bset	#status.player.in_air,status(a1)
 	bclr	#status.player.on_object,status(a1)
@@ -58727,13 +58467,8 @@ return_2BDF6:
 ; ===========================================================================
 
 loc_2BDF8:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	loc_2BE2E
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	loc_2BE2E
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	loc_2BE2E
 	tst.b	subtype(a0)
 	beq.s	loc_2BE28
 	move.w	a1,objoff_3E(a0)
@@ -60187,13 +59922,8 @@ Obj50_Bullet:
 ; wait and do nothing until on screen
 ; loc_2CE06:
 Obj50_CheckIfOnScreen:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bmi.s	+
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	bne.s	+
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_bne.s	+
 	rts
 ; ===========================================================================
 +
@@ -61223,13 +60953,8 @@ Obj5D_Main_Retreat:
 	bra.s	Obj5D_Main_C_End
 ; ===========================================================================
 +
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	Obj5D_Main_Delete
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	Obj5D_Main_Delete
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	Obj5D_Main_Delete
 
 Obj5D_Main_C_End:
 	bsr.w	Obj5D_Main_Move
@@ -61274,13 +60999,8 @@ Obj5D_Main_Pos_and_Collision:
 
 	cmpi.b	#8,routine_secondary(a0)	; exploding or retreating?
 	bhs.s	return_2DAE8			; if yes, branch
-    if status.npc.no_balancing = 7
-	tst.b	status(a0)
-	bmi.s	Obj5D_Defeated		; branch, if boss is defeated
-    else
-	btst	#status.npc.no_balancing,status(a0)
-	bne.s	Obj5D_Defeated		; branch, if boss is defeated
-    endif
+	_btst	#status.npc.no_balancing,status(a0)
+	_bne.s	Obj5D_Defeated		; branch, if boss is defeated
 	tst.b	collision_flags(a0)
 	bne.s	return_2DAE8		; branch, if collisions are not turned off
 
@@ -63133,13 +62853,8 @@ loc_2F460:
 ; ===========================================================================
 
 loc_2F46E:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bmi.s	return_2F482
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	bne.s	return_2F482
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_bne.s	return_2F482
 	addq.w	#4,sp
 	movea.l	objoff_34(a0),a1 ; parent address (vehicle)
 	jsrto	JmpTo5_DeleteObject2
@@ -63169,13 +62884,8 @@ return_2F4A4:
 loc_2F4A6:	; routine to handle hits
 	cmpi.b	#6,routine_secondary(a0)	; is only called when value is 4?
 	bhs.s	return_2F4EC	; thus unnecessary? (return if greater or equal than 6)
-    if status.npc.no_balancing = 7
-	tst.b	status(a0)
-	bmi.s	loc_2F4EE	; Sonic has just defeated the boss (i.e. bit 7 set)
-    else
-	btst	#status.npc.no_balancing,status(a0)
-	bne.s	loc_2F4EE	; Sonic has just defeated the boss (i.e. bit 7 set)
-    endif
+	_btst	#status.npc.no_balancing,status(a0)
+	_bne.s	loc_2F4EE	; Sonic has just defeated the boss (i.e. bit 7 set)
 	tst.b	collision_flags(a0)	; set to 0 when boss was hit by Touch_Enemy_Part2
 	bne.s	return_2F4EC	; not 0, i.e. boss not hit
 	tst.b	objoff_3E(a0)
@@ -63415,13 +63125,8 @@ loc_2F746:	; Obj56_Wheel_Sub4:
 	bne.w	JmpTo52_DeleteObject	; if boss non-existant
 	move.b	status(a1),status(a0)
 	move.b	render_flags(a1),render_flags(a0)
-    if status.npc.no_balancing = 7
-	tst.b	status(a0)
-	bpl.s	loc_2F768	; has Sonic just defeated the boss (i.e. bit 7 set)?
-    else
-	btst	#status.npc.no_balancing,status(a0)
-	beq.s	loc_2F768	; has Sonic just defeated the boss (i.e. bit 7 set)?
-    endif
+	_btst	#status.npc.no_balancing,status(a0)
+	_beq.s	loc_2F768	; has Sonic just defeated the boss (i.e. bit 7 set)?
 	addq.b	#2,routine_secondary(a0)	; if yes, Sub6
 
 loc_2F768:
@@ -64155,13 +63860,8 @@ loc_30170:
 ; ===========================================================================
 
 loc_30182:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	loc_301AA
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	loc_301AA
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	loc_301AA
 	tst.b	boss_defeated(a0)
 	bne.s	loc_3019C
 	cmpi.w	#$578,y_pos(a0)
@@ -64797,13 +64497,8 @@ Obj89_Main_SubC:
 ; ===========================================================================
 ; loc_30976:
 Obj89_Main_SubC_ChkDelete:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)		; is boss still visible?
-	bpl.s	JmpTo54_DeleteObject		; if not, branch
-    else
-	btst	#render_flags.on_screen,render_flags(a0)		; is boss still visible?
-	beq.s	JmpTo54_DeleteObject		; if not, branch
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)		; is boss still visible?
+	_beq.s	JmpTo54_DeleteObject		; if not, branch
 
 ; loc_3097C:
 Obj89_Main_SubC_Standard:
@@ -65788,13 +65483,8 @@ Obj57_Main_SubC: ; moving away fast
 	bra.s	Obj57_Main_SubC_Standard
 ; ===========================================================================
 +
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	JmpTo56_DeleteObject	; if off screen
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	JmpTo56_DeleteObject	; if off screen
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	JmpTo56_DeleteObject	; if off screen
 ;loc_315C6:
 Obj57_Main_SubC_Standard:
 	bsr.w	Boss_MoveObject
@@ -66367,13 +66057,8 @@ loc_31E2A:
 ; ===========================================================================
 
 loc_31E44:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	JmpTo58_DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	JmpTo58_DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	JmpTo58_DeleteObject
 
 loc_31E4A:
 	bsr.w	Boss_MoveObject
@@ -67150,13 +66835,8 @@ Obj54_MainSub12:
 	bra.s	++
 ; ===========================================================================
 +
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	JmpTo60_DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	JmpTo60_DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	JmpTo60_DeleteObject
 +
 	tst.b	(Boss_defeated_flag).w
 	bne.s	+
@@ -70110,13 +69790,8 @@ loc_34F06:
 	bsr.w	loc_351A0
 	lea	(Ani_obj61).l,a1
 	bsr.w	loc_3539E
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	return_34F26
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	return_34F26
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	return_34F26
 	bsr.w	loc_34F28
 	bra.w	JmpTo44_DisplaySprite
 ; ===========================================================================
@@ -70202,13 +69877,8 @@ loc_34FF0:
 	bsr.w	loc_35036
 	lea	(Ani_obj5B_obj60).l,a1
 	bsr.w	loc_3539E
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bmi.w	JmpTo44_DisplaySprite
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	bne.w	JmpTo44_DisplaySprite
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_bne.w	JmpTo44_DisplaySprite
 	rts
 ; ===========================================================================
 
@@ -70564,13 +70234,8 @@ loc_3533A:
 	tst.b	objoff_2A(a0)
 	bne.w	BranchTo_JmpTo63_DeleteObject
 	movea.l	objoff_34(a0),a1 ; a1=object
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a1)
-	bmi.s	loc_3534E
-    else
-	btst	#render_flags.on_screen,render_flags(a1)
-	bne.s	loc_3534E
-    endif
+	_btst	#render_flags.on_screen,render_flags(a1)
+	_bne.s	loc_3534E
 	rts
 ; ===========================================================================
 
@@ -72648,13 +72313,8 @@ Obj8C_Init:
 ; ===========================================================================
 ; loc_3694E:
 Obj8C_WaitUntilOnscreen:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bmi.s	loc_36970
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	bne.s	loc_36970
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_bne.s	loc_36970
 	bra.w	Obj8C_Animate
 ; ===========================================================================
 ; loc_36958:
@@ -72944,13 +72604,8 @@ Obj90_Directions:
 ; loc_36C1C:
 Obj8F_Move:
 Obj90_Move:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.w	JmpTo65_DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.w	JmpTo65_DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.w	JmpTo65_DeleteObject
 	jsrto	JmpTo8_ObjectMoveAndFall
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
@@ -73405,13 +73060,8 @@ Obj93_Init:
 ; ===========================================================================
 
 loc_37028:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.w	JmpTo65_DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.w	JmpTo65_DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.w	JmpTo65_DeleteObject
 	bchg	#render_flags.x_flip,render_flags(a0)
 	jsrto	JmpTo26_ObjectMove
 	jmpto	JmpTo39_MarkObjGone
@@ -73420,13 +73070,8 @@ loc_37028:
 loc_3703E:
 	tst.b	objoff_2B(a0)
 	bne.s	loc_37062
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	loc_37062
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	loc_37062
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	loc_37062
 	bsr.w	Obj_GetOrientationToPlayer
 	addi.w	#$20,d2
 	cmpi.w	#$40,d2
@@ -73628,13 +73273,8 @@ Obj95_FireballOrbit:
 
 loc_372B8:
 	jsrto	JmpTo26_ObjectMove
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.w	JmpTo65_DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.w	JmpTo65_DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.w	JmpTo65_DeleteObject
 	lea	(Ani_obj95_b).l,a1
 	jsrto	JmpTo25_AnimateSprite
 	jmpto	JmpTo45_DisplaySprite
@@ -74117,13 +73757,8 @@ Obj98_Init: ;;
 ; ===========================================================================
 ; loc_376FE:
 Obj98_Main:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.w	JmpTo65_DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.w	JmpTo65_DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.w	JmpTo65_DeleteObject
 	movea.l	objoff_2A(a0),a1
 	jsr	(a1)	; dynamic call! to Obj98_NebulaBombFall, Obj98_TurtloidShotMove, Obj98_CoconutFall, Obj98_CluckerShotMove, Obj98_SpinyShotFall, or Obj98_WallTurretShotMove, assuming the code hasn't been changed
 	jmpto	JmpTo39_MarkObjGone
@@ -75001,13 +74636,8 @@ loc_380AE:
 ; ===========================================================================
 
 loc_380C4:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	loc_380E4
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	loc_380E4
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	loc_380E4
 	bsr.w	Obj_GetOrientationToPlayer
 	tst.w	d0
 	beq.s	loc_380DA
@@ -75331,13 +74961,8 @@ loc_383DE:
 ; ===========================================================================
 
 ObjA1_Main:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	loc_3841C
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	loc_3841C
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	loc_3841C
 	bsr.w	Obj_GetOrientationToPlayer
 	btst	#render_flags.x_flip,render_flags(a0)
 	beq.s	loc_38404
@@ -75431,13 +75056,8 @@ ObjA2_Init:
 ; ===========================================================================
 
 ObjA2_Main:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.w	JmpTo65_DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.w	JmpTo65_DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.w	JmpTo65_DeleteObject
 	subq.w	#1,objoff_2A(a0)
 	bmi.s	loc_3851A
 	movea.w	objoff_2C(a0),a1 ; a1=object
@@ -79676,13 +79296,8 @@ ObjB8_Init:
 ; ===========================================================================
 
 loc_3B980:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	+
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	+
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	+
 	bsr.w	Obj_GetOrientationToPlayer
 	tst.w	d1
 	beq.s	+
@@ -79793,13 +79408,8 @@ ObjB9_Init:
 ; ===========================================================================
 
 loc_3BAD2:
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bmi.s	+
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	bne.s	+
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_bne.s	+
 	bra.w	loc_3BAF8
 ; ===========================================================================
 +
@@ -80488,13 +80098,8 @@ ObjC1_Breakup:
 	lea	(Ani_objC1).l,a1
 	jsrto	JmpTo25_AnimateSprite
 +
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.w	JmpTo65_DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.w	JmpTo65_DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.w	JmpTo65_DeleteObject
 	jmpto	JmpTo45_DisplaySprite
 ; ===========================================================================
 ; animation script
@@ -81670,13 +81275,8 @@ ObjC6_State2_State4:
 loc_3CFC0:
 	move.b	#2,mapping_frame(a0)
 	clr.w	x_vel(a0)
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.s	+
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.s	+
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.s	+
 	addq.b	#2,routine_secondary(a0) ; => ObjC6_State2_State5
 	move.w	#$80,x_vel(a0)
 	move.w	#-$200,y_vel(a0)
@@ -84416,13 +84016,8 @@ loc_3F354:
 loc_3F38E:
 	tst.b	routine_secondary(a0)
 	beq.s	+
-    if render_flags.on_screen = 7
-	tst.b	render_flags(a0)
-	bpl.w	JmpTo66_DeleteObject
-    else
-	btst	#render_flags.on_screen,render_flags(a0)
-	beq.w	JmpTo66_DeleteObject
-    endif
+	_btst	#render_flags.on_screen,render_flags(a0)
+	_beq.w	JmpTo66_DeleteObject
 	jsr	(ObjectMoveAndFall).l
 +
 	jmp	(MarkObjGone).l
