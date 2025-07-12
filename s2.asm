@@ -5758,20 +5758,38 @@ DemoScriptPointers: zoneOrderedTable 4,1
 ; ---------------------------------------------------------------------------
 ; dword_498C:
 EndingDemoScriptPointers:
-	; these values are invalid addresses, but they were used for the ending
-	; demos, which aren't present in Sonic 2
-	dc.l   $8B0837
-	dc.l   $42085C	; 1
-	dc.l   $6A085F	; 2
-	dc.l   $2F082C	; 3
-	dc.l   $210803	; 4
-	dc.l $28300808	; 5
-	dc.l   $2E0815	; 6
-	dc.l	$F0846	; 7
-	dc.l   $1A08FF	; 8
-	dc.l  $8CA0000	; 9
-	dc.l	     0	; 10
-	dc.l	     0	; 11
+	; Empty, since Sonic 2 doesn't have demos during its credits.
+; ---------------------------------------------------------------------------
+	; Leftover unused demo data from Sonic 1.
+	; It involves Sonic slowly running right, jumping once,
+	; then running at full speed for a few seconds.
+	; Interestingly, this lines up with our knowledge of
+	; the fabled Tokyo Game Show prototype.
+	; See it in action: https://youtu.be/S8_IAfQbUu0
+	demoinput ,	$8C
+	demoinput R,	$38
+	demoinput ,	$43
+	demoinput R,	$5D
+	demoinput ,	$6B
+	demoinput R,	$60
+	demoinput ,	$30
+	demoinput R,	$2D
+	demoinput ,	$22
+	demoinput R,	4
+	demoinput RC,	$31
+	demoinput R,	9
+	demoinput ,	$2F
+	demoinput R,	$16
+	demoinput ,	$10
+	demoinput R,	$47
+	demoinput ,	$1B
+	demoinput R,	$100
+	demoinput R,	$CB
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
 
 
 
@@ -6077,32 +6095,6 @@ SignpostUpdateTailsBounds:
 
 
 ; ===========================================================================
-; macro to simplify editing the demo scripts
-demoinput macro buttons,duration
-btns_mask := 0
-  irpc btn,"buttons"
-    switch "btn"
-    case "U"
-btns_mask := btns_mask|button_up_mask
-    case "D"
-btns_mask := btns_mask|button_down_mask
-    case "L"
-btns_mask := btns_mask|button_left_mask
-    case "R"
-btns_mask := btns_mask|button_right_mask
-    case "A"
-btns_mask := btns_mask|button_A_mask
-    case "B"
-btns_mask := btns_mask|button_B_mask
-    case "C"
-btns_mask := btns_mask|button_C_mask
-    case "S"
-btns_mask := btns_mask|button_start_mask
-    elsecase
-    endcase
-  endm
-	dc.b	btns_mask,duration-1
- endm
 ; ---------------------------------------------------------------------------
 ; EHZ Demo Script (Sonic)
 ; ---------------------------------------------------------------------------
