@@ -4987,6 +4987,11 @@ Level_FromCheckpoint:
 	move.w	d0,(Monitors_Broken).w
 	move.w	d0,(Monitors_Broken_2P).w
 	move.w	d0,(Loser_Time_Left).w
+    if fixBugs
+	; S3K adds this. The game leaves this flag set after a Game Over or a reset,
+	; which can have bizarre effects when playing as Tails.
+	move.b	d0,(Super_Sonic_flag).w
+    endif
 	bsr.w	OscillateNumInit
 	move.b	#1,(Update_HUD_score).w
 	move.b	#1,(Update_HUD_rings).w
@@ -10335,6 +10340,10 @@ ContinueScreen:
 	; finally the art is loaded.
 	clr.w	(VDP_Command_Buffer).w
 	move.l	#VDP_Command_Buffer,(VDP_Command_Buffer_Slot).w
+
+	; The game leaves this flag set after a Game Over, which causes
+	; Sonic to animate incorrectly.
+	clr.b	(Super_Sonic_flag).w
     endif
 
 	bsr.w	ContinueScreen_LoadLetters
