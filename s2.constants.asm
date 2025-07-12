@@ -1382,7 +1382,7 @@ PalCycle_Frame2_CNZ:		ds.w	1
 				ds.b	4	; $FFFFF658-$FFFFF65B ; seems unused
 Palette_frame:			ds.w	1
 Palette_timer:			ds.b	1	; was "Palette_frame_count"
-Super_Sonic_palette:		ds.b	1
+Super_Sonic_palette:		ds.b	1	; 0 = off | 1 = fading | -1 = fading done
 
 DEZ_Eggman:					; Word
 DEZ_Shake_Timer:				; Word
