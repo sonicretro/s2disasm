@@ -79269,7 +79269,12 @@ loc_3B7BC:
 	bclr	#p1_standing_bit,status(a0)
 	beq.s	loc_3B7DE
 	lea	(MainCharacter).w,a1 ; a1=character
+    if fixBugs
 	bclr	#status.player.on_object,status(a1)
+    else
+	; This is the wrong constant; it is for NPCs, not the player!
+	bclr	#status.npc.p1_standing,status(a1)
+    endif
 	bset	#status.player.in_air,status(a1)
 
 loc_3B7DE:
@@ -79279,8 +79284,8 @@ loc_3B7DE:
     if fixBugs
 	bclr	#status.player.on_object,status(a1)
     else
-	; This is the wrong bit.
-	bclr	#status.player.on_object+1,status(a1)
+	; This is the wrong constant; it is for NPCs, not the player!
+	bclr	#status.npc.p2_standing,status(a1)
     endif
 	bset	#status.player.in_air,status(a1)
 
