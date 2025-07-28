@@ -19862,7 +19862,12 @@ CalculateVRAMAddressOfBlockForPlayer2:
 	move.w	d4,d0
 	rts
 ; ===========================================================================
-; interestingly, this subroutine was in the Sonic 1 ROM, unused
+; This subroutine was in Sonic 1 unused and works by swapping the bottom portion
+; of the background's nametable with that of the window plane. This allowed for a
+; third scrolling layer (used in the Tokyo Toy Show '90 demo), at the cost of the
+; bottom of the background appearing blank.
+; Now, it is instead used to draw the second player's foreground.
+; would've
 .doubleResolution:
 	add.w	4(a3),d4
 	add.w	(a3),d5
@@ -19879,8 +19884,9 @@ CalculateVRAMAddressOfBlockForPlayer2:
 ; End of function CalculateVRAMAddressOfBlockForPlayer2
 
 ; ===========================================================================
-; Loads the background in its initial state into VRAM (plane B).
-; Especially important for levels that never re-load the background dynamically
+; Loads the background in its initial state into VRAM (plane B). Especially
+; important for levels that never re-load the background dynamically.
+; See also: DrawLevelTitleCard (loads plane A)
 ;loc_E300:
 DrawInitialBG:
 	lea	(VDP_control_port).l,a5
@@ -19947,7 +19953,7 @@ DrawInitialBG:
 	rts
 ; ===========================================================================
 	; Dead code for initialising the second player's portion of Plane B.
-	; I wonder why this is unused?
+	; This was used in earlier builds before title cards were implemented.
 	moveq	#-16,d4
 
 	moveq	#256/16-1,d6 ; Height of plane in blocks minus 1.
@@ -28816,6 +28822,8 @@ loc_15714:
 	dbf	d7,loc_156F4
 	move.w	(TitleCard_Background+titlecard_vram_dest).w,d4
 	beq.s	loc_1578C
+	; Initialize plane A for both players; we have to do this here as otherwise
+	; it will appear corrupted when the title card leaves.
 	lea	VDP_control_port-VDP_data_port(a6),a5
 	tst.w	(Two_player_mode).w
 	beq.s	loc_15758
