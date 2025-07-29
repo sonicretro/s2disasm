@@ -1,11 +1,11 @@
 
-	padding off	; we don't want AS padding out dc.b instructions
+	padding off		; we don't want AS padding out dc.b instructions
 	;listing off		; We don't need to generate anything for a listing file
-	;listing on			; Want full listing file
+	;listing on		; Want full listing file
 	;listing noskipped	; Want listing file, but only the non-skipped part of conditional assembly
 	listing purecode	; Want listing file, but only the final code in expanded macros
-	page	0	; Don't want form feeds
-	supmode on	; we don't need warnings about privileged instructions
+	page	0		; Don't want form feeds
+	supmode on		; we don't need warnings about privileged instructions
 
 
 paddingSoFar set 0

@@ -308,7 +308,7 @@ VDPInitValues:	; values for VDP registers
 	dc.b $FF		; Command $94FF - See above
 	dc.b 0			; Command $9500 - DMA Source Address $0
 	dc.b 0			; Command $9600 - See above
-	dc.b $80		; Command $9780	- See above + VRAM fill mode
+	dc.b $80		; Command $9780 - See above + VRAM fill mode
 VDPInitValues_End:
 
 	dc.l	vdpComm($0000,VRAM,DMA) ; value for VRAM write mode
@@ -1416,7 +1416,7 @@ VDP_Loop:
 ; loc_11A0:
 VDP_ClrCRAM:
 	move.w	d0,(a1)
-	dbf	d7,VDP_ClrCRAM	; clear	the CRAM
+	dbf	d7,VDP_ClrCRAM	; clear the CRAM
 
 	clr.l	(Vscroll_Factor).w
 	clr.l	(unk_F61A).w
@@ -2051,9 +2051,9 @@ NemDecPrepare:
 ; d0 = index of PLC list (see ArtLoadCues)
 
 ; NOTICE: This subroutine does not check for buffer overruns. The programmer
-;	  (or hacker) is responsible for making sure that no more than
-;	  16 load requests are copied into the buffer.
-;    _________DO NOT PUT MORE THAN 16 LOAD REQUESTS IN A LIST!__________
+;         (or hacker) is responsible for making sure that no more than
+;         16 load requests are copied into the buffer.
+;         _________DO NOT PUT MORE THAN 16 LOAD REQUESTS IN A LIST!__________
 ;         (or if you change the size of Plc_Buffer, the limit becomes (Plc_Buffer_Only_End-Plc_Buffer)/6)
 
 ; sub_161E: PLCLoad: AddPLC:
@@ -2095,9 +2095,9 @@ LoadPLC:
 ; d0 = index of PLC list (see ArtLoadCues)
 
 ; NOTICE: This subroutine does not check for buffer overruns. The programmer
-;	  (or hacker) is responsible for making sure that no more than
-;	  16 load requests are copied into the buffer.
-;	  _________DO NOT PUT MORE THAN 16 LOAD REQUESTS IN A LIST!__________
+;         (or hacker) is responsible for making sure that no more than
+;         16 load requests are copied into the buffer.
+;         _________DO NOT PUT MORE THAN 16 LOAD REQUESTS IN A LIST!__________
 ;         (or if you change the size of Plc_Buffer, the limit becomes (Plc_Buffer_Only_End-Plc_Buffer)/6)
 ; sub_1650:
 LoadPLC2:
@@ -9794,7 +9794,7 @@ Obj87_Init:
 	move.w	d1,mainspr_height-subspr_data(a1) ; mainspr_height and sub2_mapframe
 	move.w	#$E0,sub3_x_pos-subspr_data(a1)	; sub3_x_pos
 	move.w	d0,sub3_y_pos-subspr_data(a1)	; sub3_y_pos
-	move.w	d1,mapping_frame-subspr_data(a1)	; mapping_frame	and sub3_mapframe
+	move.w	d1,mapping_frame-subspr_data(a1)	; mapping_frame and sub3_mapframe
 	move.w	d0,sub4_y_pos-subspr_data(a1)	; sub4_y_pos
 	move.w	d0,sub5_y_pos-subspr_data(a1)	; sub5_y_pos
 	move.w	d0,sub6_y_pos-subspr_data(a1)	; sub6_y_pos
@@ -9841,7 +9841,7 @@ Obj87_Init:
 	move.w	d0,sub2_y_pos-subspr_data(a2)	; sub2_y_pos
 	move.w	d1,mainspr_height-subspr_data(a2) ; mainspr_height and sub2_mapframe
 	move.w	d0,sub3_y_pos-subspr_data(a2)	; sub3_y_pos
-	move.w	d1,mapping_frame-subspr_data(a2)	; mapping_frame	and sub3_mapframe
+	move.w	d1,mapping_frame-subspr_data(a2)	; mapping_frame and sub3_mapframe
 	move.w	d0,sub4_y_pos-subspr_data(a2)	; sub4_y_pos
 	move.w	d1,sub4_mapframe-1-subspr_data(a2) ; something and sub4_mapframe
 	rts
@@ -10510,7 +10510,7 @@ JmpTo2_DisplaySprite ; JmpTo
 ; word_7AB2:
 ObjDA_XPositions:
 	dc.w  $116, $12A, $102,	$13E,  $EE, $152,  $DA,	$166
-	dc.w   $C6, $17A,  $B2,	$18E,  $9E, $1A2,  $8A;	8
+	dc.w   $C6, $17A,  $B2,	$18E,  $9E, $1A2,  $8A; 8
 ; ===========================================================================
 
 loc_7AD0:
@@ -18368,7 +18368,7 @@ SetHorizScrollFlagsBG:	; used by WFZ, HTZ, HPZ
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ;sub_D938: ;Vertical_Bg_Deformation1:
-SetVertiScrollFlagsBG:		;	used by WFZ, HTZ, HPZ, ARZ
+SetVertiScrollFlagsBG:		; used by WFZ, HTZ, HPZ, ARZ
 	move.l	(Camera_BG_Y_pos).w,d3
 	move.l	d3,d0
 	add.l	d5,d0	; add y-shift for this frame
@@ -42222,7 +42222,7 @@ Obj08_MdSpindashDust:
 	andi.b	#1<<status.npc.x_flip,status(a0)
 	tst.b	obj08_belongs_to_tails(a0)
 	beq.s	+
-	subi_.w	#4,y_pos(a0);	; Tails is shorter than Sonic
+	subi_.w	#4,y_pos(a0)	; Tails is shorter than Sonic
 +
 	tst.b	prev_anim(a0)
 	bne.s	Obj08_Display
@@ -52075,7 +52075,7 @@ Obj64_Index:	offsetTable
 ; byte_26932:
 Obj64_Properties:
 	;    width_pixels
-	;	  objoff_2E
+	;	 objoff_2E
 	dc.b $40, $C
 	dc.b $40,  1	; 2
 	dc.b $10,$20	; 4
@@ -62587,16 +62587,16 @@ Obj56_Index:	offsetTable
 ; ===========================================================================
 
 ; #status.npc.no_balancing,status(ax) set via collision response routine (Touch_Enemy_Part2)
-; 	when after a hit collision_property(ax) = hitcount has reached zero
-; objoff_2A(ax) used as timer (countdown)
-; objoff_2C(ax) tertiary rountine counter
-; #0,objoff_2D(ax) set when Robotnik is on ground
-; #1,objoff_2D(ax) set when Robotnik is active (moving back & forth)
-; #2,objoff_2D(ax) set when Robotnik is flying off after being defeated
-;	#3,objoff_2D(ax) flag to separate spike from vehicle
-; objoff_2E(ax)	y_position of wheels
-;	objoff_34(ax) parent object
-; objoff_3C(ax)	timer after defeat
+; when after a hit collision_property(ax) = hitcount has reached zero
+; objoff_2A(ax)		used as timer (countdown)
+; objoff_2C(ax)		tertiary rountine counter
+; #0,objoff_2D(ax)	set when Robotnik is on ground
+; #1,objoff_2D(ax)	set when Robotnik is active (moving back & forth)
+; #2,objoff_2D(ax)	set when Robotnik is flying off after being defeated
+; #3,objoff_2D(ax)	flag to separate spike from vehicle
+; objoff_2E(ax)		y_position of wheels
+; objoff_34(ax)		parent object
+; objoff_3C(ax)		timer after defeat
 
 ; loc_2EF36:
 Obj56_Init:
@@ -63005,7 +63005,7 @@ return_2F4EC:
 	rts
 ; ===========================================================================
 
-loc_2F4EE:	;	boss defeated
+loc_2F4EE:	; boss defeated
 	moveq	#100,d0
 	jsrto	JmpTo3_AddPoints	; add 1000 points, reward for defeating boss
 	move.b	#6,routine_secondary(a0)
@@ -63427,7 +63427,7 @@ Obj56_MapUnc_2FA58:	include "mappings/sprite/obj56_b.asm"
 	; ground vehicle
 	; frame 0 = vehicle itself
 	; frame 1-3 = spike
-	;	frame 4-5 = foreground wheel
+	; frame 4-5 = foreground wheel
 	; frame 6-7 = background wheel
 
 ; animation script
@@ -63442,7 +63442,7 @@ byte_2FAD2:	dc.b  $F,  0,$FF	; bottom
 	rev02even
 byte_2FAD5:	dc.b   7,  1,  2,$FF	; top, normal
 	rev02even
-byte_2FAD9:	dc.b   7,  5,  5,  5,  5,  5,  5,$FD,  1	;	top, when hit
+byte_2FAD9:	dc.b   7,  5,  5,  5,  5,  5,  5,$FD,  1	; top, when hit
 	rev02even
 byte_2FAE2:	dc.b   7,  3,  4,  3,  4,  3,  4,$FD,  1	; top, laughter (when hurting Sonic)
 	rev02even
@@ -77779,10 +77779,10 @@ loc_3A49A:
 
 ; probably some sort of description of how to use the following palette
 word_3A49E:
-	dc.b   4	; 0	; How many frames before each iteration
-	dc.b   7	; 1	; How many iterations
-	dc.b $10	; 2	; Number of colors * 2 to skip each iteration
-	dc.b $FF	; 3	; Some sort of flag
+	dc.b   4		; 0	; How many frames before each iteration
+	dc.b   7		; 1	; How many iterations
+	dc.b $10		; 2	; Number of colors * 2 to skip each iteration
+	dc.b $FF		; 3	; Some sort of flag
 	dc.w Normal_palette+$10	; 4	; First target palette entry
 
 ; Palette for the SEGA screen (background and pre-wipe foreground) (7 frames)
@@ -77792,10 +77792,10 @@ word_3A49E:
 
 ; probably some sort of description of how to use the following palette
 word_3A514:
-	dc.b   4	; 0	; How many frames before each iteration
-	dc.b   7	; 1	; How many iterations
-	dc.b $10	; 2	; Number of colors * 2 to skip each iteration
-	dc.b $FF	; 3	; Some sort of flag
+	dc.b   4		; 0	; How many frames before each iteration
+	dc.b   7		; 1	; How many iterations
+	dc.b $10		; 2	; Number of colors * 2 to skip each iteration
+	dc.b $FF		; 3	; Some sort of flag
 	dc.w Normal_palette	; 4	; First target palette entry
 
 ; Palette for the SEGA screen (wiping and post-wipe foreground) (7 frames)
@@ -90875,7 +90875,7 @@ Mus_Credits:	include	"sound/music/generated/9E - Credits.inc"
 
 ; NOTE: the exact order of this list determines the priority of each sound, since it determines the sound's SndID.
 ;       a sound can get dropped if a higher-priority sound is already playing.
-;	see zSFXPriority for the priority allocation itself.
+;       see zSFXPriority for the priority allocation itself.
 ; loc_FEE91: SoundPoint:
 SoundIndex:
 SndPtr_Jump:		rom_ptr_z80	Sound20	; jumping sound
