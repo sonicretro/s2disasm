@@ -19867,7 +19867,6 @@ CalculateVRAMAddressOfBlockForPlayer2:
 ; third scrolling layer (used in the Tokyo Toy Show '90 demo), at the cost of the
 ; bottom of the background appearing blank.
 ; Now, it is instead used to draw the second player's foreground.
-; would've
 .doubleResolution:
 	add.w	4(a3),d4
 	add.w	(a3),d5
