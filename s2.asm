@@ -62157,7 +62157,15 @@ Obj5D_Gunk_States:	offsetTable
 
 Obj5D_Gunk_Init:
 	addq.b	#2,routine_secondary(a0)	; => Obj5D_Gunk_Main
+    if fixBugs
+	move.b	#$16,y_radius(a0)
+    else
+	; The hitbox for this object is a mess, allowing the player to avoid
+	; damage by simply ducking. Ideally, it would be realigned with the
+	; sprite, but this will have to do for now.
+	; Funnily enough, the Official Players Guide brings this up on page 90.
 	move.b	#$20,y_radius(a0)
+    endif
 	move.b	#$19,anim(a0)
 	move.w	#0,y_vel(a0)
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
