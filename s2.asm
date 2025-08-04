@@ -65015,6 +65015,15 @@ Obj89_Arrow_Platform:
 	move.w	#2,d3
 	move.w	x_pos(a0),d4
 	jsrto	JmpTo8_PlatformObject
+    if fixBugs
+	; AI Tails normally does not cause the arrow they are standing on
+	; to fall, this fixes that.
+	btst	#status.npc.p2_standing,status(a0)	; is Tails standing on the arrow?
+	beq.s	.notTails				; if not, branch
+	move.w	#$1F,obj89_arrow_timer(a0)		; else, set timer
+
+.notTails:
+    endif
 	btst	#status.npc.p1_standing,status(a0)	; is Sonic standing on the arrow?
 	beq.s	return_30D02				; if not, branch
 	move.w	#$1F,obj89_arrow_timer(a0)		; else, set timer
