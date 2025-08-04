@@ -17,14 +17,14 @@
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; ASSEMBLY OPTIONS:
 ;
-gameRevision = 1
+gameRevision = 0
 ;	| If 0, a REV00 ROM is built
 ;	| If 1, a REV01 ROM is built, which contains some fixes
 ;	| If 2, a (theoretical) REV02 ROM is built, which contains even more fixes
 padToPowerOfTwo = 1
 ;	| If 1, pads the end of the ROM to the next power of two bytes (for real hardware)
 ;
-fixBugs = 0
+fixBugs = 1
 ;	| If 1, enables all bug-fixes
 ;	| See also the 'FixDriverBugs' flag in 's2.sounddriver.asm'
 ;	| See also the 'FixMusicAndSFXDataBugs' flag in 'build.lua'
@@ -64470,6 +64470,14 @@ Obj89_Main_DropHammer:
 	cmpi.w	#$78,(Boss_Countdown).w
 	bgt.s	return_3088A			; wait until timer is below $78
 	subi_.w	#1,sub3_x_pos(a0)		; make hammer move left
+    if fixBugs
+	; This properly makes the hammer fall the opposite direction.
+	btst	#render_flags.x_flip,render_flags(a0)	; is Eggman facing right?
+	beq.s	.notfacingright			; is not, branch
+	addi_.w	#2,sub3_x_pos(a0)		; make the hammer move right
+
+.notfacingright:
+    endif
 	move.l	obj89_hammer_y_pos(a0),d0
 	move.w	obj89_hammer_y_vel(a0),d1
 	addi.w	#$38,obj89_hammer_y_vel(a0)	; add gravity
@@ -65348,8 +65356,21 @@ Obj57_TransferPositions:
 ;loc_31358:
 Obj57_FallApart:	; make the digger thingies fall down
 	cmpi.w	#$78,(Boss_Countdown).w
+    if ~~fixBugs
 	bgt.s	return_313C4
+    else
+	; Not actually a bugfix, but the code below pushed this branch out of range.
+	bgt.w	return_313C4
+    endif
 	subi_.w	#1,sub5_x_pos(a0)
+    if fixBugs
+	; This properly makes the left drill fall the opposite direction.
+	btst	#render_flags.x_flip,render_flags(a0)	; is Eggman facing right?
+	beq.s	.notfacingright			; is not, branch
+	addi_.w	#2,sub5_x_pos(a0)
+
+.notfacingright:
+    endif
 	move.l	obj57_sub5_y_pos2(a0),d0
 	move.w	obj57_sub5_y_vel(a0),d1
 	addi.w	#$38,obj57_sub5_y_vel(a0)
@@ -65363,6 +65384,14 @@ Obj57_FallApart:	; make the digger thingies fall down
 	move.w	#0,obj57_sub5_y_vel(a0)
 +			; second one
 	addi_.w	#1,sub2_x_pos(a0)
+    if fixBugs
+	; This properly makes the right drill fall the opposite direction.
+	btst	#render_flags.x_flip,render_flags(a0)	; is Eggman facing right?
+	beq.s	.notfacingright2			; is not, branch
+	subi_.w	#2,sub5_x_pos(a0)
+
+.notfacingright2:
+    endif
 	move.l	obj57_sub2_y_pos2(a0),d0
 	move.w	obj57_sub2_y_vel(a0),d1
 	addi.w	#$38,obj57_sub2_y_vel(a0)
@@ -66201,8 +66230,21 @@ loc_31E76:
 
 loc_31EAE:
 	cmpi.w	#$78,(Boss_Countdown).w
+    if ~~fixBugs
 	bgt.s	return_31F22
+    else
+	; Not actually a bugfix, but the code below pushed this branch out of range.
+	bgt.w	return_31F22
+    endif
 	subi_.w	#1,sub5_x_pos(a0)
+    if fixBugs
+	; This properly makes the left electricity generator fall the opposite direction.
+	btst	#render_flags.x_flip,render_flags(a0)	; is Eggman facing right?
+	beq.s	.notfacingright			; is not, branch
+	addi_.w	#2,sub5_x_pos(a0)
+
+.notfacingright:
+    endif
 	move.l	objoff_3A(a0),d0
 	move.w	objoff_2E(a0),d1
 	addi.w	#$38,objoff_2E(a0)
@@ -66219,6 +66261,14 @@ loc_31EE8:
 	cmpi.w	#60,(Boss_Countdown).w
 	bgt.s	return_31F22
 	addi_.w	#1,sub2_x_pos(a0)
+    if fixBugs
+	; This properly makes the right electricity generator fall the opposite direction.
+	btst	#render_flags.x_flip,render_flags(a0)	; is Eggman facing right?
+	beq.s	.notfacingright2		; is not, branch
+	subi_.w	#2,sub2_x_pos(a0)
+
+.notfacingright2:
+    endif
 	move.l	objoff_34(a0),d0
 	move.w	objoff_30(a0),d1
 	addi.w	#$38,objoff_30(a0)
