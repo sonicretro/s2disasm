@@ -46342,6 +46342,12 @@ Obj84_MainY:
 	lea	(MainCharacter).w,a1 ; a1=character
 	bsr.s	+
 	lea	(Sidekick).w,a1 ; a1=character
+    if fixBugs
+	; AI Tails can behave rather strangely if he happens to be flying into
+	; an autoroll object, most visible in Casino Night.
+	cmpi.w	#4,(Tails_CPU_routine).w	; TailsCPU_Flying
+	beq.s	return_21350
+    endif
 +
 	tst.b	(a2)+
 	bne.s	Obj84_MainY_Alt
@@ -48023,6 +48029,12 @@ loc_22688:
 	move.w	(a2)+,d5
 	add.w	y_pos(a0),d5
 	addq.b	#2,(a4)
+    if fixBugs
+	; If Sonic/Tails end up getting damaged into a pipe, they will
+	; be constantly displaced due to how the hurt routine works. This
+	; fixes the bug by forcing them back into their normal state.
+	move.b	#2,routine(a1)
+    endif
 	move.b	#$81,obj_control(a1)
 	move.b	#AniIDSonAni_Roll,anim(a1)
 	move.w	#$800,inertia(a1)
