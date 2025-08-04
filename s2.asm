@@ -64097,6 +64097,9 @@ obj89_eyes_timer		= objoff_30
 obj89_arrow_routine		= objoff_2A
 obj89_arrow_timer		= objoff_30
 obj89_arrow_parent2		= objoff_34
+    if fixBugs
+obj89_checkplayerhurt		= objoff_36
+    endif
 obj89_arrow_parent		= objoff_38	; address of main vehicle
 
 ; Sprite_30480:
@@ -64387,6 +64390,14 @@ Obj89_Main_Sub6_Standard:
 ; loc_3075C:
 Obj89_Main_HandleFace:
 	bsr.w	Obj89_Main_HandleHoveringAndHits
+    if fixBugs
+	; Due to how this code works, Eggman does not laugh (or play any
+	; animation for that matter) until the player has hit the ground.
+	; To fix this, we'll simply force it to run when Sonic or Tails
+	; are hurt using a flag.
+	tst.b	obj89_checkplayerhurt(a0)	; should Eggman be laughing?
+	bne.s	Obj89_Main_ChkHurt		; if yes, branch
+    endif
 	cmpi.b	#4,(MainCharacter+routine).w	; is Sonic hurt?
 	beq.s	Obj89_Main_Laugh		; if yes, branch
 	cmpi.b	#4,(Sidekick+routine).w		; is Tails hurt?
@@ -64396,7 +64407,9 @@ Obj89_Main_HandleFace:
 Obj89_Main_Laugh:
 	lea	(Boss_AnimationArray).w,a1
 	move.b	#$31,1*2+1(a1)			; use laughing animation
-
+    if fixBugs
+	move.b	#1,obj89_checkplayerhurt(a0)	; set flag to immediately start laughing
+    endif
 ; loc_3077A:
 Obj89_Main_ChkHurt:
 	cmpi.b	#64-1,boss_invulnerable_time(a0)	; was boss hurt?
@@ -64405,6 +64418,13 @@ Obj89_Main_ChkHurt:
 	move.b	#-$40,1*2+1(a1)			; use hurt animation
 
 return_3078C:
+    if fixBugs
+	cmpi.b	#$17,(Boss_AnimationArray+3).w	; has Eggman stopped laughing?
+	bne.s	.keeplaughing			; if not, branch
+	clr.b	obj89_checkplayerhurt(a0)	; clear laughing flag if he has
+
+.keeplaughing:
+    endif
 	rts
 ; ===========================================================================
 ; loc_3078E:
