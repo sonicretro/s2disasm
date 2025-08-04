@@ -64830,10 +64830,42 @@ Obj89_Arrow_Offsets:
 ; ===========================================================================
 ; loc_30B4A:
 Obj89_Pillar_Sub4:
+    if fixBugs
+	; This code is flawed in that it does not reset the character's standing
+	; flags for the pillar, leading to a case where one player can walk on air
+	; if another player defeats the boss. This fixes that, and also adjusts the
+	; code to keep the pillars solid when they descend.
+	move.w	#$23,d1
+	move.w	#$44,d2
+	move.w	#$45,d3
+	move.w	x_pos(a0),d4
+	move.w	y_pos(a0),-(sp)
+	addi_.w	#4,y_pos(a0)
+	jsrto	JmpTo26_SolidObject
+	move.w	(sp)+,y_pos(a0)
+    endif
 	move.b	#1,(Screen_Shaking_Flag).w	; make screen shake
 	addi_.w	#1,y_pos(a0)			; lower pillar
 	cmpi.w	#$510,y_pos(a0)			; has pillar lowered into the ground?
 	blt.s	BranchTo2_JmpTo37_DisplaySprite	; if not, branch
+    if fixBugs
+	; Read above. This was copied from Obj26_Solid.
+	move.b	status(a0),d0
+	andi.b	#standing_mask|pushing_mask,d0	; is someone touching the pillar?
+	beq.s	Obj89_Pillar_Lower	; if not, branch
+	move.b	d0,d1
+	andi.b	#p1_standing|p1_pushing,d1	; is it the main character?
+	beq.s	+		; if not, branch
+	andi.b	#~(1<<status.player.on_object|1<<status.player.pushing),(MainCharacter+status).w
+	ori.b	#1<<status.player.in_air,(MainCharacter+status).w	; prevent Sonic from walking in the air
++
+	andi.b	#p2_standing|p2_pushing,d0	; is it the sidekick?
+	beq.s	Obj89_Pillar_Lower	; if not, branch
+	andi.b	#~(1<<status.player.on_object|1<<status.player.pushing),(Sidekick+status).w
+	ori.b	#1<<status.player.in_air,(Sidekick+status).w	; prevent Tails from walking in the air
+
+Obj89_Pillar_Lower:
+    endif
 	move.b	#0,(Screen_Shaking_Flag).w	; else, stop shaking the screen
 	jmpto	JmpTo55_DeleteObject
 ; ===========================================================================
