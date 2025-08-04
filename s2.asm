@@ -67364,12 +67364,21 @@ Obj53_BreakAway:
 ;loc_32BB0
 Obj53_Animate:
 	bsr.w	+
+    if fixBugs
+Obj53_Animate_Part2:
+    endif
 	lea	(Ani_obj53).l,a1
 	jsrto	JmpTo21_AnimateSprite
 	jmpto	JmpTo40_DisplaySprite
 ; ===========================================================================
 +
+    if fixBugs
+	; This makes the clone instantly pop when a player is hit, rather
+	; than when the player hits the floor.
+	cmpi.b	#-1,collision_property(a0)
+    else
 	cmpi.b	#-2,collision_property(a0)
+    endif
 	bgt.s	+		; rts
 	move.b	#$14,mapping_frame(a0)
 	move.b	#6,anim(a0)
@@ -67387,7 +67396,13 @@ Obj53_BounceAround:
 +
 	bsr.w	Obj53_CheckPlayerHit
 	cmpi.b	#$B,mapping_frame(a0)
+    if ~~fixBugs
+	; If Tails defeats one of the clones two frames after Sonic has been
+	; hit by one, the game will crash due to incrementing routine twice.
 	bne.s	Obj53_Animate
+    else
+	bne.s	Obj53_Animate_Part2
+    endif
 	move.b	objoff_2C(a0),d0
 	jsr	(CalcSine).l
 	neg.w	d0
@@ -67743,6 +67758,15 @@ Obj55_HandleHits:
 	ori.b	#$80,Obj55_status(a0)	; set boss hit bit
 
 return_33192:
+    if fixBugs
+	; If the player defeats Eggman on the exact frame he is fully submerged,
+	; the game will crash due to the spiked chain having its routine set to
+	; 8, which is out-of-bounds for it.
+	cmpi.b	#8,boss_routine(a0)	; is boss exploding or retreating?
+	blo.s	+			; if yes, branch
+	move.b	#2,boss_subtype(a0)	; => Obj55_Main
++
+    endif
 	rts
 ; ===========================================================================
 ; loc_33194:
