@@ -51228,17 +51228,30 @@ Obj2B_Init:
 	move.l	#Obj2B_MapUnc_25C6E,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,1,0),art_tile(a0)
 	jsrto	JmpTo25_Adjust2PArtPointer
+    if fixBugs
+	ori.b	#1<<render_flags.level_fg|1<<render_flags.explicit_height,render_flags(a0)
+	move.b	#$1C,width_pixels(a0)
+	move.b	#$20,y_radius(a0)
+    else
+	; This should use the accurate height check and larger size values, since
+	; right now it vanishes whilst partially on-screen.
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#$10,width_pixels(a0)
 	move.b	#$18,y_radius(a0)
+    endif
 	move.b	#4,priority(a0)
 ; loc_25A9C:
 Obj2B_Main:
 	move.w	x_pos(a0),-(sp)
 	bsr.w	loc_25B28
+    if fixBugs
+	moveq	#$10+$B,d1
+    else
+	; Read above.
 	moveq	#0,d1
 	move.b	width_pixels(a0),d1
 	addi.w	#$B,d1
+    endif
 	moveq	#0,d2
 	move.b	y_radius(a0),d2
 	move.w	d2,d3
@@ -56548,7 +56561,11 @@ Obj82_Properties:
 	;    width_pixels
 	;        y_radius
 	dc.b $20,  8	; 0
+    if fixBugs
+	dc.b $1C,$32	; 2
+    else
 	dc.b $1C,$30	; 2
+    endif
 	; Unused and broken; these don't have an associated frame, so using them crashes the game
 	dc.b $10,$10	; 4
 	dc.b $10,$10	; 6
@@ -56559,7 +56576,12 @@ Obj82_Init:
 	move.l	#Obj82_MapUnc_2A476,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,0,0),art_tile(a0)
 	jsrto	JmpTo46_Adjust2PArtPointer
+    if fixBugs
+	ori.b	#1<<render_flags.level_fg|1<<render_flags.explicit_height,render_flags(a0)
+    else
+	; Same as Obj2B, this should use the accurate height flag.
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
+    endif
 	move.b	#3,priority(a0)
 	moveq	#0,d0
 	move.b	subtype(a0),d0
@@ -56599,6 +56621,13 @@ Obj82_Main:
 	move.b	y_radius(a0),d2
 	move.w	d2,d3
 	addq.w	#1,d3
+    if fixBugs
+	tst.b	mapping_frame(a0)	; is this a pillar?
+	beq.s	.notPillar		; if not, branch
+	subq.w	#2,d3
+
+.notPillar:
+    endif
 	jsrto	JmpTo23_SolidObject
 	swap	d6
 	move.b	d6,objoff_3F(a0)
