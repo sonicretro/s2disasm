@@ -24159,11 +24159,21 @@ Obj2D_Init:
 	bne.s	+
 	move.w	#make_art_tile(ArtTile_ArtNem_ConstructionStripes_2,1,0),art_tile(a0)
 	move.b	#8,width_pixels(a0)
+    if fixBugs
+	; This is sort of a hack. Chemical Plant and Death Egg use the wrong subtype,
+	; so a more proper fix would be to replace all instances with subtype 3.
+	move.b	#3,subtype(a0)
+    endif
 +
 	cmpi.b	#death_egg_zone,(Current_Zone).w
 	bne.s	+
 	move.w	#make_art_tile(ArtTile_ArtNem_ConstructionStripes_1,1,0),art_tile(a0)
 	move.b	#8,width_pixels(a0)
+    if fixBugs
+	; This is sort of a hack. Chemical Plant and Death Egg use the wrong subtype,
+	; so a more proper fix would be to replace all instances with subtype 3.
+	move.b	#3,subtype(a0)
+    endif
 +
 	cmpi.b	#aquatic_ruin_zone,(Current_Zone).w
 	bne.s	+
