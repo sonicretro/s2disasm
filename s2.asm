@@ -70322,6 +70322,10 @@ loc_35150:
 	moveq	#$1E,d0
 
 loc_35164:
+    if fixBugs
+	; Save the last animation value to elsewhere, related to a bugfix below.
+	move.b	anim(a0),objoff_23(a0)
+    endif
 	move.b	byte_35180(pc,d0.w),anim(a0)
 
 return_3516A:
@@ -70574,8 +70578,21 @@ BranchTo_JmpTo63_DeleteObject ; BranchTo
 ; ===========================================================================
 
 loc_3539E:
+    if fixBugs
+	; anim_frame_duration causes many of the animations to look far choppier
+	; than they should, or appear inconsistent. To solve this, we will store
+	; the proper animation elsewhere and stop decrementing the frame duration
+	; until both match up.
+	move.b	objoff_23(a0),d0
+	cmp.b	anim(a0),d0
+	bne.s	.skip
+    endif
 	subq.b	#1,anim_frame_duration(a0)
 	bpl.s	return_353E8
+    if fixBugs
+.skip:
+	move.b	anim(a0),objoff_23(a0)
+    endif
 	moveq	#0,d0
 	move.b	anim(a0),d0
 	add.w	d0,d0

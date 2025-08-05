@@ -127,6 +127,7 @@ objoff_10 =		x_vel
 objoff_14 =		inertia+0
 objoff_15 =		inertia+1
 objoff_1F =		anim_frame_duration+1
+objoff_23 =		respawn_index
 objoff_27 =		$27
 objoff_28 =		subtype ; overlaps subtype, but a few objects use it for other things anyway
  enum               objoff_29=$29,objoff_2A=$2A,objoff_2B=$2B,objoff_2C=$2C,objoff_2D=$2D,objoff_2E=$2E,objoff_2F=$2F
