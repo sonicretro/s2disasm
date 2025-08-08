@@ -28,12 +28,23 @@ psgdelta	EQU 12
 	enumconf	1
 ; ---------------------------------------------------------------------------
 ; Note Equates
-	enum		nRst=$80,nC0,nCs0,nD0,nEb0,nE0,nF0,nFs0,nG0,nAb0,nA0,nBb0,nB0,nC1,nCs1,nD1
-	nextenum	nEb1,nE1,nF1,nFs1,nG1,nAb1,nA1,nBb1,nB1,nC2,nCs2,nD2,nEb2,nE2,nF2,nFs2
-	nextenum	nG2,nAb2,nA2,nBb2,nB2,nC3,nCs3,nD3,nEb3,nE3,nF3,nFs3,nG3,nAb3,nA3,nBb3
-	nextenum	nB3,nC4,nCs4,nD4,nEb4,nE4,nF4,nFs4,nG4,nAb4,nA4,nBb4,nB4,nC5,nCs5,nD5
-	nextenum	nEb5,nE5,nF5,nFs5,nG5,nAb5,nA5,nBb5,nB5,nC6,nCs6,nD6,nEb6,nE6,nF6,nFs6
-	nextenum	nG6,nAb6,nA6,nBb6,nB6,nC7,nCs7,nD7,nEb7,nE7,nF7,nFs7,nG7,nAb7,nA7,nBb7
+	enum		nRst=$80
+	nextenum	nC0,nCs0,nDb0=nCs0,nD0,nDs0,nEb0=nDs0,nE0,nFb0=nE0,nEs0,nF0=nEs0
+	nextenum	nFs0,nGb0=nFs0,nG0,nGs0,nAb0=nGs0,nA0,nAs0,nBb0=nAs0,nB0,nCb1=nB0,nBs0
+	nextenum	nC1=nBs0,nCs1,nDb1=nCs1,nD1,nDs1,nEb1=nDs1,nE1,nFb1=nE1,nEs1,nF1=nEs1
+	nextenum	nFs1,nGb1=nFs1,nG1,nGs1,nAb1=nGs1,nA1,nAs1,nBb1=nAs1,nB1,nCb2=nB1,nBs1
+	nextenum	nC2=nBs1,nCs2,nDb2=nCs2,nD2,nDs2,nEb2=nDs2,nE2,nFb2=nE2,nEs2,nF2=nEs2
+	nextenum	nFs2,nGb2=nFs2,nG2,nGs2,nAb2=nGs2,nA2,nAs2,nBb2=nAs2,nB2,nCb3=nB2,nBs2
+	nextenum	nC3=nBs2,nCs3,nDb3=nCs3,nD3,nDs3,nEb3=nDs3,nE3,nFb3=nE3,nEs3,nF3=nEs3
+	nextenum	nFs3,nGb3=nFs3,nG3,nGs3,nAb3=nGs3,nA3,nAs3,nBb3=nAs3,nB3,nCb4=nB3,nBs3
+	nextenum	nC4=nBs3,nCs4,nDb4=nCs4,nD4,nDs4,nEb4=nDs4,nE4,nFb4=nE4,nEs4,nF4=nEs4
+	nextenum	nFs4,nGb4=nFs4,nG4,nGs4,nAb4=nGs4,nA4,nAs4,nBb4=nAs4,nB4,nCb5=nB4,nBs4
+	nextenum	nC5=nBs4,nCs5,nDb5=nCs5,nD5,nDs5,nEb5=nDs5,nE5,nFb5=nE5,nEs5,nF5=nEs5
+	nextenum	nFs5,nGb5=nFs5,nG5,nGs5,nAb5=nGs5,nA5,nAs5,nBb5=nAs5,nB5,nCb6=nB5,nBs5
+	nextenum	nC6=nBs5,nCs6,nDb6=nCs6,nD6,nDs6,nEb6=nDs6,nE6,nFb6=nE6,nEs6,nF6=nEs6
+	nextenum	nFs6,nGb6=nFs6,nG6,nGs6,nAb6=nGs6,nA6,nAs6,nBb6=nAs6,nB6,nCb7=nB6,nBs6
+	nextenum	nC7=nBs6,nCs7,nDb7=nCs7,nD7,nDs7,nEb7=nDs7,nE7,nFb7=nE7,nEs7,nF7=nEs7
+	nextenum	nFs7,nGb7=nFs7,nG7,nGs7,nAb7=nGs7,nA7,nAs7,nBb7=nAs7
 ; SMPS2ASM uses nMaxPSG for songs from S1/S2 drivers.
 ; nMaxPSG1 and nMaxPSG2 are used only for songs from S3/S&K/S3D drivers.
 ; The use of psgdelta is intended to undo the effects of PSGPitchConvert
@@ -388,11 +399,12 @@ smpsDetune macro val
 	dc.b	$E1,val
 	endm
 
-; E2xx - Useless
+; E2xx - Used for setting a variable which can be read by the game, for synchonisation. Ristar does this.
 smpsNop macro val
-	if SonicDriverVer<3
-		dc.b	$E2,val
+	if (SonicDriverVer>=3) && ((val==$FF) || (val==$29))
+		warning "Values $FF and $29 are reserved in S3K's driver; use a different value or remove this command."
 	endif
+	dc.b	$E2,val
 	endm
 
 ; Return (used after smpsCall)
@@ -417,7 +429,8 @@ smpsFade macro val
 			smpsStop
 		endif
 	elseif (SourceDriver>=3) && ("val"<>"") && ("val"<>"$FF")
-		; This is one of those weird S3+ "fades" that we don't need
+		; This is actually a communication byte, not a fade.
+		smpsNop	val
 	else
 		dc.b	$E4
 	endif
@@ -620,9 +633,16 @@ smpsCall macro loc
 ; ---------------------------------------------------------------------------
 ; Alter Volume
 smpsFMAlterVol macro val1,val2
-	if (SonicDriverVer>=3)&&("val2"<>"")
-		dc.b	$E5,val1,val2
+	if ("val2"<>"")
+		; S3K's nerfed 'PSG & FM volume' command with broken PSG support.
+		; The first value is completely unused, while the second is for FM tracks.
+		if (SonicDriverVer>=3)
+			dc.b	$E5,val1,val2
+		else
+			dc.b	$E6,val2
+		endif
 	else
+		; Normal, sane command.
 		dc.b	$E6,val1
 	endif
 	endm
@@ -769,59 +789,59 @@ smpsSetvoice macro
 ; Macros for FM instruments
 ; Voices - Feedback
 smpsVcFeedback macro val
-vcFeedback set val
+vcFeedback eval val
 	endm
 
 ; Voices - Algorithm
 smpsVcAlgorithm macro val
-vcAlgorithm set val
+vcAlgorithm eval val
 	endm
 
 smpsVcUnusedBits macro val,d1r1,d1r2,d1r3,d1r4
-vcUnusedBits set val
+vcUnusedBits eval val
 	if ("d1r1"<>"")&&("d1r2"<>"")&&("d1r3"<>"")&&("d1r4"<>"")
-		set vcD1R1Unk,d1r1<<5
-		set vcD1R2Unk,d1r2<<5
-		set vcD1R3Unk,d1r3<<5
-		set vcD1R4Unk,d1r4<<5
+		eval vcD1R1Unk,d1r1<<5
+		eval vcD1R2Unk,d1r2<<5
+		eval vcD1R3Unk,d1r3<<5
+		eval vcD1R4Unk,d1r4<<5
 	else
-		set vcD1R1Unk,0
-		set vcD1R2Unk,0
-		set vcD1R3Unk,0
-		set vcD1R4Unk,0
+		eval vcD1R1Unk,0
+		eval vcD1R2Unk,0
+		eval vcD1R3Unk,0
+		eval vcD1R4Unk,0
 	endif
 	endm
 
 ; Voices - Detune
 smpsVcDetune macro op1,op2,op3,op4
-	set vcDT1,op1
-	set vcDT2,op2
-	set vcDT3,op3
-	set vcDT4,op4
+	eval vcDT1,op1
+	eval vcDT2,op2
+	eval vcDT3,op3
+	eval vcDT4,op4
 	endm
 
 ; Voices - Coarse-Frequency
 smpsVcCoarseFreq macro op1,op2,op3,op4
-	set vcCF1,op1
-	set vcCF2,op2
-	set vcCF3,op3
-	set vcCF4,op4
+	eval vcCF1,op1
+	eval vcCF2,op2
+	eval vcCF3,op3
+	eval vcCF4,op4
 	endm
 
 ; Voices - Rate Scale
 smpsVcRateScale macro op1,op2,op3,op4
-	set vcRS1,op1
-	set vcRS2,op2
-	set vcRS3,op3
-	set vcRS4,op4
+	eval vcRS1,op1
+	eval vcRS2,op2
+	eval vcRS3,op3
+	eval vcRS4,op4
 	endm
 
 ; Voices - Attack Rate
 smpsVcAttackRate macro op1,op2,op3,op4
-	set vcAR1,op1
-	set vcAR2,op2
-	set vcAR3,op3
-	set vcAR4,op4
+	eval vcAR1,op1
+	eval vcAR2,op2
+	eval vcAR3,op3
+	eval vcAR4,op4
 	endm
 
 ; Voices - Amplitude Modulation
@@ -830,48 +850,58 @@ smpsVcAttackRate macro op1,op2,op3,op4
 ; According to several docs, however, it's actually the high bit.
 smpsVcAmpMod macro op1,op2,op3,op4
 	if SourceSMPS2ASM==0
-		set vcAM1,op1<<5
-		set vcAM2,op2<<5
-		set vcAM3,op3<<5
-		set vcAM4,op4<<5
+		eval vcAM1,op1<<5
+		eval vcAM2,op2<<5
+		eval vcAM3,op3<<5
+		eval vcAM4,op4<<5
 	else
-		set vcAM1,op1<<7
-		set vcAM2,op2<<7
-		set vcAM3,op3<<7
-		set vcAM4,op4<<7
+		eval vcAM1,op1<<7
+		eval vcAM2,op2<<7
+		eval vcAM3,op3<<7
+		eval vcAM4,op4<<7
 	endif
 	endm
 
 ; Voices - First Decay Rate
 smpsVcDecayRate1 macro op1,op2,op3,op4
-	set vcD1R1,op1
-	set vcD1R2,op2
-	set vcD1R3,op3
-	set vcD1R4,op4
+	eval vcD1R1,op1
+	eval vcD1R2,op2
+	eval vcD1R3,op3
+	eval vcD1R4,op4
 	endm
 
 ; Voices - Second Decay Rate
 smpsVcDecayRate2 macro op1,op2,op3,op4
-	set vcD2R1,op1
-	set vcD2R2,op2
-	set vcD2R3,op3
-	set vcD2R4,op4
+	eval vcD2R1,op1
+	eval vcD2R2,op2
+	eval vcD2R3,op3
+	eval vcD2R4,op4
 	endm
 
 ; Voices - Decay Level
 smpsVcDecayLevel macro op1,op2,op3,op4
-	set vcDL1,op1
-	set vcDL2,op2
-	set vcDL3,op3
-	set vcDL4,op4
+	eval vcDL1,op1
+	eval vcDL2,op2
+	eval vcDL3,op3
+	eval vcDL4,op4
 	endm
 
 ; Voices - Release Rate
 smpsVcReleaseRate macro op1,op2,op3,op4
-	set vcRR1,op1
-	set vcRR2,op2
-	set vcRR3,op3
-	set vcRR4,op4
+	eval vcRR1,op1
+	eval vcRR2,op2
+	eval vcRR3,op3
+	eval vcRR4,op4
+	endm
+
+smpsNotZ80 function cpu,(cpu<>128)&&(cpu<>32988)
+
+smpsDcb macro
+		if smpsNotZ80(MOMCPU)
+			dc.b ALLARGS
+		else
+			db ALLARGS
+		endif
 	endm
 
 ; Voices - Total Level
@@ -885,54 +915,54 @@ smpsVcReleaseRate macro op1,op2,op3,op4
 ; an SMPS Z80 song to SMPS 68k. It will ignore the bits no matter
 ; what we do, so we just print a warning.
 smpsVcTotalLevel macro op1,op2,op3,op4
-	set vcTL1,op1
-	set vcTL2,op2
-	set vcTL3,op3
-	set vcTL4,op4
-	dc.b	(vcUnusedBits<<6)+(vcFeedback<<3)+vcAlgorithm
+	eval vcTL1,op1
+	eval vcTL2,op2
+	eval vcTL3,op3
+	eval vcTL4,op4
+	smpsDcb	(vcUnusedBits<<6)+(vcFeedback<<3)+vcAlgorithm
 ;   0     1     2     3     4     5     6     7
 ;%1000,%1000,%1000,%1000,%1010,%1110,%1110,%1111
 	if SourceSMPS2ASM==0
-		set vcTLMask4,((vcAlgorithm==7)<<7)
-		set vcTLMask3,((vcAlgorithm>=4)<<7)
-		set vcTLMask2,((vcAlgorithm>=5)<<7)
-		set vcTLMask1,$80
+		eval vcTLMask4,((vcAlgorithm==7)<<7)
+		eval vcTLMask3,((vcAlgorithm>=4)<<7)
+		eval vcTLMask2,((vcAlgorithm>=5)<<7)
+		eval vcTLMask1,128
 	else
-		set vcTLMask4,0
-		set vcTLMask3,0
-		set vcTLMask2,0
-		set vcTLMask1,0
+		eval vcTLMask4,0
+		eval vcTLMask3,0
+		eval vcTLMask2,0
+		eval vcTLMask1,0
 	endif
 
 	if (SonicDriverVer>=3)&&(SourceDriver<3)
-		set vcTLMask4,((vcAlgorithm==7)<<7)
-		set vcTLMask3,((vcAlgorithm>=4)<<7)
-		set vcTLMask2,((vcAlgorithm>=5)<<7)
-		set vcTLMask1,$80
-		set vcTL1,vcTL1&$7F
-		set vcTL2,vcTL2&$7F
-		set vcTL3,vcTL3&$7F
-		set vcTL4,vcTL4&$7F
-	elseif (SonicDriverVer<3)&&(SourceDriver>=3)&&((((vcTL1|vcTLMask1)&$80)<>$80)||(((vcTL2|vcTLMask2)&$80)<>((vcAlgorithm>=5)<<7))||(((vcTL3|vcTLMask3)&$80)<>((vcAlgorithm>=4)<<7))||(((vcTL4|vcTLMask4)&$80)<>((vcAlgorithm==7)<<7)))
+		eval vcTLMask4,((vcAlgorithm==7)<<7)
+		eval vcTLMask3,((vcAlgorithm>=4)<<7)
+		eval vcTLMask2,((vcAlgorithm>=5)<<7)
+		eval vcTLMask1,128
+		eval vcTL1,vcTL1&127
+		eval vcTL2,vcTL2&127
+		eval vcTL3,vcTL3&127
+		eval vcTL4,vcTL4&127
+	elseif (SonicDriverVer<3)&&(SourceDriver>=3)&&((((vcTL1|vcTLMask1)&128)<>128)||(((vcTL2|vcTLMask2)&128)<>((vcAlgorithm>=5)<<7))||(((vcTL3|vcTLMask3)&128)<>((vcAlgorithm>=4)<<7))||(((vcTL4|vcTLMask4)&128)<>((vcAlgorithm==7)<<7)))
 		if MOMPASS=1
 			message "Voice at 0x\{*} has TL bits that do not match its algorithm setting. This voice will not work in S1/S2 drivers."
 		endif
 	endif
 
 	if SonicDriverVer==2
-		dc.b	(vcDT4<<4)+vcCF4       ,(vcDT2<<4)+vcCF2       ,(vcDT3<<4)+vcCF3       ,(vcDT1<<4)+vcCF1
-		dc.b	(vcRS4<<6)+vcAR4       ,(vcRS2<<6)+vcAR2       ,(vcRS3<<6)+vcAR3       ,(vcRS1<<6)+vcAR1
-		dc.b	vcAM4|vcD1R4|vcD1R4Unk ,vcAM2|vcD1R2|vcD1R2Unk ,vcAM3|vcD1R3|vcD1R3Unk ,vcAM1|vcD1R1|vcD1R1Unk
-		dc.b	vcD2R4                 ,vcD2R2                 ,vcD2R3                 ,vcD2R1
-		dc.b	(vcDL4<<4)+vcRR4       ,(vcDL2<<4)+vcRR2       ,(vcDL3<<4)+vcRR3       ,(vcDL1<<4)+vcRR1
-		dc.b	vcTL4|vcTLMask4        ,vcTL2|vcTLMask2        ,vcTL3|vcTLMask3        ,vcTL1|vcTLMask1
+		smpsDcb	(vcDT4<<4)+vcCF4       ,(vcDT2<<4)+vcCF2       ,(vcDT3<<4)+vcCF3       ,(vcDT1<<4)+vcCF1
+		smpsDcb	(vcRS4<<6)+vcAR4       ,(vcRS2<<6)+vcAR2       ,(vcRS3<<6)+vcAR3       ,(vcRS1<<6)+vcAR1
+		smpsDcb	vcAM4|vcD1R4|vcD1R4Unk ,vcAM2|vcD1R2|vcD1R2Unk ,vcAM3|vcD1R3|vcD1R3Unk ,vcAM1|vcD1R1|vcD1R1Unk
+		smpsDcb	vcD2R4                 ,vcD2R2                 ,vcD2R3                 ,vcD2R1
+		smpsDcb	(vcDL4<<4)+vcRR4       ,(vcDL2<<4)+vcRR2       ,(vcDL3<<4)+vcRR3       ,(vcDL1<<4)+vcRR1
+		smpsDcb	vcTL4|vcTLMask4        ,vcTL2|vcTLMask2        ,vcTL3|vcTLMask3        ,vcTL1|vcTLMask1
 	else
-		dc.b	(vcDT4<<4)+vcCF4       ,(vcDT3<<4)+vcCF3       ,(vcDT2<<4)+vcCF2       ,(vcDT1<<4)+vcCF1
-		dc.b	(vcRS4<<6)+vcAR4       ,(vcRS3<<6)+vcAR3       ,(vcRS2<<6)+vcAR2       ,(vcRS1<<6)+vcAR1
-		dc.b	vcAM4|vcD1R4|vcD1R4Unk ,vcAM3|vcD1R3|vcD1R3Unk ,vcAM2|vcD1R2|vcD1R2Unk ,vcAM1|vcD1R1|vcD1R1Unk
-		dc.b	vcD2R4                 ,vcD2R3                 ,vcD2R2                 ,vcD2R1
-		dc.b	(vcDL4<<4)+vcRR4       ,(vcDL3<<4)+vcRR3       ,(vcDL2<<4)+vcRR2       ,(vcDL1<<4)+vcRR1
-		dc.b	vcTL4|vcTLMask4        ,vcTL3|vcTLMask3        ,vcTL2|vcTLMask2        ,vcTL1|vcTLMask1
+		smpsDcb	(vcDT4<<4)+vcCF4       ,(vcDT3<<4)+vcCF3       ,(vcDT2<<4)+vcCF2       ,(vcDT1<<4)+vcCF1
+		smpsDcb	(vcRS4<<6)+vcAR4       ,(vcRS3<<6)+vcAR3       ,(vcRS2<<6)+vcAR2       ,(vcRS1<<6)+vcAR1
+		smpsDcb	vcAM4|vcD1R4|vcD1R4Unk ,vcAM3|vcD1R3|vcD1R3Unk ,vcAM2|vcD1R2|vcD1R2Unk ,vcAM1|vcD1R1|vcD1R1Unk
+		smpsDcb	vcD2R4                 ,vcD2R3                 ,vcD2R2                 ,vcD2R1
+		smpsDcb	(vcDL4<<4)+vcRR4       ,(vcDL3<<4)+vcRR3       ,(vcDL2<<4)+vcRR2       ,(vcDL1<<4)+vcRR1
+		smpsDcb	vcTL4|vcTLMask4        ,vcTL3|vcTLMask3        ,vcTL2|vcTLMask2        ,vcTL1|vcTLMask1
 	endif
 	endm
 

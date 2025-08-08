@@ -25,6 +25,7 @@ Map_obj3E_0046:	spriteHeader
 	spritePiece	-$20, -8, 3, 3, 8, 0, 0, 0, 0
 	spritePiece	8, -8, 3, 3, 8, 1, 0, 0, 0
 Map_obj3E_0046_End
+	; Unused; this should be before 'Map_obj3E_0046_End', not after it.
 	spritePiece	-8, -$10, 2, 3, $23, 0, 0, 0, 0
 
 Map_obj3E_0088:	spriteHeader
@@ -36,6 +37,7 @@ Map_obj3E_0088:	spriteHeader
 	spritePiece	-$20, 0, 3, 3, 8, 0, 0, 0, 0
 	spritePiece	8, 0, 3, 3, 8, 1, 0, 0, 0
 Map_obj3E_0088_End
+	; Unused; this should be before 'Map_obj3E_0088_End', not after it.
 	spritePiece	-8, -$10, 2, 3, $23, 0, 0, 0, 0
 
 Map_obj3E_00CA:	spriteHeader
