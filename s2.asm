@@ -421,7 +421,7 @@ GameInit:
 	move.w	#bytesToLcnt(CrossResetRAM-RAM_Start),d6
     endif
 
-	; [Mega Play] The useful bits of the above code where edited and moved down here
+	; [Mega Play] The useful bits of the above code were edited and moved down here
 	lea	(RAM_Start&$FFFFFF).l,a6
 	moveq	#0,d7
 	move.w	#bytesToLcnt(RAM_End-RAM_Start),d6	; Clear all RAM
