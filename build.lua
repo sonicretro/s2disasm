@@ -17,119 +17,86 @@ local music_buffer_size = 0x7C0     -- Should always be zStack minus 0x40.
 -- End of settings --
 ---------------------
 
+---------------
+-- Utilities --
+---------------
+
 local common = require "build_tools.lua.common"
 
-local exit_code
 local repository = "https://github.com/sonicretro/s2disasm"
 
-local function message_abort_wrapper(message, abort)
-	if message then
-		exit_code = false
-	end
-
-	if abort then
-		os.exit(exit_code, true)
-	end
+-- Just a shim for backwards-compatibility with things like Vladikcomper's debugger.
+-- TODO: Remove this when nothing uses it any more.
+local function message_abort_wrapper(message_printed, abort)
+	common.handle_failure(message_printed, abort)
 end
 
--- Obtain the paths to the native build tools for the current platform.
-local tools, platform_directory = common.find_tools("build tool bundle", "build_tools/source_code/", repository, "saxman")
+local function generate_music_data()
+	-- Obtain the paths to the native build tools for the current platform.
+	local tools, platform_directory = common.find_tools("build tool bundle", "build_tools/source_code/", repository, "saxman")
 
--- Present an error message to the user if the build tools for their platform do not exist.
-if tools == nil then
-	common.show_flashy_message("Build failed. See above for more details.")
-	os.exit(false)
-end
-
--- Begin the insane task of assembling and compressing Sonic 2's music...
-
-local clownmd5 = require "build_tools.lua.clownmd5"
-
--- 'hashes.lua' contains the hashes of every assembled song. If a song's hash
--- matches the one recorded in this file, then there is no need to assemble it again.
--- Our first task is to load the hashes contained in this file into a table.
-local hashes_file
-
-hashes_file = io.open("sound/music/compressed/hashes.lua", "r")
-
-local previous_hashes
-
-if not hashes_file then
-	-- 'hashes.lua' does not exist: create an empty table instead.
-	previous_hashes = {}
-else
-	-- 'hashes.lua' does exist: turn it into a valid Lua chunk and load its data into the table.
-	local chunk = load("return {" .. hashes_file:read("a") .. "}")
-	hashes_file:close()
-
-	-- If `hash.lua` fails to compile, then ignore it and load an empty table instead.
-	previous_hashes = chunk and chunk() or {}
-end
-
--- Now that that's done, we can begin re-writing 'hashes.lua' with the new hashes that we compute in the next step.
-hashes_file = io.open("sound/music/compressed/hashes.lua", "w")
-
-hashes_file:write("improved_sound_driver_compression = " .. tostring(improved_sound_driver_compression) .. ",\n")
-hashes_file:write("music_buffer_address = " .. tostring(music_buffer_address) .. ",\n")
-hashes_file:write("music_buffer_size = " .. tostring(music_buffer_size) .. ",\n")
-
-local function record_file_hash(filename, identifier)
-	local hash = clownmd5.HashFile(filename)
-
-	-- Write this hash to 'hashes.lua'.
-	hashes_file:write(identifier .. " = '")
-
-	local function hash_string_iterator()
-		local position = 1
-
-		return function()
-				if position > hash:len() then
-					return nil
-				end
-
-				local byte
-				byte, position = string.unpack("I1", hash, position)
-
-				return byte
-			end
+	-- Present an error message to the user if the build tools for their platform do not exist.
+	if tools == nil then
+		common.show_flashy_message("Build failed. See above for more details.")
+		os.exit(false)
 	end
 
-	for byte in hash_string_iterator() do
-		hashes_file:write(string.format("\\x%02X", byte))
+	local compressed_song_list_filename = "sound/music/list of compressed songs.txt"
+
+	-- Detemine which songs are going to be compressed.
+	local compressed_songs = {}
+	for song_name in io.lines(compressed_song_list_filename) do
+		compressed_songs[song_name] = true
 	end
 
-	hashes_file:write("',\n")
+	local custom_hashes = {
+		improved_sound_driver_compression = improved_sound_driver_compression,
+		music_buffer_address = music_buffer_address,
+		music_buffer_size = music_buffer_size,
+		compressed_song_list = common.clownmd5.HashFile(compressed_song_list_filename),
+		smps2asm = common.clownmd5.HashFile("sound/_smps2asm_inc.asm")
+	}
 
-	return hash
-end
+	for _, filename_stem in ipairs(common.get_directory_contents_changed("sound/music", ".asm", {".sax", ".inc"}, custom_hashes)) do
+		local is_compressed = compressed_songs[filename_stem] == true
 
-local smps2asm_hash = record_file_hash("sound/_smps2asm_inc.asm", "smps2asm")
+		local inc_file_path = "sound/music/generated/" .. filename_stem .. ".inc"
 
--- Compress the songs.
--- The songs to compress are listed in 'list of compressed songs.txt'.
-for song_name in io.lines("sound/music/list of compressed songs.txt") do
-	-- Determine the hash of the current song.
-	local current_hash = record_file_hash("sound/music/" .. song_name .. ".asm", "['" .. song_name .. "']")
+		-- Generate an '.inc' file for the song, which communicates to the assembler the song's file path as well as whether it is compressed or not.
 
-	-- Finally, check if the hash matches the one in 'hashes.lua'.
-	-- If it doesn't match, then the song has been modified and needs to be reassembled.
-	-- Alternatively, the song will need reassembling if the user has changed the compression.
-	-- Or reassemble the song if the assembled version is missing.
-	if current_hash ~= previous_hashes[song_name]
-		or smps2asm_hash ~= previous_hashes.smps2asm
-		or improved_sound_driver_compression ~= previous_hashes.improved_sound_driver_compression
-		or music_buffer_address ~= previous_hashes.music_buffer_address
-		or music_buffer_size ~= previous_hashes.music_buffer_size
-		or not common.file_exists("sound/music/compressed/" .. song_name .. ".sax") then
-		print("Reassembling song '" .. song_name .. ".asm'...")
+		local include_file = io.open(inc_file_path, "w")
 
-		-- To begin with, we'll create a wrapper ASM file to set the environment
-		-- in which to assemble the lone song file. Notably, this environment
-		-- includes SMPS2ASM and begins the song at address 0x1380 (the address
-		-- of the Saxman decompression buffer in Z80 RAM).
-		local song_file = io.open("song.asm", "w")
+		if is_compressed then
+			include_file:write(string.format(
+[[
+.is_compressed = TRUE
+	binclude "sound/music/generated/%s.sax"
+]], filename_stem))
+		else
+			include_file:write(string.format(
+[[
+.is_compressed = FALSE
+	include "sound/music/%s.asm"
+]], filename_stem))
+		end
 
-		song_file:write(string.format([[
+		include_file:close()
+
+		-- If the song is compressed then compress it!
+		if is_compressed then
+			local asm_file_path = "sound/music/" .. filename_stem .. ".asm"
+			local sax_file_path = "sound/music/generated/" .. filename_stem .. ".sax"
+
+			print("Reassembling song '" .. filename_stem .. ".asm'...")
+
+			-- To begin with, we'll create a wrapper ASM file to set the environment
+			-- in which to assemble the lone song file. Notably, this environment
+			-- includes SMPS2ASM and begins the song at address 0x1380 (the address
+			-- of the Saxman decompression buffer in Z80 RAM).
+			local song_file = io.open("song.asm", "w")
+
+			song_file:write(string.format(
+[[
 	CPU 68000
 	padding off
 
@@ -145,66 +112,84 @@ SonicDriverVer = 2
 
 	if *>$%X
 		error "This song is too big and will overflow the decompression buffer! It should be uncompressed instead!"
-	endif]], music_buffer_address, song_name, music_buffer_size))
+	endif
+]], music_buffer_address, filename_stem, music_buffer_size))
 
-		song_file:close()
+			song_file:close()
 
-		-- Assemble the song to an uncompressed binary.
-		local message, abort = common.assemble_file("song.asm", "song.bin", "", "", false, repository)
+			-- Assemble the song to an uncompressed binary.
+			local message_printed, abort = common.assemble_file("song.asm", "song.bin", "", "", false, repository)
 
-		-- We can get rid of this wrapper ASM file now.
-		os.remove("song.asm")
+			-- We can get rid of this wrapper ASM file now.
+			os.remove("song.asm")
 
-		message_abort_wrapper(message, abort)
+			common.handle_failure(message_printed, abort)
 
-		-- Now that we have an assembled song binary, compress it.
-		os.execute(tools.saxman .. " " .. (improved_sound_driver_compression and "" or "-a") .. " song.bin \"sound/music/compressed/" .. song_name .. ".sax\"")
+			-- Now that we have an assembled song binary, compress it.
+			os.execute(tools.saxman .. " " .. (improved_sound_driver_compression and "" or "-a") .. " song.bin \"" .. sax_file_path .. "\"")
 
-		-- Remove junk files from the assembly process.
-		os.remove("song.lst")
-		os.remove("song.bin")
+			-- Remove junk files from the assembly process.
+			os.remove("song.lst")
+			os.remove("song.bin")
+		end
 	end
 end
 
--- We've written the last part of the 'hashes.lua' file, so we can close it now.
-hashes_file:close()
+local function amend_sound_driver_size()
+	-- Correct the compressed sound driver size, which we couldn't do until p2bin had been ran.
+	local comp_z80_size, movewZ80CompSize
 
--- Huzzah: we are done with assembling and compressing the music.
--- We can move onto building the rest of the ROM.
+	for line in io.lines("s2.h") do
+		local match_begin, match_end = string.find(line, "comp_z80_size")
 
-message_abort_wrapper(common.build_rom("s2", "s2built", "", "-p=0 -z=0," .. (improved_sound_driver_compression and "saxman-optimised" or "saxman-bugged") .. ",Size_of_Snd_driver_guess,after", true, repository))
+		if match_begin ~= nil then
+			comp_z80_size = tonumber(line:match("0x%x+", match_end))
+		end
 
--- Correct the compressed sound driver size, which we couldn't do until p2bin had been ran.
-local comp_z80_size, movewZ80CompSize
+		local match_begin, match_end = string.find(line, "movewZ80CompSize")
 
-for line in io.lines("s2.h") do
-	local match_begin, match_end = string.find(line, "comp_z80_size")
-
-	if match_begin ~= nil then
-		comp_z80_size = tonumber(line:match("0x%x+", match_end))
+		if match_begin ~= nil then
+			movewZ80CompSize = tonumber(line:match("0x%x+", match_end))
+		end
 	end
 
-	local match_begin, match_end = string.find(line, "movewZ80CompSize")
+	if comp_z80_size ~= nil and movewZ80CompSize ~= nil then
+		local rom = io.open("s2built.bin", "r+b")
 
-	if match_begin ~= nil then
-		movewZ80CompSize = tonumber(line:match("0x%x+", match_end))
+		rom:seek("set", movewZ80CompSize + 2)
+		rom:write(string.pack(">I2", comp_z80_size))
+
+		rom:close()
 	end
+
+	-- Remove the header file, since we no longer need it.
+	os.remove("s2.h")
 end
 
-if comp_z80_size ~= nil and movewZ80CompSize ~= nil then
-	local rom = io.open("s2built.bin", "r+b")
+----------------------
+-- End of utilities --
+----------------------
 
-	rom:seek("set", movewZ80CompSize + 2)
-	rom:write(string.pack(">I2", comp_z80_size))
+-------------------------------------
+-- Actual build script begins here --
+-------------------------------------
 
-	rom:close()
-end
+-- Compress music data and generate music-related assembler input.
+generate_music_data()
 
--- Remove the header file, since we no longer need it.
-os.remove("s2.h")
+-- Produce PCM and DPCM data.
+common.convert_pcm_files_in_directory("sound/PCM")
+common.convert_dpcm_files_in_directory("sound/DAC")
+
+-- Build the ROM.
+local compression = improved_sound_driver_compression and "saxman-optimised" or "saxman-bugged"
+common.build_rom_and_handle_failure("s2", "s2built", "", "-p=0 -z=0," .. compression .. ",Size_of_Snd_driver_guess,after", true, repository)
+
+-- Patch the ROM with the correct sound driver size.
+amend_sound_driver_size()
 
 -- Correct the ROM's header with a proper checksum and end-of-ROM value.
 common.fix_header("s2built.bin")
 
 -- A successful build; we can quit now.
-os.exit(exit_code, false)
+common.exit()

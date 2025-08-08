@@ -13,9 +13,18 @@ s2.map
 s2built.bin
 s2built.prev.bin
 
-# Automatically-generated music compression data.
-sound/music/compressed/*.sax
-sound/music/compressed/hashes.lua
+# Automatically-generated music data.
+sound/music/generated/*.inc
+sound/music/generated/*.sax
+sound/music/generated/hashes.lua
+
+# Automatically-generated (D)PCM data.
+sound/DAC/generated/*.inc
+sound/DAC/generated/*.dpcm
+sound/DAC/generated/hashes.lua
+sound/PCM/generated/*.inc
+sound/PCM/generated/*.pcm
+sound/PCM/generated/hashes.lua
 
 # Typical CMake build directory.
 build_tools/source_code/build

@@ -310,8 +310,8 @@ zmake68kPtr function addr,zROMWindow+(addr&7FFFh)
 
 ; Function to turn a sample rate into a djnz loop counter
 pcmLoopCounterBase function sampleRate,baseCycles, 1+(Z80_Clock/(sampleRate)-(baseCycles)+(13/2))/13
-pcmLoopCounter function sampleRate, pcmLoopCounterBase(sampleRate,146/2) ; 146 is the number of cycles zPlaySegaSound takes to deliver two samples.
-dpcmLoopCounter function sampleRate, pcmLoopCounterBase(sampleRate,289/2) ; 289 is the number of cycles zWriteToDAC takes to deliver two samples.
+pcmLoopCounter function sampleRate, pcmLoopCounterBase(sampleRate,152/2) ; 152 is the number of cycles zPlaySegaSound takes to deliver two samples.
+dpcmLoopCounter function sampleRate, pcmLoopCounterBase(sampleRate,295/2) ; 295 is the number of cycles zWriteToDAC takes to deliver two samples.
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; Z80 'ROM' start:
@@ -678,12 +678,14 @@ zWaitLoop:
 	; In our case, the so-called 'd' value is shadow register 'a'
 
 zWriteToDAC:
+	; According to Kabuto, the Z80 suffers a delay of approximately 3.3 cycles for each ROM access.
+	; https://plutiedev.com/mirror/kabuto-hardware-notes#bus-system
 	djnz	$			; 8	; Busy wait for specific amount of time in 'b'
 
 	di				; 4	; disable interrupts (while updating DAC)
 	ld	a,2Ah			; 7	; DAC port
 	ld	(zYM2612_A0),a		; 13	; Set DAC port register
-	ld	a,(hl)			; 7	; Get next DAC byte
+	ld	a,(hl)			; 7+3	; Get next DAC byte
 	rlca				; 4
 	rlca				; 4
 	rlca				; 4
@@ -708,7 +710,7 @@ zWriteToDAC:
 	ld	a,2Ah			; 7	; DAC port
 	ld	(zYM2612_A0),a		; 13	; Set DAC port register
 	ld	b,c			; 4	; reload 'b' with wait value
-	ld	a,(hl)			; 7	; Get next DAC byte
+	ld	a,(hl)			; 7+3	; Get next DAC byte
 	inc	hl			; 6	; Next byte in DAC stream...
 	dec	de			; 6	; One less byte
 	and	0Fh			; 7	; LOWER 4-bit offset into zDACDecodeTbl
@@ -722,14 +724,13 @@ zWriteToDAC:
 	ex	af,af'			; 4	; back to regular registers
 	ei				; 4	; enable interrupts (done updating DAC, busy waiting for next update)
 	jp	zWaitLoop		; 10	; Back to the wait loop; if there's more DAC to write, we come back down again!
-					; 289
-	; 289 cycles for two samples. dpcmLoopCounter should use 289 divided by 2.
+					; 295
+	; 295 cycles for two samples. dpcmLoopCounter should use 295 divided by 2.
 ; ---------------------------------------------------------------------------
 ; 'jman2050' DAC decode lookup table
 ; zbyte_1B3
 zDACDecodeTbl:
-	db	   0,    1,   2,   4,   8,  10h,  20h,  40h
-	db	 80h,   -1,  -2,  -4,  -8, -10h, -20h, -40h
+	binclude "sound/DAC/deltas.bin"
 
 	; The following two tables are used for when an SFX terminates
 	; its track to properly restore the music track it temporarily took
@@ -1600,6 +1601,8 @@ CmdPtr__End:
 ; ---------------------------------------------------------------------------
 ; zloc_6EF
 zPlaySegaSound:
+.loop_counter = pcmLoopCounter(Snd_Sega.sample_rate)
+
     if FixDriverBugs
 	; reset panning (don't want Sega sound playing on only one speaker)
 	ld	a,0B6h		; Set Panning / AMS / FMS
@@ -1614,28 +1617,30 @@ zPlaySegaSound:
 	bankswitch Snd_Sega	; We want the Sega sound
 
 	ld	hl,zmake68kPtr(Snd_Sega) ; was: 9E8Ch
-	ld	de,(Snd_Sega_End - Snd_Sega)/2	; was: 30BAh
+	ld	de,Snd_Sega.size/2	; was: 30BAh
 	ld	a,2Ah			; DAC data register
 	ld	(zYM2612_A0),a		; Select it
 	ld	c,80h			; If QueueToPlay is not this, stops Sega PCM
 
 .loop:
-	ld	a,(hl)				; 7	; Get next PCM byte
+	; According to Kabuto, the Z80 suffers a delay of approximately 3.3 cycles for each ROM access.
+	; https://plutiedev.com/mirror/kabuto-hardware-notes#bus-system
+	ld	a,(hl)				; 7+3	; Get next PCM byte
 	ld	(zYM2612_D0),a			; 13	; Send to DAC
 	inc	hl				; 6	; Advance pointer
 	nop					; 4
-	ld	b,pcmLoopCounter(16500)	; 7	; Sega PCM pitch
+	ld	b,.loop_counter			; 7	; Sega PCM pitch
 	djnz	$				; 8	; Delay loop
 
 	nop					; 4
 	ld	a,(zAbsVar.QueueToPlay)		; 13	; Get next item to play
 	cp	c				; 4	; Is it 80h?
 	jr	nz,.stop			; 7	; If not, stop Sega PCM
-	ld	a,(hl)				; 7	; Get next PCM byte
+	ld	a,(hl)				; 7+3	; Get next PCM byte
 	ld	(zYM2612_D0),a			; 13	; Send to DAC
 	inc	hl				; 6	; Advance pointer
 	nop					; 4
-	ld	b,pcmLoopCounter(16500)	; 7	; Sega PCM pitch
+	ld	b,.loop_counter			; 7	; Sega PCM pitch
 	djnz	$				; 8	; Delay loop
 
 	nop					; 4
@@ -1643,8 +1648,8 @@ zPlaySegaSound:
 	ld	a,d				; 4	; a = d
 	or	e				; 4	; Is de zero?
 	jp	nz,.loop			; 10	; If not, loop
-						; 146
-	; Two samples per 146 cycles, meaning that pcmLoopCounter should used 146 divided by 2.
+						; 152
+	; Two samples per 152 cycles, meaning that pcmLoopCounter should used 152 divided by 2.
 
 .stop:
 	call	zBankSwitchToMusic
@@ -3797,54 +3802,51 @@ zPSG_Env13:
 
 ;	END of zPSG_EnvTbl -------------------------------
 
-; zbyte_11F5h
-zMasterPlaylist:
+; Stuff for zMasterPlaylist.
+z80_bank_size = 8000h
+getZ80BankOffset function label, label # z80_bank_size
+getZ80BankBase function label, label - getZ80BankOffset(label)
+withinSameZ80Bank function label1, label2, getZ80BankBase(label1) == getZ80BankBase(label2)
 
-; Music IDs
-; bank         - Which bank that the song is in.
-; pal          - Whether the song should play slower on PAL consoles.
-; uncompressed - Whether the song data is uncompressed or not.
-; label        - The location of the song data's pointer.
-music_metadata macro bank,pal,uncompressed,label
-    if bank
-.base = MusicPoint2
-    else
-.base = MusicPoint1
-    endif
-	db	(bank<<7)|(pal<<6)|(uncompressed<<5)|((label-.base)/2)
+MusFlag_SlowerOnPAL = 1 << 6 ; Song should play slower on PAL consoles.
+
+music_metadata macro DATA,FLAGS
+	db	(withinSameZ80Bank(DATA.pointer, MusicPoint2)<<7)|((~~DATA.is_compressed)<<5)|(FLAGS)|(getZ80BankOffset(DATA.pointer)/2)
     endm
 
-zMusIDPtr_2PResult:	music_metadata 1,0,0,MusPtr_2PResult
-zMusIDPtr_EHZ:		music_metadata 1,0,0,MusPtr_EHZ
-zMusIDPtr_MCZ_2P:	music_metadata 1,0,0,MusPtr_MCZ_2P
-zMusIDPtr_OOZ:		music_metadata 1,0,0,MusPtr_OOZ
-zMusIDPtr_MTZ:		music_metadata 1,0,0,MusPtr_MTZ
-zMusIDPtr_HTZ:		music_metadata 1,0,0,MusPtr_HTZ
-zMusIDPtr_ARZ:		music_metadata 1,0,0,MusPtr_ARZ
-zMusIDPtr_CNZ_2P:	music_metadata 1,0,0,MusPtr_CNZ_2P
-zMusIDPtr_CNZ:		music_metadata 1,0,0,MusPtr_CNZ
-zMusIDPtr_DEZ:		music_metadata 1,0,0,MusPtr_DEZ
-zMusIDPtr_MCZ:		music_metadata 1,0,0,MusPtr_MCZ
-zMusIDPtr_EHZ_2P:	music_metadata 1,0,0,MusPtr_EHZ_2P
-zMusIDPtr_SCZ:		music_metadata 1,0,0,MusPtr_SCZ
-zMusIDPtr_CPZ:		music_metadata 1,0,0,MusPtr_CPZ
-zMusIDPtr_WFZ:		music_metadata 1,0,0,MusPtr_WFZ
-zMusIDPtr_HPZ:		music_metadata 1,0,0,MusPtr_HPZ
-zMusIDPtr_Options:	music_metadata 1,0,0,MusPtr_Options
-zMusIDPtr_SpecStage:	music_metadata 1,0,0,MusPtr_SpecStage
-zMusIDPtr_Boss:		music_metadata 1,0,0,MusPtr_Boss
-zMusIDPtr_EndBoss:	music_metadata 1,0,0,MusPtr_EndBoss
-zMusIDPtr_Ending:	music_metadata 1,0,0,MusPtr_Ending
-zMusIDPtr_SuperSonic:	music_metadata 1,0,0,MusPtr_SuperSonic
-zMusIDPtr_Invincible:	music_metadata 1,0,0,MusPtr_Invincible
-zMusIDPtr_ExtraLife:	music_metadata 1,0,1,MusPtr_ExtraLife
-zMusIDPtr_Title:	music_metadata 1,0,0,MusPtr_Title
-zMusIDPtr_EndLevel:	music_metadata 1,0,0,MusPtr_EndLevel
-zMusIDPtr_GameOver:	music_metadata 1,0,1,MusPtr_GameOver
-zMusIDPtr_Continue:	music_metadata 0,0,0,MusPtr_Continue
-zMusIDPtr_Emerald:	music_metadata 1,0,1,MusPtr_Emerald
-zMusIDPtr_Credits:	music_metadata 1,0,1,MusPtr_Credits
-zMusIDPtr_Countdown:	music_metadata 1,1,0,MusPtr_Drowning
+; zbyte_11F5h
+zMasterPlaylist:
+zMusIDPtr_2PResult:	music_metadata Mus_2PResult
+zMusIDPtr_EHZ:		music_metadata Mus_EHZ
+zMusIDPtr_MCZ_2P:	music_metadata Mus_MCZ_2P
+zMusIDPtr_OOZ:		music_metadata Mus_OOZ
+zMusIDPtr_MTZ:		music_metadata Mus_MTZ
+zMusIDPtr_HTZ:		music_metadata Mus_HTZ
+zMusIDPtr_ARZ:		music_metadata Mus_ARZ
+zMusIDPtr_CNZ_2P:	music_metadata Mus_CNZ_2P
+zMusIDPtr_CNZ:		music_metadata Mus_CNZ
+zMusIDPtr_DEZ:		music_metadata Mus_DEZ
+zMusIDPtr_MCZ:		music_metadata Mus_MCZ
+zMusIDPtr_EHZ_2P:	music_metadata Mus_EHZ_2P
+zMusIDPtr_SCZ:		music_metadata Mus_SCZ
+zMusIDPtr_CPZ:		music_metadata Mus_CPZ
+zMusIDPtr_WFZ:		music_metadata Mus_WFZ
+zMusIDPtr_HPZ:		music_metadata Mus_HPZ
+zMusIDPtr_Options:	music_metadata Mus_Options
+zMusIDPtr_SpecStage:	music_metadata Mus_SpecStage
+zMusIDPtr_Boss:		music_metadata Mus_Boss
+zMusIDPtr_EndBoss:	music_metadata Mus_EndBoss
+zMusIDPtr_Ending:	music_metadata Mus_Ending
+zMusIDPtr_SuperSonic:	music_metadata Mus_SuperSonic
+zMusIDPtr_Invincible:	music_metadata Mus_Invincible
+zMusIDPtr_ExtraLife:	music_metadata Mus_ExtraLife
+zMusIDPtr_Title:	music_metadata Mus_Title
+zMusIDPtr_EndLevel:	music_metadata Mus_EndLevel
+zMusIDPtr_GameOver:	music_metadata Mus_GameOver
+zMusIDPtr_Continue:	music_metadata Mus_Continue
+zMusIDPtr_Emerald:	music_metadata Mus_Emerald
+zMusIDPtr_Credits:	music_metadata Mus_Credits
+zMusIDPtr_Countdown:	music_metadata Mus_Drowning,MusFlag_SlowerOnPAL
 zMusIDPtr__End:
 
 ; Tempo with speed shoe tempo for each song
@@ -3859,39 +3861,31 @@ zSpedUpTempoTable:
 	db	0CDh,0AAh,0F2h,0DBh
 	db	0D5h,0F0h, 80h
 
+dac_sample_pointer macro label
+label.pointer = $
+	dw	zmake68kPtr(label)
+	dw	label.size
+    endm
+
 	; DAC sample pointers and lengths
-	ensure1byteoffset 1Ch
+	ensure1byteoffset 2*2*7
 
 ; zDACPtr_Index zbyte_1233
 zDACPtrTbl:
-zDACPtr_Kick:		dw	zmake68kPtr(SndDAC_Kick)
-; zbyte_1235
-zDACLenTbl:
-			dw	SndDAC_Kick_End-SndDAC_Kick
-
-zDACPtr_Snare:		dw	zmake68kPtr(SndDAC_Snare)
-			dw	SndDAC_Snare_End-SndDAC_Snare
-
-zDACPtr_Clap:		dw	zmake68kPtr(SndDAC_Clap)
-			dw	SndDAC_Clap_End-SndDAC_Clap
-
-zDACPtr_Scratch:	dw	zmake68kPtr(SndDAC_Scratch)
-			dw	SndDAC_Scratch_End-SndDAC_Scratch
-
-zDACPtr_Timpani:	dw	zmake68kPtr(SndDAC_Timpani)
-			dw	SndDAC_Timpani_End-SndDAC_Timpani
-
-zDACPtr_Tom:		dw	zmake68kPtr(SndDAC_Tom)
-			dw	SndDAC_Tom_End-SndDAC_Tom
-
-zDACPtr_Bongo:		dw	zmake68kPtr(SndDAC_Bongo)
-			dw	SndDAC_Bongo_End-SndDAC_Bongo
+zDACLenTbl = zDACPtrTbl + 2
+	dac_sample_pointer SndDAC_Kick
+	dac_sample_pointer SndDAC_Snare
+	dac_sample_pointer SndDAC_Clap
+	dac_sample_pointer SndDAC_Scratch
+	dac_sample_pointer SndDAC_Timpani
+	dac_sample_pointer SndDAC_Tom
+	dac_sample_pointer SndDAC_Bongo
 
 	; something else for DAC sounds
 	; First byte selects one of the DAC samples. The number that
 	; follows it is a wait time between each nibble written to the DAC
 	; (thus higher = slower)
-	ensure1byteoffset 22h
+	ensure1byteoffset 2*11h
 ; zbyte_124F
 zDACMasterPlaylist:
 
@@ -3900,27 +3894,31 @@ offset :=	zDACPtrTbl
 ptrsize :=	2+2
 idstart :=	81h
 
-dac_sample_metadata macro label,sampleRate
-	db	id(label),dpcmLoopCounter(sampleRate)
+dac_sample_metadata macro label,sampleRateScale
+sample_rate_scale := 1.0
+    if "sampleRateScale"<>""
+sample_rate_scale := sampleRateScale
+    endif
+	db	id(label.pointer),dpcmLoopCounter(int(label.sample_rate*sample_rate_scale))
     endm
 
-	dac_sample_metadata zDACPtr_Kick,    8250	; 81h
-	dac_sample_metadata zDACPtr_Snare,  24000	; 82h
-	dac_sample_metadata zDACPtr_Clap,   17000	; 83h
-	dac_sample_metadata zDACPtr_Scratch,15000	; 84h
-	dac_sample_metadata zDACPtr_Timpani, 7500	; 85h
-	dac_sample_metadata zDACPtr_Tom,    14000	; 86h
-	dac_sample_metadata zDACPtr_Bongo,   7500	; 87h
-	dac_sample_metadata zDACPtr_Timpani, 9750	; 88h
-	dac_sample_metadata zDACPtr_Timpani, 8750	; 89h
-	dac_sample_metadata zDACPtr_Timpani, 7250	; 8Ah
-	dac_sample_metadata zDACPtr_Timpani, 7000	; 8Bh
-	dac_sample_metadata zDACPtr_Tom,    23000	; 8Ch
-	dac_sample_metadata zDACPtr_Tom,    18000	; 8Dh
-	dac_sample_metadata zDACPtr_Tom,    15000	; 8Eh
-	dac_sample_metadata zDACPtr_Bongo,  15000	; 8Fh
-	dac_sample_metadata zDACPtr_Bongo,  13000	; 90h
-	dac_sample_metadata zDACPtr_Bongo,   9750	; 91h
+	dac_sample_metadata SndDAC_Kick			; 81h
+	dac_sample_metadata SndDAC_Snare,		; 82h
+	dac_sample_metadata SndDAC_Clap,		; 83h
+	dac_sample_metadata SndDAC_Scratch,		; 84h
+	dac_sample_metadata SndDAC_Timpani,		; 85h
+	dac_sample_metadata SndDAC_Tom,			; 86h
+	dac_sample_metadata SndDAC_Bongo,		; 87h
+	dac_sample_metadata SndDAC_Timpani, 1.30	; 88h
+	dac_sample_metadata SndDAC_Timpani, 1.20	; 89h
+	dac_sample_metadata SndDAC_Timpani, 0.97	; 8Ah
+	dac_sample_metadata SndDAC_Timpani, 0.95	; 8Bh
+	dac_sample_metadata SndDAC_Tom,     1.70	; 8Ch
+	dac_sample_metadata SndDAC_Tom,     1.30	; 8Dh
+	dac_sample_metadata SndDAC_Tom,     1.10	; 8Eh
+	dac_sample_metadata SndDAC_Bongo,   2.00	; 8Fh
+	dac_sample_metadata SndDAC_Bongo,   1.75	; 90h
+	dac_sample_metadata SndDAC_Bongo,   1.30	; 91h
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 

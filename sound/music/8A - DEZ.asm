@@ -103,7 +103,13 @@ DEZ_Loop04:
 	dc.b	nCs6, $04, nB5, nA5, $10
 	smpsLoop            $00, $03, DEZ_Loop04
 	dc.b	nCs6, $04, nB5, nA5, $08, nFs5, nA5, $30, nRst
+    if FixMusicAndSFXDataBugs
+	smpsJump            DEZ_FM4
+    else
+	; This fails to reset the voice, causing the wrong voice to be used
+	; the first few notes after the song loops.
 	smpsJump            DEZ_Loop03
+    endif
 
 ; FM5 Data
 DEZ_FM5:

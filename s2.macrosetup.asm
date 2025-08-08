@@ -1,11 +1,11 @@
 
-	padding off	; we don't want AS padding out dc.b instructions
+	padding off		; we don't want AS padding out dc.b instructions
 	;listing off		; We don't need to generate anything for a listing file
-	;listing on			; Want full listing file
+	;listing on		; Want full listing file
 	;listing noskipped	; Want listing file, but only the non-skipped part of conditional assembly
 	listing purecode	; Want listing file, but only the final code in expanded macros
-	page	0	; Don't want form feeds
-	supmode on	; we don't need warnings about privileged instructions
+	page	0		; Don't want form feeds
+	supmode on		; we don't need warnings about privileged instructions
 
 
 paddingSoFar set 0
@@ -101,12 +101,11 @@ trace macro
   endif
 tracenum := 0
 
+chkop function op,ref,(substr(lowstring(op),0,strlen(ref))<>ref)
+
     if zeroOffsetOptimization=0
     ; disable a space optimization in AS so we can build a bit-perfect ROM
     ; (the hard way, but it requires no modification of AS itself)
-
-
-chkop function op,ref,(substr(lowstring(op),0,strlen(ref))<>ref)
 
 ; 1-arg instruction that's self-patching to remove 0-offset optimization
 insn1op	 macro oper,x
@@ -239,6 +238,32 @@ lea_ macro address,reg
 		!lea address(pc),reg
 	else
 		!lea (address).l,reg
+	endif
+    endm
+
+_btst macro x,y
+last_btst_converted := ~~chkop("x","#render_flags.on_screen") || ~~chkop("x","#status.npc.no_balancing") || ~~chkop("x","#status_secondary.sliding")
+
+	if last_btst_converted
+		tst.b	y
+	else
+		btst	x,y
+	endif
+    endm
+
+_beq macro x
+	if last_btst_converted
+		bpl.ATTRIBUTE	x
+	else
+		beq.ATTRIBUTE	x
+	endif
+    endm
+
+_bne macro x
+	if last_btst_converted
+		bmi.ATTRIBUTE	x
+	else
+		bne.ATTRIBUTE	x
 	endif
     endm
 

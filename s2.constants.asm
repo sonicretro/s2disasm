@@ -157,15 +157,74 @@ object_size =		1<<object_size_bits ; the size of an object
 next_object =		object_size
 
 ; ---------------------------------------------------------------------------
+; render_flags bitfield
+
+render_flags.x_flip		= 0 ; Sprite mirrored horizontally.
+render_flags.y_flip		= 1 ; Sprite mirrored vertically.
+render_flags.level_fg		= 2 ; Move with level foreground.
+render_flags.level_bg		= 3 ; Move with level background; leftover from Sonic 1.
+render_flags.explicit_height	= 4 ; Draw culling uses `y_radius` instead of guessing a height.
+render_flags.static_mappings	= 5 ; Mappings pointer points directly to a lone sprite piece instead of a list of sprites.
+render_flags.multi_sprite	= 6 ; Object SST holds metadata for multiple sprites.
+render_flags.on_screen		= 7 ; Object is on-screen and was rendered on the previous frame.
+
+; ---------------------------------------------------------------------------
+; status bitfield
+
+status.player.x_flip			= render_flags.x_flip ; Facing left.
+status.player.in_air			= 1 ; Airborne. 
+status.player.rolling			= 2 ; Spinning, i.e. jumping or rolling.
+status.player.on_object			= 3 ; Stood on an object rather than the level.
+status.player.rolljumping		= 4 ; Jumping whilst rolling; locks the player's controls.
+status.player.pushing			= 5 ; Pressing against an object.
+status.player.underwater		= 6 ; Submersed.
+status.player.prevent_tails_respawn	= 7 ; Prevents AI Tails from respawning.
+
+status.player.ss.x_flip		= render_flags.x_flip ; Sprite mirrored horizontally.
+status.player.ss.y_flip		= render_flags.y_flip ; Sprite mirrored vertically.
+status.player.ss.jumping	= 2 ; Jumping.
+status.player.ss.slowing	= 6 ; Coming to a stop after moving or landing.
+
+status.npc.x_flip		= render_flags.x_flip ; Facing right.
+status.npc.y_flip		= render_flags.y_flip ; Facing up.
+status.npc.misc			= 2 ; Used for various purposes by bosses.
+status.npc.p1_standing		= 3 ; Stood on by player 1.
+status.npc.p2_standing		= 4 ; Stood on by player 2.
+status.npc.p1_pushing		= 5 ; Pushed by player 1.
+status.npc.p2_pushing		= 6 ; Pushed by player 2.
+status.npc.no_balancing		= 7 ; Prevents player from performing their balancing animation whilst stood upon this object. Also set when the object is destroyed by the player.
+
+; ---------------------------------------------------------------------------
+; status_secondary bitfield
+
+status_secondary.shield		= 0
+status_secondary.invincible	= 1
+status_secondary.speed_shoes	= 2
+status_secondary.sliding	= 7
+
+; Ugly old constants, kept for backwards-compatibility.
+
+; status_secondary variable bit numbers
+status_sec_hasShield:		EQU	status_secondary.shield
+status_sec_isInvincible:	EQU	status_secondary.invincible
+status_sec_hasSpeedShoes:	EQU	status_secondary.speed_shoes
+status_sec_isSliding:		EQU	status_secondary.sliding
+; status_secondary variable masks (1 << x == pow(2, x))
+status_sec_hasShield_mask:	EQU	1<<status_sec_hasShield		; $01
+status_sec_isInvincible_mask:	EQU	1<<status_sec_isInvincible	; $02
+status_sec_hasSpeedShoes_mask:	EQU	1<<status_sec_hasSpeedShoes	; $04
+status_sec_isSliding_mask:	EQU	1<<status_sec_isSliding		; $80
+
+; ---------------------------------------------------------------------------
 ; Bits 3-6 of an object's status after a SolidObject call is a
 ; bitfield with the following meaning:
-p1_standing_bit   = 3
+p1_standing_bit   = status.npc.p1_standing
 p2_standing_bit   = p1_standing_bit + 1
 
 p1_standing       = 1<<p1_standing_bit
 p2_standing       = 1<<p2_standing_bit
 
-pushing_bit_delta = 2
+pushing_bit_delta = status.npc.p1_pushing-status.npc.p1_standing
 p1_pushing_bit    = p1_standing_bit + pushing_bit_delta
 p2_pushing_bit    = p1_pushing_bit + 1
 
@@ -263,20 +322,6 @@ bumper_x            = 2
 bumper_y            = 4
 next_bumper         = 6
 prev_bumper_x       = bumper_x-next_bumper
-
-; ---------------------------------------------------------------------------
-; status_secondary bitfield variables
-;
-; status_secondary variable bit numbers
-status_sec_hasShield:		EQU	0
-status_sec_isInvincible:	EQU	1
-status_sec_hasSpeedShoes:	EQU	2
-status_sec_isSliding:		EQU	7
-; status_secondary variable masks (1 << x == pow(2, x))
-status_sec_hasShield_mask:	EQU	1<<status_sec_hasShield		; $01
-status_sec_isInvincible_mask:	EQU	1<<status_sec_isInvincible	; $02
-status_sec_hasSpeedShoes_mask:	EQU	1<<status_sec_hasSpeedShoes	; $04
-status_sec_isSliding_mask:	EQU	1<<status_sec_isSliding		; $80
 
 ; ---------------------------------------------------------------------------
 ; Constants that can be used instead of hard-coded IDs for various things.
@@ -1335,7 +1380,7 @@ PalCycle_Frame2_CNZ:		ds.w	1
 				ds.b	4	; $FFFFF658-$FFFFF65B ; seems unused
 Palette_frame:			ds.w	1
 Palette_timer:			ds.b	1	; was "Palette_frame_count"
-Super_Sonic_palette:		ds.b	1
+Super_Sonic_palette:		ds.b	1	; 0 = off | 1 = fading | -1 = fading done
 
 DEZ_Eggman:					; Word
 DEZ_Shake_Timer:				; Word
@@ -1972,11 +2017,11 @@ SS_HideRingsToGo:			ds.b	1
     endif
 	dephase
 
-	phase	ramaddr(Horiz_Scroll_Buf)	; Still in SS RAM
+	phase	Horiz_Scroll_Buf	; Still in SS RAM
 SS_Horiz_Scroll_Buf_1:		HorizontalScrollBuffer
 	dephase
 
-	phase	ramaddr(Boss_variables)	; Still in SS RAM
+	phase	Boss_variables	; Still in SS RAM
 				ds.b	4 ; unused
 SS_Offset_X:			ds.w	1
 SS_Offset_Y:			ds.w	1
