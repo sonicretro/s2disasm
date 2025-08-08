@@ -2,7 +2,7 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Grounder" Image="grounder" RememberState="true" DefaultSubtype="2">
   <Images>
     <ImageFromMappings id="grounder">
-      <ArtFile filename="../art/nemesis/Grounder from ARZ.bin" />
+      <ArtFile filename="../art/nemesis/Grounder from ARZ.nem" />
       <MapFile type="ASM" filename="../s2.asm" label="word_36D46" startpal="1" />
     </ImageFromMappings>
   </Images>

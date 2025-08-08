@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="Clouds" DefaultSubtype="5E" Image="img1">
+  <Images>
+    <ImageFromMappings id="img1">
+      <ArtFile filename="../art/nemesis/Clouds.nem" />
+      <MapFile type="Binary" filename="../mappings/sprite/objB3.bin" frame="0" startpal="2" />
+    </ImageFromMappings>
+    <ImageFromMappings id="img2">
+      <ArtFile filename="../art/nemesis/Clouds.nem" />
+      <MapFile type="Binary" filename="../mappings/sprite/objB3.bin" frame="1" startpal="2" />
+    </ImageFromMappings>
+    <ImageFromMappings id="img3">
+      <ArtFile filename="../art/nemesis/Clouds.nem" />
+      <MapFile type="Binary" filename="../mappings/sprite/objB3.bin" frame="2" startpal="2" />
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="5E" name="Cloud 1" image="img1" />
+    <Subtype id="60" name="Cloud 2" image="img2" />
+    <Subtype id="62" name="Cloud 3" image="img3" />
+  </Subtypes>
+</ObjDef>

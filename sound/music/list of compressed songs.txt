@@ -1,0 +1,27 @@
+81 - 2 Player Menu
+82 - EHZ
+83 - MCZ 2P
+84 - OOZ
+85 - MTZ
+86 - HTZ
+87 - ARZ
+88 - CNZ 2P
+89 - CNZ
+8A - DEZ
+8B - MCZ
+8C - EHZ 2P
+8D - SCZ
+8E - CPZ
+8F - WFZ
+90 - HPZ
+91 - Options
+92 - Special Stage
+93 - Boss
+94 - Final Boss
+95 - Ending
+96 - Super Sonic
+97 - Invincible
+99 - Title Screen
+9A - End of Act
+9C - Continue
+9F - Drowning

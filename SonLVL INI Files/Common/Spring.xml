@@ -2,27 +2,27 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Spring" Image="vertred">
   <Images>
     <ImageFromMappings id="vertred">
-      <ArtFile filename="../art/nemesis/Vertical spring.bin" />
+      <ArtFile filename="../art/nemesis/Vertical spring.nem" />
       <MapFile type="ASM" filename="../s2.asm" label="word_19048" startpal="0" />
     </ImageFromMappings>
     <ImageFromMappings id="vertyel">
-      <ArtFile filename="../art/nemesis/Vertical spring.bin" />
+      <ArtFile filename="../art/nemesis/Vertical spring.nem" />
       <MapFile type="ASM" filename="../s2.asm" label="word_19048" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="horzred">
-      <ArtFile filename="../art/nemesis/Horizontal spring.bin" />
+      <ArtFile filename="../art/nemesis/Horizontal spring.nem" />
       <MapFile type="ASM" filename="../s2.asm" label="word_19076" startpal="0" />
     </ImageFromMappings>
     <ImageFromMappings id="horzyel">
-      <ArtFile filename="../art/nemesis/Horizontal spring.bin" />
+      <ArtFile filename="../art/nemesis/Horizontal spring.nem" />
       <MapFile type="ASM" filename="../s2.asm" label="word_19076" startpal="1" />
     </ImageFromMappings>
     <ImageFromMappings id="diagred">
-      <ArtFile filename="../art/nemesis/Diagonal spring.bin" />
+      <ArtFile filename="../art/nemesis/Diagonal spring.nem" />
       <MapFile type="ASM" filename="../s2.asm" label="word_190B6" startpal="0" />
     </ImageFromMappings>
     <ImageFromMappings id="diagyel">
-      <ArtFile filename="../art/nemesis/Diagonal spring.bin" />
+      <ArtFile filename="../art/nemesis/Diagonal spring.nem" />
       <MapFile type="ASM" filename="../s2.asm" label="word_19136" startpal="1" />
     </ImageFromMappings>
   </Images>
