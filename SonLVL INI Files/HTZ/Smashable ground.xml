@@ -3,23 +3,23 @@
   <Images>
     <ImageFromMappings id="intact">
       <ArtFile filename="LevelArt" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj2F.bin" frame="0" startpal="2" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj2F.asm" frame="0" startpal="2" />
     </ImageFromMappings>
     <ImageFromMappings id="broken1">
       <ArtFile filename="LevelArt" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj2F.bin" frame="2" startpal="2" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj2F.asm" frame="2" startpal="2" />
     </ImageFromMappings>
     <ImageFromMappings id="broken2">
       <ArtFile filename="LevelArt" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj2F.bin" frame="4" startpal="2" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj2F.asm" frame="4" startpal="2" />
     </ImageFromMappings>
     <ImageFromMappings id="broken3">
       <ArtFile filename="LevelArt" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj2F.bin" frame="6" startpal="2" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj2F.asm" frame="6" startpal="2" />
     </ImageFromMappings>
     <ImageFromMappings id="broken4">
       <ArtFile filename="LevelArt" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj2F.bin" frame="8" startpal="2" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj2F.asm" frame="8" startpal="2" />
     </ImageFromMappings>
   </Images>
   <Subtypes>

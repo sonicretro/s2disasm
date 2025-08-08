@@ -1,5 +1,5 @@
 Palette File: ../art/palettes/Menu.bin
-Mapping File: ../mappings/misc/Sonic and Miles animated background.bin
+Mapping File: ../mappings/misc/Sonic and Miles animated background.eni
 Art File: ../art/uncompressed/Sonic and Miles animated background.bin
 Mapping Compression: Enigma
 Art Compression: None

@@ -2,8 +2,8 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Diagonally-Moving Lift" Image="lift">
   <Images>
     <ImageFromMappings id="lift">
-      <ArtFile filename="../art/nemesis/HTZ zip-line platform.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj16.bin" frame="0" startpal="2" />
+      <ArtFile filename="../art/nemesis/HTZ zip-line platform.nem" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj16.asm" frame="0" startpal="2" />
     </ImageFromMappings>
   </Images>
   <Properties>

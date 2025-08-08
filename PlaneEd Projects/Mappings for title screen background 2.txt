@@ -1,6 +1,6 @@
 Palette File: ../art/palettes/Title Background.bin
-Mapping File: ../mappings/misc/Mappings for title screen background 2.bin
-Art File: ../art/nemesis/Main patterns from title screen.bin
+Mapping File: ../mappings/misc/Mappings for title screen background 2.eni
+Art File: ../art/nemesis/Main patterns from title screen.nem
 Mapping Compression: Enigma
 Art Compression: Nemesis
 x-Size: 0x18
