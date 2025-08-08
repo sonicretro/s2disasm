@@ -61189,7 +61189,7 @@ Obj5D_Main_Explode2:
 	; locations of the pieces. In fact, most pieces' X and Y positions are
 	; in the middle of the Eggmobile, completely ruining the effect.
 	; I would use `fixBugs` to fix this, but this is a pretty deep-rooted
-	; issue to would be complicated to fix.
+	; issue that would be complicated to fix.
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
 +
