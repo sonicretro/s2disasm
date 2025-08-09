@@ -30714,7 +30714,12 @@ TitleCardLetters_DEZ:
 
 ; ===========================================================================
 
+    if gameRevision=3
+	; KiS2 (no 2P): No two player mode.
+	jmpTos JmpTo2_NemDec,JmpTo_NemDecToRAM,JmpTo3_LoadPLC
+    else
 	jmpTos JmpTo2_NemDec,JmpTo_NemDecToRAM,JmpTo3_LoadPLC,JmpTo_sub_8476
+    endif
 
 
 
@@ -33249,7 +33254,12 @@ ChkPartiallyVisible:
 	rts
 ; ===========================================================================
 
+    if gameRevision=3
+	; KiS2 (no 2P): No two player mode.
+	jmpTos JmpTo_BuildHUD
+    else
 	jmpTos JmpTo_BuildHUD,JmpTo_BuildHUD_P1,JmpTo_BuildHUD_P2
+    endif
 
 
 
@@ -49267,11 +49277,13 @@ Obj12_Main:
     if gameRevision=3
 	; KiS2 (JmpTo cleanup): For some reason, this was broken.
 	; This is why Hidden Palace Zone causes this game to reset.
+    if removeJmpTos
 JmpTo16_DeleteObject ; JmpTo
     if fixBugs
 	jmp	(DeleteObject).l
     else
 	; Execute 'Obj12_MapUnc_20382' as code...
+    endif
     endif
     endif
 ; ===========================================================================
@@ -49414,8 +49426,10 @@ loc_204F0:
 
     if gameRevision=3
 	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo17_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
+    endif
     endif
 ; ===========================================================================
 ; loc_20510:
@@ -49722,8 +49736,10 @@ Obj31_Main:
 
     if gameRevision=3
 	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo18_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
+    endif
     endif
 ; ===========================================================================
     if ~~fixBugs
@@ -51213,8 +51229,10 @@ Obj19_Main:
 
     if gameRevision=3
 	; KiS2 (JmpTo cleanup): Moved,
+    if removeJmpTos
 JmpTo20_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
+    endif
     endif
 ; ---------------------------------------------------------------------------
 ; loc_220E8:
@@ -51674,7 +51692,7 @@ Obj1E:
 	jsr	Obj1E_Index(pc,d1.w)
 	move.b	objoff_2C(a0),d0
 	add.b	objoff_36(a0),d0
-    if gameRevision=3
+    if (gameRevision=3) && removeJmpTos
 	; KiS2 (branch): This branch was optimised.
 	beq.s	JmpTo_MarkObjGone3
     else
@@ -52632,8 +52650,10 @@ Obj32_Fragment:
 
     if gameRevision=3
 	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo22_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
+    endif
     endif
 ; ===========================================================================
 ; velocity array for smashed bits, two words for each fragment
@@ -52834,7 +52854,7 @@ Obj30_Main:
 	move.w	Obj30_Modes(pc,d0.w),d1
 	jsr	Obj30_Modes(pc,d1.w)
 	tst.b	(Screen_Shaking_Flag_HTZ).w
-    if gameRevision=3
+    if (gameRevision=3) && removeJmpTos
 	; KiS2 (branch): This branch was optimised.
 	beq.s	JmpTo2_MarkObjGone3
     else
@@ -52844,8 +52864,10 @@ Obj30_Main:
 
     if gameRevision=3
 	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo2_MarkObjGone3 ; JmpTo
 	jmp	(MarkObjGone3).l
+    endif
     endif
 ; ===========================================================================
 ; off_23968:
@@ -54335,10 +54357,12 @@ Obj3D_Fragment:
 
     if gameRevision=3
 	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo26_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
 JmpTo3_MarkObjGone3 ; JmpTo
 	jmp	(MarkObjGone3).l
+    endif
     endif
 ; ===========================================================================
 ; loc_24F52:
@@ -55206,8 +55230,10 @@ loc_25BA4:
 
     if gameRevision=3
 	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo28_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
+    endif
     endif
 ; ===========================================================================
 byte_25BB0:
@@ -56709,8 +56735,10 @@ Obj67:
 
     if gameRevision=3
 	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo4_MarkObjGone3 ; JmpTo
 	jmp	(MarkObjGone3).l
+    endif
     endif
 ; ===========================================================================
 ; off_27184:
@@ -63945,8 +63973,10 @@ Obj50_Wing:
 
     if gameRevision=3
 	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo48_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
+    endif
     endif
 ; ===========================================================================
 ; loc_2CDF4:
@@ -64198,8 +64228,10 @@ Obj4B_Flame:
 
     if gameRevision=3
 	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo49_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
+    endif
     endif
 ; ===========================================================================
 ; loc_2D0C8:
@@ -64283,9 +64315,11 @@ Obj4B_TurnAround:
 
     if gameRevision=3
 	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 ; loc_2D38C:
 JmpTo21_ObjectMove ; JmpTo
 	jmp	(ObjectMove).l
+    endif
     endif
 ; ===========================================================================
 ; Start of subroutine Obj4B_ChkPlayers
@@ -66429,10 +66463,12 @@ BranchTo2_JmpTo34_DisplaySprite
 
     if gameRevision=3
 	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo34_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
 JmpTo51_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
+    endif
     endif
 ; ===========================================================================
 ; animation script
@@ -67534,10 +67570,12 @@ loc_2F924:
 
     if gameRevision=3
 	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo35_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
 JmpTo52_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
+    endif
     endif
 ; ===========================================================================
 ; animation script
@@ -68197,10 +68235,12 @@ loc_3022A:
 
     if gameRevision=3
 	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo36_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
 JmpTo53_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
+    endif
     endif
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -69794,8 +69834,10 @@ Obj57_FallingStuff:	; Spikes & Stones
 
     if gameRevision=3
 	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo57_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
+    endif
     endif
 ; ===========================================================================
 ; off_3160A: Obj57_AnimIndex:
@@ -70569,10 +70611,12 @@ loc_32080:
 
     if gameRevision=3
 	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo39_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
 JmpTo59_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
+    endif
     endif
 ; ===========================================================================
 ; animation script
@@ -71600,10 +71644,12 @@ JmpTo40_DisplaySprite ; JmpTo
 
     if gameRevision=3
 	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo40_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
 JmpTo61_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
+    endif
     endif
 ; ===========================================================================
 ; animation script
@@ -72312,8 +72358,10 @@ Obj55_Laser_Main:
 
     if gameRevision=3
 	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo62_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
+    endif
     endif
 ; ===========================================================================
 ; checks if laser hit the ground
@@ -76129,10 +76177,12 @@ loc_36210:
 
     if gameRevision=3
 	; KiS2 (JmpTo cleanup): Moved.
+    if removeJmpTos
 JmpTo44_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
 JmpTo63_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
+    endif
     endif
 ; ===========================================================================
 ; animation script for object 59
@@ -92219,7 +92269,11 @@ Art_LivesNums:	BINCLUDE	"art/uncompressed/Big and small numbers used on counters
 ; ArtUnc_4178C:
 Art_Text:	BINCLUDE	"art/uncompressed/Big and small numbers used on counters - 3.bin"
 
+    if gameRevision=3
+	jmpTos JmpTo_DrawSprite_Loop
+    else
 	jmpTos JmpTo_DrawSprite_2P_Loop,JmpTo_DrawSprite_Loop
+    endif
 
 
 
