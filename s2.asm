@@ -66057,7 +66057,6 @@ loc_31C08:
 	bsr.w	loc_31C92
 	lea	(Ani_obj51).l,a1
 	bsr.w	AnimateBoss
-
     if fixBugs
 	; Multi-sprite objects cannot use the 'priority' SST value, so they
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
