@@ -34,7 +34,7 @@ fixBugs = 0
 allOptimizations = 0
 ;	| If 1, enables all optimizations
 ;
-skipChecksumCheck = 1|allOptimizations
+skipChecksumCheck = 1
 ;	| If 1, disables the slow bootup checksum calculation
 ;
 zeroOffsetOptimization = 0|allOptimizations
@@ -11135,7 +11135,7 @@ SpecialStage_ResultsLetters:
 
 ; ===========================================================================
 
-	jmpTos JmpTo_LoadTitleCardSS,JmpTo_Obj5A_CreateRingReqMessage,JmpTo_Obj5A_PrintPhrase,JmpTo_ObjectMove,JmpTo_Hud_Base
+	jmpTos JmpTo_DisplaySprite,JmpTo_LoadTitleCardSS,JmpTo_DeleteObject,JmpTo_Obj5A_CreateRingReqMessage,JmpTo_Obj5A_PrintPhrase,JmpTo_ObjectMove,JmpTo_Hud_Base
 
 BranchTo_MegaPlay_SendCommandSafe ; BranchTo
 	bra.w	MegaPlay_SendCommandSafe
@@ -15642,7 +15642,7 @@ ArtNem_CreditText:	BINCLUDE	"art/nemesis/Credit Text.nem"
 	even
 ; ===========================================================================
 
-	jmpTos JmpTo5_DisplaySprite,JmpTo2_PlaySound,JmpTo_ObjB2_Animate_Pilot,JmpTo_AnimateSprite,JmpTo_NemDec,JmpTo_EniDec,JmpTo_ClearScreen,JmpTo2_PlayMusic,JmpTo_LoadChildObject,JmpTo2_PlaneMapToVRAM_H40,JmpTo2_ObjectMove,JmpTo_PalCycle_Load,JmpTo_LoadSubObject_Part3
+	jmpTos JmpTo5_DisplaySprite,JmpTo3_DeleteObject,JmpTo2_PlaySound,JmpTo_ObjB2_Animate_Pilot,JmpTo_AnimateSprite,JmpTo_NemDec,JmpTo_EniDec,JmpTo_ClearScreen,JmpTo2_PlayMusic,JmpTo_LoadChildObject,JmpTo2_PlaneMapToVRAM_H40,JmpTo2_ObjectMove,JmpTo_PalCycle_Load,JmpTo_LoadSubObject_Part3
 
 
 
@@ -28749,7 +28749,7 @@ loc_141E6:
 	move.w	#$12C,anim_frame_duration(a0)
 	lea	next_object(a0),a1 ; a1=object
 
-;loc_14214:
+loc_14214:
 	_tst.b	id(a1)
 	beq.s	loc_14220
 	lea	next_object(a1),a1 ; a1=object
@@ -46108,7 +46108,7 @@ word_1FCB8_End
 
 ; ===========================================================================
 
-	jmpTos JmpTo7_DisplaySprite,JmpTo6_Adjust2PArtPointer,JmpTo3_ObjectMove
+	jmpTos JmpTo7_DisplaySprite,JmpTo15_DeleteObject,JmpTo6_Adjust2PArtPointer,JmpTo3_ObjectMove
 
 
 
@@ -48973,8 +48973,10 @@ Obj1E:
     endif
 	rts
 
+    if removeJmpTos
 JmpTo_MarkObjGone3 ; JmpTo
 	jmp	(MarkObjGone3).l
+    endif
 ; ===========================================================================
 ; JmpTbl_225B8: Obj1E_States:
 Obj1E_Index:	offsetTable
@@ -49374,7 +49376,7 @@ __LABEL__ label *
 	include	"misc/obj1E_b.asm"
 ; ===========================================================================
 
-	jmpTos ; Empty
+	jmpTos JmpTo_MarkObjGone3
 
 
 
@@ -63651,7 +63653,7 @@ Obj5D_MapUnc_2EE88:	include "mappings/sprite/obj5D_c.asm"
 Obj5D_MapUnc_2EEA0:	include "mappings/sprite/obj5D_d.asm"
 ; ===========================================================================
 
-	jmpTos JmpTo35_MarkObjGone,JmpTo5_PlaySound,JmpTo8_Adjust2PArtPointer2,JmpTo5_LoadPLC,JmpTo2_AddPoints,JmpTo60_Adjust2PArtPointer,JmpTo_PlayLevelMusic,JmpTo_LoadPLC_AnimalExplosion,JmpTo3_ObjectMoveAndFall,JmpTo23_ObjectMove
+	jmpTos JmpTo34_DisplaySprite,JmpTo51_DeleteObject,JmpTo35_MarkObjGone,JmpTo5_PlaySound,JmpTo8_Adjust2PArtPointer2,JmpTo5_LoadPLC,JmpTo2_AddPoints,JmpTo60_Adjust2PArtPointer,JmpTo_PlayLevelMusic,JmpTo_LoadPLC_AnimalExplosion,JmpTo3_ObjectMoveAndFall,JmpTo23_ObjectMove
 
 
 
@@ -65257,7 +65259,7 @@ byte_302B7:	dc.b   3, $E, $F,$FF
 Obj52_MapUnc_302BC:	include "mappings/sprite/obj52_b.asm"
 ; ===========================================================================
 
-	jmpTos0 JmpTo13_AllocateObject,JmpTo37_MarkObjGone,JmpTo7_PlaySound,JmpTo18_AnimateSprite,JmpTo4_ObjCheckFloorDist,JmpTo7_LoadPLC,JmpTo_Obj20,JmpTo4_AddPoints,JmpTo62_Adjust2PArtPointer,JmpTo3_PlayLevelMusic,JmpTo3_LoadPLC_AnimalExplosion
+	jmpTos0 JmpTo36_DisplaySprite,JmpTo53_DeleteObject,JmpTo13_AllocateObject,JmpTo37_MarkObjGone,JmpTo7_PlaySound,JmpTo18_AnimateSprite,JmpTo4_ObjCheckFloorDist,JmpTo7_LoadPLC,JmpTo_Obj20,JmpTo4_AddPoints,JmpTo62_Adjust2PArtPointer,JmpTo3_PlayLevelMusic,JmpTo3_LoadPLC_AnimalExplosion
 
 
 
@@ -66864,7 +66866,7 @@ byte_316E8:	dc.b   7,$12,$FF
 Obj57_MapUnc_316EC:	include "mappings/sprite/obj57.asm"
 ; ===========================================================================
 
-	jmpTos JmpTo38_DisplaySprite,JmpTo15_AllocateObject,JmpTo4_RandomNumber,JmpTo9_LoadPLC,JmpTo6_AddPoints,JmpTo5_PlayLevelMusic,JmpTo5_LoadPLC_AnimalExplosion,JmpTo5_ObjectMoveAndFall
+	jmpTos JmpTo38_DisplaySprite,JmpTo57_DeleteObject,JmpTo15_AllocateObject,JmpTo4_RandomNumber,JmpTo9_LoadPLC,JmpTo6_AddPoints,JmpTo5_PlayLevelMusic,JmpTo5_LoadPLC_AnimalExplosion,JmpTo5_ObjectMoveAndFall
 
 
 
@@ -67593,7 +67595,7 @@ byte_320E4:	dc.b   1, $F,$10,$11,$FF
 Obj51_MapUnc_320EA:	include "mappings/sprite/obj51.asm"
 ; ===========================================================================
 
-	jmpTos JmpTo16_AllocateObject,JmpTo9_PlaySound,JmpTo23_AllocateObjectAfterCurrent,JmpTo20_AnimateSprite,JmpTo10_LoadPLC,JmpTo7_AddPoints,JmpTo6_PlayLevelMusic,JmpTo6_LoadPLC_AnimalExplosion
+	jmpTos JmpTo39_DisplaySprite,JmpTo59_DeleteObject,JmpTo16_AllocateObject,JmpTo9_PlaySound,JmpTo23_AllocateObjectAfterCurrent,JmpTo20_AnimateSprite,JmpTo10_LoadPLC,JmpTo7_AddPoints,JmpTo6_PlayLevelMusic,JmpTo6_LoadPLC_AnimalExplosion
 
 
 
@@ -68602,7 +68604,7 @@ byte_32DC3:	dc.b   7,$11,$FF
 Obj54_MapUnc_32DC6:	include "mappings/sprite/obj54.asm"
 ; ===========================================================================
 
-	jmpTos0 JmpTo17_AllocateObject,JmpTo10_PlaySound,JmpTo21_AnimateSprite,JmpTo11_LoadPLC,JmpTo8_AddPoints,JmpTo7_PlayLevelMusic,JmpTo7_LoadPLC_AnimalExplosion,JmpTo6_ObjectMoveAndFall,JmpTo24_ObjectMove
+	jmpTos0 JmpTo40_DisplaySprite,JmpTo61_DeleteObject,JmpTo17_AllocateObject,JmpTo10_PlaySound,JmpTo21_AnimateSprite,JmpTo11_LoadPLC,JmpTo8_AddPoints,JmpTo7_PlayLevelMusic,JmpTo7_LoadPLC_AnimalExplosion,JmpTo6_ObjectMoveAndFall,JmpTo24_ObjectMove
 
 
 
@@ -69410,7 +69412,7 @@ byte_33753:
 Obj55_MapUnc_33756:	include "mappings/sprite/obj55.asm"
 ; ===========================================================================
 
-	jmpTos JmpTo41_DisplaySprite,JmpTo18_AllocateObject,JmpTo38_MarkObjGone,JmpTo11_PlaySound,JmpTo24_AllocateObjectAfterCurrent,JmpTo22_AnimateSprite,JmpTo5_RandomNumber,JmpTo63_Adjust2PArtPointer,JmpTo13_CalcSine,JmpTo8_PlayLevelMusic,JmpTo8_LoadPLC_AnimalExplosion,JmpTo25_ObjectMove
+	jmpTos JmpTo41_DisplaySprite,JmpTo62_DeleteObject,JmpTo18_AllocateObject,JmpTo38_MarkObjGone,JmpTo11_PlaySound,JmpTo24_AllocateObjectAfterCurrent,JmpTo22_AnimateSprite,JmpTo5_RandomNumber,JmpTo63_Adjust2PArtPointer,JmpTo13_CalcSine,JmpTo8_PlayLevelMusic,JmpTo8_LoadPLC_AnimalExplosion,JmpTo25_ObjectMove
 
 
 
