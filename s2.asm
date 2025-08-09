@@ -41329,7 +41329,6 @@ Obj05Ani_Hanging:	dc.b   9,$81,$82,$83,$84,$FF
     if removeJmpTos
 JmpTo2_KillCharacter ; JmpTo
 	jmp	(KillCharacter).l
-	align 4
     endif
 
 
