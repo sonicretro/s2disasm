@@ -14666,7 +14666,7 @@ LevelSizeLoad:
 	clr.b	(Scroll_lock_P2).w
 	moveq	#0,d0
 	move.b	d0,(Dynamic_Resize_Routine).w ; load level boundaries
-    if gameRevision=2
+    if gameRevision>=2
 	move.w	d0,(WFZ_LevEvent_Subrout).w
 	move.w	d0,(WFZ_BG_Y_Speed).w
 	move.w	d0,(Camera_BG_X_offset).w
@@ -22894,7 +22894,6 @@ Obj15_Obj83_MapUnc_1021E:	include "mappings/sprite/obj83.asm"
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
-
 Obj15_Obj7A_MapUnc_10256:	mappingsTable
 	mappingsTableEntry.w	Map_obj7A_a_0008
 	mappingsTableEntry.w	Map_obj7A_a_001A
@@ -37036,7 +37035,7 @@ Sonic_CheckGoSuper:
 	bne.s	return_1ABA4		; if not, branch
 	cmpi.w	#50,(Ring_count).w	; does Sonic have at least 50 rings?
 	blo.s	return_1ABA4		; if not, branch
-    if gameRevision=2
+    if gameRevision>=2
 	; fixes a bug where the player can get stuck if transforming at the end of a level
 	tst.b	(Update_HUD_timer).w	; has Sonic reached the end of the act?
 	beq.s	return_1ABA4		; if yes, branch
@@ -91275,9 +91274,9 @@ Sound70:	include "sound/sfx/F0 - Oil Slide.asm"
 	finishBank
 
 ; end of 'ROM'
-	if padToPowerOfTwo && (*)&(*-1)
-		cnop	-1,2<<lastbit(*-1)
-		dc.b	0
+	if padToPowerOfTwo && (*-StartOfRom)&(*-StartOfRom-1)
+		cnop	-1,2<<lastbit(*-StartOfRom-1)
+		dc.b	$00
 paddingSoFar	:= paddingSoFar+1
 	else
 		even
