@@ -89291,70 +89291,8 @@ PlrList_ResultsTails_End
 PlrList_ResultsTails_Dup_End
 	dc.l	0
     elseif gameRevision=2
-	; half of the second ARZ PLR list
-	plreq ArtTile_ArtNem_Grounder, ArtNem_Grounder
-	plreq ArtTile_ArtNem_BigBubbles, ArtNem_BigBubbles
-	plreq ArtTile_ArtNem_Spikes, ArtNem_Spikes
-	plreq ArtTile_ArtNem_LeverSpring, ArtNem_LeverSpring
-	plreq ArtTile_ArtNem_VrtclSprng, ArtNem_VrtclSprng
-	plreq ArtTile_ArtNem_HrzntlSprng, ArtNem_HrzntlSprng
-PlrList_Arz2_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; SCZ Primary
-;---------------------------------------------------------------------------------------
-PlrList_Scz1_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Tornado, ArtNem_Tornado
-PlrList_Scz1_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; SCZ Secondary
-;---------------------------------------------------------------------------------------
-PlrList_Scz2_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Clouds, ArtNem_Clouds
-	plreq ArtTile_ArtNem_WfzVrtclPrpllr, ArtNem_WfzVrtclPrpllr
-	plreq ArtTile_ArtNem_WfzHrzntlPrpllr, ArtNem_WfzHrzntlPrpllr
-	plreq ArtTile_ArtNem_Balkrie, ArtNem_Balkrie
-	plreq ArtTile_ArtNem_Turtloid, ArtNem_Turtloid
-	plreq ArtTile_ArtNem_Nebula, ArtNem_Nebula
-PlrList_Scz2_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; Sonic end of level results screen
-;---------------------------------------------------------------------------------------
-PlrList_Results_Dup: plrlistheader
-	plreq ArtTile_ArtNem_TitleCard, ArtNem_TitleCard
-	plreq ArtTile_ArtNem_ResultsText, ArtNem_ResultsText
-	plreq ArtTile_ArtNem_MiniCharacter, ArtNem_MiniSonic
-	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
-PlrList_Results_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; End of level signpost
-;---------------------------------------------------------------------------------------
-PlrList_Signpost_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Signpost, ArtNem_Signpost
-PlrList_Signpost_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; CPZ Boss
-;---------------------------------------------------------------------------------------
-PlrList_CpzBoss_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Eggpod_3, ArtNem_Eggpod
-	plreq ArtTile_ArtNem_CPZBoss, ArtNem_CPZBoss
-	plreq ArtTile_ArtNem_EggpodJets_1, ArtNem_EggpodJets
-	plreq ArtTile_ArtNem_BossSmoke_1, ArtNem_BossSmoke
-	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
-PlrList_CpzBoss_Dup_End
-;---------------------------------------------------------------------------------------
-; PATTERN LOAD REQUEST LIST (duplicate)
-; EHZ Boss
-;---------------------------------------------------------------------------------------
-PlrList_EhzBoss_Dup: plrlistheader
-	plreq ArtTile_ArtNem_Eggpod_1, ArtNem_Eggpod
-	plreq ArtTile_ArtNem_EHZBoss, ArtNem_EHZBoss
-	plreq ArtTile_ArtNem_EggChoppers, ArtNem_EggChoppers
-	plreq ArtTile_ArtNem_FieryExplosion, ArtNem_FieryExplosion
+	; half of the EHZ boss PLR list
+	dc.w tiles_to_bytes(ArtTile_ArtNem_FieryExplosion)
 PlrList_EhzBoss_Dup_End
 ;---------------------------------------------------------------------------------------
 ; PATTERN LOAD REQUEST LIST (duplicate)
@@ -89580,6 +89518,8 @@ PlrList_ResultsTails_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
 PlrList_ResultsTails_Dup_End
     endif
+; In an accurate ROM, this junk data ends at $42D50.
+; Though, REV00 has some 00 bytes, for some reason...
 
 
 
