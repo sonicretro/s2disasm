@@ -13976,7 +13976,7 @@ loc_A936:
 	add.w	d0,y_pos(a0)
 	addq.b	#1,mapping_frame(a0)
 
-BranchTo2_JmpTo5_DisplaySprite
+BranchTo2_JmpTo5_DisplaySprite ; BranchTo
 	jmpto	JmpTo5_DisplaySprite
 ; ===========================================================================
 +
@@ -23063,7 +23063,7 @@ Obj17_DelLoop:
 	bsr.w	DeleteObject2	; delete object
 	dbf	d2,Obj17_DelLoop	; repeat d2 times (helix length)
 ; loc_10426:
-BranchTo2_DeleteObject
+BranchTo2_DeleteObject ; BranchTo
 	bra.w	DeleteObject
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -23208,7 +23208,7 @@ loc_105B0:
 	bra.w	DisplaySprite
 ; ===========================================================================
 
-BranchTo3_DeleteObject
+BranchTo3_DeleteObject ; BranchTo
 	bra.w	DeleteObject
 ; ===========================================================================
 
@@ -25416,7 +25416,7 @@ Obj26_Animate:
 	lea	(Ani_obj26).l,a1
 	bsr.w	AnimateSprite
 
-BranchTo2_MarkObjGone
+BranchTo2_MarkObjGone ; BranchTo
 	bra.w	MarkObjGone
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -26402,7 +26402,7 @@ Obj0E_Tails_AnimationFinished:
 	move.b	#ObjID_TitleIntro,id(a1)
 	move.b	#$10,subtype(a1)
 
-BranchTo10_DisplaySprite
+BranchTo10_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
 ; ===========================================================================
 ; word_130B8:
@@ -26444,7 +26444,7 @@ Obj0E_LogoTop_Init:
 Obj0E_NextRoutineSecondary:
 	addq.b	#2,routine_secondary(a0)	; BranchTo11_DisplaySprite
 
-BranchTo11_DisplaySprite
+BranchTo11_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
 ; ===========================================================================
 ; Obj0E_SkyPiece:
@@ -26471,7 +26471,7 @@ Obj0E_MaskingSprite_Init:
 	move.w	#128+128,x_pixel(a0)
 	move.w	#128+224/2,y_pixel(a0)
 
-BranchTo12_DisplaySprite
+BranchTo12_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
 ; ===========================================================================
 ; Obj0E_LargeStar:
@@ -26575,7 +26575,7 @@ Obj0E_SonicHand_Init:
 	move.w	#128+197,x_pixel(a0)
 	move.w	#128+63,y_pixel(a0)
 
-BranchTo13_DisplaySprite
+BranchTo13_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
 ; ===========================================================================
 ; loc_13234:
@@ -26619,7 +26619,7 @@ Obj0E_TailsHand_Init:
 	move.w	#128+143,x_pixel(a0)
 	move.w	#128+85,y_pixel(a0)
 
-BranchTo14_DisplaySprite
+BranchTo14_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
 ; ===========================================================================
 ; loc_13280:
@@ -27283,7 +27283,7 @@ Obj34_MoveTowardsTargetPosition:
 
 ; ===========================================================================
 
-BranchTo9_DeleteObject
+BranchTo9_DeleteObject ; BranchTo
 	bra.w	DeleteObject
 ; ===========================================================================
 ; loc_13E42:
@@ -27669,7 +27669,7 @@ loc_1419C:
 	bne.s	BranchTo18_DisplaySprite
 	addq.b	#2,routine(a0)
 
-BranchTo18_DisplaySprite
+BranchTo18_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
 ; ===========================================================================
 
@@ -28010,7 +28010,7 @@ Obj6F_InitEmeraldText:
 	move.b	#$1C,routine(a0)	; => Obj6F_TimedDisplay
 	move.w	#$B4,anim_frame_duration(a0)
 
-BranchTo2_Obj34_MoveTowardsTargetPosition
+BranchTo2_Obj34_MoveTowardsTargetPosition ; BranchTo
 	bra.w	Obj34_MoveTowardsTargetPosition
 ; ===========================================================================
 ;loc_14484
@@ -28116,7 +28116,7 @@ loc_1455A:
 +
 	move.b	d0,mapping_frame(a0)
 
-BranchTo3_Obj34_MoveTowardsTargetPosition
+BranchTo3_Obj34_MoveTowardsTargetPosition ; BranchTo
 	bra.w	Obj34_MoveTowardsTargetPosition
 ; ===========================================================================
 ;loc_14568
@@ -28131,7 +28131,7 @@ Obj6F_TimedDisplay:
 	bne.s	BranchTo19_DisplaySprite
 	addq.b	#2,routine(a0)
 
-BranchTo19_DisplaySprite
+BranchTo19_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
 ; ===========================================================================
 ;loc_14580
@@ -42258,7 +42258,7 @@ Obj08_ResetDisplayMode:
 	rts
 ; ===========================================================================
 
-BranchTo16_DeleteObject
+BranchTo16_DeleteObject ; BranchTo
 	bra.w	DeleteObject
 ; ===========================================================================
 ; loc_1DE4A:
@@ -47853,7 +47853,7 @@ Obj1D_MoveArc:
 	clr.w	x_vel(a0)
 	subq.b	#2,routine(a0) ; => Obj1D_Wait
 
-BranchTo2_JmpTo7_MarkObjGone
+BranchTo2_JmpTo7_MarkObjGone ; BranchTo
 	jmpto	JmpTo7_MarkObjGone
 ; ===========================================================================
 ; loc_22528:
@@ -47878,7 +47878,7 @@ Obj1D_MoveStraight:
 	move.w	#SndID_Gloop,d0
 	jsr	(PlaySoundLocal).l
 
-BranchTo3_JmpTo7_MarkObjGone
+BranchTo3_JmpTo7_MarkObjGone ; BranchTo
 	jmpto	JmpTo7_MarkObjGone
 ; ===========================================================================
 ; -------------------------------------------------------------------------------
@@ -48788,7 +48788,7 @@ Obj32_Main:
 	andi.b	#standing_mask,d0	; is at least one player standing on the object?
 	bne.s	Obj32_SupportingSomeone
 
-BranchTo2_JmpTo9_MarkObjGone
+BranchTo2_JmpTo9_MarkObjGone ; BranchTo
 	jmpto	JmpTo9_MarkObjGone
 ; ===========================================================================
 ; loc_235BC:
@@ -57189,7 +57189,7 @@ loc_2A966:
 	add.b	anim_frame(a0),d0
 	move.b	d0,mapping_frame(a0)
 
-BranchTo2_JmpTo26_MarkObjGone
+BranchTo2_JmpTo26_MarkObjGone ; BranchTo
 	jmpto	JmpTo26_MarkObjGone
 ; ===========================================================================
 
@@ -62457,7 +62457,7 @@ Obj5D_Smoke_Puff:
 	addi_.w	#4,y_pos(a0)
 	subi.w	#$28,x_pos(a0)
 
-BranchTo2_JmpTo34_DisplaySprite
+BranchTo2_JmpTo34_DisplaySprite ; BranchTo
 	jmpto	JmpTo34_DisplaySprite
 
     if removeJmpTos
@@ -64932,7 +64932,7 @@ Obj89_Pillar_Sub4:
 	jmpto	JmpTo55_DeleteObject
 ; ===========================================================================
 
-BranchTo2_JmpTo37_DisplaySprite
+BranchTo2_JmpTo37_DisplaySprite ; BranchTo
 	jmpto	JmpTo37_DisplaySprite
 ; ===========================================================================
 ; loc_30B6C:
@@ -66764,7 +66764,7 @@ Obj54_MainSub6:
 	bne.s	BranchTo2_Obj54_MoveAndShow
 	addq.b	#2,boss_routine(a0)		; => Obj54_MainSub8
 
-BranchTo2_Obj54_MoveAndShow
+BranchTo2_Obj54_MoveAndShow ; BranchTo
 	bra.w	Obj54_MoveAndShow
 ; ===========================================================================
 ;loc_32544
@@ -66782,7 +66782,7 @@ Obj54_MainSub8:
 	move.b	#0,boss_routine(a0)		; => Obj54_MainSub0
 	bclr	#6,objoff_2B(a0)
 
-BranchTo3_Obj54_MoveAndShow
+BranchTo3_Obj54_MoveAndShow ; BranchTo
 	bra.w	Obj54_MoveAndShow
 ; ===========================================================================
 ;loc_32574
@@ -66812,7 +66812,7 @@ Obj54_MainSubA:
 +
 	addq.b	#2,boss_routine(a0)		; => Obj54_MainSubC
 
-BranchTo4_Obj54_MoveAndShow
+BranchTo4_Obj54_MoveAndShow ; BranchTo
 	bra.w	Obj54_MoveAndShow
 ; ===========================================================================
 ;loc_325BE
@@ -66846,7 +66846,7 @@ Obj54_MainSubC:
 	bclr	#6,objoff_2B(a0)
 	move.b	#0,objoff_2F(a0)
 
-BranchTo5_Obj54_MoveAndShow
+BranchTo5_Obj54_MoveAndShow ; BranchTo
 	bra.w	Obj54_MoveAndShow
 ; ===========================================================================
 ;loc_3262E
@@ -66894,7 +66894,7 @@ loc_32650:
 	move.w	#$1E,(Boss_Countdown).w
 	bclr	#render_flags.x_flip,render_flags(a0)
 
-BranchTo6_Obj54_MoveAndShow
+BranchTo6_Obj54_MoveAndShow ; BranchTo
 	bra.w	Obj54_MoveAndShow
 ; ===========================================================================
 
@@ -68305,7 +68305,7 @@ Obj55_Wave_End:
 	jmpto	JmpTo38_MarkObjGone
 ; ===========================================================================
 
-BranchTo2_JmpTo62_DeleteObject
+BranchTo2_JmpTo62_DeleteObject ; BranchTo
     if gameRevision>=2
 	jmp	(DeleteObject).l
     else
@@ -75316,7 +75316,7 @@ loc_3848C:
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
 
-BranchTo5_JmpTo39_MarkObjGone
+BranchTo5_JmpTo39_MarkObjGone ; BranchTo
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -75687,7 +75687,7 @@ loc_389B6:
 	cmpi.w	#$80,d3
 	blo.s	loc_389D2
 
-BranchTo6_JmpTo39_MarkObjGone
+BranchTo6_JmpTo39_MarkObjGone ; BranchTo
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
 
@@ -75715,7 +75715,7 @@ loc_389FA:
 	move.w	word_38A1A(pc,d1.w),y_vel(a0)
 	bsr.w	loc_38A1E
 
-BranchTo7_JmpTo39_MarkObjGone
+BranchTo7_JmpTo39_MarkObjGone ; BranchTo
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
 word_38A1A:
@@ -76234,7 +76234,7 @@ loc_38F88:
 	move.w	word_38FE0-6(pc,d0.w),objoff_32(a1)
 	move.w	word_38FE0(pc,d0.w),objoff_34(a1)
 
-BranchTo2_JmpTo45_DisplaySprite
+BranchTo2_JmpTo45_DisplaySprite ; BranchTo
 	jmpto	JmpTo45_DisplaySprite
 ; ===========================================================================
 		dc.w MainCharacter	; -2
@@ -80380,7 +80380,7 @@ loc_3C140:
 	move.b	#1,(WindTunnel_holding_flag).w
 	move.b	#1,objoff_32(a0)
 
-BranchTo16_JmpTo39_MarkObjGone
+BranchTo16_JmpTo39_MarkObjGone ; BranchTo
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
 
@@ -81039,7 +81039,7 @@ ObjC5_PlatformReleaserLoadP:	; P=Platforms
 	bsr.w	LoadChildObject
 	move.b	objoff_2E(a0),objoff_2E(a1)
 
-BranchTo8_JmpTo45_DisplaySprite
+BranchTo8_JmpTo45_DisplaySprite ; BranchTo
 	jmpto	JmpTo45_DisplaySprite
 ; ===========================================================================
 
@@ -81824,7 +81824,7 @@ loc_3D2D4:
 +
 	clr.b	collision_property(a0)
 
-BranchTo18_JmpTo39_MarkObjGone
+BranchTo18_JmpTo39_MarkObjGone ; BranchTo
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
 
