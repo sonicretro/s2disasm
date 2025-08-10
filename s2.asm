@@ -26614,7 +26614,7 @@ Obj0E_TailsHand_Init:
 	move.b	#2,priority(a0)
     else
 	; This is inconsistent with 'TitleScreen_SetFinalState', and causes
-	; the hand to be layered behind Tails is his priority is fixed.
+	; the hand to be layered behind Tails if his priority is fixed.
 	move.b	#3,priority(a0)
     endif
 	move.w	#128+143,x_pixel(a0)
