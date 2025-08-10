@@ -14706,12 +14706,10 @@ loc_AA8A:
 	bmi.w	JmpTo3_DeleteObject
 	jmpto	JmpTo5_DisplaySprite
 
-
     if removeJmpTos
 JmpTo3_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
-
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object CD - Birds from ending sequence
@@ -14813,7 +14811,6 @@ loc_AB8E:
 ; ===========================================================================
 +
 	addq.w	#4,sp
-
 	jmpto	JmpTo3_DeleteObject
 ; ===========================================================================
 
@@ -33547,7 +33544,7 @@ BuildRings_Loop:
 	; KiS2 (mappings format): Uses S&K's mapping format instead of S2's mapping format.
 	; The difference between the two being that S2's format has a copy of
 	; the art-tile that is adjusted for two player mode.
-	addq.w	#2,a1
+	addq.w	#2,a1		; skip 2P art tile
     endif
 	move.w	(a1)+,d0	; get X offset
 	add.w	d3,d0		; add base X pos
@@ -49240,7 +49237,6 @@ Obj12_MapUnc_20382:	include "mappings/sprite/obj12.asm"
 
 
 
-
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object 13 - Waterfall in Hidden Palace Zone (unused)
@@ -49359,12 +49355,10 @@ loc_204F0:
 	bhi.w	JmpTo17_DeleteObject
 	rts
 
-
     if removeJmpTos
 JmpTo17_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
-
 ; ===========================================================================
 ; loc_20510:
 Obj13_ChkDel:
@@ -49382,7 +49376,6 @@ Obj13_MapUnc_20528:	include "mappings/sprite/obj13.asm"
 ; ===========================================================================
 
 	jmpTos JmpTo9_DisplaySprite,JmpTo17_DeleteObject,JmpTo2_Adjust2PArtPointer2,JmpTo11_Adjust2PArtPointer
-
 
 
 
@@ -49661,12 +49654,10 @@ Obj31_Main:
 +
 	rts
 
-
     if removeJmpTos
 JmpTo18_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
-
 ; ===========================================================================
     if ~~fixBugs
 ; -------------------------------------------------------------------------------
@@ -50195,7 +50186,6 @@ loc_2146C:
 ; ===========================================================================
 
 	jmpTos JmpTo10_DisplaySprite,JmpTo18_DeleteObject,JmpTo2_AllocateObject,JmpTo12_Adjust2PArtPointer
-
 
 
 
@@ -51146,12 +51136,10 @@ Obj19_Main:
 	bhi.w	JmpTo20_DeleteObject
 	jmpto	JmpTo11_DisplaySprite
 
-
     if removeJmpTos
 JmpTo20_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
-
 ; ---------------------------------------------------------------------------
 ; loc_220E8:
 Obj19_Move:
@@ -51321,7 +51309,6 @@ Obj19_MapUnc_2222A:	include "mappings/sprite/obj19.asm"
 ; ===========================================================================
 
 	jmpTos JmpTo11_DisplaySprite,JmpTo20_DeleteObject,JmpTo15_Adjust2PArtPointer,JmpTo4_PlatformObject,JmpTo5_ObjectMove
-
 
 
 
@@ -52558,12 +52545,10 @@ Obj32_Fragment:
 	_beq.w	JmpTo22_DeleteObject
 	jmpto	JmpTo12_DisplaySprite
 
-
     if removeJmpTos
 JmpTo22_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
-
 ; ===========================================================================
 ; velocity array for smashed bits, two words for each fragment
 ; byte_23680:
@@ -52688,7 +52673,6 @@ Obj32_MapUnc_23886:	include "mappings/sprite/obj32_b.asm"
 
 
 
-
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object 30 - Large rising lava during earthquake in HTZ
@@ -52763,12 +52747,10 @@ Obj30_Main:
     endif
 	rts
 
-
     if removeJmpTos
 JmpTo2_MarkObjGone3 ; JmpTo
 	jmp	(MarkObjGone3).l
     endif
-
 ; ===========================================================================
 ; off_23968:
 Obj30_Modes:	offsetTable
@@ -52858,7 +52840,6 @@ Obj30_SlopeData:
 ; ===========================================================================
 
 	jmpTos JmpTo23_DeleteObject,JmpTo_Touch_ChkHurt,JmpTo2_MarkObjGone3,JmpTo_DropOnFloor,JmpTo_SolidObject_Always,JmpTo_SlopedSolid
-
 
 
 
@@ -54248,14 +54229,12 @@ Obj3D_Fragment:
 	_beq.w	JmpTo26_DeleteObject
 	jmpto	JmpTo14_DisplaySprite
 
-
     if removeJmpTos
 JmpTo26_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
 JmpTo3_MarkObjGone3 ; JmpTo
 	jmp	(MarkObjGone3).l
     endif
-
 ; ===========================================================================
 ; loc_24F52:
 Obj3D_InvisibleLauncher:
@@ -54394,7 +54373,6 @@ Obj3D_MapUnc_250BA:	include "mappings/sprite/obj3D.asm"
 ; ===========================================================================
 
 	jmpTos JmpTo14_DisplaySprite,JmpTo26_DeleteObject,JmpTo13_MarkObjGone,JmpTo9_AllocateObjectAfterCurrent,JmpTo3_MarkObjGone3,JmpTo22_Adjust2PArtPointer,JmpTo2_BreakObjectToPieces,JmpTo7_SolidObject,JmpTo10_ObjectMove
-
 
 
 
@@ -55107,12 +55085,10 @@ loc_25BA4:
 	_beq.w	JmpTo28_DeleteObject
 	jmpto	JmpTo16_DisplaySprite
 
-
     if removeJmpTos
 JmpTo28_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
-
 ; ===========================================================================
 byte_25BB0:
 	dc.b   0
@@ -55192,7 +55168,6 @@ Obj2B_MapUnc_25C6E:	include "mappings/sprite/obj2B.asm"
 ; ===========================================================================
 
 	jmpTos JmpTo16_DisplaySprite,JmpTo28_DeleteObject,JmpTo16_MarkObjGone,JmpTo10_AllocateObjectAfterCurrent,JmpTo25_Adjust2PArtPointer,JmpTo8_SolidObject,JmpTo12_ObjectMove
-
 
 
 
@@ -56604,12 +56579,10 @@ Obj67:
 	jsrto	JmpTo7_AnimateSprite
 	jmpto	JmpTo19_DisplaySprite
 
-
     if removeJmpTos
 JmpTo4_MarkObjGone3 ; JmpTo
 	jmp	(MarkObjGone3).l
     endif
-
 ; ===========================================================================
 ; off_27184:
 Obj67_Index:	offsetTable
@@ -56870,7 +56843,6 @@ Obj67_MapUnc_27548:	include "mappings/sprite/obj67.asm"
 ; ===========================================================================
 
 	jmpTos JmpTo19_DisplaySprite,JmpTo7_AnimateSprite,JmpTo4_MarkObjGone3
-
 
 
 
@@ -63834,12 +63806,10 @@ Obj50_Wing:
 	jsrto	JmpTo14_AnimateSprite
 	jmpto	JmpTo32_DisplaySprite
 
-
     if removeJmpTos
 JmpTo48_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
-
 ; ===========================================================================
 ; loc_2CDF4:
 Obj50_Bullet:
@@ -64019,7 +63989,6 @@ Obj50_MapUnc_2CF94:	include "mappings/sprite/obj50.asm"
 
 
 
-
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object 4B - Buzzer (Buzz bomber) from EHZ
@@ -64081,12 +64050,10 @@ Obj4B_Flame:
 	jsrto	JmpTo15_AnimateSprite
 	jmpto	JmpTo_MarkObjGone_P1
 
-
     if removeJmpTos
 JmpTo49_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
-
 ; ===========================================================================
 ; loc_2D0C8:
 Obj4B_Init:
@@ -64167,13 +64134,11 @@ Obj4B_TurnAround:
 	move.w	#$100,Obj4B_move_timer(a0)
 	rts
 
-
     if removeJmpTos
 ; loc_2D38C:
 JmpTo21_ObjectMove ; JmpTo
 	jmp	(ObjectMove).l
     endif
-
 ; ===========================================================================
 ; Start of subroutine Obj4B_ChkPlayers
 ; sub_2D1D6:
@@ -64287,7 +64252,6 @@ Obj4B_MapUnc_2D2EA:	include "mappings/sprite/obj4B.asm"
 ; ===========================================================================
 
 	jmpTos0 JmpTo49_DeleteObject,JmpTo20_AllocateObjectAfterCurrent,JmpTo15_AnimateSprite,JmpTo7_Adjust2PArtPointer2,JmpTo_MarkObjGone_P1,JmpTo57_Adjust2PArtPointer,JmpTo21_ObjectMove
-
 
 
 
@@ -64898,7 +64862,6 @@ Obj5D_Main_Delete:
 	addq.l	#4,sp
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
 	jsr	(DeleteObject2).l
-
 	jmp	(DeleteObject).l
 ; ===========================================================================
 ;Obj5D_Main_0:
@@ -66282,14 +66245,12 @@ Obj5D_Smoke_Puff:
 BranchTo2_JmpTo34_DisplaySprite
 	jmpto	JmpTo34_DisplaySprite
 
-
     if removeJmpTos
 JmpTo34_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
 JmpTo51_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
-
 ; ===========================================================================
 ; animation script
 ; off_2EA3C:
@@ -67338,14 +67299,12 @@ loc_2F924:
 	jsr	(AnimateSprite).l
 	jmp	(DisplaySprite).l
 
-
     if removeJmpTos
 JmpTo35_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
 JmpTo52_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
-
 ; ===========================================================================
 ; animation script
 ; off_2F936:
@@ -67427,7 +67386,6 @@ Obj56_MapUnc_2FAF8:	include "mappings/sprite/obj56_c.asm"
 ; ===========================================================================
 
 	jmpTos JmpTo35_DisplaySprite,JmpTo52_DeleteObject,JmpTo36_MarkObjGone,JmpTo5_DeleteObject2,JmpTo6_PlaySound,JmpTo21_AllocateObjectAfterCurrent,JmpTo17_AnimateSprite,JmpTo9_Adjust2PArtPointer2,JmpTo3_ObjCheckFloorDist,JmpTo6_LoadPLC,JmpTo3_AddPoints,JmpTo61_Adjust2PArtPointer,JmpTo2_PlayLevelMusic,JmpTo2_LoadPLC_AnimalExplosion,JmpTo4_ObjectMoveAndFall
-
 
 
 
@@ -67533,7 +67491,6 @@ loc_2FD3A:
 loc_2FD50:
 	move.w	(Boss_Y_pos).w,y_pos(a0)
 	bsr.w	loc_300A4
-
 	jmpto	JmpTo36_DisplaySprite
 ; ===========================================================================
 
@@ -67928,7 +67885,6 @@ BranchTo_JmpTo36_DisplaySprite ; BranchTo
 
 loc_301AA:
 	move.w	#$3160,(Camera_Max_X_pos).w
-
 	jmpto	JmpTo53_DeleteObject
 ; ===========================================================================
 
@@ -67979,14 +67935,12 @@ loc_3022A:
 	move.l	d3,y_pos(a0)
 	jmpto	JmpTo36_DisplaySprite
 
-
     if removeJmpTos
 JmpTo36_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
 JmpTo53_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
-
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; sprite mappings - uses ArtNem_BossSmoke
@@ -69569,16 +69523,13 @@ Obj57_FallingStuff:	; Spikes & Stones
 	jsrto	JmpTo5_ObjectMoveAndFall
 	subi.w	#$28,sub2_y_pos(a0)	; decrease gravity
 	cmpi.w	#$6F0,y_pos(a0)	; if below boundary, delete
-
 	bgt.w	JmpTo57_DeleteObject
 	jmpto	JmpTo38_DisplaySprite
-
 
     if removeJmpTos
 JmpTo57_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
-
 ; ===========================================================================
 ; off_3160A: Obj57_AnimIndex:
 Ani_obj57:	offsetTable
@@ -69891,8 +69842,6 @@ loc_31C08:
 	bsr.w	loc_31C92
 	lea	(Ani_obj51).l,a1
 	bsr.w	AnimateBoss
-
-
     if fixBugs
 	; Multi-sprite objects cannot use the 'priority' SST value, so they
 	; must use 'DisplaySprite3' instead of 'DisplaySprite'.
@@ -70135,7 +70084,6 @@ loc_31E4A:
     endif
 ; ===========================================================================
 
-
 JmpTo58_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
 ; ===========================================================================
@@ -70244,7 +70192,6 @@ loc_31F96:
 	addq.b	#2,routine_secondary(a0)
 	move.w	#0,x_vel(a0)
 	move.w	#0,y_vel(a0)
-
 	jmpto	JmpTo39_DisplaySprite
 ; ===========================================================================
 
@@ -70323,14 +70270,12 @@ loc_32080:
 	bra.w	JmpTo59_DeleteObject
     endif
 
-
     if removeJmpTos
 JmpTo39_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
 JmpTo59_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
-
 ; ===========================================================================
 ; animation script
 ; off_3209C:
@@ -71280,7 +71225,6 @@ Obj53_Burst:
 	jsrto	JmpTo10_PlaySound
 	movea.l	objoff_34(a0),a1 ; a1=object
 	subi_.b	#1,objoff_2C(a1)
-
 	jmpto	JmpTo61_DeleteObject
 ; ===========================================================================
 ;loc_32CAE
@@ -71346,7 +71290,6 @@ JmpTo40_DisplaySprite ; JmpTo
 JmpTo61_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
-
 ; ===========================================================================
 ; animation script
 ; off_32D7A:
@@ -71653,7 +71596,6 @@ Obj55_Defeated_Sink:
 	jmpto	JmpTo41_DisplaySprite
     endif
 ; ===========================================================================
-
 
 BranchTo_JmpTo62_DeleteObject ; BranchTo
 	jmpto	JmpTo62_DeleteObject
@@ -72047,12 +71989,10 @@ Obj55_Laser_Main:
 	bhs.w	JmpTo62_DeleteObject	; if yes, branch
 	jmpto	JmpTo41_DisplaySprite
 
-
     if removeJmpTos
 JmpTo62_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
-
 ; ===========================================================================
 ; checks if laser hit the ground
 ; loc_335FE:
@@ -74176,7 +74116,6 @@ loc_3516C:
 	beq.w	JmpTo63_DeleteObject
 	movea.l	d0,a1 ; a1=object
 	st.b	objoff_2A(a1)
-
 	jmpto	JmpTo63_DeleteObject
 ; ===========================================================================
 byte_35180:
@@ -75822,14 +75761,12 @@ loc_36210:
 	rts
 	; end of unused code
 
-
     if removeJmpTos
 JmpTo44_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
 JmpTo63_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
-
 ; ===========================================================================
 ; animation script for object 59
 off_36228:	offsetTable
@@ -75962,7 +75899,6 @@ Obj61_MapUnc_36508:	include "mappings/sprite/obj61.asm"
 ; ===========================================================================
 
 	jmpTos0 JmpTo44_DisplaySprite,JmpTo63_DeleteObject,JmpTo24_AnimateSprite,JmpTo_SSStartNewAct,JmpTo_CalcAngle,JmpTo14_CalcSine,JmpTo7_ObjectMoveAndFall,JmpTo_SSAllocateObjectAfterCurrent,JmpTo2_SSAllocateObject
-
 
 ; ===========================================================================
 
@@ -82171,7 +82107,6 @@ ObjB2_Main_WFZ_Start:
 	jsr	off_3A8BA(pc,d1.w)
 	lea	(Ani_objB2_a).l,a1
 	jsrto	JmpTo25_AnimateSprite
-
 	bra.w	Obj_DeleteOffScreen
 ; ===========================================================================
 off_3A8BA:	offsetTable
