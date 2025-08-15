@@ -27114,7 +27114,7 @@ Obj34_Init:
 	moveq	#(Obj34_TitleCardData_End-Obj34_TitleCardData)/$A-1,d1
 -	_move.b	#ObjID_TitleCard,id(a1) ; load obj34
 	move.b	(a2)+,routine(a1)
-	move.l	#Obj34_MapUnc_147BA,mappings(a1)
+	move.l	#MapUnc_TitleCards,mappings(a1)
 	move.b	(a2)+,mapping_frame(a1)
 	move.b	(a2)+,width_pixels(a1)
 	move.b	(a2)+,anim_frame_duration(a1)
@@ -27605,7 +27605,7 @@ loc_140CE:
 	move.w	(a2)+,y_pixel(a1)
 	move.b	(a2)+,routine(a1)
 	move.b	(a2)+,mapping_frame(a1)
-	move.l	#Obj3A_MapUnc_14CBC,mappings(a1)
+	move.l	#MapUnc_EOLTitleCards,mappings(a1)
 	bsr.w	Adjust2PArtPointer2
 	move.b	#0,render_flags(a1)
 	lea	next_object(a1),a1 ; a1=object
@@ -27735,7 +27735,7 @@ loc_14220:
 	move.b	#$12,routine(a1)
 	move.w	#$188,x_pixel(a1)
 	move.w	#$118,y_pixel(a1)
-	move.l	#Obj3A_MapUnc_14CBC,mappings(a1)
+	move.l	#MapUnc_EOLTitleCards,mappings(a1)
 	bsr.w	Adjust2PArtPointer2
 	move.b	#0,render_flags(a1)
 	move.w	#60,anim_frame_duration(a1)
@@ -28326,221 +28326,257 @@ Obj6F_SubObjectMetaData:
 	results_screen_object   320+400,    320/2,     168,     $18,        $E		; Miles Rings
 	results_screen_object   320+416,    320/2,     184,     $1A,       $10		; Gems Bonus
 Obj6F_SubObjectMetaData_End:
+
 ; -------------------------------------------------------------------------------
-; sprite mappings
+; sprite mappings - zone title cards
+; Note: if you modify these mappings, also adjust the characters
+;	loaded into VRAM in TitleCardLetters
 ; -------------------------------------------------------------------------------
-Obj34_MapUnc_147BA:	mappingsTable
+; Obj34_MapUnc_147BA:
+MapUnc_TitleCards:	mappingsTable
 .zone_names:	zoneOrderedOffsetTable 2,1
-	zoneOffsetTableEntry.w word_147E8	; EHZ
-	zoneOffsetTableEntry.w word_147E8	; Zone 1
-	zoneOffsetTableEntry.w word_147E8	; WZ
-	zoneOffsetTableEntry.w word_147E8	; Zone 3
-	zoneOffsetTableEntry.w word_14842	; MTZ1,2
-	zoneOffsetTableEntry.w word_14842	; MTZ3
-	zoneOffsetTableEntry.w word_14B24	; WFZ
-	zoneOffsetTableEntry.w word_14894	; HTZ
-	zoneOffsetTableEntry.w word_148CE	; HPZ
-	zoneOffsetTableEntry.w word_147E8	; Zone 9
-	zoneOffsetTableEntry.w word_14930	; OOZ
-	zoneOffsetTableEntry.w word_14972	; MCZ
-	zoneOffsetTableEntry.w word_149C4	; CNZ
-	zoneOffsetTableEntry.w word_14A1E	; CPZ
-	zoneOffsetTableEntry.w word_14B86	; DEZ
-	zoneOffsetTableEntry.w word_14A88	; ARZ
-	zoneOffsetTableEntry.w word_14AE2	; SCZ
+	zoneOffsetTableEntry.w TC_EHZ		; Emerald Hill Zone
+	zoneOffsetTableEntry.w TC_EHZ		; XXX unused (unknown)
+	zoneOffsetTableEntry.w TC_EHZ		; XXX unused (Wood Zone)
+	zoneOffsetTableEntry.w TC_EHZ		; XXX unused (unknown)
+	zoneOffsetTableEntry.w TC_MTZ		; Metropolis Zone Act 1 and 2
+	zoneOffsetTableEntry.w TC_MTZ		; Metropolis Zone Act 3
+	zoneOffsetTableEntry.w TC_WFZ		; Wing Fortress Zone
+	zoneOffsetTableEntry.w TC_HTZ		; Hill Top Zone
+	zoneOffsetTableEntry.w TC_HPZ		; XXX Hidden Palace Zone
+	zoneOffsetTableEntry.w TC_EHZ		; XXX unused (Cyber City Zone)
+	zoneOffsetTableEntry.w TC_OOZ		; Oil Ocean Zone
+	zoneOffsetTableEntry.w TC_MCZ		; Mystic Cave Zone
+	zoneOffsetTableEntry.w TC_CNZ		; Casino Night Zone
+	zoneOffsetTableEntry.w TC_CPZ		; Chemical Plant Zone
+	zoneOffsetTableEntry.w TC_DEZ		; Death Egg Zone
+	zoneOffsetTableEntry.w TC_ARZ		; Aquatic Ruin Zone
+	zoneOffsetTableEntry.w TC_SCZ		; Sky Chase Zone
     zoneTableEnd
-	mappingsTableEntry.w	word_14BC8
-	mappingsTableEntry.w	word_14BEA
-	mappingsTableEntry.w	word_14BF4
-	mappingsTableEntry.w	word_14BFE
-	mappingsTableEntry.w	word_14C08
-	mappingsTableEntry.w	word_14C32
+	mappingsTableEntry.w TC_ZONE		; "ZONE" text
+	mappingsTableEntry.w TC_No1		; Act number 1
+	mappingsTableEntry.w TC_No2		; Act number 2
+	mappingsTableEntry.w TC_No3		; Act number 3
+	mappingsTableEntry.w TC_STH		; "SONIC THE HEDGEHOG" text
+	mappingsTableEntry.w TC_RedStripes	; Red stripes
 
-word_147E8:	spriteHeader
-	spritePiece	-$3D, 0, 2, 2, $580, 0, 0, 0, 1
-	spritePiece	-$30, 0, 3, 2, $5DE, 0, 0, 0, 1
-	spritePiece	-$18, 0, 2, 2, $580, 0, 0, 0, 1
-	spritePiece	-8, 0, 2, 2, $5E4, 0, 0, 0, 1
-	spritePiece	8, 0, 2, 2, $5E8, 0, 0, 0, 1
-	spritePiece	$18, 0, 2, 2, $5EC, 0, 0, 0, 1
-	spritePiece	$28, 0, 2, 2, $5F0, 0, 0, 0, 1
-	spritePiece	$48, 0, 2, 2, $5F4, 0, 0, 0, 1
-	spritePiece	$58, 0, 1, 2, $5F8, 0, 0, 0, 1
-	spritePiece	$60, 0, 2, 2, $5EC, 0, 0, 0, 1
-	spritePiece	$70, 0, 2, 2, $5EC, 0, 0, 0, 1
-word_147E8_End
+; word_147E8:
+TC_EHZ:		spriteHeader	; EMERALD HILL
+	spritePiece	-$3D, 0, 2, 2, $580, 0, 0, 0, 1	; E
+	spritePiece	-$30, 0, 3, 2, $5DE, 0, 0, 0, 1	; M
+	spritePiece	-$18, 0, 2, 2, $580, 0, 0, 0, 1	; E
+	spritePiece	-8, 0, 2, 2, $5E4, 0, 0, 0, 1	; R
+	spritePiece	8, 0, 2, 2, $5E8, 0, 0, 0, 1	; A
+	spritePiece	$18, 0, 2, 2, $5EC, 0, 0, 0, 1	; L
+	spritePiece	$28, 0, 2, 2, $5F0, 0, 0, 0, 1	; D
 
-word_14842:	spriteHeader
-	spritePiece	-$20, 0, 3, 2, $5DE, 0, 0, 0, 1
-	spritePiece	-8, 0, 2, 2, $580, 0, 0, 0, 1
-	spritePiece	8, 0, 2, 2, $5E4, 0, 0, 0, 1
-	spritePiece	$18, 0, 2, 2, $5E8, 0, 0, 0, 1
-	spritePiece	$28, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	$38, 0, 2, 2, $5EC, 0, 0, 0, 1
-	spritePiece	$48, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	$58, 0, 2, 2, $5F0, 0, 0, 0, 1
-	spritePiece	$68, 0, 1, 2, $5F4, 0, 0, 0, 1
-	spritePiece	$70, 0, 2, 2, $5F6, 0, 0, 0, 1
-word_14842_End
+	spritePiece	$48, 0, 2, 2, $5F4, 0, 0, 0, 1	; H
+	spritePiece	$58, 0, 1, 2, $5F8, 0, 0, 0, 1	; I
+	spritePiece	$60, 0, 2, 2, $5EC, 0, 0, 0, 1	; L
+	spritePiece	$70, 0, 2, 2, $5EC, 0, 0, 0, 1	; L
+TC_EHZ_End
 
-word_14894:	spriteHeader
-	spritePiece	8, 0, 2, 2, $5DE, 0, 0, 0, 1
-	spritePiece	$18, 0, 1, 2, $5E2, 0, 0, 0, 1
-	spritePiece	$20, 0, 2, 2, $5E4, 0, 0, 0, 1
-	spritePiece	$30, 0, 2, 2, $5E4, 0, 0, 0, 1
-	spritePiece	$51, 0, 2, 2, $5E8, 0, 0, 0, 1
-	spritePiece	$60, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	$70, 0, 2, 2, $5EC, 0, 0, 0, 1
-word_14894_End
+; word_14842:
+TC_MTZ:		spriteHeader	; METROPOLIS
+	spritePiece	-$20, 0, 3, 2, $5DE, 0, 0, 0, 1	; M
+	spritePiece	-8, 0, 2, 2, $580, 0, 0, 0, 1	; E
+	spritePiece	8, 0, 2, 2, $5E4, 0, 0, 0, 1	; T
+	spritePiece	$18, 0, 2, 2, $5E8, 0, 0, 0, 1	; R
+	spritePiece	$28, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	$38, 0, 2, 2, $5EC, 0, 0, 0, 1	; P
+	spritePiece	$48, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	$58, 0, 2, 2, $5F0, 0, 0, 0, 1	; L
+	spritePiece	$68, 0, 1, 2, $5F4, 0, 0, 0, 1	; I
+	spritePiece	$70, 0, 2, 2, $5F6, 0, 0, 0, 1	; S
+TC_MTZ_End
 
-word_148CE:	spriteHeader
-	spritePiece	-$48, 0, 2, 2, $5DE, 0, 0, 0, 1
-	spritePiece	-$38, 0, 1, 2, $5E2, 0, 0, 0, 1
-	spritePiece	-$30, 0, 2, 2, $5E4, 0, 0, 0, 1
-	spritePiece	-$20, 0, 2, 2, $5E4, 0, 0, 0, 1
-	spritePiece	-$10, 0, 2, 2, $580, 0, 0, 0, 1
-	spritePiece	0, 0, 2, 2, $584, 0, 0, 0, 1
-	spritePiece	$20, 0, 2, 2, $5E8, 0, 0, 0, 1
-	spritePiece	$30, 0, 2, 2, $5EC, 0, 0, 0, 1
-	spritePiece	$40, 0, 2, 2, $5F0, 0, 0, 0, 1
-	spritePiece	$50, 0, 2, 2, $5EC, 0, 0, 0, 1
-	spritePiece	$60, 0, 2, 2, $5F4, 0, 0, 0, 1
-	spritePiece	$70, 0, 2, 2, $580, 0, 0, 0, 1
-word_148CE_End
+; word_14894:
+TC_HTZ:		spriteHeader	; HILL TOP
+	spritePiece	8, 0, 2, 2, $5DE, 0, 0, 0, 1	; H
+	spritePiece	$18, 0, 1, 2, $5E2, 0, 0, 0, 1	; I
+	spritePiece	$20, 0, 2, 2, $5E4, 0, 0, 0, 1	; L
+	spritePiece	$30, 0, 2, 2, $5E4, 0, 0, 0, 1	; L
 
-word_14930:	spriteHeader
-	spritePiece	-5, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	$B, 0, 1, 2, $5DE, 0, 0, 0, 1
-	spritePiece	$13, 0, 2, 2, $5E0, 0, 0, 0, 1
-	spritePiece	$33, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	$43, 0, 2, 2, $5E4, 0, 0, 0, 1
-	spritePiece	$53, 0, 2, 2, $580, 0, 0, 0, 1
-	spritePiece	$60, 0, 2, 2, $5E8, 0, 0, 0, 1
-	spritePiece	$70, 0, 2, 2, $584, 0, 0, 0, 1
-word_14930_End
+	spritePiece	$51, 0, 2, 2, $5E8, 0, 0, 0, 1	; T
+	spritePiece	$60, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	$70, 0, 2, 2, $5EC, 0, 0, 0, 1	; P
+TC_HTZ_End
 
-word_14972:	spriteHeader
-	spritePiece	-$30, 0, 3, 2, $5DE, 0, 0, 0, 1
-	spritePiece	-$18, 0, 2, 2, $5E4, 0, 0, 0, 1
-	spritePiece	-8, 0, 2, 2, $5E8, 0, 0, 0, 1
-	spritePiece	8, 0, 2, 2, $5EC, 0, 0, 0, 1
-	spritePiece	$18, 0, 1, 2, $5F0, 0, 0, 0, 1
-	spritePiece	$20, 0, 2, 2, $5F2, 0, 0, 0, 1
-	spritePiece	$41, 0, 2, 2, $5F2, 0, 0, 0, 1
-	spritePiece	$50, 0, 2, 2, $5F6, 0, 0, 0, 1
-	spritePiece	$60, 0, 2, 2, $5FA, 0, 0, 0, 1
-	spritePiece	$70, 0, 2, 2, $580, 0, 0, 0, 1
-word_14972_End
+; word_148CE:
+TC_HPZ:		spriteHeader	; HIDDEN PALACE
+	spritePiece	-$48, 0, 2, 2, $5DE, 0, 0, 0, 1	; H
+	spritePiece	-$38, 0, 1, 2, $5E2, 0, 0, 0, 1	; I
+	spritePiece	-$30, 0, 2, 2, $5E4, 0, 0, 0, 1	; D
+	spritePiece	-$20, 0, 2, 2, $5E4, 0, 0, 0, 1	; D
+	spritePiece	-$10, 0, 2, 2, $580, 0, 0, 0, 1	; E
+	spritePiece	0, 0, 2, 2, $584, 0, 0, 0, 1	; N
 
-word_149C4:	spriteHeader
-	spritePiece	-$2F, 0, 2, 2, $5DE, 0, 0, 0, 1
-	spritePiece	-$20, 0, 2, 2, $5E2, 0, 0, 0, 1
-	spritePiece	-$10, 0, 2, 2, $5E6, 0, 0, 0, 1
-	spritePiece	0, 0, 1, 2, $5EA, 0, 0, 0, 1
-	spritePiece	8, 0, 2, 2, $584, 0, 0, 0, 1
-	spritePiece	$18, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	$38, 0, 2, 2, $584, 0, 0, 0, 1
-	spritePiece	$48, 0, 1, 2, $5EA, 0, 0, 0, 1
-	spritePiece	$50, 0, 2, 2, $5EC, 0, 0, 0, 1
-	spritePiece	$60, 0, 2, 2, $5F0, 0, 0, 0, 1
-	spritePiece	$70, 0, 2, 2, $5F4, 0, 0, 0, 1
-word_149C4_End
+	spritePiece	$20, 0, 2, 2, $5E8, 0, 0, 0, 1	; P
+	spritePiece	$30, 0, 2, 2, $5EC, 0, 0, 0, 1	; A
+	spritePiece	$40, 0, 2, 2, $5F0, 0, 0, 0, 1	; L
+	spritePiece	$50, 0, 2, 2, $5EC, 0, 0, 0, 1	; A
+	spritePiece	$60, 0, 2, 2, $5F4, 0, 0, 0, 1	; C
+	spritePiece	$70, 0, 2, 2, $580, 0, 0, 0, 1	; E
+TC_HPZ_End
 
-word_14A1E:	spriteHeader
-	spritePiece	-$5C, 0, 2, 2, $5DE, 0, 0, 0, 1
-	spritePiece	-$4C, 0, 2, 2, $5E2, 0, 0, 0, 1
-	spritePiece	-$3C, 0, 2, 2, $580, 0, 0, 0, 1
-	spritePiece	-$2F, 0, 3, 2, $5E6, 0, 0, 0, 1
-	spritePiece	-$17, 0, 1, 2, $5EC, 0, 0, 0, 1
-	spritePiece	-$F, 0, 2, 2, $5DE, 0, 0, 0, 1
-	spritePiece	0, 0, 2, 2, $5EE, 0, 0, 0, 1
-	spritePiece	$10, 0, 2, 2, $5F2, 0, 0, 0, 1
-	spritePiece	$31, 0, 2, 2, $5F6, 0, 0, 0, 1
-	spritePiece	$41, 0, 2, 2, $5F2, 0, 0, 0, 1
-	spritePiece	$50, 0, 2, 2, $5EE, 0, 0, 0, 1
-	spritePiece	$60, 0, 2, 2, $584, 0, 0, 0, 1
-	spritePiece	$70, 0, 2, 2, $5FA, 0, 0, 0, 1
-word_14A1E_End
+; word_14930:
+TC_OOZ:		spriteHeader	; OIL OCEAN
+	spritePiece	-5, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	$B, 0, 1, 2, $5DE, 0, 0, 0, 1	; I
+	spritePiece	$13, 0, 2, 2, $5E0, 0, 0, 0, 1	; L
 
-word_14A88:	spriteHeader
-	spritePiece	-$2E, 0, 2, 2, $5DE, 0, 0, 0, 1
-	spritePiece	-$1E, 0, 2, 2, $5E2, 0, 0, 0, 1
-	spritePiece	-$E, 0, 2, 2, $5E6, 0, 0, 0, 1
-	spritePiece	0, 0, 2, 2, $5DE, 0, 0, 0, 1
-	spritePiece	$10, 0, 2, 2, $5EA, 0, 0, 0, 1
-	spritePiece	$20, 0, 1, 2, $5EE, 0, 0, 0, 1
-	spritePiece	$28, 0, 2, 2, $5F0, 0, 0, 0, 1
-	spritePiece	$48, 0, 2, 2, $5F4, 0, 0, 0, 1
-	spritePiece	$58, 0, 2, 2, $5E6, 0, 0, 0, 1
-	spritePiece	$68, 0, 1, 2, $5EE, 0, 0, 0, 1
-	spritePiece	$70, 0, 2, 2, $584, 0, 0, 0, 1
-word_14A88_End
+	spritePiece	$33, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	$43, 0, 2, 2, $5E4, 0, 0, 0, 1	; C
+	spritePiece	$53, 0, 2, 2, $580, 0, 0, 0, 1	; E
+	spritePiece	$60, 0, 2, 2, $5E8, 0, 0, 0, 1	; A
+	spritePiece	$70, 0, 2, 2, $584, 0, 0, 0, 1	; N
+TC_OOZ_End
 
-word_14AE2:	spriteHeader
-	spritePiece	-$10, 0, 2, 2, $5DE, 0, 0, 0, 1
-	spritePiece	0, 0, 2, 2, $5E2, 0, 0, 0, 1
-	spritePiece	$10, 0, 2, 2, $5E6, 0, 0, 0, 1
-	spritePiece	$30, 0, 2, 2, $5EA, 0, 0, 0, 1
-	spritePiece	$40, 0, 2, 2, $5EE, 0, 0, 0, 1
-	spritePiece	$50, 0, 2, 2, $5F2, 0, 0, 0, 1
-	spritePiece	$60, 0, 2, 2, $5DE, 0, 0, 0, 1
-	spritePiece	$70, 0, 2, 2, $580, 0, 0, 0, 1
-word_14AE2_End
+; word_14972:
+TC_MCZ:		spriteHeader	; MYSTIC CAVE
+	spritePiece	-$30, 0, 3, 2, $5DE, 0, 0, 0, 1	; M
+	spritePiece	-$18, 0, 2, 2, $5E4, 0, 0, 0, 1	; Y
+	spritePiece	-8, 0, 2, 2, $5E8, 0, 0, 0, 1	; S
+	spritePiece	8, 0, 2, 2, $5EC, 0, 0, 0, 1	; T
+	spritePiece	$18, 0, 1, 2, $5F0, 0, 0, 0, 1	; I
+	spritePiece	$20, 0, 2, 2, $5F2, 0, 0, 0, 1	; C
 
-word_14B24:	spriteHeader
-	spritePiece	-$4F, 0, 3, 2, $5DE, 0, 0, 0, 1
-	spritePiece	-$38, 0, 1, 2, $5E4, 0, 0, 0, 1
-	spritePiece	-$30, 0, 2, 2, $584, 0, 0, 0, 1
-	spritePiece	-$20, 0, 2, 2, $5E6, 0, 0, 0, 1
-	spritePiece	1, 0, 2, 2, $5EA, 0, 0, 0, 1
-	spritePiece	$10, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	$20, 0, 2, 2, $5EE, 0, 0, 0, 1
-	spritePiece	$30, 0, 2, 2, $5F2, 0, 0, 0, 1
-	spritePiece	$40, 0, 2, 2, $5EE, 0, 0, 0, 1
-	spritePiece	$50, 0, 2, 2, $580, 0, 0, 0, 1
-	spritePiece	$5F, 0, 2, 2, $5F6, 0, 0, 0, 1
-	spritePiece	$6F, 0, 2, 2, $5F6, 0, 0, 0, 1
-word_14B24_End
+	spritePiece	$41, 0, 2, 2, $5F2, 0, 0, 0, 1	; C
+	spritePiece	$50, 0, 2, 2, $5F6, 0, 0, 0, 1	; A
+	spritePiece	$60, 0, 2, 2, $5FA, 0, 0, 0, 1	; V
+	spritePiece	$70, 0, 2, 2, $580, 0, 0, 0, 1	; E
+TC_MCZ_End
 
-word_14B86:	spriteHeader
-	spritePiece	-$E, 0, 2, 2, $5DE, 0, 0, 0, 1
-	spritePiece	2, 0, 2, 2, $580, 0, 0, 0, 1
-	spritePiece	$10, 0, 2, 2, $5E2, 0, 0, 0, 1
-	spritePiece	$20, 0, 2, 2, $5E6, 0, 0, 0, 1
-	spritePiece	$30, 0, 2, 2, $5EA, 0, 0, 0, 1
-	spritePiece	$51, 0, 2, 2, $580, 0, 0, 0, 1
-	spritePiece	$60, 0, 2, 2, $5EE, 0, 0, 0, 1
-	spritePiece	$70, 0, 2, 2, $5EE, 0, 0, 0, 1
-word_14B86_End
+; word_149C4:
+TC_CNZ:		spriteHeader	; CASINO NIGHT
+	spritePiece	-$2F, 0, 2, 2, $5DE, 0, 0, 0, 1	; C
+	spritePiece	-$20, 0, 2, 2, $5E2, 0, 0, 0, 1	; A
+	spritePiece	-$10, 0, 2, 2, $5E6, 0, 0, 0, 1	; S
+	spritePiece	0, 0, 1, 2, $5EA, 0, 0, 0, 1	; I
+	spritePiece	8, 0, 2, 2, $584, 0, 0, 0, 1	; N
+	spritePiece	$18, 0, 2, 2, $588, 0, 0, 0, 1	; O
 
-word_14BC8:	spriteHeader
-	spritePiece	1, 0, 2, 2, $58C, 0, 0, 0, 1
-	spritePiece	$10, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	$20, 0, 2, 2, $584, 0, 0, 0, 1
-	spritePiece	$30, 0, 2, 2, $580, 0, 0, 0, 1
-word_14BC8_End
+	spritePiece	$38, 0, 2, 2, $584, 0, 0, 0, 1	; N
+	spritePiece	$48, 0, 1, 2, $5EA, 0, 0, 0, 1	; I
+	spritePiece	$50, 0, 2, 2, $5EC, 0, 0, 0, 1	; G
+	spritePiece	$60, 0, 2, 2, $5F0, 0, 0, 0, 1	; H
+	spritePiece	$70, 0, 2, 2, $5F4, 0, 0, 0, 1	; T
+TC_CNZ_End
 
-word_14BEA:	spriteHeader
-	spritePiece	0, 0, 2, 4, $590, 0, 0, 1, 1
-word_14BEA_End
+; word_14A1E:
+TC_CPZ:		spriteHeader	; CHEMICAL PLANT
+	spritePiece	-$5C, 0, 2, 2, $5DE, 0, 0, 0, 1	; C
+	spritePiece	-$4C, 0, 2, 2, $5E2, 0, 0, 0, 1	; H
+	spritePiece	-$3C, 0, 2, 2, $580, 0, 0, 0, 1	; E
+	spritePiece	-$2F, 0, 3, 2, $5E6, 0, 0, 0, 1	; M
+	spritePiece	-$17, 0, 1, 2, $5EC, 0, 0, 0, 1	; I
+	spritePiece	-$F, 0, 2, 2, $5DE, 0, 0, 0, 1	; C
+	spritePiece	0, 0, 2, 2, $5EE, 0, 0, 0, 1	; A
+	spritePiece	$10, 0, 2, 2, $5F2, 0, 0, 0, 1	; L
 
-word_14BF4:	spriteHeader
-	spritePiece	0, 0, 3, 4, $598, 0, 0, 1, 1
-word_14BF4_End
+	spritePiece	$31, 0, 2, 2, $5F6, 0, 0, 0, 1	; P
+	spritePiece	$41, 0, 2, 2, $5F2, 0, 0, 0, 1	; L
+	spritePiece	$50, 0, 2, 2, $5EE, 0, 0, 0, 1	; A
+	spritePiece	$60, 0, 2, 2, $584, 0, 0, 0, 1	; N
+	spritePiece	$70, 0, 2, 2, $5FA, 0, 0, 0, 1	; T
+TC_CPZ_End
 
-word_14BFE:	spriteHeader
-	spritePiece	0, 0, 3, 4, $5A4, 0, 0, 1, 1
-word_14BFE_End
+; word_14A88:
+TC_ARZ:		spriteHeader	; AQUATIC RUIN
+	spritePiece	-$2E, 0, 2, 2, $5DE, 0, 0, 0, 1	; A
+	spritePiece	-$1E, 0, 2, 2, $5E2, 0, 0, 0, 1	; Q
+	spritePiece	-$E, 0, 2, 2, $5E6, 0, 0, 0, 1	; U
+	spritePiece	0, 0, 2, 2, $5DE, 0, 0, 0, 1	; A
+	spritePiece	$10, 0, 2, 2, $5EA, 0, 0, 0, 1	; T
+	spritePiece	$20, 0, 1, 2, $5EE, 0, 0, 0, 1	; I
+	spritePiece	$28, 0, 2, 2, $5F0, 0, 0, 0, 1	; C
 
-word_14C08:	spriteHeader
+	spritePiece	$48, 0, 2, 2, $5F4, 0, 0, 0, 1	; R
+	spritePiece	$58, 0, 2, 2, $5E6, 0, 0, 0, 1	; U
+	spritePiece	$68, 0, 1, 2, $5EE, 0, 0, 0, 1	; I
+	spritePiece	$70, 0, 2, 2, $584, 0, 0, 0, 1	; N
+TC_ARZ_End
+
+; word_14AE2:
+TC_SCZ:		spriteHeader	; SKY CHASE
+	spritePiece	-$10, 0, 2, 2, $5DE, 0, 0, 0, 1	; S
+	spritePiece	0, 0, 2, 2, $5E2, 0, 0, 0, 1	; K
+	spritePiece	$10, 0, 2, 2, $5E6, 0, 0, 0, 1	; Y
+
+	spritePiece	$30, 0, 2, 2, $5EA, 0, 0, 0, 1	; C
+	spritePiece	$40, 0, 2, 2, $5EE, 0, 0, 0, 1	; H
+	spritePiece	$50, 0, 2, 2, $5F2, 0, 0, 0, 1	; A
+	spritePiece	$60, 0, 2, 2, $5DE, 0, 0, 0, 1	; S
+	spritePiece	$70, 0, 2, 2, $580, 0, 0, 0, 1	; E
+TC_SCZ_End
+
+; word_14B24:
+TC_WFZ:		spriteHeader	; WING FORTRESS
+	spritePiece	-$4F, 0, 3, 2, $5DE, 0, 0, 0, 1	; W
+	spritePiece	-$38, 0, 1, 2, $5E4, 0, 0, 0, 1	; I
+	spritePiece	-$30, 0, 2, 2, $584, 0, 0, 0, 1	; N
+	spritePiece	-$20, 0, 2, 2, $5E6, 0, 0, 0, 1	; G
+
+	spritePiece	1, 0, 2, 2, $5EA, 0, 0, 0, 1	; F
+	spritePiece	$10, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	$20, 0, 2, 2, $5EE, 0, 0, 0, 1	; R
+	spritePiece	$30, 0, 2, 2, $5F2, 0, 0, 0, 1	; T
+	spritePiece	$40, 0, 2, 2, $5EE, 0, 0, 0, 1	; R
+	spritePiece	$50, 0, 2, 2, $580, 0, 0, 0, 1	; E
+	spritePiece	$5F, 0, 2, 2, $5F6, 0, 0, 0, 1	; S
+	spritePiece	$6F, 0, 2, 2, $5F6, 0, 0, 0, 1	; S
+TC_WFZ_End
+
+; word_14B86:
+TC_DEZ:		spriteHeader	; DEATH EGG
+	spritePiece	-$E, 0, 2, 2, $5DE, 0, 0, 0, 1	; D
+	spritePiece	2, 0, 2, 2, $580, 0, 0, 0, 1	; E
+	spritePiece	$10, 0, 2, 2, $5E2, 0, 0, 0, 1	; A
+	spritePiece	$20, 0, 2, 2, $5E6, 0, 0, 0, 1	; T
+	spritePiece	$30, 0, 2, 2, $5EA, 0, 0, 0, 1	; H
+
+	spritePiece	$51, 0, 2, 2, $580, 0, 0, 0, 1	; E
+	spritePiece	$60, 0, 2, 2, $5EE, 0, 0, 0, 1	; G
+	spritePiece	$70, 0, 2, 2, $5EE, 0, 0, 0, 1	; G
+TC_DEZ_End
+
+
+; Miscellaneous title card mappings
+
+; word_14BC8:
+TC_ZONE:	spriteHeader	; ZONE
+	spritePiece	1, 0, 2, 2, $58C, 0, 0, 0, 1	; Z
+	spritePiece	$10, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	$20, 0, 2, 2, $584, 0, 0, 0, 1	; N
+	spritePiece	$30, 0, 2, 2, $580, 0, 0, 0, 1	; E
+TC_ZONE_End
+
+; word_14BEA:
+TC_No1:		spriteHeader	; Act number 1
+	spritePiece	0, 0, 2, 4, $590, 0, 0, 1, 1	; 1
+TC_No1_End
+
+; word_14BF4:
+TC_No2:		spriteHeader	; Act number 2
+	spritePiece	0, 0, 3, 4, $598, 0, 0, 1, 1	; 2
+TC_No2_End
+
+; word_14BFE:
+TC_No3:		spriteHeader	; Act number 3
+	spritePiece	0, 0, 3, 4, $5A4, 0, 0, 1, 1	; 3
+TC_No3_End
+
+; word_14C08:
+TC_STH:		spriteHeader	; "SONIC THE HEDGEHOG" text
 	spritePiece	-$48, 0, 4, 2, $5B0, 0, 0, 0, 1
 	spritePiece	-$28, 0, 4, 2, $5B8, 0, 0, 0, 1
 	spritePiece	-8, 0, 4, 2, $5C0, 0, 0, 0, 1
 	spritePiece	$18, 0, 4, 2, $5C8, 0, 0, 0, 1
 	spritePiece	$38, 0, 2, 2, $5D0, 0, 0, 0, 1
-word_14C08_End
+TC_STH_End
 
-word_14C32:	spriteHeader
+; word_14C32:
+TC_RedStripes:	spriteHeader	; Red stripes
 	spritePiece	0, -$70, 1, 4, $5D4, 0, 0, 0, 1
 	spritePiece	0, -$50, 1, 4, $5D4, 0, 0, 0, 1
 	spritePiece	0, -$30, 1, 4, $5D4, 0, 0, 0, 1
@@ -28548,7 +28584,7 @@ word_14C32:	spriteHeader
 	spritePiece	0, $10, 1, 4, $5D4, 0, 0, 0, 1
 	spritePiece	0, $30, 1, 4, $5D4, 0, 0, 0, 1
 	spritePiece	0, $50, 1, 4, $5D4, 0, 0, 0, 1
-word_14C32_End
+TC_RedStripes_End
 
 	even
 
@@ -28556,110 +28592,133 @@ word_14C32_End
 ; sprite mappings
 ; -------------------------------------------------------------------------------
 Obj39_MapUnc_14C6C:	include "mappings/sprite/obj39.asm"
+
 ; -------------------------------------------------------------------------------
-; sprite mappings
+; sprite mappings - end-of-level results screen title cards
+; Note: only the following letters are included in the font art
+;	A, C, G, H, I, L, M, R, S, T, U
 ; -------------------------------------------------------------------------------
-Obj3A_MapUnc_14CBC:	mappingsTable
-	mappingsTableEntry.w	word_14CDA
-	mappingsTableEntry.w	word_14D1C
-	mappingsTableEntry.w	word_14D5E
-	mappingsTableEntry.w	word_14DA0
-	mappingsTableEntry.w	word_14DDA
-	mappingsTableEntry.w	word_14BC8
-	mappingsTableEntry.w	word_14BEA
-	mappingsTableEntry.w	word_14BF4
-	mappingsTableEntry.w	word_14BFE
-	mappingsTableEntry.w	word_14DF4
-	mappingsTableEntry.w	word_14E1E
-	mappingsTableEntry.w	word_14E50
-	mappingsTableEntry.w	word_14E82
-	mappingsTableEntry.w	word_14E8C
-	mappingsTableEntry.w	word_14E96
+; Obj3A_MapUnc_14CBC:
+MapUnc_EOLTitleCards:	mappingsTable
+	mappingsTableEntry.w	EOL_Sonic	; "SONIC GOT" text
+	mappingsTableEntry.w	EOL_Miles	; "MILES GOT" text (Japanese region)
+	mappingsTableEntry.w	EOL_Tails	; "TAILS GOT" text (international region)
+	mappingsTableEntry.w	EOL_Through	; "THROUGH" text
+	mappingsTableEntry.w	EOL_Act		; "ACT" text
 
-word_14CDA:	spriteHeader
-	spritePiece	-$40, 0, 2, 2, $5D0, 0, 0, 0, 1
-	spritePiece	-$30, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	-$20, 0, 2, 2, $584, 0, 0, 0, 1
-	spritePiece	-$10, 0, 1, 2, $5C0, 0, 0, 0, 1
-	spritePiece	-8, 0, 2, 2, $5B4, 0, 0, 0, 1
-	spritePiece	$10, 0, 2, 2, $5B8, 0, 0, 0, 1
-	spritePiece	$20, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	$2F, 0, 2, 2, $5D4, 0, 0, 0, 1
-word_14CDA_End
+	mappingsTableEntry.w	TC_ZONE		; "ZONE" text
+	mappingsTableEntry.w	TC_No1		; "1" text
+	mappingsTableEntry.w	TC_No2		; "2" text
+	mappingsTableEntry.w	TC_No3		; "3" text
 
-word_14D1C:	spriteHeader
-	spritePiece	-$44, 0, 3, 2, $5C6, 0, 0, 0, 1
-	spritePiece	-$2C, 0, 1, 2, $5C0, 0, 0, 0, 1
-	spritePiece	-$24, 0, 2, 2, $5C2, 0, 0, 0, 1
-	spritePiece	-$14, 0, 2, 2, $580, 0, 0, 0, 1
-	spritePiece	-4, 0, 2, 2, $5D0, 0, 0, 0, 1
-	spritePiece	$14, 0, 2, 2, $5B8, 0, 0, 0, 1
-	spritePiece	$24, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	$33, 0, 2, 2, $5D4, 0, 0, 0, 1
-word_14D1C_End
+	mappingsTableEntry.w	EOL_Total	; Total text
+	mappingsTableEntry.w	EOL_TimeBonus	; Time Bonus text
+	mappingsTableEntry.w	EOL_RingBonus	; Ring Bonus text
+	mappingsTableEntry.w	EOL_SonFrame1	; Mini Sonic, frame 1
+	mappingsTableEntry.w	EOL_SonFrame2	; Mini Sonic, frame 2
+	mappingsTableEntry.w	EOL_Perfect	; Perfect text
 
-word_14D5E:	spriteHeader
-	spritePiece	-$3D, 0, 2, 2, $5D4, 0, 0, 0, 1
-	spritePiece	-$30, 0, 2, 2, $5B0, 0, 0, 0, 1
-	spritePiece	-$20, 0, 1, 2, $5C0, 0, 0, 0, 1
-	spritePiece	-$18, 0, 2, 2, $5C2, 0, 0, 0, 1
-	spritePiece	-8, 0, 2, 2, $5D0, 0, 0, 0, 1
-	spritePiece	$10, 0, 2, 2, $5B8, 0, 0, 0, 1
-	spritePiece	$20, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	$2F, 0, 2, 2, $5D4, 0, 0, 0, 1
-word_14D5E_End
+; word_14CDA:
+EOL_Sonic:	spriteHeader	; SONIC GOT
+	spritePiece	-$40, 0, 2, 2, $5D0, 0, 0, 0, 1	; S
+	spritePiece	-$30, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	-$20, 0, 2, 2, $584, 0, 0, 0, 1	; N
+	spritePiece	-$10, 0, 1, 2, $5C0, 0, 0, 0, 1	; I
+	spritePiece	-8, 0, 2, 2, $5B4, 0, 0, 0, 1	; C
 
-word_14DA0:	spriteHeader
-	spritePiece	-$38, 0, 2, 2, $5D4, 0, 0, 0, 1
-	spritePiece	-$28, 0, 2, 2, $5BC, 0, 0, 0, 1
-	spritePiece	-$18, 0, 2, 2, $5CC, 0, 0, 0, 1
-	spritePiece	-8, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	8, 0, 2, 2, $5D8, 0, 0, 0, 1
-	spritePiece	$18, 0, 2, 2, $5B8, 0, 0, 0, 1
-	spritePiece	$28, 0, 2, 2, $5BC, 0, 0, 0, 1
-word_14DA0_End
+	spritePiece	$10, 0, 2, 2, $5B8, 0, 0, 0, 1	; G
+	spritePiece	$20, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	$2F, 0, 2, 2, $5D4, 0, 0, 0, 1	; T
+EOL_Sonic_End
 
-word_14DDA:	spriteHeader
-	spritePiece	0, 0, 2, 2, $5B0, 0, 0, 0, 1
-	spritePiece	$10, 0, 2, 2, $5B4, 0, 0, 0, 1
-	spritePiece	$1F, 0, 2, 2, $5D4, 0, 0, 0, 1
-word_14DDA_End
+; word_14D1C:
+EOL_Miles:	spriteHeader	; MILES GOT
+	spritePiece	-$44, 0, 3, 2, $5C6, 0, 0, 0, 1	; M
+	spritePiece	-$2C, 0, 1, 2, $5C0, 0, 0, 0, 1	; I
+	spritePiece	-$24, 0, 2, 2, $5C2, 0, 0, 0, 1	; L
+	spritePiece	-$14, 0, 2, 2, $580, 0, 0, 0, 1	; E
+	spritePiece	-4, 0, 2, 2, $5D0, 0, 0, 0, 1	; S
 
-word_14DF4:	spriteHeader
+	spritePiece	$14, 0, 2, 2, $5B8, 0, 0, 0, 1	; G
+	spritePiece	$24, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	$33, 0, 2, 2, $5D4, 0, 0, 0, 1	; T
+EOL_Miles_End
+
+; word_14D5E:
+EOL_Tails:	spriteHeader	; TAILS GOT
+	spritePiece	-$3D, 0, 2, 2, $5D4, 0, 0, 0, 1	; T
+	spritePiece	-$30, 0, 2, 2, $5B0, 0, 0, 0, 1	; A
+	spritePiece	-$20, 0, 1, 2, $5C0, 0, 0, 0, 1	; I
+	spritePiece	-$18, 0, 2, 2, $5C2, 0, 0, 0, 1	; L
+	spritePiece	-8, 0, 2, 2, $5D0, 0, 0, 0, 1	; S
+
+	spritePiece	$10, 0, 2, 2, $5B8, 0, 0, 0, 1	; G
+	spritePiece	$20, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	$2F, 0, 2, 2, $5D4, 0, 0, 0, 1	; T
+EOL_Tails_End
+
+; word_14DA0:
+EOL_Through:	spriteHeader	; THROUGH
+	spritePiece	-$38, 0, 2, 2, $5D4, 0, 0, 0, 1	; T
+	spritePiece	-$28, 0, 2, 2, $5BC, 0, 0, 0, 1	; H
+	spritePiece	-$18, 0, 2, 2, $5CC, 0, 0, 0, 1	; R
+	spritePiece	-8, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	8, 0, 2, 2, $5D8, 0, 0, 0, 1	; U
+	spritePiece	$18, 0, 2, 2, $5B8, 0, 0, 0, 1	; G
+	spritePiece	$28, 0, 2, 2, $5BC, 0, 0, 0, 1	; H
+EOL_Through_End
+
+; word_14DDA:
+EOL_Act:	spriteHeader	; ACT
+	spritePiece	0, 0, 2, 2, $5B0, 0, 0, 0, 1	; A
+	spritePiece	$10, 0, 2, 2, $5B4, 0, 0, 0, 1	; C
+	spritePiece	$1F, 0, 2, 2, $5D4, 0, 0, 0, 1	; T
+EOL_Act_End
+
+
+; Miscellaneous end-of-level results screen title cards mappings
+
+; word_14DF4:
+EOL_Total:	spriteHeader	; Total text
 	spritePiece	-$48, 0, 3, 2, $5E6, 0, 0, 1, 1
 	spritePiece	-$30, 0, 2, 2, $5EC, 0, 0, 1, 1
 	spritePiece	-$2C, 0, 2, 2, $5F0, 0, 0, 0, 1
 	spritePiece	$38, 0, 4, 2, $520, 0, 0, 0, 1
 	spritePiece	$58, 0, 1, 2, $6F0, 0, 0, 0, 1
-word_14DF4_End
+EOL_Total_End
 
-word_14E1E:	spriteHeader
+; word_14E1E:
+EOL_TimeBonus:	spriteHeader	; Time Bonus text
 	spritePiece	-$5C, 0, 4, 2, $6DA, 0, 0, 1, 1
 	spritePiece	-$34, 0, 4, 2, $5DE, 0, 0, 1, 1
 	spritePiece	-$14, 0, 1, 2, $6CA, 0, 0, 1, 1
 	spritePiece	-$18, 0, 2, 2, $5F0, 0, 0, 0, 1
 	spritePiece	$38, 0, 4, 2, $528, 0, 0, 0, 1
 	spritePiece	$58, 0, 1, 2, $6F0, 0, 0, 0, 1
-word_14E1E_End
+EOL_TimeBonus_End
 
-word_14E50:	spriteHeader
+; word_14E50:
+EOL_RingBonus:	spriteHeader	; Ring Bonus text
 	spritePiece	-$5C, 0, 4, 2, $6D2, 0, 0, 1, 1
 	spritePiece	-$34, 0, 4, 2, $5DE, 0, 0, 1, 1
 	spritePiece	-$14, 0, 1, 2, $6CA, 0, 0, 1, 1
 	spritePiece	-$18, 0, 2, 2, $5F0, 0, 0, 0, 1
 	spritePiece	$38, 0, 4, 2, $530, 0, 0, 0, 1
 	spritePiece	$58, 0, 1, 2, $6F0, 0, 0, 0, 1
-word_14E50_End
+EOL_RingBonus_End
 
-word_14E82:	spriteHeader
+; word_14E82:
+EOL_SonFrame1:	spriteHeader	; Mini Sonic, frame 1
 	spritePiece	0, 0, 2, 3, $5F4, 0, 0, 0, 1
-word_14E82_End
+EOL_SonFrame1_End
 
-word_14E8C:	spriteHeader
+; word_14E8C:
+EOL_SonFrame2:	spriteHeader	; Mini Sonic, frame 2
 	spritePiece	0, 0, 2, 3, $5FA, 0, 0, 0, 1
-word_14E8C_End
+EOL_SonFrame2_End
 
-word_14E96:	spriteHeader
+; word_14E96:
+EOL_Perfect:	spriteHeader	; Perfect text
 	spritePiece	-$68, 0, 4, 2, $540, 0, 0, 1, 1
 	spritePiece	-$48, 0, 3, 2, $548, 0, 0, 1, 1
 	spritePiece	-$28, 0, 4, 2, $5DE, 0, 0, 1, 1
@@ -28667,7 +28726,7 @@ word_14E96:	spriteHeader
 	spritePiece	-$C, 0, 2, 2, $5F0, 0, 0, 0, 1
 	spritePiece	$38, 0, 4, 2, $538, 0, 0, 0, 1
 	spritePiece	$58, 0, 1, 2, $6F0, 0, 0, 0, 1
-word_14E96_End
+EOL_Perfect_End
 
 	even
 
@@ -28998,9 +29057,10 @@ Off_TitleCardLetters: zoneOrderedTable 1,1
  charset '.',"\x5A"
 
 ; Defines which letters load for the continue screen
-; Each letter occurs only once, and  the letters ENOZ (i.e. ZONE) aren't loaded here
+; Each letter occurs only once, and the letters ENOZ (i.e. ZONE) aren't loaded here
 ; However, this is hidden by the titleLetters macro, and normal titles can be used
 ; (the macro is defined near SpecialStage_ResultsLetters, which uses it before here)
+; The actual mappings for zone title cards are found at MapUnc_TitleCards
 
 ; word_15832:
 TitleCardLetters:
