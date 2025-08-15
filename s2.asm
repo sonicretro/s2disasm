@@ -24159,11 +24159,21 @@ Obj2D_Init:
 	bne.s	+
 	move.w	#make_art_tile(ArtTile_ArtNem_ConstructionStripes_2,1,0),art_tile(a0)
 	move.b	#8,width_pixels(a0)
+    if fixBugs
+	; This is sort of a hack. Chemical Plant and Death Egg use the wrong subtype,
+	; so a more proper fix would be to replace all instances with subtype 3.
+	move.b	#3,subtype(a0)
+    endif
 +
 	cmpi.b	#death_egg_zone,(Current_Zone).w
 	bne.s	+
 	move.w	#make_art_tile(ArtTile_ArtNem_ConstructionStripes_1,1,0),art_tile(a0)
 	move.b	#8,width_pixels(a0)
+    if fixBugs
+	; This is sort of a hack. Chemical Plant and Death Egg use the wrong subtype,
+	; so a more proper fix would be to replace all instances with subtype 3.
+	move.b	#3,subtype(a0)
+    endif
 +
 	cmpi.b	#aquatic_ruin_zone,(Current_Zone).w
 	bne.s	+
@@ -27480,7 +27490,13 @@ Obj39_SlideIn:
 Obj39_SetTimer:
 	move.w	#$2D0,anim_frame_duration(a0)
 	addq.b	#2,routine(a0)
+    if fixBugs
+	bra.w	DisplaySprite
+    else
+	; There should be a branch to DisplaySprite here, but there isn't,
+	; causing a one-frame flicker when the two words combine.
 	rts
+    endif
 ; ===========================================================================
 ; loc_13FEE:
 Obj39_Wait:
@@ -46359,6 +46375,12 @@ Obj84_MainY:
 	lea	(MainCharacter).w,a1 ; a1=character
 	bsr.s	+
 	lea	(Sidekick).w,a1 ; a1=character
+    if fixBugs
+	; AI Tails can behave rather strangely if he happens to be flying into
+	; an autoroll object, most visible in Casino Night.
+	cmpi.w	#4,(Tails_CPU_routine).w	; TailsCPU_Flying
+	beq.s	return_21350
+    endif
 +
 	tst.b	(a2)+
 	bne.s	Obj84_MainY_Alt
@@ -48039,6 +48061,12 @@ loc_22688:
 	move.w	(a2)+,d5
 	add.w	y_pos(a0),d5
 	addq.b	#2,(a4)
+    if fixBugs
+	; If Sonic/Tails end up getting damaged into a pipe, they will
+	; be constantly displaced due to how the hurt routine works. This
+	; fixes the bug by forcing them back into their normal state.
+	move.b	#2,routine(a1)
+    endif
 	move.b	#$81,obj_control(a1)
 	move.b	#AniIDSonAni_Roll,anim(a1)
 	move.w	#$800,inertia(a1)
@@ -51227,17 +51255,30 @@ Obj2B_Init:
 	move.l	#Obj2B_MapUnc_25C6E,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,1,0),art_tile(a0)
 	jsrto	JmpTo25_Adjust2PArtPointer
+    if fixBugs
+	ori.b	#1<<render_flags.level_fg|1<<render_flags.explicit_height,render_flags(a0)
+	move.b	#$1C,width_pixels(a0)
+	move.b	#$20,y_radius(a0)
+    else
+	; This should use the accurate height check and larger size values, since
+	; right now it vanishes whilst partially on-screen.
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#$10,width_pixels(a0)
 	move.b	#$18,y_radius(a0)
+    endif
 	move.b	#4,priority(a0)
 ; loc_25A9C:
 Obj2B_Main:
 	move.w	x_pos(a0),-(sp)
 	bsr.w	loc_25B28
+    if fixBugs
+	moveq	#$10+$B,d1
+    else
+	; Read above.
 	moveq	#0,d1
 	move.b	width_pixels(a0),d1
 	addi.w	#$B,d1
+    endif
 	moveq	#0,d2
 	move.b	y_radius(a0),d2
 	move.w	d2,d3
@@ -56547,7 +56588,11 @@ Obj82_Properties:
 	;    width_pixels
 	;        y_radius
 	dc.b $20,  8	; 0
+    if fixBugs
+	dc.b $1C,$32	; 2
+    else
 	dc.b $1C,$30	; 2
+    endif
 	; Unused and broken; these don't have an associated frame, so using them crashes the game
 	dc.b $10,$10	; 4
 	dc.b $10,$10	; 6
@@ -56558,7 +56603,12 @@ Obj82_Init:
 	move.l	#Obj82_MapUnc_2A476,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,0,0),art_tile(a0)
 	jsrto	JmpTo46_Adjust2PArtPointer
+    if fixBugs
+	ori.b	#1<<render_flags.level_fg|1<<render_flags.explicit_height,render_flags(a0)
+    else
+	; Same as Obj2B, this should use the accurate height flag.
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
+    endif
 	move.b	#3,priority(a0)
 	moveq	#0,d0
 	move.b	subtype(a0),d0
@@ -56598,6 +56648,13 @@ Obj82_Main:
 	move.b	y_radius(a0),d2
 	move.w	d2,d3
 	addq.w	#1,d3
+    if fixBugs
+	tst.b	mapping_frame(a0)	; is this a pillar?
+	beq.s	.notPillar		; if not, branch
+	subq.w	#2,d3
+
+.notPillar:
+    endif
 	jsrto	JmpTo23_SolidObject
 	swap	d6
 	move.b	d6,objoff_3F(a0)
@@ -62167,7 +62224,15 @@ Obj5D_Gunk_States:	offsetTable
 
 Obj5D_Gunk_Init:
 	addq.b	#2,routine_secondary(a0)	; => Obj5D_Gunk_Main
+    if fixBugs
+	move.b	#$16,y_radius(a0)
+    else
+	; The hitbox for this object is a mess, allowing the player to avoid
+	; damage by simply ducking. Ideally, it would be realigned with the
+	; sprite, but this will have to do for now.
+	; Funnily enough, the Official Players Guide brings this up on page 90.
 	move.b	#$20,y_radius(a0)
+    endif
 	move.b	#$19,anim(a0)
 	move.w	#0,y_vel(a0)
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
@@ -64103,6 +64168,9 @@ obj89_eyes_timer		= objoff_30
 obj89_arrow_routine		= objoff_2A
 obj89_arrow_timer		= objoff_30
 obj89_arrow_parent2		= objoff_34
+    if fixBugs
+obj89_checkplayerhurt		= objoff_36
+    endif
 obj89_arrow_parent		= objoff_38	; address of main vehicle
 
 ; Sprite_30480:
@@ -64393,6 +64461,14 @@ Obj89_Main_Sub6_Standard:
 ; loc_3075C:
 Obj89_Main_HandleFace:
 	bsr.w	Obj89_Main_HandleHoveringAndHits
+    if fixBugs
+	; Due to how this code works, Eggman does not laugh (or play any
+	; animation for that matter) until the player has hit the ground.
+	; To fix this, we'll simply force it to run when Sonic or Tails
+	; are hurt using a flag.
+	tst.b	obj89_checkplayerhurt(a0)	; should Eggman be laughing?
+	bne.s	Obj89_Main_ChkHurt		; if yes, branch
+    endif
 	cmpi.b	#4,(MainCharacter+routine).w	; is Sonic hurt?
 	beq.s	Obj89_Main_Laugh		; if yes, branch
 	cmpi.b	#4,(Sidekick+routine).w		; is Tails hurt?
@@ -64402,7 +64478,9 @@ Obj89_Main_HandleFace:
 Obj89_Main_Laugh:
 	lea	(Boss_AnimationArray).w,a1
 	move.b	#$31,1*2+1(a1)			; use laughing animation
-
+    if fixBugs
+	move.b	#1,obj89_checkplayerhurt(a0)	; set flag to immediately start laughing
+    endif
 ; loc_3077A:
 Obj89_Main_ChkHurt:
 	cmpi.b	#64-1,boss_invulnerable_time(a0)	; was boss hurt?
@@ -64411,6 +64489,13 @@ Obj89_Main_ChkHurt:
 	move.b	#-$40,1*2+1(a1)			; use hurt animation
 
 return_3078C:
+    if fixBugs
+	cmpi.b	#$17,(Boss_AnimationArray+3).w	; has Eggman stopped laughing?
+	bne.s	.keeplaughing			; if not, branch
+	clr.b	obj89_checkplayerhurt(a0)	; clear laughing flag if he has
+
+.keeplaughing:
+    endif
 	rts
 ; ===========================================================================
 ; loc_3078E:
@@ -64484,6 +64569,14 @@ Obj89_Main_DropHammer:
 	cmpi.w	#$78,(Boss_Countdown).w
 	bgt.s	return_3088A			; wait until timer is below $78
 	subi_.w	#1,sub3_x_pos(a0)		; make hammer move left
+    if fixBugs
+	; This properly makes the hammer fall the opposite direction.
+	btst	#render_flags.x_flip,render_flags(a0)	; is Eggman facing right?
+	beq.s	.notfacingright			; is not, branch
+	addi_.w	#2,sub3_x_pos(a0)		; make the hammer move right
+
+.notfacingright:
+    endif
 	move.l	obj89_hammer_y_pos(a0),d0
 	move.w	obj89_hammer_y_vel(a0),d1
 	addi.w	#$38,obj89_hammer_y_vel(a0)	; add gravity
@@ -64808,10 +64901,42 @@ Obj89_Arrow_Offsets:
 ; ===========================================================================
 ; loc_30B4A:
 Obj89_Pillar_Sub4:
+    if fixBugs
+	; This code is flawed in that it does not reset the character's standing
+	; flags for the pillar, leading to a case where one player can walk on air
+	; if another player defeats the boss. This fixes that, and also adjusts the
+	; code to keep the pillars solid when they descend.
+	move.w	#$23,d1
+	move.w	#$44,d2
+	move.w	#$45,d3
+	move.w	x_pos(a0),d4
+	move.w	y_pos(a0),-(sp)
+	addi_.w	#4,y_pos(a0)
+	jsrto	JmpTo26_SolidObject
+	move.w	(sp)+,y_pos(a0)
+    endif
 	move.b	#1,(Screen_Shaking_Flag).w	; make screen shake
 	addi_.w	#1,y_pos(a0)			; lower pillar
 	cmpi.w	#$510,y_pos(a0)			; has pillar lowered into the ground?
 	blt.s	BranchTo2_JmpTo37_DisplaySprite	; if not, branch
+    if fixBugs
+	; Read above. This was copied from Obj26_Solid.
+	move.b	status(a0),d0
+	andi.b	#standing_mask|pushing_mask,d0	; is someone touching the pillar?
+	beq.s	Obj89_Pillar_Lower	; if not, branch
+	move.b	d0,d1
+	andi.b	#p1_standing|p1_pushing,d1	; is it the main character?
+	beq.s	+		; if not, branch
+	andi.b	#~(1<<status.player.on_object|1<<status.player.pushing),(MainCharacter+status).w
+	ori.b	#1<<status.player.in_air,(MainCharacter+status).w	; prevent Sonic from walking in the air
++
+	andi.b	#p2_standing|p2_pushing,d0	; is it the sidekick?
+	beq.s	Obj89_Pillar_Lower	; if not, branch
+	andi.b	#~(1<<status.player.on_object|1<<status.player.pushing),(Sidekick+status).w
+	ori.b	#1<<status.player.in_air,(Sidekick+status).w	; prevent Tails from walking in the air
+
+Obj89_Pillar_Lower:
+    endif
 	move.b	#0,(Screen_Shaking_Flag).w	; else, stop shaking the screen
 	jmpto	JmpTo55_DeleteObject
 ; ===========================================================================
@@ -64961,6 +65086,15 @@ Obj89_Arrow_Platform:
 	move.w	#2,d3
 	move.w	x_pos(a0),d4
 	jsrto	JmpTo8_PlatformObject
+    if fixBugs
+	; AI Tails normally does not cause the arrow they are standing on
+	; to fall, this fixes that.
+	btst	#status.npc.p2_standing,status(a0)	; is Tails standing on the arrow?
+	beq.s	.notTails				; if not, branch
+	move.w	#$1F,obj89_arrow_timer(a0)		; else, set timer
+
+.notTails:
+    endif
 	btst	#status.npc.p1_standing,status(a0)	; is Sonic standing on the arrow?
 	beq.s	return_30D02				; if not, branch
 	move.w	#$1F,obj89_arrow_timer(a0)		; else, set timer
@@ -65362,8 +65496,21 @@ Obj57_TransferPositions:
 ;loc_31358:
 Obj57_FallApart:	; make the digger thingies fall down
 	cmpi.w	#$78,(Boss_Countdown).w
+    if ~~fixBugs
 	bgt.s	return_313C4
+    else
+	; Not actually a bugfix, but the code below pushed this branch out of range.
+	bgt.w	return_313C4
+    endif
 	subi_.w	#1,sub5_x_pos(a0)
+    if fixBugs
+	; This properly makes the left drill fall the opposite direction.
+	btst	#render_flags.x_flip,render_flags(a0)	; is Eggman facing right?
+	beq.s	.notfacingright			; is not, branch
+	addi_.w	#2,sub5_x_pos(a0)
+
+.notfacingright:
+    endif
 	move.l	obj57_sub5_y_pos2(a0),d0
 	move.w	obj57_sub5_y_vel(a0),d1
 	addi.w	#$38,obj57_sub5_y_vel(a0)
@@ -65377,6 +65524,14 @@ Obj57_FallApart:	; make the digger thingies fall down
 	move.w	#0,obj57_sub5_y_vel(a0)
 +			; second one
 	addi_.w	#1,sub2_x_pos(a0)
+    if fixBugs
+	; This properly makes the right drill fall the opposite direction.
+	btst	#render_flags.x_flip,render_flags(a0)	; is Eggman facing right?
+	beq.s	.notfacingright2			; is not, branch
+	subi_.w	#2,sub5_x_pos(a0)
+
+.notfacingright2:
+    endif
 	move.l	obj57_sub2_y_pos2(a0),d0
 	move.w	obj57_sub2_y_vel(a0),d1
 	addi.w	#$38,obj57_sub2_y_vel(a0)
@@ -66206,8 +66361,21 @@ loc_31E76:
 
 loc_31EAE:
 	cmpi.w	#$78,(Boss_Countdown).w
+    if ~~fixBugs
 	bgt.s	return_31F22
+    else
+	; Not actually a bugfix, but the code below pushed this branch out of range.
+	bgt.w	return_31F22
+    endif
 	subi_.w	#1,sub5_x_pos(a0)
+    if fixBugs
+	; This properly makes the left electricity generator fall the opposite direction.
+	btst	#render_flags.x_flip,render_flags(a0)	; is Eggman facing right?
+	beq.s	.notfacingright			; is not, branch
+	addi_.w	#2,sub5_x_pos(a0)
+
+.notfacingright:
+    endif
 	move.l	objoff_3A(a0),d0
 	move.w	objoff_2E(a0),d1
 	addi.w	#$38,objoff_2E(a0)
@@ -66224,6 +66392,14 @@ loc_31EE8:
 	cmpi.w	#60,(Boss_Countdown).w
 	bgt.s	return_31F22
 	addi_.w	#1,sub2_x_pos(a0)
+    if fixBugs
+	; This properly makes the right electricity generator fall the opposite direction.
+	btst	#render_flags.x_flip,render_flags(a0)	; is Eggman facing right?
+	beq.s	.notfacingright2		; is not, branch
+	subi_.w	#2,sub2_x_pos(a0)
+
+.notfacingright2:
+    endif
 	move.l	objoff_34(a0),d0
 	move.w	objoff_30(a0),d1
 	addi.w	#$38,objoff_30(a0)
@@ -67235,12 +67411,21 @@ Obj53_BreakAway:
 ;loc_32BB0
 Obj53_Animate:
 	bsr.w	+
+    if fixBugs
+Obj53_Animate_Part2:
+    endif
 	lea	(Ani_obj53).l,a1
 	jsrto	JmpTo21_AnimateSprite
 	jmpto	JmpTo40_DisplaySprite
 ; ===========================================================================
 +
+    if fixBugs
+	; This makes the clone instantly pop when a player is hit, rather
+	; than when the player hits the floor.
+	cmpi.b	#-1,collision_property(a0)
+    else
 	cmpi.b	#-2,collision_property(a0)
+    endif
 	bgt.s	+		; rts
 	move.b	#$14,mapping_frame(a0)
 	move.b	#6,anim(a0)
@@ -67258,7 +67443,13 @@ Obj53_BounceAround:
 +
 	bsr.w	Obj53_CheckPlayerHit
 	cmpi.b	#$B,mapping_frame(a0)
+    if ~~fixBugs
+	; If Tails defeats one of the clones two frames after Sonic has been
+	; hit by one, the game will crash due to incrementing routine twice.
 	bne.s	Obj53_Animate
+    else
+	bne.s	Obj53_Animate_Part2
+    endif
 	move.b	objoff_2C(a0),d0
 	jsr	(CalcSine).l
 	neg.w	d0
@@ -67611,6 +67802,15 @@ Obj55_HandleHits:
 	ori.b	#$80,Obj55_status(a0)	; set boss hit bit
 
 return_33192:
+    if fixBugs
+	; If the player defeats Eggman on the exact frame he is fully submerged,
+	; the game will crash due to the spiked chain having its routine set to
+	; 8, which is out-of-bounds for it.
+	cmpi.b	#8,boss_routine(a0)	; is boss exploding or retreating?
+	blo.s	+			; if yes, branch
+	move.b	#2,boss_subtype(a0)	; => Obj55_Main
++
+    endif
 	rts
 ; ===========================================================================
 ; loc_33194:
@@ -70123,6 +70323,10 @@ loc_35150:
 	moveq	#$1E,d0
 
 loc_35164:
+    if fixBugs
+	; Save the last animation value to elsewhere, related to a bugfix below.
+	move.b	anim(a0),objoff_23(a0)
+    endif
 	move.b	byte_35180(pc,d0.w),anim(a0)
 
 return_3516A:
@@ -70370,8 +70574,21 @@ BranchTo_JmpTo63_DeleteObject ; BranchTo
 ; ===========================================================================
 
 loc_3539E:
+    if fixBugs
+	; anim_frame_duration causes many of the animations to look far choppier
+	; than they should, or appear inconsistent. To solve this, we will store
+	; the proper animation elsewhere and stop decrementing the frame duration
+	; until both match up.
+	move.b	objoff_23(a0),d0
+	cmp.b	anim(a0),d0
+	bne.s	.skip
+    endif
 	subq.b	#1,anim_frame_duration(a0)
 	bpl.s	return_353E8
+    if fixBugs
+.skip:
+	move.b	anim(a0),objoff_23(a0)
+    endif
 	moveq	#0,d0
 	move.b	anim(a0),d0
 	add.w	d0,d0
