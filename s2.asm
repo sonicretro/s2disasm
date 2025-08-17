@@ -13650,6 +13650,9 @@ loc_A53A:
 	move.w	d0,y_pos(a1)
 	move.w	x_pos(a0),x_pos(a1)
 	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|(AniIDSonAni_Wait<<0),mapping_frame(a1)
+	; Sonic doesn't use the lower bit of 'anim_frame_duration' at
+	; all, so this instead sets its duration to 1 and clears an
+	; unused value.
 	move.w	#$100,anim_frame_duration(a1)
 	rts
 ; ===========================================================================
@@ -78564,6 +78567,9 @@ loc_3AB18:
 	bclr	#status.player.in_air,status(a1)
 	bclr	#status.player.rolling,status(a1)
 	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|(AniIDSonAni_Wait<<0),mapping_frame(a1)
+	; Sonic doesn't use the lower bit of 'anim_frame_duration' at
+	; all, so this instead sets its duration to 1 and clears an
+	; unused value.
 	move.w	#$100,anim_frame_duration(a1)
 	move.b	#$13,y_radius(a1)
 	cmpi.w	#2,(Player_mode).w
