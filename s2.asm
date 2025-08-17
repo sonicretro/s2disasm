@@ -5174,7 +5174,7 @@ InitPlayers:
 	move.w	(Player_mode).w,d0
 	bne.s	InitPlayers_Alone ; branch if this isn't a Sonic and Tails game
 
-	move.b	#ObjID_Sonic,(MainCharacter+id).w ; load Obj01 Sonic object at $FFFFB000
+	move.b	#ObjID_Sonic,(MainCharacter+id).w ; load Obj_Sonic at $FFFFB000
 	move.b	#ObjID_SpindashDust,(Sonic_Dust+id).w ; load Obj08 Sonic's spindash dust/splash object at $FFFFD100
 
 	cmpi.b	#wing_fortress_zone,(Current_Zone).w
@@ -5184,7 +5184,7 @@ InitPlayers:
 	cmpi.b	#sky_chase_zone,(Current_Zone).w
 	beq.s	+ ; skip loading Tails if this is SCZ
 
-	move.b	#ObjID_Tails,(Sidekick+id).w ; load Obj02 Tails object at $FFFFB040
+	move.b	#ObjID_Tails,(Sidekick+id).w ; load Obj_Tails object at $FFFFB040
 	move.w	(MainCharacter+x_pos).w,(Sidekick+x_pos).w
 	move.w	(MainCharacter+y_pos).w,(Sidekick+y_pos).w
 	subi.w	#$20,(Sidekick+x_pos).w
@@ -5198,13 +5198,13 @@ InitPlayers_Alone: ; either Sonic or Tails but not both
 	subq.w	#1,d0
 	bne.s	InitPlayers_TailsAlone ; branch if this is a Tails alone game
 
-	move.b	#ObjID_Sonic,(MainCharacter+id).w ; load Obj01 Sonic object at $FFFFB000
+	move.b	#ObjID_Sonic,(MainCharacter+id).w ; load Obj_Sonic at $FFFFB000
 	move.b	#ObjID_SpindashDust,(Sonic_Dust+id).w ; load Obj08 Sonic's spindash dust/splash object at $FFFFD100
 	rts
 ; ===========================================================================
 ; loc_44D0:
 InitPlayers_TailsAlone:
-	move.b	#ObjID_Tails,(MainCharacter+id).w ; load Obj02 Tails object at $FFFFB000
+	move.b	#ObjID_Tails,(MainCharacter+id).w ; load Obj_Tails object at $FFFFB000
 	move.b	#ObjID_SpindashDust,(Tails_Dust+id).w ; load Obj08 Tails' spindash dust/splash object at $FFFFD100
 	addi_.w	#4,(MainCharacter+y_pos).w
 	rts
@@ -29684,8 +29684,8 @@ RunObjectDisplayOnly:
 ; This array contains the pointers to all the objects used in the game.
 ; ---------------------------------------------------------------------------
 Obj_Index: ; ObjPtrs: ; loc_1600C:
-ObjPtr_Sonic:		dc.l Obj01	; Sonic
-ObjPtr_Tails:		dc.l Obj02	; Tails
+ObjPtr_Sonic:		dc.l Obj_Sonic	; Sonic
+ObjPtr_Tails:		dc.l Obj_Tails	; Tails
 ObjPtr_PlaneSwitcher:	dc.l Obj03	; Collision plane/layer switcher
 ObjPtr_WaterSurface:	dc.l Obj04	; Surface of the water
 ObjPtr_TailsTails:	dc.l Obj05	; Tails' tails
@@ -35827,32 +35827,32 @@ loc_19F4C:
 ; ----------------------------------------------------------------------------
 ; Object 01 - Sonic
 ; ----------------------------------------------------------------------------
-; Sprite_19F50: Object_Sonic:
-Obj01:
+; Sprite_19F50: Object_Sonic: Obj01:
+Obj_Sonic:
 	; a0=character
 	tst.w	(Debug_placement_mode).w	; is debug mode being used?
-	beq.s	Obj01_Normal			; if not, branch
+	beq.s	Sonic_Normal			; if not, branch
 	jmp	(DebugMode).l
 ; ---------------------------------------------------------------------------
-; loc_19F5C:
-Obj01_Normal:
+; loc_19F5C: Obj01_Normal:
+Sonic_Normal:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj01_Index(pc,d0.w),d1
-	jmp	Obj01_Index(pc,d1.w)
+	move.w	Sonic_Index(pc,d0.w),d1
+	jmp	Sonic_Index(pc,d1.w)
 ; ===========================================================================
-; off_19F6A: Obj01_States:
-Obj01_Index:	offsetTable
-		offsetTableEntry.w Obj01_Init		;  0
-		offsetTableEntry.w Obj01_Control	;  2
-		offsetTableEntry.w Obj01_Hurt		;  4
-		offsetTableEntry.w Obj01_Dead		;  6
-		offsetTableEntry.w Obj01_Gone		;  8
-		offsetTableEntry.w Obj01_Respawning	; $A
+; off_19F6A: Obj01_States: Obj01_Index:
+Sonic_Index:	offsetTable
+		offsetTableEntry.w Sonic_Init		;  0
+		offsetTableEntry.w Sonic_Control	;  2
+		offsetTableEntry.w Sonic_Hurt		;  4
+		offsetTableEntry.w Sonic_Dead		;  6
+		offsetTableEntry.w Sonic_Gone		;  8
+		offsetTableEntry.w Sonic_Respawning	; $A
 ; ===========================================================================
-; loc_19F76: Obj_01_Sub_0: Obj01_Main:
-Obj01_Init:
-	addq.b	#2,routine(a0)	; => Obj01_Control
+; loc_19F76: Obj_01_Sub_0: Obj01_Main: Obj01_Init:
+Sonic_Init:
+	addq.b	#2,routine(a0)	; => Sonic_Control
 	move.b	#$13,y_radius(a0) ; this sets Sonic's collision height (2*pixels)
 	move.b	#9,x_radius(a0)
 	move.l	#MapUnc_Sonic,mappings(a0)
@@ -35863,7 +35863,7 @@ Obj01_Init:
 	move.w	#$C,(Sonic_acceleration).w	; set Sonic's acceleration
 	move.w	#$80,(Sonic_deceleration).w	; set Sonic's deceleration
 	tst.b	(Last_star_pole_hit).w
-	bne.s	Obj01_Init_Continued
+	bne.s	Sonic_Init_Continued
 	; only happens when not starting at a checkpoint:
 	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
@@ -35873,8 +35873,8 @@ Obj01_Init:
 	move.w	y_pos(a0),(Saved_y_pos).w
 	move.w	art_tile(a0),(Saved_art_tile).w
 	move.w	top_solid_bit(a0),(Saved_Solid_bits).w
-
-Obj01_Init_Continued:
+; Obj01_Init_Continued:
+Sonic_Init_Continued:
 	move.b	#0,flips_remaining(a0)
 	move.b	#4,flip_speed(a0)
 	move.b	#0,(Super_Sonic_flag).w
@@ -35895,8 +35895,8 @@ Obj01_Init_Continued:
 ; ---------------------------------------------------------------------------
 ; Normal state for Sonic
 ; ---------------------------------------------------------------------------
-; loc_1A030: Obj_01_Sub_2:
-Obj01_Control:
+; loc_1A030: Obj_01_Sub_2: Obj01_Control:
+Sonic_Control:
 	tst.w	(Debug_mode_flag).w	; is debug cheat enabled?
 	beq.s	+			; if not, branch
 	btst	#button_B,(Ctrl_1_Press).w	; is button B pressed?
@@ -35914,8 +35914,8 @@ Obj01_Control:
 	moveq	#0,d0
 	move.b	status(a0),d0
 	andi.w	#1<<status.player.in_air|1<<status.player.rolling,d0	; %0000 %0110
-	move.w	Obj01_Modes(pc,d0.w),d1
-	jsr	Obj01_Modes(pc,d1.w)	; run Sonic's movement control code
+	move.w	Sonic_Modes(pc,d0.w),d1
+	jsr	Sonic_Modes(pc,d1.w)	; run Sonic's movement control code
 +
 	cmpi.w	#-$100,(Camera_Min_Y_pos).w	; is vertical wrapping enabled?
 	bne.s	+				; if not, branch
@@ -35941,13 +35941,13 @@ Obj01_Control:
 	bra.w	LoadSonicDynPLC
 
 ; ===========================================================================
-; secondary states under state Obj01_Control
-; off_1A0BE:
-Obj01_Modes:	offsetTable
-		offsetTableEntry.w Obj01_MdNormal_Checks	; 0 - not airborne or rolling
-		offsetTableEntry.w Obj01_MdAir			; 2 - airborne
-		offsetTableEntry.w Obj01_MdRoll			; 4 - rolling
-		offsetTableEntry.w Obj01_MdJump			; 6 - jumping
+; secondary states under state Sonic_Control
+; off_1A0BE: Obj01_Modes:
+Sonic_Modes:	offsetTable
+		offsetTableEntry.w Sonic_MdNormal_Checks	; 0 - not airborne or rolling
+		offsetTableEntry.w Sonic_MdAir			; 2 - airborne
+		offsetTableEntry.w Sonic_MdRoll			; 4 - rolling
+		offsetTableEntry.w Sonic_MdJump			; 6 - jumping
 ; ===========================================================================
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -35955,54 +35955,54 @@ Obj01_Modes:	offsetTable
 ; loc_1A0C6:
 Sonic_Display:
 	move.w	invulnerable_time(a0),d0
-	beq.s	Obj01_Display
+	beq.s	Sonic_Display2
 	subq.w	#1,invulnerable_time(a0)
 	lsr.w	#3,d0
-	bcc.s	Obj01_ChkInvin
-; loc_1A0D4:
-Obj01_Display:
+	bcc.s	Sonic_ChkInvin
+; loc_1A0D4: Obj01_Display:
+Sonic_Display2:
 	jsr	(DisplaySprite).l
-; loc_1A0DA:
-Obj01_ChkInvin:		; Checks if invincibility has expired and disables it if it has.
+; loc_1A0DA: Obj01_ChkInvin:
+Sonic_ChkInvin:		; Checks if invincibility has expired and disables it if it has.
 	btst	#status_secondary.invincible,status_secondary(a0)
-	beq.s	Obj01_ChkShoes
+	beq.s	Sonic_ChkShoes
 	tst.w	invincibility_time(a0)
-	beq.s	Obj01_ChkShoes	; If there wasn't any time left, that means we're in Super Sonic mode.
+	beq.s	Sonic_ChkShoes	; If there wasn't any time left, that means we're in Super Sonic mode.
 	subq.w	#1,invincibility_time(a0)
-	bne.s	Obj01_ChkShoes
+	bne.s	Sonic_ChkShoes
 	tst.b	(Current_Boss_ID).w	; Don't change music if in a boss fight
-	bne.s	Obj01_RmvInvin
+	bne.s	Sonic_RmvInvin
 	cmpi.b	#12,air_left(a0)	; Don't change music if drowning
-	blo.s	Obj01_RmvInvin
+	blo.s	Sonic_RmvInvin
 	move.w	(Level_Music).w,d0
 	jsr	(PlayMusic).l
-;loc_1A106:
-Obj01_RmvInvin:
+; loc_1A106: Obj01_RmvInvin:
+Sonic_RmvInvin:
 	bclr	#status_secondary.invincible,status_secondary(a0)
-; loc_1A10C:
-Obj01_ChkShoes:		; Checks if Speed Shoes have expired and disables them if they have.
+; loc_1A10C: Obj01_ChkShoes:
+Sonic_ChkShoes:		; Checks if Speed Shoes have expired and disables them if they have.
 	btst	#status_secondary.speed_shoes,status_secondary(a0)
-	beq.s	Obj01_ExitChk
+	beq.s	Sonic_ExitChk
 	tst.w	speedshoes_time(a0)
-	beq.s	Obj01_ExitChk
+	beq.s	Sonic_ExitChk
 	subq.w	#1,speedshoes_time(a0)
-	bne.s	Obj01_ExitChk
+	bne.s	Sonic_ExitChk
 	move.w	#$600,(Sonic_top_speed).w
 	move.w	#$C,(Sonic_acceleration).w
 	move.w	#$80,(Sonic_deceleration).w
 	tst.b	(Super_Sonic_flag).w
-	beq.s	Obj01_RmvSpeed
+	beq.s	Sonic_RmvSpeed
 	move.w	#$A00,(Sonic_top_speed).w
 	move.w	#$30,(Sonic_acceleration).w
 	move.w	#$100,(Sonic_deceleration).w
-; loc_1A14A:
-Obj01_RmvSpeed:
+; loc_1A14A: Obj01_RmvSpeed:
+Sonic_RmvSpeed:
 	bclr	#status_secondary.speed_shoes,status_secondary(a0)
 	move.w	#MusID_SlowDown,d0	; Slow down tempo
 	jmp	(PlayMusic).l
 ; ---------------------------------------------------------------------------
-; return_1A15A:
-Obj01_ExitChk:
+; return_1A15A: Obj01_ExitChk:
+Sonic_ExitChk:
 	rts
 ; End of subroutine Sonic_Display
 
@@ -36041,16 +36041,16 @@ obj0a_character = objoff_3C
 ; loc_1A186:
 Sonic_Water:
 	tst.b	(Water_flag).w	; does level have water?
-	bne.s	Obj01_InWater	; if yes, branch
+	bne.s	Sonic_InWater	; if yes, branch
 
 return_1A18C:
 	rts
 ; ---------------------------------------------------------------------------
-; loc_1A18E:
-Obj01_InWater:
+; loc_1A18E: Obj01_InWater:
+Sonic_InWater:
 	move.w	(Water_Level_1).w,d0
 	cmp.w	y_pos(a0),d0	; is Sonic above the water?
-	bge.s	Obj01_OutWater	; if yes, branch
+	bge.s	Sonic_OutWater	; if yes, branch
 
 	bset	#status.player.underwater,status(a0)	; set underwater flag
 	bne.s	return_1A18C	; if already underwater, branch
@@ -36077,8 +36077,8 @@ Obj01_InWater:
 	move.w	#SndID_Splash,d0	; splash sound
 	jmp	(PlaySound).l
 ; ---------------------------------------------------------------------------
-; loc_1A1FE:
-Obj01_OutWater:
+; loc_1A1FE: Obj01_OutWater:
+Sonic_OutWater:
 	bclr	#status.player.underwater,status(a0) ; unset underwater flag
 	beq.s	return_1A18C ; if already above water, branch
 
@@ -36112,26 +36112,26 @@ Obj01_OutWater:
 
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
-; Start of subroutine Obj01_MdNormal
+; Start of subroutine Sonic_MdNormal
 ; Called if Sonic is neither airborne nor rolling this frame
 ; ---------------------------------------------------------------------------
-; loc_1A26E:
-Obj01_MdNormal_Checks:
+; loc_1A26E: Obj01_MdNormal_Checks:
+Sonic_MdNormal_Checks:
 	; If Sonic has been waiting for a while, and is tapping his foot
 	; impatiently, then make him blink once the player starts moving
 	; again. Likewise, if he's been waiting for so long that he's laying
 	; down, then make him play an animation of standing up.
 	move.b	(Ctrl_1_Press_Logical).w,d0
 	andi.b	#button_B_mask|button_C_mask|button_A_mask,d0
-	bne.s	Obj01_MdNormal
+	bne.s	Sonic_MdNormal
 	cmpi.b	#AniIDSonAni_Blink,anim(a0)
 	beq.s	return_1A2DE
 	cmpi.b	#AniIDSonAni_GetUp,anim(a0)
 	beq.s	return_1A2DE
 	cmpi.b	#AniIDSonAni_Wait,anim(a0)
-	bne.s	Obj01_MdNormal
+	bne.s	Sonic_MdNormal
 	cmpi.b	#$1E,anim_frame(a0)
-	blo.s	Obj01_MdNormal
+	blo.s	Sonic_MdNormal
 	move.b	(Ctrl_1_Held_Logical).w,d0
 	andi.b	#button_up_mask|button_down_mask|button_left_mask|button_right_mask|button_B_mask|button_C_mask|button_A_mask,d0
 	beq.s	return_1A2DE
@@ -36141,8 +36141,8 @@ Obj01_MdNormal_Checks:
 	move.b	#AniIDSonAni_GetUp,anim(a0)
 	bra.s	return_1A2DE
 ; ---------------------------------------------------------------------------
-; loc_1A2B8:
-Obj01_MdNormal:
+; loc_1A2B8: Obj01_MdNormal:
+Sonic_MdNormal:
 	bsr.w	Sonic_CheckSpindash
 	bsr.w	Sonic_Jump
 	bsr.w	Sonic_SlopeResist
@@ -36155,12 +36155,13 @@ Obj01_MdNormal:
 
 return_1A2DE:
 	rts
-; End of subroutine Obj01_MdNormal
+; End of subroutine Sonic_MdNormal
+
 ; ===========================================================================
-; Start of subroutine Obj01_MdAir
+; Start of subroutine Sonic_MdAir
 ; Called if Sonic is airborne, but not in a ball (thus, probably not jumping)
-; loc_1A2E0: Obj01_MdJump
-Obj01_MdAir:
+; loc_1A2E0: Obj01_MdJump: Obj01_MdAir:
+Sonic_MdAir:
 	bsr.w	Sonic_JumpHeight
 	bsr.w	Sonic_ChgJumpDir
 	bsr.w	Sonic_LevelBound
@@ -36172,12 +36173,13 @@ Obj01_MdAir:
 	bsr.w	Sonic_JumpAngle
 	bsr.w	Sonic_DoLevelCollision
 	rts
-; End of subroutine Obj01_MdAir
+; End of subroutine Sonic_MdAir
+
 ; ===========================================================================
-; Start of subroutine Obj01_MdRoll
+; Start of subroutine Sonic_MdRoll
 ; Called if Sonic is in a ball, but not airborne (thus, probably rolling)
-; loc_1A30A:
-Obj01_MdRoll:
+; loc_1A30A: Obj01_MdRoll:
+Sonic_MdRoll:
 	tst.b	pinball_mode(a0)
 	bne.s	+
 	bsr.w	Sonic_Jump
@@ -36189,14 +36191,15 @@ Obj01_MdRoll:
 	bsr.w	AnglePos
 	bsr.w	Sonic_SlopeRepel
 	rts
-; End of subroutine Obj01_MdRoll
+; End of subroutine Sonic_MdRoll
+
 ; ===========================================================================
-; Start of subroutine Obj01_MdJump
+; Start of subroutine Sonic_MdJump
 ; Called if Sonic is in a ball and airborne (he could be jumping but not necessarily)
 ; Notes: This is identical to Obj01_MdAir, at least at this outer level.
 ;        Why they gave it a separate copy of the code, I don't know.
-; loc_1A330: Obj01_MdJump2:
-Obj01_MdJump:
+; loc_1A330: Obj01_MdJump2: Obj01_MdJump:
+Sonic_MdJump:
 	bsr.w	Sonic_JumpHeight
 	bsr.w	Sonic_ChgJumpDir
 	bsr.w	Sonic_LevelBound
@@ -36208,7 +36211,7 @@ Obj01_MdJump:
 	bsr.w	Sonic_JumpAngle
 	bsr.w	Sonic_DoLevelCollision
 	rts
-; End of subroutine Obj01_MdJump
+; End of subroutine Sonic_MdJump
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to make Sonic walk/run
@@ -36222,25 +36225,25 @@ Sonic_Move:
 	move.w	(Sonic_acceleration).w,d5
 	move.w	(Sonic_deceleration).w,d4
 	_btst	#status_secondary.sliding,status_secondary(a0)
-	_bne.w	Obj01_Traction
+	_bne.w	Sonic_Traction
 	tst.w	move_lock(a0)
-	bne.w	Obj01_ResetScr
+	bne.w	Sonic_ResetScr
 	btst	#button_left,(Ctrl_1_Held_Logical).w	; is left being pressed?
-	beq.s	Obj01_NotLeft			; if not, branch
+	beq.s	Sonic_NotLeft			; if not, branch
 	bsr.w	Sonic_MoveLeft
-; loc_1A382:
-Obj01_NotLeft:
+; loc_1A382: Obj01_NotLeft:
+Sonic_NotLeft:
 	btst	#button_right,(Ctrl_1_Held_Logical).w	; is right being pressed?
-	beq.s	Obj01_NotRight			; if not, branch
+	beq.s	Sonic_NotRight			; if not, branch
 	bsr.w	Sonic_MoveRight
-; loc_1A38E:
-Obj01_NotRight:
+; loc_1A38E: Obj01_NotRight:
+Sonic_NotRight:
 	move.b	angle(a0),d0
 	addi.b	#$20,d0
 	andi.b	#$C0,d0		; is Sonic on a slope?
-	bne.w	Obj01_ResetScr	; if yes, branch
+	bne.w	Sonic_ResetScr	; if yes, branch
 	tst.w	inertia(a0)	; is Sonic moving?
-	bne.w	Obj01_ResetScr	; if yes, branch
+	bne.w	Sonic_ResetScr	; if yes, branch
 	bclr	#status.player.pushing,status(a0)
 	move.b	#AniIDSonAni_Wait,anim(a0)	; use "standing" animation
 	btst	#status.player.on_object,status(a0)
@@ -36287,17 +36290,17 @@ Sonic_BalanceOnObjRight:
 	move.b	#AniIDSonAni_Balance,anim(a0)
 	addq.w	#6,d2
 	cmp.w	d2,d1
-	blt.w	Obj01_ResetScr
+	blt.w	Sonic_ResetScr
 	move.b	#AniIDSonAni_Balance2,anim(a0)
-	bra.w	Obj01_ResetScr
+	bra.w	Sonic_ResetScr
 	; on right edge of object but facing left:
 +	move.b	#AniIDSonAni_Balance3,anim(a0)
 	addq.w	#6,d2
 	cmp.w	d2,d1
-	blt.w	Obj01_ResetScr
+	blt.w	Sonic_ResetScr
 	move.b	#AniIDSonAni_Balance4,anim(a0)
 	bclr	#status.player.x_flip,status(a0)
-	bra.w	Obj01_ResetScr
+	bra.w	Sonic_ResetScr
 ; ---------------------------------------------------------------------------
 ; balancing checks for when you're on the left edge of an object
 ; loc_1A44E:
@@ -36306,16 +36309,16 @@ Sonic_BalanceOnObjLeft:
 	beq.s	+
 	move.b	#AniIDSonAni_Balance,anim(a0)
 	cmpi.w	#-4,d1
-	bge.w	Obj01_ResetScr
+	bge.w	Sonic_ResetScr
 	move.b	#AniIDSonAni_Balance2,anim(a0)
-	bra.w	Obj01_ResetScr
+	bra.w	Sonic_ResetScr
 	; on left edge of object but facing right:
 +	move.b	#AniIDSonAni_Balance3,anim(a0)
 	cmpi.w	#-4,d1
-	bge.w	Obj01_ResetScr
+	bge.w	Sonic_ResetScr
 	move.b	#AniIDSonAni_Balance4,anim(a0)
 	bset	#status.player.x_flip,status(a0)
-	bra.w	Obj01_ResetScr
+	bra.w	Sonic_ResetScr
 ; ---------------------------------------------------------------------------
 ; balancing checks for when you're on the edge of part of the level
 ; loc_1A48C:
@@ -36334,19 +36337,19 @@ Sonic_Balance:
 	subq.w	#6,d3
 	jsr	(ChkFloorEdge_Part2).l
 	cmpi.w	#$C,d1
-	blt.w	Obj01_ResetScr
+	blt.w	Sonic_ResetScr
 	move.b	#AniIDSonAni_Balance2,anim(a0)
-	bra.w	Obj01_ResetScr
+	bra.w	Sonic_ResetScr
 	; on right edge but facing left:
 +	move.b	#AniIDSonAni_Balance3,anim(a0)
 	move.w	x_pos(a0),d3
 	subq.w	#6,d3
 	jsr	(ChkFloorEdge_Part2).l
 	cmpi.w	#$C,d1
-	blt.w	Obj01_ResetScr
+	blt.w	Sonic_ResetScr
 	move.b	#AniIDSonAni_Balance4,anim(a0)
 	bclr	#status.player.x_flip,status(a0)
-	bra.w	Obj01_ResetScr
+	bra.w	Sonic_ResetScr
 ; ---------------------------------------------------------------------------
 Sonic_BalanceLeft:
 	cmpi.b	#3,tilt(a0)
@@ -36358,19 +36361,19 @@ Sonic_BalanceLeft:
 	addq.w	#6,d3
 	jsr	(ChkFloorEdge_Part2).l
 	cmpi.w	#$C,d1
-	blt.w	Obj01_ResetScr
+	blt.w	Sonic_ResetScr
 	move.b	#AniIDSonAni_Balance2,anim(a0)
-	bra.w	Obj01_ResetScr
+	bra.w	Sonic_ResetScr
 	; on left edge but facing right:
 +	move.b	#AniIDSonAni_Balance3,anim(a0)
 	move.w	x_pos(a0),d3
 	addq.w	#6,d3
 	jsr	(ChkFloorEdge_Part2).l
 	cmpi.w	#$C,d1
-	blt.w	Obj01_ResetScr
+	blt.w	Sonic_ResetScr
 	move.b	#AniIDSonAni_Balance4,anim(a0)
 	bset	#status.player.x_flip,status(a0)
-	bra.w	Obj01_ResetScr
+	bra.w	Sonic_ResetScr
 ; ---------------------------------------------------------------------------
 ; loc_1A55E:
 SuperSonic_Balance2:
@@ -36392,7 +36395,7 @@ SuperSonic_BalanceOnObjLeft:
 
 loc_1A57C:
 	move.b	#AniIDSonAni_Balance,anim(a0)
-	bra.s	Obj01_ResetScr
+	bra.s	Sonic_ResetScr
 ; ---------------------------------------------------------------------------
 ; loc_1A584:
 Sonic_Lookup:
@@ -36401,36 +36404,36 @@ Sonic_Lookup:
 	move.b	#AniIDSonAni_LookUp,anim(a0)			; use "looking up" animation
 	addq.w	#1,(Sonic_Look_delay_counter).w
 	cmpi.w	#$78,(Sonic_Look_delay_counter).w
-	blo.s	Obj01_ResetScr_Part2
+	blo.s	Sonic_ResetScr_Part2
 	move.w	#$78,(Sonic_Look_delay_counter).w
 	cmpi.w	#$C8,(Camera_Y_pos_bias).w
-	beq.s	Obj01_UpdateSpeedOnGround
+	beq.s	Sonic_UpdateSpeedOnGround
 	addq.w	#2,(Camera_Y_pos_bias).w
-	bra.s	Obj01_UpdateSpeedOnGround
+	bra.s	Sonic_UpdateSpeedOnGround
 ; ---------------------------------------------------------------------------
 ; loc_1A5B2:
 Sonic_Duck:
 	btst	#button_down,(Ctrl_1_Held_Logical).w	; is down being pressed?
-	beq.s	Obj01_ResetScr			; if not, branch
+	beq.s	Sonic_ResetScr			; if not, branch
 	move.b	#AniIDSonAni_Duck,anim(a0)			; use "ducking" animation
 	addq.w	#1,(Sonic_Look_delay_counter).w
 	cmpi.w	#$78,(Sonic_Look_delay_counter).w
-	blo.s	Obj01_ResetScr_Part2
+	blo.s	Sonic_ResetScr_Part2
 	move.w	#$78,(Sonic_Look_delay_counter).w
 	cmpi.w	#8,(Camera_Y_pos_bias).w
-	beq.s	Obj01_UpdateSpeedOnGround
+	beq.s	Sonic_UpdateSpeedOnGround
 	subq.w	#2,(Camera_Y_pos_bias).w
-	bra.s	Obj01_UpdateSpeedOnGround
+	bra.s	Sonic_UpdateSpeedOnGround
 
 ; ===========================================================================
 ; moves the screen back to its normal position after looking up or down
-; loc_1A5E0:
-Obj01_ResetScr:
+; loc_1A5E0: Obj01_ResetScr:
+Sonic_ResetScr:
 	move.w	#0,(Sonic_Look_delay_counter).w
-; loc_1A5E6:
-Obj01_ResetScr_Part2:
+; loc_1A5E6: Obj01_ResetScr_Part2:
+Sonic_ResetScr_Part2:
 	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias).w	; is screen in its default position?
-	beq.s	Obj01_UpdateSpeedOnGround	; if yes, branch.
+	beq.s	Sonic_UpdateSpeedOnGround	; if yes, branch.
 	bhs.s	+				; depending on the sign of the difference,
 	addq.w	#4,(Camera_Y_pos_bias).w	; either add 2
 +	subq.w	#2,(Camera_Y_pos_bias).w	; or subtract 2
@@ -36438,31 +36441,31 @@ Obj01_ResetScr_Part2:
 ; ---------------------------------------------------------------------------
 ; updates Sonic's speed on the ground
 ; ---------------------------------------------------------------------------
-; sub_1A5F8:
-Obj01_UpdateSpeedOnGround:
+; sub_1A5F8: Obj01_UpdateSpeedOnGround:
+Sonic_UpdateSpeedOnGround:
 	tst.b	(Super_Sonic_flag).w
 	beq.w	+
 	move.w	#$C,d5
 +
 	move.b	(Ctrl_1_Held_Logical).w,d0
 	andi.b	#button_left_mask|button_right_mask,d0 ; is left/right pressed?
-	bne.s	Obj01_Traction	; if yes, branch
+	bne.s	Sonic_Traction	; if yes, branch
 	move.w	inertia(a0),d0
-	beq.s	Obj01_Traction
-	bmi.s	Obj01_SettleLeft
+	beq.s	Sonic_Traction
+	bmi.s	Sonic_SettleLeft
 
 ; slow down when facing right and not pressing a direction
-; Obj01_SettleRight:
+; Obj01_SettleRight: Sonic_SettleRight:
 	sub.w	d5,d0
 	bcc.s	+
 	move.w	#0,d0
 +
 	move.w	d0,inertia(a0)
-	bra.s	Obj01_Traction
+	bra.s	Sonic_Traction
 ; ---------------------------------------------------------------------------
 ; slow down when facing left and not pressing a direction
-; loc_1A624:
-Obj01_SettleLeft:
+; loc_1A624: Obj01_SettleLeft:
+Sonic_SettleLeft:
 	add.w	d5,d0
 	bcc.s	+
 	move.w	#0,d0
@@ -36470,8 +36473,8 @@ Obj01_SettleLeft:
 	move.w	d0,inertia(a0)
 
 ; increase or decrease speed on the ground
-; loc_1A630:
-Obj01_Traction:
+; loc_1A630: Obj01_Traction:
+Sonic_Traction:
 	move.b	angle(a0),d0
 	jsr	(CalcSine).l
 	muls.w	inertia(a0),d1
@@ -36482,8 +36485,8 @@ Obj01_Traction:
 	move.w	d0,y_vel(a0)
 
 ; stops Sonic from running through walls that meet the ground
-; loc_1A64E:
-Obj01_CheckWallsOnGround:
+; loc_1A64E: Obj01_CheckWallsOnGround:
+Sonic_CheckWallsOnGround:
 	move.b	angle(a0),d0
 	addi.b	#$40,d0
 	bmi.s	return_1A6BE
@@ -36672,7 +36675,7 @@ Sonic_RollSpeed:
 			; this should be Sonic_deceleration/4 according to Tails_RollSpeed,
 			; which means Sonic is much better than Tails at slowing down his rolling when he's underwater
 	_btst	#status_secondary.sliding,status_secondary(a0)
-	_bne.w	Obj01_Roll_ResetScr
+	_bne.w	Sonic_Roll_ResetScr
 	tst.w	move_lock(a0)
 	bne.s	Sonic_ApplyRollSpeed
 	btst	#button_left,(Ctrl_1_Held_Logical).w	; is left being pressed?
@@ -36708,7 +36711,7 @@ Sonic_ApplyRollSpeedLeft:
 ; loc_1A81E:
 Sonic_CheckRollStop:
 	tst.w	inertia(a0)
-	bne.s	Obj01_Roll_ResetScr
+	bne.s	Sonic_Roll_ResetScr
 	tst.b	pinball_mode(a0) ; note: the spindash flag has a different meaning when Sonic's already rolling -- it's used to mean he's not allowed to stop rolling
 	bne.s	Sonic_KeepRolling
 	bclr	#status.player.rolling,status(a0)
@@ -36716,7 +36719,7 @@ Sonic_CheckRollStop:
 	move.b	#9,x_radius(a0)
 	move.b	#AniIDSonAni_Wait,anim(a0)
 	subq.w	#5,y_pos(a0)
-	bra.s	Obj01_Roll_ResetScr
+	bra.s	Sonic_Roll_ResetScr
 
 ; ---------------------------------------------------------------------------
 ; magically gives Sonic an extra push if he's going to stop rolling where it's not allowed
@@ -36725,12 +36728,12 @@ Sonic_CheckRollStop:
 Sonic_KeepRolling:
 	move.w	#$400,inertia(a0)
 	btst	#status.player.x_flip,status(a0)
-	beq.s	Obj01_Roll_ResetScr
+	beq.s	Sonic_Roll_ResetScr
 	neg.w	inertia(a0)
 
-; resets the screen to normal while rolling, like Obj01_ResetScr
-; loc_1A85A:
-Obj01_Roll_ResetScr:
+; resets the screen to normal while rolling, like Sonic_ResetScr
+; loc_1A85A: Obj01_Roll_ResetScr:
+Sonic_Roll_ResetScr:
 	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias).w	; is screen in its default position?
 	beq.s	Sonic_SetRollSpeeds		; if yes, branch
 	bhs.s	+				; depending on the sign of the difference,
@@ -36755,7 +36758,7 @@ Sonic_SetRollSpeeds:
 	move.w	#-$1000,d1	; limit Sonic's speed rolling left
 +
 	move.w	d1,x_vel(a0)	; set x velocity based on $14 and angle
-	bra.w	Obj01_CheckWallsOnGround
+	bra.w	Sonic_CheckWallsOnGround
 ; End of function Sonic_RollSpeed
 
 
@@ -36817,7 +36820,7 @@ Sonic_ChgJumpDir:
 	move.w	(Sonic_acceleration).w,d5
 	asl.w	#1,d5
 	btst	#status.player.rolljumping,status(a0)	; did Sonic jump from rolling?
-	bne.s	Obj01_Jump_ResetScr			; if yes, branch to skip midair control
+	bne.s	Sonic_Jump_ResetScr			; if yes, branch to skip midair control
 	move.w	x_vel(a0),d0
 	btst	#button_left,(Ctrl_1_Held_Logical).w
 	beq.s	+	; if not holding left, branch
@@ -36838,11 +36841,11 @@ Sonic_ChgJumpDir:
 	cmp.w	d6,d0	; compare new speed with top speed
 	blt.s	+	; if new speed is less than the maximum, branch
 	move.w	d6,d0	; limit speed in air going right, even if Sonic was already going faster (speed limit/cap)
-; Obj01_JumpMove:
+; Obj01_JumpMove: Sonic_JumpMove:
 +	move.w	d0,x_vel(a0)
 
-; loc_1A932: Obj01_ResetScr2:
-Obj01_Jump_ResetScr:
+; loc_1A932: Obj01_ResetScr2: Obj01_Jump_ResetScr:
+Sonic_Jump_ResetScr:
 	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias).w	; is screen in its default position?
 	beq.s	Sonic_JumpPeakDecelerate	; if yes, branch
 	bhs.s	+				; depending on the sign of the difference,
@@ -36953,29 +36956,29 @@ Sonic_Boundary_Sides:
 ; loc_1A9D2:
 Sonic_Roll:
 	_btst	#status_secondary.sliding,status_secondary(a0)
-	_bne.s	Obj01_NoRoll
+	_bne.s	Sonic_NoRoll
 	mvabs.w	inertia(a0),d0
 	cmpi.w	#$80,d0		; is Sonic moving at $80 speed or faster?
-	blo.s	Obj01_NoRoll	; if not, branch
+	blo.s	Sonic_NoRoll	; if not, branch
 	move.b	(Ctrl_1_Held_Logical).w,d0
 	andi.b	#button_left_mask|button_right_mask,d0 ; is left/right being pressed?
-	bne.s	Obj01_NoRoll	; if yes, branch
+	bne.s	Sonic_NoRoll	; if yes, branch
 	btst	#button_down,(Ctrl_1_Held_Logical).w ; is down being pressed?
-	bne.s	Obj01_ChkRoll			; if yes, branch
-; return_1A9F8:
-Obj01_NoRoll:
+	bne.s	Sonic_ChkRoll			; if yes, branch
+; return_1A9F8: Obj01_NoRoll:
+Sonic_NoRoll:
 	rts
 
 ; ---------------------------------------------------------------------------
-; loc_1A9FA:
-Obj01_ChkRoll:
+; loc_1A9FA: Obj01_ChkRoll:
+Sonic_ChkRoll:
 	btst	#status.player.rolling,status(a0)	; is Sonic already rolling?
-	beq.s	Obj01_DoRoll	; if not, branch
+	beq.s	Sonic_DoRoll	; if not, branch
 	rts
 
 ; ---------------------------------------------------------------------------
-; loc_1AA04:
-Obj01_DoRoll:
+; loc_1AA04: Obj01_DoRoll:
+Sonic_DoRoll:
 	bset	#status.player.rolling,status(a0)
 	move.b	#$E,y_radius(a0)
 	move.b	#7,x_radius(a0)
@@ -37288,7 +37291,7 @@ Sonic_UpdateSpindash:
 	move.b	#0,(Sonic_Dust+anim).w
 	move.w	#SndID_SpindashRelease,d0	; spindash zoom sound
 	jsr	(PlaySound).l
-	bra.s	Obj01_Spindash_ResetScr
+	bra.s	Sonic_Spindash_ResetScr
 ; ===========================================================================
 ; word_1AD0C:
 SpindashSpeeds:
@@ -37325,17 +37328,17 @@ Sonic_ChargingSpindash:			; If still charging the dash...
 +
 	move.b	(Ctrl_1_Press_Logical).w,d0
 	andi.b	#button_B_mask|button_C_mask|button_A_mask,d0
-	beq.w	Obj01_Spindash_ResetScr
+	beq.w	Sonic_Spindash_ResetScr
 	move.w	#(AniIDSonAni_Spindash<<8)|(AniIDSonAni_Walk<<0),anim(a0)
 	move.w	#SndID_SpindashRev,d0
 	jsr	(PlaySound).l
 	addi.w	#$200,spindash_counter(a0)
 	cmpi.w	#$800,spindash_counter(a0)
-	blo.s	Obj01_Spindash_ResetScr
+	blo.s	Sonic_Spindash_ResetScr
 	move.w	#$800,spindash_counter(a0)
 
-; loc_1AD78:
-Obj01_Spindash_ResetScr:
+; loc_1AD78: Obj01_Spindash_ResetScr:
+Sonic_Spindash_ResetScr:
 	addq.l	#4,sp
 	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias).w
 	beq.s	loc_1AD8C
@@ -37749,7 +37752,7 @@ Sonic_ResetOnFloor:
 Sonic_ResetOnFloor_Part2:
 	; some routines outside of Tails' code can call Sonic_ResetOnFloor_Part2
 	; when they mean to call Tails_ResetOnFloor_Part2, so fix that here
-	_cmpi.b	#ObjID_Sonic,id(a0)	; is this object ID Sonic (obj01)?
+	_cmpi.b	#ObjID_Sonic,id(a0)	; is this Sonic?
 	bne.w	Tails_ResetOnFloor_Part2	; if not, branch to the Tails version of this code
 
 	btst	#status.player.rolling,status(a0)
@@ -37781,18 +37784,18 @@ return_1B11E:
 ; ---------------------------------------------------------------------------
 ; Sonic when he gets hurt
 ; ---------------------------------------------------------------------------
-; loc_1B120: Obj_01_Sub_4:
-Obj01_Hurt:
+; loc_1B120: Obj_01_Sub_4: Obj01_Hurt:
+Sonic_Hurt:
 	tst.w	(Debug_mode_flag).w
-	beq.s	Obj01_Hurt_Normal
+	beq.s	Sonic_Hurt_Normal
 	btst	#button_B,(Ctrl_1_Press).w
-	beq.s	Obj01_Hurt_Normal
+	beq.s	Sonic_Hurt_Normal
 	move.w	#1,(Debug_placement_mode).w
 	clr.b	(Control_Locked).w
 	rts
 ; ---------------------------------------------------------------------------
-; loc_1B13A:
-Obj01_Hurt_Normal:
+; loc_1B13A: Obj01_Hurt_Normal:
+Sonic_Hurt_Normal:
 	tst.b	routine_secondary(a0)
 	bmi.w	Sonic_HurtInstantRecover
 	jsr	(ObjectMove).l
@@ -37843,7 +37846,7 @@ Sonic_HurtStop:
 	move.w	d0,inertia(a0)
 	move.b	d0,obj_control(a0)
 	move.b	#AniIDSonAni_Walk,anim(a0)
-	subq.b	#2,routine(a0)	; => Obj01_Control
+	subq.b	#2,routine(a0)	; => Sonic_Control
 	move.w	#$78,invulnerable_time(a0)
 	move.b	#0,spindash_flag(a0)
 
@@ -37859,7 +37862,7 @@ JmpTo_KillCharacter ; JmpTo
 ; seems to be unused
 ; loc_1B1CA:
 Sonic_HurtInstantRecover:
-	subq.b	#2,routine(a0)	; => Obj01_Control
+	subq.b	#2,routine(a0)	; => Sonic_Control
 	move.b	#0,routine_secondary(a0)
 	bsr.w	Sonic_RecordPos
 	bsr.w	Sonic_Animate
@@ -37872,8 +37875,8 @@ Sonic_HurtInstantRecover:
 ; ...poor Sonic
 ; ---------------------------------------------------------------------------
 
-; loc_1B1E6: Obj_01_Sub_6:
-Obj01_Dead:
+; loc_1B1E6: Obj_01_Sub_6: Obj01_Dead:
+Sonic_Dead:
 	tst.w	(Debug_mode_flag).w
 	beq.s	+
 	btst	#button_B,(Ctrl_1_Press).w
@@ -37899,22 +37902,22 @@ CheckGameOver:
 	addi.w	#$100,d0
 	cmp.w	y_pos(a0),d0
 	bge.w	return_1B31A
-	move.b	#8,routine(a0)	; => Obj01_Gone
+	move.b	#8,routine(a0)	; => Sonic_Gone
 	move.w	#60,restart_countdown(a0)
 	addq.b	#1,(Update_HUD_lives).w	; update lives counter
 	subq.b	#1,(Life_count).w	; subtract 1 from number of lives
-	bne.s	Obj01_ResetLevel	; if it's not a game over, branch
+	bne.s	Sonic_ResetLevel	; if it's not a game over, branch
 	move.w	#0,restart_countdown(a0)
 	move.b	#ObjID_GameOver,(GameOver_GameText+id).w ; load Obj39 (game over text)
 	move.b	#ObjID_GameOver,(GameOver_OverText+id).w ; load Obj39 (game over text)
 	move.b	#1,(GameOver_OverText+mapping_frame).w
 	move.w	a0,(GameOver_GameText+parent).w
 	clr.b	(Time_Over_flag).w
-; loc_1B26E:
-Obj01_Finished:
+; loc_1B26E: Obj01_Finished:
+Sonic_Finished:
 	clr.b	(Update_HUD_timer).w
 	clr.b	(Update_HUD_timer_2P).w
-	move.b	#8,routine(a0)	; => Obj01_Gone
+	move.b	#8,routine(a0)	; => Sonic_Gone
 	move.w	#MusID_GameOver,d0
 	jsr	(PlayMusic).l
 	moveq	#PLCID_GameOver,d0
@@ -37925,23 +37928,24 @@ Obj01_Finished:
 ; ---------------------------------------------------------------------------
 ; Sonic when the level is restarted
 ; ---------------------------------------------------------------------------
-; loc_1B28E:
-Obj01_ResetLevel:
+; loc_1B28E: Obj01_ResetLevel:
+Sonic_ResetLevel:
 	tst.b	(Time_Over_flag).w
-	beq.s	Obj01_ResetLevel_Part2
+	beq.s	Sonic_ResetLevel_Part2
 	move.w	#0,restart_countdown(a0)
 	move.b	#ObjID_TimeOver,(TimeOver_TimeText+id).w ; load Obj39
 	move.b	#ObjID_TimeOver,(TimeOver_OverText+id).w ; load Obj39
 	move.b	#2,(TimeOver_TimeText+mapping_frame).w
 	move.b	#3,(TimeOver_OverText+mapping_frame).w
 	move.w	a0,(TimeOver_TimeText+parent).w
-	bra.s	Obj01_Finished
+	bra.s	Sonic_Finished
 ; ---------------------------------------------------------------------------
-Obj01_ResetLevel_Part2:
+; Obj01_ResetLevel_Part2:
+Sonic_ResetLevel_Part2:
 	tst.w	(Two_player_mode).w
 	beq.s	return_1B31A
 	move.b	#0,(Scroll_lock).w
-	move.b	#$A,routine(a0)	; => Obj01_Respawning
+	move.b	#$A,routine(a0)	; => Sonic_Respawning
 	move.w	(Saved_x_pos).w,x_pos(a0)
 	move.w	(Saved_y_pos).w,y_pos(a0)
 	move.w	(Saved_art_tile).w,art_tile(a0)
@@ -37959,12 +37963,13 @@ Obj01_ResetLevel_Part2:
 
 return_1B31A:
 	rts
+
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Sonic when he's offscreen and waiting for the level to restart
 ; ---------------------------------------------------------------------------
-; loc_1B31C: Obj_01_Sub_8:
-Obj01_Gone:
+; loc_1B31C: Obj_01_Sub_8: Obj01_Gone:
+Sonic_Gone:
 	tst.w	restart_countdown(a0)
 	beq.s	+
 	subq.w	#1,restart_countdown(a0)
@@ -37972,23 +37977,24 @@ Obj01_Gone:
 	move.w	#1,(Level_Inactive_flag).w
 +
 	rts
+
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Sonic when he's waiting for the camera to scroll back to where he respawned
 ; ---------------------------------------------------------------------------
-; loc_1B330: Obj_01_Sub_A:
-Obj01_Respawning:
+; loc_1B330: Obj_01_Sub_A: Obj01_Respawning:
+Sonic_Respawning:
 	tst.w	(Camera_X_pos_diff).w
 	bne.s	+
 	tst.w	(Camera_Y_pos_diff).w
 	bne.s	+
-	move.b	#2,routine(a0)	; => Obj01_Control
+	move.b	#2,routine(a0)	; => Sonic_Control
 +
 	bsr.w	Sonic_Animate
 	bsr.w	LoadSonicDynPLC
 	jmp	(DisplaySprite).l
-; ===========================================================================
 
+; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Subroutine to animate Sonic's sprites
 ; See also: AnimateSprite
@@ -38493,8 +38499,8 @@ return_1B89A:
 ; ----------------------------------------------------------------------------
 ; Object 02 - Tails
 ; ----------------------------------------------------------------------------
-; Sprite_1B8A4: Object_Tails:
-Obj02:
+; Sprite_1B8A4: Object_Tails: Obj02:
+Obj_Tails:
 	; a0=character
 	cmpi.w	#2,(Player_mode).w
 	bne.s	+
@@ -38504,21 +38510,21 @@ Obj02:
 +
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj02_Index(pc,d0.w),d1
-	jmp	Obj02_Index(pc,d1.w)
+	move.w	Tails_Index(pc,d0.w),d1
+	jmp	Tails_Index(pc,d1.w)
 ; ===========================================================================
-; off_1B8CC: Obj02_States:
-Obj02_Index:	offsetTable
-		offsetTableEntry.w Obj02_Init		;  0
-		offsetTableEntry.w Obj02_Control	;  2
-		offsetTableEntry.w Obj02_Hurt		;  4
-		offsetTableEntry.w Obj02_Dead		;  6
-		offsetTableEntry.w Obj02_Gone		;  8
-		offsetTableEntry.w Obj02_Respawning	; $A
+; off_1B8CC: Obj02_States: Obj02_Index:
+Tails_Index:	offsetTable
+		offsetTableEntry.w Tails_Init		;  0
+		offsetTableEntry.w Tails_Control	;  2
+		offsetTableEntry.w Tails_Hurt		;  4
+		offsetTableEntry.w Tails_Dead		;  6
+		offsetTableEntry.w Tails_Gone		;  8
+		offsetTableEntry.w Tails_Respawning	; $A
 ; ===========================================================================
-; loc_1B8D8: Obj02_Main:
-Obj02_Init:
-	addq.b	#2,routine(a0)	; => Obj02_Normal
+; loc_1B8D8: Obj02_Main: Obj02_Init:
+Tails_Init:
+	addq.b	#2,routine(a0)	; => Tails_Normal
 	move.b	#$F,y_radius(a0) ; this sets Tails' collision height (2*pixels) to less than Sonic's height
 	move.b	#9,x_radius(a0)
 	move.l	#MapUnc_Tails,mappings(a0)
@@ -38529,9 +38535,9 @@ Obj02_Init:
 	move.w	#$C,(Tails_acceleration).w	; set Tails' acceleration
 	move.w	#$80,(Tails_deceleration).w	; set Tails' deceleration
 	cmpi.w	#2,(Player_mode).w
-	bne.s	Obj02_Init_2Pmode
+	bne.s	Tails_Init_2Pmode
 	tst.b	(Last_star_pole_hit).w
-	bne.s	Obj02_Init_Continued
+	bne.s	Tails_Init_Continued
 	; only happens when not starting at a checkpoint:
 	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
@@ -38541,18 +38547,18 @@ Obj02_Init:
 	move.w	y_pos(a0),(Saved_y_pos).w
 	move.w	art_tile(a0),(Saved_art_tile).w
 	move.w	top_solid_bit(a0),(Saved_Solid_bits).w
-	bra.s	Obj02_Init_Continued
+	bra.s	Tails_Init_Continued
 ; ===========================================================================
-; loc_1B952:
-Obj02_Init_2Pmode:
+; loc_1B952: Obj02_Init_2Pmode:
+Tails_Init_2Pmode:
 	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	move.w	(MainCharacter+top_solid_bit).w,top_solid_bit(a0)
 	tst.w	(MainCharacter+art_tile).w
-	bpl.s	Obj02_Init_Continued
+	bpl.s	Tails_Init_Continued
 	ori.w	#high_priority,art_tile(a0)
-; loc_1B96E:
-Obj02_Init_Continued:
+; loc_1B96E: Obj02_Init_Continued:
+Tails_Init_Continued:
 	move.w	x_pos(a0),(Saved_x_pos_2P).w
 	move.w	y_pos(a0),(Saved_y_pos_2P).w
 	move.w	art_tile(a0),(Saved_art_tile_2P).w
@@ -38569,35 +38575,35 @@ Obj02_Init_Continued:
 ; ---------------------------------------------------------------------------
 ; Normal state for Tails
 ; ---------------------------------------------------------------------------
-; loc_1B9B4:
-Obj02_Control:
+; loc_1B9B4: Obj02_Control:
+Tails_Control:
 	cmpa.w	#MainCharacter,a0
-	bne.s	Obj02_Control_Joypad2
+	bne.s	Tails_Control_Joypad2
 	move.w	(Ctrl_1_Logical).w,(Ctrl_2_Logical).w
 	tst.b	(Control_Locked).w	; are controls locked?
-	bne.s	Obj02_Control_Part2	; if yes, branch
+	bne.s	Tails_Control_Part2	; if yes, branch
 	move.w	(Ctrl_1).w,(Ctrl_2_Logical).w	; copy new held buttons, to enable joypad control
 	move.w	(Ctrl_1).w,(Ctrl_1_Logical).w
-	bra.s	Obj02_Control_Part2
+	bra.s	Tails_Control_Part2
 ; ---------------------------------------------------------------------------
-; loc_1B9D4:
-Obj02_Control_Joypad2:
+; loc_1B9D4: Obj02_Control_Joypad2:
+Tails_Control_Joypad2:
 	tst.b	(Control_Locked_P2).w
 	bne.s	+
 	move.w	(Ctrl_2).w,(Ctrl_2_Logical).w
 +
 	tst.w	(Two_player_mode).w
-	bne.s	Obj02_Control_Part2
+	bne.s	Tails_Control_Part2
 	bsr.w	TailsCPU_Control
-; loc_1B9EA:
-Obj02_Control_Part2:
+; loc_1B9EA: Obj02_Control_Part2:
+Tails_Control_Part2:
 	btst	#0,obj_control(a0)	; is Tails flying, or interacting with another object that holds him in place or controls his movement somehow?
 	bne.s	+			; if yes, branch to skip Tails' control
 	moveq	#0,d0
 	move.b	status(a0),d0
 	andi.w	#1<<status.player.in_air|1<<status.player.rolling,d0	; %0000 %0110
-	move.w	Obj02_Modes(pc,d0.w),d1
-	jsr	Obj02_Modes(pc,d1.w)	; run Tails' movement control code
+	move.w	Tails_Modes(pc,d0.w),d1
+	jsr	Tails_Modes(pc,d1.w)	; run Tails' movement control code
 +
 	cmpi.w	#-$100,(Camera_Min_Y_pos).w	; is vertical wrapping enabled?
 	bne.s	+				; if not, branch
@@ -38622,13 +38628,13 @@ Obj02_Control_Part2:
 	bra.w	LoadTailsDynPLC
 
 ; ===========================================================================
-; secondary states under state Obj02_Normal
-; off_1BA4E:
-Obj02_Modes:	offsetTable
-		offsetTableEntry.w Obj02_MdNormal	; 0 - not airborne or rolling
-		offsetTableEntry.w Obj02_MdAir		; 2 - airborne
-		offsetTableEntry.w Obj02_MdRoll		; 4 - rolling
-		offsetTableEntry.w Obj02_MdJump		; 6 - jumping
+; secondary states under state Tails_Normal
+; off_1BA4E: Obj02_Modes:
+Tails_Modes:	offsetTable
+		offsetTableEntry.w Tails_MdNormal	; 0 - not airborne or rolling
+		offsetTableEntry.w Tails_MdAir		; 2 - airborne
+		offsetTableEntry.w Tails_MdRoll		; 4 - rolling
+		offsetTableEntry.w Tails_MdJump		; 6 - jumping
 ; ===========================================================================
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -38636,48 +38642,48 @@ Obj02_Modes:	offsetTable
 ; loc_1BA56:
 Tails_Display:
 	move.w	invulnerable_time(a0),d0
-	beq.s	Obj02_Display
+	beq.s	Tails_Display2
 	subq.w	#1,invulnerable_time(a0)
 	lsr.w	#3,d0
-	bcc.s	Obj02_ChkInvinc
-; loc_1BA64:
-Obj02_Display:
+	bcc.s	Tails_ChkInvinc
+; loc_1BA64: Obj02_Display:
+Tails_Display2:
 	jsr	(DisplaySprite).l
-; loc_1BA6A:
-Obj02_ChkInvinc:	; Checks if invincibility has expired and disables it if it has.
+; loc_1BA6A: Obj02_ChkInvinc:
+Tails_ChkInvinc:	; Checks if invincibility has expired and disables it if it has.
 	btst	#status_secondary.invincible,status_secondary(a0)
-	beq.s	Obj02_ChkShoes
+	beq.s	Tails_ChkShoes
 	tst.w	invincibility_time(a0)
-	beq.s	Obj02_ChkShoes
+	beq.s	Tails_ChkShoes
 	subq.w	#1,invincibility_time(a0)
-	bne.s	Obj02_ChkShoes
+	bne.s	Tails_ChkShoes
 	tst.b	(Current_Boss_ID).w	; Don't change music if in a boss fight
-	bne.s	Obj02_RmvInvin
+	bne.s	Tails_RmvInvin
 	cmpi.b	#12,air_left(a0)	; Don't change music if drowning
-	blo.s	Obj02_RmvInvin
+	blo.s	Tails_RmvInvin
 	move.w	(Level_Music).w,d0
 	jsr	(PlayMusic).l
-; loc_1BA96:
-Obj02_RmvInvin:
+; loc_1BA96: Obj02_RmvInvin:
+Tails_RmvInvin:
 	bclr	#status_secondary.invincible,status_secondary(a0)
-; loc_1BA9C:
-Obj02_ChkShoes:		; Checks if Speed Shoes have expired and disables them if they have.
+; loc_1BA9C: Obj02_ChkShoes:
+Tails_ChkShoes:		; Checks if Speed Shoes have expired and disables them if they have.
 	btst	#status_secondary.speed_shoes,status_secondary(a0)
-	beq.s	Obj02_ExitChk
+	beq.s	Tails_ExitChk
 	tst.w	speedshoes_time(a0)
-	beq.s	Obj02_ExitChk
+	beq.s	Tails_ExitChk
 	subq.w	#1,speedshoes_time(a0)
-	bne.s	Obj02_ExitChk
+	bne.s	Tails_ExitChk
 	move.w	#$600,(Tails_top_speed).w
 	move.w	#$C,(Tails_acceleration).w
 	move.w	#$80,(Tails_deceleration).w
-; Obj02_RmvSpeed:
+; Obj02_RmvSpeed: Tails_RmvSpeed:
 	bclr	#status_secondary.speed_shoes,status_secondary(a0)
 	move.w	#MusID_SlowDown,d0	; Slow down tempo
 	jmp	(PlayMusic).l
 ; ===========================================================================
-; return_1BAD2:
-Obj02_ExitChk:
+; return_1BAD2: Obj02_ExitChk:
+Tails_ExitChk:
 	rts
 ; End of subroutine Tails_Display
 
@@ -39154,16 +39160,16 @@ Tails_RecordPos:
 ; loc_1BF52:
 Tails_Water:
 	tst.b	(Water_flag).w	; does level have water?
-	bne.s	Obj02_InWater	; if yes, branch
+	bne.s	Tails_InWater	; if yes, branch
 
 return_1BF58:
 	rts
 ; ---------------------------------------------------------------------------
-; loc_1BF5A:
-Obj02_InWater:
+; loc_1BF5A: Obj02_InWater:
+Tails_InWater:
 	move.w	(Water_Level_1).w,d0
-	cmp.w	y_pos(a0),d0	; is Sonic above the water?
-	bge.s	Obj02_OutWater	; if yes, branch
+	cmp.w	y_pos(a0),d0	; is Tails above the water?
+	bge.s	Tails_OutWater	; if yes, branch
 
 	bset	#status.player.underwater,status(a0)	; set underwater flag
 	bne.s	return_1BF58	; if already underwater, branch
@@ -39184,8 +39190,8 @@ Obj02_InWater:
 	move.w	#SndID_Splash,d0	; splash sound
 	jmp	(PlaySound).l
 ; ---------------------------------------------------------------------------
-; loc_1BFB2:
-Obj02_OutWater:
+; loc_1BFB2: Obj02_OutWater:
+Tails_OutWater:
 	bclr	#status.player.underwater,status(a0)	; unset underwater flag
 	beq.s	return_1BF58	; if already above water, branch
 
@@ -39214,11 +39220,11 @@ Obj02_OutWater:
 
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
-; Start of subroutine Obj02_MdNormal
+; Start of subroutine Tails_MdNormal
 ; Called if Tails is neither airborne nor rolling this frame
 ; ---------------------------------------------------------------------------
-; loc_1C00A:
-Obj02_MdNormal:
+; loc_1C00A: Obj02_MdNormal:
+Tails_MdNormal:
 	bsr.w	Tails_CheckSpindash
 	bsr.w	Tails_Jump
 	bsr.w	Tails_SlopeResist
@@ -39229,12 +39235,13 @@ Obj02_MdNormal:
 	bsr.w	AnglePos
 	bsr.w	Tails_SlopeRepel
 	rts
-; End of subroutine Obj02_MdNormal
+; End of subroutine Tails_MdNormal
+
 ; ===========================================================================
-; Start of subroutine Obj02_MdAir
+; Start of subroutine Tails_MdAir
 ; Called if Tails is airborne, but not in a ball (thus, probably not jumping)
-; loc_1C032: Obj02_MdJump
-Obj02_MdAir:
+; loc_1C032: Obj02_MdJump Obj02_MdAir:
+Tails_MdAir:
 	bsr.w	Tails_JumpHeight
 	bsr.w	Tails_ChgJumpDir
 	bsr.w	Tails_LevelBound
@@ -39246,12 +39253,13 @@ Obj02_MdAir:
 	bsr.w	Tails_JumpAngle
 	bsr.w	Tails_DoLevelCollision
 	rts
-; End of subroutine Obj02_MdAir
+; End of subroutine Tails_MdAir
+
 ; ===========================================================================
-; Start of subroutine Obj02_MdRoll
+; Start of subroutine Tails_MdRoll
 ; Called if Tails is in a ball, but not airborne (thus, probably rolling)
-; loc_1C05C:
-Obj02_MdRoll:
+; loc_1C05C: Obj02_MdRoll:
+Tails_MdRoll:
 	tst.b	pinball_mode(a0)
 	bne.s	+
 	bsr.w	Tails_Jump
@@ -39264,13 +39272,14 @@ Obj02_MdRoll:
 	bsr.w	Tails_SlopeRepel
 	rts
 ; End of subroutine Obj02_MdRoll
+
 ; ===========================================================================
-; Start of subroutine Obj02_MdJump
+; Start of subroutine Tails_MdJump
 ; Called if Tails is in a ball and airborne (he could be jumping but not necessarily)
-; Notes: This is identical to Obj02_MdAir, at least at this outer level.
+; Notes: This is identical to Tails_MdAir, at least at this outer level.
 ;        Why they gave it a separate copy of the code, I don't know.
-; loc_1C082: Obj02_MdJump2:
-Obj02_MdJump:
+; loc_1C082: Obj02_MdJump2: Obj02_MdJump:
+Tails_MdJump:
 	bsr.w	Tails_JumpHeight
 	bsr.w	Tails_ChgJumpDir
 	bsr.w	Tails_LevelBound
@@ -39282,7 +39291,7 @@ Obj02_MdJump:
 	bsr.w	Tails_JumpAngle
 	bsr.w	Tails_DoLevelCollision
 	rts
-; End of subroutine Obj02_MdJump
+; End of subroutine Tails_MdJump
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to make Tails walk/run
@@ -39296,25 +39305,25 @@ Tails_Move:
 	move.w	(Tails_acceleration).w,d5
 	move.w	(Tails_deceleration).w,d4
 	_btst	#status_secondary.sliding,status_secondary(a0)
-	_bne.w	Obj02_Traction
+	_bne.w	Tails_Traction
 	tst.w	move_lock(a0)
-	bne.w	Obj02_ResetScr
+	bne.w	Tails_ResetScr
 	btst	#button_left,(Ctrl_2_Held_Logical).w	; is left being pressed?
-	beq.s	Obj02_NotLeft			; if not, branch
+	beq.s	Tails_NotLeft			; if not, branch
 	bsr.w	Tails_MoveLeft
-; loc_1C0D4:
-Obj02_NotLeft:
+; loc_1C0D4: Obj02_NotLeft:
+Tails_NotLeft:
 	btst	#button_right,(Ctrl_2_Held_Logical).w	; is right being pressed?
-	beq.s	Obj02_NotRight			; if not, branch
+	beq.s	Tails_NotRight			; if not, branch
 	bsr.w	Tails_MoveRight
-; loc_1C0E0:
-Obj02_NotRight:
+; loc_1C0E0: Obj02_NotRight:
+Tails_NotRight:
 	move.b	angle(a0),d0
 	addi.b	#$20,d0
 	andi.b	#$C0,d0		; is Tails on a slope?
-	bne.w	Obj02_ResetScr	; if yes, branch
+	bne.w	Tails_ResetScr	; if yes, branch
 	tst.w	inertia(a0)	; is Tails moving?
-	bne.w	Obj02_ResetScr	; if yes, branch
+	bne.w	Tails_ResetScr	; if yes, branch
 	bclr	#status.player.pushing,status(a0)
 	move.b	#AniIDSonAni_Wait,anim(a0)	; use "standing" animation
 	btst	#status.player.on_object,status(a0)
@@ -39366,7 +39375,7 @@ Tails_BalanceOnObjLeft:
 ; loc_1C16C:
 Tails_BalanceDone:
 	move.b	#AniIDSonAni_Balance,anim(a0)
-	bra.s	Obj02_ResetScr
+	bra.s	Tails_ResetScr
 ; ---------------------------------------------------------------------------
 ; loc_1C174:
 Tails_Lookup:
@@ -39375,36 +39384,36 @@ Tails_Lookup:
 	move.b	#AniIDSonAni_LookUp,anim(a0)			; use "looking up" animation
 	addq.w	#1,(Tails_Look_delay_counter).w
 	cmpi.w	#$78,(Tails_Look_delay_counter).w
-	blo.s	Obj02_ResetScr_Part2
+	blo.s	Tails_ResetScr_Part2
 	move.w	#$78,(Tails_Look_delay_counter).w
 	cmpi.w	#$C8,(Camera_Y_pos_bias_P2).w
-	beq.s	Obj02_UpdateSpeedOnGround
+	beq.s	Tails_UpdateSpeedOnGround
 	addq.w	#2,(Camera_Y_pos_bias_P2).w
-	bra.s	Obj02_UpdateSpeedOnGround
+	bra.s	Tails_UpdateSpeedOnGround
 ; ---------------------------------------------------------------------------
 ; loc_1C1A2:
 Tails_Duck:
 	btst	#button_down,(Ctrl_2_Held_Logical).w	; is down being pressed?
-	beq.s	Obj02_ResetScr			; if not, branch
+	beq.s	Tails_ResetScr			; if not, branch
 	move.b	#AniIDSonAni_Duck,anim(a0)			; use "ducking" animation
 	addq.w	#1,(Tails_Look_delay_counter).w
 	cmpi.w	#$78,(Tails_Look_delay_counter).w
-	blo.s	Obj02_ResetScr_Part2
+	blo.s	Tails_ResetScr_Part2
 	move.w	#$78,(Tails_Look_delay_counter).w
 	cmpi.w	#8,(Camera_Y_pos_bias_P2).w
-	beq.s	Obj02_UpdateSpeedOnGround
+	beq.s	Tails_UpdateSpeedOnGround
 	subq.w	#2,(Camera_Y_pos_bias_P2).w
-	bra.s	Obj02_UpdateSpeedOnGround
+	bra.s	Tails_UpdateSpeedOnGround
 
 ; ===========================================================================
 ; moves the screen back to its normal position after looking up or down
-; loc_1C1D0:
-Obj02_ResetScr:
+; loc_1C1D0: Obj02_ResetScr:
+Tails_ResetScr:
 	move.w	#0,(Tails_Look_delay_counter).w
-; loc_1C1D6:
-Obj02_ResetScr_Part2:
+; loc_1C1D6: Obj02_ResetScr_Part2:
+Tails_ResetScr_Part2:
 	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias_P2).w	; is screen in its default position?
-	beq.s	Obj02_UpdateSpeedOnGround	; if yes, branch.
+	beq.s	Tails_UpdateSpeedOnGround	; if yes, branch.
 	bhs.s	+				; depending on the sign of the difference,
 	addq.w	#4,(Camera_Y_pos_bias_P2).w	; either add 2
 +	subq.w	#2,(Camera_Y_pos_bias_P2).w	; or subtract 2
@@ -39412,27 +39421,27 @@ Obj02_ResetScr_Part2:
 ; ---------------------------------------------------------------------------
 ; updates Tails' speed on the ground
 ; ---------------------------------------------------------------------------
-; loc_1C1E8:
-Obj02_UpdateSpeedOnGround:
+; loc_1C1E8: Obj02_UpdateSpeedOnGround:
+Tails_UpdateSpeedOnGround:
 	move.b	(Ctrl_2_Held_Logical).w,d0
 	andi.b	#button_left_mask|button_right_mask,d0		; is left/right pressed?
-	bne.s	Obj02_Traction	; if yes, branch
+	bne.s	Tails_Traction	; if yes, branch
 	move.w	inertia(a0),d0
-	beq.s	Obj02_Traction
-	bmi.s	Obj02_SettleLeft
+	beq.s	Tails_Traction
+	bmi.s	Tails_SettleLeft
 
 ; slow down when facing right and not pressing a direction
-; Obj02_SettleRight:
+; Obj02_SettleRight: Tails_SettleRight:
 	sub.w	d5,d0
 	bcc.s	+
 	move.w	#0,d0
 +
 	move.w	d0,inertia(a0)
-	bra.s	Obj02_Traction
+	bra.s	Tails_Traction
 ; ---------------------------------------------------------------------------
 ; slow down when facing left and not pressing a direction
-; loc_1C208:
-Obj02_SettleLeft:
+; loc_1C208: Obj02_SettleLeft:
+Tails_SettleLeft:
 	add.w	d5,d0
 	bcc.s	+
 	move.w	#0,d0
@@ -39440,8 +39449,8 @@ Obj02_SettleLeft:
 	move.w	d0,inertia(a0)
 
 ; increase or decrease speed on the ground
-; loc_1C214:
-Obj02_Traction:
+; loc_1C214: Obj02_Traction:
+Tails_Traction:
 	move.b	angle(a0),d0
 	jsr	(CalcSine).l
 	muls.w	inertia(a0),d1
@@ -39452,8 +39461,8 @@ Obj02_Traction:
 	move.w	d0,y_vel(a0)
 
 ; stops Tails from running through walls that meet the ground
-; loc_1C232:
-Obj02_CheckWallsOnGround:
+; loc_1C232: Obj02_CheckWallsOnGround:
+Tails_CheckWallsOnGround:
 	move.b	angle(a0),d0
 	addi.b	#$40,d0
 	bmi.s	return_1C2A2
@@ -39651,7 +39660,7 @@ Tails_RollSpeed:
 			; interestingly, Tails is much worse at this than Sonic when underwater
     endif
 	_btst	#status_secondary.sliding,status_secondary(a0)
-	_bne.w	Obj02_Roll_ResetScr
+	_bne.w	Tails_Roll_ResetScr
 	tst.w	move_lock(a0)
 	bne.s	Tails_ApplyRollSpeed
 	btst	#button_left,(Ctrl_2_Held_Logical).w	; is left being pressed?
@@ -39687,7 +39696,7 @@ Tails_ApplyRollSpeedLeft:
 ; loc_1C404
 Tails_CheckRollStop:
 	tst.w	inertia(a0)
-	bne.s	Obj02_Roll_ResetScr
+	bne.s	Tails_Roll_ResetScr
 	tst.b	pinball_mode(a0)  ; note: the spindash flag has a different meaning when Tails is already rolling -- it's used to mean he's not allowed to stop rolling
 	bne.s	Tails_KeepRolling
 	bclr	#status.player.rolling,status(a0)
@@ -39695,7 +39704,7 @@ Tails_CheckRollStop:
 	move.b	#9,x_radius(a0)
 	move.b	#AniIDSonAni_Wait,anim(a0)
 	subq.w	#1,y_pos(a0)
-	bra.s	Obj02_Roll_ResetScr
+	bra.s	Tails_Roll_ResetScr
 
 ; ---------------------------------------------------------------------------
 ; magically gives Tails an extra push if he's going to stop rolling where it's not allowed
@@ -39704,12 +39713,12 @@ Tails_CheckRollStop:
 Tails_KeepRolling:
 	move.w	#$400,inertia(a0)
 	btst	#status.player.x_flip,status(a0)
-	beq.s	Obj02_Roll_ResetScr
+	beq.s	Tails_Roll_ResetScr
 	neg.w	inertia(a0)
 
-; resets the screen to normal while rolling, like Obj02_ResetScr
-; loc_1C440:
-Obj02_Roll_ResetScr:
+; resets the screen to normal while rolling, like Tails_ResetScr
+; loc_1C440: Obj02_Roll_ResetScr:
+Tails_Roll_ResetScr:
 	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias_P2).w	; is screen in its default position?
 	beq.s	Tails_SetRollSpeed		; if yes, branch
 	bhs.s	+				; depending on the sign of the difference,
@@ -39734,7 +39743,7 @@ Tails_SetRollSpeed:
 	move.w	#-$1000,d1	; limit Tails' speed rolling left
 +
 	move.w	d1,x_vel(a0)	; set x velocity based on $14 and angle
-	bra.w	Obj02_CheckWallsOnGround
+	bra.w	Tails_CheckWallsOnGround
 ; End of function Tails_RollSpeed
 
 
@@ -39796,7 +39805,7 @@ Tails_ChgJumpDir:
 	move.w	(Tails_acceleration).w,d5
 	asl.w	#1,d5
 	btst	#status.player.rolljumping,status(a0)		; did Tails jump from rolling?
-	bne.s	Obj02_Jump_ResetScr	; if yes, branch to skip midair control
+	bne.s	Tails_Jump_ResetScr	; if yes, branch to skip midair control
 	move.w	x_vel(a0),d0
 	btst	#button_left,(Ctrl_2_Held_Logical).w
 	beq.s	+	; if not holding left, branch
@@ -39817,11 +39826,11 @@ Tails_ChgJumpDir:
 	cmp.w	d6,d0	; compare new speed with top speed
 	blt.s	+	; if new speed is less than the maximum, branch
 	move.w	d6,d0	; limit speed in air going right, even if Tails was already going faster (speed limit/cap)
-; Obj02_JumpMove:
+; Obj02_JumpMove: Tails_JumpMove:
 +	move.w	d0,x_vel(a0)
 
-; loc_1C518: Obj02_ResetScr2:
-Obj02_Jump_ResetScr:
+; loc_1C518: Obj02_ResetScr2: Obj02_Jump_ResetScr:
+Tails_Jump_ResetScr:
 	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias_P2).w	; is screen in its default position?
 	beq.s	Tails_JumpPeakDecelerate			; if yes, branch
 	bhs.s	+				; depending on the sign of the difference,
@@ -39932,29 +39941,29 @@ Tails_Boundary_Sides:
 ; loc_1C5B8:
 Tails_Roll:
 	_btst	#status_secondary.sliding,status_secondary(a0)
-	_bne.s	Obj02_NoRoll
+	_bne.s	Tails_NoRoll
 	mvabs.w	inertia(a0),d0
 	cmpi.w	#$80,d0		; is Tails moving at $80 speed or faster?
-	blo.s	Obj02_NoRoll	; if not, branch
+	blo.s	Tails_NoRoll	; if not, branch
 	move.b	(Ctrl_2_Held_Logical).w,d0
 	andi.b	#button_left_mask|button_right_mask,d0		; is left/right being pressed?
-	bne.s	Obj02_NoRoll	; if yes, branch
+	bne.s	Tails_NoRoll	; if yes, branch
 	btst	#button_down,(Ctrl_2_Held_Logical).w	; is down being pressed?
-	bne.s	Obj02_ChkRoll			; if yes, branch
-; return_1C5DE:
-Obj02_NoRoll:
+	bne.s	Tails_ChkRoll			; if yes, branch
+; return_1C5DE: Obj02_NoRoll:
+Tails_NoRoll:
 	rts
 
 ; ---------------------------------------------------------------------------
-; loc_1C5E0:
-Obj02_ChkRoll:
+; loc_1C5E0: Obj02_ChkRoll:
+Tails_ChkRoll:
 	btst	#status.player.rolling,status(a0)	; is Tails already rolling?
-	beq.s	Obj02_DoRoll				; if not, branch
+	beq.s	Tails_DoRoll				; if not, branch
 	rts
 
 ; ---------------------------------------------------------------------------
-; loc_1C5EA:
-Obj02_DoRoll:
+; loc_1C5EA: Obj02_DoRoll:
+Tails_DoRoll:
 	bset	#status.player.rolling,status(a0)
 	move.b	#$E,y_radius(a0)
 	move.b	#7,x_radius(a0)
@@ -40639,8 +40648,8 @@ return_1CBC4:
 ; ---------------------------------------------------------------------------
 ; Tails when he gets hurt
 ; ---------------------------------------------------------------------------
-; loc_1CBC6:
-Obj02_Hurt:
+; loc_1CBC6: Obj02_Hurt:
+Tails_Hurt:
 	jsr	(ObjectMove).l
 	addi.w	#$30,y_vel(a0)
 	btst	#status.player.underwater,status(a0)
@@ -40689,7 +40698,7 @@ Tails_HurtStop:
 	move.w	d0,inertia(a0)
 	move.b	d0,obj_control(a0)
 	move.b	#AniIDSonAni_Walk,anim(a0)
-	move.b	#2,routine(a0)	; => Obj02_Control
+	move.b	#2,routine(a0)	; => Tails_Control
 	move.w	#$78,invulnerable_time(a0)
 	move.b	#0,spindash_flag(a0)
 
@@ -40704,12 +40713,12 @@ JmpTo2_KillCharacter ; JmpTo
 
 ; ---------------------------------------------------------------------------
 ; Tails when he dies
-; .
+; Poor bugger
 ; ---------------------------------------------------------------------------
 
-; loc_1CC50:
-Obj02_Dead:
-	bsr.w	Obj02_CheckGameOver
+; loc_1CC50: Obj02_Dead:
+Tails_Dead:
+	bsr.w	Tails_CheckGameOver
 	jsr	(ObjectMoveAndFall).l
 	bsr.w	Tails_RecordPos
 	bsr.w	Tails_Animate
@@ -40718,8 +40727,8 @@ Obj02_Dead:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; loc_1CC6C:
-Obj02_CheckGameOver:
+; loc_1CC6C: Obj02_CheckGameOver:
+Tails_CheckGameOver:
 	cmpi.w	#2,(Player_mode).w	; is it a Tails Alone game?
 	beq.w	CheckGameOver		; if yes, branch... goodness, code reuse
 	move.b	#1,(Scroll_lock_P2).w
@@ -40730,22 +40739,22 @@ Obj02_CheckGameOver:
 	bge.w	return_1CD8E
 	move.b	#2,routine(a0)
 	tst.w	(Two_player_mode).w
-	bne.s	Obj02_CheckGameOver_2Pmode
+	bne.s	Tails_CheckGameOver_2Pmode
 	bra.w	TailsCPU_Despawn
 ; ---------------------------------------------------------------------------
-; loc_1CCA2:
-Obj02_CheckGameOver_2Pmode:
+; loc_1CCA2: Obj02_CheckGameOver_2Pmode:
+Tails_CheckGameOver_2Pmode:
 	addq.b	#1,(Update_HUD_lives_2P).w
 	subq.b	#1,(Life_count_2P).w
-	bne.s	Obj02_ResetLevel
+	bne.s	Tails_ResetLevel
 	move.w	#0,restart_countdown(a0)
 	move.b	#ObjID_GameOver,(GameOver_GameText+id).w ; load Obj39
 	move.b	#ObjID_GameOver,(GameOver_OverText+id).w ; load Obj39
 	move.b	#1,(GameOver_OverText+mapping_frame).w
 	move.w	a0,(GameOver_GameText+parent).w
 	clr.b	(Time_Over_flag_2P).w
-; loc_1CCCC:
-Obj02_Finished:
+; loc_1CCCC: Obj02_Finished:
+Tails_Finished:
 	clr.b	(Update_HUD_timer).w
 	clr.b	(Update_HUD_timer_2P).w
 	move.b	#8,routine(a0)
@@ -40753,22 +40762,22 @@ Obj02_Finished:
 	jsr	(PlayMusic).l
 	moveq	#PLCID_GameOver,d0
 	jmp	(LoadPLC).l
-; End of function Obj02_CheckGameOver
+; End of function Tails_CheckGameOver
 
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Tails when the level is restarted
 ; ---------------------------------------------------------------------------
-; loc_1CCEC:
-Obj02_ResetLevel:
+; loc_1CCEC: Obj02_ResetLevel:
+Tails_ResetLevel:
 	tst.b	(Time_Over_flag).w
 
     if gameRevision=0
-	bne.s	Obj02_ResetLevel_Part3
+	bne.s	Tails_ResetLevel_Part3
     else
-	beq.s	Obj02_ResetLevel_Part2
+	beq.s	Tails_ResetLevel_Part2
 	tst.b	(Time_Over_flag_2P).w
-	beq.s	Obj02_ResetLevel_Part3
+	beq.s	Tails_ResetLevel_Part3
 	move.w	#0,restart_countdown(a0)
 	clr.b	(Update_HUD_timer).w
 	clr.b	(Update_HUD_timer_2P).w
@@ -40777,20 +40786,22 @@ Obj02_ResetLevel:
     endif
 
 ; ---------------------------------------------------------------------------
-Obj02_ResetLevel_Part2:
+; Obj02_ResetLevel_Part2:
+Tails_ResetLevel_Part2:
 	tst.b	(Time_Over_flag_2P).w
-	beq.s	Obj02_ResetLevel_Part3
+	beq.s	Tails_ResetLevel_Part3
 	move.w	#0,restart_countdown(a0)
 	move.b	#ObjID_TimeOver,(TimeOver_TimeText+id).w ; load Obj39
 	move.b	#ObjID_TimeOver,(TimeOver_OverText+id).w ; load Obj39
 	move.b	#2,(TimeOver_TimeText+mapping_frame).w
 	move.b	#3,(TimeOver_OverText+mapping_frame).w
 	move.w	a0,(TimeOver_TimeText+parent).w
-	bra.s	Obj02_Finished
+	bra.s	Tails_Finished
 ; ---------------------------------------------------------------------------
-Obj02_ResetLevel_Part3:
+; Obj02_ResetLevel_Part3:
+Tails_ResetLevel_Part3:
 	move.b	#0,(Scroll_lock_P2).w
-	move.b	#$A,routine(a0)	; => Obj02_Respawning
+	move.b	#$A,routine(a0)	; => Tails_Respawning
 	move.w	(Saved_x_pos_2P).w,x_pos(a0)
 	move.w	(Saved_y_pos_2P).w,y_pos(a0)
 	move.w	(Saved_art_tile_2P).w,art_tile(a0)
@@ -40807,12 +40818,13 @@ Obj02_ResetLevel_Part3:
 
 return_1CD8E:
 	rts
+
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Tails when he's offscreen and waiting for the level to restart
 ; ---------------------------------------------------------------------------
-; loc_1CD90:
-Obj02_Gone:
+; loc_1CD90: Obj02_Gone:
+Tails_Gone:
 	tst.w	restart_countdown(a0)
 	beq.s	+
 	subq.w	#1,restart_countdown(a0)
@@ -40820,12 +40832,13 @@ Obj02_Gone:
 	move.w	#1,(Level_Inactive_flag).w
 +
 	rts
+
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Tails when he's waiting for the camera to scroll back to where he respawned
 ; ---------------------------------------------------------------------------
-; loc_1CDA4:
-Obj02_Respawning:
+; loc_1CDA4: Obj02_Respawning:
+Tails_Respawning:
 	tst.w	(Camera_X_pos_diff_P2).w
 	bne.s	+
 	tst.w	(Camera_Y_pos_diff_P2).w
@@ -40835,8 +40848,8 @@ Obj02_Respawning:
 	bsr.w	Tails_Animate
 	bsr.w	LoadTailsDynPLC
 	jmp	(DisplaySprite).l
-; ===========================================================================
 
+; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Subroutine to animate Tails' sprites
 ; See also: AnimateSprite and Sonic_Animate
