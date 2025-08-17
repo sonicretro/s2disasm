@@ -1550,7 +1550,7 @@ WindTunnel_flag:		ds.b	1
 WindTunnel_holding_flag:	ds.b	1
 				ds.b	2	; $FFFFF7CA-$FFFFF7CB ; seems unused
 Control_Locked:			ds.b	1
-f_bigring:			ds.b	1	; Leftover from Sonic 1
+f_bigring:			ds.b	1	; leftover from Sonic 1 (to rename? is used by checkpoints and 2P SS)
 				ds.b	1	; $FFFFF7CE ; seems unused
 Control_Locked_P2:		ds.b	1
 Chain_Bonus_counter:		ds.w	1	; counts up when you destroy things that give points, resets when you touch the ground

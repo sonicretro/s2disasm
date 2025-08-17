@@ -6085,7 +6085,7 @@ ChangeRingFrame:
 	subq.b	#1,(Rings_anim_counter).w
 	bpl.s	+
 	move.b	#7,(Rings_anim_counter).w
-	addq.b	#1,(Rings_anim_frame).w ; animate rings in the level (obj25)
+	addq.b	#1,(Rings_anim_frame).w ; animate rings in the level (Obj_Ring)
 	andi.b	#3,(Rings_anim_frame).w
 +
 	subq.b	#1,(Unknown_anim_counter).w
@@ -6104,7 +6104,7 @@ ChangeRingFrame:
 	move.w	d0,(Ring_spill_anim_accum).w
 	rol.w	#7,d0
 	andi.w	#3,d0
-	move.b	d0,(Ring_spill_anim_frame).w ; animate scattered rings (obj37)
+	move.b	d0,(Ring_spill_anim_frame).w ; animate scattered rings (Obj_LostRings)
 	subq.b	#1,(Ring_spill_anim_counter).w
 +
 	rts
@@ -24825,55 +24825,55 @@ Obj29_MapUnc_11ED0:	include "mappings/sprite/obj29.asm"
 
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 25 - A ring (usually only placed through placement mode)
-; ----------------------------------------------------------------------------
-; Obj_Ring:
-Obj25:
+; ---------------------------------------------------------------------------
+; Sprite_11F44: Obj25:
+Obj_Ring:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj25_Index(pc,d0.w),d1
-	jmp	Obj25_Index(pc,d1.w)
+	move.w	Ring_Index(pc,d0.w),d1
+	jmp	Ring_Index(pc,d1.w)
 ; ===========================================================================
-; Obj_25_subtbl:
-Obj25_Index:	offsetTable
-		offsetTableEntry.w Obj25_Init		; 0
-		offsetTableEntry.w Obj25_Animate	; 2
-		offsetTableEntry.w Obj25_Collect	; 4
-		offsetTableEntry.w Obj25_Sparkle	; 6
-		offsetTableEntry.w Obj25_Delete		; 8
+; off_11F52: Obj_25_subtbl: Obj25_Index:
+Ring_Index:	offsetTable
+		offsetTableEntry.w Ring_Init	; 0
+		offsetTableEntry.w Ring_Animate	; 2
+		offsetTableEntry.w Ring_Collect	; 4
+		offsetTableEntry.w Ring_Sparkle	; 6
+		offsetTableEntry.w Ring_Delete	; 8
 ; ===========================================================================
-; Obj_25_sub_0:
-Obj25_Init:
+; loc_11F5C: Obj_25_sub_0: Obj25_Init:
+Ring_Init:
 	addq.b	#2,routine(a0)
 	move.w	x_pos(a0),objoff_32(a0)
-	move.l	#Obj25_MapUnc_12382,mappings(a0)
+	move.l	#Ring_MapUnc_12382,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Ring,1,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#2,priority(a0)
 	move.b	#$47,collision_flags(a0)
 	move.b	#8,width_pixels(a0)
-; Obj_25_sub_2:
-Obj25_Animate:
+; loc_11F90: Obj_25_sub_2: Obj25_Animate:
+Ring_Animate:
 	move.b	(Rings_anim_frame).w,mapping_frame(a0)
 	move.w	objoff_32(a0),d0
 	bra.w	MarkObjGone2
 ; ===========================================================================
-; Obj_25_sub_4:
-Obj25_Collect:
+; loc_11F9E: Obj_25_sub_4: Obj25_Collect:
+Ring_Collect:
 	addq.b	#2,routine(a0)
 	move.b	#0,collision_flags(a0)
 	move.b	#1,priority(a0)
 	bsr.s	CollectRing
-; Obj_25_sub_6:
-Obj25_Sparkle:
+; loc_11FB0: Obj_25_sub_6: Obj25_Sparkle:
+Ring_Sparkle:
 	lea	(Ani_Ring).l,a1
 	bsr.w	AnimateSprite
 	bra.w	DisplaySprite
 ; ===========================================================================
-; BranchTo4_DeleteObject
-Obj25_Delete:
+; BranchTo4_DeleteObject: Obj25_Delete:
+Ring_Delete:
 	bra.w	DeleteObject
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -24957,26 +24957,26 @@ JmpTo2_PlaySound2 ; JmpTo
 ; End of function CollectRing
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 37 - Scattering rings (generated when Sonic is hurt and has rings)
-; ----------------------------------------------------------------------------
-; Sprite_12078:
-Obj37:
+; ---------------------------------------------------------------------------
+; Sprite_12078: Obj37:
+Obj_LostRings:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj37_Index(pc,d0.w),d1
-	jmp	Obj37_Index(pc,d1.w)
+	move.w	LostRings_Index(pc,d0.w),d1
+	jmp	LostRings_Index(pc,d1.w)
 ; ===========================================================================
-; Obj_37_subtbl:
-Obj37_Index:	offsetTable
-		offsetTableEntry.w Obj37_Init		; 0
-		offsetTableEntry.w Obj37_Main		; 2
-		offsetTableEntry.w Obj37_Collect	; 4
-		offsetTableEntry.w Obj37_Sparkle	; 6
-		offsetTableEntry.w Obj37_Delete		; 8
+; off_12086: Obj_37_subtbl: Obj37_Index:
+LostRings_Index: offsetTable
+		offsetTableEntry.w LostRings_Init	; 0
+		offsetTableEntry.w LostRings_Main	; 2
+		offsetTableEntry.w LostRings_Collect	; 4
+		offsetTableEntry.w LostRings_Sparkle	; 6
+		offsetTableEntry.w LostRings_Delete	; 8
 ; ===========================================================================
-; Obj_37_sub_0:
-Obj37_Init:
+; loc_12090: Obj_37_sub_0: Obj37_Init:
+LostRings_Init:
 	movea.l	a0,a1
 	moveq	#0,d5
 	move.w	(Ring_count).w,d5
@@ -24997,13 +24997,13 @@ Obj37_Init:
 -	bsr.w	AllocateObject
 	bne.w	+++
 +
-	_move.b	#ObjID_LostRings,id(a1) ; load obj37
+	_move.b	#ObjID_LostRings,id(a1) ; load Obj_LostRings
 	addq.b	#2,routine(a1)
 	move.b	#8,y_radius(a1)
 	move.b	#8,x_radius(a1)
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
-	move.l	#Obj25_MapUnc_12382,mappings(a1)
+	move.l	#Ring_MapUnc_12382,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_Ring,1,0),art_tile(a1)
 	bsr.w	Adjust2PArtPointer2
 	move.b	#1<<render_flags.on_screen|1<<render_flags.level_fg,render_flags(a1)
@@ -25040,14 +25040,14 @@ Obj37_Init:
 	move.w	#0,(Ring_count).w
 	move.b	#$80,(Update_HUD_rings).w
 	move.b	#0,(Extra_life_flags).w
-	bra.s	Obj37_Main
+	bra.s	LostRings_Main
 ; ===========================================================================
 +
 	move.w	#0,(Ring_count_2P).w
 	move.b	#$80,(Update_HUD_rings_2P).w
 	move.b	#0,(Extra_life_flags_2P).w
-; Obj_37_sub_2:
-Obj37_Main:
+; loc_12178: Obj_37_sub_2: Obj37_Main:
+LostRings_Main:
 	move.b	(Ring_spill_anim_frame).w,mapping_frame(a0)
 	bsr.w	ObjectMove
 	addi.w	#$18,y_vel(a0)
@@ -25068,46 +25068,48 @@ Obj37_Main:
 	neg.w	y_vel(a0)
 
 loc_121B8:
-
 	tst.b	(Ring_spill_anim_counter).w
-	beq.s	Obj37_Delete
+	beq.s	LostRings_Delete
 	move.w	(Camera_Max_Y_pos).w,d0
 	addi.w	#224,d0
 	cmp.w	y_pos(a0),d0
-	blo.s	Obj37_Delete
+	blo.s	LostRings_Delete
 	bra.w	DisplaySprite
 ; ===========================================================================
 
 loc_121D0:
 	tst.w	(Two_player_mode).w
-	bne.w	Obj37_Delete
+	bne.w	LostRings_Delete
 	bra.s	loc_121B8
 ; ===========================================================================
-; Obj_37_sub_4:
-Obj37_Collect:
+; loc_121DA: Obj_37_sub_4: Obj37_Collect:
+LostRings_Collect:
 	addq.b	#2,routine(a0)
 	move.b	#0,collision_flags(a0)
 	move.b	#1,priority(a0)
 	bsr.w	CollectRing
-; Obj_37_sub_6:
-Obj37_Sparkle:
+; loc_121EE: Obj_37_sub_6: Obj37_Sparkle:
+LostRings_Sparkle:
 	lea	(Ani_Ring).l,a1
 	bsr.w	AnimateSprite
 	bra.w	DisplaySprite
 ; ===========================================================================
-; BranchTo5_DeleteObject
-Obj37_Delete:
+; BranchTo5_DeleteObject: Obj37_Delete:
+LostRings_Delete:
 	bra.w	DeleteObject
 
-; Unused - dead code/data S1 big ring:
 ; ===========================================================================
-; BigRing:
-	; a0=object
+; ---------------------------------------------------------------------------
+; Object XX - Giant Ring at end of stage (leftover from S1)
+; ---------------------------------------------------------------------------
+; Sprite_12200: BigRing:
+Obj_BigRing:
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	BigRing_States(pc,d0.w),d1
 	jmp	BigRing_States(pc,d1.w)
 ; ===========================================================================
+; off_1220E:
 BigRing_States:	offsetTable
 		offsetTableEntry.w BigRing_Init		; 0
 		offsetTableEntry.w BigRing_Main		; 2
@@ -25116,7 +25118,7 @@ BigRing_States:	offsetTable
 ; ===========================================================================
 ; loc_12216:
 BigRing_Init:
-	move.l	#Obj37_MapUnc_123E6,mappings(a0)
+	move.l	#BigRing_MapUnc_123E6,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_BigRing,1,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
@@ -25171,15 +25173,18 @@ BigRing_Enter:
 BigRing_Delete:
 	bra.w	DeleteObject
 
-; Unused - dead code/data S1 ring flash:
 ; ===========================================================================
-; BigRingFlash:
-	; a0=object
+; ---------------------------------------------------------------------------
+; Object XX - Giant Ring flash (leftover from S1)
+; ---------------------------------------------------------------------------
+; Sprite_122C4: BigRingFlash:
+Obj_BigRingFlash:
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	BigRingFlash_States(pc,d0.w),d1
 	jmp	BigRingFlash_States(pc,d1.w)
 ; ===========================================================================
+; off_122D2:
 BigRingFlash_States: offsetTable
 	offsetTableEntry.w BigRingFlash_Init	; 0
 	offsetTableEntry.w BigRingFlash_Main	; 2
@@ -25188,7 +25193,7 @@ BigRingFlash_States: offsetTable
 ; loc_122D8:
 BigRingFlash_Init:
 	addq.b	#2,routine(a0)
-	move.l	#Obj37_MapUnc_124E6,mappings(a0)
+	move.l	#BigRingFlash_MapUnc_124E6,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_BigRing_Flash,1,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
@@ -25238,29 +25243,31 @@ BigRingFlash_Animate:
 BigRingFlash_Delete:
 	bra.w	DeleteObject
 
-; end of dead code/data
-
 ; ===========================================================================
-
 ; animation script
 ; byte_1237A:
 Ani_Ring:	offsetTable
 		offsetTableEntry.w +	; 0
 +		dc.b   5,  4,  5,  6,  7,$FC
 	even
-; -------------------------------------------------------------------------------
-; sprite mappings
-; -------------------------------------------------------------------------------
-Obj25_MapUnc_12382:	include "mappings/sprite/obj37_a.asm"
 
 ; -------------------------------------------------------------------------------
-; Unused sprite mappings
+; sprite mappings - rings (placed in debug/scattered)
 ; -------------------------------------------------------------------------------
-Obj37_MapUnc_123E6:	include "mappings/sprite/obj37_b.asm"
+; Obj25_MapUnc_12382:
+Ring_MapUnc_12382:	include "mappings/sprite/obj37_a.asm"
+
 ; -------------------------------------------------------------------------------
-; Unused sprite mappings
+; unused sprite mappings - giant rings (leftover from S1)
 ; -------------------------------------------------------------------------------
-Obj37_MapUnc_124E6:	include "mappings/sprite/obj37_c.asm"
+; Obj37_MapUnc_123E6:
+BigRing_MapUnc_123E6:	include "mappings/sprite/obj37_b.asm"
+
+; -------------------------------------------------------------------------------
+; unused sprite mappings - giant ring flash (leftover from S1)
+; -------------------------------------------------------------------------------
+; Obj37_MapUnc_124E6:
+BigRingFlash_MapUnc_124E6:	include "mappings/sprite/obj37_c.asm"
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -29726,7 +29733,7 @@ ObjPtr_2PResults:	dc.l Obj21	; 2P results
 ObjPtr_ArrowShooter:	dc.l Obj22	; Arrow shooter from ARZ
 ObjPtr_FallingPillar:	dc.l Obj23	; Pillar that drops its lower part from ARZ
 ObjPtr_ARZBubbles:	dc.l Obj24	; Bubbles in Aquatic Ruin Zone
-ObjPtr_Ring:		dc.l Obj25	; A ring
+ObjPtr_Ring:		dc.l Obj_Ring	; A ring
 ObjPtr_Monitor:		dc.l Obj26	; Monitor
 ObjPtr_Explosion:	dc.l Obj27	; An explosion, giving off an animal and 100 points
 ObjPtr_Animal:		dc.l Obj28	; Animal and the 100 points from a badnik
@@ -29745,7 +29752,7 @@ ObjPtr_OOZPoppingPform:	dc.l Obj33	; Green platform from OOZ
 ObjPtr_TitleCard:	dc.l Obj34	; level title card (screen with red, yellow, and blue)
 ObjPtr_InvStars:	dc.l Obj35	; Invincibility Stars
 ObjPtr_Spikes:		dc.l Obj36	; Vertical spikes
-ObjPtr_LostRings:	dc.l Obj37	; Scattering rings (generated when Sonic is hurt and has rings)
+ObjPtr_LostRings:	dc.l Obj_LostRings	; Scattering rings (generated when Sonic is hurt and has rings)
 ObjPtr_Shield:		dc.l Obj38	; Shield
 ObjPtr_GameOver:
 ObjPtr_TimeOver:	dc.l Obj39	; Game/Time Over text
@@ -32088,7 +32095,7 @@ RingsMgr_SortRings:
 ; sprite mappings
 ; -------------------------------------------------------------------------------
 
-; Custom mappings format. Compare to Obj25_MapUnc_12382.
+; Custom mappings format. Compare to Ring_MapUnc_12382.
 
 ; Differences include...
 ;  No 'sprite pieces per frame' value (hardcoded to 1)
@@ -34558,7 +34565,7 @@ loc_19398:
 	lea	Obj0D_RingSparklePositions(pc,d0.w),a2
 	bsr.w	AllocateObject
 	bne.s	return_19406
-	_move.b	#ObjID_Ring,id(a1) ; load obj25 (a ring) for the sparkly effects over the signpost
+	_move.b	#ObjID_Ring,id(a1) ; load Obj_Ring for the sparkly effects over the signpost
 	move.b	#6,routine(a1) ; => Obj_25_sub_6
 	move.b	(a2)+,d0
 	ext.w	d0
@@ -34568,7 +34575,7 @@ loc_19398:
 	ext.w	d0
 	add.w	y_pos(a0),d0
 	move.w	d0,y_pos(a1)
-	move.l	#Obj25_MapUnc_12382,mappings(a1)
+	move.l	#Ring_MapUnc_12382,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_Ring,1,0),art_tile(a1)
 	bsr.w	Adjust2PArtPointer2
 	move.b	#1<<render_flags.level_fg,render_flags(a1)
@@ -58672,7 +58679,7 @@ loc_2BD4E:
 	jsrto	JmpTo10_AllocateObject
 	bne.w	return_2BDF6
 	_move.b	#ObjID_RingPrize,id(a1) ; load objDC
-	move.l	#Obj25_MapUnc_12382,mappings(a1)
+	move.l	#Ring_MapUnc_12382,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_Ring,1,0),art_tile(a1)
 	jsrto	JmpTo6_Adjust2PArtPointer2
 	move.b	#1<<render_flags.level_fg,render_flags(a1)
@@ -88217,12 +88224,12 @@ dbglistobj macro   obj, mapaddr, subtype, frame, vram
     endm
 
 DbgObjList_Def: dbglistheader
-	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0) ; obj25 = ring
+	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0) ; obj25 = ring
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0) ; obj26 = monitor
 DbgObjList_Def_End
 
 DbgObjList_EHZ: dbglistheader
-	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_PlaneSwitcher,	Obj03_MapUnc_1FFB8,   9,   1, make_art_tile(ArtTile_ArtNem_Ring,1,0)
@@ -88244,7 +88251,7 @@ DbgObjList_EHZ: dbglistheader
 DbgObjList_EHZ_End
 
 DbgObjList_MTZ: dbglistheader
-	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_PlaneSwitcher,	Obj03_MapUnc_1FFB8,   9,   1, make_art_tile(ArtTile_ArtNem_Ring,1,0)
@@ -88281,7 +88288,7 @@ DbgObjList_MTZ: dbglistheader
 DbgObjList_MTZ_End
 
 DbgObjList_WFZ: dbglistheader
-	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_WFZPalSwitcher, Obj03_MapUnc_1FFB8,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,0,0)
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
@@ -88310,13 +88317,13 @@ DbgObjList_WFZ: dbglistheader
 	dbglistobj ObjID_BreakablePlating, ObjC1_MapUnc_3C280, $88,   0, make_art_tile(ArtTile_ArtNem_BreakPanels,3,1)
 	dbglistobj ObjID_Rivet,		ObjC2_MapUnc_3C3C2, $8A,   0, make_art_tile(ArtTile_ArtNem_WfzSwitch,1,1)
 	dbglistobj ObjID_WFZPlatform,	Obj19_MapUnc_2222A, $38,   3, make_art_tile(ArtTile_ArtNem_WfzFloatingPlatform,1,1)
-	dbglistobj ObjID_Grab,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_Grab,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_MovingVine,	Obj80_MapUnc_29DD0,   0,   0, make_art_tile(ArtTile_ArtNem_WfzHook_Fudge,1,0)
 	dbglistobj ObjID_EggPrison,	Obj3E_MapUnc_3F436,   0,   0, make_art_tile(ArtTile_ArtNem_Capsule,1,0)
 DbgObjList_WFZ_End
 
 DbgObjList_HTZ: dbglistheader
-	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_ForcedSpin,	Obj03_MapUnc_1FFB8,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,0,0)
@@ -88350,12 +88357,12 @@ DbgObjList_HTZ: dbglistheader
 DbgObjList_HTZ_End
 
 DbgObjList_HPZ:; dbglistheader
-;	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+;	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 ;	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 ;DbgObjList_HPZ_End
 
 DbgObjList_OOZ: dbglistheader
-	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_OOZPoppingPform, Obj33_MapUnc_23DDC,   1,   0, make_art_tile(ArtTile_ArtNem_BurnerLid,3,0)
@@ -88391,7 +88398,7 @@ DbgObjList_OOZ: dbglistheader
 DbgObjList_OOZ_End
 
 DbgObjList_MCZ: dbglistheader
-	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_SwingingPlatform, Obj15_Obj7A_MapUnc_10256, $48,   2, make_art_tile(ArtTile_ArtKos_LevelArt,0,0)
@@ -88418,7 +88425,7 @@ DbgObjList_MCZ: dbglistheader
 DbgObjList_MCZ_End
 
 DbgObjList_CNZ: dbglistheader
-	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_PinballMode,	Obj03_MapUnc_1FFB8,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,0,0)
@@ -88445,7 +88452,7 @@ DbgObjList_CNZ: dbglistheader
 DbgObjList_CNZ_End
 
 DbgObjList_CPZ: dbglistheader
-	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_TippingFloor,	Obj0B_MapUnc_201A0, $70,   0, make_art_tile(ArtTile_ArtNem_CPZAnimatedBits,3,1)
@@ -88472,7 +88479,7 @@ DbgObjList_CPZ: dbglistheader
 DbgObjList_CPZ_End
 
 DbgObjList_ARZ: dbglistheader
-	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_SwingingPlatform, Obj15_Obj83_MapUnc_1021E, $88,   2, make_art_tile(ArtTile_ArtKos_LevelArt,0,0)
@@ -88504,7 +88511,7 @@ DbgObjList_ARZ: dbglistheader
 DbgObjList_ARZ_End
 
 DbgObjList_SCZ: dbglistheader
-	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_WFZPalSwitcher, Obj03_MapUnc_1FFB8,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,0,0)
 	dbglistobj ObjID_Cloud,		ObjB3_MapUnc_3B32C, $5E,   0, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
