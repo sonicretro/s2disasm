@@ -542,7 +542,6 @@ Vint_Lag:
 
 	bra.s	VintRet
 ; ---------------------------------------------------------------------------
-
 ; loc_4C4:
 .isInLevelMode:
 	tst.b	(Water_flag).w
@@ -567,7 +566,6 @@ Vint_Lag:
 
 	bra.s	.afterSetPalette
 ; ---------------------------------------------------------------------------
-
 ; loc_526:
 .useUnderwaterPalette:
 	dma68kToVDP Underwater_palette,$0000,palette_line_size*4,CRAM
@@ -13441,7 +13439,7 @@ loc_A2F2:
 	moveq	#$E,d0
 	move.b	#ObjID_Tails,id(a1) ; load Tails object
 	move.b	#$81,obj_control(a1)
-	move.b	#ObjID_TailsTails,(Tails_Tails_Cutscene+id).w ; load Obj05 (Tails' tails) at $FFFFB080
+	move.b	#ObjID_TailsTails,(Tails_Tails_Cutscene+id).w ; load Obj_TailsTails at $FFFFB080
 	move.w	a1,(Tails_Tails_Cutscene+parent).w
 	rts
 ; ===========================================================================
@@ -24850,7 +24848,7 @@ Ring_Index:	offsetTable
 Ring_Init:
 	addq.b	#2,routine(a0)
 	move.w	x_pos(a0),objoff_32(a0)
-	move.l	#Ring_MapUnc_12382,mappings(a0)
+	move.l	#MapUnc_RingObj,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Ring,1,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
@@ -25006,7 +25004,7 @@ LostRings_Init:
 	move.b	#8,x_radius(a1)
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
-	move.l	#Ring_MapUnc_12382,mappings(a1)
+	move.l	#MapUnc_RingObj,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_Ring,1,0),art_tile(a1)
 	bsr.w	Adjust2PArtPointer2
 	move.b	#1<<render_flags.on_screen|1<<render_flags.level_fg,render_flags(a1)
@@ -25121,7 +25119,7 @@ BigRing_States:	offsetTable
 ; ===========================================================================
 ; loc_12216:
 BigRing_Init:
-	move.l	#BigRing_MapUnc_123E6,mappings(a0)
+	move.l	#MapUnc_BigRing,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_BigRing,1,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
@@ -25196,7 +25194,7 @@ BigRingFlash_States: offsetTable
 ; loc_122D8:
 BigRingFlash_Init:
 	addq.b	#2,routine(a0)
-	move.l	#BigRingFlash_MapUnc_124E6,mappings(a0)
+	move.l	#MapUnc_BigRingFlash,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_BigRing_Flash,1,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
@@ -25258,19 +25256,19 @@ Ani_Ring:	offsetTable
 ; sprite mappings - rings (placed in debug/scattered)
 ; -------------------------------------------------------------------------------
 ; Obj25_MapUnc_12382:
-Ring_MapUnc_12382:	include "mappings/sprite/obj37_a.asm"
+MapUnc_RingObj:	include "mappings/sprite/Ring.asm"
 
 ; -------------------------------------------------------------------------------
 ; unused sprite mappings - giant rings (leftover from S1)
 ; -------------------------------------------------------------------------------
 ; Obj37_MapUnc_123E6:
-BigRing_MapUnc_123E6:	include "mappings/sprite/obj37_b.asm"
+MapUnc_BigRing:	include "mappings/sprite/Giant ring.asm"
 
 ; -------------------------------------------------------------------------------
 ; unused sprite mappings - giant ring flash (leftover from S1)
 ; -------------------------------------------------------------------------------
 ; Obj37_MapUnc_124E6:
-BigRingFlash_MapUnc_124E6:	include "mappings/sprite/obj37_c.asm"
+MapUnc_BigRingFlash:	include "mappings/sprite/Giant ring flash.asm"
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -25350,27 +25348,27 @@ Ani_objDC:	offsetTable
 ; The power-ups themselves are handled by the next object. This just does the
 ; monitor collision and graphics.
 ; ----------------------------------------------------------------------------
-; Obj_Monitor:
-Obj26:
+; Sprite_12670: Obj26:
+Obj_Monitor:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj26_Index(pc,d0.w),d1
-	jmp	Obj26_Index(pc,d1.w)
+	move.w	Monitor_Index(pc,d0.w),d1
+	jmp	Monitor_Index(pc,d1.w)
 ; ===========================================================================
-; obj_26_subtbl:
-Obj26_Index:	offsetTable
-		offsetTableEntry.w Obj26_Init			; 0
-		offsetTableEntry.w Obj26_Main			; 2
-		offsetTableEntry.w Obj26_Break			; 4
-		offsetTableEntry.w Obj26_Animate		; 6
+; off_1267E: obj_26_subtbl: Obj26_Index:
+Monitor_Index:	offsetTable
+		offsetTableEntry.w Monitor_Init			; 0
+		offsetTableEntry.w Monitor_Main			; 2
+		offsetTableEntry.w Monitor_Break		; 4
+		offsetTableEntry.w Monitor_Animate		; 6
 		offsetTableEntry.w BranchTo2_MarkObjGone	; 8
 ; ===========================================================================
-; obj_26_sub_0: Obj_26_Init:
-Obj26_Init:
+; loc_12688: obj_26_sub_0: Obj_26_Init:
+Monitor_Init:
 	addq.b	#2,routine(a0)
 	move.b	#$E,y_radius(a0)
 	move.b	#$E,x_radius(a0)
-	move.l	#Obj26_MapUnc_12D36,mappings(a0)
+	move.l	#MapUnc_Monitor,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Powerups,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
@@ -25387,7 +25385,7 @@ Obj26_Init:
 	; respawn entry, but this object fails to check for that before
 	; accessing the respawn table.
 	; Knuckles in Sonic 2 contains this half of the bugfix, but not the
-	; other half under 'Obj26_SpawnSmoke'.
+	; other half under 'Monitor_SpawnSmoke'.
 	beq.s	+
     endif
 	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
@@ -25401,10 +25399,10 @@ Obj26_Init:
 	move.b	#$46,collision_flags(a0)
 	move.b	subtype(a0),anim(a0)	; subtype = icon to display
 	tst.w	(Two_player_mode).w	; is it two player mode?
-	beq.s	Obj26_Main		; if not, branch
+	beq.s	Monitor_Main		; if not, branch
 	move.b	#9,anim(a0)		; use '?' icon
-;obj_26_sub_2:
-Obj26_Main:
+; loc_126FA: obj_26_sub_2: Obj26_Main:
+Monitor_Main:
 	move.b	routine_secondary(a0),d0
 	beq.s	SolidObject_Monitor
 	; only when secondary routine isn't 0
@@ -25431,9 +25429,9 @@ SolidObject_Monitor:
 	lea	(Sidekick).w,a1 ; a1=character
 	moveq	#p2_standing_bit,d6
 	bsr.w	SolidObject_Monitor_Tails
-
-Obj26_Animate:
-	lea	(Ani_obj26).l,a1
+; loc_12748: Obj26_Animate:
+Monitor_Animate:
+	lea	(Ani_Monitor).l,a1
 	bsr.w	AnimateSprite
 
 BranchTo2_MarkObjGone ; BranchTo
@@ -25443,7 +25441,7 @@ BranchTo2_MarkObjGone ; BranchTo
 ; sub_12756:
 SolidObject_Monitor_Sonic:
 	btst	d6,status(a0)			; is Sonic standing on the monitor?
-	bne.s	Obj26_ChkOverEdge		; if yes, branch
+	bne.s	Monitor_ChkOverEdge		; if yes, branch
 	cmpi.b	#AniIDSonAni_Roll,anim(a1)		; is Sonic spinning?
 	bne.w	SolidObject_cont		; if not, branch
 	rts
@@ -25454,7 +25452,7 @@ SolidObject_Monitor_Sonic:
 ; sub_12768:
 SolidObject_Monitor_Tails:
 	btst	d6,status(a0)			; is Tails standing on the monitor?
-	bne.s	Obj26_ChkOverEdge		; if yes, branch
+	bne.s	Monitor_ChkOverEdge		; if yes, branch
 	tst.w	(Two_player_mode).w		; is it two player mode?
 	beq.w	SolidObject_cont		; if not, branch
 	; in one player mode monitors always behave as solid for Tails
@@ -25466,8 +25464,8 @@ SolidObject_Monitor_Tails:
 ; ---------------------------------------------------------------------------
 ; Checks if the player has walked over the edge of the monitor.
 ; ---------------------------------------------------------------------------
-;loc_12782:
-Obj26_ChkOverEdge:
+; loc_12782: Obj26_ChkOverEdge:
+Monitor_ChkOverEdge:
 	move.w	d1,d2
 	add.w	d2,d2
 	btst	#status.player.in_air,status(a1)	; is the character in the air?
@@ -25478,7 +25476,7 @@ Obj26_ChkOverEdge:
 	add.w	d1,d0
 	bmi.s	+	; branch, if character is behind the left edge of the monitor
 	cmp.w	d2,d0
-	blo.s	Obj26_CharStandOn	; branch, if character is not beyond the right edge of the monitor
+	blo.s	Monitor_CharStandOn	; branch, if character is not beyond the right edge of the monitor
 +
 	; if the character isn't standing on the monitor
 	bclr	#status.player.on_object,status(a1)	; clear 'on object' bit
@@ -25487,18 +25485,18 @@ Obj26_ChkOverEdge:
 	moveq	#0,d4
 	rts
 ; ---------------------------------------------------------------------------
-;loc_127B2:
-Obj26_CharStandOn:
+; loc_127B2: Obj26_CharStandOn:
+Monitor_CharStandOn:
 	move.w	d4,d2
 	bsr.w	MvSonicOnPtfm
 	moveq	#0,d4
 	rts
 ; ===========================================================================
-;obj_26_sub_4:
-Obj26_Break:
+; loc_127BC: obj_26_sub_4: Obj26_Break:
+Monitor_Break:
 	move.b	status(a0),d0
 	andi.b	#standing_mask|pushing_mask,d0	; is someone touching the monitor?
-	beq.s	Obj26_SpawnIcon	; if not, branch
+	beq.s	Monitor_SpawnIcon	; if not, branch
 	move.b	d0,d1
 	andi.b	#p1_standing|p1_pushing,d1	; is it the main character?
 	beq.s	+		; if not, branch
@@ -25506,23 +25504,23 @@ Obj26_Break:
 	ori.b	#1<<status.player.in_air,(MainCharacter+status).w	; prevent Sonic from walking in the air
 +
 	andi.b	#p2_standing|p2_pushing,d0	; is it the sidekick?
-	beq.s	Obj26_SpawnIcon	; if not, branch
+	beq.s	Monitor_SpawnIcon	; if not, branch
 	andi.b	#~(1<<status.player.on_object|1<<status.player.pushing),(Sidekick+status).w
 	ori.b	#1<<status.player.in_air,(Sidekick+status).w	; prevent Tails from walking in the air
-;loc_127EC:
-Obj26_SpawnIcon:
+; loc_127EC: Obj26_SpawnIcon:
+Monitor_SpawnIcon:
 	clr.b	status(a0)
 	addq.b	#2,routine(a0)
 	move.b	#0,collision_flags(a0)
 	bsr.w	AllocateObject
-	bne.s	Obj26_SpawnSmoke
-	_move.b	#ObjID_MonitorContents,id(a1) ; load obj2E
+	bne.s	Monitor_SpawnSmoke
+	_move.b	#ObjID_MonitorContents,id(a1) ; load Obj_MonitorContents
 	move.w	x_pos(a0),x_pos(a1)	; set icon's position
 	move.w	y_pos(a0),y_pos(a1)
 	move.b	anim(a0),anim(a1)
 	move.w	parent(a0),parent(a1)	; parent gets the item
-;loc_1281E:
-Obj26_SpawnSmoke:
+; loc_1281E: Obj26_SpawnSmoke:
+Monitor_SpawnSmoke:
 	bsr.w	AllocateObject
 	bne.s	+
 	_move.b	#ObjID_Explosion,id(a1) ; load obj27
@@ -25549,22 +25547,21 @@ Obj26_SpawnSmoke:
 ; ----------------------------------------------------------------------------
 ; Object 2E - Monitor contents (code for power-up behavior and rising image)
 ; ----------------------------------------------------------------------------
-
-Obj2E:
+; Sprite_12854: Obj2E:
+Obj_MonitorContents:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj2E_Index(pc,d0.w),d1
-	jmp	Obj2E_Index(pc,d1.w)
+	move.w	MonitorContents_Index(pc,d0.w),d1
+	jmp	MonitorContents_Index(pc,d1.w)
 ; ===========================================================================
-; off_12862:
-Obj2E_Index:	offsetTable
-		offsetTableEntry.w Obj2E_Init	; 0
-		offsetTableEntry.w Obj2E_Raise	; 2
-		offsetTableEntry.w Obj2E_Wait	; 4
+; off_12862: Obj2E_Index:
+MonitorContents_Index: offsetTable
+		offsetTableEntry.w MonitorContents_Init		; 0
+		offsetTableEntry.w MonitorContents_Raise	; 2
+		offsetTableEntry.w MonitorContents_Wait		; 4
 ; ===========================================================================
-; Object initialization. Called if routine counter == 0.
-; loc_12868:
-Obj2E_Init:
+; loc_12868: Obj2E_Init:
+MonitorContents_Init:
 	addq.b	#2,routine(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Powerups,0,1),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
@@ -25598,13 +25595,13 @@ Obj2E_Init:
 loc_128C6:			; Determine correct mappings offset.
 	addq.b	#1,d0
 	move.b	d0,mapping_frame(a0)
-	movea.l	#Obj26_MapUnc_12D36,a1
+	movea.l	#MapUnc_Monitor,a1
 	add.b	d0,d0
 	adda.w	(a1,d0.w),a1
 	addq.w	#2,a1
 	move.l	a1,mappings(a0)
-; loc_128DE:
-Obj2E_Raise:
+; loc_128DE: Obj2E_Raise:
+MonitorContents_Raise:
 	bsr.s	+
 	bra.w	DisplaySprite
 
@@ -25631,12 +25628,13 @@ Obj2E_Raise:
 	moveq	#0,d0
 	move.b	anim(a0),d0
 	add.w	d0,d0
-	move.w	Obj2E_Types(pc,d0.w),d0
-	jmp	Obj2E_Types(pc,d0.w)
+	move.w	MonitorContents_Types(pc,d0.w),d0
+	jmp	MonitorContents_Types(pc,d0.w)
 ; End of function
 
 ; ===========================================================================
-Obj2E_Types:	offsetTable
+; off_12924: Obj2E_Types:
+MonitorContents_Types:	offsetTable
 		offsetTableEntry.w robotnik_monitor	; 0 - Static
 		offsetTableEntry.w sonic_1up		; 1 - Sonic 1-up
 		offsetTableEntry.w tails_1up		; 2 - Tails 1-up
@@ -25891,7 +25889,7 @@ process_swap_table:
 swap_loop_objects:
 	cmpi.b	#ObjID_PinballMode,id(a1) ; is it obj84 (pinball mode switcher)?
 	beq.s	+ ; if yes, branch
-	cmpi.b	#ObjID_PlaneSwitcher,id(a1) ; is it obj03 (collision plane switcher)?
+	cmpi.b	#ObjID_PlaneSwitcher,id(a1) ; is it Obj_PlaneSwitcher?
 	bne.s	++ ; if not, branch further
 
 +
@@ -25916,7 +25914,6 @@ swap_loop_objects:
 +
 	lea	next_object(a1),a1 ; look at next object ; a1=object
 	dbf	d1,swap_loop_objects ; loop
-
 
 	lea	(MainCharacter).w,a1 ; a1=character
 	move.b	#ObjID_Shield,(Sonic_Shield+id).w ; load Obj38 (shield) at $FFFFD180
@@ -25974,7 +25971,6 @@ swap_loop_objects:
 	move.w	#SndID_Teleport,d0
 	jmp	(PlayMusic).l
 ; ===========================================================================
-
 ; This macro is used to make the table neater and perform some validation.
 TeleportTableEntry macro addressA, addressB
 .sizeA := addressA_End-addressA
@@ -26010,6 +26006,7 @@ teleport_swap_table:
 	TeleportTableEntry	Camera_Difference,        Camera_Difference_P2
 	TeleportTableEntry	Sonic_Pos_Record_Buf,     Tails_Pos_Record_Buf
 teleport_swap_table_end:
+
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; '?' Monitor
@@ -26018,72 +26015,76 @@ teleport_swap_table_end:
 qmark_monitor:
 	addq.w	#1,(a2)
 	rts
+
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Holds icon in place for a while, then destroys it
 ; ---------------------------------------------------------------------------
-;loc_12CC2:
-Obj2E_Wait:
+; loc_12CC2: Obj2E_Wait:
+MonitorContents_Wait:
 	subq.w	#1,anim_frame_duration(a0)
 	bmi.w	DeleteObject
 	bra.w	DisplaySprite
+
 ; ===========================================================================
 ; animation script
-; off_12CCE:
-Ani_obj26:	offsetTable
-		offsetTableEntry.w Ani_obj26_Static		;  0
-		offsetTableEntry.w Ani_obj26_Sonic		;  1
-		offsetTableEntry.w Ani_obj26_Tails		;  2
-		offsetTableEntry.w Ani_obj26_Eggman		;  3
-		offsetTableEntry.w Ani_obj26_Ring		;  4
-		offsetTableEntry.w Ani_obj26_Shoes		;  5
-		offsetTableEntry.w Ani_obj26_Shield		;  6
-		offsetTableEntry.w Ani_obj26_Invincibility	;  7
-		offsetTableEntry.w Ani_obj26_Teleport		;  8
-		offsetTableEntry.w Ani_obj26_QuestionMark	;  9
-		offsetTableEntry.w Ani_obj26_Broken		; $A
-; byte_12CE4:
-Ani_obj26_Static:
+; off_12CCE: Ani_obj26:
+Ani_Monitor:	offsetTable
+		offsetTableEntry.w Ani_Monitor_Static		;  0
+		offsetTableEntry.w Ani_Monitor_Sonic		;  1
+		offsetTableEntry.w Ani_Monitor_Tails		;  2
+		offsetTableEntry.w Ani_Monitor_Eggman		;  3
+		offsetTableEntry.w Ani_Monitor_Ring		;  4
+		offsetTableEntry.w Ani_Monitor_Shoes		;  5
+		offsetTableEntry.w Ani_Monitor_Shield		;  6
+		offsetTableEntry.w Ani_Monitor_Invincibility	;  7
+		offsetTableEntry.w Ani_Monitor_Teleport		;  8
+		offsetTableEntry.w Ani_Monitor_QuestionMark	;  9
+		offsetTableEntry.w Ani_Monitor_Broken		; $A
+; byte_12CE4: Ani_obj26_Static:
+Ani_Monitor_Static:
 	dc.b	$01	; duration
 	dc.b	$00	; frame number (which sprite table to use)
 	dc.b	$01	; frame number
 	dc.b	$FF	; terminator
-; byte_12CE8:
-Ani_obj26_Sonic:
+; byte_12CE8: Ani_obj26_Sonic:
+Ani_Monitor_Sonic:
 	dc.b   1,  0,  2,  2,  1,  2,  2,$FF
-; byte_12CF0:
-Ani_obj26_Tails:
+; byte_12CF0: Ani_obj26_Tails:
+Ani_Monitor_Tails:
 	dc.b   1,  0,  3,  3,  1,  3,  3,$FF
-; byte_12CF8:
-Ani_obj26_Eggman:
+; byte_12CF8: Ani_obj26_Eggman:
+Ani_Monitor_Eggman:
 	dc.b   1,  0,  4,  4,  1,  4,  4,$FF
-; byte_12D00:
-Ani_obj26_Ring:
+; byte_12D00: Ani_obj26_Ring:
+Ani_Monitor_Ring:
 	dc.b   1,  0,  5,  5,  1,  5,  5,$FF
-; byte_12D08:
-Ani_obj26_Shoes:
+; byte_12D08: Ani_obj26_Shoes:
+Ani_Monitor_Shoes:
 	dc.b   1,  0,  6,  6,  1,  6,  6,$FF
-; byte_12D10:
-Ani_obj26_Shield:
+; byte_12D10: Ani_obj26_Shield:
+Ani_Monitor_Shield:
 	dc.b   1,  0,  7,  7,  1,  7,  7,$FF
-; byte_12D18:
-Ani_obj26_Invincibility:
+; byte_12D18: Ani_obj26_Invincibility:
+Ani_Monitor_Invincibility:
 	dc.b   1,  0,  8,  8,  1,  8,  8,$FF
-; byte_12D20:
-Ani_obj26_Teleport:
+; byte_12D20: Ani_obj26_Teleport:
+Ani_Monitor_Teleport:
 	dc.b   1,  0,  9,  9,  1,  9,  9,$FF
-; byte_12D28:
-Ani_obj26_QuestionMark:
+; byte_12D28: Ani_obj26_QuestionMark:
+Ani_Monitor_QuestionMark:
 	dc.b   1,  0, $A, $A,  1, $A, $A,$FF
-; byte_12D30:
-Ani_obj26_Broken:
+; byte_12D30: Ani_obj26_Broken:
+Ani_Monitor_Broken:
 	dc.b   2,  0,  1, $B,$FE,  1
 	even
+
 ; ---------------------------------------------------------------------------------
-; Sprite Mappings - Sprite table for monitor and monitor contents (26, ??)
+; Sprite Mappings - monitor and monitor contents
 ; ---------------------------------------------------------------------------------
-; MapUnc_12D36: MapUnc_obj26:
-Obj26_MapUnc_12D36:	include "mappings/sprite/obj26.asm"
+; MapUnc_12D36: MapUnc_obj26: Obj26_MapUnc_12D36:
+MapUnc_Monitor:	include "mappings/sprite/Monitor.asm"
+
 ; ===========================================================================
 
 	jmpTos ; Empty
@@ -29694,11 +29695,11 @@ RunObjectDisplayOnly:
 ; This array contains the pointers to all the objects used in the game.
 ; ---------------------------------------------------------------------------
 Obj_Index: ; ObjPtrs: ; loc_1600C:
-ObjPtr_Sonic:		dc.l Obj_Sonic	; Sonic
-ObjPtr_Tails:		dc.l Obj_Tails	; Tails
-ObjPtr_PlaneSwitcher:	dc.l Obj03	; Collision plane/layer switcher
+ObjPtr_Sonic:		dc.l Obj_Sonic			; Sonic
+ObjPtr_Tails:		dc.l Obj_Tails			; Tails
+ObjPtr_PlaneSwitcher:	dc.l Obj_PlaneSwitcher		; Collision plane/layer switcher
 ObjPtr_WaterSurface:	dc.l Obj04	; Surface of the water
-ObjPtr_TailsTails:	dc.l Obj05	; Tails' tails
+ObjPtr_TailsTails:	dc.l Obj_TailsTails		; Tails' tails
 ObjPtr_Spiral:		dc.l Obj06	; Rotating cylinder in MTZ, twisting spiral pathway in EHZ
 ObjPtr_Oil:		dc.l Obj07	; Oil in OOZ
 ObjPtr_SpindashDust:
@@ -29736,8 +29737,8 @@ ObjPtr_2PResults:	dc.l Obj21	; 2P results
 ObjPtr_ArrowShooter:	dc.l Obj22	; Arrow shooter from ARZ
 ObjPtr_FallingPillar:	dc.l Obj23	; Pillar that drops its lower part from ARZ
 ObjPtr_ARZBubbles:	dc.l Obj24	; Bubbles in Aquatic Ruin Zone
-ObjPtr_Ring:		dc.l Obj_Ring	; A ring
-ObjPtr_Monitor:		dc.l Obj26	; Monitor
+ObjPtr_Ring:		dc.l Obj_Ring			; A ring
+ObjPtr_Monitor:		dc.l Obj_Monitor		; Monitor
 ObjPtr_Explosion:	dc.l Obj27	; An explosion, giving off an animal and 100 points
 ObjPtr_Animal:		dc.l Obj28	; Animal and the 100 points from a badnik
 ObjPtr_Points:		dc.l Obj29	; "100 points" text
@@ -29745,7 +29746,7 @@ ObjPtr_Stomper:		dc.l Obj2A	; Stomper from MCZ
 ObjPtr_RisingPillar:	dc.l Obj2B	; Rising pillar from ARZ
 ObjPtr_LeavesGenerator:	dc.l Obj2C	; Sprite that makes leaves fly off when you hit it from ARZ
 ObjPtr_Barrier:		dc.l Obj2D	; One way barrier from CPZ and DEZ
-ObjPtr_MonitorContents:	dc.l Obj2E	; Monitor contents (code for power-up behavior and rising image)
+ObjPtr_MonitorContents:	dc.l Obj_MonitorContents	; Monitor contents (code for power-up behavior and rising image)
 ObjPtr_SmashableGround:	dc.l Obj2F	; Smashable ground in Hill Top Zone
 ObjPtr_RisingLava:	dc.l Obj30	; Large rising lava during earthquake in HTZ
 ObjPtr_LavaMarker:	dc.l Obj31	; Lava collision marker
@@ -32098,7 +32099,7 @@ RingsMgr_SortRings:
 ; sprite mappings
 ; -------------------------------------------------------------------------------
 
-; Custom mappings format. Compare to Ring_MapUnc_12382.
+; Custom mappings format. Compare to MapUnc_RingObj.
 
 ; Differences include...
 ;  No 'sprite pieces per frame' value (hardcoded to 1)
@@ -34578,7 +34579,7 @@ loc_19398:
 	ext.w	d0
 	add.w	y_pos(a0),d0
 	move.w	d0,y_pos(a1)
-	move.l	#Ring_MapUnc_12382,mappings(a1)
+	move.l	#MapUnc_RingObj,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_Ring,1,0),art_tile(a1)
 	bsr.w	Adjust2PArtPointer2
 	move.b	#1<<render_flags.level_fg,render_flags(a1)
@@ -38579,7 +38580,7 @@ Tails_Init_Continued:
 	move.w	#0,(Tails_CPU_routine).w	; set AI state to TailsCPU_Init
 	move.w	#0,(Tails_control_counter).w
 	move.w	#0,(Tails_respawn_counter).w
-	move.b	#ObjID_TailsTails,(Tails_Tails+id).w ; load Obj05 (Tails' Tails) at $FFFFD000
+	move.b	#ObjID_TailsTails,(Tails_Tails+id).w ; load Obj_TailsTails at $FFFFD000
 	move.w	a0,(Tails_Tails+parent).w ; set its parent object to this
 
 ; ---------------------------------------------------------------------------
@@ -41110,7 +41111,7 @@ loc_1D006:
 	lsr.b	#3,d0
 	andi.b	#$C,d0
 	move.b	d0,d3
-	lea	(Obj05Ani_Directional).l,a1
+	lea	(TailsTailsAni_Directional).l,a1
 	move.b	#3,anim_frame_duration(a0)
 	bsr.w	TAnim_Do2
 	add.b	d3,mapping_frame(a0)
@@ -41297,23 +41298,23 @@ return_1D1FE:
 ; ----------------------------------------------------------------------------
 ; Object 05 - Tails' tails
 ; ----------------------------------------------------------------------------
-; Sprite_1D200:
-Obj05:
+; Sprite_1D200: Obj05:
+Obj_TailsTails:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj05_Index(pc,d0.w),d1
-	jmp	Obj05_Index(pc,d1.w)
+	move.w	TailsTails_Index(pc,d0.w),d1
+	jmp	TailsTails_Index(pc,d1.w)
 ; ===========================================================================
-; off_1D20E: Obj05_States:
-Obj05_Index:	offsetTable
-		offsetTableEntry.w Obj05_Init	; 0
-		offsetTableEntry.w Obj05_Main	; 2
+; off_1D20E: Obj05_States: Obj05_Index:
+TailsTails_Index: offsetTable
+		offsetTableEntry.w TailsTails_Init	; 0
+		offsetTableEntry.w TailsTails_Main	; 2
 ; ===========================================================================
 
 Obj05_parent_prev_anim = objoff_30
 
-; loc_1D212
-Obj05_Init:
+; loc_1D212 Obj05_Init:
+TailsTails_Init:
 	addq.b	#2,routine(a0) ; => Obj05_Main
 	move.l	#MapUnc_Tails,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtUnc_Tails_Tails,0,0),art_tile(a0)
@@ -41321,9 +41322,8 @@ Obj05_Init:
 	move.b	#2,priority(a0)
 	move.b	#$18,width_pixels(a0)
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
-
-; loc_1D23A:
-Obj05_Main:
+; loc_1D23A: Obj05_Main:
+TailsTails_Main:
 	movea.w	parent(a0),a2 ; a2=character
 	move.b	angle(a2),angle(a0)
 	move.b	status(a2),status(a0)
@@ -41358,10 +41358,10 @@ Obj05_Main:
 	cmp.b	Obj05_parent_prev_anim(a0),d0	; Did Tails' animation change?
 	beq.s	.display
 	move.b	d0,Obj05_parent_prev_anim(a0)
-	move.b	Obj05AniSelection(pc,d0.w),anim(a0)	; If so, update Tails' tails' animation
+	move.b	TailsTails_AniSelection(pc,d0.w),anim(a0)	; If so, update Tails' tails' animation
 ; loc_1D288:
 .display:
-	lea	(Obj05AniData).l,a1
+	lea	(TailsTailsAniData).l,a1
 	bsr.w	Tails_Animate_Part2
 	bsr.w	LoadTailsTailsDynPLC
 	jsr	(DisplaySprite).l
@@ -41369,8 +41369,8 @@ Obj05_Main:
 ; ===========================================================================
 ; animation master script table for the tails
 ; chooses which animation script to run depending on what Tails is doing
-; byte_1D29E:
-Obj05AniSelection:
+; byte_1D29E: Obj05AniSelection:
+TailsTails_AniSelection:
 	dc.b	0,0	; TailsAni_Walk,Run	->
 	dc.b	3	; TailsAni_Roll		-> Directional
 	dc.b	3	; TailsAni_Roll2	-> Directional
@@ -41399,41 +41399,51 @@ Obj05AniSelection:
 ; ---------------------------------------------------------------------------
 ; Animation script - Tails' tails
 ; ---------------------------------------------------------------------------
-; off_1D2C0:
-Obj05AniData:	offsetTable
-		offsetTableEntry.w Obj05Ani_Blank	;  0
-		offsetTableEntry.w Obj05Ani_Swish	;  1
-		offsetTableEntry.w Obj05Ani_Flick	;  2
-		offsetTableEntry.w Obj05Ani_Directional	;  3
-		offsetTableEntry.w Obj05Ani_DownLeft	;  4
-		offsetTableEntry.w Obj05Ani_Down	;  5
-		offsetTableEntry.w Obj05Ani_DownRight	;  6
-		offsetTableEntry.w Obj05Ani_Spindash	;  7
-		offsetTableEntry.w Obj05Ani_Skidding	;  8
-		offsetTableEntry.w Obj05Ani_Pushing	;  9
-		offsetTableEntry.w Obj05Ani_Hanging	; $A
-
-Obj05Ani_Blank:		dc.b $20,  0,$FF
+; off_1D2C0: Obj05AniData:
+TailsTailsAniData: offsetTable
+		offsetTableEntry.w TailsTailsAni_Blank	;  0
+		offsetTableEntry.w TailsTailsAni_Swish	;  1
+		offsetTableEntry.w TailsTailsAni_Flick	;  2
+		offsetTableEntry.w TailsTailsAni_Directional	;  3
+		offsetTableEntry.w TailsTailsAni_DownLeft	;  4
+		offsetTableEntry.w TailsTailsAni_Down	;  5
+		offsetTableEntry.w TailsTailsAni_DownRight	;  6
+		offsetTableEntry.w TailsTailsAni_Spindash	;  7
+		offsetTableEntry.w TailsTailsAni_Skidding	;  8
+		offsetTableEntry.w TailsTailsAni_Pushing	;  9
+		offsetTableEntry.w TailsTailsAni_Hanging	; $A
+; Obj05Ani_Blank:
+TailsTailsAni_Blank:	dc.b $20,  0,$FF
 	rev02even
-Obj05Ani_Swish:		dc.b   7,  9, $A, $B, $C, $D,$FF
+; Obj05Ani_Swish:
+TailsTailsAni_Swish:	dc.b   7,  9, $A, $B, $C, $D,$FF
 	rev02even
-Obj05Ani_Flick:		dc.b   3,  9, $A, $B, $C, $D,$FD,  1
+; Obj05Ani_Flick:
+TailsTailsAni_Flick:	dc.b   3,  9, $A, $B, $C, $D,$FD,  1
 	rev02even
-Obj05Ani_Directional:	dc.b $FC,$49,$4A,$4B,$4C,$FF ; Tails is moving right
+; Obj05Ani_Directional:
+TailsTailsAni_Directional:	dc.b $FC,$49,$4A,$4B,$4C,$FF ; Tails is moving right
 	rev02even
-Obj05Ani_DownLeft:	dc.b   3,$4D,$4E,$4F,$50,$FF ; Tails is moving up-right
+; Obj05Ani_DownLeft:
+TailsTailsAni_DownLeft:	dc.b   3,$4D,$4E,$4F,$50,$FF ; Tails is moving up-right
 	rev02even
-Obj05Ani_Down:		dc.b   3,$51,$52,$53,$54,$FF ; Tails is moving up
+; Obj05Ani_Down:
+TailsTailsAni_Down:	dc.b   3,$51,$52,$53,$54,$FF ; Tails is moving up
 	rev02even
-Obj05Ani_DownRight:	dc.b   3,$55,$56,$57,$58,$FF ; Tails is moving up-left
+; Obj05Ani_DownRight:
+TailsTailsAni_DownRight:	dc.b   3,$55,$56,$57,$58,$FF ; Tails is moving up-left
 	rev02even
-Obj05Ani_Spindash:	dc.b   2,$81,$82,$83,$84,$FF
+; Obj05Ani_Spindash:
+TailsTailsAni_Spindash:	dc.b   2,$81,$82,$83,$84,$FF
 	rev02even
-Obj05Ani_Skidding:	dc.b   2,$87,$88,$89,$8A,$FF
+; Obj05Ani_Skidding:
+TailsTailsAni_Skidding:	dc.b   2,$87,$88,$89,$8A,$FF
 	rev02even
-Obj05Ani_Pushing:	dc.b   9,$87,$88,$89,$8A,$FF
+; Obj05Ani_Pushing:
+TailsTailsAni_Pushing:	dc.b   9,$87,$88,$89,$8A,$FF
 	rev02even
-Obj05Ani_Hanging:	dc.b   9,$81,$82,$83,$84,$FF
+; Obj05Ani_Hanging:
+TailsTailsAni_Hanging:	dc.b   9,$81,$82,$83,$84,$FF
 	even
 
 ; ===========================================================================
@@ -45154,24 +45164,24 @@ word_1FCB8_End
 ; ----------------------------------------------------------------------------
 ; Object 03 - Collision plane/layer switcher
 ; ----------------------------------------------------------------------------
-; Sprite_1FCDC:
-Obj03:
+; Sprite_1FCDC: Obj03:
+Obj_PlaneSwitcher:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj03_Index(pc,d0.w),d1
-	jsr	Obj03_Index(pc,d1.w)
+	move.w	PlaneSwitcher_Index(pc,d0.w),d1
+	jsr	PlaneSwitcher_Index(pc,d1.w)
 	jmp	(MarkObjGone3).l
 ; ===========================================================================
-; off_1FCF0:
-Obj03_Index:	offsetTable
-		offsetTableEntry.w Obj03_Init	; 0
-		offsetTableEntry.w Obj03_MainX	; 2
-		offsetTableEntry.w Obj03_MainY	; 4
+; off_1FCF0: Obj03_Index:
+PlaneSwitcher_Index: offsetTable
+		offsetTableEntry.w PlaneSwitcher_Init	; 0
+		offsetTableEntry.w PlaneSwitcher_MainX	; 2
+		offsetTableEntry.w PlaneSwitcher_MainY	; 4
 ; ===========================================================================
-; loc_1FCF6:
-Obj03_Init:
-	addq.b	#2,routine(a0) ; => Obj03_MainX
-	move.l	#Obj03_MapUnc_1FFB8,mappings(a0)
+; loc_1FCF6: Obj03_Init:
+PlaneSwitcher_Init:
+	addq.b	#2,routine(a0) ; => PlaneSwitcher_MainX
+	move.l	#MapUnc_PlaneSwitcher,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Ring,1,0),art_tile(a0)
 	jsrto	JmpTo7_Adjust2PArtPointer
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
@@ -45179,9 +45189,9 @@ Obj03_Init:
 	move.b	#5,priority(a0)
 	move.b	subtype(a0),d0
 	btst	#2,d0
-	beq.s	Obj03_Init_CheckX
-;Obj03_Init_CheckY:
-	addq.b	#2,routine(a0) ; => Obj03_MainY
+	beq.s	PlaneSwitcher_Init_CheckX
+; Obj03_Init_CheckY: PlaneSwitcher_Init_CheckY:
+	addq.b	#2,routine(a0) ; => PlaneSwitcher_MainY
 	andi.w	#7,d0
 	move.b	d0,mapping_frame(a0)
 	andi.w	#3,d0
@@ -45198,7 +45208,7 @@ Obj03_Init:
 	bhs.s	+
 	move.b	#1,objoff_35(a0)
 +
-	bra.w	Obj03_MainY
+	bra.w	PlaneSwitcher_MainY
 ; ===========================================================================
 word_1FD68:
 	dc.w   $20
@@ -45206,8 +45216,8 @@ word_1FD68:
 	dc.w   $80	; 2
 	dc.w  $100	; 3
 ; ===========================================================================
-; loc_1FD70:
-Obj03_Init_CheckX:
+; loc_1FD70: Obj03_Init_CheckX:
+PlaneSwitcher_Init_CheckX:
 	andi.w	#3,d0
 	move.b	d0,mapping_frame(a0)
 	add.w	d0,d0
@@ -45220,12 +45230,10 @@ Obj03_Init_CheckX:
 +
 	lea	(Sidekick).w,a1 ; a1=character
 	cmp.w	x_pos(a1),d1
-	bhs.s	+
+	bhs.s	PlaneSwitcher_MainX
 	move.b	#1,objoff_35(a0)
-+
-
-; loc_1FDA4:
-Obj03_MainX:
+; loc_1FDA4: Obj03_MainX:
+PlaneSwitcher_MainX:
 	tst.w	(Debug_placement_mode).w
 	bne.w	return_1FEAC
 	move.w	x_pos(a0),d1
@@ -45235,7 +45243,7 @@ Obj03_MainX:
 	lea	(Sidekick).w,a1 ; a1=character
 
 +	tst.b	(a2)+
-	bne.s	Obj03_MainX_Alt
+	bne.s	PlaneSwitcher_MainX_Alt
 	cmp.w	x_pos(a1),d1
 	bhi.w	return_1FEAC
 	move.b	#1,-1(a2)
@@ -45269,8 +45277,8 @@ Obj03_MainX:
 	ori.w	#high_priority,art_tile(a1)
 	bra.s	return_1FEAC
 ; ===========================================================================
-; loc_1FE38:
-Obj03_MainX_Alt:
+; loc_1FE38: Obj03_MainX_Alt:
+PlaneSwitcher_MainX_Alt:
 	cmp.w	x_pos(a1),d1
 	bls.w	return_1FEAC
 	move.b	#0,-1(a2)
@@ -45306,8 +45314,8 @@ Obj03_MainX_Alt:
 return_1FEAC:
 	rts
 ; ===========================================================================
-
-Obj03_MainY:
+; loc_1FEAE: Obj03_MainY:
+PlaneSwitcher_MainY:
 	tst.w	(Debug_placement_mode).w
 	bne.w	return_1FFB6
 	move.w	y_pos(a0),d1
@@ -45317,7 +45325,7 @@ Obj03_MainY:
 	lea	(Sidekick).w,a1 ; a1=character
 
 +	tst.b	(a2)+
-	bne.s	Obj03_MainY_Alt
+	bne.s	PlaneSwitcher_MainY_Alt
 	cmp.w	y_pos(a1),d1
 	bhi.w	return_1FFB6
 	move.b	#1,-1(a2)
@@ -45351,8 +45359,8 @@ Obj03_MainY:
 	ori.w	#high_priority,art_tile(a1)
 	bra.s	return_1FFB6
 ; ===========================================================================
-; loc_1FF42:
-Obj03_MainY_Alt:
+; loc_1FF42: Obj03_MainY_Alt:
+PlaneSwitcher_MainY_Alt:
 	cmp.w	y_pos(a1),d1
 	bls.w	return_1FFB6
 	move.b	#0,-1(a2)
@@ -45388,10 +45396,11 @@ Obj03_MainY_Alt:
 return_1FFB6:
 	rts
 ; ===========================================================================
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
-Obj03_MapUnc_1FFB8:	include "mappings/sprite/obj03.asm"
+; ---------------------------------------------------------------------------
+; Obj03_MapUnc_1FFB8:
+MapUnc_PlaneSwitcher:	include "mappings/sprite/Pathswapper.asm"
 ; ===========================================================================
 
 	jmpTos JmpTo7_Adjust2PArtPointer
@@ -46320,7 +46329,7 @@ Obj84_Index:	offsetTable
 ; loc_21176:
 Obj84_Init:
 	addq.b	#2,routine(a0) ; => Obj84_MainX
-	move.l	#Obj03_MapUnc_1FFB8,mappings(a0)
+	move.l	#MapUnc_PlaneSwitcher,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Ring,0,0),art_tile(a0)
 	jsrto	JmpTo12_Adjust2PArtPointer
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
@@ -46517,9 +46526,9 @@ Obj84_MainY_Alt:
 
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 8B - Cycling palette switcher from Wing Fortress Zone
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_21392:
 Obj8B:
 	moveq	#0,d0
@@ -46542,7 +46551,7 @@ word_213AA:
 ; loc_213B2:
 Obj8B_Init:
 	addq.b	#2,routine(a0)
-	move.l	#Obj03_MapUnc_1FFB8,mappings(a0)
+	move.l	#MapUnc_PlaneSwitcher,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Ring,0,0),art_tile(a0)
 	jsrto	JmpTo12_Adjust2PArtPointer
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
@@ -58682,7 +58691,7 @@ loc_2BD4E:
 	jsrto	JmpTo10_AllocateObject
 	bne.w	return_2BDF6
 	_move.b	#ObjID_RingPrize,id(a1) ; load objDC
-	move.l	#Ring_MapUnc_12382,mappings(a1)
+	move.l	#MapUnc_RingObj,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_Ring,1,0),art_tile(a1)
 	jsrto	JmpTo6_Adjust2PArtPointer2
 	move.b	#1<<render_flags.level_fg,render_flags(a1)
@@ -88230,15 +88239,15 @@ dbglistobj macro   obj, mapaddr, subtype, frame, vram
     endm
 
 DbgObjList_Def: dbglistheader
-	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0) ; obj25 = ring
-	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0) ; obj26 = monitor
+	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0) ; obj25 = ring
+	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0) ; obj26 = monitor
 DbgObjList_Def_End
 
 DbgObjList_EHZ: dbglistheader
-	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
-	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
-	dbglistobj ObjID_PlaneSwitcher,	Obj03_MapUnc_1FFB8,   9,   1, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_PlaneSwitcher,	MapUnc_PlaneSwitcher,   9,   1, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_EHZWaterfall,	Obj49_MapUnc_20C50,   0,   0, make_art_tile(ArtTile_ArtNem_Waterfall,1,0)
 	dbglistobj ObjID_EHZWaterfall,	Obj49_MapUnc_20C50,   2,   3, make_art_tile(ArtTile_ArtNem_Waterfall,1,0)
 	dbglistobj ObjID_EHZWaterfall,	Obj49_MapUnc_20C50,   4,   5, make_art_tile(ArtTile_ArtNem_Waterfall,1,0)
@@ -88257,10 +88266,10 @@ DbgObjList_EHZ: dbglistheader
 DbgObjList_EHZ_End
 
 DbgObjList_MTZ: dbglistheader
-	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
-	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
-	dbglistobj ObjID_PlaneSwitcher,	Obj03_MapUnc_1FFB8,   9,   1, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_PlaneSwitcher,	MapUnc_PlaneSwitcher,   9,   1, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_SteamSpring,	Obj42_MapUnc_2686C,   1,   7, make_art_tile(ArtTile_ArtKos_LevelArt,3,0)
 	dbglistobj ObjID_MTZTwinStompers, Obj64_MapUnc_26A5C,   1,   0, make_art_tile(ArtTile_ArtKos_LevelArt,1,0)
 	dbglistobj ObjID_MTZTwinStompers, Obj64_MapUnc_26A5C, $11,   1, make_art_tile(ArtTile_ArtKos_LevelArt,1,0)
@@ -88294,9 +88303,9 @@ DbgObjList_MTZ: dbglistheader
 DbgObjList_MTZ_End
 
 DbgObjList_WFZ: dbglistheader
-	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
-	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
-	dbglistobj ObjID_WFZPalSwitcher, Obj03_MapUnc_1FFB8,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,0,0)
+	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+	dbglistobj ObjID_WFZPalSwitcher, MapUnc_PlaneSwitcher,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,0,0)
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_Cloud,		ObjB3_MapUnc_3B32C, $5E,   0, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
 	dbglistobj ObjID_Cloud,		ObjB3_MapUnc_3B32C, $60,   1, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
@@ -88323,18 +88332,18 @@ DbgObjList_WFZ: dbglistheader
 	dbglistobj ObjID_BreakablePlating, ObjC1_MapUnc_3C280, $88,   0, make_art_tile(ArtTile_ArtNem_BreakPanels,3,1)
 	dbglistobj ObjID_Rivet,		ObjC2_MapUnc_3C3C2, $8A,   0, make_art_tile(ArtTile_ArtNem_WfzSwitch,1,1)
 	dbglistobj ObjID_WFZPlatform,	Obj19_MapUnc_2222A, $38,   3, make_art_tile(ArtTile_ArtNem_WfzFloatingPlatform,1,1)
-	dbglistobj ObjID_Grab,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_Grab,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_MovingVine,	Obj80_MapUnc_29DD0,   0,   0, make_art_tile(ArtTile_ArtNem_WfzHook_Fudge,1,0)
 	dbglistobj ObjID_EggPrison,	Obj3E_MapUnc_3F436,   0,   0, make_art_tile(ArtTile_ArtNem_Capsule,1,0)
 DbgObjList_WFZ_End
 
 DbgObjList_HTZ: dbglistheader
-	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
-	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
-	dbglistobj ObjID_ForcedSpin,	Obj03_MapUnc_1FFB8,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,0,0)
-	dbglistobj ObjID_ForcedSpin,	Obj03_MapUnc_1FFB8,   4,   4, make_art_tile(ArtTile_ArtNem_Ring,0,0)
-	dbglistobj ObjID_PlaneSwitcher,	Obj03_MapUnc_1FFB8,   9,   1, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_ForcedSpin,	MapUnc_PlaneSwitcher,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,0,0)
+	dbglistobj ObjID_ForcedSpin,	MapUnc_PlaneSwitcher,   4,   4, make_art_tile(ArtTile_ArtNem_Ring,0,0)
+	dbglistobj ObjID_PlaneSwitcher,	MapUnc_PlaneSwitcher,   9,   1, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_EHZPlatform,	Obj18_MapUnc_107F6,   1,   0, make_art_tile(ArtTile_ArtKos_LevelArt,2,0)
 	dbglistobj ObjID_EHZPlatform,	Obj18_MapUnc_107F6, $9A,   1, make_art_tile(ArtTile_ArtKos_LevelArt,2,0)
 	dbglistobj ObjID_Spikes,	Obj36_MapUnc_15B68,   0,   0, make_art_tile(ArtTile_ArtNem_Spikes,1,0)
@@ -88363,13 +88372,13 @@ DbgObjList_HTZ: dbglistheader
 DbgObjList_HTZ_End
 
 DbgObjList_HPZ:; dbglistheader
-;	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
-;	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+;	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+;	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 ;DbgObjList_HPZ_End
 
 DbgObjList_OOZ: dbglistheader
-	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
-	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_OOZPoppingPform, Obj33_MapUnc_23DDC,   1,   0, make_art_tile(ArtTile_ArtNem_BurnerLid,3,0)
 	dbglistobj ObjID_SlidingSpike,	Obj43_MapUnc_23FE0,   0,   0, make_art_tile(ArtTile_ArtNem_SpikyThing,2,1)
@@ -88404,8 +88413,8 @@ DbgObjList_OOZ: dbglistheader
 DbgObjList_OOZ_End
 
 DbgObjList_MCZ: dbglistheader
-	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
-	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_SwingingPlatform, Obj15_Obj7A_MapUnc_10256, $48,   2, make_art_tile(ArtTile_ArtKos_LevelArt,0,0)
 	dbglistobj ObjID_CollapsPform,	Obj1F_MapUnc_11106,   0,   0, make_art_tile(ArtTile_ArtNem_MCZCollapsePlat,3,0)
@@ -88431,13 +88440,13 @@ DbgObjList_MCZ: dbglistheader
 DbgObjList_MCZ_End
 
 DbgObjList_CNZ: dbglistheader
-	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
-	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
-	dbglistobj ObjID_PinballMode,	Obj03_MapUnc_1FFB8,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,0,0)
-	dbglistobj ObjID_PinballMode,	Obj03_MapUnc_1FFB8,   4,   4, make_art_tile(ArtTile_ArtNem_Ring,0,0)
-	dbglistobj ObjID_PlaneSwitcher,	Obj03_MapUnc_1FFB8,   9,   1, make_art_tile(ArtTile_ArtNem_Ring,1,0)
-	dbglistobj ObjID_PlaneSwitcher,	Obj03_MapUnc_1FFB8,  $D,   5, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_PinballMode,	MapUnc_PlaneSwitcher,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,0,0)
+	dbglistobj ObjID_PinballMode,	MapUnc_PlaneSwitcher,   4,   4, make_art_tile(ArtTile_ArtNem_Ring,0,0)
+	dbglistobj ObjID_PlaneSwitcher,	MapUnc_PlaneSwitcher,   9,   1, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_PlaneSwitcher,	MapUnc_PlaneSwitcher,  $D,   5, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_RoundBumper,	Obj44_MapUnc_1F85A,   0,   0, make_art_tile(ArtTile_ArtNem_CNZRoundBumper,2,0)
 	dbglistobj ObjID_LauncherSpring, Obj85_MapUnc_2B07E,   0,   0, make_art_tile(ArtTile_ArtNem_CNZVertPlunger,0,0)
 	dbglistobj ObjID_LauncherSpring, Obj85_MapUnc_2B0EC, $81,   0, make_art_tile(ArtTile_ArtNem_CNZDiagPlunger,0,0)
@@ -88458,8 +88467,8 @@ DbgObjList_CNZ: dbglistheader
 DbgObjList_CNZ_End
 
 DbgObjList_CPZ: dbglistheader
-	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
-	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_TippingFloor,	Obj0B_MapUnc_201A0, $70,   0, make_art_tile(ArtTile_ArtNem_CPZAnimatedBits,3,1)
 	dbglistobj ObjID_SpeedBooster,	Obj1B_MapUnc_223E2,   0,   0, make_art_tile(ArtTile_ArtNem_CPZBooster,3,1)
@@ -88471,8 +88480,8 @@ DbgObjList_CPZ: dbglistheader
 	dbglistobj ObjID_CPZStaircase,	Obj6B_MapUnc_2800E,   0,   0, make_art_tile(ArtTile_ArtNem_CPZStairBlock,3,0)
 	dbglistobj ObjID_SidewaysPform,	Obj7A_MapUnc_29564,   0,   0, make_art_tile(ArtTile_ArtNem_CPZStairBlock,3,1)
 	dbglistobj ObjID_PipeExitSpring, Obj7B_MapUnc_29780,   2,   0, make_art_tile(ArtTile_ArtNem_CPZTubeSpring,0,0)
-	dbglistobj ObjID_PlaneSwitcher,	Obj03_MapUnc_1FFB8,   9,   1, make_art_tile(ArtTile_ArtNem_Ring,1,0)
-	dbglistobj ObjID_PlaneSwitcher,	Obj03_MapUnc_1FFB8,  $D,   5, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_PlaneSwitcher,	MapUnc_PlaneSwitcher,   9,   1, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_PlaneSwitcher,	MapUnc_PlaneSwitcher,  $D,   5, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Spikes,	Obj36_MapUnc_15B68,   0,   0, make_art_tile(ArtTile_ArtNem_Spikes,1,0)
 	dbglistobj ObjID_Spring,	Obj41_MapUnc_1901C, $81,   0, make_art_tile(ArtTile_ArtNem_VrtclSprng,0,0)
 	dbglistobj ObjID_Spring,	Obj41_MapUnc_1901C, $90,   3, make_art_tile(ArtTile_ArtNem_HrzntlSprng,0,0)
@@ -88485,8 +88494,8 @@ DbgObjList_CPZ: dbglistheader
 DbgObjList_CPZ_End
 
 DbgObjList_ARZ: dbglistheader
-	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
-	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_SwingingPlatform, Obj15_Obj83_MapUnc_1021E, $88,   2, make_art_tile(ArtTile_ArtKos_LevelArt,0,0)
 	dbglistobj ObjID_ARZPlatform,	Obj18_MapUnc_1084E,   1,   0, make_art_tile(ArtTile_ArtKos_LevelArt,2,0)
@@ -88501,7 +88510,7 @@ DbgObjList_ARZ: dbglistheader
 	dbglistobj ObjID_Spring,	Obj41_MapUnc_1901C, $81,   0, make_art_tile(ArtTile_ArtNem_VrtclSprng,0,0)
 	dbglistobj ObjID_Spring,	Obj41_MapUnc_1901C, $90,   3, make_art_tile(ArtTile_ArtNem_HrzntlSprng,0,0)
 	dbglistobj ObjID_Spring,	Obj41_MapUnc_1901C, $A0,   6, make_art_tile(ArtTile_ArtNem_VrtclSprng,0,0)
-	dbglistobj ObjID_PlaneSwitcher,	Obj03_MapUnc_1FFB8,   9,   1, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_PlaneSwitcher,	MapUnc_PlaneSwitcher,   9,   1, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Spikes,	Obj36_MapUnc_15B68,   0,   0, make_art_tile(ArtTile_ArtNem_Spikes,1,0)
 	dbglistobj ObjID_Barrier,	Obj2D_MapUnc_11822,   3,   3, make_art_tile(ArtTile_ArtNem_ARZBarrierThing,1,0)
 	dbglistobj ObjID_CollapsPform,	Obj1F_MapUnc_1115E,   0,   0, make_art_tile(ArtTile_ArtKos_LevelArt,2,0)
@@ -88517,9 +88526,9 @@ DbgObjList_ARZ: dbglistheader
 DbgObjList_ARZ_End
 
 DbgObjList_SCZ: dbglistheader
-	dbglistobj ObjID_Ring,		Ring_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
-	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
-	dbglistobj ObjID_WFZPalSwitcher, Obj03_MapUnc_1FFB8,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,0,0)
+	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
+	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
+	dbglistobj ObjID_WFZPalSwitcher, MapUnc_PlaneSwitcher,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,0,0)
 	dbglistobj ObjID_Cloud,		ObjB3_MapUnc_3B32C, $5E,   0, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
 	dbglistobj ObjID_Cloud,		ObjB3_MapUnc_3B32C, $60,   1, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
 	dbglistobj ObjID_Cloud,		ObjB3_MapUnc_3B32C, $62,   2, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
