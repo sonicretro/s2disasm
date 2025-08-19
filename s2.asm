@@ -24823,12 +24823,9 @@ Obj29_MapUnc_11ED0:	include "mappings/sprite/obj29.asm"
 
 	jmpTos JmpTo_RandomNumber
 
-
-
-
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
-; Object 25 - A ring (usually only placed through placement mode)
+; Object 25 - A ring (only placed through debug mode)
 ; ---------------------------------------------------------------------------
 ; Sprite_11F44: Obj25:
 Obj_Ring:
@@ -25524,7 +25521,7 @@ Monitor_SpawnIcon:
 Monitor_SpawnSmoke:
 	bsr.w	AllocateObject
 	bne.s	+
-	_move.b	#ObjID_Explosion,id(a1) ; load obj27
+	_move.b	#ObjID_Explosion,id(a1) ; load Obj_Explosion
 	addq.b	#2,routine(a1)
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
@@ -25888,7 +25885,7 @@ process_swap_table:
 
 ; process objects:
 swap_loop_objects:
-	cmpi.b	#ObjID_PinballMode,id(a1) ; is it obj84 (pinball mode switcher)?
+	cmpi.b	#ObjID_PinballMode,id(a1) ; is it Obj_PinballMode?
 	beq.s	+ ; if yes, branch
 	cmpi.b	#ObjID_PlaneSwitcher,id(a1) ; is it Obj_PlaneSwitcher?
 	bne.s	++ ; if not, branch further
@@ -29699,7 +29696,7 @@ Obj_Index: ; ObjPtrs: ; loc_1600C:
 ObjPtr_Sonic:		dc.l Obj_Sonic			; Sonic
 ObjPtr_Tails:		dc.l Obj_Tails			; Tails
 ObjPtr_PlaneSwitcher:	dc.l Obj_PlaneSwitcher		; Collision plane/layer switcher
-ObjPtr_WaterSurface:	dc.l Obj04	; Surface of the water
+ObjPtr_WaterSurface:	dc.l Obj_WaterSurface		; Surface of the water
 ObjPtr_TailsTails:	dc.l Obj_TailsTails		; Tails' tails
 ObjPtr_Spiral:		dc.l Obj06	; Rotating cylinder in MTZ, twisting spiral pathway in EHZ
 ObjPtr_Oil:		dc.l Obj07	; Oil in OOZ
@@ -29740,7 +29737,7 @@ ObjPtr_FallingPillar:	dc.l Obj23	; Pillar that drops its lower part from ARZ
 ObjPtr_ARZBubbles:	dc.l Obj24	; Bubbles in Aquatic Ruin Zone
 ObjPtr_Ring:		dc.l Obj_Ring			; A ring
 ObjPtr_Monitor:		dc.l Obj_Monitor		; Monitor
-ObjPtr_Explosion:	dc.l Obj27	; An explosion, giving off an animal and 100 points
+ObjPtr_Explosion:	dc.l Obj_Explosion		; An explosion, giving off an animal and 100 points
 ObjPtr_Animal:		dc.l Obj28	; Animal and the 100 points from a badnik
 ObjPtr_Points:		dc.l Obj29	; "100 points" text
 ObjPtr_Stomper:		dc.l Obj2A	; Stomper from MCZ
@@ -29757,7 +29754,7 @@ ObjPtr_OOZPoppingPform:	dc.l Obj33	; Green platform from OOZ
 ObjPtr_TitleCard:	dc.l Obj34	; level title card (screen with red, yellow, and blue)
 ObjPtr_InvStars:	dc.l Obj35	; Invincibility Stars
 ObjPtr_Spikes:		dc.l Obj36	; Vertical spikes
-ObjPtr_LostRings:	dc.l Obj_LostRings	; Scattering rings (generated when Sonic is hurt and has rings)
+ObjPtr_LostRings:	dc.l Obj_LostRings		; Scattering rings (generated when Sonic is hurt and has rings)
 ObjPtr_Shield:		dc.l Obj38	; Shield
 ObjPtr_GameOver:
 ObjPtr_TimeOver:	dc.l Obj39	; Game/Time Over text
@@ -29776,7 +29773,7 @@ ObjPtr_OOZSpring:	dc.l Obj45	; Pressure spring from OOZ
 ObjPtr_OOZBall:		dc.l Obj46	; Ball from OOZ (unused, beta leftover)
 ObjPtr_Button:		dc.l Obj47	; Button
 ObjPtr_LauncherBall:	dc.l Obj48	; Round ball thing from OOZ that fires you off in a different direction
-ObjPtr_EHZWaterfall:	dc.l Obj49	; Waterfall from EHZ
+ObjPtr_EHZWaterfall:	dc.l Obj_EHZWaterfall		; Waterfall from EHZ
 ObjPtr_Octus:		dc.l Obj4A	; Octus (octopus badnik) from OOZ
 ObjPtr_Buzzer:		dc.l Obj4B	; Buzzer (Buzz bomber) from EHZ
 			dc.l ObjNull	; Used to be the "BBat" badnik from HPZ
@@ -29841,14 +29838,14 @@ ObjPtr_MCZDrawbridge:	dc.l Obj81	; Long invisible vertical barrier
 ObjPtr_SwingingPform:	dc.l Obj82	; Platform that is usually swinging, from ARZ
 ObjPtr_ARZRotPforms:	dc.l Obj83	; 3 adjoined platforms from ARZ that rotate in a circle
 ObjPtr_ForcedSpin:
-ObjPtr_PinballMode:	dc.l Obj84	; Pinball mode enable/disable (CNZ)
+ObjPtr_PinballMode:	dc.l Obj_PinballMode		; Pinball mode enable/disable (CNZ)
 ObjPtr_LauncherSpring:	dc.l Obj85	; Spring from CNZ that you hold jump on to pull back further
 ObjPtr_Flipper:		dc.l Obj86	; Flipper from CNZ
 ObjPtr_SSNumberOfRings:	dc.l Obj87	; Number of rings in Special Stage
 ObjPtr_SSTailsTails:	dc.l Obj88	; Tails' tails in Special Stage
 ObjPtr_ARZBoss:		dc.l Obj89	; ARZ boss
-			dc.l Obj8A	; Sonic Team Presents/Credits (seemingly unused leftover from S1)
-ObjPtr_WFZPalSwitcher:	dc.l Obj8B	; Cycling palette switcher from Wing Fortress Zone
+			dc.l Obj_S1CreditsText		; Sonic Team Presents/Credits (seemingly unused leftover from S1)
+ObjPtr_WFZPalSwitcher:	dc.l Obj_WFZPalSwitcher		; Cycling palette switcher from Wing Fortress Zone
 ObjPtr_Whisp:		dc.l Obj8C	; Whisp (blowfly badnik) from ARZ
 ObjPtr_GrounderInWall:	dc.l Obj8D	; Grounder in wall, from ARZ
 ObjPtr_GrounderInWall2:	dc.l Obj8D	; Obj8E = Obj8D
@@ -30594,7 +30591,7 @@ DrawSprite_Loop:
 	; developers placed an $80 byte large spill buffer after
 	; 'Sprite_Table', to 'catch' the overflow. Unfortunately, this spill
 	; buffer is not big enough to catch all overflow: this oversight is
-	; responsible for the famous 'Ashua' bug. To fix this, we'll just
+	; responsible for the famous 'Ashura' bug. To fix this, we'll just
 	; undo this optimistaion. Sonic 3 & Knuckles undid this optimistaion
 	; too, but heavily optimised the rest of 'BuildSprites' to make up
 	; for it.
@@ -45833,40 +45830,40 @@ Obj13_MapUnc_20528:	include "mappings/sprite/obj13.asm"
 ; ----------------------------------------------------------------------------
 ; Object 04 - Surface of the water - water surface
 ; ----------------------------------------------------------------------------
-
-Obj04:
+; Sprite_208DC: Obj04:
+Obj_WaterSurface:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj04_Index(pc,d0.w),d1
-	jmp	Obj04_Index(pc,d1.w)
+	move.w	WaterSurface_Index(pc,d0.w),d1
+	jmp	WaterSurface_Index(pc,d1.w)
 ; ===========================================================================
-; off_208EA:
-Obj04_Index:	offsetTable
-		offsetTableEntry.w Obj04_Init		; 0
-		offsetTableEntry.w Obj04_Action		; 2
-		offsetTableEntry.w Obj04_Action2	; 4
+; off_208EA: Obj04_Index:
+WaterSurface_Index: offsetTable
+		offsetTableEntry.w WaterSurface_Init		; 0
+		offsetTableEntry.w WaterSurface_Action		; 2
+		offsetTableEntry.w WaterSurface_Action2	; 4
 ; ===========================================================================
-; loc_208F0: Obj04_Main:
-Obj04_Init:
-	addq.b	#2,routine(a0) ; => Obj04_Action
-	move.l	#Obj04_MapUnc_20A0E,mappings(a0)
+; loc_208F0: Obj04_Main: Obj04_Init:
+WaterSurface_Init:
+	addq.b	#2,routine(a0) ; => WaterSurface_Action
+	move.l	#MapUnc_WaterSurface_CPZHPZ,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_WaterSurface,0,1),art_tile(a0)
 	jsrto	JmpTo12_Adjust2PArtPointer
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#$80,width_pixels(a0)
 	move.w	x_pos(a0),objoff_30(a0)
 	cmpi.b	#aquatic_ruin_zone,(Current_Zone).w
-	bne.s	Obj04_Action
-	addq.b	#2,routine(a0) ; Obj04_Action2
-	move.l	#Obj04_MapUnc_20AFE,mappings(a0)
-	bra.w	Obj04_Action2
+	bne.s	WaterSurface_Action
+	addq.b	#2,routine(a0) ; WaterSurface_Action2
+	move.l	#MapUnc_WaterSurface_ARZ,mappings(a0)
+	bra.w	WaterSurface_Action2
 ; ===========================================================================
-; loc_20930:
-Obj04_Action:
+; loc_20930: Obj04_Action:
+WaterSurface_Action:
 	move.w	(Water_Level_1).w,d1
 	move.w	d1,y_pos(a0)
 	tst.b	objoff_32(a0)
-	bne.s	Obj04_Animate
+	bne.s	WaterSurface_Animate
     if fixBugs
 	move.b	(Ctrl_1_Press).w,d0 ; is Start button pressed?
 	or.b	(Ctrl_2_Press).w,d0 ; (either player)
@@ -45879,23 +45876,23 @@ Obj04_Action:
 	beq.s	loc_20962		; if not, branch
 	addq.b	#3,mapping_frame(a0)	; use different frames
 	move.b	#1,objoff_32(a0)	; stop animation
-	bra.s	Obj04_Display
+	bra.s	WaterSurface_Display
 ; ===========================================================================
-; loc_20952:
-Obj04_Animate:
+; loc_20952: Obj04_Animate:
+WaterSurface_Animate:
 	tst.w	(Game_paused).w		; is the game paused?
-	bne.s	Obj04_Display		; if yes, branch
+	bne.s	WaterSurface_Display	; if yes, branch
 	move.b	#0,objoff_32(a0)	; resume animation
 	subq.b	#3,mapping_frame(a0)	; use normal frames
 
 loc_20962:
-
     if ~~fixBugs
-Obj04_Display:
+; Obj04_Display:
+WaterSurface_Display:
     endif
 	; This code should be skipped when the game is paused, but is isn't.
 	; This causes the wrong sprite to display when the game is paused.
-	lea	(Anim_obj04).l,a1
+	lea	(Anim_WaterSurface).l,a1
 	moveq	#0,d1
 	move.b	anim_frame(a0),d1
 	move.b	(a1,d1.w),mapping_frame(a0)
@@ -45903,25 +45900,26 @@ Obj04_Display:
 	andi.b	#$3F,anim_frame(a0)
 
     if fixBugs
-Obj04_Display:
+WaterSurface_Display:
     endif
 	jmpto	JmpTo10_DisplaySprite
 ; ===========================================================================
 ; water sprite animation 'script' (custom format for this object)
-; byte_20982:
-Anim_obj04:
+; does not include a header or speed, it's just raw frame data
+; byte_20982: Anim_obj04:
+Anim_WaterSurface:
 	dc.b 0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1
 	dc.b 1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2
 	dc.b 2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1
 	dc.b 1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0
 	even
 ; ===========================================================================
-; loc_209C2:
-Obj04_Action2:
+; loc_209C2: Obj04_Action2:
+WaterSurface_Action2:
 	move.w	(Water_Level_1).w,d1
 	move.w	d1,y_pos(a0)
 	tst.b	objoff_32(a0)
-	bne.s	Obj04_Animate2
+	bne.s	WaterSurface_Animate2
     if fixBugs
 	move.b	(Ctrl_1_Press).w,d0 ; is Start button pressed?
 	or.b	(Ctrl_2_Press).w,d0 ; (either player)
@@ -45936,8 +45934,8 @@ Obj04_Action2:
 	move.b	#1,objoff_32(a0)		; stop animation
 	bra.s	BranchTo_JmpTo10_DisplaySprite
 ; ===========================================================================
-; loc_209E4:
-Obj04_Animate2:
+; loc_209E4: Obj04_Animate2:
+WaterSurface_Animate2:
 	tst.w	(Game_paused).w	; is the game paused?
 	bne.s	BranchTo_JmpTo10_DisplaySprite	; if yes, branch
 	move.b	#0,objoff_32(a0)	; resume animation
@@ -45952,35 +45950,39 @@ loc_209F4:
 
 BranchTo_JmpTo10_DisplaySprite ; BranchTo
 	jmpto	JmpTo10_DisplaySprite
+
 ; ===========================================================================
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
-Obj04_MapUnc_20A0E:	include "mappings/sprite/obj04_a.asm"
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
+; Obj04_MapUnc_20A0E:
+MapUnc_WaterSurface_CPZHPZ:	include "mappings/sprite/CPZ and HPZ water surface.asm"
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
-Obj04_MapUnc_20AFE:	include "mappings/sprite/obj04_b.asm"
+; ---------------------------------------------------------------------------
+; Obj04_MapUnc_20AFE:
+MapUnc_WaterSurface_ARZ:	include "mappings/sprite/ARZ water surface.asm"
+
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object 49 - Waterfall from EHZ
 ; ----------------------------------------------------------------------------
-; Sprite_20B9E:
-Obj49:
+; Sprite_20B9E: Obj49:
+Obj_EHZWaterfall:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj49_Index(pc,d0.w),d1
-	jmp	Obj49_Index(pc,d1.w)
+	move.w	EHZWaterfall_Index(pc,d0.w),d1
+	jmp	EHZWaterfall_Index(pc,d1.w)
 ; ===========================================================================
-; off_20BAC:
-Obj49_Index:	offsetTable
-		offsetTableEntry.w Obj49_Init	; 0
-		offsetTableEntry.w Obj49_ChkDel	; 2
+; off_20BAC: Obj49_Index:
+EHZWaterfall_Index: offsetTable
+		offsetTableEntry.w EHZWaterfall_Init	; 0
+		offsetTableEntry.w EHZWaterfall_ChkDel	; 2
 ; ===========================================================================
-; loc_20BB0: Obj49_Main:
-Obj49_Init:
+; loc_20BB0: Obj49_Main: Obj49_Init:
+EHZWaterfall_Init:
 	addq.b	#2,routine(a0)
-	move.l	#Obj49_MapUnc_20C50,mappings(a0)
+	move.l	#MapUnc_EHZWaterfall,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Waterfall,1,0),art_tile(a0)
 	jsrto	JmpTo12_Adjust2PArtPointer
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
@@ -45989,8 +45991,8 @@ Obj49_Init:
 	move.b	#0,priority(a0)
 	move.b	#$80,y_radius(a0)
 	bset	#render_flags.explicit_height,render_flags(a0)
-; loc_20BEA:
-Obj49_ChkDel:
+; loc_20BEA: Obj49_ChkDel:
+EHZWaterfall_ChkDel:
 	tst.w	(Two_player_mode).w
 	bne.s	+
 	move.w	x_pos(a0),d0
@@ -46018,19 +46020,20 @@ Obj49_ChkDel:
 loc_20C36:
 	move.w	(Sidekick+x_pos).w,d0
 	cmp.w	d1,d0
-	blo.s	Obj49_Display
+	blo.s	EHZWaterfall_Display
 	cmp.w	d2,d0
-	bhs.s	Obj49_Display
+	bhs.s	EHZWaterfall_Display
 	move.b	#1,mapping_frame(a0)
-; loc_20C48:
-Obj49_Display:
+; loc_20C48: Obj49_Display:
+EHZWaterfall_Display:
 	add.b	d3,mapping_frame(a0)
 	jmpto	JmpTo10_DisplaySprite
 ; ===========================================================================
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
-Obj49_MapUnc_20C50:	include "mappings/sprite/obj49.asm"
+; ---------------------------------------------------------------------------
+; Obj49_MapUnc_20C50:
+MapUnc_EHZWaterfall:	include "mappings/sprite/Waterfall from EHZ.asm"
 
 
 
@@ -46239,9 +46242,9 @@ Obj7C_Main:
 ; ---------------------------------------------------------------------------
 +	rts
 ; ===========================================================================
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 Obj7C_MapUnc_2103C:	include "mappings/sprite/obj7C.asm"
 
 
@@ -46251,33 +46254,32 @@ Obj7C_MapUnc_2103C:	include "mappings/sprite/obj7C.asm"
 ; ----------------------------------------------------------------------------
 ; Object 27 - An explosion, giving off an animal and 100 points
 ; ----------------------------------------------------------------------------
-; Sprite_21088:
-Obj27:
+; Sprite_21088: Obj27:
+Obj_Explosion:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj27_Index(pc,d0.w),d1
-	jmp	Obj27_Index(pc,d1.w)
+	move.w	Explosion_Index(pc,d0.w),d1
+	jmp	Explosion_Index(pc,d1.w)
 ; ===========================================================================
-; off_21096: Obj27_States:
-Obj27_Index:	offsetTable
-		offsetTableEntry.w Obj27_InitWithAnimal	; 0
-		offsetTableEntry.w Obj27_Init		; 2
-		offsetTableEntry.w Obj27_Main		; 4
+; off_21096: Obj27_States: Obj27_Index:
+Explosion_Index: offsetTable
+		offsetTableEntry.w Explosion_InitWithAnimal	; 0
+		offsetTableEntry.w Explosion_Init		; 2
+		offsetTableEntry.w Explosion_Main		; 4
 ; ===========================================================================
-; loc_2109C: Obj27_Init:
-Obj27_InitWithAnimal:
-	addq.b	#2,routine(a0) ; => Obj27_Init
+; loc_2109C: Obj27_Init: Obj27_InitWithAnimal:
+Explosion_InitWithAnimal:
+	addq.b	#2,routine(a0) ; => Explosion_Init
 	jsrto	JmpTo2_AllocateObject
-	bne.s	Obj27_Init
+	bne.s	Explosion_Init
 	_move.b	#ObjID_Animal,id(a1) ; load obj28 (Animal and 100 points)
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
 	move.w	objoff_3E(a0),objoff_3E(a1)	; Set by Touch_KillEnemy
-
-; loc_210BE: Obj27_Init2:
-Obj27_Init:
-	addq.b	#2,routine(a0) ; => Obj27_Main
-	move.l	#Obj27_MapUnc_21120,mappings(a0)
+; loc_210BE: Obj27_Init2: Obj27_Init:
+Explosion_Init:
+	addq.b	#2,routine(a0) ; => Explosion_Main
+	move.l	#MapUnc_Explosion,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Explosion,0,0),art_tile(a0)
 	jsrto	JmpTo12_Adjust2PArtPointer
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
@@ -46288,9 +46290,8 @@ Obj27_Init:
 	move.b	#0,mapping_frame(a0)
 	move.w	#SndID_Explosion,d0
 	jsr	(PlaySound).l
-
-; loc_21102:
-Obj27_Main:
+; loc_21102: Obj27_Main:
+Explosion_Main:
 	subq.b	#1,anim_frame_duration(a0)
 	bpl.s	+
 	move.b	#7,anim_frame_duration(a0)
@@ -46300,36 +46301,34 @@ Obj27_Main:
 +
 	jmpto	JmpTo10_DisplaySprite
 ; ===========================================================================
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
-Obj27_MapUnc_21120:	include "mappings/sprite/obj27.asm"
-
-
-
+; ---------------------------------------------------------------------------
+; Obj27_MapUnc_21120:
+MapUnc_Explosion:	include "mappings/sprite/Explosion.asm"
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 84 - Pinball mode enable/disable
 ; (used in Casino Night Zone to determine when Sonic should stay in a ball)
-; ----------------------------------------------------------------------------
-; Sprite_2115C:
-Obj84:
+; ---------------------------------------------------------------------------
+; Sprite_2115C: Obj84:
+Obj_PinballMode:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj84_Index(pc,d0.w),d1
-	jsr	Obj84_Index(pc,d1.w)
+	move.w	PinballMode_Index(pc,d0.w),d1
+	jsr	PinballMode_Index(pc,d1.w)
 	jmp	(MarkObjGone3).l
 ; ===========================================================================
-; off_21170: Obj84_States:
-Obj84_Index:	offsetTable
-		offsetTableEntry.w Obj84_Init	; 0
-		offsetTableEntry.w Obj84_MainX	; 2
-		offsetTableEntry.w Obj84_MainY	; 4
+; off_21170: Obj84_States: Obj84_Index:
+PinballMode_Index: offsetTable
+		offsetTableEntry.w PinballMode_Init	; 0
+		offsetTableEntry.w PinballMode_MainX	; 2
+		offsetTableEntry.w PinballMode_MainY	; 4
 ; ===========================================================================
-; loc_21176:
-Obj84_Init:
-	addq.b	#2,routine(a0) ; => Obj84_MainX
+; loc_21176: Obj84_Init:
+PinballMode_Init:
+	addq.b	#2,routine(a0) ; => PinballMode_MainX
 	move.l	#MapUnc_PlaneSwitcher,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Ring,0,0),art_tile(a0)
 	jsrto	JmpTo12_Adjust2PArtPointer
@@ -46338,8 +46337,8 @@ Obj84_Init:
 	move.b	#5,priority(a0)
 	move.b	subtype(a0),d0
 	btst	#2,d0
-	beq.s	Obj84_Init_CheckX
-	addq.b	#2,routine(a0) ; => Obj84_MainY
+	beq.s	PinballMode_Init_CheckX
+	addq.b	#2,routine(a0) ; => PinballMode_MainY
 	andi.w	#7,d0
 	move.b	d0,mapping_frame(a0)
 	andi.w	#3,d0
@@ -46356,7 +46355,7 @@ Obj84_Init:
 	bhs.s	+
 	move.b	#1,objoff_35(a0)
 +
-	bra.w	Obj84_MainY
+	bra.w	PinballMode_MainY
 ; ===========================================================================
 word_211E8:
 	dc.w   $20
@@ -46364,8 +46363,8 @@ word_211E8:
 	dc.w   $80	; 2
 	dc.w  $100	; 3
 ; ===========================================================================
-; loc_211F0:
-Obj84_Init_CheckX:
+; loc_211F0: Obj84_Init_CheckX:
+PinballMode_Init_CheckX:
 	andi.w	#3,d0
 	move.b	d0,mapping_frame(a0)
 	add.w	d0,d0
@@ -46378,12 +46377,10 @@ Obj84_Init_CheckX:
 +
 	lea	(Sidekick).w,a1 ; a1=character
 	cmp.w	x_pos(a1),d1
-	bhs.s	Obj84_MainX
+	bhs.s	PinballMode_MainX
 	move.b	#1,objoff_35(a0)
-
-; loc_21224:
-Obj84_MainX:
-
+; loc_21224: Obj84_MainX:
+PinballMode_MainX:
 	tst.w	(Debug_placement_mode).w
 	bne.s	return_21284
 	move.w	x_pos(a0),d1
@@ -46395,7 +46392,7 @@ Obj84_MainX:
 	beq.s	return_21284
 
 +	tst.b	(a2)+
-	bne.s	Obj84_MainX_Alt
+	bne.s	PinballMode_MainX_Alt
 	cmp.w	x_pos(a1),d1
 	bhi.s	return_21284
 	move.b	#1,-1(a2)
@@ -46419,8 +46416,8 @@ Obj84_MainX:
 return_21284:
 	rts
 ; ===========================================================================
-; loc_21286:
-Obj84_MainX_Alt:
+; loc_21286: Obj84_MainX_Alt:
+PinballMode_MainX_Alt:
 	cmp.w	x_pos(a1),d1
 	bls.s	return_21284
 	move.b	#0,-1(a2)
@@ -46458,9 +46455,8 @@ loc_212C4:
 	rts
 
 ; ===========================================================================
-; loc_212F6:
-Obj84_MainY:
-
+; loc_212F6: Obj84_MainY:
+PinballMode_MainY:
 	tst.w	(Debug_placement_mode).w
 	bne.s	return_21350
 	move.w	y_pos(a0),d1
@@ -46476,7 +46472,7 @@ Obj84_MainY:
     endif
 +
 	tst.b	(a2)+
-	bne.s	Obj84_MainY_Alt
+	bne.s	PinballMode_MainY_Alt
 	cmp.w	y_pos(a1),d1
 	bhi.s	return_21350
 	move.b	#1,-1(a2)
@@ -46500,8 +46496,8 @@ Obj84_MainY:
 return_21350:
 	rts
 ; ===========================================================================
-; loc_21352:
-Obj84_MainY_Alt:
+; loc_21352: Obj84_MainY_Alt:
+PinballMode_MainY_Alt:
 	cmp.w	y_pos(a1),d1
 	bls.s	return_21350
 	move.b	#0,-1(a2)
@@ -46523,25 +46519,22 @@ Obj84_MainY_Alt:
 +	move.b	#0,pinball_mode(a1)
 	rts
 
-
-
-
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Object 8B - Cycling palette switcher from Wing Fortress Zone
 ; ---------------------------------------------------------------------------
-; Sprite_21392:
-Obj8B:
+; Sprite_21392: Obj8B:
+Obj_WFZPalSwitcher:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj8B_Index(pc,d0.w),d1
-	jsr	Obj8B_Index(pc,d1.w)
+	move.w	WFZPalSwitcher_Index(pc,d0.w),d1
+	jsr	WFZPalSwitcher_Index(pc,d1.w)
 	jmp	(MarkObjGone3).l
 ; ===========================================================================
-; off_213A6:
-Obj8B_Index:	offsetTable
-		offsetTableEntry.w Obj8B_Init	; 0
-		offsetTableEntry.w Obj8B_Main	; 2
+; off_213A6: Obj8B_Index:
+WFZPalSwitcher_Index: offsetTable
+		offsetTableEntry.w WFZPalSwitcher_Init	; 0
+		offsetTableEntry.w WFZPalSwitcher_Main	; 2
 ; ===========================================================================
 word_213AA:
 	dc.w   $20
@@ -46549,8 +46542,8 @@ word_213AA:
 	dc.w   $80	; 2
 	dc.w  $100	; 3
 ; ===========================================================================
-; loc_213B2:
-Obj8B_Init:
+; loc_213B2: Obj8B_Init:
+WFZPalSwitcher_Init:
 	addq.b	#2,routine(a0)
 	move.l	#MapUnc_PlaneSwitcher,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Ring,0,0),art_tile(a0)
@@ -46572,10 +46565,10 @@ Obj8B_Init:
 loc_21402:
 	lea	(Sidekick).w,a1 ; a1=character
 	cmp.w	x_pos(a1),d1
-	bhs.s	Obj8B_Main
+	bhs.s	WFZPalSwitcher_Main
 	move.b	#1,objoff_35(a0)
-; loc_21412:
-Obj8B_Main:
+; loc_21412: Obj8B_Main:
+WFZPalSwitcher_Main:
 	tst.w	(Debug_placement_mode).w
 	bne.s	return_2146A
 	move.w	x_pos(a0),d1
@@ -46635,9 +46628,6 @@ loc_2146C:
 ; ===========================================================================
 
 	jmpTos JmpTo10_DisplaySprite,JmpTo18_DeleteObject,JmpTo2_AllocateObject,JmpTo12_Adjust2PArtPointer
-
-
-
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -80684,7 +80674,7 @@ ObjC3_Main:
 ; ===========================================================================
 ; off_3C438:
 ObjC3_SubObjData:
-	subObjData Obj27_MapUnc_21120,make_art_tile(ArtTile_ArtNem_Explosion,0,0),1<<render_flags.level_fg,5,$C,0
+	subObjData MapUnc_Explosion,make_art_tile(ArtTile_ArtNem_Explosion,0,0),1<<render_flags.level_fg,5,$C,0
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object C5 - WFZ boss
@@ -84207,64 +84197,64 @@ Scale_2x_RightPixels2:
 
 	jmpTos0 JmpTo5_DisplaySprite3,JmpTo45_DisplaySprite,JmpTo65_DeleteObject,JmpTo19_AllocateObject,JmpTo39_MarkObjGone,JmpTo6_DeleteObject2,JmpTo12_PlaySound,JmpTo25_AllocateObjectAfterCurrent,JmpTo25_AnimateSprite,JmpTo_PlaySoundLocal,JmpTo6_RandomNumber,JmpTo2_MarkObjGone_P1,JmpTo_Pal_FadeToWhite.UpdateColour,JmpTo_LoadTailsDynPLC_Part2,JmpTo_LoadSonicDynPLC_Part2,JmpTo8_MarkObjGone3,JmpTo64_Adjust2PArtPointer,JmpTo5_PlayMusic,JmpTo_Boss_LoadExplosion,JmpTo9_PlatformObject,JmpTo27_SolidObject,JmpTo8_ObjectMoveAndFall,JmpTo26_ObjectMove
 
-
-
-
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object 8A - Sonic Team Presents/Credits (leftover from S1) (seemingly unused)
 ; ----------------------------------------------------------------------------
-; Sprite_3EAC8:
-Obj8A: ; (screen-space obj)
+; Sprite_3EAC8: Obj8A:
+Obj_S1CreditsText: ; (screen-space obj)
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj8A_Index(pc,d0.w),d1
-	jmp	Obj8A_Index(pc,d1.w)
+	move.w	S1CreditsText_Index(pc,d0.w),d1
+	jmp	S1CreditsText_Index(pc,d1.w)
 ; ===========================================================================
-; off_3EAD6:
-Obj8A_Index:	offsetTable
-		offsetTableEntry.w Obj8A_Init
-		offsetTableEntry.w Obj8A_Display
+; off_3EAD6: Obj8A_Index:
+S1CreditsText_Index: offsetTable
+		offsetTableEntry.w S1CreditsText_Init
+		offsetTableEntry.w S1CreditsText_Display
 ; ===========================================================================
-; loc_3EADA:
-Obj8A_Init:
+; loc_3EADA: Obj8A_Init:
+S1CreditsText_Init:
 	addq.b	#2,routine(a0)
 	move.w	#$120,x_pixel(a0)
 	move.w	#$F0,y_pixel(a0)
-	move.l	#Obj8A_MapUnc_3EB4E,mappings(a0)
+	move.l	#MapUnc_S1CreditsText,mappings(a0)
 	move.w	#make_art_tile($05A0,0,0),art_tile(a0)
 	jsrto	JmpTo65_Adjust2PArtPointer
-	move.w	(Ending_demo_number).w,d0
-	move.b	d0,mapping_frame(a0)
+	move.w	(Ending_demo_number).w,d0	; load ending demo number
+	move.b	d0,mapping_frame(a0)		; use appropriate sprite
 	move.b	#0,render_flags(a0)
 	move.b	#0,priority(a0)
-	cmpi.b	#GameModeID_TitleScreen,(Game_Mode).w	; title screen??
-	bne.s	Obj8A_Display	; if not, branch
+
+	cmpi.b	#GameModeID_TitleScreen,(Game_Mode).w	; is this the title screen?
+	bne.s	S1CreditsText_Display	; if not, branch
+; S1CreditsText_SonicTeamPresents:
 	move.w	#make_art_tile($0300,0,0),art_tile(a0)
 	jsrto	JmpTo65_Adjust2PArtPointer
-	move.b	#$A,mapping_frame(a0)
-	tst.b	(S1_hidden_credits_flag).w
-	beq.s	Obj8A_Display
+	move.b	#$A,mapping_frame(a0)		; display "SONIC TEAM PRESENTS"
+	tst.b	(S1_hidden_credits_flag).w	; if the Japanese hidden credits cheat enabled?
+	beq.s	S1CreditsText_Display		; if not, branch
 	cmpi.b	#button_down_mask|button_B_mask|button_C_mask|button_A_mask,(Ctrl_1_Held).w
-	bne.s	Obj8A_Display
+	bne.s	S1CreditsText_Display		; branch of A+B+C+Down is not being held
+	; This changes the background to be black and white, revealing the
+	; real names of the developers in Sonic 1, then deletes the object.
 	move.w	#$EEE,(Target_palette_line3).w
 	move.w	#$880,(Target_palette_line3+2).w
 	jmp	(DeleteObject).l
 ; ===========================================================================
-; JmpTo46_DisplaySprite
-Obj8A_Display:
+; JmpTo46_DisplaySprite: Obj8A_Display:
+S1CreditsText_Display:
 	jmp	(DisplaySprite).l
+
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings (unused?)
-; ----------------------------------------------------------------------------
-Obj8A_MapUnc_3EB4E:	include "mappings/sprite/obj8A.asm"
+; ---------------------------------------------------------------------------
+; Obj8A_MapUnc_3EB4E:
+MapUnc_S1CreditsText:	include "mappings/sprite/Sonic 1 credits.asm"
 ; ===========================================================================
 
 	jmpTos JmpTo65_Adjust2PArtPointer
-
-
-
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -88249,9 +88239,9 @@ DbgObjList_EHZ: dbglistheader
 	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_PlaneSwitcher,	MapUnc_PlaneSwitcher,   9,   1, make_art_tile(ArtTile_ArtNem_Ring,1,0)
-	dbglistobj ObjID_EHZWaterfall,	Obj49_MapUnc_20C50,   0,   0, make_art_tile(ArtTile_ArtNem_Waterfall,1,0)
-	dbglistobj ObjID_EHZWaterfall,	Obj49_MapUnc_20C50,   2,   3, make_art_tile(ArtTile_ArtNem_Waterfall,1,0)
-	dbglistobj ObjID_EHZWaterfall,	Obj49_MapUnc_20C50,   4,   5, make_art_tile(ArtTile_ArtNem_Waterfall,1,0)
+	dbglistobj ObjID_EHZWaterfall,	MapUnc_EHZWaterfall,   0,   0, make_art_tile(ArtTile_ArtNem_Waterfall,1,0)
+	dbglistobj ObjID_EHZWaterfall,	MapUnc_EHZWaterfall,   2,   3, make_art_tile(ArtTile_ArtNem_Waterfall,1,0)
+	dbglistobj ObjID_EHZWaterfall,	MapUnc_EHZWaterfall,   4,   5, make_art_tile(ArtTile_ArtNem_Waterfall,1,0)
 	dbglistobj ObjID_EHZPlatform,	Obj18_MapUnc_107F6,   1,   0, make_art_tile(ArtTile_ArtKos_LevelArt,2,0)
 	dbglistobj ObjID_EHZPlatform,	Obj18_MapUnc_107F6, $9A,   1, make_art_tile(ArtTile_ArtKos_LevelArt,2,0)
 	dbglistobj ObjID_Spikes,	Obj36_MapUnc_15B68,   0,   0, make_art_tile(ArtTile_ArtNem_Spikes,1,0)
