@@ -741,6 +741,7 @@ ObjID_Flipper =			id(ObjPtr_Flipper)		; 86
 ObjID_SSNumberOfRings =		id(ObjPtr_SSNumberOfRings)	; 87
 ObjID_SSTailsTails =		id(ObjPtr_SSTailsTails)		; 88
 ObjID_ARZBoss =			id(ObjPtr_ARZBoss)		; 89
+ObjID_S1CreditsText =		id(ObjPtr_S1CreditsText)	; 8A
 ObjID_WFZPalSwitcher =		id(ObjPtr_WFZPalSwitcher)	; 8B
 ObjID_Whisp =			id(ObjPtr_Whisp)		; 8C
 ObjID_GrounderInWall =		id(ObjPtr_GrounderInWall)	; 8D
@@ -773,6 +774,7 @@ ObjID_Grabber =			id(ObjPtr_Grabber)		; A7
 ObjID_GrabberLegs =		id(ObjPtr_GrabberLegs)		; A8
 ObjID_GrabberBox =		id(ObjPtr_GrabberBox)		; A9
 ObjID_GrabberString =		id(ObjPtr_GrabberString)	; AA
+ObjID_Grabber2 =		id(ObjPtr_Grabber2)		; AB
 ObjID_Balkiry =			id(ObjPtr_Balkiry)		; AC
 ObjID_CluckerBase =		id(ObjPtr_CluckerBase)		; AD
 ObjID_Clucker =			id(ObjPtr_Clucker)		; AE
@@ -788,6 +790,7 @@ ObjID_VerticalLaser =		id(ObjPtr_VerticalLaser)	; B7
 ObjID_WallTurret =		id(ObjPtr_WallTurret)		; B8
 ObjID_Laser =			id(ObjPtr_Laser)		; B9
 ObjID_WFZWheel =		id(ObjPtr_WFZWheel)		; BA
+ObjID_WFZUnknown =		id(ObjPtr_WFZUnknown)		; BB
 ObjID_WFZShipFire =		id(ObjPtr_WFZShipFire)		; BC
 ObjID_SmallMetalPform =		id(ObjPtr_SmallMetalPform)	; BD
 ObjID_LateralCannon =		id(ObjPtr_LateralCannon)	; BE
@@ -1081,15 +1084,15 @@ MainCharacter:			; first object (usually Sonic except in a Tails Alone game)
 Sidekick:			; second object (Tails in a Sonic and Tails game)
 				ds.b	object_size
 TitleCard:
-TitleCard_ZoneName:		; level title card: zone name
+TitleCard_ZoneNameText:		; level title card: zone name
 GameOver_GameText:		; "GAME" from GAME OVER
 TimeOver_TimeText:		; "TIME" from TIME OVER
 				ds.b	object_size
-TitleCard_Zone:			; level title card: "ZONE"
+TitleCard_ZoneText:			; level title card: "ZONE"
 GameOver_OverText:		; "OVER" from GAME OVER
 TimeOver_OverText:		; "OVER" from TIME OVER
 				ds.b	object_size
-TitleCard_ActNumber:		; level title card: act number
+TitleCard_ActNumberText:	; level title card: act number
 				ds.b	object_size
 TitleCard_Background:		; level title card: background
 				ds.b	object_size

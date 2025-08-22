@@ -4904,7 +4904,7 @@ Level_PlayBgm:
 	move.b	(a1,d0.w),d0		; load from music playlist
 	move.w	d0,(Level_Music).w	; store level music
 	bsr.w	PlayMusic		; play level music
-	move.b	#ObjID_TitleCard,(TitleCard+id).w ; load Obj34 (level title card) at $FFFFB080
+	move.b	#ObjID_TitleCard,(TitleCard+id).w ; load Obj_TitleCard at $FFFFB080
 ; loc_40DA:
 Level_TtlCard:
 	move.b	#VintID_TitleCard,(Vint_routine).w
@@ -4912,8 +4912,8 @@ Level_TtlCard:
 	jsr	(RunObjects).l
 	jsr	(BuildSprites).l
 	bsr.w	RunPLC_RAM
-	move.w	(TitleCard_ZoneName+x_pos).w,d0
-	cmp.w	(TitleCard_ZoneName+titlecard_x_target).w,d0 ; has title card sequence finished?
+	move.w	(TitleCard_ZoneNameText+x_pos).w,d0
+	cmp.w	(TitleCard_ZoneNameText+titlecard_x_target).w,d0 ; has title card sequence finished?
 	bne.s	Level_TtlCard		; if not, branch
 	tst.l	(Plc_Buffer).w		; are there any items in the pattern load cue?
 	bne.s	Level_TtlCard		; if yes, branch
@@ -5048,7 +5048,7 @@ Level_FromCheckpoint:
 +
 	bsr.w	PalLoad_Water_ForFade
 +
-	move.w	#-1,(TitleCard_ZoneName+titlecard_leaveflag).w
+	move.w	#-1,(TitleCard_ZoneNameText+titlecard_leaveflag).w
 	move.b	#$E,(TitleCard_Left+routine).w	; make the left part move offscreen
 	move.w	#$A,(TitleCard_Left+titlecard_location).w
 
@@ -5061,14 +5061,14 @@ Level_FromCheckpoint:
 	bne.s	-	; loop while the title card background is still loaded
 
 	lea	(TitleCard).w,a1
-	move.b	#$16,TitleCard_ZoneName-TitleCard+routine(a1)
-	move.w	#$2D,TitleCard_ZoneName-TitleCard+anim_frame_duration(a1)
-	move.b	#$16,TitleCard_Zone-TitleCard+routine(a1)
-	move.w	#$2D,TitleCard_Zone-TitleCard+anim_frame_duration(a1)
-	tst.b	TitleCard_ActNumber-TitleCard+id(a1)
+	move.b	#$16,TitleCard_ZoneNameText-TitleCard+routine(a1)
+	move.w	#$2D,TitleCard_ZoneNameText-TitleCard+anim_frame_duration(a1)
+	move.b	#$16,TitleCard_ZoneText-TitleCard+routine(a1)
+	move.w	#$2D,TitleCard_ZoneText-TitleCard+anim_frame_duration(a1)
+	tst.b	TitleCard_ActNumberText-TitleCard+id(a1)
 	beq.s	+	; branch if the act number has been unloaded
-	move.b	#$16,TitleCard_ActNumber-TitleCard+routine(a1)
-	move.w	#$2D,TitleCard_ActNumber-TitleCard+anim_frame_duration(a1)
+	move.b	#$16,TitleCard_ActNumberText-TitleCard+routine(a1)
+	move.w	#$2D,TitleCard_ActNumberText-TitleCard+anim_frame_duration(a1)
 +	move.b	#0,(Control_Locked).w
 	move.b	#0,(Control_Locked_P2).w
 	move.b	#1,(Level_started_flag).w
@@ -9755,10 +9755,11 @@ Obj5F_MapUnc_7240:	include "mappings/sprite/obj5F_a.asm"
 ; sprite mappings
 ; -----------------------------------------------------------------------------------
 Obj5F_MapUnc_72D2:	include "mappings/sprite/obj5F_b.asm"
+
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 87 - Number of rings in Special Stage
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_7356:
 Obj87:
 	moveq	#0,d0
@@ -10364,11 +10365,11 @@ ContinueScreen:
 	clr.b	(Level_started_flag).w
 	clr.l	(Camera_X_pos_copy).w
 	move.l	#$1000000,(Camera_Y_pos_copy).w
-	move.b	#ObjID_ContinueChars,(MainCharacter+id).w ; load ObjDB (Sonic on continue screen)
-	move.b	#ObjID_ContinueChars,(Sidekick+id).w ; load ObjDB (Tails on continue screen)
+	move.b	#ObjID_ContinueChars,(MainCharacter+id).w ; load Obj_ContinueChars (Sonic on continue screen)
+	move.b	#ObjID_ContinueChars,(Sidekick+id).w ; load Obj_ContinueChars (Tails on continue screen)
 	move.b	#6,(Sidekick+routine).w ; => ObjDB_Tails_Init
-	move.b	#ObjID_ContinueText,(ContinueText+id).w ; load ObjDA (continue screen text)
-	move.b	#ObjID_ContinueIcons,(ContinueIcons+id).w ; load ObjDA (continue icons)
+	move.b	#ObjID_ContinueText,(ContinueText+id).w ; load Obj_ContinueText (continue screen text)
+	move.b	#ObjID_ContinueIcons,(ContinueIcons+id).w ; load Obj_ContinueText (continue icons)
 	move.b	#4,(ContinueIcons+routine).w ; => loc_7AD0
 	jsr	(RunObjects).l
 	jsr	(BuildSprites).l
@@ -10471,28 +10472,29 @@ ContinueScreen_AdditionalLetters:
 	titleLetters "CONTINUE"
 
  charset ; revert character set
+
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object DA - Continue text
 ; ----------------------------------------------------------------------------
-; loc_7A68:
-ObjDA: ; (screen-space obj)
+; Sprite_7A68: ObjDA:
+Obj_ContinueText: ; (screen-space obj)
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	ObjDA_Index(pc,d0.w),d1
-	jmp	ObjDA_Index(pc,d1.w)
+	move.w	ContinueText_Index(pc,d0.w),d1
+	jmp	ContinueText_Index(pc,d1.w)
 ; ===========================================================================
-; Obj_DA_subtbl:
-ObjDA_Index:	offsetTable
-		offsetTableEntry.w ObjDA_Init		; 0
-		offsetTableEntry.w JmpTo2_DisplaySprite	; 2
-		offsetTableEntry.w loc_7AD0		; 4
-		offsetTableEntry.w loc_7B46		; 6
+; off_7A76: Obj_DA_subtbl: ObjDA_Index:
+ContinueText_Index: offsetTable
+		offsetTableEntry.w ContinueText_Init		; 0
+		offsetTableEntry.w JmpTo2_DisplaySprite		; 2
+		offsetTableEntry.w loc_7AD0			; 4
+		offsetTableEntry.w loc_7B46			; 6
 ; ===========================================================================
-; loc_7A7E:
-ObjDA_Init:
+; loc_7A7E: ObjDA_Init:
+ContinueText_Init:
 	addq.b	#2,routine(a0)
-	move.l	#ObjDA_MapUnc_7CB6,mappings(a0)
+	move.l	#MapUnc_ContinueSprites,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_ContinueText,0,1),art_tile(a0)
 	jsrto	JmpTo_Adjust2PArtPointer
 	move.b	#0,render_flags(a0)
@@ -10503,15 +10505,15 @@ ObjDA_Init:
 JmpTo2_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
 ; ===========================================================================
-; word_7AB2:
-ObjDA_XPositions:
+; word_7AB2: ObjDA_XPositions:
+ContinueText_XPositions:
 	dc.w  $116, $12A, $102,	$13E,  $EE, $152,  $DA,	$166
 	dc.w   $C6, $17A,  $B2,	$18E,  $9E, $1A2,  $8A; 8
 ; ===========================================================================
 
 loc_7AD0:
 	movea.l	a0,a1
-	lea_	ObjDA_XPositions,a2
+	lea_	ContinueText_XPositions,a2
 	moveq	#0,d1
 	move.b	(Continue_count).w,d1
 	subq.b	#2,d1
@@ -10528,7 +10530,7 @@ loc_7AD0:
 	move.b	d1,d2
 	andi.b	#1,d2
 
--	_move.b	#ObjID_ContinueIcons,id(a1) ; load objDA
+-	_move.b	#ObjID_ContinueIcons,id(a1) ; load Obj_ContinueText
 	move.w	(a2)+,x_pixel(a1)
 	tst.b	d2
 	beq.s	+
@@ -10537,7 +10539,7 @@ loc_7AD0:
 	move.w	#$D0,y_pixel(a1)
 	move.b	#4,mapping_frame(a1)
 	move.b	#6,routine(a1)
-	move.l	#ObjDA_MapUnc_7CB6,mappings(a1)
+	move.l	#MapUnc_ContinueSprites,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_ContinueText_2,0,1),art_tile(a1)
 	jsrto	JmpTo_Adjust2PArtPointer2
 	move.b	#0,render_flags(a1)
@@ -10571,31 +10573,32 @@ JmpTo3_DisplaySprite ; JmpTo
 
 JmpTo2_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
+
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object DB - Sonic lying down or Tails nagging (on the continue screen)
 ; ----------------------------------------------------------------------------
-; Sprite_7B82:
-ObjDB:
+; Sprite_7B82: ObjDB:
+Obj_ContinueChars:
 	; a0=character
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	ObjDB_Index(pc,d0.w),d1
-	jsr	ObjDB_Index(pc,d1.w)
+	move.w	ContinueChars_Index(pc,d0.w),d1
+	jsr	ContinueChars_Index(pc,d1.w)
 	jmp	(DisplaySprite).l
 ; ===========================================================================
-; off_7B96: ObjDB_States:
-ObjDB_Index:	offsetTable
-		offsetTableEntry.w ObjDB_Sonic_Init	;  0
-		offsetTableEntry.w ObjDB_Sonic_Wait	;  2
-		offsetTableEntry.w ObjDB_Sonic_Run	;  4
-		offsetTableEntry.w ObjDB_Tails_Init	;  6
-		offsetTableEntry.w ObjDB_Tails_Wait	;  8
-		offsetTableEntry.w ObjDB_Tails_Run	; $A
+; off_7B96: ObjDB_States: ObjDB_Index:
+ContinueChars_Index: offsetTable
+		offsetTableEntry.w ContinueChars_Sonic_Init	;  0
+		offsetTableEntry.w ContinueChars_Sonic_Wait	;  2
+		offsetTableEntry.w ContinueChars_Sonic_Run	;  4
+		offsetTableEntry.w ContinueChars_Tails_Init	;  6
+		offsetTableEntry.w ContinueChars_Tails_Wait	;  8
+		offsetTableEntry.w ContinueChars_Tails_Run	; $A
 ; ===========================================================================
-; loc_7BA2:
-ObjDB_Sonic_Init:
-	addq.b	#2,routine(a0) ; => ObjDB_Sonic_Wait
+; loc_7BA2: ObjDB_Sonic_Init:
+ContinueChars_Sonic_Init:
+	addq.b	#2,routine(a0) ; => ContinueChars_Sonic_Wait
 	move.w	#$9C,x_pos(a0)
 	move.w	#$19C,y_pos(a0)
 	move.l	#MapUnc_Sonic,mappings(a0)
@@ -10604,23 +10607,23 @@ ObjDB_Sonic_Init:
 	move.b	#2,priority(a0)
 	move.b	#AniIDSonAni_Lying,anim(a0)
 
-; loc_7BD2:
-ObjDB_Sonic_Wait:
+; loc_7BD2: ObjDB_Sonic_Wait:
+ContinueChars_Sonic_Wait:
 	tst.b	(Ctrl_1_Press).w	; is start pressed?
-	bmi.s	ObjDB_Sonic_StartRunning ; if yes, branch
+	bmi.s	ContinueChars_Sonic_StartRunning ; if yes, branch
 	jsr	(Sonic_Animate).l
 	jmp	(LoadSonicDynPLC).l
 ; ---------------------------------------------------------------------------
-; loc_7BE4:
-ObjDB_Sonic_StartRunning:
-	addq.b	#2,routine(a0) ; => ObjDB_Sonic_Run
+; loc_7BE4: ObjDB_Sonic_StartRunning:
+ContinueChars_Sonic_StartRunning:
+	addq.b	#2,routine(a0) ; => ContinueChars_Sonic_Run
 	move.b	#AniIDSonAni_LieDown,anim(a0)
 	clr.w	inertia(a0)
 	move.b	#SndID_SpindashRev,d0 ; super peel-out sound
 	bsr.w	PlaySound
 
-; loc_7BFA:
-ObjDB_Sonic_Run:
+; loc_7BFA: ObjDB_Sonic_Run:
+ContinueChars_Sonic_Run:
 	cmpi.w	#$800,inertia(a0)
 	bne.s	+
 	move.w	#$1000,x_vel(a0)
@@ -10633,27 +10636,27 @@ ObjDB_Sonic_Run:
 	jsr	(Sonic_Animate).l
 	jmp	(LoadSonicDynPLC).l
 ; ===========================================================================
-; loc_7C22:
-ObjDB_Tails_Init:
-	addq.b	#2,routine(a0) ; => ObjDB_Tails_Wait
+; loc_7C22: ObjDB_Tails_Init:
+ContinueChars_Tails_Init:
+	addq.b	#2,routine(a0) ; => ContinueChars_Tails_Wait
 	move.w	#$B8,x_pos(a0)
 	move.w	#$1A0,y_pos(a0)
-	move.l	#ObjDA_MapUnc_7CB6,mappings(a0)
+	move.l	#MapUnc_ContinueSprites,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_ContinueTails,0,0),art_tile(a0)
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#2,priority(a0)
-	move.b	#0,anim(a0) ; This is animation 0 of Ani_objDB, not Tails' usual animation script.
+	move.b	#0,anim(a0) ; This is animation 0 of Ani_ContinueChars, not Tails' usual animation script.
 
-; loc_7C52:
-ObjDB_Tails_Wait:
+; loc_7C52: ObjDB_Tails_Wait:
+ContinueChars_Tails_Wait:
 	tst.b	(Ctrl_1_Press).w	; is start pressed?
-	bmi.s	ObjDB_Tails_StartRunning ; if yes, branch
-	lea	(Ani_objDB).l,a1
+	bmi.s	ContinueChars_Tails_StartRunning ; if yes, branch
+	lea	(Ani_ContinueChars).l,a1
 	jmp	(AnimateSprite).l
 ; ---------------------------------------------------------------------------
-; loc_7C64:
-ObjDB_Tails_StartRunning:
-	addq.b	#2,routine(a0) ; => ObjDB_Tails_Run
+; loc_7C64: ObjDB_Tails_StartRunning:
+ContinueChars_Tails_StartRunning:
+	addq.b	#2,routine(a0) ; => ContinueChars_Tails_Run
 	move.l	#MapUnc_Tails,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
 	move.b	#AniIDSonAni_Walk,anim(a0)
@@ -10661,8 +10664,8 @@ ObjDB_Tails_StartRunning:
 	move.b	#SndID_SpindashRev,d0 ; super peel-out sound
 	bsr.w	PlaySound
 
-; loc_7C88:
-ObjDB_Tails_Run:
+; loc_7C88: ObjDB_Tails_Run:
+ContinueChars_Tails_Run:
 	cmpi.w	#$720,inertia(a0)
 	bne.s	+
 	move.w	#$1000,x_vel(a0)
@@ -10676,21 +10679,22 @@ ObjDB_Tails_Run:
 	jmp	(LoadTailsDynPLC).l
 ; ===========================================================================
 ; animation script for continue screen Tails nagging
-; off_7CB0
-Ani_objDB:	offsetTable
+; off_7CB0 Ani_objDB:
+Ani_ContinueChars: offsetTable
 		offsetTableEntry.w +	; 0
 +		dc.b   9,  2,  3,$FF
 	even
-; -------------------------------------------------------------------------------
+
+; ---------------------------------------------------------------------------
 ; Sprite mappings for text, countdown, stars, and Tails on the continue screen
 ; Art starts at $A000 in VRAM
-; -------------------------------------------------------------------------------
-ObjDA_MapUnc_7CB6:	include	"mappings/sprite/objDA.asm"
+; ---------------------------------------------------------------------------
+; ObjDA_MapUnc_7CB6:
+MapUnc_ContinueSprites:		include	"mappings/sprite/Continue sprites.asm"
+
+; ===========================================================================
 
 	jmpTos JmpTo_Adjust2PArtPointer2,JmpTo_Adjust2PArtPointer
-
-
-
 
 ; ===========================================================================
 ; loc_7D50:
@@ -13895,9 +13899,9 @@ word_A874:
 	dc.w   $30,$1E	; 15
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object CE - Sonic and Tails jumping off the plane from ending sequence
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_A894:
 ObjCE:
 	moveq	#0,d0
@@ -13914,7 +13918,7 @@ ObjCE_Index:	offsetTable
 ; ===========================================================================
 ; loc_A8AA:
 ObjCE_Init:
-	lea	(ObjB3_SubObjData).l,a1
+	lea	(SCZCloud_SubObjData).l,a1
 	jsrto	JmpTo_LoadSubObject_Part3
 	move.l	#ObjCF_MapUnc_ADA2,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,0,1),art_tile(a0)
@@ -13991,10 +13995,11 @@ byte_A980:
 byte_A984:
 	dc.b   -8,   0
 	dc.b -$50,-$40	; 2
+
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object CF - "Plane's helixes" from ending sequence
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_A988:
 ObjCF:
 	moveq	#0,d0
@@ -14009,7 +14014,7 @@ ObjCF_Index:	offsetTable
 ; ===========================================================================
 ; loc_A99A:
 ObjCF_Init:
-	lea	(ObjB3_SubObjData).l,a1
+	lea	(SCZCloud_SubObjData).l,a1
 	jsrto	JmpTo_LoadSubObject_Part3
 	move.l	#ObjCF_MapUnc_ADA2,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,0,1),art_tile(a0)
@@ -14031,9 +14036,9 @@ ObjCF_Animate:
 	jsrto	JmpTo_AnimateSprite
 	bra.w	loc_A90E
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object CB - Background clouds from ending sequence
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_A9F2:
 ObjCB:
 	moveq	#0,d0
@@ -14049,7 +14054,7 @@ ObjCB_Index:	offsetTable
 ; ===========================================================================
 ; loc_AA06:
 ObjCB_Init:
-	lea	(ObjB3_SubObjData).l,a1
+	lea	(SCZCloud_SubObjData).l,a1
 	jsrto	JmpTo_LoadSubObject_Part3
 	move.w	art_tile(a0),d0
 	andi.w	#$1FFF,d0
@@ -24980,22 +24985,26 @@ LostRings_Init:
 	moveq	#0,d5
 	move.w	(Ring_count).w,d5
 	tst.b	parent+1(a0)
-	beq.s	+
+	beq.s	.notSonic
 	move.w	(Ring_count_2P).w,d5
-+
+; loc_120A2:
+.notSonic:
 	moveq	#$20,d0
 	cmp.w	d0,d5
-	blo.s	+
+	blo.s	.belowmax
 	move.w	d0,d5
-+
+; loc_120AA:
+.belowmax:
 	subq.w	#1,d5
 	move.w	#$288,d4
-	bra.s	+
+	bra.s	.makerings
 ; ===========================================================================
-
--	bsr.w	AllocateObject
-	bne.w	+++
-+
+; loc_120B2:
+.loopobj:
+	bsr.w	AllocateObject
+	bne.w	.resetcounter
+; loc_120BA:
+.makerings:
 	_move.b	#ObjID_LostRings,id(a1) ; load Obj_LostRings
 	addq.b	#2,routine(a1)
 	move.b	#8,y_radius(a1)
@@ -25011,7 +25020,7 @@ LostRings_Init:
 	move.b	#8,width_pixels(a1)
 	move.b	#-1,(Ring_spill_anim_counter).w
 	tst.w	d4
-	bmi.s	+
+	bmi.s	.applyspeeds
 	move.w	d4,d0
 	jsrto	JmpTo4_CalcSine
 	move.w	d4,d2
@@ -25021,27 +25030,30 @@ LostRings_Init:
 	move.w	d0,d2
 	move.w	d1,d3
 	addi.b	#$10,d4
-	bcc.s	+
+	bcc.s	.applyspeeds
 	subi.w	#$80,d4
-	bcc.s	+
+	bcc.s	.applyspeeds
 	move.w	#$288,d4
-+
+; loc_12132:
+.applyspeeds:
 	move.w	d2,x_vel(a1)
 	move.w	d3,y_vel(a1)
 	neg.w	d2
 	neg.w	d4
-	dbf	d5,-
-+
+	dbf	d5,.loopobj
+; loc_12142:
+.resetcounter:
 	move.w	#SndID_RingSpill,d0
 	jsr	(PlaySound2).l
 	tst.b	parent+1(a0)
-	bne.s	+
+	bne.s	.notSonic2
 	move.w	#0,(Ring_count).w
 	move.b	#$80,(Update_HUD_rings).w
 	move.b	#0,(Extra_life_flags).w
 	bra.s	LostRings_Main
 ; ===========================================================================
-+
+; loc_12166:
+.notSonic2:
 	move.w	#0,(Ring_count_2P).w
 	move.b	#$80,(Update_HUD_rings_2P).w
 	move.b	#0,(Extra_life_flags_2P).w
@@ -25050,23 +25062,23 @@ LostRings_Main:
 	move.b	(Ring_spill_anim_frame).w,mapping_frame(a0)
 	bsr.w	ObjectMove
 	addi.w	#$18,y_vel(a0)
-	bmi.s	loc_121B8
+	bmi.s	LostRings_ChkDel
 	move.b	(Vint_runcount+3).w,d0
 	add.b	d7,d0
 	andi.b	#7,d0
-	bne.s	loc_121B8
+	bne.s	LostRings_ChkDel
 	_btst	#render_flags.on_screen,render_flags(a0)
 	_beq.s	loc_121D0
 	jsr	(RingCheckFloorDist).l
 	tst.w	d1
-	bpl.s	loc_121B8
+	bpl.s	LostRings_ChkDel
 	add.w	d1,y_pos(a0)
 	move.w	y_vel(a0),d0
 	asr.w	#2,d0
 	sub.w	d0,y_vel(a0)
 	neg.w	y_vel(a0)
-
-loc_121B8:
+; loc_121B8:
+LostRings_ChkDel:
 	tst.b	(Ring_spill_anim_counter).w
 	beq.s	LostRings_Delete
 	move.w	(Camera_Max_Y_pos).w,d0
@@ -25079,7 +25091,7 @@ loc_121B8:
 loc_121D0:
 	tst.w	(Two_player_mode).w
 	bne.w	LostRings_Delete
-	bra.s	loc_121B8
+	bra.s	LostRings_ChkDel
 ; ===========================================================================
 ; loc_121DA: Obj_37_sub_4: Obj37_Collect:
 LostRings_Collect:
@@ -25277,21 +25289,22 @@ casino_prize_y_pos =		objoff_34	; Y position of the ring with greater precision
 casino_prize_machine_x_pos =	objoff_38	; X position of the slot machine that generated the ring
 casino_prize_machine_y_pos =	objoff_3A	; Y position of the slot machine that generated the ring
 casino_prize_display_delay =	objoff_3C	; number of frames before which the ring is displayed
-; Sprite_125E6:
-ObjDC:
+
+; Sprite_125E6: ObjDC:
+Obj_RingPrize:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	ObjDC_Index(pc,d0.w),d1
-	jmp	ObjDC_Index(pc,d1.w)
+	move.w	RingPrize_Index(pc,d0.w),d1
+	jmp	RingPrize_Index(pc,d1.w)
 ; ===========================================================================
-; off_125F4:
-ObjDC_Index:	offsetTable
-		offsetTableEntry.w ObjDC_Main		; 0
-		offsetTableEntry.w ObjDC_Animate	; 2
-		offsetTableEntry.w ObjDC_Delete		; 4
+; off_125F4: ObjDC_Index:
+RingPrize_Index: offsetTable
+		offsetTableEntry.w RingPrize_Main		; 0
+		offsetTableEntry.w RingPrize_Animate		; 2
+		offsetTableEntry.w RingPrize_Delete		; 4
 ; ===========================================================================
-; loc_125FA:
-ObjDC_Main:
+; loc_125FA: ObjDC_Main:
+RingPrize_Main:
 	moveq	#0,d1
 	move.w	casino_prize_machine_x_pos(a0),d1
 	swap	d1
@@ -25308,7 +25321,7 @@ ObjDC_Main:
 	asr.l	#4,d0
 	sub.l	d0,casino_prize_y_pos(a0)
 	move.w	casino_prize_y_pos(a0),y_pos(a0)
-	lea	Ani_objDC(pc),a1
+	lea	Ani_RingPrize(pc),a1
 	bsr.w	AnimateSprite
 	subq.w	#1,casino_prize_display_delay(a0)
 	bne.w	DisplaySprite
@@ -25316,28 +25329,25 @@ ObjDC_Main:
 	subq.w	#1,(a1)
 	bsr.w	CollectRing
 	addi_.b	#2,routine(a0)
-; loc_1264E:
-ObjDC_Animate:
+; loc_1264E: ObjDC_Animate:
+RingPrize_Animate:
 	lea	Ani_Ring(pc),a1
 	bsr.w	AnimateSprite
 	bra.w	DisplaySprite
 ; ===========================================================================
-; BranchTo8_DeleteObject
-ObjDC_Delete:
+; BranchTo8_DeleteObject ObjDC_Delete:
+RingPrize_Delete:
 	bra.w	DeleteObject
 ; ===========================================================================
 ; animation script
-; byte_1265E
-Ani_objDC:	offsetTable
+; byte_1265E Ani_objDC:
+Ani_RingPrize:	offsetTable
 		offsetTableEntry.w +	; 0
 +		dc.b   1,  0,  1,  2,  3,$FF
 	even
 ; ===========================================================================
 
 	jmpTos JmpTo4_CalcSine
-
-
-
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -27094,34 +27104,36 @@ titlecard_vram_dest    = objoff_36	; target of VRAM write
 titlecard_vram_dest_2P = objoff_38	; target of VRAM write
 titlecard_split_point  = objoff_3A	; point to split drawing for yellow and red portions
 titlecard_leaveflag    = objoff_3E	; whether or not titlecard is leaving screen
-; Sprite_13C48:
-Obj34: ; (note: screen-space obj)
+
+; Sprite_13C48: Obj34:
+Obj_TitleCard: ; (note: screen-space obj)
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj34_Index(pc,d0.w),d1
-	jmp	Obj34_Index(pc,d1.w)
+	move.w	TitleCard_Index(pc,d0.w),d1
+	jmp	TitleCard_Index(pc,d1.w)
 ; ===========================================================================
-Obj34_Index:	offsetTable
-		offsetTableEntry.w Obj34_Init			;   0 - create all the title card objects
-		offsetTableEntry.w Obj34_BackgroundIn		;   2 - the background, coming in
-		offsetTableEntry.w Obj34_BottomPartIn		;   4 - the yellow part at the bottom, coming in
-		offsetTableEntry.w Obj34_LeftPartIn		;   6 - the red part on the left, coming in
-		offsetTableEntry.w Obj34_ZoneName		;   8 - the name of the zone, coming in
-		offsetTableEntry.w Obj34_Zone			;  $A - the word "ZONE", coming in
-		offsetTableEntry.w Obj34_ActNumber		;  $C - the act number, coming in
-		offsetTableEntry.w Obj34_LeftPartOut		;  $E - red part on the left, going out
-		offsetTableEntry.w Obj34_BottomPartOut		; $10 - yellow part at the bottom, going out
-		offsetTableEntry.w Obj34_BackgroundOutInit	; $12 - the background, going out (first frame)
-		offsetTableEntry.w Obj34_BackgroundOut		; $14 - the background, going out
-		offsetTableEntry.w Obj34_WaitAndGoAway		; $16 - wait and go away, used by the zone name, "ZONE" and the act number
+; off_13C56: Obj34_Index:
+TitleCard_Index: offsetTable
+		offsetTableEntry.w TitleCard_Init		;   0 - create all the title card objects
+		offsetTableEntry.w TitleCard_BackgroundIn	;   2 - the background, coming in
+		offsetTableEntry.w TitleCard_BottomPartIn		;   4 - the yellow part at the bottom, coming in
+		offsetTableEntry.w TitleCard_LeftPartIn		;   6 - the red part on the left, coming in
+		offsetTableEntry.w TitleCard_ZoneName		;   8 - the name of the zone, coming in
+		offsetTableEntry.w TitleCard_Zone			;  $A - the word "ZONE", coming in
+		offsetTableEntry.w TitleCard_ActNumber		;  $C - the act number, coming in
+		offsetTableEntry.w TitleCard_LeftPartOut		;  $E - red part on the left, going out
+		offsetTableEntry.w TitleCard_BottomPartOut		; $10 - yellow part at the bottom, going out
+		offsetTableEntry.w TitleCard_BackgroundOutInit	; $12 - the background, going out (first frame)
+		offsetTableEntry.w TitleCard_BackgroundOut		; $14 - the background, going out
+		offsetTableEntry.w TitleCard_WaitAndGoAway	; $16 - wait and go away, used by the zone name, "ZONE" and the act number
 ; ===========================================================================
-; loc_13C6E:
-Obj34_Init:
+; loc_13C6E: Obj34_Init:
+TitleCard_Init:
 	lea	(a0),a1
-	lea	Obj34_TitleCardData(pc),a2
+	lea	TitleCardData(pc),a2
 
-	moveq	#(Obj34_TitleCardData_End-Obj34_TitleCardData)/$A-1,d1
--	_move.b	#ObjID_TitleCard,id(a1) ; load obj34
+	moveq	#(TitleCardData_End-TitleCardData)/$A-1,d1
+-	_move.b	#ObjID_TitleCard,id(a1) ; load Obj_TitleCard
 	move.b	(a2)+,routine(a1)
 	move.l	#MapUnc_TitleCards,mappings(a1)
 	move.b	(a2)+,mapping_frame(a1)
@@ -27155,20 +27167,20 @@ titlecardobjdata macro routine,frame,width,duration,xstart,xstop,y
 	dc.b routine,frame,width,duration
 	dc.w 128+xstart,128+xstop,128+y
     endm
-; word_13CD4:
-Obj34_TitleCardData:
+; word_13CD4: Obj34_TitleCardData:
+TitleCardData:
 	titlecardobjdata  8,   0, $80, $1B, 320+128,   160,    56	; zone name
 	titlecardobjdata $A, $11, $40, $1C,    0-88,   200,    80	; "ZONE"
 	titlecardobjdata $C, $12, $18, $1C,    0-24,   264,    80	; act number
 	titlecardobjdata  2,   0,   0,   0,   0-128, 0-128, 0-128	; blue background
 	titlecardobjdata  4, $15, $48,   8, 320+232,   232,   160	; bottom yellow part
 	titlecardobjdata  6, $16,   8, $15,       0,   112,   112	; left red part
-Obj34_TitleCardData_End:
+TitleCardData_End:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; sub_13D10:
-Obj34_Wait:
+; sub_13D10: Obj34_Wait:
+TitleCard_Wait:
 	subq.b	#1,anim_frame_duration(a0)	; subtract 1
 	bne.s	+				; if it's not 0, branch
 	move.b	#1,anim_frame_duration(a0)	; reset to 1
@@ -27176,11 +27188,11 @@ Obj34_Wait:
 ; ---------------------------------------------------------------------------
 +	addq.w	#4,sp	; don't run the code after the call to this routine
 	rts
-; End of function Obj34_Wait
+; End of function TitleCard_Wait
 
 ; ===========================================================================
-; loc_13D22:
-Obj34_BackgroundIn:	; the blue background (green when playing as Knuckles), coming in
+; loc_13D22: Obj34_BackgroundIn:
+TitleCard_BackgroundIn:	; the blue background (green when playing as Knuckles), coming in
 	moveq	#$10,d0
 	moveq	#8,d1
 	tst.w	(Two_player_mode).w	; if two-player mode is on (1)
@@ -27205,11 +27217,11 @@ Obj34_BackgroundIn:	; the blue background (green when playing as Knuckles), comi
 +
 	rts
 ; ===========================================================================
-; loc_13D58:
-Obj34_BottomPartIn:	; the yellow part at the bottom, coming in
-	jsr	Obj34_Wait(pc)
+; loc_13D58: Obj34_BottomPartIn:
+TitleCard_BottomPartIn:	; the yellow part at the bottom, coming in
+	jsr	TitleCard_Wait(pc)
 	move.w	titlecard_location(a0),d0
-	bmi.w	Obj34_MoveTowardsTargetPosition
+	bmi.w	TitleCard_MoveTowardsTargetPosition
 	add.w	d0,d0
 	move.w	#$80*$14/2,d1		; $14 half-cells down (for 2P mode)
 	tst.w	(Two_player_mode).w
@@ -27231,13 +27243,13 @@ Obj34_BottomPartIn:	; the yellow part at the bottom, coming in
 	move.w	titlecard_location(a0),titlecard_split_point(a0)
 	cmpi.w	#6,titlecard_location(a0) ; if titlecard_location(a0) is 6,
 	seq	titlecard_location(a0) ; then set it to $FF, else set it to $00
-	bra.w	Obj34_MoveTowardsTargetPosition
+	bra.w	TitleCard_MoveTowardsTargetPosition
 ; ===========================================================================
-; loc_13DA6:
-Obj34_LeftPartIn:	; the red part on the left, coming in
-	jsr	Obj34_Wait(pc)
+; loc_13DA6: Obj34_LeftPartIn:
+TitleCard_LeftPartIn:	; the red part on the left, coming in
+	jsr	TitleCard_Wait(pc)
 	tst.w	titlecard_location(a0)
-	bmi.w	Obj34_MoveTowardsTargetPosition
+	bmi.w	TitleCard_MoveTowardsTargetPosition
 	move.w	#VRAM_Plane_A_Name_Table,titlecard_vram_dest(a0)
 	tst.w	(Two_player_mode).w
 	beq.s	+
@@ -27247,22 +27259,22 @@ Obj34_LeftPartIn:	; the red part on the left, coming in
 	move.w	titlecard_location(a0),titlecard_split_point(a0)
 	cmpi.w	#$E,titlecard_location(a0)
 	seq	titlecard_location(a0)
-	bra.w	Obj34_MoveTowardsTargetPosition
+	bra.w	TitleCard_MoveTowardsTargetPosition
 ; ===========================================================================
-; loc_13DDC:
-Obj34_ZoneName:		; the name of the zone, coming in
-	jsr	Obj34_Wait(pc)
+; loc_13DDC: Obj34_ZoneName:
+TitleCard_ZoneName:		; the name of the zone, coming in
+	jsr	TitleCard_Wait(pc)
 	move.b	(Current_Zone).w,mapping_frame(a0)
-	bra.s	Obj34_MoveTowardsTargetPosition
+	bra.s	TitleCard_MoveTowardsTargetPosition
 ; ===========================================================================
-; loc_13DE8:
-Obj34_Zone:		; the word "ZONE", coming in
-	jsr	Obj34_Wait(pc)
-	bra.s	Obj34_MoveTowardsTargetPosition
+; loc_13DE8: Obj34_Zone:
+TitleCard_Zone:		; the word "ZONE", coming in
+	jsr	TitleCard_Wait(pc)
+	bra.s	TitleCard_MoveTowardsTargetPosition
 ; ===========================================================================
-; loc_13DEE:
-Obj34_ActNumber:	; the act number, coming in
-	jsr	Obj34_Wait(pc)
+; loc_13DEE: Obj34_ActNumber:
+TitleCard_ActNumber:	; the act number, coming in
+	jsr	TitleCard_Wait(pc)
 	move.b	(Current_Zone).w,d0	; get the current zone
 	cmpi.b	#sky_chase_zone,d0	; is it Sky Chase?
 	beq.s	BranchTo9_DeleteObject	; if yes, branch
@@ -27280,8 +27292,8 @@ Obj34_ActNumber:	; the act number, coming in
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; sub_13E1C:
-Obj34_MoveTowardsTargetPosition:
+; sub_13E1C: Obj34_MoveTowardsTargetPosition:
+TitleCard_MoveTowardsTargetPosition:
 	moveq	#$10,d0 ; Movement speed
 	move.w	x_pixel(a0),d1
 	cmp.w	titlecard_x_target(a0),d1
@@ -27298,15 +27310,15 @@ Obj34_MoveTowardsTargetPosition:
 	bra.w	DisplaySprite
 .return:
 	rts
-; End of function Obj34_MoveTowardsTargetPosition
+; End of function TitleCard_MoveTowardsTargetPosition
 
 ; ===========================================================================
 
 BranchTo9_DeleteObject ; BranchTo
 	bra.w	DeleteObject
 ; ===========================================================================
-; loc_13E42:
-Obj34_LeftPartOut:	; red part on the left, going out
+; loc_13E42: Obj34_LeftPartOut:
+TitleCard_LeftPartOut:	; red part on the left, going out
 	move.w	titlecard_location(a0),d0
 	bpl.s	+
 	move.b	#$10,TitleCard_Bottom-TitleCard_Left+routine(a0)
@@ -27329,8 +27341,8 @@ Obj34_LeftPartOut:	; red part on the left, going out
 +
 	bra.w	loc_13EC4
 ; ===========================================================================
-; loc_13E84:
-Obj34_BottomPartOut:	; yellow part at the bottom, going out
+; loc_13E84: Obj34_BottomPartOut:
+TitleCard_BottomPartOut:	; yellow part at the bottom, going out
 	move.w	titlecard_location(a0),d0
 	cmpi.w	#$28,d0
 	bne.s	+
@@ -27372,8 +27384,8 @@ loc_13EC4:
 ; ---------------------------------------------------------------------------
 +	rts
 ; ===========================================================================
-; loc_13EE6:
-Obj34_BackgroundOutInit:	; the background, going out
+; loc_13EE6: Obj34_BackgroundOutInit:
+TitleCard_BackgroundOutInit:	; the background, going out
 	move.l	a0,-(sp)
 	move.l	d7,-(sp)
 	bsr.w	DeformBgLayer
@@ -27381,8 +27393,8 @@ Obj34_BackgroundOutInit:	; the background, going out
 	movea.l	(sp)+,a0 ; load 0bj address
 	addi_.b	#2,routine(a0)
 	move.w	#$F0,titlecard_location(a0)
-; loc_13EFE:
-Obj34_BackgroundOut:
+; loc_13EFE: Obj34_BackgroundOut:
+TitleCard_BackgroundOut:
 	move.w	titlecard_location(a0),d0
 	subi.w	#$20,d0
 	cmpi.w	#-$30,d0
@@ -27391,8 +27403,8 @@ Obj34_BackgroundOut:
 	move.w	d0,titlecard_vram_dest(a0)
 	rts
 ; ===========================================================================
-; loc_13F18:
-Obj34_WaitAndGoAway:
+; loc_13F18: Obj34_WaitAndGoAway:
+TitleCard_WaitAndGoAway:
 	tst.w	anim_frame_duration(a0)
 	beq.s	+
 	subq.w	#1,anim_frame_duration(a0)
@@ -27402,19 +27414,19 @@ Obj34_WaitAndGoAway:
 	moveq	#$20,d0
 	move.w	x_pixel(a0),d1
 	cmp.w	titlecard_x_source(a0),d1
-	beq.s	Obj34_LoadStandardWaterAndAnimalArt
+	beq.s	TitleCard_LoadStandardWaterAndAnimalArt
 	bhi.s	+
 	neg.w	d0
 +
 	sub.w	d0,x_pixel(a0)
 	cmpi.w	#$200,x_pixel(a0)
-	bhi.s	Obj34_LoadStandardWaterAndAnimalArt
+	bhi.s	TitleCard_LoadStandardWaterAndAnimalArt
 +
 	bra.w	DisplaySprite
 ; ===========================================================================
-; loc_13F44:
-Obj34_LoadStandardWaterAndAnimalArt:
-	cmpa.w	#TitleCard_ZoneName,a0	; is this the zone name object?
+; loc_13F44: Obj34_LoadStandardWaterAndAnimalArt:
+TitleCard_LoadStandardWaterAndAnimalArt:
+	cmpa.w	#TitleCard_ZoneNameText,a0	; is this the zone name object?
 	bne.s	+			; if not, just delete the title card
 	moveq	#PLCID_StdWtr,d0	; load the standard water graphics
 	jsrto	JmpTo3_LoadPLC
@@ -27575,7 +27587,7 @@ Obj3A: ; (screen-space obj)
 Obj3A_Index:	offsetTable
 		offsetTableEntry.w loc_140AC					;   0
 		offsetTableEntry.w loc_14102					;   2
-		offsetTableEntry.w BranchTo_Obj34_MoveTowardsTargetPosition	;   4
+		offsetTableEntry.w BranchTo_TitleCard_MoveTowardsTargetPosition	;   4
 		offsetTableEntry.w loc_14146					;   6
 		offsetTableEntry.w loc_14168					;   8
 		offsetTableEntry.w loc_1419C					;  $A
@@ -27632,7 +27644,7 @@ loc_14102:
 loc_14118:
 
 	move.b	d0,mapping_frame(a0)
-	bsr.w	Obj34_MoveTowardsTargetPosition
+	bsr.w	TitleCard_MoveTowardsTargetPosition
 	move.w	x_pixel(a0),d0
 	cmp.w	titlecard_x_target(a0),d0
 	bne.w	return_14138
@@ -27646,9 +27658,9 @@ return_14138:
 loc_1413A:
 	tst.w	(Perfect_rings_left).w
 	bne.w	DeleteObject
-
-BranchTo_Obj34_MoveTowardsTargetPosition ; BranchTo
-	bra.w	Obj34_MoveTowardsTargetPosition
+; BranchTo_Obj34_MoveTowardsTargetPosition
+BranchTo_TitleCard_MoveTowardsTargetPosition ; BranchTo
+	bra.w	TitleCard_MoveTowardsTargetPosition
 ; ===========================================================================
 
 loc_14146:
@@ -27658,12 +27670,12 @@ loc_14146:
 	cmpi.b	#wing_fortress_zone,d0
 	beq.s	loc_1415E
 	cmpi.b	#death_egg_zone,d0
-	bne.w	Obj34_MoveTowardsTargetPosition
+	bne.w	TitleCard_MoveTowardsTargetPosition
 
 loc_1415E:
 
 	move.b	#5,mapping_frame(a0)
-	bra.w	Obj34_MoveTowardsTargetPosition
+	bra.w	TitleCard_MoveTowardsTargetPosition
 ; ===========================================================================
 
 loc_14168:
@@ -27686,7 +27698,7 @@ loc_1418E:
 
 loc_14194:
 	move.b	d0,mapping_frame(a0)
-	bra.w	Obj34_MoveTowardsTargetPosition
+	bra.w	TitleCard_MoveTowardsTargetPosition
 ; ===========================================================================
 
 loc_1419C:
@@ -27977,7 +27989,7 @@ Obj6F_Index:	offsetTable
 		offsetTableEntry.w Obj6F_Emerald4	;  $E
 		offsetTableEntry.w Obj6F_Emerald5	; $10
 		offsetTableEntry.w Obj6F_Emerald6	; $12
-		offsetTableEntry.w BranchTo3_Obj34_MoveTowardsTargetPosition	; $14
+		offsetTableEntry.w BranchTo3_TitleCard_MoveTowardsTargetPosition	; $14
 		offsetTableEntry.w Obj6F_P1Rings	; $16
 		offsetTableEntry.w Obj6F_P2Rings	; $18
 		offsetTableEntry.w Obj6F_DeleteIfNotEmerald	; $1A
@@ -28031,12 +28043,12 @@ Obj6F_InitEmeraldText:
 +
 	move.w	titlecard_x_target(a0),d0
 	cmp.w	x_pixel(a0),d0
-	bne.s	BranchTo2_Obj34_MoveTowardsTargetPosition
+	bne.s	BranchTo2_TitleCard_MoveTowardsTargetPosition
 	move.b	#$1C,routine(a0)	; => Obj6F_TimedDisplay
 	move.w	#$B4,anim_frame_duration(a0)
-
-BranchTo2_Obj34_MoveTowardsTargetPosition ; BranchTo
-	bra.w	Obj34_MoveTowardsTargetPosition
+; BranchTo2_Obj34_MoveTowardsTargetPosition
+BranchTo2_TitleCard_MoveTowardsTargetPosition ; BranchTo
+	bra.w	TitleCard_MoveTowardsTargetPosition
 ; ===========================================================================
 ;loc_14484
 Obj6F_InitResultTitle:
@@ -28058,7 +28070,7 @@ Obj6F_InitResultTitle:
 	addq.w	#1,d0		; "Tails got a" or "Tails has all the"
 +
 	move.b	d0,mapping_frame(a0)
-	bra.w	Obj34_MoveTowardsTargetPosition
+	bra.w	TitleCard_MoveTowardsTargetPosition
 ; ===========================================================================
 ;loc_144B6
 Obj6F_Emerald6:
@@ -28140,15 +28152,15 @@ loc_1455A:
 	addq.w	#5,d0		; Rings text with zero points
 +
 	move.b	d0,mapping_frame(a0)
-
-BranchTo3_Obj34_MoveTowardsTargetPosition ; BranchTo
-	bra.w	Obj34_MoveTowardsTargetPosition
+; BranchTo3_Obj34_MoveTowardsTargetPosition
+BranchTo3_TitleCard_MoveTowardsTargetPosition ; BranchTo
+	bra.w	TitleCard_MoveTowardsTargetPosition
 ; ===========================================================================
 ;loc_14568
 Obj6F_DeleteIfNotEmerald:
 	tst.b	(Got_Emerald).w
 	beq.w	DeleteObject
-	bra.s	BranchTo3_Obj34_MoveTowardsTargetPosition
+	bra.s	BranchTo3_TitleCard_MoveTowardsTargetPosition
 ; ===========================================================================
 ;loc_14572
 Obj6F_TimedDisplay:
@@ -28265,7 +28277,7 @@ Obj6F_InitAndMoveSuperMsg:
 	move.w	x_pixel(a0),d0
 	cmp.w	titlecard_x_source(a0),d0
 	bne.s	Obj6F_MoveTowardsSourcePosition
-	move.b	#$14,next_object+routine(a0)			; => BranchTo3_Obj34_MoveTowardsTargetPosition
+	move.b	#$14,next_object+routine(a0)			; => BranchTo3_TitleCard_MoveTowardsTargetPosition
 	subq.w	#8,next_object+y_pixel(a0)
 	move.b	#$1A,next_object+mapping_frame(a0)		; "Now Sonic can"
 	move.b	#$34,routine(a0)						; => Obj6F_MoveAndDisplay
@@ -28276,14 +28288,14 @@ Obj6F_InitAndMoveSuperMsg:
 	clr.w	x_pixel(a1)
 	move.w	#$120,titlecard_x_target(a1)
 	move.w	#$B4,y_pixel(a1)
-	move.b	#$14,routine(a1)						; => BranchTo3_Obj34_MoveTowardsTargetPosition
+	move.b	#$14,routine(a1)						; => BranchTo3_TitleCard_MoveTowardsTargetPosition
 	move.b	#$1C,mapping_frame(a1)					; "Super Sonic"
 	move.l	#Obj6F_MapUnc_14ED0,mappings(a1)
 	move.b	#$78,width_pixels(a1)
 	move.b	#0,render_flags(a1)
 	bra.w	DisplaySprite
 ; ===========================================================================
-; Modified copy of `Obj34_MoveTowardsTargetPosition`. It has a higher speed
+; Modified copy of `TitleCard_MoveTowardsTargetPosition`. It has a higher speed
 ; and moves the object toward its source instead of its destination.
 ;loc_14714 Obj6F_MoveToTargetPos
 Obj6F_MoveTowardsSourcePosition:
@@ -28309,7 +28321,7 @@ Obj6F_MoveTowardsSourcePosition:
 Obj6F_MoveAndDisplay:
 	move.w	x_pixel(a0),d0
 	cmp.w	titlecard_x_target(a0),d0
-	bne.w	Obj34_MoveTowardsTargetPosition
+	bne.w	TitleCard_MoveTowardsTargetPosition
 	move.w	#$B4,anim_frame_duration(a0)
 	move.b	#$20,routine(a0)	; => Obj6F_TimedDisplay
     if removeJmpTos
@@ -28345,15 +28357,15 @@ Obj6F_SubObjectMetaData_End:
 MapUnc_TitleCards:	mappingsTable
 .zone_names:	zoneOrderedOffsetTable 2,1
 	zoneOffsetTableEntry.w TC_EHZ		; Emerald Hill Zone
-	zoneOffsetTableEntry.w TC_EHZ		; XXX unused (unknown)
+	zoneOffsetTableEntry.w TC_EHZ		; XXX unused (Ocean Wind Zone)
 	zoneOffsetTableEntry.w TC_EHZ		; XXX unused (Wood Zone)
-	zoneOffsetTableEntry.w TC_EHZ		; XXX unused (unknown)
+	zoneOffsetTableEntry.w TC_EHZ		; XXX unused (Sand Shower Zone)
 	zoneOffsetTableEntry.w TC_MTZ		; Metropolis Zone Act 1 and 2
 	zoneOffsetTableEntry.w TC_MTZ		; Metropolis Zone Act 3
 	zoneOffsetTableEntry.w TC_WFZ		; Wing Fortress Zone
 	zoneOffsetTableEntry.w TC_HTZ		; Hill Top Zone
 	zoneOffsetTableEntry.w TC_HPZ		; XXX Hidden Palace Zone
-	zoneOffsetTableEntry.w TC_EHZ		; XXX unused (Cyber City Zone)
+	zoneOffsetTableEntry.w TC_EHZ		; XXX unused (Rock World Zone)
 	zoneOffsetTableEntry.w TC_OOZ		; Oil Ocean Zone
 	zoneOffsetTableEntry.w TC_MCZ		; Mystic Cave Zone
 	zoneOffsetTableEntry.w TC_CNZ		; Casino Night Zone
@@ -28748,7 +28760,7 @@ Obj6F_MapUnc_14ED0:	include "mappings/sprite/obj6F.asm"
 ;loc_15584: ; level title card drawing function called from Vint
 DrawLevelTitleCard:
 	lea	(VDP_data_port).l,a6
-	tst.w	(TitleCard_ZoneName+titlecard_leaveflag).w
+	tst.w	(TitleCard_ZoneNameText+titlecard_leaveflag).w
 	bne.w	loc_15670
 	moveq	#$3F,d5
 	move.l	#make_block_tile_pair(ArtTile_ArtNem_TitleCard+$5A,0,0,0,1),d6
@@ -28819,7 +28831,7 @@ loc_15614:
 	move.l	#make_block_tile_pair_2p(ArtTile_ArtNem_TitleCard+$58,0,0,0,1),d6 ; VRAM location of graphic to fill on left side (2p)
 
 loc_15634:
-	lea	(TitleCard_Left+titlecard_vram_dest).w,a0 ; obj34 red title card left side part
+	lea	(TitleCard_Left+titlecard_vram_dest).w,a0 ; Obj_TitleCard red title card left side part
 	moveq	#1,d7	; Once for P1, once for P2 (if in 2p mode)
 	move.w	#$8F80,VDP_control_port-VDP_data_port(a6)	; VRAM pointer increment: $0080
 
@@ -29698,7 +29710,7 @@ ObjPtr_Tails:		dc.l Obj_Tails			; Tails
 ObjPtr_PlaneSwitcher:	dc.l Obj_PlaneSwitcher		; Collision plane/layer switcher
 ObjPtr_WaterSurface:	dc.l Obj_WaterSurface		; Surface of the water
 ObjPtr_TailsTails:	dc.l Obj_TailsTails		; Tails' tails
-ObjPtr_Spiral:		dc.l Obj06	; Rotating cylinder in MTZ, twisting spiral pathway in EHZ
+ObjPtr_Spiral:		dc.l Obj_Spiral			; Rotating cylinder in MTZ, twisting spiral pathway in EHZ
 ObjPtr_Oil:		dc.l Obj07	; Oil in OOZ
 ObjPtr_SpindashDust:
 ObjPtr_Splash:		dc.l Obj08	; Water splash in Aquatic Ruin Zone, Spindash dust
@@ -29751,7 +29763,7 @@ ObjPtr_LavaMarker:	dc.l Obj31	; Lava collision marker
 ObjPtr_BreakableBlock:
 ObjPtr_BreakableRock:	dc.l Obj32	; Breakable block/rock from CPZ and HTZ
 ObjPtr_OOZPoppingPform:	dc.l Obj33	; Green platform from OOZ
-ObjPtr_TitleCard:	dc.l Obj34	; level title card (screen with red, yellow, and blue)
+ObjPtr_TitleCard:	dc.l Obj_TitleCard		; level title card (screen with red, yellow, and blue)
 ObjPtr_InvStars:	dc.l Obj35	; Invincibility Stars
 ObjPtr_Spikes:		dc.l Obj36	; Vertical spikes
 ObjPtr_LostRings:	dc.l Obj_LostRings		; Scattering rings (generated when Sonic is hurt and has rings)
@@ -29799,7 +29811,7 @@ ObjPtr_StartBanner:
 ObjPtr_EndingController:dc.l Obj5F	; Start banner/"Ending controller" from Special Stage
 ObjPtr_SSRing:		dc.l Obj60	; Rings from Special Stage
 ObjPtr_SSBomb:		dc.l Obj61	; Bombs from Special Stage
-			dc.l ObjNull	; Obj62
+			dc.l ObjNull	; Used to be a timer for the Special Stage
 ObjPtr_SSShadow:	dc.l Obj63	; Character shadow from Special Stage
 ObjPtr_MTZTwinStompers:	dc.l Obj64	; Twin stompers from MTZ
 ObjPtr_MTZLongPlatform:	dc.l Obj65	; Long moving platform from MTZ
@@ -29844,7 +29856,7 @@ ObjPtr_Flipper:		dc.l Obj86	; Flipper from CNZ
 ObjPtr_SSNumberOfRings:	dc.l Obj87	; Number of rings in Special Stage
 ObjPtr_SSTailsTails:	dc.l Obj88	; Tails' tails in Special Stage
 ObjPtr_ARZBoss:		dc.l Obj89	; ARZ boss
-			dc.l Obj_S1CreditsText		; Sonic Team Presents/Credits (seemingly unused leftover from S1)
+ObjPtr_S1CreditsText:	dc.l Obj_S1CreditsText		; Sonic Team Presents/Credits (seemingly unused leftover from S1)
 ObjPtr_WFZPalSwitcher:	dc.l Obj_WFZPalSwitcher		; Cycling palette switcher from Wing Fortress Zone
 ObjPtr_Whisp:		dc.l Obj8C	; Whisp (blowfly badnik) from ARZ
 ObjPtr_GrounderInWall:	dc.l Obj8D	; Grounder in wall, from ARZ
@@ -29877,7 +29889,7 @@ ObjPtr_Grabber:		dc.l ObjA7	; Grabber (spider badnik) from CPZ
 ObjPtr_GrabberLegs:	dc.l ObjA8	; Grabber's legs from CPZ
 ObjPtr_GrabberBox:	dc.l ObjA9	; The little hanger box thing a Grabber's string comes out of
 ObjPtr_GrabberString:	dc.l ObjAA	; The thin white string a Grabber hangs from
-			dc.l ObjAB	; Unknown (maybe unused?)
+ObjPtr_Grabber2:	dc.l Obj_Grabber2		; Grabber duplicate without AI
 ObjPtr_Balkiry:		dc.l ObjAC	; Balkiry (jet badnik) from SCZ
 ObjPtr_CluckerBase:	dc.l ObjAD	; Clucker's base from WFZ
 ObjPtr_Clucker:		dc.l ObjAE	; Clucker (chicken badnik) from WFZ
@@ -29885,7 +29897,7 @@ ObjPtr_MechaSonic:	dc.l ObjAF	; Mecha Sonic / Silver Sonic from DEZ
 ObjPtr_SonicOnSegaScr:	dc.l ObjB0	; Sonic on the Sega screen
 ObjPtr_SegaHideTM:	dc.l ObjB1	; Object that hides TM symbol on JP region
 ObjPtr_Tornado:		dc.l ObjB2	; The Tornado (Tails' plane)
-ObjPtr_Cloud:		dc.l ObjB3	; Clouds (placeable object) from SCZ
+ObjPtr_Cloud:		dc.l Obj_SCZCloud		; Clouds (placeable object) from SCZ
 ObjPtr_VPropeller:	dc.l ObjB4	; Vertical propeller from WFZ
 ObjPtr_HPropeller:	dc.l ObjB5	; Horizontal propeller from WFZ
 ObjPtr_TiltingPlatform:	dc.l ObjB6	; Tilting platform from WFZ
@@ -29893,7 +29905,7 @@ ObjPtr_VerticalLaser:	dc.l ObjB7	; Unused huge vertical laser from WFZ
 ObjPtr_WallTurret:	dc.l ObjB8	; Wall turret from WFZ
 ObjPtr_Laser:		dc.l ObjB9	; Laser from WFZ that shoots down the Tornado
 ObjPtr_WFZWheel:	dc.l ObjBA	; Wheel from WFZ
-			dc.l ObjBB	; Unknown
+ObjPtr_WFZUnknown:	dc.l Obj_WFZUnknown		; Unknown WFZ hazard (behaves like badnik)
 ObjPtr_WFZShipFire:	dc.l ObjBC	; Fire coming out of Robotnik's ship in WFZ
 ObjPtr_SmallMetalPform:	dc.l ObjBD	; Ascending/descending metal platforms from WFZ
 ObjPtr_LateralCannon:	dc.l ObjBE	; Lateral cannon (temporary platform that pops in/out) from WFZ
@@ -29924,11 +29936,11 @@ ObjPtr_Elevator:	dc.l ObjD5	; Elevator from CNZ
 ObjPtr_PointPokey:	dc.l ObjD6	; Pokey that gives out points from CNZ
 ObjPtr_Bumper:		dc.l ObjD7	; Bumper from Casino Night Zone
 ObjPtr_BonusBlock:	dc.l ObjD8	; Block thingy from CNZ that disappears after 3 hits
-ObjPtr_Grab:		dc.l ObjD9	; Invisible sprite that you can hang on to, like the blocks in WFZ
+ObjPtr_Grab:		dc.l Obj_Grab			; Invisible sprite that you can hang on to, like the blocks in WFZ
 ObjPtr_ContinueText:
-ObjPtr_ContinueIcons:	dc.l ObjDA	; Continue text
-ObjPtr_ContinueChars:	dc.l ObjDB	; Sonic lying down or Tails nagging (continue screen)
-ObjPtr_RingPrize:	dc.l ObjDC	; Ring prize from Casino Night Zone
+ObjPtr_ContinueIcons:	dc.l Obj_ContinueText		; Continue text
+ObjPtr_ContinueChars:	dc.l Obj_ContinueChars		; Sonic lying down or Tails nagging (continue screen)
+ObjPtr_RingPrize:	dc.l Obj_RingPrize		; Ring prize from Casino Night Zone
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object 4C, 4D, 4E, 4F, 62, D0, and D1
@@ -29964,8 +29976,8 @@ ObjectMoveAndFall:
 	move.l	d3,y_pos(a0)	; store new y position
 	rts
 ; End of function ObjectMoveAndFall
-; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; ---------------------------------------------------------------------------
 ; Subroutine translating object speed to update object position
 ; This moves the object horizontally and vertically
@@ -29990,8 +30002,8 @@ ObjectMove:
 	move.l	d3,y_pos(a0)	; update y-axis position
 	rts
 ; End of function ObjectMove
-; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; ---------------------------------------------------------------------------
 ; Routines to mark an enemy/monitor/ring/platform as destroyed
 ; ---------------------------------------------------------------------------
@@ -46633,20 +46645,20 @@ loc_2146C:
 ; ----------------------------------------------------------------------------
 ; Object 06 - Rotating cylinder in MTZ, twisting spiral pathway in EHZ
 ; ----------------------------------------------------------------------------
-; Sprite_214C4:
-Obj06:
+; Sprite_214C4: Obj06:
+Obj_Spiral:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj06_Index(pc,d0.w),d1
-	jsr	Obj06_Index(pc,d1.w)
+	move.w	Spiral_Index(pc,d0.w),d1
+	jsr	Spiral_Index(pc,d1.w)
 	tst.w	(Two_player_mode).w
-	beq.s	Obj06_ChkDel
+	beq.s	Spiral_ChkDel
 	rts
 ; ---------------------------------------------------------------------------
 ; seems to be an optimization to delete the object the instant it goes offscreen
 ; only in 1-player mode, because it would screw up the other player
-; loc_214DA:
-Obj06_ChkDel:
+; loc_214DA: Obj06_ChkDel:
+Spiral_ChkDel:
 	move.w	x_pos(a0),d0
 	andi.w	#$FF80,d0
 	sub.w	(Camera_X_pos_coarse).w,d0
@@ -46656,27 +46668,25 @@ Obj06_ChkDel:
 ; ---------------------------------------------------------------------------
 JmpTo19_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
-
 ; ===========================================================================
-; off_214F4:
-Obj06_Index:	offsetTable
-		offsetTableEntry.w Obj06_Init		; 0
-		offsetTableEntry.w Obj06_Spiral		; 2
-		offsetTableEntry.w Obj06_Cylinder	; 4
+; off_214F4: Obj06_Index:
+Spiral_Index:	offsetTable
+		offsetTableEntry.w Spiral_Init		; 0
+		offsetTableEntry.w Spiral_Corkscrew	; 2
+		offsetTableEntry.w Spiral_Cylinder	; 4
 ; ===========================================================================
-; loc_214FA:
-Obj06_Init:
-	addq.b	#2,routine(a0) ; => Obj06_Spiral
+; loc_214FA: Obj06_Init:
+Spiral_Init:
+	addq.b	#2,routine(a0) ; => Spiral_Corkscrew
 	move.b	#$D0,width_pixels(a0)
 	tst.b	subtype(a0)
-	bpl.s	Obj06_Spiral
-	addq.b	#2,routine(a0) ; => Obj06_Cylinder
-	bra.w	Obj06_Cylinder
-
+	bpl.s	Spiral_Corkscrew
+	addq.b	#2,routine(a0) ; => Spiral_Cylinder
+	bra.w	Spiral_Cylinder
 ; ===========================================================================
 ; spiral pathway from EHZ
-; loc_21512:
-Obj06_Spiral:
+; loc_21512: Obj06_Spiral:
+Spiral_Corkscrew:
 	lea	(MainCharacter).w,a1 ; a1=character
 	moveq	#p1_standing_bit,d6
 	bsr.s	+
@@ -46751,30 +46761,28 @@ return_215BE:
 loc_215C0:
 	mvabs.w	inertia(a1),d0
 	cmpi.w	#$600,d0
-	blo.s	Obj06_Spiral_CharacterFallsOff
+	blo.s	Spiral_Corkscrew_CharacterFallsOff
 	btst	#status.player.in_air,status(a1)
-	bne.s	Obj06_Spiral_CharacterFallsOff
+	bne.s	Spiral_Corkscrew_CharacterFallsOff
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	addi.w	#$D0,d0
-	bmi.s	Obj06_Spiral_CharacterFallsOff
+	bmi.s	Spiral_Corkscrew_CharacterFallsOff
 	cmpi.w	#$1A0,d0
-	blo.s	Obj06_Spiral_MoveCharacter
-
-; loc_215EA:
-Obj06_Spiral_CharacterFallsOff:
+	blo.s	Spiral_Corkscrew_MoveCharacter
+; loc_215EA: Obj06_Spiral_CharacterFallsOff:
+Spiral_Corkscrew_CharacterFallsOff:
 	bclr	#status.player.on_object,status(a1)
 	bclr	d6,status(a0)
 	move.b	#0,flips_remaining(a1)
 	move.b	#4,flip_speed(a1)
 	rts
-
 ; ---------------------------------------------------------------------------
-; loc_21602:
-Obj06_Spiral_MoveCharacter:
+; loc_21602: Obj06_Spiral_MoveCharacter:
+Spiral_Corkscrew_MoveCharacter:
 	btst	#status.player.on_object,status(a1)
 	beq.s	return_215BE
-	move.b	Obj06_CosineTable(pc,d0.w),d1
+	move.b	Spiral_CosineTable(pc,d0.w),d1
 	ext.w	d1
 	move.w	y_pos(a0),d2
 	add.w	d1,d2
@@ -46785,15 +46793,14 @@ Obj06_Spiral_MoveCharacter:
 	move.w	d2,y_pos(a1)
 	lsr.w	#3,d0
 	andi.w	#$3F,d0
-	move.b	Obj06_FlipAngleTable(pc,d0.w),flip_angle(a1)
+	move.b	Spiral_FlipAngleTable(pc,d0.w),flip_angle(a1)
 	rts
-
 ; ===========================================================================
 ; Fun fact - Sega had a patent which included the original source code
 ; for these tables: https://patents.google.com/patent/US5411272
-; byte_21634:
+; byte_21634: Obj06_FlipAngleTable:
 ; sloopdirtbl:
-Obj06_FlipAngleTable:
+Spiral_FlipAngleTable:
 	dc.b	$00,$00
 	dc.b	$01,$01,$16,$16,$16,$16,$2C,$2C
 	dc.b	$2C,$2C,$42,$42,$42,$42,$58,$58
@@ -46802,9 +46809,9 @@ Obj06_FlipAngleTable:
 	dc.b	$B0,$B0,$C6,$C6,$C6,$C6,$DC,$DC
 	dc.b	$DC,$DC,$F2,$F2,$F2,$F2,$01,$01
 	dc.b	$00,$00
-; byte_21668:
+; byte_21668: Obj06_CosineTable:
 ; slooptbl:
-Obj06_CosineTable:
+Spiral_CosineTable:
 	dc.b	 32, 32, 32, 32, 32, 32, 32, 32
 	dc.b	 32, 32, 32, 32, 32, 32, 32, 32
 
@@ -46872,11 +46879,10 @@ Obj06_CosineTable:
 	dc.b	 32, 32, 32, 32, 32, 32, 32, 32
 
 	even
-
 ; ===========================================================================
 ; rotating meshed cage from MTZ
-; loc_21808:
-Obj06_Cylinder:
+; loc_21808: Obj06_Cylinder:
+Spiral_Cylinder:
 	lea	(MainCharacter).w,a1 ; a1=character
 	lea	(MTZCylinder_Angle_Sonic).w,a2
 	moveq	#p1_standing_bit,d6
@@ -46977,9 +46983,6 @@ return_2191E:
 ; ===========================================================================
 
 	jmpTos JmpTo6_CalcSine
-
-
-
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -58681,7 +58684,7 @@ loc_2BD4E:
 	bhs.w	return_2BDF6
 	jsrto	JmpTo10_AllocateObject
 	bne.w	return_2BDF6
-	_move.b	#ObjID_RingPrize,id(a1) ; load objDC
+	_move.b	#ObjID_RingPrize,id(a1) ; load Obj_RingPrize
 	move.l	#MapUnc_RingObj,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_Ring,1,0),art_tile(a1)
 	jsrto	JmpTo6_Adjust2PArtPointer2
@@ -59768,42 +59771,42 @@ ObjD8_MapUnc_2C8C4:	include "mappings/sprite/objD8.asm"
 ; ----------------------------------------------------------------------------
 ; Object D9 - Invisible sprite that you can hang on to, like the blocks in WFZ
 ; ----------------------------------------------------------------------------
-; Sprite_2C92C:
-ObjD9:
+; Sprite_2C92C: ObjD9:
+Obj_Grab:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	ObjD9_Index(pc,d0.w),d1
-	jmp	ObjD9_Index(pc,d1.w)
+	move.w	Grab_Index(pc,d0.w),d1
+	jmp	Grab_Index(pc,d1.w)
 ; ===========================================================================
-; off_2C93A:
-ObjD9_Index:	offsetTable
-		offsetTableEntry.w ObjD9_Init	; 0
-		offsetTableEntry.w ObjD9_Main	; 2
+; off_2C93A: ObjD9_Index:
+Grab_Index:	offsetTable
+		offsetTableEntry.w Grab_Init	; 0
+		offsetTableEntry.w Grab_Main	; 2
 ; ===========================================================================
-; loc_2C93E:
-ObjD9_Init:
+; loc_2C93E: ObjD9_Init:
+Grab_Init:
 	addq.b	#2,routine(a0)
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#$18,width_pixels(a0)
 	move.b	#4,priority(a0)
-; loc_2C954:
-ObjD9_Main:
+; loc_2C954: ObjD9_Main:
+Grab_Main:
 	lea	objoff_30(a0),a2
 	lea	(MainCharacter).w,a1 ; a1=character
 	move.w	(Ctrl_1).w,d0
-	bsr.s	ObjD9_CheckCharacter
+	bsr.s	Grab_CheckCharacter
 	lea	(Sidekick).w,a1 ; a1=character
 	addq.w	#1,a2
 	move.w	(Ctrl_2).w,d0
-	bsr.s	ObjD9_CheckCharacter
+	bsr.s	Grab_CheckCharacter
 	jmpto	JmpTo7_MarkObjGone3
 ; ===========================================================================
-; loc_2C972:
-ObjD9_CheckCharacter:
+; loc_2C972: ObjD9_CheckCharacter:
+Grab_CheckCharacter:
 	tst.b	(a2)
 	beq.s	loc_2C9A0
 	andi.b	#button_B_mask|button_C_mask|button_A_mask,d0
-	beq.w	ObjD9_CheckCharacter_End
+	beq.w	Grab_CheckCharacter_End
 	clr.b	obj_control(a1)
 	clr.b	(a2)
 	move.b	#18,2(a2)
@@ -59812,30 +59815,30 @@ ObjD9_CheckCharacter:
 	move.b	#60,2(a2)
 +
 	move.w	#-$300,y_vel(a1)
-	bra.w	ObjD9_CheckCharacter_End
+	bra.w	Grab_CheckCharacter_End
 ; ===========================================================================
 
 loc_2C9A0:
 	tst.b	2(a2)
 	beq.s	+
 	subq.b	#1,2(a2)
-	bne.w	ObjD9_CheckCharacter_End
+	bne.w	Grab_CheckCharacter_End
 +
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	addi.w	#$18,d0
 	cmpi.w	#$30,d0
-	bhs.w	ObjD9_CheckCharacter_End
+	bhs.w	Grab_CheckCharacter_End
 	move.w	y_pos(a1),d1
 	sub.w	y_pos(a0),d1
 	cmpi.w	#$10,d1
-	bhs.w	ObjD9_CheckCharacter_End
+	bhs.w	Grab_CheckCharacter_End
 	tst.b	obj_control(a1)
-	bmi.s	ObjD9_CheckCharacter_End
+	bmi.s	Grab_CheckCharacter_End
 	cmpi.b	#6,routine(a1)
-	bhs.s	ObjD9_CheckCharacter_End
+	bhs.s	Grab_CheckCharacter_End
 	tst.w	(Debug_placement_mode).w
-	bne.s	ObjD9_CheckCharacter_End
+	bne.s	Grab_CheckCharacter_End
 	clr.w	x_vel(a1)
 	clr.w	y_vel(a1)
 	clr.w	inertia(a1)
@@ -59843,15 +59846,12 @@ loc_2C9A0:
 	move.b	#AniIDSonAni_Hang2,anim(a1)
 	move.b	#1,obj_control(a1)
 	move.b	#1,(a2)
-; return_2CA08:
-ObjD9_CheckCharacter_End:
+; return_2CA08: ObjD9_CheckCharacter_End:
+Grab_CheckCharacter_End:
 	rts
 ; ===========================================================================
 
 	jmpTos JmpTo7_MarkObjGone3
-
-
-
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -72252,11 +72252,11 @@ SubObjData_Index: offsetTable
 	offsetTableEntry.w ObjB2_SubObjData	; $54
 	offsetTableEntry.w ObjBC_SubObjData2	; $56
 	offsetTableEntry.w ObjBC_SubObjData2	; $58
-	offsetTableEntry.w ObjB3_SubObjData	; $5A
+	offsetTableEntry.w SCZCloud_SubObjData	; $5A
 	offsetTableEntry.w ObjB2_SubObjData2	; $5C
-	offsetTableEntry.w ObjB3_SubObjData	; $5E
-	offsetTableEntry.w ObjB3_SubObjData	; $60
-	offsetTableEntry.w ObjB3_SubObjData	; $62
+	offsetTableEntry.w SCZCloud_SubObjData	; $5E
+	offsetTableEntry.w SCZCloud_SubObjData	; $60
+	offsetTableEntry.w SCZCloud_SubObjData	; $62
 	offsetTableEntry.w ObjB4_SubObjData	; $64
 	offsetTableEntry.w ObjB5_SubObjData	; $66
 	offsetTableEntry.w ObjB5_SubObjData	; $68
@@ -72268,7 +72268,7 @@ SubObjData_Index: offsetTable
 	offsetTableEntry.w ObjB8_SubObjData	; $74
 	offsetTableEntry.w ObjB9_SubObjData	; $76
 	offsetTableEntry.w ObjBA_SubObjData	; $78
-	offsetTableEntry.w ObjBB_SubObjData	; $7A
+	offsetTableEntry.w WFZUnknown_SubObjData	; $7A
 	offsetTableEntry.w ObjBC_SubObjData2	; $7C
 	offsetTableEntry.w ObjBD_SubObjData	; $7E
 	offsetTableEntry.w ObjBD_SubObjData	; $80
@@ -76442,31 +76442,28 @@ ObjAA_Main:
 	jmpto	JmpTo45_DisplaySprite
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
-; Object AB - Removed object (unknown, unused)
-; ----------------------------------------------------------------------------
-; Sprite_390A2:
-ObjAB:
+; ---------------------------------------------------------------------------
+; Object AB - Grabber duplicate without AI
+; ---------------------------------------------------------------------------
+; Sprite_390A2: ObjAB:
+Obj_Grabber2:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	ObjAB_Index(pc,d0.w),d1
-	jmp	ObjAB_Index(pc,d1.w)
+	move.w	Grabber2_Index(pc,d0.w),d1
+	jmp	Grabber2_Index(pc,d1.w)
 ; ===========================================================================
-; off_390B0:
-ObjAB_Index:	offsetTable
-		offsetTableEntry.w ObjAB_Init
-		offsetTableEntry.w ObjAB_Main
+; off_390B0: ObjAB_Index:
+Grabber2_Index:	offsetTable
+		offsetTableEntry.w Grabber2_Init
+		offsetTableEntry.w Grabber2_Main
 ; ===========================================================================
-; BranchTo4_LoadSubObject
-ObjAB_Init:
+; BranchTo4_LoadSubObject: ObjAB_Init:
+Grabber2_Init:
 	bra.w	LoadSubObject
 ; ===========================================================================
-; BranchTo10_JmpTo39_MarkObjGone
-ObjAB_Main:
+; BranchTo10_JmpTo39_MarkObjGone: ObjAB_Main:
+Grabber2_Main:
 	jmpto	JmpTo39_MarkObjGone
-; ===========================================================================
-; END OF OBJECT AB
-
 
 ; ---------------------------------------------------------------------------
 ; Some subroutine for the Grabber badnik
@@ -76550,8 +76547,8 @@ ObjA7_Poof:
 +
 	rts
 ; End of subroutine ObjA7_CheckExplode
-; ===========================================================================
 
+; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Yet another subroutine for the Grabber badnik
 ; ---------------------------------------------------------------------------
@@ -76730,9 +76727,9 @@ word_39350_End
 
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object AC - Balkiry (jet badnik) from SCZ
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_3937A:
 ObjAC:
 	moveq	#0,d0
@@ -76772,13 +76769,10 @@ ObjAC_SubObjData:
 ; ----------------------------------------------------------------------------
 ObjAC_MapUnc_393CC:	include "mappings/sprite/objAC.asm"
 
-
-
-
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object AD - Clucker's base from WFZ
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_3941C:
 ObjAD:
 	moveq	#0,d0
@@ -76805,10 +76799,11 @@ ObjAD_Main:
 	move.w	x_pos(a0),d4
 	jsrto	JmpTo27_SolidObject
 	jmpto	JmpTo39_MarkObjGone
+
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object AE - Clucker (chicken badnik) from WFZ
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_39452:
 ObjAE:
 	moveq	#0,d0
@@ -76956,19 +76951,16 @@ Ani_CluckerShot:offsetTable
 +		dc.b   3, $D, $E, $F,$10,$11,$12,$13,$14,$FF
 		even
 
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ObjAD_Obj98_MapUnc_395B4:	include "mappings/sprite/objAE.asm"
 
-
-
-
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object AF - Mecha Sonic / Silver Sonic from DEZ
 ; (also handles Eggman's remote-control window)
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_3972C:
 ObjAF:
 	moveq	#0,d0
@@ -79109,23 +79101,23 @@ ObjB2_MapUnc_3B292:	include "mappings/sprite/objB2_b.asm"
 
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object B3 - Clouds (placeable object) from SCZ
-; ----------------------------------------------------------------------------
-; Sprite_3B2DE:
-ObjB3:
+; ---------------------------------------------------------------------------
+; Sprite_3B2DE: ObjB3:
+Obj_SCZCloud:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	ObjB3_Index(pc,d0.w),d1
-	jmp	ObjB3_Index(pc,d1.w)
+	move.w	SCZCloud_Index(pc,d0.w),d1
+	jmp	SCZCloud_Index(pc,d1.w)
 ; ===========================================================================
-; off_3B2EC:
-ObjB3_Index:	offsetTable
-		offsetTableEntry.w ObjB3_Init	; 0
-		offsetTableEntry.w ObjB3_Main	; 2
+; off_3B2EC: ObjB3_Index:
+SCZCloud_Index:	offsetTable
+		offsetTableEntry.w SCZCloud_Init	; 0
+		offsetTableEntry.w SCZCloud_Main	; 2
 ; ===========================================================================
-; loc_3B2F0:
-ObjB3_Init:
+; loc_3B2F0: ObjB3_Init:
+SCZCloud_Init:
 	bsr.w	LoadSubObject
 	moveq	#0,d0
 	move.b	subtype(a0),d0
@@ -79140,29 +79132,28 @@ word_3B30C:
 	dc.w  -$40	; 1
 	dc.w  -$20	; 2
 ; ===========================================================================
-; loc_3B312:
-ObjB3_Main:
+; loc_3B312: ObjB3_Main:
+SCZCloud_Main:
 	jsrto	JmpTo26_ObjectMove
 	move.w	(Tornado_Velocity_X).w,d0
 	add.w	d0,x_pos(a0)
 	bra.w	Obj_DeleteBehindScreen
 ; ===========================================================================
-; off_3B322:
-ObjB3_SubObjData:
-	subObjData ObjB3_MapUnc_3B32C,make_art_tile(ArtTile_ArtNem_Clouds,2,0),1<<render_flags.level_fg,6,$30,0
+; This is also used by various ending objects for... reasons?
+; off_3B322: ObjB3_SubObjData:
+SCZCloud_SubObjData:
+	subObjData MapUnc_SCZCloud,make_art_tile(ArtTile_ArtNem_Clouds,2,0),1<<render_flags.level_fg,6,$30,0
 
-; -----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -----------------------------------------------------------------------------
-ObjB3_MapUnc_3B32C:	include "mappings/sprite/objB3.asm"
-
-
-
+; ---------------------------------------------------------------------------
+; ObjB3_MapUnc_3B32C:
+MapUnc_SCZCloud:	include "mappings/sprite/Clouds from SCZ.asm"
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object B4 - Vertical propeller from WFZ
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_3B36A:
 ObjB4:
 	moveq	#0,d0
@@ -79863,37 +79854,41 @@ ObjBA_SubObjData:
 ; sprite mappings
 ; ----------------------------------------------------------------------------
 ObjBA_MapUnc_3BB70:	include "mappings/sprite/objBA.asm"
+
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object BB - Removed object (unknown, unused)
-; ----------------------------------------------------------------------------
-; Sprite_3BB7C:
-ObjBB:
+; ---------------------------------------------------------------------------
+; Sprite_3BB7C: ObjBB:
+Obj_WFZUnknown:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	ObjBB_Index(pc,d0.w),d1
-	jmp	ObjBB_Index(pc,d1.w)
+	move.w	WFZUnknown_Index(pc,d0.w),d1
+	jmp	WFZUnknown_Index(pc,d1.w)
 ; ===========================================================================
-; off_3BB8A:
-ObjBB_Index:	offsetTable
-		offsetTableEntry.w ObjBB_Init	; 0
-		offsetTableEntry.w ObjBB_Main	; 2
+; off_3BB8A: ObjBB_Index:
+WFZUnknown_Index: offsetTable
+		offsetTableEntry.w WFZUnknown_Init	; 0
+		offsetTableEntry.w WFZUnknown_Main	; 2
 ; ===========================================================================
-; BranchTo8_LoadSubObject
-ObjBB_Init:
+; BranchTo8_LoadSubObject: ObjBB_Init:
+WFZUnknown_Init:
 	bra.w	LoadSubObject
 ; ===========================================================================
-; BranchTo15_JmpTo39_MarkObjGone
-ObjBB_Main:
+; BranchTo15_JmpTo39_MarkObjGone: ObjBB_Main:
+WFZUnknown_Main:
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
-; off_3BB96:
-ObjBB_SubObjData:
-	subObjData ObjBB_MapUnc_3BBA0,make_art_tile(ArtTile_ArtNem_Unknown,1,0),1<<render_flags.level_fg,4,$C,9
+; off_3BB96: ObjBB_SubObjData:
+WFZUnknown_SubObjData:
+	subObjData MapUnc_WFZUnknown,make_art_tile(ArtTile_ArtNem_Unknown,1,0),1<<render_flags.level_fg,4,$C,9
+
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
-ObjBB_MapUnc_3BBA0:	include "mappings/sprite/objBB.asm"
+; ObjBB_MapUnc_3BBA0:
+MapUnc_WFZUnknown:	include "mappings/sprite/WFZ unknown object.asm"
+
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object BC - Fire coming out of Robotnik's ship in WFZ
@@ -88298,9 +88293,9 @@ DbgObjList_WFZ: dbglistheader
 	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_WFZPalSwitcher, MapUnc_PlaneSwitcher,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,0,0)
 	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
-	dbglistobj ObjID_Cloud,		ObjB3_MapUnc_3B32C, $5E,   0, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
-	dbglistobj ObjID_Cloud,		ObjB3_MapUnc_3B32C, $60,   1, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
-	dbglistobj ObjID_Cloud,		ObjB3_MapUnc_3B32C, $62,   2, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
+	dbglistobj ObjID_Cloud,		MapUnc_SCZCloud, $5E,   0, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
+	dbglistobj ObjID_Cloud,		MapUnc_SCZCloud, $60,   1, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
+	dbglistobj ObjID_Cloud,		MapUnc_SCZCloud, $62,   2, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
 	dbglistobj ObjID_VPropeller,	ObjB4_MapUnc_3B3BE, $64,   0, make_art_tile(ArtTile_ArtNem_WfzVrtclPrpllr,1,1)
 	dbglistobj ObjID_HPropeller,	ObjB5_MapUnc_3B548, $66,   0, make_art_tile(ArtTile_ArtNem_WfzHrzntlPrpllr,1,1)
 	dbglistobj ObjID_HPropeller,	ObjB5_MapUnc_3B548, $68,   0, make_art_tile(ArtTile_ArtNem_WfzHrzntlPrpllr,1,1)
@@ -88520,9 +88515,9 @@ DbgObjList_SCZ: dbglistheader
 	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_WFZPalSwitcher, MapUnc_PlaneSwitcher,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,0,0)
-	dbglistobj ObjID_Cloud,		ObjB3_MapUnc_3B32C, $5E,   0, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
-	dbglistobj ObjID_Cloud,		ObjB3_MapUnc_3B32C, $60,   1, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
-	dbglistobj ObjID_Cloud,		ObjB3_MapUnc_3B32C, $62,   2, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
+	dbglistobj ObjID_Cloud,		MapUnc_SCZCloud, $5E,   0, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
+	dbglistobj ObjID_Cloud,		MapUnc_SCZCloud, $60,   1, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
+	dbglistobj ObjID_Cloud,		MapUnc_SCZCloud, $62,   2, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
 	dbglistobj ObjID_VPropeller,	ObjB4_MapUnc_3B3BE, $64,   0, make_art_tile(ArtTile_ArtNem_WfzVrtclPrpllr,1,1)
 	dbglistobj ObjID_HPropeller,	ObjB5_MapUnc_3B548, $66,   0, make_art_tile(ArtTile_ArtNem_WfzHrzntlPrpllr,1,1)
 	dbglistobj ObjID_HPropeller,	ObjB5_MapUnc_3B548, $68,   0, make_art_tile(ArtTile_ArtNem_WfzHrzntlPrpllr,1,1)
