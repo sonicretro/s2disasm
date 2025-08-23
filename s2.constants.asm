@@ -612,6 +612,7 @@ ObjID_Splash =			id(ObjPtr_Splash)		; 08
 ObjID_SonicSS =			id(ObjPtr_SonicSS)		; 09
 ObjID_SmallBubbles =		id(ObjPtr_SmallBubbles)		; 0A
 ObjID_TippingFloor =		id(ObjPtr_TippingFloor)		; 0B
+ObjID_CPZUnusedPltfm =		id(ObjPtr_CPZUnusedPltfm)	; 0C
 ObjID_Signpost =		id(ObjPtr_Signpost)		; 0D
 ObjID_TitleIntro =		id(ObjPtr_TitleIntro)		; 0E
 ObjID_TitleMenu =		id(ObjPtr_TitleMenu)		; 0F

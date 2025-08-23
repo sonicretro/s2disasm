@@ -29717,14 +29717,14 @@ ObjPtr_Splash:		dc.l Obj08	; Water splash in Aquatic Ruin Zone, Spindash dust
 ObjPtr_SonicSS:		dc.l Obj09	; Sonic in Special Stage
 ObjPtr_SmallBubbles:	dc.l Obj0A	; Small bubbles from Sonic's face while underwater
 ObjPtr_TippingFloor:	dc.l Obj0B	; Section of pipe that tips you off from CPZ
-			dc.l Obj0C	; Small floating platform (unused)
+ObjPtr_CPZUnusedPltfm:	dc.l Obj_CPZUnusedPltfm		; Small floating platform (unused)
 ObjPtr_Signpost:	dc.l Obj0D	; End of level signpost
 ObjPtr_TitleIntro:	dc.l Obj0E	; Title screen intro animation
 ObjPtr_TitleMenu:	dc.l Obj0F	; Title screen menu
 ObjPtr_TailsSS:		dc.l Obj10	; Tails in Special Stage
 ObjPtr_Bridge:		dc.l Obj11	; Bridge in Emerald Hill Zone and Hidden Palace Zone
-ObjPtr_HPZEmerald:	dc.l Obj12	; Emerald from Hidden Palace Zone (unused)
-ObjPtr_HPZWaterfall:	dc.l Obj13	; Waterfall in Hidden Palace Zone (unused)
+ObjPtr_HPZEmerald:	dc.l Obj_HPZEmerald		; Emerald from Hidden Palace Zone (unused)
+ObjPtr_HPZWaterfall:	dc.l Obj_HPZWaterfall		; Waterfall in Hidden Palace Zone (unused)
 ObjPtr_Seesaw:		dc.l Obj14	; Seesaw from Hill Top Zone
 ObjPtr_SwingingPlatform:dc.l Obj15	; Swinging platform from Aquatic Ruin Zone
 ObjPtr_HTZLift:		dc.l Obj16	; Diagonally moving lift from HTZ
@@ -29771,7 +29771,7 @@ ObjPtr_Shield:		dc.l Obj38	; Shield
 ObjPtr_GameOver:
 ObjPtr_TimeOver:	dc.l Obj39	; Game/Time Over text
 ObjPtr_Results:		dc.l Obj3A	; End of level results screen
-			dc.l Obj3B	; Purple rock (from Sonic 1, unused)
+			dc.l Obj3B	; Purple rock (leftover from S1) (unused)
 			dc.l Obj3C	; Breakable wall (leftover from S1) (mostly unused)
 ObjPtr_OOZLauncher:	dc.l Obj3D	; Block thingy in OOZ that launches you into the round ball things
 ObjPtr_EggPrison:	dc.l Obj3E	; Egg prison
@@ -29833,7 +29833,7 @@ ObjPtr_HPZBridgeStake:
 ObjPtr_PulsingOrb:	dc.l Obj71	; Bridge stake and pulsing orb from Hidden Palace Zone
 ObjPtr_CNZConveyorBelt:	dc.l Obj72	; Conveyor belt from CNZ
 ObjPtr_RotatingRings:	dc.l Obj73	; Solid rotating ring thing from Mystic Cave Zone (mostly unused)
-ObjPtr_InvisibleBlock:	dc.l Obj74	; Invisible solid block
+ObjPtr_InvisibleBlock:	dc.l Obj_InvisibleBlock		; Invisible solid block
 ObjPtr_MCZBrick:	dc.l Obj75	; Brick from MCZ
 ObjPtr_SlidingSpikes:	dc.l Obj76	; Spike block that slides out of the wall from MCZ
 ObjPtr_MCZBridge:	dc.l Obj77	; Bridge from MCZ
@@ -34854,7 +34854,8 @@ return_19776:
 
 ; ===========================================================================
 ; there are a few slightly different SolidObject functions
-; specialized for certain objects, in this case, obj74 and obj30
+; specialized for certain objects, in this case, Obj_InvisibleBlock
+; and obj30
 ; These check for solidity even if the object is off-screen
 ; loc_19778: SolidObject74_30:
 SolidObject_Always:
@@ -45529,30 +45530,27 @@ Obj0B_MapUnc_201A0:	include "mappings/sprite/obj0B.asm"
 
 	jmpTos JmpTo3_MarkObjGone,JmpTo8_Adjust2PArtPointer
 
-
-
-
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 0C - Small floating platform (unused)
 ; (used in CPZ in the Nick Arcade prototype)
-; ----------------------------------------------------------------------------
-; Sprite_20210:
-Obj0C:
+; ---------------------------------------------------------------------------
+; Sprite_20210: Obj0C:
+Obj_CPZUnusedPltfm:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj0C_Index(pc,d0.w),d1
-	jmp	Obj0C_Index(pc,d1.w)
+	move.w	CPZUnusedPltfm_Index(pc,d0.w),d1
+	jmp	CPZUnusedPltfm_Index(pc,d1.w)
 ; ===========================================================================
-; off_2021E
-Obj0C_Index:	offsetTable
-		offsetTableEntry.w Obj0C_Init	; 0
-		offsetTableEntry.w Obj0C_Main	; 2
+; off_2021E Obj0C_Index:
+CPZUnusedPltfm_Index: offsetTable
+		offsetTableEntry.w CPZUnusedPltfm_Init	; 0
+		offsetTableEntry.w CPZUnusedPltfm_Main	; 2
 ; ===========================================================================
-; loc_20222:
-Obj0C_Init:
+; loc_20222: Obj0C_Init:
+CPZUnusedPltfm_Init:
 	addq.b	#2,routine(a0)
-	move.l	#Obj0C_MapUnc_202FA,mappings(a0)
+	move.l	#MapUnc_CPZUnusedPltfm,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_FloatPlatform,3,1),art_tile(a0)
 	jsrto	JmpTo9_Adjust2PArtPointer
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
@@ -45574,8 +45572,8 @@ Obj0C_Init:
 	andi.w	#$F,d0
 	move.b	d0,objoff_3E(a0)
 	move.b	d0,objoff_3F(a0)
-; loc_20282:
-Obj0C_Main:
+; loc_20282: Obj0C_Main:
+CPZUnusedPltfm_Main:
 	move.b	objoff_3C(a0),d0
 	beq.s	loc_202C0
 	cmpi.b	#$80,d0
@@ -45623,45 +45621,44 @@ loc_202E6:
 	move.w	x_pos(a0),d4
 	bsr.w	PlatformObject
 	jmpto	JmpTo4_MarkObjGone
+
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Unused sprite mappings
-; ----------------------------------------------------------------------------
-Obj0C_MapUnc_202FA:	include "mappings/sprite/obj0C.asm"
+; ---------------------------------------------------------------------------
+; Obj0C_MapUnc_202FA:
+MapUnc_CPZUnusedPltfm:	include "mappings/sprite/CPZ unused platform.asm"
 ; ===========================================================================
 
 	jmpTos JmpTo4_MarkObjGone,JmpTo9_Adjust2PArtPointer,JmpTo5_CalcSine
 
-
-
-
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 12 - Emerald from Hidden Palace Zone (unused)
-; ----------------------------------------------------------------------------
-; Sprite_2031C:
-Obj12:
+; ---------------------------------------------------------------------------
+; Sprite_2031C: Obj12:
+Obj_HPZEmerald:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj12_Index(pc,d0.w),d1
-	jmp	Obj12_Index(pc,d1.w)
+	move.w	HPZEmerald_Index(pc,d0.w),d1
+	jmp	HPZEmerald_Index(pc,d1.w)
 ; ===========================================================================
-; off_2032A
-Obj12_Index:	offsetTable
-		offsetTableEntry.w Obj12_Init	; 0
-		offsetTableEntry.w Obj12_Main	; 2
+; off_2032A Obj12_Index:
+HPZEmerald_Index: offsetTable
+		offsetTableEntry.w HPZEmerald_Init	; 0
+		offsetTableEntry.w HPZEmerald_Main	; 2
 ; ===========================================================================
-; loc_2032E:
-Obj12_Init:
+; loc_2032E: Obj12_Init:
+HPZEmerald_Init:
 	addq.b	#2,routine(a0)
-	move.l	#Obj12_MapUnc_20382,mappings(a0)
+	move.l	#MapUnc_HPZEmerald,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_HPZ_Emerald,3,0),art_tile(a0)
 	jsrto	JmpTo10_Adjust2PArtPointer
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#$20,width_pixels(a0)
 	move.b	#4,priority(a0)
-; loc_20356:
-Obj12_Main:
+; loc_20356: Obj12_Main:
+HPZEmerald_Main:
 	move.w	#$20,d1
 	move.w	#$10,d2
 	move.w	#$10,d3
@@ -45679,50 +45676,48 @@ JmpTo16_DeleteObject ; JmpTo
     if fixBugs
 	jmp	(DeleteObject).l
     else
-	; Execute 'Obj12_MapUnc_20382' as code...
+	; Execute 'MapUnc_HPZEmerald' as code...
 	; This is why Hidden Palace Zone causes this game to reset in Knuckles in Sonic 2.
     endif
     endif
 ; ===========================================================================
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings (unused)
-; -------------------------------------------------------------------------------
-Obj12_MapUnc_20382:	include "mappings/sprite/obj12.asm"
+; ---------------------------------------------------------------------------
+; Obj12_MapUnc_20382:
+MapUnc_HPZEmerald:	include "mappings/sprite/HPZ emerald.asm"
 ; ===========================================================================
 
 	jmpTos JmpTo8_DisplaySprite,JmpTo16_DeleteObject,JmpTo10_Adjust2PArtPointer
 
-
-
-
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 13 - Waterfall in Hidden Palace Zone (unused)
-; ----------------------------------------------------------------------------
-; Sprite_203AC:
-Obj13:
+; ---------------------------------------------------------------------------
+; Sprite_203AC: Obj13:
+Obj_HPZWaterfall:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj13_Index(pc,d0.w),d1
-	jmp	Obj13_Index(pc,d1.w)
+	move.w	HPZWaterfall_Index(pc,d0.w),d1
+	jmp	HPZWaterfall_Index(pc,d1.w)
 ; ===========================================================================
-; off_203BA
-Obj13_Index:	offsetTable
-		offsetTableEntry.w Obj13_Init	; 0
-		offsetTableEntry.w Obj13_Main	; 2
-		offsetTableEntry.w Obj13_ChkDel	; 4
+; off_203BA Obj13_Index:
+HPZWaterfall_Index: offsetTable
+		offsetTableEntry.w HPZWaterfall_Init	; 0
+		offsetTableEntry.w HPZWaterfall_Main	; 2
+		offsetTableEntry.w HPZWaterfall_ChkDel	; 4
 ; ===========================================================================
-; loc_203C0:
-Obj13_Init:
+; loc_203C0: Obj13_Init:
+HPZWaterfall_Init:
 	addq.b	#2,routine(a0)
-	move.l	#Obj13_MapUnc_20528,mappings(a0)
+	move.l	#MapUnc_HPZWaterfall,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_HPZ_Waterfall,3,1),art_tile(a0)
 	jsrto	JmpTo11_Adjust2PArtPointer
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#$10,width_pixels(a0)
 	move.b	#1,priority(a0)
 	move.b	#$12,mapping_frame(a0)
-	bsr.s	Obj13_LoadSubObject
+	bsr.s	HPZWaterfall_LoadSubObject
 	move.b	#$A0,y_radius(a1)
 	bset	#render_flags.explicit_height,render_flags(a1)
 	move.l	a1,objoff_38(a0)
@@ -45730,21 +45725,21 @@ Obj13_Init:
 	move.w	y_pos(a0),objoff_36(a0)
 	cmpi.b	#$10,subtype(a0)
 	blo.s	loc_2046C
-	bsr.s	Obj13_LoadSubObject
+	bsr.s	HPZWaterfall_LoadSubObject
 	move.l	a1,objoff_3C(a0)
 	move.w	y_pos(a0),y_pos(a1)
 	addi.w	#$98,y_pos(a1)
 	bra.s	loc_2046C
 ; ===========================================================================
-; loc_20428:
-Obj13_LoadSubObject:
+; loc_20428: Obj13_LoadSubObject:
+HPZWaterfall_LoadSubObject:
 	jsr	(AllocateObjectAfterCurrent).l
 	bne.s	+	; rts
-	_move.b	#ObjID_HPZWaterfall,id(a1) ; load obj13
+	_move.b	#ObjID_HPZWaterfall,id(a1) ; load Obj_HPZWaterfall
 	addq.b	#4,routine(a1)
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
-	move.l	#Obj13_MapUnc_20528,mappings(a1)
+	move.l	#MapUnc_HPZWaterfall,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_HPZ_Waterfall,3,1),art_tile(a1)
 	jsrto	JmpTo2_Adjust2PArtPointer2
 	move.b	#1<<render_flags.level_fg,render_flags(a1)
@@ -45762,8 +45757,8 @@ loc_2046C:
 	add.w	d1,d0
 	move.w	d0,y_pos(a0)
 	move.w	d0,objoff_34(a0)
-; loc_20486:
-Obj13_Main:
+; loc_20486: Obj13_Main:
+HPZWaterfall_Main:
 	movea.l	objoff_38(a0),a1 ; a1=object
 	move.b	#$12,mapping_frame(a0)
 	move.w	objoff_34(a0),d0
@@ -45818,30 +45813,29 @@ JmpTo17_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
     endif
 ; ===========================================================================
-; loc_20510:
-Obj13_ChkDel:
+; loc_20510: Obj13_ChkDel:
+HPZWaterfall_ChkDel:
 	move.w	x_pos(a0),d0
 	andi.w	#$FF80,d0
 	sub.w	(Camera_X_pos_coarse).w,d0
 	cmpi.w	#$280,d0
 	bhi.w	JmpTo17_DeleteObject
 	jmpto	JmpTo9_DisplaySprite
+
 ; ===========================================================================
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings (unused)
-; -------------------------------------------------------------------------------
-Obj13_MapUnc_20528:	include "mappings/sprite/obj13.asm"
+; ---------------------------------------------------------------------------
+; Obj13_MapUnc_20528:
+MapUnc_HPZWaterfall:	include "mappings/sprite/HPZ waterfall.asm"
 ; ===========================================================================
 
 	jmpTos JmpTo9_DisplaySprite,JmpTo17_DeleteObject,JmpTo2_Adjust2PArtPointer2,JmpTo11_Adjust2PArtPointer
 
-
-
-
 ; ===========================================================================
-; ----------------------------------------------------------------------------
-; Object 04 - Surface of the water - water surface
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
+; Object 04 - Surface of the water
+; ---------------------------------------------------------------------------
 ; Sprite_208DC: Obj04:
 Obj_WaterSurface:
 	moveq	#0,d0
@@ -45853,7 +45847,7 @@ Obj_WaterSurface:
 WaterSurface_Index: offsetTable
 		offsetTableEntry.w WaterSurface_Init		; 0
 		offsetTableEntry.w WaterSurface_Action		; 2
-		offsetTableEntry.w WaterSurface_Action2	; 4
+		offsetTableEntry.w WaterSurface_Action2		; 4
 ; ===========================================================================
 ; loc_208F0: Obj04_Main: Obj04_Init:
 WaterSurface_Init:
@@ -45976,9 +45970,9 @@ MapUnc_WaterSurface_CPZHPZ:	include "mappings/sprite/CPZ and HPZ water surface.a
 MapUnc_WaterSurface_ARZ:	include "mappings/sprite/ARZ water surface.asm"
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 49 - Waterfall from EHZ
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_20B9E: Obj49:
 Obj_EHZWaterfall:
 	moveq	#0,d0
@@ -46124,39 +46118,36 @@ JmpTo18_DeleteObject ; JmpTo
     endif
 ; ===========================================================================
     if ~~fixBugs
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite non-mappings
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 Obj31_MapUnc_20E6C:	include "mappings/sprite/obj31_a.asm"
     endif
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 Obj31_MapUnc_20E74:	include "mappings/sprite/obj31_b.asm"
+
 ; ===========================================================================
-
-
-
-
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 74 - Invisible solid block
-; ----------------------------------------------------------------------------
-; Sprite_20EE0:
-Obj74:
+; ---------------------------------------------------------------------------
+; Sprite_20EE0: Obj74:
+Obj_InvisibleBlock:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj74_Index(pc,d0.w),d1
-	jmp	Obj74_Index(pc,d1.w)
+	move.w	InvisibleBlock_Index(pc,d0.w),d1
+	jmp	InvisibleBlock_Index(pc,d1.w)
 ; ===========================================================================
-; off_20EEE: Obj74_States:
-Obj74_Index:	offsetTable
-		offsetTableEntry.w Obj74_Init	; 0
-		offsetTableEntry.w Obj74_Main	; 2
+; off_20EEE: Obj74_States: Obj74_Index:
+InvisibleBlock_Index: offsetTable
+		offsetTableEntry.w InvisibleBlock_Init	; 0
+		offsetTableEntry.w InvisibleBlock_Main	; 2
 ; ===========================================================================
-; loc_20EF2:
-Obj74_Init:
-	addq.b	#2,routine(a0) ; => Obj74_Main
-	move.l	#Obj74_MapUnc_20F66,mappings(a0)
+; loc_20EF2: Obj74_Init:
+InvisibleBlock_Init:
+	addq.b	#2,routine(a0) ; => InvisibleBlock_Main
+	move.l	#MapUnc_InvisibleBlock,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Powerups,0,1),art_tile(a0)
 	jsrto	JmpTo12_Adjust2PArtPointer
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
@@ -46170,9 +46161,8 @@ Obj74_Init:
 	addq.w	#1,d1
 	lsl.w	#3,d1
 	move.b	d1,y_radius(a0)
-
-; loc_20F2E:
-Obj74_Main:
+; loc_20F2E: Obj74_Main:
+InvisibleBlock_Main:
 	moveq	#0,d1
 	move.b	width_pixels(a0),d1
 	addi.w	#$B,d1
@@ -46199,18 +46189,16 @@ Obj74_Main:
 +
 	rts
 ; ===========================================================================
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
-Obj74_MapUnc_20F66:	include "mappings/sprite/obj74.asm"
-
-
-
+; ---------------------------------------------------------------------------
+; Obj74_MapUnc_20F66:
+MapUnc_InvisibleBlock:	include "mappings/sprite/Invisible block.asm"
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 7C - Big pylon in foreground of CPZ
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_20FD2:
 Obj7C:
 	moveq	#0,d0
@@ -68512,9 +68500,9 @@ Obj55_MapUnc_33756:	include "mappings/sprite/obj55.asm"
 
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 09 - Sonic in Special Stage
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_338EC:
 Obj09:
 	bsr.w	loc_33908
@@ -88412,7 +88400,7 @@ DbgObjList_MCZ: dbglistheader
 	dbglistobj ObjID_Spring,	Obj41_MapUnc_1901C, $81,   0, make_art_tile(ArtTile_ArtNem_VrtclSprng,0,0)
 	dbglistobj ObjID_Spring,	Obj41_MapUnc_1901C, $90,   3, make_art_tile(ArtTile_ArtNem_HrzntlSprng,0,0)
 	dbglistobj ObjID_Springboard,	Obj40_MapUnc_265F4,   1,   0, make_art_tile(ArtTile_ArtNem_LeverSpring,0,0)
-	dbglistobj ObjID_InvisibleBlock, Obj74_MapUnc_20F66, $11,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
+	dbglistobj ObjID_InvisibleBlock, MapUnc_InvisibleBlock, $11,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
 	dbglistobj ObjID_MCZBrick,	Obj75_MapUnc_28D8A, $18,   2, make_art_tile(ArtTile_ArtKos_LevelArt,1,0)
 	dbglistobj ObjID_SlidingSpikes,	Obj76_MapUnc_28F3A,   0,   0, make_art_tile(ArtTile_ArtKos_LevelArt,0,0)
 	dbglistobj ObjID_MCZBridge,	Obj77_MapUnc_29064,   1,   0, make_art_tile(ArtTile_ArtNem_MCZGateLog,3,0)
