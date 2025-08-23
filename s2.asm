@@ -14140,7 +14140,7 @@ ObjCD_Index:	offsetTable
 ; ===========================================================================
 ; loc_AAC0:
 ObjCD_Init:
-	lea	(Obj28_SubObjData).l,a1
+	lea	(Animal_SubObjData).l,a1
 	jsrto	JmpTo_LoadSubObject_Part3
 	move.l	(RNG_seed).w,d0
 	ror.l	#3,d0
@@ -14334,9 +14334,9 @@ ChildObject_AD66:	childObjectData objoff_3E, ObjID_EndingSeqBird, $00
 ChildObject_AD6A:	childObjectData objoff_3E, ObjID_EndingSeqSonic, $00
 ChildObject_AD6E:	childObjectData objoff_3E, ObjID_TornadoHelixes, $00
 
-; off_AD72:
-Obj28_SubObjData:
-	subObjData Obj28_MapUnc_11E1C,make_art_tile(ArtTile_ArtNem_Animal_2,0,0),1<<render_flags.level_fg,2,8,0
+; off_AD72: Obj28_SubObjData:
+Animal_SubObjData:
+	subObjData MapUnc_Animal1,make_art_tile(ArtTile_ArtNem_Animal_2,0,0),1<<render_flags.level_fg,2,8,0
 
 ; animation script
 ; byte_AD7C
@@ -14760,7 +14760,7 @@ LevelSize: zoneOrderedTable 2,8	; WrdArr_LvlSize
 +
 	tst.b	(Last_star_pole_hit).w		; was a star pole hit yet?
 	beq.s	+				; if not, branch
-	jsr	(Obj79_LoadData).l		; load the previously saved data
+	jsr	(Starpost_LoadData).l		; load the previously saved data
 	move.w	(MainCharacter+x_pos).w,d1
 	move.w	(MainCharacter+y_pos).w,d0
 	bra.s	++
@@ -24303,49 +24303,50 @@ Obj2D_MapUnc_11822:	include "mappings/sprite/obj2D.asm"
 animal_ground_routine_base = objoff_30
 animal_ground_x_vel = objoff_32
 animal_ground_y_vel = objoff_34
-; Sprite_1188C:
-Obj28:
+
+; Sprite_1188C: Obj28:
+Obj_Animal:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj28_Index(pc,d0.w),d1
-	jmp	Obj28_Index(pc,d1.w)
+	move.w	Animal_Index(pc,d0.w),d1
+	jmp	Animal_Index(pc,d1.w)
 ; ===========================================================================
-; off_1189A:
-Obj28_Index:	offsetTable
-		offsetTableEntry.w Obj28_Init	;   0
-		offsetTableEntry.w Obj28_Main	;   2
-		offsetTableEntry.w Obj28_Walk	;   4
-		offsetTableEntry.w Obj28_Fly	;   6
-		offsetTableEntry.w Obj28_Walk	;   8
-		offsetTableEntry.w Obj28_Walk	;  $A
-		offsetTableEntry.w Obj28_Walk	;  $C
-		offsetTableEntry.w Obj28_Fly	;  $E
-		offsetTableEntry.w Obj28_Walk	; $10
-		offsetTableEntry.w Obj28_Fly	; $12
-		offsetTableEntry.w Obj28_Walk	; $14
-		offsetTableEntry.w Obj28_Walk	; $16
-		offsetTableEntry.w Obj28_Walk	; $18
-		offsetTableEntry.w Obj28_Walk	; $1A
-		offsetTableEntry.w Obj28_Prison	; $1C
+; off_1189A: Obj28_Index:
+Animal_Index:	offsetTable
+		offsetTableEntry.w Animal_Init	;   0
+		offsetTableEntry.w Animal_Main	;   2
+		offsetTableEntry.w Animal_Walk	;   4
+		offsetTableEntry.w Animal_Fly	;   6
+		offsetTableEntry.w Animal_Walk	;   8
+		offsetTableEntry.w Animal_Walk	;  $A
+		offsetTableEntry.w Animal_Walk	;  $C
+		offsetTableEntry.w Animal_Fly	;  $E
+		offsetTableEntry.w Animal_Walk	; $10
+		offsetTableEntry.w Animal_Fly	; $12
+		offsetTableEntry.w Animal_Walk	; $14
+		offsetTableEntry.w Animal_Walk	; $16
+		offsetTableEntry.w Animal_Walk	; $18
+		offsetTableEntry.w Animal_Walk	; $1A
+		offsetTableEntry.w Animal_Prison	; $1C
 		; These are the S1 ending actions:
-		offsetTableEntry.w Obj28_FlickyWait	; $1E
-		offsetTableEntry.w Obj28_FlickyWait	; $20
-		offsetTableEntry.w Obj28_FlickyJump	; $22
-		offsetTableEntry.w Obj28_RabbitWait	; $24
-		offsetTableEntry.w Obj28_LandJump	; $26
-		offsetTableEntry.w Obj28_SingleBounce	; $28
-		offsetTableEntry.w Obj28_LandJump	; $2A
-		offsetTableEntry.w Obj28_SingleBounce	; $2C
-		offsetTableEntry.w Obj28_LandJump	; $2E
-		offsetTableEntry.w Obj28_FlyBounce	; $30
-		offsetTableEntry.w Obj28_DoubleBounce	; $32
+		offsetTableEntry.w Animal_FlickyWait	; $1E
+		offsetTableEntry.w Animal_FlickyWait	; $20
+		offsetTableEntry.w Animal_FlickyJump	; $22
+		offsetTableEntry.w Animal_RabbitWait	; $24
+		offsetTableEntry.w Animal_LandJump	; $26
+		offsetTableEntry.w Animal_SingleBounce	; $28
+		offsetTableEntry.w Animal_LandJump	; $2A
+		offsetTableEntry.w Animal_SingleBounce	; $2C
+		offsetTableEntry.w Animal_LandJump	; $2E
+		offsetTableEntry.w Animal_FlyBounce	; $30
+		offsetTableEntry.w Animal_DoubleBounce	; $32
 
-; byte_118CE:
-Obj28_ZoneAnimals:	zoneOrderedTable 1,2
+; byte_118CE: Obj28_ZoneAnimals:
+Animal_ZoneAnimals:	zoneOrderedTable 1,2
 
 zoneAnimals macro first,second
-	zoneTableEntry.b (Obj28_Properties_first - Obj28_Properties) / 8
-	zoneTableEntry.b (Obj28_Properties_second - Obj28_Properties) / 8
+	zoneTableEntry.b (Animal_Properties_first - Animal_Properties) / 8
+	zoneTableEntry.b (Animal_Properties_second - Animal_Properties) / 8
     endm
 	; This table declares what animals will appear in the zone.
 	; When an enemy is destroyed, a random animal is chosen from the 2 selected animals.
@@ -24369,33 +24370,33 @@ zoneAnimals macro first,second
 	zoneAnimals.b Turtle,	Chicken	; SCZ
     zoneTableEnd
 
-; word_118F0:
-Obj28_Properties:
+; word_118F0: Obj28_Properties:
+Animal_Properties:
 
-obj28decl macro	xvel,yvel,mappings,{INTLABEL}
-Obj28_Properties___LABEL__: label *
+animaldecl macro	xvel,yvel,mappings,{INTLABEL}
+Animal_Properties___LABEL__: label *
 	dc.w xvel
 	dc.w yvel
 	dc.l mappings
     endm
 		; This table declares the speed and mappings of each animal.
-Rabbit:		obj28decl -$200,-$400,Obj28_MapUnc_11EAC
-Chicken:	obj28decl -$200,-$300,Obj28_MapUnc_11E1C
-Penguin:	obj28decl -$180,-$300,Obj28_MapUnc_11EAC
-Seal:		obj28decl -$140,-$180,Obj28_MapUnc_11E88
-Pig:		obj28decl -$1C0,-$300,Obj28_MapUnc_11E64
-Flicky:		obj28decl -$300,-$400,Obj28_MapUnc_11E1C
-Squirrel:	obj28decl -$280,-$380,Obj28_MapUnc_11E40
-Eagle:		obj28decl -$280,-$300,Obj28_MapUnc_11E1C
-Mouse:		obj28decl -$200,-$380,Obj28_MapUnc_11E40
-Monkey:		obj28decl -$2C0,-$300,Obj28_MapUnc_11E40
-Turtle:		obj28decl -$140,-$200,Obj28_MapUnc_11E40
-Bear:		obj28decl -$200,-$300,Obj28_MapUnc_11E40
+Rabbit:		animaldecl -$200,-$400,MapUnc_Animal5
+Chicken:	animaldecl -$200,-$300,MapUnc_Animal1
+Penguin:	animaldecl -$180,-$300,MapUnc_Animal5
+Seal:		animaldecl -$140,-$180,MapUnc_Animal4
+Pig:		animaldecl -$1C0,-$300,MapUnc_Animal3
+Flicky:		animaldecl -$300,-$400,MapUnc_Animal1
+Squirrel:	animaldecl -$280,-$380,MapUnc_Animal2
+Eagle:		animaldecl -$280,-$300,MapUnc_Animal1
+Mouse:		animaldecl -$200,-$380,MapUnc_Animal2
+Monkey:		animaldecl -$2C0,-$300,MapUnc_Animal2
+Turtle:		animaldecl -$140,-$200,MapUnc_Animal2
+Bear:		animaldecl -$200,-$300,MapUnc_Animal2
 
 	; The following tables tell the properties of animals based on their subtype.
 
-; word_11950:
-Obj28_Speeds:
+; word_11950: Obj28_Speeds:
+Animal_Speeds:
 	dc.w -$440, -$400
 	dc.w -$440, -$400	; 2
 	dc.w -$440, -$400	; 4
@@ -24407,21 +24408,21 @@ Obj28_Speeds:
 	dc.w -$1C0, -$300	; 16
 	dc.w -$200, -$300	; 18
 	dc.w -$280, -$380	; 20
-; off_1197C:
-Obj28_Mappings:
-	dc.l Obj28_MapUnc_11E1C
-	dc.l Obj28_MapUnc_11E1C	; 1
-	dc.l Obj28_MapUnc_11E1C	; 2
-	dc.l Obj28_MapUnc_11EAC	; 3
-	dc.l Obj28_MapUnc_11EAC	; 4
-	dc.l Obj28_MapUnc_11EAC	; 5
-	dc.l Obj28_MapUnc_11EAC	; 6
-	dc.l Obj28_MapUnc_11E88	; 7
-	dc.l Obj28_MapUnc_11E64	; 8
-	dc.l Obj28_MapUnc_11E1C	; 9
-	dc.l Obj28_MapUnc_11E40	; 10
-; word_119A8:
-Obj28_ArtLocations:
+; off_1197C: Obj28_Mappings:
+Animal_Mappings:
+	dc.l MapUnc_Animal1
+	dc.l MapUnc_Animal1	; 1
+	dc.l MapUnc_Animal1	; 2
+	dc.l MapUnc_Animal5	; 3
+	dc.l MapUnc_Animal5	; 4
+	dc.l MapUnc_Animal5	; 5
+	dc.l MapUnc_Animal5	; 6
+	dc.l MapUnc_Animal4	; 7
+	dc.l MapUnc_Animal3	; 8
+	dc.l MapUnc_Animal1	; 9
+	dc.l MapUnc_Animal2	; 10
+; word_119A8: Obj28_ArtLocations:
+Animal_ArtLocations:
 	dc.w  ArtTile_ArtNem_S1EndFlicky	;  0	Flicky
 	dc.w  ArtTile_ArtNem_S1EndFlicky	;  1	Flicky
 	dc.w  ArtTile_ArtNem_S1EndFlicky	;  2	Flicky
@@ -24435,19 +24436,19 @@ Obj28_ArtLocations:
 	dc.w  ArtTile_ArtNem_S1EndSquirrel	; 10	Squirrel
 
 ; ===========================================================================
-; loc_119BE:
-Obj28_Init:
+; loc_119BE: Obj28_Init:
+Animal_Init:
 	tst.b	subtype(a0)
-	beq.w	Obj28_InitRandom
+	beq.w	Animal_InitRandom
 	moveq	#0,d0
 	move.b	subtype(a0),d0
 	add.w	d0,d0
 	move.b	d0,routine(a0)
 	subi.w	#$14,d0
-	move.w	Obj28_ArtLocations(pc,d0.w),art_tile(a0)
+	move.w	Animal_ArtLocations(pc,d0.w),art_tile(a0)
 	add.w	d0,d0
-	move.l	Obj28_Mappings(pc,d0.w),mappings(a0)
-	lea	Obj28_Speeds(pc),a1
+	move.l	Animal_Mappings(pc,d0.w),mappings(a0)
+	lea	Animal_Speeds(pc),a1
 	move.w	(a1,d0.w),animal_ground_x_vel(a0)
 	move.w	(a1,d0.w),x_vel(a0)
 	move.w	2(a1,d0.w),animal_ground_y_vel(a0)
@@ -24461,8 +24462,8 @@ Obj28_Init:
 	move.b	#7,anim_frame_duration(a0)
 	bra.w	DisplaySprite
 ; ===========================================================================
-; loc_11A2C:
-Obj28_InitRandom:
+; loc_11A2C: Obj28_InitRandom:
+Animal_InitRandom:
 	addq.b	#2,routine(a0)
 	jsrto	JmpTo_RandomNumber
 	move.w	#make_art_tile(ArtTile_ArtNem_Animal_1,0,0),art_tile(a0)
@@ -24474,11 +24475,11 @@ Obj28_InitRandom:
 	move.b	(Current_Zone).w,d1
 	add.w	d1,d1
 	add.w	d0,d1
-	lea	Obj28_ZoneAnimals(pc),a1
+	lea	Animal_ZoneAnimals(pc),a1
 	move.b	(a1,d1.w),d0
 	move.b	d0,animal_ground_routine_base(a0)
 	lsl.w	#3,d0
-	lea	Obj28_Properties(pc),a1
+	lea	Animal_Properties(pc),a1
 	adda.w	d0,a1
 	move.w	(a1)+,animal_ground_x_vel(a0)
 	move.w	(a1)+,animal_ground_y_vel(a0)
@@ -24496,7 +24497,7 @@ Obj28_InitRandom:
 	bne.s	++
 	bsr.w	AllocateObject
 	bne.s	+
-	_move.b	#ObjID_Points,id(a1) ; load obj29
+	_move.b	#ObjID_Points,id(a1) ; load Obj_Points
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
 	move.w	objoff_3E(a0),d0
@@ -24509,8 +24510,8 @@ Obj28_InitRandom:
 	clr.w	x_vel(a0)
 	bra.w	DisplaySprite
 ; ===========================================================================
-;loc_11ADE
-Obj28_Main:
+;loc_11ADE Obj28_Main:
+Animal_Main:
 	_btst	#render_flags.on_screen,render_flags(a0)
 	_beq.w	DeleteObject
 	bsr.w	ObjectMoveAndFall
@@ -24535,9 +24536,8 @@ Obj28_Main:
 	bchg	#render_flags.x_flip,render_flags(a0)
 +	bra.w	DisplaySprite
 ; ===========================================================================
-;loc_11B38
-Obj28_Walk:
-
+; loc_11B38 Obj28_Walk:
+Animal_Walk:
 	bsr.w	ObjectMoveAndFall
 	move.b	#1,mapping_frame(a0)
 	tst.w	y_vel(a0)
@@ -24550,13 +24550,13 @@ Obj28_Walk:
 	move.w	animal_ground_y_vel(a0),y_vel(a0)
 +
 	tst.b	subtype(a0)
-	bne.s	Obj28_ChkDel
+	bne.s	Animal_ChkDel
 	_btst	#render_flags.on_screen,render_flags(a0)
 	_beq.w	DeleteObject
 	bra.w	DisplaySprite
 ; ===========================================================================
-;loc_11B74
-Obj28_Fly:
+; loc_11B74 Obj28_Fly:
+Animal_Fly:
 	bsr.w	ObjectMove
 	addi.w	#$18,y_vel(a0)
 	tst.w	y_vel(a0)
@@ -24580,13 +24580,13 @@ Obj28_Fly:
 	andi.b	#1,mapping_frame(a0)
 +
 	tst.b	subtype(a0)
-	bne.s	Obj28_ChkDel
+	bne.s	Animal_ChkDel
 	_btst	#render_flags.on_screen,render_flags(a0)
 	_beq.w	DeleteObject
 	bra.w	DisplaySprite
 ; ===========================================================================
-;loc_11BD8
-Obj28_ChkDel:
+; loc_11BD8 Obj28_ChkDel:
+Animal_ChkDel:
 	move.w	x_pos(a0),d0
 	sub.w	(MainCharacter+x_pos).w,d0
 	bcs.s	+
@@ -24597,8 +24597,8 @@ Obj28_ChkDel:
 +
 	bra.w	DisplaySprite
 ; ===========================================================================
-;loc_11BF4
-Obj28_Prison:
+; loc_11BF4 Obj28_Prison:
+Animal_Prison:
 	_btst	#render_flags.on_screen,render_flags(a0)
 	_beq.w	DeleteObject
 	subq.w	#1,objoff_36(a0)
@@ -24608,20 +24608,20 @@ Obj28_Prison:
 +
 	bra.w	DisplaySprite
 ; ===========================================================================
-;loc_11C14
-Obj28_FlickyWait:
+; loc_11C14: Obj28_FlickyWait:
+Animal_FlickyWait:
 	bsr.w	ChkAnimalInRange
 	bcc.s	+
 	move.w	animal_ground_x_vel(a0),x_vel(a0)
 	move.w	animal_ground_y_vel(a0),y_vel(a0)
 	move.b	#$E,routine(a0)
-	bra.w	Obj28_Fly
+	bra.w	Animal_Fly
 ; ===========================================================================
 +
-	bra.w	Obj28_ChkDel
+	bra.w	Animal_ChkDel
 ; ===========================================================================
-;loc_11C34
-Obj28_FlickyJump:
+; loc_11C34 Obj28_FlickyJump:
+Animal_FlickyJump:
 	bsr.w	ChkAnimalInRange
 	bpl.s	+
 	clr.w	x_vel(a0)
@@ -24636,19 +24636,19 @@ Obj28_FlickyJump:
 	addq.b	#1,mapping_frame(a0)
 	andi.b	#1,mapping_frame(a0)
 +
-	bra.w	Obj28_ChkDel
+	bra.w	Animal_ChkDel
 ; ===========================================================================
-;loc_11C6E
-Obj28_RabbitWait:
+; loc_11C6E Obj28_RabbitWait:
+Animal_RabbitWait:
 	bsr.w	ChkAnimalInRange
 	bpl.s	++
 	move.w	animal_ground_x_vel(a0),x_vel(a0)
 	move.w	animal_ground_y_vel(a0),y_vel(a0)
 	move.b	#4,routine(a0)
-	bra.w	Obj28_Walk
+	bra.w	Animal_Walk
 ; ===========================================================================
-;loc_11C8A
-Obj28_DoubleBounce:
+; loc_11C8A Obj28_DoubleBounce:
+Animal_DoubleBounce:
 	bsr.w	ObjectMoveAndFall
 	move.b	#1,mapping_frame(a0)
 	tst.w	y_vel(a0)
@@ -24665,10 +24665,10 @@ Obj28_DoubleBounce:
 	add.w	d1,y_pos(a0)
 	move.w	animal_ground_y_vel(a0),y_vel(a0)
 +
-	bra.w	Obj28_ChkDel
+	bra.w	Animal_ChkDel
 ; ===========================================================================
-;loc_11CC8
-Obj28_LandJump:
+; loc_11CC8 Obj28_LandJump:
+Animal_LandJump:
 	bsr.w	ChkAnimalInRange
 	bpl.s	+
 	clr.w	x_vel(a0)
@@ -24677,10 +24677,10 @@ Obj28_LandJump:
 	bsr.w	AnimalJump
 	bsr.w	AnimalFaceSonic
 +
-	bra.w	Obj28_ChkDel
+	bra.w	Animal_ChkDel
 ; ===========================================================================
-;loc_11CE6
-Obj28_SingleBounce:
+; loc_11CE6 Obj28_SingleBounce:
+Animal_SingleBounce:
 	bsr.w	ChkAnimalInRange
 	bpl.s	+
 	bsr.w	ObjectMoveAndFall
@@ -24696,10 +24696,10 @@ Obj28_SingleBounce:
 	add.w	d1,y_pos(a0)
 	move.w	animal_ground_y_vel(a0),y_vel(a0)
 +
-	bra.w	Obj28_ChkDel
+	bra.w	Animal_ChkDel
 ; ===========================================================================
-;loc_11D24
-Obj28_FlyBounce:
+; loc_11D24 Obj28_FlyBounce:
+Animal_FlyBounce:
 	bsr.w	ChkAnimalInRange
 	bpl.s	+++
 	bsr.w	ObjectMove
@@ -24723,11 +24723,11 @@ Obj28_FlyBounce:
 	addq.b	#1,mapping_frame(a0)
 	andi.b	#1,mapping_frame(a0)
 +
-	bra.w	Obj28_ChkDel
+	bra.w	Animal_ChkDel
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-;sub_11D78
+; sub_11D78
 AnimalJump:
 	move.b	#1,mapping_frame(a0)
 	tst.w	y_vel(a0)
@@ -24745,7 +24745,7 @@ AnimalJump:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-;sub_11DA0
+; sub_11DA0
 AnimalFaceSonic:
 	bset	#render_flags.x_flip,render_flags(a0)
 	move.w	x_pos(a0),d0
@@ -24759,7 +24759,7 @@ AnimalFaceSonic:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-;sub_11DB8
+; sub_11DB8
 ChkAnimalInRange:
 	move.w	(MainCharacter+x_pos).w,d0
 	sub.w	x_pos(a0),d0
@@ -24771,60 +24771,67 @@ ChkAnimalInRange:
 ; ----------------------------------------------------------------------------
 ; Object 29 - "100 points" text
 ; ----------------------------------------------------------------------------
-; Sprite_11DC6:
-Obj29:
+; Sprite_11DC6: Obj29:
+Obj_Points:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj29_Index(pc,d0.w),d1
-	jmp	Obj29_Index(pc,d1.w)
+	move.w	Points_Index(pc,d0.w),d1
+	jmp	Points_Index(pc,d1.w)
 ; ===========================================================================
-; off_11DD4:
-Obj29_Index:	offsetTable
-		offsetTableEntry.w Obj29_Init	; 0
-		offsetTableEntry.w Obj29_Main	; 2
+; off_11DD4: Obj29_Index:
+Points_Index:	offsetTable
+		offsetTableEntry.w Points_Init	; 0
+		offsetTableEntry.w Points_Main	; 2
 ; ===========================================================================
-
-Obj29_Init:
+; loc_11DD8: Obj29_Init:
+Points_Init:
 	addq.b	#2,routine(a0)
-	move.l	#Obj29_MapUnc_11ED0,mappings(a0)
+	move.l	#MapUnc_Points,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Numbers,0,1),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#1,priority(a0)
 	move.b	#8,width_pixels(a0)
 	move.w	#-$300,y_vel(a0)	; set initial speed (upwards)
-
-Obj29_Main:
+; loc_11E06: Obj29_Main:
+Points_Main:
 	tst.w	y_vel(a0)		; test speed
 	bpl.w	DeleteObject		; if it's positive (>= 0), delete the object
 	bsr.w	ObjectMove		; move the points
 	addi.w	#$18,y_vel(a0)		; slow down
 	bra.w	DisplaySprite
+
 ; ===========================================================================
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
-Obj28_MapUnc_11E1C:	include "mappings/sprite/obj28_a.asm"
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
+; Obj28_MapUnc_11E1C:
+MapUnc_Animal1:		include "mappings/sprite/Flicky, Locky, and Cucky.asm"
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
-Obj28_MapUnc_11E40:	include "mappings/sprite/obj28_b.asm"
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
+; Obj28_MapUnc_11E40:
+MapUnc_Animal2:		include "mappings/sprite/Ricky, Wocky, Micky, Tocke, and Becky.asm"
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
-Obj28_MapUnc_11E64:	include "mappings/sprite/obj28_c.asm"
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
+; Obj28_MapUnc_11E64:
+MapUnc_Animal3:		include "mappings/sprite/Picky.asm"
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
-Obj28_MapUnc_11E88:	include "mappings/sprite/obj28_d.asm"
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
+; Obj28_MapUnc_11E88:
+MapUnc_Animal4:		include "mappings/sprite/Rocky.asm"
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
-Obj28_MapUnc_11EAC:	include "mappings/sprite/obj28_e.asm"
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
+; Obj28_MapUnc_11EAC:
+MapUnc_Animal5:		include "mappings/sprite/Pocky and Pecky.asm"
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
-Obj29_MapUnc_11ED0:	include "mappings/sprite/obj29.asm"
+; ---------------------------------------------------------------------------
+; Obj29_MapUnc_11ED0:
+MapUnc_Points:		include "mappings/sprite/Points.asm"
 
 	jmpTos JmpTo_RandomNumber
 
@@ -25785,12 +25792,12 @@ shield_monitor:
 	jsr	(PlayMusic).l
 	tst.b	parent+1(a0)
 	bne.s	+
-	move.b	#ObjID_Shield,(Sonic_Shield+id).w ; load Obj38 (shield) at $FFFFD180
+	move.b	#ObjID_Shield,(Sonic_Shield+id).w ; load Obj_Shield at $FFFFD180
 	move.w	a1,(Sonic_Shield+parent).w
 	rts
 ; ---------------------------------------------------------------------------
 +	; give shield to sidekick
-	move.b	#ObjID_Shield,(Tails_Shield+id).w ; load Obj38 (shield) at $FFFFD1C0
+	move.b	#ObjID_Shield,(Tails_Shield+id).w ; load Obj_Shield at $FFFFD1C0
 	move.w	a1,(Tails_Shield+parent).w
 	rts
 ; ===========================================================================
@@ -25813,12 +25820,12 @@ invincible_monitor:
 +
 	tst.b	parent+1(a0)
 	bne.s	+
-	move.b	#ObjID_InvStars,(Sonic_InvincibilityStars+id).w ; load Obj35 (invincibility stars) at $FFFFD200
+	move.b	#ObjID_InvStars,(Sonic_InvincibilityStars+id).w ; load Obj_InvStars at $FFFFD200
 	move.w	a1,(Sonic_InvincibilityStars+parent).w
 	rts
 ; ---------------------------------------------------------------------------
 +	; give invincibility to sidekick
-	move.b	#ObjID_InvStars,(Tails_InvincibilityStars+id).w ; load Obj35 (invincibility stars) at $FFFFD300
+	move.b	#ObjID_InvStars,(Tails_InvincibilityStars+id).w ; load Obj_InvStars at $FFFFD300
 	move.w	a1,(Tails_InvincibilityStars+parent).w
 +
 	rts
@@ -25924,9 +25931,9 @@ swap_loop_objects:
 	dbf	d1,swap_loop_objects ; loop
 
 	lea	(MainCharacter).w,a1 ; a1=character
-	move.b	#ObjID_Shield,(Sonic_Shield+id).w ; load Obj38 (shield) at $FFFFD180
+	move.b	#ObjID_Shield,(Sonic_Shield+id).w ; load Obj_Shield at $FFFFD180
 	move.w	a1,(Sonic_Shield+parent).w
-	move.b	#ObjID_InvStars,(Sonic_InvincibilityStars+id).w ; load Obj35 (invincibility stars) at $FFFFD200
+	move.b	#ObjID_InvStars,(Sonic_InvincibilityStars+id).w ; load Obj_InvStars at $FFFFD200
 	move.w	a1,(Sonic_InvincibilityStars+parent).w
 	btst	#status.player.rolling,status(a1)	; is Sonic spinning?
 	bne.s	+		; if yes, branch
@@ -25949,9 +25956,9 @@ swap_loop_objects:
 
 +
 	lea	(Sidekick).w,a1 ; a1=character
-	move.b	#ObjID_Shield,(Tails_Shield+id).w ; load Obj38 (shield) at $FFFFD1C0
+	move.b	#ObjID_Shield,(Tails_Shield+id).w ; load Obj_Shield at $FFFFD1C0
 	move.w	a1,(Tails_Shield+parent).w
-	move.b	#ObjID_InvStars,(Tails_InvincibilityStars+id).w ; load Obj35 (invincibility) at $FFFFD300
+	move.b	#ObjID_InvStars,(Tails_InvincibilityStars+id).w ; load Obj_InvStars at $FFFFD300
 	move.w	a1,(Tails_InvincibilityStars+parent).w
 	btst	#status.player.rolling,status(a1)	; is Tails spinning?
 	bne.s	+		; if yes, branch
@@ -29750,8 +29757,8 @@ ObjPtr_ARZBubbles:	dc.l Obj24	; Bubbles in Aquatic Ruin Zone
 ObjPtr_Ring:		dc.l Obj_Ring			; A ring
 ObjPtr_Monitor:		dc.l Obj_Monitor		; Monitor
 ObjPtr_Explosion:	dc.l Obj_Explosion		; An explosion, giving off an animal and 100 points
-ObjPtr_Animal:		dc.l Obj28	; Animal and the 100 points from a badnik
-ObjPtr_Points:		dc.l Obj29	; "100 points" text
+ObjPtr_Animal:		dc.l Obj_Animal			; Animal and the 100 points from a badnik
+ObjPtr_Points:		dc.l Obj_Points			; "100 points" text
 ObjPtr_Stomper:		dc.l Obj2A	; Stomper from MCZ
 ObjPtr_RisingPillar:	dc.l Obj2B	; Rising pillar from ARZ
 ObjPtr_LeavesGenerator:	dc.l Obj2C	; Sprite that makes leaves fly off when you hit it from ARZ
@@ -29764,10 +29771,10 @@ ObjPtr_BreakableBlock:
 ObjPtr_BreakableRock:	dc.l Obj32	; Breakable block/rock from CPZ and HTZ
 ObjPtr_OOZPoppingPform:	dc.l Obj33	; Green platform from OOZ
 ObjPtr_TitleCard:	dc.l Obj_TitleCard		; level title card (screen with red, yellow, and blue)
-ObjPtr_InvStars:	dc.l Obj35	; Invincibility Stars
+ObjPtr_InvStars:	dc.l Obj_InvStars		; Invincibility Stars
 ObjPtr_Spikes:		dc.l Obj36	; Vertical spikes
 ObjPtr_LostRings:	dc.l Obj_LostRings		; Scattering rings (generated when Sonic is hurt and has rings)
-ObjPtr_Shield:		dc.l Obj38	; Shield
+ObjPtr_Shield:		dc.l Obj_Shield			; Shield
 ObjPtr_GameOver:
 ObjPtr_TimeOver:	dc.l Obj39	; Game/Time Over text
 ObjPtr_Results:		dc.l Obj3A	; End of level results screen
@@ -29838,12 +29845,12 @@ ObjPtr_MCZBrick:	dc.l Obj75	; Brick from MCZ
 ObjPtr_SlidingSpikes:	dc.l Obj76	; Spike block that slides out of the wall from MCZ
 ObjPtr_MCZBridge:	dc.l Obj77	; Bridge from MCZ
 ObjPtr_CPZStaircase:	dc.l Obj78	; Stairs from CPZ that move down to open the way
-ObjPtr_Starpost:	dc.l Obj79	; Star pole / starpost / checkpoint
+ObjPtr_Starpost:	dc.l Obj_Starpost		; Star pole / starpost / checkpoint
 ObjPtr_SidewaysPform:	dc.l Obj7A	; Platform that moves back and fourth on top of water in CPZ
 ObjPtr_PipeExitSpring:	dc.l Obj7B	; Warp pipe exit spring from CPZ
 ObjPtr_CPZPylon:	dc.l Obj7C	; Big pylon in foreground of CPZ
-			dc.l Obj7D	; Points that can be gotten at the end of an act (unused leftover from S1)
-ObjPtr_SuperSonicStars:	dc.l Obj7E	; Super Sonic's stars
+ObjPtr_HiddenBonus:	dc.l Obj_HiddenBonus		; Points that can be gotten at the end of an act (unused leftover from S1)
+ObjPtr_SuperSonicStars:	dc.l Obj_SuperSonicStars	; Super Sonic's stars
 ObjPtr_VineSwitch:	dc.l Obj7F	; Vine switch that you hang off in MCZ
 ObjPtr_MovingVine:	dc.l Obj80	; Vine that you hang off and it moves down from MCZ
 ObjPtr_MCZDrawbridge:	dc.l Obj81	; Long invisible vertical barrier
@@ -37155,7 +37162,7 @@ Sonic_CheckGoSuper:
 	move.b	#1,(Super_Sonic_flag).w
 	move.b	#$81,obj_control(a0)
 	move.b	#AniIDSupSonAni_Transform,anim(a0)			; use transformation animation
-	move.b	#ObjID_SuperSonicStars,(SuperSonicStars+id).w ; load Obj7E (Super Sonic stars object) at $FFFFD040
+	move.b	#ObjID_SuperSonicStars,(SuperSonicStars+id).w 		; load Obj_SuperSonicStars at $FFFFD040
 	move.w	#$A00,(Sonic_top_speed).w
 	move.w	#$30,(Sonic_acceleration).w
 	move.w	#$100,(Sonic_deceleration).w
@@ -41998,29 +42005,29 @@ byte_1D8EB:	dc.b  $E,  1,  2,  3,  4,$FC
 ; ----------------------------------------------------------------------------
 ; Object 38 - Shield
 ; ----------------------------------------------------------------------------
-; Sprite_1D8F2:
-Obj38:
+; Sprite_1D8F2: Obj38:
+Obj_Shield:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj38_Index(pc,d0.w),d1
-	jmp	Obj38_Index(pc,d1.w)
+	move.w	Shield_Index(pc,d0.w),d1
+	jmp	Shield_Index(pc,d1.w)
 ; ===========================================================================
-; off_1D900:
-Obj38_Index:	offsetTable
-		offsetTableEntry.w Obj38_Main	; 0
-		offsetTableEntry.w Obj38_Shield	; 2
+; off_1D900: Obj38_Index:
+Shield_Index:	offsetTable
+		offsetTableEntry.w Shield_Init	; 0
+		offsetTableEntry.w Shield_Main	; 2
 ; ===========================================================================
-; loc_1D904:
-Obj38_Main:
+; loc_1D904: Obj38_Main:
+Shield_Init:
 	addq.b	#2,routine(a0)
-	move.l	#Obj38_MapUnc_1DBE4,mappings(a0)
+	move.l	#MapUnc_Shield,mappings(a0)
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#1,priority(a0)
 	move.b	#$18,width_pixels(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Shield,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
-; loc_1D92C:
-Obj38_Shield:
+; loc_1D92C: Obj38_Shield:
+Shield_Main:
 	movea.w	parent(a0),a2 ; a2=character
 	btst	#status_secondary.invincible,status_secondary(a2)
 	bne.s	return_1D976
@@ -42031,11 +42038,11 @@ Obj38_Shield:
 	move.b	status(a2),status(a0)
 	andi.w	#drawing_mask,art_tile(a0)
 	tst.w	art_tile(a2)
-	bpl.s	Obj38_Display
+	bpl.s	Shield_Display
 	ori.w	#high_priority,art_tile(a0)
-; loc_1D964:
-Obj38_Display:
-	lea	(Ani_obj38).l,a1
+; loc_1D964: Obj38_Display:
+Shield_Display:
+	lea	(Ani_Shield).l,a1
 	jsr	(AnimateSprite).l
 	jmp	(DisplaySprite).l
 ; ===========================================================================
@@ -42046,19 +42053,20 @@ return_1D976:
 
 JmpTo7_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
+
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object 35 - Invincibility Stars
 ; ----------------------------------------------------------------------------
-; Sprite_1D97E:
-Obj35:
+; Sprite_1D97E: Obj35:
+Obj_InvStars:
 	moveq	#0,d0
 	move.b	objoff_A(a0),d0
-	move.w	Obj35_Index(pc,d0.w),d1
-	jmp	Obj35_Index(pc,d1.w)
+	move.w	InvStars_Index(pc,d0.w),d1
+	jmp	InvStars_Index(pc,d1.w)
 ; ===========================================================================
-; off_1D98C:
-Obj35_Index:	offsetTable
+; off_1D98C: Obj35_Index:
+InvStars_Index:	offsetTable
 		offsetTableEntry.w loc_1D9A4	; 0
 		offsetTableEntry.w loc_1DA0C	; 2
 		offsetTableEntry.w loc_1DA80	; 4
@@ -42078,9 +42086,9 @@ loc_1D9A4:
 	lea	(a0),a1
 
 	moveq	#3,d1
--	_move.b	id(a0),id(a1) ; load obj35
+-	_move.b	id(a0),id(a1) ; load Obj_InvStars
 	move.b	#4,objoff_A(a1)		; => loc_1DA80
-	move.l	#Obj35_MapUnc_1DCBC,mappings(a1)
+	move.l	#MapUnc_InvStars,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_Invincible_stars,0,0),art_tile(a1)
 	bsr.w	Adjust2PArtPointer2
 	move.b	#1<<render_flags.level_fg,render_flags(a1)
@@ -42250,8 +42258,8 @@ byte_1DBBD:	dc.b   7,  6,  5,  4,  3,  2,  1,  2,  3,  4,  5,  6,$FF
 	even
 
 ; animation script
-; byte_1DBD6
-Ani_obj38:	offsetTable
+; byte_1DBD6 Ani_obj38:
+Ani_Shield:	offsetTable
 		offsetTableEntry.w +	; 0
 +		dc.b   0,  5,  0,  5,  1,  5,  2,  5,  3,  5,  4,$FF
 	even
@@ -42259,11 +42267,13 @@ Ani_obj38:	offsetTable
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
-Obj38_MapUnc_1DBE4:	include "mappings/sprite/obj38.asm"
+; Obj38_MapUnc_1DBE4:
+MapUnc_Shield:		include "mappings/sprite/Shield.asm"
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
-Obj35_MapUnc_1DCBC:	include "mappings/sprite/obj35.asm"
+; Obj35_MapUnc_1DCBC:
+MapUnc_InvStars:	include "mappings/sprite/Invincibility stars.asm"
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -42471,44 +42481,45 @@ Obj08Ani_Dash:	dc.b   1, $A, $B, $C, $D, $E, $F,$10,$FF
 	rev02even
 Obj08Ani_Skid:	dc.b   3,$11,$12,$13,$14,$FC
 	even
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 Obj08_MapUnc_1DF5E:	include "mappings/sprite/obj08.asm"
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; dynamic pattern loading cues
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 Obj08_MapRUnc_1E074:	include "mappings/spriteDPLC/obj08.asm"
+
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 7E - Super Sonic's stars
-; ----------------------------------------------------------------------------
-; Sprite_1E0F0:
-Obj7E:
+; ---------------------------------------------------------------------------
+; Sprite_1E0F0: Obj7E:
+Obj_SuperSonicStars:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj7E_Index(pc,d0.w),d1
-	jmp	Obj7E_Index(pc,d1.w)
+	move.w	SuperSonicStars_Index(pc,d0.w),d1
+	jmp	SuperSonicStars_Index(pc,d1.w)
 ; ===========================================================================
-; off_1E0FE: Obj7E_States:
-Obj7E_Index:	offsetTable
-		offsetTableEntry.w Obj7E_Init	; 0
-		offsetTableEntry.w Obj7E_Main	; 2
+; off_1E0FE: Obj7E_States: Obj7E_Index:
+SuperSonicStars_Index: offsetTable
+		offsetTableEntry.w SuperSonicStars_Init	; 0
+		offsetTableEntry.w SuperSonicStars_Main	; 2
 ; ===========================================================================
-; loc_1E102:
-Obj7E_Init:
+; loc_1E102: Obj7E_Init:
+SuperSonicStars_Init:
 	addq.b	#2,routine(a0)
-	move.l	#Obj7E_MapUnc_1E1BE,mappings(a0)
+	move.l	#MapUnc_SuperSonicStars,mappings(a0)
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#1,priority(a0)
 	move.b	#$18,width_pixels(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_SuperSonic_stars,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	btst	#high_priority_bit,(MainCharacter+art_tile).w
-	beq.s	Obj7E_Main
+	beq.s	SuperSonicStars_Main
 	bset	#high_priority_bit,art_tile(a0)
-; loc_1E138:
-Obj7E_Main:
+; loc_1E138: Obj7E_Main:
+SuperSonicStars_Main:
 	tst.b	(Super_Sonic_flag).w
 	beq.s	JmpTo8_DeleteObject
 	tst.b	objoff_30(a0)
@@ -42557,16 +42568,14 @@ loc_1E1AA:
 JmpTo8_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
 ; ===========================================================================
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
-Obj7E_MapUnc_1E1BE:	include "mappings/sprite/obj7E.asm"
+; ---------------------------------------------------------------------------
+; Obj7E_MapUnc_1E1BE:
+MapUnc_SuperSonicStars:	include "mappings/sprite/Super Sonic stars.asm"
 ; ===========================================================================
 
 	jmpTos ; Empty
-
-
-
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to change Sonic's angle & position as he walks along the floor
@@ -44133,25 +44142,25 @@ ObjCheckLeftWallDist:
 ; ----------------------------------------------------------------------------
 ; Object 79 - Star pole / starpost / checkpoint
 ; ----------------------------------------------------------------------------
-; Sprite_1F0B4:
-Obj79:
+; Sprite_1F0B4: Obj79:
+Obj_Starpost:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj79_Index(pc,d0.w),d1
-	jmp	Obj79_Index(pc,d1.w)
+	move.w	Starpost_Index(pc,d0.w),d1
+	jmp	Starpost_Index(pc,d1.w)
 ; ===========================================================================
-; off_1F0C2: Obj79_States:
-Obj79_Index:	offsetTable
-		offsetTableEntry.w Obj79_Init		; 0
-		offsetTableEntry.w Obj79_Main		; 2
-		offsetTableEntry.w Obj79_Animate	; 4
-		offsetTableEntry.w Obj79_Dongle		; 6
-		offsetTableEntry.w Obj79_Star		; 8
+; off_1F0C2: Obj79_States: Obj79_Index:
+Starpost_Index:	offsetTable
+		offsetTableEntry.w Starpost_Init	; 0
+		offsetTableEntry.w Starpost_Main	; 2
+		offsetTableEntry.w Starpost_Animate	; 4
+		offsetTableEntry.w Starpost_Dongle	; 6
+		offsetTableEntry.w Starpost_Star	; 8
 ; ===========================================================================
-; loc_1F0CC:
-Obj79_Init:
-	addq.b	#2,routine(a0) ; => Obj79_Main
-	move.l	#Obj79_MapUnc_1F424,mappings(a0)
+; loc_1F0CC: Obj79_Init:
+Starpost_Init:
+	addq.b	#2,routine(a0) ; => Starpost_Main
+	move.l	#MapUnc_Starpost,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Checkpoint,0,0),art_tile(a0)
 	jsrto	JmpTo3_Adjust2PArtPointer
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
@@ -44166,7 +44175,7 @@ Obj79_Init:
 	; activated too. The cause of the bug is that the spawned checkpoint
 	; does not have a respawn entry, but this object fails to check for
 	; that before accessing the respawn table.
-	beq.s	Obj79_Main
+	beq.s	Starpost_Main
     endif
 	bclr	#7,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 	btst	#0,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
@@ -44176,28 +44185,28 @@ Obj79_Init:
 	move.b	subtype(a0),d2
 	andi.b	#$7F,d2
 	cmp.b	d2,d1
-	blo.s	Obj79_Main
+	blo.s	Starpost_Main
 
 loc_1F120:
 	bset	#0,Obj_respawn_data-Object_Respawn_Table(a2,d0.w)
 	move.b	#2,anim(a0)
 
-; loc_1F12C:
-Obj79_Main:
+; loc_1F12C: Obj79_Main:
+Starpost_Main:
 	tst.w	(Debug_placement_mode).w
-	bne.w	Obj79_Animate
+	bne.w	Starpost_Animate
 	lea	(MainCharacter).w,a3 ; a3=character
 	move.b	(Last_star_pole_hit).w,d1
-	bsr.s	Obj79_CheckActivation
+	bsr.s	Starpost_CheckActivation
 	tst.w	(Two_player_mode).w
-	beq.w	Obj79_Animate
+	beq.w	Starpost_Animate
 	lea	(Sidekick).w,a3 ; a3=character
 	move.b	(Last_star_pole_hit_2P).w,d1
-	bsr.s	Obj79_CheckActivation
-	bra.w	Obj79_Animate
+	bsr.s	Starpost_CheckActivation
+	bra.w	Starpost_Animate
 ; ---------------------------------------------------------------------------
-; loc_1F154:
-Obj79_CheckActivation:
+; loc_1F154: Obj79_CheckActivation:
+Starpost_CheckActivation:
 	andi.b	#$7F,d1
 	move.b	subtype(a0),d2
 	andi.b	#$7F,d2
@@ -44217,8 +44226,8 @@ Obj79_CheckActivation:
 	jsr	(PlaySound).l
 	jsr	(AllocateObject).l
 	bne.s	loc_1F206
-	_move.b	#ObjID_Starpost,id(a1) ; load obj79
-	move.b	#6,routine(a1) ; => Obj79_Dongle
+	_move.b	#ObjID_Starpost,id(a1) ; load Obj_Starpost
+	move.b	#6,routine(a1) ; => Starpost_Dongle
 	move.w	x_pos(a0),objoff_30(a1)
 	move.w	y_pos(a0),objoff_32(a1)
 	subi.w	#$14,objoff_32(a1)
@@ -44236,11 +44245,11 @@ Obj79_CheckActivation:
 	beq.s	loc_1F206
 	cmpi.w	#50,(Ring_count).w
 	blo.s	loc_1F206
-	bsr.w	Obj79_MakeSpecialStars
+	bsr.w	Starpost_MakeSpecialStars
 
 loc_1F206:
 	move.b	#1,anim(a0)
-	bsr.w	Obj79_SaveData
+	bsr.w	Starpost_SaveData
 	lea	(Object_Respawn_Table).w,a2
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
@@ -44266,16 +44275,16 @@ loc_1F222:
 return_1F22E:
 	rts
 ; ===========================================================================
-; loc_1F230:
-Obj79_Animate:
-	lea	(Ani_obj79).l,a1
+; loc_1F230: Obj79_Animate:
+Starpost_Animate:
+	lea	(Ani_Starpost).l,a1
 	jsrto	JmpTo2_AnimateSprite
 	jmp	(MarkObjGone).l
 ; ===========================================================================
-; loc_1F240:
-Obj79_Dongle:
+; loc_1F240: Obj79_Dongle:
+Starpost_Dongle:
 	subq.w	#1,objoff_36(a0)
-	bpl.s	Obj79_MoveDonglyThing
+	bpl.s	Starpost_MoveDonglyThing
 	movea.w	parent(a0),a1 ; a1=object
 	cmpi.b	#ObjID_Starpost,id(a1)
 	bne.s	+
@@ -44284,8 +44293,8 @@ Obj79_Dongle:
 +
 	jmp	(DeleteObject).l
 ; ===========================================================================
-; loc_1F262:
-Obj79_MoveDonglyThing:
+; loc_1F262: Obj79_MoveDonglyThing:
+Starpost_MoveDonglyThing:
 	move.b	angle(a0),d0
 	subi.b	#$10,angle(a0)
 	subi.b	#$40,d0
@@ -44301,10 +44310,10 @@ Obj79_MoveDonglyThing:
 	jmp	(MarkObjGone).l
 ; ===========================================================================
 ; hit a starpost / save checkpoint
-; loc_1F298:
-Obj79_SaveData:
-	cmpa.w	#MainCharacter,a3	; is it player 1?
-	bne.w	Obj79_SaveDataPlayer2	; if not, branch
+; loc_1F298: Obj79_SaveData:
+Starpost_SaveData:
+	cmpa.w	#MainCharacter,a3		; is it player 1?
+	bne.w	Starpost_SaveDataPlayer2	; if not, branch
 	move.b	subtype(a0),(Last_star_pole_hit).w
 	move.b	(Last_star_pole_hit).w,(Saved_Last_star_pole_hit).w
 	move.w	x_pos(a0),(Saved_x_pos).w
@@ -44330,8 +44339,8 @@ Obj79_SaveData:
 	rts
 ; ===========================================================================
 ; second player hit a checkpoint in 2-player mode
-; loc_1F326:
-Obj79_SaveDataPlayer2:
+; loc_1F326: Obj79_SaveDataPlayer2:
+Starpost_SaveDataPlayer2:
 	move.b	subtype(a0),(Last_star_pole_hit_2P).w
 	move.b	(Last_star_pole_hit_2P).w,(Saved_Last_star_pole_hit_2P).w
 	move.w	x_pos(a0),(Saved_x_pos_2P).w
@@ -44344,8 +44353,8 @@ Obj79_SaveDataPlayer2:
 	rts
 ; ===========================================================================
 ; continue from a starpost / load checkpoint
-; loc_1F35E:
-Obj79_LoadData:
+; loc_1F35E: Obj79_LoadData:
+Starpost_LoadData:
 	move.b	(Saved_Last_star_pole_hit).w,(Last_star_pole_hit).w
 	move.w	(Saved_x_pos).w,(MainCharacter+x_pos).w
 	move.w	(Saved_y_pos).w,(MainCharacter+y_pos).w
@@ -44386,8 +44395,8 @@ return_1F412:
 	rts
 ; ===========================================================================
 ; animation script
-; off_1F414:
-Ani_obj79:	offsetTable
+; off_1F414: Ani_obj79:
+Ani_Starpost:	offsetTable
 		offsetTableEntry.w byte_1F41A	; 0
 		offsetTableEntry.w byte_1F41D	; 1
 		offsetTableEntry.w byte_1F420	; 2
@@ -44400,28 +44409,30 @@ byte_1F41D:
 byte_1F420:
 	dc.b   3,  0,  4,$FF
 	even
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
-Obj79_MapUnc_1F424:	include "mappings/sprite/obj79_a.asm"
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
+; Obj79_MapUnc_1F424:
+MapUnc_Starpost:	include "mappings/sprite/Starpost.asm"
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
-Obj79_MapUnc_1F4A0:	include "mappings/sprite/obj79_b.asm"
-; ===========================================================================
+; ---------------------------------------------------------------------------
+; Obj79_MapUnc_1F4A0:
+MapUnc_Starpost_SpecialStars:	include "mappings/sprite/Starpost stars.asm"
 
-; loc_1F4C4:
-Obj79_MakeSpecialStars:
+; ===========================================================================
+; loc_1F4C4: Obj79_MakeSpecialStars:
+Starpost_MakeSpecialStars:
 	moveq	#4-1,d1 ; execute the loop 4 times (1 for each star)
 	moveq	#0,d2
 
 -	bsr.w	AllocateObjectAfterCurrent
 	bne.s	+	; rts
-	_move.b	id(a0),id(a1) ; load obj79
-	move.l	#Obj79_MapUnc_1F4A0,mappings(a1)
+	_move.b	id(a0),id(a1) ; load Obj_Starpost
+	move.l	#MapUnc_Starpost_SpecialStars,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_Checkpoint,0,0),art_tile(a1)
 	move.b	#1<<render_flags.level_fg,render_flags(a1)
-	move.b	#8,routine(a1) ; => Obj79_Star
+	move.b	#8,routine(a1) ; => Starpost_Star
 	move.w	x_pos(a0),d0
 	move.w	d0,x_pos(a1)
 	move.w	d0,objoff_30(a1)
@@ -44440,8 +44451,8 @@ Obj79_MakeSpecialStars:
 +
 	rts
 ; ===========================================================================
-; loc_1F536:
-Obj79_Star:
+; loc_1F536: Obj79_Star:
+Starpost_Star:
 	move.b	collision_property(a0),d0
 	beq.w	loc_1F554
 	andi.b	#1,d0
@@ -44535,27 +44546,24 @@ JmpTo10_DeleteObject ; JmpTo
 
 	jmpTos JmpTo_MarkObjGone,JmpTo2_AnimateSprite,JmpTo3_Adjust2PArtPointer
 
-
-
-
 ; ===========================================================================
-; ----------------------------------------------------------------------------
-; Object 7D - Points that can be gotten at the end of an act (leftover from S1)  (unused)
-; ----------------------------------------------------------------------------
-; Sprite_1F624:
-Obj7D:
+; ---------------------------------------------------------------------------
+; Object 7D - Points that can be gotten at the end of an act (leftover from S1) (unused)
+; ---------------------------------------------------------------------------
+; Sprite_1F624: Obj7D:
+Obj_HiddenBonus:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj7D_Index(pc,d0.w),d1
-	jmp	Obj7D_Index(pc,d1.w)
+	move.w	HiddenBonus_Index(pc,d0.w),d1
+	jmp	HiddenBonus_Index(pc,d1.w)
 ; ===========================================================================
-; off_1F632: Obj7D_States:
-Obj7D_Index:	offsetTable
-		offsetTableEntry.w Obj7D_Init	; 0
-		offsetTableEntry.w Obj7D_Main	; 2
+; off_1F632: Obj7D_States: Obj7D_Index:
+HiddenBonus_Index: offsetTable
+		offsetTableEntry.w HiddenBonus_Init	; 0
+		offsetTableEntry.w HiddenBonus_Main	; 2
 ; ===========================================================================
-; loc_1F636:
-Obj7D_Init:
+; loc_1F636: Obj7D_Init:
+HiddenBonus_Init:
 	moveq	#$10,d2
 	move.w	d2,d3
 	add.w	d3,d3
@@ -44564,18 +44572,18 @@ Obj7D_Init:
 	sub.w	x_pos(a0),d0
 	add.w	d2,d0
 	cmp.w	d3,d0
-	bhs.s	Obj7D_NoAdd
+	bhs.s	HiddenBonus_NoAdd
 	move.w	y_pos(a1),d1
 	sub.w	y_pos(a0),d1
 	add.w	d2,d1
 	cmp.w	d3,d1
-	bhs.s	Obj7D_NoAdd
+	bhs.s	HiddenBonus_NoAdd
 	tst.w	(Debug_placement_mode).w
-	bne.s	Obj7D_NoAdd
+	bne.s	HiddenBonus_NoAdd
 	tst.b	(f_bigring).w
-	bne.s	Obj7D_NoAdd
+	bne.s	HiddenBonus_NoAdd
 	addq.b	#2,routine(a0)
-	move.l	#Obj7D_MapUnc_1F6FE,mappings(a0)
+	move.l	#MapUnc_HiddenBonus,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_EndPoints,0,1),art_tile(a0)
 	jsrto	JmpTo4_Adjust2PArtPointer
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
@@ -44590,8 +44598,8 @@ Obj7D_Init:
 	add.w	d0,d0
 	move.w	word_1F6D2(pc,d0.w),d0
 	jsr	(AddPoints).l
-
-Obj7D_NoAdd:
+; Obj7D_NoAdd:
+HiddenBonus_NoAdd:
 	move.w	x_pos(a0),d0
 	andi.w	#$FF80,d0
 	sub.w	(Camera_X_pos_coarse).w,d0
@@ -44614,8 +44622,8 @@ word_1F6D2:
 	dc.w	 1
     endif
 ; ===========================================================================
-; loc_1F6DA:
-Obj7D_Main:
+; loc_1F6DA: Obj7D_Main:
+HiddenBonus_Main:
 	subq.w	#1,objoff_30(a0)
 	bmi.s	JmpTo12_DeleteObject
 	move.w	x_pos(a0),d0
@@ -44628,17 +44636,16 @@ Obj7D_Main:
 
 JmpTo12_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
+
 ; ===========================================================================
-; -------------------------------------------------------------------------------
-; Unused sprite mappings
-; -------------------------------------------------------------------------------
-Obj7D_MapUnc_1F6FE:	include "mappings/sprite/obj7D.asm"
+; ---------------------------------------------------------------------------
+; unused sprite mappings
+; ---------------------------------------------------------------------------
+; Obj7D_MapUnc_1F6FE:
+MapUnc_HiddenBonus:	include "mappings/sprite/Hidden points at end of stage.asm"
 ; ===========================================================================
 
 	jmpTos JmpTo4_Adjust2PArtPointer
-
-
-
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -44721,7 +44728,7 @@ Obj44_BumpCharacter:
 	jsr	(AddPoints2).l
 	bsr.w	AllocateObject
 	bne.s	return_1F83C
-	_move.b	#ObjID_Points,id(a1) ; load obj29
+	_move.b	#ObjID_Points,id(a1) ; load Obj_Points
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
 	move.b	#4,mapping_frame(a1)
@@ -48989,7 +48996,7 @@ Obj32_VelArray2:
 SmashableObject_LoadPoints:
 	jsrto	JmpTo3_AllocateObject
 	bne.s	+++	; rts
-	_move.b	#ObjID_Points,id(a1) ; load obj29
+	_move.b	#ObjID_Points,id(a1) ; load Obj_Points
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
 	move.w	(Chain_Bonus_counter).w,d2
@@ -58752,7 +58759,7 @@ loc_2BE5E:
 	jsr	(AddPoints2).l
 	jsrto	JmpTo10_AllocateObject
 	bne.s	+	; rts
-	_move.b	#ObjID_Points,id(a1) ; load obj29
+	_move.b	#ObjID_Points,id(a1) ; load Obj_Points
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
 	move.b	#0,mapping_frame(a1)
@@ -59701,7 +59708,7 @@ loc_2C85C:
 	jsr	(AddPoints2).l
 	jsrto	JmpTo11_AllocateObject
 	bne.s	loc_2C87E
-	_move.b	#ObjID_Points,id(a1) ; load obj29
+	_move.b	#ObjID_Points,id(a1) ; load Obj_Points
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
 	move.b	d3,mapping_frame(a1)
@@ -59752,13 +59759,10 @@ ObjD8_MapUnc_2C8C4:	include "mappings/sprite/objD8.asm"
 
 	jmpTos JmpTo46_DeleteObject,JmpTo11_AllocateObject,JmpTo31_MarkObjGone,JmpTo12_AnimateSprite,JmpTo56_Adjust2PArtPointer
 
-
-
-
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object D9 - Invisible sprite that you can hang on to, like the blocks in WFZ
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_2C92C: ObjD9:
 Obj_Grab:
 	moveq	#0,d0
@@ -88220,7 +88224,7 @@ DbgObjList_Def_End
 DbgObjList_EHZ: dbglistheader
 	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
-	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
+	dbglistobj ObjID_Starpost,	MapUnc_Starpost,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_PlaneSwitcher,	MapUnc_PlaneSwitcher,   9,   1, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_EHZWaterfall,	MapUnc_EHZWaterfall,   0,   0, make_art_tile(ArtTile_ArtNem_Waterfall,1,0)
 	dbglistobj ObjID_EHZWaterfall,	MapUnc_EHZWaterfall,   2,   3, make_art_tile(ArtTile_ArtNem_Waterfall,1,0)
@@ -88242,7 +88246,7 @@ DbgObjList_EHZ_End
 DbgObjList_MTZ: dbglistheader
 	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
-	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
+	dbglistobj ObjID_Starpost,	MapUnc_Starpost,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_PlaneSwitcher,	MapUnc_PlaneSwitcher,   9,   1, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_SteamSpring,	Obj42_MapUnc_2686C,   1,   7, make_art_tile(ArtTile_ArtKos_LevelArt,3,0)
 	dbglistobj ObjID_MTZTwinStompers, Obj64_MapUnc_26A5C,   1,   0, make_art_tile(ArtTile_ArtKos_LevelArt,1,0)
@@ -88280,7 +88284,7 @@ DbgObjList_WFZ: dbglistheader
 	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_WFZPalSwitcher, MapUnc_PlaneSwitcher,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,0,0)
-	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
+	dbglistobj ObjID_Starpost,	MapUnc_Starpost,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_Cloud,		MapUnc_SCZCloud, $5E,   0, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
 	dbglistobj ObjID_Cloud,		MapUnc_SCZCloud, $60,   1, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
 	dbglistobj ObjID_Cloud,		MapUnc_SCZCloud, $62,   2, make_art_tile(ArtTile_ArtNem_Clouds,2,0)
@@ -88314,7 +88318,7 @@ DbgObjList_WFZ_End
 DbgObjList_HTZ: dbglistheader
 	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
-	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
+	dbglistobj ObjID_Starpost,	MapUnc_Starpost,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_ForcedSpin,	MapUnc_PlaneSwitcher,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,0,0)
 	dbglistobj ObjID_ForcedSpin,	MapUnc_PlaneSwitcher,   4,   4, make_art_tile(ArtTile_ArtNem_Ring,0,0)
 	dbglistobj ObjID_PlaneSwitcher,	MapUnc_PlaneSwitcher,   9,   1, make_art_tile(ArtTile_ArtNem_Ring,1,0)
@@ -88353,7 +88357,7 @@ DbgObjList_HPZ:; dbglistheader
 DbgObjList_OOZ: dbglistheader
 	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
-	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
+	dbglistobj ObjID_Starpost,	MapUnc_Starpost,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_OOZPoppingPform, Obj33_MapUnc_23DDC,   1,   0, make_art_tile(ArtTile_ArtNem_BurnerLid,3,0)
 	dbglistobj ObjID_SlidingSpike,	Obj43_MapUnc_23FE0,   0,   0, make_art_tile(ArtTile_ArtNem_SpikyThing,2,1)
 	dbglistobj ObjID_OOZMovingPform, Obj19_MapUnc_2222A, $23,   2, make_art_tile(ArtTile_ArtNem_OOZElevator,3,0)
@@ -88389,7 +88393,7 @@ DbgObjList_OOZ_End
 DbgObjList_MCZ: dbglistheader
 	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
-	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
+	dbglistobj ObjID_Starpost,	MapUnc_Starpost,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_SwingingPlatform, Obj15_Obj7A_MapUnc_10256, $48,   2, make_art_tile(ArtTile_ArtKos_LevelArt,0,0)
 	dbglistobj ObjID_CollapsPform,	Obj1F_MapUnc_11106,   0,   0, make_art_tile(ArtTile_ArtNem_MCZCollapsePlat,3,0)
 	dbglistobj ObjID_RotatingRings,	Obj73_MapUnc_28B9C, $F5,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
@@ -88416,7 +88420,7 @@ DbgObjList_MCZ_End
 DbgObjList_CNZ: dbglistheader
 	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
-	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
+	dbglistobj ObjID_Starpost,	MapUnc_Starpost,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_PinballMode,	MapUnc_PlaneSwitcher,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,0,0)
 	dbglistobj ObjID_PinballMode,	MapUnc_PlaneSwitcher,   4,   4, make_art_tile(ArtTile_ArtNem_Ring,0,0)
 	dbglistobj ObjID_PlaneSwitcher,	MapUnc_PlaneSwitcher,   9,   1, make_art_tile(ArtTile_ArtNem_Ring,1,0)
@@ -88443,7 +88447,7 @@ DbgObjList_CNZ_End
 DbgObjList_CPZ: dbglistheader
 	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
-	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
+	dbglistobj ObjID_Starpost,	MapUnc_Starpost,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_TippingFloor,	Obj0B_MapUnc_201A0, $70,   0, make_art_tile(ArtTile_ArtNem_CPZAnimatedBits,3,1)
 	dbglistobj ObjID_SpeedBooster,	Obj1B_MapUnc_223E2,   0,   0, make_art_tile(ArtTile_ArtNem_CPZBooster,3,1)
 	dbglistobj ObjID_BlueBalls,	Obj1D_MapUnc_22576,   5,   0, make_art_tile(ArtTile_ArtNem_CPZDroplet,3,1)
@@ -88470,7 +88474,7 @@ DbgObjList_CPZ_End
 DbgObjList_ARZ: dbglistheader
 	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
-	dbglistobj ObjID_Starpost,	Obj79_MapUnc_1F424,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
+	dbglistobj ObjID_Starpost,	MapUnc_Starpost,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
 	dbglistobj ObjID_SwingingPlatform, Obj15_Obj83_MapUnc_1021E, $88,   2, make_art_tile(ArtTile_ArtKos_LevelArt,0,0)
 	dbglistobj ObjID_ARZPlatform,	Obj18_MapUnc_1084E,   1,   0, make_art_tile(ArtTile_ArtKos_LevelArt,2,0)
 	dbglistobj ObjID_ARZPlatform,	Obj18_MapUnc_1084E, $9A,   1, make_art_tile(ArtTile_ArtKos_LevelArt,2,0)

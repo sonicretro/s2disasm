@@ -729,6 +729,7 @@ ObjID_Starpost =		id(ObjPtr_Starpost)		; 79
 ObjID_SidewaysPform =		id(ObjPtr_SidewaysPform)	; 7A
 ObjID_PipeExitSpring =		id(ObjPtr_PipeExitSpring)	; 7B
 ObjID_CPZPylon =		id(ObjPtr_CPZPylon)		; 7C
+ObjID_HiddenBonus =		id(ObjPtr_HiddenBonus)		; 7D
 ObjID_SuperSonicStars =		id(ObjPtr_SuperSonicStars)	; 7E
 ObjID_VineSwitch =		id(ObjPtr_VineSwitch)		; 7F
 ObjID_MovingVine =		id(ObjPtr_MovingVine)		; 80
