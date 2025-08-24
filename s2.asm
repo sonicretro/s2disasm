@@ -4955,11 +4955,11 @@ Level_TtlCard:
 +
 	cmpi.b	#chemical_plant_zone,(Current_Zone).w	; check if zone == CPZ
 	bne.s	+			; branch if not
-	move.b	#ObjID_CPZPylon,(CPZPylon+id).w ; load Obj7C (CPZ pylon) at $FFFFB340
+	move.b	#ObjID_CPZPylon,(CPZPylon+id).w ; load Obj_CPZPylon (CPZ pylon) at $FFFFB340
 +
 	cmpi.b	#oil_ocean_zone,(Current_Zone).w	; check if zone == OOZ
 	bne.s	Level_ClrHUD		; branch if not
-	move.b	#ObjID_Oil,(Oil+id).w ; load Obj07 (OOZ oil) at $FFFFB380
+	move.b	#ObjID_Oil,(Oil+id).w ; load Obj_Oil at $FFFFB380
 ; Level_LoadObj: misnomer now
 Level_ClrHUD:
 	moveq	#0,d0
@@ -29718,12 +29718,12 @@ ObjPtr_PlaneSwitcher:	dc.l Obj_PlaneSwitcher		; Collision plane/layer switcher
 ObjPtr_WaterSurface:	dc.l Obj_WaterSurface		; Surface of the water
 ObjPtr_TailsTails:	dc.l Obj_TailsTails		; Tails' tails
 ObjPtr_Spiral:		dc.l Obj_Spiral			; Rotating cylinder in MTZ, twisting spiral pathway in EHZ
-ObjPtr_Oil:		dc.l Obj07	; Oil in OOZ
+ObjPtr_Oil:		dc.l Obj_Oil			; Oil in OOZ
 ObjPtr_SpindashDust:
 ObjPtr_Splash:		dc.l Obj08	; Water splash in Aquatic Ruin Zone, Spindash dust
 ObjPtr_SonicSS:		dc.l Obj09	; Sonic in Special Stage
 ObjPtr_SmallBubbles:	dc.l Obj0A	; Small bubbles from Sonic's face while underwater
-ObjPtr_TippingFloor:	dc.l Obj0B	; Section of pipe that tips you off from CPZ
+ObjPtr_TippingFloor:	dc.l Obj_TippingFloor		; Section of pipe that tips you off from CPZ
 ObjPtr_CPZUnusedPltfm:	dc.l Obj_CPZUnusedPltfm		; Small floating platform (unused)
 ObjPtr_Signpost:	dc.l Obj0D	; End of level signpost
 ObjPtr_TitleIntro:	dc.l Obj0E	; Title screen intro animation
@@ -29766,7 +29766,7 @@ ObjPtr_Barrier:		dc.l Obj2D	; One way barrier from CPZ and DEZ
 ObjPtr_MonitorContents:	dc.l Obj_MonitorContents	; Monitor contents (code for power-up behavior and rising image)
 ObjPtr_SmashableGround:	dc.l Obj2F	; Smashable ground in Hill Top Zone
 ObjPtr_RisingLava:	dc.l Obj30	; Large rising lava during earthquake in HTZ
-ObjPtr_LavaMarker:	dc.l Obj31	; Lava collision marker
+ObjPtr_LavaMarker:	dc.l Obj_LavaMarker		; Lava collision marker
 ObjPtr_BreakableBlock:
 ObjPtr_BreakableRock:	dc.l Obj32	; Breakable block/rock from CPZ and HTZ
 ObjPtr_OOZPoppingPform:	dc.l Obj33	; Green platform from OOZ
@@ -29787,9 +29787,9 @@ ObjPtr_Springboard:	dc.l Obj40	; Pressure spring from CPZ, ARZ, and MCZ (the red
 ObjPtr_Spring:		dc.l Obj41	; Spring
 ObjPtr_SteamSpring:	dc.l Obj42	; Steam Spring from MTZ
 ObjPtr_SlidingSpike:	dc.l Obj43	; Sliding spike obstacle thing from OOZ
-ObjPtr_RoundBumper:	dc.l Obj44	; Round bumper from Casino Night Zone
-ObjPtr_OOZSpring:	dc.l Obj45	; Pressure spring from OOZ
-ObjPtr_OOZBall:		dc.l Obj46	; Ball from OOZ (unused, beta leftover)
+ObjPtr_RoundBumper:	dc.l Obj_RoundBumper		; Round bumper from Casino Night Zone
+ObjPtr_OOZSpring:	dc.l Obj_OOZSpring		; Pressure spring from OOZ
+ObjPtr_OOZBall:		dc.l Obj_OOZBall		; Ball from OOZ (unused, beta leftover)
 ObjPtr_Button:		dc.l Obj47	; Button
 ObjPtr_LauncherBall:	dc.l Obj48	; Round ball thing from OOZ that fires you off in a different direction
 ObjPtr_EHZWaterfall:	dc.l Obj_EHZWaterfall		; Waterfall from EHZ
@@ -29848,7 +29848,7 @@ ObjPtr_CPZStaircase:	dc.l Obj78	; Stairs from CPZ that move down to open the way
 ObjPtr_Starpost:	dc.l Obj_Starpost		; Star pole / starpost / checkpoint
 ObjPtr_SidewaysPform:	dc.l Obj7A	; Platform that moves back and fourth on top of water in CPZ
 ObjPtr_PipeExitSpring:	dc.l Obj7B	; Warp pipe exit spring from CPZ
-ObjPtr_CPZPylon:	dc.l Obj7C	; Big pylon in foreground of CPZ
+ObjPtr_CPZPylon:	dc.l Obj_CPZPylon		; Big pylon in foreground of CPZ
 ObjPtr_HiddenBonus:	dc.l Obj_HiddenBonus		; Points that can be gotten at the end of an act (unused leftover from S1)
 ObjPtr_SuperSonicStars:	dc.l Obj_SuperSonicStars	; Super Sonic's stars
 ObjPtr_VineSwitch:	dc.l Obj7F	; Vine switch that you hang off in MCZ
@@ -44135,13 +44135,10 @@ ObjCheckLeftWallDist:
 +
 	rts
 
-
-
-
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 79 - Star pole / starpost / checkpoint
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_1F0B4: Obj79:
 Obj_Starpost:
 	moveq	#0,d0
@@ -44636,7 +44633,6 @@ HiddenBonus_Main:
 
 JmpTo12_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
-
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; unused sprite mappings
@@ -44648,51 +44644,50 @@ MapUnc_HiddenBonus:	include "mappings/sprite/Hidden points at end of stage.asm"
 	jmpTos JmpTo4_Adjust2PArtPointer
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 44 - Round bumper from Casino Night Zone
-; ----------------------------------------------------------------------------
-; Sprite_1F730:
-Obj44:
+; ---------------------------------------------------------------------------
+; Sprite_1F730: Obj44:
+Obj_RoundBumper:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj44_Index(pc,d0.w),d1
-	jmp	Obj44_Index(pc,d1.w)
+	move.w	RoundBumper_Index(pc,d0.w),d1
+	jmp	RoundBumper_Index(pc,d1.w)
 ; ===========================================================================
-; off_1F73E: Obj44_States:
-Obj44_Index:	offsetTable
-		offsetTableEntry.w Obj44_Init	; 0
-		offsetTableEntry.w Obj44_Main	; 2
+; off_1F73E: Obj44_States: Obj44_Index:
+RoundBumper_Index: offsetTable
+		offsetTableEntry.w RoundBumper_Init	; 0
+		offsetTableEntry.w RoundBumper_Main	; 2
 ; ===========================================================================
-; loc_1F742:
-Obj44_Init:
-	addq.b	#2,routine(a0) ; => Obj44_Main
-	move.l	#Obj44_MapUnc_1F85A,mappings(a0)
+; loc_1F742: Obj44_Init:
+RoundBumper_Init:
+	addq.b	#2,routine(a0) ; => RoundBumper_Main
+	move.l	#MapUnc_RoundBumper,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_CNZRoundBumper,2,0),art_tile(a0)
 	jsrto	JmpTo5_Adjust2PArtPointer
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#$10,width_pixels(a0)
 	move.b	#1,priority(a0)
 	move.b	#$D7,collision_flags(a0)
-
-; loc_1F770:
-Obj44_Main:
+; loc_1F770: Obj44_Main:
+RoundBumper_Main:
 	move.b	collision_property(a0),d0
 	beq.w	loc_1F83E
 	lea	(MainCharacter).w,a1 ; a1=character
 	bclr	#0,collision_property(a0)
 	beq.s	+
-	bsr.s	Obj44_BumpCharacter
+	bsr.s	RoundBumper_BumpCharacter
 +
 	lea	(Sidekick).w,a1 ; a1=character
 	bclr	#1,collision_property(a0)
 	beq.s	+
-	bsr.s	Obj44_BumpCharacter
+	bsr.s	RoundBumper_BumpCharacter
 +
 	clr.b	collision_property(a0)
 	bra.w	loc_1F83E
 ; ===========================================================================
-; loc_1F79C:
-Obj44_BumpCharacter:
+; loc_1F79C: Obj44_BumpCharacter:
+RoundBumper_BumpCharacter:
 	move.w	x_pos(a0),d1
 	move.w	y_pos(a0),d2
 	sub.w	x_pos(a1),d1
@@ -44738,34 +44733,32 @@ return_1F83C:
 ; ===========================================================================
 
 loc_1F83E:
-	lea	(Ani_obj44).l,a1
+	lea	(Ani_RoundBumper).l,a1
 	jsrto	JmpTo3_AnimateSprite
 	jmpto	JmpTo2_MarkObjGone
 ; ===========================================================================
 ; animation script
-; off_1F84C:
-Ani_obj44:	offsetTable
+; off_1F84C: Ani_obj44:
+Ani_RoundBumper: offsetTable
 		offsetTableEntry.w byte_1F850	; 0
 		offsetTableEntry.w byte_1F853	; 1
 byte_1F850:	dc.b  $F,  0,$FF
 		rev02even
 byte_1F853:	dc.b   3,  1,  0,  1,$FD,  0
 		even
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
-Obj44_MapUnc_1F85A:	include "mappings/sprite/obj44.asm"
+; ---------------------------------------------------------------------------
+; Obj44_MapUnc_1F85A:
+MapUnc_RoundBumper:	include "mappings/sprite/Round bumper from CNZ.asm"
 ; ===========================================================================
 
 	jmpTos JmpTo2_MarkObjGone,JmpTo3_AnimateSprite,JmpTo5_Adjust2PArtPointer
 
-
-
-
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 24 - Bubbles in Aquatic Ruin Zone
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_1F8A8:
 Obj24:
 	moveq	#0,d0
@@ -45175,13 +45168,10 @@ word_1FCB8_End
 
 	jmpTos JmpTo7_DisplaySprite,JmpTo15_DeleteObject,JmpTo6_Adjust2PArtPointer,JmpTo3_ObjectMove
 
-
-
-
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 03 - Collision plane/layer switcher
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_1FCDC: Obj03:
 Obj_PlaneSwitcher:
 	moveq	#0,d0
@@ -45423,35 +45413,31 @@ MapUnc_PlaneSwitcher:	include "mappings/sprite/Pathswapper.asm"
 
 	jmpTos JmpTo7_Adjust2PArtPointer
 
-
-
-
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 0B - Section of pipe that tips you off from CPZ
-; ----------------------------------------------------------------------------
-; Sprite_2009C:
-Obj0B:
+; ---------------------------------------------------------------------------
+tippingfloor_duration_current = objoff_30
+tippingfloor_duration_initial = objoff_32
+tippingfloor_delay = objoff_36
+
+; Sprite_2009C: Obj0B:
+Obj_TippingFloor:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj0B_Index(pc,d0.w),d1
-	jmp	Obj0B_Index(pc,d1.w)
+	move.w	TippingFloor_Index(pc,d0.w),d1
+	jmp	TippingFloor_Index(pc,d1.w)
 ; ===========================================================================
-; off_200AA:
-Obj0B_Index:	offsetTable
-		offsetTableEntry.w Obj0B_Init	; 0
+; off_200AA: Obj0B_Index:
+TippingFloor_Index:	offsetTable
+		offsetTableEntry.w TippingFloor_Init	; 0
 		offsetTableEntry.w loc_20104	; 2
 		offsetTableEntry.w loc_20112	; 4
 ; ===========================================================================
-
-obj0B_duration_current = objoff_30
-obj0B_duration_initial = objoff_32
-obj0B_delay = objoff_36
-
-; loc_200B0:
-Obj0B_Init:
+; loc_200B0: Obj0B_Init:
+TippingFloor_Init:
 	addq.b	#2,routine(a0)
-	move.l	#Obj0B_MapUnc_201A0,mappings(a0)
+	move.l	#MapUnc_TippingFloor,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_CPZAnimatedBits,3,1),art_tile(a0)
 	jsrto	JmpTo8_Adjust2PArtPointer
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
@@ -45463,33 +45449,33 @@ Obj0B_Init:
 	addi.w	#$10,d0
 	move.w	d0,d1
 	subq.w	#1,d0
-	move.w	d0,obj0B_duration_current(a0)
-	move.w	d0,obj0B_duration_initial(a0)
+	move.w	d0,tippingfloor_duration_current(a0)
+	move.w	d0,tippingfloor_duration_initial(a0)
 	moveq	#0,d0
 	move.b	subtype(a0),d0
 	andi.w	#$F,d0
 	addq.w	#1,d0
 	lsl.w	#4,d0
-	move.b	d0,obj0B_delay(a0)
+	move.b	d0,tippingfloor_delay(a0)
 
 loc_20104:
 	move.b	(Vint_runcount+3).w,d0
-	add.b	obj0B_delay(a0),d0
+	add.b	tippingfloor_delay(a0),d0
 	bne.s	loc_2013C
 	addq.b	#2,routine(a0)
 
 loc_20112:
-	subq.w	#1,obj0B_duration_current(a0)
+	subq.w	#1,tippingfloor_duration_current(a0)
 	bpl.s	loc_20130
-	move.w	#$7F,obj0B_duration_current(a0)
+	move.w	#$7F,tippingfloor_duration_current(a0)
 	tst.b	anim(a0)
 	beq.s	+
-	move.w	obj0B_duration_initial(a0),obj0B_duration_current(a0)
+	move.w	tippingfloor_duration_initial(a0),tippingfloor_duration_current(a0)
 +
 	bchg	#0,anim(a0)
 
 loc_20130:
-	lea	(Ani_obj0B).l,a1
+	lea	(Ani_TippingFloor).l,a1
 	jsr	(AnimateSprite).l
 
 loc_2013C:
@@ -45520,8 +45506,8 @@ BranchTo_JmpTo3_MarkObjGone ; BranchTo
 	jmpto	JmpTo3_MarkObjGone
 ; ===========================================================================
 ; animation script
-; off_2018C:
-Ani_obj0B:	offsetTable
+; off_2018C: Ani_obj0B:
+Ani_TippingFloor: offsetTable
 		offsetTableEntry.w byte_20190	; 0
 		offsetTableEntry.w byte_20198	; 1
 byte_20190:
@@ -45529,10 +45515,11 @@ byte_20190:
 byte_20198:
 	dc.b   7,  4,  3,  2,  1,  0,$FE,  1
 	even
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
-Obj0B_MapUnc_201A0:	include "mappings/sprite/obj0B.asm"
+; ---------------------------------------------------------------------------
+; Obj0B_MapUnc_201A0:
+MapUnc_TippingFloor:	include "mappings/sprite/Small yellow moving platform from CPZ.asm"
 ; ===========================================================================
 
 	jmpTos JmpTo3_MarkObjGone,JmpTo8_Adjust2PArtPointer
@@ -45963,7 +45950,6 @@ loc_209F4:
 
 BranchTo_JmpTo10_DisplaySprite ; BranchTo
 	jmpto	JmpTo10_DisplaySprite
-
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; sprite mappings
@@ -46048,46 +46034,43 @@ EHZWaterfall_Display:
 ; Obj49_MapUnc_20C50:
 MapUnc_EHZWaterfall:	include "mappings/sprite/Waterfall from EHZ.asm"
 
-
-
-
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 31 - Lava collision marker
-; ----------------------------------------------------------------------------
-; Sprite_20DEC:
-Obj31:
+; ---------------------------------------------------------------------------
+; Sprite_20DEC: Obj31:
+Obj_LavaMarker:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj31_Index(pc,d0.w),d1
-	jmp	Obj31_Index(pc,d1.w)
+	move.w	LavaMarker_Index(pc,d0.w),d1
+	jmp	LavaMarker_Index(pc,d1.w)
 ; ===========================================================================
-; off_20DFA: Obj31_States:
-Obj31_Index:	offsetTable
-		offsetTableEntry.w Obj31_Init	; 0
-		offsetTableEntry.w Obj31_Main	; 2
+; off_20DFA: Obj31_States: Obj31_Index:
+LavaMarker_Index: offsetTable
+		offsetTableEntry.w LavaMarker_Init	; 0
+		offsetTableEntry.w LavaMarker_Main	; 2
 ; ---------------------------------------------------------------------------
-; byte_20DFE:
-Obj31_CollisionFlagsBySubtype:
+; byte_20DFE: Obj31_CollisionFlagsBySubtype:
+LavaMarker_CollisionFlagsBySubtype:
 	dc.b $96	; 0
 	dc.b $94	; 1
 	dc.b $95	; 2
 	even
 ; ===========================================================================
-; loc_20E02:
-Obj31_Init:
-	addq.b	#2,routine(a0) ; => Obj31_Main
+; loc_20E02: Obj31_Init:
+LavaMarker_Init:
+	addq.b	#2,routine(a0) ; => LavaMarker_Main
 	moveq	#0,d0
 	move.b	subtype(a0),d0
-	move.b	Obj31_CollisionFlagsBySubtype(pc,d0.w),collision_flags(a0)
+	move.b	LavaMarker_CollisionFlagsBySubtype(pc,d0.w),collision_flags(a0)
     if fixBugs
-	move.l	#Obj31_MapUnc_20E74,mappings(a0)
+	move.l	#MapUnc_LavaMarker,mappings(a0)
     else
 	; This dumb code is a workaround for the bug below.
-	move.l	#Obj31_MapUnc_20E6C,mappings(a0)
+	move.l	#MapUnc_LavaMarker_Blank,mappings(a0)
 	tst.w	(Debug_placement_mode).w
 	beq.s	+
-	move.l	#Obj31_MapUnc_20E74,mappings(a0)
+	move.l	#MapUnc_LavaMarker,mappings(a0)
 +
     endif
 	move.w	#make_art_tile(ArtTile_ArtNem_Powerups,0,1),art_tile(a0)
@@ -46102,9 +46085,8 @@ Obj31_Init:
 	move.b	#$80,width_pixels(a0)
 	move.b	#4,priority(a0)
 	move.b	subtype(a0),mapping_frame(a0)
-
-; loc_20E46:
-Obj31_Main:
+; loc_20E46: Obj31_Main:
+LavaMarker_Main:
 	tst.w	(Two_player_mode).w
 	bne.s	+
 	move.w	x_pos(a0),d0
@@ -46128,12 +46110,14 @@ JmpTo18_DeleteObject ; JmpTo
 ; ---------------------------------------------------------------------------
 ; sprite non-mappings
 ; ---------------------------------------------------------------------------
-Obj31_MapUnc_20E6C:	include "mappings/sprite/obj31_a.asm"
+; Obj31_MapUnc_20E6C:
+MapUnc_LavaMarker_Blank:	include "mappings/sprite/Lava marker blank.asm"
     endif
 ; ---------------------------------------------------------------------------
 ; sprite mappings
 ; ---------------------------------------------------------------------------
-Obj31_MapUnc_20E74:	include "mappings/sprite/obj31_b.asm"
+; Obj31_MapUnc_20E74:
+MapUnc_LavaMarker:	include "mappings/sprite/Lava marker.asm"
 
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -46206,29 +46190,31 @@ MapUnc_InvisibleBlock:	include "mappings/sprite/Invisible block.asm"
 ; ---------------------------------------------------------------------------
 ; Object 7C - Big pylon in foreground of CPZ
 ; ---------------------------------------------------------------------------
-; Sprite_20FD2:
-Obj7C:
+; Sprite_20FD2: Obj7C:
+Obj_CPZPylon:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj7C_Index(pc,d0.w),d1
-	jmp	Obj7C_Index(pc,d1.w)
+	move.w	CPZPylon_Index(pc,d0.w),d1
+	jmp	CPZPylon_Index(pc,d1.w)
 ; ===========================================================================
-; off_20FE0: Obj7C_States:
-Obj7C_Index:	offsetTable
-		offsetTableEntry.w Obj7C_Init	; 0
-		offsetTableEntry.w Obj7C_Main	; 2
+; off_20FE0: Obj7C_States: Obj7C_Index:
+CPZPylon_Index:	offsetTable
+		offsetTableEntry.w CPZPylon_Init	; 0
+		offsetTableEntry.w CPZPylon_Main	; 2
 ; ===========================================================================
-; loc_20FE4:
-Obj7C_Init:
-	addq.b	#2,routine(a0) ; => Obj7C_Main
-	move.l	#Obj7C_MapUnc_2103C,mappings(a0)
+; loc_20FE4: Obj7C_Init:
+CPZPylon_Init:
+	addq.b	#2,routine(a0) ; => CPZPylon_Main
+	move.l	#MapUnc_CPZPylon,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_CPZMetalThings,2,1),art_tile(a0)
 	jsrto	JmpTo12_Adjust2PArtPointer
 	move.b	#$10,width_pixels(a0)
 	move.b	#7,priority(a0)
-
-; loc_21006:
-Obj7C_Main:
+; loc_21006: Obj7C_Main:
+CPZPylon_Main:
+	; The coding for this object is mostly based on the SLZ pylon from
+	; Sonic 1, except that this is in the background and is programmed
+	; to scroll at a slower speed.
 	move.w	(Camera_X_pos).w,d1
 	andi.w	#$3FF,d1
 	cmpi.w	#$2E0,d1
@@ -46252,15 +46238,13 @@ Obj7C_Main:
 ; ---------------------------------------------------------------------------
 ; sprite mappings
 ; ---------------------------------------------------------------------------
-Obj7C_MapUnc_2103C:	include "mappings/sprite/obj7C.asm"
-
-
-
+; Obj7C_MapUnc_2103C:
+MapUnc_CPZPylon:	include "mappings/sprite/Large pylon from CPZ.asm"
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 27 - An explosion, giving off an animal and 100 points
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_21088: Obj27:
 Obj_Explosion:
 	moveq	#0,d0
@@ -49644,57 +49628,55 @@ Obj43_MapUnc_23FE0:	include "mappings/sprite/obj43.asm"
 
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 07 - Oil Ocean in OOZ
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; OST:
 oil_char1submersion	= objoff_38 ; $38(a0)
 oil_char2submersion	= objoff_3A ; $3A(a0)
-; ----------------------------------------------------------------------------
-; Sprite_24020:
-Obj07:
+; ---------------------------------------------------------------------------
+; Sprite_24020: Obj07:
+Obj_Oil:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj07_Index(pc,d0.w),d1
-	jmp	Obj07_Index(pc,d1.w)
+	move.w	Oil_Index(pc,d0.w),d1
+	jmp	Oil_Index(pc,d1.w)
 ; ===========================================================================
-; off_2402E: Obj07_States:
-Obj07_Index:	offsetTable
-		offsetTableEntry.w Obj07_Init	; 0
-		offsetTableEntry.w Obj07_Main	; 2
+; off_2402E: Obj07_States: Obj07_Index:
+Oil_Index:	offsetTable
+		offsetTableEntry.w Oil_Init	; 0
+		offsetTableEntry.w Oil_Main	; 2
 ; ===========================================================================
-; loc_24032:
-Obj07_Init:
-	addq.b	#2,routine(a0) ; => Obj07_Main
+; loc_24032: Obj07_Init:
+Oil_Init:
+	addq.b	#2,routine(a0) ; => Oil_Main
 	move.w	#$758,y_pos(a0)
 	move.b	#$20,width_pixels(a0)
 	move.w	y_pos(a0),objoff_30(a0)
 	move.b	#$30,oil_char1submersion(a0)
 	bset	#status.npc.no_balancing,status(a0)
-
-; loc_24054:
-Obj07_Main:
+; loc_24054: Obj07_Main:
+Oil_Main:
 	; check player 1
 	tst.w	(Debug_placement_mode).w
-	bne.w	Obj07_End
+	bne.w	Oil_End
 	lea	(MainCharacter).w,a1 ; a1=character
 	moveq	#p1_standing,d1
 	move.b	status(a0),d0
 	and.b	d1,d0
-	bne.s	Obj07_CheckKillChar1
+	bne.s	Oil_CheckKillChar1
 	cmpi.b	#$30,oil_char1submersion(a0)
-	beq.s	Obj07_CheckSupportChar1
+	beq.s	Oil_CheckSupportChar1
 	addq.b	#1,oil_char1submersion(a0)
-	bra.s	Obj07_CheckSupportChar1
+	bra.s	Oil_CheckSupportChar1
 ; ---------------------------------------------------------------------------
-; loc_24078:
-Obj07_CheckKillChar1:
+; loc_24078: Obj07_CheckKillChar1:
+Oil_CheckKillChar1:
 	tst.b	oil_char1submersion(a0)
-	beq.s	Obj07_SuffocateCharacter
+	beq.s	Oil_SuffocateCharacter
 	subq.b	#1,oil_char1submersion(a0)
-
-; loc_24082:
-Obj07_CheckSupportChar1:
+; loc_24082: Obj07_CheckSupportChar1:
+Oil_CheckSupportChar1:
 	moveq	#$20,d1
 	moveq	#0,d3
 	move.b	oil_char1submersion(a0),d3
@@ -49708,20 +49690,19 @@ Obj07_CheckSupportChar1:
 	moveq	#p2_standing,d1
 	move.b	status(a0),d0
 	and.b	d1,d0
-	bne.s	Obj07_CheckKillChar2
+	bne.s	Oil_CheckKillChar2
 	cmpi.b	#$30,oil_char2submersion(a0)
-	beq.s	Obj07_CheckSupportChar2
+	beq.s	Oil_CheckSupportChar2
 	addq.b	#1,oil_char2submersion(a0)
-	bra.s	Obj07_CheckSupportChar2
+	bra.s	Oil_CheckSupportChar2
 ; ---------------------------------------------------------------------------
-; loc_240B4:
-Obj07_CheckKillChar2:
+; loc_240B4: Obj07_CheckKillChar2:
+Oil_CheckKillChar2:
 	tst.b	oil_char2submersion(a0)
-	beq.s	Obj07_SuffocateCharacter
+	beq.s	Oil_SuffocateCharacter
 	subq.b	#1,oil_char2submersion(a0)
-
-; loc_240BE:
-Obj07_CheckSupportChar2:
+; loc_240BE: Obj07_CheckSupportChar2:
+Oil_CheckSupportChar2:
 	moveq	#$20,d1
 	moveq	#0,d3
 	move.b	oil_char2submersion(a0),d3
@@ -49732,8 +49713,8 @@ Obj07_CheckSupportChar2:
 
 	rts
 ; ---------------------------------------------------------------------------
-; loc_240D6:
-Obj07_SuffocateCharacter:
+; loc_240D6: Obj07_SuffocateCharacter:
+Oil_SuffocateCharacter:
 	not.b	d1
 	and.b	d1,status(a0)
 	move.l	a0,-(sp)
@@ -49741,43 +49722,40 @@ Obj07_SuffocateCharacter:
 	movea.l	a1,a0
 	jsrto	JmpTo3_KillCharacter
 	movea.l	(sp)+,a0 ; load 0bj address
-
-Obj07_End:
+; return_240E8: Obj07_End:
+Oil_End:
 	rts
 ; ===========================================================================
 
 	jmpTos JmpTo3_KillCharacter,JmpTo_PlatformObject_SingleCharacter
 
-
-
-
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 45 - Pressure spring from OOZ
-; ----------------------------------------------------------------------------
-obj45_strength = objoff_30
-obj45_frame = objoff_32
-obj45_original_x_pos = objoff_34
+; ---------------------------------------------------------------------------
+oozspring_strength = objoff_30
+oozspring_frame = objoff_32
+oozspring_original_x_pos = objoff_34
 
-; Sprite_240F8:
-Obj45:
+; Sprite_240F8: Obj45:
+Obj_OOZSpring:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj45_Index(pc,d0.w),d1
-	jsr	Obj45_Index(pc,d1.w)
+	move.w	OOZSpring_Index(pc,d0.w),d1
+	jsr	OOZSpring_Index(pc,d1.w)
 	jmpto	JmpTo11_MarkObjGone
 ; ===========================================================================
-; off_2410A:
-Obj45_Index:	offsetTable
-		offsetTableEntry.w Obj45_Init		; 0
-		offsetTableEntry.w Obj45_Vertical	; 2
-		offsetTableEntry.w Obj45_Horizontal	; 4
+; off_2410A: Obj45_Index:
+OOZSpring_Index: offsetTable
+		offsetTableEntry.w OOZSpring_Init	; 0
+		offsetTableEntry.w OOZSpring_Vertical	; 2
+		offsetTableEntry.w OOZSpring_Horizontal	; 4
 ; ===========================================================================
-; loc_24110:
-Obj45_Init:
+; loc_24110: Obj45_Init:
+OOZSpring_Init:
 	; Much of this object's code is copied from the spring object, Obj41.
 	addq.b	#2,routine(a0)
-	move.l	#Obj45_MapUnc_2451A,mappings(a0)
+	move.l	#MapUnc_OOZSpring,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_PushSpring,2,0),art_tile(a0)
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#16,width_pixels(a0)
@@ -49792,61 +49770,61 @@ Obj45_Init:
     else
 	; Some instances of this object use a subtype of $30, which results
 	; in d0 being 6 here. Due to sheer luck, this ends up branching to
-	; 'Obj45_InitHorizontal' instead of crashing the game.
+	; 'OOZSpring_InitHorizontal' instead of crashing the game.
 	andi.w	#$E,d0
     endif
-	move.w	Obj45_InitRoutines(pc,d0.w),d0
-	jmp	Obj45_InitRoutines(pc,d0.w)
+	move.w	OOZSpring_InitRoutines(pc,d0.w),d0
+	jmp	OOZSpring_InitRoutines(pc,d0.w)
 ; ===========================================================================
-; off_24146:
-Obj45_InitRoutines: offsetTable
-	offsetTableEntry.w Obj45_InitVertical
-	offsetTableEntry.w Obj45_InitHorizontal
+; off_24146: Obj45_InitRoutines:
+OOZSpring_InitRoutines: offsetTable
+	offsetTableEntry.w OOZSpring_InitVertical
+	offsetTableEntry.w OOZSpring_InitHorizontal
 ; ===========================================================================
-;loc_2414A:
-Obj45_InitHorizontal:
+; loc_2414A: Obj45_InitHorizontal:
+OOZSpring_InitHorizontal:
 	move.b	#4,routine(a0)
 	move.b	#1,anim(a0)
 	move.b	#$A,mapping_frame(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_PushSpring,2,0),art_tile(a0)
 	move.b	#20,width_pixels(a0)
-	move.w	x_pos(a0),obj45_original_x_pos(a0)
-;loc_2416E:
-Obj45_InitVertical:
+	move.w	x_pos(a0),oozspring_original_x_pos(a0)
+;loc_2416E: Obj45_InitVertical:
+OOZSpring_InitVertical:
 	move.b	subtype(a0),d0
 	andi.w	#2,d0
-	move.w	Obj45_Strengths(pc,d0.w),obj45_strength(a0)
+	move.w	OOZSpring_Strengths(pc,d0.w),oozspring_strength(a0)
 	jsrto	JmpTo20_Adjust2PArtPointer
 	rts
 ; ===========================================================================
-;word_24182:
-Obj45_Strengths:
+; word_24182: Obj45_Strengths:
+OOZSpring_Strengths:
 	dc.w -$1000	; Strong
 	dc.w  -$A00	; Weak
 ; ===========================================================================
-; loc_24186:
-Obj45_Vertical:
+; loc_24186: Obj45_Vertical:
+OOZSpring_Vertical:
 	; Is a player stood on this object?
 	move.b	status(a0),d0
 	andi.b	#standing_mask,d0
 	bne.s	loc_2419C
 	; No; release the spring.
-	tst.b	obj45_frame(a0)
+	tst.b	oozspring_frame(a0)
 	beq.s	loc_241A8
-	subq.b	#1,obj45_frame(a0)
+	subq.b	#1,oozspring_frame(a0)
 	bra.s	loc_241A8
 ; ===========================================================================
 
 loc_2419C:
 	; Yes; compress the spring.
-	cmpi.b	#9,obj45_frame(a0)
-	beq.s	Obj45_LaunchCharacterVertical
-	addq.b	#1,obj45_frame(a0)
+	cmpi.b	#9,oozspring_frame(a0)
+	beq.s	OOZSpring_LaunchCharacterVertical
+	addq.b	#1,oozspring_frame(a0)
 
 loc_241A8:
 	; Handle solidity.
 	moveq	#0,d3
-	move.b	obj45_frame(a0),d3
+	move.b	oozspring_frame(a0),d3
 	move.b	d3,mapping_frame(a0)
 	add.w	d3,d3
 	move.w	#27,d1
@@ -49855,8 +49833,8 @@ loc_241A8:
 	jsrto	JmpTo_SolidObject45
 	rts
 ; ===========================================================================
-; loc_241C6:
-Obj45_LaunchCharacterVertical:
+; loc_241C6: Obj45_LaunchCharacterVertical:
+OOZSpring_LaunchCharacterVertical:
 	lea	(MainCharacter).w,a1
 	moveq	#p1_standing_bit,d6
 	bsr.s	loc_241D4
@@ -49868,7 +49846,7 @@ loc_241D4:
 	bclr	d6,status(a0)
 	beq.w	return_24278
 	; Launch the character into the air.
-	move.w	obj45_strength(a0),y_vel(a1)
+	move.w	oozspring_strength(a0),y_vel(a1)
 	bset	#status.player.in_air,status(a1)
 	bclr	#status.player.on_object,status(a1)
 	move.b	#AniIDSonAni_Spring,anim(a1)
@@ -49921,8 +49899,8 @@ loc_2426E:
 return_24278:
 	rts
 ; ===========================================================================
-; loc_2427A:
-Obj45_Horizontal:
+; loc_2427A: Obj45_Horizontal:
+OOZSpring_Horizontal:
 	move.b	#0,objoff_36(a0)
 	move.w	#31,d1
 	move.w	#12,d2
@@ -49966,7 +49944,7 @@ loc_242E6:
 loc_242EE:
 	tst.b	objoff_36(a0)
 	bne.s	return_2433A
-	move.w	obj45_original_x_pos(a0),d0
+	move.w	oozspring_original_x_pos(a0),d0
 	cmp.w	x_pos(a0),d0
 	beq.s	return_2433A
 	bhs.s	loc_2431C
@@ -49975,7 +49953,7 @@ loc_242EE:
 	cmp.w	x_pos(a0),d0
 	blo.s	loc_24336
 	move.b	#$A,mapping_frame(a0)
-	move.w	obj45_original_x_pos(a0),x_pos(a0)
+	move.w	oozspring_original_x_pos(a0),x_pos(a0)
 	bra.s	loc_24336
 ; ===========================================================================
 
@@ -49985,10 +49963,10 @@ loc_2431C:
 	cmp.w	x_pos(a0),d0
 	bhs.s	loc_24336
 	move.b	#$A,mapping_frame(a0)
-	move.w	obj45_original_x_pos(a0),x_pos(a0)
+	move.w	oozspring_original_x_pos(a0),x_pos(a0)
 
 loc_24336:
-	bsr.w	Obj45_LaunchCharacterHorizontal
+	bsr.w	OOZSpring_LaunchCharacterHorizontal
 
 return_2433A:
 	rts
@@ -50008,7 +49986,7 @@ loc_2433C:
 ; ===========================================================================
 
 loc_2435E:
-	move.w	obj45_original_x_pos(a0),d0
+	move.w	oozspring_original_x_pos(a0),d0
 	addi.w	#$12,d0
 	cmp.w	x_pos(a0),d0
 	beq.s	loc_243C8
@@ -50029,7 +50007,7 @@ loc_24378:
 ; ===========================================================================
 
 loc_2438E:
-	move.w	obj45_original_x_pos(a0),d0
+	move.w	oozspring_original_x_pos(a0),d0
 	subi.w	#$12,d0
 	cmp.w	x_pos(a0),d0
 	beq.s	loc_243C8
@@ -50041,7 +50019,7 @@ loc_243A6:
 	add.w	d0,x_pos(a1)
 	move.w	d1,inertia(a1)
 	move.w	#0,x_vel(a1)
-	move.w	obj45_original_x_pos(a0),d0
+	move.w	oozspring_original_x_pos(a0),d0
 	sub.w	x_pos(a0),d0
 	bcc.s	loc_243C0
 	neg.w	d0
@@ -50056,8 +50034,8 @@ loc_243C8:
 return_243CE:
 	rts
 ; ===========================================================================
-; loc_243D0:
-Obj45_LaunchCharacterHorizontal:
+; loc_243D0: Obj45_LaunchCharacterHorizontal:
+OOZSpring_LaunchCharacterHorizontal:
 	move.b	status(a0),d0
 	andi.b	#pushing_mask,d0
 	beq.w	return_244D0
@@ -50070,7 +50048,7 @@ Obj45_LaunchCharacterHorizontal:
 loc_243EA:
 	bclr	d6,status(a0)
 	beq.w	return_244D0
-	move.w	obj45_original_x_pos(a0),d0
+	move.w	oozspring_original_x_pos(a0),d0
 	sub.w	x_pos(a0),d0
 	bcc.s	loc_243FE
 	neg.w	d0
@@ -50138,7 +50116,7 @@ loc_244A8:
 
 loc_244BA:
 	bclr	#status.player.pushing,status(a1)
-	move.b	#AniIDSonAni_Run,prev_anim(a1)	; Force character's animation to restart
+	move.b	#AniIDSonAni_Run,prev_anim(a1)	; force character's animation to restart
 	move.w	#SndID_Spring,d0
 	jmp	(PlaySound).l
 ; ===========================================================================
@@ -50146,9 +50124,9 @@ loc_244BA:
 return_244D0:
 	rts
 ; ===========================================================================
+; unused animation script
 ; off_244D2:
-; Unused animation script
-Ani_obj45:	offsetTable
+Ani_OOZSpring:	offsetTable
 		offsetTableEntry.w byte_244D6	; 0
 		offsetTableEntry.w byte_244F8	; 1
 byte_244D6:
@@ -50160,30 +50138,32 @@ byte_244F8:
 	dc.b $13,$13,$12,$11,$10, $F, $E, $D, $C, $B, $A, $A, $A, $A, $A, $A; 16
 	dc.b  $A,$FF	; 32
 	even
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; ----------------------------------------------------------------------------
-Obj45_MapUnc_2451A:	include "mappings/sprite/obj45.asm"
+; ---------------------------------------------------------------------------
+; Obj45_MapUnc_2451A:
+MapUnc_OOZSpring:	include "mappings/sprite/Push spring from OOZ.asm"
+
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 46 - Ball from OOZ (unused, beta leftover)
-; ----------------------------------------------------------------------------
-; Sprite_24A16:
-Obj46:
+; ---------------------------------------------------------------------------
+; Sprite_24A16: Obj46:
+Obj_OOZBall:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj46_Index(pc,d0.w),d1
-	jmp	Obj46_Index(pc,d1.w)
+	move.w	OOZBall_Index(pc,d0.w),d1
+	jmp	OOZBall_Index(pc,d1.w)
 ; ===========================================================================
-; off_24A24:
-Obj46_Index:	offsetTable
-		offsetTableEntry.w Obj46_Init		; 0 - Init
-		offsetTableEntry.w Obj46_Inactive	; 2 - Ball inactive
-		offsetTableEntry.w Obj46_Moving		; 4 - Ball moving
-		offsetTableEntry.w Obj46_PressureSpring	; 6 - Pressure Spring
+; off_24A24: Obj46_Index:
+OOZBall_Index:	offsetTable
+		offsetTableEntry.w OOZBall_Init		; 0 - Init
+		offsetTableEntry.w OOZBall_Inactive	; 2 - Ball inactive
+		offsetTableEntry.w OOZBall_Moving	; 4 - Ball moving
+		offsetTableEntry.w OOZBall_PressureSpring	; 6 - Pressure Spring
 ; ===========================================================================
-; loc_24A2C:
-Obj46_Init:
+; loc_24A2C: Obj46_Init:
+OOZBall_Init:
 	lea	(Object_Respawn_Table).w,a2
 	moveq	#0,d0
 	move.b	respawn_index(a0),d0
@@ -50196,7 +50176,7 @@ Obj46_Init:
 	addq.b	#2,routine(a0)
 	move.b	#$F,y_radius(a0)
 	move.b	#$F,x_radius(a0)
-	move.l	#Obj46_MapUnc_24C52,mappings(a0)
+	move.l	#MapUnc_OOZBall,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_BallThing,3,0),art_tile(a0)
 	jsrto	JmpTo20_Adjust2PArtPointer
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
@@ -50207,16 +50187,15 @@ Obj46_Init:
 	move.b	#0,mapping_frame(a0)
 	move.w	#0,objoff_14(a0)
 	move.b	#1,objoff_1F(a0)
-
-; Obj46_InitPressureSpring:	; loads the spring under the ball
+; Obj46_InitPressureSpring: OOZBall_InitPressureSpring:	; loads the spring under the ball
 	jsrto	JmpTo4_AllocateObject
 	bne.s	+
-	_move.b	#ObjID_OOZBall,id(a1) ; load obj46
+	_move.b	#ObjID_OOZBall,id(a1) ; load Obj_OOZBall
 	addq.b	#6,routine(a1)
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
 	addi.w	#$12,y_pos(a1)
-	move.l	#Obj45_MapUnc_2451A,mappings(a1)
+	move.l	#MapUnc_OOZSpring,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_PushSpring,2,0),art_tile(a1)
 	ori.b	#1<<render_flags.level_fg,render_flags(a1)
 	move.b	#$10,width_pixels(a1)
@@ -50225,8 +50204,8 @@ Obj46_Init:
 	move.l	a0,objoff_3C(a1)
 +
 	move.l	a1,objoff_3C(a0)
-; loc_24AEA:
-Obj46_Inactive:
+; loc_24AEA: Obj46_Inactive:
+OOZBall_Inactive:
 	btst	#button_A,(Ctrl_2_Press).w
 	bne.s	+
 	lea	(ButtonVine_Trigger).w,a2
@@ -50249,8 +50228,8 @@ Obj46_Inactive:
 	bsr.w	loc_24BF0
 	jmpto	JmpTo11_MarkObjGone
 ; ===========================================================================
-; loc_24B38:
-Obj46_Moving:
+; loc_24B38: Obj46_Moving:
+OOZBall_Moving:
 	move.w	x_pos(a0),-(sp)
 	jsrto	JmpTo9_ObjectMove
 	btst	#status.npc.y_flip,status(a0)
@@ -50313,8 +50292,8 @@ JmpTo25_DeleteObject ; JmpTo
 BranchTo_JmpTo25_DeleteObject ; BranchTo
 	jmpto	JmpTo25_DeleteObject
 ; ===========================================================================
-; loc_24BDC:
-Obj46_PressureSpring:
+; loc_24BDC: Obj46_PressureSpring:
+OOZBall_PressureSpring:
 	tst.b	objoff_30(a0)
 	beq.s	+
 	subq.b	#1,mapping_frame(a0)
@@ -50371,22 +50350,20 @@ loc_24C32:
 	move.b	d0,objoff_1F(a0)
 	bra.s	loc_24C2A
 ; ===========================================================================
-; ----------------------------------------------------------------------------
-; Unused sprite mappings
-; ----------------------------------------------------------------------------
-Obj46_MapUnc_24C52:	include "mappings/sprite/obj46.asm"
+; ---------------------------------------------------------------------------
+; unused sprite mappings
+; ---------------------------------------------------------------------------
+; Obj46_MapUnc_24C52:
+MapUnc_OOZBall:	include "mappings/sprite/Unused rolling ball from OOZ.asm"
 ; ===========================================================================
 
 	; some of these are still used, for some reason:
 	jmpTos JmpTo25_DeleteObject,JmpTo4_AllocateObject,JmpTo11_MarkObjGone,JmpTo20_Adjust2PArtPointer,JmpTo5_SolidObject,JmpTo_SolidObject_Always_SingleCharacter,JmpTo_SolidObject45,JmpTo9_ObjectMove
 
-
-
-
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 47 - Button
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_24CF4:
 Obj47:
 	moveq	#0,d0
@@ -51579,7 +51556,7 @@ Obj2C_Init:
 	moveq	#0,d0
 	move.b	subtype(a0),d0
 	move.b	Obj2C_CollisionFlags(pc,d0.w),collision_flags(a0)
-	move.l	#Obj31_MapUnc_20E74,mappings(a0)
+	move.l	#MapUnc_LavaMarker,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Powerups,0,1),art_tile(a0)
     if fixBugs
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
@@ -88274,9 +88251,9 @@ DbgObjList_MTZ: dbglistheader
 	dbglistobj ObjID_Shellcracker,	Obj9F_MapUnc_38314, $24,   0, make_art_tile(ArtTile_ArtNem_Shellcracker,0,0)
 	dbglistobj ObjID_Asteron,	ObjA4_Obj98_MapUnc_38A96, $2E,   0, make_art_tile(ArtTile_ArtNem_MtzSupernova,0,1)
 	dbglistobj ObjID_Slicer,	ObjA1_MapUnc_385E2, $28,   0, make_art_tile(ArtTile_ArtNem_MtzMantis,1,0)
-	dbglistobj ObjID_LavaMarker,	Obj31_MapUnc_20E74,   0,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
-	dbglistobj ObjID_LavaMarker,	Obj31_MapUnc_20E74,   1,   1, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
-	dbglistobj ObjID_LavaMarker,	Obj31_MapUnc_20E74,   2,   2, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
+	dbglistobj ObjID_LavaMarker,	MapUnc_LavaMarker,   0,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
+	dbglistobj ObjID_LavaMarker,	MapUnc_LavaMarker,   1,   1, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
+	dbglistobj ObjID_LavaMarker,	MapUnc_LavaMarker,   2,   2, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
 	dbglistobj ObjID_EggPrison,	Obj3E_MapUnc_3F436,   0,   0, make_art_tile(ArtTile_ArtNem_Capsule,1,0)
 DbgObjList_MTZ_End
 
@@ -88340,9 +88317,9 @@ DbgObjList_HTZ: dbglistheader
 	dbglistobj ObjID_Scenery,	Obj1C_MapUnc_113D6,   7,   0, make_art_tile(ArtTile_ArtKos_LevelArt,2,0)
 	dbglistobj ObjID_Scenery,	Obj1C_MapUnc_113D6,   8,   1, make_art_tile(ArtTile_ArtKos_LevelArt,2,0)
 	dbglistobj ObjID_BreakableRock,	Obj32_MapUnc_23852,   0,   0, make_art_tile(ArtTile_ArtNem_HtzRock,2,0)
-	dbglistobj ObjID_LavaMarker,	Obj31_MapUnc_20E74,   0,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
-	dbglistobj ObjID_LavaMarker,	Obj31_MapUnc_20E74,   1,   1, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
-	dbglistobj ObjID_LavaMarker,	Obj31_MapUnc_20E74,   2,   2, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
+	dbglistobj ObjID_LavaMarker,	MapUnc_LavaMarker,   0,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
+	dbglistobj ObjID_LavaMarker,	MapUnc_LavaMarker,   1,   1, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
+	dbglistobj ObjID_LavaMarker,	MapUnc_LavaMarker,   2,   2, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
 	dbglistobj ObjID_Rexon2,	Obj94_Obj98_MapUnc_37678,  $E,   2, make_art_tile(ArtTile_ArtNem_Rexon,3,0)
 	dbglistobj ObjID_Spiker,	Obj92_Obj93_MapUnc_37092,  $A,   0, make_art_tile(ArtTile_ArtKos_LevelArt,0,0)
 	dbglistobj ObjID_Sol,		Obj95_MapUnc_372E6,   0,   0, make_art_tile(ArtTile_ArtKos_LevelArt,0,0)
@@ -88361,9 +88338,9 @@ DbgObjList_OOZ: dbglistheader
 	dbglistobj ObjID_OOZPoppingPform, Obj33_MapUnc_23DDC,   1,   0, make_art_tile(ArtTile_ArtNem_BurnerLid,3,0)
 	dbglistobj ObjID_SlidingSpike,	Obj43_MapUnc_23FE0,   0,   0, make_art_tile(ArtTile_ArtNem_SpikyThing,2,1)
 	dbglistobj ObjID_OOZMovingPform, Obj19_MapUnc_2222A, $23,   2, make_art_tile(ArtTile_ArtNem_OOZElevator,3,0)
-	dbglistobj ObjID_OOZSpring,	Obj45_MapUnc_2451A,   2,   0, make_art_tile(ArtTile_ArtNem_PushSpring,2,0)
-	dbglistobj ObjID_OOZSpring,	Obj45_MapUnc_2451A, $12,  $A, make_art_tile(ArtTile_ArtNem_PushSpring,2,0)
-	dbglistobj ObjID_OOZBall,	Obj46_MapUnc_24C52,   0,   1, make_art_tile(ArtTile_ArtNem_BallThing,3,0)
+	dbglistobj ObjID_OOZSpring,	MapUnc_OOZSpring,   2,   0, make_art_tile(ArtTile_ArtNem_PushSpring,2,0)
+	dbglistobj ObjID_OOZSpring,	MapUnc_OOZSpring, $12,  $A, make_art_tile(ArtTile_ArtNem_PushSpring,2,0)
+	dbglistobj ObjID_OOZBall,	MapUnc_OOZBall,   0,   1, make_art_tile(ArtTile_ArtNem_BallThing,3,0)
 	dbglistobj ObjID_Button,	Obj47_MapUnc_24D96,   0,   2, make_art_tile(ArtTile_ArtNem_Button,0,0)
 	dbglistobj ObjID_SwingingPlatform, Obj15_MapUnc_101E8, $88,   1, make_art_tile(ArtTile_ArtNem_OOZSwingPlat,2,0)
 	dbglistobj ObjID_OOZLauncher,	Obj3D_MapUnc_250BA,   0,   0, make_art_tile(ArtTile_ArtNem_StripedBlocksVert,3,0)
@@ -88425,7 +88402,7 @@ DbgObjList_CNZ: dbglistheader
 	dbglistobj ObjID_PinballMode,	MapUnc_PlaneSwitcher,   4,   4, make_art_tile(ArtTile_ArtNem_Ring,0,0)
 	dbglistobj ObjID_PlaneSwitcher,	MapUnc_PlaneSwitcher,   9,   1, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_PlaneSwitcher,	MapUnc_PlaneSwitcher,  $D,   5, make_art_tile(ArtTile_ArtNem_Ring,1,0)
-	dbglistobj ObjID_RoundBumper,	Obj44_MapUnc_1F85A,   0,   0, make_art_tile(ArtTile_ArtNem_CNZRoundBumper,2,0)
+	dbglistobj ObjID_RoundBumper,	MapUnc_RoundBumper,   0,   0, make_art_tile(ArtTile_ArtNem_CNZRoundBumper,2,0)
 	dbglistobj ObjID_LauncherSpring, Obj85_MapUnc_2B07E,   0,   0, make_art_tile(ArtTile_ArtNem_CNZVertPlunger,0,0)
 	dbglistobj ObjID_LauncherSpring, Obj85_MapUnc_2B0EC, $81,   0, make_art_tile(ArtTile_ArtNem_CNZDiagPlunger,0,0)
 	dbglistobj ObjID_Flipper,	Obj86_MapUnc_2B45A,   0,   0, make_art_tile(ArtTile_ArtNem_CNZFlipper,2,0)
@@ -88448,7 +88425,7 @@ DbgObjList_CPZ: dbglistheader
 	dbglistobj ObjID_Ring,		MapUnc_RingObj,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0)
 	dbglistobj ObjID_Monitor,	MapUnc_Monitor,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0)
 	dbglistobj ObjID_Starpost,	MapUnc_Starpost,   1,   0, make_art_tile(ArtTile_ArtNem_Checkpoint,0,0)
-	dbglistobj ObjID_TippingFloor,	Obj0B_MapUnc_201A0, $70,   0, make_art_tile(ArtTile_ArtNem_CPZAnimatedBits,3,1)
+	dbglistobj ObjID_TippingFloor,	MapUnc_TippingFloor, $70,   0, make_art_tile(ArtTile_ArtNem_CPZAnimatedBits,3,1)
 	dbglistobj ObjID_SpeedBooster,	Obj1B_MapUnc_223E2,   0,   0, make_art_tile(ArtTile_ArtNem_CPZBooster,3,1)
 	dbglistobj ObjID_BlueBalls,	Obj1D_MapUnc_22576,   5,   0, make_art_tile(ArtTile_ArtNem_CPZDroplet,3,1)
 	dbglistobj ObjID_CPZPlatform,	Obj19_MapUnc_2222A,   6,   0, make_art_tile(ArtTile_ArtNem_CPZElevator,3,0)
@@ -88481,9 +88458,9 @@ DbgObjList_ARZ: dbglistheader
 	dbglistobj ObjID_ArrowShooter,	Obj22_MapUnc_25804,   0,   1, make_art_tile(ArtTile_ArtNem_ArrowAndShooter,0,0)
 	dbglistobj ObjID_FallingPillar,	Obj23_MapUnc_259E6,   0,   0, make_art_tile(ArtTile_ArtKos_LevelArt,1,0)
 	dbglistobj ObjID_RisingPillar,	Obj2B_MapUnc_25C6E,   0,   0, make_art_tile(ArtTile_ArtKos_LevelArt,1,0)
-	dbglistobj ObjID_LeavesGenerator, Obj31_MapUnc_20E74,   0,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
-	dbglistobj ObjID_LeavesGenerator, Obj31_MapUnc_20E74,   1,   1, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
-	dbglistobj ObjID_LeavesGenerator, Obj31_MapUnc_20E74,   2,   2, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
+	dbglistobj ObjID_LeavesGenerator, MapUnc_LavaMarker,   0,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
+	dbglistobj ObjID_LeavesGenerator, MapUnc_LavaMarker,   1,   1, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
+	dbglistobj ObjID_LeavesGenerator, MapUnc_LavaMarker,   2,   2, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
 	dbglistobj ObjID_Springboard,	Obj40_MapUnc_265F4,   1,   0, make_art_tile(ArtTile_ArtNem_LeverSpring,0,0)
 	dbglistobj ObjID_Spring,	Obj41_MapUnc_1901C, $81,   0, make_art_tile(ArtTile_ArtNem_VrtclSprng,0,0)
 	dbglistobj ObjID_Spring,	Obj41_MapUnc_1901C, $90,   3, make_art_tile(ArtTile_ArtNem_HrzntlSprng,0,0)
