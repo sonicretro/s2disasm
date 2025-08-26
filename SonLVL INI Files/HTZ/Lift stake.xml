@@ -11,11 +11,11 @@
     </ImageFromMappings>
     <ImageFromMappings id="groundleft">
       <ArtFile filename="LevelArt" />
-      <MapFile type="ASM" filename="../mappings/sprite/obj1C_a.asm" frame="0" startpal="2" />
+      <MapFile type="ASM" filename="../mappings/sprite/Edge of ground from EHZ and HTZ.asm" frame="0" startpal="2" />
     </ImageFromMappings>
     <ImageFromMappings id="groundright">
       <ArtFile filename="LevelArt" />
-      <MapFile type="ASM" filename="../mappings/sprite/obj1C_a.asm" frame="1" startpal="2" />
+      <MapFile type="ASM" filename="../mappings/sprite/Edge of ground from EHZ and HTZ.asm" frame="1" startpal="2" />
     </ImageFromMappings>
   </Images>
   <Subtypes>

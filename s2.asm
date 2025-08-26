@@ -13622,7 +13622,7 @@ loc_A4B6:
 	clr.b	anim(a0)
 	clr.b	anim_frame(a0)
 	clr.b	anim_frame_duration(a0)
-	move.l	#ObjCF_MapUnc_ADA2,mappings(a0)
+	move.l	#MapUnc_EndingSprites,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,0,0),art_tile(a0)
 	jsr	(Adjust2PArtPointer).l
 	subi.w	#$14,x_pos(a0)
@@ -13902,25 +13902,25 @@ word_A874:
 ; ---------------------------------------------------------------------------
 ; Object CE - Sonic and Tails jumping off the plane from ending sequence
 ; ---------------------------------------------------------------------------
-; Sprite_A894:
-ObjCE:
+; Sprite_A894: ObjCE:
+Obj_EndingSeqChars:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	ObjCE_Index(pc,d0.w),d1
-	jmp	ObjCE_Index(pc,d1.w)
+	move.w	EndingSeqChars_Index(pc,d0.w),d1
+	jmp	EndingSeqChars_Index(pc,d1.w)
 ; ===========================================================================
-; off_A8A2:
-ObjCE_Index:	offsetTable
-		offsetTableEntry.w ObjCE_Init				; 0
+; off_A8A2: ObjCE_Index:
+EndingSeqChars_Index: offsetTable
+		offsetTableEntry.w EndingSeqChars_Init			; 0
 		offsetTableEntry.w loc_A902				; 2
 		offsetTableEntry.w loc_A936				; 4
 		offsetTableEntry.w BranchTo_JmpTo5_DisplaySprite	; 6
 ; ===========================================================================
-; loc_A8AA:
-ObjCE_Init:
+; loc_A8AA: ObjCE_Init:
+EndingSeqChars_Init:
 	lea	(SCZCloud_SubObjData).l,a1
 	jsrto	JmpTo_LoadSubObject_Part3
-	move.l	#ObjCF_MapUnc_ADA2,mappings(a0)
+	move.l	#MapUnc_EndingSprites,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,0,1),art_tile(a0)
 	move.b	#1,priority(a0)
 	jsr	(Adjust2PArtPointer).l
@@ -14000,23 +14000,23 @@ byte_A984:
 ; ---------------------------------------------------------------------------
 ; Object CF - "Plane's helixes" from ending sequence
 ; ---------------------------------------------------------------------------
-; Sprite_A988:
-ObjCF:
+; Sprite_A988: ObjCF:
+Obj_TornadoHelixes:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	ObjCF_Index(pc,d0.w),d1
-	jmp	ObjCF_Index(pc,d1.w)
+	move.w	TornadoHelixes_Index(pc,d0.w),d1
+	jmp	TornadoHelixes_Index(pc,d1.w)
 ; ===========================================================================
-; off_A996:
-ObjCF_Index:	offsetTable
-		offsetTableEntry.w ObjCF_Init		; 0
-		offsetTableEntry.w ObjCF_Animate	; 2
+; off_A996: ObjCF_Index:
+TornadoHelixes_Index: offsetTable
+		offsetTableEntry.w TornadoHelixes_Init		; 0
+		offsetTableEntry.w TornadoHelixes_Animate	; 2
 ; ===========================================================================
-; loc_A99A:
-ObjCF_Init:
+; loc_A99A: ObjCF_Init:
+TornadoHelixes_Init:
 	lea	(SCZCloud_SubObjData).l,a1
 	jsrto	JmpTo_LoadSubObject_Part3
-	move.l	#ObjCF_MapUnc_ADA2,mappings(a0)
+	move.l	#MapUnc_EndingSprites,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,0,1),art_tile(a0)
 	move.b	#3,priority(a0)
 	jsr	(Adjust2PArtPointer).l
@@ -14030,9 +14030,9 @@ ObjCF_Init:
 	move.w	d0,objoff_32(a0)
 	rts
 ; ===========================================================================
-; loc_A9E4:
-ObjCF_Animate:
-	lea	(Ani_objCF).l,a1
+; loc_A9E4: ObjCF_Animate:
+TornadoHelixes_Animate:
+	lea	(Ani_TornadoHelixes).l,a1
 	jsrto	JmpTo_AnimateSprite
 	bra.w	loc_A90E
 ; ===========================================================================
@@ -14346,8 +14346,8 @@ byte_AD7E:	dc.b   5,  0,  1,$FF
 	even
 
 ; animation script
-; off_AD82
-Ani_objCF:	offsetTable
+; off_AD82 Ani_objCF:	
+Ani_TornadoHelixes: offsetTable
 		offsetTableEntry.w byte_AD88	; 0
 		offsetTableEntry.w byte_AD8E	; 1
 		offsetTableEntry.w byte_AD9E	; 2
@@ -14358,8 +14358,10 @@ byte_AD9E:	dc.b   1,  5,  6,$FF
 ; -----------------------------------------------------------------------------
 ; sprite mappings
 ; -----------------------------------------------------------------------------
-ObjCF_MapUnc_ADA2:	include "mappings/sprite/objCF.asm"
-; --------------------------------------------------------------------------------------
+; ObjCF_MapUnc_ADA2:
+MapUnc_EndingSprites:	include "mappings/sprite/Sprites from the ending sequence.asm"
+
+; -----------------------------------------------------------------------------
 ; Enigma compressed art mappings
 ; "Sonic the Hedgehog 2" mappings		; MapEng_B23A:
 	even
@@ -23871,19 +23873,19 @@ Obj1F_MapUnc_1115E:	include "mappings/sprite/obj1F_d.asm"
 
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 1C - Bridge stake in Emerald Hill Zone and Hill Top Zone, falling oil in Oil Ocean Zone
-; ----------------------------------------------------------------------------
-; Sprite_111D4:
-Obj1C:
+; ---------------------------------------------------------------------------
+; Sprite_111D4: Obj1C:
+Obj_Scenery:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj1C_Index(pc,d0.w),d1
-	jmp	Obj1C_Index(pc,d1.w)
+	move.w	Scenery_Index(pc,d0.w),d1
+	jmp	Scenery_Index(pc,d1.w)
 ; ===========================================================================
-; off_111E2:
-Obj1C_Index:	offsetTable
-		offsetTableEntry.w Obj1C_Init		; 0
+; off_111E2: Obj1C_Index:
+Scenery_Index:	offsetTable
+		offsetTableEntry.w Scenery_Init		; 0
 		offsetTableEntry.w BranchTo_MarkObjGone	; 2
 ; ===========================================================================
 
@@ -23893,8 +23895,8 @@ objsubdecl macro frame, mapaddr,artaddr,width,priority
 	dc.b width, priority
     endm
 
-; dword_111E6:
-Obj1C_InitData:
+; dword_111E6: Obj1C_InitData:
+Scenery_InitData:
 	objsubdecl 0, Obj1C_MapUnc_11552, make_art_tile(ArtTile_ArtNem_BoltEnd_Rope,2,0), 4, 6
 	objsubdecl 1, Obj1C_MapUnc_11552, make_art_tile(ArtTile_ArtNem_BoltEnd_Rope,2,0), 4, 6
 	objsubdecl 1, Obj11_MapUnc_FC70,  make_art_tile(ArtTile_ArtNem_EHZ_Bridge,2,0), 4, 1
@@ -23902,8 +23904,8 @@ Obj1C_InitData:
 	objsubdecl 3, Obj16_MapUnc_21F14, make_art_tile(ArtTile_ArtNem_HtzZipline,2,0), 8, 4
 	objsubdecl 4, Obj16_MapUnc_21F14, make_art_tile(ArtTile_ArtNem_HtzZipline,2,0), 8, 4
 	objsubdecl 1, Obj16_MapUnc_21F14, make_art_tile(ArtTile_ArtNem_HtzZipline,2,0), $20, 1
-	objsubdecl 0, Obj1C_MapUnc_113D6, make_art_tile(ArtTile_ArtKos_LevelArt,2,0), 8, 1
-	objsubdecl 1, Obj1C_MapUnc_113D6, make_art_tile(ArtTile_ArtKos_LevelArt,2,0), 8, 1
+	objsubdecl 0, MapUnc_Scenery_EHZHTZGround, make_art_tile(ArtTile_ArtKos_LevelArt,2,0), 8, 1
+	objsubdecl 1, MapUnc_Scenery_EHZHTZGround, make_art_tile(ArtTile_ArtKos_LevelArt,2,0), 8, 1
 	objsubdecl 0, Obj1C_MapUnc_113EE, make_art_tile(ArtTile_ArtUnc_Waterfall3,2,0), 4, 4
 	objsubdecl 0, Obj1C_MapUnc_11406, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 4, 4
 	objsubdecl 1, Obj1C_MapUnc_11406, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 4, 4
@@ -23916,8 +23918,8 @@ Obj1C_InitData:
 	objsubdecl 2, Obj1C_MapUnc_114AE, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 8, 4
 	objsubdecl 3, Obj1C_MapUnc_114AE, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 8, 4
 	objsubdecl 4, Obj1C_MapUnc_114AE, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 8, 4
-; byte_1128E:
-Obj1C_Radii:
+; byte_1128E: Obj1C_Radii:
+Scenery_Radii:
 	dc.b   0
 	dc.b   0	; 1
 	dc.b   0	; 2
@@ -23950,14 +23952,14 @@ Obj1C_Radii:
 	dc.b $50	; 20
 	even
 ; ===========================================================================
-; loc_112A4:
-Obj1C_Init:
+; loc_112A4: Obj1C_Init:
+Scenery_Init:
 	addq.b	#2,routine(a0)
 	moveq	#0,d0
 	move.b	subtype(a0),d0
 	move.w	d0,d1
 	lsl.w	#3,d0
-	lea	Obj1C_InitData(pc),a1
+	lea	Scenery_InitData(pc),a1
 	lea	(a1,d0.w),a1
 	move.b	(a1),mapping_frame(a0)
 	move.l	(a1)+,mappings(a0)
@@ -23966,7 +23968,7 @@ Obj1C_Init:
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	(a1)+,width_pixels(a0)
 	move.b	(a1)+,priority(a0)
-	lea	Obj1C_Radii(pc),a1
+	lea	Scenery_Radii(pc),a1
 	move.b	(a1,d1.w),d1
 	beq.s	BranchTo_MarkObjGone	; if the radius is zero, branch
 	move.b	d1,y_radius(a0)
@@ -23975,9 +23977,9 @@ Obj1C_Init:
 BranchTo_MarkObjGone ; BranchTo
 	bra.w	MarkObjGone
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 71 - Bridge stake and pulsing orb from Hidden Palace Zone
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_112F0:
 Obj71:
 	moveq	#0,d0
@@ -24036,33 +24038,34 @@ byte_11389:	dc.b  $B,  0,  1,  2,  3,  4,  5,$FD,  3
 byte_11392:	dc.b $7F,  6,$FD,  2
 	even
 
-; --------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; --------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 Obj71_MapUnc_11396:	include "mappings/sprite/obj71_a.asm"
-; ----------------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Unknown sprite mappings
-; ----------------------------------------------------------------------------------------
-Obj1C_MapUnc_113D6:	include "mappings/sprite/obj1C_a.asm"
-; --------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
+; Obj1C_MapUnc_113D6:
+MapUnc_Scenery_EHZHTZGround:	include "mappings/sprite/Edge of ground from EHZ and HTZ.asm"
+; ---------------------------------------------------------------------------
 ; Unknown sprite mappings
-; --------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 Obj1C_MapUnc_113EE:	include "mappings/sprite/obj1C_b.asm"
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 Obj1C_MapUnc_11406:	include "mappings/sprite/obj1C_c.asm"
-; --------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; --------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 Obj1C_MapUnc_114AE:	include "mappings/sprite/obj1C_d.asm"
-; --------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; --------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 Obj1C_MapUnc_11552:	include "mappings/sprite/obj1C_e.asm"
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 Obj71_MapUnc_11576:	include "mappings/sprite/obj71_b.asm"
 ; ===========================================================================
 
@@ -29745,7 +29748,7 @@ ObjPtr_HPZCollapsPform:	dc.l Obj1A	; Collapsing platform from HPZ (and GHZ)
 ObjPtr_SpeedBooster:	dc.l Obj1B	; Speed booster from from CPZ
 ObjPtr_Scenery:
 ObjPtr_BridgeStake:
-ObjPtr_FallingOil:	dc.l Obj1C	; Bridge stake in Emerald Hill Zone and Hill Top Zone, falling oil in Oil Ocean Zone
+ObjPtr_FallingOil:	dc.l Obj_Scenery		; Bridge stake in Emerald Hill Zone and Hill Top Zone, falling oil in Oil Ocean Zone
 ObjPtr_BlueBalls:	dc.l Obj1D	; Blue balls in CPZ (jumping droplets hazard)
 ObjPtr_CPZSpinTube:	dc.l Obj1E	; Spin tube from CPZ
 ObjPtr_CollapsPform:	dc.l Obj1F	; Collapsing platform from ARZ, MCZ and OOZ (and MZ, SLZ and SBZ)
@@ -29932,8 +29935,8 @@ ObjPtr_EndingSeqClouds:	dc.l ObjCB	; Background clouds from ending sequence
 ObjPtr_EndingSeqTrigger:dc.l ObjCC	; Trigger for rescue plane and birds from ending sequence
 ObjPtr_EndingSeqBird:	dc.l ObjCD	; Birds from ending sequence
 ObjPtr_EndingSeqSonic:
-ObjPtr_EndingSeqTails:	dc.l ObjCE	; Sonic and Tails jumping off the plane from ending sequence
-ObjPtr_TornadoHelixes:	dc.l ObjCF	;"Plane's helixes" from ending sequence
+ObjPtr_EndingSeqTails:	dc.l Obj_EndingSeqChars		; Sonic and Tails jumping off the plane from ending sequence
+ObjPtr_TornadoHelixes:	dc.l Obj_TornadoHelixes		; "Plane's helixes" from ending sequence
 			dc.l ObjNull	; ObjD0
 			dc.l ObjNull	; ObjD1
 ObjPtr_CNZRectBlocks:	dc.l ObjD2	; Flashing blocks that appear and disappear in a rectangular shape that you can walk across, from CNZ
@@ -29949,11 +29952,11 @@ ObjPtr_ContinueIcons:	dc.l Obj_ContinueText		; Continue text
 ObjPtr_ContinueChars:	dc.l Obj_ContinueChars		; Sonic lying down or Tails nagging (continue screen)
 ObjPtr_RingPrize:	dc.l Obj_RingPrize		; Ring prize from Casino Night Zone
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 4C, 4D, 4E, 4F, 62, D0, and D1
 
 ; Object removed from the game. All it does is deallocate its array.
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 
 ObjNull: ;;
 	bra.w	DeleteObject
