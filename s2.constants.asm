@@ -612,6 +612,7 @@ ObjID_Splash =			id(ObjPtr_Splash)		; 08
 ObjID_SonicSS =			id(ObjPtr_SonicSS)		; 09
 ObjID_SmallBubbles =		id(ObjPtr_SmallBubbles)		; 0A
 ObjID_TippingFloor =		id(ObjPtr_TippingFloor)		; 0B
+ObjID_CPZUnusedPltfm =		id(ObjPtr_CPZUnusedPltfm)	; 0C
 ObjID_Signpost =		id(ObjPtr_Signpost)		; 0D
 ObjID_TitleIntro =		id(ObjPtr_TitleIntro)		; 0E
 ObjID_TitleMenu =		id(ObjPtr_TitleMenu)		; 0F
@@ -728,6 +729,7 @@ ObjID_Starpost =		id(ObjPtr_Starpost)		; 79
 ObjID_SidewaysPform =		id(ObjPtr_SidewaysPform)	; 7A
 ObjID_PipeExitSpring =		id(ObjPtr_PipeExitSpring)	; 7B
 ObjID_CPZPylon =		id(ObjPtr_CPZPylon)		; 7C
+ObjID_HiddenBonus =		id(ObjPtr_HiddenBonus)		; 7D
 ObjID_SuperSonicStars =		id(ObjPtr_SuperSonicStars)	; 7E
 ObjID_VineSwitch =		id(ObjPtr_VineSwitch)		; 7F
 ObjID_MovingVine =		id(ObjPtr_MovingVine)		; 80
@@ -741,6 +743,7 @@ ObjID_Flipper =			id(ObjPtr_Flipper)		; 86
 ObjID_SSNumberOfRings =		id(ObjPtr_SSNumberOfRings)	; 87
 ObjID_SSTailsTails =		id(ObjPtr_SSTailsTails)		; 88
 ObjID_ARZBoss =			id(ObjPtr_ARZBoss)		; 89
+ObjID_S1CreditsText =		id(ObjPtr_S1CreditsText)	; 8A
 ObjID_WFZPalSwitcher =		id(ObjPtr_WFZPalSwitcher)	; 8B
 ObjID_Whisp =			id(ObjPtr_Whisp)		; 8C
 ObjID_GrounderInWall =		id(ObjPtr_GrounderInWall)	; 8D
@@ -773,6 +776,7 @@ ObjID_Grabber =			id(ObjPtr_Grabber)		; A7
 ObjID_GrabberLegs =		id(ObjPtr_GrabberLegs)		; A8
 ObjID_GrabberBox =		id(ObjPtr_GrabberBox)		; A9
 ObjID_GrabberString =		id(ObjPtr_GrabberString)	; AA
+ObjID_Grabber2 =		id(ObjPtr_Grabber2)		; AB
 ObjID_Balkiry =			id(ObjPtr_Balkiry)		; AC
 ObjID_CluckerBase =		id(ObjPtr_CluckerBase)		; AD
 ObjID_Clucker =			id(ObjPtr_Clucker)		; AE
@@ -788,6 +792,7 @@ ObjID_VerticalLaser =		id(ObjPtr_VerticalLaser)	; B7
 ObjID_WallTurret =		id(ObjPtr_WallTurret)		; B8
 ObjID_Laser =			id(ObjPtr_Laser)		; B9
 ObjID_WFZWheel =		id(ObjPtr_WFZWheel)		; BA
+ObjID_WFZUnknown =		id(ObjPtr_WFZUnknown)		; BB
 ObjID_WFZShipFire =		id(ObjPtr_WFZShipFire)		; BC
 ObjID_SmallMetalPform =		id(ObjPtr_SmallMetalPform)	; BD
 ObjID_LateralCannon =		id(ObjPtr_LateralCannon)	; BE
@@ -1081,15 +1086,15 @@ MainCharacter:			; first object (usually Sonic except in a Tails Alone game)
 Sidekick:			; second object (Tails in a Sonic and Tails game)
 				ds.b	object_size
 TitleCard:
-TitleCard_ZoneName:		; level title card: zone name
+TitleCard_ZoneNameText:		; level title card: zone name
 GameOver_GameText:		; "GAME" from GAME OVER
 TimeOver_TimeText:		; "TIME" from TIME OVER
 				ds.b	object_size
-TitleCard_Zone:			; level title card: "ZONE"
+TitleCard_ZoneText:			; level title card: "ZONE"
 GameOver_OverText:		; "OVER" from GAME OVER
 TimeOver_OverText:		; "OVER" from TIME OVER
 				ds.b	object_size
-TitleCard_ActNumber:		; level title card: act number
+TitleCard_ActNumberText:	; level title card: act number
 				ds.b	object_size
 TitleCard_Background:		; level title card: background
 				ds.b	object_size
@@ -1585,7 +1590,7 @@ WindTunnel_flag:		ds.b	1
 WindTunnel_holding_flag:	ds.b	1
 				ds.b	2	; $FFFFF7CA-$FFFFF7CB ; seems unused
 Control_Locked:			ds.b	1
-f_bigring:			ds.b	1	; Leftover from Sonic 1
+f_bigring:			ds.b	1	; leftover from Sonic 1 (to rename? is used by checkpoints and 2P SS)
 				ds.b	1	; $FFFFF7CE ; seems unused
 Control_Locked_P2:		ds.b	1
 Chain_Bonus_counter:		ds.w	1	; counts up when you destroy things that give points, resets when you touch the ground
