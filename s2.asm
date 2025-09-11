@@ -5174,7 +5174,7 @@ InitPlayers:
 	bne.s	InitPlayers_Alone ; branch if this isn't a Sonic and Tails game
 
 	move.b	#ObjID_Sonic,(MainCharacter+id).w ; load Obj_Sonic at $FFFFB000
-	move.b	#ObjID_SpindashDust,(Sonic_Dust+id).w ; load Obj08 Sonic's spindash dust/splash object at $FFFFD100
+	move.b	#ObjID_SpindashDust,(Sonic_Dust+id).w ; load Sonic's Obj_SplashDust at $FFFFD100
 
 	cmpi.b	#wing_fortress_zone,(Current_Zone).w
 	beq.s	+ ; skip loading Tails if this is WFZ
@@ -5188,7 +5188,7 @@ InitPlayers:
 	move.w	(MainCharacter+y_pos).w,(Sidekick+y_pos).w
 	subi.w	#$20,(Sidekick+x_pos).w
 	addi_.w	#4,(Sidekick+y_pos).w
-	move.b	#ObjID_SpindashDust,(Tails_Dust+id).w ; load Obj08 Tails' spindash dust/splash object at $FFFFD140
+	move.b	#ObjID_SpindashDust,(Tails_Dust+id).w ; load Tails' Obj_SplashDust at $FFFFD140
 +
 	rts
 ; ===========================================================================
@@ -5198,13 +5198,13 @@ InitPlayers_Alone: ; either Sonic or Tails but not both
 	bne.s	InitPlayers_TailsAlone ; branch if this is a Tails alone game
 
 	move.b	#ObjID_Sonic,(MainCharacter+id).w ; load Obj_Sonic at $FFFFB000
-	move.b	#ObjID_SpindashDust,(Sonic_Dust+id).w ; load Obj08 Sonic's spindash dust/splash object at $FFFFD100
+	move.b	#ObjID_SpindashDust,(Sonic_Dust+id).w ; load Sonic's Obj_SplashDust at $FFFFD100
 	rts
 ; ===========================================================================
 ; loc_44D0:
 InitPlayers_TailsAlone:
 	move.b	#ObjID_Tails,(MainCharacter+id).w ; load Obj_Tails object at $FFFFB000
-	move.b	#ObjID_SpindashDust,(Tails_Dust+id).w ; load Obj08 Tails' spindash dust/splash object at $FFFFD100
+	move.b	#ObjID_SpindashDust,(Tails_Dust+id).w ; load Tails' Obj_SplashDust at $FFFFD100
 	addi_.w	#4,(MainCharacter+y_pos).w
 	rts
 ; End of function InitPlayers
@@ -6620,7 +6620,7 @@ SpecialStage:
 	move.l	#0,(Camera_Y_pos_copy).w
 	cmpi.w	#1,(Player_mode).w	; is this a Tails alone game?
 	bgt.s	+			; if yes, branch
-	move.b	#ObjID_SonicSS,(MainCharacter+id).w ; load Obj09 (special stage Sonic)
+	move.b	#ObjID_SonicSS,(MainCharacter+id).w ; load Obj_SSSonic
 	tst.w	(Player_mode).w		; is this a Sonic and Tails game?
 	bne.s	++			; if not, branch
 +	move.b	#ObjID_TailsSS,(Sidekick+id).w ; load Obj10 (special stage Tails)
@@ -29723,9 +29723,9 @@ ObjPtr_TailsTails:	dc.l Obj_TailsTails		; Tails' tails
 ObjPtr_Spiral:		dc.l Obj_Spiral			; Rotating cylinder in MTZ, twisting spiral pathway in EHZ
 ObjPtr_Oil:		dc.l Obj_Oil			; Oil in OOZ
 ObjPtr_SpindashDust:
-ObjPtr_Splash:		dc.l Obj08	; Water splash in Aquatic Ruin Zone, Spindash dust
-ObjPtr_SonicSS:		dc.l Obj09	; Sonic in Special Stage
-ObjPtr_SmallBubbles:	dc.l Obj0A	; Small bubbles from Sonic's face while underwater
+ObjPtr_Splash:		dc.l Obj_SplashDust		; Water splash in Aquatic Ruin Zone, Spindash dust
+ObjPtr_SonicSS:		dc.l Obj_SSSonic		; Sonic in Special Stage
+ObjPtr_SmallBubbles:	dc.l Obj_SmallBubbles		; Small bubbles from Sonic's face while underwater
 ObjPtr_TippingFloor:	dc.l Obj_TippingFloor		; Section of pipe that tips you off from CPZ
 ObjPtr_CPZUnusedPltfm:	dc.l Obj_CPZUnusedPltfm		; Small floating platform (unused)
 ObjPtr_Signpost:	dc.l Obj0D	; End of level signpost
@@ -36068,7 +36068,7 @@ Sonic_RecordPos:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-obj0a_character = objoff_3C
+smallbubbles_character = objoff_3C
 
 ; loc_1A186:
 Sonic_Water:
@@ -36089,9 +36089,9 @@ Sonic_InWater:
 
 	movea.l	a0,a1
 	bsr.w	ResumeMusic
-	move.b	#ObjID_SmallBubbles,(Sonic_BreathingBubbles+id).w ; load Obj0A (Sonic's breathing bubbles) at $FFFFD080
+	move.b	#ObjID_SmallBubbles,(Sonic_BreathingBubbles+id).w ; load Obj_SmallBubbles at $FFFFD080
 	move.b	#$81,(Sonic_BreathingBubbles+subtype).w
-	move.l	a0,(Sonic_BreathingBubbles+obj0a_character).w
+	move.l	a0,(Sonic_BreathingBubbles+smallbubbles_character).w
 	move.w	#$300,(Sonic_top_speed).w
 	move.w	#6,(Sonic_acceleration).w
 	move.w	#$40,(Sonic_deceleration).w
@@ -39208,9 +39208,9 @@ Tails_InWater:
 
 	movea.l	a0,a1
 	bsr.w	ResumeMusic
-	move.b	#ObjID_SmallBubbles,(Tails_BreathingBubbles+id).w ; load Obj0A (tail's breathing bubbles) at $FFFFD0C0
+	move.b	#ObjID_SmallBubbles,(Tails_BreathingBubbles+id).w ; load Obj_SmallBubbles at $FFFFD0C0
 	move.b	#$81,(Tails_BreathingBubbles+subtype).w
-	move.l	a0,(Tails_BreathingBubbles+obj0a_character).w ; set its parent to be this (obj0A uses $3C instead of $3E for some reason)
+	move.l	a0,(Tails_BreathingBubbles+smallbubbles_character).w ; set its parent to be this (Obj_SmallBubbles uses $3C instead of $3E for some reason)
 	move.w	#$300,(Tails_top_speed).w
 	move.w	#6,(Tails_acceleration).w
 	move.w	#$40,(Tails_deceleration).w
@@ -41475,46 +41475,46 @@ TailsTailsAni_Hanging:	dc.b   9,$81,$82,$83,$84,$FF
 
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 0A - Small bubbles from Sonic's face while underwater
-; ----------------------------------------------------------------------------
-obj0a_time_until_freeze             = objoff_2C
-obj0a_current_dplc                  = objoff_2E
-obj0a_original_x_pos                = objoff_30
-obj0a_seconds_between_numbers_timer = objoff_32
-obj0a_seconds_between_numbers       = objoff_33
-obj0a_total_bubbles_to_spawn        = objoff_34
-obj0a_flags                         = objoff_36
-obj0a_timer                         = objoff_38
-obj0a_next_bubble_timer             = objoff_3A
-;obj0a_character                    = objoff_3C
+; ---------------------------------------------------------------------------
+smallbubbles_time_until_freeze      = objoff_2C
+smallbubbles_current_dplc           = objoff_2E
+smallbubbles_original_x_pos         = objoff_30
+smallbubbles_seconds_between_numbers_timer = objoff_32
+smallbubbles_seconds_between_numbers       = objoff_33
+smallbubbles_total_bubbles_to_spawn        = objoff_34
+smallbubbles_flags                  = objoff_36
+smallbubbles_timer                  = objoff_38
+smallbubbles_next_bubble_timer      = objoff_3A
+;smallbubbles_character             = objoff_3C
 
-; Sprite_1D320:
-Obj0A:
+; Sprite_1D320: Obj0A:
+Obj_SmallBubbles:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj0A_Index(pc,d0.w),d1
-	jmp	Obj0A_Index(pc,d1.w)
+	move.w	SmallBubbles_Index(pc,d0.w),d1
+	jmp	SmallBubbles_Index(pc,d1.w)
 ; ===========================================================================
-; off_1D32E: Obj0A_States:
-Obj0A_Index:	offsetTable
-		offsetTableEntry.w Obj0A_Init		;   0
-		offsetTableEntry.w Obj0A_Animate	;   2
-		offsetTableEntry.w Obj0A_ChkWater	;   4
-		offsetTableEntry.w Obj0A_Display	;   6
-		offsetTableEntry.w JmpTo5_DeleteObject	;   8
-		offsetTableEntry.w Obj0A_Countdown	;  $A
-		offsetTableEntry.w Obj0A_AirLeft	;  $C
-		offsetTableEntry.w Obj0A_DisplayNumber	;  $E
-		offsetTableEntry.w JmpTo5_DeleteObject	; $10
+; off_1D32E: Obj0A_States: Obj0A_Index:
+SmallBubbles_Index: offsetTable
+		offsetTableEntry.w SmallBubbles_Init		;   0
+		offsetTableEntry.w SmallBubbles_Animate		;   2
+		offsetTableEntry.w SmallBubbles_ChkWater	;   4
+		offsetTableEntry.w SmallBubbles_Display		;   6
+		offsetTableEntry.w JmpTo5_DeleteObject		;   8
+		offsetTableEntry.w SmallBubbles_Countdown	;  $A
+		offsetTableEntry.w SmallBubbles_AirLeft		;  $C
+		offsetTableEntry.w SmallBubbles_DisplayNumber	;  $E
+		offsetTableEntry.w JmpTo5_DeleteObject		; $10
 ; ===========================================================================
-; loc_1D340: Obj0A_Main:
-Obj0A_Init:
+; loc_1D340: Obj0A_Main: Obj0A_Init:
+SmallBubbles_Init:
 	addq.b	#2,routine(a0) ; Obj0A_Animate
 	; Use different mappings depending on which player the bubbles
 	; are coming from.
 	move.l	#Obj24_MapUnc_1FBF6,mappings(a0)
-	tst.b	obj0a_character+3(a0)
+	tst.b	smallbubbles_character+3(a0)
 	beq.s	+
 	move.l	#Obj24_MapUnc_1FC18,mappings(a0)
 +
@@ -41524,62 +41524,60 @@ Obj0A_Init:
 	move.b	#1,priority(a0)
 	move.b	subtype(a0),d0
 	bpl.s	loc_1D388
-	addq.b	#8,routine(a0) ; Obj0A_Countdown
+	addq.b	#8,routine(a0) ; SmallBubbles_Countdown
 	andi.w	#$7F,d0
 	; Yes, this is actually configurable, but it is normally only ever
 	; set to 2 seconds. The countdown starts at 12 seconds remaining, and
 	; the numbers count from 5 to 0, so 2 seconds is ideal.
-	move.b	d0,obj0a_seconds_between_numbers(a0)
-	bra.w	Obj0A_Countdown
+	move.b	d0,smallbubbles_seconds_between_numbers(a0)
+	bra.w	SmallBubbles_Countdown
 ; ===========================================================================
 
 loc_1D388:
 	move.b	d0,anim(a0)
-	move.w	x_pos(a0),obj0a_original_x_pos(a0)
+	move.w	x_pos(a0),smallbubbles_original_x_pos(a0)
 	move.w	#-$88,y_vel(a0)
-
-; loc_1D398:
-Obj0A_Animate:
-	lea	(Ani_obj0A).l,a1
+; loc_1D398: Obj0A_Animate:
+SmallBubbles_Animate:
+	lea	(Ani_SmallBubbles).l,a1
 	jsr	(AnimateSprite).l
-
-; loc_1D3A4:
-Obj0A_ChkWater:
+; loc_1D3A4: Obj0A_ChkWater:
+SmallBubbles_ChkWater:
 	move.w	(Water_Level_1).w,d0
 	cmp.w	y_pos(a0),d0		; has bubble reached the water surface?
-	blo.s	Obj0A_Wobble		; if not, branch
+	blo.s	SmallBubbles_Wobble	; if not, branch
 	; pop the bubble:
-	move.b	#6,routine(a0) ; Obj0A_Display
+	move.b	#6,routine(a0) ; SmallBubbles_Display
 	addq.b	#7,anim(a0)
 	cmpi.b	#$D,anim(a0)
-	beq.s	Obj0A_Display
-	blo.s	Obj0A_Display
+	beq.s	SmallBubbles_Display
+	blo.s	SmallBubbles_Display
 	move.b	#$D,anim(a0)
-	bra.s	Obj0A_Display
+	bra.s	SmallBubbles_Display
 ; ===========================================================================
-; loc_1D3CA:
-Obj0A_Wobble:
+; loc_1D3CA: Obj0A_Wobble:
+SmallBubbles_Wobble:
 	; If in a wind-tunnel, then make the bubbles move to the right.
 	tst.b	(WindTunnel_flag).w
 	beq.s	+
-	addq.w	#4,obj0a_original_x_pos(a0)
+	addq.w	#4,smallbubbles_original_x_pos(a0)
 +
 	; Wiggle the bubble left and right.
 	move.b	angle(a0),d0
 	addq.b	#1,angle(a0)
 	andi.w	#$7F,d0
-	lea	(Obj0A_WobbleData).l,a1
+	lea	(SmallBubbles_WobbleData).l,a1
 	move.b	(a1,d0.w),d0
 	ext.w	d0
-	add.w	obj0a_original_x_pos(a0),d0
+	add.w	smallbubbles_original_x_pos(a0),d0
 	move.w	d0,x_pos(a0)
 
     if fixBugs
 	; This isn't actually a bugfix: it's just that a later bugfix pushes
 	; this call out of range, so it has to be extended to a word.
-	bsr.w	Obj0A_BecomeNumberMaybe
+	bsr.w	SmallBubbles_BecomeNumberMaybe
     else
-	bsr.s	Obj0A_BecomeNumberMaybe
+	bsr.s	SmallBubbles_BecomeNumberMaybe
     endif
 	jsr	(ObjectMove).l
 	_btst	#render_flags.on_screen,render_flags(a0)
@@ -41590,22 +41588,21 @@ Obj0A_Wobble:
 JmpTo4_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
 ; ===========================================================================
-; loc_1D40E:
-Obj0A_DisplayNumber:
-	movea.l	obj0a_character(a0),a2 ; a2=character
+; loc_1D40E: Obj0A_DisplayNumber:
+SmallBubbles_DisplayNumber:
+	movea.l	smallbubbles_character(a0),a2 ; a2=character
 	cmpi.b	#12,air_left(a2)
 	bhi.s	JmpTo5_DeleteObject
-
-; loc_1D41A:
-Obj0A_Display:
-	bsr.s	Obj0A_BecomeNumberMaybe
-	lea	(Ani_obj0A).l,a1
+; loc_1D41A: Obj0A_Display:
+SmallBubbles_Display:
+	bsr.s	SmallBubbles_BecomeNumberMaybe
+	lea	(Ani_SmallBubbles).l,a1
 	jsr	(AnimateSprite).l
     if fixBugs
 	; If you stand in very shallow water and begin drowning, the
 	; countdown graphics will appear incorrectly. The cause is a missing
-	; call to 'Obj0A_LoadCountdownArt'.
-	bsr.w	Obj0A_LoadCountdownArt
+	; call to 'SmallBubbles_LoadCountdownArt'.
+	bsr.w	SmallBubbles_LoadCountdownArt
     endif
 	jmp	(DisplaySprite).l
 ; ===========================================================================
@@ -41613,22 +41610,22 @@ Obj0A_Display:
 JmpTo5_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
 ; ===========================================================================
-; loc_1D434:
-Obj0A_AirLeft:
-	movea.l	obj0a_character(a0),a2 ; a2=character
+; loc_1D434: Obj0A_AirLeft:
+SmallBubbles_AirLeft:
+	movea.l	smallbubbles_character(a0),a2 ; a2=character
 	cmpi.b	#12,air_left(a2)	; check air remaining
 	bhi.s	JmpTo6_DeleteObject	; if higher than $C, branch
-	subq.w	#1,obj0a_timer(a0)
-	bne.s	Obj0A_Display2
-	move.b	#$E,routine(a0) ; Obj0A_DisplayNumber
+	subq.w	#1,smallbubbles_timer(a0)
+	bne.s	SmallBubbles_Display2
+	move.b	#$E,routine(a0) ; SmallBubbles_DisplayNumber
 	addq.b	#7,anim(a0)
-	bra.s	Obj0A_Display
+	bra.s	SmallBubbles_Display
 ; ===========================================================================
-; loc_1D452:
-Obj0A_Display2:
-	lea	(Ani_obj0A).l,a1
+; loc_1D452: Obj0A_Display2:
+SmallBubbles_Display2:
+	lea	(Ani_SmallBubbles).l,a1
 	jsr	(AnimateSprite).l
-	bsr.w	Obj0A_LoadCountdownArt
+	bsr.w	SmallBubbles_LoadCountdownArt
 	_btst	#render_flags.on_screen,render_flags(a0)
 	_beq.s	JmpTo6_DeleteObject
 	jmp	(DisplaySprite).l
@@ -41637,17 +41634,17 @@ Obj0A_Display2:
 JmpTo6_DeleteObject ; JmpTo
 	jmp	(DeleteObject).l
 ; ===========================================================================
-; loc_1D474: Obj0A_ShowNumber:
-Obj0A_BecomeNumberMaybe:
-	tst.w	obj0a_timer(a0)
+; loc_1D474: Obj0A_ShowNumber: Obj0A_BecomeNumberMaybe:
+SmallBubbles_BecomeNumberMaybe:
+	tst.w	smallbubbles_timer(a0)
 	beq.s	return_1D4BE
-	subq.w	#1,obj0a_timer(a0)
+	subq.w	#1,smallbubbles_timer(a0)
 	bne.s	return_1D4BE
 	cmpi.b	#7,anim(a0)
 	bhs.s	return_1D4BE
 
 	; Turn this bubble into a number.
-	move.w	#15,obj0a_timer(a0)
+	move.w	#15,smallbubbles_timer(a0)
 	clr.w	y_vel(a0)
 	move.b	#1<<render_flags.on_screen,render_flags(a0)
 
@@ -41661,13 +41658,13 @@ Obj0A_BecomeNumberMaybe:
 	addi.w	#$80,d0
 	move.w	d0,y_pixel(a0)
 
-	move.b	#$C,routine(a0) ; Obj0A_AirLeft
+	move.b	#$C,routine(a0) ; SmallBubbles_AirLeft
 
 return_1D4BE:
 	rts
 ; ===========================================================================
-; byte_1D4C0:
-Obj0A_WobbleData:
+; byte_1D4C0: Obj0A_WobbleData:
+SmallBubbles_WobbleData:
 	dc.b  0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2;16
 	dc.b  2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3;32
 	dc.b  3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2;48
@@ -41689,17 +41686,17 @@ Obj0A_WobbleData:
 	dc.b -3,-3,-3,-3,-3,-3,-2,-2,-2,-2,-2,-1,-1,-1,-1,-1;256
 ; ===========================================================================
 ; the countdown numbers go over the dust and splash effect tiles in VRAM
-; loc_1D5C0:
-Obj0A_LoadCountdownArt:
+; loc_1D5C0: Obj0A_LoadCountdownArt:
+SmallBubbles_LoadCountdownArt:
 	moveq	#0,d1
 	move.b	mapping_frame(a0),d1
 	cmpi.b	#8,d1
 	blo.s	return_1D604
 	cmpi.b	#$E,d1
 	bhs.s	return_1D604
-	cmp.b	obj0a_current_dplc(a0),d1
+	cmp.b	smallbubbles_current_dplc(a0),d1
 	beq.s	return_1D604
-	move.b	d1,obj0a_current_dplc(a0)
+	move.b	d1,smallbubbles_current_dplc(a0)
 	subq.w	#8,d1
 	move.w	d1,d0
 	add.w	d1,d1
@@ -41707,7 +41704,7 @@ Obj0A_LoadCountdownArt:
 	lsl.w	#6,d1
 	addi.l	#ArtUnc_Countdown,d1
 	move.w	#tiles_to_bytes(ArtTile_ArtNem_SonicDust),d2
-	tst.b	obj0a_character+3(a0)
+	tst.b	smallbubbles_character+3(a0)
 	beq.s	+
 	move.w	#tiles_to_bytes(ArtTile_ArtNem_TailsDust),d2
 +
@@ -41717,15 +41714,14 @@ Obj0A_LoadCountdownArt:
 return_1D604:
 	rts
 ; ===========================================================================
-
-; loc_1D606:
-Obj0A_Countdown:
-	movea.l	obj0a_character(a0),a2 ; a2=character
+; loc_1D606: Obj0A_Countdown:
+SmallBubbles_Countdown:
+	movea.l	smallbubbles_character(a0),a2 ; a2=character
 
 	; If the player has drowned, and the object is waiting until the
 	; world should pause, then go deal with that.
-	tst.w	obj0a_time_until_freeze(a0)
-	bne.w	Obj0A_PlayerHasDrowned
+	tst.w	smallbubbles_time_until_freeze(a0)
+	bne.w	SmallBubbles_PlayerHasDrowned
 
 	cmpi.b	#6,routine(a2) ; If player is dead, return.
 	bhs.w	return_1D81C
@@ -41733,60 +41729,59 @@ Obj0A_Countdown:
 	beq.w	return_1D81C
 
 	; Wait a second.
-	subq.w	#1,obj0a_timer(a0)
-	bpl.w	Obj0A_MakeBubbleMaybe
-	move.w	#60-1,obj0a_timer(a0)
+	subq.w	#1,smallbubbles_timer(a0)
+	bpl.w	SmallBubbles_MakeBubbleMaybe
+	move.w	#60-1,smallbubbles_timer(a0)
 
-	move.w	#1,obj0a_flags(a0)
+	move.w	#1,smallbubbles_flags(a0)
 
 	; Randomly spawn either one or two bubbles.
 	jsr	(RandomNumber).l
 	andi.w	#1,d0
-	move.b	d0,obj0a_total_bubbles_to_spawn(a0)
+	move.b	d0,smallbubbles_total_bubbles_to_spawn(a0)
 
 	moveq	#0,d0
 	move.b	air_left(a2),d0	; check air remaining
 	cmpi.w	#25,d0
-	beq.s	Obj0A_WarnSound	; play ding sound when there are 25 seconds left
+	beq.s	SmallBubbles_WarnSound	; play ding sound when there are 25 seconds left
 	cmpi.w	#20,d0
-	beq.s	Obj0A_WarnSound	; play ding sound when there are 20 seconds left
+	beq.s	SmallBubbles_WarnSound	; play ding sound when there are 20 seconds left
 	cmpi.w	#15,d0
-	beq.s	Obj0A_WarnSound	; play ding sound when there are 15 seconds left
+	beq.s	SmallBubbles_WarnSound	; play ding sound when there are 15 seconds left
 	cmpi.w	#12,d0
-	bhi.s	Obj0A_ReduceAir	; play drowning theme when there are 12 seconds left
+	bhi.s	SmallBubbles_ReduceAir	; play drowning theme when there are 12 seconds left
 	bne.s	+
 	; Play countdown music if this is player 1.
-	tst.b	obj0a_character+3(a0)
+	tst.b	smallbubbles_character+3(a0)
 	bne.s	+
 	move.w	#MusID_Countdown,d0
 	jsr	(PlayMusic).l
 +
-	subq.b	#1,obj0a_seconds_between_numbers_timer(a0)
-	bpl.s	Obj0A_ReduceAir
-	move.b	obj0a_seconds_between_numbers(a0),obj0a_seconds_between_numbers_timer(a0)
+	subq.b	#1,smallbubbles_seconds_between_numbers_timer(a0)
+	bpl.s	SmallBubbles_ReduceAir
+	move.b	smallbubbles_seconds_between_numbers(a0),smallbubbles_seconds_between_numbers_timer(a0)
 	; Set the flag to create a number.
-	bset	#7,obj0a_flags(a0)
-	bra.s	Obj0A_ReduceAir
+	bset	#7,smallbubbles_flags(a0)
+	bra.s	SmallBubbles_ReduceAir
 ; ===========================================================================
-; loc_1D68C:
-Obj0A_WarnSound:
+; loc_1D68C: Obj0A_WarnSound:
+SmallBubbles_WarnSound:
 	; If this is player 1, then play the "ding-ding" warning sound.
-	tst.b	obj0a_character+3(a0)
-	bne.s	Obj0A_ReduceAir
+	tst.b	smallbubbles_character+3(a0)
+	bne.s	SmallBubbles_ReduceAir
 	move.w	#SndID_WaterWarning,d0
 	jsr	(PlaySound).l
-
-; loc_1D69C:
-Obj0A_ReduceAir:
+; loc_1D69C: Obj0A_ReduceAir:
+SmallBubbles_ReduceAir:
 	subq.b	#1,air_left(a2)		; subtract 1 from air remaining
-	bcc.w	BranchTo_Obj0A_MakeBubbleNow	; if air is above 0, branch
+	bcc.w	BranchTo_SmallBubbles_MakeBubbleNow	; if air is above 0, branch
 	; Drown the player.
 	move.b	#$81,obj_control(a2)	; lock controls
 	move.w	#SndID_Drown,d0
 	jsr	(PlaySound).l		; play drowning sound
-	move.b	#10,obj0a_total_bubbles_to_spawn(a0) ; spawn ten bubbles
-	move.w	#1,obj0a_flags(a0)
-	move.w	#60*2,obj0a_time_until_freeze(a0) ; two seconds until the world pauses
+	move.b	#10,smallbubbles_total_bubbles_to_spawn(a0) ; spawn ten bubbles
+	move.w	#1,smallbubbles_flags(a0)
+	move.w	#60*2,smallbubbles_time_until_freeze(a0) ; two seconds until the world pauses
 	movea.l	a2,a1
 	bsr.w	ResumeMusic
 	move.l	a0,-(sp)
@@ -41798,16 +41793,16 @@ Obj0A_ReduceAir:
 	move.w	#0,y_vel(a0)
 	move.w	#0,x_vel(a0)
 	move.w	#0,inertia(a0)
-	movea.l	(sp)+,a0 ; load 0bj address ; restore a0 = obj0A
+	movea.l	(sp)+,a0 ; load 0bj address ; restore a0 = Obj_SmallBubbles
 	cmpa.w	#MainCharacter,a2
 	bne.s	+	; if it isn't player 1, branch
 	move.b	#1,(Deform_lock).w
 +
 	rts
 ; ===========================================================================
-; loc_1D708:
-Obj0A_PlayerHasDrowned:
-	subq.w	#1,obj0a_time_until_freeze(a0)
+; loc_1D708: Obj0A_PlayerHasDrowned:
+SmallBubbles_PlayerHasDrowned:
+	subq.w	#1,smallbubbles_time_until_freeze(a0)
 	bne.s	+
 	; Signal that the player is dead.
 	move.b	#6,routine(a2)
@@ -41819,29 +41814,28 @@ Obj0A_PlayerHasDrowned:
 	jsr	(ObjectMove).l
 	addi.w	#$10,y_vel(a0)
 	movea.l	(sp)+,a0 ; load 0bj address
-	bra.s	Obj0A_MakeBubbleMaybe
+	bra.s	SmallBubbles_MakeBubbleMaybe
 ; ===========================================================================
-; BranchTo_Obj0A_MakeItem
-BranchTo_Obj0A_MakeBubbleNow ; BranchTo
-	bra.s	Obj0A_MakeBubbleNow
+; BranchTo_Obj0A_MakeItem BranchTo_Obj0A_MakeBubbleNow
+BranchTo_SmallBubbles_MakeBubbleNow ; BranchTo
+	bra.s	SmallBubbles_MakeBubbleNow
 ; ===========================================================================
-;loc_1D72C:
-Obj0A_MakeBubbleMaybe:
-	tst.w	obj0a_flags(a0)
+; loc_1D72C: Obj0A_MakeBubbleMaybe:
+SmallBubbles_MakeBubbleMaybe:
+	tst.w	smallbubbles_flags(a0)
 	beq.w	return_1D81C
-	subq.w	#1,obj0a_next_bubble_timer(a0)
+	subq.w	#1,smallbubbles_next_bubble_timer(a0)
 	bpl.w	return_1D81C
-
-; loc_1D73C: Obj0A_MakeItem:
-Obj0A_MakeBubbleNow:
+; loc_1D73C: Obj0A_MakeItem: Obj0A_MakeBubbleNow:
+SmallBubbles_MakeBubbleNow:
 	jsr	(RandomNumber).l
 	andi.w	#$F,d0
 	addq.w	#8,d0
-	move.w	d0,obj0a_next_bubble_timer(a0)
+	move.w	d0,smallbubbles_next_bubble_timer(a0)
 
 	jsr	(AllocateObject).l
 	bne.w	return_1D81C
-	_move.b	id(a0),id(a1)		; load obj0A
+	_move.b	id(a0),id(a1)		; load Obj_SmallBubbles
 	move.w	x_pos(a2),x_pos(a1)	; match its X position to Sonic
 	moveq	#6,d0
 	btst	#status.player.x_flip,status(a2)
@@ -41851,17 +41845,17 @@ Obj0A_MakeBubbleNow:
 +
 	add.w	d0,x_pos(a1)
 	move.w	y_pos(a2),y_pos(a1)
-	move.l	obj0a_character(a0),obj0a_character(a1)
+	move.l	smallbubbles_character(a0),smallbubbles_character(a1)
 	move.b	#6,subtype(a1)	; Small bubble?
 
-	tst.w	obj0a_time_until_freeze(a0)
-	beq.w	Obj0A_MakeNumberBubbleMaybe
+	tst.w	smallbubbles_time_until_freeze(a0)
+	beq.w	SmallBubbles_MakeNumberBubbleMaybe
 
 	; The player has drowned.
 
 	; Shorten bubble timer, to make bubbles spawn faster.
-	andi.w	#7,obj0a_next_bubble_timer(a0)
-	addi.w	#0,obj0a_next_bubble_timer(a0)	; Pointless
+	andi.w	#7,smallbubbles_next_bubble_timer(a0)
+	addi.w	#0,smallbubbles_next_bubble_timer(a0)	; Pointless
 
 	move.w	y_pos(a2),d0
 	subi.w	#12,d0
@@ -41872,46 +41866,46 @@ Obj0A_MakeBubbleNow:
 
 	move.w	(Level_frame_counter).w,d0
 	andi.b	#3,d0
-	bne.s	Obj0A_DoneCreatingBubble
+	bne.s	SmallBubbles_DoneCreatingBubble
 
 	move.b	#$E,subtype(a1)	; Big bubble?
-	bra.s	Obj0A_DoneCreatingBubble
+	bra.s	SmallBubbles_DoneCreatingBubble
 ; ---------------------------------------------------------------------------
-; loc_1D7C6:
-Obj0A_MakeNumberBubbleMaybe:
+; loc_1D7C6: Obj0A_MakeNumberBubbleMaybe:
+SmallBubbles_MakeNumberBubbleMaybe:
 	; The player has not drowned.
 
 	; If it's not time to create a number bubble, then skip this.
-	btst	#7,obj0a_flags(a0)
-	beq.s	Obj0A_DoneCreatingBubble
+	btst	#7,smallbubbles_flags(a0)
+	beq.s	SmallBubbles_DoneCreatingBubble
 
 	moveq	#0,d2
 	move.b	air_left(a2),d2
 	cmpi.b	#12,d2
-	bhs.s	Obj0A_DoneCreatingBubble
+	bhs.s	SmallBubbles_DoneCreatingBubble
 
 	; This player is about to drown.
 	lsr.w	#1,d2
 	jsr	(RandomNumber).l
 	andi.w	#3,d0
 	bne.s	+
-	bset	#6,obj0a_flags(a0) ; This flag prevents more than one number bubble from spawning at once.
-	bne.s	Obj0A_DoneCreatingBubble
+	bset	#6,smallbubbles_flags(a0) ; This flag prevents more than one number bubble from spawning at once.
+	bne.s	SmallBubbles_DoneCreatingBubble
 	move.b	d2,subtype(a1)
-	move.w	#28,obj0a_timer(a1) ; Make this bubble turn into a number later.
+	move.w	#28,smallbubbles_timer(a1) ; Make this bubble turn into a number later.
 +
-	tst.b	obj0a_total_bubbles_to_spawn(a0)
-	bne.s	Obj0A_DoneCreatingBubble
-	bset	#6,obj0a_flags(a0) ; This flag prevents more than one number bubble from spawning at once.
-	bne.s	Obj0A_DoneCreatingBubble
+	tst.b	smallbubbles_total_bubbles_to_spawn(a0)
+	bne.s	SmallBubbles_DoneCreatingBubble
+	bset	#6,smallbubbles_flags(a0) ; This flag prevents more than one number bubble from spawning at once.
+	bne.s	SmallBubbles_DoneCreatingBubble
 	move.b	d2,subtype(a1)
-	move.w	#28,obj0a_timer(a1) ; Make this bubble turn into a number later.
-; loc_1D812:
-Obj0A_DoneCreatingBubble:
-	subq.b	#1,obj0a_total_bubbles_to_spawn(a0)
+	move.w	#28,smallbubbles_timer(a1) ; Make this bubble turn into a number later.
+; loc_1D812: Obj0A_DoneCreatingBubble:
+SmallBubbles_DoneCreatingBubble:
+	subq.b	#1,smallbubbles_total_bubbles_to_spawn(a0)
 	bpl.s	return_1D81C
 	; Don't spawn any more bubbles.
-	clr.w	obj0a_flags(a0)
+	clr.w	smallbubbles_flags(a0)
 
 return_1D81C:
 	rts
@@ -41953,8 +41947,8 @@ ResumeMusic_Done:
 
 ; ===========================================================================
 ; animation script for the bubbles
-; off_1D860:
-Ani_obj0A:	offsetTable
+; off_1D860: Ani_obj0A:
+Ani_SmallBubbles: offsetTable
 		offsetTableEntry.w byte_1D87E	;  0
 		offsetTableEntry.w byte_1D887	;  1
 		offsetTableEntry.w byte_1D890	;  2
@@ -42283,110 +42277,108 @@ MapUnc_InvStars:	include "mappings/sprite/Invincibility stars.asm"
 ; Object 08 - Water splash in Aquatic Ruin Zone, Spindash dust
 ; ----------------------------------------------------------------------------
 
-obj08_previous_frame = objoff_30
-obj08_dust_timer = objoff_32
-obj08_belongs_to_tails = objoff_34
-obj08_vram_address = objoff_3C
+splashdust_previous_frame = objoff_30
+splashdust_dust_timer = objoff_32
+splashdust_belongs_to_tails = objoff_34
+splashdust_vram_address = objoff_3C
 
-; Sprite_1DD20:
-Obj08:
+; Sprite_1DD20: Obj08:
+Obj_SplashDust:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj08_Index(pc,d0.w),d1
-	jmp	Obj08_Index(pc,d1.w)
+	move.w	SplashDust_Index(pc,d0.w),d1
+	jmp	SplashDust_Index(pc,d1.w)
 ; ===========================================================================
-; off_1DD2E:
-Obj08_Index:	offsetTable
-		offsetTableEntry.w Obj08_Init			; 0
-		offsetTableEntry.w Obj08_Main			; 2
+; off_1DD2E: Obj08_Index:
+SplashDust_Index: offsetTable
+		offsetTableEntry.w SplashDust_Init		; 0
+		offsetTableEntry.w SplashDust_Main		; 2
 		offsetTableEntry.w BranchTo16_DeleteObject	; 4
-		offsetTableEntry.w Obj08_CheckSkid		; 6
+		offsetTableEntry.w SplashDust_CheckSkid		; 6
 ; ===========================================================================
-; loc_1DD36:
-Obj08_Init:
+; loc_1DD36: Obj08_Init:
+SplashDust_Init:
 	addq.b	#2,routine(a0)
-	move.l	#Obj08_MapUnc_1DF5E,mappings(a0)
+	move.l	#MapUnc_SplashDust,mappings(a0)
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#1,priority(a0)
 	move.b	#$10,width_pixels(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_SonicDust,0,0),art_tile(a0)
 	move.w	#MainCharacter,parent(a0)
-	move.w	#tiles_to_bytes(ArtTile_ArtNem_SonicDust),obj08_vram_address(a0)
+	move.w	#tiles_to_bytes(ArtTile_ArtNem_SonicDust),splashdust_vram_address(a0)
 	cmpa.w	#Sonic_Dust,a0
 	beq.s	+
-	move.b	#1,obj08_belongs_to_tails(a0)
+	move.b	#1,splashdust_belongs_to_tails(a0)
 	cmpi.w	#2,(Player_mode).w
 	beq.s	+
 	move.w	#make_art_tile(ArtTile_ArtNem_TailsDust,0,0),art_tile(a0)
 	move.w	#Sidekick,parent(a0)
-	move.w	#tiles_to_bytes(ArtTile_ArtNem_TailsDust),obj08_vram_address(a0)
+	move.w	#tiles_to_bytes(ArtTile_ArtNem_TailsDust),splashdust_vram_address(a0)
 +
 	bsr.w	Adjust2PArtPointer
-
-; loc_1DD90:
-Obj08_Main:
+; loc_1DD90: Obj08_Main:
+SplashDust_Main:
 	movea.w	parent(a0),a2 ; a2=character
 	moveq	#0,d0
 	move.b	anim(a0),d0	; use current animation as a secondary routine counter
 	add.w	d0,d0
-	move.w	Obj08_DisplayModes(pc,d0.w),d1
-	jmp	Obj08_DisplayModes(pc,d1.w)
+	move.w	SplashDust_DisplayModes(pc,d0.w),d1
+	jmp	SplashDust_DisplayModes(pc,d1.w)
 ; ===========================================================================
-; off_1DDA4:
-Obj08_DisplayModes: offsetTable
-	offsetTableEntry.w Obj08_Display	; 0
-	offsetTableEntry.w Obj08_MdSplash	; 2
-	offsetTableEntry.w Obj08_MdSpindashDust	; 4
-	offsetTableEntry.w Obj08_MdSkidDust	; 6
+; off_1DDA4: Obj08_DisplayModes:
+SplashDust_DisplayModes: offsetTable
+	offsetTableEntry.w SplashDust_Display		; 0
+	offsetTableEntry.w SplashDust_MdSplash		; 2
+	offsetTableEntry.w SplashDust_MdSpindashDust	; 4
+	offsetTableEntry.w SplashDust_MdSkidDust	; 6
 ; ===========================================================================
-; loc_1DDAC:
-Obj08_MdSplash:
+; loc_1DDAC: Obj08_MdSplash:
+SplashDust_MdSplash:
 	move.w	(Water_Level_1).w,y_pos(a0)
 	tst.b	prev_anim(a0)
-	bne.s	Obj08_Display
+	bne.s	SplashDust_Display
 	move.w	x_pos(a2),x_pos(a0)
 	move.b	#0,status(a0)
 	andi.w	#drawing_mask,art_tile(a0)
-	bra.s	Obj08_Display
+	bra.s	SplashDust_Display
 ; ===========================================================================
-; loc_1DDCC:
-Obj08_MdSpindashDust:
+; loc_1DDCC: Obj08_MdSpindashDust:
+SplashDust_MdSpindashDust:
 	cmpi.b	#12,air_left(a2)
-	blo.s	Obj08_ResetDisplayMode
+	blo.s	SplashDust_ResetDisplayMode
 	cmpi.b	#4,routine(a2)
-	bhs.s	Obj08_ResetDisplayMode
+	bhs.s	SplashDust_ResetDisplayMode
 	tst.b	spindash_flag(a2)
-	beq.s	Obj08_ResetDisplayMode
+	beq.s	SplashDust_ResetDisplayMode
 	move.w	x_pos(a2),x_pos(a0)
 	move.w	y_pos(a2),y_pos(a0)
 	move.b	status(a2),status(a0)
 	andi.b	#1<<status.npc.x_flip,status(a0)
-	tst.b	obj08_belongs_to_tails(a0)
+	tst.b	splashdust_belongs_to_tails(a0)
 	beq.s	+
 	subi_.w	#4,y_pos(a0)	; Tails is shorter than Sonic
 +
 	tst.b	prev_anim(a0)
-	bne.s	Obj08_Display
+	bne.s	SplashDust_Display
 	andi.w	#drawing_mask,art_tile(a0)
 	tst.w	art_tile(a2)
-	bpl.s	Obj08_Display
+	bpl.s	SplashDust_Display
 	ori.w	#high_priority,art_tile(a0)
-	bra.s	Obj08_Display
+	bra.s	SplashDust_Display
 ; ===========================================================================
-; loc_1DE20:
-Obj08_MdSkidDust:
+; loc_1DE20: Obj08_MdSkidDust:
+SplashDust_MdSkidDust:
 	cmpi.b	#12,air_left(a2)
-	blo.s	Obj08_ResetDisplayMode
-
-; loc_1DE28:
-Obj08_Display:
-	lea	(Ani_obj08).l,a1
+	blo.s	SplashDust_ResetDisplayMode
+; loc_1DE28: Obj08_Display:
+SplashDust_Display:
+	lea	(Ani_SplashDust).l,a1
 	jsr	(AnimateSprite).l
-	bsr.w	Obj08_LoadDustOrSplashArt
+	bsr.w	SplashDust_LoadDustOrSplashArt
 	jmp	(DisplaySprite).l
 ; ===========================================================================
-; loc_1DE3E:
-Obj08_ResetDisplayMode:
+; loc_1DE3E: Obj08_ResetDisplayMode:
+SplashDust_ResetDisplayMode:
 	move.b	#0,anim(a0)
 	rts
 ; ===========================================================================
@@ -42394,27 +42386,27 @@ Obj08_ResetDisplayMode:
 BranchTo16_DeleteObject ; BranchTo
 	bra.w	DeleteObject
 ; ===========================================================================
-; loc_1DE4A:
-Obj08_CheckSkid:
+; loc_1DE4A: Obj08_CheckSkid:
+SplashDust_CheckSkid:
 	movea.w	parent(a0),a2 ; a2=character
 	cmpi.b	#AniIDSonAni_Stop,anim(a2)	; SonAni_Stop
-	beq.s	Obj08_SkidDust
+	beq.s	SplashDust_SkidDust
 	move.b	#2,routine(a0)
-	move.b	#0,obj08_dust_timer(a0)
+	move.b	#0,splashdust_dust_timer(a0)
 	rts
 ; ===========================================================================
-; loc_1DE64:
-Obj08_SkidDust:
-	subq.b	#1,obj08_dust_timer(a0)
+; loc_1DE64: Obj08_SkidDust:
+SplashDust_SkidDust:
+	subq.b	#1,splashdust_dust_timer(a0)
 	bpl.s	loc_1DEE0
-	move.b	#3,obj08_dust_timer(a0)
+	move.b	#3,splashdust_dust_timer(a0)
 	bsr.w	AllocateObject
 	bne.s	loc_1DEE0
-	_move.b	id(a0),id(a1) ; load obj08
+	_move.b	id(a0),id(a1) ; load Obj_SplashDust
 	move.w	x_pos(a2),x_pos(a1)
 	move.w	y_pos(a2),y_pos(a1)
 	addi.w	#$10,y_pos(a1)
-	tst.b	obj08_belongs_to_tails(a0)
+	tst.b	splashdust_belongs_to_tails(a0)
 	beq.s	+
 	subi_.w	#4,y_pos(a1)	; Tails is shorter than Sonic
 +
@@ -42433,23 +42425,23 @@ Obj08_SkidDust:
 	ori.w	#high_priority,art_tile(a1)
 
 loc_1DEE0:
-	bsr.s	Obj08_LoadDustOrSplashArt
+	bsr.s	SplashDust_LoadDustOrSplashArt	; useless branch and return...
 	rts
 ; ===========================================================================
-; loc_1DEE4:
-Obj08_LoadDustOrSplashArt:
+; loc_1DEE4: Obj08_LoadDustOrSplashArt:
+SplashDust_LoadDustOrSplashArt:
 	moveq	#0,d0
 	move.b	mapping_frame(a0),d0
-	cmp.b	obj08_previous_frame(a0),d0
+	cmp.b	splashdust_previous_frame(a0),d0
 	beq.s	return_1DF36
-	move.b	d0,obj08_previous_frame(a0)
-	lea	(Obj08_MapRUnc_1E074).l,a2
+	move.b	d0,splashdust_previous_frame(a0)
+	lea	(MapRUnc_SplashDust).l,a2
 	add.w	d0,d0
 	adda.w	(a2,d0.w),a2
 	move.w	(a2)+,d5
 	subq.w	#1,d5
 	bmi.s	return_1DF36
-	move.w	obj08_vram_address(a0),d4
+	move.w	splashdust_vram_address(a0),d4
 
 -	moveq	#0,d1
 	move.w	(a2)+,d1
@@ -42470,28 +42462,34 @@ return_1DF36:
 	rts
 ; ===========================================================================
 ; animation script
-; off_1DF38:
-Ani_obj08:	offsetTable
-		offsetTableEntry.w Obj08Ani_Null	; 0
-		offsetTableEntry.w Obj08Ani_Splash	; 1
-		offsetTableEntry.w Obj08Ani_Dash	; 2
-		offsetTableEntry.w Obj08Ani_Skid	; 3
-Obj08Ani_Null:	dc.b $1F,  0,$FF
+; off_1DF38: Ani_obj08:
+Ani_SplashDust:	offsetTable
+		offsetTableEntry.w SplashDustAni_Null	; 0
+		offsetTableEntry.w SplashDustAni_Splash	; 1
+		offsetTableEntry.w SplashDustAni_Dash	; 2
+		offsetTableEntry.w SplashDustAni_Skid	; 3
+; Obj08Ani_Null:
+SplashDustAni_Null:	dc.b $1F,  0,$FF
 	rev02even
-Obj08Ani_Splash:dc.b   3,  1,  2,  3,  4,  5,  6,  7,  8,  9,$FD,  0
+; Obj08Ani_Splash:
+SplashDustAni_Splash:	dc.b   3,  1,  2,  3,  4,  5,  6,  7,  8,  9,$FD,  0
 	rev02even
-Obj08Ani_Dash:	dc.b   1, $A, $B, $C, $D, $E, $F,$10,$FF
+; Obj08Ani_Dash:
+SplashDustAni_Dash:	dc.b   1, $A, $B, $C, $D, $E, $F,$10,$FF
 	rev02even
-Obj08Ani_Skid:	dc.b   3,$11,$12,$13,$14,$FC
+; Obj08Ani_Skid:
+SplashDustAni_Skid:	dc.b   3,$11,$12,$13,$14,$FC
 	even
 ; ---------------------------------------------------------------------------
 ; sprite mappings
 ; ---------------------------------------------------------------------------
-Obj08_MapUnc_1DF5E:	include "mappings/sprite/obj08.asm"
+; Obj08_MapUnc_1DF5E:
+MapUnc_SplashDust:	include "mappings/sprite/Water splash and dust.asm"
 ; ---------------------------------------------------------------------------
 ; dynamic pattern loading cues
 ; ---------------------------------------------------------------------------
-Obj08_MapRUnc_1E074:	include "mappings/spriteDPLC/obj08.asm"
+; Obj08_MapRUnc_1E074:
+MapRUnc_SplashDust:	include "mappings/spriteDPLC/Water splash and dust.asm"
 
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -44825,7 +44823,7 @@ loc_1F956:
 	move.b	angle(a0),d0
 	addq.b	#1,angle(a0)
 	andi.w	#$7F,d0
-	lea	(Obj0A_WobbleData).l,a1
+	lea	(SmallBubbles_WobbleData).l,a1
 	move.b	(a1,d0.w),d0
 	ext.w	d0
 	add.w	objoff_30(a0),d0
@@ -68487,21 +68485,21 @@ Obj55_MapUnc_33756:	include "mappings/sprite/obj55.asm"
 ; ---------------------------------------------------------------------------
 ; Object 09 - Sonic in Special Stage
 ; ---------------------------------------------------------------------------
-; Sprite_338EC:
-Obj09:
+; Sprite_338EC: Obj09:
+Obj_SSSonic:
 	bsr.w	loc_33908
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj09_Index(pc,d0.w),d1
-	jmp	Obj09_Index(pc,d1.w)
+	move.w	SSSonic_Index(pc,d0.w),d1
+	jmp	SSSonic_Index(pc,d1.w)
 ; ===========================================================================
-; off_338FE:
-Obj09_Index:	offsetTable
-		offsetTableEntry.w Obj09_Init	; 0
-		offsetTableEntry.w Obj09_MdNormal	; 2
-		offsetTableEntry.w Obj09_MdJump	; 4
-		offsetTableEntry.w Obj09_Index	; 6 - invalid
-		offsetTableEntry.w Obj09_MdAir	; 8
+; off_338FE: Obj09_Index:
+SSSonic_Index:	offsetTable
+		offsetTableEntry.w SSSonic_Init		; 0
+		offsetTableEntry.w SSSonic_MdNormal	; 2
+		offsetTableEntry.w SSSonic_MdJump	; 4
+		offsetTableEntry.w SSSonic_Index	; 6 - invalid
+		offsetTableEntry.w SSSonic_MdAir	; 8
 ; ===========================================================================
 
 loc_33908:
@@ -68514,8 +68512,8 @@ loc_33908:
 	move.w	(Ctrl_1_Logical).w,-(a1)
 	rts
 ; ===========================================================================
-; loc_3391C:
-Obj09_Init:
+; loc_3391C: Obj09_Init:
+SSSonic_Init:
 	move.b	#2,routine(a0)
 	moveq	#0,d0
 	move.l	d0,ss_x_pos(a0)
@@ -68553,10 +68551,10 @@ Obj09_Init:
 	move.l	a0,ss_parent(a1)
 	bra.w	LoadSSSonicDynPLC
 ; ===========================================================================
-
-Obj09_MdNormal:
+; loc_339D6: Obj09_MdNormal:
+SSSonic_MdNormal:
 	tst.b	routine_secondary(a0)
-	bne.s	Obj09_Hurt
+	bne.s	SSSonic_Hurt
 	lea	(Ctrl_1_Held_Logical).w,a2
 	bsr.w	SSPlayer_Move
 	bsr.w	SSPlayer_Traction
@@ -68570,15 +68568,15 @@ Obj09_MdNormal:
 	bsr.w	SSPlayer_Collision
 	bra.w	LoadSSSonicDynPLC
 ; ===========================================================================
-
-Obj09_Hurt:
+; loc_33A0E: Obj09_Hurt:
+SSSonic_Hurt:
 	bsr.w	SSHurt_Animation
 	bsr.w	SSPlayerSwapPositions
 	bsr.w	SSObjectMove
 	bsr.w	SSAnglePos
 	bra.w	LoadSSSonicDynPLC
 ; ===========================================================================
-
+; loc_33A22:
 SSHurt_Animation:
 	moveq	#0,d0
 	move.b	ss_hurt_timer(a0),d0
@@ -68633,7 +68631,7 @@ dword_33AA2:
 	dc.l   (SSRAM_ArtNem_SpecialSonicAndTails & $FFFFFF) + tiles_to_bytes($124)		; Sonic in horizontal position, $4D tiles
 	dc.l   (SSRAM_ArtNem_SpecialSonicAndTails & $FFFFFF) + tiles_to_bytes($171)		; Sonic in ball form, $12 tiles
 ; ===========================================================================
-
+; loc_33AB2:
 LoadSSSonicDynPLC:
 	move.b	ss_dplc_timer(a0),d0
 	beq.s	+
@@ -68649,7 +68647,7 @@ LoadSSSonicDynPLC:
 	lea	(Sonic_LastLoadedDPLC).w,a4
 	move.w	#tiles_to_bytes(ArtTile_ArtNem_SpecialSonic),d4
 	moveq	#0,d1
-
+; loc_33AD8:
 LoadSSPlayerDynPLC:
 	moveq	#0,d0
 	move.b	mapping_frame(a0),d0
@@ -68676,7 +68674,7 @@ loc_33AFE:
 	move.w	(a2)+,d5
 	subq.w	#1,d5
 	bmi.s	return_33B3E
-
+; loc_33B16:
 SSPLC_ReadEntry:
 	moveq	#0,d1
 	move.w	(a2)+,d1
@@ -68696,10 +68694,10 @@ SSPLC_ReadEntry:
 return_33B3E:
 	rts
 ; ===========================================================================
-
+; loc_33B40:
 SSSonic_Jump:
 	lea	(Ctrl_1_Press_Logical).w,a2
-
+; loc_33B44:
 SSPlayer_Jump:
 	move.b	(a2),d0
 	andi.b	#button_B_mask|button_C_mask|button_A_mask,d0
@@ -68737,8 +68735,8 @@ loc_33BA2:
 return_33BAC:
 	rts
 ; ===========================================================================
-
-Obj09_MdJump:
+; loc_33BAE: Obj09_MdJump:
+SSSonic_MdJump:
 	lea	(Ctrl_1_Held_Logical).w,a2
 	bsr.w	SSPlayer_ChgJumpDir
 	bsr.w	SSObjectMoveAndFall
@@ -68750,8 +68748,8 @@ Obj09_MdJump:
 	bsr.w	SSPlayer_Animate
 	bra.w	LoadSSSonicDynPLC
 ; ===========================================================================
-
-Obj09_MdAir:
+; loc_33BD8: Obj09_MdAir:
+SSSonic_MdAir:
 	lea	(Ctrl_1_Held_Logical).w,a2
 	bsr.w	SSPlayer_ChgJumpDir
 	bsr.w	SSObjectMoveAndFall
@@ -68764,7 +68762,7 @@ Obj09_MdAir:
 	bsr.w	SSPlayer_Animate
 	bra.w	LoadSSSonicDynPLC
 ; ===========================================================================
-
+; loc_33C06:
 SSObjectMoveAndFall:
 	move.l	ss_x_pos(a0),d2
 	move.l	ss_y_pos(a0),d3
@@ -68781,7 +68779,7 @@ SSObjectMoveAndFall:
 	move.l	d3,ss_y_pos(a0)
 	rts
 ; ===========================================================================
-
+; loc_33C32:
 SSPlayer_ChgJumpDir:
 	move.b	(a2),d0
 	btst	#button_left,d0
@@ -68798,7 +68796,7 @@ SSPlayer_ChgJumpDir:
 	addi.w	#$40,x_vel(a0)
 	rts
 ; ===========================================================================
-
+; loc_33C54:
 SSPlayer_JumpAngle:
 	moveq	#0,d2
 	moveq	#0,d3
@@ -68846,7 +68844,7 @@ SSPlayer_JumpAngle:
 	move.b	d2,angle(a0)
 	rts
 ; ===========================================================================
-
+; loc_33CB4:
 SSPlayer_JumpAngle_above_screen:
 	neg.w	d2
 	move.w	ss_x_pos(a0),d3
@@ -68924,7 +68922,7 @@ byte_33D32:
 	dc.b $80,  0	; 128
 	even
 ; ===========================================================================
-
+; loc_33DB4:
 SSPlayer_DoLevelCollision:
 	move.w	ss_y_pos(a0),d0
 	ble.s	+
@@ -68949,7 +68947,7 @@ SSPlayer_DoLevelCollision:
 +
 	rts
 ; ===========================================================================
-
+; loc_33DFC:
 SSPlayer_Collision:
 	tst.b	collision_property(a0)
 	beq.s	return_33E42
@@ -68979,7 +68977,7 @@ loc_33E38:
 return_33E42:
 	rts
 ; ===========================================================================
-
+; loc_33E44:
 SSPlayerSwapPositions:
 	tst.w	(Player_mode).w
 	bne.s	return_33E8E
@@ -69033,7 +69031,7 @@ byte_33E90:
 	dc.b	ss_make_direction_bitfield( TRUE, FALSE), ss_make_direction_bitfield( TRUE,  TRUE)	; 12
 	dc.b	ss_make_direction_bitfield(FALSE,  TRUE), ss_make_direction_bitfield( TRUE, FALSE)	; 14
 ; ===========================================================================
-
+; loc_33EA0:
 SSPlayer_SetAnimation:
 	btst	#status.player.ss.jumping,status(a0)
 	beq.s	+
@@ -69070,7 +69068,7 @@ loc_33EF8:
 return_33EFE:
 	rts
 ; ===========================================================================
-
+; loc_33F00:
 SSPlayer_Animate:
 	moveq	#0,d0
 	move.b	anim(a0),d0
@@ -69079,7 +69077,7 @@ SSPlayer_Animate:
 	move.b	#0,anim_frame(a0)
 	move.b	d0,prev_anim(a0)
 	move.b	#0,anim_frame_duration(a0)
-
+; loc_33F1C:
 SSAnim_Do:
 	subq.b	#1,anim_frame_duration(a0)
 	bpl.s	SSAnim_Delay
@@ -69110,11 +69108,11 @@ SSAnim_Do:
 	andi.b	#~(1<<render_flags.x_flip|1<<render_flags.y_flip),render_flags(a0)
 	or.b	d1,render_flags(a0)
 	addq.b	#1,anim_frame(a0)
-
+; return_33F88:
 SSAnim_Delay:
 	rts
 ; ===========================================================================
-
+; loc_33F8A:
 SSPlayer_Move:
 	move.w	inertia(a0),d2
 	move.b	(a2),d0
@@ -69149,7 +69147,7 @@ SSPlayer_Move:
 +
 	rts
 ; ===========================================================================
-
+; loc_33FDC:
 SSPlayer_MoveLeft:
 	addi.w	#$60,d2
 	cmpi.w	#$600,d2
@@ -69157,7 +69155,7 @@ SSPlayer_MoveLeft:
 	move.w	#$600,d2
 	bra.s	+
 ; ===========================================================================
-
+; loc_33FEC:
 SSPlayer_MoveRight:
 	subi.w	#$60,d2
 	cmpi.w	#-$600,d2
@@ -69169,7 +69167,7 @@ SSPlayer_MoveRight:
 	clr.b	ss_slide_timer(a0)
 	rts
 ; ===========================================================================
-
+; loc_3400A:
 SSPlayer_Traction:
 	tst.b	ss_slide_timer(a0)
 	bne.s	+
@@ -69192,7 +69190,7 @@ SSPlayer_Traction:
 return_34048:
 	rts
 ; ===========================================================================
-
+; loc_3404A:
 SSObjectMove:
 	moveq	#0,d0
 	moveq	#0,d1
@@ -69217,7 +69215,7 @@ SSObjectMove:
 	move.w	d0,ss_y_pos(a0)
 	rts
 ; ===========================================================================
-
+; loc_34084:
 SSAnglePos:
 	move.w	ss_x_pos(a0),d0
 	muls.w	#$CC,d0
@@ -74644,7 +74642,7 @@ Obj9D_Climbing:
 	subq.b	#1,Obj9D_timer(a0)
 	beq.s	Obj9D_StopClimbing	; branch, if done moving
 	jsrto	JmpTo26_ObjectMove	; else, keep moving
-	lea	(Ani_obj09).l,a1
+	lea	(Ani_obj9D).l,a1
 	jsrto	JmpTo25_AnimateSprite
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
@@ -74725,7 +74723,7 @@ Obj9D_SubObjData:
 
 ; animation script
 ; off_37D88:
-Ani_obj09:	offsetTable
+Ani_obj9D:	offsetTable
 		offsetTableEntry.w byte_37D8C	; 0
 		offsetTableEntry.w byte_37D90	; 1
 byte_37D8C:	dc.b   5,  0,  1,$FF
@@ -88317,8 +88315,8 @@ DbgObjList_HTZ: dbglistheader
 	dbglistobj ObjID_HTZLift,	Obj16_MapUnc_21F14,   0,   0, make_art_tile(ArtTile_ArtNem_HtzZipline,2,0)
 	dbglistobj ObjID_BridgeStake,	Obj16_MapUnc_21F14,   4,   3, make_art_tile(ArtTile_ArtNem_HtzZipline,2,0)
 	dbglistobj ObjID_BridgeStake,	Obj16_MapUnc_21F14,   5,   4, make_art_tile(ArtTile_ArtNem_HtzZipline,2,0)
-	dbglistobj ObjID_Scenery,	Obj1C_MapUnc_113D6,   7,   0, make_art_tile(ArtTile_ArtKos_LevelArt,2,0)
-	dbglistobj ObjID_Scenery,	Obj1C_MapUnc_113D6,   8,   1, make_art_tile(ArtTile_ArtKos_LevelArt,2,0)
+	dbglistobj ObjID_Scenery,	MapUnc_Scenery_EHZHTZGround,   7,   0, make_art_tile(ArtTile_ArtKos_LevelArt,2,0)
+	dbglistobj ObjID_Scenery,	MapUnc_Scenery_EHZHTZGround,   8,   1, make_art_tile(ArtTile_ArtKos_LevelArt,2,0)
 	dbglistobj ObjID_BreakableRock,	Obj32_MapUnc_23852,   0,   0, make_art_tile(ArtTile_ArtNem_HtzRock,2,0)
 	dbglistobj ObjID_LavaMarker,	MapUnc_LavaMarker,   0,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
 	dbglistobj ObjID_LavaMarker,	MapUnc_LavaMarker,   1,   1, make_art_tile(ArtTile_ArtNem_Powerups,0,1)
