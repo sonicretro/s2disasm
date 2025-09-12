@@ -4492,7 +4492,7 @@ TitleScreen_Loop:
 
 	; If the intro is still playing, then don't let the start button
 	; begin the game.
-	tst.b	(IntroSonic+obj0e_intro_complete).w
+	tst.b	(IntroSonic+titleintro_intro_complete).w
 	beq.w	TitleScreen_Loop
 
 	; If the start button has not been pressed, then loop back and keep
@@ -26113,24 +26113,24 @@ MapUnc_Monitor:	include "mappings/sprite/Monitor.asm"
 ; ----------------------------------------------------------------------------
 ; Object 0E - Title screen intro animation
 ; ----------------------------------------------------------------------------
-obj0e_counter		= objoff_2A
-obj0e_array_index	= objoff_2C
-obj0e_intro_complete	= objoff_2F
-obj0e_music_playing	= objoff_30
-obj0e_current_frame	= objoff_34
+titleintro_counter		= objoff_2A
+titleintro_array_index		= objoff_2C
+titleintro_intro_complete	= objoff_2F
+titleintro_music_playing	= objoff_30
+titleintro_current_frame	= objoff_34
 
-; Sprite_12E18:
-Obj0E:
+; Sprite_12E18: Obj0E:
+Obj_TitleIntro:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj0E_Index(pc,d0.w),d1
-	jmp	Obj0E_Index(pc,d1.w)
+	move.w	TitleIntro_Index(pc,d0.w),d1
+	jmp	TitleIntro_Index(pc,d1.w)
 ; ===========================================================================
-; off_12E26: Obj0E_States:
-Obj0E_Index: offsetTable
-	offsetTableEntry.w Obj0E_Init		;   0
-	offsetTableEntry.w Obj0E_Sonic		;   2
-	offsetTableEntry.w Obj0E_Tails		;   4
+; off_12E26: Obj0E_States: Obj0E_Index:
+TitleIntro_Index: offsetTable
+	offsetTableEntry.w TitleIntro_Init	;   0
+	offsetTableEntry.w TitleIntro_Sonic	;   2
+	offsetTableEntry.w TitleIntro_Tails	;   4
 	offsetTableEntry.w Obj0E_LogoTop	;   6
 	offsetTableEntry.w Obj0E_FlashingStar	;   8
 	offsetTableEntry.w Obj0E_SonicHand	;  $A
@@ -26138,19 +26138,19 @@ Obj0E_Index: offsetTable
 	offsetTableEntry.w Obj0E_MaskingSprite	;  $E
 	offsetTableEntry.w Obj0E_TailsHand	; $10
 ; ===========================================================================
-; loc_12E38:
-Obj0E_Init:
+; loc_12E38: Obj0E_Init:
+TitleIntro_Init:
 	addq.b	#2,routine(a0)	; useless, because it's overwritten with the subtype below
 	move.l	#Obj0E_MapUnc_136A8,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_TitleSprites,0,0),art_tile(a0)
 	move.b	#4,priority(a0)
 	move.b	subtype(a0),routine(a0)
-	bra.s	Obj0E
+	bra.s	Obj_TitleIntro
 ; ===========================================================================
-
-Obj0E_Sonic:
-	addq.w	#1,obj0e_current_frame(a0)
-	cmpi.w	#288,obj0e_current_frame(a0)
+; loc_12E58: Obj0E_Sonic:
+TitleIntro_Sonic:
+	addq.w	#1,titleintro_current_frame(a0)
+	cmpi.w	#288,titleintro_current_frame(a0)
 	bhs.s	+
 	bsr.w	TitleScreen_SetFinalState
 +
@@ -26161,7 +26161,7 @@ Obj0E_Sonic:
 ; ===========================================================================
 ; off_12E76:
 Obj0E_Sonic_Index: offsetTable
-	offsetTableEntry.w Obj0E_Sonic_Init			;   0
+	offsetTableEntry.w TitleIntro_Sonic_Init		;   0
 	offsetTableEntry.w Obj0E_Sonic_FadeInAndPlayMusic	;   2
 	offsetTableEntry.w Obj0E_Sonic_LoadPalette		;   4
 	offsetTableEntry.w Obj0E_Sonic_Move			;   6
@@ -26173,7 +26173,8 @@ Obj0E_Sonic_Index: offsetTable
 	offsetTableEntry.w Obj0E_Sonic_MakeStarSparkle		; $12
 ; ===========================================================================
 ; spawn more stars
-Obj0E_Sonic_Init:
+; loc_12E58: Obj0E_Sonic_Init:
+TitleIntro_Sonic_Init:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_FadeInAndPlayMusic
 	move.b	#5,mapping_frame(a0)
 
@@ -26197,7 +26198,7 @@ Obj0E_Sonic_Init:
 ; loc_12EC2:
 Obj0E_Sonic_FadeInAndPlayMusic:
 	; Wait.
-	cmpi.w	#56,obj0e_current_frame(a0)
+	cmpi.w	#56,titleintro_current_frame(a0)
 	bhs.s	+
 	rts
 ; ===========================================================================
@@ -26210,14 +26211,14 @@ Obj0E_Sonic_FadeInAndPlayMusic:
 	move.b	#0,subtype(a1)
 
 	; Play title screen music.
-	st.b	obj0e_music_playing(a0)
+	st.b	titleintro_music_playing(a0)
 	moveq	#signextendB(MusID_Title),d0
 	jmpto	JmpTo4_PlayMusic
 ; ===========================================================================
 ; loc_12EE8:
 Obj0E_Sonic_LoadPalette:
 	; Wait.
-	cmpi.w	#128,obj0e_current_frame(a0)
+	cmpi.w	#128,titleintro_current_frame(a0)
 	bhs.s	+
 	rts
 ; ===========================================================================
@@ -26249,19 +26250,19 @@ Obj0E_Sonic_Move:
 ; loc_12F20:
 Obj0E_Move:
 	; Change position every 4 frames.
-	move.w	obj0e_counter(a0),d0
+	move.w	titleintro_counter(a0),d0
 	addq.w	#1,d0
-	move.w	d0,obj0e_counter(a0)
+	move.w	d0,titleintro_counter(a0)
 	andi.w	#3,d0
 	bne.s	+
 
 	; Advance index, while checking if we've reached the end of the
 	; position array.
-	move.w	obj0e_array_index(a0),d1
+	move.w	titleintro_array_index(a0),d1
 	addq.w	#4,d1
 	cmp.w	d2,d1
 	bhs.w	Obj0E_NextRoutineSecondary
-	move.w	d1,obj0e_array_index(a0)
+	move.w	d1,titleintro_array_index(a0)
 
 	; Obtain position from the array and apply it to the object.
 	move.l	-4(a1,d1.w),d0
@@ -26291,7 +26292,7 @@ Obj0E_Sonic_AnimationFinished:
 ; ===========================================================================
 ; loc_12F7C:
 Obj0E_Sonic_SpawnTails:
-	cmpi.w	#192,obj0e_current_frame(a0)
+	cmpi.w	#192,titleintro_current_frame(a0)
 	blo.s	+
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_FlashBackground
 
@@ -26304,11 +26305,11 @@ Obj0E_Sonic_SpawnTails:
 ; ===========================================================================
 ; loc_12F9A:
 Obj0E_Sonic_FlashBackground:
-	cmpi.w	#288,obj0e_current_frame(a0)
+	cmpi.w	#288,titleintro_current_frame(a0)
 	blo.s	+
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_SpawnFallingStar
-	clr.w	obj0e_array_index(a0)
-	st.b	obj0e_intro_complete(a0)
+	clr.w	titleintro_array_index(a0)
+	st.b	titleintro_intro_complete(a0)
 
 	; Fill palette line 3 with white.
 	lea	(Normal_palette_line3).w,a1
@@ -26333,12 +26334,12 @@ Obj0E_Sonic_SpawnFallingStar:
 	; right with the music.
 	btst	#6,(Graphics_Flags).w
 	beq.s	+
-	cmpi.w	#400,obj0e_current_frame(a0)
+	cmpi.w	#400,titleintro_current_frame(a0)
 	beq.s	++
 	bra.w	DisplaySprite
 ; ===========================================================================
 +
-	cmpi.w	#464,obj0e_current_frame(a0)
+	cmpi.w	#464,titleintro_current_frame(a0)
 	beq.s	+
 	bra.w	DisplaySprite
 ; ===========================================================================
@@ -26365,13 +26366,13 @@ Obj0E_Sonic_MakeStarSparkle:
 
 	; Advance index, while checking if we've reached the end of the
 	; colour array.
-	move.w	obj0e_array_index(a0),d0
+	move.w	titleintro_array_index(a0),d0
 	addq.w	#2,d0
 	cmpi.w	#CyclingPal_TitleStar_End-CyclingPal_TitleStar,d0
 	blo.s	+
 	moveq	#0,d0
 +
-	move.w	d0,obj0e_array_index(a0)
+	move.w	d0,titleintro_array_index(a0)
 
 	; Obtain colour from the array and apply it to the palette line.
 	move.w	CyclingPal_TitleStar(pc,d0.w),(Normal_palette_line3+5*2).w
@@ -26396,8 +26397,8 @@ Obj0E_Sonic_Positions:
 	dc.w  128+136, 128+24
 Obj0E_Sonic_Positions_End
 ; ===========================================================================
-
-Obj0E_Tails:
+; loc_13066: Obj0E_Tails:
+TitleIntro_Tails:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
 	move.w	Obj0E_Tails_Index(pc,d0.w),d1
@@ -26536,12 +26537,12 @@ Obj0E_FlashingStar_Init:
 	move.b	#1,priority(a0)
 	move.w	#128+128,x_pixel(a0)
 	move.w	#128+40,y_pixel(a0)
-	move.w	#4,obj0e_counter(a0)
+	move.w	#4,titleintro_counter(a0)
 	rts
 ; ===========================================================================
 ; loc_13190:
 Obj0E_FlashingStar_Wait:
-	subq.w	#1,obj0e_counter(a0)
+	subq.w	#1,titleintro_counter(a0)
 	bmi.s	+
 	rts
 ; ===========================================================================
@@ -26554,15 +26555,15 @@ Obj0E_FlashingStar_Move:
 	move.b	#2,routine_secondary(a0)	; Obj0E_Animate
 	move.b	#0,anim_frame(a0)
 	move.b	#0,anim_frame_duration(a0)
-	move.w	#6,obj0e_counter(a0)
+	move.w	#6,titleintro_counter(a0)
 
 	; Advance index, while checking if we've reached the end of the
 	; position array.
-	move.w	obj0e_array_index(a0),d0
+	move.w	titleintro_array_index(a0),d0
 	addq.w	#4,d0
 	cmpi.w	#Obj0E_FlashingStar_Positions_End-Obj0E_FlashingStar_Positions+4,d0
 	bhs.w	DeleteObject
-	move.w	d0,obj0e_array_index(a0)
+	move.w	d0,titleintro_array_index(a0)
 
 	; Obtain position from the array and apply it to the object.
 	move.l	Obj0E_FlashingStar_Positions-4(pc,d0.w),d0
@@ -26693,12 +26694,12 @@ Obj0E_FallingStar_Init:
 	move.w	#128+240,x_pixel(a0)
 	move.w	#128+0,y_pixel(a0)
 	move.b	#3,anim(a0)
-	move.w	#140,obj0e_counter(a0)
+	move.w	#140,titleintro_counter(a0)
 	bra.w	DisplaySprite
 ; ===========================================================================
 ; loc_132D2: Obj0E_SmallStar_Main:
 Obj0E_FallingStar_Main:
-	subq.w	#1,obj0e_counter(a0)
+	subq.w	#1,titleintro_counter(a0)
 	bmi.w	DeleteObject
 
 	; Make the star fall.
@@ -26877,7 +26878,7 @@ loc_134B6:
 
 
 TitleScreen_SetFinalState:
-	tst.b	obj0e_intro_complete(a0)
+	tst.b	titleintro_intro_complete(a0)
 	bne.w	+	; rts
 
 	move.b	(Ctrl_1_Press).w,d0
@@ -26888,7 +26889,7 @@ TitleScreen_SetFinalState:
 	beq.w	+	; rts
 
 	; Initialise Sonic object.
-	st.b	obj0e_intro_complete(a0)
+	st.b	titleintro_intro_complete(a0)
 	move.b	#$10,routine_secondary(a0)
 	move.b	#$12,mapping_frame(a0)
 	move.w	#128+136,x_pixel(a0)
@@ -26964,7 +26965,7 @@ TitleScreen_SetFinalState:
 	dbf	d6,-
 
 	; Play title screen music if it isn't already playing.
-	tst.b	obj0e_music_playing(a0)
+	tst.b	titleintro_music_playing(a0)
 	bne.s	+
 	moveq	#signextendB(MusID_Title),d0
 	jsrto	JmpTo4_PlayMusic
@@ -29728,8 +29729,8 @@ ObjPtr_SonicSS:		dc.l Obj_SSSonic		; Sonic in Special Stage
 ObjPtr_SmallBubbles:	dc.l Obj_SmallBubbles		; Small bubbles from Sonic's face while underwater
 ObjPtr_TippingFloor:	dc.l Obj_TippingFloor		; Section of pipe that tips you off from CPZ
 ObjPtr_CPZUnusedPltfm:	dc.l Obj_CPZUnusedPltfm		; Small floating platform (unused)
-ObjPtr_Signpost:	dc.l Obj0D	; End of level signpost
-ObjPtr_TitleIntro:	dc.l Obj0E	; Title screen intro animation
+ObjPtr_Signpost:	dc.l Obj_Signpost		; End of level signpost
+ObjPtr_TitleIntro:	dc.l Obj_TitleIntro		; Title screen intro animation
 ObjPtr_TitleMenu:	dc.l Obj0F	; Title screen menu
 ObjPtr_TailsSS:		dc.l Obj10	; Tails in Special Stage
 ObjPtr_Bridge:		dc.l Obj11	; Bridge in Emerald Hill Zone and Hidden Palace Zone
@@ -34421,31 +34422,31 @@ word_19194_End
 ; Object 0D - End of level sign post
 ; ----------------------------------------------------------------------------
 ; OST:
-obj0D_spinframe		= objoff_30 ; $30(a0)
-obj0D_sparkleframe	= objoff_34 ; $34(a0)
-obj0D_finalanim		= objoff_36 ; $36(a0) ; 4 if Tails only, 3 otherwise (determines what character to show)
+signpost_spinframe	= objoff_30 ; $30(a0)
+signpost_sparkleframe	= objoff_34 ; $34(a0)
+signpost_finalanim	= objoff_36 ; $36(a0) ; 4 if Tails only, 3 otherwise (determines what character to show)
 ; ----------------------------------------------------------------------------
-
-Obj0D:
+; Sprite_191B8: Obj0D:
+Obj_Signpost:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj0D_Index(pc,d0.w),d1
-	jsr	Obj0D_Index(pc,d1.w)
-	lea	(Ani_obj0D).l,a1
+	move.w	Signpost_Index(pc,d0.w),d1
+	jsr	Signpost_Index(pc,d1.w)
+	lea	(Ani_Signpost).l,a1
 	bsr.w	AnimateSprite
 	bsr.w	PLCLoad_Signpost
 	bra.w	MarkObjGone
 ; ===========================================================================
-; off_191D8: Obj_0D_subtbl: Obj0D_States:
-Obj0D_Index:	offsetTable
-		offsetTableEntry.w Obj0D_Init	; 0
-		offsetTableEntry.w Obj0D_Main	; 2
+; off_191D8: Obj_0D_subtbl: Obj0D_States: Obj0D_Index:
+Signpost_Index:	offsetTable
+		offsetTableEntry.w Signpost_Init	; 0
+		offsetTableEntry.w Signpost_Main	; 2
 ; ===========================================================================
-; loc_191DC: Obj_0D_sub_0:
-Obj0D_Init:
+; loc_191DC: Obj_0D_sub_0: Obj0D_Init:
+Signpost_Init:
 	tst.w	(Two_player_mode).w
 	beq.s	loc_19208
-	move.l	#Obj0D_MapUnc_19656,mappings(a0)
+	move.l	#MapUnc_Signpost2P,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_2p_Signpost,0,0),art_tile(a0)
 	move.b	#-1,(Signpost_prev_frame).w
 	moveq	#0,d1
@@ -34465,19 +34466,19 @@ loc_19208:
 	rts
 ; ---------------------------------------------------------------------------
 loc_1921E:
-	move.l	#Obj0D_MapUnc_195BE,mappings(a0)
+	move.l	#MapUnc_Signpost1P,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Signpost,0,0),art_tile(a0)
 
 loc_1922C:
-	addq.b	#2,routine(a0) ; => Obj0D_Main
+	addq.b	#2,routine(a0) ; => Signpost_Main
 	bsr.w	Adjust2PArtPointer
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#$18,width_pixels(a0)
 	move.b	#4,priority(a0)
 	move.w	#$3C3C,(Loser_Time_Left).w
 
-; loc_1924C: Obj_0D_sub_2:
-Obj0D_Main:
+; loc_1924C: Obj_0D_sub_2: Obj0D_Main:
+Signpost_Main:
 	tst.b	(Update_HUD_timer).w
 	beq.w	loc_192D6
 	lea	(MainCharacter).w,a1 ; a1=character
@@ -34490,21 +34491,21 @@ Obj0D_Main:
 	jsr	(PlayMusic).l	; play spinning sound
 	clr.b	(Update_HUD_timer).w
 	move.w	#(0<<8)|(1<<0),anim(a0)
-	move.w	#0,obj0D_spinframe(a0)
+	move.w	#0,signpost_spinframe(a0)
 	move.w	(Camera_Max_X_pos).w,(Camera_Min_X_pos).w	; lock screen
-	move.b	#2,routine_secondary(a0) ; => Obj0D_Main_State2
+	move.b	#2,routine_secondary(a0) ; => Signpost_Main_State2
 	cmpi.b	#$C,(Loser_Time_Left).w
 	bhi.s	loc_192A0
 	move.w	(Level_Music).w,d0
 	jsr	(PlayMusic).l	; play zone music
 
 loc_192A0:
-	tst.b	obj0D_finalanim(a0)
+	tst.b	signpost_finalanim(a0)
 	bne.w	loc_19350
-	move.b	#3,obj0D_finalanim(a0)
+	move.b	#3,signpost_finalanim(a0)
 	cmpi.w	#2,(Player_mode).w
 	bne.s	loc_192BC
-	move.b	#4,obj0D_finalanim(a0)
+	move.b	#4,signpost_finalanim(a0)
 
 loc_192BC:
 	tst.w	(Two_player_mode).w
@@ -34530,18 +34531,18 @@ loc_192D6:
 	jsr	(PlayMusic).l
 	clr.b	(Update_HUD_timer_2P).w
 	move.w	#(0<<8)|(1<<0),anim(a0)
-	move.w	#0,obj0D_spinframe(a0)
+	move.w	#0,signpost_spinframe(a0)
 	move.w	(Tails_Max_X_pos).w,(Tails_Min_X_pos).w
-	move.b	#2,routine_secondary(a0) ; => Obj0D_Main_State2
+	move.b	#2,routine_secondary(a0) ; => Signpost_Main_State2
 	cmpi.b	#$C,(Loser_Time_Left).w
 	bhi.s	loc_1932E
 	move.w	(Level_Music).w,d0
 	jsr	(PlayMusic).l
 
 loc_1932E:
-	tst.b	obj0D_finalanim(a0)
+	tst.b	signpost_finalanim(a0)
 	bne.s	loc_19350
-	move.b	#4,obj0D_finalanim(a0)
+	move.b	#4,signpost_finalanim(a0)
 	tst.w	(Two_player_mode).w
 	beq.s	loc_19350
 	move.w	#$3C3C,(Loser_Time_Left).w
@@ -34551,42 +34552,43 @@ loc_1932E:
 loc_19350:
 	moveq	#0,d0
 	move.b	routine_secondary(a0),d0
-	move.w	Obj0D_Main_States(pc,d0.w),d1
-	jmp	Obj0D_Main_States(pc,d1.w)
+	move.w	Signpost_Main_States(pc,d0.w),d1
+	jmp	Signpost_Main_States(pc,d1.w)
 ; ===========================================================================
-Obj0D_Main_States: offsetTable
-	offsetTableEntry.w Obj0D_Main_StateNull	; 0
-	offsetTableEntry.w Obj0D_Main_State2	; 2
-	offsetTableEntry.w Obj0D_Main_State3	; 4
-	offsetTableEntry.w Obj0D_Main_State4	; 6
+; off_1935E: Obj0D_Main_States:
+Signpost_Main_States: offsetTable
+	offsetTableEntry.w Signpost_Main_StateNull	; 0
+	offsetTableEntry.w Signpost_Main_State2	; 2
+	offsetTableEntry.w Signpost_Main_State3	; 4
+	offsetTableEntry.w Signpost_Main_State4	; 6
 ; ===========================================================================
-; return_19366:
-Obj0D_Main_StateNull:
+; return_19366: Obj0D_Main_StateNull:
+Signpost_Main_StateNull:
 	rts
 ; ===========================================================================
-; loc_19368:
-Obj0D_Main_State2:
-	subq.w	#1,obj0D_spinframe(a0)
+; loc_19368: Obj0D_Main_State2:
+Signpost_Main_State2:
+	subq.w	#1,signpost_spinframe(a0)
 	bpl.s	loc_19398
-	move.w	#60,obj0D_spinframe(a0)
+	move.w	#60,signpost_spinframe(a0)
 	addq.b	#1,anim(a0)
 	cmpi.b	#3,anim(a0)
 	bne.s	loc_19398
-	move.b	#4,routine_secondary(a0) ; => Obj0D_Main_State3
-	move.b	obj0D_finalanim(a0),anim(a0)
+	move.b	#4,routine_secondary(a0) ; => Signpost_Main_State3
+	move.b	signpost_finalanim(a0),anim(a0)
 	tst.w	(Two_player_mode).w
 	beq.s	loc_19398
-	move.b	#6,routine_secondary(a0) ; => Obj0D_Main_State4
+	move.b	#6,routine_secondary(a0) ; => Signpost_Main_State4
 
 loc_19398:
 	subq.w	#1,objoff_32(a0)
 	bpl.s	return_19406
 	move.w	#$B,objoff_32(a0)
 	moveq	#0,d0
-	move.b	obj0D_sparkleframe(a0),d0
-	addq.b	#2,obj0D_sparkleframe(a0)
-	andi.b	#$E,obj0D_sparkleframe(a0)
-	lea	Obj0D_RingSparklePositions(pc,d0.w),a2
+	move.b	signpost_sparkleframe(a0),d0
+	addq.b	#2,signpost_sparkleframe(a0)
+	andi.b	#$E,signpost_sparkleframe(a0)
+	lea	Signpost_RingSparklePositions(pc,d0.w),a2
 	bsr.w	AllocateObject
 	bne.s	return_19406
 	_move.b	#ObjID_Ring,id(a1) ; load Obj_Ring for the sparkly effects over the signpost
@@ -34609,8 +34611,8 @@ loc_19398:
 return_19406:
 	rts
 ; ===========================================================================
-; byte_19408:
-Obj0D_RingSparklePositions:
+; byte_19408: Obj0D_RingSparklePositions:
+Signpost_RingSparklePositions:
 	dc.b -24,-16	; 1
 	dc.b   8,  8	; 3
 	dc.b -16,  0	; 5
@@ -34620,8 +34622,8 @@ Obj0D_RingSparklePositions:
 	dc.b -24,  8	; 13
 	dc.b  24, 16	; 15
 ; ===========================================================================
-; loc_19418:
-Obj0D_Main_State3:
+; loc_19418: Obj0D_Main_State3:
+Signpost_Main_State3:
 	tst.w	(Debug_placement_mode).w
 	bne.w	return_194D0
     if fixBugs
@@ -34652,7 +34654,7 @@ loc_19434:
 	blo.w	return_194D0
 
 loc_1944C:
-	move.b	#0,routine_secondary(a0) ; => Obj0D_Main_StateNull
+	move.b	#0,routine_secondary(a0) ; => Signpost_Main_StateNull
 ;loc_19452:
 Load_EndOfAct:
 	lea	(MainCharacter).w,a1 ; a1=character
@@ -34705,9 +34707,9 @@ TimeBonuses:
 	dc.w   50,   50,   50,  50,   0
 TimeBonuses_End:
 ; ===========================================================================
-; loc_194FC:
-Obj0D_Main_State4:
-	subq.w	#1,obj0D_spinframe(a0)
+; loc_194FC: Obj0D_Main_State4:
+Signpost_Main_State4:
+	subq.w	#1,signpost_spinframe(a0)
 	bpl.s	return_19532
 	tst.b	(Time_Over_flag).w
 	bne.s	return_19532
@@ -34734,7 +34736,7 @@ PLCLoad_Signpost:
 	cmp.b	(Signpost_prev_frame).w,d0
 	beq.s	return_1958C
 	move.b	d0,(Signpost_prev_frame).w
-	lea	(Obj0D_MapRUnc_196EE).l,a2
+	lea	(MapRUnc_Signpost2P).l,a2
 	add.w	d0,d0
 	adda.w	(a2,d0.w),a2
 	move.w	(a2)+,d5
@@ -34764,8 +34766,8 @@ return_1958C:
 	rts
 ; ===========================================================================
 ; animation script
-; off_1958E:
-Ani_obj0D:	offsetTable
+; off_1958E: Ani_obj0D:
+Ani_Signpost:	offsetTable
 		offsetTableEntry.w byte_19598	; 0
 		offsetTableEntry.w byte_1959B	; 1
 		offsetTableEntry.w byte_195A9	; 2
@@ -34781,26 +34783,26 @@ byte_195B7:	dc.b	$0F, $00, $FF
 	rev02even
 byte_195BA:	dc.b	$0F, $01, $FF
 	even
-; -------------------------------------------------------------------------------
-; sprite mappings - Primary sprite table for object 0D (signpost)
-; -------------------------------------------------------------------------------
-; SprTbl_0D_Primary:
-Obj0D_MapUnc_195BE:	include "mappings/sprite/obj0D_a.asm"
-; -------------------------------------------------------------------------------
-; sprite mappings - Secondary sprite table for object 0D (signpost)
-; -------------------------------------------------------------------------------
-; SprTbl_0D_Scndary:
-Obj0D_MapUnc_19656:	include "mappings/sprite/obj0D_b.asm"
-; -------------------------------------------------------------------------------
-; dynamic pattern loading cues
-; -------------------------------------------------------------------------------
-Obj0D_MapRUnc_196EE:	include "mappings/spriteDPLC/obj0D.asm"
+
+; ---------------------------------------------------------------------------
+; sprite mappings - signposts in one player
+; ---------------------------------------------------------------------------
+; SprTbl_0D_Primary: Obj0D_MapUnc_195BE:
+MapUnc_Signpost1P:	include "mappings/sprite/1P signpost.asm"
+; ---------------------------------------------------------------------------
+; sprite mappings - signposts in two player
+; ---------------------------------------------------------------------------
+; SprTbl_0D_Scndary: Obj0D_MapUnc_19656:
+MapUnc_Signpost2P:	include "mappings/sprite/2P signpost.asm"
+; ---------------------------------------------------------------------------
+; dynamic pattern loading cues - signposts in two player
+; ---------------------------------------------------------------------------
+; Obj0D_MapRUnc_196EE:
+MapRUnc_Signpost2P:	include "mappings/spriteDPLC/2P signpost.asm"
+
 ; ===========================================================================
 
 	jmpTos ; Empty
-
-
-
 
 ; ---------------------------------------------------------------------------
 ; Solid object subroutines (includes spikes, blocks, rocks etc)
@@ -41316,9 +41318,9 @@ TPLC_ReadEntry:
 return_1D1FE:
 	rts
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 05 - Tails' tails
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_1D200: Obj05:
 Obj_TailsTails:
 	moveq	#0,d0
@@ -41470,9 +41472,6 @@ TailsTailsAni_Hanging:	dc.b   9,$81,$82,$83,$84,$FF
 ; ===========================================================================
 
 	jmpTos JmpTo2_KillCharacter
-
-
-
 
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -47414,7 +47413,7 @@ Obj16_Slide:
 	move.w	#0,y_vel(a0)
 	jsrto	JmpTo4_AllocateObjectAfterCurrent
 	bne.s	+	; rts
-	_move.b	#ObjID_Scenery,id(a1) ; load obj1C
+	_move.b	#ObjID_Scenery,id(a1) ; load Obj_Scenery
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
 	move.b	render_flags(a0),render_flags(a1)
