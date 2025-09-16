@@ -23897,27 +23897,27 @@ objsubdecl macro frame, mapaddr,artaddr,width,priority
 
 ; dword_111E6: Obj1C_InitData:
 Scenery_InitData:
-	objsubdecl 0, Obj1C_MapUnc_11552, make_art_tile(ArtTile_ArtNem_BoltEnd_Rope,2,0), 4, 6
-	objsubdecl 1, Obj1C_MapUnc_11552, make_art_tile(ArtTile_ArtNem_BoltEnd_Rope,2,0), 4, 6
+	objsubdecl 0, MapUnc_Scenery_MTZBoltRope, make_art_tile(ArtTile_ArtNem_BoltEnd_Rope,2,0), 4, 6
+	objsubdecl 1, MapUnc_Scenery_MTZBoltRope, make_art_tile(ArtTile_ArtNem_BoltEnd_Rope,2,0), 4, 6
 	objsubdecl 1, Obj11_MapUnc_FC70,  make_art_tile(ArtTile_ArtNem_EHZ_Bridge,2,0), 4, 1
-	objsubdecl 2, Obj1C_MapUnc_11552, make_art_tile(ArtTile_ArtNem_BoltEnd_Rope,1,0), $10, 6
+	objsubdecl 2, MapUnc_Scenery_MTZBoltRope, make_art_tile(ArtTile_ArtNem_BoltEnd_Rope,1,0), $10, 6
 	objsubdecl 3, Obj16_MapUnc_21F14, make_art_tile(ArtTile_ArtNem_HtzZipline,2,0), 8, 4
 	objsubdecl 4, Obj16_MapUnc_21F14, make_art_tile(ArtTile_ArtNem_HtzZipline,2,0), 8, 4
 	objsubdecl 1, Obj16_MapUnc_21F14, make_art_tile(ArtTile_ArtNem_HtzZipline,2,0), $20, 1
 	objsubdecl 0, MapUnc_Scenery_EHZHTZGround, make_art_tile(ArtTile_ArtKos_LevelArt,2,0), 8, 1
 	objsubdecl 1, MapUnc_Scenery_EHZHTZGround, make_art_tile(ArtTile_ArtKos_LevelArt,2,0), 8, 1
-	objsubdecl 0, Obj1C_MapUnc_113EE, make_art_tile(ArtTile_ArtUnc_Waterfall3,2,0), 4, 4
-	objsubdecl 0, Obj1C_MapUnc_11406, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 4, 4
-	objsubdecl 1, Obj1C_MapUnc_11406, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 4, 4
-	objsubdecl 2, Obj1C_MapUnc_11406, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 4, 4
-	objsubdecl 3, Obj1C_MapUnc_11406, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 4, 4
-	objsubdecl 4, Obj1C_MapUnc_11406, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 4, 4
-	objsubdecl 5, Obj1C_MapUnc_11406, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 4, 4
-	objsubdecl 0, Obj1C_MapUnc_114AE, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), $18, 4
-	objsubdecl 1, Obj1C_MapUnc_114AE, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), $18, 4
-	objsubdecl 2, Obj1C_MapUnc_114AE, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 8, 4
-	objsubdecl 3, Obj1C_MapUnc_114AE, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 8, 4
-	objsubdecl 4, Obj1C_MapUnc_114AE, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 8, 4
+	objsubdecl 0, MapUnc_Scenery_ARZWaterfall, make_art_tile(ArtTile_ArtUnc_Waterfall3,2,0), 4, 4
+	objsubdecl 0, MapUnc_Scenery_OOZOil, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 4, 4
+	objsubdecl 1, MapUnc_Scenery_OOZOil, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 4, 4
+	objsubdecl 2, MapUnc_Scenery_OOZOil, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 4, 4
+	objsubdecl 3, MapUnc_Scenery_OOZOil, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 4, 4
+	objsubdecl 4, MapUnc_Scenery_OOZOil, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 4, 4
+	objsubdecl 5, MapUnc_Scenery_OOZOil, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 4, 4
+	objsubdecl 0, MapUnc_Scenery_OOZOil2, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), $18, 4
+	objsubdecl 1, MapUnc_Scenery_OOZOil2, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), $18, 4
+	objsubdecl 2, MapUnc_Scenery_OOZOil2, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 8, 4
+	objsubdecl 3, MapUnc_Scenery_OOZOil2, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 8, 4
+	objsubdecl 4, MapUnc_Scenery_OOZOil2, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0), 8, 4
 ; byte_1128E: Obj1C_Radii:
 Scenery_Radii:
 	dc.b   0
@@ -23995,8 +23995,8 @@ Obj71_Index:	offsetTable
 ; dword_11302:
 Obj71_InitData:
 	objsubdecl 3, Obj11_MapUnc_FC28,  make_art_tile(ArtTile_ArtNem_HPZ_Bridge,3,0), 4, 1		; Hidden Palace bridge
-	objsubdecl 0, Obj71_MapUnc_11396, make_art_tile(ArtTile_ArtNem_HPZOrb,3,1), $10, 1		; Hidden Palace pulsing orb
-	objsubdecl 0, Obj71_MapUnc_11576, make_art_tile(ArtTile_ArtNem_MtzLavaBubble,2,0), $10, 1	; MTZ lava bubble
+	objsubdecl 0, MapUnc_Scenery2_PulsingOrb, make_art_tile(ArtTile_ArtNem_HPZOrb,3,1), $10, 1		; Hidden Palace pulsing orb
+	objsubdecl 0, MapUnc_Scenery2_MTZLavaBubble, make_art_tile(ArtTile_ArtNem_MtzLavaBubble,2,0), $10, 1	; MTZ lava bubble
 ; ===========================================================================
 ; loc_1131A:
 Obj71_Init:
@@ -24041,7 +24041,8 @@ byte_11392:	dc.b $7F,  6,$FD,  2
 ; ---------------------------------------------------------------------------
 ; sprite mappings
 ; ---------------------------------------------------------------------------
-Obj71_MapUnc_11396:	include "mappings/sprite/obj71_a.asm"
+; Obj71_MapUnc_11396:
+MapUnc_Scenery2_PulsingOrb:	include "mappings/sprite/Pulsating orb from HPZ.asm"
 ; ---------------------------------------------------------------------------
 ; Unknown sprite mappings
 ; ---------------------------------------------------------------------------
@@ -24050,23 +24051,28 @@ MapUnc_Scenery_EHZHTZGround:	include "mappings/sprite/Edge of ground from EHZ an
 ; ---------------------------------------------------------------------------
 ; Unknown sprite mappings
 ; ---------------------------------------------------------------------------
-Obj1C_MapUnc_113EE:	include "mappings/sprite/obj1C_b.asm"
+; Obj1C_MapUnc_113EE:
+MapUnc_Scenery_ARZWaterfall:	include "mappings/sprite/ARZ waterfall.asm"
 ; ---------------------------------------------------------------------------
 ; sprite mappings
 ; ---------------------------------------------------------------------------
-Obj1C_MapUnc_11406:	include "mappings/sprite/obj1C_c.asm"
+; Obj1C_MapUnc_11406:
+MapUnc_Scenery_OOZOil:		include "mappings/sprite/Cascading oil from OOZ.asm"
 ; ---------------------------------------------------------------------------
 ; sprite mappings
 ; ---------------------------------------------------------------------------
-Obj1C_MapUnc_114AE:	include "mappings/sprite/obj1C_d.asm"
+; Obj1C_MapUnc_114AE:
+MapUnc_Scenery_OOZOil2:		include "mappings/sprite/Cascading oil from OOZ 2.asm"
 ; ---------------------------------------------------------------------------
 ; sprite mappings
 ; ---------------------------------------------------------------------------
-Obj1C_MapUnc_11552:	include "mappings/sprite/obj1C_e.asm"
+; Obj1C_MapUnc_11552:
+MapUnc_Scenery_MTZBoltRope:	include "mappings/sprite/Bolt end and rope from MTZ.asm"
 ; ---------------------------------------------------------------------------
 ; sprite mappings
 ; ---------------------------------------------------------------------------
-Obj71_MapUnc_11576:	include "mappings/sprite/obj71_b.asm"
+; Obj71_MapUnc_11576:
+MapUnc_Scenery2_MTZLavaBubble:	include "mappings/sprite/Lava bubble from MTZ.asm"
 ; ===========================================================================
 
 	jmpTos ; Empty
@@ -88243,10 +88249,10 @@ DbgObjList_MTZ: dbglistheader
 	dbglistobj ObjID_LargeRotPform,	Obj6E_MapUnc_2852C, $10,   1, make_art_tile(ArtTile_ArtKos_LevelArt,3,0)
 	dbglistobj ObjID_LargeRotPform,	Obj6E_MapUnc_2852C, $20,   2, make_art_tile(ArtTile_ArtKos_LevelArt,3,0)
 	dbglistobj ObjID_Cog,		Obj70_MapUnc_28786, $10,   0, make_art_tile(ArtTile_ArtNem_MtzWheel,3,1)
-	dbglistobj ObjID_MTZLavaBubble,	Obj71_MapUnc_11576, $22,   5, make_art_tile(ArtTile_ArtNem_MtzLavaBubble,2,0)
-	dbglistobj ObjID_Scenery,	Obj1C_MapUnc_11552,   0,   0, make_art_tile(ArtTile_ArtNem_BoltEnd_Rope,2,0)
-	dbglistobj ObjID_Scenery,	Obj1C_MapUnc_11552,   1,   1, make_art_tile(ArtTile_ArtNem_BoltEnd_Rope,2,0)
-	dbglistobj ObjID_Scenery,	Obj1C_MapUnc_11552,   3,   2, make_art_tile(ArtTile_ArtNem_BoltEnd_Rope,1,0)
+	dbglistobj ObjID_MTZLavaBubble,	MapUnc_Scenery2_MTZLavaBubble, $22,   5, make_art_tile(ArtTile_ArtNem_MtzLavaBubble,2,0)
+	dbglistobj ObjID_Scenery,	MapUnc_Scenery_MTZBoltRope,   0,   0, make_art_tile(ArtTile_ArtNem_BoltEnd_Rope,2,0)
+	dbglistobj ObjID_Scenery,	MapUnc_Scenery_MTZBoltRope,   1,   1, make_art_tile(ArtTile_ArtNem_BoltEnd_Rope,2,0)
+	dbglistobj ObjID_Scenery,	MapUnc_Scenery_MTZBoltRope,   3,   2, make_art_tile(ArtTile_ArtNem_BoltEnd_Rope,1,0)
 	dbglistobj ObjID_MTZLongPlatform, Obj65_Obj6A_Obj6B_MapUnc_26EC8, $B0,   0, make_art_tile(ArtTile_ArtKos_LevelArt,3,0)
 	dbglistobj ObjID_Shellcracker,	Obj9F_MapUnc_38314, $24,   0, make_art_tile(ArtTile_ArtNem_Shellcracker,0,0)
 	dbglistobj ObjID_Asteron,	ObjA4_Obj98_MapUnc_38A96, $2E,   0, make_art_tile(ArtTile_ArtNem_MtzSupernova,0,1)
@@ -88353,17 +88359,17 @@ DbgObjList_OOZ: dbglistheader
 	dbglistobj ObjID_Fan,		Obj3F_MapUnc_2AAC4, $80,   0, make_art_tile(ArtTile_ArtNem_OOZFanHoriz,3,0)
 	dbglistobj ObjID_Aquis,		Obj50_MapUnc_2CF94,   0,   0, make_art_tile(ArtTile_ArtNem_Aquis,1,0)
 	dbglistobj ObjID_Octus,		Obj4A_MapUnc_2CBFE,   0,   0, make_art_tile(ArtTile_ArtNem_Octus,1,0)
-	dbglistobj ObjID_FallingOil,	Obj1C_MapUnc_11406,  $A,   0, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0)
-	dbglistobj ObjID_FallingOil,	Obj1C_MapUnc_11406,  $B,   1, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0)
-	dbglistobj ObjID_FallingOil,	Obj1C_MapUnc_11406,  $C,   2, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0)
-	dbglistobj ObjID_FallingOil,	Obj1C_MapUnc_11406,  $D,   3, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0)
-	dbglistobj ObjID_FallingOil,	Obj1C_MapUnc_11406,  $E,   4, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0)
-	dbglistobj ObjID_FallingOil,	Obj1C_MapUnc_11406,  $F,   5, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0)
-	dbglistobj ObjID_FallingOil,	Obj1C_MapUnc_114AE, $10,   0, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0)
-	dbglistobj ObjID_FallingOil,	Obj1C_MapUnc_114AE, $11,   1, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0)
-	dbglistobj ObjID_FallingOil,	Obj1C_MapUnc_114AE, $12,   2, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0)
-	dbglistobj ObjID_FallingOil,	Obj1C_MapUnc_114AE, $13,   3, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0)
-	dbglistobj ObjID_FallingOil,	Obj1C_MapUnc_114AE, $14,   4, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0)
+	dbglistobj ObjID_FallingOil,	MapUnc_Scenery_OOZOil,  $A,   0, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0)
+	dbglistobj ObjID_FallingOil,	MapUnc_Scenery_OOZOil,  $B,   1, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0)
+	dbglistobj ObjID_FallingOil,	MapUnc_Scenery_OOZOil,  $C,   2, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0)
+	dbglistobj ObjID_FallingOil,	MapUnc_Scenery_OOZOil,  $D,   3, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0)
+	dbglistobj ObjID_FallingOil,	MapUnc_Scenery_OOZOil,  $E,   4, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0)
+	dbglistobj ObjID_FallingOil,	MapUnc_Scenery_OOZOil,  $F,   5, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0)
+	dbglistobj ObjID_FallingOil,	MapUnc_Scenery_OOZOil2, $10,   0, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0)
+	dbglistobj ObjID_FallingOil,	MapUnc_Scenery_OOZOil2, $11,   1, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0)
+	dbglistobj ObjID_FallingOil,	MapUnc_Scenery_OOZOil2, $12,   2, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0)
+	dbglistobj ObjID_FallingOil,	MapUnc_Scenery_OOZOil2, $13,   3, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0)
+	dbglistobj ObjID_FallingOil,	MapUnc_Scenery_OOZOil2, $14,   4, make_art_tile(ArtTile_ArtNem_Oilfall2,2,0)
 	dbglistobj ObjID_EggPrison,	Obj3E_MapUnc_3F436,   0,   0, make_art_tile(ArtTile_ArtNem_Capsule,1,0)
 DbgObjList_OOZ_End
 

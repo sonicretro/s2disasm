@@ -1515,7 +1515,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj1C_e.asm",
+                        "path": "mappings/sprite/Bolt end and rope from MTZ.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1921,7 +1921,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj71_b.asm",
+                        "path": "mappings/sprite/Lava bubble from MTZ.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2488,7 +2488,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj1C_c.asm",
+                        "path": "mappings/sprite/Cascading oil from OOZ.asm",
                         "label": ""
                     },
                     "dplcs": {
