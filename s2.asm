@@ -26477,7 +26477,7 @@ TitleIntro_LogoTop_Index: offsetTable
 	offsetTableEntry.w BranchTo11_DisplaySprite	; 2
 ; ===========================================================================
 ; loc_130E6: Obj0E_LogoTop_Init:
-TitleIntro_LogoTop:
+TitleIntro_LogoTop_Init:
 	; Don't show the trademark symbol on Japanese consoles.
 	move.b	#$B,mapping_frame(a0)
 	tst.b	(Graphics_Flags).w
@@ -26689,7 +26689,7 @@ TitleIntro_FallingStar:
 	jmp	TitleIntro_FallingStar_Index(pc,d1.w)
 ; ===========================================================================
 ; off_132A2: Obj0E_FallingStar_Index:
-TitleIntro_FallingStar: offsetTable
+TitleIntro_FallingStar_Index: offsetTable
 	offsetTableEntry.w TitleIntro_FallingStar_Init	; 0
 	offsetTableEntry.w TitleIntro_FallingStar_Main	; 2
 ; ===========================================================================
@@ -26941,7 +26941,7 @@ TitleScreen_SetFinalState:
 	move.b	#6,subtype(a1)
 
 	; Initialise sprite mask object.
-	bsr.w	TitleIntro_LoadMaskingSprite
+	bsr.w	TitleIntro_Sonic_LoadMaskingSprite
 
 	; Initialise title screen menu object.
 	move.b	#ObjID_TitleMenu,(TitleScreenMenu+id).w
@@ -27053,7 +27053,7 @@ Obj0F_Main:
 Ani_TitleIntro:	offsetTable
 		offsetTableEntry.w Ani_TitleIntro_Sonic		; 0
 		offsetTableEntry.w Ani_TitleIntro_Tails		; 1
-		offsetTableEntry.w Ani_TitleIntro_FlashingStar	; 2
+		offsetTableEntry.w Ani_TitleIntro_FlashingStars	; 2
 		offsetTableEntry.w Ani_TitleIntro_FallingStar	; 3
 ; byte_1368E: Ani_obj0E_Sonic:
 Ani_TitleIntro_Sonic:
