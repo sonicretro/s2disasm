@@ -26147,7 +26147,7 @@ TitleIntro_Index: offsetTable
 ; loc_12E38: Obj0E_Init:
 TitleIntro_Init:
 	addq.b	#2,routine(a0)	; useless, because it's overwritten with the subtype below
-	move.l	#Obj0E_MapUnc_136A8,mappings(a0)
+	move.l	#MapUnc_TitleIntro,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_TitleSprites,0,0),art_tile(a0)
 	move.b	#4,priority(a0)
 	move.b	subtype(a0),routine(a0)
@@ -26986,7 +26986,7 @@ TitleScreen_SetFinalState:
 
 ; sub_135EA:
 TitleScreen_InitSprite:
-	move.l	#Obj0E_MapUnc_136A8,mappings(a1)
+	move.l	#MapUnc_TitleIntro,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_TitleSprites,0,0),art_tile(a1)
 	move.b	#4,priority(a1)
 	rts
@@ -27100,7 +27100,8 @@ Ani_TitleIntro_FallingStar:
 ; -----------------------------------------------------------------------------
 ; Sprite Mappings - Flashing stars from intro (Obj0E)
 ; -----------------------------------------------------------------------------
-Obj0E_MapUnc_136A8:	include "mappings/sprite/obj0E.asm"
+; Obj0E_MapUnc_136A8:
+MapUnc_TitleIntro:	include "mappings/sprite/Sonic and Tails from the title screen.asm"
 ; -----------------------------------------------------------------------------
 ; sprite mappings
 ; -----------------------------------------------------------------------------
