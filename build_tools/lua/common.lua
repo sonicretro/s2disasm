@@ -197,7 +197,7 @@ local function get_directory_contents(path, extension)
 			listing = io.popen("dir /b \"" .. path .. "\"", "r")
 		else
 			-- Assumes POSIX.
-			listing = io.popen("ls -w1 -N " .. path, "r")
+			listing = io.popen("ls " .. path, "r")
 		end
 
 		local contents = {}
