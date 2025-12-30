@@ -98,7 +98,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj37_a.asm",
+                        "path": "mappings/sprite/Ring.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -123,7 +123,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj03.asm",
+                        "path": "mappings/sprite/Pathswapper.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -148,7 +148,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj0D_a.asm",
+                        "path": "mappings/sprite/1P signpost.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -173,7 +173,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj26.asm",
+                        "path": "mappings/sprite/Monitor.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -198,7 +198,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj31_b.asm",
+                        "path": "mappings/sprite/Lava marker.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -298,7 +298,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj74.asm",
+                        "path": "mappings/sprite/Invisible block.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -323,7 +323,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj79_a.asm",
+                        "path": "mappings/sprite/Starpost.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -563,7 +563,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj31_b.asm",
+                        "path": "mappings/sprite/Lava marker.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1188,7 +1188,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj44.asm",
+                        "path": "mappings/sprite/Round bumper from CNZ.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1217,7 +1217,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj03.asm",
+                        "path": "mappings/sprite/Pathswapper.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1478,7 +1478,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objD8.asm",
+                        "path": "mappings/sprite/Drop target from CNZ.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1515,7 +1515,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj1C_e.asm",
+                        "path": "mappings/sprite/Bolt end and rope from MTZ.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -1921,7 +1921,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj71_b.asm",
+                        "path": "mappings/sprite/Lava bubble from MTZ.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2045,7 +2045,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj0B.asm",
+                        "path": "mappings/sprite/Small yellow moving platform from CPZ.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2488,7 +2488,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj1C_c.asm",
+                        "path": "mappings/sprite/Cascading oil from OOZ.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2662,7 +2662,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj45.asm",
+                        "path": "mappings/sprite/Push spring from OOZ.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -2997,7 +2997,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/objB3.asm",
+                        "path": "mappings/sprite/Clouds from SCZ.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3179,7 +3179,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj49.asm",
+                        "path": "mappings/sprite/Waterfall from EHZ.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3361,7 +3361,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj03.asm",
+                        "path": "mappings/sprite/Pathswapper.asm",
                         "label": ""
                     },
                     "dplcs": {
