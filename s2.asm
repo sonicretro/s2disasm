@@ -26731,15 +26731,16 @@ ttlscrpalchanger_codeptr = objoff_3A
 Obj_TtlScrPalChanger:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	ObjC9_Index(pc,d0.w),d1
-	jmp	ObjC9_Index(pc,d1.w)
+	move.w	TtlScrPalChanger_Index(pc,d0.w),d1
+	jmp	TtlScrPalChanger_Index(pc,d1.w)
 ; ===========================================================================
-ObjC9_Index:	offsetTable
-		offsetTableEntry.w ObjC9_Init	; 0
-		offsetTableEntry.w ObjC9_Main	; 2
+; off_132FE: ObjC9_Index:
+TtlScrPalChanger_Index:	offsetTable
+		offsetTableEntry.w TtlScrPalChanger_Init	; 0
+		offsetTableEntry.w TtlScrPalChanger_Main	; 2
 ; ===========================================================================
-
-ObjC9_Init:
+; loc_13302: ObjC9_Init:
+TtlScrPalChanger_Init:
 	addq.b	#2,routine(a0)
 	moveq	#0,d0
 	move.b	subtype(a0),d0
@@ -26763,8 +26764,8 @@ ObjC9_Init:
 	move.b	(a1)+,ttlscrpalchanger_fadein_amount(a0)
 	rts
 ; ===========================================================================
-
-ObjC9_Main:
+; loc_13344: ObjC9_Main:
+TtlScrPalChanger_Main:
 	subq.b	#1,ttlscrpalchanger_fadein_time_left(a0)
 	bpl.s	+
 	move.b	ttlscrpalchanger_fadein_time(a0),ttlscrpalchanger_fadein_time_left(a0)
@@ -26996,32 +26997,31 @@ TitleScreen_InitSprite:
 ; ----------------------------------------------------------------------------
 ; Object 0F - Title screen menu
 ; ----------------------------------------------------------------------------
-; Sprite_13600:
-Obj0F:
+; Sprite_13600: Obj0F:
+Obj_TitleMenu:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj0F_Index(pc,d0.w),d1
-	jsr	Obj0F_Index(pc,d1.w)
+	move.w	TitleMenu_Index(pc,d0.w),d1
+	jsr	TitleMenu_Index(pc,d1.w)
 	bra.w	DisplaySprite
 ; ===========================================================================
-; off_13612: Obj0F_States:
-Obj0F_Index:	offsetTable
-		offsetTableEntry.w Obj0F_Init	; 0
-		offsetTableEntry.w Obj0F_Main	; 2
+; off_13612: Obj0F_States: Obj0F_Index:
+TitleMenu_Index:	offsetTable
+		offsetTableEntry.w TitleMenu_Init	; 0
+		offsetTableEntry.w TitleMenu_Main	; 2
 ; ===========================================================================
-; loc_13616:
-Obj0F_Init:
-	addq.b	#2,routine(a0) ; => Obj0F_Main
+; loc_13616: Obj0F_Init:
+TitleMenu_Init:
+	addq.b	#2,routine(a0) ; => TitleMenu_Main
 	move.w	#128+320/2+8,x_pixel(a0)
 	move.w	#128+224/2+92,y_pixel(a0)
-	move.l	#Obj0F_MapUnc_13B70,mappings(a0)
+	move.l	#MapUnc_TitleMenu,mappings(a0)
 	move.w	#make_art_tile(ArtTile_VRAM_Start,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	andi.b	#1,(Title_screen_option).w
 	move.b	(Title_screen_option).w,mapping_frame(a0)
-
-; loc_13644:
-Obj0F_Main:
+; loc_13644: Obj0F_Main:
+TitleMenu_Main:
 	moveq	#0,d2
 	move.b	(Title_screen_option).w,d2
 	move.b	(Ctrl_1_Press).w,d0
@@ -27105,7 +27105,8 @@ MapUnc_TitleIntro:	include "mappings/sprite/Sonic and Tails from the title scree
 ; -----------------------------------------------------------------------------
 ; sprite mappings
 ; -----------------------------------------------------------------------------
-Obj0F_MapUnc_13B70:	include "mappings/sprite/obj0F.asm"
+; Obj0F_MapUnc_13B70:
+MapUnc_TitleMenu:	include "mappings/sprite/obj0F.asm"
 
 	jmpTos0 JmpTo4_PlaySound,JmpTo4_PlayMusic
 
@@ -29736,12 +29737,12 @@ ObjPtr_TippingFloor:	dc.l Obj_TippingFloor		; Section of pipe that tips you off 
 ObjPtr_CPZUnusedPltfm:	dc.l Obj_CPZUnusedPltfm		; Small floating platform (unused)
 ObjPtr_Signpost:	dc.l Obj_Signpost		; End of level signpost
 ObjPtr_TitleIntro:	dc.l Obj_TitleIntro		; Title screen intro animation
-ObjPtr_TitleMenu:	dc.l Obj0F	; Title screen menu
+ObjPtr_TitleMenu:	dc.l Obj_TitleMenu		; Title screen menu
 ObjPtr_TailsSS:		dc.l Obj10	; Tails in Special Stage
 ObjPtr_Bridge:		dc.l Obj11	; Bridge in Emerald Hill Zone and Hidden Palace Zone
 ObjPtr_HPZEmerald:	dc.l Obj_HPZEmerald		; Emerald from Hidden Palace Zone (unused)
 ObjPtr_HPZWaterfall:	dc.l Obj_HPZWaterfall		; Waterfall in Hidden Palace Zone (unused)
-ObjPtr_Seesaw:		dc.l Obj14	; Seesaw from Hill Top Zone
+ObjPtr_Seesaw:		dc.l Obj_Seesaw			; Seesaw from Hill Top Zone
 ObjPtr_SwingingPlatform:dc.l Obj15	; Swinging platform from Aquatic Ruin Zone
 ObjPtr_HTZLift:		dc.l Obj16	; Diagonally moving lift from HTZ
 			dc.l Obj17	; GHZ rotating log helix spikes (from Sonic 1, unused)
@@ -46972,28 +46973,28 @@ return_2191E:
 ; ----------------------------------------------------------------------------
 ; Object 14 - See saw from Hill Top Zone
 ; ----------------------------------------------------------------------------
-; Sprite_21928:
-Obj14:
+; Sprite_21928: Obj14:
+Obj_Seesaw:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj14_Index(pc,d0.w),d1
-	jsr	Obj14_Index(pc,d1.w)
+	move.w	Seesaw_Index(pc,d0.w),d1
+	jsr	Seesaw_Index(pc,d1.w)
 	move.w	objoff_30(a0),d0
 	jmpto	JmpTo_MarkObjGone2
 ; ===========================================================================
-; off_2193E:
-Obj14_Index:	offsetTable
-		offsetTableEntry.w Obj14_Init		;  0
-		offsetTableEntry.w Obj14_Main		;  2
+; off_2193E: Obj14_Index:
+Seesaw_Index:	offsetTable
+		offsetTableEntry.w Seesaw_Init		;  0
+		offsetTableEntry.w Seesaw_Main		;  2
 		offsetTableEntry.w return_21A74		;  4
-		offsetTableEntry.w Obj14_Ball_Init	;  6
-		offsetTableEntry.w Obj14_Ball_Main	;  8
-		offsetTableEntry.w Obj14_Ball_Fly	; $A
+		offsetTableEntry.w Seesaw_Ball_Init	;  6
+		offsetTableEntry.w Seesaw_Ball_Main	;  8
+		offsetTableEntry.w Seesaw_Ball_Fly	; $A
 ; ===========================================================================
-; loc_2194A:
-Obj14_Init:
+; loc_2194A: Obj14_Init:
+Seesaw_Init:
 	addq.b	#2,routine(a0)
-	move.l	#Obj14_MapUnc_21CF0,mappings(a0)
+	move.l	#MapUnc_SeesawMain,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_HtzSeeSaw,0,0),art_tile(a0)
 	jsrto	JmpTo13_Adjust2PArtPointer
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
@@ -47004,7 +47005,7 @@ Obj14_Init:
 	bne.s	loc_219A4
 	jsrto	JmpTo3_AllocateObjectAfterCurrent
 	bne.s	loc_219A4
-	_move.b	#ObjID_Seesaw,id(a1) ; load obj14
+	_move.b	#ObjID_Seesaw,id(a1) ; load Obj_Seesaw
 	addq.b	#6,routine(a1)
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
@@ -47018,8 +47019,8 @@ loc_219A4:
 
 loc_219B2:
 	move.b	mapping_frame(a0),objoff_3A(a0)
-
-Obj14_Main:
+; loc_219B4: Obj14_Main:
+Seesaw_Main:
 	move.b	objoff_3A(a0),d1
 	btst	#p1_standing_bit,status(a0)
 	beq.s	loc_21A12
@@ -47036,7 +47037,7 @@ Obj14_Main:
 	moveq	#1,d1
 +
 	btst	#p2_standing_bit,status(a0)
-	beq.s	Obj14_UpdateMappingAndCollision
+	beq.s	Seesaw_UpdateMappingAndCollision
 	moveq	#2,d2
 	lea	(Sidekick).w,a1 ; a1=character
 	move.w	x_pos(a0),d0
@@ -47055,7 +47056,7 @@ Obj14_Main:
 	addq.w	#1,d1
 +
 	lsr.w	#1,d1
-	bra.s	Obj14_UpdateMappingAndCollision
+	bra.s	Seesaw_UpdateMappingAndCollision
 ; ===========================================================================
 
 loc_21A12:
@@ -47070,9 +47071,9 @@ loc_21A12:
 	moveq	#0,d1
 +
 	cmpi.w	#8,d0
-	bhs.s	Obj14_UpdateMappingAndCollision
+	bhs.s	Seesaw_UpdateMappingAndCollision
 	moveq	#1,d1
-	bra.s	Obj14_UpdateMappingAndCollision
+	bra.s	Seesaw_UpdateMappingAndCollision
 ; ===========================================================================
 
 loc_21A38:
@@ -47083,10 +47084,9 @@ loc_21A38:
 	move.w	d2,d0
 +
 	move.w	d0,objoff_38(a0)
-
-; loc_21A4A:
-Obj14_UpdateMappingAndCollision:
-	bsr.w	Obj14_SetMapping
+; loc_21A4A: Obj14_UpdateMappingAndCollision:
+Seesaw_UpdateMappingAndCollision:
+	bsr.w	Seesaw_SetMapping
 	lea	(byte_21C8E).l,a2
 	btst	#0,mapping_frame(a0)
 	beq.s	+
@@ -47103,9 +47103,8 @@ Obj14_UpdateMappingAndCollision:
 return_21A74:
 	rts
 ; ===========================================================================
-
-; loc_21A76:
-Obj14_SetMapping:
+; loc_21A76: Obj14_SetMapping:
+Seesaw_SetMapping:
 	move.b	mapping_frame(a0),d0
 	cmp.b	d1,d0
 	beq.s	return_21AA0
@@ -47123,10 +47122,10 @@ Obj14_SetMapping:
 return_21AA0:
 	rts
 ; ===========================================================================
-; loc_21AA2:
-Obj14_Ball_Init:
+; loc_21AA2: Obj14_Ball_Init:
+Seesaw_Ball_Init:
 	addq.b	#2,routine(a0)
-	move.l	#Obj14_MapUnc_21D7C,mappings(a0)
+	move.l	#MapUnc_SeesawSol,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Sol,0,0),art_tile(a0)
 	jsrto	JmpTo13_Adjust2PArtPointer
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
@@ -47138,17 +47137,17 @@ Obj14_Ball_Init:
 	addi.w	#$10,y_pos(a0)
 	move.w	y_pos(a0),objoff_34(a0) ; save bottom of seesaw y position
 	btst	#status.npc.x_flip,status(a0)
-	beq.s	Obj14_Ball_Main
+	beq.s	Seesaw_Ball_Main
 	subi.w	#$50,x_pos(a0)
 	move.b	#2,objoff_3A(a0)
-; loc_21AFC:
-Obj14_Ball_Main:
-	bsr.w	Obj14_Animate
+; loc_21AFC: Obj14_Ball_Main:
+Seesaw_Ball_Main:
+	bsr.w	Seesaw_Animate
 	movea.l	objoff_3C(a0),a1 ; a1=parent object (seesaw)
 	moveq	#0,d0
 	move.b	objoff_3A(a0),d0 ; d0 = ball angle - seesaw angle
 	sub.b	objoff_3A(a1),d0
-	beq.s	Obj14_SetBallToRestOnSeeSaw
+	beq.s	Seesaw_SetBallToRestOnSeesaw
 	bcc.s	+
 	neg.b	d0
 +
@@ -47171,12 +47170,11 @@ Obj14_Ball_Main:
 	neg.w	x_vel(a0)
 +
 	addq.b	#2,routine(a0)
-	bra.s	Obj14_Ball_Fly
+	bra.s	Seesaw_Ball_Fly
 ; ===========================================================================
-
-; loc_21B56:
-Obj14_SetBallToRestOnSeeSaw:
-	lea	(Obj14_YOffsets).l,a2
+; loc_21B56: Obj14_SetBallToRestOnSeeSaw:
+Seesaw_SetBallToRestOnSeesaw:
+	lea	(Seesaw_YOffsets).l,a2
 	moveq	#0,d0
 	move.b	mapping_frame(a1),d0
 	move.w	#$28,d2
@@ -47196,10 +47194,9 @@ Obj14_SetBallToRestOnSeeSaw:
 	clr.w	x_sub(a0)
 	rts
 ; ===========================================================================
-
-Obj14_Ball_Fly:
-
-	bsr.w	Obj14_Animate
+; loc_21B94: Obj14_Ball_Fly:
+Seesaw_Ball_Fly:
+	bsr.w	Seesaw_Animate
 	tst.w	y_vel(a0)
 	bpl.s	loc_21BB6
 	jsrto	JmpTo_ObjectMoveAndFall
@@ -47216,7 +47213,7 @@ return_21BB4:
 loc_21BB6:
 	jsrto	JmpTo_ObjectMoveAndFall
 	movea.l	objoff_3C(a0),a1 ; a1=parent object (seesaw)
-	lea	(Obj14_YOffsets).l,a2
+	lea	(Seesaw_YOffsets).l,a2
 	moveq	#0,d0
 	move.b	mapping_frame(a1),d0
 	move.w	x_pos(a0),d1
@@ -47244,13 +47241,13 @@ loc_21BB6:
 	lea	(MainCharacter).w,a2 ; a2=character
 	bclr	#p1_standing_bit,status(a1)
 	beq.s	+
-	bsr.s	Obj14_LaunchCharacter
+	bsr.s	Seesaw_LaunchCharacter
 +
     ; launch sidekick if stood on seesaw
 	lea	(Sidekick).w,a2 ; a2=character
 	bclr	#p2_standing_bit,status(a1)
 	beq.s	loc_21C1E
-	bsr.s	Obj14_LaunchCharacter
+	bsr.s	Seesaw_LaunchCharacter
 
 loc_21C1E:
 	clr.w	x_vel(a0)      ; clear ball velocity
@@ -47260,9 +47257,8 @@ loc_21C1E:
 return_21C2A:
 	rts
 ; ===========================================================================
-
-; loc_21C2C:
-Obj14_LaunchCharacter:
+; loc_21C2C: Obj14_LaunchCharacter:
+Seesaw_LaunchCharacter:
 	move.w	y_vel(a0),y_vel(a2) ; set character y velocity to inverse of sol
 	neg.w	y_vel(a2)           ; y velocity
 	bset	#status.player.in_air,status(a2)	; set character airborne flag
@@ -47280,19 +47276,18 @@ Obj14_LaunchCharacter:
 	jmp	(PlaySound).l
 ; ===========================================================================
 ; heights of the contact point of the ball on the seesaw
-; word_21C5C:
-Obj14_YOffsets:
+; word_21C5C: Obj14_YOffsets:
+Seesaw_YOffsets:
 	dc.w -8, -28, -47, -28, -8 ; low, balanced, high, balanced, low
 ; ===========================================================================
-
-; loc_21C66:
-Obj14_Animate:
+; loc_21C66: Obj14_Animate:
+Seesaw_Animate:
 	move.b	(Level_frame_counter+1).w,d0
 	andi.b	#3,d0
-	bne.s	Obj14_SetSolToFaceMainCharacter
+	bne.s	Seesaw_SetSolToFaceMainCharacter
 	bchg	#palette_bit_0,art_tile(a0)
-
-Obj14_SetSolToFaceMainCharacter:
+; loc_21C76: Obj14_SetSolToFaceMainCharacter:
+Seesaw_SetSolToFaceMainCharacter:
 	andi.b	#~(1<<render_flags.x_flip),render_flags(a0)
 	move.w	(MainCharacter+x_pos).w,d0
 	sub.w	x_pos(a0),d0
@@ -47316,11 +47311,13 @@ byte_21CBF:
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
-Obj14_MapUnc_21CF0:	include "mappings/sprite/obj14_a.asm"
+; Obj14_MapUnc_21CF0:
+MapUnc_SeesawMain:	include "mappings/sprite/obj14_a.asm"
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
-Obj14_MapUnc_21D7C:	include "mappings/sprite/obj14_b.asm"
+; Obj14_MapUnc_21D7C:
+MapUnc_SeesawSol:	include "mappings/sprite/obj14_b.asm"
 ; ===========================================================================
 
 	jmpTos JmpTo3_AllocateObjectAfterCurrent,JmpTo13_Adjust2PArtPointer,JmpTo_ObjectMoveAndFall,JmpTo_MarkObjGone2
@@ -88308,7 +88305,7 @@ DbgObjList_HTZ: dbglistheader
 	dbglistobj ObjID_EHZPlatform,	Obj18_MapUnc_107F6,   1,   0, make_art_tile(ArtTile_ArtKos_LevelArt,2,0)
 	dbglistobj ObjID_EHZPlatform,	Obj18_MapUnc_107F6, $9A,   1, make_art_tile(ArtTile_ArtKos_LevelArt,2,0)
 	dbglistobj ObjID_Spikes,	Obj36_MapUnc_15B68,   0,   0, make_art_tile(ArtTile_ArtNem_Spikes,1,0)
-	dbglistobj ObjID_Seesaw,	Obj14_MapUnc_21CF0,   0,   0, make_art_tile(ArtTile_ArtNem_HtzSeeSaw,0,0)
+	dbglistobj ObjID_Seesaw,	MapUnc_SeesawMain,   0,   0, make_art_tile(ArtTile_ArtNem_HtzSeeSaw,0,0)
 	dbglistobj ObjID_Barrier,	Obj2D_MapUnc_11822,   0,   0, make_art_tile(ArtTile_ArtNem_HtzValveBarrier,1,0)
 	dbglistobj ObjID_SmashableGround, Obj2F_MapUnc_236FA,   0,   0, make_art_tile(ArtTile_ArtKos_LevelArt,2,1)
 	dbglistobj ObjID_LavaBubble,	Obj20_MapUnc_23254, $44,   2, make_art_tile(ArtTile_ArtNem_HtzFireball2,0,1)
