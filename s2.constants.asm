@@ -1189,9 +1189,9 @@ Sprite_Table_P2:		ds.b	$280	; Sprite attribute table buffer for the bottom split
 				ds.b	$80	; unused, but SAT buffer can spill over into this area when there are too many sprites on-screen
 
 HorizontalScrollBuffer struct dots
-	ds.l	224	; Total lines on the screen.
-	ds.l	16	; A bug/optimisation in 'Swscrl_CPZ' causes these values to be overflowed into.
-	ds.b	$40	; These are just unused.
+	ds.l	screen_height	; Total lines on the screen.
+	ds.l	16		; A bug/optimisation in 'Swscrl_CPZ' causes these values to be overflowed into.
+	ds.b	$40		; These are just unused.
 HorizontalScrollBuffer endstruct
 
 Horiz_Scroll_Buf:		HorizontalScrollBuffer
