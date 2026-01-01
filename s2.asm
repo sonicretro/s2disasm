@@ -18057,7 +18057,7 @@ ScrollHoriz:
 ; loc_D732:
 .checkIfShouldScroll:
 	sub.w	(a1),d0
-	subi.w	#(320/2)-16,d0		; is the player less than 144 pixels from the screen edge?
+	subi.w	#(screen_width/2)-16,d0		; is the player less than 144 pixels from the screen edge?
 	blt.s	.scrollLeft	; if he is, scroll left
 	subi.w	#16,d0		; is the player more than 159 pixels from the screen edge?
 	bge.s	.scrollRight	; if he is, scroll right
@@ -18558,21 +18558,21 @@ LoadTilesAsYouMove:
 
 	move.b	#0,(Screen_redraw_flag).w
 
-	moveq	#-16,d4	; X (relative to camera)
-	moveq	#(1+224/16+1)-1,d6 ; Cover the screen, plus an extra row at the top and bottom.
+	moveq	#-block_width,d4	; X (relative to camera)
+	moveq	#(1+screen_height/block_height+1)-1,d6 ; Cover the screen, plus an extra row at the top and bottom.
 ; loc_DACE:
 Draw_All:
 	; Redraw the whole screen.
 	movem.l	d4-d6,-(sp)
-	moveq	#-16,d5	; X (relative)
+	moveq	#-block_width,d5	; X (relative)
 	move.w	d4,d1
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
 	move.w	d1,d4
-	moveq	#-16,d5	; X (relative)
-	bsr.w	DrawBlockRow	; draw the current row
+	moveq	#-block_width,d5	; X (relative)
+	bsr.w	DrawBlockRow		; draw the current row
 	movem.l	(sp)+,d4-d6
-	addi.w	#16,d4		; move onto the next row
-	dbf	d6,Draw_All	; repeat for all rows
+	addi.w	#block_height,d4	; move onto the next row
+	dbf	d6,Draw_All		; repeat for all rows
 
 	move.b	#0,(Scroll_flags_copy).w
 
@@ -18585,38 +18585,38 @@ Draw_FG:
 
 	bclr	#scroll_flag_fg_up,(a2)	; has the level scrolled up?
 	beq.s	+			; if not, branch
-	moveq	#-16,d4
-	moveq	#-16,d5
+	moveq	#-block_height,d4
+	moveq	#-block_width,d5
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	moveq	#-16,d4
-	moveq	#-16,d5
+	moveq	#-block_height,d4
+	moveq	#-block_width,d5
 	bsr.w	DrawBlockRow	; redraw upper row
 +
 	bclr	#scroll_flag_fg_down,(a2)	; has the level scrolled down?
 	beq.s	+			; if not, branch
-	move.w	#224,d4
-	moveq	#-16,d5
+	move.w	#screen_height,d4
+	moveq	#-block_width,d5
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	move.w	#224,d4
-	moveq	#-16,d5
+	move.w	#screen_height,d4
+	moveq	#-block_width,d5
 	bsr.w	DrawBlockRow	; redraw bottom row
 +
 	bclr	#scroll_flag_fg_left,(a2)	; has the level scrolled to the left?
 	beq.s	+			; if not, branch
-	moveq	#-16,d4
-	moveq	#-16,d5
+	moveq	#-block_height,d4
+	moveq	#-block_width,d5
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	moveq	#-16,d4
-	moveq	#-16,d5
+	moveq	#-block_height,d4
+	moveq	#-block_width,d5
 	bsr.w	DrawBlockColumn	; redraw left-most column
 +
 	bclr	#scroll_flag_fg_right,(a2)	; has the level scrolled to the right?
 	beq.s	return_DB5A		; if not, return
-	moveq	#-16,d4
-	move.w	#320,d5
+	moveq	#-block_height,d4
+	move.w	#screen_width,d5
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	moveq	#-16,d4
-	move.w	#320,d5
+	moveq	#-block_height,d4
+	move.w	#screen_width,d5
 	bsr.w	DrawBlockColumn	; redraw right-most column
 
 return_DB5A:
@@ -18631,38 +18631,38 @@ Draw_FG_P2:
 
 	bclr	#scroll_flag_fg_up,(a2)
 	beq.s	+
-	moveq	#-16,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer2
-	moveq	#-16,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	DrawBlockRow
 +
 	bclr	#scroll_flag_fg_down,(a2)
 	beq.s	+
-	move.w	#224,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	move.w	#screen_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer2
-	move.w	#224,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	move.w	#screen_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	DrawBlockRow
 +
 	bclr	#scroll_flag_fg_left,(a2)
 	beq.s	+
-	moveq	#-16,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer2
-	moveq	#-16,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	DrawBlockColumn
 +
 	bclr	#scroll_flag_fg_right,(a2)
 	beq.s	return_DBC0
-	moveq	#-16,d4	; Y offset
-	move.w	#320,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	move.w	#screen_width,d5	; X offset
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer2
-	moveq	#-16,d4	; Y offset
-	move.w	#320,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	move.w	#screen_width,d5	; X offset
 	bsr.w	DrawBlockColumn
 
 return_DBC0:
@@ -18679,58 +18679,58 @@ Draw_BG1:
 
 	bclr	#scroll_flag_bg1_up,(a2)
 	beq.s	+
-	moveq	#-16,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	moveq	#-16,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	DrawBlockRow
 +
 	bclr	#scroll_flag_bg1_down,(a2)
 	beq.s	+
-	move.w	#224,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	move.w	#screen_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	move.w	#224,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	move.w	#screen_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	DrawBlockRow
 +
 	bclr	#scroll_flag_bg1_left,(a2)
 	beq.s	+
-	moveq	#-16,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	moveq	#-16,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	DrawBlockColumn
 +
 	bclr	#scroll_flag_bg1_right,(a2)
 	beq.s	+
-	moveq	#-16,d4	; Y offset
-	move.w	#320,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	move.w	#screen_width,d5	; X offset
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	moveq	#-16,d4	; Y offset
-	move.w	#320,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	move.w	#screen_width,d5	; X offset
 	bsr.w	DrawBlockColumn
 +
 	bclr	#scroll_flag_bg1_up_whole_row,(a2)
 	beq.s	+
-	moveq	#-16,d4		; Y offset
+	moveq	#-block_height,d4		; Y offset
 	moveq	#0,d5		; X (absolute)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1.AbsoluteX
-	moveq	#-16,d4
+	moveq	#-block_height,d4
 	moveq	#0,d5
-	moveq	#512/16-1,d6	; The entire width of the plane in blocks minus 1.
+	moveq	#gameplay_plane_width/block_width-1,d6	; The entire width of the plane in blocks minus 1.
 	bsr.w	DrawBlockRow.AbsoluteXCustomWidth
 +
 	bclr	#scroll_flag_bg1_down_whole_row,(a2)
 	beq.s	+
-	move.w	#224,d4		; Y offset
+	move.w	#screen_height,d4		; Y offset
 	moveq	#0,d5		; X (absolute)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1.AbsoluteX
-	move.w	#224,d4
+	move.w	#screen_height,d4
 	moveq	#0,d5
-	moveq	#512/16-1,d6	; The entire width of the plane in blocks minus 1.
+	moveq	#gameplay_plane_width/block_width-1,d6	; The entire width of the plane in blocks minus 1.
 	bsr.w	DrawBlockRow.AbsoluteXCustomWidth
 +
 	; This should be no different than 'scroll_flag_bg1_up_whole_row'.
@@ -18739,12 +18739,12 @@ Draw_BG1:
 	; anyway.
 	bclr	#scroll_flag_bg1_up_whole_row_2,(a2)
 	beq.s	+
-	moveq	#-16,d4		; Y offset (relative to camera)
-	moveq	#-16,d5		; X offset (relative to camera)
+	moveq	#-block_height,d4		; Y offset (relative to camera)
+	moveq	#-block_width,d5		; X offset (relative to camera)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	moveq	#-16,d4
-	moveq	#-16,d5
-	moveq	#512/16-1,d6	; The entire width of the plane in blocks minus 1.
+	moveq	#-block_height,d4
+	moveq	#-block_width,d5
+	moveq	#gameplay_plane_width/block_width-1,d6	; The entire width of the plane in blocks minus 1.
 	bsr.w	DrawBlockRow_CustomWidth
 +
 	; This should be no different than 'scroll_flag_bg1_down_whole_row'.
@@ -18753,12 +18753,12 @@ Draw_BG1:
 	; anyway.
 	bclr	#scroll_flag_bg1_down_whole_row_2,(a2)
 	beq.s	return_DC90
-	move.w	#224,d4		; Y offset (relative to camera)
-	moveq	#-16,d5		; X offset (relative to camera)
+	move.w	#screen_height,d4		; Y offset (relative to camera)
+	moveq	#-block_width,d5		; X offset (relative to camera)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	move.w	#224,d4
-	moveq	#-16,d5
-	moveq	#512/16-1,d6	; The entire width of the plane in blocks minus 1.
+	move.w	#screen_height,d4
+	moveq	#-block_width,d5
+	moveq	#gameplay_plane_width/block_width-1,d6	; The entire width of the plane in blocks minus 1.
 	bsr.w	DrawBlockRow_CustomWidth
 
 return_DC90:
@@ -18776,21 +18776,21 @@ Draw_BG2:
 	; Leftover from Sonic 1: was used by Green Hill Zone and Spring Yard Zone.
 	bclr	#scroll_flag_bg2_left,(a2)
 	beq.s	+
-	move.w	#112,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	move.w	#block_height*7,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	move.w	#112,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	move.w	#block_height*7,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	moveq	#3-1,d6	; Only three blocks, which works out to 48 pixels in height.
 	bsr.w	DrawBlockColumn.CustomHeight
 +
 	bclr	#scroll_flag_bg2_right,(a2)
 	beq.s	+
-	move.w	#112,d4	; Y offset
-	move.w	#320,d5		; X offset
+	move.w	#block_height*7,d4	; Y offset
+	move.w	#screen_width,d5		; X offset
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	move.w	#112,d4	; Y offset
-	move.w	#320,d5	; X offset
+	move.w	#block_height*7,d4	; Y offset
+	move.w	#screen_width,d5	; X offset
 	moveq	#3-1,d6	; Only three blocks, which works out to 48 pixels in height.
 	bsr.w	DrawBlockColumn.CustomHeight
 +
@@ -18865,12 +18865,12 @@ SBZ_CameraSections:
 	; clouds disappear. Using this would have avoided that.
 
 	; Handle loading the rows as the camera moves up and down.
-	moveq	#-16,d4	; Y offset (relative to camera)
+	moveq	#-block_height,d4	; Y offset (relative to camera)
 	bclr	#scroll_flag_advanced_bg_up,(a2)
 	bne.s	.doUpOrDown
 	bclr	#scroll_flag_advanced_bg_down,(a2)
 	beq.s	.checkIfShouldDoLeftOrRight
-	move.w	#224,d4	; Y offset (relative to camera)
+	move.w	#screen_height,d4	; Y offset (relative to camera)
 
 .doUpOrDown:
 	lea_	SBZ_CameraSections+1,a0
@@ -18882,7 +18882,7 @@ SBZ_CameraSections:
 	lea	(BGCameraLookup).l,a3
 	movea.w	(a3,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
 	beq.s	.doWholeRow
-	moveq	#-16,d5	; X offset (relative to camera)
+	moveq	#-block_width,d5	; X offset (relative to camera)
 	movem.l	d4-d5,-(sp)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
 	movem.l	(sp)+,d4-d5
@@ -18895,7 +18895,7 @@ SBZ_CameraSections:
 	movem.l	d4-d5,-(sp)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1.AbsoluteX
 	movem.l	(sp)+,d4-d5
-	moveq	#512/16-1,d6	; The entire width of the plane in blocks minus 1.
+	moveq	#gameplay_plane_width/block_width-1,d6	; The entire width of the plane in blocks minus 1.
 	bsr.w	DrawBlockRow.AbsoluteXCustomWidth
 
 .checkIfShouldDoLeftOrRight:
@@ -18906,17 +18906,17 @@ SBZ_CameraSections:
 ; ===========================================================================
 
 .doLeftOrRight:
-	moveq	#-16,d4 ; Y offset
+	moveq	#-block_height,d4 ; Y offset
 
 	; Load left column.
-	moveq	#-16,d5 ; X offset
+	moveq	#-block_width,d5 ; X offset
 	move.b	(a2),d0
 	andi.b	#(1<<scroll_flag_advanced_bg1_right)|(1<<scroll_flag_advanced_bg2_right)|(1<<scroll_flag_advanced_bg3_right),d0
 	beq.s	+
 	lsr.b	#1,d0	; Make the left and right flags share the same bits, to simplify a calculation later.
 	move.b	d0,(a2)
 	; Load right column.
-	move.w	#320,d5 ; X offset
+	move.w	#screen_width,d5 ; X offset
 +
 	; Select the correct starting background section, and then begin
 	; drawing the column.
@@ -18945,21 +18945,21 @@ Draw_BG3:
 	; Leftover from Sonic 1: was used by Green Hill Zone.
 	bclr	#scroll_flag_bg3_left,(a2)
 	beq.s	+
-	move.w	#64,d4	; Y offset (relative to camera)
-	moveq	#-16,d5	; X offset (relative to camera)
+	move.w	#block_height*4,d4	; Y offset (relative to camera)
+	moveq	#-block_width,d5	; X offset (relative to camera)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	move.w	#64,d4	; Y offset (relative to camera)
-	moveq	#-16,d5	; X offset (relative to camera)
+	move.w	#block_height*4,d4	; Y offset (relative to camera)
+	moveq	#-block_width,d5	; X offset (relative to camera)
 	moveq	#3-1,d6
 	bsr.w	DrawBlockColumn.CustomHeight
 +
 	bclr	#scroll_flag_bg3_right,(a2)
 	beq.s	+
-	move.w	#64,d4	; Y offset (relative to camera)
-	move.w	#320,d5	; X offset (relative to camera)
+	move.w	#block_height*4,d4	; Y offset (relative to camera)
+	move.w	#screen_width,d5	; X offset (relative to camera)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	move.w	#64,d4	; Y offset (relative to camera)
-	move.w	#320,d5	; X offset (relative to camera)
+	move.w	#block_height*4,d4	; Y offset (relative to camera)
+	move.w	#screen_width,d5	; X offset (relative to camera)
 	moveq	#3-1,d6
 	bsr.w	DrawBlockColumn.CustomHeight
 +
@@ -19065,12 +19065,12 @@ Draw_BG3_CPZ:
 	; row when it uses "camera 0".
 
 	; Handle loading the rows as the camera moves up and down.
-	moveq	#-16,d4	; Y offset
+	moveq	#-block_height,d4	; Y offset
 	bclr	#scroll_flag_advanced_bg_up,(a2)
 	bne.s	.doUpOrDown
 	bclr	#scroll_flag_advanced_bg_down,(a2)
 	beq.s	.checkIfShouldDoLeftOrRight
-	move.w	#224,d4	; Y offset
+	move.w	#screen_height,d4	; Y offset
 
 .doUpOrDown:
 	; Select the correct camera, so that the X value of the loaded row is
@@ -19082,7 +19082,7 @@ Draw_BG3_CPZ:
 	lsr.w	#4,d0
 	move.b	(a0,d0.w),d0
 	movea.w	BGCameraLookup(pc,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
-	moveq	#-16,d5	; X offset
+	moveq	#-block_width,d5	; X offset
 	movem.l	d4-d5,-(sp)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
 	movem.l	(sp)+,d4-d5
@@ -19096,17 +19096,17 @@ Draw_BG3_CPZ:
 ; ===========================================================================
 
 .doLeftOrRight:
-	moveq	#-16,d4 ; Y offset
+	moveq	#-block_height,d4 ; Y offset
 
 	; Load left column.
-	moveq	#-16,d5 ; X offset
+	moveq	#-block_width,d5 ; X offset
 	move.b	(a2),d0
 	andi.b	#(1<<scroll_flag_advanced_bg1_right)|(1<<scroll_flag_advanced_bg2_right)|(1<<scroll_flag_advanced_bg3_right),d0
 	beq.s	+
 	lsr.b	#1,d0	; Make the left and right flags share the same bits, to simplify a calculation later.
 	move.b	d0,(a2)
 	; Load right column.
-	move.w	#320,d5 ; X offset
+	move.w	#screen_width,d5 ; X offset
 +
 	; Select the correct starting background section, and then begin
 	; drawing the column.
@@ -19137,8 +19137,8 @@ DrawBlockColumn_Advanced:
 	tst.w	(Two_player_mode).w
 	bne.s	.doubleResolution
 
-	moveq	#(1+224/16+1)-1,d6	; Enough blocks to cover the screen, plus one more on the top and bottom.
-	move.l	#vdpCommDelta($0080),d7
+	moveq	#(1+screen_height/block_height+1)-1,d6	; Enough blocks to cover the screen, plus one more on the top and bottom.
+	move.l	#vdpCommDelta(gameplay_plane_width/tile_width*2),d7	; store VDP command for line increment
 
 -
 	; If the block is not part of the row that needs updating, then skip
@@ -19159,7 +19159,7 @@ DrawBlockColumn_Advanced:
 	movem.l	(sp)+,d4-d5/a0
 +
 	; Move onto the next block down.
-	addi.w	#16,d4
+	addi.w	#block_height,d4
 	dbf	d6,-
 
 	; Clear the scroll flags now that we're done here.
@@ -19169,8 +19169,8 @@ DrawBlockColumn_Advanced:
 ; ===========================================================================
 
 .doubleResolution:
-	moveq	#(1+224/16+1)-1,d6	; Enough blocks to cover the screen, plus one more on the top and bottom.
-	move.l	#vdpCommDelta($0080),d7
+	moveq	#(1+screen_height/block_height+1)-1,d6	; Enough blocks to cover the screen, plus one more on the top and bottom.
+	move.l	#vdpCommDelta(gameplay_plane_width/tile_width*2),d7	; store VDP command for line increment
 
 -
 	; If the block is not part of the row that needs updating, then skip
@@ -19191,7 +19191,7 @@ DrawBlockColumn_Advanced:
 	movem.l	(sp)+,d4-d5/a0
 +
 	; Move onto the next block down.
-	addi.w	#16,d4
+	addi.w	#block_height,d4
 	dbf	d6,-
 
 	; Clear the scroll flags now that we're done here.
@@ -19267,12 +19267,12 @@ Draw_BG3_OOZ:
 	; it aligns with.
 
 	; Handle loading the rows as the camera moves up and down.
-	moveq	#-16,d4	; Y offset
+	moveq	#-block_height,d4	; Y offset
 	bclr	#scroll_flag_advanced_bg_up,(a2)
 	bne.s	.doUpOrDown
 	bclr	#scroll_flag_advanced_bg_down,(a2)
 	beq.s	.checkIfShouldDoLeftOrRight
-	move.w	#224,d4	; Y offset
+	move.w	#screen_height,d4	; Y offset
 
 .doUpOrDown:
 	; Select the correct camera, so that the X value of the loaded row is
@@ -19286,7 +19286,7 @@ Draw_BG3_OOZ:
 	lea	BGCameraLookup(pc),a3
 	movea.w	(a3,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
 	beq.s	.doWholeRow
-	moveq	#-16,d5	; X offset
+	moveq	#-block_width,d5	; X offset
 	movem.l	d4-d5,-(sp)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
 	movem.l	(sp)+,d4-d5
@@ -19299,7 +19299,7 @@ Draw_BG3_OOZ:
 	movem.l	d4-d5,-(sp)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1.AbsoluteX
 	movem.l	(sp)+,d4-d5
-	moveq	#512/16-1,d6	; The entire width of the plane in blocks minus 1.
+	moveq	#gameplay_plane_width/block_width-1,d6	; The entire width of the plane in blocks minus 1.
 	bsr.w	DrawBlockRow.AbsoluteXCustomWidth
 
 .checkIfShouldDoLeftOrRight:
@@ -19310,17 +19310,17 @@ Draw_BG3_OOZ:
 ; ===========================================================================
 
 .doLeftOrRight:
-	moveq	#-16,d4 ; Y offset
+	moveq	#-block_height,d4 ; Y offset
 
 	; Load left column.
-	moveq	#-16,d5 ; X offset
+	moveq	#-block_width,d5 ; X offset
 	move.b	(a2),d0
 	andi.b	#(1<<scroll_flag_advanced_bg1_right)|(1<<scroll_flag_advanced_bg2_right)|(1<<scroll_flag_advanced_bg3_right),d0
 	beq.s	+
 	lsr.b	#1,d0	; Make the left and right flags share the same bits, to simplify a calculation later.
 	move.b	d0,(a2)
 	; Load right column.
-	move.w	#320,d5 ; X offset
+	move.w	#screen_width,d5 ; X offset
 +
 	; Select the correct starting background section, and then begin
 	; drawing the column.
@@ -19336,12 +19336,12 @@ Draw_BG3_OOZ:
 
 ; sub_DF04: DrawBlockCol1:
 DrawBlockColumn:
-	moveq	#(1+224/16+1)-1,d6 ; Enough blocks to cover the screen, plus one more on the top and bottom.
+	moveq	#(1+screen_height/block_height+1)-1,d6 ; Enough blocks to cover the screen, plus one more on the top and bottom.
 ; DrawBlockCol2:
 .CustomHeight:
 	add.w	(a3),d5		; add camera X pos
 	add.w	4(a3),d4	; add camera Y pos
-	move.l	#vdpCommDelta(64*2),d7	; store VDP command for line increment
+	move.l	#vdpCommDelta(gameplay_plane_width/tile_width*2),d7	; store VDP command for line increment
 	move.l	d0,d1		; copy byte-swapped VDP command for later access
 	bsr.w	GetAddressOfBlockInChunk
 
@@ -19355,10 +19355,10 @@ DrawBlockColumn:
 	adda.w	d3,a1		; a1 = address of the current 16x16 in the block table
 	move.l	d1,d0
 	bsr.w	ProcessAndWriteBlock_Vertical
-	adda.w	#128/16*2,a0	; move onto the 16x16 vertically below this one
-	addi.w	#64*2*2,d1	; draw on alternate 8x8 lines
-	andi.w	#(64*32*2)-1,d1	; wrap around plane (assumed to be in 64x32 mode)
-	addi.w	#16,d4		; add 16 to Y offset
+	adda.w	#chunk_width/block_width*2,a0	; move onto the 16x16 vertically below this one
+	addi.w	#gameplay_plane_width/tile_width*2*2,d1	; draw on alternate 8x8 lines
+	andi.w	#((gameplay_plane_width/tile_width)*(gameplay_plane_height/tile_height)*2)-1,d1	; wrap around plane (assumed to be in 64x32 mode)
+	addi.w	#block_height,d4		; add 16 to Y offset
 	move.w	d4,d0
 	andi.w	#$70,d0		; have we reached a new 128x128?
 	bne.s	+		; if not, branch
@@ -19376,10 +19376,10 @@ DrawBlockColumn:
 	adda.w	d3,a1
 	move.l	d1,d0
 	bsr.w	ProcessAndWriteBlock_DoubleResolution_Vertical
-	adda.w	#128/16*2,a0
-	addi.w	#$80,d1
-	andi.w	#(64*32*2)-1,d1
-	addi.w	#16,d4
+	adda.w	#chunk_width/block_width*2,a0
+	addi.w	#gameplay_plane_width/tile_width*2,d1
+	andi.w	#((gameplay_plane_width/tile_width)*(gameplay_plane_height/tile_height)*2)-1,d1
+	addi.w	#block_height,d4
 	move.w	d4,d0
 	andi.w	#$70,d0
 	bne.s	+
@@ -19404,7 +19404,7 @@ DrawBlockRow_CustomWidth:
 
 ; sub_DF92: DrawTiles_Vertical1: DrawBlockRow1:
 DrawBlockRow:
-	moveq	#(1+320/16+1)-1,d6 ; Just enough blocks to cover the screen.
+	moveq	#(1+screen_width/block_width+1)-1,d6 ; Just enough blocks to cover the screen.
 	add.w	(a3),d5		; add X pos
 ; loc_DF96: DrawTiles_Vertical2: DrawBlockRow2:
 .AbsoluteXCustomWidth:
@@ -19439,7 +19439,7 @@ DrawBlockRow:
 	move.l	d1,(a5)		; set up a VRAM write at a new address
 	swap	d1
 +
-	addi.w	#16,d5		; add 16 to X offset
+	addi.w	#block_width,d5		; add 16 to X offset
 	move.w	d5,d0
 	andi.w	#$70,d0		; have we reached a new 128x128?
 	bne.s	+		; if not, branch
@@ -19448,7 +19448,7 @@ DrawBlockRow:
 	dbf	d6,-		; repeat 22 times
 
 	move.l	(sp)+,d1
-	addi.l	#vdpCommDelta(64*2),d1	; move onto next line
+	addi.l	#vdpCommDelta(gameplay_plane_width/tile_width*2),d1	; move onto next line
 	lea	(Block_cache).w,a2
 	move.l	d1,(a5)		; write to this VRAM address
 	swap	d1
@@ -19493,7 +19493,7 @@ DrawBlockRow:
 	move.l	d1,(a5)
 	swap	d1
 +
-	addi.w	#16,d5
+	addi.w	#block_width,d5
 	move.w	d5,d0
 	andi.w	#$70,d0
 	bne.s	+
@@ -19519,7 +19519,7 @@ DrawBlockRow:
 	move.l	d1,(a5)
 	swap	d1
 +
-	addi.w	#16,d5
+	addi.w	#block_width,d5
 	move.w	d5,d0
 	andi.w	#$70,d0
 	bne.s	+
@@ -19929,42 +19929,42 @@ DrawInitialBG:
 	cmpi.b	#mystic_cave_zone,(Current_Zone).w
 	beq.w	DrawInitialBG_LoadWholeBackground_512x512
 +
-	moveq	#-16,d4
+	moveq	#-block_height,d4
 +
-	moveq	#256/16-1,d6 ; Height of plane in blocks minus 1.
+	moveq	#gameplay_plane_height/block_height-1,d6 ; Height of plane in blocks minus 1.
 -	movem.l	d4-d6,-(sp)
 	moveq	#0,d5
 	move.w	d4,d1
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
 	move.w	d1,d4
 	moveq	#0,d5
-	moveq	#512/16-1,d6 ; Width of plane in blocks minus 1.
+	moveq	#gameplay_plane_width/block_width-1,d6 ; Width of plane in blocks minus 1.
 	move	#$2700,sr
 	bsr.w	DrawBlockRow_CustomWidth
 	move	#$2300,sr
 	movem.l	(sp)+,d4-d6
-	addi.w	#16,d4
+	addi.w	#block_height,d4
 	dbf	d6,-
 
 	rts
 ; ===========================================================================
 	; Dead code for initialising the second player's portion of Plane B.
 	; This was used in earlier builds before title cards were implemented.
-	moveq	#-16,d4
+	moveq	#-block_height,d4
 
-	moveq	#256/16-1,d6 ; Height of plane in blocks minus 1.
+	moveq	#gameplay_plane_height/block_height-1,d6 ; Height of plane in blocks minus 1.
 -	movem.l	d4-d6,-(sp)
 	moveq	#0,d5
 	move.w	d4,d1
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer2
 	move.w	d1,d4
 	moveq	#0,d5
-	moveq	#512/16-1,d6 ; Width of plane in blocks minus 1.
+	moveq	#gameplay_plane_width/block_width-1,d6 ; Width of plane in blocks minus 1.
 	move	#$2700,sr
 	bsr.w	DrawBlockRow_CustomWidth
 	move	#$2300,sr
 	movem.l	(sp)+,d4-d6
-	addi.w	#16,d4
+	addi.w	#block_height,d4
 	dbf	d6,-
 
 	rts
@@ -19976,19 +19976,19 @@ DrawInitialBG_LoadWholeBackground_512x512:
 	; mode (512x512 instead of 512x256).
 	moveq	#0,d4	; Absolute plane Y coordinate.
 
-	moveq	#512/16-1,d6 ; Height of plane in blocks minus 1.
+	moveq	#gameplay_plane_height_2p/block_height-1,d6 ; Height of plane in blocks minus 1.
 -	movem.l	d4-d6,-(sp)
 	moveq	#0,d5
 	move.w	d4,d1
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1.AbsoluteXAbsoluteY_DoubleResolution
 	move.w	d1,d4
 	moveq	#0,d5
-	moveq	#512/16-1,d6 ; Width of plane in blocks minus 1.
+	moveq	#gameplay_plane_width/block_width-1,d6 ; Width of plane in blocks minus 1.
 	move	#$2700,sr
 	bsr.w	DrawBlockRow.AbsoluteXAbsoluteYCustomWidth
 	move	#$2300,sr
 	movem.l	(sp)+,d4-d6
-	addi.w	#16,d4
+	addi.w	#block_height,d4
 	dbf	d6,-
 
 	rts
@@ -19997,7 +19997,7 @@ DrawInitialBG_LoadWholeBackground_512x512:
 DrawInitialBG_LoadWholeBackground_512x256:
 	moveq	#0,d4	; Absolute plane Y coordinate.
 
-	moveq	#256/16-1,d6 ; Height of plane in blocks minus 1.
+	moveq	#gameplay_plane_height/block_height-1,d6 ; Height of plane in blocks minus 1.
 -	movem.l	d4-d6,-(sp)
 	moveq	#0,d5
 	move.w	d4,d1
@@ -20009,12 +20009,12 @@ DrawInitialBG_LoadWholeBackground_512x256:
 +
 	move.w	d1,d4
 	moveq	#0,d5
-	moveq	#512/16-1,d6 ; Width of plane in blocks minus 1.
+	moveq	#gameplay_plane_width/block_width-1,d6 ; Width of plane in blocks minus 1.
 	move	#$2700,sr
 	bsr.w	DrawBlockRow.AbsoluteXAbsoluteYCustomWidth
 	move	#$2300,sr
 	movem.l	(sp)+,d4-d6
-	addi.w	#16,d4
+	addi.w	#block_height,d4
 	dbf	d6,-
 
 	rts
@@ -28795,7 +28795,7 @@ loc_155FE:
 loc_15604:
 	move.l	d6,(a6)
 	dbf	d3,loc_15604
-	addi.l	#vdpCommDelta($0080),d0
+	addi.l	#vdpCommDelta(gameplay_plane_width/tile_width*2),d0
 	dbf	d4,loc_155FE
 
 loc_15614:
@@ -28897,7 +28897,7 @@ loc_156F4:
 -	move.l	d0,VDP_control_port-VDP_data_port(a6)
 	move.l	d6,(a6)
 	move.l	d6,(a6)
-	addi.l	#vdpCommDelta($0080),d0
+	addi.l	#vdpCommDelta(gameplay_plane_width/tile_width*2),d0
 	dbf	d4,-
 
 loc_15714:
@@ -29998,7 +29998,7 @@ MarkObjGone:
 	move.w	x_pos(a0),d0
 	andi.w	#$FF80,d0
 	sub.w	(Camera_X_pos_coarse).w,d0
-	cmpi.w	#$80+320+$40+$80,d0	; This gives an object $80 pixels of room offscreen before being unloaded (the $40 is there to round up 320 to a multiple of $80)
+	cmpi.w	#$80+screen_width+$40+$80,d0	; This gives an object $80 pixels of room offscreen before being unloaded (the $40 is there to round up 320 to a multiple of $80)
 	bhi.w	+
 	bra.w	DisplaySprite
 
@@ -30019,7 +30019,7 @@ MarkObjGone2:
 +
 	andi.w	#$FF80,d0
 	sub.w	(Camera_X_pos_coarse).w,d0
-	cmpi.w	#$80+320+$40+$80,d0	; This gives an object $80 pixels of room offscreen before being unloaded (the $40 is there to round up 320 to a multiple of $80)
+	cmpi.w	#$80+screen_width+$40+$80,d0	; This gives an object $80 pixels of room offscreen before being unloaded (the $40 is there to round up 320 to a multiple of $80)
 	bhi.w	+
 	bra.w	DisplaySprite
 +
@@ -30042,7 +30042,7 @@ MarkObjGone3:
 	move.w	x_pos(a0),d0
 	andi.w	#$FF80,d0
 	sub.w	(Camera_X_pos_coarse).w,d0
-	cmpi.w	#$80+320+$40+$80,d0	; This gives an object $80 pixels of room offscreen before being unloaded (the $40 is there to round up 320 to a multiple of $80)
+	cmpi.w	#$80+screen_width+$40+$80,d0	; This gives an object $80 pixels of room offscreen before being unloaded (the $40 is there to round up 320 to a multiple of $80)
 	bhi.w	+
 	rts
 +
@@ -30062,7 +30062,7 @@ MarkObjGone_P1:
 	move.w	x_pos(a0),d0
 	andi.w	#$FF80,d0
 	sub.w	(Camera_X_pos_coarse).w,d0
-	cmpi.w	#$80+320+$40+$80,d0	; This gives an object $80 pixels of room offscreen before being unloaded (the $40 is there to round up 320 to a multiple of $80)
+	cmpi.w	#$80+screen_width+$40+$80,d0	; This gives an object $80 pixels of room offscreen before being unloaded (the $40 is there to round up 320 to a multiple of $80)
 	bhi.w	+
 	bra.w	DisplaySprite
 +
@@ -30352,7 +30352,7 @@ BuildSprites_ObjLoop:
 	bmi.w	BuildSprites_NextObj	; if it is, branch
 	move.w	d3,d1
 	sub.w	d0,d1
-	cmpi.w	#320,d1	; is the object left edge to the right of the screen?
+	cmpi.w	#screen_width,d1	; is the object left edge to the right of the screen?
 	bge.w	BuildSprites_NextObj	; if it is, branch
 	addi.w	#128,d3
 	btst	#render_flags.explicit_height,d4		; is the accurate Y check flag set?
@@ -30366,7 +30366,7 @@ BuildSprites_ObjLoop:
 	bmi.s	BuildSprites_NextObj	; if the object is above the screen
 	move.w	d2,d1
 	sub.w	d0,d1
-	cmpi.w	#224,d1
+	cmpi.w	#screen_height,d1
 	bge.s	BuildSprites_NextObj	; if the object is below the screen
 	addi.w	#128,d2
 	bra.s	BuildSprites_DrawSprite
@@ -30455,7 +30455,7 @@ BuildSprites_MultiDraw:
 	bmi.w	BuildSprites_MultiDraw_NextObj
 	move.w	d3,d1
 	sub.w	d0,d1
-	cmpi.w	#320,d1
+	cmpi.w	#screen_width,d1
 	bge.w	BuildSprites_MultiDraw_NextObj
 	addi.w	#128,d3
 
@@ -30471,7 +30471,7 @@ BuildSprites_MultiDraw:
 	bmi.w	BuildSprites_MultiDraw_NextObj
 	move.w	d2,d1
 	sub.w	d0,d1
-	cmpi.w	#224,d1
+	cmpi.w	#screen_height,d1
 	bge.w	BuildSprites_MultiDraw_NextObj
 	addi.w	#128,d2
 	bra.s	++
@@ -30823,7 +30823,7 @@ BuildSprites_P1_ObjLoop:
 	bmi.w	BuildSprites_P1_NextObj
 	move.w	d3,d1
 	sub.w	d0,d1
-	cmpi.w	#320,d1
+	cmpi.w	#screen_width,d1
 	bge.s	BuildSprites_P1_NextObj
 	addi.w	#128,d3
 	btst	#render_flags.explicit_height,d4
@@ -30837,7 +30837,7 @@ BuildSprites_P1_ObjLoop:
 	bmi.s	BuildSprites_P1_NextObj
 	move.w	d2,d1
 	sub.w	d0,d1
-	cmpi.w	#224,d1
+	cmpi.w	#screen_height,d1
 	bge.s	BuildSprites_P1_NextObj
 	addi.w	#256,d2
 	bra.s	BuildSprites_P1_DrawSprite
@@ -30856,7 +30856,7 @@ BuildSprites_P1_ApproxYCheck:
 	addi.w	#128,d2
 	cmpi.w	#-32+128,d2
 	blo.s	BuildSprites_P1_NextObj
-	cmpi.w	#32+128+224,d2
+	cmpi.w	#32+128+screen_height,d2
 	bhs.s	BuildSprites_P1_NextObj
 	addi.w	#128,d2
 ; loc_16A2A:
@@ -30960,7 +30960,7 @@ BuildSprites_P2_ObjLoop:
 	bmi.w	BuildSprites_P2_NextObj
 	move.w	d3,d1
 	sub.w	d0,d1
-	cmpi.w	#320,d1
+	cmpi.w	#screen_width,d1
 	bge.s	BuildSprites_P2_NextObj
 	addi.w	#128,d3
 	btst	#render_flags.explicit_height,d4
@@ -30974,16 +30974,16 @@ BuildSprites_P2_ObjLoop:
 	bmi.s	BuildSprites_P2_NextObj
 	move.w	d2,d1
 	sub.w	d0,d1
-	cmpi.w	#224,d1
+	cmpi.w	#screen_height,d1
 	bge.s	BuildSprites_P2_NextObj
-	addi.w	#256+224,d2
+	addi.w	#256+screen_height,d2
 	bra.s	BuildSprites_P2_DrawSprite
 ; ===========================================================================
 ; loc_16B14:
 BuildSprites_P2_ScreenSpaceObj:
 	move.w	y_pixel(a0),d2
 	move.w	x_pixel(a0),d3
-	addi.w	#128+224,d2
+	addi.w	#128+screen_height,d2
 	bra.s	BuildSprites_P2_DrawSprite
 ; ===========================================================================
 ; loc_16B22:
@@ -30993,9 +30993,9 @@ BuildSprites_P2_ApproxYCheck:
 	addi.w	#128,d2
 	cmpi.w	#-32+128,d2
 	blo.s	BuildSprites_P2_NextObj
-	cmpi.w	#32+128+224,d2
+	cmpi.w	#32+128+screen_height,d2
 	bhs.s	BuildSprites_P2_NextObj
-	addi.w	#128+224,d2
+	addi.w	#128+screen_height,d2
 ; loc_16B3E:
 BuildSprites_P2_DrawSprite:
 	movea.l	mappings(a0),a1
@@ -31062,7 +31062,7 @@ BuildSprites_P1_MultiDraw:
 	bmi.w	BuildSprites_P1_MultiDraw_NextObj
 	move.w	d3,d1
 	sub.w	d0,d1
-	cmpi.w	#320,d1
+	cmpi.w	#screen_width,d1
 	bge.w	BuildSprites_P1_MultiDraw_NextObj
 	addi.w	#128,d3
 	btst	#4,d4
@@ -31076,7 +31076,7 @@ BuildSprites_P1_MultiDraw:
 	bmi.w	BuildSprites_P1_MultiDraw_NextObj
 	move.w	d2,d1
 	sub.w	d0,d1
-	cmpi.w	#224,d1
+	cmpi.w	#screen_height,d1
 	bge.w	BuildSprites_P1_MultiDraw_NextObj
 	addi.w	#256,d2
 	bra.s	++
@@ -31086,7 +31086,7 @@ BuildSprites_P1_MultiDraw:
 	addi.w	#128,d2
 	cmpi.w	#-32+128,d2
 	blo.s	BuildSprites_P1_MultiDraw_NextObj
-	cmpi.w	#32+128+224,d2
+	cmpi.w	#32+128+screen_height,d2
 	bhs.s	BuildSprites_P1_MultiDraw_NextObj
 	addi.w	#128,d2
 +
@@ -31152,7 +31152,7 @@ BuildSprites_P2_MultiDraw:
 	bmi.w	BuildSprites_P2_MultiDraw_NextObj
 	move.w	d3,d1
 	sub.w	d0,d1
-	cmpi.w	#320,d1
+	cmpi.w	#screen_width,d1
 	bge.w	BuildSprites_P2_MultiDraw_NextObj
 	addi.w	#128,d3
 	btst	#4,d4
@@ -31166,9 +31166,9 @@ BuildSprites_P2_MultiDraw:
 	bmi.w	BuildSprites_P2_MultiDraw_NextObj
 	move.w	d2,d1
 	sub.w	d0,d1
-	cmpi.w	#224,d1
+	cmpi.w	#screen_height,d1
 	bge.w	BuildSprites_P2_MultiDraw_NextObj
-	addi.w	#256+224,d2
+	addi.w	#256+screen_height,d2
 	bra.s	++
 +
 	move.w	y_pos(a0),d2
@@ -31176,9 +31176,9 @@ BuildSprites_P2_MultiDraw:
 	addi.w	#128,d2
 	cmpi.w	#-32+128,d2
 	blo.s	BuildSprites_P2_MultiDraw_NextObj
-	cmpi.w	#32+128+224,d2
+	cmpi.w	#32+128+screen_height,d2
 	bhs.s	BuildSprites_P2_MultiDraw_NextObj
-	addi.w	#128+224,d2
+	addi.w	#128+screen_height,d2
 +
 	moveq	#0,d1
 	move.b	mainspr_mapframe(a0),d1
@@ -31206,7 +31206,7 @@ BuildSprites_P2_MultiDraw:
 	addi.w	#128,d3
 	move.w	(a6)+,d2
 	sub.w	4(a4),d2
-	addi.w	#256+224,d2
+	addi.w	#256+screen_height,d2
 	addq.w	#1,a6
 	moveq	#0,d1
 	move.b	(a6)+,d1
@@ -31508,12 +31508,12 @@ ChkObjectVisible:
 	move.w	x_pos(a0),d0	; a0=object
 	sub.w	(Camera_X_pos).w,d0
 	bmi.s	.offscreen
-	cmpi.w	#320,d0
+	cmpi.w	#screen_width,d0
 	bge.s	.offscreen
 	move.w	y_pos(a0),d1
 	sub.w	(Camera_Y_pos).w,d1
 	bmi.s	.offscreen
-	cmpi.w	#224,d1
+	cmpi.w	#screen_height,d1
 	bge.s	.offscreen
 	moveq	#0,d0
 	rts
@@ -31535,12 +31535,12 @@ ChkPartiallyVisible:
 	bmi.s	.offscreen
 	add.w	d1,d1
 	sub.w	d1,d0
-	cmpi.w	#320,d0
+	cmpi.w	#screen_width,d0
 	bge.s	.offscreen
 	move.w	y_pos(a0),d1
 	sub.w	(Camera_Y_pos).w,d1
 	bmi.s	.offscreen
-	cmpi.w	#224,d1
+	cmpi.w	#screen_height,d1
 	bge.s	.offscreen
 	moveq	#0,d0
 	rts
@@ -31590,7 +31590,7 @@ RingsManager_Init:
 	bhi.s	-		; if it is, check next ring
 	move.w	a1,(Ring_start_addr).w	; set start addresses
 	move.w	a1,(Ring_start_addr_P2).w
-	addi.w	#320+16,d4	; advance by a screen
+	addi.w	#screen_width+16,d4	; advance by a screen
 	bra.s	+
 -
 	lea	6(a1),a1	; load next ring
@@ -31643,7 +31643,7 @@ RingsManager_Main:
 	move.w	a1,(Ring_start_addr).w	; update start address
 
 	movea.w	(Ring_end_addr).w,a2
-	addi.w	#320+16,d4
+	addi.w	#screen_width+16,d4
 	bra.s	+
 -
 	lea	6(a2),a2
@@ -31684,7 +31684,7 @@ RingsManager_Main:
 	move.w	a1,(Ring_start_addr_P2).w	; update start address
 
 	movea.w	(Ring_end_addr_P2).w,a2
-	addi.w	#320+16,d4
+	addi.w	#screen_width+16,d4
 	bra.s	+
 -
 	lea	6(a2),a2
@@ -36899,7 +36899,7 @@ Sonic_LevelBound:
 	cmp.w	d1,d0			; has Sonic touched the left boundary?
 	bhi.s	Sonic_Boundary_Sides	; if yes, branch
 	move.w	(Camera_Max_X_pos).w,d0
-	addi.w	#320-24,d0		; screen width - Sonic's width_pixels
+	addi.w	#screen_width-24,d0		; screen width - Sonic's width_pixels
 	tst.b	(Current_Boss_ID).w
 	bne.s	+
 	addi.w	#$40,d0
@@ -39878,7 +39878,7 @@ Tails_LevelBound:
 	cmp.w	d1,d0			; has Tails touched the left boundary?
 	bhi.s	Tails_Boundary_Sides	; if yes, branch
 	move.w	(Tails_Max_X_pos).w,d0
-	addi.w	#320-24,d0		; screen width - Tails's width_pixels
+	addi.w	#screen_width-24,d0		; screen width - Tails's width_pixels
 	tst.b	(Current_Boss_ID).w
 	bne.s	+
 	addi.w	#$40,d0

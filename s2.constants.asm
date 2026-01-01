@@ -1041,6 +1041,19 @@ AniIDTailsAni_Fly		= id(TailsAni_Fly_ptr)		; 32 ; $20
 ; Other sizes
 palette_line_size =		$10*2	; 16 word entries
 
+tile_width =			8
+tile_height =			8
+tile_height_2p =		tile_height*2
+block_width =			tile_width*2
+block_height =			tile_height*2
+chunk_width =			block_width*8
+chunk_height =			block_height*8
+screen_width =			tile_width*40 ; H40 mode
+screen_height =			tile_height*28 ; V28 mode
+gameplay_plane_width =		tile_width*64 ; 64x32 plane size
+gameplay_plane_height =		tile_height*32 ; 64x32 plane size
+gameplay_plane_height_2p =	tile_height_2p*32 ; 64x32 plane size
+
 ; Sprite queue
 object_display_list_size_bits =		7
 object_display_list_size =		1<<object_display_list_size_bits ; How big a list is
