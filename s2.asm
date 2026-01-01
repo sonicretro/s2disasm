@@ -27947,7 +27947,7 @@ LevelOrder_2P: zoneOrderedTable 2,2	; WrdArr_LevelOrder_2P
     zoneTableEnd
 
 results_screen_object macro startx, targetx, y, routine, frame
-	dc.w	spriteScreenPositionX(startx), spriteScreenPositionX(targetx), spriteScreenPositionY(y)
+	dc.w	startx, targetx, spriteScreenPositionYCentered(y)
 	dc.b	routine, frame
     endm
 
@@ -27956,14 +27956,14 @@ results_screen_object_size = 8
 ; byte_14380:
 Obj3A_SubObjectMetadata:
 	;                               start X,          target X, start Y, routine, map frame
-	results_screen_object              0-96,    screen_width/2,      56,       2,         0
-	results_screen_object   screen_width+64, screen_width/2-32,      74,       4,         3
-	results_screen_object  screen_width+128, screen_width/2+32,      74,       6,         4
-	results_screen_object  screen_width+184, screen_width/2+88,      62,       8,         6
-	results_screen_object  screen_width+400,    screen_width/2,     160,       4,         9
-	results_screen_object  screen_width+352,    screen_width/2,     112,       4,        $A
-	results_screen_object  screen_width+368,    screen_width/2,     128,       4,        $B
-	results_screen_object  screen_width+384,    screen_width/2,     144,     $16,        $E
+	results_screen_object  spriteScreenPositionX(            0-96), spriteScreenPositionXCentered(  0),     -56,       2,         0
+	results_screen_object  spriteScreenPositionX( screen_width+64), spriteScreenPositionXCentered(-32),     -38,       4,         3
+	results_screen_object  spriteScreenPositionX(screen_width+128), spriteScreenPositionXCentered( 32),     -38,       6,         4
+	results_screen_object  spriteScreenPositionX(screen_width+184), spriteScreenPositionXCentered( 88),     -50,       8,         6
+	results_screen_object  spriteScreenPositionX(screen_width+400), spriteScreenPositionXCentered(  0),      48,       4,         9
+	results_screen_object  spriteScreenPositionX(screen_width+352), spriteScreenPositionXCentered(  0),       0,       4,        $A
+	results_screen_object  spriteScreenPositionX(screen_width+368), spriteScreenPositionXCentered(  0),      16,       4,        $B
+	results_screen_object  spriteScreenPositionX(screen_width+384), spriteScreenPositionXCentered(  0),      32,     $16,        $E
 Obj3A_SubObjectMetadata_End:
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -28333,19 +28333,19 @@ Obj6F_MoveAndDisplay:
 ;byte_14752
 Obj6F_SubObjectMetaData:
 	;                                start X,          target X, start Y, routine, map frame
-	results_screen_object   screen_width+128,    screen_width/2,      42,       2,         0		; "Special Stage"
-	results_screen_object              0-128,    screen_width/2,      24,       4,         1		; "Sonic got a"
-	results_screen_object   screen_width/2-8,             0-128,      68,       6,         5		; Emerald 0
-	results_screen_object  screen_width/2+16,             0-128,      80,       8,         6		; Emerald 1
-	results_screen_object  screen_width/2+16,             0-128,     104,      $A,         7		; Emerald 2
-	results_screen_object   screen_width/2-8,             0-128,     116,      $C,         8		; Emerald 3
-	results_screen_object  screen_width/2-32,             0-128,     104,      $E,         9		; Emerald 4
-	results_screen_object  screen_width/2-32,             0-128,      80,     $10,        $A		; Emerald 5
-	results_screen_object   screen_width/2-8,             0-128,      92,     $12,        $B		; Emerald 6
-	results_screen_object   screen_width+368,    screen_width/2,     136,     $14,        $C		; Score
-	results_screen_object   screen_width+384,    screen_width/2,     152,     $16,        $D		; Sonic Rings
-	results_screen_object   screen_width+400,    screen_width/2,     168,     $18,        $E		; Miles Rings
-	results_screen_object   screen_width+416,    screen_width/2,     184,     $1A,       $10		; Gems Bonus
+	results_screen_object  spriteScreenPositionX(screen_width+128), spriteScreenPositionXCentered(0),     -70,       2,         0		; "Special Stage"
+	results_screen_object                                        0, spriteScreenPositionXCentered(0),     -88,       4,         1		; "Sonic got a"
+	results_screen_object  spriteScreenPositionXCentered( -8),                                     0,     -44,       6,         5		; Emerald 0
+	results_screen_object  spriteScreenPositionXCentered( 16),                                     0,     -32,       8,         6		; Emerald 1
+	results_screen_object  spriteScreenPositionXCentered( 16),                                     0,      -8,      $A,         7		; Emerald 2
+	results_screen_object  spriteScreenPositionXCentered( -8),                                     0,       4,      $C,         8		; Emerald 3
+	results_screen_object  spriteScreenPositionXCentered(-32),                                     0,      -8,      $E,         9		; Emerald 4
+	results_screen_object  spriteScreenPositionXCentered(-32),                                     0,     -32,     $10,        $A		; Emerald 5
+	results_screen_object  spriteScreenPositionXCentered( -8),                                     0,     -20,     $12,        $B		; Emerald 6
+	results_screen_object  spriteScreenPositionX(screen_width+368), spriteScreenPositionXCentered(0),      24,     $14,        $C		; Score
+	results_screen_object  spriteScreenPositionX(screen_width+384), spriteScreenPositionXCentered(0),      40,     $16,        $D		; Sonic Rings
+	results_screen_object  spriteScreenPositionX(screen_width+400), spriteScreenPositionXCentered(0),      56,     $18,        $E		; Miles Rings
+	results_screen_object  spriteScreenPositionX(screen_width+416), spriteScreenPositionXCentered(0),      72,     $1A,       $10		; Gems Bonus
 Obj6F_SubObjectMetaData_End:
 
 ; -------------------------------------------------------------------------------
