@@ -86880,8 +86880,8 @@ BuildHUD_P1_NoRings:
 	addq.w	#2,d1	; make TIME flash
 ; loc_4088C:
 BuildHUD_P1_Continued:
-	move.w	#$90,d3
-	move.w	#$188,d2
+	move.w	#spriteScreenPositionX(16),d3
+	move.w	#spriteScreenPositionY2P(screen_height/2+24),d2
 	lea	(HUD_MapUnc_40BEA).l,a1
 	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Text_2P,0,1),a3
 	add.w	d1,d1
@@ -86889,8 +86889,8 @@ BuildHUD_P1_Continued:
 	move.w	(a1)+,d1
 	subq.w	#1,d1
 	jsrto	JmpTo_DrawSprite_2P_Loop
-	move.w	#$B8,d3
-	move.w	#$108,d2
+	move.w	#spriteScreenPositionX(56),d3
+	move.w	#spriteScreenPositionY2P(screen_height/2-104),d2
 	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Numbers_2P,0,1),a3
 	moveq	#0,d7
 	move.b	(Timer_minute).w,d7
@@ -86899,8 +86899,8 @@ BuildHUD_P1_Continued:
 	moveq	#0,d7
 	move.b	(Timer_second).w,d7
 	bsr.w	loc_40938
-	move.w	#$C0,d3
-	move.w	#$118,d2
+	move.w	#spriteScreenPositionX(64),d3
+	move.w	#spriteScreenPositionY2P(screen_height/2-88),d2
 	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Numbers_2P,0,1),a3
 	moveq	#0,d7
 	move.w	(Ring_count).w,d7
@@ -86909,16 +86909,16 @@ BuildHUD_P1_Continued:
 	bne.s	+
 	tst.b	(Update_HUD_timer).w
 	beq.s	+
-	move.w	#$110,d3
-	move.w	#$1B8,d2
+	move.w	#spriteScreenPositionX(144),d3
+	move.w	#spriteScreenPositionY2P(screen_height/2+72),d2
 	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Numbers_2P,0,1),a3
 	moveq	#0,d7
 	move.b	(Loser_Time_Left).w,d7
 	bsr.w	loc_40938
 +
 	moveq	#4,d1
-	move.w	#$90,d3
-	move.w	#$188,d2
+	move.w	#spriteScreenPositionX(16),d3
+	move.w	#spriteScreenPositionY2P(screen_height/2+24),d2
 	lea	(HUD_MapUnc_40BEA).l,a1
 	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Text_2P,0,1),a3
 	add.w	d1,d1
@@ -87057,8 +87057,8 @@ BuildHUD_P2_NoRings:
 	addq.w	#2,d1
 ; loc_409F8:
 BuildHUD_P2_Continued:
-	move.w	#$90,d3
-	move.w	#$268,d2
+	move.w	#spriteScreenPositionX(16),d3
+	move.w	#spriteScreenPositionY2P(screen_height/2+24)+screen_height,d2
 	lea	(HUD_MapUnc_40BEA).l,a1
 	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Text_2P,0,1),a3
 	add.w	d1,d1
@@ -87066,8 +87066,8 @@ BuildHUD_P2_Continued:
 	move.w	(a1)+,d1
 	subq.w	#1,d1
 	jsrto	JmpTo_DrawSprite_2P_Loop
-	move.w	#$B8,d3
-	move.w	#$1E8,d2
+	move.w	#spriteScreenPositionX(56),d3
+	move.w	#spriteScreenPositionY2P(screen_height/2-104)+screen_height,d2
 	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Numbers_2P,0,1),a3
 	moveq	#0,d7
 	move.b	(Timer_minute_2P).w,d7
@@ -87076,8 +87076,8 @@ BuildHUD_P2_Continued:
 	moveq	#0,d7
 	move.b	(Timer_second_2P).w,d7
 	bsr.w	loc_40938
-	move.w	#$C0,d3
-	move.w	#$1F8,d2
+	move.w	#spriteScreenPositionX(64),d3
+	move.w	#spriteScreenPositionY2P(screen_height/2-88)+screen_height,d2
 	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Numbers_2P,0,1),a3
 	moveq	#0,d7
 	move.w	(Ring_count_2P).w,d7
@@ -87086,16 +87086,16 @@ BuildHUD_P2_Continued:
 	bne.s	+
 	tst.b	(Update_HUD_timer_2P).w
 	beq.s	+
-	move.w	#$110,d3
-	move.w	#$298,d2
+	move.w	#spriteScreenPositionX(144),d3
+	move.w	#spriteScreenPositionY2P(screen_height/2+72)+screen_height,d2
 	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Numbers_2P,0,1),a3
 	moveq	#0,d7
 	move.b	(Loser_Time_Left).w,d7
 	bsr.w	loc_40938
 +
 	moveq	#5,d1
-	move.w	#$90,d3
-	move.w	#$268,d2
+	move.w	#spriteScreenPositionX(16),d3
+	move.w	#spriteScreenPositionY2P(screen_height/2+24)+screen_height,d2
 	lea	(HUD_MapUnc_40BEA).l,a1
 	movea.w	#make_art_tile_2p(ArtTile_ArtNem_Powerups,0,1),a3
 	add.w	d1,d1
