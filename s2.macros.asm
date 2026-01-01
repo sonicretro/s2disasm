@@ -277,6 +277,9 @@ spriteScreenPositionX function pos,sprite_left_boundary+pos
 spriteScreenPositionY function pos,sprite_top_boundary+pos
 spriteScreenPositionY2P function pos,sprite_top_boundary_2p+pos
 
+spriteScreenPositionXCentered function pos,spriteScreenPositionX(screen_width/2+(pos))
+spriteScreenPositionYCentered function pos,spriteScreenPositionY(screen_height/2+(pos))
+
 ; macro formatting text for the game's menus
 menutxt	macro	text
 	dc.b	strlen(text)-1

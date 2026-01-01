@@ -10498,15 +10498,15 @@ ObjDA_Init:
 	jsrto	JmpTo_Adjust2PArtPointer
 	move.b	#0,render_flags(a0)
 	move.b	#60,width_pixels(a0)
-	move.w	#spriteScreenPositionX(screen_width/2),x_pixel(a0)
-	move.w	#spriteScreenPositionY(screen_height/2-48),y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(0),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(-48),y_pixel(a0)
 
 JmpTo2_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
 ; ===========================================================================
 objda_make_x_positions macro
 	irp pos,ALLARGS
-	dc.w  spriteScreenPositionX(screen_width/2+(pos))
+	dc.w  spriteScreenPositionXCentered(pos)
 	endm
     endm
 
@@ -10541,7 +10541,7 @@ loc_7AD0:
 	beq.s	+
 	subi.w	#10,x_pixel(a1)
 +
-	move.w	#spriteScreenPositionY(screen_height/2-32),y_pixel(a1)
+	move.w	#spriteScreenPositionYCentered(-32),y_pixel(a1)
 	move.b	#4,mapping_frame(a1)
 	move.b	#6,routine(a1)
 	move.l	#ObjDA_MapUnc_7CB6,mappings(a1)
@@ -11004,7 +11004,7 @@ Obj21_Index:	offsetTable
 		offsetTableEntry.w Obj21_Main	; 2
 ; ---------------------------------------------------------------------------
 obj21_make_position macro x,y
-	dc.w spriteScreenPositionX(screen_width/2+(x)), spriteScreenPositionY(screen_height/2+(y))
+	dc.w spriteScreenPositionXCentered(x), spriteScreenPositionYCentered(y)
     endm
 
 ; word_80D0:
@@ -26101,7 +26101,7 @@ obj0e_music_playing	= objoff_30
 obj0e_current_frame	= objoff_34
 
 obj0e_make_sprite_position macro x,y
-	dc.w	spriteScreenPositionX(screen_width/2+(x)),spriteScreenPositionY(screen_height/2+(y))
+	dc.w	spriteScreenPositionXCentered(x),spriteScreenPositionYCentered(y)
     endm
 
 ; Sprite_12E18:
@@ -26162,8 +26162,8 @@ Obj0E_Sonic_Init:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_FadeInAndPlayMusic
 	move.b	#5,mapping_frame(a0)
 
-	move.w	#spriteScreenPositionX(screen_width/2-16),x_pixel(a0)
-	move.w	#spriteScreenPositionY(screen_height/2-16),y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(-16),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(-16),y_pixel(a0)
 
 	; Load flashing star object.
 	lea	(IntroFlashingStar).w,a1
@@ -26406,8 +26406,8 @@ Obj0E_Tails_Init:
 	; him.
 	move.b	#3,priority(a0)
     endif
-	move.w	#spriteScreenPositionX(screen_width/2-72),x_pixel(a0)
-	move.w	#spriteScreenPositionY(screen_height/2-24),y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(-72),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(-24),y_pixel(a0)
 	move.b	#1,anim(a0)
 	rts
 ; ===========================================================================
@@ -26462,8 +26462,8 @@ Obj0E_LogoTop_Init:
 	move.b	#$A,mapping_frame(a0)
 +
 	move.b	#2,priority(a0)
-	move.w	#spriteScreenPositionX(screen_width/2),x_pixel(a0)
-	move.w	#spriteScreenPositionY(screen_height/2-8),y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(0),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(-8),y_pixel(a0)
 ; loc_1310A:
 Obj0E_NextRoutineSecondary:
 	addq.b	#2,routine_secondary(a0)	; BranchTo11_DisplaySprite
@@ -26492,8 +26492,8 @@ Obj0E_MaskingSprite_Init:
 	; Masking sprites normally must have an X coordinate of 0. I don't
 	; know why it isn't set to that here, but it is corrected to 0 in
 	; 'TitleScreen_Loop'.
-	move.w	#spriteScreenPositionX(screen_width/2-32),x_pixel(a0)
-	move.w	#spriteScreenPositionY(screen_height/2),y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(-32),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(0),y_pixel(a0)
 
 BranchTo12_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
@@ -26519,8 +26519,8 @@ Obj0E_FlashingStar_Init:
 	ori.w	#high_priority,art_tile(a0)
 	move.b	#2,anim(a0)
 	move.b	#1,priority(a0)
-	move.w	#spriteScreenPositionX(screen_width/2-32),x_pixel(a0)
-	move.w	#spriteScreenPositionY(screen_height/2-72),y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(-32),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(-72),y_pixel(a0)
 	move.w	#4,obj0e_counter(a0)
 	rts
 ; ===========================================================================
@@ -26597,8 +26597,8 @@ Obj0E_SonicHand_Init:
 	; This is inconsistent with 'TitleScreen_SetFinalState'.
 	move.b	#3,priority(a0)
     endif
-	move.w	#spriteScreenPositionX(screen_width/2+37),x_pixel(a0)
-	move.w	#spriteScreenPositionY(screen_height/2-49),y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(37),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(-49),y_pixel(a0)
 
 BranchTo13_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
@@ -26642,8 +26642,8 @@ Obj0E_TailsHand_Init:
 	; the hand to be layered behind Tails if his priority is fixed.
 	move.b	#3,priority(a0)
     endif
-	move.w	#spriteScreenPositionX(screen_width/2-17),x_pixel(a0)
-	move.w	#spriteScreenPositionY(screen_height/2-27),y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(-17),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(-27),y_pixel(a0)
 
 BranchTo14_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
@@ -26678,8 +26678,8 @@ Obj0E_FallingStar_Init:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_FallingStar_Main
 	move.b	#$C,mapping_frame(a0)
 	move.b	#5,priority(a0)
-	move.w	#spriteScreenPositionX(screen_width/2+80),x_pixel(a0)
-	move.w	#spriteScreenPositionY(screen_height/2-112),y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(80),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(-112),y_pixel(a0)
 	move.b	#3,anim(a0)
 	move.w	#140,obj0e_counter(a0)
 	bra.w	DisplaySprite
@@ -26879,8 +26879,8 @@ TitleScreen_SetFinalState:
 	st.b	obj0e_intro_complete(a0)
 	move.b	#$10,routine_secondary(a0)
 	move.b	#$12,mapping_frame(a0)
-	move.w	#spriteScreenPositionX(screen_width/2-24),x_pixel(a0)
-	move.w	#spriteScreenPositionY(screen_height/2-88),y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(-24),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(-88),y_pixel(a0)
 
 	; Initialise Sonic's hand object.
 	lea	(IntroSonicHand).w,a1
@@ -26890,8 +26890,8 @@ TitleScreen_SetFinalState:
 	move.b	#2,priority(a1)
 	move.b	#9,mapping_frame(a1)
 	move.b	#4,routine_secondary(a1)
-	move.w	#spriteScreenPositionX(screen_width/2+33),x_pixel(a1)
-	move.w	#spriteScreenPositionY(screen_height/2-47),y_pixel(a1)
+	move.w	#spriteScreenPositionXCentered(33),x_pixel(a1)
+	move.w	#spriteScreenPositionYCentered(-47),y_pixel(a1)
 
 	; Initialise Tails object.
 	lea	(IntroTails).w,a1
@@ -26901,8 +26901,8 @@ TitleScreen_SetFinalState:
 	move.b	#4,mapping_frame(a1)
 	move.b	#6,routine_secondary(a1)
 	move.b	#3,priority(a1)
-	move.w	#spriteScreenPositionX(screen_width/2-88),x_pixel(a1)
-	move.w	#spriteScreenPositionY(screen_height/2-80),y_pixel(a1)
+	move.w	#spriteScreenPositionXCentered(-88),x_pixel(a1)
+	move.w	#spriteScreenPositionYCentered(-80),y_pixel(a1)
 
 	; Initialise Tails' hand object.
 	lea	(IntroTailsHand).w,a1
@@ -26912,8 +26912,8 @@ TitleScreen_SetFinalState:
 	move.b	#2,priority(a1)
 	move.b	#$13,mapping_frame(a1)
 	move.b	#4,routine_secondary(a1)
-	move.w	#spriteScreenPositionX(screen_width/2-19),x_pixel(a1)
-	move.w	#spriteScreenPositionY(screen_height/2-31),y_pixel(a1)
+	move.w	#spriteScreenPositionXCentered(-19),x_pixel(a1)
+	move.w	#spriteScreenPositionYCentered(-31),y_pixel(a1)
 
 	; Initialise top-of-emblem object.
 	lea	(IntroEmblemTop).w,a1
@@ -26992,8 +26992,8 @@ Obj0F_Index:	offsetTable
 ; loc_13616:
 Obj0F_Init:
 	addq.b	#2,routine(a0) ; => Obj0F_Main
-	move.w	#spriteScreenPositionX(screen_width/2+8),x_pixel(a0)
-	move.w	#spriteScreenPositionY(screen_height/2+92),y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(8),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(92),y_pixel(a0)
 	move.l	#Obj0F_MapUnc_13B70,mappings(a0)
 	move.w	#make_art_tile(ArtTile_VRAM_Start,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
@@ -27490,7 +27490,7 @@ Obj39_Init:
 	beq.s	+
 	move.w	#spriteScreenPositionX(screen_width+48),x_pixel(a0)
 +
-	move.w	#spriteScreenPositionY(screen_height/2),y_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(0),y_pixel(a0)
 	move.l	#Obj39_MapUnc_14C6C,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Game_Over,0,1),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
@@ -27499,7 +27499,7 @@ Obj39_Init:
 ; loc_13FCC:
 Obj39_SlideIn:
 	moveq	#16,d1
-	cmpi.w	#spriteScreenPositionX(screen_width/2),x_pixel(a0)
+	cmpi.w	#spriteScreenPositionXCentered(0),x_pixel(a0)
 	beq.s	Obj39_SetTimer
 	blo.s	+
 	neg.w	d1
@@ -27754,8 +27754,8 @@ loc_14214:
 loc_14220:
 	_move.b	#ObjID_Results,id(a1) ; load obj3A (uses screen-space)
 	move.b	#$12,routine(a1)
-	move.w	#spriteScreenPositionX(screen_width/2+104),x_pixel(a1)
-	move.w	#spriteScreenPositionY(screen_height/2+40),y_pixel(a1)
+	move.w	#spriteScreenPositionXCentered(104),x_pixel(a1)
+	move.w	#spriteScreenPositionYCentered(40),y_pixel(a1)
 	move.l	#MapUnc_EOLTitleCards,mappings(a1)
 	bsr.w	Adjust2PArtPointer2
 	move.b	#0,render_flags(a1)
@@ -28121,7 +28121,7 @@ Obj6F_P1Rings:
 	bne.s	+										; Branch if not
 	move.w	#5000,(Bonus_Countdown_1).w				; Perfect bonus
 	move.b	#$2A,routine(a0)	; => Obj6F_PerfectBonus
-	move.w	#spriteScreenPositionY(screen_height/2+48),y_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(48),y_pixel(a0)
 	st.b	(Update_Bonus_score).w	; set to -1 (update)
 	move.w	#SndID_Signpost,d0
 	jsr	(PlaySound).l
@@ -28131,7 +28131,7 @@ Obj6F_P1Rings:
 +
 	move.w	(Player_mode).w,d0
 	beq.s	++
-	move.w	#spriteScreenPositionY(screen_height/2+48),y_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(48),y_pixel(a0)
 	subq.w	#1,d0
 	beq.s	++
 	moveq	#$E,d0		; "Miles rings"
@@ -28286,8 +28286,8 @@ Obj6F_InitAndMoveSuperMsg:
 	lea	(SpecialStageResults2).w,a1
 	_move.b	id(a0),id(a1) ; load obj6F; (uses screen-space)
 	clr.w	x_pixel(a1)
-	move.w	#spriteScreenPositionX(screen_width/2),titlecard_x_target(a1)
-	move.w	#spriteScreenPositionY(screen_height/2-60),y_pixel(a1)
+	move.w	#spriteScreenPositionXCentered(0),titlecard_x_target(a1)
+	move.w	#spriteScreenPositionYCentered(-60),y_pixel(a1)
 	move.b	#$14,routine(a1)						; => BranchTo3_Obj34_MoveTowardsTargetPosition
 	move.b	#$1C,mapping_frame(a1)					; "Super Sonic"
 	move.l	#Obj6F_MapUnc_14ED0,mappings(a1)
@@ -77771,7 +77771,7 @@ ObjB0_Index:	offsetTable
 ObjB0_Init:
 	bsr.w	LoadSubObject
 	move.w	#spriteScreenPositionX(screen_width+40),x_pixel(a0)
-	move.w	#spriteScreenPositionY(screen_height/2),y_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(0),y_pixel(a0)
 	move.w	#$B,objoff_2A(a0)
 	move.w	#2,(SegaScr_VInt_Subrout).w
 	bset	#render_flags.x_flip,render_flags(a0)
@@ -77991,8 +77991,8 @@ ObjB1_Index:	offsetTable
 ObjB1_Init:
 	bsr.w	LoadSubObject
 	move.b	#4,mapping_frame(a0)
-	move.w	#spriteScreenPositionX(screen_width/2+84),x_pixel(a0)
-	move.w	#spriteScreenPositionY(screen_height/2-24),y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(84),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(-24),y_pixel(a0)
 	rts
 ; ===========================================================================
 ; BranchTo4_JmpTo45_DisplaySprite
@@ -84214,8 +84214,8 @@ Obj8A_Index:	offsetTable
 ; loc_3EADA:
 Obj8A_Init:
 	addq.b	#2,routine(a0)
-	move.w	#spriteScreenPositionX(screen_width/2),x_pixel(a0)
-	move.w	#spriteScreenPositionY(screen_height/2),y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(0),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(0),y_pixel(a0)
 	move.l	#Obj8A_MapUnc_3EB4E,mappings(a0)
 	move.w	#make_art_tile($05A0,0,0),art_tile(a0)
 	jsrto	JmpTo65_Adjust2PArtPointer
@@ -86842,7 +86842,7 @@ BuildHUD:
 	addq.w	#2,d1	; set mapping frame for double blink
 +
 	move.w	#spriteScreenPositionX(16),d3	; set X pos
-	move.w	#spriteScreenPositionY(screen_height/2+24),d2	; set Y pos
+	move.w	#spriteScreenPositionYCentered(24),d2	; set Y pos
 	lea	(HUD_MapUnc_40A9A).l,a1
 	movea.w	#make_art_tile(ArtTile_ArtNem_HUD,0,1),a3	; set art tile and flags
 	add.w	d1,d1
