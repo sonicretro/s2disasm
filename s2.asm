@@ -27161,16 +27161,16 @@ Obj34_Init:
 ; - the Y position (word)
 titlecardobjdata macro routine,frame,width,duration,xstart,xstop,y
 	dc.b routine,frame,width,duration
-	dc.w spriteScreenPositionX(xstart),spriteScreenPositionX(xstop),spriteScreenPositionY(y)
+	dc.w xstart,xstop,y
     endm
 ; word_13CD4:
 Obj34_TitleCardData:
-	titlecardobjdata  8,   0, $80, $1B, screen_width+128,   160,    56	; zone name
-	titlecardobjdata $A, $11, $40, $1C,             0-88,   200,    80	; "ZONE"
-	titlecardobjdata $C, $12, $18, $1C,             0-24,   264,    80	; act number
-	titlecardobjdata  2,   0,   0,   0,            0-128, 0-128, 0-128	; blue background
-	titlecardobjdata  4, $15, $48,   8, screen_width+232,   232,   160	; bottom yellow part
-	titlecardobjdata  6, $16,   8, $15,                0,   112,   112	; left red part
+	titlecardobjdata  8,   0, $80, $1B, spriteScreenPositionX(screen_width+128), spriteScreenPositionXCentered(  0), spriteScreenPositionYCentered(-56)	; zone name
+	titlecardobjdata $A, $11, $40, $1C, spriteScreenPositionX(             -88), spriteScreenPositionXCentered( 40), spriteScreenPositionYCentered(-32)	; "ZONE"
+	titlecardobjdata $C, $12, $18, $1C, spriteScreenPositionX(             -24), spriteScreenPositionXCentered(104), spriteScreenPositionYCentered(-32)	; act number
+	titlecardobjdata  2,   0,   0,   0,                                       0,                                  0,                                  0	; blue background
+	titlecardobjdata  4, $15, $48,   8, spriteScreenPositionX(screen_width+232), spriteScreenPositionXCentered( 72), spriteScreenPositionYCentered( 48)	; bottom yellow part
+	titlecardobjdata  6, $16,   8, $15, spriteScreenPositionX(               0), spriteScreenPositionXCentered(-48), spriteScreenPositionYCentered(  0)	; left red part
 Obj34_TitleCardData_End:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
