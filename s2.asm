@@ -4927,7 +4927,7 @@ Level_TtlCard:
 	bsr.w	LevelSizeLoad
 	jsrto	JmpTo_DeformBgLayer
 	clr.w	(Vscroll_Factor_FG).w
-	move.w	#-224,(Vscroll_Factor_P2_FG).w
+	move.w	#-screen_height,(Vscroll_Factor_P2_FG).w
 
 	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len
 
@@ -5282,12 +5282,12 @@ MoveWater:
 	bhs.s	+
 	tst.w	d0
 	bpl.s	+
-	move.b	#224-1,(Hint_counter_reserve+1).w	; H-INT every 224th scanline
+	move.b	#screen_height-1,(Hint_counter_reserve+1).w	; H-INT every 224th scanline
 	move.b	#1,(Water_fullscreen_flag).w
 +
-	cmpi.w	#224-1,d0
+	cmpi.w	#screen_height-1,d0
 	blo.s	+
-	move.w	#224-1,d0
+	move.w	#screen_height-1,d0
 +
 	move.b	d0,(Hint_counter_reserve+1).w	; H-INT every d0 scanlines
 ; loc_456A:
@@ -10498,7 +10498,7 @@ ObjDA_Init:
 	jsrto	JmpTo_Adjust2PArtPointer
 	move.b	#0,render_flags(a0)
 	move.b	#60,width_pixels(a0)
-	move.w	#$80+320/2,x_pixel(a0)
+	move.w	#$80+screen_width/2,x_pixel(a0)
 	move.w	#$80+64,y_pixel(a0)
 
 JmpTo2_DisplaySprite ; JmpTo
@@ -14685,8 +14685,8 @@ LevelSizeLoad:
 	move.l	d0,(Camera_Min_Y_pos_target).w	; Also sets Camera_Max_Y_pos_target.
 	move.l	d0,(Tails_Min_Y_pos).w		; Also sets Tails_Max_Y_pos.
 	move.w	#$1010,(Horiz_block_crossed_flag).w
-	move.w	#(224/2)-16,(Camera_Y_pos_bias).w
-	move.w	#(224/2)-16,(Camera_Y_pos_bias_P2).w
+	move.w	#(screen_height/2)-16,(Camera_Y_pos_bias).w
+	move.w	#(screen_height/2)-16,(Camera_Y_pos_bias_P2).w
 	bra.w	+
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -15432,11 +15432,11 @@ SwScrl_EHZ_2P:
 	; Update the background's vertical scrolling.
 	moveq	#0,d0
 	move.w	d0,(Vscroll_Factor_P2_BG).w
-	subi.w	#224,(Vscroll_Factor_P2_BG).w
+	subi.w	#screen_height,(Vscroll_Factor_P2_BG).w
 
 	; Update the foregrounds's vertical scrolling.
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
-	subi.w	#224,(Vscroll_Factor_P2_FG).w
+	subi.w	#screen_height,(Vscroll_Factor_P2_FG).w
 
 	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
@@ -15445,7 +15445,7 @@ SwScrl_EHZ_2P:
 	; This creates an elaborate parallax effect.
 	; Tails' screen is slightly taller, to fill the gap between the two
 	; screens.
-	lea	(Horiz_Scroll_Buf+(112-4)*2*2).w,a1
+	lea	(Horiz_Scroll_Buf+(screen_height/2-4)*2*2).w,a1
 	move.w	(Camera_X_pos_P2).w,d0
 	; Do 11+4 lines.
 	move.w	#11+4-1,d1
@@ -15561,7 +15561,7 @@ SwScrl_WZ:
 	; Update the background's (and foreground's) horizontal scrolling.
 	; This is very basic: there is no parallax effect here.
 	lea	(Horiz_Scroll_Buf).w,a1
-	move.w	#224-1,d1
+	move.w	#screen_height-1,d1
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
@@ -15593,7 +15593,7 @@ SwScrl_MTZ:
 	; Update the background's (and foreground's) horizontal scrolling.
 	; This is very basic: there is no parallax effect here.
 	lea	(Horiz_Scroll_Buf).w,a1
-	move.w	#224-1,d1
+	move.w	#screen_height-1,d1
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
@@ -15659,7 +15659,7 @@ SwScrl_WFZ:
 	bcc.s	.seg_loop		; Branch if not
 
 	neg.w	d1			; d1 = number of lines to draw in this segment
-	move.w	#224-1,d2		; Number of rows in hscroll buffer
+	move.w	#screen_height-1,d2		; Number of rows in hscroll buffer
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
@@ -16014,7 +16014,7 @@ HTZ_Screen_Shake:
 	; Update the background's (and foreground's) horizontal scrolling.
 	; This is very basic: there is no parallax effect here.
 	lea	(Horiz_Scroll_Buf).w,a1
-	move.w	#224-1,d1
+	move.w	#screen_height-1,d1
 	move.w	(Camera_X_pos).w,d0
 	add.w	d2,d0
 	neg.w	d0
@@ -16076,11 +16076,11 @@ SwScrl_HTZ_2P:
 	; Update the background's vertical scrolling.
 	moveq	#0,d0
 	move.w	d0,(Vscroll_Factor_P2_BG).w
-	subi.w	#224,(Vscroll_Factor_P2_BG).w
+	subi.w	#screen_height,(Vscroll_Factor_P2_BG).w
 
 	; Update the foreground's vertical scrolling.
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
-	subi.w	#224,(Vscroll_Factor_P2_FG).w
+	subi.w	#screen_height,(Vscroll_Factor_P2_FG).w
 
 	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
@@ -16274,7 +16274,7 @@ SwScrl_OOZ:
 	; Curiously, Oil Ocean Zone fills 'Horiz_Scroll_Buf' starting from
 	; the end and working backwards towards the beginning, unlike other
 	; zones.
-	lea	(Horiz_Scroll_Buf+224*2*2).w,a1
+	lea	(Horiz_Scroll_Buf+screen_height*2*2).w,a1
 
 	; Set up the foreground part of the horizontal scroll value.
 	move.w	(Camera_X_pos).w,d0
@@ -16297,7 +16297,7 @@ SwScrl_OOZ:
 	moveq	#0,d1
 +
 	; This will keep track of how many lines we have left to output.
-	move.w	#224-1,d6
+	move.w	#screen_height-1,d6
 
 	; Do the factory part of the background.
 	add.w	d6,d1
@@ -16561,7 +16561,7 @@ SwScrl_MCZ:
 
 	neg.w	d1			; d1 = number of lines to draw in this segment
 	subq.w	#2,a2
-	move.w	#224-1,d2		; Number of rows in hscroll buffer
+	move.w	#screen_height-1,d2		; Number of rows in hscroll buffer
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
@@ -16805,11 +16805,11 @@ SwScrl_MCZ2P_RowHeights:
 
 	; Update the background's vertical scrolling.
 	move.w	d0,(Vscroll_Factor_P2_BG).w
-	subi.w	#224,(Vscroll_Factor_P2_BG).w
+	subi.w	#screen_height,(Vscroll_Factor_P2_BG).w
 
 	; Update the foreground's vertical scrolling.
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
-	subi.w	#224,(Vscroll_Factor_P2_FG).w
+	subi.w	#screen_height,(Vscroll_Factor_P2_FG).w
 
 	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
@@ -16974,7 +16974,7 @@ SwScrl_CNZ:
 
 	neg.w	d1			; d1 = number of lines to draw in this segment
 	subq.w	#2,a2
-	move.w	#224-1,d2		; Number of rows in hscroll buffer
+	move.w	#screen_height-1,d2		; Number of rows in hscroll buffer
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
@@ -17111,11 +17111,11 @@ SwScrl_CNZ_2P:
 
 	; Update the background's vertical scrolling.
 	move.w	d0,(Vscroll_Factor_P2_BG).w
-	subi.w	#224,(Vscroll_Factor_P2_BG).w
+	subi.w	#screen_height,(Vscroll_Factor_P2_BG).w
 
 	; Update the foreground's vertical scrolling.
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
-	subi.w	#224,(Vscroll_Factor_P2_FG).w
+	subi.w	#screen_height,(Vscroll_Factor_P2_FG).w
 
 	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
@@ -17295,7 +17295,7 @@ SwScrl_CPZ:
 	lea	(Horiz_Scroll_Buf).w,a1
 
     if fixBugs
-	move.w	#224/16-1,d1
+	move.w	#screen_height/block_height-1,d1
     else
 	; The '+1' is so that, if one block is partially-offscreen at the
 	; top, then another will fill the gap at the bottom of the screen.
@@ -17303,7 +17303,7 @@ SwScrl_CPZ:
 	; bounds-checking. This was likely a deliberate optimisation. Still,
 	; it's possible to avoid this without any performance penalty with a
 	; little extra code. See below.
-	move.w	#224/16+1-1,d1
+	move.w	#screen_height/block_height+1-1,d1
     endif
 
 	; Set up the foreground part of the horizontal scroll value.
@@ -17547,7 +17547,7 @@ SwScrl_DEZ:
 
 	neg.w	d1			; d1 = number of lines to draw in this segment
 	subq.w	#2,a2
-	move.w	#224-1,d2		; Number of rows in hscroll buffer
+	move.w	#screen_height-1,d2		; Number of rows in hscroll buffer
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
@@ -17774,7 +17774,7 @@ SwScrl_ARZ:
 	neg.w	d1		; d1 now contains how many pixels of the row is currently on-screen
 	subq.w	#2,a2		; Get correct row speed
 
-	move.w	#224-1,d2 	; Height of screen
+	move.w	#screen_height-1,d2 	; Height of screen
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0		; Store FG X-pos in upper 16-bits...
@@ -17863,7 +17863,7 @@ SwScrl_SCZ:
 	; Update the background's (and foreground's) horizontal scrolling.
 	; This is very basic: there is no parallax effect here.
 	lea	(Horiz_Scroll_Buf).w,a1
-	move.w	#224-1,d1
+	move.w	#screen_height-1,d1
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
@@ -17892,7 +17892,7 @@ SwScrl_Minimal:
 	; Update the background's (and foreground's) horizontal scrolling.
 	; This is very basic: there is no parallax effect here.
 	lea	(Horiz_Scroll_Buf).w,a1
-	move.w	#224-1,d1
+	move.w	#screen_height-1,d1
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
@@ -17910,7 +17910,7 @@ SwScrl_HPZ_Continued:
 	lea	(Horiz_Scroll_Buf).w,a1
 
     if fixBugs
-	move.w	#224/16-1,d1
+	move.w	#screen_height/block_height-1,d1
     else
 	; The '+1' is so that, if one block is partially-offscreen at the
 	; top, then another will fill the gap at the bottom of the screen.
@@ -17918,7 +17918,7 @@ SwScrl_HPZ_Continued:
 	; bounds-checking. This was likely a deliberate optimisation. Still,
 	; it's possible to avoid this without any performance penalty with a
 	; little extra code. See below.
-	move.w	#224/16+1-1,d1
+	move.w	#screen_height/block_height+1-1,d1
     endif
 
 	; Set up the foreground part of the horizontal scroll value.
@@ -18161,7 +18161,7 @@ ScrollVerti:
 ; ===========================================================================
 ; loc_D7C4:
 .decideScrollType:
-	cmpi.w	#(224/2)-16,d3	; is the camera bias normal?
+	cmpi.w	#(screen_height/2)-16,d3	; is the camera bias normal?
 	bne.s	.doScroll_slow	; if not, branch
 	mvabs.w	inertia(a0),d1	; get player ground velocity, force it to be positive
 	cmpi.w	#$800,d1	; is the player travelling very fast?
@@ -25072,7 +25072,7 @@ loc_121B8:
 	tst.b	(Ring_spill_anim_counter).w
 	beq.s	Obj37_Delete
 	move.w	(Camera_Max_Y_pos).w,d0
-	addi.w	#224,d0
+	addi.w	#screen_height,d0
 	cmp.w	y_pos(a0),d0
 	blo.s	Obj37_Delete
 	bra.w	DisplaySprite
@@ -26448,7 +26448,7 @@ Obj0E_LogoTop_Init:
 	move.b	#$A,mapping_frame(a0)
 +
 	move.b	#2,priority(a0)
-	move.w	#128+320/2,x_pixel(a0)
+	move.w	#128+screen_width/2,x_pixel(a0)
 	move.w	#128+104,y_pixel(a0)
 ; loc_1310A:
 Obj0E_NextRoutineSecondary:
@@ -26479,7 +26479,7 @@ Obj0E_MaskingSprite_Init:
 	; know why it isn't set to that here, but it is corrected to 0 in
 	; 'TitleScreen_Loop'.
 	move.w	#128+128,x_pixel(a0)
-	move.w	#128+224/2,y_pixel(a0)
+	move.w	#128+screen_height/2,y_pixel(a0)
 
 BranchTo12_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
@@ -26975,8 +26975,8 @@ Obj0F_Index:	offsetTable
 ; loc_13616:
 Obj0F_Init:
 	addq.b	#2,routine(a0) ; => Obj0F_Main
-	move.w	#128+320/2+8,x_pixel(a0)
-	move.w	#128+224/2+92,y_pixel(a0)
+	move.w	#128+screen_width/2+8,x_pixel(a0)
+	move.w	#128+screen_height/2+92,y_pixel(a0)
 	move.l	#Obj0F_MapUnc_13B70,mappings(a0)
 	move.w	#make_art_tile(ArtTile_VRAM_Start,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
@@ -27128,7 +27128,7 @@ Obj34_Init:
 
 	move.w	#$26,(TitleCard_Bottom+titlecard_location).w
 	clr.w	(Vscroll_Factor_FG).w
-	move.w	#-224,(Vscroll_Factor_P2_FG).w
+	move.w	#-screen_height,(Vscroll_Factor_P2_FG).w
 
 	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len
 
@@ -27148,12 +27148,12 @@ titlecardobjdata macro routine,frame,width,duration,xstart,xstop,y
     endm
 ; word_13CD4:
 Obj34_TitleCardData:
-	titlecardobjdata  8,   0, $80, $1B, 320+128,   160,    56	; zone name
-	titlecardobjdata $A, $11, $40, $1C,    0-88,   200,    80	; "ZONE"
-	titlecardobjdata $C, $12, $18, $1C,    0-24,   264,    80	; act number
-	titlecardobjdata  2,   0,   0,   0,   0-128, 0-128, 0-128	; blue background
-	titlecardobjdata  4, $15, $48,   8, 320+232,   232,   160	; bottom yellow part
-	titlecardobjdata  6, $16,   8, $15,       0,   112,   112	; left red part
+	titlecardobjdata  8,   0, $80, $1B, screen_width+128,   160,    56	; zone name
+	titlecardobjdata $A, $11, $40, $1C,             0-88,   200,    80	; "ZONE"
+	titlecardobjdata $C, $12, $18, $1C,             0-24,   264,    80	; act number
+	titlecardobjdata  2,   0,   0,   0,            0-128, 0-128, 0-128	; blue background
+	titlecardobjdata  4, $15, $48,   8, screen_width+232,   232,   160	; bottom yellow part
+	titlecardobjdata  6, $16,   8, $15,                0,   112,   112	; left red part
 Obj34_TitleCardData_End:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -27283,7 +27283,7 @@ Obj34_MoveTowardsTargetPosition:
 	sub.w	d0,x_pixel(a0)
 	; If target lies very far off-screen, then don't bother trying to display it.
 	; This is because the sprite coordinates are prone to overflow and underflow.
-	cmpi.w	#128+320+64,x_pixel(a0)
+	cmpi.w	#128+screen_width+64,x_pixel(a0)
 	bhi.s	.return
 .display:
 	bra.w	DisplaySprite
@@ -27934,15 +27934,15 @@ results_screen_object_size = 8
 
 ; byte_14380:
 Obj3A_SubObjectMetadata:
-	;                      start X, target X, start Y, routine, map frame
-	results_screen_object     0-96,    320/2,      56,       2,         0
-	results_screen_object   320+64, 320/2-32,      74,       4,         3
-	results_screen_object  320+128, 320/2+32,      74,       6,         4
-	results_screen_object  320+184, 320/2+88,      62,       8,         6
-	results_screen_object  320+400,    320/2,     160,       4,         9
-	results_screen_object  320+352,    320/2,     112,       4,        $A
-	results_screen_object  320+368,    320/2,     128,       4,        $B
-	results_screen_object  320+384,    320/2,     144,     $16,        $E
+	;                               start X,          target X, start Y, routine, map frame
+	results_screen_object              0-96,    screen_width/2,      56,       2,         0
+	results_screen_object   screen_width+64, screen_width/2-32,      74,       4,         3
+	results_screen_object  screen_width+128, screen_width/2+32,      74,       6,         4
+	results_screen_object  screen_width+184, screen_width/2+88,      62,       8,         6
+	results_screen_object  screen_width+400,    screen_width/2,     160,       4,         9
+	results_screen_object  screen_width+352,    screen_width/2,     112,       4,        $A
+	results_screen_object  screen_width+368,    screen_width/2,     128,       4,        $B
+	results_screen_object  screen_width+384,    screen_width/2,     144,     $16,        $E
 Obj3A_SubObjectMetadata_End:
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -28288,7 +28288,7 @@ Obj6F_MoveTowardsSourcePosition:
 	sub.w	d0,x_pixel(a0)
 	; If target lies very far off-screen, then don't bother trying to display it.
 	; This is because the sprite coordinates are prone to overflow and underflow.
-	cmpi.w	#128+320+64,x_pixel(a0)
+	cmpi.w	#128+screen_width+64,x_pixel(a0)
 	bhi.s	.return
 ;BranchTo20_DisplaySprite
 .display:
@@ -28311,20 +28311,20 @@ Obj6F_MoveAndDisplay:
 ; ===========================================================================
 ;byte_14752
 Obj6F_SubObjectMetaData:
-	;                       start X, target X, start Y, routine, map frame
-	results_screen_object   320+128,    320/2,      42,       2,         0		; "Special Stage"
-	results_screen_object     0-128,    320/2,      24,       4,         1		; "Sonic got a"
-	results_screen_object   320/2-8,    0-128,      68,       6,         5		; Emerald 0
-	results_screen_object  320/2+16,    0-128,      80,       8,         6		; Emerald 1
-	results_screen_object  320/2+16,    0-128,     104,      $A,         7		; Emerald 2
-	results_screen_object   320/2-8,    0-128,     116,      $C,         8		; Emerald 3
-	results_screen_object  320/2-32,    0-128,     104,      $E,         9		; Emerald 4
-	results_screen_object  320/2-32,    0-128,      80,     $10,        $A		; Emerald 5
-	results_screen_object   320/2-8,    0-128,      92,     $12,        $B		; Emerald 6
-	results_screen_object   320+368,    320/2,     136,     $14,        $C		; Score
-	results_screen_object   320+384,    320/2,     152,     $16,        $D		; Sonic Rings
-	results_screen_object   320+400,    320/2,     168,     $18,        $E		; Miles Rings
-	results_screen_object   320+416,    320/2,     184,     $1A,       $10		; Gems Bonus
+	;                                start X,          target X, start Y, routine, map frame
+	results_screen_object   screen_width+128,    screen_width/2,      42,       2,         0		; "Special Stage"
+	results_screen_object              0-128,    screen_width/2,      24,       4,         1		; "Sonic got a"
+	results_screen_object   screen_width/2-8,             0-128,      68,       6,         5		; Emerald 0
+	results_screen_object  screen_width/2+16,             0-128,      80,       8,         6		; Emerald 1
+	results_screen_object  screen_width/2+16,             0-128,     104,      $A,         7		; Emerald 2
+	results_screen_object   screen_width/2-8,             0-128,     116,      $C,         8		; Emerald 3
+	results_screen_object  screen_width/2-32,             0-128,     104,      $E,         9		; Emerald 4
+	results_screen_object  screen_width/2-32,             0-128,      80,     $10,        $A		; Emerald 5
+	results_screen_object   screen_width/2-8,             0-128,      92,     $12,        $B		; Emerald 6
+	results_screen_object   screen_width+368,    screen_width/2,     136,     $14,        $C		; Score
+	results_screen_object   screen_width+384,    screen_width/2,     152,     $16,        $D		; Sonic Rings
+	results_screen_object   screen_width+400,    screen_width/2,     168,     $18,        $E		; Miles Rings
+	results_screen_object   screen_width+416,    screen_width/2,     184,     $1A,       $10		; Gems Bonus
 Obj6F_SubObjectMetaData_End:
 
 ; -------------------------------------------------------------------------------
@@ -30385,7 +30385,7 @@ BuildSprites_ApproxYCheck:
 	andi.w	#$7FF,d2
 	cmpi.w	#-32+128,d2	; assume Y radius to be 32 pixels
 	blo.s	BuildSprites_NextObj
-	cmpi.w	#32+128+224,d2
+	cmpi.w	#32+128+screen_height,d2
 	bhs.s	BuildSprites_NextObj
 ; loc_166CC:
 BuildSprites_DrawSprite:
@@ -30482,7 +30482,7 @@ BuildSprites_MultiDraw:
 	andi.w	#$7FF,d2
 	cmpi.w	#-32+128,d2
 	blo.s	BuildSprites_MultiDraw_NextObj
-	cmpi.w	#32+128+224,d2
+	cmpi.w	#32+128+screen_height,d2
 	bhs.s	BuildSprites_MultiDraw_NextObj
 +
 	moveq	#0,d1
@@ -31829,7 +31829,7 @@ BuildRings_Loop:
 	; This line is completely redundant: an apparent leftover from one of the
 	; prototypes, back when the above 'andi' didn't exist. S3K gets rid of this.
 	bmi.s	BuildRings_NextRing
-	cmpi.w	#224+8*2,d2
+	cmpi.w	#screen_height+8*2,d2
 	; The above 'andi' means that this could just be a plain 'bhs'. S3K does this.
 	bge.s	BuildRings_NextRing	; if the ring is not on-screen, branch
 	addi.w	#128-8,d2
@@ -31893,10 +31893,10 @@ BuildRings_P1:
 BuildRings_P2:
 	lea	(Camera_X_pos_P2).w,a3
     if fixBugs
-	move.w	#224+128+128-8,d6
+	move.w	#screen_height+128+128-8,d6
     else
 	; See the below bugfixes.
-	move.w	#224+128-8,d6
+	move.w	#screen_height+128-8,d6
     endif
 	movea.w	(Ring_start_addr_P2).w,a0
 	movea.w	(Ring_end_addr_P2).w,a4
@@ -31928,7 +31928,7 @@ BuildRings_2P_Loop:
 	; prototypes, back when the above 'andi' didn't exist. S3K gets rid of this.
 	bmi.s	BuildRings_2P_NextRing
     if fixBugs
-	cmpi.w	#224+8*2,d2
+	cmpi.w	#screen_height+8*2,d2
     else
 	; Fixing the above bug exposes another issue: this instruction and
 	; the above 'addi' should not have 128 added to their values. Instead,
@@ -31937,7 +31937,7 @@ BuildRings_2P_Loop:
 	; extends the vertical range in which rings are not culled, creating a
 	; 128 line region above the top of the screen where the rings are
 	; off-screen, but not culled.
-	cmpi.w	#224+8*2+128,d2
+	cmpi.w	#screen_height+8*2+128,d2
     endif
 
 	; The above 'andi' means that this could just be a plain 'bhs'. S3K does this.
@@ -36429,7 +36429,7 @@ Obj01_ResetScr:
 	move.w	#0,(Sonic_Look_delay_counter).w
 ; loc_1A5E6:
 Obj01_ResetScr_Part2:
-	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias).w	; is screen in its default position?
+	cmpi.w	#(screen_height/2)-16,(Camera_Y_pos_bias).w	; is screen in its default position?
 	beq.s	Obj01_UpdateSpeedOnGround	; if yes, branch.
 	bhs.s	+				; depending on the sign of the difference,
 	addq.w	#4,(Camera_Y_pos_bias).w	; either add 2
@@ -36731,7 +36731,7 @@ Sonic_KeepRolling:
 ; resets the screen to normal while rolling, like Obj01_ResetScr
 ; loc_1A85A:
 Obj01_Roll_ResetScr:
-	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias).w	; is screen in its default position?
+	cmpi.w	#(screen_height/2)-16,(Camera_Y_pos_bias).w	; is screen in its default position?
 	beq.s	Sonic_SetRollSpeeds		; if yes, branch
 	bhs.s	+				; depending on the sign of the difference,
 	addq.w	#4,(Camera_Y_pos_bias).w	; either add 2
@@ -36843,7 +36843,7 @@ Sonic_ChgJumpDir:
 
 ; loc_1A932: Obj01_ResetScr2:
 Obj01_Jump_ResetScr:
-	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias).w	; is screen in its default position?
+	cmpi.w	#(screen_height/2)-16,(Camera_Y_pos_bias).w	; is screen in its default position?
 	beq.s	Sonic_JumpPeakDecelerate	; if yes, branch
 	bhs.s	+				; depending on the sign of the difference,
 	addq.w	#4,(Camera_Y_pos_bias).w	; either add 2
@@ -36921,7 +36921,7 @@ Sonic_Boundary_CheckBottom:
 	move.w	d1,d0
 .skip:
     endif
-	addi.w	#224,d0
+	addi.w	#screen_height,d0
 	cmp.w	y_pos(a0),d0		; has Sonic touched the bottom boundary?
 	blt.s	Sonic_Boundary_Bottom	; if yes, branch
 	rts
@@ -37337,7 +37337,7 @@ Sonic_ChargingSpindash:			; If still charging the dash...
 ; loc_1AD78:
 Obj01_Spindash_ResetScr:
 	addq.l	#4,sp
-	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias).w
+	cmpi.w	#(screen_height/2)-16,(Camera_Y_pos_bias).w
 	beq.s	loc_1AD8C
 	bhs.s	+
 	addq.w	#4,(Camera_Y_pos_bias).w
@@ -37831,7 +37831,7 @@ Sonic_HurtStop:
 	move.w	d1,d0
 .skip:
     endif
-	addi.w	#224,d0
+	addi.w	#screen_height,d0
 	cmp.w	y_pos(a0),d0
 	blt.w	JmpTo_KillCharacter
 	bsr.w	Sonic_DoLevelCollision
@@ -39403,7 +39403,7 @@ Obj02_ResetScr:
 	move.w	#0,(Tails_Look_delay_counter).w
 ; loc_1C1D6:
 Obj02_ResetScr_Part2:
-	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias_P2).w	; is screen in its default position?
+	cmpi.w	#(screen_height/2)-16,(Camera_Y_pos_bias_P2).w	; is screen in its default position?
 	beq.s	Obj02_UpdateSpeedOnGround	; if yes, branch.
 	bhs.s	+				; depending on the sign of the difference,
 	addq.w	#4,(Camera_Y_pos_bias_P2).w	; either add 2
@@ -39710,7 +39710,7 @@ Tails_KeepRolling:
 ; resets the screen to normal while rolling, like Obj02_ResetScr
 ; loc_1C440:
 Obj02_Roll_ResetScr:
-	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias_P2).w	; is screen in its default position?
+	cmpi.w	#(screen_height/2)-16,(Camera_Y_pos_bias_P2).w	; is screen in its default position?
 	beq.s	Tails_SetRollSpeed		; if yes, branch
 	bhs.s	+				; depending on the sign of the difference,
 	addq.w	#4,(Camera_Y_pos_bias_P2).w	; either add 2
@@ -39822,7 +39822,7 @@ Tails_ChgJumpDir:
 
 ; loc_1C518: Obj02_ResetScr2:
 Obj02_Jump_ResetScr:
-	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias_P2).w	; is screen in its default position?
+	cmpi.w	#(screen_height/2)-16,(Camera_Y_pos_bias_P2).w	; is screen in its default position?
 	beq.s	Tails_JumpPeakDecelerate			; if yes, branch
 	bhs.s	+				; depending on the sign of the difference,
 	addq.w	#4,(Camera_Y_pos_bias_P2).w	; either add 2
@@ -39900,7 +39900,7 @@ Tails_Boundary_CheckBottom:
 	move.w	d1,d0
 .skip:
     endif
-	addi.w	#224,d0
+	addi.w	#screen_height,d0
 	cmp.w	y_pos(a0),d0		; has Tails touched the bottom boundary?
 	blt.s	Tails_Boundary_Bottom	; if yes, branch
 	rts
@@ -40192,7 +40192,7 @@ loc_1C7F8:
 
 loc_1C828:
 	addq.l	#4,sp
-	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias_P2).w
+	cmpi.w	#(screen_height/2)-16,(Camera_Y_pos_bias_P2).w
 	beq.s	loc_1C83C
 	bhs.s	+
 	addq.w	#4,(Camera_Y_pos_bias_P2).w
@@ -40677,7 +40677,7 @@ Tails_HurtStop:
 	move.w	d1,d0
 .skip:
     endif
-	addi.w	#224,d0
+	addi.w	#screen_height,d0
 	cmp.w	y_pos(a0),d0
 	blt.w	JmpTo2_KillCharacter
 	bsr.w	Tails_DoLevelCollision
@@ -47420,7 +47420,7 @@ Obj16_Fall:
 	jsrto	JmpTo4_ObjectMove
 	addi.w	#$38,y_vel(a0)
 	move.w	(Camera_Max_Y_pos).w,d0
-	addi.w	#224,d0
+	addi.w	#screen_height,d0
 	cmp.w	y_pos(a0),d0
 	bhs.s	+++	; rts
 	move.b	status(a0),d0
@@ -48525,7 +48525,7 @@ loc_2315A:
 	jsrto	JmpTo7_ObjectMove
 	addi.w	#$18,y_vel(a0)
 	move.w	(Camera_Max_Y_pos).w,d0
-	addi.w	#224,d0
+	addi.w	#screen_height,d0
 	cmp.w	y_pos(a0),d0
 	bhs.s	loc_23176
 	jmpto	JmpTo21_DeleteObject
@@ -50237,7 +50237,7 @@ Obj46_Moving:
 	addi.w	#$18,y_vel(a0)
 	bmi.s	+
 	move.w	(Camera_Max_Y_pos).w,d0
-	addi.w	#224,d0
+	addi.w	#screen_height,d0
 	cmp.w	y_pos(a0),d0
 	blo.s	loc_24BC4
 	jsr	(ObjCheckFloorDist).l
@@ -54030,7 +54030,7 @@ loc_27EE2:
 	move.l	d3,y_pos(a0)
 	addi_.w	#8,y_vel(a0)
 	move.w	(Camera_Max_Y_pos).w,d0
-	addi.w	#224,d0
+	addi.w	#screen_height,d0
 	cmp.w	y_pos(a0),d0
 	bhs.s	return_27F0E
 	move.b	#0,subtype(a0)
@@ -70799,9 +70799,9 @@ Obj5B_Main:
 	bsr.w	loc_3551C
 	tst.w	x_pos(a0)
 	bmi.w	JmpTo63_DeleteObject
-	cmpi.w	#256,x_pos(a0) ; Screen width
+	cmpi.w	#screen_width_ss,x_pos(a0)
 	bhs.w	JmpTo63_DeleteObject
-	cmpi.w	#224,y_pos(a0) ; Screen height
+	cmpi.w	#screen_height_ss,y_pos(a0)
 	bgt.w	JmpTo63_DeleteObject
 	lea	(Ani_obj5B_obj60).l,a1
 	jsrto	JmpTo24_AnimateSprite
@@ -73900,7 +73900,7 @@ loc_374D8:
 ; loc_374F4:
 Obj97_DeathDrop:
 	move.w	(Camera_Max_Y_pos).w,d0
-	addi.w	#224,d0
+	addi.w	#screen_height,d0
 	cmp.w	y_pos(a0),d0
 	blo.w	JmpTo65_DeleteObject
 	jsrto	JmpTo8_ObjectMoveAndFall
@@ -78678,7 +78678,7 @@ loc_3AC84:
 	beq.s	return_3ACF0
 	addq.b	#2,routine_secondary(a0)
 	clr.b	collision_flags(a0)
-	move.w	#(224/2)+8,(Camera_Y_pos_bias).w
+	move.w	#(screen_height/2)+8,(Camera_Y_pos_bias).w
 	movea.w	objoff_2C(a0),a1 ; a1=object
 	bset	#status.npc.p2_pushing,status(a1)
 	lea	(MainCharacter).w,a1 ; a1=character
@@ -88011,7 +88011,7 @@ Debug_TimerNotOver:
 	add.l	d1,d2
 	moveq	#0,d0
 	move.w	(Camera_Max_Y_pos_target).w,d0
-	addi.w	#224-1,d0
+	addi.w	#screen_height-1,d0
 	swap	d0
 	cmp.l	d0,d2
 	blt.s	.maxYPosNotReached
