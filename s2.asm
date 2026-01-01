@@ -10506,13 +10506,13 @@ JmpTo2_DisplaySprite ; JmpTo
 ; ===========================================================================
 objda_make_x_positions macro
 	irp pos,ALLARGS
-	dc.w  spriteScreenPositionX(pos)
+	dc.w  spriteScreenPositionX(screen_width/2+(pos))
 	endm
     endm
 
 ; word_7AB2:
 ObjDA_XPositions:
-	objda_make_x_positions 150, 170, 130, 190, 110, 210, 90, 230, 70, 250, 50, 270, 30, 290, 10
+	objda_make_x_positions -10, 10, -30, 30, -50, 50, -70, 70, -90, 90, -110, 110, -130, 130, -150
 
 ; ===========================================================================
 
@@ -26101,7 +26101,7 @@ obj0e_music_playing	= objoff_30
 obj0e_current_frame	= objoff_34
 
 obj0e_make_sprite_position macro x,y
-	dc.w	spriteScreenPositionX(x),spriteScreenPositionY(y)
+	dc.w	spriteScreenPositionX(screen_width/2+(x)),spriteScreenPositionY(screen_height/2+(y))
     endm
 
 ; Sprite_12E18:
@@ -26162,8 +26162,8 @@ Obj0E_Sonic_Init:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_FadeInAndPlayMusic
 	move.b	#5,mapping_frame(a0)
 
-	move.w	#spriteScreenPositionX(144),x_pixel(a0)
-	move.w	#spriteScreenPositionY(96),y_pixel(a0)
+	move.w	#spriteScreenPositionX(screen_width/2-16),x_pixel(a0)
+	move.w	#spriteScreenPositionY(screen_height/2-16),y_pixel(a0)
 
 	; Load flashing star object.
 	lea	(IntroFlashingStar).w,a1
@@ -26370,15 +26370,15 @@ CyclingPal_TitleStar_End
 
 ;word_13046:
 Obj0E_Sonic_Positions:
-	;                             X,  Y
-	obj0e_make_sprite_position  136, 80
-	obj0e_make_sprite_position  128, 64
-	obj0e_make_sprite_position  120, 48
-	obj0e_make_sprite_position  118, 38
-	obj0e_make_sprite_position  122, 30
-	obj0e_make_sprite_position  128, 26
-	obj0e_make_sprite_position  132, 25
-	obj0e_make_sprite_position  136, 24
+	;                             X,   Y
+	obj0e_make_sprite_position  -24, -32
+	obj0e_make_sprite_position  -32, -48
+	obj0e_make_sprite_position  -40, -64
+	obj0e_make_sprite_position  -42, -74
+	obj0e_make_sprite_position  -38, -82
+	obj0e_make_sprite_position  -32, -86
+	obj0e_make_sprite_position  -28, -87
+	obj0e_make_sprite_position  -24, -88
 Obj0E_Sonic_Positions_End
 ; ===========================================================================
 
@@ -26406,8 +26406,8 @@ Obj0E_Tails_Init:
 	; him.
 	move.b	#3,priority(a0)
     endif
-	move.w	#spriteScreenPositionX(88),x_pixel(a0)
-	move.w	#spriteScreenPositionY(88),y_pixel(a0)
+	move.w	#spriteScreenPositionX(screen_width/2-72),x_pixel(a0)
+	move.w	#spriteScreenPositionY(screen_height/2-24),y_pixel(a0)
 	move.b	#1,anim(a0)
 	rts
 ; ===========================================================================
@@ -26431,14 +26431,14 @@ BranchTo10_DisplaySprite ; BranchTo
 ; ===========================================================================
 ; word_130B8:
 Obj0E_Tails_Positions:
-	;                            X,  Y
-	obj0e_make_sprite_position  87, 72
-	obj0e_make_sprite_position  83, 56
-	obj0e_make_sprite_position  78, 44
-	obj0e_make_sprite_position  76, 38
-	obj0e_make_sprite_position  74, 34
-	obj0e_make_sprite_position  73, 33
-	obj0e_make_sprite_position  72, 32
+	;                             X,   Y
+	obj0e_make_sprite_position  -73, -40
+	obj0e_make_sprite_position  -77, -56
+	obj0e_make_sprite_position  -82, -68
+	obj0e_make_sprite_position  -84, -74
+	obj0e_make_sprite_position  -86, -78
+	obj0e_make_sprite_position  -87, -79
+	obj0e_make_sprite_position  -88, -80
 Obj0E_Tails_Positions_End
 ; ===========================================================================
 
@@ -26463,7 +26463,7 @@ Obj0E_LogoTop_Init:
 +
 	move.b	#2,priority(a0)
 	move.w	#spriteScreenPositionX(screen_width/2),x_pixel(a0)
-	move.w	#spriteScreenPositionY(104),y_pixel(a0)
+	move.w	#spriteScreenPositionY(screen_height/2-8),y_pixel(a0)
 ; loc_1310A:
 Obj0E_NextRoutineSecondary:
 	addq.b	#2,routine_secondary(a0)	; BranchTo11_DisplaySprite
@@ -26492,7 +26492,7 @@ Obj0E_MaskingSprite_Init:
 	; Masking sprites normally must have an X coordinate of 0. I don't
 	; know why it isn't set to that here, but it is corrected to 0 in
 	; 'TitleScreen_Loop'.
-	move.w	#spriteScreenPositionX(128),x_pixel(a0)
+	move.w	#spriteScreenPositionX(screen_width/2-32),x_pixel(a0)
 	move.w	#spriteScreenPositionY(screen_height/2),y_pixel(a0)
 
 BranchTo12_DisplaySprite ; BranchTo
@@ -26519,8 +26519,8 @@ Obj0E_FlashingStar_Init:
 	ori.w	#high_priority,art_tile(a0)
 	move.b	#2,anim(a0)
 	move.b	#1,priority(a0)
-	move.w	#spriteScreenPositionX(128),x_pixel(a0)
-	move.w	#spriteScreenPositionY(40),y_pixel(a0)
+	move.w	#spriteScreenPositionX(screen_width/2-32),x_pixel(a0)
+	move.w	#spriteScreenPositionY(screen_height/2-72),y_pixel(a0)
 	move.w	#4,obj0e_counter(a0)
 	rts
 ; ===========================================================================
@@ -26562,15 +26562,15 @@ Obj0E_FlashingStar_Move:
 ; word_131DC:
 Obj0E_FlashingStar_Positions:
 	;                             X,   Y
-	obj0e_make_sprite_position   90, 114
-	obj0e_make_sprite_position  240, 120
-	obj0e_make_sprite_position  178, 177
-	obj0e_make_sprite_position  286,  34
-	obj0e_make_sprite_position   64,  99
-	obj0e_make_sprite_position  256,  96
-	obj0e_make_sprite_position  141, 187
-	obj0e_make_sprite_position   64,  43
-	obj0e_make_sprite_position  229, 135
+	obj0e_make_sprite_position  -70,   2
+	obj0e_make_sprite_position   80,   8
+	obj0e_make_sprite_position   18,  65
+	obj0e_make_sprite_position  126, -78
+	obj0e_make_sprite_position  -96, -13
+	obj0e_make_sprite_position   96, -16
+	obj0e_make_sprite_position  -19,  75
+	obj0e_make_sprite_position  -96, -69
+	obj0e_make_sprite_position   69,  23
 Obj0E_FlashingStar_Positions_End
 ; ===========================================================================
 
@@ -26597,8 +26597,8 @@ Obj0E_SonicHand_Init:
 	; This is inconsistent with 'TitleScreen_SetFinalState'.
 	move.b	#3,priority(a0)
     endif
-	move.w	#spriteScreenPositionX(197),x_pixel(a0)
-	move.w	#spriteScreenPositionY(63),y_pixel(a0)
+	move.w	#spriteScreenPositionX(screen_width/2+37),x_pixel(a0)
+	move.w	#spriteScreenPositionY(screen_height/2-49),y_pixel(a0)
 
 BranchTo13_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
@@ -26611,10 +26611,10 @@ Obj0E_SonicHand_Move:
 ; ===========================================================================
 ; word_13240:
 Obj0E_SonicHand_Positions:
-	;                             X,  Y
-	obj0e_make_sprite_position  195, 65
-	obj0e_make_sprite_position  192, 66
-	obj0e_make_sprite_position  193, 65
+	;                            X,   Y
+	obj0e_make_sprite_position  35, -47
+	obj0e_make_sprite_position  32, -46
+	obj0e_make_sprite_position  33, -47
 Obj0E_SonicHand_Positions_End
 ; ===========================================================================
 
@@ -26642,8 +26642,8 @@ Obj0E_TailsHand_Init:
 	; the hand to be layered behind Tails if his priority is fixed.
 	move.b	#3,priority(a0)
     endif
-	move.w	#spriteScreenPositionX(143),x_pixel(a0)
-	move.w	#spriteScreenPositionY(85),y_pixel(a0)
+	move.w	#spriteScreenPositionX(screen_width/2-17),x_pixel(a0)
+	move.w	#spriteScreenPositionY(screen_height/2-27),y_pixel(a0)
 
 BranchTo14_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
@@ -26656,9 +26656,9 @@ Obj0E_TailsHand_Move:
 ; ===========================================================================
 ; word_1328C:
 Obj0E_TailsHand_Positions:
-	;                             X,  Y
-	obj0e_make_sprite_position  140, 80
-	obj0e_make_sprite_position  141, 81
+	;                             X,   Y
+	obj0e_make_sprite_position  -20, -32
+	obj0e_make_sprite_position  -19, -31
 Obj0E_TailsHand_Positions_End
 ; ===========================================================================
 ; Obj0E_SmallStar:
@@ -26678,8 +26678,8 @@ Obj0E_FallingStar_Init:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_FallingStar_Main
 	move.b	#$C,mapping_frame(a0)
 	move.b	#5,priority(a0)
-	move.w	#spriteScreenPositionX(240),x_pixel(a0)
-	move.w	#spriteScreenPositionY(0),y_pixel(a0)
+	move.w	#spriteScreenPositionX(screen_width/2+80),x_pixel(a0)
+	move.w	#spriteScreenPositionY(screen_height/2-112),y_pixel(a0)
 	move.b	#3,anim(a0)
 	move.w	#140,obj0e_counter(a0)
 	bra.w	DisplaySprite
@@ -26879,8 +26879,8 @@ TitleScreen_SetFinalState:
 	st.b	obj0e_intro_complete(a0)
 	move.b	#$10,routine_secondary(a0)
 	move.b	#$12,mapping_frame(a0)
-	move.w	#spriteScreenPositionX(136),x_pixel(a0)
-	move.w	#spriteScreenPositionY(24),y_pixel(a0)
+	move.w	#spriteScreenPositionX(screen_width/2-24),x_pixel(a0)
+	move.w	#spriteScreenPositionY(screen_height/2-88),y_pixel(a0)
 
 	; Initialise Sonic's hand object.
 	lea	(IntroSonicHand).w,a1
@@ -26890,8 +26890,8 @@ TitleScreen_SetFinalState:
 	move.b	#2,priority(a1)
 	move.b	#9,mapping_frame(a1)
 	move.b	#4,routine_secondary(a1)
-	move.w	#spriteScreenPositionX(193),x_pixel(a1)
-	move.w	#spriteScreenPositionY(65),y_pixel(a1)
+	move.w	#spriteScreenPositionX(screen_width/2+33),x_pixel(a1)
+	move.w	#spriteScreenPositionY(screen_height/2-47),y_pixel(a1)
 
 	; Initialise Tails object.
 	lea	(IntroTails).w,a1
@@ -26901,8 +26901,8 @@ TitleScreen_SetFinalState:
 	move.b	#4,mapping_frame(a1)
 	move.b	#6,routine_secondary(a1)
 	move.b	#3,priority(a1)
-	move.w	#spriteScreenPositionX(72),x_pixel(a1)
-	move.w	#spriteScreenPositionY(32),y_pixel(a1)
+	move.w	#spriteScreenPositionX(screen_width/2-88),x_pixel(a1)
+	move.w	#spriteScreenPositionY(screen_height/2-80),y_pixel(a1)
 
 	; Initialise Tails' hand object.
 	lea	(IntroTailsHand).w,a1
@@ -26912,8 +26912,8 @@ TitleScreen_SetFinalState:
 	move.b	#2,priority(a1)
 	move.b	#$13,mapping_frame(a1)
 	move.b	#4,routine_secondary(a1)
-	move.w	#spriteScreenPositionX(141),x_pixel(a1)
-	move.w	#spriteScreenPositionY(81),y_pixel(a1)
+	move.w	#spriteScreenPositionX(screen_width/2-19),x_pixel(a1)
+	move.w	#spriteScreenPositionY(screen_height/2-31),y_pixel(a1)
 
 	; Initialise top-of-emblem object.
 	lea	(IntroEmblemTop).w,a1
@@ -86842,7 +86842,7 @@ BuildHUD:
 	addq.w	#2,d1	; set mapping frame for double blink
 +
 	move.w	#spriteScreenPositionX(16),d3	; set X pos
-	move.w	#spriteScreenPositionY(136),d2	; set Y pos
+	move.w	#spriteScreenPositionY(screen_height/2+24),d2	; set Y pos
 	lea	(HUD_MapUnc_40A9A).l,a1
 	movea.w	#make_art_tile(ArtTile_ArtNem_HUD,0,1),a3	; set art tile and flags
 	add.w	d1,d1
