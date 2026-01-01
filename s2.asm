@@ -27300,7 +27300,7 @@ Obj34_MoveTowardsTargetPosition:
 	sub.w	d0,x_pixel(a0)
 	; If target lies very far off-screen, then don't bother trying to display it.
 	; This is because the sprite coordinates are prone to overflow and underflow.
-	cmpi.w	#spriteScreenPositionX(screen_width+64),x_pixel(a0)
+	cmpi.w	#$200,x_pixel(a0)
 	bhi.s	.return
 .display:
 	bra.w	DisplaySprite
@@ -27376,7 +27376,7 @@ loc_13EC4:
 	sub.w	d0,x_pixel(a0)
 	; If target lies very far off-screen, then don't bother trying to display it.
 	; This is because the sprite coordinates are prone to overflow and underflow.
-	cmpi.w	#spriteScreenPositionX(screen_width+64),x_pixel(a0)
+	cmpi.w	#$200,x_pixel(a0)
 	bhi.s	+	; rts
 	bra.w	DisplaySprite
 ; ---------------------------------------------------------------------------
@@ -27419,7 +27419,7 @@ Obj34_WaitAndGoAway:
 	sub.w	d0,x_pixel(a0)
 	; If target lies very far off-screen, then don't bother trying to display it.
 	; This is because the sprite coordinates are prone to overflow and underflow.
-	cmpi.w	#spriteScreenPositionX(screen_width+64),x_pixel(a0)
+	cmpi.w	#$200,x_pixel(a0)
 	bhi.s	Obj34_LoadStandardWaterAndAnimalArt
 +
 	bra.w	DisplaySprite
@@ -28309,7 +28309,7 @@ Obj6F_MoveTowardsSourcePosition:
 	sub.w	d0,x_pixel(a0)
 	; If target lies very far off-screen, then don't bother trying to display it.
 	; This is because the sprite coordinates are prone to overflow and underflow.
-	cmpi.w	#spriteScreenPositionX(screen_width+64),x_pixel(a0)
+	cmpi.w	#$200,x_pixel(a0)
 	bhi.s	.return
 ;BranchTo20_DisplaySprite
 .display:
