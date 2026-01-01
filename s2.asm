@@ -10498,16 +10498,22 @@ ObjDA_Init:
 	jsrto	JmpTo_Adjust2PArtPointer
 	move.b	#0,render_flags(a0)
 	move.b	#60,width_pixels(a0)
-	move.w	#$80+screen_width/2,x_pixel(a0)
-	move.w	#$80+64,y_pixel(a0)
+	move.w	#spriteScreenPositionX(screen_width/2),x_pixel(a0)
+	move.w	#spriteScreenPositionY(screen_height/2-48),y_pixel(a0)
 
 JmpTo2_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
 ; ===========================================================================
+objda_make_x_positions macro
+	irp pos,ALLARGS
+	dc.w  spriteScreenPositionX(pos)
+	endm
+    endm
+
 ; word_7AB2:
 ObjDA_XPositions:
-	dc.w  $116, $12A, $102,	$13E,  $EE, $152,  $DA,	$166
-	dc.w   $C6, $17A,  $B2,	$18E,  $9E, $1A2,  $8A; 8
+	objda_make_x_positions 150, 170, 130, 190, 110, 210, 90, 230, 70, 250, 50, 270, 30, 290, 10
+
 ; ===========================================================================
 
 loc_7AD0:
@@ -10533,9 +10539,9 @@ loc_7AD0:
 	move.w	(a2)+,x_pixel(a1)
 	tst.b	d2
 	beq.s	+
-	subi.w	#$A,x_pixel(a1)
+	subi.w	#10,x_pixel(a1)
 +
-	move.w	#$D0,y_pixel(a1)
+	move.w	#spriteScreenPositionY(screen_height/2-32),y_pixel(a1)
 	move.b	#4,mapping_frame(a1)
 	move.b	#6,routine(a1)
 	move.l	#ObjDA_MapUnc_7CB6,mappings(a1)
@@ -10997,14 +11003,18 @@ Obj21_Index:	offsetTable
 		offsetTableEntry.w Obj21_Init	; 0
 		offsetTableEntry.w Obj21_Main	; 2
 ; ---------------------------------------------------------------------------
+obj21_make_position macro x,y
+	dc.w spriteScreenPositionX(screen_width/2+(x)), spriteScreenPositionY(screen_height/2+(y))
+    endm
+
 ; word_80D0:
 Obj21_PositionTable:
-	;      x,    y
-	dc.w $F0, $148
-	dc.w $F0, $130
-	dc.w $E0, $148
-	dc.w $F0, $148
-	dc.w $F0, $148
+	;                     x, y
+	obj21_make_position -48,88
+	obj21_make_position -48,64
+	obj21_make_position -64,88
+	obj21_make_position -48,88
+	obj21_make_position -48,88
 ; ===========================================================================
 ; loc_80E4:
 Obj21_Init:
@@ -26090,6 +26100,10 @@ obj0e_intro_complete	= objoff_2F
 obj0e_music_playing	= objoff_30
 obj0e_current_frame	= objoff_34
 
+obj0e_make_sprite_position macro x,y
+	dc.w	spriteScreenPositionX(x),spriteScreenPositionY(y)
+    endm
+
 ; Sprite_12E18:
 Obj0E:
 	moveq	#0,d0
@@ -26148,8 +26162,8 @@ Obj0E_Sonic_Init:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_FadeInAndPlayMusic
 	move.b	#5,mapping_frame(a0)
 
-	move.w	#128+144,x_pixel(a0)
-	move.w	#128+96,y_pixel(a0)
+	move.w	#spriteScreenPositionX(144),x_pixel(a0)
+	move.w	#spriteScreenPositionY(96),y_pixel(a0)
 
 	; Load flashing star object.
 	lea	(IntroFlashingStar).w,a1
@@ -26356,15 +26370,15 @@ CyclingPal_TitleStar_End
 
 ;word_13046:
 Obj0E_Sonic_Positions:
-	;           X,      Y
-	dc.w  128+136, 128+80
-	dc.w  128+128, 128+64
-	dc.w  128+120, 128+48
-	dc.w  128+118, 128+38
-	dc.w  128+122, 128+30
-	dc.w  128+128, 128+26
-	dc.w  128+132, 128+25
-	dc.w  128+136, 128+24
+	;                             X,  Y
+	obj0e_make_sprite_position  136, 80
+	obj0e_make_sprite_position  128, 64
+	obj0e_make_sprite_position  120, 48
+	obj0e_make_sprite_position  118, 38
+	obj0e_make_sprite_position  122, 30
+	obj0e_make_sprite_position  128, 26
+	obj0e_make_sprite_position  132, 25
+	obj0e_make_sprite_position  136, 24
 Obj0E_Sonic_Positions_End
 ; ===========================================================================
 
@@ -26392,8 +26406,8 @@ Obj0E_Tails_Init:
 	; him.
 	move.b	#3,priority(a0)
     endif
-	move.w	#128+88,x_pixel(a0)
-	move.w	#128+88,y_pixel(a0)
+	move.w	#spriteScreenPositionX(88),x_pixel(a0)
+	move.w	#spriteScreenPositionY(88),y_pixel(a0)
 	move.b	#1,anim(a0)
 	rts
 ; ===========================================================================
@@ -26417,14 +26431,14 @@ BranchTo10_DisplaySprite ; BranchTo
 ; ===========================================================================
 ; word_130B8:
 Obj0E_Tails_Positions:
-	;           X,      Y
-	dc.w   128+87, 128+72
-	dc.w   128+83, 128+56
-	dc.w   128+78, 128+44
-	dc.w   128+76, 128+38
-	dc.w   128+74, 128+34
-	dc.w   128+73, 128+33
-	dc.w   128+72, 128+32
+	;                            X,  Y
+	obj0e_make_sprite_position  87, 72
+	obj0e_make_sprite_position  83, 56
+	obj0e_make_sprite_position  78, 44
+	obj0e_make_sprite_position  76, 38
+	obj0e_make_sprite_position  74, 34
+	obj0e_make_sprite_position  73, 33
+	obj0e_make_sprite_position  72, 32
 Obj0E_Tails_Positions_End
 ; ===========================================================================
 
@@ -26448,8 +26462,8 @@ Obj0E_LogoTop_Init:
 	move.b	#$A,mapping_frame(a0)
 +
 	move.b	#2,priority(a0)
-	move.w	#128+screen_width/2,x_pixel(a0)
-	move.w	#128+104,y_pixel(a0)
+	move.w	#spriteScreenPositionX(screen_width/2),x_pixel(a0)
+	move.w	#spriteScreenPositionY(104),y_pixel(a0)
 ; loc_1310A:
 Obj0E_NextRoutineSecondary:
 	addq.b	#2,routine_secondary(a0)	; BranchTo11_DisplaySprite
@@ -26478,8 +26492,8 @@ Obj0E_MaskingSprite_Init:
 	; Masking sprites normally must have an X coordinate of 0. I don't
 	; know why it isn't set to that here, but it is corrected to 0 in
 	; 'TitleScreen_Loop'.
-	move.w	#128+128,x_pixel(a0)
-	move.w	#128+screen_height/2,y_pixel(a0)
+	move.w	#spriteScreenPositionX(128),x_pixel(a0)
+	move.w	#spriteScreenPositionY(screen_height/2),y_pixel(a0)
 
 BranchTo12_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
@@ -26505,8 +26519,8 @@ Obj0E_FlashingStar_Init:
 	ori.w	#high_priority,art_tile(a0)
 	move.b	#2,anim(a0)
 	move.b	#1,priority(a0)
-	move.w	#128+128,x_pixel(a0)
-	move.w	#128+40,y_pixel(a0)
+	move.w	#spriteScreenPositionX(128),x_pixel(a0)
+	move.w	#spriteScreenPositionY(40),y_pixel(a0)
 	move.w	#4,obj0e_counter(a0)
 	rts
 ; ===========================================================================
@@ -26547,15 +26561,16 @@ Obj0E_FlashingStar_Move:
 ; ===========================================================================
 ; word_131DC:
 Obj0E_FlashingStar_Positions:
-	dc.w  128+90,  128+114
-	dc.w  128+240, 128+120
-	dc.w  128+178, 128+177
-	dc.w  128+286, 128+34
-	dc.w  128+64,  128+99
-	dc.w  128+256, 128+96
-	dc.w  128+141, 128+187
-	dc.w  128+64,  128+43
-	dc.w  128+229, 128+135
+	;                             X,   Y
+	obj0e_make_sprite_position   90, 114
+	obj0e_make_sprite_position  240, 120
+	obj0e_make_sprite_position  178, 177
+	obj0e_make_sprite_position  286,  34
+	obj0e_make_sprite_position   64,  99
+	obj0e_make_sprite_position  256,  96
+	obj0e_make_sprite_position  141, 187
+	obj0e_make_sprite_position   64,  43
+	obj0e_make_sprite_position  229, 135
 Obj0E_FlashingStar_Positions_End
 ; ===========================================================================
 
@@ -26582,8 +26597,8 @@ Obj0E_SonicHand_Init:
 	; This is inconsistent with 'TitleScreen_SetFinalState'.
 	move.b	#3,priority(a0)
     endif
-	move.w	#128+197,x_pixel(a0)
-	move.w	#128+63,y_pixel(a0)
+	move.w	#spriteScreenPositionX(197),x_pixel(a0)
+	move.w	#spriteScreenPositionY(63),y_pixel(a0)
 
 BranchTo13_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
@@ -26596,9 +26611,10 @@ Obj0E_SonicHand_Move:
 ; ===========================================================================
 ; word_13240:
 Obj0E_SonicHand_Positions:
-	dc.w  128+195, 128+65
-	dc.w  128+192, 128+66
-	dc.w  128+193, 128+65
+	;                             X,  Y
+	obj0e_make_sprite_position  195, 65
+	obj0e_make_sprite_position  192, 66
+	obj0e_make_sprite_position  193, 65
 Obj0E_SonicHand_Positions_End
 ; ===========================================================================
 
@@ -26626,8 +26642,8 @@ Obj0E_TailsHand_Init:
 	; the hand to be layered behind Tails if his priority is fixed.
 	move.b	#3,priority(a0)
     endif
-	move.w	#128+143,x_pixel(a0)
-	move.w	#128+85,y_pixel(a0)
+	move.w	#spriteScreenPositionX(143),x_pixel(a0)
+	move.w	#spriteScreenPositionY(85),y_pixel(a0)
 
 BranchTo14_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
@@ -26640,8 +26656,9 @@ Obj0E_TailsHand_Move:
 ; ===========================================================================
 ; word_1328C:
 Obj0E_TailsHand_Positions:
-	dc.w  128+140, 128+80
-	dc.w  128+141, 128+81
+	;                             X,  Y
+	obj0e_make_sprite_position  140, 80
+	obj0e_make_sprite_position  141, 81
 Obj0E_TailsHand_Positions_End
 ; ===========================================================================
 ; Obj0E_SmallStar:
@@ -26661,8 +26678,8 @@ Obj0E_FallingStar_Init:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_FallingStar_Main
 	move.b	#$C,mapping_frame(a0)
 	move.b	#5,priority(a0)
-	move.w	#128+240,x_pixel(a0)
-	move.w	#128+0,y_pixel(a0)
+	move.w	#spriteScreenPositionX(240),x_pixel(a0)
+	move.w	#spriteScreenPositionY(0),y_pixel(a0)
 	move.b	#3,anim(a0)
 	move.w	#140,obj0e_counter(a0)
 	bra.w	DisplaySprite
@@ -26862,8 +26879,8 @@ TitleScreen_SetFinalState:
 	st.b	obj0e_intro_complete(a0)
 	move.b	#$10,routine_secondary(a0)
 	move.b	#$12,mapping_frame(a0)
-	move.w	#128+136,x_pixel(a0)
-	move.w	#128+24,y_pixel(a0)
+	move.w	#spriteScreenPositionX(136),x_pixel(a0)
+	move.w	#spriteScreenPositionY(24),y_pixel(a0)
 
 	; Initialise Sonic's hand object.
 	lea	(IntroSonicHand).w,a1
@@ -26873,8 +26890,8 @@ TitleScreen_SetFinalState:
 	move.b	#2,priority(a1)
 	move.b	#9,mapping_frame(a1)
 	move.b	#4,routine_secondary(a1)
-	move.w	#128+193,x_pixel(a1)
-	move.w	#128+65,y_pixel(a1)
+	move.w	#spriteScreenPositionX(193),x_pixel(a1)
+	move.w	#spriteScreenPositionY(65),y_pixel(a1)
 
 	; Initialise Tails object.
 	lea	(IntroTails).w,a1
@@ -26884,8 +26901,8 @@ TitleScreen_SetFinalState:
 	move.b	#4,mapping_frame(a1)
 	move.b	#6,routine_secondary(a1)
 	move.b	#3,priority(a1)
-	move.w	#128+72,x_pixel(a1)
-	move.w	#128+32,y_pixel(a1)
+	move.w	#spriteScreenPositionX(72),x_pixel(a1)
+	move.w	#spriteScreenPositionY(32),y_pixel(a1)
 
 	; Initialise Tails' hand object.
 	lea	(IntroTailsHand).w,a1
@@ -26895,8 +26912,8 @@ TitleScreen_SetFinalState:
 	move.b	#2,priority(a1)
 	move.b	#$13,mapping_frame(a1)
 	move.b	#4,routine_secondary(a1)
-	move.w	#128+141,x_pixel(a1)
-	move.w	#128+81,y_pixel(a1)
+	move.w	#spriteScreenPositionX(141),x_pixel(a1)
+	move.w	#spriteScreenPositionY(81),y_pixel(a1)
 
 	; Initialise top-of-emblem object.
 	lea	(IntroEmblemTop).w,a1
@@ -26975,8 +26992,8 @@ Obj0F_Index:	offsetTable
 ; loc_13616:
 Obj0F_Init:
 	addq.b	#2,routine(a0) ; => Obj0F_Main
-	move.w	#128+screen_width/2+8,x_pixel(a0)
-	move.w	#128+screen_height/2+92,y_pixel(a0)
+	move.w	#spriteScreenPositionX(screen_width/2+8),x_pixel(a0)
+	move.w	#spriteScreenPositionY(screen_height/2+92),y_pixel(a0)
 	move.l	#Obj0F_MapUnc_13B70,mappings(a0)
 	move.w	#make_art_tile(ArtTile_VRAM_Start,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
@@ -27144,7 +27161,7 @@ Obj34_Init:
 ; - the Y position (word)
 titlecardobjdata macro routine,frame,width,duration,xstart,xstop,y
 	dc.b routine,frame,width,duration
-	dc.w 128+xstart,128+xstop,128+y
+	dc.w spriteScreenPositionX(xstart),spriteScreenPositionX(xstop),spriteScreenPositionY(y)
     endm
 ; word_13CD4:
 Obj34_TitleCardData:
@@ -27283,7 +27300,7 @@ Obj34_MoveTowardsTargetPosition:
 	sub.w	d0,x_pixel(a0)
 	; If target lies very far off-screen, then don't bother trying to display it.
 	; This is because the sprite coordinates are prone to overflow and underflow.
-	cmpi.w	#128+screen_width+64,x_pixel(a0)
+	cmpi.w	#spriteScreenPositionX(screen_width+64),x_pixel(a0)
 	bhi.s	.return
 .display:
 	bra.w	DisplaySprite
@@ -27357,7 +27374,9 @@ loc_13EC4:
 	neg.w	d0
 +
 	sub.w	d0,x_pixel(a0)
-	cmpi.w	#$200,x_pixel(a0)
+	; If target lies very far off-screen, then don't bother trying to display it.
+	; This is because the sprite coordinates are prone to overflow and underflow.
+	cmpi.w	#spriteScreenPositionX(screen_width+64),x_pixel(a0)
 	bhi.s	+	; rts
 	bra.w	DisplaySprite
 ; ---------------------------------------------------------------------------
@@ -27398,7 +27417,9 @@ Obj34_WaitAndGoAway:
 	neg.w	d0
 +
 	sub.w	d0,x_pixel(a0)
-	cmpi.w	#$200,x_pixel(a0)
+	; If target lies very far off-screen, then don't bother trying to display it.
+	; This is because the sprite coordinates are prone to overflow and underflow.
+	cmpi.w	#spriteScreenPositionX(screen_width+64),x_pixel(a0)
 	bhi.s	Obj34_LoadStandardWaterAndAnimalArt
 +
 	bra.w	DisplaySprite
@@ -27464,12 +27485,12 @@ Obj39_Init:
 ; ---------------------------------------------------------------------------
 +
 	addq.b	#2,routine(a0)
-	move.w	#$50,x_pixel(a0)
+	move.w	#spriteScreenPositionX(-48),x_pixel(a0)
 	btst	#0,mapping_frame(a0)
 	beq.s	+
-	move.w	#$1F0,x_pixel(a0)
+	move.w	#spriteScreenPositionX(screen_width+48),x_pixel(a0)
 +
-	move.w	#$F0,y_pixel(a0)
+	move.w	#spriteScreenPositionY(screen_height/2),y_pixel(a0)
 	move.l	#Obj39_MapUnc_14C6C,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Game_Over,0,1),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
@@ -27477,8 +27498,8 @@ Obj39_Init:
 	move.b	#0,priority(a0)
 ; loc_13FCC:
 Obj39_SlideIn:
-	moveq	#$10,d1
-	cmpi.w	#$120,x_pixel(a0)
+	moveq	#16,d1
+	cmpi.w	#spriteScreenPositionX(screen_width/2),x_pixel(a0)
 	beq.s	Obj39_SetTimer
 	blo.s	+
 	neg.w	d1
@@ -27733,8 +27754,8 @@ loc_14214:
 loc_14220:
 	_move.b	#ObjID_Results,id(a1) ; load obj3A (uses screen-space)
 	move.b	#$12,routine(a1)
-	move.w	#$188,x_pixel(a1)
-	move.w	#$118,y_pixel(a1)
+	move.w	#spriteScreenPositionX(screen_width/2+104),x_pixel(a1)
+	move.w	#spriteScreenPositionY(screen_height/2+40),y_pixel(a1)
 	move.l	#MapUnc_EOLTitleCards,mappings(a1)
 	bsr.w	Adjust2PArtPointer2
 	move.b	#0,render_flags(a1)
@@ -27926,7 +27947,7 @@ LevelOrder_2P: zoneOrderedTable 2,2	; WrdArr_LevelOrder_2P
     zoneTableEnd
 
 results_screen_object macro startx, targetx, y, routine, frame
-	dc.w	128+startx, 128+targetx, 128+y
+	dc.w	spriteScreenPositionX(startx), spriteScreenPositionX(targetx), spriteScreenPositionY(y)
 	dc.b	routine, frame
     endm
 
@@ -28100,7 +28121,7 @@ Obj6F_P1Rings:
 	bne.s	+										; Branch if not
 	move.w	#5000,(Bonus_Countdown_1).w				; Perfect bonus
 	move.b	#$2A,routine(a0)	; => Obj6F_PerfectBonus
-	move.w	#$120,y_pixel(a0)
+	move.w	#spriteScreenPositionY(screen_height/2+48),y_pixel(a0)
 	st.b	(Update_Bonus_score).w	; set to -1 (update)
 	move.w	#SndID_Signpost,d0
 	jsr	(PlaySound).l
@@ -28110,7 +28131,7 @@ Obj6F_P1Rings:
 +
 	move.w	(Player_mode).w,d0
 	beq.s	++
-	move.w	#$120,y_pixel(a0)
+	move.w	#spriteScreenPositionY(screen_height/2+48),y_pixel(a0)
 	subq.w	#1,d0
 	beq.s	++
 	moveq	#$E,d0		; "Miles rings"
@@ -28265,8 +28286,8 @@ Obj6F_InitAndMoveSuperMsg:
 	lea	(SpecialStageResults2).w,a1
 	_move.b	id(a0),id(a1) ; load obj6F; (uses screen-space)
 	clr.w	x_pixel(a1)
-	move.w	#$120,titlecard_x_target(a1)
-	move.w	#$B4,y_pixel(a1)
+	move.w	#spriteScreenPositionX(screen_width/2),titlecard_x_target(a1)
+	move.w	#spriteScreenPositionY(screen_height/2-60),y_pixel(a1)
 	move.b	#$14,routine(a1)						; => BranchTo3_Obj34_MoveTowardsTargetPosition
 	move.b	#$1C,mapping_frame(a1)					; "Super Sonic"
 	move.l	#Obj6F_MapUnc_14ED0,mappings(a1)
@@ -28288,7 +28309,7 @@ Obj6F_MoveTowardsSourcePosition:
 	sub.w	d0,x_pixel(a0)
 	; If target lies very far off-screen, then don't bother trying to display it.
 	; This is because the sprite coordinates are prone to overflow and underflow.
-	cmpi.w	#128+screen_width+64,x_pixel(a0)
+	cmpi.w	#spriteScreenPositionX(screen_width+64),x_pixel(a0)
 	bhi.s	.return
 ;BranchTo20_DisplaySprite
 .display:
@@ -30354,7 +30375,7 @@ BuildSprites_ObjLoop:
 	sub.w	d0,d1
 	cmpi.w	#screen_width,d1	; is the object left edge to the right of the screen?
 	bge.w	BuildSprites_NextObj	; if it is, branch
-	addi.w	#128,d3
+	addi.w	#spriteScreenPositionX(0),d3
 	btst	#render_flags.explicit_height,d4		; is the accurate Y check flag set?
 	beq.s	BuildSprites_ApproxYCheck	; if not, branch
 	moveq	#0,d0
@@ -30368,7 +30389,7 @@ BuildSprites_ObjLoop:
 	sub.w	d0,d1
 	cmpi.w	#screen_height,d1
 	bge.s	BuildSprites_NextObj	; if the object is below the screen
-	addi.w	#128,d2
+	addi.w	#spriteScreenPositionY(0),d2
 	bra.s	BuildSprites_DrawSprite
 ; ===========================================================================
 ; loc_166A6:
@@ -30381,11 +30402,11 @@ BuildSprites_ScreenSpaceObj:
 BuildSprites_ApproxYCheck:
 	move.w	y_pos(a0),d2
 	sub.w	4(a1),d2
-	addi.w	#128,d2
+	addi.w	#spriteScreenPositionY(0),d2
 	andi.w	#$7FF,d2
-	cmpi.w	#-32+128,d2	; assume Y radius to be 32 pixels
+	cmpi.w	#spriteScreenPositionY(0-32),d2	; assume Y radius to be 32 pixels
 	blo.s	BuildSprites_NextObj
-	cmpi.w	#32+128+screen_height,d2
+	cmpi.w	#spriteScreenPositionY(screen_height+32),d2
 	bhs.s	BuildSprites_NextObj
 ; loc_166CC:
 BuildSprites_DrawSprite:
@@ -30457,7 +30478,7 @@ BuildSprites_MultiDraw:
 	sub.w	d0,d1
 	cmpi.w	#screen_width,d1
 	bge.w	BuildSprites_MultiDraw_NextObj
-	addi.w	#128,d3
+	addi.w	#spriteScreenPositionX(0),d3
 
 	; check if object is within Y bounds
 	btst	#4,d4
@@ -30473,16 +30494,16 @@ BuildSprites_MultiDraw:
 	sub.w	d0,d1
 	cmpi.w	#screen_height,d1
 	bge.w	BuildSprites_MultiDraw_NextObj
-	addi.w	#128,d2
+	addi.w	#spriteScreenPositionY(0),d2
 	bra.s	++
 +
 	move.w	y_pos(a0),d2
 	sub.w	4(a4),d2
-	addi.w	#128,d2
+	addi.w	#spriteScreenPositionY(0),d2
 	andi.w	#$7FF,d2
-	cmpi.w	#-32+128,d2
+	cmpi.w	#spriteScreenPositionY(0-32),d2
 	blo.s	BuildSprites_MultiDraw_NextObj
-	cmpi.w	#32+128+screen_height,d2
+	cmpi.w	#spriteScreenPositionY(screen_height+32),d2
 	bhs.s	BuildSprites_MultiDraw_NextObj
 +
 	moveq	#0,d1
@@ -30508,10 +30529,10 @@ BuildSprites_MultiDraw:
 -	swap	d0
 	move.w	(a6)+,d3	; get X pos
 	sub.w	(a4),d3
-	addi.w	#128,d3
+	addi.w	#spriteScreenPositionX(0),d3
 	move.w	(a6)+,d2	; get Y pos
 	sub.w	4(a4),d2
-	addi.w	#128,d2
+	addi.w	#spriteScreenPositionY(0),d2
 	andi.w	#$7FF,d2
 	addq.w	#1,a6
 	moveq	#0,d1
@@ -30825,7 +30846,7 @@ BuildSprites_P1_ObjLoop:
 	sub.w	d0,d1
 	cmpi.w	#screen_width,d1
 	bge.s	BuildSprites_P1_NextObj
-	addi.w	#128,d3
+	addi.w	#spriteScreenPositionX(0),d3
 	btst	#render_flags.explicit_height,d4
 	beq.s	BuildSprites_P1_ApproxYCheck
 	moveq	#0,d0
@@ -30839,26 +30860,26 @@ BuildSprites_P1_ObjLoop:
 	sub.w	d0,d1
 	cmpi.w	#screen_height,d1
 	bge.s	BuildSprites_P1_NextObj
-	addi.w	#256,d2
+	addi.w	#spriteScreenPositionY2P(0),d2
 	bra.s	BuildSprites_P1_DrawSprite
 ; ===========================================================================
 ; loc_16A00:
 BuildSprites_P1_ScreenSpaceObj:
 	move.w	y_pixel(a0),d2
 	move.w	x_pixel(a0),d3
-	addi.w	#128,d2
+	addi.w	#spriteScreenPositionY2P(0)-spriteScreenPositionY(0),d2 ; Rebase from 1p to 2p coordinate space
 	bra.s	BuildSprites_P1_DrawSprite
 ; ===========================================================================
 ; loc_16A0E:
 BuildSprites_P1_ApproxYCheck:
 	move.w	y_pos(a0),d2
 	sub.w	4(a1),d2
-	addi.w	#128,d2
-	cmpi.w	#-32+128,d2
+	addi.w	#spriteScreenPositionY(0),d2
+	cmpi.w	#spriteScreenPositionY(0-32),d2
 	blo.s	BuildSprites_P1_NextObj
-	cmpi.w	#32+128+screen_height,d2
+	cmpi.w	#spriteScreenPositionY(screen_height+32),d2
 	bhs.s	BuildSprites_P1_NextObj
-	addi.w	#128,d2
+	addi.w	#spriteScreenPositionY2P(0)-spriteScreenPositionY(0),d2 ; Rebase from 1p to 2p coordinate space
 ; loc_16A2A:
 BuildSprites_P1_DrawSprite:
 	movea.l	mappings(a0),a1
@@ -30962,7 +30983,7 @@ BuildSprites_P2_ObjLoop:
 	sub.w	d0,d1
 	cmpi.w	#screen_width,d1
 	bge.s	BuildSprites_P2_NextObj
-	addi.w	#128,d3
+	addi.w	#spriteScreenPositionX(0),d3
 	btst	#render_flags.explicit_height,d4
 	beq.s	BuildSprites_P2_ApproxYCheck
 	moveq	#0,d0
@@ -30976,26 +30997,26 @@ BuildSprites_P2_ObjLoop:
 	sub.w	d0,d1
 	cmpi.w	#screen_height,d1
 	bge.s	BuildSprites_P2_NextObj
-	addi.w	#256+screen_height,d2
+	addi.w	#spriteScreenPositionY2P(screen_height),d2
 	bra.s	BuildSprites_P2_DrawSprite
 ; ===========================================================================
 ; loc_16B14:
 BuildSprites_P2_ScreenSpaceObj:
 	move.w	y_pixel(a0),d2
 	move.w	x_pixel(a0),d3
-	addi.w	#128+screen_height,d2
+	addi.w	#spriteScreenPositionY2P(screen_height)-spriteScreenPositionY(0),d2 ; Rebase from 1p to 2p coordinate space
 	bra.s	BuildSprites_P2_DrawSprite
 ; ===========================================================================
 ; loc_16B22:
 BuildSprites_P2_ApproxYCheck:
 	move.w	y_pos(a0),d2
 	sub.w	4(a1),d2
-	addi.w	#128,d2
-	cmpi.w	#-32+128,d2
+	addi.w	#spriteScreenPositionY(0),d2
+	cmpi.w	#spriteScreenPositionY(0-32),d2
 	blo.s	BuildSprites_P2_NextObj
-	cmpi.w	#32+128+screen_height,d2
+	cmpi.w	#spriteScreenPositionY(screen_height+32),d2
 	bhs.s	BuildSprites_P2_NextObj
-	addi.w	#128+screen_height,d2
+	addi.w	#spriteScreenPositionY2P(screen_height)-spriteScreenPositionY(0),d2 ; Rebase from 1p to 2p coordinate space
 ; loc_16B3E:
 BuildSprites_P2_DrawSprite:
 	movea.l	mappings(a0),a1
@@ -31064,7 +31085,7 @@ BuildSprites_P1_MultiDraw:
 	sub.w	d0,d1
 	cmpi.w	#screen_width,d1
 	bge.w	BuildSprites_P1_MultiDraw_NextObj
-	addi.w	#128,d3
+	addi.w	#spriteScreenPositionX(0),d3
 	btst	#4,d4
 	beq.s	+
 	moveq	#0,d0
@@ -31078,17 +31099,17 @@ BuildSprites_P1_MultiDraw:
 	sub.w	d0,d1
 	cmpi.w	#screen_height,d1
 	bge.w	BuildSprites_P1_MultiDraw_NextObj
-	addi.w	#256,d2
+	addi.w	#spriteScreenPositionY2P(0),d2
 	bra.s	++
 +
 	move.w	y_pos(a0),d2
 	sub.w	4(a4),d2
-	addi.w	#128,d2
-	cmpi.w	#-32+128,d2
+	addi.w	#spriteScreenPositionY(0),d2
+	cmpi.w	#spriteScreenPositionY(0-32),d2
 	blo.s	BuildSprites_P1_MultiDraw_NextObj
-	cmpi.w	#32+128+screen_height,d2
+	cmpi.w	#spriteScreenPositionY(screen_height+32),d2
 	bhs.s	BuildSprites_P1_MultiDraw_NextObj
-	addi.w	#128,d2
+	addi.w	#spriteScreenPositionY2P(0)-spriteScreenPositionY(0),d2 ; Rebase from 1p to 2p coordinate space
 +
 	moveq	#0,d1
 	move.b	mainspr_mapframe(a0),d1
@@ -31113,10 +31134,10 @@ BuildSprites_P1_MultiDraw:
 -	swap	d0
 	move.w	(a6)+,d3
 	sub.w	(a4),d3
-	addi.w	#128,d3
+	addi.w	#spriteScreenPositionX(0),d3
 	move.w	(a6)+,d2
 	sub.w	4(a4),d2
-	addi.w	#256,d2
+	addi.w	#spriteScreenPositionY2P(0),d2
 	addq.w	#1,a6
 	moveq	#0,d1
 	move.b	(a6)+,d1
@@ -31154,7 +31175,7 @@ BuildSprites_P2_MultiDraw:
 	sub.w	d0,d1
 	cmpi.w	#screen_width,d1
 	bge.w	BuildSprites_P2_MultiDraw_NextObj
-	addi.w	#128,d3
+	addi.w	#spriteScreenPositionX(0),d3
 	btst	#4,d4
 	beq.s	+
 	moveq	#0,d0
@@ -31168,17 +31189,17 @@ BuildSprites_P2_MultiDraw:
 	sub.w	d0,d1
 	cmpi.w	#screen_height,d1
 	bge.w	BuildSprites_P2_MultiDraw_NextObj
-	addi.w	#256+screen_height,d2
+	addi.w	#spriteScreenPositionY2P(screen_height),d2
 	bra.s	++
 +
 	move.w	y_pos(a0),d2
 	sub.w	4(a4),d2
-	addi.w	#128,d2
-	cmpi.w	#-32+128,d2
+	addi.w	#spriteScreenPositionY(0),d2
+	cmpi.w	#spriteScreenPositionY(0-32),d2
 	blo.s	BuildSprites_P2_MultiDraw_NextObj
-	cmpi.w	#32+128+screen_height,d2
+	cmpi.w	#spriteScreenPositionY(screen_height+32),d2
 	bhs.s	BuildSprites_P2_MultiDraw_NextObj
-	addi.w	#128+screen_height,d2
+	addi.w	#spriteScreenPositionY2P(screen_height)-spriteScreenPositionY(0),d2 ; Rebase from 1p to 2p coordinate space
 +
 	moveq	#0,d1
 	move.b	mainspr_mapframe(a0),d1
@@ -31203,10 +31224,10 @@ BuildSprites_P2_MultiDraw:
 -	swap	d0
 	move.w	(a6)+,d3
 	sub.w	(a4),d3
-	addi.w	#128,d3
+	addi.w	#spriteScreenPositionX(0),d3
 	move.w	(a6)+,d2
 	sub.w	4(a4),d2
-	addi.w	#256+screen_height,d2
+	addi.w	#spriteScreenPositionY2P(screen_height),d2
 	addq.w	#1,a6
 	moveq	#0,d1
 	move.b	(a6)+,d1
@@ -31813,7 +31834,7 @@ BuildRings_Loop:
 	bmi.w	BuildRings_NextRing	; if it has, branch
 	move.w	2(a0),d3	; get ring X pos
 	sub.w	(a3),d3		; subtract camera X pos
-	addi.w	#128,d3		; screen top is 128x128 not 0x0
+	addi.w	#spriteScreenPositionX(0),d3		; screen top-left is 128x128 not 0x0
 	move.w	4(a0),d2	; get ring Y pos
 	sub.w	4(a3),d2	; subtract camera Y pos
     if fixBugs
@@ -31832,7 +31853,7 @@ BuildRings_Loop:
 	cmpi.w	#screen_height+8*2,d2
 	; The above 'andi' means that this could just be a plain 'bhs'. S3K does this.
 	bge.s	BuildRings_NextRing	; if the ring is not on-screen, branch
-	addi.w	#128-8,d2
+	addi.w	#spriteScreenPositionY(-8),d2
 	lea	(MapUnc_Rings).l,a1
 	moveq	#0,d1
 	move.b	1(a0),d1	; get ring frame
@@ -31872,10 +31893,10 @@ BuildRings_NextRing:
 BuildRings_P1:
 	lea	(Camera_X_pos).w,a3
     if fixBugs
-	move.w	#128+128-8,d6
+	move.w	#spriteScreenPositionY2P(-8),d6
     else
 	; See the below bugfixes.
-	move.w	#128-8,d6
+	move.w	#spriteScreenPositionY(-8),d6
     endif
 	movea.w	(Ring_start_addr).w,a0
 	movea.w	(Ring_end_addr).w,a4
@@ -31893,10 +31914,10 @@ BuildRings_P1:
 BuildRings_P2:
 	lea	(Camera_X_pos_P2).w,a3
     if fixBugs
-	move.w	#screen_height+128+128-8,d6
+	move.w	#spriteScreenPositionY2P(screen_height-8),d6
     else
 	; See the below bugfixes.
-	move.w	#screen_height+128-8,d6
+	move.w	#spriteScreenPositionY(screen_height-8),d6
     endif
 	movea.w	(Ring_start_addr_P2).w,a0
 	movea.w	(Ring_end_addr_P2).w,a4
@@ -31910,7 +31931,7 @@ BuildRings_2P_Loop:
 	bmi.w	BuildRings_2P_NextRing	; if it has, branch
 	move.w	2(a0),d3	; get ring X pos
 	sub.w	(a3),d3		; subtract camera X pos
-	addi.w	#128,d3
+	addi.w	#spriteScreenPositionX(0),d3
 	move.w	4(a0),d2	; get ring Y pos
 	sub.w	4(a3),d2	; subtract camera Y pos
     if fixBugs
@@ -31922,7 +31943,7 @@ BuildRings_2P_Loop:
 	; when they go halfway off the top of the screen. To fix this, simply
 	; swap these two instructions around.
 	andi.w	#$7FF,d2
-	addi.w	#128+8,d2
+	addi.w	#spriteScreenPositionY(8),d2
     endif
 	; This line is completely redundant: an apparent leftover from one of the
 	; prototypes, back when the above 'andi' didn't exist. S3K gets rid of this.
@@ -31937,7 +31958,7 @@ BuildRings_2P_Loop:
 	; extends the vertical range in which rings are not culled, creating a
 	; 128 line region above the top of the screen where the rings are
 	; off-screen, but not culled.
-	cmpi.w	#screen_height+8*2+128,d2
+	cmpi.w	#spriteScreenPositionY(screen_height+8*2),d2
     endif
 
 	; The above 'andi' means that this could just be a plain 'bhs'. S3K does this.
@@ -41599,12 +41620,12 @@ Obj0A_BecomeNumberMaybe:
 
 	move.w	x_pos(a0),d0
 	sub.w	(Camera_X_pos).w,d0
-	addi.w	#$80,d0
+	addi.w	#spriteScreenPositionX(0),d0
 	move.w	d0,x_pixel(a0)
 
 	move.w	y_pos(a0),d0
 	sub.w	(Camera_Y_pos).w,d0
-	addi.w	#$80,d0
+	addi.w	#spriteScreenPositionY(0),d0
 	move.w	d0,y_pixel(a0)
 
 	move.b	#$C,routine(a0) ; Obj0A_AirLeft
@@ -77749,8 +77770,8 @@ ObjB0_Index:	offsetTable
 
 ObjB0_Init:
 	bsr.w	LoadSubObject
-	move.w	#$1E8,x_pixel(a0)
-	move.w	#$F0,y_pixel(a0)
+	move.w	#spriteScreenPositionX(screen_width+40),x_pixel(a0)
+	move.w	#spriteScreenPositionY(screen_height/2),y_pixel(a0)
 	move.w	#$B,objoff_2A(a0)
 	move.w	#2,(SegaScr_VInt_Subrout).w
 	bset	#render_flags.x_flip,render_flags(a0)
@@ -77970,8 +77991,8 @@ ObjB1_Index:	offsetTable
 ObjB1_Init:
 	bsr.w	LoadSubObject
 	move.b	#4,mapping_frame(a0)
-	move.w	#$174,x_pixel(a0)
-	move.w	#$D8,y_pixel(a0)
+	move.w	#spriteScreenPositionX(screen_width/2+84),x_pixel(a0)
+	move.w	#spriteScreenPositionY(screen_height/2-24),y_pixel(a0)
 	rts
 ; ===========================================================================
 ; BranchTo4_JmpTo45_DisplaySprite
@@ -84193,8 +84214,8 @@ Obj8A_Index:	offsetTable
 ; loc_3EADA:
 Obj8A_Init:
 	addq.b	#2,routine(a0)
-	move.w	#$120,x_pixel(a0)
-	move.w	#$F0,y_pixel(a0)
+	move.w	#spriteScreenPositionX(screen_width/2),x_pixel(a0)
+	move.w	#spriteScreenPositionY(screen_height/2),y_pixel(a0)
 	move.l	#Obj8A_MapUnc_3EB4E,mappings(a0)
 	move.w	#make_art_tile($05A0,0,0),art_tile(a0)
 	jsrto	JmpTo65_Adjust2PArtPointer
@@ -86820,8 +86841,8 @@ BuildHUD:
 	bne.s	+
 	addq.w	#2,d1	; set mapping frame for double blink
 +
-	move.w	#128+16,d3	; set X pos
-	move.w	#128+136,d2	; set Y pos
+	move.w	#spriteScreenPositionX(16),d3	; set X pos
+	move.w	#spriteScreenPositionY(136),d2	; set Y pos
 	lea	(HUD_MapUnc_40A9A).l,a1
 	movea.w	#make_art_tile(ArtTile_ArtNem_HUD,0,1),a3	; set art tile and flags
 	add.w	d1,d1

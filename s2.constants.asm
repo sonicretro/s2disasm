@@ -1056,6 +1056,13 @@ gameplay_plane_width =		tile_width*64 ; 64x32 plane size
 gameplay_plane_height =		tile_height*32 ; 64x32 plane size
 gameplay_plane_height_2p =	tile_height_2p*32 ; 64x32 plane size
 
+; The VDP's sprite coordinates place the top-left pixel of the screen at $80,$80,
+; these constants are to help deobfuscate that.
+sprite_left_boundary =		$80
+sprite_top_boundary =		$80
+; Interlace Mode 2 has its top-left coordinate at $80,$100 instead.
+sprite_top_boundary_2p =	sprite_top_boundary*2
+
 ; Sprite queue
 object_display_list_size_bits =		7
 object_display_list_size =		1<<object_display_list_size_bits ; How big a list is

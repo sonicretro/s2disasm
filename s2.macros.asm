@@ -271,6 +271,12 @@ make_block_tile_pair_2p function addr,flx,fly,pal,pri,((make_block_tile_2p(addr,
 ; function to calculate the location of a tile in plane mappings
 planeLoc function width,col,line,(((width * line) + col) * 2)
 
+; The VDP's sprite coordinates place the top-left pixel of the screen at $80,$80,
+; these constants are to help deobfuscate that.
+spriteScreenPositionX function pos,sprite_left_boundary+pos
+spriteScreenPositionY function pos,sprite_top_boundary+pos
+spriteScreenPositionY2P function pos,sprite_top_boundary_2p+pos
+
 ; macro formatting text for the game's menus
 menutxt	macro	text
 	dc.b	strlen(text)-1
