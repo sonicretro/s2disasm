@@ -27106,7 +27106,7 @@ MapUnc_TitleIntro:	include "mappings/sprite/Sonic and Tails from the title scree
 ; sprite mappings
 ; -----------------------------------------------------------------------------
 ; Obj0F_MapUnc_13B70:
-MapUnc_TitleMenu:	include "mappings/sprite/obj0F.asm"
+MapUnc_TitleMenu:	include "mappings/sprite/Menu from the title screen.asm"
 
 	jmpTos0 JmpTo4_PlaySound,JmpTo4_PlayMusic
 
@@ -27482,20 +27482,21 @@ Animal_PLCTable: zoneOrderedTable 1,1
 ; ----------------------------------------------------------------------------
 ; Object 39 - Game/Time Over text
 ; ----------------------------------------------------------------------------
-; Sprite_13F74:
-Obj39: ; (screen-space obj)
+; Sprite_13F74: Obj39:
+Obj_GameOver: ; (screen-space obj)
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj39_Index(pc,d0.w),d1
-	jmp	Obj39_Index(pc,d1.w)
+	move.w	GameOver_Index(pc,d0.w),d1
+	jmp	GameOver_Index(pc,d1.w)
 ; ===========================================================================
-Obj39_Index:	offsetTable
-		offsetTableEntry.w Obj39_Init		; 0
-		offsetTableEntry.w Obj39_SlideIn	; 2
-		offsetTableEntry.w Obj39_Wait		; 4
+; off_13F82: Obj39_Index:
+GameOver_Index:	offsetTable
+		offsetTableEntry.w GameOver_Init	; 0
+		offsetTableEntry.w GameOver_SlideIn	; 2
+		offsetTableEntry.w GameOver_Wait	; 4
 ; ===========================================================================
-; loc_13F88:
-Obj39_Init:
+; loc_13F88: Obj39_Init:
+GameOver_Init:
 	tst.l	(Plc_Buffer).w
 	beq.s	+
 	rts		; wait until the art is loaded
@@ -27508,24 +27509,24 @@ Obj39_Init:
 	move.w	#$1F0,x_pixel(a0)
 +
 	move.w	#$F0,y_pixel(a0)
-	move.l	#Obj39_MapUnc_14C6C,mappings(a0)
+	move.l	#MapUnc_GameOver,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Game_Over,0,1),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	move.b	#0,render_flags(a0)
 	move.b	#0,priority(a0)
-; loc_13FCC:
-Obj39_SlideIn:
+; loc_13FCC: Obj39_SlideIn:
+GameOver_SlideIn:
 	moveq	#$10,d1
 	cmpi.w	#$120,x_pixel(a0)
-	beq.s	Obj39_SetTimer
+	beq.s	GameOver_SetTimer
 	blo.s	+
 	neg.w	d1
 +
 	add.w	d1,x_pixel(a0)
 	bra.w	DisplaySprite
 ; ===========================================================================
-; loc_13FE2:
-Obj39_SetTimer:
+; loc_13FE2: Obj39_SetTimer:
+GameOver_SetTimer:
 	move.w	#$2D0,anim_frame_duration(a0)
 	addq.b	#2,routine(a0)
     if fixBugs
@@ -27536,47 +27537,47 @@ Obj39_SetTimer:
 	rts
     endif
 ; ===========================================================================
-; loc_13FEE:
-Obj39_Wait:
+; loc_13FEE: Obj39_Wait:
+GameOver_Wait:
 	btst	#0,mapping_frame(a0)
-	bne.w	Obj39_Display
+	bne.w	GameOver_Display
 	move.b	(Ctrl_1_Press).w,d0
 	or.b	(Ctrl_2_Press).w,d0
 	andi.b	#button_B_mask|button_C_mask|button_A_mask,d0
-	bne.s	Obj39_Dismiss
+	bne.s	GameOver_Dismiss
 	tst.w	anim_frame_duration(a0)
-	beq.s	Obj39_Dismiss
+	beq.s	GameOver_Dismiss
 	subq.w	#1,anim_frame_duration(a0)
 	bra.w	DisplaySprite
 ; ===========================================================================
-; loc_14014:
-Obj39_Dismiss:
+; loc_14014: Obj39_Dismiss:
+GameOver_Dismiss:
 	tst.b	(Time_Over_flag).w
-	bne.s	Obj39_TimeOver
+	bne.s	GameOver_TimeOver
 	tst.b	(Time_Over_flag_2P).w
-	bne.s	Obj39_TimeOver
+	bne.s	GameOver_TimeOver
 	move.b	#GameModeID_ContinueScreen,(Game_Mode).w ; => ContinueScreen
 	tst.b	(Continue_count).w
-	bne.s	Obj39_Check2PMode
+	bne.s	GameOver_Check2PMode
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
-	bra.s	Obj39_Check2PMode
+	bra.s	GameOver_Check2PMode
 ; ===========================================================================
-; loc_14034:
-Obj39_TimeOver:
+; loc_14034: Obj39_TimeOver:
+GameOver_TimeOver:
 	clr.l	(Saved_Timer).w
 	move.w	#1,(Level_Inactive_flag).w
-; loc_1403E:
-Obj39_Check2PMode:
+; loc_1403E: Obj39_Check2PMode:
+GameOver_Check2PMode:
 	tst.w	(Two_player_mode).w
-	beq.s	Obj39_Display
+	beq.s	GameOver_Display
 
 	move.w	#0,(Level_Inactive_flag).w
 	move.b	#GameModeID_2PResults,(Game_Mode).w ; => TwoPlayerResults
 	move.w	#VsRSID_Act,(Results_Screen_2P).w
 	tst.b	(Time_Over_flag).w
-	bne.s	Obj39_Display
+	bne.s	GameOver_Display
 	tst.b	(Time_Over_flag_2P).w
-	bne.s	Obj39_Display
+	bne.s	GameOver_Display
 	move.w	#1,(Game_Over_2P).w
 	move.w	#VsRSID_Zone,(Results_Screen_2P).w
 	jsrto	JmpTo_sub_8476
@@ -27586,8 +27587,8 @@ Obj39_Check2PMode:
 	addq.w	#1,a4
 +
 	move.b	#-2,(a4)
-; BranchTo17_DisplaySprite
-Obj39_Display:
+; BranchTo17_DisplaySprite Obj39_Display:
+GameOver_Display:
 	bra.w	DisplaySprite
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -28629,7 +28630,8 @@ TC_RedStripes_End
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
-Obj39_MapUnc_14C6C:	include "mappings/sprite/obj39.asm"
+; Obj39_MapUnc_14C6C:
+MapUnc_GameOver:	include "mappings/sprite/Game over and time over.asm"
 
 ; -------------------------------------------------------------------------------
 ; sprite mappings - end-of-level results screen title cards
@@ -29786,7 +29788,7 @@ ObjPtr_Spikes:		dc.l Obj36	; Vertical spikes
 ObjPtr_LostRings:	dc.l Obj_LostRings		; Scattering rings (generated when Sonic is hurt and has rings)
 ObjPtr_Shield:		dc.l Obj_Shield			; Shield
 ObjPtr_GameOver:
-ObjPtr_TimeOver:	dc.l Obj39	; Game/Time Over text
+ObjPtr_TimeOver:	dc.l Obj_GameOver		; Game/Time Over text
 ObjPtr_Results:		dc.l Obj3A	; End of level results screen
 			dc.l Obj3B	; Purple rock (leftover from S1) (unused)
 			dc.l Obj3C	; Breakable wall (leftover from S1) (mostly unused)
@@ -47312,12 +47314,12 @@ byte_21CBF:
 ; sprite mappings
 ; -------------------------------------------------------------------------------
 ; Obj14_MapUnc_21CF0:
-MapUnc_SeesawMain:	include "mappings/sprite/obj14_a.asm"
+MapUnc_SeesawMain:	include "mappings/sprite/Seesaw.asm"
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
 ; Obj14_MapUnc_21D7C:
-MapUnc_SeesawSol:	include "mappings/sprite/obj14_b.asm"
+MapUnc_SeesawSol:	include "mappings/sprite/Seesaw Sol.asm"
 ; ===========================================================================
 
 	jmpTos JmpTo3_AllocateObjectAfterCurrent,JmpTo13_Adjust2PArtPointer,JmpTo_ObjectMoveAndFall,JmpTo_MarkObjGone2
