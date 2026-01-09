@@ -42,12 +42,12 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj09.asm",
+                        "path": "mappings/sprite/Sonic from the Special Stages.asm",
                         "label": ""
                     },
                     "dplcs": {
                         "enabled": true,
-                        "path": "mappings/spriteDPLC/obj09.asm",
+                        "path": "mappings/spriteDPLC/Sonic from the Special Stage.asm",
                         "label": ""
                     },
                     "expanded": true
@@ -3092,7 +3092,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj11_b.asm",
+                        "path": "mappings/sprite/EHZ bridge.asm",
                         "label": ""
                     },
                     "dplcs": {
@@ -3150,7 +3150,7 @@
                         "offset": 0
                     },
                     "mappings": {
-                        "path": "mappings/sprite/obj11_b.asm",
+                        "path": "mappings/sprite/EHZ bridge.asm",
                         "label": ""
                     },
                     "dplcs": {

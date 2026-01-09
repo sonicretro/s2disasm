@@ -6623,7 +6623,7 @@ SpecialStage:
 	move.b	#ObjID_SonicSS,(MainCharacter+id).w ; load Obj_SSSonic
 	tst.w	(Player_mode).w		; is this a Sonic and Tails game?
 	bne.s	++			; if not, branch
-+	move.b	#ObjID_TailsSS,(Sidekick+id).w ; load Obj10 (special stage Tails)
++	move.b	#ObjID_TailsSS,(Sidekick+id).w ; load Obj_SSTails (special stage Tails)
 +	move.b	#ObjID_SSHUD,(SpecialStageHUD+id).w ; load Obj5E (special stage HUD)
 	move.b	#ObjID_StartBanner,(SpecialStageStartBanner+id).w ; load Obj5F (special stage banner)
 	move.b	#ObjID_SSNumberOfRings,(SpecialStageNumberOfRings+id).w ; load Obj87 (special stage ring count)
@@ -21888,39 +21888,39 @@ LoadPLC_AnimalExplosion:
 ; Object 11 - Bridge in Emerald Hill Zone and Hidden Palace Zone
 ; ----------------------------------------------------------------------------
 ; OST Variables:
-Obj11_child1		= objoff_30	; pointer to first set of bridge segments
-Obj11_child2		= objoff_34	; pointer to second set of bridge segments, if applicable
+bridge_child1		= objoff_30	; pointer to first set of bridge segments
+bridge_child2		= objoff_34	; pointer to second set of bridge segments, if applicable
 
-; Sprite_F66C:
-Obj11:
+; Sprite_F66C: Obj11:
+Obj_Bridge:
 	btst	#render_flags.multi_sprite,render_flags(a0)	; is this a child sprite object?
 	bne.w	+			; if yes, branch
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj11_Index(pc,d0.w),d1
-	jmp	Obj11_Index(pc,d1.w)
+	move.w	Bridge_Index(pc,d0.w),d1
+	jmp	Bridge_Index(pc,d1.w)
 ; ===========================================================================
 +	; child sprite objects only need to be drawn
 	move.w	#object_display_list_size*3,d0
 	bra.w	DisplaySprite3
 ; ===========================================================================
-; off_F68C:
-Obj11_Index:	offsetTable
-		offsetTableEntry.w Obj11_Init		; 0
-		offsetTableEntry.w Obj11_EHZ		; 2
-		offsetTableEntry.w Obj11_Display	; 4
-		offsetTableEntry.w Obj11_HPZ		; 6
+; off_F68C: Obj11_Index:
+Bridge_Index:	offsetTable
+		offsetTableEntry.w Bridge_Init		; 0
+		offsetTableEntry.w Bridge_EHZ		; 2
+		offsetTableEntry.w Bridge_Display	; 4
+		offsetTableEntry.w Bridge_HPZ		; 6
 ; ===========================================================================
-; loc_F694: Obj11_Main:
-Obj11_Init:
+; loc_F694: Obj11_Main: Obj11_Init:
+Bridge_Init:
 	addq.b	#2,routine(a0)
-	move.l	#Obj11_MapUnc_FC70,mappings(a0)
+	move.l	#MapUnc_EHZBridge,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_EHZ_Bridge,2,0),art_tile(a0)
 	move.b	#3,priority(a0)
 	cmpi.b	#hidden_palace_zone,(Current_Zone).w	; is this an HPZ bridge?
 	bne.s	+			; if not, branch
 	addq.b	#4,routine(a0)
-	move.l	#Obj11_MapUnc_FC28,mappings(a0)
+	move.l	#MapUnc_HPZBridge,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_HPZ_Bridge,3,0),art_tile(a0)
 +
 	bsr.w	Adjust2PArtPointer
@@ -21938,18 +21938,18 @@ Obj11_Init:
 	sub.w	d0,d3	; x position of left half
 	swap	d1	; store subtype in high word for later
 	move.w	#8,d1
-	bsr.s	Obj11_MakeBdgSegment
+	bsr.s	Bridge_MakeSegment
 	move.w	sub6_x_pos(a1),d0
 	subq.w	#8,d0
 	move.w	d0,x_pos(a1)		; center of first subsprite object
-	move.l	a1,Obj11_child1(a0)	; pointer to first subsprite object
+	move.l	a1,bridge_child1(a0)	; pointer to first subsprite object
 	swap	d1	; retrieve subtype
 	subq.w	#8,d1
 	bls.s	+	; branch, if subtype <= 8 (bridge has no more than 8 logs)
 	; else, create a second subsprite object for the rest of the bridge
 	move.w	d1,d4
-	bsr.s	Obj11_MakeBdgSegment
-	move.l	a1,Obj11_child2(a0)	; pointer to second subsprite object
+	bsr.s	Bridge_MakeSegment
+	move.l	a1,bridge_child2(a0)	; pointer to second subsprite object
 	move.w	d4,d0
 	add.w	d0,d0
 	add.w	d4,d0	; d0*3
@@ -21957,14 +21957,14 @@ Obj11_Init:
 	subq.w	#8,d0
 	move.w	d0,x_pos(a1)		; center of second subsprite object
 +
-	bra.s	Obj11_EHZ
+	bra.s	Bridge_EHZ
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-; sub_F728:
-Obj11_MakeBdgSegment:
+; sub_F728: Obj11_MakeBdgSegment:
+Bridge_MakeSegment:
 	jsrto	JmpTo_AllocateObjectAfterCurrent
 	bne.s	+	; rts
-	_move.b	id(a0),id(a1) ; load obj11
+	_move.b	id(a0),id(a1) ; load Obj_Bridge
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
 	move.l	mappings(a0),mappings(a1)
@@ -21983,11 +21983,11 @@ Obj11_MakeBdgSegment:
 	dbf	d1,-	; repeat for d1 logs
 +
 	rts
-; End of function Obj11_MakeBdgSegment
+; End of function Bridge_MakeSegment
 
 ; ===========================================================================
-; loc_F77A: Obj11_Action:
-Obj11_EHZ:
+; loc_F77A: Obj11_Action: Obj11_EHZ:
+Bridge_EHZ:
 	move.b	status(a0),d0
 	andi.b	#standing_mask,d0
 	bne.s	+
@@ -22013,7 +22013,7 @@ Obj11_EHZ:
 	addq.b	#4,objoff_3E(a0)
 
 loc_F7B8:
-	bsr.w	Obj11_Depress
+	bsr.w	Bridge_Depress
 
 loc_F7BC:
 	moveq	#0,d1
@@ -22026,8 +22026,8 @@ loc_F7BC:
 	move.w	x_pos(a0),d4
 	bsr.w	sub_F872
 
-; loc_F7D4:
-Obj11_Unload:
+; loc_F7D4: Obj11_Unload:
+Bridge_Unload:
 	; this is essentially MarkObjGone, except we need to delete our subsprite objects as well
 	tst.w	(Two_player_mode).w	; is it two player mode?
 	beq.s	+			; if not, branch
@@ -22042,21 +22042,21 @@ Obj11_Unload:
 	rts
 ; ---------------------------------------------------------------------------
 +	; delete first subsprite object
-	movea.l	Obj11_child1(a0),a1 ; a1=object
+	movea.l	bridge_child1(a0),a1 ; a1=object
 	bsr.w	DeleteObject2
 	cmpi.b	#8,subtype(a0)
 	bls.s	+	; if bridge has more than 8 logs, delete second subsprite object
-	movea.l	Obj11_child2(a0),a1 ; a1=object
+	movea.l	bridge_child2(a0),a1 ; a1=object
 	bsr.w	DeleteObject2
 +
 	bra.w	DeleteObject
 ; ===========================================================================
-; loc_F80C: BranchTo_DisplaySprite:
-Obj11_Display:
+; loc_F80C: BranchTo_DisplaySprite: Obj11_Display:
+Bridge_Display:
 	bra.w	DisplaySprite
 ; ===========================================================================
-; loc_F810: Obj11_Action_HPZ:
-Obj11_HPZ:
+; loc_F810: Obj11_Action_HPZ: Obj11_HPZ:
+Bridge_HPZ:
 	move.b	status(a0),d0
 	andi.b	#standing_mask,d0
 	bne.s	+
@@ -22083,7 +22083,7 @@ Obj11_HPZ:
 	addq.b	#4,objoff_3E(a0)
 
 loc_F84E:
-	bsr.w	Obj11_Depress
+	bsr.w	Bridge_Depress
 
 loc_F852:
 	moveq	#0,d1
@@ -22096,7 +22096,7 @@ loc_F852:
 	move.w	x_pos(a0),d4
 	bsr.w	sub_F872
 	bsr.w	sub_F912
-	bra.w	Obj11_Unload
+	bra.w	Bridge_Unload
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -22132,10 +22132,10 @@ sub_F872:
 +
 	lsr.w	#4,d0
 	move.b	d0,(a0,d5.w)
-	movea.l	Obj11_child1(a0),a2
+	movea.l	bridge_child1(a0),a2
 	cmpi.w	#8,d0
 	blo.s	+
-	movea.l	Obj11_child2(a0),a2 ; a2=object
+	movea.l	bridge_child2(a0),a2 ; a2=object
 	subi_.w	#8,d0
 +
 	add.w	d0,d0
@@ -22220,7 +22220,7 @@ byte_F950:
 	beq.s	+
 	move.b	objoff_3B(a0),d4
 +
-	movea.l	Obj11_child1(a0),a1
+	movea.l	bridge_child1(a0),a1
 	lea	sub9_mapframe+next_subspr(a1),a2
 	lea	sub2_mapframe(a1),a1
 	moveq	#0,d1
@@ -22268,7 +22268,7 @@ byte_F950:
 	addq.w	#6,a1
 	cmpa.w	a2,a1
 	bne.s	+
-	movea.l	Obj11_child2(a0),a1 ; a1=object
+	movea.l	bridge_child2(a0),a1 ; a1=object
 	lea	sub2_mapframe(a1),a1
 +	dbf	d1,-
 
@@ -22279,8 +22279,8 @@ byte_F950:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 ; subroutine to make the bridge push down where Sonic or Tails walks over
-; loc_F9E8:
-Obj11_Depress:
+; loc_F9E8: Obj11_Depress:
+Bridge_Depress:
 	move.b	objoff_3E(a0),d0
 	jsrto	JmpTo_CalcSine
 	move.w	d0,d4
@@ -22293,12 +22293,12 @@ Obj11_Depress:
 	move.w	d3,d2
 	add.w	d0,d3
 	moveq	#0,d5
-	lea	(Obj11_DepressionOffsets-$80).l,a5
+	lea	(Bridge_DepressionOffsets-$80).l,a5
 	move.b	(a5,d3.w),d5
 	andi.w	#$F,d3
 	lsl.w	#4,d3
 	lea	(a4,d3.w),a3
-	movea.l	Obj11_child1(a0),a1
+	movea.l	bridge_child1(a0),a1
 	lea	sub9_y_pos+next_subspr(a1),a2
 	lea	sub2_y_pos(a1),a1
 
@@ -22313,7 +22313,7 @@ Obj11_Depress:
 	addq.w	#6,a1
 	cmpa.w	a2,a1
 	bne.s	+
-	movea.l	Obj11_child2(a0),a1 ; a1=object
+	movea.l	bridge_child2(a0),a1 ; a1=object
 	lea	sub2_y_pos(a1),a1
 +	dbf	d2,-
 
@@ -22343,19 +22343,20 @@ Obj11_Depress:
 	addq.w	#6,a1
 	cmpa.w	a2,a1
 	bne.s	+
-	movea.l	Obj11_child2(a0),a1 ; a1=object
+	movea.l	bridge_child2(a0),a1 ; a1=object
 	lea	sub2_y_pos(a1),a1
 +	dbf	d2,-
 +
 	rts
 ; ===========================================================================
 ; seems to be bridge piece vertical position offset data
-Obj11_DepressionOffsets: ; byte_FA98:
+; byte_FA98: Obj11_DepressionOffsets:
+Bridge_DepressionOffsets:
     if 0
 	; This data was in Sonic 1, but removed in Sonic 2.
 	; By removing it, bridges that are less than 8 logs long no longer work.
-	; If this data is restored, then Obj11_Depress should be modified to not
-	; subtract $80 from Obj11_DepressionOffsets.
+	; If this data is restored, then Bridge_Depress should be modified to not
+	; subtract $80 from Bridge_DepressionOffsets.
 	dc.b   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0; 0 logs
 	dc.b   2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0; 1 log
 	dc.b   2,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0; 2 logs
@@ -22398,24 +22399,22 @@ byte_FB28:
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
-Obj11_MapUnc_FC28:	include "mappings/sprite/obj11_a.asm"
-
+; Obj11_MapUnc_FC28:
+MapUnc_HPZBridge:	include "mappings/sprite/HPZ bridge.asm"
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
-Obj11_MapUnc_FC70:	include "mappings/sprite/obj11_b.asm"
+; Obj11_MapUnc_FC70:
+MapUnc_EHZBridge:	include "mappings/sprite/EHZ bridge.asm"
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 	jmpTos JmpTo_AllocateObjectAfterCurrent,JmpTo_PlatformObject11_cont,JmpTo_CalcSine
 
-
-
-
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 15 - Swinging platform from Aquatic Ruin Zone
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_FC9C:
 Obj15:
 	btst	#render_flags.multi_sprite,render_flags(a0)
@@ -22961,27 +22960,27 @@ Map_obj15_b_0006_End
 
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 17 - GHZ rotating log helix spikes (from Sonic 1, unused)
 ; the programming of this was modified somewhat between Sonic 1 and Sonic 2
-; ----------------------------------------------------------------------------
-; Sprite_10310:
-Obj17:
+; ---------------------------------------------------------------------------
+; Sprite_10310: Obj17:
+Obj_HelixSpikes:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj17_Index(pc,d0.w),d1
-	jmp	Obj17_Index(pc,d1.w)
+	move.w	HelixSpikes_Index(pc,d0.w),d1
+	jmp	HelixSpikes_Index(pc,d1.w)
 ; ===========================================================================
-; off_1031E:
-Obj17_Index:	offsetTable
-		offsetTableEntry.w Obj17_Init		; 0
-		offsetTableEntry.w Obj17_Main		; 2
-		offsetTableEntry.w Obj17_Display	; 4
+; off_1031E: Obj17_Index:
+HelixSpikes_Index: offsetTable
+		offsetTableEntry.w HelixSpikes_Init	; 0
+		offsetTableEntry.w HelixSpikes_Main	; 2
+		offsetTableEntry.w HelixSpikes_Display	; 4
 ; ===========================================================================
-; loc_10324: Obj17_Main:
-Obj17_Init:
+; loc_10324: Obj17_Main: Obj17_Init:
+HelixSpikes_Init:
 	addq.b	#2,routine(a0)
-	move.l	#Obj17_MapUnc_10452,mappings(a0)
+	move.l	#MapUnc_HelixSpikes,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_GHZ_Spiked_Log,2,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
@@ -22999,12 +22998,12 @@ Obj17_Init:
 	lsl.w	#4,d0
 	sub.w	d0,d3
 	subq.b	#2,d1
-	bcs.s	Obj17_Main
+	bcs.s	HelixSpikes_Main
 	moveq	#0,d6
-; loc_10372:
-Obj17_MakeHelix:
+; loc_10372: Obj17_MakeHelix:
+HelixSpikes_MakeHelix:
 	bsr.w	AllocateObjectAfterCurrent
-	bne.s	Obj17_Main
+	bne.s	HelixSpikes_Main
 	addq.b	#1,subtype(a0)
     if object_size<>$40
 	moveq	#0,d5 ; Clear the high word for the coming division.
@@ -23019,7 +23018,7 @@ Obj17_MakeHelix:
 	andi.w	#$7F,d5
 	move.b	d5,(a2)+
 	move.b	#4,routine(a1)
-	_move.b	d4,id(a1) ; load obj17
+	_move.b	d4,id(a1) ; load Obj_HelixSpikes
 	move.w	d2,y_pos(a1)
 	move.w	d3,x_pos(a1)
 	move.l	mappings(a0),mappings(a1)
@@ -23039,27 +23038,27 @@ Obj17_MakeHelix:
 	andi.b	#7,d6
 	addi.w	#$10,d3
 	addq.b	#1,subtype(a0)
-+	dbf	d1,Obj17_MakeHelix ; repeat d1 times (helix length)
++	dbf	d1,HelixSpikes_MakeHelix ; repeat d1 times (helix length)
 
-; loc_103E8: Obj17_Action:
-Obj17_Main:
-	bsr.w	Obj17_RotateSpike
+; loc_103E8: Obj17_Action: Obj17_Main:
+HelixSpikes_Main:
+	bsr.w	HelixSpikes_RotateSpike
 	move.w	x_pos(a0),d0
 	andi.w	#$FF80,d0
 	sub.w	(Camera_X_pos_coarse).w,d0
 	cmpi.w	#$280,d0
-	bhi.w	Obj17_DelAll
+	bhi.w	HelixSpikes_DelAll
 	bra.w	DisplaySprite
 ; ===========================================================================
-; loc_10404:
-Obj17_DelAll:
+; loc_10404: Obj17_DelAll:
+HelixSpikes_DelAll:
 	moveq	#0,d2
 	lea	subtype(a0),a2	; move helix length to a2
 	move.b	(a2)+,d2	; move a2 to d2
 	subq.b	#2,d2
 	bcs.s	BranchTo2_DeleteObject
-; loc_10410:
-Obj17_DelLoop:
+; loc_10410: Obj17_DelLoop:
+HelixSpikes_DelLoop:
 	moveq	#0,d0
 	move.b	(a2)+,d0
     if object_size=$40
@@ -23070,15 +23069,15 @@ Obj17_DelLoop:
 	addi.l	#Object_RAM,d0
 	movea.l	d0,a1 ; a1=object
 	bsr.w	DeleteObject2	; delete object
-	dbf	d2,Obj17_DelLoop	; repeat d2 times (helix length)
+	dbf	d2,HelixSpikes_DelLoop	; repeat d2 times (helix length)
 ; loc_10426:
 BranchTo2_DeleteObject ; BranchTo
 	bra.w	DeleteObject
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; sub_1042A:
-Obj17_RotateSpike:
+; sub_1042A: Obj17_RotateSpike:
+HelixSpikes_RotateSpike:
 	move.b	(Logspike_anim_frame).w,d0
 	move.b	#0,collision_flags(a0)	; make object harmless
 	add.b	objoff_3E(a0),d0
@@ -23088,35 +23087,33 @@ Obj17_RotateSpike:
 	move.b	#%10000100,collision_flags(a0)	; make object harmful
 +
 	rts
-; End of function Obj17_RotateSpike
+; End of function HelixSpikes_RotateSpike
 
 ; ===========================================================================
-; loc_1044A:
-Obj17_Display:
-	bsr.w	Obj17_RotateSpike
+; loc_1044A: Obj17_Display:
+HelixSpikes_Display:
+	bsr.w	HelixSpikes_RotateSpike
 	bra.w	DisplaySprite
 ; ===========================================================================
 ; -----------------------------------------------------------------------------
 ; sprite mappings - helix of spikes on a pole (GHZ) (unused)
 ; -----------------------------------------------------------------------------
-Obj17_MapUnc_10452:	include "mappings/sprite/obj17.asm"
+; Obj17_MapUnc_10452:
+MapUnc_HelixSpikes:	include "mappings/sprite/Rotating helix of spikes on a pole.asm"
 ; ===========================================================================
 
 	jmpTos ; Empty
 
-
-
-
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 18 - Stationary floating platform from ARZ, EHZ and HTZ
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_104AC:
 Obj18:
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj18_Index(pc,d0.w),d1
 	jmp	Obj18_Index(pc,d1.w)
-; ===========================================================================
+; ==========================================================================
 ; off_104BA:
 Obj18_Index:	offsetTable
 		offsetTableEntry.w Obj18_Init			; 0
@@ -23124,7 +23121,7 @@ Obj18_Index:	offsetTable
 		offsetTableEntry.w BranchTo3_DeleteObject	; 4
 		offsetTableEntry.w loc_105A8			; 6
 		offsetTableEntry.w loc_105D4			; 8
-; ===========================================================================
+; ==========================================================================
 ;word_104C4:
 Obj18_InitData:
 	;    width_pixels
@@ -23134,7 +23131,7 @@ Obj18_InitData:
 	dc.b $20, 2
 	dc.b $40, 3
 	dc.b $30, 4
-; ===========================================================================
+; ==========================================================================
 ; loc_104CE:
 Obj18_Init:
 	addq.b	#2,routine(a0)
@@ -23899,7 +23896,7 @@ objsubdecl macro frame, mapaddr,artaddr,width,priority
 Scenery_InitData:
 	objsubdecl 0, MapUnc_Scenery_MTZBoltRope, make_art_tile(ArtTile_ArtNem_BoltEnd_Rope,2,0), 4, 6
 	objsubdecl 1, MapUnc_Scenery_MTZBoltRope, make_art_tile(ArtTile_ArtNem_BoltEnd_Rope,2,0), 4, 6
-	objsubdecl 1, Obj11_MapUnc_FC70,  make_art_tile(ArtTile_ArtNem_EHZ_Bridge,2,0), 4, 1
+	objsubdecl 1, MapUnc_EHZBridge,  make_art_tile(ArtTile_ArtNem_EHZ_Bridge,2,0), 4, 1
 	objsubdecl 2, MapUnc_Scenery_MTZBoltRope, make_art_tile(ArtTile_ArtNem_BoltEnd_Rope,1,0), $10, 6
 	objsubdecl 3, Obj16_MapUnc_21F14, make_art_tile(ArtTile_ArtNem_HtzZipline,2,0), 8, 4
 	objsubdecl 4, Obj16_MapUnc_21F14, make_art_tile(ArtTile_ArtNem_HtzZipline,2,0), 8, 4
@@ -23994,7 +23991,7 @@ Obj71_Index:	offsetTable
 ; ---------------------------------------------------------------------------
 ; dword_11302:
 Obj71_InitData:
-	objsubdecl 3, Obj11_MapUnc_FC28,  make_art_tile(ArtTile_ArtNem_HPZ_Bridge,3,0), 4, 1		; Hidden Palace bridge
+	objsubdecl 3, MapUnc_HPZBridge,  make_art_tile(ArtTile_ArtNem_HPZ_Bridge,3,0), 4, 1		; Hidden Palace bridge
 	objsubdecl 0, MapUnc_Scenery2_PulsingOrb, make_art_tile(ArtTile_ArtNem_HPZOrb,3,1), $10, 1		; Hidden Palace pulsing orb
 	objsubdecl 0, MapUnc_Scenery2_MTZLavaBubble, make_art_tile(ArtTile_ArtNem_MtzLavaBubble,2,0), $10, 1	; MTZ lava bubble
 ; ===========================================================================
@@ -29420,32 +29417,32 @@ Obj36_MapUnc_15B68:	include "mappings/sprite/obj36.asm"
 
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 3B - Purple rock (leftover from S1)
-; ----------------------------------------------------------------------------
-; Sprite_15CC8:
-Obj3B:
+; ---------------------------------------------------------------------------
+; Sprite_15CC8: Obj3B:
+Obj_PurpleRock:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj3B_Index(pc,d0.w),d1
-	jmp	Obj3B_Index(pc,d1.w)
+	move.w	PurpleRock_Index(pc,d0.w),d1
+	jmp	PurpleRock_Index(pc,d1.w)
 ; ===========================================================================
-; off_15CD6:
-Obj3B_Index:	offsetTable
-		offsetTableEntry.w Obj3B_Init	; 0
-		offsetTableEntry.w Obj3B_Main	; 2
+; off_15CD6: Obj3B_Index:
+PurpleRock_Index: offsetTable
+		offsetTableEntry.w PurpleRock_Init	; 0
+		offsetTableEntry.w PurpleRock_Main	; 2
 ; ===========================================================================
-; loc_15CDA:
-Obj3B_Init:
+; loc_15CDA: Obj3B_Init:
+PurpleRock_Init:
 	addq.b	#2,routine(a0)
-	move.l	#Obj3B_MapUnc_15D2E,mappings(a0)
+	move.l	#MapUnc_PurpleRock,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_GHZ_Purple_Rock,3,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#$13,width_pixels(a0)
 	move.b	#4,priority(a0)
-; loc_15D02:
-Obj3B_Main:
+; loc_15D02: Obj3B_Main:
+PurpleRock_Main:
 	move.w	#$1B,d1
 	move.w	#$10,d2
 	move.w	#$10,d3
@@ -29464,43 +29461,44 @@ Obj3B_Main:
 	bhi.w	DeleteObject
 	bra.w	DisplaySprite
 ; ===========================================================================
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Unused sprite mappings
-; -------------------------------------------------------------------------------
-Obj3B_MapUnc_15D2E:	include "mappings/sprite/obj3B.asm"
+; ---------------------------------------------------------------------------
+; Obj3B_MapUnc_15D2E:
+MapUnc_PurpleRock:	include "mappings/sprite/Purple rock.asm"
 
 	jmpTos0 ; Empty
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 3C - Breakable wall (leftover from S1) (mostly unused)
-; ----------------------------------------------------------------------------
-; Sprite_15D44:
-Obj3C:
+; ---------------------------------------------------------------------------
+; Sprite_15D44: Obj3C:
+Obj_BreakableWall:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj3C_Index(pc,d0.w),d1
-	jsr	Obj3C_Index(pc,d1.w)
+	move.w	BreakableWall_Index(pc,d0.w),d1
+	jsr	BreakableWall_Index(pc,d1.w)
 	bra.w	MarkObjGone
 ; ===========================================================================
-; off_15D56:
-Obj3C_Index:	offsetTable
-		offsetTableEntry.w Obj3C_Init		; 0
-		offsetTableEntry.w Obj3C_Main		; 2
-		offsetTableEntry.w Obj3C_Fragment	; 4
+; off_15D56: Obj3C_Index:
+BreakableWall_Index: offsetTable
+		offsetTableEntry.w BreakableWall_Init		; 0
+		offsetTableEntry.w BreakableWall_Main		; 2
+		offsetTableEntry.w BreakableWall_Fragment	; 4
 ; ===========================================================================
-; loc_15D5C:
-Obj3C_Init:
+; loc_15D5C: Obj3C_Init:
+BreakableWall_Init:
 	addq.b	#2,routine(a0)
-	move.l	#Obj3C_MapUnc_15ECC,mappings(a0)
+	move.l	#MapUnc_BreakableWall,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_BreakWall,2,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#$10,width_pixels(a0)
 	move.b	#4,priority(a0)
 	move.b	subtype(a0),mapping_frame(a0)
-; loc_15D8A:
-Obj3C_Main:
+; loc_15D8A: Obj3C_Main:
+BreakableWall_Main:
 	move.w	(MainCharacter+x_vel).w,objoff_30(a0)
 	move.w	#$1B,d1
 	move.w	#$20,d2
@@ -29520,19 +29518,19 @@ Obj3C_Main:
 	blo.s	-	; rts
 	move.w	objoff_30(a0),x_vel(a1)
 	addq.w	#4,x_pos(a1)
-	lea	(Obj3C_FragmentSpeeds_LeftToRight).l,a4
+	lea	(BreakableWall_FragmentSpeeds_LeftToRight).l,a4
 	move.w	x_pos(a0),d0
 	cmp.w	x_pos(a1),d0
 	blo.s	+
 	subi_.w	#8,x_pos(a1)
-	lea	(Obj3C_FragmentSpeeds_RightToLeft).l,a4
+	lea	(BreakableWall_FragmentSpeeds_RightToLeft).l,a4
 +
 	move.w	x_vel(a1),inertia(a1)
 	bclr	#status.npc.p1_pushing,status(a0)
 	bclr	#status.player.pushing,status(a1)
 	bsr.s	BreakObjectToPieces
-; loc_15E02:
-Obj3C_Fragment:
+; loc_15E02: Obj3C_Fragment:
+BreakableWall_Fragment:
 	bsr.w	ObjectMove
 	addi.w	#$70,y_vel(a0)
 	_btst	#render_flags.on_screen,render_flags(a0)
@@ -29582,8 +29580,8 @@ loc_15E82:
 ; End of function BreakObjectToPieces
 
 ; ===========================================================================
-; word_15E8C:
-Obj3C_FragmentSpeeds_LeftToRight:
+; word_15E8C: Obj3C_FragmentSpeeds_LeftToRight:
+BreakableWall_FragmentSpeeds_LeftToRight:
 	;    x_vel,y_vel
 	dc.w  $400,-$500	; 0
 	dc.w  $600,-$100	; 2
@@ -29593,8 +29591,8 @@ Obj3C_FragmentSpeeds_LeftToRight:
 	dc.w  $800,-$200	; 10
 	dc.w  $800, $200	; 12
 	dc.w  $600, $600	; 14
-; word_15EAC:
-Obj3C_FragmentSpeeds_RightToLeft:
+; word_15EAC: Obj3C_FragmentSpeeds_RightToLeft:
+BreakableWall_FragmentSpeeds_RightToLeft:
 	dc.w -$600,-$600	; 0
 	dc.w -$800,-$200	; 2
 	dc.w -$800, $200	; 4
@@ -29603,19 +29601,17 @@ Obj3C_FragmentSpeeds_RightToLeft:
 	dc.w -$600,-$100	; 10
 	dc.w -$600, $100	; 12
 	dc.w -$400, $500	; 14
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Unused sprite mappings
-; -------------------------------------------------------------------------------
-Obj3C_MapUnc_15ECC:	include "mappings/sprite/obj3C.asm"
+; ---------------------------------------------------------------------------
+; Obj3C_MapUnc_15ECC:
+MapUnc_BreakableWall:	include "mappings/sprite/Breakable wall.asm"
 ; ===========================================================================
 	bra.w	ObjNull
 
-
-
-
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; This runs the code of all the objects that are in Object_RAM
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -29740,14 +29736,14 @@ ObjPtr_CPZUnusedPltfm:	dc.l Obj_CPZUnusedPltfm		; Small floating platform (unuse
 ObjPtr_Signpost:	dc.l Obj_Signpost		; End of level signpost
 ObjPtr_TitleIntro:	dc.l Obj_TitleIntro		; Title screen intro animation
 ObjPtr_TitleMenu:	dc.l Obj_TitleMenu		; Title screen menu
-ObjPtr_TailsSS:		dc.l Obj10	; Tails in Special Stage
-ObjPtr_Bridge:		dc.l Obj11	; Bridge in Emerald Hill Zone and Hidden Palace Zone
+ObjPtr_TailsSS:		dc.l Obj_SSTails		; Tails in Special Stage
+ObjPtr_Bridge:		dc.l Obj_Bridge			; Bridge in Emerald Hill Zone and Hidden Palace Zone
 ObjPtr_HPZEmerald:	dc.l Obj_HPZEmerald		; Emerald from Hidden Palace Zone (unused)
 ObjPtr_HPZWaterfall:	dc.l Obj_HPZWaterfall		; Waterfall in Hidden Palace Zone (unused)
 ObjPtr_Seesaw:		dc.l Obj_Seesaw			; Seesaw from Hill Top Zone
 ObjPtr_SwingingPlatform:dc.l Obj15	; Swinging platform from Aquatic Ruin Zone
 ObjPtr_HTZLift:		dc.l Obj16	; Diagonally moving lift from HTZ
-			dc.l Obj17	; GHZ rotating log helix spikes (from Sonic 1, unused)
+ObjPtr_HelixSpikes:	dc.l Obj_HelixSpikes		; GHZ rotating log helix spikes (from Sonic 1, unused)
 ObjPtr_ARZPlatform:
 ObjPtr_EHZPlatform:	dc.l Obj18	; Stationary floating platform from ARZ and EHZ
 ObjPtr_CPZPlatform:
@@ -29776,7 +29772,7 @@ ObjPtr_RisingPillar:	dc.l Obj2B	; Rising pillar from ARZ
 ObjPtr_LeavesGenerator:	dc.l Obj2C	; Sprite that makes leaves fly off when you hit it from ARZ
 ObjPtr_Barrier:		dc.l Obj2D	; One way barrier from CPZ and DEZ
 ObjPtr_MonitorContents:	dc.l Obj_MonitorContents	; Monitor contents (code for power-up behavior and rising image)
-ObjPtr_SmashableGround:	dc.l Obj2F	; Smashable ground in Hill Top Zone
+ObjPtr_SmashableGround:	dc.l Obj_SmashableGround	; Smashable ground in Hill Top Zone
 ObjPtr_RisingLava:	dc.l Obj30	; Large rising lava during earthquake in HTZ
 ObjPtr_LavaMarker:	dc.l Obj_LavaMarker		; Lava collision marker
 ObjPtr_BreakableBlock:
@@ -29790,8 +29786,8 @@ ObjPtr_Shield:		dc.l Obj_Shield			; Shield
 ObjPtr_GameOver:
 ObjPtr_TimeOver:	dc.l Obj_GameOver		; Game/Time Over text
 ObjPtr_Results:		dc.l Obj3A	; End of level results screen
-			dc.l Obj3B	; Purple rock (leftover from S1) (unused)
-			dc.l Obj3C	; Breakable wall (leftover from S1) (mostly unused)
+ObjPtr_PurpleRock:	dc.l Obj_PurpleRock		; Purple rock (leftover from S1) (unused)
+ObjPtr_BreakableWall:	dc.l Obj_BreakableWall		; Breakable wall (leftover from S1) (mostly unused)
 ObjPtr_OOZLauncher:	dc.l Obj3D	; Block thingy in OOZ that launches you into the round ball things
 ObjPtr_EggPrison:	dc.l Obj3E	; Egg prison
 ObjPtr_Fan:		dc.l Obj3F	; Fan from OOZ
@@ -48639,21 +48635,21 @@ Obj20_MapUnc_23294:	include "mappings/sprite/obj20_b.asm"
 ; ----------------------------------------------------------------------------
 ; Object 2F - Smashable ground in Hill Top Zone
 ; ----------------------------------------------------------------------------
-; Sprite_23300:
-Obj2F:
+; Sprite_23300: Obj2F:
+Obj_SmashableGround:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj2F_Index(pc,d0.w),d1
-	jmp	Obj2F_Index(pc,d1.w)
+	move.w	SmashableGround_Index(pc,d0.w),d1
+	jmp	SmashableGround_Index(pc,d1.w)
 ; ===========================================================================
-; off_2330E:
-Obj2F_Index:	offsetTable
-		offsetTableEntry.w Obj2F_Init		; 0
-		offsetTableEntry.w Obj2F_Main		; 2
-		offsetTableEntry.w Obj2F_Fragment	; 4
+; off_2330E: Obj2F_Index:
+SmashableGround_Index: offsetTable
+		offsetTableEntry.w SmashableGround_Init		; 0
+		offsetTableEntry.w SmashableGround_Main		; 2
+		offsetTableEntry.w SmashableGround_Fragment	; 4
 ; ===========================================================================
-; byte_23314:
-Obj2F_Properties:
+; byte_23314: Obj2F_Properties:
+SmashableGround_Properties:
 	;    y_radius
 	;	  mapping_frame
 	dc.b $24, 0	; 0
@@ -48662,10 +48658,10 @@ Obj2F_Properties:
 	dc.b $10, 6	; 6
 	dc.b   8, 8	; 8
 ; ===========================================================================
-; loc_2331E:
-Obj2F_Init:
+; loc_2331E: Obj2F_Init:
+SmashableGround_Init:
 	addq.b	#2,routine(a0)
-	move.l	#Obj2F_MapUnc_236FA,mappings(a0)
+	move.l	#MapUnc_SmashableGround,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,2,1),art_tile(a0)
 	jsrto	JmpTo18_Adjust2PArtPointer
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
@@ -48674,13 +48670,13 @@ Obj2F_Init:
 	moveq	#0,d0
 	move.b	subtype(a0),d0
 	andi.w	#$1E,d0
-	lea	Obj2F_Properties(pc,d0.w),a2
+	lea	SmashableGround_Properties(pc,d0.w),a2
 	move.b	(a2)+,y_radius(a0)
 	move.b	(a2)+,mapping_frame(a0)
 	move.b	#$20,y_radius(a0)
 	bset	#render_flags.explicit_height,render_flags(a0)
-; loc_23368:
-Obj2F_Main:
+; loc_23368: Obj2F_Main:
+SmashableGround_Main:
 	move.w	(Chain_Bonus_counter).w,objoff_38(a0)
 	move.b	(MainCharacter+anim).w,objoff_32(a0)
 	move.b	(Sidekick+anim).w,objoff_33(a0)
@@ -48799,7 +48795,7 @@ loc_2349E:
 loc_234A4:
 	move.w	objoff_38(a0),(Chain_Bonus_counter).w
 	andi.b	#~standing_mask,status(a0)
-	lea	(Obj2F_FragmentVelocities).l,a4
+	lea	(SmashableGround_FragmentVelocities).l,a4
 	moveq	#0,d0
 	move.b	mapping_frame(a0),d0
 	addq.b	#1,mapping_frame(a0)
@@ -48812,16 +48808,16 @@ loc_234A4:
 	move.w	#$18,d2
 	jsrto	JmpTo_BreakObjectToPieces
 	bsr.w	SmashableObject_LoadPoints
-; loc_234DC:
-Obj2F_Fragment:
+; loc_234DC: Obj2F_Fragment:
+SmashableGround_Fragment:
 	jsrto	JmpTo8_ObjectMove
 	addi.w	#$18,y_vel(a0)
 	_btst	#render_flags.on_screen,render_flags(a0)
 	_beq.w	JmpTo22_DeleteObject
 	jmpto	JmpTo12_DisplaySprite
 ; ===========================================================================
-; byte_234F2:
-Obj2F_FragmentVelocities:
+; byte_234F2: Obj2F_FragmentVelocities:
+SmashableGround_FragmentVelocities:
 	;    x_vel, y_vel
 	dc.w -$100,-$800
 	dc.w  $100,-$800
@@ -49015,7 +49011,8 @@ SmashableObject_ScoreBonus:
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
-Obj2F_MapUnc_236FA:	include "mappings/sprite/obj2F.asm"
+; Obj2F_MapUnc_236FA:
+MapUnc_SmashableGround:	include "mappings/sprite/Smashable ground in HTZ.asm"
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
@@ -68530,7 +68527,7 @@ SSSonic_Init:
 	move.w	d1,y_pos(a0)
 	move.b	#$E,y_radius(a0)
 	move.b	#7,x_radius(a0)
-	move.l	#Obj09_MapUnc_34212,mappings(a0)
+	move.l	#MapUnc_SSSonic,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_SpecialSonic,1,0),art_tile(a0)
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#3,priority(a0)
@@ -68673,7 +68670,7 @@ loc_33AFE:
 	move.l	(a3,d6.w),d6
 	add.w	d1,d0
 	add.w	d0,d0
-	lea	(Obj09_MapRUnc_345FA).l,a2
+	lea	(MapRUnc_SSPlayers).l,a2
 	adda.w	(a2,d0.w),a2
 	move.w	(a2)+,d5
 	subq.w	#1,d5
@@ -69365,7 +69362,8 @@ byte_34208:
 ; ----------------------------------------------------------------------------
 ; sprite mappings - uses ArtNem_SpecialSonicAndTails
 ; ----------------------------------------------------------------------------
-Obj09_MapUnc_34212:	include "mappings/sprite/obj09.asm"
+; Obj09_MapUnc_34212:
+MapUnc_SSSonic:		include "mappings/sprite/Sonic from the Special Stages.asm"
 ; ----------------------------------------------------------------------------
 ; sprite mappings for special stage shadows
 ; ----------------------------------------------------------------------------
@@ -69384,7 +69382,8 @@ Obj63_MapUnc_34492:	include "mappings/sprite/obj63.asm"
 	pushv ,SonicDplcVer	; Backup previous value of SonicDplcVer
 SonicDplcVer := 4		; Switch to custom DPLC format
 
-Obj09_MapRUnc_345FA:	mappingsTable
+; Obj09_MapRUnc_345FA:
+MapRUnc_SSPlayers:	mappingsTable
 	mappingsTableEntry.w	.sonic_0
 	mappingsTableEntry.w	.sonic_1
 	mappingsTableEntry.w	.sonic_2
@@ -69780,23 +69779,23 @@ Obj09_MapRUnc_345FA:	mappingsTable
 ; ----------------------------------------------------------------------------
 ; Object 10 - Tails in Special Stage
 ; ----------------------------------------------------------------------------
-; Sprite_347EC:
-Obj10:
+; Sprite_347EC: Obj10:
+Obj_SSTails:
 	moveq	#0,d0
 	move.b	routine(a0),d0
-	move.w	Obj10_Index(pc,d0.w),d1
-	jmp	Obj10_Index(pc,d1.w)
+	move.w	SSTails_Index(pc,d0.w),d1
+	jmp	SSTails_Index(pc,d1.w)
 ; ===========================================================================
-; off_347FA:
-Obj10_Index:	offsetTable
-		offsetTableEntry.w Obj10_Init	; 0
-		offsetTableEntry.w Obj10_MdNormal	; 1
-		offsetTableEntry.w Obj10_MdJump	; 2
-		offsetTableEntry.w Obj10_Index	; 3 - invalid
-		offsetTableEntry.w Obj10_MdAir	; 4
+; off_347FA: Obj10_Index:
+SSTails_Index:	offsetTable
+		offsetTableEntry.w SSTails_Init		; 0
+		offsetTableEntry.w SSTails_MdNormal	; 1
+		offsetTableEntry.w SSTails_MdJump	; 2
+		offsetTableEntry.w SSTails_Index	; 3 - invalid
+		offsetTableEntry.w SSTails_MdAir	; 4
 ; ===========================================================================
-; loc_34804:
-Obj10_Init:
+; loc_34804: Obj10_Init:
+SSTails_Init:
 	addq.b	#2,routine(a0)
 	moveq	#0,d0
 	move.w	d0,ss_x_pos(a0)
@@ -69808,7 +69807,7 @@ Obj10_Init:
 	move.w	d1,y_pos(a0)
 	move.b	#$E,y_radius(a0)
 	move.b	#7,x_radius(a0)
-	move.l	#Obj10_MapUnc_34B3E,mappings(a0)
+	move.l	#MapUnc_SSTails,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_SpecialTails,2,0),art_tile(a0)
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#2,priority(a0)
@@ -69851,10 +69850,10 @@ loc_34864:
 	movea.l	ss_parent(a0),a0 ; load 0bj address
 	rts
 ; ===========================================================================
-
-Obj10_MdNormal:
+; loc_34908: Obj10_MdNormal:
+SSTails_MdNormal:
 	tst.b	routine_secondary(a0)
-	bne.s	Obj10_Hurt
+	bne.s	SSTails_Hurt
 	bsr.w	SSTailsCPU_Control
 	lea	(Ctrl_2_Held_Logical).w,a2
 	tst.w	(Player_mode).w
@@ -69879,8 +69878,8 @@ Obj10_MdNormal:
 	bsr.w	SSPlayer_Collision
 	bra.w	LoadSSTailsDynPLC
 ; ===========================================================================
-
-Obj10_Hurt:
+; loc_3495E: Obj10_Hurt:
+SSTails_Hurt:
 	bsr.w	SSHurt_Animation
 	bsr.w	SSPlayerSwapPositions
 	bsr.w	SSObjectMove
@@ -69952,8 +69951,8 @@ LoadSSTailsDynPLC:
 	moveq	#$12,d1
 	bra.w	LoadSSPlayerDynPLC
 ; ===========================================================================
-
-Obj10_MdJump:
+; loc_349F2: Obj10_MdJump:
+SSTails_MdJump:
 	lea	(Ctrl_2_Held_Logical).w,a2
 	tst.w	(Player_mode).w
 	beq.s	+
@@ -69969,8 +69968,8 @@ Obj10_MdJump:
 	bsr.w	SSPlayer_Animate
 	bra.s	LoadSSTailsDynPLC
 ; ===========================================================================
-
-Obj10_MdAir:
+; loc_34A24: Obj10_MdAir:
+SSTails_MdAir:
 	lea	(Ctrl_2_Held_Logical).w,a2
 	tst.w	(Player_mode).w
 	beq.s	+
@@ -70044,7 +70043,7 @@ loc_34AE4:
 	move.l	dword_34AA0(pc,d6.w),d6
 	addi.w	#$24,d0
 	add.w	d0,d0
-	lea	(Obj09_MapRUnc_345FA).l,a2
+	lea	(MapRUnc_SSPlayers).l,a2
 	adda.w	(a2,d0.w),a2
 	move.w	#tiles_to_bytes(ArtTile_ArtNem_SpecialTails_Tails),d2
 	moveq	#0,d1
@@ -70078,7 +70077,8 @@ byte_34B3A:
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
-Obj10_MapUnc_34B3E:	include "mappings/sprite/obj10.asm"
+; Obj10_MapUnc_34B3E:
+MapUnc_SSTails:	include "mappings/sprite/Tails from the Special Stages.asm"
 
 ; animation script
 ; off_34D86:
@@ -88309,7 +88309,7 @@ DbgObjList_HTZ: dbglistheader
 	dbglistobj ObjID_Spikes,	Obj36_MapUnc_15B68,   0,   0, make_art_tile(ArtTile_ArtNem_Spikes,1,0)
 	dbglistobj ObjID_Seesaw,	MapUnc_SeesawMain,   0,   0, make_art_tile(ArtTile_ArtNem_HtzSeeSaw,0,0)
 	dbglistobj ObjID_Barrier,	Obj2D_MapUnc_11822,   0,   0, make_art_tile(ArtTile_ArtNem_HtzValveBarrier,1,0)
-	dbglistobj ObjID_SmashableGround, Obj2F_MapUnc_236FA,   0,   0, make_art_tile(ArtTile_ArtKos_LevelArt,2,1)
+	dbglistobj ObjID_SmashableGround, MapUnc_SmashableGround,   0,   0, make_art_tile(ArtTile_ArtKos_LevelArt,2,1)
 	dbglistobj ObjID_LavaBubble,	Obj20_MapUnc_23254, $44,   2, make_art_tile(ArtTile_ArtNem_HtzFireball2,0,1)
 	dbglistobj ObjID_Spring,	Obj41_MapUnc_1901C, $81,   0, make_art_tile(ArtTile_ArtNem_VrtclSprng,0,0)
 	dbglistobj ObjID_Spring,	Obj41_MapUnc_1901C, $90,   3, make_art_tile(ArtTile_ArtNem_HrzntlSprng,0,0)
