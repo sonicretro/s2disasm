@@ -132,6 +132,7 @@ objoff_10 =		x_vel
 objoff_14 =		inertia+0
 objoff_15 =		inertia+1
 objoff_1F =		anim_frame_duration+1
+objoff_23 =		respawn_index
 objoff_27 =		$27
 objoff_28 =		subtype ; overlaps subtype, but a few objects use it for other things anyway
  enum               objoff_29=$29,objoff_2A=$2A,objoff_2B=$2B,objoff_2C=$2C,objoff_2D=$2D,objoff_2E=$2E,objoff_2F=$2F
@@ -155,6 +156,41 @@ ss_rings_hundreds = objoff_3C
 ss_rings_tens = objoff_3D
 ss_rings_units = objoff_3E
 ss_last_angle_index = objoff_3F
+; ---------------------------------------------------------------------------
+; Sonic 1 equivalency table for SSTs:
+obRender 	=		render_flags
+obGfx		=		art_tile
+obMap		=		mappings
+obX			=		x_pos
+obScreenY	=		x_sub
+obY			=		y_pos
+obVelX		=		x_vel
+obVelY		=		y_vel
+obInertia	=		inertia
+obHeight	=		y_radius
+obWidth		=		x_radius
+obPriority	=		priority
+obActWid	=		width_pixels
+obFrame		=		mapping_frame
+obAniFrame	=		anim_frame
+obAnim		=		anim
+obPrevAni	=		prev_anim					; used to be called obNextAni in Sonic 1
+obTimeFrame	=		anim_frame_duration
+obColType	=		collision_flags
+obColProp	=		collision_property
+obStatus	=		status
+obRespawnNo	=		respawn_index
+obRoutine	=		routine
+ob2ndRout	=		routine_secondary
+obAngle		=		angle
+obSubtype	=		subtype
+
+; the following were specific to Sonic in Sonic 1
+flashtime		=		invulnerable_time
+inv_time		=		invincibility_time
+shoetime		=		speedshoes_time
+standonobject	=		interact
+
 ; ---------------------------------------------------------------------------
 ; property of all objects:
 object_size_bits =	6
@@ -1022,6 +1058,28 @@ AniIDTailsAni_Fly		= id(TailsAni_Fly_ptr)		; 32 ; $20
 ; Other sizes
 palette_line_size =		$10*2	; 16 word entries
 
+tile_width =			8
+tile_height =			8
+tile_height_2p =		tile_height*2
+block_width =			tile_width*2
+block_height =			tile_height*2
+chunk_width =			block_width*8
+chunk_height =			block_height*8
+screen_width =			tile_width*40 ; H40 mode
+screen_height =			tile_height*28 ; V28 mode
+screen_width_ss =		tile_width*32 ; H32 mode
+screen_height_ss =		tile_height*28 ; V28 mode
+gameplay_plane_width =		tile_width*64 ; 64x32 plane size
+gameplay_plane_height =		tile_height*32 ; 64x32 plane size
+gameplay_plane_height_2p =	tile_height_2p*32 ; 64x32 plane size
+
+; The VDP's sprite coordinates place the top-left pixel of the screen at $80,$80,
+; these constants are to help deobfuscate that.
+sprite_left_boundary =		$80
+sprite_top_boundary =		$80
+; Interlace Mode 2 has its top-left coordinate at $80,$100 instead.
+sprite_top_boundary_2p =	sprite_top_boundary*2
+
 ; Sprite queue
 object_display_list_size_bits =		7
 object_display_list_size =		1<<object_display_list_size_bits ; How big a list is
@@ -1148,9 +1206,9 @@ Sprite_Table_P2:		ds.b	$280	; Sprite attribute table buffer for the bottom split
 				ds.b	$80	; unused, but SAT buffer can spill over into this area when there are too many sprites on-screen
 
 HorizontalScrollBuffer struct dots
-	ds.l	224	; Total lines on the screen.
-	ds.l	16	; A bug/optimisation in 'Swscrl_CPZ' causes these values to be overflowed into.
-	ds.b	$40	; These are just unused.
+	ds.l	screen_height	; Total lines on the screen.
+	ds.l	16		; A bug/optimisation in 'Swscrl_CPZ' causes these values to be overflowed into.
+	ds.b	$40		; These are just unused.
 HorizontalScrollBuffer endstruct
 
 Horiz_Scroll_Buf:		HorizontalScrollBuffer
