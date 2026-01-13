@@ -197,7 +197,7 @@ local function get_directory_contents(path, extension)
 			listing = io.popen("dir /b \"" .. path .. "\"", "r")
 		else
 			-- Assumes POSIX.
-			listing = io.popen("ls -w1 -N " .. path, "r")
+			listing = io.popen("ls " .. path, "r")
 		end
 
 		local contents = {}
@@ -672,6 +672,14 @@ local function convert_dpcm_files_in_directory(directory)
 
 	-- Load deltas file.
 	local deltas_file = open_file_with_warning(deltas_file_path, "rb")
+
+	-- Gracefully handle a missing file here to prevent a total build failure.
+	-- Users of custom sound drivers may remove the file, and not need any of
+	-- this conversion logic.
+	if deltas_file == nil then
+		print("Skipping conversion of DPCM files!")
+		return
+	end
 
 	local deltas = {}
 	repeat
