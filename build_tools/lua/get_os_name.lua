@@ -37,7 +37,7 @@ function M.get_os_name()
             end
         else
             -- other platform, assume uname support and popen support
-            raw_os_name = io.popen('uname -s','r'):read('*l')
+            raw_os_name = io.popen('uname -o','r'):read('*l')
             raw_arch_name = io.popen('uname -m','r'):read('*l')
         end
     end
@@ -54,25 +54,25 @@ function M.get_os_name()
         ['mac']         = 'Mac',
         ['darwin']      = 'Mac',
         ['^mingw']      = 'Windows',
+        ['^msys']       = 'Windows',
         ['^cygwin']     = 'Windows',
         ['bsd$']        = 'BSD',
         ['sunos']       = 'Solaris',
+        ['android']     = 'Android',
     }
     
     local arch_patterns = {
         ['^x86$']           = 'x86',
         ['i[%d]86']         = 'x86',
         ['amd64']           = 'x86_64',
-        ['x86_64']          = 'x86_64',
         ['x64']             = 'x86_64',
         ['power macintosh'] = 'powerpc',
         ['^arm']            = 'arm',
         ['^mips']           = 'mips',
         ['i86pc']           = 'x86',
-        ['aarch64']         = 'aarch64',
     }
 
-    local os_name, arch_name = 'unknown', 'unknown'
+    local os_name, arch_name = raw_os_name, raw_arch_name
 
     for pattern, name in pairs(os_patterns) do
         if raw_os_name:match(pattern) then

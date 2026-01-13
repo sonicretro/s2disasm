@@ -1121,7 +1121,7 @@ off_D3C:	offsetTable
 	move.l	#vdpComm(VRAM_EndSeq_Plane_A_Name_Table + planeLoc(64,22,33),VRAM,WRITE),d0	;$50AC0003
 	moveq	#23-1,d1
 	moveq	#15-1,d2
-    if gameRevision>=2
+    if removeJmpTos
 	jsr	(PlaneMapToVRAM_H40).l
     else
 	bsr.w	PlaneMapToVRAM_H40
@@ -4341,7 +4341,7 @@ TitleScreen:
 	move.l	#vdpComm(VRAM_TtlScr_Plane_B_Name_Table,VRAM,WRITE),d0
 	moveq	#40-1,d1 ; Width
 	moveq	#28-1,d2 ; Height
-    if gameRevision>=2
+    if removeJmpTos
 	jsr	(PlaneMapToVRAM_H40).l
     else
 	bsr.w	PlaneMapToVRAM_H40
@@ -4358,7 +4358,7 @@ TitleScreen:
 	move.l	#vdpComm(VRAM_TtlScr_Plane_B_Name_Table+planeLoc(64,40,0),VRAM,WRITE),d0
 	moveq	#24-1,d1 ; Width
 	moveq	#28-1,d2 ; Height
-    if gameRevision>=2
+    if removeJmpTos
 	jsr	(PlaneMapToVRAM_H40).l
     else
 	bsr.w	PlaneMapToVRAM_H40
@@ -4382,7 +4382,7 @@ TitleScreen:
 	move.l	#vdpComm(VRAM_TtlScr_Plane_A_Name_Table,VRAM,WRITE),d0
 	moveq	#40-1,d1 ; Width
 	moveq	#28-1,d2 ; Height
-    if gameRevision>=2
+    if removeJmpTos
 	jsr	(PlaneMapToVRAM_H40).l
     else
 	bsr.w	PlaneMapToVRAM_H40
@@ -4930,7 +4930,7 @@ Level_TtlCard:
 	bsr.w	LevelSizeLoad
 	jsrto	JmpTo_DeformBgLayer
 	clr.w	(Vscroll_Factor_FG).w
-	move.w	#-224,(Vscroll_Factor_P2_FG).w
+	move.w	#-screen_height,(Vscroll_Factor_P2_FG).w
 
 	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len
 
@@ -5285,12 +5285,12 @@ MoveWater:
 	bhs.s	+
 	tst.w	d0
 	bpl.s	+
-	move.b	#224-1,(Hint_counter_reserve+1).w	; H-INT every 224th scanline
+	move.b	#screen_height-1,(Hint_counter_reserve+1).w	; H-INT every 224th scanline
 	move.b	#1,(Water_fullscreen_flag).w
 +
-	cmpi.w	#224-1,d0
+	cmpi.w	#screen_height-1,d0
 	blo.s	+
-	move.w	#224-1,d0
+	move.w	#screen_height-1,d0
 +
 	move.b	d0,(Hint_counter_reserve+1).w	; H-INT every d0 scanlines
 ; loc_456A:
@@ -9174,7 +9174,7 @@ SSPlaneB_Background:
 	move.l	#vdpComm(VRAM_SS_Plane_B_Name_Table + planeLoc(128,32*.c,0),VRAM,WRITE),d0
 	moveq	#32-1,d1
 	moveq	#32-1,d2
-    if gameRevision>=2
+    if removeJmpTos
 	jsr	(PlaneMapToVRAM_H80_SpecialStage).l
     else
 	bsr.w	PlaneMapToVRAM_H80_SpecialStage
@@ -10504,16 +10504,22 @@ ObjDA_Init:
 	jsrto	JmpTo_Adjust2PArtPointer
 	move.b	#0,render_flags(a0)
 	move.b	#60,width_pixels(a0)
-	move.w	#$80+320/2,x_pixel(a0)
-	move.w	#$80+64,y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(0),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(-48),y_pixel(a0)
 
 JmpTo2_DisplaySprite ; JmpTo
 	jmp	(DisplaySprite).l
 ; ===========================================================================
+objda_make_x_positions macro
+	irp pos,ALLARGS
+	dc.w  spriteScreenPositionXCentered(pos)
+	endm
+    endm
+
 ; word_7AB2:
 ObjDA_XPositions:
-	dc.w  $116, $12A, $102,	$13E,  $EE, $152,  $DA,	$166
-	dc.w   $C6, $17A,  $B2,	$18E,  $9E, $1A2,  $8A; 8
+	objda_make_x_positions -10, 10, -30, 30, -50, 50, -70, 70, -90, 90, -110, 110, -130, 130, -150
+
 ; ===========================================================================
 
 loc_7AD0:
@@ -10539,9 +10545,9 @@ loc_7AD0:
 	move.w	(a2)+,x_pixel(a1)
 	tst.b	d2
 	beq.s	+
-	subi.w	#$A,x_pixel(a1)
+	subi.w	#10,x_pixel(a1)
 +
-	move.w	#$D0,y_pixel(a1)
+	move.w	#spriteScreenPositionYCentered(-32),y_pixel(a1)
 	move.b	#4,mapping_frame(a1)
 	move.b	#6,routine(a1)
 	move.l	#ObjDA_MapUnc_7CB6,mappings(a1)
@@ -10734,7 +10740,7 @@ TwoPlayerResults:
 	move.l	#vdpComm(VRAM_Plane_B_Name_Table,VRAM,WRITE),d0
 	moveq	#40-1,d1
 	moveq	#28-1,d2
-    if gameRevision>=2
+    if removeJmpTos
 	jsr	(PlaneMapToVRAM_H40).l
     else
 	bsr.w	PlaneMapToVRAM_H40
@@ -10754,7 +10760,7 @@ TwoPlayerResults:
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_TwoPlayerResults),VRAM,WRITE),d0
 	moveq	#40-1,d1
 	moveq	#28-1,d2
-    if gameRevision>=2
+    if removeJmpTos
 	jsr	(PlaneMapToVRAM_H40).l
     else
 	bsr.w	PlaneMapToVRAM_H40
@@ -11003,14 +11009,18 @@ Obj21_Index:	offsetTable
 		offsetTableEntry.w Obj21_Init	; 0
 		offsetTableEntry.w Obj21_Main	; 2
 ; ---------------------------------------------------------------------------
+obj21_make_position macro x,y
+	dc.w spriteScreenPositionXCentered(x), spriteScreenPositionYCentered(y)
+    endm
+
 ; word_80D0:
 Obj21_PositionTable:
-	;      x,    y
-	dc.w $F0, $148
-	dc.w $F0, $130
-	dc.w $E0, $148
-	dc.w $F0, $148
-	dc.w $F0, $148
+	;                     x, y
+	obj21_make_position -48,88
+	obj21_make_position -48,64
+	obj21_make_position -64,88
+	obj21_make_position -48,88
+	obj21_make_position -48,88
 ; ===========================================================================
 ; loc_80E4:
 Obj21_Init:
@@ -13982,7 +13992,7 @@ loc_A936:
 	add.w	d0,y_pos(a0)
 	addq.b	#1,mapping_frame(a0)
 
-BranchTo2_JmpTo5_DisplaySprite
+BranchTo2_JmpTo5_DisplaySprite ; BranchTo
 	jmpto	JmpTo5_DisplaySprite
 ; ===========================================================================
 +
@@ -14672,7 +14682,7 @@ LevelSizeLoad:
 	clr.b	(Scroll_lock_P2).w
 	moveq	#0,d0
 	move.b	d0,(Dynamic_Resize_Routine).w ; load level boundaries
-    if gameRevision=2
+    if gameRevision>=2
 	move.w	d0,(WFZ_LevEvent_Subrout).w
 	move.w	d0,(WFZ_BG_Y_Speed).w
 	move.w	d0,(Camera_BG_X_offset).w
@@ -14691,8 +14701,8 @@ LevelSizeLoad:
 	move.l	d0,(Camera_Min_Y_pos_target).w	; Also sets Camera_Max_Y_pos_target.
 	move.l	d0,(Tails_Min_Y_pos).w		; Also sets Tails_Max_Y_pos.
 	move.w	#$1010,(Horiz_block_crossed_flag).w
-	move.w	#(224/2)-16,(Camera_Y_pos_bias).w
-	move.w	#(224/2)-16,(Camera_Y_pos_bias_P2).w
+	move.w	#(screen_height/2)-16,(Camera_Y_pos_bias).w
+	move.w	#(screen_height/2)-16,(Camera_Y_pos_bias_P2).w
 	bra.w	+
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -15438,11 +15448,11 @@ SwScrl_EHZ_2P:
 	; Update the background's vertical scrolling.
 	moveq	#0,d0
 	move.w	d0,(Vscroll_Factor_P2_BG).w
-	subi.w	#224,(Vscroll_Factor_P2_BG).w
+	subi.w	#screen_height,(Vscroll_Factor_P2_BG).w
 
 	; Update the foregrounds's vertical scrolling.
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
-	subi.w	#224,(Vscroll_Factor_P2_FG).w
+	subi.w	#screen_height,(Vscroll_Factor_P2_FG).w
 
 	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
@@ -15451,7 +15461,7 @@ SwScrl_EHZ_2P:
 	; This creates an elaborate parallax effect.
 	; Tails' screen is slightly taller, to fill the gap between the two
 	; screens.
-	lea	(Horiz_Scroll_Buf+(112-4)*2*2).w,a1
+	lea	(Horiz_Scroll_Buf+(screen_height/2-4)*2*2).w,a1
 	move.w	(Camera_X_pos_P2).w,d0
 	; Do 11+4 lines.
 	move.w	#11+4-1,d1
@@ -15567,7 +15577,7 @@ SwScrl_WZ:
 	; Update the background's (and foreground's) horizontal scrolling.
 	; This is very basic: there is no parallax effect here.
 	lea	(Horiz_Scroll_Buf).w,a1
-	move.w	#224-1,d1
+	move.w	#screen_height-1,d1
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
@@ -15599,7 +15609,7 @@ SwScrl_MTZ:
 	; Update the background's (and foreground's) horizontal scrolling.
 	; This is very basic: there is no parallax effect here.
 	lea	(Horiz_Scroll_Buf).w,a1
-	move.w	#224-1,d1
+	move.w	#screen_height-1,d1
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
@@ -15665,7 +15675,7 @@ SwScrl_WFZ:
 	bcc.s	.seg_loop		; Branch if not
 
 	neg.w	d1			; d1 = number of lines to draw in this segment
-	move.w	#224-1,d2		; Number of rows in hscroll buffer
+	move.w	#screen_height-1,d2		; Number of rows in hscroll buffer
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
@@ -16020,7 +16030,7 @@ HTZ_Screen_Shake:
 	; Update the background's (and foreground's) horizontal scrolling.
 	; This is very basic: there is no parallax effect here.
 	lea	(Horiz_Scroll_Buf).w,a1
-	move.w	#224-1,d1
+	move.w	#screen_height-1,d1
 	move.w	(Camera_X_pos).w,d0
 	add.w	d2,d0
 	neg.w	d0
@@ -16082,11 +16092,11 @@ SwScrl_HTZ_2P:
 	; Update the background's vertical scrolling.
 	moveq	#0,d0
 	move.w	d0,(Vscroll_Factor_P2_BG).w
-	subi.w	#224,(Vscroll_Factor_P2_BG).w
+	subi.w	#screen_height,(Vscroll_Factor_P2_BG).w
 
 	; Update the foreground's vertical scrolling.
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
-	subi.w	#224,(Vscroll_Factor_P2_FG).w
+	subi.w	#screen_height,(Vscroll_Factor_P2_FG).w
 
 	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
@@ -16280,7 +16290,7 @@ SwScrl_OOZ:
 	; Curiously, Oil Ocean Zone fills 'Horiz_Scroll_Buf' starting from
 	; the end and working backwards towards the beginning, unlike other
 	; zones.
-	lea	(Horiz_Scroll_Buf+224*2*2).w,a1
+	lea	(Horiz_Scroll_Buf+screen_height*2*2).w,a1
 
 	; Set up the foreground part of the horizontal scroll value.
 	move.w	(Camera_X_pos).w,d0
@@ -16303,7 +16313,7 @@ SwScrl_OOZ:
 	moveq	#0,d1
 +
 	; This will keep track of how many lines we have left to output.
-	move.w	#224-1,d6
+	move.w	#screen_height-1,d6
 
 	; Do the factory part of the background.
 	add.w	d6,d1
@@ -16567,7 +16577,7 @@ SwScrl_MCZ:
 
 	neg.w	d1			; d1 = number of lines to draw in this segment
 	subq.w	#2,a2
-	move.w	#224-1,d2		; Number of rows in hscroll buffer
+	move.w	#screen_height-1,d2		; Number of rows in hscroll buffer
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
@@ -16811,11 +16821,11 @@ SwScrl_MCZ2P_RowHeights:
 
 	; Update the background's vertical scrolling.
 	move.w	d0,(Vscroll_Factor_P2_BG).w
-	subi.w	#224,(Vscroll_Factor_P2_BG).w
+	subi.w	#screen_height,(Vscroll_Factor_P2_BG).w
 
 	; Update the foreground's vertical scrolling.
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
-	subi.w	#224,(Vscroll_Factor_P2_FG).w
+	subi.w	#screen_height,(Vscroll_Factor_P2_FG).w
 
 	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
@@ -16980,7 +16990,7 @@ SwScrl_CNZ:
 
 	neg.w	d1			; d1 = number of lines to draw in this segment
 	subq.w	#2,a2
-	move.w	#224-1,d2		; Number of rows in hscroll buffer
+	move.w	#screen_height-1,d2		; Number of rows in hscroll buffer
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
@@ -17117,11 +17127,11 @@ SwScrl_CNZ_2P:
 
 	; Update the background's vertical scrolling.
 	move.w	d0,(Vscroll_Factor_P2_BG).w
-	subi.w	#224,(Vscroll_Factor_P2_BG).w
+	subi.w	#screen_height,(Vscroll_Factor_P2_BG).w
 
 	; Update the foreground's vertical scrolling.
 	move.w	(Camera_Y_pos_P2).w,(Vscroll_Factor_P2_FG).w
-	subi.w	#224,(Vscroll_Factor_P2_FG).w
+	subi.w	#screen_height,(Vscroll_Factor_P2_FG).w
 
 	; Only allow the screen to vertically scroll two pixels at a time.
 	andi.l	#$FFFEFFFE,(Vscroll_Factor_P2).w
@@ -17301,7 +17311,7 @@ SwScrl_CPZ:
 	lea	(Horiz_Scroll_Buf).w,a1
 
     if fixBugs
-	move.w	#224/16-1,d1
+	move.w	#screen_height/block_height-1,d1
     else
 	; The '+1' is so that, if one block is partially-offscreen at the
 	; top, then another will fill the gap at the bottom of the screen.
@@ -17309,7 +17319,7 @@ SwScrl_CPZ:
 	; bounds-checking. This was likely a deliberate optimisation. Still,
 	; it's possible to avoid this without any performance penalty with a
 	; little extra code. See below.
-	move.w	#224/16+1-1,d1
+	move.w	#screen_height/block_height+1-1,d1
     endif
 
 	; Set up the foreground part of the horizontal scroll value.
@@ -17553,7 +17563,7 @@ SwScrl_DEZ:
 
 	neg.w	d1			; d1 = number of lines to draw in this segment
 	subq.w	#2,a2
-	move.w	#224-1,d2		; Number of rows in hscroll buffer
+	move.w	#screen_height-1,d2		; Number of rows in hscroll buffer
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
@@ -17780,7 +17790,7 @@ SwScrl_ARZ:
 	neg.w	d1		; d1 now contains how many pixels of the row is currently on-screen
 	subq.w	#2,a2		; Get correct row speed
 
-	move.w	#224-1,d2 	; Height of screen
+	move.w	#screen_height-1,d2 	; Height of screen
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0		; Store FG X-pos in upper 16-bits...
@@ -17869,7 +17879,7 @@ SwScrl_SCZ:
 	; Update the background's (and foreground's) horizontal scrolling.
 	; This is very basic: there is no parallax effect here.
 	lea	(Horiz_Scroll_Buf).w,a1
-	move.w	#224-1,d1
+	move.w	#screen_height-1,d1
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
@@ -17898,7 +17908,7 @@ SwScrl_Minimal:
 	; Update the background's (and foreground's) horizontal scrolling.
 	; This is very basic: there is no parallax effect here.
 	lea	(Horiz_Scroll_Buf).w,a1
-	move.w	#224-1,d1
+	move.w	#screen_height-1,d1
 	move.w	(Camera_X_pos).w,d0
 	neg.w	d0
 	swap	d0
@@ -17916,7 +17926,7 @@ SwScrl_HPZ_Continued:
 	lea	(Horiz_Scroll_Buf).w,a1
 
     if fixBugs
-	move.w	#224/16-1,d1
+	move.w	#screen_height/block_height-1,d1
     else
 	; The '+1' is so that, if one block is partially-offscreen at the
 	; top, then another will fill the gap at the bottom of the screen.
@@ -17924,7 +17934,7 @@ SwScrl_HPZ_Continued:
 	; bounds-checking. This was likely a deliberate optimisation. Still,
 	; it's possible to avoid this without any performance penalty with a
 	; little extra code. See below.
-	move.w	#224/16+1-1,d1
+	move.w	#screen_height/block_height+1-1,d1
     endif
 
 	; Set up the foreground part of the horizontal scroll value.
@@ -18063,7 +18073,7 @@ ScrollHoriz:
 ; loc_D732:
 .checkIfShouldScroll:
 	sub.w	(a1),d0
-	subi.w	#(320/2)-16,d0		; is the player less than 144 pixels from the screen edge?
+	subi.w	#(screen_width/2)-16,d0		; is the player less than 144 pixels from the screen edge?
 	blt.s	.scrollLeft	; if he is, scroll left
 	subi.w	#16,d0		; is the player more than 159 pixels from the screen edge?
 	bge.s	.scrollRight	; if he is, scroll right
@@ -18167,7 +18177,7 @@ ScrollVerti:
 ; ===========================================================================
 ; loc_D7C4:
 .decideScrollType:
-	cmpi.w	#(224/2)-16,d3	; is the camera bias normal?
+	cmpi.w	#(screen_height/2)-16,d3	; is the camera bias normal?
 	bne.s	.doScroll_slow	; if not, branch
 	mvabs.w	inertia(a0),d1	; get player ground velocity, force it to be positive
 	cmpi.w	#$800,d1	; is the player travelling very fast?
@@ -18564,21 +18574,21 @@ LoadTilesAsYouMove:
 
 	move.b	#0,(Screen_redraw_flag).w
 
-	moveq	#-16,d4	; X (relative to camera)
-	moveq	#(1+224/16+1)-1,d6 ; Cover the screen, plus an extra row at the top and bottom.
+	moveq	#-block_width,d4	; X (relative to camera)
+	moveq	#(1+screen_height/block_height+1)-1,d6 ; Cover the screen, plus an extra row at the top and bottom.
 ; loc_DACE:
 Draw_All:
 	; Redraw the whole screen.
 	movem.l	d4-d6,-(sp)
-	moveq	#-16,d5	; X (relative)
+	moveq	#-block_width,d5	; X (relative)
 	move.w	d4,d1
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
 	move.w	d1,d4
-	moveq	#-16,d5	; X (relative)
-	bsr.w	DrawBlockRow	; draw the current row
+	moveq	#-block_width,d5	; X (relative)
+	bsr.w	DrawBlockRow		; draw the current row
 	movem.l	(sp)+,d4-d6
-	addi.w	#16,d4		; move onto the next row
-	dbf	d6,Draw_All	; repeat for all rows
+	addi.w	#block_height,d4	; move onto the next row
+	dbf	d6,Draw_All		; repeat for all rows
 
 	move.b	#0,(Scroll_flags_copy).w
 
@@ -18591,38 +18601,38 @@ Draw_FG:
 
 	bclr	#scroll_flag_fg_up,(a2)	; has the level scrolled up?
 	beq.s	+			; if not, branch
-	moveq	#-16,d4
-	moveq	#-16,d5
+	moveq	#-block_height,d4
+	moveq	#-block_width,d5
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	moveq	#-16,d4
-	moveq	#-16,d5
+	moveq	#-block_height,d4
+	moveq	#-block_width,d5
 	bsr.w	DrawBlockRow	; redraw upper row
 +
 	bclr	#scroll_flag_fg_down,(a2)	; has the level scrolled down?
 	beq.s	+			; if not, branch
-	move.w	#224,d4
-	moveq	#-16,d5
+	move.w	#screen_height,d4
+	moveq	#-block_width,d5
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	move.w	#224,d4
-	moveq	#-16,d5
+	move.w	#screen_height,d4
+	moveq	#-block_width,d5
 	bsr.w	DrawBlockRow	; redraw bottom row
 +
 	bclr	#scroll_flag_fg_left,(a2)	; has the level scrolled to the left?
 	beq.s	+			; if not, branch
-	moveq	#-16,d4
-	moveq	#-16,d5
+	moveq	#-block_height,d4
+	moveq	#-block_width,d5
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	moveq	#-16,d4
-	moveq	#-16,d5
+	moveq	#-block_height,d4
+	moveq	#-block_width,d5
 	bsr.w	DrawBlockColumn	; redraw left-most column
 +
 	bclr	#scroll_flag_fg_right,(a2)	; has the level scrolled to the right?
 	beq.s	return_DB5A		; if not, return
-	moveq	#-16,d4
-	move.w	#320,d5
+	moveq	#-block_height,d4
+	move.w	#screen_width,d5
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	moveq	#-16,d4
-	move.w	#320,d5
+	moveq	#-block_height,d4
+	move.w	#screen_width,d5
 	bsr.w	DrawBlockColumn	; redraw right-most column
 
 return_DB5A:
@@ -18637,38 +18647,38 @@ Draw_FG_P2:
 
 	bclr	#scroll_flag_fg_up,(a2)
 	beq.s	+
-	moveq	#-16,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer2
-	moveq	#-16,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	DrawBlockRow
 +
 	bclr	#scroll_flag_fg_down,(a2)
 	beq.s	+
-	move.w	#224,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	move.w	#screen_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer2
-	move.w	#224,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	move.w	#screen_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	DrawBlockRow
 +
 	bclr	#scroll_flag_fg_left,(a2)
 	beq.s	+
-	moveq	#-16,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer2
-	moveq	#-16,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	DrawBlockColumn
 +
 	bclr	#scroll_flag_fg_right,(a2)
 	beq.s	return_DBC0
-	moveq	#-16,d4	; Y offset
-	move.w	#320,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	move.w	#screen_width,d5	; X offset
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer2
-	moveq	#-16,d4	; Y offset
-	move.w	#320,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	move.w	#screen_width,d5	; X offset
 	bsr.w	DrawBlockColumn
 
 return_DBC0:
@@ -18685,58 +18695,58 @@ Draw_BG1:
 
 	bclr	#scroll_flag_bg1_up,(a2)
 	beq.s	+
-	moveq	#-16,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	moveq	#-16,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	DrawBlockRow
 +
 	bclr	#scroll_flag_bg1_down,(a2)
 	beq.s	+
-	move.w	#224,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	move.w	#screen_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	move.w	#224,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	move.w	#screen_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	DrawBlockRow
 +
 	bclr	#scroll_flag_bg1_left,(a2)
 	beq.s	+
-	moveq	#-16,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	moveq	#-16,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	DrawBlockColumn
 +
 	bclr	#scroll_flag_bg1_right,(a2)
 	beq.s	+
-	moveq	#-16,d4	; Y offset
-	move.w	#320,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	move.w	#screen_width,d5	; X offset
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	moveq	#-16,d4	; Y offset
-	move.w	#320,d5	; X offset
+	moveq	#-block_height,d4	; Y offset
+	move.w	#screen_width,d5	; X offset
 	bsr.w	DrawBlockColumn
 +
 	bclr	#scroll_flag_bg1_up_whole_row,(a2)
 	beq.s	+
-	moveq	#-16,d4		; Y offset
+	moveq	#-block_height,d4		; Y offset
 	moveq	#0,d5		; X (absolute)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1.AbsoluteX
-	moveq	#-16,d4
+	moveq	#-block_height,d4
 	moveq	#0,d5
-	moveq	#512/16-1,d6	; The entire width of the plane in blocks minus 1.
+	moveq	#gameplay_plane_width/block_width-1,d6	; The entire width of the plane in blocks minus 1.
 	bsr.w	DrawBlockRow.AbsoluteXCustomWidth
 +
 	bclr	#scroll_flag_bg1_down_whole_row,(a2)
 	beq.s	+
-	move.w	#224,d4		; Y offset
+	move.w	#screen_height,d4		; Y offset
 	moveq	#0,d5		; X (absolute)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1.AbsoluteX
-	move.w	#224,d4
+	move.w	#screen_height,d4
 	moveq	#0,d5
-	moveq	#512/16-1,d6	; The entire width of the plane in blocks minus 1.
+	moveq	#gameplay_plane_width/block_width-1,d6	; The entire width of the plane in blocks minus 1.
 	bsr.w	DrawBlockRow.AbsoluteXCustomWidth
 +
 	; This should be no different than 'scroll_flag_bg1_up_whole_row'.
@@ -18745,12 +18755,12 @@ Draw_BG1:
 	; anyway.
 	bclr	#scroll_flag_bg1_up_whole_row_2,(a2)
 	beq.s	+
-	moveq	#-16,d4		; Y offset (relative to camera)
-	moveq	#-16,d5		; X offset (relative to camera)
+	moveq	#-block_height,d4		; Y offset (relative to camera)
+	moveq	#-block_width,d5		; X offset (relative to camera)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	moveq	#-16,d4
-	moveq	#-16,d5
-	moveq	#512/16-1,d6	; The entire width of the plane in blocks minus 1.
+	moveq	#-block_height,d4
+	moveq	#-block_width,d5
+	moveq	#gameplay_plane_width/block_width-1,d6	; The entire width of the plane in blocks minus 1.
 	bsr.w	DrawBlockRow_CustomWidth
 +
 	; This should be no different than 'scroll_flag_bg1_down_whole_row'.
@@ -18759,12 +18769,12 @@ Draw_BG1:
 	; anyway.
 	bclr	#scroll_flag_bg1_down_whole_row_2,(a2)
 	beq.s	return_DC90
-	move.w	#224,d4		; Y offset (relative to camera)
-	moveq	#-16,d5		; X offset (relative to camera)
+	move.w	#screen_height,d4		; Y offset (relative to camera)
+	moveq	#-block_width,d5		; X offset (relative to camera)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	move.w	#224,d4
-	moveq	#-16,d5
-	moveq	#512/16-1,d6	; The entire width of the plane in blocks minus 1.
+	move.w	#screen_height,d4
+	moveq	#-block_width,d5
+	moveq	#gameplay_plane_width/block_width-1,d6	; The entire width of the plane in blocks minus 1.
 	bsr.w	DrawBlockRow_CustomWidth
 
 return_DC90:
@@ -18782,21 +18792,21 @@ Draw_BG2:
 	; Leftover from Sonic 1: was used by Green Hill Zone and Spring Yard Zone.
 	bclr	#scroll_flag_bg2_left,(a2)
 	beq.s	+
-	move.w	#112,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	move.w	#block_height*7,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	move.w	#112,d4	; Y offset
-	moveq	#-16,d5	; X offset
+	move.w	#block_height*7,d4	; Y offset
+	moveq	#-block_width,d5	; X offset
 	moveq	#3-1,d6	; Only three blocks, which works out to 48 pixels in height.
 	bsr.w	DrawBlockColumn.CustomHeight
 +
 	bclr	#scroll_flag_bg2_right,(a2)
 	beq.s	+
-	move.w	#112,d4	; Y offset
-	move.w	#320,d5		; X offset
+	move.w	#block_height*7,d4	; Y offset
+	move.w	#screen_width,d5		; X offset
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	move.w	#112,d4	; Y offset
-	move.w	#320,d5	; X offset
+	move.w	#block_height*7,d4	; Y offset
+	move.w	#screen_width,d5	; X offset
 	moveq	#3-1,d6	; Only three blocks, which works out to 48 pixels in height.
 	bsr.w	DrawBlockColumn.CustomHeight
 +
@@ -18871,12 +18881,12 @@ SBZ_CameraSections:
 	; clouds disappear. Using this would have avoided that.
 
 	; Handle loading the rows as the camera moves up and down.
-	moveq	#-16,d4	; Y offset (relative to camera)
+	moveq	#-block_height,d4	; Y offset (relative to camera)
 	bclr	#scroll_flag_advanced_bg_up,(a2)
 	bne.s	.doUpOrDown
 	bclr	#scroll_flag_advanced_bg_down,(a2)
 	beq.s	.checkIfShouldDoLeftOrRight
-	move.w	#224,d4	; Y offset (relative to camera)
+	move.w	#screen_height,d4	; Y offset (relative to camera)
 
 .doUpOrDown:
 	lea_	SBZ_CameraSections+1,a0
@@ -18888,7 +18898,7 @@ SBZ_CameraSections:
 	lea	(BGCameraLookup).l,a3
 	movea.w	(a3,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
 	beq.s	.doWholeRow
-	moveq	#-16,d5	; X offset (relative to camera)
+	moveq	#-block_width,d5	; X offset (relative to camera)
 	movem.l	d4-d5,-(sp)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
 	movem.l	(sp)+,d4-d5
@@ -18901,7 +18911,7 @@ SBZ_CameraSections:
 	movem.l	d4-d5,-(sp)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1.AbsoluteX
 	movem.l	(sp)+,d4-d5
-	moveq	#512/16-1,d6	; The entire width of the plane in blocks minus 1.
+	moveq	#gameplay_plane_width/block_width-1,d6	; The entire width of the plane in blocks minus 1.
 	bsr.w	DrawBlockRow.AbsoluteXCustomWidth
 
 .checkIfShouldDoLeftOrRight:
@@ -18912,17 +18922,17 @@ SBZ_CameraSections:
 ; ===========================================================================
 
 .doLeftOrRight:
-	moveq	#-16,d4 ; Y offset
+	moveq	#-block_height,d4 ; Y offset
 
 	; Load left column.
-	moveq	#-16,d5 ; X offset
+	moveq	#-block_width,d5 ; X offset
 	move.b	(a2),d0
 	andi.b	#(1<<scroll_flag_advanced_bg1_right)|(1<<scroll_flag_advanced_bg2_right)|(1<<scroll_flag_advanced_bg3_right),d0
 	beq.s	+
 	lsr.b	#1,d0	; Make the left and right flags share the same bits, to simplify a calculation later.
 	move.b	d0,(a2)
 	; Load right column.
-	move.w	#320,d5 ; X offset
+	move.w	#screen_width,d5 ; X offset
 +
 	; Select the correct starting background section, and then begin
 	; drawing the column.
@@ -18951,21 +18961,21 @@ Draw_BG3:
 	; Leftover from Sonic 1: was used by Green Hill Zone.
 	bclr	#scroll_flag_bg3_left,(a2)
 	beq.s	+
-	move.w	#64,d4	; Y offset (relative to camera)
-	moveq	#-16,d5	; X offset (relative to camera)
+	move.w	#block_height*4,d4	; Y offset (relative to camera)
+	moveq	#-block_width,d5	; X offset (relative to camera)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	move.w	#64,d4	; Y offset (relative to camera)
-	moveq	#-16,d5	; X offset (relative to camera)
+	move.w	#block_height*4,d4	; Y offset (relative to camera)
+	moveq	#-block_width,d5	; X offset (relative to camera)
 	moveq	#3-1,d6
 	bsr.w	DrawBlockColumn.CustomHeight
 +
 	bclr	#scroll_flag_bg3_right,(a2)
 	beq.s	+
-	move.w	#64,d4	; Y offset (relative to camera)
-	move.w	#320,d5	; X offset (relative to camera)
+	move.w	#block_height*4,d4	; Y offset (relative to camera)
+	move.w	#screen_width,d5	; X offset (relative to camera)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
-	move.w	#64,d4	; Y offset (relative to camera)
-	move.w	#320,d5	; X offset (relative to camera)
+	move.w	#block_height*4,d4	; Y offset (relative to camera)
+	move.w	#screen_width,d5	; X offset (relative to camera)
 	moveq	#3-1,d6
 	bsr.w	DrawBlockColumn.CustomHeight
 +
@@ -19071,12 +19081,12 @@ Draw_BG3_CPZ:
 	; row when it uses "camera 0".
 
 	; Handle loading the rows as the camera moves up and down.
-	moveq	#-16,d4	; Y offset
+	moveq	#-block_height,d4	; Y offset
 	bclr	#scroll_flag_advanced_bg_up,(a2)
 	bne.s	.doUpOrDown
 	bclr	#scroll_flag_advanced_bg_down,(a2)
 	beq.s	.checkIfShouldDoLeftOrRight
-	move.w	#224,d4	; Y offset
+	move.w	#screen_height,d4	; Y offset
 
 .doUpOrDown:
 	; Select the correct camera, so that the X value of the loaded row is
@@ -19088,7 +19098,7 @@ Draw_BG3_CPZ:
 	lsr.w	#4,d0
 	move.b	(a0,d0.w),d0
 	movea.w	BGCameraLookup(pc,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
-	moveq	#-16,d5	; X offset
+	moveq	#-block_width,d5	; X offset
 	movem.l	d4-d5,-(sp)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
 	movem.l	(sp)+,d4-d5
@@ -19102,17 +19112,17 @@ Draw_BG3_CPZ:
 ; ===========================================================================
 
 .doLeftOrRight:
-	moveq	#-16,d4 ; Y offset
+	moveq	#-block_height,d4 ; Y offset
 
 	; Load left column.
-	moveq	#-16,d5 ; X offset
+	moveq	#-block_width,d5 ; X offset
 	move.b	(a2),d0
 	andi.b	#(1<<scroll_flag_advanced_bg1_right)|(1<<scroll_flag_advanced_bg2_right)|(1<<scroll_flag_advanced_bg3_right),d0
 	beq.s	+
 	lsr.b	#1,d0	; Make the left and right flags share the same bits, to simplify a calculation later.
 	move.b	d0,(a2)
 	; Load right column.
-	move.w	#320,d5 ; X offset
+	move.w	#screen_width,d5 ; X offset
 +
 	; Select the correct starting background section, and then begin
 	; drawing the column.
@@ -19143,8 +19153,8 @@ DrawBlockColumn_Advanced:
 	tst.w	(Two_player_mode).w
 	bne.s	.doubleResolution
 
-	moveq	#(1+224/16+1)-1,d6	; Enough blocks to cover the screen, plus one more on the top and bottom.
-	move.l	#vdpCommDelta($0080),d7
+	moveq	#(1+screen_height/block_height+1)-1,d6	; Enough blocks to cover the screen, plus one more on the top and bottom.
+	move.l	#vdpCommDelta(gameplay_plane_width/tile_width*2),d7	; store VDP command for line increment
 
 -
 	; If the block is not part of the row that needs updating, then skip
@@ -19165,7 +19175,7 @@ DrawBlockColumn_Advanced:
 	movem.l	(sp)+,d4-d5/a0
 +
 	; Move onto the next block down.
-	addi.w	#16,d4
+	addi.w	#block_height,d4
 	dbf	d6,-
 
 	; Clear the scroll flags now that we're done here.
@@ -19175,8 +19185,8 @@ DrawBlockColumn_Advanced:
 ; ===========================================================================
 
 .doubleResolution:
-	moveq	#(1+224/16+1)-1,d6	; Enough blocks to cover the screen, plus one more on the top and bottom.
-	move.l	#vdpCommDelta($0080),d7
+	moveq	#(1+screen_height/block_height+1)-1,d6	; Enough blocks to cover the screen, plus one more on the top and bottom.
+	move.l	#vdpCommDelta(gameplay_plane_width/tile_width*2),d7	; store VDP command for line increment
 
 -
 	; If the block is not part of the row that needs updating, then skip
@@ -19197,7 +19207,7 @@ DrawBlockColumn_Advanced:
 	movem.l	(sp)+,d4-d5/a0
 +
 	; Move onto the next block down.
-	addi.w	#16,d4
+	addi.w	#block_height,d4
 	dbf	d6,-
 
 	; Clear the scroll flags now that we're done here.
@@ -19273,12 +19283,12 @@ Draw_BG3_OOZ:
 	; it aligns with.
 
 	; Handle loading the rows as the camera moves up and down.
-	moveq	#-16,d4	; Y offset
+	moveq	#-block_height,d4	; Y offset
 	bclr	#scroll_flag_advanced_bg_up,(a2)
 	bne.s	.doUpOrDown
 	bclr	#scroll_flag_advanced_bg_down,(a2)
 	beq.s	.checkIfShouldDoLeftOrRight
-	move.w	#224,d4	; Y offset
+	move.w	#screen_height,d4	; Y offset
 
 .doUpOrDown:
 	; Select the correct camera, so that the X value of the loaded row is
@@ -19292,7 +19302,7 @@ Draw_BG3_OOZ:
 	lea	BGCameraLookup(pc),a3
 	movea.w	(a3,d0.w),a3	; Camera, either BG, BG2 or BG3 depending on Y
 	beq.s	.doWholeRow
-	moveq	#-16,d5	; X offset
+	moveq	#-block_width,d5	; X offset
 	movem.l	d4-d5,-(sp)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
 	movem.l	(sp)+,d4-d5
@@ -19305,7 +19315,7 @@ Draw_BG3_OOZ:
 	movem.l	d4-d5,-(sp)
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1.AbsoluteX
 	movem.l	(sp)+,d4-d5
-	moveq	#512/16-1,d6	; The entire width of the plane in blocks minus 1.
+	moveq	#gameplay_plane_width/block_width-1,d6	; The entire width of the plane in blocks minus 1.
 	bsr.w	DrawBlockRow.AbsoluteXCustomWidth
 
 .checkIfShouldDoLeftOrRight:
@@ -19316,17 +19326,17 @@ Draw_BG3_OOZ:
 ; ===========================================================================
 
 .doLeftOrRight:
-	moveq	#-16,d4 ; Y offset
+	moveq	#-block_height,d4 ; Y offset
 
 	; Load left column.
-	moveq	#-16,d5 ; X offset
+	moveq	#-block_width,d5 ; X offset
 	move.b	(a2),d0
 	andi.b	#(1<<scroll_flag_advanced_bg1_right)|(1<<scroll_flag_advanced_bg2_right)|(1<<scroll_flag_advanced_bg3_right),d0
 	beq.s	+
 	lsr.b	#1,d0	; Make the left and right flags share the same bits, to simplify a calculation later.
 	move.b	d0,(a2)
 	; Load right column.
-	move.w	#320,d5 ; X offset
+	move.w	#screen_width,d5 ; X offset
 +
 	; Select the correct starting background section, and then begin
 	; drawing the column.
@@ -19342,12 +19352,12 @@ Draw_BG3_OOZ:
 
 ; sub_DF04: DrawBlockCol1:
 DrawBlockColumn:
-	moveq	#(1+224/16+1)-1,d6 ; Enough blocks to cover the screen, plus one more on the top and bottom.
+	moveq	#(1+screen_height/block_height+1)-1,d6 ; Enough blocks to cover the screen, plus one more on the top and bottom.
 ; DrawBlockCol2:
 .CustomHeight:
 	add.w	(a3),d5		; add camera X pos
 	add.w	4(a3),d4	; add camera Y pos
-	move.l	#vdpCommDelta(64*2),d7	; store VDP command for line increment
+	move.l	#vdpCommDelta(gameplay_plane_width/tile_width*2),d7	; store VDP command for line increment
 	move.l	d0,d1		; copy byte-swapped VDP command for later access
 	bsr.w	GetAddressOfBlockInChunk
 
@@ -19361,10 +19371,10 @@ DrawBlockColumn:
 	adda.w	d3,a1		; a1 = address of the current 16x16 in the block table
 	move.l	d1,d0
 	bsr.w	ProcessAndWriteBlock_Vertical
-	adda.w	#128/16*2,a0	; move onto the 16x16 vertically below this one
-	addi.w	#64*2*2,d1	; draw on alternate 8x8 lines
-	andi.w	#(64*32*2)-1,d1	; wrap around plane (assumed to be in 64x32 mode)
-	addi.w	#16,d4		; add 16 to Y offset
+	adda.w	#chunk_width/block_width*2,a0	; move onto the 16x16 vertically below this one
+	addi.w	#gameplay_plane_width/tile_width*2*2,d1	; draw on alternate 8x8 lines
+	andi.w	#((gameplay_plane_width/tile_width)*(gameplay_plane_height/tile_height)*2)-1,d1	; wrap around plane (assumed to be in 64x32 mode)
+	addi.w	#block_height,d4		; add 16 to Y offset
 	move.w	d4,d0
 	andi.w	#$70,d0		; have we reached a new 128x128?
 	bne.s	+		; if not, branch
@@ -19382,10 +19392,10 @@ DrawBlockColumn:
 	adda.w	d3,a1
 	move.l	d1,d0
 	bsr.w	ProcessAndWriteBlock_DoubleResolution_Vertical
-	adda.w	#128/16*2,a0
-	addi.w	#$80,d1
-	andi.w	#(64*32*2)-1,d1
-	addi.w	#16,d4
+	adda.w	#chunk_width/block_width*2,a0
+	addi.w	#gameplay_plane_width/tile_width*2,d1
+	andi.w	#((gameplay_plane_width/tile_width)*(gameplay_plane_height/tile_height)*2)-1,d1
+	addi.w	#block_height,d4
 	move.w	d4,d0
 	andi.w	#$70,d0
 	bne.s	+
@@ -19410,7 +19420,7 @@ DrawBlockRow_CustomWidth:
 
 ; sub_DF92: DrawTiles_Vertical1: DrawBlockRow1:
 DrawBlockRow:
-	moveq	#(1+320/16+1)-1,d6 ; Just enough blocks to cover the screen.
+	moveq	#(1+screen_width/block_width+1)-1,d6 ; Just enough blocks to cover the screen.
 	add.w	(a3),d5		; add X pos
 ; loc_DF96: DrawTiles_Vertical2: DrawBlockRow2:
 .AbsoluteXCustomWidth:
@@ -19445,7 +19455,7 @@ DrawBlockRow:
 	move.l	d1,(a5)		; set up a VRAM write at a new address
 	swap	d1
 +
-	addi.w	#16,d5		; add 16 to X offset
+	addi.w	#block_width,d5		; add 16 to X offset
 	move.w	d5,d0
 	andi.w	#$70,d0		; have we reached a new 128x128?
 	bne.s	+		; if not, branch
@@ -19454,7 +19464,7 @@ DrawBlockRow:
 	dbf	d6,-		; repeat 22 times
 
 	move.l	(sp)+,d1
-	addi.l	#vdpCommDelta(64*2),d1	; move onto next line
+	addi.l	#vdpCommDelta(gameplay_plane_width/tile_width*2),d1	; move onto next line
 	lea	(Block_cache).w,a2
 	move.l	d1,(a5)		; write to this VRAM address
 	swap	d1
@@ -19499,7 +19509,7 @@ DrawBlockRow:
 	move.l	d1,(a5)
 	swap	d1
 +
-	addi.w	#16,d5
+	addi.w	#block_width,d5
 	move.w	d5,d0
 	andi.w	#$70,d0
 	bne.s	+
@@ -19525,7 +19535,7 @@ DrawBlockRow:
 	move.l	d1,(a5)
 	swap	d1
 +
-	addi.w	#16,d5
+	addi.w	#block_width,d5
 	move.w	d5,d0
 	andi.w	#$70,d0
 	bne.s	+
@@ -19935,42 +19945,42 @@ DrawInitialBG:
 	cmpi.b	#mystic_cave_zone,(Current_Zone).w
 	beq.w	DrawInitialBG_LoadWholeBackground_512x512
 +
-	moveq	#-16,d4
+	moveq	#-block_height,d4
 +
-	moveq	#256/16-1,d6 ; Height of plane in blocks minus 1.
+	moveq	#gameplay_plane_height/block_height-1,d6 ; Height of plane in blocks minus 1.
 -	movem.l	d4-d6,-(sp)
 	moveq	#0,d5
 	move.w	d4,d1
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1
 	move.w	d1,d4
 	moveq	#0,d5
-	moveq	#512/16-1,d6 ; Width of plane in blocks minus 1.
+	moveq	#gameplay_plane_width/block_width-1,d6 ; Width of plane in blocks minus 1.
 	move	#$2700,sr
 	bsr.w	DrawBlockRow_CustomWidth
 	move	#$2300,sr
 	movem.l	(sp)+,d4-d6
-	addi.w	#16,d4
+	addi.w	#block_height,d4
 	dbf	d6,-
 
 	rts
 ; ===========================================================================
 	; Dead code for initialising the second player's portion of Plane B.
 	; This was used in earlier builds before title cards were implemented.
-	moveq	#-16,d4
+	moveq	#-block_height,d4
 
-	moveq	#256/16-1,d6 ; Height of plane in blocks minus 1.
+	moveq	#gameplay_plane_height/block_height-1,d6 ; Height of plane in blocks minus 1.
 -	movem.l	d4-d6,-(sp)
 	moveq	#0,d5
 	move.w	d4,d1
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer2
 	move.w	d1,d4
 	moveq	#0,d5
-	moveq	#512/16-1,d6 ; Width of plane in blocks minus 1.
+	moveq	#gameplay_plane_width/block_width-1,d6 ; Width of plane in blocks minus 1.
 	move	#$2700,sr
 	bsr.w	DrawBlockRow_CustomWidth
 	move	#$2300,sr
 	movem.l	(sp)+,d4-d6
-	addi.w	#16,d4
+	addi.w	#block_height,d4
 	dbf	d6,-
 
 	rts
@@ -19982,19 +19992,19 @@ DrawInitialBG_LoadWholeBackground_512x512:
 	; mode (512x512 instead of 512x256).
 	moveq	#0,d4	; Absolute plane Y coordinate.
 
-	moveq	#512/16-1,d6 ; Height of plane in blocks minus 1.
+	moveq	#gameplay_plane_height_2p/block_height-1,d6 ; Height of plane in blocks minus 1.
 -	movem.l	d4-d6,-(sp)
 	moveq	#0,d5
 	move.w	d4,d1
 	bsr.w	CalculateVRAMAddressOfBlockForPlayer1.AbsoluteXAbsoluteY_DoubleResolution
 	move.w	d1,d4
 	moveq	#0,d5
-	moveq	#512/16-1,d6 ; Width of plane in blocks minus 1.
+	moveq	#gameplay_plane_width/block_width-1,d6 ; Width of plane in blocks minus 1.
 	move	#$2700,sr
 	bsr.w	DrawBlockRow.AbsoluteXAbsoluteYCustomWidth
 	move	#$2300,sr
 	movem.l	(sp)+,d4-d6
-	addi.w	#16,d4
+	addi.w	#block_height,d4
 	dbf	d6,-
 
 	rts
@@ -20003,7 +20013,7 @@ DrawInitialBG_LoadWholeBackground_512x512:
 DrawInitialBG_LoadWholeBackground_512x256:
 	moveq	#0,d4	; Absolute plane Y coordinate.
 
-	moveq	#256/16-1,d6 ; Height of plane in blocks minus 1.
+	moveq	#gameplay_plane_height/block_height-1,d6 ; Height of plane in blocks minus 1.
 -	movem.l	d4-d6,-(sp)
 	moveq	#0,d5
 	move.w	d4,d1
@@ -20015,12 +20025,12 @@ DrawInitialBG_LoadWholeBackground_512x256:
 +
 	move.w	d1,d4
 	moveq	#0,d5
-	moveq	#512/16-1,d6 ; Width of plane in blocks minus 1.
+	moveq	#gameplay_plane_width/block_width-1,d6 ; Width of plane in blocks minus 1.
 	move	#$2700,sr
 	bsr.w	DrawBlockRow.AbsoluteXAbsoluteYCustomWidth
 	move	#$2300,sr
 	movem.l	(sp)+,d4-d6
-	addi.w	#16,d4
+	addi.w	#block_height,d4
 	dbf	d6,-
 
 	rts
@@ -22739,7 +22749,7 @@ Obj15_State4:
 	beq.w	BranchTo_loc_1000C
 	tst.b	(Oscillating_Data+$18).w
 	bne.w	BranchTo_loc_1000C
-	jsrto	JmpTo2_AllocateObjectAfterCurrent
+	jsr	(AllocateObjectAfterCurrent).l
 	bne.s	loc_100E4
 	moveq	#0,d0
 
@@ -22896,7 +22906,6 @@ Obj15_Obj83_MapUnc_1021E:	include "mappings/sprite/obj83.asm"
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
-
 Obj15_Obj7A_MapUnc_10256:	mappingsTable
 	mappingsTableEntry.w	Map_obj7A_a_0008
 	mappingsTableEntry.w	Map_obj7A_a_001A
@@ -23066,7 +23075,7 @@ Obj17_DelLoop:
 	bsr.w	DeleteObject2	; delete object
 	dbf	d2,Obj17_DelLoop	; repeat d2 times (helix length)
 ; loc_10426:
-BranchTo2_DeleteObject
+BranchTo2_DeleteObject ; BranchTo
 	bra.w	DeleteObject
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -23211,7 +23220,7 @@ loc_105B0:
 	bra.w	DisplaySprite
 ; ===========================================================================
 
-BranchTo3_DeleteObject
+BranchTo3_DeleteObject ; BranchTo
 	bra.w	DeleteObject
 ; ===========================================================================
 
@@ -24162,11 +24171,21 @@ Obj2D_Init:
 	bne.s	+
 	move.w	#make_art_tile(ArtTile_ArtNem_ConstructionStripes_2,1,0),art_tile(a0)
 	move.b	#8,width_pixels(a0)
+    if fixBugs
+	; This is sort of a hack. Chemical Plant and Death Egg use the wrong subtype,
+	; so a more proper fix would be to replace all instances with subtype 3.
+	move.b	#3,subtype(a0)
+    endif
 +
 	cmpi.b	#death_egg_zone,(Current_Zone).w
 	bne.s	+
 	move.w	#make_art_tile(ArtTile_ArtNem_ConstructionStripes_1,1,0),art_tile(a0)
 	move.b	#8,width_pixels(a0)
+    if fixBugs
+	; This is sort of a hack. Chemical Plant and Death Egg use the wrong subtype,
+	; so a more proper fix would be to replace all instances with subtype 3.
+	move.b	#3,subtype(a0)
+    endif
 +
 	cmpi.b	#aquatic_ruin_zone,(Current_Zone).w
 	bne.s	+
@@ -24239,7 +24258,7 @@ Obj2D_Main:
 	move.w	d2,d3
 	addq.w	#1,d3
 	move.w	x_pos(a0),d4
-	jsrto	JmpTo2_SolidObject
+	jsr	(SolidObject).l
 	bra.w	MarkObjGone                          ; delete object if off screen
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -25061,7 +25080,7 @@ loc_121B8:
 	tst.b	(Ring_spill_anim_counter).w
 	beq.s	Obj37_Delete
 	move.w	(Camera_Max_Y_pos).w,d0
-	addi.w	#224,d0
+	addi.w	#screen_height,d0
 	cmp.w	y_pos(a0),d0
 	blo.s	Obj37_Delete
 	bra.w	DisplaySprite
@@ -25415,7 +25434,7 @@ Obj26_Animate:
 	lea	(Ani_obj26).l,a1
 	bsr.w	AnimateSprite
 
-BranchTo2_MarkObjGone
+BranchTo2_MarkObjGone ; BranchTo
 	bra.w	MarkObjGone
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -26079,6 +26098,10 @@ obj0e_intro_complete	= objoff_2F
 obj0e_music_playing	= objoff_30
 obj0e_current_frame	= objoff_34
 
+obj0e_make_sprite_position macro x,y
+	dc.w	spriteScreenPositionXCentered(x),spriteScreenPositionYCentered(y)
+    endm
+
 ; Sprite_12E18:
 Obj0E:
 	moveq	#0,d0
@@ -26137,8 +26160,8 @@ Obj0E_Sonic_Init:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_Sonic_FadeInAndPlayMusic
 	move.b	#5,mapping_frame(a0)
 
-	move.w	#128+144,x_pixel(a0)
-	move.w	#128+96,y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(-16),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(-16),y_pixel(a0)
 
 	; Load flashing star object.
 	lea	(IntroFlashingStar).w,a1
@@ -26345,15 +26368,15 @@ CyclingPal_TitleStar_End
 
 ;word_13046:
 Obj0E_Sonic_Positions:
-	;           X,      Y
-	dc.w  128+136, 128+80
-	dc.w  128+128, 128+64
-	dc.w  128+120, 128+48
-	dc.w  128+118, 128+38
-	dc.w  128+122, 128+30
-	dc.w  128+128, 128+26
-	dc.w  128+132, 128+25
-	dc.w  128+136, 128+24
+	;                             X,   Y
+	obj0e_make_sprite_position  -24, -32
+	obj0e_make_sprite_position  -32, -48
+	obj0e_make_sprite_position  -40, -64
+	obj0e_make_sprite_position  -42, -74
+	obj0e_make_sprite_position  -38, -82
+	obj0e_make_sprite_position  -32, -86
+	obj0e_make_sprite_position  -28, -87
+	obj0e_make_sprite_position  -24, -88
 Obj0E_Sonic_Positions_End
 ; ===========================================================================
 
@@ -26381,8 +26404,8 @@ Obj0E_Tails_Init:
 	; him.
 	move.b	#3,priority(a0)
     endif
-	move.w	#128+88,x_pixel(a0)
-	move.w	#128+88,y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(-72),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(-24),y_pixel(a0)
 	move.b	#1,anim(a0)
 	rts
 ; ===========================================================================
@@ -26401,19 +26424,19 @@ Obj0E_Tails_AnimationFinished:
 	move.b	#ObjID_TitleIntro,id(a1)
 	move.b	#$10,subtype(a1)
 
-BranchTo10_DisplaySprite
+BranchTo10_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
 ; ===========================================================================
 ; word_130B8:
 Obj0E_Tails_Positions:
-	;           X,      Y
-	dc.w   128+87, 128+72
-	dc.w   128+83, 128+56
-	dc.w   128+78, 128+44
-	dc.w   128+76, 128+38
-	dc.w   128+74, 128+34
-	dc.w   128+73, 128+33
-	dc.w   128+72, 128+32
+	;                             X,   Y
+	obj0e_make_sprite_position  -73, -40
+	obj0e_make_sprite_position  -77, -56
+	obj0e_make_sprite_position  -82, -68
+	obj0e_make_sprite_position  -84, -74
+	obj0e_make_sprite_position  -86, -78
+	obj0e_make_sprite_position  -87, -79
+	obj0e_make_sprite_position  -88, -80
 Obj0E_Tails_Positions_End
 ; ===========================================================================
 
@@ -26437,13 +26460,13 @@ Obj0E_LogoTop_Init:
 	move.b	#$A,mapping_frame(a0)
 +
 	move.b	#2,priority(a0)
-	move.w	#128+320/2,x_pixel(a0)
-	move.w	#128+104,y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(0),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(-8),y_pixel(a0)
 ; loc_1310A:
 Obj0E_NextRoutineSecondary:
 	addq.b	#2,routine_secondary(a0)	; BranchTo11_DisplaySprite
 
-BranchTo11_DisplaySprite
+BranchTo11_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
 ; ===========================================================================
 ; Obj0E_SkyPiece:
@@ -26467,10 +26490,10 @@ Obj0E_MaskingSprite_Init:
 	; Masking sprites normally must have an X coordinate of 0. I don't
 	; know why it isn't set to that here, but it is corrected to 0 in
 	; 'TitleScreen_Loop'.
-	move.w	#128+128,x_pixel(a0)
-	move.w	#128+224/2,y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(-32),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(0),y_pixel(a0)
 
-BranchTo12_DisplaySprite
+BranchTo12_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
 ; ===========================================================================
 ; Obj0E_LargeStar:
@@ -26494,8 +26517,8 @@ Obj0E_FlashingStar_Init:
 	ori.w	#high_priority,art_tile(a0)
 	move.b	#2,anim(a0)
 	move.b	#1,priority(a0)
-	move.w	#128+128,x_pixel(a0)
-	move.w	#128+40,y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(-32),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(-72),y_pixel(a0)
 	move.w	#4,obj0e_counter(a0)
 	rts
 ; ===========================================================================
@@ -26536,15 +26559,16 @@ Obj0E_FlashingStar_Move:
 ; ===========================================================================
 ; word_131DC:
 Obj0E_FlashingStar_Positions:
-	dc.w  128+90,  128+114
-	dc.w  128+240, 128+120
-	dc.w  128+178, 128+177
-	dc.w  128+286, 128+34
-	dc.w  128+64,  128+99
-	dc.w  128+256, 128+96
-	dc.w  128+141, 128+187
-	dc.w  128+64,  128+43
-	dc.w  128+229, 128+135
+	;                             X,   Y
+	obj0e_make_sprite_position  -70,   2
+	obj0e_make_sprite_position   80,   8
+	obj0e_make_sprite_position   18,  65
+	obj0e_make_sprite_position  126, -78
+	obj0e_make_sprite_position  -96, -13
+	obj0e_make_sprite_position   96, -16
+	obj0e_make_sprite_position  -19,  75
+	obj0e_make_sprite_position  -96, -69
+	obj0e_make_sprite_position   69,  23
 Obj0E_FlashingStar_Positions_End
 ; ===========================================================================
 
@@ -26571,10 +26595,10 @@ Obj0E_SonicHand_Init:
 	; This is inconsistent with 'TitleScreen_SetFinalState'.
 	move.b	#3,priority(a0)
     endif
-	move.w	#128+197,x_pixel(a0)
-	move.w	#128+63,y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(37),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(-49),y_pixel(a0)
 
-BranchTo13_DisplaySprite
+BranchTo13_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
 ; ===========================================================================
 ; loc_13234:
@@ -26585,9 +26609,10 @@ Obj0E_SonicHand_Move:
 ; ===========================================================================
 ; word_13240:
 Obj0E_SonicHand_Positions:
-	dc.w  128+195, 128+65
-	dc.w  128+192, 128+66
-	dc.w  128+193, 128+65
+	;                            X,   Y
+	obj0e_make_sprite_position  35, -47
+	obj0e_make_sprite_position  32, -46
+	obj0e_make_sprite_position  33, -47
 Obj0E_SonicHand_Positions_End
 ; ===========================================================================
 
@@ -26612,13 +26637,13 @@ Obj0E_TailsHand_Init:
 	move.b	#2,priority(a0)
     else
 	; This is inconsistent with 'TitleScreen_SetFinalState', and causes
-	; the hand to be layered behind Tails is his priority is fixed.
+	; the hand to be layered behind Tails if his priority is fixed.
 	move.b	#3,priority(a0)
     endif
-	move.w	#128+143,x_pixel(a0)
-	move.w	#128+85,y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(-17),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(-27),y_pixel(a0)
 
-BranchTo14_DisplaySprite
+BranchTo14_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
 ; ===========================================================================
 ; loc_13280:
@@ -26629,8 +26654,9 @@ Obj0E_TailsHand_Move:
 ; ===========================================================================
 ; word_1328C:
 Obj0E_TailsHand_Positions:
-	dc.w  128+140, 128+80
-	dc.w  128+141, 128+81
+	;                             X,   Y
+	obj0e_make_sprite_position  -20, -32
+	obj0e_make_sprite_position  -19, -31
 Obj0E_TailsHand_Positions_End
 ; ===========================================================================
 ; Obj0E_SmallStar:
@@ -26650,8 +26676,8 @@ Obj0E_FallingStar_Init:
 	addq.b	#2,routine_secondary(a0)	; Obj0E_FallingStar_Main
 	move.b	#$C,mapping_frame(a0)
 	move.b	#5,priority(a0)
-	move.w	#128+240,x_pixel(a0)
-	move.w	#128+0,y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(80),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(-112),y_pixel(a0)
 	move.b	#3,anim(a0)
 	move.w	#140,obj0e_counter(a0)
 	bra.w	DisplaySprite
@@ -26851,8 +26877,8 @@ TitleScreen_SetFinalState:
 	st.b	obj0e_intro_complete(a0)
 	move.b	#$10,routine_secondary(a0)
 	move.b	#$12,mapping_frame(a0)
-	move.w	#128+136,x_pixel(a0)
-	move.w	#128+24,y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(-24),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(-88),y_pixel(a0)
 
 	; Initialise Sonic's hand object.
 	lea	(IntroSonicHand).w,a1
@@ -26862,8 +26888,8 @@ TitleScreen_SetFinalState:
 	move.b	#2,priority(a1)
 	move.b	#9,mapping_frame(a1)
 	move.b	#4,routine_secondary(a1)
-	move.w	#128+193,x_pixel(a1)
-	move.w	#128+65,y_pixel(a1)
+	move.w	#spriteScreenPositionXCentered(33),x_pixel(a1)
+	move.w	#spriteScreenPositionYCentered(-47),y_pixel(a1)
 
 	; Initialise Tails object.
 	lea	(IntroTails).w,a1
@@ -26873,8 +26899,8 @@ TitleScreen_SetFinalState:
 	move.b	#4,mapping_frame(a1)
 	move.b	#6,routine_secondary(a1)
 	move.b	#3,priority(a1)
-	move.w	#128+72,x_pixel(a1)
-	move.w	#128+32,y_pixel(a1)
+	move.w	#spriteScreenPositionXCentered(-88),x_pixel(a1)
+	move.w	#spriteScreenPositionYCentered(-80),y_pixel(a1)
 
 	; Initialise Tails' hand object.
 	lea	(IntroTailsHand).w,a1
@@ -26884,8 +26910,8 @@ TitleScreen_SetFinalState:
 	move.b	#2,priority(a1)
 	move.b	#$13,mapping_frame(a1)
 	move.b	#4,routine_secondary(a1)
-	move.w	#128+141,x_pixel(a1)
-	move.w	#128+81,y_pixel(a1)
+	move.w	#spriteScreenPositionXCentered(-19),x_pixel(a1)
+	move.w	#spriteScreenPositionYCentered(-31),y_pixel(a1)
 
 	; Initialise top-of-emblem object.
 	lea	(IntroEmblemTop).w,a1
@@ -26964,8 +26990,8 @@ Obj0F_Index:	offsetTable
 ; loc_13616:
 Obj0F_Init:
 	addq.b	#2,routine(a0) ; => Obj0F_Main
-	move.w	#128+320/2+8,x_pixel(a0)
-	move.w	#128+224/2+92,y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(8),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(92),y_pixel(a0)
 	move.l	#Obj0F_MapUnc_13B70,mappings(a0)
 	move.w	#make_art_tile(ArtTile_VRAM_Start,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
@@ -27103,7 +27129,7 @@ Obj34_Init:
 	moveq	#(Obj34_TitleCardData_End-Obj34_TitleCardData)/$A-1,d1
 -	_move.b	#ObjID_TitleCard,id(a1) ; load obj34
 	move.b	(a2)+,routine(a1)
-	move.l	#Obj34_MapUnc_147BA,mappings(a1)
+	move.l	#MapUnc_TitleCards,mappings(a1)
 	move.b	(a2)+,mapping_frame(a1)
 	move.b	(a2)+,width_pixels(a1)
 	move.b	(a2)+,anim_frame_duration(a1)
@@ -27117,7 +27143,7 @@ Obj34_Init:
 
 	move.w	#$26,(TitleCard_Bottom+titlecard_location).w
 	clr.w	(Vscroll_Factor_FG).w
-	move.w	#-224,(Vscroll_Factor_P2_FG).w
+	move.w	#-screen_height,(Vscroll_Factor_P2_FG).w
 
 	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len
 
@@ -27133,16 +27159,16 @@ Obj34_Init:
 ; - the Y position (word)
 titlecardobjdata macro routine,frame,width,duration,xstart,xstop,y
 	dc.b routine,frame,width,duration
-	dc.w 128+xstart,128+xstop,128+y
+	dc.w xstart,xstop,y
     endm
 ; word_13CD4:
 Obj34_TitleCardData:
-	titlecardobjdata  8,   0, $80, $1B, 320+128,   160,    56	; zone name
-	titlecardobjdata $A, $11, $40, $1C,    0-88,   200,    80	; "ZONE"
-	titlecardobjdata $C, $12, $18, $1C,    0-24,   264,    80	; act number
-	titlecardobjdata  2,   0,   0,   0,   0-128, 0-128, 0-128	; blue background
-	titlecardobjdata  4, $15, $48,   8, 320+232,   232,   160	; bottom yellow part
-	titlecardobjdata  6, $16,   8, $15,       0,   112,   112	; left red part
+	titlecardobjdata  8,   0, $80, $1B, spriteScreenPositionX(screen_width+128), spriteScreenPositionXCentered(  0), spriteScreenPositionYCentered(-56)	; zone name
+	titlecardobjdata $A, $11, $40, $1C, spriteScreenPositionX(             -88), spriteScreenPositionXCentered( 40), spriteScreenPositionYCentered(-32)	; "ZONE"
+	titlecardobjdata $C, $12, $18, $1C, spriteScreenPositionX(             -24), spriteScreenPositionXCentered(104), spriteScreenPositionYCentered(-32)	; act number
+	titlecardobjdata  2,   0,   0,   0,                                       0,                                  0,                                  0	; blue background
+	titlecardobjdata  4, $15, $48,   8, spriteScreenPositionX(screen_width+232), spriteScreenPositionXCentered( 72), spriteScreenPositionYCentered( 48)	; bottom yellow part
+	titlecardobjdata  6, $16,   8, $15, spriteScreenPositionX(               0), spriteScreenPositionXCentered(-48), spriteScreenPositionYCentered(  0)	; left red part
 Obj34_TitleCardData_End:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -27272,7 +27298,7 @@ Obj34_MoveTowardsTargetPosition:
 	sub.w	d0,x_pixel(a0)
 	; If target lies very far off-screen, then don't bother trying to display it.
 	; This is because the sprite coordinates are prone to overflow and underflow.
-	cmpi.w	#128+320+64,x_pixel(a0)
+	cmpi.w	#$200,x_pixel(a0)
 	bhi.s	.return
 .display:
 	bra.w	DisplaySprite
@@ -27282,7 +27308,7 @@ Obj34_MoveTowardsTargetPosition:
 
 ; ===========================================================================
 
-BranchTo9_DeleteObject
+BranchTo9_DeleteObject ; BranchTo
 	bra.w	DeleteObject
 ; ===========================================================================
 ; loc_13E42:
@@ -27346,6 +27372,8 @@ loc_13EC4:
 	neg.w	d0
 +
 	sub.w	d0,x_pixel(a0)
+	; If target lies very far off-screen, then don't bother trying to display it.
+	; This is because the sprite coordinates are prone to overflow and underflow.
 	cmpi.w	#$200,x_pixel(a0)
 	bhi.s	+	; rts
 	bra.w	DisplaySprite
@@ -27387,6 +27415,8 @@ Obj34_WaitAndGoAway:
 	neg.w	d0
 +
 	sub.w	d0,x_pixel(a0)
+	; If target lies very far off-screen, then don't bother trying to display it.
+	; This is because the sprite coordinates are prone to overflow and underflow.
 	cmpi.w	#$200,x_pixel(a0)
 	bhi.s	Obj34_LoadStandardWaterAndAnimalArt
 +
@@ -27453,12 +27483,12 @@ Obj39_Init:
 ; ---------------------------------------------------------------------------
 +
 	addq.b	#2,routine(a0)
-	move.w	#$50,x_pixel(a0)
+	move.w	#spriteScreenPositionX(-48),x_pixel(a0)
 	btst	#0,mapping_frame(a0)
 	beq.s	+
-	move.w	#$1F0,x_pixel(a0)
+	move.w	#spriteScreenPositionX(screen_width+48),x_pixel(a0)
 +
-	move.w	#$F0,y_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(0),y_pixel(a0)
 	move.l	#Obj39_MapUnc_14C6C,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Game_Over,0,1),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
@@ -27466,8 +27496,8 @@ Obj39_Init:
 	move.b	#0,priority(a0)
 ; loc_13FCC:
 Obj39_SlideIn:
-	moveq	#$10,d1
-	cmpi.w	#$120,x_pixel(a0)
+	moveq	#16,d1
+	cmpi.w	#spriteScreenPositionXCentered(0),x_pixel(a0)
 	beq.s	Obj39_SetTimer
 	blo.s	+
 	neg.w	d1
@@ -27479,7 +27509,13 @@ Obj39_SlideIn:
 Obj39_SetTimer:
 	move.w	#$2D0,anim_frame_duration(a0)
 	addq.b	#2,routine(a0)
+    if fixBugs
+	bra.w	DisplaySprite
+    else
+	; There should be a branch to DisplaySprite here, but there isn't,
+	; causing a one-frame flicker when the two words combine.
 	rts
+    endif
 ; ===========================================================================
 ; loc_13FEE:
 Obj39_Wait:
@@ -27588,7 +27624,7 @@ loc_140CE:
 	move.w	(a2)+,y_pixel(a1)
 	move.b	(a2)+,routine(a1)
 	move.b	(a2)+,mapping_frame(a1)
-	move.l	#Obj3A_MapUnc_14CBC,mappings(a1)
+	move.l	#MapUnc_EOLTitleCards,mappings(a1)
 	bsr.w	Adjust2PArtPointer2
 	move.b	#0,render_flags(a1)
 	lea	next_object(a1),a1 ; a1=object
@@ -27668,7 +27704,7 @@ loc_1419C:
 	bne.s	BranchTo18_DisplaySprite
 	addq.b	#2,routine(a0)
 
-BranchTo18_DisplaySprite
+BranchTo18_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
 ; ===========================================================================
 
@@ -27716,9 +27752,9 @@ loc_14214:
 loc_14220:
 	_move.b	#ObjID_Results,id(a1) ; load obj3A (uses screen-space)
 	move.b	#$12,routine(a1)
-	move.w	#$188,x_pixel(a1)
-	move.w	#$118,y_pixel(a1)
-	move.l	#Obj3A_MapUnc_14CBC,mappings(a1)
+	move.w	#spriteScreenPositionXCentered(104),x_pixel(a1)
+	move.w	#spriteScreenPositionYCentered(40),y_pixel(a1)
+	move.l	#MapUnc_EOLTitleCards,mappings(a1)
 	bsr.w	Adjust2PArtPointer2
 	move.b	#0,render_flags(a1)
 	move.w	#60,anim_frame_duration(a1)
@@ -27909,7 +27945,7 @@ LevelOrder_2P: zoneOrderedTable 2,2	; WrdArr_LevelOrder_2P
     zoneTableEnd
 
 results_screen_object macro startx, targetx, y, routine, frame
-	dc.w	128+startx, 128+targetx, 128+y
+	dc.w	startx, targetx, spriteScreenPositionYCentered(y)
 	dc.b	routine, frame
     endm
 
@@ -27917,15 +27953,15 @@ results_screen_object_size = 8
 
 ; byte_14380:
 Obj3A_SubObjectMetadata:
-	;                      start X, target X, start Y, routine, map frame
-	results_screen_object     0-96,    320/2,      56,       2,         0
-	results_screen_object   320+64, 320/2-32,      74,       4,         3
-	results_screen_object  320+128, 320/2+32,      74,       6,         4
-	results_screen_object  320+184, 320/2+88,      62,       8,         6
-	results_screen_object  320+400,    320/2,     160,       4,         9
-	results_screen_object  320+352,    320/2,     112,       4,        $A
-	results_screen_object  320+368,    320/2,     128,       4,        $B
-	results_screen_object  320+384,    320/2,     144,     $16,        $E
+	;                               start X,          target X, start Y, routine, map frame
+	results_screen_object  spriteScreenPositionX(            0-96), spriteScreenPositionXCentered(  0),     -56,       2,         0
+	results_screen_object  spriteScreenPositionX( screen_width+64), spriteScreenPositionXCentered(-32),     -38,       4,         3
+	results_screen_object  spriteScreenPositionX(screen_width+128), spriteScreenPositionXCentered( 32),     -38,       6,         4
+	results_screen_object  spriteScreenPositionX(screen_width+184), spriteScreenPositionXCentered( 88),     -50,       8,         6
+	results_screen_object  spriteScreenPositionX(screen_width+400), spriteScreenPositionXCentered(  0),      48,       4,         9
+	results_screen_object  spriteScreenPositionX(screen_width+352), spriteScreenPositionXCentered(  0),       0,       4,        $A
+	results_screen_object  spriteScreenPositionX(screen_width+368), spriteScreenPositionXCentered(  0),      16,       4,        $B
+	results_screen_object  spriteScreenPositionX(screen_width+384), spriteScreenPositionXCentered(  0),      32,     $16,        $E
 Obj3A_SubObjectMetadata_End:
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -28009,7 +28045,7 @@ Obj6F_InitEmeraldText:
 	move.b	#$1C,routine(a0)	; => Obj6F_TimedDisplay
 	move.w	#$B4,anim_frame_duration(a0)
 
-BranchTo2_Obj34_MoveTowardsTargetPosition
+BranchTo2_Obj34_MoveTowardsTargetPosition ; BranchTo
 	bra.w	Obj34_MoveTowardsTargetPosition
 ; ===========================================================================
 ;loc_14484
@@ -28083,7 +28119,7 @@ Obj6F_P1Rings:
 	bne.s	+										; Branch if not
 	move.w	#5000,(Bonus_Countdown_1).w				; Perfect bonus
 	move.b	#$2A,routine(a0)	; => Obj6F_PerfectBonus
-	move.w	#$120,y_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(48),y_pixel(a0)
 	st.b	(Update_Bonus_score).w	; set to -1 (update)
 	move.w	#SndID_Signpost,d0
 	jsr	(PlaySound).l
@@ -28093,7 +28129,7 @@ Obj6F_P1Rings:
 +
 	move.w	(Player_mode).w,d0
 	beq.s	++
-	move.w	#$120,y_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(48),y_pixel(a0)
 	subq.w	#1,d0
 	beq.s	++
 	moveq	#$E,d0		; "Miles rings"
@@ -28115,7 +28151,7 @@ loc_1455A:
 +
 	move.b	d0,mapping_frame(a0)
 
-BranchTo3_Obj34_MoveTowardsTargetPosition
+BranchTo3_Obj34_MoveTowardsTargetPosition ; BranchTo
 	bra.w	Obj34_MoveTowardsTargetPosition
 ; ===========================================================================
 ;loc_14568
@@ -28130,7 +28166,7 @@ Obj6F_TimedDisplay:
 	bne.s	BranchTo19_DisplaySprite
 	addq.b	#2,routine(a0)
 
-BranchTo19_DisplaySprite
+BranchTo19_DisplaySprite ; BranchTo
 	bra.w	DisplaySprite
 ; ===========================================================================
 ;loc_14580
@@ -28248,8 +28284,8 @@ Obj6F_InitAndMoveSuperMsg:
 	lea	(SpecialStageResults2).w,a1
 	_move.b	id(a0),id(a1) ; load obj6F; (uses screen-space)
 	clr.w	x_pixel(a1)
-	move.w	#$120,titlecard_x_target(a1)
-	move.w	#$B4,y_pixel(a1)
+	move.w	#spriteScreenPositionXCentered(0),titlecard_x_target(a1)
+	move.w	#spriteScreenPositionYCentered(-60),y_pixel(a1)
 	move.b	#$14,routine(a1)						; => BranchTo3_Obj34_MoveTowardsTargetPosition
 	move.b	#$1C,mapping_frame(a1)					; "Super Sonic"
 	move.l	#Obj6F_MapUnc_14ED0,mappings(a1)
@@ -28271,7 +28307,7 @@ Obj6F_MoveTowardsSourcePosition:
 	sub.w	d0,x_pixel(a0)
 	; If target lies very far off-screen, then don't bother trying to display it.
 	; This is because the sprite coordinates are prone to overflow and underflow.
-	cmpi.w	#128+320+64,x_pixel(a0)
+	cmpi.w	#$200,x_pixel(a0)
 	bhi.s	.return
 ;BranchTo20_DisplaySprite
 .display:
@@ -28290,236 +28326,272 @@ Obj6F_MoveAndDisplay:
 ; ===========================================================================
 ;byte_14752
 Obj6F_SubObjectMetaData:
-	;                       start X, target X, start Y, routine, map frame
-	results_screen_object   320+128,    320/2,      42,       2,         0		; "Special Stage"
-	results_screen_object     0-128,    320/2,      24,       4,         1		; "Sonic got a"
-	results_screen_object   320/2-8,    0-128,      68,       6,         5		; Emerald 0
-	results_screen_object  320/2+16,    0-128,      80,       8,         6		; Emerald 1
-	results_screen_object  320/2+16,    0-128,     104,      $A,         7		; Emerald 2
-	results_screen_object   320/2-8,    0-128,     116,      $C,         8		; Emerald 3
-	results_screen_object  320/2-32,    0-128,     104,      $E,         9		; Emerald 4
-	results_screen_object  320/2-32,    0-128,      80,     $10,        $A		; Emerald 5
-	results_screen_object   320/2-8,    0-128,      92,     $12,        $B		; Emerald 6
-	results_screen_object   320+368,    320/2,     136,     $14,        $C		; Score
-	results_screen_object   320+384,    320/2,     152,     $16,        $D		; Sonic Rings
-	results_screen_object   320+400,    320/2,     168,     $18,        $E		; Miles Rings
-	results_screen_object   320+416,    320/2,     184,     $1A,       $10		; Gems Bonus
+	;                                start X,          target X, start Y, routine, map frame
+	results_screen_object  spriteScreenPositionX(screen_width+128), spriteScreenPositionXCentered(0),     -70,       2,         0		; "Special Stage"
+	results_screen_object                                        0, spriteScreenPositionXCentered(0),     -88,       4,         1		; "Sonic got a"
+	results_screen_object  spriteScreenPositionXCentered( -8),                                     0,     -44,       6,         5		; Emerald 0
+	results_screen_object  spriteScreenPositionXCentered( 16),                                     0,     -32,       8,         6		; Emerald 1
+	results_screen_object  spriteScreenPositionXCentered( 16),                                     0,      -8,      $A,         7		; Emerald 2
+	results_screen_object  spriteScreenPositionXCentered( -8),                                     0,       4,      $C,         8		; Emerald 3
+	results_screen_object  spriteScreenPositionXCentered(-32),                                     0,      -8,      $E,         9		; Emerald 4
+	results_screen_object  spriteScreenPositionXCentered(-32),                                     0,     -32,     $10,        $A		; Emerald 5
+	results_screen_object  spriteScreenPositionXCentered( -8),                                     0,     -20,     $12,        $B		; Emerald 6
+	results_screen_object  spriteScreenPositionX(screen_width+368), spriteScreenPositionXCentered(0),      24,     $14,        $C		; Score
+	results_screen_object  spriteScreenPositionX(screen_width+384), spriteScreenPositionXCentered(0),      40,     $16,        $D		; Sonic Rings
+	results_screen_object  spriteScreenPositionX(screen_width+400), spriteScreenPositionXCentered(0),      56,     $18,        $E		; Miles Rings
+	results_screen_object  spriteScreenPositionX(screen_width+416), spriteScreenPositionXCentered(0),      72,     $1A,       $10		; Gems Bonus
 Obj6F_SubObjectMetaData_End:
+
 ; -------------------------------------------------------------------------------
-; sprite mappings
+; sprite mappings - zone title cards
+; Note: if you modify these mappings, also adjust the characters
+;	loaded into VRAM in TitleCardLetters
 ; -------------------------------------------------------------------------------
-Obj34_MapUnc_147BA:	mappingsTable
+; Obj34_MapUnc_147BA:
+MapUnc_TitleCards:	mappingsTable
 .zone_names:	zoneOrderedOffsetTable 2,1
-	zoneOffsetTableEntry.w word_147E8	; EHZ
-	zoneOffsetTableEntry.w word_147E8	; Zone 1
-	zoneOffsetTableEntry.w word_147E8	; WZ
-	zoneOffsetTableEntry.w word_147E8	; Zone 3
-	zoneOffsetTableEntry.w word_14842	; MTZ1,2
-	zoneOffsetTableEntry.w word_14842	; MTZ3
-	zoneOffsetTableEntry.w word_14B24	; WFZ
-	zoneOffsetTableEntry.w word_14894	; HTZ
-	zoneOffsetTableEntry.w word_148CE	; HPZ
-	zoneOffsetTableEntry.w word_147E8	; Zone 9
-	zoneOffsetTableEntry.w word_14930	; OOZ
-	zoneOffsetTableEntry.w word_14972	; MCZ
-	zoneOffsetTableEntry.w word_149C4	; CNZ
-	zoneOffsetTableEntry.w word_14A1E	; CPZ
-	zoneOffsetTableEntry.w word_14B86	; DEZ
-	zoneOffsetTableEntry.w word_14A88	; ARZ
-	zoneOffsetTableEntry.w word_14AE2	; SCZ
+	zoneOffsetTableEntry.w TC_EHZ		; Emerald Hill Zone
+	zoneOffsetTableEntry.w TC_EHZ		; XXX unused (unknown)
+	zoneOffsetTableEntry.w TC_EHZ		; XXX unused (Wood Zone)
+	zoneOffsetTableEntry.w TC_EHZ		; XXX unused (unknown)
+	zoneOffsetTableEntry.w TC_MTZ		; Metropolis Zone Act 1 and 2
+	zoneOffsetTableEntry.w TC_MTZ		; Metropolis Zone Act 3
+	zoneOffsetTableEntry.w TC_WFZ		; Wing Fortress Zone
+	zoneOffsetTableEntry.w TC_HTZ		; Hill Top Zone
+	zoneOffsetTableEntry.w TC_HPZ		; XXX Hidden Palace Zone
+	zoneOffsetTableEntry.w TC_EHZ		; XXX unused (Cyber City Zone)
+	zoneOffsetTableEntry.w TC_OOZ		; Oil Ocean Zone
+	zoneOffsetTableEntry.w TC_MCZ		; Mystic Cave Zone
+	zoneOffsetTableEntry.w TC_CNZ		; Casino Night Zone
+	zoneOffsetTableEntry.w TC_CPZ		; Chemical Plant Zone
+	zoneOffsetTableEntry.w TC_DEZ		; Death Egg Zone
+	zoneOffsetTableEntry.w TC_ARZ		; Aquatic Ruin Zone
+	zoneOffsetTableEntry.w TC_SCZ		; Sky Chase Zone
     zoneTableEnd
-	mappingsTableEntry.w	word_14BC8
-	mappingsTableEntry.w	word_14BEA
-	mappingsTableEntry.w	word_14BF4
-	mappingsTableEntry.w	word_14BFE
-	mappingsTableEntry.w	word_14C08
-	mappingsTableEntry.w	word_14C32
+	mappingsTableEntry.w TC_ZONE		; "ZONE" text
+	mappingsTableEntry.w TC_No1		; Act number 1
+	mappingsTableEntry.w TC_No2		; Act number 2
+	mappingsTableEntry.w TC_No3		; Act number 3
+	mappingsTableEntry.w TC_STH		; "SONIC THE HEDGEHOG" text
+	mappingsTableEntry.w TC_RedStripes	; Red stripes
 
-word_147E8:	spriteHeader
-	spritePiece	-$3D, 0, 2, 2, $580, 0, 0, 0, 1
-	spritePiece	-$30, 0, 3, 2, $5DE, 0, 0, 0, 1
-	spritePiece	-$18, 0, 2, 2, $580, 0, 0, 0, 1
-	spritePiece	-8, 0, 2, 2, $5E4, 0, 0, 0, 1
-	spritePiece	8, 0, 2, 2, $5E8, 0, 0, 0, 1
-	spritePiece	$18, 0, 2, 2, $5EC, 0, 0, 0, 1
-	spritePiece	$28, 0, 2, 2, $5F0, 0, 0, 0, 1
-	spritePiece	$48, 0, 2, 2, $5F4, 0, 0, 0, 1
-	spritePiece	$58, 0, 1, 2, $5F8, 0, 0, 0, 1
-	spritePiece	$60, 0, 2, 2, $5EC, 0, 0, 0, 1
-	spritePiece	$70, 0, 2, 2, $5EC, 0, 0, 0, 1
-word_147E8_End
+; word_147E8:
+TC_EHZ:		spriteHeader	; EMERALD HILL
+	spritePiece	-$3D, 0, 2, 2, $580, 0, 0, 0, 1	; E
+	spritePiece	-$30, 0, 3, 2, $5DE, 0, 0, 0, 1	; M
+	spritePiece	-$18, 0, 2, 2, $580, 0, 0, 0, 1	; E
+	spritePiece	-8, 0, 2, 2, $5E4, 0, 0, 0, 1	; R
+	spritePiece	8, 0, 2, 2, $5E8, 0, 0, 0, 1	; A
+	spritePiece	$18, 0, 2, 2, $5EC, 0, 0, 0, 1	; L
+	spritePiece	$28, 0, 2, 2, $5F0, 0, 0, 0, 1	; D
 
-word_14842:	spriteHeader
-	spritePiece	-$20, 0, 3, 2, $5DE, 0, 0, 0, 1
-	spritePiece	-8, 0, 2, 2, $580, 0, 0, 0, 1
-	spritePiece	8, 0, 2, 2, $5E4, 0, 0, 0, 1
-	spritePiece	$18, 0, 2, 2, $5E8, 0, 0, 0, 1
-	spritePiece	$28, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	$38, 0, 2, 2, $5EC, 0, 0, 0, 1
-	spritePiece	$48, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	$58, 0, 2, 2, $5F0, 0, 0, 0, 1
-	spritePiece	$68, 0, 1, 2, $5F4, 0, 0, 0, 1
-	spritePiece	$70, 0, 2, 2, $5F6, 0, 0, 0, 1
-word_14842_End
+	spritePiece	$48, 0, 2, 2, $5F4, 0, 0, 0, 1	; H
+	spritePiece	$58, 0, 1, 2, $5F8, 0, 0, 0, 1	; I
+	spritePiece	$60, 0, 2, 2, $5EC, 0, 0, 0, 1	; L
+	spritePiece	$70, 0, 2, 2, $5EC, 0, 0, 0, 1	; L
+TC_EHZ_End
 
-word_14894:	spriteHeader
-	spritePiece	8, 0, 2, 2, $5DE, 0, 0, 0, 1
-	spritePiece	$18, 0, 1, 2, $5E2, 0, 0, 0, 1
-	spritePiece	$20, 0, 2, 2, $5E4, 0, 0, 0, 1
-	spritePiece	$30, 0, 2, 2, $5E4, 0, 0, 0, 1
-	spritePiece	$51, 0, 2, 2, $5E8, 0, 0, 0, 1
-	spritePiece	$60, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	$70, 0, 2, 2, $5EC, 0, 0, 0, 1
-word_14894_End
+; word_14842:
+TC_MTZ:		spriteHeader	; METROPOLIS
+	spritePiece	-$20, 0, 3, 2, $5DE, 0, 0, 0, 1	; M
+	spritePiece	-8, 0, 2, 2, $580, 0, 0, 0, 1	; E
+	spritePiece	8, 0, 2, 2, $5E4, 0, 0, 0, 1	; T
+	spritePiece	$18, 0, 2, 2, $5E8, 0, 0, 0, 1	; R
+	spritePiece	$28, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	$38, 0, 2, 2, $5EC, 0, 0, 0, 1	; P
+	spritePiece	$48, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	$58, 0, 2, 2, $5F0, 0, 0, 0, 1	; L
+	spritePiece	$68, 0, 1, 2, $5F4, 0, 0, 0, 1	; I
+	spritePiece	$70, 0, 2, 2, $5F6, 0, 0, 0, 1	; S
+TC_MTZ_End
 
-word_148CE:	spriteHeader
-	spritePiece	-$48, 0, 2, 2, $5DE, 0, 0, 0, 1
-	spritePiece	-$38, 0, 1, 2, $5E2, 0, 0, 0, 1
-	spritePiece	-$30, 0, 2, 2, $5E4, 0, 0, 0, 1
-	spritePiece	-$20, 0, 2, 2, $5E4, 0, 0, 0, 1
-	spritePiece	-$10, 0, 2, 2, $580, 0, 0, 0, 1
-	spritePiece	0, 0, 2, 2, $584, 0, 0, 0, 1
-	spritePiece	$20, 0, 2, 2, $5E8, 0, 0, 0, 1
-	spritePiece	$30, 0, 2, 2, $5EC, 0, 0, 0, 1
-	spritePiece	$40, 0, 2, 2, $5F0, 0, 0, 0, 1
-	spritePiece	$50, 0, 2, 2, $5EC, 0, 0, 0, 1
-	spritePiece	$60, 0, 2, 2, $5F4, 0, 0, 0, 1
-	spritePiece	$70, 0, 2, 2, $580, 0, 0, 0, 1
-word_148CE_End
+; word_14894:
+TC_HTZ:		spriteHeader	; HILL TOP
+	spritePiece	8, 0, 2, 2, $5DE, 0, 0, 0, 1	; H
+	spritePiece	$18, 0, 1, 2, $5E2, 0, 0, 0, 1	; I
+	spritePiece	$20, 0, 2, 2, $5E4, 0, 0, 0, 1	; L
+	spritePiece	$30, 0, 2, 2, $5E4, 0, 0, 0, 1	; L
 
-word_14930:	spriteHeader
-	spritePiece	-5, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	$B, 0, 1, 2, $5DE, 0, 0, 0, 1
-	spritePiece	$13, 0, 2, 2, $5E0, 0, 0, 0, 1
-	spritePiece	$33, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	$43, 0, 2, 2, $5E4, 0, 0, 0, 1
-	spritePiece	$53, 0, 2, 2, $580, 0, 0, 0, 1
-	spritePiece	$60, 0, 2, 2, $5E8, 0, 0, 0, 1
-	spritePiece	$70, 0, 2, 2, $584, 0, 0, 0, 1
-word_14930_End
+	spritePiece	$51, 0, 2, 2, $5E8, 0, 0, 0, 1	; T
+	spritePiece	$60, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	$70, 0, 2, 2, $5EC, 0, 0, 0, 1	; P
+TC_HTZ_End
 
-word_14972:	spriteHeader
-	spritePiece	-$30, 0, 3, 2, $5DE, 0, 0, 0, 1
-	spritePiece	-$18, 0, 2, 2, $5E4, 0, 0, 0, 1
-	spritePiece	-8, 0, 2, 2, $5E8, 0, 0, 0, 1
-	spritePiece	8, 0, 2, 2, $5EC, 0, 0, 0, 1
-	spritePiece	$18, 0, 1, 2, $5F0, 0, 0, 0, 1
-	spritePiece	$20, 0, 2, 2, $5F2, 0, 0, 0, 1
-	spritePiece	$41, 0, 2, 2, $5F2, 0, 0, 0, 1
-	spritePiece	$50, 0, 2, 2, $5F6, 0, 0, 0, 1
-	spritePiece	$60, 0, 2, 2, $5FA, 0, 0, 0, 1
-	spritePiece	$70, 0, 2, 2, $580, 0, 0, 0, 1
-word_14972_End
+; word_148CE:
+TC_HPZ:		spriteHeader	; HIDDEN PALACE
+	spritePiece	-$48, 0, 2, 2, $5DE, 0, 0, 0, 1	; H
+	spritePiece	-$38, 0, 1, 2, $5E2, 0, 0, 0, 1	; I
+	spritePiece	-$30, 0, 2, 2, $5E4, 0, 0, 0, 1	; D
+	spritePiece	-$20, 0, 2, 2, $5E4, 0, 0, 0, 1	; D
+	spritePiece	-$10, 0, 2, 2, $580, 0, 0, 0, 1	; E
+	spritePiece	0, 0, 2, 2, $584, 0, 0, 0, 1	; N
 
-word_149C4:	spriteHeader
-	spritePiece	-$2F, 0, 2, 2, $5DE, 0, 0, 0, 1
-	spritePiece	-$20, 0, 2, 2, $5E2, 0, 0, 0, 1
-	spritePiece	-$10, 0, 2, 2, $5E6, 0, 0, 0, 1
-	spritePiece	0, 0, 1, 2, $5EA, 0, 0, 0, 1
-	spritePiece	8, 0, 2, 2, $584, 0, 0, 0, 1
-	spritePiece	$18, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	$38, 0, 2, 2, $584, 0, 0, 0, 1
-	spritePiece	$48, 0, 1, 2, $5EA, 0, 0, 0, 1
-	spritePiece	$50, 0, 2, 2, $5EC, 0, 0, 0, 1
-	spritePiece	$60, 0, 2, 2, $5F0, 0, 0, 0, 1
-	spritePiece	$70, 0, 2, 2, $5F4, 0, 0, 0, 1
-word_149C4_End
+	spritePiece	$20, 0, 2, 2, $5E8, 0, 0, 0, 1	; P
+	spritePiece	$30, 0, 2, 2, $5EC, 0, 0, 0, 1	; A
+	spritePiece	$40, 0, 2, 2, $5F0, 0, 0, 0, 1	; L
+	spritePiece	$50, 0, 2, 2, $5EC, 0, 0, 0, 1	; A
+	spritePiece	$60, 0, 2, 2, $5F4, 0, 0, 0, 1	; C
+	spritePiece	$70, 0, 2, 2, $580, 0, 0, 0, 1	; E
+TC_HPZ_End
 
-word_14A1E:	spriteHeader
-	spritePiece	-$5C, 0, 2, 2, $5DE, 0, 0, 0, 1
-	spritePiece	-$4C, 0, 2, 2, $5E2, 0, 0, 0, 1
-	spritePiece	-$3C, 0, 2, 2, $580, 0, 0, 0, 1
-	spritePiece	-$2F, 0, 3, 2, $5E6, 0, 0, 0, 1
-	spritePiece	-$17, 0, 1, 2, $5EC, 0, 0, 0, 1
-	spritePiece	-$F, 0, 2, 2, $5DE, 0, 0, 0, 1
-	spritePiece	0, 0, 2, 2, $5EE, 0, 0, 0, 1
-	spritePiece	$10, 0, 2, 2, $5F2, 0, 0, 0, 1
-	spritePiece	$31, 0, 2, 2, $5F6, 0, 0, 0, 1
-	spritePiece	$41, 0, 2, 2, $5F2, 0, 0, 0, 1
-	spritePiece	$50, 0, 2, 2, $5EE, 0, 0, 0, 1
-	spritePiece	$60, 0, 2, 2, $584, 0, 0, 0, 1
-	spritePiece	$70, 0, 2, 2, $5FA, 0, 0, 0, 1
-word_14A1E_End
+; word_14930:
+TC_OOZ:		spriteHeader	; OIL OCEAN
+	spritePiece	-5, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	$B, 0, 1, 2, $5DE, 0, 0, 0, 1	; I
+	spritePiece	$13, 0, 2, 2, $5E0, 0, 0, 0, 1	; L
 
-word_14A88:	spriteHeader
-	spritePiece	-$2E, 0, 2, 2, $5DE, 0, 0, 0, 1
-	spritePiece	-$1E, 0, 2, 2, $5E2, 0, 0, 0, 1
-	spritePiece	-$E, 0, 2, 2, $5E6, 0, 0, 0, 1
-	spritePiece	0, 0, 2, 2, $5DE, 0, 0, 0, 1
-	spritePiece	$10, 0, 2, 2, $5EA, 0, 0, 0, 1
-	spritePiece	$20, 0, 1, 2, $5EE, 0, 0, 0, 1
-	spritePiece	$28, 0, 2, 2, $5F0, 0, 0, 0, 1
-	spritePiece	$48, 0, 2, 2, $5F4, 0, 0, 0, 1
-	spritePiece	$58, 0, 2, 2, $5E6, 0, 0, 0, 1
-	spritePiece	$68, 0, 1, 2, $5EE, 0, 0, 0, 1
-	spritePiece	$70, 0, 2, 2, $584, 0, 0, 0, 1
-word_14A88_End
+	spritePiece	$33, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	$43, 0, 2, 2, $5E4, 0, 0, 0, 1	; C
+	spritePiece	$53, 0, 2, 2, $580, 0, 0, 0, 1	; E
+	spritePiece	$60, 0, 2, 2, $5E8, 0, 0, 0, 1	; A
+	spritePiece	$70, 0, 2, 2, $584, 0, 0, 0, 1	; N
+TC_OOZ_End
 
-word_14AE2:	spriteHeader
-	spritePiece	-$10, 0, 2, 2, $5DE, 0, 0, 0, 1
-	spritePiece	0, 0, 2, 2, $5E2, 0, 0, 0, 1
-	spritePiece	$10, 0, 2, 2, $5E6, 0, 0, 0, 1
-	spritePiece	$30, 0, 2, 2, $5EA, 0, 0, 0, 1
-	spritePiece	$40, 0, 2, 2, $5EE, 0, 0, 0, 1
-	spritePiece	$50, 0, 2, 2, $5F2, 0, 0, 0, 1
-	spritePiece	$60, 0, 2, 2, $5DE, 0, 0, 0, 1
-	spritePiece	$70, 0, 2, 2, $580, 0, 0, 0, 1
-word_14AE2_End
+; word_14972:
+TC_MCZ:		spriteHeader	; MYSTIC CAVE
+	spritePiece	-$30, 0, 3, 2, $5DE, 0, 0, 0, 1	; M
+	spritePiece	-$18, 0, 2, 2, $5E4, 0, 0, 0, 1	; Y
+	spritePiece	-8, 0, 2, 2, $5E8, 0, 0, 0, 1	; S
+	spritePiece	8, 0, 2, 2, $5EC, 0, 0, 0, 1	; T
+	spritePiece	$18, 0, 1, 2, $5F0, 0, 0, 0, 1	; I
+	spritePiece	$20, 0, 2, 2, $5F2, 0, 0, 0, 1	; C
 
-word_14B24:	spriteHeader
-	spritePiece	-$4F, 0, 3, 2, $5DE, 0, 0, 0, 1
-	spritePiece	-$38, 0, 1, 2, $5E4, 0, 0, 0, 1
-	spritePiece	-$30, 0, 2, 2, $584, 0, 0, 0, 1
-	spritePiece	-$20, 0, 2, 2, $5E6, 0, 0, 0, 1
-	spritePiece	1, 0, 2, 2, $5EA, 0, 0, 0, 1
-	spritePiece	$10, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	$20, 0, 2, 2, $5EE, 0, 0, 0, 1
-	spritePiece	$30, 0, 2, 2, $5F2, 0, 0, 0, 1
-	spritePiece	$40, 0, 2, 2, $5EE, 0, 0, 0, 1
-	spritePiece	$50, 0, 2, 2, $580, 0, 0, 0, 1
-	spritePiece	$5F, 0, 2, 2, $5F6, 0, 0, 0, 1
-	spritePiece	$6F, 0, 2, 2, $5F6, 0, 0, 0, 1
-word_14B24_End
+	spritePiece	$41, 0, 2, 2, $5F2, 0, 0, 0, 1	; C
+	spritePiece	$50, 0, 2, 2, $5F6, 0, 0, 0, 1	; A
+	spritePiece	$60, 0, 2, 2, $5FA, 0, 0, 0, 1	; V
+	spritePiece	$70, 0, 2, 2, $580, 0, 0, 0, 1	; E
+TC_MCZ_End
 
-word_14B86:	spriteHeader
-	spritePiece	-$E, 0, 2, 2, $5DE, 0, 0, 0, 1
-	spritePiece	2, 0, 2, 2, $580, 0, 0, 0, 1
-	spritePiece	$10, 0, 2, 2, $5E2, 0, 0, 0, 1
-	spritePiece	$20, 0, 2, 2, $5E6, 0, 0, 0, 1
-	spritePiece	$30, 0, 2, 2, $5EA, 0, 0, 0, 1
-	spritePiece	$51, 0, 2, 2, $580, 0, 0, 0, 1
-	spritePiece	$60, 0, 2, 2, $5EE, 0, 0, 0, 1
-	spritePiece	$70, 0, 2, 2, $5EE, 0, 0, 0, 1
-word_14B86_End
+; word_149C4:
+TC_CNZ:		spriteHeader	; CASINO NIGHT
+	spritePiece	-$2F, 0, 2, 2, $5DE, 0, 0, 0, 1	; C
+	spritePiece	-$20, 0, 2, 2, $5E2, 0, 0, 0, 1	; A
+	spritePiece	-$10, 0, 2, 2, $5E6, 0, 0, 0, 1	; S
+	spritePiece	0, 0, 1, 2, $5EA, 0, 0, 0, 1	; I
+	spritePiece	8, 0, 2, 2, $584, 0, 0, 0, 1	; N
+	spritePiece	$18, 0, 2, 2, $588, 0, 0, 0, 1	; O
 
-word_14BC8:	spriteHeader
-	spritePiece	1, 0, 2, 2, $58C, 0, 0, 0, 1
-	spritePiece	$10, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	$20, 0, 2, 2, $584, 0, 0, 0, 1
-	spritePiece	$30, 0, 2, 2, $580, 0, 0, 0, 1
-word_14BC8_End
+	spritePiece	$38, 0, 2, 2, $584, 0, 0, 0, 1	; N
+	spritePiece	$48, 0, 1, 2, $5EA, 0, 0, 0, 1	; I
+	spritePiece	$50, 0, 2, 2, $5EC, 0, 0, 0, 1	; G
+	spritePiece	$60, 0, 2, 2, $5F0, 0, 0, 0, 1	; H
+	spritePiece	$70, 0, 2, 2, $5F4, 0, 0, 0, 1	; T
+TC_CNZ_End
 
-word_14BEA:	spriteHeader
-	spritePiece	0, 0, 2, 4, $590, 0, 0, 1, 1
-word_14BEA_End
+; word_14A1E:
+TC_CPZ:		spriteHeader	; CHEMICAL PLANT
+	spritePiece	-$5C, 0, 2, 2, $5DE, 0, 0, 0, 1	; C
+	spritePiece	-$4C, 0, 2, 2, $5E2, 0, 0, 0, 1	; H
+	spritePiece	-$3C, 0, 2, 2, $580, 0, 0, 0, 1	; E
+	spritePiece	-$2F, 0, 3, 2, $5E6, 0, 0, 0, 1	; M
+	spritePiece	-$17, 0, 1, 2, $5EC, 0, 0, 0, 1	; I
+	spritePiece	-$F, 0, 2, 2, $5DE, 0, 0, 0, 1	; C
+	spritePiece	0, 0, 2, 2, $5EE, 0, 0, 0, 1	; A
+	spritePiece	$10, 0, 2, 2, $5F2, 0, 0, 0, 1	; L
 
-word_14BF4:	spriteHeader
-	spritePiece	0, 0, 3, 4, $598, 0, 0, 1, 1
-word_14BF4_End
+	spritePiece	$31, 0, 2, 2, $5F6, 0, 0, 0, 1	; P
+	spritePiece	$41, 0, 2, 2, $5F2, 0, 0, 0, 1	; L
+	spritePiece	$50, 0, 2, 2, $5EE, 0, 0, 0, 1	; A
+	spritePiece	$60, 0, 2, 2, $584, 0, 0, 0, 1	; N
+	spritePiece	$70, 0, 2, 2, $5FA, 0, 0, 0, 1	; T
+TC_CPZ_End
 
-word_14BFE:	spriteHeader
-	spritePiece	0, 0, 3, 4, $5A4, 0, 0, 1, 1
-word_14BFE_End
+; word_14A88:
+TC_ARZ:		spriteHeader	; AQUATIC RUIN
+	spritePiece	-$2E, 0, 2, 2, $5DE, 0, 0, 0, 1	; A
+	spritePiece	-$1E, 0, 2, 2, $5E2, 0, 0, 0, 1	; Q
+	spritePiece	-$E, 0, 2, 2, $5E6, 0, 0, 0, 1	; U
+	spritePiece	0, 0, 2, 2, $5DE, 0, 0, 0, 1	; A
+	spritePiece	$10, 0, 2, 2, $5EA, 0, 0, 0, 1	; T
+	spritePiece	$20, 0, 1, 2, $5EE, 0, 0, 0, 1	; I
+	spritePiece	$28, 0, 2, 2, $5F0, 0, 0, 0, 1	; C
 
-word_14C08:	spriteHeader
+	spritePiece	$48, 0, 2, 2, $5F4, 0, 0, 0, 1	; R
+	spritePiece	$58, 0, 2, 2, $5E6, 0, 0, 0, 1	; U
+	spritePiece	$68, 0, 1, 2, $5EE, 0, 0, 0, 1	; I
+	spritePiece	$70, 0, 2, 2, $584, 0, 0, 0, 1	; N
+TC_ARZ_End
+
+; word_14AE2:
+TC_SCZ:		spriteHeader	; SKY CHASE
+	spritePiece	-$10, 0, 2, 2, $5DE, 0, 0, 0, 1	; S
+	spritePiece	0, 0, 2, 2, $5E2, 0, 0, 0, 1	; K
+	spritePiece	$10, 0, 2, 2, $5E6, 0, 0, 0, 1	; Y
+
+	spritePiece	$30, 0, 2, 2, $5EA, 0, 0, 0, 1	; C
+	spritePiece	$40, 0, 2, 2, $5EE, 0, 0, 0, 1	; H
+	spritePiece	$50, 0, 2, 2, $5F2, 0, 0, 0, 1	; A
+	spritePiece	$60, 0, 2, 2, $5DE, 0, 0, 0, 1	; S
+	spritePiece	$70, 0, 2, 2, $580, 0, 0, 0, 1	; E
+TC_SCZ_End
+
+; word_14B24:
+TC_WFZ:		spriteHeader	; WING FORTRESS
+	spritePiece	-$4F, 0, 3, 2, $5DE, 0, 0, 0, 1	; W
+	spritePiece	-$38, 0, 1, 2, $5E4, 0, 0, 0, 1	; I
+	spritePiece	-$30, 0, 2, 2, $584, 0, 0, 0, 1	; N
+	spritePiece	-$20, 0, 2, 2, $5E6, 0, 0, 0, 1	; G
+
+	spritePiece	1, 0, 2, 2, $5EA, 0, 0, 0, 1	; F
+	spritePiece	$10, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	$20, 0, 2, 2, $5EE, 0, 0, 0, 1	; R
+	spritePiece	$30, 0, 2, 2, $5F2, 0, 0, 0, 1	; T
+	spritePiece	$40, 0, 2, 2, $5EE, 0, 0, 0, 1	; R
+	spritePiece	$50, 0, 2, 2, $580, 0, 0, 0, 1	; E
+	spritePiece	$5F, 0, 2, 2, $5F6, 0, 0, 0, 1	; S
+	spritePiece	$6F, 0, 2, 2, $5F6, 0, 0, 0, 1	; S
+TC_WFZ_End
+
+; word_14B86:
+TC_DEZ:		spriteHeader	; DEATH EGG
+	spritePiece	-$E, 0, 2, 2, $5DE, 0, 0, 0, 1	; D
+	spritePiece	2, 0, 2, 2, $580, 0, 0, 0, 1	; E
+	spritePiece	$10, 0, 2, 2, $5E2, 0, 0, 0, 1	; A
+	spritePiece	$20, 0, 2, 2, $5E6, 0, 0, 0, 1	; T
+	spritePiece	$30, 0, 2, 2, $5EA, 0, 0, 0, 1	; H
+
+	spritePiece	$51, 0, 2, 2, $580, 0, 0, 0, 1	; E
+	spritePiece	$60, 0, 2, 2, $5EE, 0, 0, 0, 1	; G
+	spritePiece	$70, 0, 2, 2, $5EE, 0, 0, 0, 1	; G
+TC_DEZ_End
+
+
+; Miscellaneous title card mappings
+
+; word_14BC8:
+TC_ZONE:	spriteHeader	; ZONE
+	spritePiece	1, 0, 2, 2, $58C, 0, 0, 0, 1	; Z
+	spritePiece	$10, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	$20, 0, 2, 2, $584, 0, 0, 0, 1	; N
+	spritePiece	$30, 0, 2, 2, $580, 0, 0, 0, 1	; E
+TC_ZONE_End
+
+; word_14BEA:
+TC_No1:		spriteHeader	; Act number 1
+	spritePiece	0, 0, 2, 4, $590, 0, 0, 1, 1	; 1
+TC_No1_End
+
+; word_14BF4:
+TC_No2:		spriteHeader	; Act number 2
+	spritePiece	0, 0, 3, 4, $598, 0, 0, 1, 1	; 2
+TC_No2_End
+
+; word_14BFE:
+TC_No3:		spriteHeader	; Act number 3
+	spritePiece	0, 0, 3, 4, $5A4, 0, 0, 1, 1	; 3
+TC_No3_End
+
+; word_14C08:
+TC_STH:		spriteHeader	; "SONIC THE HEDGEHOG" text
 	spritePiece	-$48, 0, 4, 2, $5B0, 0, 0, 0, 1
 	spritePiece	-$28, 0, 4, 2, $5B8, 0, 0, 0, 1
 	spritePiece	-8, 0, 4, 2, $5C0, 0, 0, 0, 1
 	spritePiece	$18, 0, 4, 2, $5C8, 0, 0, 0, 1
 	spritePiece	$38, 0, 2, 2, $5D0, 0, 0, 0, 1
-word_14C08_End
+TC_STH_End
 
-word_14C32:	spriteHeader
+; word_14C32:
+TC_RedStripes:	spriteHeader	; Red stripes
 	spritePiece	0, -$70, 1, 4, $5D4, 0, 0, 0, 1
 	spritePiece	0, -$50, 1, 4, $5D4, 0, 0, 0, 1
 	spritePiece	0, -$30, 1, 4, $5D4, 0, 0, 0, 1
@@ -28527,7 +28599,7 @@ word_14C32:	spriteHeader
 	spritePiece	0, $10, 1, 4, $5D4, 0, 0, 0, 1
 	spritePiece	0, $30, 1, 4, $5D4, 0, 0, 0, 1
 	spritePiece	0, $50, 1, 4, $5D4, 0, 0, 0, 1
-word_14C32_End
+TC_RedStripes_End
 
 	even
 
@@ -28535,110 +28607,133 @@ word_14C32_End
 ; sprite mappings
 ; -------------------------------------------------------------------------------
 Obj39_MapUnc_14C6C:	include "mappings/sprite/obj39.asm"
+
 ; -------------------------------------------------------------------------------
-; sprite mappings
+; sprite mappings - end-of-level results screen title cards
+; Note: only the following letters are included in the font art
+;	A, C, G, H, I, L, M, R, S, T, U
 ; -------------------------------------------------------------------------------
-Obj3A_MapUnc_14CBC:	mappingsTable
-	mappingsTableEntry.w	word_14CDA
-	mappingsTableEntry.w	word_14D1C
-	mappingsTableEntry.w	word_14D5E
-	mappingsTableEntry.w	word_14DA0
-	mappingsTableEntry.w	word_14DDA
-	mappingsTableEntry.w	word_14BC8
-	mappingsTableEntry.w	word_14BEA
-	mappingsTableEntry.w	word_14BF4
-	mappingsTableEntry.w	word_14BFE
-	mappingsTableEntry.w	word_14DF4
-	mappingsTableEntry.w	word_14E1E
-	mappingsTableEntry.w	word_14E50
-	mappingsTableEntry.w	word_14E82
-	mappingsTableEntry.w	word_14E8C
-	mappingsTableEntry.w	word_14E96
+; Obj3A_MapUnc_14CBC:
+MapUnc_EOLTitleCards:	mappingsTable
+	mappingsTableEntry.w	EOL_Sonic	; "SONIC GOT" text
+	mappingsTableEntry.w	EOL_Miles	; "MILES GOT" text (Japanese region)
+	mappingsTableEntry.w	EOL_Tails	; "TAILS GOT" text (international region)
+	mappingsTableEntry.w	EOL_Through	; "THROUGH" text
+	mappingsTableEntry.w	EOL_Act		; "ACT" text
 
-word_14CDA:	spriteHeader
-	spritePiece	-$40, 0, 2, 2, $5D0, 0, 0, 0, 1
-	spritePiece	-$30, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	-$20, 0, 2, 2, $584, 0, 0, 0, 1
-	spritePiece	-$10, 0, 1, 2, $5C0, 0, 0, 0, 1
-	spritePiece	-8, 0, 2, 2, $5B4, 0, 0, 0, 1
-	spritePiece	$10, 0, 2, 2, $5B8, 0, 0, 0, 1
-	spritePiece	$20, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	$2F, 0, 2, 2, $5D4, 0, 0, 0, 1
-word_14CDA_End
+	mappingsTableEntry.w	TC_ZONE		; "ZONE" text
+	mappingsTableEntry.w	TC_No1		; "1" text
+	mappingsTableEntry.w	TC_No2		; "2" text
+	mappingsTableEntry.w	TC_No3		; "3" text
 
-word_14D1C:	spriteHeader
-	spritePiece	-$44, 0, 3, 2, $5C6, 0, 0, 0, 1
-	spritePiece	-$2C, 0, 1, 2, $5C0, 0, 0, 0, 1
-	spritePiece	-$24, 0, 2, 2, $5C2, 0, 0, 0, 1
-	spritePiece	-$14, 0, 2, 2, $580, 0, 0, 0, 1
-	spritePiece	-4, 0, 2, 2, $5D0, 0, 0, 0, 1
-	spritePiece	$14, 0, 2, 2, $5B8, 0, 0, 0, 1
-	spritePiece	$24, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	$33, 0, 2, 2, $5D4, 0, 0, 0, 1
-word_14D1C_End
+	mappingsTableEntry.w	EOL_Total	; Total text
+	mappingsTableEntry.w	EOL_TimeBonus	; Time Bonus text
+	mappingsTableEntry.w	EOL_RingBonus	; Ring Bonus text
+	mappingsTableEntry.w	EOL_SonFrame1	; Mini Sonic, frame 1
+	mappingsTableEntry.w	EOL_SonFrame2	; Mini Sonic, frame 2
+	mappingsTableEntry.w	EOL_Perfect	; Perfect text
 
-word_14D5E:	spriteHeader
-	spritePiece	-$3D, 0, 2, 2, $5D4, 0, 0, 0, 1
-	spritePiece	-$30, 0, 2, 2, $5B0, 0, 0, 0, 1
-	spritePiece	-$20, 0, 1, 2, $5C0, 0, 0, 0, 1
-	spritePiece	-$18, 0, 2, 2, $5C2, 0, 0, 0, 1
-	spritePiece	-8, 0, 2, 2, $5D0, 0, 0, 0, 1
-	spritePiece	$10, 0, 2, 2, $5B8, 0, 0, 0, 1
-	spritePiece	$20, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	$2F, 0, 2, 2, $5D4, 0, 0, 0, 1
-word_14D5E_End
+; word_14CDA:
+EOL_Sonic:	spriteHeader	; SONIC GOT
+	spritePiece	-$40, 0, 2, 2, $5D0, 0, 0, 0, 1	; S
+	spritePiece	-$30, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	-$20, 0, 2, 2, $584, 0, 0, 0, 1	; N
+	spritePiece	-$10, 0, 1, 2, $5C0, 0, 0, 0, 1	; I
+	spritePiece	-8, 0, 2, 2, $5B4, 0, 0, 0, 1	; C
 
-word_14DA0:	spriteHeader
-	spritePiece	-$38, 0, 2, 2, $5D4, 0, 0, 0, 1
-	spritePiece	-$28, 0, 2, 2, $5BC, 0, 0, 0, 1
-	spritePiece	-$18, 0, 2, 2, $5CC, 0, 0, 0, 1
-	spritePiece	-8, 0, 2, 2, $588, 0, 0, 0, 1
-	spritePiece	8, 0, 2, 2, $5D8, 0, 0, 0, 1
-	spritePiece	$18, 0, 2, 2, $5B8, 0, 0, 0, 1
-	spritePiece	$28, 0, 2, 2, $5BC, 0, 0, 0, 1
-word_14DA0_End
+	spritePiece	$10, 0, 2, 2, $5B8, 0, 0, 0, 1	; G
+	spritePiece	$20, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	$2F, 0, 2, 2, $5D4, 0, 0, 0, 1	; T
+EOL_Sonic_End
 
-word_14DDA:	spriteHeader
-	spritePiece	0, 0, 2, 2, $5B0, 0, 0, 0, 1
-	spritePiece	$10, 0, 2, 2, $5B4, 0, 0, 0, 1
-	spritePiece	$1F, 0, 2, 2, $5D4, 0, 0, 0, 1
-word_14DDA_End
+; word_14D1C:
+EOL_Miles:	spriteHeader	; MILES GOT
+	spritePiece	-$44, 0, 3, 2, $5C6, 0, 0, 0, 1	; M
+	spritePiece	-$2C, 0, 1, 2, $5C0, 0, 0, 0, 1	; I
+	spritePiece	-$24, 0, 2, 2, $5C2, 0, 0, 0, 1	; L
+	spritePiece	-$14, 0, 2, 2, $580, 0, 0, 0, 1	; E
+	spritePiece	-4, 0, 2, 2, $5D0, 0, 0, 0, 1	; S
 
-word_14DF4:	spriteHeader
+	spritePiece	$14, 0, 2, 2, $5B8, 0, 0, 0, 1	; G
+	spritePiece	$24, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	$33, 0, 2, 2, $5D4, 0, 0, 0, 1	; T
+EOL_Miles_End
+
+; word_14D5E:
+EOL_Tails:	spriteHeader	; TAILS GOT
+	spritePiece	-$3D, 0, 2, 2, $5D4, 0, 0, 0, 1	; T
+	spritePiece	-$30, 0, 2, 2, $5B0, 0, 0, 0, 1	; A
+	spritePiece	-$20, 0, 1, 2, $5C0, 0, 0, 0, 1	; I
+	spritePiece	-$18, 0, 2, 2, $5C2, 0, 0, 0, 1	; L
+	spritePiece	-8, 0, 2, 2, $5D0, 0, 0, 0, 1	; S
+
+	spritePiece	$10, 0, 2, 2, $5B8, 0, 0, 0, 1	; G
+	spritePiece	$20, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	$2F, 0, 2, 2, $5D4, 0, 0, 0, 1	; T
+EOL_Tails_End
+
+; word_14DA0:
+EOL_Through:	spriteHeader	; THROUGH
+	spritePiece	-$38, 0, 2, 2, $5D4, 0, 0, 0, 1	; T
+	spritePiece	-$28, 0, 2, 2, $5BC, 0, 0, 0, 1	; H
+	spritePiece	-$18, 0, 2, 2, $5CC, 0, 0, 0, 1	; R
+	spritePiece	-8, 0, 2, 2, $588, 0, 0, 0, 1	; O
+	spritePiece	8, 0, 2, 2, $5D8, 0, 0, 0, 1	; U
+	spritePiece	$18, 0, 2, 2, $5B8, 0, 0, 0, 1	; G
+	spritePiece	$28, 0, 2, 2, $5BC, 0, 0, 0, 1	; H
+EOL_Through_End
+
+; word_14DDA:
+EOL_Act:	spriteHeader	; ACT
+	spritePiece	0, 0, 2, 2, $5B0, 0, 0, 0, 1	; A
+	spritePiece	$10, 0, 2, 2, $5B4, 0, 0, 0, 1	; C
+	spritePiece	$1F, 0, 2, 2, $5D4, 0, 0, 0, 1	; T
+EOL_Act_End
+
+
+; Miscellaneous end-of-level results screen title cards mappings
+
+; word_14DF4:
+EOL_Total:	spriteHeader	; Total text
 	spritePiece	-$48, 0, 3, 2, $5E6, 0, 0, 1, 1
 	spritePiece	-$30, 0, 2, 2, $5EC, 0, 0, 1, 1
 	spritePiece	-$2C, 0, 2, 2, $5F0, 0, 0, 0, 1
 	spritePiece	$38, 0, 4, 2, $520, 0, 0, 0, 1
 	spritePiece	$58, 0, 1, 2, $6F0, 0, 0, 0, 1
-word_14DF4_End
+EOL_Total_End
 
-word_14E1E:	spriteHeader
+; word_14E1E:
+EOL_TimeBonus:	spriteHeader	; Time Bonus text
 	spritePiece	-$5C, 0, 4, 2, $6DA, 0, 0, 1, 1
 	spritePiece	-$34, 0, 4, 2, $5DE, 0, 0, 1, 1
 	spritePiece	-$14, 0, 1, 2, $6CA, 0, 0, 1, 1
 	spritePiece	-$18, 0, 2, 2, $5F0, 0, 0, 0, 1
 	spritePiece	$38, 0, 4, 2, $528, 0, 0, 0, 1
 	spritePiece	$58, 0, 1, 2, $6F0, 0, 0, 0, 1
-word_14E1E_End
+EOL_TimeBonus_End
 
-word_14E50:	spriteHeader
+; word_14E50:
+EOL_RingBonus:	spriteHeader	; Ring Bonus text
 	spritePiece	-$5C, 0, 4, 2, $6D2, 0, 0, 1, 1
 	spritePiece	-$34, 0, 4, 2, $5DE, 0, 0, 1, 1
 	spritePiece	-$14, 0, 1, 2, $6CA, 0, 0, 1, 1
 	spritePiece	-$18, 0, 2, 2, $5F0, 0, 0, 0, 1
 	spritePiece	$38, 0, 4, 2, $530, 0, 0, 0, 1
 	spritePiece	$58, 0, 1, 2, $6F0, 0, 0, 0, 1
-word_14E50_End
+EOL_RingBonus_End
 
-word_14E82:	spriteHeader
+; word_14E82:
+EOL_SonFrame1:	spriteHeader	; Mini Sonic, frame 1
 	spritePiece	0, 0, 2, 3, $5F4, 0, 0, 0, 1
-word_14E82_End
+EOL_SonFrame1_End
 
-word_14E8C:	spriteHeader
+; word_14E8C:
+EOL_SonFrame2:	spriteHeader	; Mini Sonic, frame 2
 	spritePiece	0, 0, 2, 3, $5FA, 0, 0, 0, 1
-word_14E8C_End
+EOL_SonFrame2_End
 
-word_14E96:	spriteHeader
+; word_14E96:
+EOL_Perfect:	spriteHeader	; Perfect text
 	spritePiece	-$68, 0, 4, 2, $540, 0, 0, 1, 1
 	spritePiece	-$48, 0, 3, 2, $548, 0, 0, 1, 1
 	spritePiece	-$28, 0, 4, 2, $5DE, 0, 0, 1, 1
@@ -28646,7 +28741,7 @@ word_14E96:	spriteHeader
 	spritePiece	-$C, 0, 2, 2, $5F0, 0, 0, 0, 1
 	spritePiece	$38, 0, 4, 2, $538, 0, 0, 0, 1
 	spritePiece	$58, 0, 1, 2, $6F0, 0, 0, 0, 1
-word_14E96_End
+EOL_Perfect_End
 
 	even
 
@@ -28715,7 +28810,7 @@ loc_155FE:
 loc_15604:
 	move.l	d6,(a6)
 	dbf	d3,loc_15604
-	addi.l	#vdpCommDelta($0080),d0
+	addi.l	#vdpCommDelta(gameplay_plane_width/tile_width*2),d0
 	dbf	d4,loc_155FE
 
 loc_15614:
@@ -28817,7 +28912,7 @@ loc_156F4:
 -	move.l	d0,VDP_control_port-VDP_data_port(a6)
 	move.l	d6,(a6)
 	move.l	d6,(a6)
-	addi.l	#vdpCommDelta($0080),d0
+	addi.l	#vdpCommDelta(gameplay_plane_width/tile_width*2),d0
 	dbf	d4,-
 
 loc_15714:
@@ -28977,9 +29072,10 @@ Off_TitleCardLetters: zoneOrderedTable 1,1
  charset '.',"\x5A"
 
 ; Defines which letters load for the continue screen
-; Each letter occurs only once, and  the letters ENOZ (i.e. ZONE) aren't loaded here
+; Each letter occurs only once, and the letters ENOZ (i.e. ZONE) aren't loaded here
 ; However, this is hidden by the titleLetters macro, and normal titles can be used
 ; (the macro is defined near SpecialStage_ResultsLetters, which uses it before here)
+; The actual mappings for zone title cards are found at MapUnc_TitleCards
 
 ; word_15832:
 TitleCardLetters:
@@ -29917,7 +30013,7 @@ MarkObjGone:
 	move.w	x_pos(a0),d0
 	andi.w	#$FF80,d0
 	sub.w	(Camera_X_pos_coarse).w,d0
-	cmpi.w	#$80+320+$40+$80,d0	; This gives an object $80 pixels of room offscreen before being unloaded (the $40 is there to round up 320 to a multiple of $80)
+	cmpi.w	#$80+roundToNextMultiple(screen_width,$80)+$80,d0	; This gives an object $80 pixels of room offscreen before being unloaded
 	bhi.w	+
 	bra.w	DisplaySprite
 
@@ -29938,7 +30034,7 @@ MarkObjGone2:
 +
 	andi.w	#$FF80,d0
 	sub.w	(Camera_X_pos_coarse).w,d0
-	cmpi.w	#$80+320+$40+$80,d0	; This gives an object $80 pixels of room offscreen before being unloaded (the $40 is there to round up 320 to a multiple of $80)
+	cmpi.w	#$80+roundToNextMultiple(screen_width,$80)+$80,d0	; This gives an object $80 pixels of room offscreen before being unloaded
 	bhi.w	+
 	bra.w	DisplaySprite
 +
@@ -29961,7 +30057,7 @@ MarkObjGone3:
 	move.w	x_pos(a0),d0
 	andi.w	#$FF80,d0
 	sub.w	(Camera_X_pos_coarse).w,d0
-	cmpi.w	#$80+320+$40+$80,d0	; This gives an object $80 pixels of room offscreen before being unloaded (the $40 is there to round up 320 to a multiple of $80)
+	cmpi.w	#$80+roundToNextMultiple(screen_width,$80)+$80,d0	; This gives an object $80 pixels of room offscreen before being unloaded
 	bhi.w	+
 	rts
 +
@@ -29981,7 +30077,7 @@ MarkObjGone_P1:
 	move.w	x_pos(a0),d0
 	andi.w	#$FF80,d0
 	sub.w	(Camera_X_pos_coarse).w,d0
-	cmpi.w	#$80+320+$40+$80,d0	; This gives an object $80 pixels of room offscreen before being unloaded (the $40 is there to round up 320 to a multiple of $80)
+	cmpi.w	#$80+roundToNextMultiple(screen_width,$80)+$80,d0	; This gives an object $80 pixels of room offscreen before being unloaded
 	bhi.w	+
 	bra.w	DisplaySprite
 +
@@ -30271,9 +30367,9 @@ BuildSprites_ObjLoop:
 	bmi.w	BuildSprites_NextObj	; if it is, branch
 	move.w	d3,d1
 	sub.w	d0,d1
-	cmpi.w	#320,d1	; is the object left edge to the right of the screen?
+	cmpi.w	#screen_width,d1	; is the object left edge to the right of the screen?
 	bge.w	BuildSprites_NextObj	; if it is, branch
-	addi.w	#128,d3
+	addi.w	#spriteScreenPositionX(0),d3
 	btst	#render_flags.explicit_height,d4		; is the accurate Y check flag set?
 	beq.s	BuildSprites_ApproxYCheck	; if not, branch
 	moveq	#0,d0
@@ -30285,9 +30381,9 @@ BuildSprites_ObjLoop:
 	bmi.s	BuildSprites_NextObj	; if the object is above the screen
 	move.w	d2,d1
 	sub.w	d0,d1
-	cmpi.w	#224,d1
+	cmpi.w	#screen_height,d1
 	bge.s	BuildSprites_NextObj	; if the object is below the screen
-	addi.w	#128,d2
+	addi.w	#spriteScreenPositionY(0),d2
 	bra.s	BuildSprites_DrawSprite
 ; ===========================================================================
 ; loc_166A6:
@@ -30300,11 +30396,11 @@ BuildSprites_ScreenSpaceObj:
 BuildSprites_ApproxYCheck:
 	move.w	y_pos(a0),d2
 	sub.w	4(a1),d2
-	addi.w	#128,d2
+	addi.w	#spriteScreenPositionY(0),d2
 	andi.w	#$7FF,d2
-	cmpi.w	#-32+128,d2	; assume Y radius to be 32 pixels
+	cmpi.w	#spriteScreenPositionY(0-32),d2	; assume Y radius to be 32 pixels
 	blo.s	BuildSprites_NextObj
-	cmpi.w	#32+128+224,d2
+	cmpi.w	#spriteScreenPositionY(screen_height+32),d2
 	bhs.s	BuildSprites_NextObj
 ; loc_166CC:
 BuildSprites_DrawSprite:
@@ -30374,9 +30470,9 @@ BuildSprites_MultiDraw:
 	bmi.w	BuildSprites_MultiDraw_NextObj
 	move.w	d3,d1
 	sub.w	d0,d1
-	cmpi.w	#320,d1
+	cmpi.w	#screen_width,d1
 	bge.w	BuildSprites_MultiDraw_NextObj
-	addi.w	#128,d3
+	addi.w	#spriteScreenPositionX(0),d3
 
 	; check if object is within Y bounds
 	btst	#4,d4
@@ -30390,18 +30486,18 @@ BuildSprites_MultiDraw:
 	bmi.w	BuildSprites_MultiDraw_NextObj
 	move.w	d2,d1
 	sub.w	d0,d1
-	cmpi.w	#224,d1
+	cmpi.w	#screen_height,d1
 	bge.w	BuildSprites_MultiDraw_NextObj
-	addi.w	#128,d2
+	addi.w	#spriteScreenPositionY(0),d2
 	bra.s	++
 +
 	move.w	y_pos(a0),d2
 	sub.w	4(a4),d2
-	addi.w	#128,d2
+	addi.w	#spriteScreenPositionY(0),d2
 	andi.w	#$7FF,d2
-	cmpi.w	#-32+128,d2
+	cmpi.w	#spriteScreenPositionY(0-32),d2
 	blo.s	BuildSprites_MultiDraw_NextObj
-	cmpi.w	#32+128+224,d2
+	cmpi.w	#spriteScreenPositionY(screen_height+32),d2
 	bhs.s	BuildSprites_MultiDraw_NextObj
 +
 	moveq	#0,d1
@@ -30427,10 +30523,10 @@ BuildSprites_MultiDraw:
 -	swap	d0
 	move.w	(a6)+,d3	; get X pos
 	sub.w	(a4),d3
-	addi.w	#128,d3
+	addi.w	#spriteScreenPositionX(0),d3
 	move.w	(a6)+,d2	; get Y pos
 	sub.w	4(a4),d2
-	addi.w	#128,d2
+	addi.w	#spriteScreenPositionY(0),d2
 	andi.w	#$7FF,d2
 	addq.w	#1,a6
 	moveq	#0,d1
@@ -30742,9 +30838,9 @@ BuildSprites_P1_ObjLoop:
 	bmi.w	BuildSprites_P1_NextObj
 	move.w	d3,d1
 	sub.w	d0,d1
-	cmpi.w	#320,d1
+	cmpi.w	#screen_width,d1
 	bge.s	BuildSprites_P1_NextObj
-	addi.w	#128,d3
+	addi.w	#spriteScreenPositionX(0),d3
 	btst	#render_flags.explicit_height,d4
 	beq.s	BuildSprites_P1_ApproxYCheck
 	moveq	#0,d0
@@ -30756,28 +30852,28 @@ BuildSprites_P1_ObjLoop:
 	bmi.s	BuildSprites_P1_NextObj
 	move.w	d2,d1
 	sub.w	d0,d1
-	cmpi.w	#224,d1
+	cmpi.w	#screen_height,d1
 	bge.s	BuildSprites_P1_NextObj
-	addi.w	#256,d2
+	addi.w	#spriteScreenPositionY2P(0),d2
 	bra.s	BuildSprites_P1_DrawSprite
 ; ===========================================================================
 ; loc_16A00:
 BuildSprites_P1_ScreenSpaceObj:
 	move.w	y_pixel(a0),d2
 	move.w	x_pixel(a0),d3
-	addi.w	#128,d2
+	addi.w	#spriteScreenPositionY2P(0)-spriteScreenPositionY(0),d2 ; Rebase from 1p to 2p coordinate space
 	bra.s	BuildSprites_P1_DrawSprite
 ; ===========================================================================
 ; loc_16A0E:
 BuildSprites_P1_ApproxYCheck:
 	move.w	y_pos(a0),d2
 	sub.w	4(a1),d2
-	addi.w	#128,d2
-	cmpi.w	#-32+128,d2
+	addi.w	#spriteScreenPositionY(0),d2
+	cmpi.w	#spriteScreenPositionY(0-32),d2
 	blo.s	BuildSprites_P1_NextObj
-	cmpi.w	#32+128+224,d2
+	cmpi.w	#spriteScreenPositionY(screen_height+32),d2
 	bhs.s	BuildSprites_P1_NextObj
-	addi.w	#128,d2
+	addi.w	#spriteScreenPositionY2P(0)-spriteScreenPositionY(0),d2 ; Rebase from 1p to 2p coordinate space
 ; loc_16A2A:
 BuildSprites_P1_DrawSprite:
 	movea.l	mappings(a0),a1
@@ -30879,9 +30975,9 @@ BuildSprites_P2_ObjLoop:
 	bmi.w	BuildSprites_P2_NextObj
 	move.w	d3,d1
 	sub.w	d0,d1
-	cmpi.w	#320,d1
+	cmpi.w	#screen_width,d1
 	bge.s	BuildSprites_P2_NextObj
-	addi.w	#128,d3
+	addi.w	#spriteScreenPositionX(0),d3
 	btst	#render_flags.explicit_height,d4
 	beq.s	BuildSprites_P2_ApproxYCheck
 	moveq	#0,d0
@@ -30893,28 +30989,28 @@ BuildSprites_P2_ObjLoop:
 	bmi.s	BuildSprites_P2_NextObj
 	move.w	d2,d1
 	sub.w	d0,d1
-	cmpi.w	#224,d1
+	cmpi.w	#screen_height,d1
 	bge.s	BuildSprites_P2_NextObj
-	addi.w	#256+224,d2
+	addi.w	#spriteScreenPositionY2P(screen_height),d2
 	bra.s	BuildSprites_P2_DrawSprite
 ; ===========================================================================
 ; loc_16B14:
 BuildSprites_P2_ScreenSpaceObj:
 	move.w	y_pixel(a0),d2
 	move.w	x_pixel(a0),d3
-	addi.w	#128+224,d2
+	addi.w	#spriteScreenPositionY2P(screen_height)-spriteScreenPositionY(0),d2 ; Rebase from 1p to 2p coordinate space
 	bra.s	BuildSprites_P2_DrawSprite
 ; ===========================================================================
 ; loc_16B22:
 BuildSprites_P2_ApproxYCheck:
 	move.w	y_pos(a0),d2
 	sub.w	4(a1),d2
-	addi.w	#128,d2
-	cmpi.w	#-32+128,d2
+	addi.w	#spriteScreenPositionY(0),d2
+	cmpi.w	#spriteScreenPositionY(0-32),d2
 	blo.s	BuildSprites_P2_NextObj
-	cmpi.w	#32+128+224,d2
+	cmpi.w	#spriteScreenPositionY(screen_height+32),d2
 	bhs.s	BuildSprites_P2_NextObj
-	addi.w	#128+224,d2
+	addi.w	#spriteScreenPositionY2P(screen_height)-spriteScreenPositionY(0),d2 ; Rebase from 1p to 2p coordinate space
 ; loc_16B3E:
 BuildSprites_P2_DrawSprite:
 	movea.l	mappings(a0),a1
@@ -30981,9 +31077,9 @@ BuildSprites_P1_MultiDraw:
 	bmi.w	BuildSprites_P1_MultiDraw_NextObj
 	move.w	d3,d1
 	sub.w	d0,d1
-	cmpi.w	#320,d1
+	cmpi.w	#screen_width,d1
 	bge.w	BuildSprites_P1_MultiDraw_NextObj
-	addi.w	#128,d3
+	addi.w	#spriteScreenPositionX(0),d3
 	btst	#4,d4
 	beq.s	+
 	moveq	#0,d0
@@ -30995,19 +31091,19 @@ BuildSprites_P1_MultiDraw:
 	bmi.w	BuildSprites_P1_MultiDraw_NextObj
 	move.w	d2,d1
 	sub.w	d0,d1
-	cmpi.w	#224,d1
+	cmpi.w	#screen_height,d1
 	bge.w	BuildSprites_P1_MultiDraw_NextObj
-	addi.w	#256,d2
+	addi.w	#spriteScreenPositionY2P(0),d2
 	bra.s	++
 +
 	move.w	y_pos(a0),d2
 	sub.w	4(a4),d2
-	addi.w	#128,d2
-	cmpi.w	#-32+128,d2
+	addi.w	#spriteScreenPositionY(0),d2
+	cmpi.w	#spriteScreenPositionY(0-32),d2
 	blo.s	BuildSprites_P1_MultiDraw_NextObj
-	cmpi.w	#32+128+224,d2
+	cmpi.w	#spriteScreenPositionY(screen_height+32),d2
 	bhs.s	BuildSprites_P1_MultiDraw_NextObj
-	addi.w	#128,d2
+	addi.w	#spriteScreenPositionY2P(0)-spriteScreenPositionY(0),d2 ; Rebase from 1p to 2p coordinate space
 +
 	moveq	#0,d1
 	move.b	mainspr_mapframe(a0),d1
@@ -31032,10 +31128,10 @@ BuildSprites_P1_MultiDraw:
 -	swap	d0
 	move.w	(a6)+,d3
 	sub.w	(a4),d3
-	addi.w	#128,d3
+	addi.w	#spriteScreenPositionX(0),d3
 	move.w	(a6)+,d2
 	sub.w	4(a4),d2
-	addi.w	#256,d2
+	addi.w	#spriteScreenPositionY2P(0),d2
 	addq.w	#1,a6
 	moveq	#0,d1
 	move.b	(a6)+,d1
@@ -31071,9 +31167,9 @@ BuildSprites_P2_MultiDraw:
 	bmi.w	BuildSprites_P2_MultiDraw_NextObj
 	move.w	d3,d1
 	sub.w	d0,d1
-	cmpi.w	#320,d1
+	cmpi.w	#screen_width,d1
 	bge.w	BuildSprites_P2_MultiDraw_NextObj
-	addi.w	#128,d3
+	addi.w	#spriteScreenPositionX(0),d3
 	btst	#4,d4
 	beq.s	+
 	moveq	#0,d0
@@ -31085,19 +31181,19 @@ BuildSprites_P2_MultiDraw:
 	bmi.w	BuildSprites_P2_MultiDraw_NextObj
 	move.w	d2,d1
 	sub.w	d0,d1
-	cmpi.w	#224,d1
+	cmpi.w	#screen_height,d1
 	bge.w	BuildSprites_P2_MultiDraw_NextObj
-	addi.w	#256+224,d2
+	addi.w	#spriteScreenPositionY2P(screen_height),d2
 	bra.s	++
 +
 	move.w	y_pos(a0),d2
 	sub.w	4(a4),d2
-	addi.w	#128,d2
-	cmpi.w	#-32+128,d2
+	addi.w	#spriteScreenPositionY(0),d2
+	cmpi.w	#spriteScreenPositionY(0-32),d2
 	blo.s	BuildSprites_P2_MultiDraw_NextObj
-	cmpi.w	#32+128+224,d2
+	cmpi.w	#spriteScreenPositionY(screen_height+32),d2
 	bhs.s	BuildSprites_P2_MultiDraw_NextObj
-	addi.w	#128+224,d2
+	addi.w	#spriteScreenPositionY2P(screen_height)-spriteScreenPositionY(0),d2 ; Rebase from 1p to 2p coordinate space
 +
 	moveq	#0,d1
 	move.b	mainspr_mapframe(a0),d1
@@ -31122,10 +31218,10 @@ BuildSprites_P2_MultiDraw:
 -	swap	d0
 	move.w	(a6)+,d3
 	sub.w	(a4),d3
-	addi.w	#128,d3
+	addi.w	#spriteScreenPositionX(0),d3
 	move.w	(a6)+,d2
 	sub.w	4(a4),d2
-	addi.w	#256+224,d2
+	addi.w	#spriteScreenPositionY2P(screen_height),d2
 	addq.w	#1,a6
 	moveq	#0,d1
 	move.b	(a6)+,d1
@@ -31427,12 +31523,12 @@ ChkObjectVisible:
 	move.w	x_pos(a0),d0	; a0=object
 	sub.w	(Camera_X_pos).w,d0
 	bmi.s	.offscreen
-	cmpi.w	#320,d0
+	cmpi.w	#screen_width,d0
 	bge.s	.offscreen
 	move.w	y_pos(a0),d1
 	sub.w	(Camera_Y_pos).w,d1
 	bmi.s	.offscreen
-	cmpi.w	#224,d1
+	cmpi.w	#screen_height,d1
 	bge.s	.offscreen
 	moveq	#0,d0
 	rts
@@ -31454,12 +31550,12 @@ ChkPartiallyVisible:
 	bmi.s	.offscreen
 	add.w	d1,d1
 	sub.w	d1,d0
-	cmpi.w	#320,d0
+	cmpi.w	#screen_width,d0
 	bge.s	.offscreen
 	move.w	y_pos(a0),d1
 	sub.w	(Camera_Y_pos).w,d1
 	bmi.s	.offscreen
-	cmpi.w	#224,d1
+	cmpi.w	#screen_height,d1
 	bge.s	.offscreen
 	moveq	#0,d0
 	rts
@@ -31509,7 +31605,7 @@ RingsManager_Init:
 	bhi.s	-		; if it is, check next ring
 	move.w	a1,(Ring_start_addr).w	; set start addresses
 	move.w	a1,(Ring_start_addr_P2).w
-	addi.w	#320+16,d4	; advance by a screen
+	addi.w	#screen_width+16,d4	; advance by a screen
 	bra.s	+
 -
 	lea	6(a1),a1	; load next ring
@@ -31562,7 +31658,7 @@ RingsManager_Main:
 	move.w	a1,(Ring_start_addr).w	; update start address
 
 	movea.w	(Ring_end_addr).w,a2
-	addi.w	#320+16,d4
+	addi.w	#screen_width+16,d4
 	bra.s	+
 -
 	lea	6(a2),a2
@@ -31603,7 +31699,7 @@ RingsManager_Main:
 	move.w	a1,(Ring_start_addr_P2).w	; update start address
 
 	movea.w	(Ring_end_addr_P2).w,a2
-	addi.w	#320+16,d4
+	addi.w	#screen_width+16,d4
 	bra.s	+
 -
 	lea	6(a2),a2
@@ -31732,7 +31828,7 @@ BuildRings_Loop:
 	bmi.w	BuildRings_NextRing	; if it has, branch
 	move.w	2(a0),d3	; get ring X pos
 	sub.w	(a3),d3		; subtract camera X pos
-	addi.w	#128,d3		; screen top is 128x128 not 0x0
+	addi.w	#spriteScreenPositionX(0),d3		; screen top-left is 128x128 not 0x0
 	move.w	4(a0),d2	; get ring Y pos
 	sub.w	4(a3),d2	; subtract camera Y pos
     if fixBugs
@@ -31748,10 +31844,10 @@ BuildRings_Loop:
 	; This line is completely redundant: an apparent leftover from one of the
 	; prototypes, back when the above 'andi' didn't exist. S3K gets rid of this.
 	bmi.s	BuildRings_NextRing
-	cmpi.w	#224+8*2,d2
+	cmpi.w	#screen_height+8*2,d2
 	; The above 'andi' means that this could just be a plain 'bhs'. S3K does this.
 	bge.s	BuildRings_NextRing	; if the ring is not on-screen, branch
-	addi.w	#128-8,d2
+	addi.w	#spriteScreenPositionY(-8),d2
 	lea	(MapUnc_Rings).l,a1
 	moveq	#0,d1
 	move.b	1(a0),d1	; get ring frame
@@ -31791,10 +31887,10 @@ BuildRings_NextRing:
 BuildRings_P1:
 	lea	(Camera_X_pos).w,a3
     if fixBugs
-	move.w	#128+128-8,d6
+	move.w	#spriteScreenPositionY2P(-8),d6
     else
 	; See the below bugfixes.
-	move.w	#128-8,d6
+	move.w	#spriteScreenPositionY(-8),d6
     endif
 	movea.w	(Ring_start_addr).w,a0
 	movea.w	(Ring_end_addr).w,a4
@@ -31812,10 +31908,10 @@ BuildRings_P1:
 BuildRings_P2:
 	lea	(Camera_X_pos_P2).w,a3
     if fixBugs
-	move.w	#224+128+128-8,d6
+	move.w	#spriteScreenPositionY2P(screen_height-8),d6
     else
 	; See the below bugfixes.
-	move.w	#224+128-8,d6
+	move.w	#spriteScreenPositionY(screen_height-8),d6
     endif
 	movea.w	(Ring_start_addr_P2).w,a0
 	movea.w	(Ring_end_addr_P2).w,a4
@@ -31829,7 +31925,7 @@ BuildRings_2P_Loop:
 	bmi.w	BuildRings_2P_NextRing	; if it has, branch
 	move.w	2(a0),d3	; get ring X pos
 	sub.w	(a3),d3		; subtract camera X pos
-	addi.w	#128,d3
+	addi.w	#spriteScreenPositionX(0),d3
 	move.w	4(a0),d2	; get ring Y pos
 	sub.w	4(a3),d2	; subtract camera Y pos
     if fixBugs
@@ -31841,13 +31937,13 @@ BuildRings_2P_Loop:
 	; when they go halfway off the top of the screen. To fix this, simply
 	; swap these two instructions around.
 	andi.w	#$7FF,d2
-	addi.w	#128+8,d2
+	addi.w	#spriteScreenPositionY(8),d2
     endif
 	; This line is completely redundant: an apparent leftover from one of the
 	; prototypes, back when the above 'andi' didn't exist. S3K gets rid of this.
 	bmi.s	BuildRings_2P_NextRing
     if fixBugs
-	cmpi.w	#224+8*2,d2
+	cmpi.w	#screen_height+8*2,d2
     else
 	; Fixing the above bug exposes another issue: this instruction and
 	; the above 'addi' should not have 128 added to their values. Instead,
@@ -31856,7 +31952,7 @@ BuildRings_2P_Loop:
 	; extends the vertical range in which rings are not culled, creating a
 	; 128 line region above the top of the screen where the rings are
 	; off-screen, but not culled.
-	cmpi.w	#224+8*2+128,d2
+	cmpi.w	#spriteScreenPositionY(screen_height+8*2),d2
     endif
 
 	; The above 'andi' means that this could just be a plain 'bhs'. S3K does this.
@@ -36348,7 +36444,7 @@ Obj01_ResetScr:
 	move.w	#0,(Sonic_Look_delay_counter).w
 ; loc_1A5E6:
 Obj01_ResetScr_Part2:
-	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias).w	; is screen in its default position?
+	cmpi.w	#(screen_height/2)-16,(Camera_Y_pos_bias).w	; is screen in its default position?
 	beq.s	Obj01_UpdateSpeedOnGround	; if yes, branch.
 	bhs.s	+				; depending on the sign of the difference,
 	addq.w	#4,(Camera_Y_pos_bias).w	; either add 2
@@ -36650,7 +36746,7 @@ Sonic_KeepRolling:
 ; resets the screen to normal while rolling, like Obj01_ResetScr
 ; loc_1A85A:
 Obj01_Roll_ResetScr:
-	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias).w	; is screen in its default position?
+	cmpi.w	#(screen_height/2)-16,(Camera_Y_pos_bias).w	; is screen in its default position?
 	beq.s	Sonic_SetRollSpeeds		; if yes, branch
 	bhs.s	+				; depending on the sign of the difference,
 	addq.w	#4,(Camera_Y_pos_bias).w	; either add 2
@@ -36762,7 +36858,7 @@ Sonic_ChgJumpDir:
 
 ; loc_1A932: Obj01_ResetScr2:
 Obj01_Jump_ResetScr:
-	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias).w	; is screen in its default position?
+	cmpi.w	#(screen_height/2)-16,(Camera_Y_pos_bias).w	; is screen in its default position?
 	beq.s	Sonic_JumpPeakDecelerate	; if yes, branch
 	bhs.s	+				; depending on the sign of the difference,
 	addq.w	#4,(Camera_Y_pos_bias).w	; either add 2
@@ -36818,7 +36914,7 @@ Sonic_LevelBound:
 	cmp.w	d1,d0			; has Sonic touched the left boundary?
 	bhi.s	Sonic_Boundary_Sides	; if yes, branch
 	move.w	(Camera_Max_X_pos).w,d0
-	addi.w	#320-24,d0		; screen width - Sonic's width_pixels
+	addi.w	#screen_width-24,d0		; screen width - Sonic's width_pixels
 	tst.b	(Current_Boss_ID).w
 	bne.s	+
 	addi.w	#$40,d0
@@ -36840,7 +36936,7 @@ Sonic_Boundary_CheckBottom:
 	move.w	d1,d0
 .skip:
     endif
-	addi.w	#224,d0
+	addi.w	#screen_height,d0
 	cmp.w	y_pos(a0),d0		; has Sonic touched the bottom boundary?
 	blt.s	Sonic_Boundary_Bottom	; if yes, branch
 	rts
@@ -37030,7 +37126,7 @@ Sonic_CheckGoSuper:
 	bne.s	return_1ABA4		; if not, branch
 	cmpi.w	#50,(Ring_count).w	; does Sonic have at least 50 rings?
 	blo.s	return_1ABA4		; if not, branch
-    if gameRevision=2
+    if gameRevision>=2
 	; fixes a bug where the player can get stuck if transforming at the end of a level
 	tst.b	(Update_HUD_timer).w	; has Sonic reached the end of the act?
 	beq.s	return_1ABA4		; if yes, branch
@@ -37256,7 +37352,7 @@ Sonic_ChargingSpindash:			; If still charging the dash...
 ; loc_1AD78:
 Obj01_Spindash_ResetScr:
 	addq.l	#4,sp
-	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias).w
+	cmpi.w	#(screen_height/2)-16,(Camera_Y_pos_bias).w
 	beq.s	loc_1AD8C
 	bhs.s	+
 	addq.w	#4,(Camera_Y_pos_bias).w
@@ -37750,7 +37846,7 @@ Sonic_HurtStop:
 	move.w	d1,d0
 .skip:
     endif
-	addi.w	#224,d0
+	addi.w	#screen_height,d0
 	cmp.w	y_pos(a0),d0
 	blt.w	JmpTo_KillCharacter
 	bsr.w	Sonic_DoLevelCollision
@@ -39320,7 +39416,7 @@ Obj02_ResetScr:
 	move.w	#0,(Tails_Look_delay_counter).w
 ; loc_1C1D6:
 Obj02_ResetScr_Part2:
-	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias_P2).w	; is screen in its default position?
+	cmpi.w	#(screen_height/2)-16,(Camera_Y_pos_bias_P2).w	; is screen in its default position?
 	beq.s	Obj02_UpdateSpeedOnGround	; if yes, branch.
 	bhs.s	+				; depending on the sign of the difference,
 	addq.w	#4,(Camera_Y_pos_bias_P2).w	; either add 2
@@ -39627,7 +39723,7 @@ Tails_KeepRolling:
 ; resets the screen to normal while rolling, like Obj02_ResetScr
 ; loc_1C440:
 Obj02_Roll_ResetScr:
-	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias_P2).w	; is screen in its default position?
+	cmpi.w	#(screen_height/2)-16,(Camera_Y_pos_bias_P2).w	; is screen in its default position?
 	beq.s	Tails_SetRollSpeed		; if yes, branch
 	bhs.s	+				; depending on the sign of the difference,
 	addq.w	#4,(Camera_Y_pos_bias_P2).w	; either add 2
@@ -39739,7 +39835,7 @@ Tails_ChgJumpDir:
 
 ; loc_1C518: Obj02_ResetScr2:
 Obj02_Jump_ResetScr:
-	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias_P2).w	; is screen in its default position?
+	cmpi.w	#(screen_height/2)-16,(Camera_Y_pos_bias_P2).w	; is screen in its default position?
 	beq.s	Tails_JumpPeakDecelerate			; if yes, branch
 	bhs.s	+				; depending on the sign of the difference,
 	addq.w	#4,(Camera_Y_pos_bias_P2).w	; either add 2
@@ -39795,7 +39891,7 @@ Tails_LevelBound:
 	cmp.w	d1,d0			; has Tails touched the left boundary?
 	bhi.s	Tails_Boundary_Sides	; if yes, branch
 	move.w	(Tails_Max_X_pos).w,d0
-	addi.w	#320-24,d0		; screen width - Tails's width_pixels
+	addi.w	#screen_width-24,d0		; screen width - Tails's width_pixels
 	tst.b	(Current_Boss_ID).w
 	bne.s	+
 	addi.w	#$40,d0
@@ -39817,7 +39913,7 @@ Tails_Boundary_CheckBottom:
 	move.w	d1,d0
 .skip:
     endif
-	addi.w	#224,d0
+	addi.w	#screen_height,d0
 	cmp.w	y_pos(a0),d0		; has Tails touched the bottom boundary?
 	blt.s	Tails_Boundary_Bottom	; if yes, branch
 	rts
@@ -40109,7 +40205,7 @@ loc_1C7F8:
 
 loc_1C828:
 	addq.l	#4,sp
-	cmpi.w	#(224/2)-16,(Camera_Y_pos_bias_P2).w
+	cmpi.w	#(screen_height/2)-16,(Camera_Y_pos_bias_P2).w
 	beq.s	loc_1C83C
 	bhs.s	+
 	addq.w	#4,(Camera_Y_pos_bias_P2).w
@@ -40594,7 +40690,7 @@ Tails_HurtStop:
 	move.w	d1,d0
 .skip:
     endif
-	addi.w	#224,d0
+	addi.w	#screen_height,d0
 	cmp.w	y_pos(a0),d0
 	blt.w	JmpTo2_KillCharacter
 	bsr.w	Tails_DoLevelCollision
@@ -41516,12 +41612,12 @@ Obj0A_BecomeNumberMaybe:
 
 	move.w	x_pos(a0),d0
 	sub.w	(Camera_X_pos).w,d0
-	addi.w	#$80,d0
+	addi.w	#spriteScreenPositionX(0),d0
 	move.w	d0,x_pixel(a0)
 
 	move.w	y_pos(a0),d0
 	sub.w	(Camera_Y_pos).w,d0
-	addi.w	#$80,d0
+	addi.w	#spriteScreenPositionY(0),d0
 	move.w	d0,y_pixel(a0)
 
 	move.b	#$C,routine(a0) ; Obj0A_AirLeft
@@ -42251,7 +42347,7 @@ Obj08_ResetDisplayMode:
 	rts
 ; ===========================================================================
 
-BranchTo16_DeleteObject
+BranchTo16_DeleteObject ; BranchTo
 	bra.w	DeleteObject
 ; ===========================================================================
 ; loc_1DE4A:
@@ -46344,6 +46440,12 @@ Obj84_MainY:
 	lea	(MainCharacter).w,a1 ; a1=character
 	bsr.s	+
 	lea	(Sidekick).w,a1 ; a1=character
+    if fixBugs
+	; AI Tails can behave rather strangely if he happens to be flying into
+	; an autoroll object, most visible in Casino Night.
+	cmpi.w	#4,(Tails_CPU_routine).w	; TailsCPU_Flying
+	beq.s	return_21350
+    endif
 +
 	tst.b	(a2)+
 	bne.s	Obj84_MainY_Alt
@@ -47328,7 +47430,7 @@ Obj16_Fall:
 	jsrto	JmpTo4_ObjectMove
 	addi.w	#$38,y_vel(a0)
 	move.w	(Camera_Max_Y_pos).w,d0
-	addi.w	#224,d0
+	addi.w	#screen_height,d0
 	cmp.w	y_pos(a0),d0
 	bhs.s	+++	; rts
 	move.b	status(a0),d0
@@ -47845,7 +47947,7 @@ Obj1D_MoveArc:
 	clr.w	x_vel(a0)
 	subq.b	#2,routine(a0) ; => Obj1D_Wait
 
-BranchTo2_JmpTo7_MarkObjGone
+BranchTo2_JmpTo7_MarkObjGone ; BranchTo
 	jmpto	JmpTo7_MarkObjGone
 ; ===========================================================================
 ; loc_22528:
@@ -47870,7 +47972,7 @@ Obj1D_MoveStraight:
 	move.w	#SndID_Gloop,d0
 	jsr	(PlaySoundLocal).l
 
-BranchTo3_JmpTo7_MarkObjGone
+BranchTo3_JmpTo7_MarkObjGone ; BranchTo
 	jmpto	JmpTo7_MarkObjGone
 ; ===========================================================================
 ; -------------------------------------------------------------------------------
@@ -48027,6 +48129,12 @@ loc_22688:
 	move.w	(a2)+,d5
 	add.w	y_pos(a0),d5
 	addq.b	#2,(a4)
+    if fixBugs
+	; If Sonic/Tails end up getting damaged into a pipe, they will
+	; be constantly displaced due to how the hurt routine works. This
+	; fixes the bug by forcing them back into their normal state.
+	move.b	#2,routine(a1)
+    endif
 	move.b	#$81,obj_control(a1)
 	move.b	#AniIDSonAni_Roll,anim(a1)
 	move.w	#$800,inertia(a1)
@@ -48425,7 +48533,7 @@ loc_2315A:
 	jsrto	JmpTo7_ObjectMove
 	addi.w	#$18,y_vel(a0)
 	move.w	(Camera_Max_Y_pos).w,d0
-	addi.w	#224,d0
+	addi.w	#screen_height,d0
 	cmp.w	y_pos(a0),d0
 	bhs.s	loc_23176
 	jmpto	JmpTo21_DeleteObject
@@ -48776,7 +48884,7 @@ Obj32_Main:
 	andi.b	#standing_mask,d0	; is at least one player standing on the object?
 	bne.s	Obj32_SupportingSomeone
 
-BranchTo2_JmpTo9_MarkObjGone
+BranchTo2_JmpTo9_MarkObjGone ; BranchTo
 	jmpto	JmpTo9_MarkObjGone
 ; ===========================================================================
 ; loc_235BC:
@@ -50133,7 +50241,7 @@ Obj46_Moving:
 	addi.w	#$18,y_vel(a0)
 	bmi.s	+
 	move.w	(Camera_Max_Y_pos).w,d0
-	addi.w	#224,d0
+	addi.w	#screen_height,d0
 	cmp.w	y_pos(a0),d0
 	blo.s	loc_24BC4
 	jsr	(ObjCheckFloorDist).l
@@ -51214,17 +51322,30 @@ Obj2B_Init:
 	move.l	#Obj2B_MapUnc_25C6E,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,1,0),art_tile(a0)
 	jsrto	JmpTo25_Adjust2PArtPointer
+    if fixBugs
+	ori.b	#1<<render_flags.level_fg|1<<render_flags.explicit_height,render_flags(a0)
+	move.b	#$1C,width_pixels(a0)
+	move.b	#$20,y_radius(a0)
+    else
+	; This should use the accurate height check and larger size values, since
+	; right now it vanishes whilst partially on-screen.
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#$10,width_pixels(a0)
 	move.b	#$18,y_radius(a0)
+    endif
 	move.b	#4,priority(a0)
 ; loc_25A9C:
 Obj2B_Main:
 	move.w	x_pos(a0),-(sp)
 	bsr.w	loc_25B28
+    if fixBugs
+	moveq	#$10+$B,d1
+    else
+	; Read above.
 	moveq	#0,d1
 	move.b	width_pixels(a0),d1
 	addi.w	#$B,d1
+    endif
 	moveq	#0,d2
 	move.b	y_radius(a0),d2
 	move.w	d2,d3
@@ -53916,7 +54037,7 @@ loc_27EE2:
 	move.l	d3,y_pos(a0)
 	addi_.w	#8,y_vel(a0)
 	move.w	(Camera_Max_Y_pos).w,d0
-	addi.w	#224,d0
+	addi.w	#screen_height,d0
 	cmp.w	y_pos(a0),d0
 	bhs.s	return_27F0E
 	move.b	#0,subtype(a0)
@@ -56534,7 +56655,11 @@ Obj82_Properties:
 	;    width_pixels
 	;        y_radius
 	dc.b $20,  8	; 0
+    if fixBugs
+	dc.b $1C,$32	; 2
+    else
 	dc.b $1C,$30	; 2
+    endif
 	; Unused and broken; these don't have an associated frame, so using them crashes the game
 	dc.b $10,$10	; 4
 	dc.b $10,$10	; 6
@@ -56545,7 +56670,12 @@ Obj82_Init:
 	move.l	#Obj82_MapUnc_2A476,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,0,0),art_tile(a0)
 	jsrto	JmpTo46_Adjust2PArtPointer
+    if fixBugs
+	ori.b	#1<<render_flags.level_fg|1<<render_flags.explicit_height,render_flags(a0)
+    else
+	; Same as Obj2B, this should use the accurate height flag.
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
+    endif
 	move.b	#3,priority(a0)
 	moveq	#0,d0
 	move.b	subtype(a0),d0
@@ -56585,6 +56715,13 @@ Obj82_Main:
 	move.b	y_radius(a0),d2
 	move.w	d2,d3
 	addq.w	#1,d3
+    if fixBugs
+	tst.b	mapping_frame(a0)	; is this a pillar?
+	beq.s	.notPillar		; if not, branch
+	subq.w	#2,d3
+
+.notPillar:
+    endif
 	jsrto	JmpTo23_SolidObject
 	swap	d6
 	move.b	d6,objoff_3F(a0)
@@ -57176,7 +57313,7 @@ loc_2A966:
 	add.b	anim_frame(a0),d0
 	move.b	d0,mapping_frame(a0)
 
-BranchTo2_JmpTo26_MarkObjGone
+BranchTo2_JmpTo26_MarkObjGone ; BranchTo
 	jmpto	JmpTo26_MarkObjGone
 ; ===========================================================================
 
@@ -62161,7 +62298,15 @@ Obj5D_Gunk_States:	offsetTable
 
 Obj5D_Gunk_Init:
 	addq.b	#2,routine_secondary(a0)	; => Obj5D_Gunk_Main
+    if fixBugs
+	move.b	#$16,y_radius(a0)
+    else
+	; The hitbox for this object is a mess, allowing the player to avoid
+	; damage by simply ducking. Ideally, it would be realigned with the
+	; sprite, but this will have to do for now.
+	; Funnily enough, the Official Players Guide brings this up on page 90.
 	move.b	#$20,y_radius(a0)
+    endif
 	move.b	#$19,anim(a0)
 	move.w	#0,y_vel(a0)
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
@@ -62435,7 +62580,7 @@ Obj5D_Smoke_Puff:
 	addi_.w	#4,y_pos(a0)
 	subi.w	#$28,x_pos(a0)
 
-BranchTo2_JmpTo34_DisplaySprite
+BranchTo2_JmpTo34_DisplaySprite ; BranchTo
 	jmpto	JmpTo34_DisplaySprite
 ; ===========================================================================
 ; animation script
@@ -64093,6 +64238,9 @@ obj89_eyes_timer		= objoff_30
 obj89_arrow_routine		= objoff_2A
 obj89_arrow_timer		= objoff_30
 obj89_arrow_parent2		= objoff_34
+    if fixBugs
+obj89_checkplayerhurt		= objoff_36
+    endif
 obj89_arrow_parent		= objoff_38	; address of main vehicle
 
 ; Sprite_30480:
@@ -64383,6 +64531,14 @@ Obj89_Main_Sub6_Standard:
 ; loc_3075C:
 Obj89_Main_HandleFace:
 	bsr.w	Obj89_Main_HandleHoveringAndHits
+    if fixBugs
+	; Due to how this code works, Eggman does not laugh (or play any
+	; animation for that matter) until the player has hit the ground.
+	; To fix this, we'll simply force it to run when Sonic or Tails
+	; are hurt using a flag.
+	tst.b	obj89_checkplayerhurt(a0)	; should Eggman be laughing?
+	bne.s	Obj89_Main_ChkHurt		; if yes, branch
+    endif
 	cmpi.b	#4,(MainCharacter+routine).w	; is Sonic hurt?
 	beq.s	Obj89_Main_Laugh		; if yes, branch
 	cmpi.b	#4,(Sidekick+routine).w		; is Tails hurt?
@@ -64392,7 +64548,9 @@ Obj89_Main_HandleFace:
 Obj89_Main_Laugh:
 	lea	(Boss_AnimationArray).w,a1
 	move.b	#$31,1*2+1(a1)			; use laughing animation
-
+    if fixBugs
+	move.b	#1,obj89_checkplayerhurt(a0)	; set flag to immediately start laughing
+    endif
 ; loc_3077A:
 Obj89_Main_ChkHurt:
 	cmpi.b	#64-1,boss_invulnerable_time(a0)	; was boss hurt?
@@ -64401,6 +64559,13 @@ Obj89_Main_ChkHurt:
 	move.b	#-$40,1*2+1(a1)			; use hurt animation
 
 return_3078C:
+    if fixBugs
+	cmpi.b	#$17,(Boss_AnimationArray+3).w	; has Eggman stopped laughing?
+	bne.s	.keeplaughing			; if not, branch
+	clr.b	obj89_checkplayerhurt(a0)	; clear laughing flag if he has
+
+.keeplaughing:
+    endif
 	rts
 ; ===========================================================================
 ; loc_3078E:
@@ -64474,6 +64639,14 @@ Obj89_Main_DropHammer:
 	cmpi.w	#$78,(Boss_Countdown).w
 	bgt.s	return_3088A			; wait until timer is below $78
 	subi_.w	#1,sub3_x_pos(a0)		; make hammer move left
+    if fixBugs
+	; This properly makes the hammer fall the opposite direction.
+	btst	#render_flags.x_flip,render_flags(a0)	; is Eggman facing right?
+	beq.s	.notfacingright			; is not, branch
+	addi_.w	#2,sub3_x_pos(a0)		; make the hammer move right
+
+.notfacingright:
+    endif
 	move.l	obj89_hammer_y_pos(a0),d0
 	move.w	obj89_hammer_y_vel(a0),d1
 	addi.w	#$38,obj89_hammer_y_vel(a0)	; add gravity
@@ -64798,15 +64971,47 @@ Obj89_Arrow_Offsets:
 ; ===========================================================================
 ; loc_30B4A:
 Obj89_Pillar_Sub4:
+    if fixBugs
+	; This code is flawed in that it does not reset the character's standing
+	; flags for the pillar, leading to a case where one player can walk on air
+	; if another player defeats the boss. This fixes that, and also adjusts the
+	; code to keep the pillars solid when they descend.
+	move.w	#$23,d1
+	move.w	#$44,d2
+	move.w	#$45,d3
+	move.w	x_pos(a0),d4
+	move.w	y_pos(a0),-(sp)
+	addi_.w	#4,y_pos(a0)
+	jsrto	JmpTo26_SolidObject
+	move.w	(sp)+,y_pos(a0)
+    endif
 	move.b	#1,(Screen_Shaking_Flag).w	; make screen shake
 	addi_.w	#1,y_pos(a0)			; lower pillar
 	cmpi.w	#$510,y_pos(a0)			; has pillar lowered into the ground?
 	blt.s	BranchTo2_JmpTo37_DisplaySprite	; if not, branch
+    if fixBugs
+	; Read above. This was copied from Obj26_Solid.
+	move.b	status(a0),d0
+	andi.b	#standing_mask|pushing_mask,d0	; is someone touching the pillar?
+	beq.s	Obj89_Pillar_Lower	; if not, branch
+	move.b	d0,d1
+	andi.b	#p1_standing|p1_pushing,d1	; is it the main character?
+	beq.s	+		; if not, branch
+	andi.b	#~(1<<status.player.on_object|1<<status.player.pushing),(MainCharacter+status).w
+	ori.b	#1<<status.player.in_air,(MainCharacter+status).w	; prevent Sonic from walking in the air
++
+	andi.b	#p2_standing|p2_pushing,d0	; is it the sidekick?
+	beq.s	Obj89_Pillar_Lower	; if not, branch
+	andi.b	#~(1<<status.player.on_object|1<<status.player.pushing),(Sidekick+status).w
+	ori.b	#1<<status.player.in_air,(Sidekick+status).w	; prevent Tails from walking in the air
+
+Obj89_Pillar_Lower:
+    endif
 	move.b	#0,(Screen_Shaking_Flag).w	; else, stop shaking the screen
 	jmpto	JmpTo55_DeleteObject
 ; ===========================================================================
 
-BranchTo2_JmpTo37_DisplaySprite
+BranchTo2_JmpTo37_DisplaySprite ; BranchTo
 	jmpto	JmpTo37_DisplaySprite
 ; ===========================================================================
 ; loc_30B6C:
@@ -64951,6 +65156,15 @@ Obj89_Arrow_Platform:
 	move.w	#2,d3
 	move.w	x_pos(a0),d4
 	jsrto	JmpTo8_PlatformObject
+    if fixBugs
+	; AI Tails normally does not cause the arrow they are standing on
+	; to fall, this fixes that.
+	btst	#status.npc.p2_standing,status(a0)	; is Tails standing on the arrow?
+	beq.s	.notTails				; if not, branch
+	move.w	#$1F,obj89_arrow_timer(a0)		; else, set timer
+
+.notTails:
+    endif
 	btst	#status.npc.p1_standing,status(a0)	; is Sonic standing on the arrow?
 	beq.s	return_30D02				; if not, branch
 	move.w	#$1F,obj89_arrow_timer(a0)		; else, set timer
@@ -65352,8 +65566,21 @@ Obj57_TransferPositions:
 ;loc_31358:
 Obj57_FallApart:	; make the digger thingies fall down
 	cmpi.w	#$78,(Boss_Countdown).w
+    if ~~fixBugs
 	bgt.s	return_313C4
+    else
+	; Not actually a bugfix, but the code below pushed this branch out of range.
+	bgt.w	return_313C4
+    endif
 	subi_.w	#1,sub5_x_pos(a0)
+    if fixBugs
+	; This properly makes the left drill fall the opposite direction.
+	btst	#render_flags.x_flip,render_flags(a0)	; is Eggman facing right?
+	beq.s	.notfacingright			; is not, branch
+	addi_.w	#2,sub5_x_pos(a0)
+
+.notfacingright:
+    endif
 	move.l	obj57_sub5_y_pos2(a0),d0
 	move.w	obj57_sub5_y_vel(a0),d1
 	addi.w	#$38,obj57_sub5_y_vel(a0)
@@ -65367,6 +65594,14 @@ Obj57_FallApart:	; make the digger thingies fall down
 	move.w	#0,obj57_sub5_y_vel(a0)
 +			; second one
 	addi_.w	#1,sub2_x_pos(a0)
+    if fixBugs
+	; This properly makes the right drill fall the opposite direction.
+	btst	#render_flags.x_flip,render_flags(a0)	; is Eggman facing right?
+	beq.s	.notfacingright2			; is not, branch
+	subi_.w	#2,sub5_x_pos(a0)
+
+.notfacingright2:
+    endif
 	move.l	obj57_sub2_y_pos2(a0),d0
 	move.w	obj57_sub2_y_vel(a0),d1
 	addi.w	#$38,obj57_sub2_y_vel(a0)
@@ -66205,8 +66440,21 @@ loc_31E76:
 
 loc_31EAE:
 	cmpi.w	#$78,(Boss_Countdown).w
+    if ~~fixBugs
 	bgt.s	return_31F22
+    else
+	; Not actually a bugfix, but the code below pushed this branch out of range.
+	bgt.w	return_31F22
+    endif
 	subi_.w	#1,sub5_x_pos(a0)
+    if fixBugs
+	; This properly makes the left electricity generator fall the opposite direction.
+	btst	#render_flags.x_flip,render_flags(a0)	; is Eggman facing right?
+	beq.s	.notfacingright			; is not, branch
+	addi_.w	#2,sub5_x_pos(a0)
+
+.notfacingright:
+    endif
 	move.l	objoff_3A(a0),d0
 	move.w	objoff_2E(a0),d1
 	addi.w	#$38,objoff_2E(a0)
@@ -66223,6 +66471,14 @@ loc_31EE8:
 	cmpi.w	#60,(Boss_Countdown).w
 	bgt.s	return_31F22
 	addi_.w	#1,sub2_x_pos(a0)
+    if fixBugs
+	; This properly makes the right electricity generator fall the opposite direction.
+	btst	#render_flags.x_flip,render_flags(a0)	; is Eggman facing right?
+	beq.s	.notfacingright2		; is not, branch
+	subi_.w	#2,sub2_x_pos(a0)
+
+.notfacingright2:
+    endif
 	move.l	objoff_34(a0),d0
 	move.w	objoff_30(a0),d1
 	addi.w	#$38,objoff_30(a0)
@@ -66367,11 +66623,7 @@ loc_32080:
 	jsrto	JmpTo20_AnimateSprite
 	cmpi.w	#$705,y_pos(a0)
 	blo.w	JmpTo39_DisplaySprite
-    if gameRevision>=2
 	jmp	(JmpTo59_DeleteObject).l
-    else
-	bra.w	JmpTo59_DeleteObject
-    endif
 ; ===========================================================================
 ; animation script
 ; off_3209C:
@@ -66646,7 +66898,7 @@ Obj54_MainSub6:
 	bne.s	BranchTo2_Obj54_MoveAndShow
 	addq.b	#2,boss_routine(a0)		; => Obj54_MainSub8
 
-BranchTo2_Obj54_MoveAndShow
+BranchTo2_Obj54_MoveAndShow ; BranchTo
 	bra.w	Obj54_MoveAndShow
 ; ===========================================================================
 ;loc_32544
@@ -66664,7 +66916,7 @@ Obj54_MainSub8:
 	move.b	#0,boss_routine(a0)		; => Obj54_MainSub0
 	bclr	#6,objoff_2B(a0)
 
-BranchTo3_Obj54_MoveAndShow
+BranchTo3_Obj54_MoveAndShow ; BranchTo
 	bra.w	Obj54_MoveAndShow
 ; ===========================================================================
 ;loc_32574
@@ -66694,7 +66946,7 @@ Obj54_MainSubA:
 +
 	addq.b	#2,boss_routine(a0)		; => Obj54_MainSubC
 
-BranchTo4_Obj54_MoveAndShow
+BranchTo4_Obj54_MoveAndShow ; BranchTo
 	bra.w	Obj54_MoveAndShow
 ; ===========================================================================
 ;loc_325BE
@@ -66728,7 +66980,7 @@ Obj54_MainSubC:
 	bclr	#6,objoff_2B(a0)
 	move.b	#0,objoff_2F(a0)
 
-BranchTo5_Obj54_MoveAndShow
+BranchTo5_Obj54_MoveAndShow ; BranchTo
 	bra.w	Obj54_MoveAndShow
 ; ===========================================================================
 ;loc_3262E
@@ -66776,7 +67028,7 @@ loc_32650:
 	move.w	#$1E,(Boss_Countdown).w
 	bclr	#render_flags.x_flip,render_flags(a0)
 
-BranchTo6_Obj54_MoveAndShow
+BranchTo6_Obj54_MoveAndShow ; BranchTo
 	bra.w	Obj54_MoveAndShow
 ; ===========================================================================
 
@@ -67237,12 +67489,21 @@ Obj53_BreakAway:
 ;loc_32BB0
 Obj53_Animate:
 	bsr.w	+
+    if fixBugs
+Obj53_Animate_Part2:
+    endif
 	lea	(Ani_obj53).l,a1
 	jsrto	JmpTo21_AnimateSprite
 	jmpto	JmpTo40_DisplaySprite
 ; ===========================================================================
 +
+    if fixBugs
+	; This makes the clone instantly pop when a player is hit, rather
+	; than when the player hits the floor.
+	cmpi.b	#-1,collision_property(a0)
+    else
 	cmpi.b	#-2,collision_property(a0)
+    endif
 	bgt.s	+		; rts
 	move.b	#$14,mapping_frame(a0)
 	move.b	#6,anim(a0)
@@ -67260,7 +67521,13 @@ Obj53_BounceAround:
 +
 	bsr.w	Obj53_CheckPlayerHit
 	cmpi.b	#$B,mapping_frame(a0)
+    if ~~fixBugs
+	; If Tails defeats one of the clones two frames after Sonic has been
+	; hit by one, the game will crash due to incrementing routine twice.
 	bne.s	Obj53_Animate
+    else
+	bne.s	Obj53_Animate_Part2
+    endif
 	move.b	objoff_2C(a0),d0
 	jsr	(CalcSine).l
 	neg.w	d0
@@ -67616,6 +67883,15 @@ Obj55_HandleHits:
 	ori.b	#$80,Obj55_status(a0)	; set boss hit bit
 
 return_33192:
+    if fixBugs
+	; If the player defeats Eggman on the exact frame he is fully submerged,
+	; the game will crash due to the spiked chain having its routine set to
+	; 8, which is out-of-bounds for it.
+	cmpi.b	#8,boss_routine(a0)	; is boss exploding or retreating?
+	blo.s	+			; if yes, branch
+	move.b	#2,boss_subtype(a0)	; => Obj55_Main
++
+    endif
 	rts
 ; ===========================================================================
 ; loc_33194:
@@ -68188,7 +68464,7 @@ Obj55_Wave_End:
 	jmpto	JmpTo38_MarkObjGone
 ; ===========================================================================
 
-BranchTo2_JmpTo62_DeleteObject
+BranchTo2_JmpTo62_DeleteObject ; BranchTo
 	bra.w	JmpTo62_DeleteObject
 ; ===========================================================================
 ; animation script
@@ -70126,6 +70402,10 @@ loc_35150:
 	moveq	#$1E,d0
 
 loc_35164:
+    if fixBugs
+	; Save the last animation value to elsewhere, related to a bugfix below.
+	move.b	anim(a0),objoff_23(a0)
+    endif
 	move.b	byte_35180(pc,d0.w),anim(a0)
 
 return_3516A:
@@ -70378,8 +70658,21 @@ BranchTo_JmpTo63_DeleteObject ; BranchTo
 ; ===========================================================================
 
 loc_3539E:
+    if fixBugs
+	; anim_frame_duration causes many of the animations to look far choppier
+	; than they should, or appear inconsistent. To solve this, we will store
+	; the proper animation elsewhere and stop decrementing the frame duration
+	; until both match up.
+	move.b	objoff_23(a0),d0
+	cmp.b	anim(a0),d0
+	bne.s	.skip
+    endif
 	subq.b	#1,anim_frame_duration(a0)
 	bpl.s	return_353E8
+    if fixBugs
+.skip:
+	move.b	anim(a0),objoff_23(a0)
+    endif
 	moveq	#0,d0
 	move.b	anim(a0),d0
 	add.w	d0,d0
@@ -70530,9 +70823,9 @@ Obj5B_Main:
 	bsr.w	loc_3551C
 	tst.w	x_pos(a0)
 	bmi.w	JmpTo63_DeleteObject
-	cmpi.w	#256,x_pos(a0) ; Screen width
+	cmpi.w	#screen_width_ss,x_pos(a0)
 	bhs.w	JmpTo63_DeleteObject
-	cmpi.w	#224,y_pos(a0) ; Screen height
+	cmpi.w	#screen_height_ss,y_pos(a0)
 	bgt.w	JmpTo63_DeleteObject
 	lea	(Ani_obj5B_obj60).l,a1
 	jsrto	JmpTo24_AnimateSprite
@@ -73633,7 +73926,7 @@ loc_374D8:
 ; loc_374F4:
 Obj97_DeathDrop:
 	move.w	(Camera_Max_Y_pos).w,d0
-	addi.w	#224,d0
+	addi.w	#screen_height,d0
 	cmp.w	y_pos(a0),d0
 	blo.w	JmpTo65_DeleteObject
 	jsrto	JmpTo8_ObjectMoveAndFall
@@ -75130,7 +75423,7 @@ loc_3848C:
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
 
-BranchTo5_JmpTo39_MarkObjGone
+BranchTo5_JmpTo39_MarkObjGone ; BranchTo
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -75501,7 +75794,7 @@ loc_389B6:
 	cmpi.w	#$80,d3
 	blo.s	loc_389D2
 
-BranchTo6_JmpTo39_MarkObjGone
+BranchTo6_JmpTo39_MarkObjGone ; BranchTo
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
 
@@ -75529,7 +75822,7 @@ loc_389FA:
 	move.w	word_38A1A(pc,d1.w),y_vel(a0)
 	bsr.w	loc_38A1E
 
-BranchTo7_JmpTo39_MarkObjGone
+BranchTo7_JmpTo39_MarkObjGone ; BranchTo
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
 word_38A1A:
@@ -76048,7 +76341,7 @@ loc_38F88:
 	move.w	word_38FE0-6(pc,d0.w),objoff_32(a1)
 	move.w	word_38FE0(pc,d0.w),objoff_34(a1)
 
-BranchTo2_JmpTo45_DisplaySprite
+BranchTo2_JmpTo45_DisplaySprite ; BranchTo
 	jmpto	JmpTo45_DisplaySprite
 ; ===========================================================================
 		dc.w MainCharacter	; -2
@@ -77482,8 +77775,8 @@ ObjB0_Index:	offsetTable
 
 ObjB0_Init:
 	bsr.w	LoadSubObject
-	move.w	#$1E8,x_pixel(a0)
-	move.w	#$F0,y_pixel(a0)
+	move.w	#spriteScreenPositionX(screen_width+40),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(0),y_pixel(a0)
 	move.w	#$B,objoff_2A(a0)
 	move.w	#2,(SegaScr_VInt_Subrout).w
 	bset	#render_flags.x_flip,render_flags(a0)
@@ -77703,8 +77996,8 @@ ObjB1_Index:	offsetTable
 ObjB1_Init:
 	bsr.w	LoadSubObject
 	move.b	#4,mapping_frame(a0)
-	move.w	#$174,x_pixel(a0)
-	move.w	#$D8,y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(84),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(-24),y_pixel(a0)
 	rts
 ; ===========================================================================
 ; BranchTo4_JmpTo45_DisplaySprite
@@ -78416,7 +78709,7 @@ loc_3AC84:
 	beq.s	return_3ACF0
 	addq.b	#2,routine_secondary(a0)
 	clr.b	collision_flags(a0)
-	move.w	#(224/2)+8,(Camera_Y_pos_bias).w
+	move.w	#(screen_height/2)+8,(Camera_Y_pos_bias).w
 	movea.w	objoff_2C(a0),a1 ; a1=object
 	bset	#status.npc.p2_pushing,status(a1)
 	lea	(MainCharacter).w,a1 ; a1=character
@@ -80185,7 +80478,7 @@ loc_3C140:
 	move.b	#1,(WindTunnel_holding_flag).w
 	move.b	#1,objoff_32(a0)
 
-BranchTo16_JmpTo39_MarkObjGone
+BranchTo16_JmpTo39_MarkObjGone ; BranchTo
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
 
@@ -80840,7 +81133,7 @@ ObjC5_PlatformReleaserLoadP:	; P=Platforms
 	bsr.w	LoadChildObject
 	move.b	objoff_2E(a0),objoff_2E(a1)
 
-BranchTo8_JmpTo45_DisplaySprite
+BranchTo8_JmpTo45_DisplaySprite ; BranchTo
 	jmpto	JmpTo45_DisplaySprite
 ; ===========================================================================
 
@@ -81617,7 +81910,7 @@ loc_3D2D4:
 +
 	clr.b	collision_property(a0)
 
-BranchTo18_JmpTo39_MarkObjGone
+BranchTo18_JmpTo39_MarkObjGone ; BranchTo
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
 
@@ -83933,8 +84226,8 @@ Obj8A_Index:	offsetTable
 ; loc_3EADA:
 Obj8A_Init:
 	addq.b	#2,routine(a0)
-	move.w	#$120,x_pixel(a0)
-	move.w	#$F0,y_pixel(a0)
+	move.w	#spriteScreenPositionXCentered(0),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(0),y_pixel(a0)
 	move.l	#Obj8A_MapUnc_3EB4E,mappings(a0)
 	move.w	#make_art_tile($05A0,0,0),art_tile(a0)
 	jsrto	JmpTo65_Adjust2PArtPointer
@@ -86560,8 +86853,8 @@ BuildHUD:
 	bne.s	+
 	addq.w	#2,d1	; set mapping frame for double blink
 +
-	move.w	#128+16,d3	; set X pos
-	move.w	#128+136,d2	; set Y pos
+	move.w	#spriteScreenPositionX(16),d3	; set X pos
+	move.w	#spriteScreenPositionYCentered(24),d2	; set Y pos
 	lea	(HUD_MapUnc_40A9A).l,a1
 	movea.w	#make_art_tile(ArtTile_ArtNem_HUD,0,1),a3	; set art tile and flags
 	add.w	d1,d1
@@ -86599,8 +86892,8 @@ BuildHUD_P1_NoRings:
 	addq.w	#2,d1	; make TIME flash
 ; loc_4088C:
 BuildHUD_P1_Continued:
-	move.w	#$90,d3
-	move.w	#$188,d2
+	move.w	#spriteScreenPositionX(16),d3
+	move.w	#spriteScreenPositionY2P(screen_height/2+24),d2
 	lea	(HUD_MapUnc_40BEA).l,a1
 	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Text_2P,0,1),a3
 	add.w	d1,d1
@@ -86608,8 +86901,8 @@ BuildHUD_P1_Continued:
 	move.w	(a1)+,d1
 	subq.w	#1,d1
 	jsrto	JmpTo_DrawSprite_2P_Loop
-	move.w	#$B8,d3
-	move.w	#$108,d2
+	move.w	#spriteScreenPositionX(56),d3
+	move.w	#spriteScreenPositionY2P(screen_height/2-104),d2
 	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Numbers_2P,0,1),a3
 	moveq	#0,d7
 	move.b	(Timer_minute).w,d7
@@ -86618,8 +86911,8 @@ BuildHUD_P1_Continued:
 	moveq	#0,d7
 	move.b	(Timer_second).w,d7
 	bsr.w	loc_40938
-	move.w	#$C0,d3
-	move.w	#$118,d2
+	move.w	#spriteScreenPositionX(64),d3
+	move.w	#spriteScreenPositionY2P(screen_height/2-88),d2
 	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Numbers_2P,0,1),a3
 	moveq	#0,d7
 	move.w	(Ring_count).w,d7
@@ -86628,16 +86921,16 @@ BuildHUD_P1_Continued:
 	bne.s	+
 	tst.b	(Update_HUD_timer).w
 	beq.s	+
-	move.w	#$110,d3
-	move.w	#$1B8,d2
+	move.w	#spriteScreenPositionX(144),d3
+	move.w	#spriteScreenPositionY2P(screen_height/2+72),d2
 	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Numbers_2P,0,1),a3
 	moveq	#0,d7
 	move.b	(Loser_Time_Left).w,d7
 	bsr.w	loc_40938
 +
 	moveq	#4,d1
-	move.w	#$90,d3
-	move.w	#$188,d2
+	move.w	#spriteScreenPositionX(16),d3
+	move.w	#spriteScreenPositionY2P(screen_height/2+24),d2
 	lea	(HUD_MapUnc_40BEA).l,a1
 	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Text_2P,0,1),a3
 	add.w	d1,d1
@@ -86776,8 +87069,8 @@ BuildHUD_P2_NoRings:
 	addq.w	#2,d1
 ; loc_409F8:
 BuildHUD_P2_Continued:
-	move.w	#$90,d3
-	move.w	#$268,d2
+	move.w	#spriteScreenPositionX(16),d3
+	move.w	#spriteScreenPositionY2P(screen_height/2+24)+screen_height,d2
 	lea	(HUD_MapUnc_40BEA).l,a1
 	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Text_2P,0,1),a3
 	add.w	d1,d1
@@ -86785,8 +87078,8 @@ BuildHUD_P2_Continued:
 	move.w	(a1)+,d1
 	subq.w	#1,d1
 	jsrto	JmpTo_DrawSprite_2P_Loop
-	move.w	#$B8,d3
-	move.w	#$1E8,d2
+	move.w	#spriteScreenPositionX(56),d3
+	move.w	#spriteScreenPositionY2P(screen_height/2-104)+screen_height,d2
 	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Numbers_2P,0,1),a3
 	moveq	#0,d7
 	move.b	(Timer_minute_2P).w,d7
@@ -86795,8 +87088,8 @@ BuildHUD_P2_Continued:
 	moveq	#0,d7
 	move.b	(Timer_second_2P).w,d7
 	bsr.w	loc_40938
-	move.w	#$C0,d3
-	move.w	#$1F8,d2
+	move.w	#spriteScreenPositionX(64),d3
+	move.w	#spriteScreenPositionY2P(screen_height/2-88)+screen_height,d2
 	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Numbers_2P,0,1),a3
 	moveq	#0,d7
 	move.w	(Ring_count_2P).w,d7
@@ -86805,16 +87098,16 @@ BuildHUD_P2_Continued:
 	bne.s	+
 	tst.b	(Update_HUD_timer_2P).w
 	beq.s	+
-	move.w	#$110,d3
-	move.w	#$298,d2
+	move.w	#spriteScreenPositionX(144),d3
+	move.w	#spriteScreenPositionY2P(screen_height/2+72)+screen_height,d2
 	movea.w	#make_art_tile_2p(ArtTile_Art_HUD_Numbers_2P,0,1),a3
 	moveq	#0,d7
 	move.b	(Loser_Time_Left).w,d7
 	bsr.w	loc_40938
 +
 	moveq	#5,d1
-	move.w	#$90,d3
-	move.w	#$268,d2
+	move.w	#spriteScreenPositionX(16),d3
+	move.w	#spriteScreenPositionY2P(screen_height/2+24)+screen_height,d2
 	lea	(HUD_MapUnc_40BEA).l,a1
 	movea.w	#make_art_tile_2p(ArtTile_ArtNem_Powerups,0,1),a3
 	add.w	d1,d1
@@ -87751,7 +88044,7 @@ Debug_TimerNotOver:
 	add.l	d1,d2
 	moveq	#0,d0
 	move.w	(Camera_Max_Y_pos_target).w,d0
-	addi.w	#224-1,d0
+	addi.w	#screen_height-1,d0
 	swap	d0
 	cmp.l	d0,d2
 	blt.s	.maxYPosNotReached
@@ -89388,6 +89681,8 @@ PlrList_ResultsTails_Dup: plrlistheader
 	plreq ArtTile_ArtNem_Perfect, ArtNem_Perfect
 PlrList_ResultsTails_Dup_End
     endif
+; In an accurate ROM, this junk data ends at $42D50.
+; Though, REV00 has some 00 bytes, for some reason...
 
 
 
@@ -91082,9 +91377,9 @@ Sound70:	include "sound/sfx/F0 - Oil Slide.asm"
 	finishBank
 
 ; end of 'ROM'
-	if padToPowerOfTwo && (*)&(*-1)
-		cnop	-1,2<<lastbit(*-1)
-		dc.b	0
+	if padToPowerOfTwo && (*-StartOfRom)&(*-StartOfRom-1)
+		cnop	-1,2<<lastbit(*-StartOfRom-1)
+		dc.b	$00
 paddingSoFar	:= paddingSoFar+1
 	else
 		even

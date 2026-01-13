@@ -342,3 +342,4 @@ signextendB function val,signextend(val,8)
 roundFloatToInteger function float,INT(float+0.5)
 min function a,b,b!((a!b)&(-(a<b)))
 max function a,b,a!((a!b)&(-(a<b)))
+roundToNextMultiple function val,multiple,(val+(multiple-1))/multiple*multiple
