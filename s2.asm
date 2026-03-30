@@ -2254,8 +2254,8 @@ ProcessDPLC_Main:
 	move.l	d0,(Plc_RepeatCount).w
 	move.l	d1,(Plc_PaletteIndex).w
 	move.l	d2,(Plc_PreviousRow).w
-	move.l	d5,(Plc_Buffer_Reg10).w
-	move.l	d6,(Plc_Buffer_Reg14).w
+	move.l	d5,(Plc_DataWord).w
+	move.l	d6,(Plc_ShiftValue).w
 +
 	rts
 
