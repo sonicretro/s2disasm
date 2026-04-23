@@ -14147,7 +14147,7 @@ ObjCD_Index:	offsetTable
 ; ===========================================================================
 ; loc_AAC0:
 ObjCD_Init:
-	lea	(Obj28_SubObjData).l,a1
+	lea	(ObjCD_SubObjData).l,a1
 	jsrto	JmpTo_LoadSubObject_Part3
 	move.l	(RNG_seed).w,d0
 	ror.l	#3,d0
@@ -14342,8 +14342,14 @@ ChildObject_AD6A:	childObjectData objoff_3E, ObjID_EndingSeqSonic, $00
 ChildObject_AD6E:	childObjectData objoff_3E, ObjID_TornadoHelixes, $00
 
 ; off_AD72:
-Obj28_SubObjData:
+ObjCD_SubObjData:
+    if fixBugs
+	subObjData Obj28_MapUnc_11E1C,make_art_tile(ArtTile_ArtNem_Animal_2,0,0),1<<render_flags.level_fg,1,8,0
+    else
+	; This should use priority 1, not 2. As-is, it causes the birds to
+	; overlap the Tornado but appear behind Sonic.
 	subObjData Obj28_MapUnc_11E1C,make_art_tile(ArtTile_ArtNem_Animal_2,0,0),1<<render_flags.level_fg,2,8,0
+    endif
 
 ; animation script
 ; byte_AD7C
@@ -15645,13 +15651,25 @@ SwScrl_WFZ:
 	lea	(TempArray_LayerDef).w,a2
 	move.l	d0,(a2)+				; Static parts of BG (generally no clouds in them)
 	move.l	d1,(a2)+				; Eggman's getaway ship
-	; Note: this is bugged: this tallies only the cloud speeds. It works fine
-	; if you are standing still, but makes the clouds move faster when going
-	; right and slower when going left. This is exactly the opposite of what
-	; should happen.
-	addi.l	#$8000,(a2)+			; Larger clouds
-	addi.l	#$4000,(a2)+			; Medium clouds
-	addi.l	#$2000,(a2)+			; Small clouds
+    if fixBugs
+	moveq	#0,d5
+	move.w	(Camera_X_pos_diff).w,d5	; get camera x-diff
+	ext.l	d5
+	asl.l	#5,d5
+	add.l	d5,(a2)				; add to high word of accumulation
+	addi.l	#$8000,(a2)+			; larger clouds
+	add.l	d5,(a2)
+	addi.l	#$4000,(a2)+			; medium clouds
+	add.l	d5,(a2)
+	addi.l	#$2000,(a2)+			; small clouds
+    else
+	; This tallies only the cloud speeds. It works fine if you are standing
+	; still, but makes the clouds move faster when going right and slower when
+	; going left. This is exactly the opposite of what should happen.
+	addi.l	#$8000,(a2)+			; larger clouds
+	addi.l	#$4000,(a2)+			; medium clouds
+	addi.l	#$2000,(a2)+			; small clouds
+    endif
 	lea	(SwScrl_WFZ_Transition_Array).l,a3
 	cmpi.w	#$2700,(Camera_X_pos).w
 	bhs.s	.got_array
@@ -73777,10 +73795,11 @@ Obj94_SolidCollision:
 Obj94_PostCreateHead:
 	bsr.s	Obj94_SolidCollision
 	jmpto	JmpTo39_MarkObjGone
+
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 97 - Rexon's head, from HTZ
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Sprite_373D0:
 Obj97:
 	moveq	#0,d0
