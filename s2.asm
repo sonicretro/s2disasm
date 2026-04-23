@@ -82521,6 +82521,8 @@ ObjC7_SetupEnding:
 	move.b	(Vint_runcount+3).w,d0
 	andi.b	#$1F,d0
 	bne.s	+
+	; PlaySound ends up being clogged up by the explosion sounds, both in
+	; the queue and sound channels, meaning this is effectively useless.
 	moveq	#signextendB(SndID_Rumbling2),d0
 	jsrto	JmpTo12_PlaySound
 	subq.w	#1,objoff_2A(a0)
@@ -82577,7 +82579,13 @@ loc_3D9D6:
 	dbf	d6,-
 
 	moveq	#signextendB(MusID_FadeOut),d0
+    if fixBugs
+	jsr	(PlayMusic).l
+    else
+	; PlaySound ends up being clogged up by the explosion sounds, 
+	; preventing the music from fading out as it should.
 	jsrto	JmpTo12_PlaySound
+    endif
 	move.b	#GameModeID_EndingSequence,(Game_Mode).w ; => EndingSequence
 	jmpto	JmpTo65_DeleteObject
 ; ===========================================================================
