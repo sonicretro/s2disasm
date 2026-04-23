@@ -2149,7 +2149,7 @@ RunPLC_RAM:
 	; Immediately returns if the queue is empty or processing of a previous piece is still ongoing
 	tst.l	(Plc_Buffer).w
 	beq.s	.return
-	tst.w	(Plc_Buffer_Reg18).w
+	tst.w	(Plc_PatternsLeft).w
 	bne.s	.return
 
 	movea.l	(Plc_Buffer).w,a0
@@ -2169,7 +2169,7 @@ RunPLC_RAM:
 	; the PLC processor will begin despite it not being fully
 	; initialised yet, causing a crash. S3K fixes this bug by moving this
 	; instruction to the end of the function.
-	move.w	d2,(Plc_Buffer_Reg18).w
+	move.w	d2,(Plc_PatternsLeft).w
     endif
 
 	bsr.w	NemDecPrepare
@@ -2179,15 +2179,15 @@ RunPLC_RAM:
 	moveq	#$10,d6
 	moveq	#0,d0
 	move.l	a0,(Plc_Buffer).w
-	move.l	a3,(Plc_Buffer_Reg0).w
-	move.l	d0,(Plc_Buffer_Reg4).w
-	move.l	d0,(Plc_Buffer_Reg8).w
-	move.l	d0,(Plc_Buffer_RegC).w
-	move.l	d5,(Plc_Buffer_Reg10).w
-	move.l	d6,(Plc_Buffer_Reg14).w
+	move.l	a3,(Plc_PtrNemCode).w
+	move.l	d0,(Plc_RepeatCount).w
+	move.l	d0,(Plc_PaletteIndex).w
+	move.l	d0,(Plc_PreviousRow).w
+	move.l	d5,(Plc_DataWord).w
+	move.l	d6,(Plc_ShiftValue).w
     if fixBugs
 	; See above.
-	move.w	d2,(Plc_Buffer_Reg18).w
+	move.w	d2,(Plc_PatternsLeft).w
     endif
 
 .return:
@@ -2200,9 +2200,13 @@ RunPLC_RAM:
 
 ; sub_16E0:
 ProcessDPLC:
-	tst.w	(Plc_Buffer_Reg18).w
+	; In Sonic 1, ProcessDPLC processed 9 patterns per frame, however Sonic 2
+	; instead only processes 6 patterns. It's possible this was made as an
+	; attempt to sidestep the PLC race conditions, or the occasional lag that
+	; could happen when decompressing the explosion graphics.
+	tst.w	(Plc_PatternsLeft).w
 	beq.w	+	; rts
-	move.w	#6,(Plc_Buffer_Reg1A).w	; 6 patterns are decompressed every frame
+	move.w	#6,(Plc_FramePatternsLeft).w	; 6 patterns are decompressed every frame
 	moveq	#0,d0
 	move.w	(Plc_Buffer+4).w,d0
 	addi.w	#6*$20,(Plc_Buffer+4).w	; increment by 6 patterns's worth of data
@@ -2213,9 +2217,9 @@ ProcessDPLC:
 
 ; loc_16FC:
 ProcessDPLC2:
-	tst.w	(Plc_Buffer_Reg18).w
+	tst.w	(Plc_PatternsLeft).w
 	beq.s	+	; rts
-	move.w	#3,(Plc_Buffer_Reg1A).w
+	move.w	#3,(Plc_FramePatternsLeft).w
 	moveq	#0,d0
 	move.w	(Plc_Buffer+4).w,d0
 	addi.w	#$60,(Plc_Buffer+4).w
@@ -2230,28 +2234,28 @@ ProcessDPLC_Main:
 	move.l	d0,(a4)
 	subq.w	#4,a4
 	movea.l	(Plc_Buffer).w,a0
-	movea.l	(Plc_Buffer_Reg0).w,a3
-	move.l	(Plc_Buffer_Reg4).w,d0
-	move.l	(Plc_Buffer_Reg8).w,d1
-	move.l	(Plc_Buffer_RegC).w,d2
-	move.l	(Plc_Buffer_Reg10).w,d5
-	move.l	(Plc_Buffer_Reg14).w,d6
+	movea.l	(Plc_PtrNemCode).w,a3
+	move.l	(Plc_RepeatCount).w,d0
+	move.l	(Plc_PaletteIndex).w,d1
+	move.l	(Plc_PreviousRow).w,d2
+	move.l	(Plc_DataWord).w,d5
+	move.l	(Plc_ShiftValue).w,d6
 	lea	(Decomp_Buffer).w,a1
 
 -	movea.w	#8,a5
 	bsr.w	NemDecRun.writePixelLoopEntry
-	subq.w	#1,(Plc_Buffer_Reg18).w
+	subq.w	#1,(Plc_PatternsLeft).w
 	beq.s	ProcessDPLC_Pop
-	subq.w	#1,(Plc_Buffer_Reg1A).w
+	subq.w	#1,(Plc_FramePatternsLeft).w
 	bne.s	-
 
 	move.l	a0,(Plc_Buffer).w
-	move.l	a3,(Plc_Buffer_Reg0).w
-	move.l	d0,(Plc_Buffer_Reg4).w
-	move.l	d1,(Plc_Buffer_Reg8).w
-	move.l	d2,(Plc_Buffer_RegC).w
-	move.l	d5,(Plc_Buffer_Reg10).w
-	move.l	d6,(Plc_Buffer_Reg14).w
+	move.l	a3,(Plc_PtrNemCode).w
+	move.l	d0,(Plc_RepeatCount).w
+	move.l	d1,(Plc_PaletteIndex).w
+	move.l	d2,(Plc_PreviousRow).w
+	move.l	d5,(Plc_DataWord).w
+	move.l	d6,(Plc_ShiftValue).w
 +
 	rts
 

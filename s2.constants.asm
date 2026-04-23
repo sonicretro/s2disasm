@@ -1469,14 +1469,14 @@ MiscLevelVariables_End
 Plc_Buffer:			ds.b	6*16	; Pattern load queue (each entry is 6 bytes)
 Plc_Buffer_Only_End:
 				; these seem to store nemesis decompression state so PLC processing can be spread out across frames
-Plc_Buffer_Reg0:		ds.l	1	
-Plc_Buffer_Reg4:		ds.l	1	
-Plc_Buffer_Reg8:		ds.l	1	
-Plc_Buffer_RegC:		ds.l	1	
-Plc_Buffer_Reg10:		ds.l	1	
-Plc_Buffer_Reg14:		ds.l	1	
-Plc_Buffer_Reg18:		ds.w	1	; amount of current entry remaining to decompress
-Plc_Buffer_Reg1A:		ds.w	1	
+Plc_PtrNemCode:			ds.l	1	; pointer for nemesis decompression code
+Plc_RepeatCount:		ds.l	1	
+Plc_PaletteIndex:		ds.l	1	
+Plc_PreviousRow:		ds.l	1	
+Plc_DataWord:			ds.l	1	
+Plc_ShiftValue:			ds.l	1	
+Plc_PatternsLeft:		ds.w	1	; amount of current entry remaining to decompress
+Plc_FramePatternsLeft:		ds.w	1	
 				ds.b	4	; seems unused
 Plc_Buffer_End:
 
