@@ -3016,6 +3016,8 @@ cfPanningAMSFMS:
 	; change the panning of a given channel.
 
 	bit	7,(ix+zTrack.VoiceControl)	; Is this a PSG track?
+	; The following return check is a leftover from Sonic 1, where it returns if VoiceControl is negative (i.e. 80h or higher).
+	; A not zero check would make this more consistent with the rest of the sound driver.
 	ret	m				; If so, quit!
     if ~~FixDriverBugs
 	; This check is in the wrong place.
