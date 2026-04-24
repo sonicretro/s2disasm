@@ -63780,10 +63780,19 @@ Obj52_Mobile_Flamethrower:
 	move.b	#$2F,objoff_3E(a0)
 
 loc_2FDAA:
+    if ~~fixBugs
+	; This branch is in the wrong place. Should the player defeat Eggman right as
+	; the flamethrower finishes, AnimateBoss will increment `boss_routine` by 2,
+	; making Obj52_Mobile read an invalid entry from off_2FD0E and crash the game.
 	bsr.w	loc_300A4
+    endif
 	bsr.w	loc_2FEDE
 	lea	(Ani_obj52).l,a1
 	bsr.w	AnimateBoss
+    if fixBugs
+	; See above.
+	bsr.w	loc_300A4
+    endif
 	jmpto	JmpTo36_DisplaySprite
 ; ===========================================================================
 
@@ -76269,7 +76278,7 @@ ObjA7_GrabCharacter:
 	; just floating in the air, and when the player touches the ground,
 	; they'll dash off. To fix this, just clear the player's Spin Dash
 	; flag, like this:
-	clr.b spindash_flag(a1)
+	clr.b	spindash_flag(a1)
     endif
 	move.b	#1,mapping_frame(a0)
 	tst.w	y_vel(a0)
