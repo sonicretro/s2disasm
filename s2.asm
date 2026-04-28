@@ -36150,21 +36150,21 @@ Obj01_MdNormal_Checks:
 	andi.b	#button_B_mask|button_C_mask|button_A_mask,d0
 	bne.s	Obj01_MdNormal
 	cmpi.b	#AniIDSonAni_Blink,anim(a0)
-	beq.s	return_1A2DE
+	beq.s	Obj01_MdNormal_Skip
 	cmpi.b	#AniIDSonAni_GetUp,anim(a0)
-	beq.s	return_1A2DE
+	beq.s	Obj01_MdNormal_Skip
 	cmpi.b	#AniIDSonAni_Wait,anim(a0)
 	bne.s	Obj01_MdNormal
 	cmpi.b	#$1E,anim_frame(a0)
 	blo.s	Obj01_MdNormal
 	move.b	(Ctrl_1_Held_Logical).w,d0
 	andi.b	#button_up_mask|button_down_mask|button_left_mask|button_right_mask|button_B_mask|button_C_mask|button_A_mask,d0
-	beq.s	return_1A2DE
+	beq.s	Obj01_MdNormal_Skip
 	move.b	#AniIDSonAni_Blink,anim(a0)
 	cmpi.b	#$AC,anim_frame(a0)
-	blo.s	return_1A2DE
+	blo.s	Obj01_MdNormal_Skip
 	move.b	#AniIDSonAni_GetUp,anim(a0)
-	bra.s	return_1A2DE
+	bra.s	Obj01_MdNormal_Skip
 ; ---------------------------------------------------------------------------
 ; loc_1A2B8:
 Obj01_MdNormal:
@@ -36173,12 +36173,19 @@ Obj01_MdNormal:
 	bsr.w	Sonic_SlopeResist
 	bsr.w	Sonic_Move
 	bsr.w	Sonic_Roll
+
+    if fixBugs
+Obj01_MdNormal_Skip:
+    endif
 	bsr.w	Sonic_LevelBound
 	jsr	(ObjectMove).l
 	bsr.w	AnglePos
 	bsr.w	Sonic_SlopeRepel
 
-return_1A2DE:
+    if ~~fixBugs
+; return_1A2DE:
+Obj01_MdNormal_Skip:
+    endif
 	rts
 ; End of subroutine Obj01_MdNormal
 ; ===========================================================================
