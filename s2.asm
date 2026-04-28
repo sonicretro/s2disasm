@@ -50892,6 +50892,12 @@ loc_252F0:
 	addq.b	#2,(a4)
 	move.w	x_pos(a0),x_pos(a1)
 	move.w	y_pos(a0),y_pos(a1)
+    if fixBugs
+	; If Sonic/Tails fall into the launcher after being hurt, they will
+	; go through it while still activating the speed-doubling effect.
+	; Putting them into their normal state fixes the bug.
+	move.b	#2,routine(a1)
+    endif
 	move.b	#$81,obj_control(a1)
 	move.b	#2,anim(a1)
 	move.w	#$1000,inertia(a1)
