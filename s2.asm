@@ -35309,8 +35309,28 @@ SolidObject_TopBottom:
 ; ===========================================================================
 ; loc_19B06:
 SolidObject_InsideBottom:
+    if fixBugs
+	; Squash the player while on the ground and at angles within
+	; [$18, -$18]. We need the angle check or else touching the bottom of
+	; a solid object while going up a steep slope or wall would also
+	; squash the player.
+	btst	#status.player.in_air,status(a1)
+	bne.s	.inair
+	move.b	angle(a1),d4
+	addi.b	#$18,d4
+	cmpi.b	#$30,d4
+	bls.s	SolidObject_Squash
+
+.inair:
+    endif
 	tst.w	y_vel(a1)		; is Sonic moving vertically?
+    if ~~fixBugs
+	; The player will only be squashed while standing still or on flat
+	; ground. In ARZ, the uneven terrain will make the falling pillar tips
+	; unable to squash the player, who can get pushed through the ground.
+	; We fix this by handling the player's ground state above.
 	beq.s	SolidObject_Squash	; if not, branch
+    endif
 	bpl.s	loc_19B1C		; if moving downwards, branch
 	tst.w	d3			; is Sonic above the object?
 	bpl.s	loc_19B1C		; if yes, branch (this will never be true)
@@ -35338,8 +35358,11 @@ loc_19B1C:
 ; ===========================================================================
 ; loc_19B28:
 SolidObject_Squash:
+    if ~~fixBugs
+	; This becomes redundant with the above squash-check fix.
 	btst	#status.player.in_air,status(a1)	; is Sonic in the air?
 	bne.s	loc_19B1C	; if yes, branch
+    endif
 	mvabs.w	d0,d4
 
 	; Hey, look: it's the two lines of code that the Taxman/Stealth
