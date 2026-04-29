@@ -35376,8 +35376,27 @@ SolidObject_Landed:
 	bmi.s	SolidObject_Miss	; if Sonic is right of object, branch
 	cmp.w	d2,d1			; is Sonic left of object?
 	bhs.s	SolidObject_Miss	; if yes, branch
+    if fixBugs
+	; The original code checks the player's velocity to prevent them from
+	; sticking to the top of the object when moving upward. This is fine,
+	; except that it makes it possible for HTZ's rising floor to go right
+	; through the player in a few places where a shallow slope meets a
+	; wall. To fix this, we skip the velocity check if the player's angle
+	; is within [$10, -$10].
+	btst	#status.player.in_air,status(a1)
+	bne.s	.inair
+	move.b	angle(a1),d0
+	addi.b	#$10,d0
+	cmpi.b	#$20,d0
+	bls.s	.skip
+
+.inair:
+    endif
 	tst.w	y_vel(a1)		; is Sonic moving upwards?
 	bmi.s	SolidObject_Miss	; if yes, branch
+    if fixBugs
+.skip:
+    endif
 	sub.w	d3,y_pos(a1)		; correct Sonic's position
 	subq.w	#1,y_pos(a1)
 	bsr.w	RideObject_SetRide
@@ -35667,8 +35686,22 @@ loc_19D92:
 ; d2 already has the full width of the log.
 ;loc_19D9C:
 PlatformObject11_cont:
+    if fixBugs
+	; See fixes under SolidObject_Landed and PlatformObject_cont.
+	btst	#status.player.in_air,status(a1)
+	bne.s	.inair
+	move.b	angle(a1),d0
+	addi.b	#$10,d0
+	cmpi.b	#$20,d0
+	bls.s	.skip
+
+.inair:
+    endif
 	tst.w	y_vel(a1)
 	bmi.w	return_19E8E
+    if fixBugs
+.skip
+    endif
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	add.w	d1,d0
@@ -35679,8 +35712,27 @@ PlatformObject11_cont:
 ; ===========================================================================
 ;loc_19DBA:
 PlatformObject_cont:
+    if fixBugs
+	; See fix under SolidObject_Landed.
+	; Strictly speaking, this fix isn't needed for any platform objects,
+	; but it's still applied for the sake of consistency. The angle check
+	; is necessary to account for platforms that might be placed at the
+	; top of a quarter pipe. Without it, platforms would "catch" players
+	; going up the slope/wall and passing through from below.
+	btst	#status.player.in_air,status(a1)
+	bne.s	.inair
+	move.b	angle(a1),d0
+	addi.b	#$10,d0
+	cmpi.b	#$20,d0
+	bls.s	.skip
+
+.inair:
+    endif
 	tst.w	y_vel(a1)
 	bmi.w	return_19E8E
+    if fixBugs
+.skip
+    endif
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	add.w	d1,d0
@@ -35770,8 +35822,22 @@ return_19E8E:
 ; ===========================================================================
 ;loc_19E90:
 SlopedPlatform_cont:
+    if fixBugs
+	; See fixes under SolidObject_Landed and PlatformObject_cont.
+	btst	#status.player.in_air,status(a1)
+	bne.s	.inair
+	move.b	angle(a1),d0
+	addi.b	#$10,d0
+	cmpi.b	#$20,d0
+	bls.s	.skip
+
+.inair:
+    endif
 	tst.w	y_vel(a1)
 	bmi.w	return_19E8E
+    if fixBugs
+.skip
+    endif
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	add.w	d1,d0
@@ -35795,8 +35861,22 @@ loc_19EB6:
 ; Basically identical to PlatformObject_cont
 ;loc_19EC8:
 PlatformObject2_cont:
+    if fixBugs
+	; See fixes under SolidObject_Landed and PlatformObject_cont.
+	btst	#status.player.in_air,status(a1)
+	bne.s	.inair
+	move.b	angle(a1),d0
+	addi.b	#$10,d0
+	cmpi.b	#$20,d0
+	bls.s	.skip
+
+.inair:
+    endif
 	tst.w	y_vel(a1)
 	bmi.w	return_19E8E
+    if fixBugs
+.skip
+    endif
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	add.w	d1,d0
