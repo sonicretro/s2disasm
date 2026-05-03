@@ -7899,7 +7899,7 @@ ObjBD_MapUnc_3BD3E:	include "mappings/sprite/objBD.asm"
 ObjBE_MapUnc_3BE46:	include "mappings/sprite/objBE.asm"
 ; ===========================================================================
 	include "_incObj/BF WFZ Destructible Pole.asm"
-	include "_incObj/WFZ Destructible Pole.asm"
+	include "_anim/WFZ Destructible Pole.asm"
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
