@@ -149,7 +149,7 @@ loc_1DAE4:
 	add.b	objoff_35(a0),d2
 	move.b	(a3,d2.w),d5
 	addq.w	#1,objoff_38(a0)
-	lea	byte_1DB42(pc),a6
+	lea	Ani_obj35(pc),a6
 	move.b	objoff_34(a0),d6
 	jsr	loc_1DB2C(pc)
 	move.w	d2,(a2)+	; sub2_x_pos
