@@ -12,6 +12,8 @@ s2.map
 # Built ROMs.
 s2built.bin
 s2built.prev.bin
+s2built.gen
+s2built.prev.gen
 
 # Automatically-generated music data.
 sound/music/generated/*.inc
