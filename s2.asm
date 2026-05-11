@@ -60224,7 +60224,7 @@ Obj50_unknown3		= objoff_32	; word
 Obj50_unknown4		= objoff_34	; word
 Obj50_child		= objoff_36	; long	; pointer to wing object (main)
 Obj50_parent		= objoff_36	; long	; pointer to main object (wing)
-Obj50_unknown5		= objoff_3A	; word
+Obj50_waterlevel	= objoff_3A	; word
 Obj50_timer		= objoff_3C	; byte	; time spent following the player before shooting and time to wait before actually shooting
 
 ; Sprite_2CCC8:
@@ -60251,6 +60251,7 @@ Obj50_Init:
 	move.b	#4,priority(a0)
 	move.b	#$10,width_pixels(a0)
 	move.w	#-$100,x_vel(a0)
+
 	; This entire block is a remnant of its behavior in older builds. There:
 	; - The lower four bits of subtype were (X*16) for its movement range.
 	; - The upper four bits of subtype were (Y*256) for how long until it fires.
@@ -60267,7 +60268,10 @@ Obj50_Init:
 	move.w	d0,Obj50_unknown4(a0)	; unused
 	move.w	y_pos(a0),Obj50_unknown1(a0)	; unused
 
-	move.w	(Water_Level_1).w,Obj50_unknown5(a0)	; ???
+	; In earlier builds, Aquis hardcoded Water_Level_1 to $39C due to how its behavior
+	; worked. September 14th changed this.
+	move.w	(Water_Level_1).w,Obj50_waterlevel(a0)
+
 	move.b	#3,Obj50_shots_remaining(a0)	; hardcoded to three shots
 
 	; creat wing child object
