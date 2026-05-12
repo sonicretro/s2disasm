@@ -36637,14 +36637,25 @@ Obj01_Traction:
 ; stops Sonic from running through walls that meet the ground
 ; loc_1A64E:
 Obj01_CheckWallsOnGround:
+    if fixBugs
+	; These lines were added in S3K to fix an oversight where Sonic could
+	; run through walls if he is upside-down, or standing on a wall when
+	; his angle was exactly $00 (most noticeable in Carnival Night in S3A).
+	move.b	angle(a0),d0
+	andi.b	#$3F,d0		; is Sonic standing on a flat surface in any of the four quadrants?
+	beq.s	.noearlyexit	; if yes, branch
+    endif
 	move.b	angle(a0),d0
 	addi.b	#$40,d0
 	bmi.s	return_1A6BE
+    if fixBugs
+.noearlyexit:
+    endif
 	move.b	#$40,d1			; Rotate 90 degrees clockwise
 	tst.w	inertia(a0)		; Check inertia
-	beq.s	return_1A6BE	; If not moving, don't do anything
-	bmi.s	+				; If negative, branch
-	neg.w	d1				; Otherwise, we want to rotate counterclockwise
+	beq.s	return_1A6BE		; If not moving, don't do anything
+	bmi.s	+			; If negative, branch
+	neg.w	d1			; Otherwise, we want to rotate counterclockwise
 +
 	move.b	angle(a0),d0
 	add.b	d1,d0
@@ -37188,8 +37199,14 @@ Sonic_Jump:
 	clr.b	stick_to_convex(a0)
 	move.w	#SndID_Jump,d0
 	jsr	(PlaySound).l	; play jumping sound
+    if ~~fixBugs
+	; These lines are a remnant of the victory animation that would play
+	; when jumping at the end of a stage in the Sonic 1 prototype. Not only
+	; are these two lines now useless, they also cause Sonic to incorrectly
+	; reset to his standing collision when roll-jumping.
 	move.b	#$13,y_radius(a0)
 	move.b	#9,x_radius(a0)
+    endif
 	btst	#status.player.rolling,status(a0)
 	bne.s	Sonic_RollJump
 	move.b	#$E,y_radius(a0)
@@ -39607,9 +39624,20 @@ Obj02_Traction:
 ; stops Tails from running through walls that meet the ground
 ; loc_1C232:
 Obj02_CheckWallsOnGround:
+    if fixBugs
+	; These lines were added in S3K to fix an oversight where Tails could
+	; run through walls if he is upside-down, or standing on a wall when
+	; his angle was exactly $00 (most noticeable in Carnival Night in S3A).
+	move.b	angle(a0),d0
+	andi.b	#$3F,d0		; is Sonic standing on a flat surface in any of the four quadrants?
+	beq.s	.noearlyexit	; if yes, branch
+    endif
 	move.b	angle(a0),d0
 	addi.b	#$40,d0
 	bmi.s	return_1C2A2
+    if fixBugs
+.noearlyexit:
+    endif
 	move.b	#$40,d1
 	tst.w	inertia(a0)
 	beq.s	return_1C2A2
@@ -40163,8 +40191,14 @@ Tails_Jump:
 	clr.b	stick_to_convex(a0)
 	move.w	#SndID_Jump,d0
 	jsr	(PlaySound).l	; play jumping sound
+    if ~~fixBugs
+	; These lines are a remnant of the victory animation that would play
+	; when jumping at the end of a stage in the Sonic 1 prototype. Not only
+	; are these two lines now useless, they also cause Tails to incorrectly
+	; reset to his standing collision when roll-jumping.
 	move.b	#$F,y_radius(a0)
 	move.b	#9,x_radius(a0)
+    endif
 	btst	#status.player.rolling,status(a0)
 	bne.s	Tails_RollJump
 	move.b	#$E,y_radius(a0)
