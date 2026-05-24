@@ -24857,17 +24857,20 @@ Obj29_MapUnc_11ED0:	include "mappings/sprite/obj29.asm"
 
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 25 - A ring (usually only placed through placement mode)
-; ----------------------------------------------------------------------------
-; Obj_Ring:
+; ---------------------------------------------------------------------------
+; OST Variables:
+ring_base_x_pos		= objoff_32	; x-position of primary ring (leftover from Sonic 1)
+
+; Sprite_11F44: Obj_Ring:
 Obj25:
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj25_Index(pc,d0.w),d1
 	jmp	Obj25_Index(pc,d1.w)
 ; ===========================================================================
-; Obj_25_subtbl:
+; off_11F52: Obj_25_subtbl:
 Obj25_Index:	offsetTable
 		offsetTableEntry.w Obj25_Init		; 0
 		offsetTableEntry.w Obj25_Animate	; 2
@@ -24875,10 +24878,10 @@ Obj25_Index:	offsetTable
 		offsetTableEntry.w Obj25_Sparkle	; 6
 		offsetTableEntry.w Obj25_Delete		; 8
 ; ===========================================================================
-; Obj_25_sub_0:
+; loc_11F5C: Obj_25_sub_0:
 Obj25_Init:
 	addq.b	#2,routine(a0)
-	move.w	x_pos(a0),objoff_32(a0)
+	move.w	x_pos(a0),ring_base_x_pos(a0)
 	move.l	#Obj25_MapUnc_12382,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Ring,1,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
@@ -24886,25 +24889,25 @@ Obj25_Init:
 	move.b	#2,priority(a0)
 	move.b	#$47,collision_flags(a0)
 	move.b	#8,width_pixels(a0)
-; Obj_25_sub_2:
+; loc_11F90: Obj_25_sub_2:
 Obj25_Animate:
 	move.b	(Rings_anim_frame).w,mapping_frame(a0)
-	move.w	objoff_32(a0),d0
+	move.w	ring_base_x_pos(a0),d0
 	bra.w	MarkObjGone2
 ; ===========================================================================
-; Obj_25_sub_4:
+; loc_11F9E: Obj_25_sub_4:
 Obj25_Collect:
 	addq.b	#2,routine(a0)
 	move.b	#0,collision_flags(a0)
 	move.b	#1,priority(a0)
 	bsr.s	CollectRing
-; Obj_25_sub_6:
+; loc_11FB0: Obj_25_sub_6:
 Obj25_Sparkle:
 	lea	(Ani_Ring).l,a1
 	bsr.w	AnimateSprite
 	bra.w	DisplaySprite
 ; ===========================================================================
-; BranchTo4_DeleteObject
+; loc_11FBE: BranchTo4_DeleteObject
 Obj25_Delete:
 	bra.w	DeleteObject
 
@@ -24989,9 +24992,14 @@ JmpTo2_PlaySound2 ; JmpTo
 ; End of function CollectRing
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 37 - Scattering rings (generated when Sonic is hurt and has rings)
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
+; OST Variables:
+  if fixBugs
+lostrings_timer		= objoff_1F	; time until ring is deleted
+  endif
+
 ; Sprite_12078:
 Obj37:
 	moveq	#0,d0
@@ -24999,7 +25007,7 @@ Obj37:
 	move.w	Obj37_Index(pc,d0.w),d1
 	jmp	Obj37_Index(pc,d1.w)
 ; ===========================================================================
-; Obj_37_subtbl:
+; off_12086: Obj_37_subtbl:
 Obj37_Index:	offsetTable
 		offsetTableEntry.w Obj37_Init		; 0
 		offsetTableEntry.w Obj37_Main		; 2
@@ -25007,22 +25015,22 @@ Obj37_Index:	offsetTable
 		offsetTableEntry.w Obj37_Sparkle	; 6
 		offsetTableEntry.w Obj37_Delete		; 8
 ; ===========================================================================
-; Obj_37_sub_0:
+; loc_12090: Obj_37_sub_0:
 Obj37_Init:
 	movea.l	a0,a1
 	moveq	#0,d5
-	move.w	(Ring_count).w,d5
-	tst.b	parent+1(a0)
-	beq.s	+
-	move.w	(Ring_count_2P).w,d5
+	move.w	(Ring_count).w,d5	; use Sonic's rings counter
+	tst.b	parent+1(a0)		; did Tails lose his rings?
+	beq.s	+			; if not, branch
+	move.w	(Ring_count_2P).w,d5	; use Tails' ring counter instead
 +
-	moveq	#$20,d0
-	cmp.w	d0,d5
-	blo.s	+
-	move.w	d0,d5
+	moveq	#32,d0
+	cmp.w	d0,d5		; has player over 33 rings?
+	blo.s	+		; if not, branch
+	move.w	d0,d5		; if yes, limit to 32 rings
 +
 	subq.w	#1,d5
-	move.w	#$288,d4
+	move.w	#$288,d4	; set initial angle
 	bra.s	+
 ; ===========================================================================
 
@@ -25042,7 +25050,13 @@ Obj37_Init:
 	move.b	#3,priority(a1)
 	move.b	#$47,collision_flags(a1)
 	move.b	#8,width_pixels(a1)
-	move.b	#-1,(Ring_spill_anim_counter).w
+  if ~~fixBugs
+	; The ring deletion timer shouldn't be stored as a global variable, since
+	; it makes it possible to reset it for all lost rings by getting hit twice
+	; in quick succession (this is more noticeable in two player mode). Instead,
+	; we'll handle it as an SST.
+	move.b	#-1,(Ring_spill_anim_counter).w		; reset deletion/animation timer
+  endif
 	tst.w	d4
 	bmi.s	+
 	move.w	d4,d0
@@ -25065,81 +25079,102 @@ Obj37_Init:
 	neg.w	d4
 	dbf	d5,-
 +
+  if fixBugs
+	moveq	#-1,d0
+	move.b	d0,lostrings_timer(a0)		; reset deletion/animation timer
+	move.b	d0,(Ring_spill_anim_counter).w	; we still need this for the animation
+  endif
 	move.w	#SndID_RingSpill,d0
 	jsr	(PlaySound2).l
-	tst.b	parent+1(a0)
-	bne.s	+
+	tst.b	parent+1(a0)	; did Tails grab the ring?
+	bne.s	+		; if yes, branch
+	; reset Sonic's ring counter
 	move.w	#0,(Ring_count).w
 	move.b	#$80,(Update_HUD_rings).w
 	move.b	#0,(Extra_life_flags).w
 	bra.s	Obj37_Main
 ; ===========================================================================
 +
+	; reset Tails' ring counter
 	move.w	#0,(Ring_count_2P).w
 	move.b	#$80,(Update_HUD_rings_2P).w
 	move.b	#0,(Extra_life_flags_2P).w
-; Obj_37_sub_2:
+; loc_12178: Obj_37_sub_2:
 Obj37_Main:
 	move.b	(Ring_spill_anim_frame).w,mapping_frame(a0)
 	bsr.w	ObjectMove
-	addi.w	#$18,y_vel(a0)
-	bmi.s	loc_121B8
+	addi.w	#$18,y_vel(a0)		; apply gravity
+	bmi.s	Obj37_CheckBoundary
+
+	; only checks floor collision every 8 frames
 	move.b	(Vint_runcount+3).w,d0
 	add.b	d7,d0
 	andi.b	#7,d0
-	bne.s	loc_121B8
+	bne.s	Obj37_CheckBoundary
+
 	_btst	#render_flags.on_screen,render_flags(a0)
 	_beq.s	loc_121D0
 	jsr	(RingCheckFloorDist).l
-	tst.w	d1
-	bpl.s	loc_121B8
-	add.w	d1,y_pos(a0)
+	tst.w	d1			; has the ring hit the floor?
+	bpl.s	Obj37_CheckBoundary	; if not, branch
+	add.w	d1,y_pos(a0)		; align to floor
+	; reduce y-speed by 25% and bounce
 	move.w	y_vel(a0),d0
 	asr.w	#2,d0
 	sub.w	d0,y_vel(a0)
 	neg.w	y_vel(a0)
-
-loc_121B8:
-
-	tst.b	(Ring_spill_anim_counter).w
-	beq.s	Obj37_Delete
+; loc_121B8:
+Obj37_CheckBoundary:
+  if fixBugs
+	subq.b	#1,lostrings_timer(a0)		; has the timer finished?
+	beq.s	Obj37_Delete			; if yes, branch
+  else
+	tst.b	(Ring_spill_anim_counter).w	; has the animation finished?
+	beq.s	Obj37_Delete			; if yes, branch
+  endif
+	; The code below is programmed to automatically delete rings if they hit
+	; the bottom of the screen, however it does not take into account vertical
+	; wrapping, leading to a situation where the player will unfairly lose all
+	; their rings immediately if they happen to take damage near the boundary.
 	move.w	(Camera_Max_Y_pos).w,d0
 	addi.w	#screen_height,d0
-	cmp.w	y_pos(a0),d0
-	blo.s	Obj37_Delete
+	cmp.w	y_pos(a0),d0			; has object moved below the level boundary?
+	blo.s	Obj37_Delete			; if yes, branch
 	bra.w	DisplaySprite
 ; ===========================================================================
 
 loc_121D0:
 	tst.w	(Two_player_mode).w
 	bne.w	Obj37_Delete
-	bra.s	loc_121B8
+	bra.s	Obj37_CheckBoundary
 ; ===========================================================================
-; Obj_37_sub_4:
+; loc_121DA: Obj_37_sub_4:
 Obj37_Collect:
 	addq.b	#2,routine(a0)
 	move.b	#0,collision_flags(a0)
 	move.b	#1,priority(a0)
 	bsr.w	CollectRing
-; Obj_37_sub_6:
+; loc_121EE: Obj_37_sub_6:
 Obj37_Sparkle:
 	lea	(Ani_Ring).l,a1
 	bsr.w	AnimateSprite
 	bra.w	DisplaySprite
 ; ===========================================================================
-; BranchTo5_DeleteObject
+; loc_121FC: BranchTo5_DeleteObject
 Obj37_Delete:
 	bra.w	DeleteObject
 
-; Unused - dead code/data S1 big ring:
 ; ===========================================================================
-; BigRing:
-	; a0=object
+; ---------------------------------------------------------------------------
+; Object XX - Giant Ring (leftover from S1, unreferenced)
+; ---------------------------------------------------------------------------
+; Sprite_12504: Obj_BigRing:
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	BigRing_States(pc,d0.w),d1
 	jmp	BigRing_States(pc,d1.w)
 ; ===========================================================================
+; off_12512:
 BigRing_States:	offsetTable
 		offsetTableEntry.w BigRing_Init		; 0
 		offsetTableEntry.w BigRing_Main		; 2
@@ -25155,6 +25190,12 @@ BigRing_Init:
 	move.b	#$40,width_pixels(a0)
 	_btst	#render_flags.on_screen,render_flags(a0)
 	_beq.s	BigRing_Main
+	; Got_Emerald is a boolean set after exiting a Special Stage, it should actually
+	; be using Emerald_count.
+	; This seems to be the result of Sega repurposing the original variable, since
+	; it correctly checked Emerald_count up to Beta 4 (coincidentally, it was this
+	; build that moved it from $FE57 to $FFB1). Super Sonic also incorrectly checked
+	; this variable in Beta 5, and the All Emeralds cheat still writes to it.
 	cmpi.b	#6,(Got_Emerald).w
 	beq.w	BigRing_Delete
 	cmpi.w	#50,(Ring_count).w
@@ -25165,7 +25206,7 @@ BigRing_Init:
 	addq.b	#2,routine(a0)
 	move.b	#2,priority(a0)
 	move.b	#$52,collision_flags(a0)
-	move.w	#$C40,(BigRingGraphics).w
+	move.w	#$C40,(BigRingGraphics).w	; $C40 was the size of the Giant Ring graphics
 ; loc_12264:
 BigRing_Main:
 	move.b	(Rings_anim_frame).w,mapping_frame(a0)
@@ -25203,15 +25244,20 @@ BigRing_Enter:
 BigRing_Delete:
 	bra.w	DeleteObject
 
-; Unused - dead code/data S1 ring flash:
 ; ===========================================================================
-; BigRingFlash:
-	; a0=object
+; ---------------------------------------------------------------------------
+; Object XX - Giant Ring flash (leftover from S1, unreferenced)
+; ---------------------------------------------------------------------------
+; OST Variables:
+flash_parent 		= objoff_3C
+
+; Sprite_125C8: Obj_BigRingFlash:
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	BigRingFlash_States(pc,d0.w),d1
 	jmp	BigRingFlash_States(pc,d1.w)
 ; ===========================================================================
+; off_125D6:
 BigRingFlash_States: offsetTable
 	offsetTableEntry.w BigRingFlash_Init	; 0
 	offsetTableEntry.w BigRingFlash_Main	; 2
@@ -25249,7 +25295,7 @@ BigRingFlash_Animate:
 	bhs.s	++				; if yes, branch
 	cmpi.b	#3,mapping_frame(a0)		; have we reached the 4th animation frame?
 	bne.s	+	; rts			; if not, return
-	movea.l	objoff_3C(a0),a1 ; a1=object	; get the parent big ring object
+	movea.l	flash_parent(a0),a1 ; a1=object	; get the parent big ring object
 	move.b	#6,routine(a1)			; set its routine to "delete"
 	move.b	#AniIDSonAni_Blank,(MainCharacter+anim).w	; change the character's animation
 	move.b	#1,(f_bigring).w
@@ -25273,7 +25319,6 @@ BigRingFlash_Delete:
 ; end of dead code/data
 
 ; ===========================================================================
-
 ; animation script
 ; byte_1237A:
 Ani_Ring:	offsetTable
@@ -25284,7 +25329,6 @@ Ani_Ring:	offsetTable
 ; sprite mappings
 ; -------------------------------------------------------------------------------
 Obj25_MapUnc_12382:	include "mappings/sprite/obj37_a.asm"
-
 ; -------------------------------------------------------------------------------
 ; Unused sprite mappings
 ; -------------------------------------------------------------------------------
@@ -80598,7 +80642,7 @@ ObjC0_MapUnc_3C098:	include "mappings/sprite/objC0.asm"
 plating_time		= objoff_30	; time between grabbing the plating & breaking
 plating_grabbed		= objoff_32	; flag set when Sonic/Tails grab the plating
 plating_unk		= objoff_3F	; seems to be used to determine how long some plates hold on
-					; for after breaking until they fly off
+					; for after Sonic/Tails lets go
 ; Sprite_3C0AC:
 ObjC1:
 	moveq	#0,d0
