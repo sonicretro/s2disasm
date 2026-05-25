@@ -25410,20 +25410,20 @@ Ani_objDC:	offsetTable
 
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 26 - Monitor
 ;
 ; The power-ups themselves are handled by the next object. This just does the
 ; monitor collision and graphics.
-; ----------------------------------------------------------------------------
-; Obj_Monitor:
+; ---------------------------------------------------------------------------
+; Sprite_12974: Obj_Monitor:
 Obj26:
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj26_Index(pc,d0.w),d1
 	jmp	Obj26_Index(pc,d1.w)
 ; ===========================================================================
-; obj_26_subtbl:
+; off_12982: obj_26_subtbl:
 Obj26_Index:	offsetTable
 		offsetTableEntry.w Obj26_Init			; 0
 		offsetTableEntry.w Obj26_Main			; 2
@@ -25431,7 +25431,7 @@ Obj26_Index:	offsetTable
 		offsetTableEntry.w Obj26_Animate		; 6
 		offsetTableEntry.w BranchTo2_MarkObjGone	; 8
 ; ===========================================================================
-; obj_26_sub_0: Obj_26_Init:
+; loc_1298C: obj_26_sub_0: Obj_26_Init:
 Obj26_Init:
 	addq.b	#2,routine(a0)
 	move.b	#$E,y_radius(a0)
@@ -25469,7 +25469,7 @@ Obj26_Init:
 	tst.w	(Two_player_mode).w	; is it two player mode?
 	beq.s	Obj26_Main		; if not, branch
 	move.b	#9,anim(a0)		; use '?' icon
-;obj_26_sub_2:
+; loc_12A00: obj_26_sub_2:
 Obj26_Main:
 	move.b	routine_secondary(a0),d0
 	beq.s	SolidObject_Monitor
@@ -25497,7 +25497,7 @@ SolidObject_Monitor:
 	lea	(Sidekick).w,a1 ; a1=character
 	moveq	#p2_standing_bit,d6
 	bsr.w	SolidObject_Monitor_Tails
-
+; loc_12A4E:
 Obj26_Animate:
 	lea	(Ani_obj26).l,a1
 	bsr.w	AnimateSprite
@@ -25506,6 +25506,7 @@ BranchTo2_MarkObjGone ; BranchTo
 	bra.w	MarkObjGone
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
 ; sub_12756:
 SolidObject_Monitor_Sonic:
 	btst	d6,status(a0)			; is Sonic standing on the monitor?
@@ -25517,6 +25518,7 @@ SolidObject_Monitor_Sonic:
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
 ; sub_12768:
 SolidObject_Monitor_Tails:
 	btst	d6,status(a0)			; is Tails standing on the monitor?
@@ -25532,7 +25534,10 @@ SolidObject_Monitor_Tails:
 ; ---------------------------------------------------------------------------
 ; Checks if the player has walked over the edge of the monitor.
 ; ---------------------------------------------------------------------------
-;loc_12782:
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; loc_12782:
 Obj26_ChkOverEdge:
 	move.w	d1,d2
 	add.w	d2,d2
@@ -25553,14 +25558,14 @@ Obj26_ChkOverEdge:
 	moveq	#0,d4
 	rts
 ; ---------------------------------------------------------------------------
-;loc_127B2:
+; loc_127B2:
 Obj26_CharStandOn:
 	move.w	d4,d2
 	bsr.w	MvSonicOnPtfm
 	moveq	#0,d4
 	rts
 ; ===========================================================================
-;obj_26_sub_4:
+; loc_12AC2: obj_26_sub_4:
 Obj26_Break:
 	move.b	status(a0),d0
 	andi.b	#standing_mask|pushing_mask,d0	; is someone touching the monitor?
@@ -25575,7 +25580,7 @@ Obj26_Break:
 	beq.s	Obj26_SpawnIcon	; if not, branch
 	andi.b	#~(1<<status.player.on_object|1<<status.player.pushing),(Sidekick+status).w
 	ori.b	#1<<status.player.in_air,(Sidekick+status).w	; prevent Tails from walking in the air
-;loc_127EC:
+; loc_127EC:
 Obj26_SpawnIcon:
 	clr.b	status(a0)
 	addq.b	#2,routine(a0)
@@ -25587,7 +25592,7 @@ Obj26_SpawnIcon:
 	move.w	y_pos(a0),y_pos(a1)
 	move.b	anim(a0),anim(a1)
 	move.w	parent(a0),parent(a1)	; parent gets the item
-;loc_1281E:
+; loc_1281E:
 Obj26_SpawnSmoke:
 	bsr.w	AllocateObject
 	bne.s	+
@@ -25611,10 +25616,11 @@ Obj26_SpawnSmoke:
 +
 	move.b	#$A,anim(a0)
 	bra.w	DisplaySprite
+
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 2E - Monitor contents (code for power-up behavior and rising image)
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 
 Obj2E:
 	moveq	#0,d0
@@ -25815,7 +25821,7 @@ ChkPlayer_1up:
 super_shoes:
 	addq.w	#1,(a2)
 	bset	#status_secondary.speed_shoes,status_secondary(a1)	; give super sneakers status
-	move.w	#$4B0,speedshoes_time(a1)
+	move.w	#20*60,speedshoes_time(a1)
 	cmpa.w	#MainCharacter,a1	; did the main character break the monitor?
 	bne.s	super_shoes_Tails	; if not, branch
 	cmpi.w	#2,(Player_mode).w	; is player using Tails?
@@ -26076,14 +26082,37 @@ teleport_swap_table:
 	TeleportTableEntry	Camera_Difference,        Camera_Difference_P2
 	TeleportTableEntry	Sonic_Pos_Record_Buf,     Tails_Pos_Record_Buf
 teleport_swap_table_end:
+
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; '?' Monitor
-; doesn't actually do anything other than increase the player's monitor score
+; Doesn't actually do anything other than increase the player's monitor score,
+; since randomization is handled upon creating the object.
+;
+; In the August 21st and September 14th builds, it was used to test Super Sonic.
+; Sonic_CheckGoSuper likely had its code copied from here.
 ; ---------------------------------------------------------------------------
 qmark_monitor:
 	addq.w	#1,(a2)
+    if 0
+	move.b	#1,(Super_Sonic_palette).w
+	move.b	#$F,(Palette_timer).w
+	move.b	#1,(Super_Sonic_flag).w
+	move.b	#$81,(MainCharacter+obj_control).w
+	move.b	#AniIDSupSonAni_Transform,(MainCharacter+anim).w	; use transformation animation
+	move.b	#ObjID_SuperSonicStars,(SuperSonicStars+id).w	; load Obj7E (Super Sonic stars object) at $FFFFD040
+	move.w	#$A00,(Sonic_top_speed).w
+	move.w	#$30,(Sonic_acceleration).w
+	move.w	#$100,(Sonic_deceleration).w
+	move.w	#0,(MainCharacter+invincibility_time).w
+	bset	#status_secondary.invincible,status_secondary(a1)
+	move.w	#SndID_SuperTransform,d0
+	jsr	(PlaySound).l	; play transformation sound effect.
+	move.w	#MusID_SuperSonic,d0
+	jmp	(PlayMusic).l	; play Super Sonic umsic
+    else
 	rts
+    endif
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Holds icon in place for a while, then destroys it
@@ -26145,9 +26174,9 @@ Ani_obj26_QuestionMark:
 Ani_obj26_Broken:
 	dc.b   2,  0,  1, $B,$FE,  1
 	even
-; ---------------------------------------------------------------------------------
-; Sprite Mappings - Sprite table for monitor and monitor contents (26, ??)
-; ---------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
+; Sprite mappings
+; ---------------------------------------------------------------------------
 ; MapUnc_12D36: MapUnc_obj26:
 Obj26_MapUnc_12D36:	include "mappings/sprite/obj26.asm"
 ; ===========================================================================
