@@ -327,7 +327,7 @@ Obj18_Falling:
 ; ===========================================================================
 ; 4 - Platform as it is falling
 ; ---------------------------------------------------------------------------
-; Will drop players after half a second, which translates into $5F pixels
+; Will drop players after half a second, which translates into $65 pixels
 ; below the platform's initial position
 ; ---------------------------------------------------------------------------
 ; loc_10702:
