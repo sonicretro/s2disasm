@@ -42162,6 +42162,10 @@ Obj0A_ReduceAir:
 	cmpa.w	#MainCharacter,a2
 	bne.s	+	; if it isn't player 1, branch
 	move.b	#1,(Deform_lock).w
+    if fixBugs
+	move.b	#2,routine(a2)		; force Sonic into their normal state
+	clr.b	(Update_HUD_timer).w	; stop the timer
+    endif
 +
 	rts
 ; ===========================================================================
