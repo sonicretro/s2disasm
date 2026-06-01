@@ -37987,6 +37987,24 @@ Sonic_HitFloor:
 	bsr.w	Sonic_CheckFloor
 	tst.w	d1
 	bpl.s	return_1AFE6
+    if fixBugs
+	; When Sonic is moving down and a floor collision is detected, there exists
+	; a check that makes it so that he doesn't clip on top of a surface that
+	; he's too far below from. However, said check doesn't exist for when Sonic
+	; is moving left or right. The effects of this can easily be seen if you
+	; place a solid object on a top solid surface and hit the object from the bottom,
+	; where Sonic's Y movement will be cancelled out, causing him to start checking
+	; for floor collision, which makes him clip onto the surface.
+	move.b	y_vel(a0),d2	; get Sonic's fall speed at the time of impact (upper byte only, pixel delta)
+	addq.b	#8,d2		; increase it by one tile
+	neg.b	d2		; mirror it
+	cmp.b	d2,d1		; is result bigger than distance to floor?
+	bge.s	.landed		; if yes, branch
+	cmp.b	d2,d0		; is result bigger than distance to floor? (sloped variant)
+	blt.s	return_1AFE6	; if not, branch
+
+.landed:
+    endif
 	add.w	d1,y_pos(a0)
 	move.b	d3,angle(a0)
 	bsr.w	Sonic_ResetOnFloor
@@ -38065,6 +38083,18 @@ Sonic_HitFloor2:
 	bsr.w	Sonic_CheckFloor
 	tst.w	d1
 	bpl.s	return_1B09E
+    if fixBugs
+	; See explanation in Sonic_HitFloor
+	move.b	y_vel(a0),d2	; get Sonic's fall speed at the time of impact (upper byte only, pixel delta)
+	addq.b	#8,d2		; increase it by one tile
+	neg.b	d2		; mirror it
+	cmp.b	d2,d1		; is result bigger than distance to floor?
+	bge.s	.landed		; if yes, branch
+	cmp.b	d2,d0		; is result bigger than distance to floor? (sloped variant)
+	blt.s	return_1B09E	; if not, branch
+
+.landed:
+    endif
 	add.w	d1,y_pos(a0)
 	move.b	d3,angle(a0)
 	bsr.w	Sonic_ResetOnFloor
@@ -40859,6 +40889,18 @@ Tails_HitFloor:
 	bsr.w	Sonic_CheckFloor
 	tst.w	d1
 	bpl.s	return_1CA96
+    if fixBugs
+	; See explanation in Sonic_HitFloor
+	move.b	y_vel(a0),d2	; get Tails' fall speed at the time of impact (upper byte only, pixel delta)
+	addq.b	#8,d2		; increase it by one tile
+	neg.b	d2		; mirror it
+	cmp.b	d2,d1		; is result bigger than distance to floor?
+	bge.s	.landed		; if yes, branch
+	cmp.b	d2,d0		; is result bigger than distance to floor? (sloped variant)
+	blt.s	return_1CA96	; if not, branch
+
+.landed:
+    endif
 	add.w	d1,y_pos(a0)
 	move.b	d3,angle(a0)
 	bsr.w	Tails_ResetOnFloor
@@ -40937,6 +40979,18 @@ Tails_HitFloor2:
 	bsr.w	Sonic_CheckFloor
 	tst.w	d1
 	bpl.s	return_1CB4E
+    if fixBugs
+	; See explanation in Sonic_HitFloor
+	move.b	y_vel(a0),d2	; get Tails' fall speed at the time of impact (upper byte only, pixel delta)
+	addq.b	#8,d2		; increase it by one tile
+	neg.b	d2		; mirror it
+	cmp.b	d2,d1		; is result bigger than distance to floor?
+	bge.s	.landed		; if yes, branch
+	cmp.b	d2,d0		; is result bigger than distance to floor? (sloped variant)
+	blt.s	return_1CB4E	; if not, branch
+
+.landed:
+    endif
 	add.w	d1,y_pos(a0)
 	move.b	d3,angle(a0)
 	bsr.w	Tails_ResetOnFloor
