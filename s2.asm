@@ -36812,8 +36812,8 @@ Obj01_Traction:
 Obj01_CheckWallsOnGround:
     if fixBugs
 	; These lines were added in S3K to fix an oversight where Sonic could
-	; run through walls if he is upside-down, or standing on a wall when
-	; his angle was exactly $00 (most noticeable in Carnival Night in S3A).
+	; run through walls if he is upside-down, or moving on a wall when
+	; his angle was exactly $80 (most noticeable in Carnival Night in S3A).
 	move.b	angle(a0),d0
 	andi.b	#$3F,d0		; is Sonic standing on a flat surface in any of the four quadrants?
 	beq.s	.noearlyexit	; if yes, branch
@@ -39829,10 +39829,10 @@ Obj02_Traction:
 Obj02_CheckWallsOnGround:
     if fixBugs
 	; These lines were added in S3K to fix an oversight where Tails could
-	; run through walls if he is upside-down, or standing on a wall when
-	; his angle was exactly $00 (most noticeable in Carnival Night in S3A).
+	; run through walls if he is upside-down, or moving on a wall when
+	; his angle was exactly $80 (most noticeable in Carnival Night in S3A).
 	move.b	angle(a0),d0
-	andi.b	#$3F,d0		; is Sonic standing on a flat surface in any of the four quadrants?
+	andi.b	#$3F,d0		; is Tails standing on a flat surface in any of the four quadrants?
 	beq.s	.noearlyexit	; if yes, branch
     endif
 	move.b	angle(a0),d0
