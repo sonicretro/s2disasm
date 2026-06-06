@@ -43004,7 +43004,7 @@ loc_1E292:
 	lea	(Primary_Angle).w,a4	; write angle here
 	movea.w	#$10,a3				; tile height
 	move.w	#0,d6
-	bsr.w	FindFloor 
+	bsr.w	FindFloor
 	move.w	d1,-(sp)			; save d1 (distance to floor) to stack
 	move.w	y_pos(a0),d2
 	move.w	x_pos(a0),d3
@@ -45546,9 +45546,14 @@ word_1FCB8_End
 
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 03 - Collision plane/layer switcher
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
+; OST Variables:
+planeswitch_radius =	objoff_32	; word ; half-height of x-switcher or half-width of y-switcher
+planeswitch_p1_flag = 	objoff_34	; byte ; 0 if player 1 is above or left of switcher; 1 if below or to right
+planeswitch_p2_flag =	objoff_35	; byte ; same as above, but for player 2
+
 ; Sprite_1FCDC:
 Obj03:
 	moveq	#0,d0
@@ -45581,17 +45586,17 @@ Obj03_Init:
 	move.b	d0,mapping_frame(a0)
 	andi.w	#3,d0
 	add.w	d0,d0
-	move.w	word_1FD68(pc,d0.w),objoff_32(a0)
+	move.w	word_1FD68(pc,d0.w),planeswitch_radius(a0)
 	move.w	y_pos(a0),d1
 	lea	(MainCharacter).w,a1 ; a1=character
 	cmp.w	y_pos(a1),d1
 	bhs.s	+
-	move.b	#1,objoff_34(a0)
+	move.b	#1,planeswitch_p1_flag(a0)
 +
 	lea	(Sidekick).w,a1 ; a1=character
 	cmp.w	y_pos(a1),d1
 	bhs.s	+
-	move.b	#1,objoff_35(a0)
+	move.b	#1,planeswitch_p2_flag(a0)
 +
 	bra.w	Obj03_MainY
 ; ===========================================================================
@@ -45606,17 +45611,17 @@ Obj03_Init_CheckX:
 	andi.w	#3,d0
 	move.b	d0,mapping_frame(a0)
 	add.w	d0,d0
-	move.w	word_1FD68(pc,d0.w),objoff_32(a0)
+	move.w	word_1FD68(pc,d0.w),planeswitch_radius(a0)
 	move.w	x_pos(a0),d1
 	lea	(MainCharacter).w,a1 ; a1=character
 	cmp.w	x_pos(a1),d1
 	bhs.s	+
-	move.b	#1,objoff_34(a0)
+	move.b	#1,planeswitch_p1_flag(a0)
 +
 	lea	(Sidekick).w,a1 ; a1=character
 	cmp.w	x_pos(a1),d1
 	bhs.s	+
-	move.b	#1,objoff_35(a0)
+	move.b	#1,planeswitch_p2_flag(a0)
 +
 
 ; loc_1FDA4:
@@ -45624,7 +45629,7 @@ Obj03_MainX:
 	tst.w	(Debug_placement_mode).w
 	bne.w	return_1FEAC
 	move.w	x_pos(a0),d1
-	lea	objoff_34(a0),a2
+	lea	planeswitch_p1_flag(a0),a2
 	lea	(MainCharacter).w,a1 ; a1=character
 	bsr.s	+
 	lea	(Sidekick).w,a1 ; a1=character
@@ -45636,7 +45641,7 @@ Obj03_MainX:
 	move.b	#1,-1(a2)
 	move.w	y_pos(a0),d2
 	move.w	d2,d3
-	move.w	objoff_32(a0),d4
+	move.w	planeswitch_radius(a0),d4
 	sub.w	d4,d2
 	add.w	d4,d3
 	move.w	y_pos(a1),d4
@@ -45671,7 +45676,7 @@ Obj03_MainX_Alt:
 	move.b	#0,-1(a2)
 	move.w	y_pos(a0),d2
 	move.w	d2,d3
-	move.w	objoff_32(a0),d4
+	move.w	planeswitch_radius(a0),d4
 	sub.w	d4,d2
 	add.w	d4,d3
 	move.w	y_pos(a1),d4
@@ -45706,7 +45711,7 @@ Obj03_MainY:
 	tst.w	(Debug_placement_mode).w
 	bne.w	return_1FFB6
 	move.w	y_pos(a0),d1
-	lea	objoff_34(a0),a2
+	lea	planeswitch_p1_flag(a0),a2
 	lea	(MainCharacter).w,a1 ; a1=character
 	bsr.s	+
 	lea	(Sidekick).w,a1 ; a1=character
@@ -45718,7 +45723,7 @@ Obj03_MainY:
 	move.b	#1,-1(a2)
 	move.w	x_pos(a0),d2
 	move.w	d2,d3
-	move.w	objoff_32(a0),d4
+	move.w	planeswitch_radius(a0),d4
 	sub.w	d4,d2
 	add.w	d4,d3
 	move.w	x_pos(a1),d4
@@ -45753,7 +45758,7 @@ Obj03_MainY_Alt:
 	move.b	#0,-1(a2)
 	move.w	x_pos(a0),d2
 	move.w	d2,d3
-	move.w	objoff_32(a0),d4
+	move.w	planeswitch_radius(a0),d4
 	sub.w	d4,d2
 	add.w	d4,d3
 	move.w	x_pos(a1),d4
@@ -45783,9 +45788,9 @@ Obj03_MainY_Alt:
 return_1FFB6:
 	rts
 ; ===========================================================================
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 Obj03_MapUnc_1FFB8:	include "mappings/sprite/obj03.asm"
 ; ===========================================================================
 
@@ -82999,7 +83004,7 @@ loc_3D9D6:
     if fixBugs
 	jsr	(PlayMusic).l
     else
-	; PlaySound ends up being clogged up by the explosion sounds, 
+	; PlaySound ends up being clogged up by the explosion sounds,
 	; preventing the music from fading out as it should.
 	jsrto	JmpTo12_PlaySound
     endif
@@ -91452,7 +91457,7 @@ ArtNem_MtzLavaBubble:		BINCLUDE	"art/nemesis/Lava bubble from MTZ.nem"
 ArtNem_LavaCup:			BINCLUDE	"art/nemesis/Lava cup from MTZ.nem"
 	even
 ArtNem_BoltEnd_Rope:		BINCLUDE	"art/nemesis/Bolt end and rope from MTZ.nem"
-	even	
+	even
 ArtNem_MtzCog:			BINCLUDE	"art/nemesis/Small cog from MTZ.nem"
 	even
 ArtNem_MtzSpinTubeFlash:	BINCLUDE	"art/nemesis/Spin tube flash from MTZ.nem"
