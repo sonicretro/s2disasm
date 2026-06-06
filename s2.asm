@@ -50171,9 +50171,10 @@ Obj07_End:
 ; Object 45 - Pressure spring from OOZ
 ; ---------------------------------------------------------------------------
 ; OST Variables:
-obj45_strength = objoff_30
-obj45_frame = objoff_32
-obj45_original_x_pos = objoff_34
+obj45_strength			=	objoff_30	; word ; strength of spring
+obj45_frame				= 	objoff_32	; word ; frame counter used to track level of compression
+obj45_original_x_pos 	=	objoff_34	; word ; backup of initial x-pos
+obj45_compress			=	objoff_36	; byte ; flag set if spring is compressing
 
 ; Sprite_240F8:
 Obj45:
@@ -50339,7 +50340,7 @@ return_24278:
 ; ===========================================================================
 ; loc_2427A:
 Obj45_Horizontal:
-	move.b	#0,objoff_36(a0)
+	move.b	#0,obj45_compress(a0)
 	move.w	#31,d1
 	move.w	#12,d2
 	move.w	#13,d3
@@ -50380,7 +50381,7 @@ loc_242E6:
 	bsr.s	loc_2433C
 
 loc_242EE:
-	tst.b	objoff_36(a0)
+	tst.b	obj45_compress(a0)
 	bne.s	return_2433A
 	move.w	obj45_original_x_pos(a0),d0
 	cmp.w	x_pos(a0),d0
@@ -50467,7 +50468,7 @@ loc_243C0:
 	move.b	d0,mapping_frame(a0)
 
 loc_243C8:
-	move.b	#1,objoff_36(a0)
+	move.b	#1,obj45_compress(a0)
 
 return_243CE:
 	rts
