@@ -36798,14 +36798,14 @@ Obj01_SettleLeft:
 ; increase or decrease speed on the ground
 ; loc_1A630:
 Obj01_Traction:
-	move.b	angle(a0),d0
-	jsr	(CalcSine).l
-	muls.w	inertia(a0),d1
-	asr.l	#8,d1
-	move.w	d1,x_vel(a0)
-	muls.w	inertia(a0),d0
-	asr.l	#8,d0
-	move.w	d0,y_vel(a0)
+	move.b	angle(a0),d0	; get Sonic's current angle in relation to the floor
+	jsr	(CalcSine).l		; get sine and cosine values based on angle
+	muls.w	inertia(a0),d1	; multiply cosine value by current ground speed
+	asr.l	#8,d1			; shift result up a byte
+	move.w	d1,x_vel(a0)	; set new X-velocity
+	muls.w	inertia(a0),d0	; multiply sine value by current ground speed
+	asr.l	#8,d0			; shift result up a byte
+	move.w	d0,y_vel(a0)	; set new Y-velocity
 
 ; stops Sonic from running through walls that meet the ground
 ; loc_1A64E:
@@ -36814,13 +36814,13 @@ Obj01_CheckWallsOnGround:
 	; These lines were added in S3K to fix an oversight where Sonic could
 	; run through walls if he is upside-down, or moving on a wall when
 	; his angle was exactly $80 (most noticeable in Carnival Night in S3A).
-	move.b	angle(a0),d0
+	move.b	angle(a0),d0	; get Sonic's current angle in relation to the floor
 	andi.b	#$3F,d0		; is Sonic standing on a flat surface in any of the four quadrants?
 	beq.s	.noearlyexit	; if yes, branch
     endif
-	move.b	angle(a0),d0
-	addi.b	#$40,d0
-	bmi.s	return_1A6BE
+	move.b	angle(a0),d0	; get Sonic's current angle in relation to the floor
+	addi.b	#$40,d0			; rotate it by 90 degrees
+	bmi.s	return_1A6BE	; if Sonic is upside down, branch (to prevent potential collision issues with loops)
     if fixBugs
 .noearlyexit:
     endif
@@ -36830,38 +36830,38 @@ Obj01_CheckWallsOnGround:
 	bmi.s	+			; If negative, branch
 	neg.w	d1			; Otherwise, we want to rotate counterclockwise
 +
-	move.b	angle(a0),d0
-	add.b	d1,d0
-	move.w	d0,-(sp)
-	bsr.w	CalcRoomInFront
-	move.w	(sp)+,d0
-	tst.w	d1
-	bpl.s	return_1A6BE
-	asl.w	#8,d1
-	addi.b	#$20,d0
-	andi.b	#$C0,d0
-	beq.s	loc_1A6BA
-	cmpi.b	#$40,d0
-	beq.s	loc_1A6A8
-	cmpi.b	#$80,d0
-	beq.s	loc_1A6A2
-	add.w	d1,x_vel(a0)
-	bset	#status.player.pushing,status(a0)
-	move.w	#0,inertia(a0)
+	move.b	angle(a0),d0	; get Sonic's current angle
+	add.b	d1,d0			; rotate it by 90 degrees depending on directional speed
+	move.w	d0,-(sp)		; backup d0
+	bsr.w	CalcRoomInFront	; calculate distance to the wall in front of Sonic (if any)
+	move.w	(sp)+,d0		; restore d0
+	tst.w	d1				; has Sonic touched a wall?
+	bpl.s	return_1A6BE	; if not, branch
+	asl.w	#8,d1		; convert diff to wall into 8.8 fixed point for adjusting velocity
+	addi.b	#$20,d0		; rotate angle by 45 degrees clockwise
+	andi.b	#$C0,d0		; snap angle to nearest multiple of 90 degrees
+	beq.s	loc_1A6BA	; if Sonic is facing down, branch
+	cmpi.b	#$40,d0		; is Sonic facing left?
+	beq.s	loc_1A6A8	; if yes, branch
+	cmpi.b	#$80,d0		; is Sonic facing up?
+	beq.s	loc_1A6A2	; if yes, branch
+	add.w	d1,x_vel(a0)	; adjust X-velocity to prevent Sonic from walking into the wall
+	bset	#status.player.pushing,status(a0)	; set pushing flag
+	move.w	#0,inertia(a0)	; clear ground speed
 	rts
 ; ---------------------------------------------------------------------------
-loc_1A6A2:
-	sub.w	d1,y_vel(a0)
+loc_1A6A2:	; d0 is $80, Sonic is facing up
+	sub.w	d1,y_vel(a0)	; adjust Y-velocity to prevent Sonic from walking into the ceiling
 	rts
 ; ---------------------------------------------------------------------------
-loc_1A6A8:
-	sub.w	d1,x_vel(a0)
-	bset	#status.player.pushing,status(a0)
-	move.w	#0,inertia(a0)
+loc_1A6A8:	; d0 is $40, Sonic is facing left
+	sub.w	d1,x_vel(a0)	; adjust X-velocity to prevent Sonic from walking into the wall
+	bset	#status.player.pushing,status(a0)	; set pushing flag
+	move.w	#0,inertia(a0)	; clear ground speed
 	rts
 ; ---------------------------------------------------------------------------
-loc_1A6BA:
-	add.w	d1,y_vel(a0)
+loc_1A6BA:	; d0 is $00, Sonic is facing down
+	add.w	d1,y_vel(a0)	; adjust Y-velocity to prevent Sonic from walking into the floor
 
 return_1A6BE:
 	rts
@@ -39815,14 +39815,14 @@ Obj02_SettleLeft:
 ; increase or decrease speed on the ground
 ; loc_1C214:
 Obj02_Traction:
-	move.b	angle(a0),d0
-	jsr	(CalcSine).l
-	muls.w	inertia(a0),d1
-	asr.l	#8,d1
-	move.w	d1,x_vel(a0)
-	muls.w	inertia(a0),d0
-	asr.l	#8,d0
-	move.w	d0,y_vel(a0)
+	move.b	angle(a0),d0	; get Tails' current angle in relation to the floor
+	jsr	(CalcSine).l		; get sine and cosine values based on angle
+	muls.w	inertia(a0),d1	; multiply cosine value by current ground speed
+	asr.l	#8,d1			; shift result up a byte
+	move.w	d1,x_vel(a0)	; set new X-velocity
+	muls.w	inertia(a0),d0	; multiply sine value by current ground speed
+	asr.l	#8,d0			; shift result up a byte
+	move.w	d0,y_vel(a0)	; set new Y-velocity
 
 ; stops Tails from running through walls that meet the ground
 ; loc_1C232:
@@ -39831,58 +39831,56 @@ Obj02_CheckWallsOnGround:
 	; These lines were added in S3K to fix an oversight where Tails could
 	; run through walls if he is upside-down, or moving on a wall when
 	; his angle was exactly $80 (most noticeable in Carnival Night in S3A).
-	move.b	angle(a0),d0
+	move.b	angle(a0),d0	; get Tails' current angle in relation to the floor
 	andi.b	#$3F,d0		; is Tails standing on a flat surface in any of the four quadrants?
 	beq.s	.noearlyexit	; if yes, branch
     endif
-	move.b	angle(a0),d0
-	addi.b	#$40,d0
-	bmi.s	return_1C2A2
+	move.b	angle(a0),d0	; get Tails' current angle in relation to the floor
+	addi.b	#$40,d0			; rotate it by 90 degrees
+	bmi.s	return_1A6BE	; if Tails is upside down, branch (to prevent potential collision issues with loops)
     if fixBugs
 .noearlyexit:
     endif
-	move.b	#$40,d1
-	tst.w	inertia(a0)
-	beq.s	return_1C2A2
-	bmi.s	+
-	neg.w	d1
+	move.b	#$40,d1			; Rotate 90 degrees clockwise
+	tst.w	inertia(a0)		; Check inertia
+	beq.s	return_1A6BE		; If not moving, don't do anything
+	bmi.s	+			; If negative, branch
+	neg.w	d1			; Otherwise, we want to rotate counterclockwise
 +
-	move.b	angle(a0),d0
-	add.b	d1,d0
-	move.w	d0,-(sp)
-	bsr.w	CalcRoomInFront
-	move.w	(sp)+,d0
-	tst.w	d1
-	bpl.s	return_1C2A2
-	asl.w	#8,d1
-	addi.b	#$20,d0
-	andi.b	#$C0,d0
-	beq.s	loc_1C29E
-	cmpi.b	#$40,d0
-	beq.s	loc_1C28C
-	cmpi.b	#$80,d0
-	beq.s	loc_1C286
-	add.w	d1,x_vel(a0)
-	bset	#status.player.pushing,status(a0)
-	move.w	#0,inertia(a0)
+	move.b	angle(a0),d0	; get Tails' current angle
+	add.b	d1,d0			; rotate it by 90 degrees depending on directional speed
+	move.w	d0,-(sp)		; backup d0
+	bsr.w	CalcRoomInFront	; calculate distance to the wall in front of Tails (if any)
+	move.w	(sp)+,d0		; restore d0
+	tst.w	d1				; has Tails touched a wall?
+	bpl.s	return_1A6BE	; if not, branch
+	asl.w	#8,d1		; convert diff to wall into 8.8 fixed point for adjusting velocity
+	addi.b	#$20,d0		; rotate angle by 45 degrees clockwise
+	andi.b	#$C0,d0		; snap angle to nearest multiple of 90 degrees
+	beq.s	loc_1A6BA	; if Tails is facing down, branch
+	cmpi.b	#$40,d0		; is Tails facing left?
+	beq.s	loc_1A6A8	; if yes, branch
+	cmpi.b	#$80,d0		; is Tails facing up?
+	beq.s	loc_1A6A2	; if yes, branch
+	add.w	d1,x_vel(a0)	; adjust X-velocity to prevent Tails from walking into the wall
+	bset	#status.player.pushing,status(a0)	; set pushing flag
+	move.w	#0,inertia(a0)	; clear ground speed
 	rts
 ; ---------------------------------------------------------------------------
-
-loc_1C286:
-	sub.w	d1,y_vel(a0)
+loc_1A6A2:	; d0 is $80, Tails is facing up
+	sub.w	d1,y_vel(a0)	; adjust Y-velocity to prevent Tails from walking into the ceiling
 	rts
 ; ---------------------------------------------------------------------------
-
-loc_1C28C:
-	sub.w	d1,x_vel(a0)
-	bset	#status.player.pushing,status(a0)
-	move.w	#0,inertia(a0)
+loc_1A6A8:	; d0 is $40, Tails is facing left
+	sub.w	d1,x_vel(a0)	; adjust X-velocity to prevent Tails from walking into the wall
+	bset	#status.player.pushing,status(a0)	; set pushing flag
+	move.w	#0,inertia(a0)	; clear ground speed
 	rts
 ; ---------------------------------------------------------------------------
-loc_1C29E:
-	add.w	d1,y_vel(a0)
+loc_1A6BA:	; d0 is $00, Tails is facing down
+	add.w	d1,y_vel(a0)	; adjust Y-velocity to prevent Tails from walking into the floor
 
-return_1C2A2:
+return_1A6BE:
 	rts
 ; End of subroutine Tails_Move
 
