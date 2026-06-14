@@ -24294,6 +24294,9 @@ Obj2D_Init:
     if fixBugs
 	; This is sort of a hack. Chemical Plant and Death Egg use the wrong subtype,
 	; so a more proper fix would be to replace all instances with subtype 3.
+
+	; If you have replaced its layout with its fixed version, this line can be
+	; safely deleted.
 	move.b	#3,subtype(a0)
     endif
 +
@@ -24304,6 +24307,9 @@ Obj2D_Init:
     if fixBugs
 	; This is sort of a hack. Chemical Plant and Death Egg use the wrong subtype,
 	; so a more proper fix would be to replace all instances with subtype 3.
+
+	; If you have replaced its layout with its fixed version, this line can be
+	; safely deleted.
 	move.b	#3,subtype(a0)
     endif
 +
@@ -50199,6 +50205,9 @@ Obj45_Init:
 	; This bugfix is a bit of a hack: ideally, the Oil Ocean Zone Act 2
 	; object layout should be corrected to not contain instances of this
 	; object with an invalid subtype, but this will have to do.
+
+	; If you have replaced its layout with its fixed version, this line
+	; can be safely deleted.
 	andi.w	#2,d0
     else
 	; Some instances of this object use a subtype of $30, which results

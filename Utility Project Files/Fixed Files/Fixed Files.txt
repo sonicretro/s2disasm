@@ -1,0 +1,64 @@
+These are replacement files for data which cannot be patched with fixBugs. Their changes
+are noted below, apply them at your discretion:
+
+level/objects/
+ - EHZ_2.bin
+	Added an invisible wall between a wall and spring to prevent Super Sonic from clipping
+	into the floor (imported from Sonic Jam)
+
+	Added a pathswapper in a corridor at the bottom of the level to prevent Sonic from rarely
+	getting stuck inside (imported from Sonic Jam)
+
+	Added an invisible wall above the first cave entrance to prevent players from clipping into
+	the wall using a high rolling-jump
+
+ - CPZ_1.bin
+	Fixed all doors using the wrong subtype
+
+ - CPZ_2.bin
+	Fixed all doors using the wrong subtype
+
+ - ARZ_2.bin
+	Added a pathswapper so that, if the player happens to reach a loop from below, they will
+	be able to progress as normal (imported from Sonic Jam)
+
+	Removed misplaced bubble generator at 08E3,076B
+
+ - HTZ_1.bin
+	Removed leftover seesaw at 1240,02A8
+
+ - OOZ_2.bin
+	Fixed some OOZ launchers having a subtype of $30 instead of $02
+
+ - MTZ_3.bin
+	Removed misplaced spikes at 0A98,0258 (spike graphics aren't even loaded in this zone...)
+
+	Removed leftover door at 1174,05E0
+
+	Removed leftover platform at 1D20,056D
+
+	Removed leftover lava collision objects at 1F80/2080,05FC
+
+ - WFZ_1.bin
+	Fixed the conveyor belt so that it actually works
+
+ - DEZ_1.bin
+	Fixed door using the incorrect subtype
+
+level/rings/
+ - ARZ_2.bin
+	Removed leftover rings at 1F9E,061C
+
+ - CNZ_2.bin
+	Removed leftover rings at the very top-left of the stage
+
+	Removed leftover Act 1 rings
+
+ - MCZ_2.bin
+	Removed leftover rings inside walls at the top of the stage
+
+ - OOZ_2.bin
+	Removed leftover rings inside walls at the top of the stage
+
+ - MTZ_2.bin
+	Removed leftover rings inside walls at the top of the stage
