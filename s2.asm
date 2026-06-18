@@ -4668,6 +4668,18 @@ TitleScreen:
     if gameRevision=3
 	; KiS2 (title): Clear a new variable.
 	clr.b	(Title_Intro_Complete).w
+    if fixBugs
+	; This variable is used by the KiS2 title screen (to be exact Obj0E_OffsetYPosition).
+	; However said variable's RAM location is also used by DEZ_Eggman, DEZ_Shake_Timer and WFZ_LevEvent_Subrout.
+	; Other things do use this location BUT clear it afterwards, either by itself or due to the fact they go back to the Sega screen which also clears it.
+	; Due to this Obj0E_OffsetYPosition will now read junk data and cause the Knuckles object on the title screen to go crazy until it's lowered.
+	; However be warned that if the title screen is changed just enough then the Knuckles object will still be messed up, it's just lucky that in the base game it isn't.
+	; This is what causes the bug where if you exit DEZ once you move to the Mecha Sonic boss,
+	; Knuckles will be messed up on the title screen as the Eggman object will be loaded and put data into DEZ_Eggman (This bug can also happen in WFZ but isn't as noticable).
+	; Turns out Mecha Sonic wasn't to blame....
+	; Anyways the fix is to just clear this variable.
+	clr.w	(Title_Screen_Something).w
+    endif
     endif
 
 	; Load the object responsible for the intro animation.
