@@ -4668,9 +4668,7 @@ TitleScreen:
     if gameRevision=3
 	; KiS2 (title): Clear a new variable.
 	clr.b	(Title_Intro_Complete).w
-    endif
-
-    if fixBugs && (gameRevision=3)
+    if fixBugs
 	; This variable is used by the KiS2 title screen (to be exact Obj0E_OffsetYPosition).
 	; However said variable's RAM location is also used by DEZ_Eggman, DEZ_Shake_Timer and WFZ_LevEvent_Subrout.
 	; Other things do use this location BUT clear it afterwards, either by itself or due to the fact they go back to the Sega screen which also clears it.
@@ -4681,6 +4679,7 @@ TitleScreen:
 	; Turns out Mecha Sonic wasn't to blame....
 	; Anyways the fix is to just clear this variable.
 	clr.w	(Title_Screen_Something).w
+    endif
     endif
 
 	; Load the object responsible for the intro animation.
