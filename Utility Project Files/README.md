@@ -10,7 +10,7 @@ Project files for the [SonLVL level editor](https://info.sonicretro.org/SonLVL),
 * All other files are for object definitions, either zone-specific or generic
 
 ## `SonPLN.ini`
-Project file for the [SonPLN](https://info.sonicretro.org/SonPLN) plane mappings editor. Some entries have two versions to account for differences between REV00 and REV01.
+Project file for the [SonPLN](https://info.sonicretro.org/SonPLN) plane mappings editor.
 
 ## `sonic2.flex.json`
 Project file for the [Flex 2](https://info.sonicretro.org/Flex_2) sprites editor.
