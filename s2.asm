@@ -65656,6 +65656,43 @@ BranchTo_JmpTo55_DeleteObject ; BranchTo
 ; ===========================================================================
 ; loc_30CCC:
 Obj89_Arrow_Platform:
+    if fixBugs
+	; PlatformObject originally only ran while the decay timer was zero, so once
+	; Sonic/Tails stepped on the arrow (and timer gets set) it stopped running
+	; for the whole countdown. They were then held only by a stale on_object
+	; state, letting them walk on air off the arrow's top until it fell or they
+	; jumped. This runs PlatformObject every frame the arrow is stuck and handles
+	; the decay timer separately below, fixing the bug.
+	move.w	#$1B,d1
+	move.w	#1,d2
+	move.w	#2,d3
+	move.w	x_pos(a0),d4
+	jsrto	JmpTo8_PlatformObject
+	; AI Tails normally does not cause the arrow they are standing on
+	; to fall, this fixes that.
+	btst	#status.npc.p2_standing,status(a0)	; is Tails standing on the arrow?
+	beq.s	.notTails				; if not, branch
+	tst.w	obj89_arrow_timer(a0)			; is the timer already counting down?
+	bne.s	.notTails				; if so, don't restart it
+	move.w	#$1F,obj89_arrow_timer(a0)		; else, set timer
+
+.notTails:
+	btst	#status.npc.p1_standing,status(a0)	; is Sonic standing on the arrow?
+	beq.s	.chkTimer				; if not, branch
+	tst.w	obj89_arrow_timer(a0)			; is the timer already counting down?
+	bne.s	.chkTimer				; if so, don't restart it
+	move.w	#$1F,obj89_arrow_timer(a0)		; else, set timer
+
+.chkTimer:
+	tst.w	obj89_arrow_timer(a0)		; is the timer set?
+	beq.s	return_30D02			; if not, branch
+	subi_.w	#1,obj89_arrow_timer(a0)	; decrement timer
+	bne.s	return_30D02			; branch, if timer hasn't expired
+	move.b	#6,obj89_arrow_routine(a0)	; => Obj89_Arrow_Sub6
+
+return_30D02:
+	rts
+    else
 	tst.w	obj89_arrow_timer(a0)		; is timer set?
 	bne.s	Obj89_Arrow_Platform_Decay	; if yes, branch
 	move.w	#$1B,d1
@@ -65663,15 +65700,6 @@ Obj89_Arrow_Platform:
 	move.w	#2,d3
 	move.w	x_pos(a0),d4
 	jsrto	JmpTo8_PlatformObject
-    if fixBugs
-	; AI Tails normally does not cause the arrow they are standing on
-	; to fall, this fixes that.
-	btst	#status.npc.p2_standing,status(a0)	; is Tails standing on the arrow?
-	beq.s	.notTails				; if not, branch
-	move.w	#$1F,obj89_arrow_timer(a0)		; else, set timer
-
-.notTails:
-    endif
 	btst	#status.npc.p1_standing,status(a0)	; is Sonic standing on the arrow?
 	beq.s	return_30D02				; if not, branch
 	move.w	#$1F,obj89_arrow_timer(a0)		; else, set timer
@@ -65684,6 +65712,7 @@ Obj89_Arrow_Platform_Decay:
 
 return_30D02:
 	rts
+    endif
 ; ===========================================================================
 ; loc_30D04:
 Obj89_Arrow_ChkDropPlayers:
