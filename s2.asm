@@ -36168,30 +36168,29 @@ Obj01_Normal:
 ; ===========================================================================
 ; off_19F6A: Obj01_States:
 Obj01_Index:	offsetTable
-		offsetTableEntry.w Obj01_Init		;  0
-		offsetTableEntry.w Obj01_Control	;  2
-		offsetTableEntry.w Obj01_Hurt		;  4
-		offsetTableEntry.w Obj01_Dead		;  6
-		offsetTableEntry.w Obj01_Gone		;  8
-		offsetTableEntry.w Obj01_Respawning	; $A
+		offsetTableEntry.w Obj01_Init		;  0 - object init
+		offsetTableEntry.w Obj01_Control	;  2 - main mode
+		offsetTableEntry.w Obj01_Hurt		;  4 - while being knocked back from damage
+		offsetTableEntry.w Obj01_Dead		;  6 - while dying and falling off screen
+		offsetTableEntry.w Obj01_Gone		;  8 - after dying and waiting for the level to restart
+		offsetTableEntry.w Obj01_Respawning	; $A - while waiting for the camera to scroll to the respawn point
 ; ===========================================================================
 ; loc_19F76: Obj_01_Sub_0: Obj01_Main:
 Obj01_Init:
 	addq.b	#2,routine(a0)	; => Obj01_Control
-	move.b	#$13,y_radius(a0) ; this sets Sonic's collision height (2*pixels)
-	move.b	#9,x_radius(a0)
-	move.l	#MapUnc_Sonic,mappings(a0)
-	move.b	#2,priority(a0)
-	move.b	#$18,width_pixels(a0)
-	move.b	#1<<render_flags.level_fg,render_flags(a0)
+	move.b	#$13,y_radius(a0)	; this sets Sonic's collision height (2*pixels)
+	move.b	#9,x_radius(a0) 	; this sets Sonic's Collision width (2*pixels)
+	move.l	#MapUnc_Sonic,mappings(a0)	; load Sonic's mappings
+	move.b	#2,priority(a0)				; set sprite priority
+	move.b	#$18,width_pixels(a0)		; set render width
+	move.b	#1<<render_flags.level_fg,render_flags(a0)	; set to playfield-positioned mode
 	move.w	#$600,(Sonic_top_speed).w	; set Sonic's top speed
 	move.w	#$C,(Sonic_acceleration).w	; set Sonic's acceleration
 	move.w	#$80,(Sonic_deceleration).w	; set Sonic's deceleration
-	tst.b	(Last_star_pole_hit).w
-	bne.s	Obj01_Init_Continued
-	; only happens when not starting at a checkpoint:
-	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a0)
-	bsr.w	Adjust2PArtPointer
+	tst.b	(Last_star_pole_hit).w	; is Sonic starting at a checkpoint?
+	bne.s	Obj01_Init_Continued	; if so, branch
+	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a0)	; load Sonic's art
+	bsr.w	Adjust2PArtPointer	; adjust Sonic's art pointer if in 2-player mode
 	move.b	#$C,top_solid_bit(a0)
 	move.b	#$D,lrb_solid_bit(a0)
 	move.w	x_pos(a0),(Saved_x_pos).w
@@ -36200,10 +36199,10 @@ Obj01_Init:
 	move.w	top_solid_bit(a0),(Saved_Solid_bits).w
 
 Obj01_Init_Continued:
-	move.b	#0,flips_remaining(a0)
-	move.b	#4,flip_speed(a0)
-	move.b	#0,(Super_Sonic_flag).w
-	move.b	#30,air_left(a0)
+	move.b	#0,flips_remaining(a0)	; reset flips
+	move.b	#4,flip_speed(a0)		; reset flip speed(?)
+	move.b	#0,(Super_Sonic_flag).w	; reset Super Sonic flag
+	move.b	#30,air_left(a0)		; reset air count
 	subi.w	#$20,x_pos(a0)
 	addi_.w	#4,y_pos(a0)
 	move.w	#0,(Sonic_Pos_Record_Index).w
@@ -36246,24 +36245,24 @@ Obj01_Control:
 	bne.s	+				; if not, branch
 	andi.w	#$7FF,y_pos(a0) 		; perform wrapping of Sonic's y position
 +
-	bsr.s	Sonic_Display
-	bsr.w	Sonic_Super
-	bsr.w	Sonic_RecordPos
-	bsr.w	Sonic_Water
-	move.b	(Primary_Angle).w,next_tilt(a0)
-	move.b	(Secondary_Angle).w,tilt(a0)
-	tst.b	(WindTunnel_flag).w
-	beq.s	+
-	tst.b	anim(a0)
-	bne.s	+
-	move.b	prev_anim(a0),anim(a0)
+	bsr.s	Sonic_Display	; display Sonic sprite and handle power-up expiration
+	bsr.w	Sonic_Super		; handle Sonic in his Super form
+	bsr.w	Sonic_RecordPos	; record Sonic's previous position for invincibility stars and Tails
+	bsr.w	Sonic_Water		; handle Sonic while underwater
+	move.b	(Primary_Angle).w,next_tilt(a0)	; update front collision hot spot
+	move.b	(Secondary_Angle).w,tilt(a0)	; update rear collision hot spot
+	tst.b	(WindTunnel_flag).w		; is Sonic in a wind tunnel?
+	beq.s	+						; if not, branch
+	tst.b	anim(a0)				; is current animation null/id_Walk?
+	bne.s	+						; if not, branch
+	move.b	prev_anim(a0),anim(a0)	;  make sure Sonic is in the correct animation while in a wind tunnel
 +
-	bsr.w	Sonic_Animate
-	tst.b	obj_control(a0)
-	bmi.s	+
-	jsr	(TouchResponse).l
+	bsr.w	Sonic_Animate	; run Sonic's animation scripts
+	tst.b	obj_control(a0)	; is object interactions ignore flag set?
+	bmi.s	+				; if yes, branch
+	jsr	(TouchResponse).l	; handle object interactions with Sonic
 +
-	bra.w	LoadSonicDynPLC
+	bra.w	LoadSonicDynPLC	; update Sonic's graphics if necessary
 
 ; ===========================================================================
 ; secondary states under state Obj01_Control
@@ -36279,56 +36278,56 @@ Obj01_Modes:	offsetTable
 
 ; loc_1A0C6:
 Sonic_Display:
-	move.w	invulnerable_time(a0),d0
-	beq.s	Obj01_Display
-	subq.w	#1,invulnerable_time(a0)
-	lsr.w	#3,d0
-	bcc.s	Obj01_ChkInvin
+	move.w	invulnerable_time(a0),d0	; get Sonic's remaining invulnerability frames after getting hurt
+	beq.s	Obj01_Display				; if there are none, branch
+	subq.w	#1,invulnerable_time(a0)	; decrease invulnerability frames
+	lsr.w	#3,d0						; check every 3 or 4 frames
+	bcc.s	Obj01_ChkInvin				; don't render Sonic's sprite
 ; loc_1A0D4:
 Obj01_Display:
-	jsr	(DisplaySprite).l
+	jsr	(DisplaySprite).l				; display Sonic sprite normally
 ; loc_1A0DA:
-Obj01_ChkInvin:		; Checks if invincibility has expired and disables it if it has.
-	btst	#status_secondary.invincible,status_secondary(a0)
-	beq.s	Obj01_ChkShoes
-	tst.w	invincibility_time(a0)
-	beq.s	Obj01_ChkShoes	; If there wasn't any time left, that means we're in Super Sonic mode.
-	subq.w	#1,invincibility_time(a0)
-	bne.s	Obj01_ChkShoes
-	tst.b	(Current_Boss_ID).w	; Don't change music if in a boss fight
-	bne.s	Obj01_RmvInvin
-	cmpi.b	#12,air_left(a0)	; Don't change music if drowning
-	blo.s	Obj01_RmvInvin
-	move.w	(Level_Music).w,d0
-	jsr	(PlayMusic).l
+Obj01_ChkInvin:
+	btst	#status_secondary.invincible,status_secondary(a0)	; is Sonic invincible?
+	beq.s	Obj01_ChkShoes										; if not, branch
+	tst.w	invincibility_time(a0)		; is there time remaining for invincibility?
+	beq.s	Obj01_ChkShoes				; if not, branch
+	subq.w	#1,invincibility_time(a0)	; subtract 1 from time
+	bne.s	Obj01_ChkShoes				; if time remains, branch
+	tst.b	(Current_Boss_ID).w			; is a boss fight active?
+	bne.s	Obj01_RmvInvin				; if yes, branch
+	cmpi.b	#12,air_left(a0)			; is drowning countdown active?
+	blo.s	Obj01_RmvInvin				; if yes, branch
+	move.w	(Level_Music).w,d0			; load normal level music
+	jsr	(PlayMusic).l					; play normal level music
 ;loc_1A106:
 Obj01_RmvInvin:
-	bclr	#status_secondary.invincible,status_secondary(a0)
+	bclr	#status_secondary.invincible,status_secondary(a0)	; remove invincibility
 ; loc_1A10C:
-Obj01_ChkShoes:		; Checks if Speed Shoes have expired and disables them if they have.
-	btst	#status_secondary.speed_shoes,status_secondary(a0)
-	beq.s	Obj01_ExitChk
-	tst.w	speedshoes_time(a0)
-	beq.s	Obj01_ExitChk
-	subq.w	#1,speedshoes_time(a0)
-	bne.s	Obj01_ExitChk
-	move.w	#$600,(Sonic_top_speed).w
-	move.w	#$C,(Sonic_acceleration).w
-	move.w	#$80,(Sonic_deceleration).w
-	tst.b	(Super_Sonic_flag).w
-	beq.s	Obj01_RmvSpeed
-	move.w	#$A00,(Sonic_top_speed).w
-	move.w	#$30,(Sonic_acceleration).w
-	move.w	#$100,(Sonic_deceleration).w
+Obj01_ChkShoes:
+	btst	#status_secondary.speed_shoes,status_secondary(a0)	; does Sonic have speed shoes?
+	beq.s	Obj01_ExitChk					; if not, branch
+	tst.w	speedshoes_time(a0)				; is there time remaining for speed shoes?
+	beq.s	Obj01_ExitChk					; if not, branch
+	subq.w	#1,speedshoes_time(a0)			; subtract 1 from time
+	bne.s	Obj01_ExitChk					; if time remains, branch
+	move.w	#$600,(Sonic_top_speed).w		; restore Sonic's default top speed
+	move.w	#$C,(Sonic_acceleration).w 		; restore Sonic's default acceleration
+	move.w	#$80,(Sonic_deceleration).w		; restore Sonic's default deceleration
+	tst.b	(Super_Sonic_flag).w			; is Sonic in his Super form?
+	beq.s	Obj01_RmvSpeed					; if not, branch
+	move.w	#$A00,(Sonic_top_speed).w		; restore Super Sonic's top speed
+	move.w	#$30,(Sonic_acceleration).w		; restore Super Sonic's acceleration
+	move.w	#$100,(Sonic_deceleration).w	; restore Super Sonic's deceleration
 ; loc_1A14A:
 Obj01_RmvSpeed:
-	bclr	#status_secondary.speed_shoes,status_secondary(a0)
+	bclr	#status_secondary.speed_shoes,status_secondary(a0)	; remove speed shoes
 	move.w	#MusID_SlowDown,d0	; Slow down tempo
-	jmp	(PlayMusic).l
+	jmp	(PlayMusic).l			; play music at normal speed
 ; ---------------------------------------------------------------------------
 ; return_1A15A:
 Obj01_ExitChk:
-	rts
+	rts							; return
 ; End of subroutine Sonic_Display
 
 ; ---------------------------------------------------------------------------
@@ -36340,12 +36339,12 @@ Obj01_ExitChk:
 
 ; loc_1A15C:
 Sonic_RecordPos:
-	move.w	(Sonic_Pos_Record_Index).w,d0
-	lea	(Sonic_Pos_Record_Buf).w,a1
-	lea	(a1,d0.w),a1
-	move.w	x_pos(a0),(a1)+
-	move.w	y_pos(a0),(a1)+
-	addq.b	#4,(Sonic_Pos_Record_Index+1).w
+	move.w	(Sonic_Pos_Record_Index).w,d0	; get current index for the tracking array
+	lea	(Sonic_Pos_Record_Buf).w,a1			; load tracking array
+	lea	(a1,d0.w),a1						; set pointer to current index
+	move.w	x_pos(a0),(a1)+					; store Sonic's current X-position
+	move.w	y_pos(a0),(a1)+					; store Sonic's current Y-position
+	addq.b	#4,(Sonic_Pos_Record_Index+1).w	; advance to next tracking pointer (this is a byte, so it wraps from $FC back to $00)
 
 	lea	(Sonic_Stat_Record_Buf).w,a1
 	lea	(a1,d0.w),a1
