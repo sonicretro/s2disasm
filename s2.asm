@@ -43057,7 +43057,7 @@ loc_1E292:
 	lea	(Primary_Angle).w,a4	; write angle here
 	movea.w	#$10,a3				; tile height
 	move.w	#0,d6
-	bsr.w	FindFloor 
+	bsr.w	FindFloor
 	move.w	d1,-(sp)			; save d1 (distance to floor) to stack
 	move.w	y_pos(a0),d2
 	move.w	x_pos(a0),d3
@@ -45599,9 +45599,14 @@ word_1FCB8_End
 
 
 ; ===========================================================================
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; Object 03 - Collision plane/layer switcher
-; ----------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
+; OST Variables:
+planeswitch_radius =	objoff_32	; word ; half-height of x-switcher or half-width of y-switcher
+planeswitch_p1_flag = 	objoff_34	; byte ; 0 if player 1 is above or left of switcher; 1 if below or to right
+planeswitch_p2_flag =	objoff_35	; byte ; same as above, but for player 2
+
 ; Sprite_1FCDC:
 Obj03:
 	moveq	#0,d0
@@ -45634,17 +45639,17 @@ Obj03_Init:
 	move.b	d0,mapping_frame(a0)
 	andi.w	#3,d0
 	add.w	d0,d0
-	move.w	word_1FD68(pc,d0.w),objoff_32(a0)
+	move.w	word_1FD68(pc,d0.w),planeswitch_radius(a0)
 	move.w	y_pos(a0),d1
 	lea	(MainCharacter).w,a1 ; a1=character
 	cmp.w	y_pos(a1),d1
 	bhs.s	+
-	move.b	#1,objoff_34(a0)
+	move.b	#1,planeswitch_p1_flag(a0)
 +
 	lea	(Sidekick).w,a1 ; a1=character
 	cmp.w	y_pos(a1),d1
 	bhs.s	+
-	move.b	#1,objoff_35(a0)
+	move.b	#1,planeswitch_p2_flag(a0)
 +
 	bra.w	Obj03_MainY
 ; ===========================================================================
@@ -45659,17 +45664,17 @@ Obj03_Init_CheckX:
 	andi.w	#3,d0
 	move.b	d0,mapping_frame(a0)
 	add.w	d0,d0
-	move.w	word_1FD68(pc,d0.w),objoff_32(a0)
+	move.w	word_1FD68(pc,d0.w),planeswitch_radius(a0)
 	move.w	x_pos(a0),d1
 	lea	(MainCharacter).w,a1 ; a1=character
 	cmp.w	x_pos(a1),d1
 	bhs.s	+
-	move.b	#1,objoff_34(a0)
+	move.b	#1,planeswitch_p1_flag(a0)
 +
 	lea	(Sidekick).w,a1 ; a1=character
 	cmp.w	x_pos(a1),d1
 	bhs.s	+
-	move.b	#1,objoff_35(a0)
+	move.b	#1,planeswitch_p2_flag(a0)
 +
 
 ; loc_1FDA4:
@@ -45677,7 +45682,7 @@ Obj03_MainX:
 	tst.w	(Debug_placement_mode).w
 	bne.w	return_1FEAC
 	move.w	x_pos(a0),d1
-	lea	objoff_34(a0),a2
+	lea	planeswitch_p1_flag(a0),a2
 	lea	(MainCharacter).w,a1 ; a1=character
 	bsr.s	+
 	lea	(Sidekick).w,a1 ; a1=character
@@ -45689,7 +45694,7 @@ Obj03_MainX:
 	move.b	#1,-1(a2)
 	move.w	y_pos(a0),d2
 	move.w	d2,d3
-	move.w	objoff_32(a0),d4
+	move.w	planeswitch_radius(a0),d4
 	sub.w	d4,d2
 	add.w	d4,d3
 	move.w	y_pos(a1),d4
@@ -45724,7 +45729,7 @@ Obj03_MainX_Alt:
 	move.b	#0,-1(a2)
 	move.w	y_pos(a0),d2
 	move.w	d2,d3
-	move.w	objoff_32(a0),d4
+	move.w	planeswitch_radius(a0),d4
 	sub.w	d4,d2
 	add.w	d4,d3
 	move.w	y_pos(a1),d4
@@ -45759,7 +45764,7 @@ Obj03_MainY:
 	tst.w	(Debug_placement_mode).w
 	bne.w	return_1FFB6
 	move.w	y_pos(a0),d1
-	lea	objoff_34(a0),a2
+	lea	planeswitch_p1_flag(a0),a2
 	lea	(MainCharacter).w,a1 ; a1=character
 	bsr.s	+
 	lea	(Sidekick).w,a1 ; a1=character
@@ -45771,7 +45776,7 @@ Obj03_MainY:
 	move.b	#1,-1(a2)
 	move.w	x_pos(a0),d2
 	move.w	d2,d3
-	move.w	objoff_32(a0),d4
+	move.w	planeswitch_radius(a0),d4
 	sub.w	d4,d2
 	add.w	d4,d3
 	move.w	x_pos(a1),d4
@@ -45806,7 +45811,7 @@ Obj03_MainY_Alt:
 	move.b	#0,-1(a2)
 	move.w	x_pos(a0),d2
 	move.w	d2,d3
-	move.w	objoff_32(a0),d4
+	move.w	planeswitch_radius(a0),d4
 	sub.w	d4,d2
 	add.w	d4,d3
 	move.w	x_pos(a1),d4
@@ -45836,9 +45841,9 @@ Obj03_MainY_Alt:
 return_1FFB6:
 	rts
 ; ===========================================================================
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 ; sprite mappings
-; -------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
 Obj03_MapUnc_1FFB8:	include "mappings/sprite/obj03.asm"
 ; ===========================================================================
 
@@ -50219,9 +50224,10 @@ Obj07_End:
 ; Object 45 - Pressure spring from OOZ
 ; ---------------------------------------------------------------------------
 ; OST Variables:
-obj45_strength = objoff_30
-obj45_frame = objoff_32
-obj45_original_x_pos = objoff_34
+obj45_strength			=	objoff_30	; word ; strength of spring
+obj45_frame				= 	objoff_32	; word ; frame counter used to track level of compression
+obj45_original_x_pos 	=	objoff_34	; word ; backup of initial x-pos
+obj45_compress			=	objoff_36	; byte ; flag set if spring is compressing
 
 ; Sprite_240F8:
 Obj45:
@@ -50390,7 +50396,7 @@ return_24278:
 ; ===========================================================================
 ; loc_2427A:
 Obj45_Horizontal:
-	move.b	#0,objoff_36(a0)
+	move.b	#0,obj45_compress(a0)
 	move.w	#31,d1
 	move.w	#12,d2
 	move.w	#13,d3
@@ -50431,7 +50437,7 @@ loc_242E6:
 	bsr.s	loc_2433C
 
 loc_242EE:
-	tst.b	objoff_36(a0)
+	tst.b	obj45_compress(a0)
 	bne.s	return_2433A
 	move.w	obj45_original_x_pos(a0),d0
 	cmp.w	x_pos(a0),d0
@@ -50518,7 +50524,7 @@ loc_243C0:
 	move.b	d0,mapping_frame(a0)
 
 loc_243C8:
-	move.b	#1,objoff_36(a0)
+	move.b	#1,obj45_compress(a0)
 
 return_243CE:
 	rts
@@ -65655,6 +65661,43 @@ BranchTo_JmpTo55_DeleteObject ; BranchTo
 ; ===========================================================================
 ; loc_30CCC:
 Obj89_Arrow_Platform:
+    if fixBugs
+	; PlatformObject originally only ran while the decay timer was zero, so once
+	; Sonic/Tails stepped on the arrow (and timer gets set) it stopped running
+	; for the whole countdown. They were then held only by a stale on_object
+	; state, letting them walk on air off the arrow's top until it fell or they
+	; jumped. This runs PlatformObject every frame the arrow is stuck and handles
+	; the decay timer separately below, fixing the bug.
+	move.w	#$1B,d1
+	move.w	#1,d2
+	move.w	#2,d3
+	move.w	x_pos(a0),d4
+	jsrto	JmpTo8_PlatformObject
+	; AI Tails normally does not cause the arrow they are standing on
+	; to fall, this fixes that.
+	btst	#status.npc.p2_standing,status(a0)	; is Tails standing on the arrow?
+	beq.s	.notTails				; if not, branch
+	tst.w	obj89_arrow_timer(a0)			; is the timer already counting down?
+	bne.s	.notTails				; if so, don't restart it
+	move.w	#$1F,obj89_arrow_timer(a0)		; else, set timer
+
+.notTails:
+	btst	#status.npc.p1_standing,status(a0)	; is Sonic standing on the arrow?
+	beq.s	.chkTimer				; if not, branch
+	tst.w	obj89_arrow_timer(a0)			; is the timer already counting down?
+	bne.s	.chkTimer				; if so, don't restart it
+	move.w	#$1F,obj89_arrow_timer(a0)		; else, set timer
+
+.chkTimer:
+	tst.w	obj89_arrow_timer(a0)		; is the timer set?
+	beq.s	return_30D02			; if not, branch
+	subi_.w	#1,obj89_arrow_timer(a0)	; decrement timer
+	bne.s	return_30D02			; branch, if timer hasn't expired
+	move.b	#6,obj89_arrow_routine(a0)	; => Obj89_Arrow_Sub6
+
+return_30D02:
+	rts
+    else
 	tst.w	obj89_arrow_timer(a0)		; is timer set?
 	bne.s	Obj89_Arrow_Platform_Decay	; if yes, branch
 	move.w	#$1B,d1
@@ -65662,15 +65705,6 @@ Obj89_Arrow_Platform:
 	move.w	#2,d3
 	move.w	x_pos(a0),d4
 	jsrto	JmpTo8_PlatformObject
-    if fixBugs
-	; AI Tails normally does not cause the arrow they are standing on
-	; to fall, this fixes that.
-	btst	#status.npc.p2_standing,status(a0)	; is Tails standing on the arrow?
-	beq.s	.notTails				; if not, branch
-	move.w	#$1F,obj89_arrow_timer(a0)		; else, set timer
-
-.notTails:
-    endif
 	btst	#status.npc.p1_standing,status(a0)	; is Sonic standing on the arrow?
 	beq.s	return_30D02				; if not, branch
 	move.w	#$1F,obj89_arrow_timer(a0)		; else, set timer
@@ -65683,6 +65717,7 @@ Obj89_Arrow_Platform_Decay:
 
 return_30D02:
 	rts
+    endif
 ; ===========================================================================
 ; loc_30D04:
 Obj89_Arrow_ChkDropPlayers:
@@ -83055,7 +83090,7 @@ loc_3D9D6:
     if fixBugs
 	jsr	(PlayMusic).l
     else
-	; PlaySound ends up being clogged up by the explosion sounds, 
+	; PlaySound ends up being clogged up by the explosion sounds,
 	; preventing the music from fading out as it should.
 	jsrto	JmpTo12_PlaySound
     endif
@@ -91508,7 +91543,7 @@ ArtNem_MtzLavaBubble:		BINCLUDE	"art/nemesis/Lava bubble from MTZ.nem"
 ArtNem_LavaCup:			BINCLUDE	"art/nemesis/Lava cup from MTZ.nem"
 	even
 ArtNem_BoltEnd_Rope:		BINCLUDE	"art/nemesis/Bolt end and rope from MTZ.nem"
-	even	
+	even
 ArtNem_MtzCog:			BINCLUDE	"art/nemesis/Small cog from MTZ.nem"
 	even
 ArtNem_MtzSpinTubeFlash:	BINCLUDE	"art/nemesis/Spin tube flash from MTZ.nem"
