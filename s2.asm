@@ -36991,7 +36991,7 @@ Sonic_TurnRight:
 	move.w	#SndID_Skidding,d0					; load skidding sound
 	jsr	(PlaySound).l							; play skidding sound
 	cmpi.b	#12,air_left(a0)					; is Sonic drowning?
-	blo.s	return_1A744						; if yes, branch
+	blo.s	return_1A7C4						; if yes, branch
 	move.b	#6,(Sonic_Dust+routine).w			; set Obj08's routine to skidding
 	move.b	#$15,(Sonic_Dust+mapping_frame).w	; set skidding dust's frame
 
