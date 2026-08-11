@@ -80931,88 +80931,99 @@ ObjC1:
 ; ===========================================================================
 ; off_3C0BA:
 ObjC1_Index:	offsetTable
-		offsetTableEntry.w ObjC1_Init	; 0
-		offsetTableEntry.w ObjC1_Main	; 2
+		offsetTableEntry.w ObjC1_Init		; 0
+		offsetTableEntry.w ObjC1_Main		; 2
 		offsetTableEntry.w ObjC1_FallOff	; 4
 ; ===========================================================================
 ; loc_3C0C0:
 ObjC1_Init:
 	move.w	#($44<<1),d0
 	bsr.w	LoadSubObject_Part2
-	moveq	#0,d0
-	; Yes, this is actually configurable, but in practice is redundant
-	; since all of them are set to break after 2 seconds.
-	move.b	subtype(a0),d0
-	mulu.w	#60,d0			; multiply by 60 (1 second)
-	move.w	d0,plating_time(a0)	; set breakage time
+
+	; This object can be configured, but this goes unused in practice since
+	; all of them are set to break after 2 seconds.
+	moveq	#0,d0				; clear d0 for mulu
+	move.b	subtype(a0),d0			; get subtype of plating
+	mulu.w	#60,d0				; multiply by 60 frames (1 second)
+	move.w	d0,plating_time(a0)		; set breakage time
+; ---------------------------------------------------------------------------
 
 ObjC1_Main:
-	tst.b	plating_grabbed(a0)	; has plating already been grabbed?
-	beq.s	ObjC1_Grab		; if not, branch
-	tst.w	plating_time(a0)
-	beq.s	+
-	subq.w	#1,plating_time(a0)	; decrement time until break
-	beq.s	ObjC1_Release
-+
-	lea	(MainCharacter).w,a1 ; a1=character
-	move.w	y_pos(a0),d0
-	subi.w	#$18,d0
-	btst	#button_up,(Ctrl_1_Held).w	; is Up being pressed?
-	beq.s	+			; if not, branch
-	subq.w	#1,y_pos(a1)		; move Sonic up
-	cmp.w	y_pos(a1),d0
-	blo.s	+			; but stop if he's about to fall off
-	move.w	d0,y_pos(a1)
-+
-	addi.w	#$30,d0
-	btst	#button_down,(Ctrl_1_Held).w	; is Down being pressed?
-	beq.s	+			; if not, branch
-	addq.w	#1,y_pos(a1)		; move Sonic down
-	cmp.w	y_pos(a1),d0
-	bhs.s	+			; but stop if he's about to fall off
-	move.w	d0,y_pos(a1)
-+
-	move.b	(Ctrl_1_Press_Logical).w,d0
-	andi.w	#button_B_mask|button_C_mask|button_A_mask,d0	; is A/B/C being pressed?
+	tst.b	plating_grabbed(a0)		; has plating already been grabbed?
+	beq.s	ObjC1_Grab			; if not, branch
+
+	tst.w	plating_time(a0)		; has plating already broken?
+	beq.s	.checkMoveUp			; if not, branch to allow Sonic moving up/down
+	subq.w	#1,plating_time(a0)		; decrement time until break
+	beq.s	ObjC1_Release			; force Sonic to let go of pole
+; ===========================================================================
+
+.checkMoveUp:
+	lea	(MainCharacter).w,a1		; load player object
+	move.w	y_pos(a0),d0			; get plating's Y-position
+	subi.w	#24,d0				; allow moving up to 24px up from center
+	btst	#button_up,(Ctrl_1_Held).w	; is Up being held?
+	beq.s	.checkMoveDown			; if not, branch
+	subq.w	#1,y_pos(a1)			; move player up at 1px/frame
+	cmp.w	y_pos(a1),d0			; has player hit top end of the plating?
+	blo.s	.checkMoveDown			; if not, branch
+	move.w	d0,y_pos(a1)			; forces player to not exceed top end of plating
+
+.checkMoveDown:
+	addi.w	#24+24,d0			; allow moving up to 24px down from center (and undo above subtraction)
+	btst	#button_down,(Ctrl_1_Held).w	; is Down being held?
+	beq.s	.checkLetGo			; if not, branch
+	addq.w	#1,y_pos(a1)			; move player down at 1px/frame
+	cmp.w	y_pos(a1),d0			; has player hit bottom end of plating?
+	bhs.s	.checkLetGo			; if not, branch
+	move.w	d0,y_pos(a1)			; force player to not exceed bottom end of plating
+; ---------------------------------------------------------------------------
+
+.checkLetGo:
+	move.b	(Ctrl_1_Press_Logical).w,d0	; get current button presses for player
+	andi.w	#button_B_mask|button_C_mask|button_A_mask,d0	; was A/B/C be pressed?
 	beq.s	BranchTo16_JmpTo39_MarkObjGone		; if not, branch
 ; loc_3C12E:
 ObjC1_Release:
-	clr.b	collision_flags(a0)
-	clr.b	(MainCharacter+obj_control).w
-	clr.b	(WindTunnel_holding_flag).w
-	clr.b	plating_grabbed(a0)
-	bra.s	ObjC1_BeginBreakup
+	clr.b	collision_flags(a0)		; clear TouchResponse touched flag
+	clr.b	(MainCharacter+obj_control).w	; clear control override flag
+	clr.b	(WindTunnel_holding_flag).w	; re-enable wind tunnels
+	clr.b	plating_grabbed(a0)		; clear plating-grabbed flag
+	bra.s	ObjC1_BeginBreakup		; begin breaking animation
 ; ===========================================================================
 ; loc_3C140:
 ObjC1_Grab:
-	tst.b	collision_property(a0)		; has Sonic touched the plating?
+	tst.b	collision_property(a0)		; has player touched the plating? (set from TouchResponse)
 	beq.s	BranchTo16_JmpTo39_MarkObjGone	; if not, branch
-	lea	(MainCharacter).w,a1 ; a1=character
-	move.w	x_pos(a0),d0
-	subi.w	#$14,d0
-	cmp.w	x_pos(a1),d0
-	bhs.s	BranchTo16_JmpTo39_MarkObjGone
-	clr.b	collision_property(a0)
-	cmpi.b	#4,routine(a1)			; is Sonic hurt, dying, etc?
-	bhs.s	BranchTo16_JmpTo39_MarkObjGone	; if yes, branch
-	clr.w	x_vel(a1)
-	clr.w	y_vel(a1)
-	move.w	x_pos(a0),d0
-	subi.w	#$14,d0
-	move.w	d0,x_pos(a1)
-	bset	#status.player.x_flip,status(a1)
-	move.b	#AniIDSonAni_Hang,anim(a1)
-	move.b	#1,(MainCharacter+obj_control).w	; lock controls
-	move.b	#1,(WindTunnel_holding_flag).w		; disable wind tunnel
-	move.b	#1,plating_grabbed(a0)		; begin break timer
 
-BranchTo16_JmpTo39_MarkObjGone ; BranchTo
+	lea	(MainCharacter).w,a1		; load player object
+	move.w	x_pos(a0),d0			; get plating's X-position
+	subi.w	#20,d0				; check 20px to the left of the plating
+	cmp.w	x_pos(a1),d0			; is player in range of plating?
+	bhs.s	BranchTo16_JmpTo39_MarkObjGone	; if not, branch
+	clr.b	collision_property(a0)		; clear grab flag from TouchResponse
+	cmpi.b	#4,routine(a1)			; is player hurt, dying, etc?
+	bhs.s	BranchTo16_JmpTo39_MarkObjGone	; if yes, branch
+
+	clr.w	x_vel(a1)			; stop player moving horizontally
+	clr.w	y_vel(a1)			; stop player moving vertically
+	move.w	x_pos(a0),d0			; get plating's X-position
+	subi.w	#20,d0				; align player 20px to the left of the pole
+	move.w	d0,x_pos(a1)			; set player's aligned X-position
+	bset	#status.player.x_flip,status(a1)	; clear player's X-flip flag
+	move.b	#AniIDSonAni_Hang,anim(a1)	; set player's animation to "hanging" ($11)
+	move.b	#1,(MainCharacter+obj_control).w	; set player control override flag
+	move.b	#1,(WindTunnel_holding_flag).w	; disable wind tunnel
+	move.b	#1,plating_grabbed(a0)		; begin break timerset flag that plating has been grabbed
+; ---------------------------------------------------------------------------
+
+BranchTo16_JmpTo39_MarkObjGone
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
 ; loc_3C19A:
 ObjC1_BeginBreakup:
-	lea	(ObjC1_Positions).l,a4
-	lea	(ObjC1_BreakTimes).l,a2
+	lea	(ObjC1_Positions).l,a4		; get positions for plating
+	lea	(ObjC1_BreakTimes).l,a2		; get time until the plating breaks
 	bsr.w	loc_3C1F4
 ; ObjC1_Breakup:
 ObjC1_FallOff:
