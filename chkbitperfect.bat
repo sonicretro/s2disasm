@@ -1,5 +1,5 @@
 @ECHO OFF
 
-"build_tools/Lua/lua.exe" chkbitperfect.lua
+CALL "build_tools\node.bat" chkbitperfect.js
 
-pause
+PAUSE

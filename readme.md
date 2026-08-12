@@ -4,9 +4,9 @@ For an overview of the folder structure, [refer to this page](https://info.sonic
 
 Also See: http://info.sonicretro.org/Disassemblies
 
-To build this, use build.bat if you're a Windows user, or build.lua otherwise. The built ROM will be called 's2built.bin'.
+To build this, use build.bat if you're a Windows user, or build.js otherwise ('node build.js'). The built ROM will be called 's2built.bin'.
 
-The Lua script requires Lua version 5.3. Earlier versions will cause errors about integer divisions ('//') and bit-shifts ('<<', '>>') not being recognised.
+The build script requires Node.js version 18 or later. Windows users do not need to install it themselves: build.bat will download a portable copy of Node.js automatically.
 
 # DISCLAIMER
 Any and all content presented in this repository is presented for informational and educational purposes only.
