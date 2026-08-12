@@ -1,7 +1,10 @@
 // Runs the WebAssembly build of the Macro Assembler AS.
 //
-// The assembler is built with Emscripten's raw Node filesystem, so it reads and
-// writes the repository's files directly.
+// The assembler is a POSIX program, so it is given a POSIX filesystem: the
+// repository is mounted at '/source', and the assembler's message catalogues at
+// '/msg'. Emscripten's 'NODEFS' translates those paths back to real ones, which
+// is what makes this work on Windows, where the assembler would otherwise
+// produce paths like '/C:\path\to\file' and fail to open them.
 //
 // Each assembly is done in a child process, since the assembler is not designed
 // to be ran more than once in the same process:
@@ -12,6 +15,9 @@ const {spawn} = require('child_process');
 
 const wasm_directory = path.join(__dirname, 'wasm');
 const message_directory = path.join(wasm_directory, 'msg');
+
+const SOURCE_MOUNT_POINT = '/source';
+const MESSAGE_MOUNT_POINT = '/msg';
 
 // Runs the assembler in a child process, returning its exit code.
 function assemble(root_directory, assembler_arguments) {
@@ -26,19 +32,21 @@ function assemble(root_directory, assembler_arguments) {
 async function assembleHere(root_directory, assembler_arguments) {
 	const createASL = require('./wasm/asl.js');
 
-	process.chdir(root_directory);
-
 	const asl = await createASL({
 		locateFile: (url) => path.join(wasm_directory, url),
 		print: (text) => process.stdout.write(text + '\n'),
 		printErr: (text) => process.stderr.write(text + '\n'),
 		preRun: [function (asl) {
+			const filesystem = asl.FS;
+
+			filesystem.mkdir(SOURCE_MOUNT_POINT);
+			filesystem.mount(filesystem.filesystems.NODEFS, {root: path.resolve(root_directory)}, SOURCE_MOUNT_POINT);
+			filesystem.chdir(SOURCE_MOUNT_POINT);
+
 			// Tell the assembler where its message catalogues are.
-			//
-			// This has to be a path that's relative to the working directory,
-			// using forward slashes: the assembler is a POSIX program, so it
-			// would mangle a Windows path like 'C:\path\to\msg'.
-			asl.ENV.AS_MSGPATH = path.relative(process.cwd(), message_directory).split(path.sep).join('/');
+			filesystem.mkdir(MESSAGE_MOUNT_POINT);
+			filesystem.mount(filesystem.filesystems.NODEFS, {root: message_directory}, MESSAGE_MOUNT_POINT);
+			asl.ENV.AS_MSGPATH = MESSAGE_MOUNT_POINT;
 		}],
 	});
 
