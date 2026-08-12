@@ -34,7 +34,11 @@ async function assembleHere(root_directory, assembler_arguments) {
 		printErr: (text) => process.stderr.write(text + '\n'),
 		preRun: [function (asl) {
 			// Tell the assembler where its message catalogues are.
-			asl.ENV.AS_MSGPATH = message_directory;
+			//
+			// This has to be a path that's relative to the working directory,
+			// using forward slashes: the assembler is a POSIX program, so it
+			// would mangle a Windows path like 'C:\path\to\msg'.
+			asl.ENV.AS_MSGPATH = path.relative(process.cwd(), message_directory).split(path.sep).join('/');
 		}],
 	});
 
