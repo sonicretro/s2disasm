@@ -137,7 +137,6 @@ async function generateMusicData() {
 			fs.writeFileSync(sax_file_path, improved_sound_driver_compression ? saxman.compressOptimised(song, true) : saxman.compressAuthentic(song, true));
 
 			// Remove junk files from the assembly process.
-			fs.rmSync(temporary_filename_stem + '.lst', {force: true});
 			fs.rmSync(temporary_filename_stem + '.bin', {force: true});
 
 			return true;

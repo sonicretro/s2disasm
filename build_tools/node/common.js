@@ -227,7 +227,9 @@ async function assembleFile(input_filename, output_filename, assembler_arguments
 		// '-E'   - output errors to a file (*.log)
 		// '-i .' - allows (b)include paths to be absolute
 		// '-c'   - outputs a shared file (*.h)
-		await assemble('.', ['-xx', '-n', '-q', '-A', '-L', '-U', '-E', '-i', '.']
+		// The listing file ('-L') is not produced: it is 15MiB of output that
+		// nothing uses, and generating it costs a second of build time.
+		await assemble('.', ['-xx', '-n', '-q', '-A', '-U', '-E', '-i', '.']
 			.concat(create_header_file ? ['-c'] : [])
 			.concat(assembler_arguments)
 			.concat([input_filename]));
