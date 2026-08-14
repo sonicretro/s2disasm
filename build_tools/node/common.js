@@ -13,6 +13,12 @@ const common = {};
 // even if it managed to continue.
 common.exit_code = 0;
 
+// Pass '--listing' to have the assembler write listing files ('s2.lst', and one
+// per song), for when you need to see what it made of the source. They are not
+// produced otherwise: the ROM's listing alone is 15MiB that nothing reads, and
+// writing it costs about a second of every build.
+common.listing = process.argv.includes('--listing');
+
 /////////////////////////
 // General Utilities  ///
 /////////////////////////
@@ -227,10 +233,10 @@ async function assembleFile(input_filename, output_filename, assembler_arguments
 		// '-E'   - output errors to a file (*.log)
 		// '-i .' - allows (b)include paths to be absolute
 		// '-c'   - outputs a shared file (*.h)
-		// The listing file ('-L') is not produced: it is 15MiB of output that
-		// nothing uses, and generating it costs a second of build time.
+		// '-L'   - writes a listing file (*.lst), only when asked for
 		await assemble('.', ['-xx', '-n', '-q', '-A', '-U', '-E', '-i', '.']
 			.concat(create_header_file ? ['-c'] : [])
+			.concat(common.listing ? ['-L'] : [])
 			.concat(assembler_arguments)
 			.concat([input_filename]));
 

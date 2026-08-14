@@ -28,10 +28,13 @@ const common = require('./build_tools/node/common.js');
 const saxman = require('./build_tools/node/saxman.js');
 
 // Deletes the temporary files that the song assemblies leave behind. Log files
-// are kept, since the build refers the user to them when something goes wrong.
+// are kept, since the build refers the user to them when something goes wrong,
+// and so are listing files when they were asked for.
 function cleanUpTemporaryFiles() {
+	const junk = common.listing ? /^song[0-9]+\.(asm|p|bin)$/ : /^song[0-9]+\.(asm|p|lst|bin)$/;
+
 	for (const filename of fs.readdirSync('.'))
-		if (/^song[0-9]+\.(asm|p|lst|bin)$/.test(filename))
+		if (junk.test(filename))
 			fs.rmSync(filename, {force: true});
 }
 
