@@ -54758,7 +54758,7 @@ Obj6B_Stair:
 ; ===========================================================================
 ; Case y_flip && x_flip
 ; ---------------------------------------------------------------------------
-; Move x_pos from +radius to -radius, oscillator is counting down
+; Move y_pos from +radius to -radius, oscillator is counting down
 ; Offset x_pos by -radius
 ; ---------------------------------------------------------------------------
 ; loc_27FF8:
