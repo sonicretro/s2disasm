@@ -12,7 +12,7 @@ Size_of_Snd_driver_guess =	$F64 ; approximate post-compressed size of the Z80 so
 ; Object Status Table offsets (for everything between Object_RAM and Primary_Collision)
 ; ---------------------------------------------------------------------------
 ; universally followed object conventions:
-id =			  0 ; object ID (if you change this, change insn1op and insn2op in s2.macrosetup.asm, if you still use them)
+id =			  0 ; object ID (if you change this, change insn1op and insn2op in src/macrosetup.asm, if you still use them)
 render_flags =		  1 ; bitfield ; bit 7 = onscreen flag, bit 0 = x mirror, bit 1 = y mirror, bit 2 = coordinate system, bit 6 = render subobjects
 art_tile =		  2 ; and 3 ; start of sprite's art
 mappings =		  4 ; and 5 and 6 and 7

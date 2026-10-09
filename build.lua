@@ -10,7 +10,7 @@
 local improved_sound_driver_compression = false
 
 -- These describe the Saxman decompression buffer in the sound driver.
-local music_buffer_address = 0x1380 -- Should always match zMusicData in s2.sounddriver.asm.
+local music_buffer_address = 0x1380 -- Should always match zMusicData in src/sound/Z80 Sound Driver.asm.
 local music_buffer_size = 0x7C0     -- Should always be zStack minus 0x40.
 
 ---------------------

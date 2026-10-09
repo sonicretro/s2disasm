@@ -1,0 +1,106 @@
+; ---------------------------------------------------------------------------
+; EHZ Demo Script (Sonic)
+; ---------------------------------------------------------------------------
+; byte_4CA8: Demo_Def:
+Demo_EHZ:
+	demoinput ,	$4C
+	demoinput R,	$43
+	demoinput RC,	9
+	demoinput R,	$3F
+	demoinput RC,	6
+	demoinput R,	$B0
+	demoinput RC,	$A
+	demoinput R,	$46
+	demoinput ,	$1E
+	demoinput L,	$F
+	demoinput ,	5
+	demoinput L,	5
+	demoinput ,	9
+	demoinput L,	$3F
+	demoinput ,	5
+	demoinput R,	$67
+	demoinput ,	$62
+	demoinput R,	$12
+	demoinput ,	$22
+	demoinput D,	8
+	demoinput DC,	7
+	demoinput D,	$E
+	demoinput ,	$3C
+	demoinput R,	$A
+	demoinput ,	$1E
+	demoinput D,	7
+	demoinput DC,	7
+	demoinput D,	2
+	demoinput ,	$F
+	demoinput R,	$100
+	demoinput R,	$2F
+	demoinput ,	$23
+	demoinput C,	8
+	demoinput RC,	$10
+	demoinput R,	3
+	demoinput ,	$30
+	demoinput RC,	$24
+	demoinput R,	$BE
+	demoinput ,	$C
+	demoinput L,	$14
+	demoinput ,	$17
+	demoinput D,	3
+	demoinput DC,	7
+	demoinput D,	3
+	demoinput ,	$64
+	demoinput S,	1
+	demoinput A,	1
+	demoinput ,	1
+; ---------------------------------------------------------------------------
+; EHZ Demo Script (Tails)
+; ---------------------------------------------------------------------------
+; byte_4D08:
+Demo_EHZ_Tails:
+	demoinput ,	$3C
+	demoinput R,	$10
+	demoinput UR,	$44
+	demoinput URC,	$7
+	demoinput UR,	$7
+	demoinput R,	$CA
+	demoinput ,	$12
+	demoinput R,	$2
+	demoinput RC,	$9
+	demoinput R,	$53
+	demoinput ,	$12
+	demoinput R,	$B
+	demoinput RC,	$F
+	demoinput R,	$24
+	demoinput ,	$B
+	demoinput C,	$5
+	demoinput ,	$E
+	demoinput R,	$56
+	demoinput ,	$1F
+	demoinput R,	$5B
+	demoinput ,	$11
+	demoinput R,	$100
+	demoinput R,	$C1
+	demoinput ,	$21
+	demoinput L,	$E
+	demoinput ,	$E
+	demoinput C,	$5
+	demoinput RC,	$10
+	demoinput C,	$6
+	demoinput ,	$D
+	demoinput L,	$6
+	demoinput ,	$5F
+	demoinput R,	$74
+	demoinput ,	$19
+	demoinput L,	$45
+	demoinput ,	$9
+	demoinput D,	$31
+	demoinput ,	$9
+	demoinput R,	$E
+	demoinput ,	$24
+	demoinput R,	$28
+	demoinput ,	$5
+	demoinput R,	$1
+	demoinput ,	$1
+	demoinput ,	$1
+	demoinput ,	$1
+	demoinput ,	$1
+	demoinput ,	$1
