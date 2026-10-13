@@ -2,21 +2,18 @@ SonLVL INI Files/dllcache
 SonLVL INI Files/SonLVL.log
 *~
 
-# Misc. compiler output.
-s2.h
-s2.p
-s2.lst
-s2.log
-s2.map
-
 # Built ROMs.
 s2built.bin
 s2built.prev.bin
 
+# s2build intermediates.
+macro-inliner-generated/
+s2.mi.asm
+s2.mi.sym
+
 # Automatically-generated music data.
 sound/music/generated/*.inc
 sound/music/generated/*.sax
-sound/music/generated/hashes.lua
 
 # Automatically-generated (D)PCM data.
 sound/DAC/generated/*.inc
