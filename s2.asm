@@ -51889,6 +51889,9 @@ Obj2B_Main:
     endif
 	moveq	#0,d2
 	move.b	y_radius(a0),d2
+    if fixBugs
+	subq.w	#8,d2	; preserve collision height despite larger culling bounds
+    endif
 	move.w	d2,d3
 	addq.w	#1,d3
 	move.w	(sp)+,d4
@@ -57370,15 +57373,15 @@ Obj82_Main:
 	addi.w	#$B,d1
 	moveq	#0,d2
 	move.b	y_radius(a0),d2
-	move.w	d2,d3
-	addq.w	#1,d3
     if fixBugs
 	tst.b	mapping_frame(a0)	; is this a pillar?
 	beq.s	.notPillar		; if not, branch
-	subq.w	#2,d3
+	subq.w	#2,d2
 
 .notPillar:
     endif
+	move.w	d2,d3
+	addq.w	#1,d3
 	jsrto	JmpTo23_SolidObject
 	swap	d6
 	move.b	d6,objoff_3F(a0)
