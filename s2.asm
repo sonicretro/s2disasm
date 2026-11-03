@@ -88866,6 +88866,16 @@ return_41CB6:
 
 ; sub_41CB8:
 Debug_ResetPlayerStats:
+    if FixBugs
+	; When exiting Debug Mode in Sonic 3 & Knuckles, the call to HUD_DrawInitial
+	; ends up making d0 dirty. This miraculously doesn't cause problems in regular
+	; gameplay due to the lives HUD resetting d0 to 0, but since the standard HUD
+	; isn't used in Competition, exiting there prevents the player from respawning.
+
+	; While not strictly necessary in Sonic 2, it is best to include this just in case
+	; other changes are made that happen to break it.
+	moveq	#0,d0
+    endif
 	move.b	d0,anim(a1)
 	move.w	d0,x_sub(a1) ; subpixel x
 	move.w	d0,y_sub(a1) ; subpixel y
