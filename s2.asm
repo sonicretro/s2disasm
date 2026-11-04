@@ -4314,14 +4314,14 @@ TitleScreen:
 	bsr.w	NemDec
 
 	; Clear some variables.
-	moveq	#0,d0
-	move.b	d0,(Last_star_pole_hit).w
-	move.b	d0,(Last_star_pole_hit_2P).w
-	move.w	d0,(Debug_placement_mode).w
-	move.b	d0,(Demo_mode_flag).w
-	move.w	d0,(PalCycle_Timer).w
-	move.w	d0,(Two_player_mode).w
-	move.b	d0,(Level_started_flag).w
+	move.b	#0,(Last_star_pole_hit).w
+	move.b	#0,(Last_star_pole_hit_2P).w
+	move.w	#0,(Debug_placement_mode).w
+	move.w	#0,(Demo_mode_flag).w
+	move.w	#0,(unk_FFDA).w
+	move.w	#0,(PalCycle_Timer).w
+	move.w	#0,(Two_player_mode).w
+	move.b	#0,(Level_started_flag).w
 
 	; And finally fade out.
 	bsr.w	Pal_FadeToBlack
@@ -4594,9 +4594,9 @@ TitleScreen_Demo:
 	addq.w	#1,(Demo_number).w
 	cmpi.w	#(DemoLevels_End-DemoLevels)/2,(Demo_number).w
 	blo.s	+
-	clr.w	(Demo_number).w
+	move.w	#0,(Demo_number).w
 +
-	move.b	#1,(Demo_mode_flag).w
+	move.w	#1,(Demo_mode_flag).w
 	move.b	#GameModeID_Demo,(Game_Mode).w ; => Level (Demo mode)
 	cmpi.w	#emerald_hill_zone_act_1,(Current_ZoneAndAct).w
 	bne.s	+
@@ -4757,13 +4757,21 @@ MusicList2: zoneOrderedTable 1,1
 Level:
 	; fading out from previous game mode
 	bset	#GameModeFlag_TitleCard,(Game_Mode).w		; add $80 to screen mode (for pre level sequence)
+
+	tst.w	(Demo_mode_flag).w				; is an ending sequence demo running? (unused)
+	bmi.s	Level_NoMusicFade				; if yes, don't fade out music
 	move.b	#MusID_FadeOut,d0				; queue music fade-out command
 	bsr.w	PlaySound					; fade out music
+
+Level_NoMusicFade:
 	bsr.w	ClearPLC					; clear any remaining PLC entries
 	bsr.w	Pal_FadeToBlack					; fade out from the previous screen
 ; ---------------------------------------------------------------------------
 
 	; load title cards, queue PLCs, setup screen, play music
+	tst.w	(Demo_mode_flag).w				; is an ending sequence demo running? (unused)
+	bmi.s	Level_ClrRam					; if yes, don't load title screen or main level patterns
+
 	move	#$2700,sr					; disable interrupts
 	bsr.w	ClearScreen					; wipe the screen
 	jsr	(LoadTitleCard).l				; load title card patterns
@@ -4818,6 +4826,17 @@ Level_ClrRam:
 	clearRAM CNZ_saucer_data,CNZ_saucer_data_End+$C0	; clear CNZ saucer RAM (and way more than necessary)
     endif
 
+	cmpi.w	#chemical_plant_zone_act_2,(Current_ZoneAndAct).w	; is this CPZ2?
+	beq.s	Level_InitWater					; if yes, branch
+	cmpi.b	#aquatic_ruin_zone,(Current_Zone).w		; is this ARZ?
+	beq.s	Level_InitWater					; if yes, branch
+	cmpi.b	#hidden_palace_zone,(Current_Zone).w		; is this HPZ?
+	bne.s	+						; if not, branch
+
+Level_InitWater:
+	move.b	#1,(Water_flag).w				; enable water
+	move.w	#0,(Two_player_mode).w				; disable two-player mode
++
 	lea	(VDP_control_port).l,a6				; load VDP control port
 	move.w	#$8B03,(a6)					; line scroll mode (per-row horizontally, full-screen vertically)
 	move.w	#$8200|(VRAM_Plane_A_Name_Table/$400),(a6)	; set foreground nametable address
@@ -4852,15 +4871,8 @@ Level_ChkWater:
 
 	clr.w	(VDP_Command_Buffer).w				; clear VDP command buffer
 	move.l	#VDP_Command_Buffer,(VDP_Command_Buffer_Slot).w	; clear VDP command buffer slot
-
-	cmpi.w	#chemical_plant_zone_act_2,(Current_ZoneAndAct).w	; is this CPZ2?
-	beq.s	Level_InitWater					; if yes, branch
-	cmpi.b	#aquatic_ruin_zone,(Current_Zone).w		; is this ARZ?
-	beq.s	Level_InitWater					; if yes, branch
-	cmpi.b	#hidden_palace_zone,(Current_Zone).w		; is this HPZ?
-	bne.s	Level_LoadPal					; if not, branch
-
-Level_InitWater:
+	tst.b	(Water_flag).w					; is this a water level?
+	beq.s	Level_LoadPal					; if not, branch
 	move.w	#$8014,(a6)					; 8-colour mode, horizontal interrupts enabled
 	moveq	#0,d0						; clear d0
 	move.w	(Current_ZoneAndAct).w,d0			; get current Zone and Act
@@ -4875,8 +4887,9 @@ Level_InitWater:
 	move.w	d0,(Water_Level_1).w				; set water height (actual)
 	move.w	d0,(Water_Level_2).w				; set water height (ignoring surface sway)
 	move.w	d0,(Water_Level_3).w				; set water height (target)
-	clr.w	(Water_routine).w				; clear water routine counter (and Water_fullscreen_flag)
-	move.b	#1,(Water_flag).w				; enable water
+	clr.b	(Water_routine).w				; clear water routine counter
+	clr.b	(Water_fullscreen_flag).w			; clear water state
+	move.b	#1,(Water_on).w					; enable water
 ; loc_407C:
 Level_LoadPal:
 	moveq	#PalID_BGND,d0					; load Sonic's palette...
@@ -4898,6 +4911,9 @@ Level_WaterPal:
 	move.b	(Saved_Water_move).w,(Water_fullscreen_flag).w	; restore water state from checkpoint
 ; loc_40AE:
 Level_GetBgm:
+	tst.w	(Demo_mode_flag).w				; is this a credits demo?
+	bmi.s	Level_SkipTtlCard				; if yes, don't load title cards or change music
+
 	moveq	#0,d0						; clear d0
 	move.b	(Current_Zone).w,d0				; get current Zone ID
 	lea_	MusicList,a1					; load music playlist
@@ -4935,17 +4951,20 @@ Level_TtlCard: ; move in title cards, stay on them until PLCs have finished
 	jsr	(Hud_Base).l					; load basic HUD graphics
 
 Level_SkipTtlCard:
+	moveq	#PalID_BGND,d0					; load Sonic's palette to the fade-in buffer
+	bsr.w	PalLoad_ForFade					; (basically useless since Sonic 2 doesn't fade-in into levels)
 	bsr.w	LevelSizeLoad					; load level size and set default level boundaries
-	jsr	(DeformBgLayer).l				; initialize background deformation
+	jsrto	JmpTo_DeformBgLayer				; initialize background deformation
 	clr.w	(Vscroll_Factor_FG).w				; draw an extra column at the left side of the screen during level start
 	move.w	#-screen_height,(Vscroll_Factor_P2_FG).w	; repeat for player 2
 
 	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf+HorizontalScrollBuffer.len	; clear the horizontal scroll buffer
 
 	bsr.w	LoadZoneTiles					; load main level graphics
-	jsr	(loadZoneBlockMaps).l				; load block mappings and palettes
+	jsrto	JmpTo_loadZoneBlockMaps				; load block mappings and palettes
 	jsr	(LoadAnimatedBlocks).l				; load animated block mappings
-	jsr	(DrawInitialBG).l				; fully draw the foreground and background once before the level starts
+	jsrto	JmpTo_DrawInitialBG				; fully draw the foreground and background once before the level starts
+	jsr	(ConvertCollisionArray).l			; call a routine that immediately returns (this is a disabled development function)
 	bsr.w	LoadCollisionIndexes				; set collision index for current zone
 	bsr.w	WaterEffects					; initialize water features
 	bsr.w	InitPlayers					; load Sonic, Tails, and related objects
@@ -5012,13 +5031,10 @@ Level_FromCheckpoint:
 
 	jsr	(ObjectsManager).l				; initialize object positions
 	jsr	(RingsManager).l				; initialize ring positions
-	cmpi.b	#casino_night_zone,(Current_Zone).w		; is this CNZ?
-	bne.s	+						; if not, branch
-	jsr	(SpecialCNZBumpers).l				; run the bumper manager to load CNZ bumpers
-+
+	jsr	(SpecialCNZBumpers).l				; initialize bumper positions
 	jsr	(RunObjects).l					; execute level objects
 	jsr	(BuildSprites).l				; build sprites to show level objects
-	jsr	(AniArt_Load).l					; load animated stage artwork
+	jsrto	JmpTo_AniArt_Load				; load animated stage artwork
 	bsr.w	SetLevelEndType					; determine if we should be using a signpost or capsule
 
 	move.w	#0,(Demo_button_index).w			; clear button push counters for player 1 in demos
@@ -5028,6 +5044,15 @@ Level_FromCheckpoint:
 	move.b	(Current_Zone).w,d0				; get current Zone ID
 	lsl.w	#2,d0						; multiply by 4 for longword-based indexing
 	movea.l	(a1,d0.w),a1					; get demo pointer for current level
+	tst.w	(Demo_mode_flag).w				; are we in an ending demo? (unused)
+	bpl.s	Level_Demo					; if not, branch
+	lea	(EndingDemoScriptPointers).l,a1			; load (dummied out) ending demo data
+	move.w	(Ending_demo_number).w,d0			; get current credits page
+	subq.w	#1,d0						; subtract by 1
+	lsl.w	#2,d0						; multiply by 4 for longword-based indexing
+	movea.l	(a1,d0.w),a1					; get demo pointer for current credits page
+
+Level_Demo:
 	move.b	1(a1),(Demo_press_counter).w			; load initial demo key press duration for player 1
     if emerald_hill_zone<>0
 	cmpi.b	#emerald_hill_zone,(Current_Zone).w		; is this EHZ1? (different check incase of shifting IDs)
@@ -5039,6 +5064,25 @@ Level_FromCheckpoint:
 	move.b	1(a1),(Demo_press_counter_2P).w			; load initial demo key press duration for player 2
 +
 	move.w	#1640,(Demo_Time_left).w			; run regular demo for 27 seconds
+	tst.w	(Demo_mode_flag).w				; are we in an ending demo? (unused)
+	bpl.s	+						; if not, branch
+	move.w	#540,(Demo_Time_left).w				; run credits demos for 9 seconds each
+	cmpi.w	#4,(Ending_demo_number).w			; is this credits demo 4? (Labyrinth in Sonic 1)
+	bne.s	+						; if not, branch
+	move.w	#510,(Demo_Time_left).w				; run this specific demo for 0.5 seconds less
++
+	tst.b	(Water_flag).w					; is this a water level?
+	beq.s	++						; if not, branch
+	moveq	#PalID_HPZ_U,d0					; palette number $15 (HPZ)
+	cmpi.b	#hidden_palace_zone,(Current_Zone).w		; is this actually HPZ?
+	beq.s	+						; if not, branch
+	moveq	#PalID_CPZ_U,d0					; palette number $16 (CPZ)
+	cmpi.b	#chemical_plant_zone,(Current_Zone).w		; is this actually CPZ?
+	beq.s	+						; if not, branch
+	moveq	#PalID_ARZ_U,d0					; palette number $17 (ARZ)
++
+	bsr.w	PalLoad_Water_ForFade				; load underwater palette (again useless)
++
 	move.w	#-1,(TitleCard_ZoneName+titlecard_leaveflag).w	; mark "ZONE NAME" element to leave
 	move.b	#$E,(TitleCard_Left+routine).w			; make the left part move offscreen
 	move.w	#$A,(TitleCard_Left+titlecard_location).w	; ??? not sure
@@ -5086,14 +5130,14 @@ Level_MainLoop:
 	tst.w	(Level_Inactive_flag).w				; is the level set to restart?
 	bne.w	Level						; if yes, branch
 
-	jsr	(DeformBgLayer).l				; scroll planes and do background deformation
+	jsrto	JmpTo_DeformBgLayer				; scroll planes and do background deformation
 	bsr.w	UpdateWaterSurface				; update water surface position (swaying motion)
 	jsr	(RingsManager).l				; run the ring manager to load rings
 	cmpi.b	#casino_night_zone,(Current_Zone).w		; is this CNZ?
 	bne.s	+						; if not, branch
 	jsr	(SpecialCNZBumpers).l				; run the bumper manager to load CNZ bumpers
 +
-	jsr	(AniArt_Load).l					; run animated stage artwork
+	jsrto	JmpTo_AniArt_Load				; run animated stage artwork
 	bsr.w	PalCycle_Load					; run palette cycles
 	bsr.w	RunPLC_RAM					; run PLC, if any
 	bsr.w	OscillateNumDo					; advance oscillation values
@@ -5255,10 +5299,13 @@ UpdateWaterSurface:
 	rts
 ; End of function UpdateWaterSurface
 
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
 ; ---------------------------------------------------------------------------
 ; Subroutine to do special water effects
 ; ---------------------------------------------------------------------------
-; sub_450E: LZWaterEffects:
+; sub_450E: ; LZWaterEffects:
 WaterEffects:
 	tst.b	(Water_flag).w	; does level have water?
 	beq.s	NonWaterEffects	; if not, branch
@@ -5354,7 +5401,7 @@ DynamicWater:
 	move.w	Dynamic_water_routine_table(pc,d0.w),d0
 	jsr	Dynamic_water_routine_table(pc,d0.w)
 	moveq	#0,d1
-	move.b	(Water_flag).w,d1
+	move.b	(Water_on).w,d1
 	move.w	(Water_Level_3).w,d0
 	sub.w	(Water_Level_2).w,d0
 	beq.s	++	; rts
@@ -5659,7 +5706,7 @@ OilSlides_Chunks_End:
 
 ; sub_481E:
 MoveSonicInDemo:
-	tst.b	(Demo_mode_flag).w	; is demo mode on?
+	tst.w	(Demo_mode_flag).w	; is demo mode on?
 	bne.w	MoveDemo_On	; if yes, branch
 	rts
 ; ---------------------------------------------------------------------------
@@ -5720,6 +5767,8 @@ MoveDemo_On:
 	or.b	(Ctrl_2_Press).w,d0
 	andi.b	#button_start_mask,d0
 	beq.s	+
+	tst.w	(Demo_mode_flag).w
+	bmi.s	+
 	move.b	#GameModeID_TitleScreen,(Game_Mode).w ; => TitleScreen
 +
 	lea	(DemoScriptPointers).l,a1 ; load pointer to input data
@@ -5848,6 +5897,43 @@ DemoScriptPointers: zoneOrderedTable 4,1
 	zoneTableEntry.l Demo_ARZ	; ARZ
 	zoneTableEntry.l Demo_EHZ	; SCZ
     zoneTableEnd
+; ---------------------------------------------------------------------------
+; dword_498C:
+EndingDemoScriptPointers:
+	; Empty, since Sonic 2 doesn't have demos during its credits.
+; ---------------------------------------------------------------------------
+	; Leftover unused demo data from Sonic 1.
+	; It involves Sonic slowly running right, jumping once,
+	; then running at full speed for a few seconds.
+	; Interestingly, this lines up with our knowledge of
+	; the fabled Tokyo Game Show prototype.
+	; See it in action: https://youtu.be/S8_IAfQbUu0
+	demoinput ,	$8C
+	demoinput R,	$38
+	demoinput ,	$43
+	demoinput R,	$5D
+	demoinput ,	$6B
+	demoinput R,	$60
+	demoinput ,	$30
+	demoinput R,	$2D
+	demoinput ,	$22
+	demoinput R,	4
+	demoinput RC,	$31
+	demoinput R,	9
+	demoinput ,	$2F
+	demoinput R,	$16
+	demoinput ,	$10
+	demoinput R,	$47
+	demoinput ,	$1B
+	demoinput R,	$100
+	demoinput R,	$CB
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+	demoinput ,	1
+
+
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -6483,6 +6569,13 @@ LoadZoneTiles:
 
 	rts
 ; End of function LoadZoneTiles
+
+; ===========================================================================
+
+	jmpTos JmpTo_loadZoneBlockMaps,JmpTo_DeformBgLayer,JmpTo_AniArt_Load,JmpTo_DrawInitialBG
+
+
+
 
 ; ===========================================================================
 ; loc_4F64:
@@ -30009,7 +30102,7 @@ ObjPtr_Flipper:		dc.l Obj86	; Flipper from CNZ
 ObjPtr_SSNumberOfRings:	dc.l Obj87	; Number of rings in Special Stage
 ObjPtr_SSTailsTails:	dc.l Obj88	; Tails' tails in Special Stage
 ObjPtr_ARZBoss:		dc.l Obj89	; ARZ boss
-			dc.l ObjNull	; Obj8A
+			dc.l Obj8A	; Sonic Team Presents/Credits (seemingly unused leftover from S1)
 ObjPtr_WFZPalSwitcher:	dc.l Obj8B	; Cycling palette switcher from Wing Fortress Zone
 ObjPtr_Whisp:		dc.l Obj8C	; Whisp (blowfly badnik) from ARZ
 ObjPtr_GrounderInWall:	dc.l Obj8D	; Grounder in wall, from ARZ
@@ -32604,15 +32697,19 @@ loc_175EA:
 	move.w	x_vel(a0),d1
 	move.w	y_vel(a0),d2
 	jsr	(CalcAngle).l
+	move.b	d0,(unk_FFDC).w
 	sub.w	d3,d0
 	mvabs.w	d0,d1
 	neg.w	d0
 	add.w	d3,d0
+	move.b	d0,(unk_FFDD).w
+	move.b	d1,(unk_FFDF).w
 	cmpi.b	#$38,d1
 	blo.s	loc_17618
 	move.w	d3,d0
 
 loc_17618:
+	move.b	d0,(unk_FFDE).w
 	jsr	(CalcSine).l
 	muls.w	#-$A00,d1
 	asr.l	#8,d1
@@ -43765,6 +43862,121 @@ loc_1EAE0:
 	not.w	d1
 	rts
 ; End of function FindWall2
+
+; ---------------------------------------------------------------------------
+; This subroutine takes 'raw' bitmap-like collision block data as input and
+; converts it into the proper collision arrays (ColArrayVertical and
+; ColArrayHorizontal).
+; Pointers to said raw data are dummied out.
+; Curiously, an example of the original 'raw' data that this was intended
+; to process can be found in the J2ME version of Sonic 1, in a file called
+; 'blkcol.bct'.
+; This subroutine exists in Sonic 1 as well, but was oddly changed in
+; the S2 Nick Arcade prototype to just handle loading GHZ's collision
+; instead (though it too is dummied out, hence collision being broken).
+; ---------------------------------------------------------------------------
+
+RawColBlocks		= ColArrayVertical
+ConvRowColBlocks	= ColArrayVertical
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; return_1EAF0: FloorLog_Unk:
+ConvertCollisionArray:
+	rts
+; ---------------------------------------------------------------------------
+	; The raw format stores the collision data column by column for the normal collision array.
+	; This makes a copy of the data, but stored row by row, for the rotated collision array.
+	lea	(RawColBlocks).l,a1	; Source location of raw collision block data
+	lea	(ConvRowColBlocks).l,a2	; Destinatation location for row-converted collision block data
+
+	move.w	#$100-1,d3	; Number of blocks in collision data
+.blockLoop:
+	moveq	#16,d5		; Start on the 16th bit (the leftmost pixel)
+
+	move.w	#16-1,d2	; Width of a block in pixels
+.columnLoop:
+	moveq	#0,d4
+
+	move.w	#16-1,d1	; Height of a block in pixels
+.rowLoop:
+	move.w	(a1)+,d0	; Get row of collision bits
+	lsr.l	d5,d0		; Push the selected bit of this row into the 'eXtend' flag
+	addx.w	d4,d4		; Shift d4 to the left, and insert the selected bit into bit 0
+	dbf	d1,.rowLoop	; Loop for each row of pixels in a block
+
+	move.w	d4,(a2)+	; Store column of collision bits
+	suba.w	#2*16,a1	; Back to the start of the block
+	subq.w	#1,d5		; Get next bit in the row
+	dbf	d2,.columnLoop	; Loop for each column of pixels in a block
+
+	adda.w	#2*16,a1	; Next block
+	dbf	d3,.blockLoop	; Loop for each block in the raw collision block data
+
+	; This then converts the collision data into the final collision arrays
+	lea	(ConvRowColBlocks).l,a1
+	lea	(ColArrayHorizontal).l,a2	; Convert the row-converted collision block data into final rotated collision array
+	bsr.s	.convertArrayToStandardFormat
+	lea	(RawColBlocks).l,a1
+	lea	(ColArrayVertical).l,a2		; Convert the raw collision block data into final normal collision array
+
+; loc_1EB46: FloorLog_Unk2:
+.convertArrayToStandardFormat:
+	move.w	#$1000-1,d3	; Size of the collision array
+
+.processCollisionArrayLoop:
+	moveq	#0,d2
+	move.w	#$F,d1
+	move.w	(a1)+,d0	; Get current column of collision pixels
+	beq.s	.noCollision	; Branch if there's no collision in this column
+	bmi.s	.topPixelSolid	; Branch if top pixel of collision is solid
+
+	; Here we count, starting from the bottom, how many pixels tall
+	; the collision in this column is.
+.processColumnLoop1:
+	lsr.w	#1,d0
+	bcc.s	.pixelNotSolid1
+	addq.b	#1,d2
+.pixelNotSolid1:
+	dbf	d1,.processColumnLoop1
+
+	bra.s	.columnProcessed
+; ===========================================================================
+.topPixelSolid:
+	cmpi.w	#$FFFF,d0		; Is entire column solid?
+	beq.s	.entireColumnSolid	; Branch if so
+
+	; Here we count, starting from the top, how many pixels tall
+	; the collision in this column is (the resulting number is negative).
+.processColumnLoop2:
+	lsl.w	#1,d0
+	bcc.s	.pixelNotSolid2
+	subq.b	#1,d2
+.pixelNotSolid2:
+	dbf	d1,.processColumnLoop2
+
+	bra.s	.columnProcessed
+; ===========================================================================
+.entireColumnSolid:
+	move.w	#16,d0
+
+; loc_1EB78:
+.noCollision:
+	move.w	d0,d2
+
+; loc_1EB7A:
+.columnProcessed:
+	move.b	d2,(a2)+	; Store column collision height
+	dbf	d3,.processCollisionArrayLoop
+
+	rts
+
+; End of function ConvertCollisionArray
+
+	jmpTos ; Empty
+
+
+
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to calculate how much space is in front of Sonic or Tails on the ground
@@ -84700,6 +84912,65 @@ Scale_2x_RightPixels2:
 ; ===========================================================================
 
 	jmpTos0 JmpTo5_DisplaySprite3,JmpTo45_DisplaySprite,JmpTo65_DeleteObject,JmpTo19_AllocateObject,JmpTo39_MarkObjGone,JmpTo6_DeleteObject2,JmpTo12_PlaySound,JmpTo25_AllocateObjectAfterCurrent,JmpTo25_AnimateSprite,JmpTo_PlaySoundLocal,JmpTo6_RandomNumber,JmpTo2_MarkObjGone_P1,JmpTo_Pal_FadeToWhite.UpdateColour,JmpTo_LoadTailsDynPLC_Part2,JmpTo_LoadSonicDynPLC_Part2,JmpTo8_MarkObjGone3,JmpTo64_Adjust2PArtPointer,JmpTo5_PlayMusic,JmpTo_Boss_LoadExplosion,JmpTo9_PlatformObject,JmpTo27_SolidObject,JmpTo8_ObjectMoveAndFall,JmpTo26_ObjectMove
+
+
+
+
+; ===========================================================================
+; ----------------------------------------------------------------------------
+; Object 8A - Sonic Team Presents/Credits (leftover from S1) (seemingly unused)
+; ----------------------------------------------------------------------------
+; Sprite_3EAC8:
+Obj8A: ; (screen-space obj)
+	moveq	#0,d0
+	move.b	routine(a0),d0
+	move.w	Obj8A_Index(pc,d0.w),d1
+	jmp	Obj8A_Index(pc,d1.w)
+; ===========================================================================
+; off_3EAD6:
+Obj8A_Index:	offsetTable
+		offsetTableEntry.w Obj8A_Init
+		offsetTableEntry.w Obj8A_Display
+; ===========================================================================
+; loc_3EADA:
+Obj8A_Init:
+	addq.b	#2,routine(a0)
+	move.w	#spriteScreenPositionXCentered(0),x_pixel(a0)
+	move.w	#spriteScreenPositionYCentered(0),y_pixel(a0)
+	move.l	#Obj8A_MapUnc_3EB4E,mappings(a0)
+	move.w	#make_art_tile($05A0,0,0),art_tile(a0)
+	jsrto	JmpTo65_Adjust2PArtPointer
+	move.w	(Ending_demo_number).w,d0
+	move.b	d0,mapping_frame(a0)
+	move.b	#0,render_flags(a0)
+	move.b	#0,priority(a0)
+	cmpi.b	#GameModeID_TitleScreen,(Game_Mode).w	; title screen??
+	bne.s	Obj8A_Display	; if not, branch
+	move.w	#make_art_tile($0300,0,0),art_tile(a0)
+	jsrto	JmpTo65_Adjust2PArtPointer
+	move.b	#$A,mapping_frame(a0)
+	tst.b	(S1_hidden_credits_flag).w
+	beq.s	Obj8A_Display
+	cmpi.b	#button_down_mask|button_B_mask|button_C_mask|button_A_mask,(Ctrl_1_Held).w
+	bne.s	Obj8A_Display
+	move.w	#$EEE,(Target_palette_line3).w
+	move.w	#$880,(Target_palette_line3+2).w
+	jmp	(DeleteObject).l
+; ===========================================================================
+; JmpTo46_DisplaySprite
+Obj8A_Display:
+	jmp	(DisplaySprite).l
+; ===========================================================================
+; ----------------------------------------------------------------------------
+; sprite mappings (unused?)
+; ----------------------------------------------------------------------------
+Obj8A_MapUnc_3EB4E:	include "mappings/sprite/obj8A.asm"
+; ===========================================================================
+
+	jmpTos JmpTo65_Adjust2PArtPointer
+
+
+
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
