@@ -85386,7 +85386,7 @@ col_80x8:	hitbox	 80,  8		; $1D
 col_8x16:	hitbox	  8, 16		; $1E
 col_8x48:	hitbox	  8, 48		; $1F
 col_8x80:	hitbox	  8, 80		; $20
-col_8x32_alt:	hitbox	  8, 32		; $21 ; was 8x32 in Sonic 1
+col_8x32_alt:	hitbox	  8, 32		; $21 ; was 8x64 in Sonic 1
 col_48x48_alt:	hitbox	 48, 48		; $22
 col_24x48:	hitbox	 24, 48		; $23
 col_144x16:	hitbox	144, 16		; $24
