@@ -14389,11 +14389,11 @@ ChildObject_AD6E:	childObjectData objoff_3E, ObjID_TornadoHelixes, $00
 ; off_AD72:
 ObjCD_SubObjData:
     if fixBugs
-	subObjData Obj28_MapUnc_11E1C,make_art_tile(ArtTile_ArtNem_Animal_2,0,0),1<<render_flags.level_fg,1,8,0
+	subObjData Obj28_MapUnc_11E1C,make_art_tile(ArtTile_ArtNem_Animal_2,0,0),1<<render_flags.level_fg,1,8,col_none
     else
 	; This should use priority 1, not 2. As-is, it causes the birds to
 	; overlap the Tornado but appear behind Sonic.
-	subObjData Obj28_MapUnc_11E1C,make_art_tile(ArtTile_ArtNem_Animal_2,0,0),1<<render_flags.level_fg,2,8,0
+	subObjData Obj28_MapUnc_11E1C,make_art_tile(ArtTile_ArtNem_Animal_2,0,0),1<<render_flags.level_fg,2,8,col_none
     endif
 
 ; animation script
@@ -22598,7 +22598,7 @@ Obj15_Init:
 	cmpi.b	#$40,d1
 	bne.s	Obj15_State2
 	move.l	#Obj15_MapUnc_102DE,mappings(a0)
-	move.b	#$A7,collision_flags(a0)
+	move.b	#col_64x4|col_hurt,collision_flags(a0)
 
 ; loc_FE50:
 Obj15_State2:
@@ -23148,12 +23148,12 @@ BranchTo2_DeleteObject ; BranchTo
 ; sub_1042A:
 Obj17_RotateSpike:
 	move.b	(Logspike_anim_frame).w,d0
-	move.b	#0,collision_flags(a0)	; make object harmless
+	move.b	#col_none,collision_flags(a0)	; make object harmless
 	add.b	objoff_3E(a0),d0
 	andi.b	#7,d0
 	move.b	d0,mapping_frame(a0)	; change current frame
 	bne.s	+	; rts
-	move.b	#%10000100,collision_flags(a0)	; make object harmful
+	move.b	#col_8x32|col_hurt,collision_flags(a0)	; make object harmful
 +
 	rts
 ; End of function Obj17_RotateSpike
@@ -25038,7 +25038,7 @@ Obj25_Init:
 	bsr.w	Adjust2PArtPointer
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#2,priority(a0)
-	move.b	#$47,collision_flags(a0)
+	move.b	#col_12x12|col_item,collision_flags(a0)
 	move.b	#8,width_pixels(a0)
 ; loc_11F90: Obj_25_sub_2:
 Obj25_Animate:
@@ -25049,7 +25049,7 @@ Obj25_Animate:
 ; loc_11F9E: Obj_25_sub_4:
 Obj25_Collect:
 	addq.b	#2,routine(a0)
-	move.b	#0,collision_flags(a0)
+	move.b	#col_none,collision_flags(a0)
 	move.b	#1,priority(a0)
 	bsr.s	CollectRing
 ; loc_11FB0: Obj_25_sub_6:
@@ -25199,7 +25199,7 @@ Obj37_Init:
 	bsr.w	Adjust2PArtPointer2
 	move.b	#1<<render_flags.on_screen|1<<render_flags.level_fg,render_flags(a1)
 	move.b	#3,priority(a1)
-	move.b	#$47,collision_flags(a1)
+	move.b	#col_12x12|col_item,collision_flags(a1)
 	move.b	#8,width_pixels(a1)
   if ~~fixBugs
 	; The ring deletion timer shouldn't be stored as a global variable, since
@@ -25302,7 +25302,7 @@ loc_121D0:
 ; loc_121DA: Obj_37_sub_4:
 Obj37_Collect:
 	addq.b	#2,routine(a0)
-	move.b	#0,collision_flags(a0)
+	move.b	#col_none,collision_flags(a0)
 	move.b	#1,priority(a0)
 	bsr.w	CollectRing
 ; loc_121EE: Obj_37_sub_6:
@@ -25356,7 +25356,7 @@ BigRing_Init:
 +
 	addq.b	#2,routine(a0)
 	move.b	#2,priority(a0)
-	move.b	#$52,collision_flags(a0)
+	move.b	#col_16x32|col_item,collision_flags(a0)
 	move.w	#$C40,(BigRingGraphics).w	; $C40 was the size of the Giant Ring graphics
 ; loc_12264:
 BigRing_Main:
@@ -25371,7 +25371,7 @@ BigRing_Main:
 ; loc_12282:
 BigRing_Enter:
 	subq.b	#2,routine(a0)
-	move.b	#0,collision_flags(a0)
+	move.b	#col_none,collision_flags(a0)
 	bsr.w	AllocateObject
 	bne.w	+
 	; Note: the object ID is not set
@@ -25615,7 +25615,7 @@ Obj26_Init:
 	rts
 ; ---------------------------------------------------------------------------
 +
-	move.b	#$46,collision_flags(a0)
+	move.b	#col_32x32|col_item,collision_flags(a0)
 	move.b	subtype(a0),anim(a0)	; subtype = icon to display
 	tst.w	(Two_player_mode).w	; is it two player mode?
 	beq.s	Obj26_Main		; if not, branch
@@ -25735,7 +25735,7 @@ Obj26_Break:
 Obj26_SpawnIcon:
 	clr.b	status(a0)
 	addq.b	#2,routine(a0)
-	move.b	#0,collision_flags(a0)
+	move.b	#col_none,collision_flags(a0)
 	bsr.w	AllocateObject
 	bne.s	Obj26_SpawnSmoke
 	_move.b	#ObjID_MonitorContents,id(a1) ; load obj2E
@@ -44972,7 +44972,7 @@ loc_1F5B4:
 ; ===========================================================================
 
 loc_1F5BE:
-	move.b	#$D8,collision_flags(a0)
+	move.b	#col_8x8|col_special,collision_flags(a0)
 
 loc_1F5C4:
 	cmpi.w	#$180,d1
@@ -45138,7 +45138,7 @@ Obj44_Init:
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#$10,width_pixels(a0)
 	move.b	#1,priority(a0)
-	move.b	#$D7,collision_flags(a0)
+	move.b	#col_16x16_alt|col_special,collision_flags(a0)
 
 ; loc_1F770:
 Obj44_Main:
@@ -46542,9 +46542,9 @@ Obj31_Index:	offsetTable
 ; ---------------------------------------------------------------------------
 ; byte_20DFE:
 Obj31_CollisionFlagsBySubtype:
-	dc.b $96	; 0
-	dc.b $94	; 1
-	dc.b $95	; 2
+	dc.b col_64x64|col_hurt		; 0
+	dc.b col_128x64|col_hurt	; 1
+	dc.b col_256x64|col_hurt	; 2
 	even
 ; ===========================================================================
 ; loc_20E02:
@@ -46771,7 +46771,7 @@ Obj27_Init:
 	jsrto	JmpTo12_Adjust2PArtPointer
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#1,priority(a0)
-	move.b	#0,collision_flags(a0)
+	move.b	#col_none,collision_flags(a0)
 	move.b	#$C,width_pixels(a0)
 	move.b	#3,anim_frame_duration(a0)
 	move.b	#0,mapping_frame(a0)
@@ -47643,7 +47643,7 @@ Obj14_Ball_Init:
 	jsrto	JmpTo13_Adjust2PArtPointer
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#4,priority(a0)
-	move.b	#$8B,collision_flags(a0)
+	move.b	#col_16x16|col_hurt,collision_flags(a0)
 	move.b	#$C,width_pixels(a0)
 	move.w	x_pos(a0),objoff_30(a0) ; save seesaw x position
 	addi.w	#$28,x_pos(a0)
@@ -48420,7 +48420,7 @@ Obj1D_InitBall:
 	jsrto	JmpTo3_Adjust2PArtPointer2
 	move.b	#1<<render_flags.level_fg,render_flags(a1)
 	move.b	#3,priority(a1)
-	move.b	#%10001011,collision_flags(a1)
+	move.b	#col_16x16|col_hurt,collision_flags(a1)
 	move.w	x_pos(a1),blueballs_x_pos(a1)
 	move.w	y_pos(a1),blueballs_y_pos(a1)
 	move.w	y_vel(a0),y_vel(a1)
@@ -49028,7 +49028,7 @@ loc_230C2:
 	ori.b	#1<<render_flags.level_fg,render_flags(a1)
 	move.b	#3,priority(a1)
 	move.b	#8,width_pixels(a1)
-	move.b	#$8B,collision_flags(a1)
+	move.b	#col_16x16|col_hurt,collision_flags(a1)
 	move.w	y_pos(a1),objoff_30(a1)
 	rts
 ; ===========================================================================
@@ -49948,14 +49948,14 @@ Obj33_Flame:
 	sub.w	y_pos(a1),d0
 	cmpi.w	#$14,d0
 	blt.s	Obj33_FlameOff
-	move.b	#$9B,collision_flags(a0)
+	move.b	#col_16x8|col_hurt,collision_flags(a0)
 	lea	(Ani_obj33).l,a1
 	jsr	(AnimateSprite).l
 	jmpto	JmpTo10_MarkObjGone
 ; ===========================================================================
 ; loc_23DC2:
 Obj33_FlameOff:
-	move.b	#0,collision_flags(a0)
+	move.b	#col_none,collision_flags(a0)
 	move.b	#0,anim_frame(a0)
 	rts
 ; ===========================================================================
@@ -50038,7 +50038,7 @@ loc_23EA8:
 	move.b	#1<<render_flags.level_fg,render_flags(a1)
 	move.b	#4,priority(a1)
 	move.b	#$18,width_pixels(a1)
-	move.b	#$A5,collision_flags(a1)
+	move.b	#col_48x80|col_hurt,collision_flags(a1)
 	move.w	x_pos(a1),objoff_30(a1)
 
 loc_23ED4:
@@ -51643,7 +51643,7 @@ Obj22_Arrow_Init:
 	move.b	#8,y_radius(a0)
 	move.b	#$10,x_radius(a0)
 	move.b	#4,priority(a0)
-	move.b	#$9B,collision_flags(a0)
+	move.b	#col_16x8|col_hurt,collision_flags(a0)
 	move.b	#8,width_pixels(a0)
 	move.b	#0,mapping_frame(a0)
 	move.w	#$400,x_vel(a0)
@@ -52095,9 +52095,9 @@ Obj2C_Index:	offsetTable
 ; ===========================================================================
 ; byte_26118:
 Obj2C_CollisionFlags:
-	dc.b $D6
-	dc.b $D4	; 1
-	dc.b $D5	; 2
+	dc.b col_64x64|col_special
+	dc.b col_128x64|col_special	; 1
+	dc.b col_256x64|col_special	; 2
 	even
 ; ===========================================================================
 ; loc_2611C:
@@ -52694,11 +52694,11 @@ loc_2683A:
 	subq.b	#1,anim_frame_duration(a0)
 	bpl.s	++
 	move.b	#7,anim_frame_duration(a0)
-	move.b	#0,collision_flags(a0)
+	move.b	#col_none,collision_flags(a0)
 	addq.b	#1,mapping_frame(a0)
 	cmpi.b	#3,mapping_frame(a0)
 	bne.s	+
-	move.b	#$A6,collision_flags(a0)
+	move.b	#col_32x8|col_hurt,collision_flags(a0)
 +
 	cmpi.b	#7,mapping_frame(a0)
 	beq.w	JmpTo30_DeleteObject
@@ -53911,10 +53911,10 @@ Obj68_Spike_Action_End:
 ; ===========================================================================
 ; byte_2774C:
 Obj68_CollisionFlags:
-	dc.b $84	; 0
-	dc.b $A6	; 1
-	dc.b $84	; 2
-	dc.b $A6	; 3
+	dc.b col_8x32|col_hurt	; 0
+	dc.b col_32x8|col_hurt	; 1
+	dc.b col_8x32|col_hurt	; 2
+	dc.b col_32x8|col_hurt	; 3
 	even
 ; ---------------------------------------------------------------------------
 ; sprite mappings
@@ -53954,7 +53954,7 @@ Obj6D_Init:
 	move.b	#4,priority(a0)
 	move.w	x_pos(a0),floorspike_initial_x_pos(a0)
 	move.w	y_pos(a0),floorspike_initial_y_pos(a0)
-	move.b	#$84,collision_flags(a0)
+	move.b	#col_8x32|col_hurt,collision_flags(a0)
 ; loc_277E0:
 Obj6D_Main:
 	bsr.w	Obj6D_Action
@@ -55529,7 +55529,7 @@ Obj73_Init:
 	move.b	#8,width_pixels(a0)
 	move.w	x_pos(a0),objoff_3A(a0)
 	move.w	y_pos(a0),objoff_38(a0)
-	move.b	#0,collision_flags(a0)
+	move.b	#col_none,collision_flags(a0)
 	bset	#status.npc.no_balancing,status(a0)
 	move.b	subtype(a0),d1
 	andi.b	#$F0,d1
@@ -55753,7 +55753,7 @@ Obj75_Init:
 	rts
 ; ===========================================================================
 +
-	move.b	#$9A,collision_flags(a0)
+	move.b	#col_24x24|col_hurt,collision_flags(a0)
 	jsrto	JmpTo15_AllocateObjectAfterCurrent
 	bne.s	Obj75_Main
 	_move.b	id(a0),id(a1) ; load obj75
@@ -60010,7 +60010,7 @@ ObjD7_Init:
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#$10,width_pixels(a0)
 	move.b	#1,priority(a0)
-	move.b	#$CA,collision_flags(a0)
+	move.b	#col_32x16|col_special,collision_flags(a0)
 	btst	#status.npc.x_flip,status(a0)
 	beq.s	+
 	move.b	#1,objoff_34(a0)
@@ -60202,7 +60202,7 @@ ObjD8_Init:
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#$10,width_pixels(a0)
 	move.b	#1,priority(a0)
-	move.b	#$D7,collision_flags(a0)
+	move.b	#col_16x16_alt|col_special,collision_flags(a0)
 	move.b	subtype(a0),d0
 	rol.b	#2,d0
 	andi.b	#3,d0
@@ -60543,7 +60543,7 @@ Obj4A_Init:
 	move.l	#Obj4A_MapUnc_2CBFE,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Octus,1,0),art_tile(a0)
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
-	move.b	#$A,collision_flags(a0)
+	move.b	#col_32x16,collision_flags(a0)
 	move.b	#4,priority(a0)
 	move.b	#$10,width_pixels(a0)
 	move.b	#$B,y_radius(a0)
@@ -60662,7 +60662,7 @@ Obj4A_FireBullet:
 	move.b	render_flags(a0),render_flags(a1)
 	move.b	status(a0),status(a1)
 	move.b	#2,anim(a1)
-	move.b	#$98,collision_flags(a1)
+	move.b	#col_8x8|col_hurt,collision_flags(a1)
 	move.w	#-$200,x_vel(a1)
 	btst	#render_flags.x_flip,render_flags(a1)
 	beq.s	+	; rts
@@ -60735,7 +60735,7 @@ Obj50_Init:
 	move.l	#Obj50_MapUnc_2CF94,mappings(a0)
 	move.w	#make_art_tile(ArtTile_ArtNem_Aquis,1,0),art_tile(a0)
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
-	move.b	#$A,collision_flags(a0)
+	move.b	#col_32x16,collision_flags(a0)
 	move.b	#4,priority(a0)
 	move.b	#$10,width_pixels(a0)
 	move.w	#-$100,x_vel(a0)
@@ -60869,7 +60869,7 @@ Obj50_ChkIfShoot:
 	move.w	#make_art_tile(ArtTile_ArtNem_Aquis,1,0),art_tile(a1)
 	ori.b	#1<<render_flags.level_fg,render_flags(a1)
 	move.b	#3,priority(a1)
-	move.b	#$98,collision_flags(a1)
+	move.b	#col_8x8|col_hurt,collision_flags(a1)
 	move.b	#2,anim(a1)
 	move.w	#$A,d0		; set y offset
 	move.w	#$10,d1		; set x offset
@@ -61068,7 +61068,7 @@ Obj4B_Init:
 	move.w	#make_art_tile(ArtTile_ArtNem_Buzzer,0,0),art_tile(a0)
 	jsrto	JmpTo57_Adjust2PArtPointer
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
-	move.b	#$A,collision_flags(a0)
+	move.b	#col_32x16,collision_flags(a0)
 	move.b	#4,priority(a0)
 	move.b	#$10,width_pixels(a0)
 	move.b	#$10,y_radius(a0)
@@ -61217,7 +61217,7 @@ Obj4B_ShootProjectile:
 	move.w	#make_art_tile(ArtTile_ArtNem_Buzzer,0,0),art_tile(a1)
 	jsrto	JmpTo7_Adjust2PArtPointer2
 	move.b	#4,priority(a1)
-	move.b	#$98,collision_flags(a1)
+	move.b	#col_8x8|col_hurt,collision_flags(a1)
 	move.b	#$10,width_pixels(a1)
 	move.b	status(a0),status(a1)
 	move.b	render_flags(a0),render_flags(a1)
@@ -61291,7 +61291,7 @@ Obj5C_Init:
 	jsrto	JmpTo58_Adjust2PArtPointer
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#4,priority(a0)
-	move.b	#9,collision_flags(a0)
+	move.b	#col_24x32,collision_flags(a0)
 	move.b	#$10,width_pixels(a0)
 	move.w	#-$400,y_vel(a0)
 	move.w	y_pos(a0),Obj5C_initial_y_pos(a0)	; set initial (and lowest) y position
@@ -61363,7 +61363,7 @@ Obj58_Init:
 	jsrto	JmpTo59_Adjust2PArtPointer
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#0,priority(a0)
-	move.b	#0,collision_flags(a0)
+	move.b	#col_none,collision_flags(a0)
 	move.b	#$C,width_pixels(a0)
 	move.b	#7,anim_frame_duration(a0)
 	move.b	#0,mapping_frame(a0)
@@ -61428,7 +61428,7 @@ Boss_HandleHits:
 	move.w	d0,(a1)		; set color to white or black
 	subq.b	#1,boss_invulnerable_time(a0)	; decrease boss' invulnerable time
 	bne.s	return_2D5C2			; branch, if it hasn't run out
-	move.b	#$F,collision_flags(a0)		; else, restore collisions
+	move.b	#col_48x48,collision_flags(a0)		; else, restore collisions
 
 return_2D5C2:
 	rts
@@ -61661,7 +61661,7 @@ Obj5D_Init:
 	move.w	#$2B80,x_pos(a0)
 	move.w	#$4B0,y_pos(a0)
 	move.b	#3,priority(a0)
-	move.b	#$F,collision_flags(a0)
+	move.b	#col_48x48,collision_flags(a0)
 	move.b	#8,collision_property(a0)
 	addq.b	#2,routine(a0)	; => Obj5D_Main
 	move.w	x_pos(a0),Obj5D_x_pos_next(a0)
@@ -61922,7 +61922,7 @@ Obj5D_Main_Pos_and_Collision:
 
 	subq.b	#1,Obj5D_invulnerable_time(a0)
 	bne.s	return_2DAE8
-	move.b	#$F,collision_flags(a0)	; restore collisions
+	move.b	#col_48x48,collision_flags(a0)	; restore collisions
 	bclr	#1,Obj5D_status(a0)
 
 return_2DAE8:
@@ -62889,7 +62889,7 @@ Obj5D_Container_Extend:
 	beq.s	+
 	move.b	#$C,routine(a0)
 	move.b	#0,routine_secondary(a0)
-	move.b	#$87,collision_flags(a0)
+	move.b	#col_12x12|col_hurt,collision_flags(a0)
 	bra.s	Obj5D_Container_Floor_End
 ; ----------------------------------------------------------------------------
 +
@@ -63073,7 +63073,7 @@ Obj5D_Gunk_Droplets:
 +
 	addi.w	#-$100,d0
 	move.w	d0,x_vel(a0)
-	move.b	#0,collision_flags(a0)
+	move.b	#col_none,collision_flags(a0)
 	moveq	#3,d3
 
 Obj5D_Gunk_Droplets_Loop:
@@ -63424,7 +63424,7 @@ Obj56_Init:
 	move.b	#$20,width_pixels(a0)
 	move.b	#$14,y_radius(a0)
 	move.b	#4,priority(a0)
-	move.b	#$F,collision_flags(a0)
+	move.b	#col_48x48,collision_flags(a0)
 	move.b	#8,collision_property(a0)	; hitcount
 	addq.b	#2,routine(a0)
 	move.w	x_pos(a0),objoff_30(a0)
@@ -63594,7 +63594,7 @@ off_2F270:	offsetTable
 ; ===========================================================================
 
 loc_2F27C:	; Obj56_VehicleMain_Sub0:
-	move.b	#0,collision_flags(a0)
+	move.b	#col_none,collision_flags(a0)
 	cmpi.w	#$29D0,x_pos(a0)	; reached the point to unite with bottom vehicle?
 	ble.s	loc_2F29A
 	subi_.w	#1,x_pos(a0)
@@ -63638,7 +63638,7 @@ loc_2F2E0:	; Obj56_VehicleMain_Sub2_2:
 	bpl.w	JmpTo35_DisplaySprite
 	move.w	#-$200,x_vel(a0)
 	addq.b	#2,routine_secondary(a0)
-	move.b	#$F,collision_flags(a0)
+	move.b	#col_48x48,collision_flags(a0)
 	bset	#1,objoff_2D(a0)	; boss now active and moving
 	jmpto	JmpTo35_DisplaySprite
 ; ===========================================================================
@@ -63814,7 +63814,7 @@ loc_2F4DE:
 	move.w	d0,(a1)	; set respective color
 	subq.b	#1,objoff_3E(a0)	; decrease boss invincibility timer
 	bne.s	return_2F4EC
-	move.b	#$F,collision_flags(a0)	; if invincibility ended, allow collision again
+	move.b	#col_48x48,collision_flags(a0)	; if invincibility ended, allow collision again
 
 return_2F4EC:
 	rts
@@ -64113,7 +64113,7 @@ loc_2F824:	; Obj56_Spike_Sub2:
 	bsr.w	loc_2F8AA
 	btst	#1,objoff_2D(a1)
 	beq.w	JmpTo35_DisplaySprite	; boss not moving yet (inactive)
-	move.b	#$8B,collision_flags(a0)	; spike still linked to vehicle
+	move.b	#col_16x16|col_hurt,collision_flags(a0)	; spike still linked to vehicle
 	move.w	x_pos(a1),x_pos(a0)
 	move.w	y_pos(a1),y_pos(a0)
 	move.b	status(a1),status(a0)	; transfer positions
@@ -64328,7 +64328,7 @@ Obj52_Init:
 	move.b	#1,mainspr_mapframe(a0)
 	addq.b	#2,boss_subtype(a0)
 	bset	#render_flags.multi_sprite,render_flags(a0)
-	move.b	#$32,collision_flags(a0)
+	move.b	#col_64x56,collision_flags(a0)
 	move.b	#8,boss_hitcount2(a0)
 	move.w	#-$E0,(Boss_Y_vel).w
 	move.w	x_pos(a0),(Boss_X_pos).w
@@ -64556,7 +64556,7 @@ loc_2FF02:
 	move.b	#4,priority(a0)
 	addq.b	#2,routine_secondary(a0)
 	move.b	#5,anim(a0)
-	move.b	#$98,collision_flags(a0)
+	move.b	#col_8x8|col_hurt,collision_flags(a0)
 	subi.w	#$1C,y_pos(a0)
 	move.w	#-$70,d0
 	move.w	#-4,d1
@@ -64613,7 +64613,7 @@ loc_2FF94:
 	move.b	#3,priority(a1)
 	addq.b	#2,routine_secondary(a1)
 	move.b	#7,anim(a1)
-	move.b	#$8B,collision_flags(a1)
+	move.b	#col_16x16|col_hurt,collision_flags(a1)
 	move.b	d2,objoff_2E(a1)
 	move.b	#8,y_radius(a1)
 	move.b	#8,x_radius(a1)
@@ -64709,7 +64709,7 @@ loc_300DC:
 	move.w	d0,(a1)
 	subq.b	#1,boss_invulnerable_time(a0)
 	bne.s	return_300EA
-	move.b	#$32,collision_flags(a0)
+	move.b	#col_64x56,collision_flags(a0)
 
 return_300EA:
 	rts
@@ -64981,7 +64981,7 @@ Obj89_Init_RaisePillars:
 	move.w	#$388,(Boss_Y_pos).w
 	bset	#render_flags.multi_sprite,render_flags(a0)
 	move.b	#3,mainspr_childsprites(a0)
-	move.b	#$F,collision_flags(a0)
+	move.b	#col_48x48,collision_flags(a0)
 	move.b	#8,boss_hitcount2(a0)
 	move.b	#8,mainspr_mapframe(a0)
 	move.w	#-$380,obj89_hammer_y_vel(a0)
@@ -65273,7 +65273,7 @@ Obj89_Main_Flash:
 	move.w	d0,(a1)				; set color
 	subq.b	#1,boss_invulnerable_time(a0)
 	bne.s	return_307F2			; branch, if invulnerability hasn't run out
-	move.b	#$F,collision_flags(a0)		; restore collisions
+	move.b	#col_48x48,collision_flags(a0)		; restore collisions
 
 return_307F2:
 	rts
@@ -65753,7 +65753,7 @@ Obj89_Arrow_Init:
 
 ; loc_30C2E:
 Obj89_Arrow_Init_End:
-	move.b	#$B0,collision_flags(a0)
+	move.b	#col_32x2|col_hurt,collision_flags(a0)
 	rts
 ; ===========================================================================
 ; loc_30C36:
@@ -65792,7 +65792,7 @@ Obj89_Arrow_Sub2_Move:
 ; ===========================================================================
 ; loc_30C86:
 Obj89_Arrow_Sub4:
-	move.b	#0,collision_flags(a0)		; make arrow harmless
+	move.b	#col_none,collision_flags(a0)		; make arrow harmless
 	btst	#status.npc.no_balancing,status(a0)
 	beq.s	+
 	addi_.b	#2,obj89_arrow_routine(a0)	; => Obj89_Arrow_Sub6
@@ -65989,7 +65989,7 @@ Obj57_Init:
 	move.b	#2,boss_routine(a0)
 	bset	#render_flags.multi_sprite,render_flags(a0)	; use subobjects for rendering
 	move.b	#4,mainspr_childsprites(a0)
-	move.b	#$F,collision_flags(a0)
+	move.b	#col_48x48,collision_flags(a0)
 	move.b	#8,boss_hitcount2(a0)
 	move.w	x_pos(a0),(Boss_X_pos).w
 	move.w	y_pos(a0),(Boss_Y_pos).w
@@ -66350,7 +66350,7 @@ Obj57_LoadStoneSpike:
 	tst.b	d2
 	bne.s	return_31438	; stone
 	move.b	#$14,mapping_frame(a1)	; spike
-	move.b	#$B1,collision_flags(a1)
+	move.b	#col_4x16|col_hurt,collision_flags(a1)
 
 return_31438:
 	rts
@@ -66397,7 +66397,7 @@ Obj57_HandleHits_Main:
 	move.w	d0,(a1)
 	subq.b	#1,boss_invulnerable_time(a0)
 	bne.s	return_314B6
-	move.b	#$F,collision_flags(a0)
+	move.b	#col_48x48,collision_flags(a0)
 
 return_314B6:
 	rts
@@ -66662,7 +66662,7 @@ Obj51_Init:
 	move.b	#0,boss_routine(a0)
 	bset	#render_flags.multi_sprite,render_flags(a0)
 	move.b	#4,mainspr_childsprites(a0)
-	move.b	#$F,collision_flags(a0)
+	move.b	#col_48x48,collision_flags(a0)
 	move.b	#8,boss_hitcount2(a0)
 	move.w	x_pos(a0),(Boss_X_pos).w
 	move.w	y_pos(a0),(Boss_Y_pos).w
@@ -66969,7 +66969,7 @@ loc_31D32:
 	move.w	d0,(a1)
 	subq.b	#1,boss_invulnerable_time(a0)
 	bne.s	return_31D40
-	move.b	#$F,collision_flags(a0)
+	move.b	#col_48x48,collision_flags(a0)
 
 return_31D40:
 	rts
@@ -67217,7 +67217,7 @@ loc_31F48:
 	move.b	#8,y_radius(a0)
 	move.b	#8,x_radius(a0)
 	move.b	#$12,boss_sine_count(a0)
-	move.b	#$98,collision_flags(a0)
+	move.b	#col_8x8|col_hurt,collision_flags(a0)
 	rts
 ; ===========================================================================
 
@@ -67283,7 +67283,7 @@ loc_32030:
 	move.w	#-$100,x_vel(a0)
 	move.b	#4,boss_subtype(a0)
 	move.b	#6,routine_secondary(a0)
-	move.b	#$98,collision_flags(a0)
+	move.b	#col_8x8|col_hurt,collision_flags(a0)
 	jsrto	JmpTo23_AllocateObjectAfterCurrent
 	bne.s	return_3207E
 	moveq	#0,d0
@@ -67397,7 +67397,7 @@ Obj54_Init:
 	addq.b	#2,boss_subtype(a0)		; => Obj54_Main
 	bset	#render_flags.multi_sprite,render_flags(a0)
 	move.b	#2,mainspr_childsprites(a0)
-	move.b	#$F,collision_flags(a0)
+	move.b	#col_48x48,collision_flags(a0)
 	move.b	#8,boss_hitcount2(a0)
 	move.b	#7,objoff_3E(a0)
 	move.w	x_pos(a0),(Boss_X_pos).w
@@ -67940,7 +67940,7 @@ Obj54_CheckHit:
 	move.w	d0,(a1)
 	subq.b	#1,boss_invulnerable_time(a0)
 	bne.s	return_32924
-	move.b	#$F,collision_flags(a0)
+	move.b	#col_48x48,collision_flags(a0)
 
 return_32924:
 	rts
@@ -67996,7 +67996,7 @@ Obj53_Init:
 	move.b	byte_329CC(pc,d2.w),objoff_3B(a1)
 	move.b	byte_329D3(pc,d2.w),objoff_3A(a1)
 	move.b	#$40,objoff_29(a1)
-	move.b	#$87,collision_flags(a1)
+	move.b	#col_12x12|col_hurt,collision_flags(a1)
 	move.b	#2,collision_property(a1)
 	move.b	#0,objoff_3C(a1)
 	addq.w	#1,d2
@@ -68063,7 +68063,7 @@ Obj53_Main:
 Obj53_ClearBossCollision:
 	cmpi.b	#2,collision_property(a0)
 	beq.s	+
-	move.b	#0,collision_flags(a1)
+	move.b	#col_none,collision_flags(a1)
 +
 	bsr.w	Obj53_OrbitBoss
 	bsr.w	Obj53_SetAnimPriority
@@ -68165,7 +68165,7 @@ Obj53_BreakAway:
 	bmi.s	+
 	subq.b	#1,objoff_32(a0)
 	bpl.s	+
-	move.b	#$DA,collision_flags(a0)
+	move.b	#col_24x24|col_special,collision_flags(a0)
 +
 	jsrto	JmpTo6_ObjectMoveAndFall
 	subi.w	#$20,y_vel(a0)
@@ -68211,7 +68211,7 @@ Obj53_BounceAround:
 	bmi.s	+
 	subq.b	#1,objoff_32(a0)
 	bpl.s	+
-	move.b	#$DA,collision_flags(a0)
+	move.b	#col_24x24|col_special,collision_flags(a0)
 +
 	bsr.w	Obj53_CheckPlayerHit
 	cmpi.b	#$B,mapping_frame(a0)
@@ -68316,7 +68316,7 @@ Obj54_Laser_Init:
 	addi_.w	#8,x_pos(a0)
 +
 	move.w	d0,x_vel(a0)
-	move.b	#$99,collision_flags(a0)
+	move.b	#col_64x16|col_hurt,collision_flags(a0)
 	move.b	#SndID_LaserBurst,d0
 	jsrto	JmpTo10_PlaySound
 ;loc_32D2C
@@ -68429,7 +68429,7 @@ Obj55_Init:
 	bset	#render_flags.multi_sprite,render_flags(a0)	; object consists of multiple sprites
 	move.b	#0,mainspr_childsprites(a0)
 	addq.b	#2,boss_subtype(a0)	; => Obj55_Main
-	move.b	#$F,collision_flags(a0)
+	move.b	#col_48x48,collision_flags(a0)
 	move.b	#8,boss_hitcount2(a0)
 	move.b	#$40,mainspr_width(a0)
 	rts
@@ -68464,7 +68464,7 @@ Obj55_Main_Init:
 	move.b	#1,mainspr_childsprites(a0)
 	addq.b	#2,boss_routine(a0)	; => Obj55_Main_Surface
 	move.w	#-$80,(Boss_Y_vel).w
-	move.b	#$F,collision_flags(a0)
+	move.b	#col_48x48,collision_flags(a0)
 	move.w	x_pos(a0),sub2_x_pos(a0)
 	move.w	y_pos(a0),sub2_y_pos(a0)
 	clr.b	boss_sine_count(a0)
@@ -68694,7 +68694,7 @@ Obj55_LaserShooter_Init:
 	move.w	#$2B0,(Boss_Y_pos).w
 	move.w	#$2B0,y_pos(a0)
 	move.b	#2,boss_routine(a0)	; => Obj55_LaserShooter_Rise
-	move.b	#$8A,collision_flags(a0)
+	move.b	#col_32x16|col_hurt,collision_flags(a0)
 	move.b	#5,mainspr_mapframe(a0)
 	moveq	#7,d0
 	moveq	#7,d2
@@ -68917,7 +68917,7 @@ Obj55_SpikeChain_Init:
 +
 	move.w	#$2A0,(Boss_Y_pos).w
 	move.b	#2,mainspr_mapframe(a0)
-	move.b	#$8A,collision_flags(a0)
+	move.b	#col_32x16|col_hurt,collision_flags(a0)
 	addq.b	#2,boss_routine(a0)	; => Obj55_SpikeChain_Main
 	move.b	#$80,mainspr_width(a0)
 	clr.b	boss_sine_count(a0)
@@ -69042,7 +69042,7 @@ Obj55_Laser_Init:
 	neg.w	x_vel(a0)
 +
 	add.w	d0,x_pos(a0)
-	move.b	#$AF,collision_flags(a0)
+	move.b	#col_32x4|col_hurt,collision_flags(a0)
 	rts
 ; ===========================================================================
 ; loc_335DE:
@@ -69100,7 +69100,7 @@ Obj55_Laser_CreateWave:
 	move.b	#ObjID_OOZBoss,id(a1) ; load obj55
 	move.b	#8,boss_subtype(a1)
 	move.b	#4,routine_secondary(a1)	; => Obj55_Wave
-	move.b	#$8B,collision_flags(a1)
+	move.b	#col_16x16|col_hurt,collision_flags(a1)
 	move.b	#2,anim(a1)
 	move.b	#$D,mapping_frame(a1)
 	move.w	#0,y_vel(a1)
@@ -70845,7 +70845,7 @@ Obj61_Init:
 	move.w	#make_art_tile(ArtTile_ArtNem_SpecialBomb,1,0),art_tile(a0)
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#3,priority(a0)
-	move.b	#2,collision_flags(a0)
+	move.b	#col_24x40,collision_flags(a0)
 	move.b	#-1,(SS_unk_DB4D).w
 	tst.b	angle(a0)
 	bmi.s	loc_34F06
@@ -70931,7 +70931,7 @@ Obj60_Init:
 	move.w	#make_art_tile(ArtTile_ArtNem_SpecialRings,3,0),art_tile(a0)
 	move.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#3,priority(a0)
-	move.b	#1,collision_flags(a0)
+	move.b	#col_40x40,collision_flags(a0)
 	tst.b	angle(a0)
 	bmi.s	loc_34FF0
 	bsr.w	loc_3529C
@@ -71485,7 +71485,7 @@ loc_3547E:
 	move.w	#make_art_tile(ArtTile_ArtNem_SpecialRings,3,0),art_tile(a1)
 	move.b	#1<<render_flags.level_fg,render_flags(a1)
 	move.b	#5,priority(a1)
-	move.b	#0,collision_flags(a1)
+	move.b	#col_none,collision_flags(a1)
 	move.b	#8,anim(a1)
 	move.w	x_pos(a3),x_pos(a1)
 	move.w	y_pos(a3),y_pos(a1)
@@ -73471,7 +73471,7 @@ Obj8C_FlyAway:
 ; ===========================================================================
 ; off_36A3E:
 Obj8C_SubObjData:
-	subObjData Obj8C_MapUnc_36A4E,make_art_tile(ArtTile_ArtNem_Whisp,1,1),1<<render_flags.level_fg,4,$C,$B
+	subObjData Obj8C_MapUnc_36A4E,make_art_tile(ArtTile_ArtNem_Whisp,1,1),1<<render_flags.level_fg,4,$C,col_16x16
 ; animation script
 ; off_36A48:
 Ani_obj8C:	offsetTable
@@ -73755,13 +73755,13 @@ byte_36CBC:
 	dc.b -$10,  -4	; 6
 ; off_36CC4:
 Obj8D_SubObjData:
-	subObjData Obj8D_MapUnc_36CF0,make_art_tile(ArtTile_ArtNem_Grounder,1,1),1<<render_flags.level_fg,5,$10,2
+	subObjData Obj8D_MapUnc_36CF0,make_art_tile(ArtTile_ArtNem_Grounder,1,1),1<<render_flags.level_fg,5,$10,col_24x40
 ; off_36CCE:
 Obj90_SubObjData:
-	subObjData Obj90_MapUnc_36D00,make_art_tile(ArtTile_ArtKos_LevelArt,0,0),1<<render_flags.on_screen|1<<render_flags.level_fg,4,$10,0
+	subObjData Obj90_MapUnc_36D00,make_art_tile(ArtTile_ArtKos_LevelArt,0,0),1<<render_flags.on_screen|1<<render_flags.level_fg,4,$10,col_none
 ; off_36CD8:
 Obj90_SubObjData2:
-	subObjData Obj90_MapUnc_36CFA,make_art_tile(ArtTile_ArtNem_Grounder,1,1),1<<render_flags.on_screen|1<<render_flags.level_fg,4,8,0
+	subObjData Obj90_MapUnc_36CFA,make_art_tile(ArtTile_ArtNem_Grounder,1,1),1<<render_flags.on_screen|1<<render_flags.level_fg,4,8,col_none
 
 ; animation script
 Ani_obj8D_a:	offsetTable
@@ -74000,7 +74000,7 @@ Obj91_PlayerInRange:
 ; ===========================================================================
 ; off_36EE6:
 Obj91_SubObjData:
-	subObjData Obj91_MapUnc_36EF6,make_art_tile(ArtTile_ArtNem_ChopChop,1,0),1<<render_flags.level_fg,4,$10,2
+	subObjData Obj91_MapUnc_36EF6,make_art_tile(ArtTile_ArtNem_ChopChop,1,0),1<<render_flags.level_fg,4,$10,col_24x40
 
 ; animation script
 ; off_36EF0:
@@ -74124,7 +74124,7 @@ Obj93_Index:	offsetTable
 Obj93_Init:
 	bsr.w	LoadSubObject
 	ori.b	#1<<render_flags.on_screen,render_flags(a0)
-	ori.b	#$80,collision_flags(a0)
+	ori.b	#col_hurt,collision_flags(a0)
 	movea.w	objoff_2C(a0),a1 ; a1=object
 	move.b	render_flags(a1),d0
 	andi.b	#3,d0
@@ -74173,7 +74173,7 @@ loc_37066:
 ; ===========================================================================
 ; off_3707C:
 Obj92_SubObjData:
-	subObjData Obj92_Obj93_MapUnc_37092,make_art_tile(ArtTile_ArtKos_LevelArt,0,0),1<<render_flags.level_fg,4,$10,$12
+	subObjData Obj92_Obj93_MapUnc_37092,make_art_tile(ArtTile_ArtKos_LevelArt,0,0),1<<render_flags.level_fg,4,$10,col_16x32
 ; animation script
 ; off_37086:
 Ani_obj92:	offsetTable
@@ -74212,7 +74212,7 @@ Obj95_Init:
 	jsrto	JmpTo64_Adjust2PArtPointer
 	ori.b	#1<<render_flags.level_fg,render_flags(a0)
 	move.b	#4,priority(a0)
-	move.b	#$B,collision_flags(a0)
+	move.b	#col_16x16,collision_flags(a0)
 	move.b	#$C,width_pixels(a0)
 	move.w	#-$40,x_vel(a0)
 	moveq	#0,d2
@@ -74246,7 +74246,7 @@ Obj95_NextFireball:
 	move.b	#4,priority(a1)
 	move.b	#8,width_pixels(a1)
 	move.b	#3,mapping_frame(a1)
-	move.b	#$98,collision_flags(a1)
+	move.b	#col_8x8|col_hurt,collision_flags(a1)
 	move.b	d2,angle(a1)
 	addi.b	#$40,d2
 	move.l	a0,objoff_3C(a1)
@@ -74498,13 +74498,13 @@ Obj97_Init:
 	move.b	#1,objoff_38(a0)
 	movea.w	objoff_2C(a0),a1 ; a1=object
 	lea	objoff_2E(a1),a1
-	move.b	#$B,collision_flags(a0)
+	move.b	#col_16x16,collision_flags(a0)
 	moveq	#0,d0
 	move.w	objoff_2E(a0),d0
 	cmpi.w	#8,d0
 	beq.s	+
 	move.b	#1,mapping_frame(a0)
-	move.b	#$8B,collision_flags(a0)
+	move.b	#col_16x16|col_hurt,collision_flags(a0)
 	move.w	(a1,d0.w),objoff_30(a0)
 +
 	move.w	6(a1),objoff_32(a0)
@@ -74771,7 +74771,7 @@ loc_37668:
 ; ===========================================================================
 ; off_3766E:
 Obj94_SubObjData:
-	subObjData Obj94_Obj98_MapUnc_37678,make_art_tile(ArtTile_ArtNem_Rexon,3,0),1<<render_flags.level_fg,4,$10,0
+	subObjData Obj94_Obj98_MapUnc_37678,make_art_tile(ArtTile_ArtNem_Rexon,3,0),1<<render_flags.level_fg,4,$10,col_none
 ; ------------------------------------------------------------------------
 ; sprite mappings
 ; ------------------------------------------------------------------------
@@ -74894,34 +74894,34 @@ Obj98_WallTurretShotMove:
 ; ===========================================================================
 ; off_37764:
 Obj94_SubObjData2:
-	subObjData Obj94_Obj98_MapUnc_37678,make_art_tile(ArtTile_ArtNem_Rexon,1,0),1<<render_flags.on_screen|1<<render_flags.level_fg,4,4,$98
+	subObjData Obj94_Obj98_MapUnc_37678,make_art_tile(ArtTile_ArtNem_Rexon,1,0),1<<render_flags.on_screen|1<<render_flags.level_fg,4,4,col_8x8|col_hurt
 ; off_3776E:
 Obj99_SubObjData:
-	subObjData Obj99_Obj98_MapUnc_3789A,make_art_tile(ArtTile_ArtNem_Nebula,1,1),1<<render_flags.on_screen|1<<render_flags.level_fg,4,8,$8B
+	subObjData Obj99_Obj98_MapUnc_3789A,make_art_tile(ArtTile_ArtNem_Nebula,1,1),1<<render_flags.on_screen|1<<render_flags.level_fg,4,8,col_16x16|col_hurt
 ; off_37778:
 Obj9A_SubObjData2:
-	subObjData Obj9A_Obj98_MapUnc_37B62,make_art_tile(ArtTile_ArtNem_Turtloid,0,0),1<<render_flags.on_screen|1<<render_flags.level_fg,4,4,$98
+	subObjData Obj9A_Obj98_MapUnc_37B62,make_art_tile(ArtTile_ArtNem_Turtloid,0,0),1<<render_flags.on_screen|1<<render_flags.level_fg,4,4,col_8x8|col_hurt
 ; off_37782:
 Obj9D_SubObjData2:
-	subObjData Obj9D_Obj98_MapUnc_37D96,make_art_tile(ArtTile_ArtNem_Coconuts,0,0),1<<render_flags.on_screen|1<<render_flags.level_fg,4,8,$8B
+	subObjData Obj9D_Obj98_MapUnc_37D96,make_art_tile(ArtTile_ArtNem_Coconuts,0,0),1<<render_flags.on_screen|1<<render_flags.level_fg,4,8,col_16x16|col_hurt
 ; off_3778C:
 ObjA4_SubObjData2:
-	subObjData ObjA4_Obj98_MapUnc_38A96,make_art_tile(ArtTile_ArtNem_MtzSupernova,0,1),1<<render_flags.on_screen|1<<render_flags.level_fg,5,4,$98
+	subObjData ObjA4_Obj98_MapUnc_38A96,make_art_tile(ArtTile_ArtNem_MtzSupernova,0,1),1<<render_flags.on_screen|1<<render_flags.level_fg,5,4,col_8x8|col_hurt
 ; off_37796:
 ObjA6_SubObjData:
-	subObjData ObjA5_ObjA6_Obj98_MapUnc_38CCA,make_art_tile(ArtTile_ArtNem_Spiny,1,0),1<<render_flags.on_screen|1<<render_flags.level_fg,5,4,$98
+	subObjData ObjA5_ObjA6_Obj98_MapUnc_38CCA,make_art_tile(ArtTile_ArtNem_Spiny,1,0),1<<render_flags.on_screen|1<<render_flags.level_fg,5,4,col_8x8|col_hurt
 ; off_377A0:
 ObjA7_SubObjData3:
-	subObjData ObjA7_ObjA8_ObjA9_Obj98_MapUnc_3921A,make_art_tile(ArtTile_ArtNem_Grabber,1,1),1<<render_flags.on_screen|1<<render_flags.level_fg,4,4,$98
+	subObjData ObjA7_ObjA8_ObjA9_Obj98_MapUnc_3921A,make_art_tile(ArtTile_ArtNem_Grabber,1,1),1<<render_flags.on_screen|1<<render_flags.level_fg,4,4,col_8x8|col_hurt
 ; off_377AA:
 ObjAD_SubObjData3:
-	subObjData ObjAD_Obj98_MapUnc_395B4,make_art_tile(ArtTile_ArtNem_WfzScratch,0,0),1<<render_flags.on_screen|1<<render_flags.level_fg,5,4,$98
+	subObjData ObjAD_Obj98_MapUnc_395B4,make_art_tile(ArtTile_ArtNem_WfzScratch,0,0),1<<render_flags.on_screen|1<<render_flags.level_fg,5,4,col_8x8|col_hurt
 ; off_377B4:
 ObjAF_SubObjData:
-	subObjData ObjAF_Obj98_MapUnc_39E68,make_art_tile(ArtTile_ArtNem_CNZBonusSpike,1,0),1<<render_flags.on_screen|1<<render_flags.level_fg,5,4,$98
+	subObjData ObjAF_Obj98_MapUnc_39E68,make_art_tile(ArtTile_ArtNem_CNZBonusSpike,1,0),1<<render_flags.on_screen|1<<render_flags.level_fg,5,4,col_8x8|col_hurt
 ; off_377BE:
 ObjB8_SubObjData2:
-	subObjData ObjB8_Obj98_MapUnc_3BA46,make_art_tile(ArtTile_ArtNem_WfzWallTurret,0,0),1<<render_flags.on_screen|1<<render_flags.level_fg,3,4,$98
+	subObjData ObjB8_Obj98_MapUnc_3BA46,make_art_tile(ArtTile_ArtNem_WfzWallTurret,0,0),1<<render_flags.on_screen|1<<render_flags.level_fg,3,4,col_8x8|col_hurt
 
 
 
@@ -75008,7 +75008,7 @@ return_37886:
 ; ===========================================================================
 ; off_37888:
 Obj99_SubObjData2:
-	subObjData Obj99_Obj98_MapUnc_3789A,make_art_tile(ArtTile_ArtNem_Nebula,1,1),1<<render_flags.level_fg,4,$10,6
+	subObjData Obj99_Obj98_MapUnc_3789A,make_art_tile(ArtTile_ArtNem_Nebula,1,1),1<<render_flags.level_fg,4,$10,col_32x32
 ; animation script
 ; off_37892:
 Ani_obj99:	offsetTable
@@ -75235,13 +75235,13 @@ loc_37AF2:
 ; ===========================================================================
 ; off_37B32:
 Obj9A_SubObjData:
-	subObjData Obj9A_Obj98_MapUnc_37B62,make_art_tile(ArtTile_ArtNem_Turtloid,0,0),1<<render_flags.level_fg,5,$18,0
+	subObjData Obj9A_Obj98_MapUnc_37B62,make_art_tile(ArtTile_ArtNem_Turtloid,0,0),1<<render_flags.level_fg,5,$18,col_none
 ; off_37B3C:
 Obj9B_SubObjData:
-	subObjData Obj9A_Obj98_MapUnc_37B62,make_art_tile(ArtTile_ArtNem_Turtloid,0,0),1<<render_flags.level_fg,4,$C,$1A
+	subObjData Obj9A_Obj98_MapUnc_37B62,make_art_tile(ArtTile_ArtNem_Turtloid,0,0),1<<render_flags.level_fg,4,$C,col_24x24
 ; off_37B46:
 Obj9C_SubObjData:
-	subObjData Obj9A_Obj98_MapUnc_37B62,make_art_tile(ArtTile_ArtNem_Turtloid,0,0),1<<render_flags.level_fg,5,8,0
+	subObjData Obj9A_Obj98_MapUnc_37B62,make_art_tile(ArtTile_ArtNem_Turtloid,0,0),1<<render_flags.level_fg,5,8,col_none
 
 ; animation script
 ; off_37B50: TurtloidShotAniData:
@@ -75439,7 +75439,7 @@ Obj9D_ThrowData:
 	dc.w	$B, -$100	; 4
 ; off_37D7E:
 Obj9D_SubObjData:
-	subObjData Obj9D_Obj98_MapUnc_37D96,make_art_tile(ArtTile_ArtNem_Coconuts,0,0),1<<render_flags.level_fg,5,$C,9
+	subObjData Obj9D_Obj98_MapUnc_37D96,make_art_tile(ArtTile_ArtNem_Coconuts,0,0),1<<render_flags.level_fg,5,$C,col_24x32
 
 ; animation script
 ; off_37D88:
@@ -75630,7 +75630,7 @@ loc_37F74:
 ; ===========================================================================
 ; off_37FE8:
 Obj9E_SubObjData:
-	subObjData Obj9E_MapUnc_37FF2,make_art_tile(ArtTile_ArtNem_Crawlton,1,0),1<<render_flags.level_fg,4,$80,$B
+	subObjData Obj9E_MapUnc_37FF2,make_art_tile(ArtTile_ArtNem_Crawlton,1,0),1<<render_flags.level_fg,4,$80,col_16x16
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
@@ -75990,10 +75990,10 @@ return_382EE:
 ; ===========================================================================
 ; off_382F0:
 Obj9F_SubObjData:
-	subObjData Obj9F_MapUnc_38314,make_art_tile(ArtTile_ArtNem_Shellcracker,0,0),1<<render_flags.level_fg,5,$18,$A
+	subObjData Obj9F_MapUnc_38314,make_art_tile(ArtTile_ArtNem_Shellcracker,0,0),1<<render_flags.level_fg,5,$18,col_32x16
 ; off_382FA:
 ObjA0_SubObjData:
-	subObjData Obj9F_MapUnc_38314,make_art_tile(ArtTile_ArtNem_Shellcracker,0,0),1<<render_flags.level_fg,4,$C,$9A
+	subObjData Obj9F_MapUnc_38314,make_art_tile(ArtTile_ArtNem_Shellcracker,0,0),1<<render_flags.level_fg,4,$C,col_24x24|col_hurt
 ; animation script
 ; off_38304:
 Ani_obj9F:	offsetTable
@@ -76230,10 +76230,10 @@ ObjA1_Pincer_Offsets:
 	dc.b -$10,    0	; 3
 ; off_385C0
 ObjA1_SubObjData:
-	subObjData ObjA1_MapUnc_385E2,make_art_tile(ArtTile_ArtNem_MtzMantis,1,0),1<<render_flags.level_fg,5,$10,6
+	subObjData ObjA1_MapUnc_385E2,make_art_tile(ArtTile_ArtNem_MtzMantis,1,0),1<<render_flags.level_fg,5,$10,col_32x32
 ; off_385CA:
 ObjA2_SubObjData:
-	subObjData ObjA1_MapUnc_385E2,make_art_tile(ArtTile_ArtNem_MtzMantis,1,0),1<<render_flags.level_fg,4,$10,$9A
+	subObjData ObjA1_MapUnc_385E2,make_art_tile(ArtTile_ArtNem_MtzMantis,1,0),1<<render_flags.level_fg,4,$10,col_24x24|col_hurt
 ; animation script
 ; off_385D4:
 Ani_objA1:	offsetTable
@@ -76339,7 +76339,7 @@ loc_387EC:
 loc_387FC:
 	addq.b	#2,routine(a0)
 	move.w	#$80,objoff_30(a0)
-	ori.b	#$80,collision_flags(a0)
+	ori.b	#col_hurt,collision_flags(a0)
 	jmpto	JmpTo2_MarkObjGone_P1
 ; ===========================================================================
 word_38810:
@@ -76413,14 +76413,14 @@ loc_38880:
 loc_3888E:
 	move.b	#4,routine(a0)
 	move.w	#$80,objoff_30(a0)
-	andi.b	#$7F,collision_flags(a0)
+	andi.b	#$FF-col_hurt,collision_flags(a0)
 	clr.l	mapping_frame(a0) ; Clear mapping_frame, anim_frame, anim, and prev_anim.
 	clr.w	anim_frame_duration(a0)
 	jmpto	JmpTo2_MarkObjGone_P1
 ; ===========================================================================
 ; off_388AC:
 ObjA3_SubObjData:
-	subObjData ObjA3_MapUnc_388F0,make_art_tile(ArtTile_ArtNem_Flasher,0,1),1<<render_flags.level_fg,4,$10,6
+	subObjData ObjA3_MapUnc_388F0,make_art_tile(ArtTile_ArtNem_Flasher,0,1),1<<render_flags.level_fg,4,$10,col_32x32
 
 ; animation script
 ; off_388B6:
@@ -76575,7 +76575,7 @@ word_38A68.counter = ((word_38A68.end - word_38A68) / 6) - 1
 
 ; off_38A86:
 ObjA4_SubObjData:
-	subObjData ObjA4_Obj98_MapUnc_38A96,make_art_tile(ArtTile_ArtNem_MtzSupernova,0,1),1<<render_flags.level_fg,4,$10,$B
+	subObjData ObjA4_Obj98_MapUnc_38A96,make_art_tile(ArtTile_ArtNem_MtzSupernova,0,1),1<<render_flags.level_fg,4,$10,col_16x16
 ; animation script
 ; off_38A90:
 Ani_objA4:	offsetTable
@@ -76779,7 +76779,7 @@ loc_38C6E:
 ; ===========================================================================
 ; off_38CAE:
 ObjA5_SubObjData:
-	subObjData ObjA5_ObjA6_Obj98_MapUnc_38CCA,make_art_tile(ArtTile_ArtNem_Spiny,1,0),1<<render_flags.level_fg,4,8,$B
+	subObjData ObjA5_ObjA6_Obj98_MapUnc_38CCA,make_art_tile(ArtTile_ArtNem_Spiny,1,0),1<<render_flags.level_fg,4,8,col_16x16
 ; animation scripts
 ; off_38CB8
 Ani_objA5:	offsetTable
@@ -77236,7 +77236,7 @@ ObjA7_Poof:
 	movea.w	d0,a2 ; a2=object
 	move.b	#0,obj_control(a2)
 	bset	#status.player.in_air,status(a2)
-	move.b	#$B,collision_flags(a0)
+	move.b	#col_16x16,collision_flags(a0)
 +
 	rts
 ; End of subroutine ObjA7_CheckExplode
@@ -77288,16 +77288,16 @@ ChildObject_391E4:	childObjectData objoff_3C, ObjID_GrabberLegs, $38
 ChildObject_391E8:	childObjectData objoff_3A, ObjID_GrabberString, $3C
 ; off_391EC:
 ObjA7_SubObjData:
-	subObjData ObjA7_ObjA8_ObjA9_Obj98_MapUnc_3921A,make_art_tile(ArtTile_ArtNem_Grabber,1,1),1<<render_flags.level_fg,4,$10,$B
+	subObjData ObjA7_ObjA8_ObjA9_Obj98_MapUnc_3921A,make_art_tile(ArtTile_ArtNem_Grabber,1,1),1<<render_flags.level_fg,4,$10,col_16x16
 ; off_391F6:
 ObjA7_SubObjData2:
-	subObjData ObjA7_ObjA8_ObjA9_Obj98_MapUnc_3921A,make_art_tile(ArtTile_ArtNem_Grabber,1,1),1<<render_flags.level_fg,1,$10,$D7
+	subObjData ObjA7_ObjA8_ObjA9_Obj98_MapUnc_3921A,make_art_tile(ArtTile_ArtNem_Grabber,1,1),1<<render_flags.level_fg,1,$10,col_16x16_alt|col_special
 ; off_39200:
 ObjA8_SubObjData:
-	subObjData ObjA7_ObjA8_ObjA9_Obj98_MapUnc_3921A,make_art_tile(ArtTile_ArtNem_Grabber,1,1),1<<render_flags.level_fg,4,4,0
+	subObjData ObjA7_ObjA8_ObjA9_Obj98_MapUnc_3921A,make_art_tile(ArtTile_ArtNem_Grabber,1,1),1<<render_flags.level_fg,4,4,col_none
 ; off_3920A:
 ObjA8_SubObjData2:
-	subObjData ObjAA_MapUnc_39228,make_art_tile(ArtTile_ArtNem_Grabber,1,1),1<<render_flags.level_fg,5,4,0
+	subObjData ObjAA_MapUnc_39228,make_art_tile(ArtTile_ArtNem_Grabber,1,1),1<<render_flags.level_fg,5,4,col_none
 ; animation script
 ; off_39214:
 Ani_objA7:	offsetTable
@@ -77456,7 +77456,7 @@ ObjAC_Main:
 ; ===========================================================================
 ; off_393C2:
 ObjAC_SubObjData:
-	subObjData ObjAC_MapUnc_393CC,make_art_tile(ArtTile_ArtNem_Balkrie,0,0),1<<render_flags.level_fg,4,$20,8
+	subObjData ObjAC_MapUnc_393CC,make_art_tile(ArtTile_ArtNem_Balkrie,0,0),1<<render_flags.level_fg,4,$20,col_48x24
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
@@ -77552,7 +77552,7 @@ loc_394A2:
 	clr.l	(a1) ; Clear mapping_frame, anim_frame, anim, and prev_anim.
 	clr.w	anim_frame_duration-mapping_frame(a1)
 	move.b	#8,(a1)
-	move.b	#6,collision_flags(a0)
+	move.b	#col_32x32,collision_flags(a0)
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
 
@@ -77614,9 +77614,9 @@ loc_39526:
 	rts
 ; ===========================================================================
 ObjAD_SubObjData:
-	subObjData ObjAD_Obj98_MapUnc_395B4,make_art_tile(ArtTile_ArtNem_WfzScratch,0,0),1<<render_flags.level_fg,4,$18,0
+	subObjData ObjAD_Obj98_MapUnc_395B4,make_art_tile(ArtTile_ArtNem_WfzScratch,0,0),1<<render_flags.level_fg,4,$18,col_none
 ObjAD_SubObjData2:
-	subObjData ObjAD_Obj98_MapUnc_395B4,make_art_tile(ArtTile_ArtNem_WfzScratch,0,0),1<<render_flags.level_fg,5,$10,0
+	subObjData ObjAD_Obj98_MapUnc_395B4,make_art_tile(ArtTile_ArtNem_WfzScratch,0,0),1<<render_flags.level_fg,5,$10,col_none
 
 ; animation script
 ; off_3958A
@@ -77692,7 +77692,7 @@ ObjAF_Init:
 	bsr.w	LoadSubObject
 	move.b	#$1B,y_radius(a0)
 	move.b	#$10,x_radius(a0)
-	move.b	#0,collision_flags(a0)
+	move.b	#col_none,collision_flags(a0)
 	move.b	#8,collision_property(a0)
 	lea	(ChildObject_39DC2).l,a2
 	bsr.w	LoadChildObject
@@ -77762,7 +77762,7 @@ loc_3980E:
 loc_39830:
 	add.w	d1,y_pos(a0)
 	move.w	#0,y_vel(a0)
-	move.b	#$1A,collision_flags(a0)
+	move.b	#col_24x24,collision_flags(a0)
 	bset	#status.npc.y_flip,status(a0)
 	bra.w	loc_399D6
 ; ===========================================================================
@@ -78124,7 +78124,7 @@ loc_39BA4:
 loc_39BBA:
 	bsr.w	LoadSubObject
 	move.b	#8,width_pixels(a0)
-	move.b	#0,collision_flags(a0)
+	move.b	#col_none,collision_flags(a0)
 	rts
 ; ===========================================================================
 
@@ -78150,12 +78150,12 @@ loc_39BEA:
 ; ===========================================================================
 
 loc_39C02:
-	move.b	#0,collision_flags(a0)
+	move.b	#col_none,collision_flags(a0)
 	rts
 ; ===========================================================================
 
 loc_39C0A:
-	move.b	#$98,collision_flags(a0)
+	move.b	#col_8x8|col_hurt,collision_flags(a0)
 	rts
 ; ===========================================================================
 
@@ -78274,12 +78274,12 @@ loc_39D24:
 	beq.s	loc_39D42
 	cmpi.b	#8,d0
 	beq.s	loc_39D42
-	move.b	#$1A,collision_flags(a0)
+	move.b	#col_24x24,collision_flags(a0)
 	rts
 ; ===========================================================================
 
 loc_39D42:
-	move.b	#$9A,collision_flags(a0)
+	move.b	#col_24x24|col_hurt,collision_flags(a0)
 	rts
 ; ===========================================================================
 
@@ -78371,10 +78371,10 @@ ChildObject_39DC6:	childObjectData objoff_3C, ObjID_MechaSonic, $48
 ChildObject_39DCA:	childObjectData objoff_3A, ObjID_MechaSonic, $A4
 ; off_39DCE:
 ObjAF_SubObjData2:
-	subObjData ObjAF_Obj98_MapUnc_39E68,make_art_tile(ArtTile_ArtNem_SilverSonic,1,0),1<<render_flags.level_fg,4,$10,$1A
+	subObjData ObjAF_Obj98_MapUnc_39E68,make_art_tile(ArtTile_ArtNem_SilverSonic,1,0),1<<render_flags.level_fg,4,$10,col_24x24
 ; off_39DD8:
 ObjAF_SubObjData3:
-	subObjData ObjAF_MapUnc_3A08C,make_art_tile(ArtTile_ArtNem_DEZWindow,0,0),1<<render_flags.level_fg,6,$10,0
+	subObjData ObjAF_MapUnc_3A08C,make_art_tile(ArtTile_ArtNem_DEZWindow,0,0),1<<render_flags.level_fg,6,$10,col_none
 
 ; animation script
 off_39DE2:	offsetTable
@@ -78790,11 +78790,11 @@ word_3A514:
 
 ; off_3A58A:
 ObjB0_SubObjData:
-	subObjData ObjB1_MapUnc_3A5A6,make_art_tile(ArtTile_ArtUnc_Giant_Sonic,2,1),0,1,$10,0
+	subObjData ObjB1_MapUnc_3A5A6,make_art_tile(ArtTile_ArtUnc_Giant_Sonic,2,1),0,1,$10,col_none
 
 ; off_3A594:
 ObjB1_SubObjData:
-	subObjData ObjB1_MapUnc_3A5A6,make_art_tile(ArtTile_ArtNem_Sega_Logo+2,0,0),0,2,8,0
+	subObjData ObjB1_MapUnc_3A5A6,make_art_tile(ArtTile_ArtNem_Sega_Logo+2,0,0),0,2,8,col_none
 
 ; animation script
 ; off_3A59E:
@@ -79384,7 +79384,7 @@ off_3AC78:	offsetTable
 ; ===========================================================================
 
 loc_3AC7E:
-	move.b	#$C7,collision_flags(a0)
+	move.b	#col_12x12|col_special,collision_flags(a0)
 
 loc_3AC84:
 	tst.b	collision_property(a0)
@@ -79766,10 +79766,10 @@ ChildObject_3AFC0:	childObjectData objoff_3A, ObjID_Tornado, $5C
 			childObjectData objoff_3E, ObjID_Tornado, $5A	; seems unused
 ; off_3AFC8:
 ObjB2_SubObjData:
-	subObjData ObjB2_MapUnc_3AFF2,make_art_tile(ArtTile_ArtNem_Tornado,0,1),1<<render_flags.level_fg,4,$60,0
+	subObjData ObjB2_MapUnc_3AFF2,make_art_tile(ArtTile_ArtNem_Tornado,0,1),1<<render_flags.level_fg,4,$60,col_none
 ; off_3AFD2:
 ObjB2_SubObjData2:
-	subObjData ObjB2_MapUnc_3B292,make_art_tile(ArtTile_ArtNem_TornadoThruster,0,0),1<<render_flags.level_fg,3,$40,0
+	subObjData ObjB2_MapUnc_3B292,make_art_tile(ArtTile_ArtNem_TornadoThruster,0,0),1<<render_flags.level_fg,3,$40,col_none
 ; animation script
 ; off_3AFDC:
 Ani_objB2_a:	offsetTable
@@ -79836,7 +79836,7 @@ ObjB3_Main:
 ; ===========================================================================
 ; off_3B322:
 ObjB3_SubObjData:
-	subObjData ObjB3_MapUnc_3B32C,make_art_tile(ArtTile_ArtNem_Clouds,2,0),1<<render_flags.level_fg,6,$30,0
+	subObjData ObjB3_MapUnc_3B32C,make_art_tile(ArtTile_ArtNem_Clouds,2,0),1<<render_flags.level_fg,6,$30,col_none
 
 ; -----------------------------------------------------------------------------
 ; sprite mappings
@@ -79885,7 +79885,7 @@ ObjB4_Main:
 ; ===========================================================================
 ; off_3B3AC:
 ObjB4_SubObjData:
-	subObjData ObjB4_MapUnc_3B3BE,make_art_tile(ArtTile_ArtNem_WfzVrtclPrpllr,1,1),1<<render_flags.level_fg,4,4,$A8
+	subObjData ObjB4_MapUnc_3B3BE,make_art_tile(ArtTile_ArtNem_WfzVrtclPrpllr,1,1),1<<render_flags.level_fg,4,4,col_8x128|col_hurt
 ; animation script
 ; off_3B3B6:
 Ani_objB4:	offsetTable
@@ -79988,7 +79988,7 @@ ObjB5_CheckPlayer:
 ; ===========================================================================
 ; off_3B4DE:
 ObjB5_SubObjData:
-	subObjData ObjB5_MapUnc_3B548,make_art_tile(ArtTile_ArtNem_WfzHrzntlPrpllr,1,1),1<<render_flags.level_fg,4,$40,0
+	subObjData ObjB5_MapUnc_3B548,make_art_tile(ArtTile_ArtNem_WfzHrzntlPrpllr,1,1),1<<render_flags.level_fg,4,$40,col_none
 
 ; animation script
 ; off_3B4E8:
@@ -80295,7 +80295,7 @@ loc_3B7F8:
 ; ===========================================================================
 ; off_3B818:
 ObjB6_SubObjData:
-	subObjData ObjB6_MapUnc_3B856,make_art_tile(ArtTile_ArtNem_WfzTiltPlatforms,1,1),1<<render_flags.level_fg,4,$10,0
+	subObjData ObjB6_MapUnc_3B856,make_art_tile(ArtTile_ArtNem_WfzTiltPlatforms,1,1),1<<render_flags.level_fg,4,$10,col_none
 
 ; animation script
 ; off_3B822:
@@ -80351,7 +80351,7 @@ ObjB7_Main:
 ; ===========================================================================
 ; off_3B8DA:
 ObjB7_SubObjData:
-	subObjData ObjB7_MapUnc_3B8E4,make_art_tile(ArtTile_ArtNem_WfzVrtclLazer,2,1),1<<render_flags.level_fg,4,$18,$A9
+	subObjData ObjB7_MapUnc_3B8E4,make_art_tile(ArtTile_ArtNem_WfzVrtclLazer,2,1),1<<render_flags.level_fg,4,$18,col_48x256|col_hurt
 ObjB7_MapUnc_3B8E4:	include "mappings/sprite/objB7.asm"
 
 ; ===========================================================================
@@ -80455,7 +80455,7 @@ byte_3BA2A:
 	even
 ; off_3BA36:
 ObjB8_SubObjData:
-	subObjData ObjB8_Obj98_MapUnc_3BA46,make_art_tile(ArtTile_ArtNem_WfzWallTurret,0,0),1<<render_flags.level_fg,4,$10,0
+	subObjData ObjB8_Obj98_MapUnc_3BA46,make_art_tile(ArtTile_ArtNem_WfzWallTurret,0,0),1<<render_flags.level_fg,4,$10,col_none
 ; animation script
 ; off_3BA40:
 Ani_WallTurretShot: offsetTable
@@ -80514,7 +80514,7 @@ loc_3BAF8:
 ; ===========================================================================
 ; off_3BB0E:
 ObjB9_SubObjData:
-	subObjData ObjB9_MapUnc_3BB18,make_art_tile(ArtTile_ArtNem_WfzHrzntlLazer,2,1),1<<render_flags.level_fg,1,$60,0
+	subObjData ObjB9_MapUnc_3BB18,make_art_tile(ArtTile_ArtNem_WfzHrzntlLazer,2,1),1<<render_flags.level_fg,1,$60,col_none
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
@@ -80545,7 +80545,7 @@ ObjBA_Main:
 ; ===========================================================================
 ; off_3BB66:
 ObjBA_SubObjData:
-	subObjData ObjBA_MapUnc_3BB70,make_art_tile(ArtTile_ArtNem_WfzConveyorBeltWheel,2,1),1<<render_flags.level_fg,4,$10,0
+	subObjData ObjBA_MapUnc_3BB70,make_art_tile(ArtTile_ArtNem_WfzConveyorBeltWheel,2,1),1<<render_flags.level_fg,4,$10,col_none
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
@@ -80576,7 +80576,7 @@ ObjBB_Main:
 ; ===========================================================================
 ; off_3BB96:
 ObjBB_SubObjData:
-	subObjData ObjBB_MapUnc_3BBA0,make_art_tile(ArtTile_ArtNem_Unknown,1,0),1<<render_flags.level_fg,4,$C,9
+	subObjData ObjBB_MapUnc_3BBA0,make_art_tile(ArtTile_ArtNem_Unknown,1,0),1<<render_flags.level_fg,4,$C,col_24x32
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
@@ -80617,7 +80617,7 @@ ObjBC_Main:
 ; ===========================================================================
 ; off_3BBFE:
 ObjBC_SubObjData2:
-	subObjData ObjBC_MapUnc_3BC08,make_art_tile(ArtTile_ArtNem_WfzThrust,2,0),1<<render_flags.level_fg,4,$10,0
+	subObjData ObjBC_MapUnc_3BC08,make_art_tile(ArtTile_ArtNem_WfzThrust,2,0),1<<render_flags.level_fg,4,$10,col_none
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
@@ -80751,7 +80751,7 @@ loc_3BCF8:
 ; ===========================================================================
 ; off_3BD24:
 ObjBD_SubObjData:
-	subObjData ObjBD_MapUnc_3BD3E,make_art_tile(ArtTile_ArtNem_WfzBeltPlatform,3,1),1<<render_flags.level_fg,4,$18,0
+	subObjData ObjBD_MapUnc_3BD3E,make_art_tile(ArtTile_ArtNem_WfzBeltPlatform,3,1),1<<render_flags.level_fg,4,$18,col_none
 ; animation script
 ; off_3BD2E:
 Ani_objBD:	offsetTable
@@ -80847,7 +80847,7 @@ loc_3BE04:
 ; ===========================================================================
 ; off_3BE2C:
 ObjBE_SubObjData:
-	subObjData ObjBE_MapUnc_3BE46,make_art_tile(ArtTile_ArtNem_WfzGunPlatform,3,1),1<<render_flags.level_fg,4,$18,0
+	subObjData ObjBE_MapUnc_3BE46,make_art_tile(ArtTile_ArtNem_WfzGunPlatform,3,1),1<<render_flags.level_fg,4,$18,col_none
 ; animation script
 ; off_3BE36:
 Ani_objBE:	offsetTable
@@ -80888,7 +80888,7 @@ ObjBF_Animate:
 ; ===========================================================================
 ; off_3BECE:
 ObjBE_SubObjData2:
-	subObjData ObjBF_MapUnc_3BEE0,make_art_tile(ArtTile_ArtNem_WfzUnusedBadnik,3,1),1<<render_flags.level_fg,4,4,4
+	subObjData ObjBF_MapUnc_3BEE0,make_art_tile(ArtTile_ArtNem_WfzUnusedBadnik,3,1),1<<render_flags.level_fg,4,4,col_8x32
 ; animation script
 ; off_3BED8:
 Ani_objBF:	offsetTable
@@ -81066,7 +81066,7 @@ loc_3C062:
 ; ===========================================================================
 ; off_3C08E:
 ObjC0_SubObjData:
-	subObjData ObjC0_MapUnc_3C098,make_art_tile(ArtTile_ArtNem_WfzLaunchCatapult,1,0),1<<render_flags.level_fg,4,$10,0
+	subObjData ObjC0_MapUnc_3C098,make_art_tile(ArtTile_ArtNem_WfzLaunchCatapult,1,0),1<<render_flags.level_fg,4,$10,col_none
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
@@ -81270,7 +81270,7 @@ loc_3C26C:
 ; ===========================================================================
 ; off_3C276:
 ObjC1_SubObjData:
-	subObjData ObjC1_MapUnc_3C280,make_art_tile(ArtTile_ArtNem_BreakPanels,3,1),1<<render_flags.level_fg,4,$40,$E1
+	subObjData ObjC1_MapUnc_3C280,make_art_tile(ArtTile_ArtNem_BreakPanels,3,1),1<<render_flags.level_fg,4,$40,col_8x32_alt|col_special
 ; ---------------------------------------------------------------------------
 ; sprite mappings
 ; ---------------------------------------------------------------------------
@@ -81331,7 +81331,7 @@ ObjC2_Bust:
 ; ===========================================================================
 ; off_3C3B8:
 ObjC2_SubObjData:
-	subObjData ObjC2_MapUnc_3C3C2,make_art_tile(ArtTile_ArtNem_WfzSwitch,1,1),1<<render_flags.level_fg,4,$10,0
+	subObjData ObjC2_MapUnc_3C3C2,make_art_tile(ArtTile_ArtNem_WfzSwitch,1,1),1<<render_flags.level_fg,4,$10,col_none
 ; ----------------------------------------------------------------------------
 ; sprite mappings
 ; ----------------------------------------------------------------------------
@@ -81382,7 +81382,7 @@ ObjC3_Main:
 ; ===========================================================================
 ; off_3C438:
 ObjC3_SubObjData:
-	subObjData Obj27_MapUnc_21120,make_art_tile(ArtTile_ArtNem_Explosion,0,0),1<<render_flags.level_fg,5,$C,0
+	subObjData Obj27_MapUnc_21120,make_art_tile(ArtTile_ArtNem_Explosion,0,0),1<<render_flags.level_fg,5,$C,col_none
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object C5 - WFZ boss
@@ -81443,7 +81443,7 @@ ObjC5_CaseIndex:offsetTable
 
 ObjC5_CaseBoundary:
 	addq.b	#2,routine_secondary(a0)
-	move.b	#0,collision_flags(a0)
+	move.b	#col_none,collision_flags(a0)
 	move.b	#8,collision_property(a0)	; Hit points
 	move.w	#$442,d0
 	move.w	d0,(Camera_Max_Y_pos).w
@@ -81585,7 +81585,7 @@ ObjC5_CaseAddCollision:
 	move.w	#$40,objoff_2A(a0)	; Length before shooting laser
 	bset	#status.npc.p2_standing,status(a0)		; makes the hit sound and flashes happen only once when you hit it
 	bset	#status.npc.p2_pushing,status(a0)		; makes sure collision gets restored
-	move.b	#6,collision_flags(a0)
+	move.b	#col_32x32,collision_flags(a0)
 	jmpto	JmpTo45_DisplaySprite
 ; ===========================================================================
 
@@ -81952,7 +81952,7 @@ ObjC5_PlatformHurtIndex: offsetTable
 
 ObjC5_PlatformHurtCollision:
 	addq.b	#2,routine_secondary(a0)
-	move.b	#$98,collision_flags(a0)
+	move.b	#col_8x8|col_hurt,collision_flags(a0)
 	rts
 ; ===========================================================================
 
@@ -82025,7 +82025,7 @@ ObjC5_LaserInit:
 	addq.b	#2,routine_secondary(a0)
 	move.b	#$D,mapping_frame(a0)
 	move.b	#4,priority(a0)
-	move.b	#0,collision_flags(a0)
+	move.b	#col_none,collision_flags(a0)
 	addi.w	#$10,y_pos(a0)
 	move.b	#$C,anim_frame(a0)
 	subq.w	#3,y_pos(a0)
@@ -82099,12 +82099,12 @@ ObjC5_LaserMappingsData:
 	dc.b $12	; 4
 	dc.b   0	; 5
 ObjC5_LaserCollisionData:
-	dc.b $86
-	dc.b $AB	; 1
-	dc.b $AC	; 2
-	dc.b $AD	; 3
-	dc.b $AE	; 4
-	dc.b   0	; 5
+	dc.b col_32x32|col_hurt
+	dc.b col_32x64|col_hurt		; 1
+	dc.b col_32x96|col_hurt		; 2
+	dc.b col_32x128|col_hurt	; 3
+	dc.b col_32x160|col_hurt	; 4
+	dc.b col_none			; 5
 	even
 ; ===========================================================================
 
@@ -82208,7 +82208,7 @@ ObjC5_FlashCollisionRestore:
 	bne.s	return_3CC3A
 	btst	#status.npc.p2_standing,status(a0)	; makes sure the boss doesn't need collision
 	beq.s	return_3CC3A
-	move.b	#6,collision_flags(a0)	; restore collision
+	move.b	#col_32x32,collision_flags(a0)	; restore collision
 
 return_3CC3A:
 	rts
@@ -82235,19 +82235,19 @@ ChildObject_ObjC5RobotnikPlatform:	childObjectData objoff_3E, ObjID_WFZBoss, $A2
 
 ; off_3CC80:
 ObjC5_SubObjData:		; Laser Case
-	subObjData ObjC5_MapUnc_3CCD8,make_art_tile(ArtTile_ArtNem_WFZBoss,0,0),1<<render_flags.level_fg,4,$20,0
+	subObjData ObjC5_MapUnc_3CCD8,make_art_tile(ArtTile_ArtNem_WFZBoss,0,0),1<<render_flags.level_fg,4,$20,col_none
 ; off_3CC8A:
 ObjC5_SubObjData2:		; Laser Walls
-	subObjData ObjC5_MapUnc_3CCD8,make_art_tile(ArtTile_ArtNem_WFZBoss,0,0),1<<render_flags.level_fg,1,8,0
+	subObjData ObjC5_MapUnc_3CCD8,make_art_tile(ArtTile_ArtNem_WFZBoss,0,0),1<<render_flags.level_fg,1,8,col_none
 ; off_3CC94:
 ObjC5_SubObjData3:		; Platforms, platform releaser, laser and laser shooter
-	subObjData ObjC5_MapUnc_3CCD8,make_art_tile(ArtTile_ArtNem_WFZBoss,0,0),1<<render_flags.level_fg,5,$10,0
+	subObjData ObjC5_MapUnc_3CCD8,make_art_tile(ArtTile_ArtNem_WFZBoss,0,0),1<<render_flags.level_fg,5,$10,col_none
 ; off_3CC9E:
 ObjC6_SubObjData2:		; Robotnik
-	subObjData ObjC6_MapUnc_3D0EE,make_art_tile(ArtTile_ArtKos_LevelArt,0,0),1<<render_flags.level_fg,5,$20,0
+	subObjData ObjC6_MapUnc_3D0EE,make_art_tile(ArtTile_ArtKos_LevelArt,0,0),1<<render_flags.level_fg,5,$20,col_none
 ; off_3CCA8:
 ObjC5_SubObjData4:		; Robotnik platform
-	subObjData ObjC5_MapUnc_3CEBC,make_art_tile(ArtTile_ArtNem_WfzFloatingPlatform,1,1),1<<render_flags.level_fg,5,$20,0
+	subObjData ObjC5_MapUnc_3CEBC,make_art_tile(ArtTile_ArtNem_WfzFloatingPlatform,1,1),1<<render_flags.level_fg,5,$20,col_none
 
 ; animation script
 ; off_3CCB2:
@@ -82464,13 +82464,13 @@ ObjC6_State4:
 ; ===========================================================================
 ; off_3D0B2:
 ObjC6_SubObjData3:
-	subObjData ObjC6_MapUnc_3D0EE,make_art_tile(ArtTile_ArtKos_LevelArt,0,0),1<<render_flags.level_fg,5,$18,0
+	subObjData ObjC6_MapUnc_3D0EE,make_art_tile(ArtTile_ArtKos_LevelArt,0,0),1<<render_flags.level_fg,5,$18,col_none
 ; off_3D0BC:
 ObjC6_SubObjData4:
-	subObjData ObjC6_MapUnc_3D1DE,make_art_tile(ArtTile_ArtNem_ConstructionStripes_1,1,0),1<<render_flags.level_fg,1,8,0
+	subObjData ObjC6_MapUnc_3D1DE,make_art_tile(ArtTile_ArtNem_ConstructionStripes_1,1,0),1<<render_flags.level_fg,1,8,col_none
 ; off_3D0C6:
 ObjC6_SubObjData:
-	subObjData ObjC6_MapUnc_3D0EE,make_art_tile(ArtTile_ArtKos_LevelArt,0,0),1<<render_flags.level_fg,5,4,0
+	subObjData ObjC6_MapUnc_3D0EE,make_art_tile(ArtTile_ArtKos_LevelArt,0,0),1<<render_flags.level_fg,5,4,col_none
 ChildObject_3D0D0:	childObjectData objoff_3E, ObjID_Eggman, $A8
 ChildObject_3D0D4:	childObjectData objoff_3C, ObjID_Eggman, $AA
 ; animation script
@@ -82563,7 +82563,7 @@ loc_3D2A6:
 ; ===========================================================================
 
 loc_3D2D4:
-	move.b	#$D7,collision_flags(a0)
+	move.b	#col_16x16_alt|col_special,collision_flags(a0)
 	bsr.w	Obj_GetOrientationToPlayer
 	move.w	d2,d4
 	addi.w	#$40,d2
@@ -82616,10 +82616,10 @@ BranchTo18_JmpTo39_MarkObjGone ; BranchTo
 ; ===========================================================================
 
 loc_3D36C:
-	move.b	#$97,collision_flags(a0)
+	move.b	#col_16x16_alt|col_hurt,collision_flags(a0)
 	btst	#status_secondary.invincible,status_secondary(a1)
 	beq.s	+
-	move.b	#$17,collision_flags(a0)
+	move.b	#col_16x16_alt,collision_flags(a0)
 +
 	bset	#status.npc.p1_standing,status(a0)
 
@@ -82629,7 +82629,7 @@ loc_3D386:
 ; ===========================================================================
 
 loc_3D390:
-	move.b	#$17,collision_flags(a0)
+	move.b	#col_16x16_alt,collision_flags(a0)
 	jmpto	JmpTo39_MarkObjGone
 ; ===========================================================================
 
@@ -82687,7 +82687,7 @@ loc_3D416:
 ; ===========================================================================
 ; off_3D440:
 ObjC8_SubObjData:
-	subObjData ObjC8_MapUnc_3D450,make_art_tile(ArtTile_ArtNem_Crawl,0,1),1<<render_flags.level_fg,3,$10,$D7
+	subObjData ObjC8_MapUnc_3D450,make_art_tile(ArtTile_ArtNem_Crawl,0,1),1<<render_flags.level_fg,3,$10,col_16x16_alt|col_special
 ; animation script
 ; off_3D44A:
 Ani_objC8:	offsetTable
@@ -82827,7 +82827,7 @@ loc_3D5EA:
 	addq.b	#2,routine_secondary(a0)
 	clr.w	y_vel(a0)
 	move.b	#$1F,anim_frame_duration(a0)
-	move.b	#$16,collision_flags(a0)
+	move.b	#col_64x64,collision_flags(a0)
 	move.b	#$C,collision_property(a0)
 	bsr.w	ObjC7_InitCollision
 	movea.w	objoff_38(a0),a1 ; a1=object
@@ -83813,7 +83813,7 @@ off_3DED0:	offsetTable
 loc_3DED8:
 	addq.b	#2,routine_secondary(a0)
 	move.b	#$E,mapping_frame(a0)
-	move.b	#$89,collision_flags(a0)
+	move.b	#col_24x32|col_hurt,collision_flags(a0)
 	move.b	#5,priority(a0)
 	move.b	#$C,width_pixels(a0)
 	lea	byte_3DF00(pc),a1
@@ -83934,9 +83934,9 @@ ObjC7_Flashing:
 	subq.b	#1,objoff_2A(a0)
 	bne.s	+
 	clr.w	(Normal_palette_line2+2).w
-	move.b	#$16,collision_flags(a0)
+	move.b	#col_64x64,collision_flags(a0)
 	movea.w	objoff_36(a0),a1 ; a1=object
-	move.b	#$2A,collision_flags(a1)
+	move.b	#col_64x32,collision_flags(a1)
 +
 	rts
 ; ===========================================================================
@@ -84015,16 +84015,16 @@ ObjC7_InitCollision:
 ; ===========================================================================
 ;byte_3E10A
 ObjC7_ChildCollision:
-	dc.b   0
-	dc.b $8F	; 1
-	dc.b $9C	; 2
-	dc.b   0	; 3
-	dc.b $86	; 4
-	dc.b $2A	; 5
-	dc.b $8B	; 6
-	dc.b $8F	; 7
-	dc.b $9C	; 8
-	dc.b $8B	; 9
+	dc.b col_none
+	dc.b col_48x48|col_hurt	; 1
+	dc.b col_48x8|col_hurt	; 2
+	dc.b col_none		; 3
+	dc.b col_32x32|col_hurt	; 4
+	dc.b col_64x32		; 5
+	dc.b col_16x16|col_hurt	; 6
+	dc.b col_48x48|col_hurt	; 7
+	dc.b col_48x8|col_hurt	; 8
+	dc.b col_16x16|col_hurt	; 9
 ObjC7_ChildCollision_End
 ;byte_3E114
 ObjC7_ChildOffsets:
@@ -84621,7 +84621,7 @@ ChildObjC7_EggmanBomb:
 	dc.b $1C
 ;off_3E590
 ObjC7_SubObjData:
-	subObjData ObjC7_MapUnc_3E5F8,make_art_tile(ArtTile_ArtNem_DEZBoss,0,0),1<<render_flags.level_fg,4,$38,$00
+	subObjData ObjC7_MapUnc_3E5F8,make_art_tile(ArtTile_ArtNem_DEZBoss,0,0),1<<render_flags.level_fg,4,$38,col_none
 
 ; animation script
 ; off_3E59A:
@@ -85217,154 +85217,193 @@ Obj3E_MapUnc_3F436:	include "mappings/sprite/obj3E.asm"
 
 ; loc_3F554:
 TouchResponse:
-	nop
-	jsrto	JmpTo_Touch_Rings
-	; Bumpers in CNZ
-	cmpi.b	#casino_night_zone,(Current_Zone).w
-	bne.s	+
-	jsrto	JmpTo_Check_CNZ_bumpers
-+
-	tst.b	(Current_Boss_ID).w
-	bne.w	Touch_Boss
-	move.w	x_pos(a0),d2 ; load Sonic's position into d2,d3
-	move.w	y_pos(a0),d3
-	subi_.w	#8,d2
-	moveq	#0,d5
-	move.b	y_radius(a0),d5
-	subq.b	#3,d5
-	sub.w	d5,d3
+	nop						; useless nop (probably so an rts could be easily inserted here
+	jsrto	JmpTo_Touch_Rings			; Rings use their own collision routine
+
+	cmpi.b	#casino_night_zone,(Current_Zone).w	; is this CNZ?
+	bne.s	.notCNZ					; if not, branch
+	jsrto	JmpTo_Check_CNZ_bumpers			; CNZ bumpers use their own collision routine
+
+.notCNZ:
+	tst.b	(Current_Boss_ID).w			; is this a boss?
+	bne.w	Touch_Boss				; if yes, branch (bosses use their own collision routine
+
+	move.w	x_pos(a0),d2				; load Sonic's x-axis position
+	move.w	y_pos(a0),d3				; load Sonic's y-axis position
+	subi_.w	#8,d2					; d2 = X-position of Sonic's left edge
+
+	moveq	#0,d5					; clear d5
+	move.b	y_radius(a0),d5				; load Sonic's height
+	subq.b	#3,d5					; shrink by 3 px
+	sub.w	d5,d3					; d3 = Y-position of Sonic's top edge
+
     if fixBugs
-	cmpi.b	#AniIDSonAni_Duck,anim(a0)	; is Sonic ducking?
+	cmpi.b	#AniIDSonAni_Duck,anim(a0)		; is Sonic in his ducking animation?
     else
-	; This logic only works for Sonic, not Tails. Also, it only applies
-	; to the last frame of his ducking animation. This is a leftover from
-	; Sonic 1, where Sonic's ducking animation only had one frame.
-	cmpi.b	#$4D,mapping_frame(a0)	; is Sonic ducking?
+	; Rather than checking for the ducking animation, this specifically checks for the
+	; ducking frame... for Sonic, and even then it means it only takes effect on the
+	; second frame. This is a leftover from Sonic 1, where Sonic's ducking animation
+	; was one frame.
+	cmpi.b	#$4D,mapping_frame(a0)			; is Sonic ducking?
     endif
-	bne.s	Touch_NoDuck			; if not, branch
-	addi.w	#$C,d3
-	moveq	#$A,d5
+	bne.s	Touch_NoDuck				; if not, branch
+	addi.w	#$C,d3					; adjust Y-position of Sonic's top edge when ducking
+	moveq	#$A,d5					; use alternate hitbox extent
 ; loc_3F592:
 Touch_NoDuck:
-	move.w	#$10,d4
-	add.w	d5,d5
-	lea	(Dynamic_Object_RAM).w,a1
-	move.w	#(Dynamic_Object_RAM_End-Dynamic_Object_RAM)/object_size-1,d6
+	move.w	#$10,d4					; d4 = Sonic's hitbox width
+	add.w	d5,d5					; d5 = Sonic's hitbox height
+
+	lea	(Dynamic_Object_RAM).w,a1		; set object RAM start address
+	move.w	#(Dynamic_Object_RAM_End-Dynamic_Object_RAM)/object_size-1,d6	; iterate through the entire level object RAM space
 ; loc_3F5A0:
 Touch_Loop:
-	; Note that this uses a branch instead of a 'bsr'.
-	; This is because only one object can be collided with in a single frame.
-	; If 'Touch_CheckCollision' determines that the character isn't colliding with the
-	; object, then it manually branches back to 'Touch_NextObj' to try the next one.
-	move.b	collision_flags(a1),d0
-	bne.w	Touch_CheckCollision
+	; In Sonic 1, objects had to set their 'rendered on previous frame' flag for the
+	; engine to register collision. This was removed in Sonic 2.
+
+	; Also note that this uses a branch instead of a 'bsr'. This is because only one
+	; object can be collided with in a single frame. If 'Touch_CheckCollision' determines
+	; that the character isn't colliding with the object, then it manually branches back
+	; to 'Touch_NextObj' to try the next one.
+	move.b	collision_flags(a1),d0			; load collision type
+	bne.w	Touch_CheckCollision			; if non-zero, check for collision
 ; loc_3F5A8:
 Touch_NextObj:
-	lea	next_object(a1),a1 ; load obj address ; goto next object
-	dbf	d6,Touch_Loop ; repeat 6F more times
+	lea	next_object(a1),a1 			; next object RAM
+	dbf	d6,Touch_Loop				; repeat $6F more times
 
-	moveq	#0,d0
-	rts
+	moveq	#0,d0					; no collision was processed
+	rts						; return
+
 ; ===========================================================================
+; ---------------------------------------------------------------------------
+; Object has a valid collision_type set, check if Sonic is intersecting
+; with its hitbox and handle collision if so.
+; 
+; input:
+;	d2 = X-position of Sonic's left edge
+;	d3 = Y-position of Sonic's top edge
+;	d4 = Sonic's hitbox width
+;	d5 = Sonic's hitbox height
+;	a0 = OST of Sonic
+;	a1 = OST of object to check
+; ---------------------------------------------------------------------------
 ; loc_3F5B4: Touch_Height: Touch_Width:
 Touch_CheckCollision:
-	andi.w	#$3F,d0
-	add.w	d0,d0
-	lea	Touch_Sizes(pc,d0.w),a2
+	andi.w	#$FF-(col_item|col_hurt|col_special),d0	; mask out subgroup bits / limit to $3F entries in React_Sizes
+	add.w	d0,d0					; double for word-based indexing
+	lea	Touch_Sizes(pc,d0.w),a2			; load Touch_Sizes array
 
-	; From here to the branch to 'Touch_ChkValue', this code is the same as 'Touch_Boss_CheckWidth',
-	; only it returns to 'Touch_NextObj' instead of 'Touch_Boss_NextObj'.
-	; This could have been avoided with some clever stack usage.
-;Touch_CheckWidth:
-	moveq	#0,d1
-	move.b	(a2)+,d1
-	move.w	x_pos(a1),d0
-	sub.w	d1,d0
-	sub.w	d2,d0
-	bcc.s	loc_3F5D6
-	add.w	d1,d1
-	add.w	d1,d0
-	bcs.s	Touch_CheckHeight
-	bra.w	Touch_NextObj
-; ===========================================================================
+	; From here to the branch to 'Touch_ChkValue', this code is the same as
+	; 'Touch_Boss_CheckWidth', only it returns to 'Touch_NextObj' instead of
+	; 'Touch_Boss_NextObj'. This could have been avoided with some clever stack usage.
 
-loc_3F5D6:
-	cmp.w	d4,d0
-	bhi.w	Touch_NextObj
+Touch_CheckWidth:
+	moveq	#0,d1					; clear d1 (hitbox sizes are stored as bytes)
+	move.b	(a2)+,d1				; get object's horizontal hitbox radius
+	move.w	x_pos(a1),d0				; get object's current X-position
+	sub.w	d1,d0					; get object's left edge
+	sub.w	d2,d0					; compare against Sonic's left edge
+	bcc.s	Touch_CheckLeft				; branch if Sonic is to the left
+
+	add.w	d1,d1					; convert radius to full width
+	add.w	d1,d0					; add width to get distance between right and left edges
+	bcs.s	Touch_CheckHeight			; branch if hitboxes overlap horizontally
+	bra.w	Touch_NextObj				; otherwise, object is not in collision range
+
+; loc_3F5D6:
+Touch_CheckLeft:
+	cmp.w	d4,d0					; is horizontal separation greater than Sonic's width?
+	bhi.w	Touch_NextObj				; if yes, object is not in range
+; ---------------------------------------------------------------------------
 ; loc_3F5DC: Touch_Width: Touch_Height:
 Touch_CheckHeight:
-	moveq	#0,d1
-	move.b	(a2)+,d1
-	move.w	y_pos(a1),d0
-	sub.w	d1,d0
-	sub.w	d3,d0
-	bcc.s	loc_3F5F6
-	add.w	d1,d1
-	add.w	d1,d0
-	bcs.w	Touch_ChkValue
-	bra.w	Touch_NextObj
-; ===========================================================================
+	moveq	#0,d1					; clear d1 (hitbox sizes are stored as bytes)
+	move.b	(a2)+,d1				; get object's vertical hitbox radius
+	move.w	y_pos(a1),d0				; get object's current Y-position
+	sub.w	d1,d0					; get object's top edge
+	sub.w	d3,d0					; compare against Sonic's top edge
+	bcc.s	Touch_CheckAbove			; branch if Sonic is above the object
 
-loc_3F5F6:
-	cmp.w	d5,d0
-	bhi.w	Touch_NextObj
+	add.w	d1,d1					; convert radius to full height
+	add.w	d1,d0					; add height to get distance between bottom and top edges
+	bcs.w	Touch_ChkValue				; branch if hitboxes overlap vertically
+	bra.w	Touch_NextObj				; otherwise, object is not in collision range
+
+; loc_3F5F6:
+Touch_CheckAbove:
+	cmp.w	d5,d0					; is vertical separation greater than Sonic's height?
+	bhi.w	Touch_NextObj				; if yes, object is not in collision range
 	; Here ends the duplicate code.
-	bra.w	Touch_ChkValue
+	bra.w	Touch_ChkValue				; continue to Touch_ChkValue
 ; ===========================================================================
-; collision sizes (width,height)
 ; byte_3F600:
 Touch_Sizes:
-	dc.b   4,  4	;   0
-	dc.b $14,$14	;   1
-	dc.b  $C,$14	;   2
-	dc.b $14, $C	;   3
-	dc.b   4,$10	;   4
-	dc.b  $C,$12	;   5
-	dc.b $10,$10	;   6 - monitors
-	dc.b   6,  6	;   7 - rings
-	dc.b $18, $C	;   8
-	dc.b  $C,$10	;   9
-	dc.b $10,  8	;  $A
-	dc.b   8,  8	;  $B
-	dc.b $14,$10	;  $C
-	dc.b $14,  8	;  $D
-	dc.b  $E, $E	;  $E
-	dc.b $18,$18	;  $F
-	dc.b $28,$10	; $10
-	dc.b $10,$18	; $11
-	dc.b   8,$10	; $12
-	dc.b $20,$70	; $13
-	dc.b $40,$20	; $14
-	dc.b $80,$20	; $15
-	dc.b $20,$20	; $16
-	dc.b   8,  8	; $17
-	dc.b   4,  4	; $18
-	dc.b $20,  8	; $19
-	dc.b  $C, $C	; $1A
-	dc.b   8,  4	; $1B
-	dc.b $18,  4	; $1C
-	dc.b $28,  4	; $1D
-	dc.b   4,  8	; $1E
-	dc.b   4,$18	; $1F
-	dc.b   4,$28	; $20
-	dc.b   4,$10	; $21
-	dc.b $18,$18	; $22
-	dc.b  $C,$18	; $23
-	dc.b $48,  8	; $24
-	dc.b $18,$28	; $25
-	dc.b $10,  4	; $26
-	dc.b $20,  2	; $27
-	dc.b   4,$40	; $28
-	dc.b $18,$80	; $29
-	dc.b $20,$10	; $2A
-	dc.b $10,$20	; $2B
-	dc.b $10,$30	; $2C
-	dc.b $10,$40	; $2D
-	dc.b $10,$50	; $2E
-	dc.b $10,  2	; $2F
-	dc.b $10,  1	; $30
-	dc.b   2,  8	; $31
-	dc.b $20,$1C	; $32
+
+; Flags to further split objects into individual property subgroups.
+col_none:	equ 0			; marker for no-collision objects
+col_item:	equ $40			; monitors, rings, giant rings
+col_hurt:	equ $80			; damaging objects when touched
+col_special:	equ $C0			; objects with special collision properties
+
+; Hitbox sizes are stored as box extents (half-width and half-height; similar to radii).
+hitbox: macro width,height,{INTLABEL}
+__LABEL__:	label	(*-Touch_Sizes)/2
+		dc.b	width/2, height/2
+		endm
+
+		;     width, height
+col_invalid:	hitbox	  8,  8		; $00 - Invalid?
+col_40x40:	hitbox	 40, 40		; $01
+col_24x40:	hitbox	 24, 40		; $02
+col_40x24:	hitbox	 40, 24		; $03
+col_8x32:	hitbox	  8, 32		; $04 - GHZ spike pole (unused)
+col_24x36:	hitbox	 24, 36		; $05
+col_32x32:	hitbox	 32, 32		; $06 - Monitor
+col_12x12:	hitbox	 12, 12		; $07 - Ring
+col_48x24:	hitbox	 48, 24		; $08
+col_24x32:	hitbox	 24, 32		; $09
+col_32x16:	hitbox	 32, 16		; $0A ; was 32x24 in Sonic 1
+col_16x16:	hitbox	 16, 16		; $0B
+col_40x32:	hitbox	 40, 32		; $0C
+col_40x16:	hitbox	 40, 16		; $0D
+col_28x28:	hitbox	 28, 28		; $0E
+col_48x48:	hitbox	 48, 48		; $0F
+col_80x32:	hitbox	 80, 32		; $10
+col_32x48:	hitbox	 32, 48		; $11
+col_16x32:	hitbox	 16, 32		; $12
+col_64x224:	hitbox	 64,224		; $13
+col_128x64:	hitbox	128, 64		; $14
+col_256x64:	hitbox	256, 64		; $15
+col_64x64:	hitbox	 64, 64		; $16
+col_16x16_alt:	hitbox	 16, 16		; $17
+col_8x8:	hitbox	  8,  8		; $18
+col_64x16:	hitbox	 64, 16		; $19
+col_24x24:	hitbox	 24, 24		; $1A
+col_16x8:	hitbox	 16,  8		; $1B
+col_48x8:	hitbox	 48,  8		; $1C
+col_80x8:	hitbox	 80,  8		; $1D
+col_8x16:	hitbox	  8, 16		; $1E
+col_8x48:	hitbox	  8, 48		; $1F
+col_8x80:	hitbox	  8, 80		; $20
+col_8x32_alt:	hitbox	  8, 32		; $21 ; was 8x32 in Sonic 1
+col_48x48_alt:	hitbox	 48, 48		; $22
+col_24x48:	hitbox	 24, 48		; $23
+col_144x16:	hitbox	144, 16		; $24
+col_48x80:	hitbox	 48, 80		; $25
+col_32x8:	hitbox	 32,  8		; $26
+col_64x4:	hitbox	 64,  4		; $27
+col_8x128:	hitbox	  8,128		; $28
+col_48x256:	hitbox	 48,256		; $29
+col_64x32:	hitbox	 64, 32		; $2A
+col_32x64:	hitbox	 32, 64		; $2B
+col_32x96:	hitbox	 32, 96		; $2C
+col_32x128:	hitbox	 32,128		; $2D
+col_32x160:	hitbox	 32,160		; $2E
+col_32x4:	hitbox	 32,  4		; $2F
+col_32x2:	hitbox	 32,  2		; $30
+col_4x16:	hitbox	  4, 16		; $31
+col_64x56:	hitbox	 64, 56		; $32
 ; ===========================================================================
 ; loc_3F666:
 Touch_Boss:
@@ -85457,16 +85496,16 @@ loc_3F6EE:
 ; loc_3F6F2:
 Touch_ChkValue:
 	move.b	collision_flags(a1),d1	; load touch response number
-	andi.b	#$C0,d1			; is touch response $40 or higher?
+	andi.b	#col_item|col_hurt|col_special,d1			; is touch response $40 or higher?
 	beq.w	Touch_Enemy		; if not, branch
-	cmpi.b	#$C0,d1			; is touch response $C0 or higher?
+	cmpi.b	#col_special,d1			; is touch response $C0 or higher?
 	beq.w	Touch_Special		; if yes, branch
 	tst.b	d1			; is touch response $80-$BF?
 	bmi.w	Touch_ChkHurt		; if yes, branch
 	; touch response is $40-$7F
 	move.b	collision_flags(a1),d0
-	andi.b	#$3F,d0
-	cmpi.b	#6,d0			; is touch response $46?
+	andi.b	#$FF-(col_item|col_hurt|col_special),d0
+	cmpi.b	#col_32x32,d0		; is touch response $46?
 	beq.s	Touch_Monitor		; if yes, branch
 	move.w	(MainCharacter+invulnerable_time).w,d0
 	tst.w	(Two_player_mode).w
@@ -85535,7 +85574,7 @@ Touch_Enemy:
 	beq.s	return_3F7C6
 	neg.w	x_vel(a0)
 	neg.w	y_vel(a0)
-	move.b	#0,collision_flags(a1)
+	move.b	#col_none,collision_flags(a1)
 	subq.b	#1,boss_hitcount2(a1)
 
 return_3F7C6:
@@ -85547,7 +85586,7 @@ Touch_Enemy_Part2:
 	beq.s	Touch_KillEnemy
 	neg.w	x_vel(a0)
 	neg.w	y_vel(a0)
-	move.b	#0,collision_flags(a1)
+	move.b	#col_none,collision_flags(a1)
 	subq.b	#1,collision_property(a1)
 	bne.s	return_3F7E8
 	bset	#status.npc.no_balancing,status(a1)
@@ -85738,30 +85777,30 @@ KillCharacter:
 ;loc_3F976:
 Touch_Special:
 	move.b	collision_flags(a1),d1
-	andi.b	#$3F,d1
-	cmpi.b	#6,d1
+	andi.b	#$FF-(col_item|col_hurt|col_special),d1
+	cmpi.b	#col_32x32,d1
 	beq.s	loc_3FA00
-	cmpi.b	#7,d1
+	cmpi.b	#col_12x12,d1
 	beq.w	loc_3FA18
-	cmpi.b	#$B,d1
+	cmpi.b	#col_16x16,d1
 	beq.s	BranchTo_loc_3F85C
-	cmpi.b	#$A,d1
+	cmpi.b	#col_32x16,d1
 	beq.s	loc_3FA00
-	cmpi.b	#$C,d1
+	cmpi.b	#col_40x32,d1
 	beq.s	loc_3F9CE
-	cmpi.b	#$14,d1
+	cmpi.b	#col_128x64,d1
 	beq.s	loc_3FA00
-	cmpi.b	#$15,d1
+	cmpi.b	#col_256x64,d1
 	beq.s	loc_3FA00
-	cmpi.b	#$16,d1
+	cmpi.b	#col_64x64,d1
 	beq.s	loc_3FA00
-	cmpi.b	#$17,d1
+	cmpi.b	#col_16x16_alt,d1
 	beq.s	loc_3FA00
-	cmpi.b	#$18,d1
+	cmpi.b	#col_8x8,d1
 	beq.s	loc_3FA00
-	cmpi.b	#$1A,d1
+	cmpi.b	#col_24x24,d1
 	beq.s	loc_3FA22
-	cmpi.b	#$21,d1
+	cmpi.b	#col_8x32_alt,d1
 	beq.s	loc_3FA12
 	rts
 ; ===========================================================================
