@@ -85353,7 +85353,8 @@ __LABEL__:	label	(*-Touch_Sizes)/2
 		endm
 
 		;     width, height
-col_invalid:	hitbox	  8,  8		; $00 - Invalid?
+col_invalid:	hitbox	  8,  8		; $00 - Invalid? Sonic 1 didn't have this,
+					; treating an above RET as a dummy slot.
 col_40x40:	hitbox	 40, 40		; $01
 col_24x40:	hitbox	 24, 40		; $02
 col_40x24:	hitbox	 40, 24		; $03
@@ -85493,217 +85494,244 @@ loc_3F6EE:
 	cmp.w	d5,d0
 	bhi.s	Touch_Boss_NextObj
 	; Here ends the duplicate code.
+
+; ---------------------------------------------------------------------------
+; Sonic is touching this object, check what it should do now
+; ---------------------------------------------------------------------------
 ; loc_3F6F2:
 Touch_ChkValue:
-	move.b	collision_flags(a1),d1	; load touch response number
-	andi.b	#col_item|col_hurt|col_special,d1			; is touch response $40 or higher?
-	beq.w	Touch_Enemy		; if not, branch
-	cmpi.b	#col_special,d1			; is touch response $C0 or higher?
-	beq.w	Touch_Special		; if yes, branch
-	tst.b	d1			; is touch response $80-$BF?
-	bmi.w	Touch_ChkHurt		; if yes, branch
-	; touch response is $40-$7F
-	move.b	collision_flags(a1),d0
-	andi.b	#$FF-(col_item|col_hurt|col_special),d0
-	cmpi.b	#col_32x32,d0		; is touch response $46?
-	beq.s	Touch_Monitor		; if yes, branch
-	move.w	(MainCharacter+invulnerable_time).w,d0
-	tst.w	(Two_player_mode).w
-	beq.s	+
-	move.w	invulnerable_time(a0),d0
+	move.b	collision_flags(a1),d1			; load object collision type
+	andi.b	#col_item|col_hurt|col_special,d1	; is collision_flags $3F or lower?
+	beq.w	Touch_Enemy				; if yes, this is a badnik (col_badnik)
+	cmpi.b	#col_special,d1				; is collision_flags $C0 or higher?
+	beq.w	Touch_Special				; if yes, this is a special object (col_special)
+	tst.b	d1					; is collision_flags $80-$BF?
+	bmi.w	Touch_ChkHurt				; if yes, this is a damaging object (col_hurt)
+
+	; Otherwise, obColType is $40-$7F (col_item)
+	move.b	collision_flags(a1),d0			; reload collision type
+	andi.b	#$FF-(col_item|col_hurt|col_special),d0	; mask out special subgroup bits
+	cmpi.b	#col_32x32,d0				; has a monitor been touched? ($46)
+	beq.s	Touch_Monitor				; if yes, branch
+
+	move.w	(MainCharacter+invulnerable_time).w,d0	; load Sonic's invulnerability timer into d0
+	tst.w	(Two_player_mode).w			; is this a two-player game?
+	beq.s	+					; if not, branch
+	move.w	invulnerable_time(a0),d0		; otherwise, also use Tails' invulnerability timer
 +
-	cmpi.w	#90,d0
-	bhs.w	+
-	move.b	#4,routine(a1)	; set the object's routine counter
-	move.w	a0,parent(a1)
+	; Assume object is a ring (standard, lost, or giant)
+	cmpi.w	#90,d0					; has Sonic recently been hurt and has more than 90 frames of flashing time left?
+	bhs.w	+					; if yes, prevent collecting ring
+	move.b	#4,routine(a1)				; set the ring's routine counter (Obj37_Collect)
+	move.w	a0,parent(a1)				; mark which character collected the ring
 +
-	rts
+	rts						; return
+
 ; ===========================================================================
+; ---------------------------------------------------------------------------
+; Handle touching monitors
+; ---------------------------------------------------------------------------
 ; loc_3F73C:
 Touch_Monitor:
-	tst.w	y_vel(a0)	; is Sonic moving upwards?
-	bpl.s	.breakMonitor	; if not, branch
+	tst.w	y_vel(a0)				; is Sonic moving upwards?
+	bpl.s	.breakMonitor				; if not, branch
 
 	; If the center of Sonic is not under the bottom of the monitor, then
 	; return. This is a way of checking if Sonic is jumping into the
 	; bottom of the monitor, or just the side of it.
-	move.w	y_pos(a0),d0
-	subi.w	#$10,d0
-	cmp.w	y_pos(a1),d0
+	move.w	y_pos(a0),d0				; get Sonic's Y-position
+	subi.w	#$10,d0					; check 16px higher
+	cmp.w	y_pos(a1),d0				; has Sonic touched the monitor from below?
 	; Return. This means that if Sonic jumps upwards into the side of a
 	; monitor, then he'll just phase through it.
-	blo.s	return_3F78A
+	blo.s	return_3F78A				; if not, branch
 
 	; If we've gotten this far, then Sonic has just jumped into the
 	; bottom of this monitor: knock it down.
-	neg.w	y_vel(a0)	; reverse Sonic's y-motion
-	move.w	#-$180,y_vel(a1)
-	tst.b	routine_secondary(a1)
-	bne.s	return_3F78A
-	move.b	#4,routine_secondary(a1) ; set the monitor's routine counter
-	rts
-; ===========================================================================
+	neg.w	y_vel(a0)				; reverse Sonic's vertical speed
+	move.w	#-$180,y_vel(a1)			; bump monitor upwards a little
+	tst.b	routine_secondary(a1)			; is monitor being stood on or already set to fall?
+	bne.s	return_3F78A				; if yes, do nothing
+	move.b	#4,routine_secondary(a1)		; advance the monitor's secondary routine counter to "fall" state
+	rts						; return
+; ---------------------------------------------------------------------------
 ; loc_3F768:
 .breakMonitor:
-	cmpa.w	#MainCharacter,a0
-	beq.s	+
-	tst.w	(Two_player_mode).w
-	beq.s	return_3F78A
+	cmpa.w	#MainCharacter,a0			; is this the main character?
+	beq.s	+					; if not, branch
+	tst.w	(Two_player_mode).w			; is this a two-player game?
+	beq.s	return_3F78A				; if not, branch
 +
-	cmpi.b	#AniIDSonAni_Roll,anim(a0)
-	bne.s	return_3F78A
-	neg.w	y_vel(a0)	; reverse Sonic's y-motion
-	move.b	#4,routine(a1)
-	move.w	a0,parent(a1)
+	cmpi.b	#AniIDSonAni_Roll,anim(a0)		; is Sonic rolling/jumping?
+	bne.s	return_3F78A				; if not, don't break monitor
+	neg.w	y_vel(a0)				; reverse Sonic's y-motion
+	move.b	#4,routine(a1)				; set the ring's routine counter (Obj26_Break)
+	move.w	a0,parent(a1)				; mark which character broke the monitor
 
 return_3F78A:
-	rts
+	rts						; return
+
 ; ===========================================================================
+; ---------------------------------------------------------------------------
+; Handle touching badniks
+; ---------------------------------------------------------------------------
 ; loc_3F78C:
 Touch_Enemy:
 	btst	#status_secondary.invincible,status_secondary(a0)	; is Sonic invincible?
-	bne.s	+			; if yes, branch
-	cmpi.b	#AniIDSonAni_Spindash,anim(a0)
-	beq.s	+
-	cmpi.b	#AniIDSonAni_Roll,anim(a0)		; is Sonic rolling?
-	bne.w	Touch_ChkHurt		; if not, branch
+	bne.s	+					; if yes, branch
+	cmpi.b	#AniIDSonAni_Spindash,anim(a0)		; is Sonic spindashing?
+	beq.s	+					; if yes, branch
+	cmpi.b	#AniIDSonAni_Roll,anim(a0)		; is Sonic rolling/jumping?
+	bne.w	Touch_ChkHurt				; if not, damage Sonic
 +
-	btst	#render_flags.multi_sprite,render_flags(a1)
-	beq.s	Touch_Enemy_Part2
-	tst.b	boss_hitcount2(a1)
-	beq.s	return_3F7C6
-	neg.w	x_vel(a0)
-	neg.w	y_vel(a0)
-	move.b	#col_none,collision_flags(a1)
-	subq.b	#1,boss_hitcount2(a1)
+	btst	#render_flags.multi_sprite,render_flags(a1)	; is this a 'multi-sprite' object?
+	beq.s	Touch_Enemy_Part2			; if yes, branch
+	tst.b	boss_hitcount2(a1)			; is target a boss? (has boss HP set)
+	beq.s	return_3F7C6				; if not, it's a badnik
+
+	neg.w	x_vel(a0)				; repel Sonic horizontally
+	neg.w	y_vel(a0)				; repel Sonic verticallly
+	move.b	#col_none,collision_flags(a1)		; set boss to no collision while it's damaged
+	subq.b	#1,boss_hitcount2(a1)			; decrement 1 boss HP
 
 return_3F7C6:
-	rts
+	rts						; return
 ; ---------------------------------------------------------------------------
 ; loc_3F7C8:
 Touch_Enemy_Part2:
-	tst.b	collision_property(a1)
-	beq.s	Touch_KillEnemy
-	neg.w	x_vel(a0)
-	neg.w	y_vel(a0)
-	move.b	#col_none,collision_flags(a1)
-	subq.b	#1,collision_property(a1)
-	bne.s	return_3F7E8
-	bset	#status.npc.no_balancing,status(a1)
+	tst.b	collision_property(a1)			; is collision_property = 0?
+	beq.s	Touch_KillEnemy				; if yes, branch
+	neg.w	x_vel(a0)				; repel Sonic horizontally
+	neg.w	y_vel(a0)				; repel Sonic verticallly
+	move.b	#col_none,collision_flags(a1)		; set enemy to no collision
+	subq.b	#1,collision_property(a1)		; decrement collision_property
+	bne.s	return_3F7E8				; if collision_property is 0, branch
+	bset	#status.npc.no_balancing,status(a1)	; set flag that badnik has been broken (pretty much unused, badnik gets replaced by explosion)
 
 return_3F7E8:
 	rts
 ; ===========================================================================
 ; loc_3F7EA:
 Touch_KillEnemy:
-	bset	#status.npc.no_balancing,status(a1)
-	moveq	#0,d0
-	move.w	(Chain_Bonus_counter).w,d0
-	addq.w	#2,(Chain_Bonus_counter).w	; add 2 to chain bonus counter
-	cmpi.w	#6,d0
-	blo.s	loc_3F802
-	moveq	#6,d0
+	bset	#status.npc.no_balancing,status(a1)	; set flag that badnik has been broken (pretty much unused, badnik gets replaced by explosion)
 
-loc_3F802:
-	move.w	d0,objoff_3E(a1)
-	move.w	Enemy_Points(pc,d0.w),d0
-	cmpi.w	#$20,(Chain_Bonus_counter).w	; have 16 enemies been destroyed?
-	blo.s	loc_3F81C			; if not, branch
-	move.w	#1000,d0			; fix bonus to 10000 points
-	move.w	#$A,objoff_3E(a1)
+	; Points and points object
+	moveq	#0,d0					; clear d0
+	move.w	(Chain_Bonus_counter).w,d0		; get current combo-score chain before landing on floor again
+	addq.w	#2,(Chain_Bonus_counter).w		; increment bonus counter (2 because Enemy_Points is word-based)
+	cmpi.w	#3*2,d0					; have fewer than 3 badniks broken in this chain?
+	blo.s	.getPoints				; if yes, branch
+	moveq	#3*2,d0					; set cap for points to 1000
+; loc_3F802:
+.getPoints:
+	move.w	d0,objoff_3E(a1)			; set current carry-over frame ID for points object
+	move.w	Enemy_Points(pc,d0.w),d0		; load bonus points for current combo-score chain
+	cmpi.w	#16*2,(Chain_Bonus_counter).w		; have 16 badniks been destroyed?
+	blo.s	.addPoints				; if not, branch
+	move.w	#1000,d0				; give 10000 points from that point onward
+	move.w	#5*2,objoff_3E(a1)			; use frame 5 for points object (10000)
+; loc_3F81C:
+.addPoints:
+	movea.w	a0,a3					; move a0 into a3
+	bsr.w	AddPoints2				; add d0 to current score
 
-loc_3F81C:
-	movea.w	a0,a3
-	bsr.w	AddPoints2
-	_move.b	#ObjID_Explosion,id(a1) ; load obj
-	move.b	#0,routine(a1)
+	; Change badniks into gray explosion
+	_move.b	#ObjID_Explosion,id(a1)			; change badnik into an to explosion/animal object
+	move.b	#0,routine(a1)				; set to "Obj27_InitWithAnimal" routine to also spawn animal/points objects
 
-	; Decide how to bounce Sonic back.
-	tst.w	y_vel(a0)
-	bmi.s	loc_3F844
-	move.w	y_pos(a0),d0
-	cmp.w	y_pos(a1),d0
-	bhs.s	loc_3F84C
+	; Bounce Sonic vertically
+	tst.w	y_vel(a0)				; is Sonic moving upwards?
+	bmi.s	.slowFromBelow				; if yes, branch
+	move.w	y_pos(a0),d0				; get Sonic's Y-position
+	cmp.w	y_pos(a1),d0				; was Sonic below badnik on impact?
+	bhs.s	.boostFromAbove				; if yes, branch
 	; If Sonic is jumping downwards onto an enemy, and lands directly on
 	; top of it, then completely negate his Y velocity, giving him a big
 	; bounce.
-	neg.w	y_vel(a0)
-	rts
-; ===========================================================================
-
-loc_3F844:
+	neg.w	y_vel(a0)				; negate Sonic's Y-speed to make him bounce upwards
+	rts						; return
+; loc_3F844:
+.slowFromBelow:
 	; If Sonic is jumping upwards into an enemy, then bounce him back
 	; down very slightly.
-	addi.w	#$100,y_vel(a0)
-	rts
-; ===========================================================================
-
-loc_3F84C:
+	addi.w	#$100,y_vel(a0)				; slow down Sonic going up if badnik touched from below
+	rts						; return
+; loc_3F84C:
+.boostFromAbove:
 	; If Sonic is jumping downwards onto an enemy, but is somehow not
 	; above the enemy (such as when jumping into the *side* of an enemy),
 	; then only give him a tiny bounce upwards.
-	subi.w	#$100,y_vel(a0)
-	rts
-; ===========================================================================
-; byte_3F854:
-Enemy_Points:	dc.w 10, 20, 50, 100
-; ===========================================================================
+	subi.w	#$100,y_vel(a0)				; add a bit of boost speed when touching from below
+	rts						; return
 
-loc_3F85C:
-	bset	#status.npc.no_balancing,status(a1)
+; ---------------------------------------------------------------------------
+; byte_3F854:
+Enemy_Points:	; combo points per destroyed badnik /10
+	dc.w  10	; 1st
+	dc.w  20	; 2nd
+	dc.w  50	; 2rd
+	dc.w 100	; 4th - 15th
+			; 16th and subsequent badniks are hardcoded to 10000 points
+; ===========================================================================
+; Leftover routine to handle Caterkiller body collision.
+; loc_3F85C:
+Touch_Caterkiller:
+	bset	#status.npc.no_balancing,status(a1)	; set flag that spiked body segment has been touched (for fragmentation)
 
 ; ---------------------------------------------------------------------------
 ; Subroutine for checking if Sonic/Tails should be hurt and hurting them if so
 ; note: Sonic or Tails must be at a0
 ; ---------------------------------------------------------------------------
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
 ; loc_3F862:
 Touch_ChkHurt:
 	btst	#status_secondary.invincible,status_secondary(a0)	; is Sonic invincible?
-	beq.s	Touch_Hurt		; if not, branch
+	beq.s	Touch_Hurt				; if not, branch
 ; loc_3F86A:
 Touch_NoHurt:
-	moveq	#-1,d0
-	rts
+	moveq	#-1,d0					; collision detected
+	rts						; exit TouchResponse
 ; ---------------------------------------------------------------------------
 ; loc_3F86E:
 Touch_Hurt:
-	nop
-	tst.w	invulnerable_time(a0)
-	bne.s	Touch_NoHurt
-	movea.l	a1,a2
+	nop						; useless nop (probably so an rts could easily be inserted here)
+	tst.w	invulnerable_time(a0)			; is Sonic flashing?
+	bne.s	Touch_NoHurt				; if yes, don't take damage
 
-; End of function TouchResponse
-; continue straight to HurtCharacter
+	movea.l	a1,a2					; damaging object needs to be in a2 for HurtCharacter/KillCharacter
+	; continue straight to HurtCharacter...
 
 ; ---------------------------------------------------------------------------
-; Hurting Sonic/Tails subroutine
+; Hurting Sonic subroutine
+; 
+; input:
+;	a0 = address of OST of Sonic
+;	a2 = address of OST of object hurting Sonic
+; 
+; output:
+;	d0.l = (unused) -1
+;	a1 = address of OST of ring loss object (if Sonic had rings)
 ; ---------------------------------------------------------------------------
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
 ; loc_3F878: HurtSonic:
 HurtCharacter:
-	move.w	(Ring_count).w,d0
-	cmpa.w	#MainCharacter,a0
-	beq.s	loc_3F88C
-	tst.w	(Two_player_mode).w
-	beq.s	Hurt_Sidekick
-	move.w	(Ring_count_2P).w,d0
+	move.w	(Ring_count).w,d0			; load Player 2 ring counter into d0
+	cmpa.w	#MainCharacter,a0			; is this Player 1?
+	beq.s	.checkShieldRings			; if yes, branch
+	tst.w	(Two_player_mode).w			; is this a two-player game?
+	beq.s	Hurt_Sidekick				; if not, branch
+	move.w	(Ring_count_2P).w,d0			; load Player 2 ring counter into d0
+; loc_3F88C:
+.checkShieldRings:
+	btst	#status_secondary.shield,status_secondary(a0)	; does Sonic have a shield?
+	bne.s	Hurt_Shield				; if yes, branch
+	tst.w	d0					; does Sonic have any rings?
+	beq.w	KillCharacter				; if not, branch to kill Sonic
 
-loc_3F88C:
-	btst	#status_secondary.shield,status_secondary(a0)
-	bne.s	Hurt_Shield
-	tst.w	d0
-	beq.w	KillCharacter
-	jsr	(AllocateObject).l
-	bne.s	Hurt_Shield
-	_move.b	#ObjID_LostRings,id(a1) ; load obj
-	move.w	x_pos(a0),x_pos(a1)
-	move.w	y_pos(a0),y_pos(a1)
-	move.w	a0,parent(a1)
+	jsr	(AllocateObject).l			; find a free object slot
+	bne.s	Hurt_Shield				; if object RAM is full, branch
+	_move.b	#ObjID_LostRings,id(a1) 		; load bouncing multi rings object
+	move.w	x_pos(a0),x_pos(a1)			; spawn at Sonic's X-position
+	move.w	y_pos(a0),y_pos(a1)			; spawn at Sonic's Y-position
+	move.w	a0,parent(a1)				; mark which character lost rings
 
 ; loc_3F8B8:
 Hurt_Shield:
@@ -85711,132 +85739,154 @@ Hurt_Shield:
 
 ; loc_3F8BE:
 Hurt_Sidekick:
-	move.b	#4,routine(a0)
-	jsrto	JmpTo_Sonic_ResetOnFloor_Part2
-	bset	#status.player.in_air,status(a0)
-	move.w	#-$400,y_vel(a0) ; make Sonic bounce away from the object
-	move.w	#-$200,x_vel(a0)
-	btst	#status.player.underwater,status(a0)	; underwater?
-	beq.s	Hurt_Reverse	; if not, branch
-	move.w	#-$200,y_vel(a0) ; bounce slower
-	move.w	#-$100,x_vel(a0)
+	move.b	#4,routine(a0)				; set Sonic to "Obj01_Hurt" routine
+	jsrto	JmpTo_Sonic_ResetOnFloor_Part2		; reset airborne state
+	bset	#status.player.in_air,status(a0)	; force airborne flag again
+
+	move.w	#-$400,y_vel(a0) 			; bounce Sonic vertically
+	move.w	#-$200,x_vel(a0)			; bounce Sonic horizontally
+	btst	#status.player.underwater,status(a0)	; is Sonic underwater?
+	beq.s	Hurt_Reverse				; if not, branch
+	move.w	#-$200,y_vel(a0)			; use slower vertical bounce
+	move.w	#-$100,x_vel(a0)			; use slower horizontal bounce
 
 ; loc_3F8EE:
 Hurt_Reverse:
-	move.w	x_pos(a0),d0
-	cmp.w	x_pos(a2),d0
-	blo.s	Hurt_ChkSpikes	; if Sonic is left of the object, branch
-	neg.w	x_vel(a0)	; if Sonic is right of the object, reverse
+	move.w	x_pos(a0),d0				; get Sonic's X-position
+	cmp.w	x_pos(a2),d0				; compare with X-position of collided object
+	blo.s	Hurt_ChkSpikes				; if Sonic is left of the object, branch
+	neg.w	x_vel(a0)				; if Sonic is right of the object, reverse
 
 ; loc_3F8FC:
 Hurt_ChkSpikes:
-	move.w	#0,inertia(a0)
-	move.b	#AniIDSonAni_Hurt2,anim(a0)
-	move.w	#$78,invulnerable_time(a0)
-	move.w	#SndID_Hurt,d0	; load normal damage sound
-	cmpi.b	#ObjID_Spikes,id(a2)	; was damage caused by spikes?
-	bne.s	Hurt_Sound	; if not, branch
-	move.w	#SndID_HurtBySpikes,d0	; load spikes damage sound
+	move.w	#0,inertia(a0)				; cancel ground speed
+	move.b	#AniIDSonAni_Hurt2,anim(a0)		; set Sonic to hurt animation
+	move.w	#2*60,invulnerable_time(a0)		; set temporary invulnerability time to 2 seconds
+
+	move.w	#SndID_Hurt,d0				; use generic damage sound
+	cmpi.b	#ObjID_Spikes,id(a2)			; was damage caused by spikes?
+	bne.s	Hurt_Sound				; if not, branch
+	move.w	#SndID_HurtBySpikes,d0			; use spike damage sound
 
 ; loc_3F91C:
 Hurt_Sound:
-	jsr	(PlaySound).l
-	moveq	#-1,d0
-	rts
+	jsr	(PlaySound).l				; play selected sound
+
+	moveq	#-1,d0					; collision detected
+	rts						; return
+; End of function HurtCharacter
+
 ; ===========================================================================
-
 ; ---------------------------------------------------------------------------
-; Subroutine to kill Sonic or Tails
+; Subroutine to kill Sonic
+; 
+; input:
+;	a0 = address of OST of Sonic
+;	a2 = address of OST of object killing Sonic
+; 
+; output:
+;	d0.l = (unused) -1
 ; ---------------------------------------------------------------------------
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-
 ; loc_3F926: KillSonic:
 KillCharacter:
-	tst.w	(Debug_placement_mode).w
-	bne.s	++
-	clr.b	status_secondary(a0)
-	move.b	#6,routine(a0)
-	jsrto	JmpTo_Sonic_ResetOnFloor_Part2
-	bset	#status.player.in_air,status(a0)
-	move.w	#-$700,y_vel(a0)
-	move.w	#0,x_vel(a0)
-	move.w	#0,inertia(a0)
-	move.b	#AniIDSonAni_Death,anim(a0)
-	bset	#high_priority_bit,art_tile(a0)
-	move.w	#SndID_Hurt,d0
-	cmpi.b	#ObjID_Spikes,id(a2)
-	bne.s	+
-	move.w	#SndID_HurtBySpikes,d0
-+
-	jsr	(PlaySound).l
-+
-	moveq	#-1,d0
-	rts
+	tst.w	(Debug_placement_mode).w		; is debug mode active?
+	bne.s	.return					; if yes, branch
+
+	clr.b	status_secondary(a0)			; remove invincibility
+	move.b	#6,routine(a0)				; set Sonic to "Obj01_Dead" routine
+	jsrto	JmpTo_Sonic_ResetOnFloor_Part2		; reset airborne state
+	bset	#status.player.in_air,status(a0)	; force airborne flag again
+
+	move.w	#-$700,y_vel(a0)			; launch Sonic upwards while dying
+	move.w	#0,x_vel(a0)				; stop horizontal movement
+	move.w	#0,inertia(a0)				; stop ground movement
+	move.b	#AniIDSonAni_Death,anim(a0)		; set Sonic to use death animation
+	bset	#high_priority_bit,art_tile(a0)		; set Sonic to high sprite priority state
+
+	move.w	#SndID_Hurt,d0				; use generic damage sound
+	cmpi.b	#ObjID_Spikes,id(a2)			; was damage caused by spikes?
+	bne.s	.sound					; if not, branch
+	move.w	#SndID_HurtBySpikes,d0			; use spike damage sound
+
+.sound:
+	jsr	(PlaySound).l				; play selected sound
+
+.return:
+	moveq	#-1,d0					; collision detected
+	rts						; return
+; End of function KillCharacter
+
 ; ===========================================================================
-;loc_3F976:
+; ---------------------------------------------------------------------------
+; Handle special collision with objects whose obColType is $C0 or above
+; ---------------------------------------------------------------------------
+; loc_3F976:
 Touch_Special:
-	move.b	collision_flags(a1),d1
-	andi.b	#$FF-(col_item|col_hurt|col_special),d1
-	cmpi.b	#col_32x32,d1
-	beq.s	loc_3FA00
-	cmpi.b	#col_12x12,d1
-	beq.w	loc_3FA18
-	cmpi.b	#col_16x16,d1
-	beq.s	BranchTo_loc_3F85C
-	cmpi.b	#col_32x16,d1
-	beq.s	loc_3FA00
-	cmpi.b	#col_40x32,d1
-	beq.s	loc_3F9CE
-	cmpi.b	#col_128x64,d1
-	beq.s	loc_3FA00
-	cmpi.b	#col_256x64,d1
-	beq.s	loc_3FA00
-	cmpi.b	#col_64x64,d1
-	beq.s	loc_3FA00
-	cmpi.b	#col_16x16_alt,d1
-	beq.s	loc_3FA00
-	cmpi.b	#col_8x8,d1
-	beq.s	loc_3FA00
-	cmpi.b	#col_24x24,d1
-	beq.s	loc_3FA22
-	cmpi.b	#col_8x32_alt,d1
-	beq.s	loc_3FA12
-	rts
+	move.b	collision_flags(a1),d1			; get collision_flags of collided object
+	andi.b	#$FF-(col_item|col_hurt|col_special),d1	; mask out special subgroup bits
+
+	cmpi.b	#col_32x32,d1				; touched... nothing uses this ($C6)
+	beq.s	loc_3FA00				; if yes, branch
+	cmpi.b	#col_12x12,d1				; touched Eggman's Rocket ($C7)
+	beq.w	loc_3FA18				; if yes, branch
+	cmpi.b	#col_16x16,d1				; touched a Caterkiller body segment? ($CB) (leftover from Sonic 1)
+	beq.s	Touch_CaterkillerBody			; if yes, branch
+	cmpi.b	#col_32x16,d1				; touched a hexagon CNZ bumper? ($CA)
+	beq.s	loc_3FA00				; if yes, branch
+	cmpi.b	#col_40x32,d1				; touched a Yadrin? ($CC) (leftover from Sonic 1)
+	beq.s	Touch_Yadrin				; if yes, branch
+	cmpi.b	#col_128x64,d1				; touched an ARZ leaf generator? ($D4)
+	beq.s	loc_3FA00				; if yes, branch
+	cmpi.b	#col_256x64,d1				; touched an ARZ leaf generator? ($D5)
+	beq.s	loc_3FA00				; if yes, branch
+	cmpi.b	#col_64x64,d1				; touched an ARZ leaf generator? ($D6)
+	beq.s	loc_3FA00				; if yes, branch
+	cmpi.b	#col_16x16_alt,d1			; touched a CNZ round bumper? ($D7)
+	beq.s	loc_3FA00				; if yes, branch
+	cmpi.b	#col_8x8,d1				; touched the Special Stage entry stars? ($D8)
+	beq.s	loc_3FA00				; if yes, branch
+	cmpi.b	#col_24x24,d1				; touched those MTZ boss balloons? ($DA)
+	beq.s	loc_3FA22				; if yes, branch
+	cmpi.b	#col_8x32_alt,d1			; touched the WFZ plating? ($E1)
+	beq.s	loc_3FA12				; if yes, branch
+
+	rts						; otherwise, invalid special collision
 ; ===========================================================================
-
-BranchTo_loc_3F85C ; BranchTo
-	bra.w	loc_3F85C
+; loc_3F9CA:
+Touch_CaterkillerBody:
+	bra.w	Touch_Caterkiller			; get hurt from Caterkiller body and fragmentate it
 ; ===========================================================================
+; loc_3F9CE:
+Touch_Yadrin:
+	; The Yadrin's spiked section collision works by having an imaginary,
+	; 24x8 pixels wide hitbox at its top, offset by 4px to expose the face.
+	sub.w	d0,d5					; d5 = pixels Sonic's bottom edge is clipping into Yadrin's top edge
+	cmpi.w	#8,d5					; is Sonic at least 8px into the Yadrin from above?
+	bhs.s	.normalBadnik				; if yes, treat as normal badnik
 
-loc_3F9CE:
-	sub.w	d0,d5
-	cmpi.w	#8,d5
-	bhs.s	BranchTo_Touch_Enemy
-	move.w	x_pos(a1),d0
-	subq.w	#4,d0
-	btst	#status.npc.x_flip,status(a1)
-	beq.s	loc_3F9E8
-	subi.w	#$10,d0
-
-loc_3F9E8:
-	sub.w	d2,d0
-	bcc.s	loc_3F9F4
-	addi.w	#$18,d0
-	bcs.s	BranchTo_Touch_ChkHurt
-	bra.s	BranchTo_Touch_Enemy
-; ===========================================================================
-
-loc_3F9F4:
-	cmp.w	d4,d0
-	bhi.s	BranchTo_Touch_Enemy
-
-BranchTo_Touch_ChkHurt ; BranchTo
-	bra.w	Touch_ChkHurt
-; ===========================================================================
-
-BranchTo_Touch_Enemy ; BranchTo
-	bra.w	Touch_Enemy
+	move.w	x_pos(a1),d0				; get Yadrin's current X-position
+	subq.w	#4,d0					; get left edge of special collision region
+	btst	#status.npc.x_flip,status(a1)		; is Yadrin facing left?
+	beq.s	.checkSpikedSection			; if not, branch
+	subi.w	#$10,d0					; mirror collision region horizontally
+; loc_3F9E8:
+.checkSpikedSection:
+	sub.w	d2,d0					; compare spiked section against Sonic's left edge
+	bcc.s	.sonicLeft				; branch if Sonic is left of spiked section
+	addi.w	#$18,d0					; spiked section is 24px wide
+	bcs.s	.damaging				; branch if Sonic overlaps it
+	bra.s	.normalBadnik				; otherwise, handle as normal enemy collision
+; loc_3F9F4:
+.sonicLeft:
+	cmp.w	d4,d0					; is Sonic too far left to overlap spiked section?
+	bhi.s	.normalBadnik				; if yes, handle as normal enemy collision
+; ---------------------------------------------------------------------------
+; BranchTo_Touch_ChkHurt:
+.damaging:
+	bra.w	Touch_ChkHurt				; take damage when touching Yadrin's spiked section
+; BranchTo_Touch_Enemy:
+.normalBadnik:
+	bra.w	Touch_Enemy				; treat as normal badnik when touching Yadrin in other ways
 ; ===========================================================================
 
 loc_3FA00:
@@ -85862,6 +85912,8 @@ loc_3FA18:
 loc_3FA22:
 	move.b	#-1,collision_property(a1)
 	bra.w	Touch_Enemy
+; End of function Touch_Special
+
 ; ===========================================================================
 ; loc_3FA2C:
 BossSpecificCollision:
