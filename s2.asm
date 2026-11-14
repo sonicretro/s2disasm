@@ -20096,83 +20096,99 @@ DrawInitialBG_LoadWholeBackground_512x256:
 
 	rts
     endif
+
 ; ===========================================================================
-
-; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-; loadZoneBlockMaps
-
-; Loads block and bigblock mappings for the current Zone.
-
+; ---------------------------------------------------------------------------
+; Subroutine to load basic level data
+; ---------------------------------------------------------------------------
+; sub_E3C6:
 loadZoneBlockMaps:
-	moveq	#0,d0
-	move.b	(Current_Zone).w,d0
-	add.w	d0,d0
-	add.w	d0,d0
-	move.w	d0,d1
-	add.w	d0,d0
-	add.w	d1,d0
-	lea	(LevelArtPointers).l,a2
-	lea	(a2,d0.w),a2
-	move.l	a2,-(sp)
-	addq.w	#4,a2
-	move.l	(a2)+,d0
-	andi.l	#$FFFFFF,d0	; pointer to block mappings
-	movea.l	d0,a0
-	lea	(Block_Table).w,a1
-	jsrto	JmpTo_KosDec	; load block maps
-	cmpi.b	#hill_top_zone,(Current_Zone).w
-	bne.s	+
-	lea	(Block_Table+$980).w,a1
-	lea	(BM16_HTZ).l,a0
-	jsrto	JmpTo_KosDec	; patch for Hill Top Zone block map
-+
-	tst.w	(Two_player_mode).w
-	beq.s	+
+	; Load Level Header
+	moveq	#0,d0					; clear d0
+	move.b	(Current_Zone).w,d0			; get zone ID to load
+	add.w	d0,d0					; d0 = 2
+	add.w	d0,d0					; d0 = 4
+	move.w	d0,d1					; d0 = 4, d1 = 4
+	add.w	d0,d0					; d0 = 8
+	add.w	d1,d0					; d0 = 12, size of a level art load block
+	lea	(LevelArtPointers).l,a2			; load level header data
+	lea	(a2,d0.w),a2				; advance to level header for current zone
+	move.l	a2,-(sp)				; remember header address for later
+	addq.w	#4,a2					; skip 1st PLC and level gfx entry (handled in Level and LoadZoneTiles)
+
+	; 16x16 Block Mappings
+	move.l	(a2)+,d0				; get 16x16 data pointer from level header
+	andi.l	#$FFFFFF,d0				; mask out the 2nd PLC entry
+	movea.l	d0,a0					; move to a0 (for decompression)
+	lea	(Block_Table).w,a1			; set target RAM buffer for 16x16 mappings
+	jsrto	JmpTo_KosDec				; decompress Kosinski-compressed block data to buffer
+
+	cmpi.b	#hill_top_zone,(Current_Zone).w		; is this HTZ?
+	bne.s	.notHTZ					; if not, branch
+	lea	(Block_Table+$980).w,a1			; set target RAM buffer for 16x16 mappings
+	lea	(BM16_HTZ).l,a0				; get 16x16 patch data
+	jsrto	JmpTo_KosDec				; decompress Kosinski-compressed block data to buffer
+
+.notHTZ:
+	tst.w	(Two_player_mode).w			; is this two-player mode?
+	beq.s	.skip2P					; if not, branch
 	; In 2P mode, adjust the block table to halve the pattern index on each block
-	lea	(Block_Table).w,a1
+	lea	(Block_Table).w,a1			; set target RAM buffer for 16x16 mappings
 
-	move.w	#bytesToWcnt(Block_Table_End-Block_Table),d2
--	move.w	(a1),d0		; read an entry
-	move.w	d0,d1
-	andi.w	#$F800,d0	; filter for upper five bits
-	andi.w	#$7FF,d1	; filter for lower eleven bits (patternIndex)
-	lsr.w	#1,d1		; halve the pattern index
-	or.w	d1,d0		; put the parts back together
-	move.w	d0,(a1)+	; change the entry with the adjusted value
-	dbf	d2,-
-+
-	move.l	(a2)+,d0
-	andi.l	#$FFFFFF,d0	; pointer to chunk mappings
-	movea.l	d0,a0
-	lea	(Chunk_Table).l,a1
-	jsrto	JmpTo_KosDec
-	bsr.w	loadLevelLayout
-	movea.l	(sp)+,a2	; zone specific pointer in LevelArtPointers
-	addq.w	#4,a2
-	moveq	#0,d0
-	move.b	(a2),d0	; PLC2 ID
-	beq.s	+
-	jsrto	JmpTo_LoadPLC
-+
-	addq.w	#4,a2
-	moveq	#0,d0
-	move.b	(a2),d0	; palette ID
-	jsrto	JmpTo_PalLoad_Now
-	rts
+	move.w	#bytesToWcnt(Block_Table_End-Block_Table),d2	; set size of RAM buffer for 16x16 mappings
+.readBlock:
+	move.w	(a1),d0					; read a block
+	move.w	d0,d1					; copy into d1
+	andi.w	#$F800,d0				; filter for upper five bits
+	andi.w	#$7FF,d1				; filter for lower eleven bits (patternIndex)
+	lsr.w	#1,d1					; halve the pattern index
+	or.w	d1,d0					; put the parts back together
+	move.w	d0,(a1)+				; change the entry with the adjusted value
+	dbf	d2,.readBlock				; repeat until all blocks are converted
 
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+.skip2P:
+	; 128x128 Chunk Mappings
+	move.l	(a2)+,d0				; get 128x128 chunk data pointer from level header
+	andi.l	#$FFFFFF,d0				; mask out the palette entry
+	movea.l	d0,a0					; move to a0 (for decompression)
+	lea	(Chunk_Table).l,a1			; set target RAM buffer for 128x128 mappings
+	jsrto	JmpTo_KosDec				; decompress Kosinski-compressed chunk data to buffer
 
+	; Level Layout (FG/BG)
+	bsr.w	loadLevelLayout				; load FG and BG layout
 
+	; 2nd PLC
+	movea.l	(sp)+,a2				; restore base level header pointer
+	addq.w	#4,a2					; advance to 2nd PLC entry
+	moveq	#0,d0					; clear d0
+	move.b	(a2),d0					; load 2nd PLC entry from level headers
+	beq.s	.skipPLC				; if 2nd PLC is 0, branch
+	jsrto	JmpTo_LoadPLC				; load secondary pattern load cues
+
+.skipPLC:
+	; Palette
+	addq.w	#4,a2					; advance to palette entry
+	moveq	#0,d0					; clear d0
+	move.b	(a2),d0					; load palette ID
+	jsrto	JmpTo_PalLoad_Now			; load specified palette into palette buffer
+	rts						; return
+; End of function loadZoneBlockMaps
+
+; ===========================================================================
+; ---------------------------------------------------------------------------
+; Level layout loading subroutine
+; ---------------------------------------------------------------------------
+; sub_E45A:
 loadLevelLayout:
-	moveq	#0,d0
-	move.w	(Current_ZoneAndAct).w,d0
-	ror.b	#1,d0
-	lsr.w	#6,d0
-	lea	(Off_Level).l,a0
-	move.w	(a0,d0.w),d0
-	lea	(a0,d0.l),a0
-	lea	(Level_Layout).w,a1
-	jmpto	JmpTo_KosDec
+	moveq	#0,d0					; clear d0
+	move.w	(Current_ZoneAndAct).w,d0		; get current zone and act
+	ror.b	#1,d0					; rotate entry right by 1 (e.g. ARZ2/$0F01 becomes $0F80)
+	lsr.w	#6,d0					; then shift it right by 6 ($0F80 > $003E)
+	lea	(Off_Level).l,a0			; get layout index
+	move.w	(a0,d0.w),d0				; advance to desired layout pointer in index
+	lea	(a0,d0.l),a0				; load layout pointer from index
+	lea	(Level_Layout).w,a1			; target RAM address for level layout buffer
+	jmpto	JmpTo_KosDec				; decompress Kosinski-compressed layout data to buffer
 ; End of function loadLevelLayout
 
 ; ===========================================================================
@@ -46347,6 +46363,17 @@ Obj04_Init:
 	cmpi.b	#aquatic_ruin_zone,(Current_Zone).w
 	bne.s	Obj04_Action
 	addq.b	#2,routine(a0) ; Obj04_Action2
+    if 0
+	; Using Sonic's palette line isn't advisable, as it causes the water to be affected
+	; by Super Sonic, as well as Knuckles in Knuckles in Sonic 2. Instead, we'll use the
+	; second palette line.
+
+	; Note that this will require you to use the "Fixed" version of the water graphics,
+	; which replace the brightest blue with a white color due to it not being available
+	; in the enemy palette.
+	move.w	#make_art_tile(ArtTile_ArtNem_WaterSurface,1,1),art_tile(a0)
+	jsrto	JmpTo12_Adjust2PArtPointer
+    endif
 	move.l	#Obj04_MapUnc_20AFE,mappings(a0)
 	bra.w	Obj04_Action2
 ; ===========================================================================

@@ -1,6 +1,10 @@
 These are replacement files for data which cannot be patched with fixBugs. Their changes
 are noted below, apply them at your discretion:
 
+art/nemesis/
+ - Top of water in ARZ.nem
+	Use palette line 1 instead of 0, preventing issues with Knuckles and Super Sonic.
+
 level/objects/
  - EHZ_2.bin
 	Added an invisible wall between a wall and spring to prevent Super Sonic from clipping
