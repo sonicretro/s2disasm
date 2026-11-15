@@ -20180,6 +20180,9 @@ loadZoneBlockMaps:
 ; ---------------------------------------------------------------------------
 ; sub_E45A:
 loadLevelLayout:
+	; Unlike Sonic 1, Sonic 2 does not convert its layout data to the
+	; interleaved format used in-game. Rather, it stores them as-is in
+	; ROM, using compression to reduce their size.
 	moveq	#0,d0					; clear d0
 	move.w	(Current_ZoneAndAct).w,d0		; get current zone and act
 	ror.b	#1,d0					; rotate entry right by 1 (e.g. ARZ2/$0F01 becomes $0F80)
@@ -20192,15 +20195,18 @@ loadLevelLayout:
 ; End of function loadLevelLayout
 
 ; ===========================================================================
+; ---------------------------------------------------------------------------
+; Unused level layout loading subroutine
+; ---------------------------------------------------------------------------
+; sub_E482: loadLevelLayout_Sonic1:
+	; This loads level layout data in Sonic 1's format, being used in
+	; prototypes until it was replaced in the September 14th build.
 
-;loadLevelLayout_Sonic1:
-	; This loads level layout data in Sonic 1's format. Curiously, this
-	; function has been changed since Sonic 1: in particular, it repeats
-	; the rows of the source data to fill the rows of the destination
-	; data, which provides some explanation for why so many of Sonic 2's
-	; backgrounds are repeated in their layout data. This repeating is
-	; needed to prevent Hidden Palace Zone's background from disappearing
-	; when the player moves to the left.
+	; Unlike Sonic 1, it repeats the rows of the source data to fill the
+	; rows of the destination data, which provides some explanation for
+	; why so many of Sonic 2's backgrounds are repeated in their layout
+	; data. This repeating is needed to prevent Hidden Palace Zone's
+	; background from disappearing when the player moves to the left.
 
 	; Clear layout data.
 	lea	(Level_Layout).w,a3
@@ -20209,67 +20215,68 @@ loadLevelLayout:
 -	move.l	d0,(a3)+
 	dbf	d1,-
 
-	; The rows of the foreground and background layouts are interleaved
-	; in memory. This is done here:
-	lea	(Level_Layout).w,a3	; Foreground.
-	moveq	#0,d1			; Index into 'Off_Level' to get level foreground layout.
-	bsr.w	.loadLayout
-	lea	(Level_Layout+$80).w,a3	; Background.
-	moveq	#2,d1			; Index into 'Off_Level' to get level background layout.
+	lea	(Level_Layout).w,a3			; target RAM address for level foreground layout
+	moveq	#0,d1					; offset in Off_Level (0 = FG layout)
+	bsr.w	.loadLayout				; load FG level layout into RAM
 
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+	lea	(Level_Layout+$80).w,a3			; target RAM address for background layout
+	moveq	#2,d1					; offset in Off_Level (2 = BG layout)
 
+; ---------------------------------------------------------------------------
+; ".loadLayout" is run twice for (once for the FG and BG layouts each)
 ; sub_E4A2:
 .loadLayout:
-	; This expects 'Off_Level' to be in the format that it was in
-	; Sonic 1.
-	moveq	#0,d0
-	move.w	(Current_ZoneAndAct).w,d0
-	ror.b	#1,d0
-	lsr.w	#5,d0
-	add.w	d1,d0
-	lea	(Off_Level).l,a1
-	move.w	(a1,d0.w),d0
-	lea	(a1,d0.l),a1
+	; This expects Off_Level two have two entries per act, one for the
+	; foreground and one for the background.
+	moveq	#0,d0					; clear d0
+	move.w	(Current_ZoneAndAct).w,d0		; get current zone and act
+	ror.b	#1,d0					; rotate entry right by 1 (e.g. ARZ2/$0F01 becomes $0F80)
+	lsr.w	#5,d0					; then shift it right by 5 ($0F80 > $007C)
+	add.w	d1,d0					; add pre-specified offset to get either FG or BG layout
+	lea	(Off_Level).l,a1			; get layout index
+	move.w	(a1,d0.w),d0				; advance to desired layout pointer in index
+	lea	(a1,d0.l),a1				; load layout pointer from index
 
-	moveq	#0,d1
-	move.w	d1,d2
-	move.b	(a1)+,d1	; Layout width.
-	move.b	(a1)+,d2	; Layout height.
-	move.l	d1,d5
-	addq.l	#1,d5
-	moveq	#0,d3
-	move.w	#$80,d3	; Size of layout row in memory.
-	divu.w	d5,d3	; Get how many times to repeat the source row to fill the destination row.
-	subq.w	#1,d3	; Turn into loop counter.
+	moveq	#0,d1					; clear d1
+	move.w	d1,d2					; backup d1 in d2
+	move.b	(a1)+,d1				; load level width (in chunks)
+	move.b	(a1)+,d2				; load level height (in chunks)
+
+	move.l	d1,d5					; backup level width in d5
+	addq.l	#1,d5					; ???
+	moveq	#0,d3					; clear d3
+	move.w	#$80,d3					; get size of layout row in memory.
+	divu.w	d5,d3					; get how many times to repeat the source row to fill the destination row.
+	subq.w	#1,d3					; turn into loop counter.
 
 .nextRow:
-	movea.l	a3,a0
+	movea.l	a3,a0					; set next target layout row in RAM
+	move.w	d3,d4					; backup destination row in d4
 
-	move.w	d3,d4
 .repeatRow:
-	move.l	a1,-(sp)
+	move.l	a1,-(sp)				; backup a1 (used below to copy chunk ID)
+	move.w	d1,d0					; reset row length (width)
 
-	move.w	d1,d0
 .nextByte:
-	move.b	(a1)+,(a0)+
-	dbf	d0,.nextByte
+	move.b	(a1)+,(a0)+				; copy next chunk ID byte
+	dbf	d0,.nextByte				; loop for one whole row
 
-	movea.l	(sp)+,a1
-	dbf	d4,.repeatRow
+	movea.l	(sp)+,a1				; restore a1
+	dbf	d4,.repeatRow				; loop row until completely filled
 
-	lea	(a1,d5.w),a1	; Next row in source data.
-	lea	$100(a3),a3	; Next row in destination data.
-	dbf	d2,.nextRow
+	lea	(a1,d5.w),a1				; advance to next source chunk (skip over other plane)
+	lea	$100(a3),a3				; advance to next destination chunk (skip over other plane)
+	dbf	d2,.nextRow				; repeat for number of rows
 
-	rts
+	rts						; return
 ; End of function .loadLayout
 
 ; ===========================================================================
-
-;ConvertChunksFrom256x256To128x128:
+; sub_E4F4:
+; ConvertChunksFrom256x256To128x128:
 	; This converts Sonic 1-style 256x256 chunks to Sonic 2-style 128x128
-	; chunks.
+	; chunks. This code was presumably used for Green Hill prior to the
+	; Nick Arcade prototype.
 
 	; Destination of 128x128 chunks.
 	lea	($FE0000).l,a1
