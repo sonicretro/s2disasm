@@ -10,6 +10,7 @@ s2.log
 s2.map
 
 # Built ROMs.
+/result
 s2built.bin
 s2built.prev.bin
 
